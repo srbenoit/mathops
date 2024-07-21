@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.student;
 
-import dev.mathops.app.adm.AdminPanelBase;
+import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.SimpleBuilder;
@@ -32,7 +32,7 @@ import java.util.List;
 /**
  * A panel that shows student Math Plan and RamReady status.
  */
-class StuMathPlanPanel extends AdminPanelBase {
+class StuMathPlanPanel extends AdmPanelBase {
 
     /** Version number for serialization. */
     @Serial
@@ -194,7 +194,7 @@ class StuMathPlanPanel extends AdminPanelBase {
     /**
      * Clears all displayed fields.
      */
-    private void clearDisplay() {
+    void clearDisplay() {
 
         this.mathPlanResponsesTable.clear();
         this.checkMathPlanStatus.setText(CoreConstants.EMPTY);

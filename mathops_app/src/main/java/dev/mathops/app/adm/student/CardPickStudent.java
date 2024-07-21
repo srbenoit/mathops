@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.student;
 
-import dev.mathops.app.adm.AdminPanelBase;
+import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
@@ -48,7 +48,7 @@ import java.util.Locale;
  * field to enter student name, a list of recently selected students that can be picked from, and (when a name matches
  * several records), a list of matches from which to select.
  */
-final class CardPickStudent extends AdminPanelBase implements ActionListener, MouseListener {
+final class CardPickStudent extends AdmPanelBase implements ActionListener, MouseListener {
 
     /** An action command. */
     private static final String QUERY_CMD = "QUERY";
@@ -228,6 +228,14 @@ final class CardPickStudent extends AdminPanelBase implements ActionListener, Mo
     void focus() {
         this.stuIdField.requestFocus();
         this.history.getSelectionModel().clearSelection();
+    }
+
+    /**
+     * Clears the display - this makes sure any open dialogs are closed so the app can close.
+     */
+    void clearDisplay() {
+
+        // No action
     }
 
     /**

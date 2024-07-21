@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.student;
 
-import dev.mathops.app.adm.AbstractAdminTable;
+import dev.mathops.app.adm.AbstractAdmTable;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.old.rawrecord.RawStmpe;
 
@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * A table to present the all placement attempts on the student's record.
  */
-final class JTablePlacementAttempts extends AbstractAdminTable<RawStmpe> {
+final class JTablePlacementAttempts extends AbstractAdmTable<RawStmpe> {
 
     /** Version number for serialization. */
     @Serial
@@ -32,22 +32,22 @@ final class JTablePlacementAttempts extends AbstractAdminTable<RawStmpe> {
      *
      * @return the list of columns.
      */
-    private static List<AdminTableColumn> makeColumns() {
+    private static List<LocalTableColumn> makeColumns() {
 
-        final List<AdminTableColumn> result = new ArrayList<>(14);
+        final List<LocalTableColumn> result = new ArrayList<>(14);
 
-        result.add(new AdminTableColumn("Version", 65));
-        result.add(new AdminTableColumn("Proctored", 90));
-        result.add(new AdminTableColumn("Started", 165));
-        result.add(new AdminTableColumn("Finished", 165));
-        result.add(new AdminTableColumn("Serial", 90));
-        result.add(new AdminTableColumn("Placed", 60));
-        result.add(new AdminTableColumn("A", 35));
-        result.add(new AdminTableColumn("117", 45));
-        result.add(new AdminTableColumn("118", 45));
-        result.add(new AdminTableColumn("124", 45));
-        result.add(new AdminTableColumn("125", 45));
-        result.add(new AdminTableColumn("126", 45));
+        result.add(new LocalTableColumn("Version", 65));
+        result.add(new LocalTableColumn("Proctored", 90));
+        result.add(new LocalTableColumn("Started", 165));
+        result.add(new LocalTableColumn("Finished", 165));
+        result.add(new LocalTableColumn("Serial", 90));
+        result.add(new LocalTableColumn("Placed", 60));
+        result.add(new LocalTableColumn("A", 35));
+        result.add(new LocalTableColumn("117", 45));
+        result.add(new LocalTableColumn("118", 45));
+        result.add(new LocalTableColumn("124", 45));
+        result.add(new LocalTableColumn("125", 45));
+        result.add(new LocalTableColumn("126", 45));
 
         return result;
     }

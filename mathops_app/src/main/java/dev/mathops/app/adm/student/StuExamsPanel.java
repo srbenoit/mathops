@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.student;
 
-import dev.mathops.app.adm.AdminPanelBase;
+import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.IZTableCommandListener;
 import dev.mathops.app.adm.Skin;
@@ -16,7 +16,7 @@ import java.io.Serial;
 /**
  * A panel that shows student exams.
  */
-final class StuExamsPanel extends AdminPanelBase implements IZTableCommandListener<ExamListRow> {
+final class StuExamsPanel extends AdmPanelBase implements IZTableCommandListener<ExamListRow> {
 
     /** An action command. */
     private static final String LIST_CMD = "LIST";
@@ -43,9 +43,9 @@ final class StuExamsPanel extends AdminPanelBase implements IZTableCommandListen
     /**
      * Constructs a new {@code AdminExamsPanel}.
      *
-     * @param theCache         the data cache
-     * @param liveContext      the database context used to access live data
-     * @param theFixed         the fixed data
+     * @param theCache    the data cache
+     * @param liveContext the database context used to access live data
+     * @param theFixed    the fixed data
      */
     StuExamsPanel(final Cache theCache, final DbContext liveContext, final FixedData theFixed) {
 
@@ -91,6 +91,14 @@ final class StuExamsPanel extends AdminPanelBase implements IZTableCommandListen
         }
 
         this.cards.show(this.cardPane, LIST_CMD);
+    }
+
+    /**
+     * Clears all displayed fields.
+     */
+    void clearDisplay() {
+
+        // No action
     }
 
     ///**

@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.management;
 
-import dev.mathops.app.adm.AdminPanelBase;
+import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
@@ -49,7 +49,7 @@ import java.util.List;
  * A panel that presents a report of recent placement activity, like placement tool completions, credit denied, ELM and
  * precalculus tutorial results submitted, and an audit of recent placement- related "test scores" in Banner.
  */
-final class PlacementReportPanel extends AdminPanelBase implements ActionListener {
+final class PlacementReportPanel extends AdmPanelBase implements ActionListener {
 
     /** Version number for serialization. */
     @Serial

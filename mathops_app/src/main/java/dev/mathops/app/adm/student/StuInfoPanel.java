@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.student;
 
-import dev.mathops.app.adm.AdminPanelBase;
+import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
@@ -21,7 +21,7 @@ import java.time.Period;
 /**
  * The "Info" panel of the admin system.
  */
-final class StuInfoPanel extends AdminPanelBase {
+final class StuInfoPanel extends AdmPanelBase {
 
     /** Version number for serialization. */
     @Serial
@@ -287,7 +287,7 @@ final class StuInfoPanel extends AdminPanelBase {
     /**
      * Clears all displayed fields.
      */
-    private void clearDisplay() {
+    void clearDisplay() {
 
         this.studentId.setText(CoreConstants.EMPTY);
         this.pidm.setText(CoreConstants.EMPTY);

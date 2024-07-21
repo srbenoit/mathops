@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.student;
 
-import dev.mathops.app.adm.AdminMainWindow;
+import dev.mathops.app.adm.AdmMainWindow;
 import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
@@ -55,7 +55,7 @@ final class CardPopulationDetail extends JPanel implements ActionListener {
                          final FixedData theFixed) {
 
         super(new BorderLayout(5, 5));
-        setPreferredSize(AdminMainWindow.PREF_SIZE);
+        setPreferredSize(AdmMainWindow.PREF_SIZE);
 
         // The fixed data.
 
@@ -180,6 +180,14 @@ final class CardPopulationDetail extends JPanel implements ActionListener {
     void focus() {
 
         // TODO:
+    }
+
+    /**
+     * Clears the display - this makes sure any open dialogs are closed so the app can close.
+     */
+    void clearDisplay() {
+
+        // No action
     }
 
     /**

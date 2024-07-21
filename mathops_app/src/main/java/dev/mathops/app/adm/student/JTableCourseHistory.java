@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.student;
 
-import dev.mathops.app.adm.AbstractAdminTable;
+import dev.mathops.app.adm.AbstractAdmTable;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 
@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * A table to present the collection of courses taken by a student in past terms.
  */
-final class JTableCourseHistory extends AbstractAdminTable<RawStcourse> {
+final class JTableCourseHistory extends AbstractAdmTable<RawStcourse> {
 
     /** Version number for serialization. */
     @Serial
@@ -31,16 +31,16 @@ final class JTableCourseHistory extends AbstractAdminTable<RawStcourse> {
      *
      * @return the list of columns.
      */
-    private static List<AdminTableColumn> makeColumns() {
+    private static List<LocalTableColumn> makeColumns() {
 
-        final List<AdminTableColumn> result = new ArrayList<>(8);
+        final List<LocalTableColumn> result = new ArrayList<>(8);
 
-        result.add(new AdminTableColumn("Course", 60));
-        result.add(new AdminTableColumn("Section", 60));
-        result.add(new AdminTableColumn("Term", 45));
-        result.add(new AdminTableColumn("Year", 45));
-        result.add(new AdminTableColumn("Grade", 60));
-        result.add(new AdminTableColumn("Format", 60));
+        result.add(new LocalTableColumn("Course", 60));
+        result.add(new LocalTableColumn("Section", 60));
+        result.add(new LocalTableColumn("Term", 45));
+        result.add(new LocalTableColumn("Year", 45));
+        result.add(new LocalTableColumn("Grade", 60));
+        result.add(new LocalTableColumn("Format", 60));
 
         return result;
     }

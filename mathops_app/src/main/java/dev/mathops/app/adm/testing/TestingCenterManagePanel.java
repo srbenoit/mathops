@@ -233,7 +233,7 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
     private static final long serialVersionUID = 3966709797464460260L;
 
     /** The owning tab pane. */
-    private final TestingTabPane owner;
+    private final TopPanelTesting owner;
 
     /** The list of clients to render. */
     private final List<RawClientPc> clients;
@@ -394,7 +394,7 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
      * @param theOwner         the owning tab pane
      * @param theClients       the list of clients (access to this list should be synchronized on the list)
      */
-    TestingCenterManagePanel(final TestingTabPane theOwner,
+    TestingCenterManagePanel(final TopPanelTesting theOwner,
                              final List<RawClientPc> theClients) {
 
         super(null);

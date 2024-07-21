@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.management;
 
-import dev.mathops.app.adm.AdminPanelBase;
+import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
@@ -20,7 +20,7 @@ import java.util.Map;
 /**
  * A panel that presents all configured mastery exams and allows the user to add, delete, and edit.
  */
-final class AssessMasteryExamsPanel extends AdminPanelBase implements ActionListener {
+final class AssessMasteryExamsPanel extends AdmPanelBase implements ActionListener {
 
     /** Version number for serialization. */
     @Serial

@@ -436,7 +436,7 @@ public final class DeadlinesGrid extends JPanel {
      * Displays an indication that the student is not registered for any courses that would count toward their paced
      * deadlines this term.
      */
-    public void indicateNoCourses() {
+    void indicateNoCourses() {
 
         clearDisplay();
 

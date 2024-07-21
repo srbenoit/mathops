@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.student;
 
-import dev.mathops.app.adm.AdminMainWindow;
+import dev.mathops.app.adm.AdmMainWindow;
 import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
@@ -90,7 +90,7 @@ public final class TopPanelStudent extends JPanel implements ActionListener {
                            final FixedData theFixed) {
 
         super(new BorderLayout(5, 5));
-        setPreferredSize(AdminMainWindow.PREF_SIZE);
+        setPreferredSize(AdmMainWindow.PREF_SIZE);
 
         setBackground(Skin.OFF_WHITE_GRAY);
         setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEtchedBorder(),
@@ -243,5 +243,16 @@ public final class TopPanelStudent extends JPanel implements ActionListener {
             this.showing = CURSTU_CMD;
             this.cardStudentDetail.focus();
         }
+    }
+
+    /**
+     * Clears the display - this makes sure any open dialogs are closed so the app can close.
+     */
+    public void clearDisplay() {
+
+        this.cardPickStudent.clearDisplay();
+        this.cardPopulations.clearDisplay();
+        this.cardStudentDetail.clearDisplay();
+        this.cardPopulationDetail.clearDisplay();
     }
 }

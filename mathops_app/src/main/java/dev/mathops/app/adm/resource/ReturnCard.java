@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.resource;
 
-import dev.mathops.app.adm.AdminPanelBase;
+import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.file.FileLoader;
@@ -41,7 +41,7 @@ import java.util.Objects;
 /**
  * A card panel to return a resource.
  */
-final class ReturnCard extends AdminPanelBase implements ActionListener {
+final class ReturnCard extends AdmPanelBase implements ActionListener {
 
     /** An action command. */
     private static final String RES = "RES";

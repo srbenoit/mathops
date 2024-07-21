@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.student;
 
-import dev.mathops.app.adm.AbstractAdminTable;
+import dev.mathops.app.adm.AbstractAdmTable;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * A table to present the all placement attempts on the student's record.
  */
-final class JTableMathPlanResponses extends AbstractAdminTable<RawStmathplan> {
+final class JTableMathPlanResponses extends AbstractAdmTable<RawStmathplan> {
 
     /** Version number for serialization. */
     @Serial
@@ -35,17 +35,17 @@ final class JTableMathPlanResponses extends AbstractAdminTable<RawStmathplan> {
      *
      * @return the list of columns.
      */
-    private static List<AdminTableColumn> makeColumns() {
+    private static List<LocalTableColumn> makeColumns() {
 
-        final List<AdminTableColumn> result = new ArrayList<>(8);
+        final List<LocalTableColumn> result = new ArrayList<>(8);
 
-        result.add(new AdminTableColumn("Version", 65));
-        result.add(new AdminTableColumn("Date", 95));
-        result.add(new AdminTableColumn("Time", 85));
-        result.add(new AdminTableColumn("Phase", 55));
-        result.add(new AdminTableColumn("Description", 260));
-        result.add(new AdminTableColumn("Question", 75));
-        result.add(new AdminTableColumn("Answer", 65));
+        result.add(new LocalTableColumn("Version", 65));
+        result.add(new LocalTableColumn("Date", 95));
+        result.add(new LocalTableColumn("Time", 85));
+        result.add(new LocalTableColumn("Phase", 55));
+        result.add(new LocalTableColumn("Description", 260));
+        result.add(new LocalTableColumn("Question", 75));
+        result.add(new LocalTableColumn("Answer", 65));
 
         return result;
     }

@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.student;
 
-import dev.mathops.app.adm.AbstractAdminTable;
+import dev.mathops.app.adm.AbstractAdmTable;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStexam;
@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * A table to present tutorial completions.
  */
-final class JTableTutorials extends AbstractAdminTable<RawStexam> {
+final class JTableTutorials extends AbstractAdmTable<RawStexam> {
 
     /** A commonly used string. */
     private static final String TUTORIAL_EXAM = "Tutorial Exam";
@@ -38,14 +38,14 @@ final class JTableTutorials extends AbstractAdminTable<RawStexam> {
      *
      * @return the list of columns.
      */
-    private static List<AdminTableColumn> makeColumns() {
+    private static List<LocalTableColumn> makeColumns() {
 
-        final List<AdminTableColumn> result = new ArrayList<>(5);
+        final List<LocalTableColumn> result = new ArrayList<>(5);
 
-        result.add(new AdminTableColumn("Tutorial", 80));
-        result.add(new AdminTableColumn("Exam", 70));
-        result.add(new AdminTableColumn("When Passed", 160));
-        result.add(new AdminTableColumn("Result", 300));
+        result.add(new LocalTableColumn("Tutorial", 80));
+        result.add(new LocalTableColumn("Exam", 70));
+        result.add(new LocalTableColumn("When Passed", 160));
+        result.add(new LocalTableColumn("Result", 300));
 
         return result;
     }

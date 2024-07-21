@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.resource;
 
-import dev.mathops.app.adm.AdminPanelBase;
+import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
@@ -45,7 +45,7 @@ import java.util.List;
 /**
  * A card panel to lend a resource.
  */
-final class LendCard extends AdminPanelBase implements ActionListener, FocusListener {
+final class LendCard extends AdmPanelBase implements ActionListener, FocusListener {
 
     /** An action command. */
     private static final String STU = "STU";

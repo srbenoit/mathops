@@ -1,6 +1,7 @@
 package dev.mathops.app.adm.student;
 
-import dev.mathops.app.adm.AdminPanelBase;
+import dev.mathops.app.JDateChooser;
+import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.ISemesterCalendarPaneListener;
 import dev.mathops.app.adm.SemesterCalendarPane;
@@ -48,7 +49,7 @@ import java.util.Objects;
 /**
  * A panel that shows student deadlines.
  */
-final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener, ISemesterCalendarPaneListener {
+final class StuDeadlinesPanel extends AdmPanelBase implements ActionListener, ISemesterCalendarPaneListener {
 
     /** Version number for serialization. */
     @Serial
@@ -332,7 +333,7 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener, 
     /**
      * Clears all displayed fields.
      */
-    private void clearDisplay() {
+    void clearDisplay() {
 
         this.deadlinesGrid.clearDisplay();
     }
@@ -797,7 +798,7 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener, 
                         "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
             }
         } else {
-            newDate = interpretDate(newDateStr.trim());
+            newDate = JDateChooser.interpretDate(newDateStr.trim());
             if (newDate == null) {
                 this.newDeadlineField.setBackground(Skin.FIELD_ERROR_BG);
                 JOptionPane.showMessageDialog(this, "Unable to interpret new deadline date.", "Deadline Appeal",
@@ -845,51 +846,6 @@ final class StuDeadlinesPanel extends AdminPanelBase implements ActionListener, 
 
         invalidate();
         revalidate();
-    }
-
-    /**
-     * Attempts to interpret a date string
-     *
-     * @param dateString the date string
-     * @return the parsed date; null if unable to interpret
-     */
-    private static LocalDate interpretDate(final String dateString) {
-
-        LocalDate date = null;
-        TemporalAccessor newDate = null;
-
-        try {
-            newDate = TemporalUtils.FMT_MDY_COMPACT.parse(dateString);
-        } catch (final DateTimeParseException ex2) {
-            try {
-                newDate = TemporalUtils.FMT_MDY_COMPACT_FIXED.parse(dateString);
-            } catch (final DateTimeParseException ex3) {
-                if (dateString.length() == 6) {
-                    // Try Informix format MMDDYY, like 123199
-                    try {
-                        final int value = Integer.parseInt(dateString);
-                        final int month = value / 10000;
-                        final int day = (value / 100) % 100;
-                        final int year = 2000 + (value % 100);
-
-                        newDate = LocalDate.of(year, month, day);
-                    } catch (final NumberFormatException | DateTimeException ex) {
-                        // No action
-                    }
-                }
-            }
-        }
-
-        if (newDate == null) {
-            Log.warning("Failed to interpret '", dateString, "' as date");
-        } else {
-            final int day = newDate.get(ChronoField.DAY_OF_MONTH);
-            final int month = newDate.get(ChronoField.MONTH_OF_YEAR);
-            final int year = newDate.get(ChronoField.YEAR);
-            date = LocalDate.of(year, month, day);
-        }
-
-        return date;
     }
 
     /**

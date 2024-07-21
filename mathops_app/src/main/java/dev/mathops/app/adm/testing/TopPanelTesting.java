@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.testing;
 
-import dev.mathops.app.adm.AdminMainWindow;
+import dev.mathops.app.adm.AdmMainWindow;
 import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
@@ -41,7 +41,7 @@ import java.util.List;
 /**
  * The "Testing" pane.
  */
-public final class TestingTabPane extends JPanel implements ActionListener {
+public final class TopPanelTesting extends JPanel implements ActionListener {
 
     /** A button action command. */
     private static final String MAP_CMD = "MAP";
@@ -91,8 +91,8 @@ public final class TestingTabPane extends JPanel implements ActionListener {
      * @param fixed            the fixed data
      * @param theFrame         the owning frame
      */
-    public TestingTabPane(final Cache theCache, final String theServerSiteUrl, final FixedData fixed,
-                          final JFrame theFrame) {
+    public TopPanelTesting(final Cache theCache, final String theServerSiteUrl, final FixedData fixed,
+                           final JFrame theFrame) {
 
         // Functions:
         // [ Map ]
@@ -100,7 +100,7 @@ public final class TestingTabPane extends JPanel implements ActionListener {
         // [ Issue ]
 
         super(new BorderLayout(5, 5));
-        setPreferredSize(AdminMainWindow.PREF_SIZE);
+        setPreferredSize(AdmMainWindow.PREF_SIZE);
 
         this.cache = theCache;
         this.serverSiteUrl = theServerSiteUrl;
@@ -189,6 +189,14 @@ public final class TestingTabPane extends JPanel implements ActionListener {
      * Sets the focus when this panel is activated.
      */
     public void focus() {
+
+        // No action
+    }
+
+    /**
+     * Clears the display - this makes sure any open dialogs are closed so the app can close.
+     */
+    public void clearDisplay() {
 
         // No action
     }

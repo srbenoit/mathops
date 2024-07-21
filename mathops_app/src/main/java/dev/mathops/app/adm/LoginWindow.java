@@ -4,14 +4,14 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.parser.ParsingException;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
-import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
+import dev.mathops.db.EDbProduct;
+import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.DbConnection;
 import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbConfig;
 import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.EDbProduct;
 import dev.mathops.db.old.cfg.EDbUse;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.cfg.LoginConfig;
@@ -33,8 +33,12 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.MatteBorder;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -48,9 +52,11 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.prefs.Preferences;
 
 /**
@@ -72,8 +78,14 @@ final class LoginWindow implements Runnable, ActionListener {
     /** A font test string. */
     private static final String TEST_STRING = "ABCDEFGHI abcdefghi /\\--|";
 
+    /** An action command. */
+    private static final String ANTIALIAS = "antialias";
+
     /** Color to indicate an error. */
     private static final Color ERROR_COLOR = new Color(255, 240, 240);
+
+    /** The width of text fields. */
+    private static final int FIELD_WIDTH = 14;
 
     /** The database context map. */
     private final ContextMap map;
@@ -85,19 +97,19 @@ final class LoginWindow implements Runnable, ActionListener {
     private final String initialPassword;
 
     /** The frame. */
-    private JFrame frame;
+    private JFrame frame = null;
 
     /** A combo box from which to choose database. */
-    private JComboBox<EDbUse> schemaCombo;
+    private JComboBox<EDbUse> schemaCombo = null;
 
     /** The username. */
-    private JTextField username;
+    private JTextField username = null;
 
     /** The password. */
-    private JPasswordField password;
+    private JPasswordField password = null;
 
     /** An error message. */
-    private JLabel error;
+    private JLabel error = null;
 
     /** Font antialiasing selections. */
     private final JRadioButton[] radios;
@@ -106,7 +118,7 @@ final class LoginWindow implements Runnable, ActionListener {
     private final JPanel content;
 
     /** The settings button. */
-    private JButton settingsBtn;
+    private JButton settingsBtn = null;
 
     /** A panel to set text antialiasing. */
     private final JPanel pickAntialias;
@@ -151,33 +163,33 @@ final class LoginWindow implements Runnable, ActionListener {
     public void run() {
 
         int pref = -1;
-        final Preferences prefs = Preferences.userNodeForPackage(getClass());
+        final Class<? extends LoginWindow> cls = getClass();
+        final Preferences prefs = Preferences.userNodeForPackage(cls);
         if (prefs != null) {
-            pref = prefs.getInt("antialias", -1);
+            pref = prefs.getInt(ANTIALIAS, -1);
         }
-
-        final List<EDbUse> toChooseFrom = new ArrayList<>(10);
-        toChooseFrom.add(EDbUse.PROD);
-        toChooseFrom.add(EDbUse.DEV);
 
         if (this.map == null) {
             JOptionPane.showMessageDialog(null, "Failed to load database configuration");
         } else {
-            this.frame = new JFrame(Res.get(Res.TITLE));
+            final String title = Res.get(Res.TITLE);
+            this.frame = new JFrame(title);
             this.frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
-            this.content.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+            final Border contentPadding = BorderFactory.createEmptyBorder(10, 20, 10, 20);
+            this.content.setBorder(contentPadding);
             this.content.setBackground(Skin.OFF_WHITE_GRAY);
             this.frame.setContentPane(this.content);
 
             // NORTH: Header
             final JPanel north = new JPanel(new BorderLayout());
-            north.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY),
-                    BorderFactory.createEmptyBorder(10, 10, 10, 10)));
+            final MatteBorder underline = BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY);
+            final Border northBorder = BorderFactory.createEmptyBorder(10, 10, 10, 10);
+            final CompoundBorder paddedOutline = BorderFactory.createCompoundBorder(underline, northBorder);
+            north.setBorder(paddedOutline);
             north.setBackground(Skin.OFF_WHITE_GRAY);
 
-            final JLabel header = new JLabel(Res.get(Res.TITLE));
+            final JLabel header = new JLabel(title);
             header.setFont(Skin.BIG_HEADER_18_FONT);
             header.setForeground(Skin.LABEL_COLOR);
             header.setHorizontalAlignment(SwingConstants.CENTER);
@@ -186,29 +198,33 @@ final class LoginWindow implements Runnable, ActionListener {
 
             // CENTER: Fields
             final JPanel center = new JPanel();
-            center.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
+            final Border centerPadding = BorderFactory.createEmptyBorder(20, 10, 20, 10);
+            center.setBorder(centerPadding);
             center.setBackground(Skin.OFF_WHITE_GRAY);
             final LayoutManager box = new BoxLayout(center, BoxLayout.PAGE_AXIS);
             center.setLayout(box);
 
-            final JLabel schemaPickLbl = new JLabel(Res.get(Res.LOGIN_SCHEMA_FIELD_LBL));
+            final String schemaLabelTxt = Res.get(Res.LOGIN_SCHEMA_FIELD_LBL);
+            final JLabel schemaPickLbl = new JLabel(schemaLabelTxt);
             schemaPickLbl.setHorizontalAlignment(SwingConstants.RIGHT);
             schemaPickLbl.setFont(Skin.BOLD_12_FONT);
 
-            final JLabel usernameLbl = new JLabel(Res.get(Res.LOGIN_USER_FIELD_LBL));
+            final String userLabelTxt = Res.get(Res.LOGIN_USER_FIELD_LBL);
+            final JLabel usernameLbl = new JLabel(userLabelTxt);
             usernameLbl.setHorizontalAlignment(SwingConstants.RIGHT);
             usernameLbl.setFont(Skin.BOLD_12_FONT);
 
-            final JLabel passwordLbl = new JLabel(Res.get(Res.LOGIN_PWD_FIELD_LBL));
+            final String passwordLabelTxt = Res.get(Res.LOGIN_PWD_FIELD_LBL);
+            final JLabel passwordLbl = new JLabel(passwordLabelTxt);
             passwordLbl.setHorizontalAlignment(SwingConstants.RIGHT);
             passwordLbl.setFont(Skin.BOLD_12_FONT);
 
             final Dimension schemaPickSize = schemaPickLbl.getPreferredSize();
             final Dimension usernameSize = usernameLbl.getPreferredSize();
             final Dimension passwordSize = passwordLbl.getPreferredSize();
-            final Dimension lblSize = new Dimension(
-                    Math.max(schemaPickSize.width, Math.max(usernameSize.width, passwordSize.width)),
-                    schemaPickSize.height);
+            final int max1 = Math.max(usernameSize.width, passwordSize.width);
+            final int max2 = Math.max(schemaPickSize.width, max1);
+            final Dimension lblSize = new Dimension(max2, schemaPickSize.height);
 
             schemaPickLbl.setPreferredSize(lblSize);
             usernameLbl.setPreferredSize(lblSize);
@@ -217,35 +233,55 @@ final class LoginWindow implements Runnable, ActionListener {
             final JPanel schemaPick = new JPanel(new BorderLayout(10, 10));
             schemaPick.setBackground(Skin.OFF_WHITE_GRAY);
             schemaPick.add(schemaPickLbl, BorderLayout.LINE_START);
+
+            final Set<EDbUse> uses = EnumSet.noneOf(EDbUse.class);
+            for (final ServerConfig server : this.map.getServers()) {
+                for (final DbConfig db : server.getDatabases()) {
+                    if (db.id.startsWith("term")) {
+                        continue;
+                    }
+                    final EDbUse use = db.use;
+                    if (use == EDbUse.PROD || use == EDbUse.DEV) {
+                        uses.add(use);
+                    }
+                }
+            }
+            final List<EDbUse> toChooseFrom = new ArrayList<>(uses);
+
             this.schemaCombo = new JComboBox<>(toChooseFrom.toArray(new EDbUse[0]));
             this.schemaCombo.setBackground(Color.WHITE);
             this.schemaCombo.setSelectedItem(EDbUse.PROD);
             schemaPick.add(this.schemaCombo);
             center.add(schemaPick);
 
-            center.add(Box.createRigidArea(new Dimension(0, 24)));
+            final Component spacer24 = Box.createRigidArea(new Dimension(0, 24));
+            center.add(spacer24);
 
             final JPanel usernamePanel = new JPanel(new BorderLayout(10, 10));
             usernamePanel.setBackground(Skin.OFF_WHITE_GRAY);
             usernamePanel.add(usernameLbl, BorderLayout.LINE_START);
-            this.username = new JTextField(14);
+            this.username = new JTextField(FIELD_WIDTH);
             this.username.setBackground(Color.WHITE);
             usernamePanel.add(this.username);
-            usernamePanel.add(Box.createRigidArea(new Dimension(30, 1)), BorderLayout.LINE_END);
+            final Component spacer30a = Box.createRigidArea(new Dimension(30, 1));
+            usernamePanel.add(spacer30a, BorderLayout.LINE_END);
             center.add(usernamePanel);
 
-            center.add(Box.createRigidArea(new Dimension(0, 6)));
+            final Component spacer6 = Box.createRigidArea(new Dimension(0, 6));
+            center.add(spacer6);
 
             final JPanel passwordPanel = new JPanel(new BorderLayout(10, 10));
             passwordPanel.setBackground(Skin.OFF_WHITE_GRAY);
             passwordPanel.add(passwordLbl, BorderLayout.LINE_START);
-            this.password = new JPasswordField(14);
+            this.password = new JPasswordField(FIELD_WIDTH);
             this.password.setBackground(Color.WHITE);
             passwordPanel.add(this.password);
-            passwordPanel.add(Box.createRigidArea(new Dimension(30, 1)), BorderLayout.LINE_END);
+            final Component spacer30b = Box.createRigidArea(new Dimension(30, 1));
+            passwordPanel.add(spacer30b, BorderLayout.LINE_END);
             center.add(passwordPanel);
 
-            center.add(Box.createRigidArea(new Dimension(0, 12)));
+            final Component spacer12 = Box.createRigidArea(new Dimension(0, 12));
+            center.add(spacer12);
 
             final JPanel errorPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
             errorPanel.setBackground(Skin.OFF_WHITE_GRAY);
@@ -259,20 +295,24 @@ final class LoginWindow implements Runnable, ActionListener {
 
             // SOUTH: Buttons
             final JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 15));
-            buttons.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.GRAY));
+            final MatteBorder overline = BorderFactory.createMatteBorder(1, 0, 0, 0, Color.GRAY);
+            buttons.setBorder(overline);
             buttons.setBackground(Skin.OFF_WHITE_GRAY);
 
-            final JButton loginBtn = new JButton(Res.get(Res.LOGIN_LOGIN_BTN));
+            final String loginButtonTxt = Res.get(Res.LOGIN_LOGIN_BTN);
+            final JButton loginBtn = new JButton(loginButtonTxt);
             loginBtn.setFont(Skin.BUTTON_13_FONT);
             loginBtn.setActionCommand(LOGIN_CMD);
             loginBtn.addActionListener(this);
 
-            final JButton cancelBtn = new JButton(Res.get(Res.LOGIN_CANCEL_BTN));
+            final String cancenButtonTxt = Res.get(Res.LOGIN_CANCEL_BTN);
+            final JButton cancelBtn = new JButton(cancenButtonTxt);
             cancelBtn.setFont(Skin.BUTTON_13_FONT);
             cancelBtn.setActionCommand(CANCEL_CMD);
             cancelBtn.addActionListener(this);
 
-            this.settingsBtn = new JButton(Res.get(Res.LOGIN_SETTINGS_BTN));
+            final String settingsButtonTxt = Res.get(Res.LOGIN_SETTINGS_BTN);
+            this.settingsBtn = new JButton(settingsButtonTxt);
             this.settingsBtn.setFont(Skin.BUTTON_13_FONT);
             this.settingsBtn.setActionCommand(SETTINGS_CMD);
             this.settingsBtn.addActionListener(this);
@@ -284,10 +324,11 @@ final class LoginWindow implements Runnable, ActionListener {
 
             //
 
-            this.pickAntialias.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5),
-                            BorderFactory.createEtchedBorder()),
-                    BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+            final Border etchedOutline = BorderFactory.createEtchedBorder();
+            final Border antialiasPad = BorderFactory.createEmptyBorder(5, 5, 5, 5);
+            final CompoundBorder antialiasInner = BorderFactory.createCompoundBorder(antialiasPad, etchedOutline);
+            final CompoundBorder antialiasOuter = BorderFactory.createCompoundBorder(antialiasInner, antialiasPad);
+            this.pickAntialias.setBorder(antialiasOuter);
             this.pickAntialias.setBackground(Skin.OFF_WHITE_GRAY);
 
             final JLabel antialiasHeader = new JLabel("Select the item below with the clearest text: ");
@@ -382,25 +423,11 @@ final class LoginWindow implements Runnable, ActionListener {
                 this.radios[2].setSelected(true);
             }
 
-            // content.add(this.pickAntialias, BorderLayout.EAST);
-
-            //
-
             this.frame.getRootPane().setDefaultButton(loginBtn);
             this.frame.pack();
 
             final GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
             final GraphicsDevice selected = env.getDefaultScreenDevice();
-
-            // final GraphicsDevice[] devs = env.getScreenDevices();
-            // if (devs.length > 1) {
-            // for (GraphicsDevice test : devs) {
-            // if (test != selected) {
-            // selected = test;
-            // break;
-            // }
-            // }
-            // }
 
             final Rectangle bounds = selected.getDefaultConfiguration().getBounds();
 
@@ -441,7 +468,7 @@ final class LoginWindow implements Runnable, ActionListener {
 
             final char[] p = this.password.getPassword();
             if (p == null || p.length == 0) {
-                this.password.setBackground(new Color(255, 240, 240));
+                this.password.setBackground(ERROR_COLOR);
                 err = Res.get(Res.LOGIN_NO_PWD_ERR);
             } else {
                 this.password.setBackground(Color.WHITE);
@@ -451,7 +478,7 @@ final class LoginWindow implements Runnable, ActionListener {
             final String u = this.username.getText();
 
             if (u == null || u.isEmpty()) {
-                this.username.setBackground(new Color(255, 240, 240));
+                this.username.setBackground(ERROR_COLOR);
                 err = Res.get(Res.LOGIN_NO_USER_ERR);
             } else {
                 this.username.setBackground(Color.WHITE);
@@ -459,10 +486,7 @@ final class LoginWindow implements Runnable, ActionListener {
             }
 
             DbConfig ifxDb = null;
-            DbConfig pgDb = null;
-
             SchemaConfig ifxSchema = null;
-            SchemaConfig pgSchema = null;
 
             final EDbUse dbUse = (EDbUse) this.schemaCombo.getSelectedItem();
 
@@ -480,14 +504,12 @@ final class LoginWindow implements Runnable, ActionListener {
                         if (db.use == dbUse) {
                             if (db.server.type == EDbProduct.INFORMIX) {
                                 ifxDb = db;
-                            } else if (db.server.type == EDbProduct.POSTGRESQL) {
-                                pgDb = db;
                             }
                         }
                     }
                 }
 
-                if (ifxDb == null || pgDb == null) {
+                if (ifxDb == null) {
                     this.schemaCombo.setBackground(ERROR_COLOR);
                     err = Res.get(Res.LOGIN_NO_DB_ERR);
                 } else {
@@ -496,13 +518,8 @@ final class LoginWindow implements Runnable, ActionListener {
                             ifxSchema = sch;
                         }
                     }
-                    for (final SchemaConfig sch : pgDb.getSchemata()) {
-                        if (sch.use == ESchemaUse.PRIMARY) {
-                            pgSchema = sch;
-                        }
-                    }
 
-                    if (ifxSchema == null || pgSchema == null) {
+                    if (ifxSchema == null) {
                         this.schemaCombo.setBackground(ERROR_COLOR);
                         err = Res.get(Res.LOGIN_NO_SCHEMA_ERR);
                     } else {
@@ -515,73 +532,59 @@ final class LoginWindow implements Runnable, ActionListener {
             if (good == 3) {
                 final String pwd = new String(p);
                 final LoginConfig ifxLogin = new LoginConfig("ADM_I", ifxDb, u, pwd);
-//                final LoginConfig pgLogin = new LoginConfig("ADM_P", pgDb, u, pwd);
                 final DbContext ifxCtx = new DbContext(ifxSchema, ifxLogin);
-//                final DbContext pgCtx = new DbContext(pgSchema, pgLogin);
 
                 final DbProfile batchProfile = this.map.getCodeProfile(Contexts.BATCH_PATH);
                 final DbContext odsContext = batchProfile.getDbContext(ESchemaUse.ODS);
                 final DbContext liveContext = batchProfile.getDbContext(ESchemaUse.LIVE);
 
-                final Map<ESchemaUse, DbContext> ifxContexts = new HashMap<>(10);
+                final Map<ESchemaUse, DbContext> ifxContexts = new EnumMap<>(ESchemaUse.class);
                 ifxContexts.put(ESchemaUse.PRIMARY, ifxCtx);
                 ifxContexts.put(ESchemaUse.ODS, odsContext);
                 ifxContexts.put(ESchemaUse.LIVE, liveContext);
 
-//                final Map<ESchemaUse, DbContext> pgContexts = new HashMap<>(10);
-//                pgContexts.put(ESchemaUse.PRIMARY, pgCtx);
-//                pgContexts.put(ESchemaUse.ODS, odsContext);
-//                pgContexts.put(ESchemaUse.LIVE, liveContext);
 
                 final DbProfile ifxProfile = new DbProfile("AdminIfx", ifxContexts);
-//                final DbProfile pgProfile = new DbProfile("AdminPg", pgContexts);
 
                 final DbConnection ifxConn = ifxCtx.checkOutConnection();
 
                 try {
                     final Cache ifxCache = new Cache(ifxProfile, ifxConn);
 
-//                    final DbConnection pgConn = pgCtx.checkOutConnection();
-//                    try {
-                        // final Cache pgCache = new Cache(pgProfile, ifxConn);
+                    // The following throws exception if login credentials are invalid
+                    ifxConn.getConnection();
 
-                        // The following throws exception if login credentials are invalid
-                        ifxConn.getConnection();
+                    Object renderingHint = null;
+                    int pref = -1;
+                    if (this.radios[0].isSelected()) {
+                        renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_OFF;
+                        pref = 0;
+                    } else if (this.radios[1].isSelected()) {
+                        renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_ON;
+                        pref = 1;
+                    } else if (this.radios[2].isSelected()) {
+                        renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HBGR;
+                        pref = 2;
+                    } else if (this.radios[3].isSelected()) {
+                        renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB;
+                        pref = 3;
+                    } else if (this.radios[4].isSelected()) {
+                        renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_VBGR;
+                        pref = 4;
+                    } else if (this.radios[5].isSelected()) {
+                        renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_VRGB;
+                        pref = 5;
+                    }
 
-                        Object renderingHint = null;
-                        int pref = -1;
-                        if (this.radios[0].isSelected()) {
-                            renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_OFF;
-                            pref = 0;
-                        } else if (this.radios[1].isSelected()) {
-                            renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_ON;
-                            pref = 1;
-                        } else if (this.radios[2].isSelected()) {
-                            renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HBGR;
-                            pref = 2;
-                        } else if (this.radios[3].isSelected()) {
-                            renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB;
-                            pref = 3;
-                        } else if (this.radios[4].isSelected()) {
-                            renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_VBGR;
-                            pref = 4;
-                        } else if (this.radios[5].isSelected()) {
-                            renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_VRGB;
-                            pref = 5;
-                        }
+                    final Class<? extends LoginWindow> cls = getClass();
+                    final Preferences prefs = Preferences.userNodeForPackage(cls);
+                    if (prefs != null) {
+                        prefs.putInt(ANTIALIAS, pref);
+                    }
 
-                        final Class<? extends LoginWindow> cls = getClass();
-                        final Preferences prefs = Preferences.userNodeForPackage(cls);
-                        if (prefs != null) {
-                            prefs.putInt("antialias", pref);
-                        }
-
-                        new AdminMainWindow(u, ifxCtx, ifxCache, liveContext, renderingHint).run();
-                        this.frame.setVisible(false);
-                        this.frame.dispose();
-//                    } finally {
-//                        pgCtx.checkInConnection(pgConn);
-//                    }
+                    new AdmMainWindow(u, ifxCtx, ifxCache, liveContext, renderingHint).run();
+                    this.frame.setVisible(false);
+                    this.frame.dispose();
                 } catch (final SQLException ex2) {
                     Log.warning(ex2);
                     final String msg = Res.get(Res.LOGIN_BAD_LOGIN_ERR);

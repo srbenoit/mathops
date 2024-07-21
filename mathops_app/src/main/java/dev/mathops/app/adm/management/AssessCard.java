@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.management;
 
-import dev.mathops.app.adm.AdminPanelBase;
+import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
@@ -20,7 +20,7 @@ import java.util.List;
 /**
  * A card with assessment-related data.
  */
-class AssessCard extends AdminPanelBase implements ActionListener {
+class AssessCard extends AdmPanelBase implements ActionListener {
 
     /** An action command. */
     private static final String REFRESH = "REFRESH";

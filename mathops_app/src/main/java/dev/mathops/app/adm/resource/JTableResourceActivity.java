@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.resource;
 
-import dev.mathops.app.adm.AbstractAdminTable;
+import dev.mathops.app.adm.AbstractAdmTable;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.db.old.rawrecord.RawResource;
@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * A table to present recent resource activity.
  */
-final class JTableResourceActivity extends AbstractAdminTable<ResourceActivityRow> {
+final class JTableResourceActivity extends AbstractAdmTable<ResourceActivityRow> {
 
     /** Version number for serialization. */
     @Serial
@@ -32,15 +32,15 @@ final class JTableResourceActivity extends AbstractAdminTable<ResourceActivityRo
      *
      * @return the list of columns.
      */
-    private static List<AdminTableColumn> makeColumns() {
+    private static List<LocalTableColumn> makeColumns() {
 
-        final List<AdminTableColumn> result = new ArrayList<>(6);
+        final List<LocalTableColumn> result = new ArrayList<>(6);
 
-        result.add(new AdminTableColumn("Date/Time", 200));
-        result.add(new AdminTableColumn("Activity", 100));
-        result.add(new AdminTableColumn("Student ID", 100));
-        result.add(new AdminTableColumn("Resource ID", 100));
-        result.add(new AdminTableColumn("Resource type", 180));
+        result.add(new LocalTableColumn("Date/Time", 200));
+        result.add(new LocalTableColumn("Activity", 100));
+        result.add(new LocalTableColumn("Student ID", 100));
+        result.add(new LocalTableColumn("Resource ID", 100));
+        result.add(new LocalTableColumn("Resource type", 180));
 
         return result;
     }

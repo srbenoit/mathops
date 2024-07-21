@@ -1,21 +1,26 @@
 package dev.mathops.app.adm.student;
 
-import dev.mathops.app.adm.AdminPanelBase;
+import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
+import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.old.DbConnection;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.Serial;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -27,11 +32,14 @@ import java.util.List;
 /**
  * A panel that shows the courses in which a student is enrolled.
  */
-class StuCoursesPanel extends AdminPanelBase {
+final class StuCoursesPanel extends AdmPanelBase implements ActionListener {
 
     /** Version number for serialization. */
     @Serial
     private static final long serialVersionUID = -4427919858395831972L;
+
+    /** An action command. */
+    private static final String ADD_TRANSFER_CMD = "ADD_TRANSFER";
 
     /** The database connection. */
     private final DbConnection conn;
@@ -64,10 +72,22 @@ class StuCoursesPanel extends AdminPanelBase {
     private final JScrollPane droppedScroll;
 
     /** Split pane between current and dropped. */
-    private final JSplitPane split;
+    private final JSplitPane coursesSplit;
+
+    /** Split pane between history and transfer. */
+    private final JSplitPane transferSplit;
+
+    /** Button to add transfer credit. */
+    private final JButton addTransfer;
 
     /** An error message. */
     private final JLabel error;
+
+    /** Data on the current student. */
+    private StudentData currentStudentData = null;
+
+    /** The dialog to add a transfer credit record. */
+    private DlgAddTransfer addTransferDialog = null;
 
     /**
      * Constructs a new {@code AdminCoursePanel}.
@@ -83,35 +103,43 @@ class StuCoursesPanel extends AdminPanelBase {
 
         // Left side: history of past registrations
 
-        final JPanel left = makeOffWhitePanel(new BorderLayout(5, 5));
-        left.setBackground(Skin.LIGHTEST);
+        final JPanel historyBlock = makeOffWhitePanel(new BorderLayout(5, 5));
+        historyBlock.setBackground(Skin.LIGHTEST);
 
-        add(left, BorderLayout.WEST);
-
-        left.add(makeHeader("History", false), BorderLayout.NORTH);
+        historyBlock.add(makeHeader("History", false), BorderLayout.NORTH);
 
         this.historyTable = new JTableCourseHistory();
         this.historyTable.setFillsViewportHeight(true);
         this.historyScroll = new JScrollPane(this.historyTable);
-        left.add(this.historyScroll, BorderLayout.CENTER);
+        historyBlock.add(this.historyScroll, BorderLayout.CENTER);
 
         final Dimension histPref = this.historyTable.getPreferredSize();
         this.historyScroll.setPreferredSize(new Dimension(histPref.width, histPref.height + 30));
 
-        final JPanel lowerLeft = makeOffWhitePanel(new BorderLayout(5, 5));
-        lowerLeft.setBackground(Skin.LIGHTEST);
-        left.add(lowerLeft, BorderLayout.SOUTH);
+        final JPanel transferBlock = makeOffWhitePanel(new BorderLayout(5, 5));
+        transferBlock.setBackground(Skin.LIGHTEST);
 
-        lowerLeft.add(makeHeader("Transfer Credit", true), BorderLayout.NORTH);
+        transferBlock.add(makeHeader("Transfer Credit", true), BorderLayout.NORTH);
 
         this.transferTable = new JTableTransferCredit();
         this.transferTable.setFillsViewportHeight(true);
 
         this.transferScroll = new JScrollPane(this.transferTable);
-        this.transferScroll
-                .setPreferredSize(this.transferTable.getPreferredScrollSize(this.transferScroll, 3));
+        this.transferScroll.setPreferredSize(this.transferTable.getPreferredScrollSize(this.transferScroll, 3));
+        transferBlock.add(this.transferScroll, BorderLayout.CENTER);
 
-        lowerLeft.add(this.transferScroll, BorderLayout.CENTER);
+        final JPanel transferButtonBar = makeOffWhitePanel(new FlowLayout(FlowLayout.CENTER, 2, 2));
+        transferButtonBar.setBackground(Skin.LIGHTEST);
+        this.addTransfer = new JButton("Add...");
+        this.addTransfer.setActionCommand(ADD_TRANSFER_CMD);
+        this.addTransfer.addActionListener(this);
+        this.addTransfer.setEnabled(false);
+        transferButtonBar.add(this.addTransfer);
+        transferBlock.add(transferButtonBar, BorderLayout.PAGE_END);
+
+        this.transferSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, historyBlock, transferBlock);
+        this.transferSplit.setBackground(Skin.LIGHTEST);
+        add(this.transferSplit, StackedBorderLayout.WEST);
 
         // Center: current registrations
 
@@ -137,9 +165,8 @@ class StuCoursesPanel extends AdminPanelBase {
         this.droppedScroll = new JScrollPane(this.droppedTable);
         splitBottom.add(this.droppedScroll, BorderLayout.CENTER);
 
-        this.split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, splitTop, splitBottom);
-        this.split.setDividerLocation(0.5);
-        add(this.split, BorderLayout.CENTER);
+        this.coursesSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, splitTop, splitBottom);
+        add(this.coursesSplit, StackedBorderLayout.CENTER);
 
         //
         //
@@ -153,7 +180,7 @@ class StuCoursesPanel extends AdminPanelBase {
                 .setPreferredSize(new Dimension(droppedPref.width, droppedPref.height + 30));
 
         this.error = makeError();
-        add(this.error, BorderLayout.SOUTH);
+        add(this.error, StackedBorderLayout.SOUTH);
     }
 
     /**
@@ -179,13 +206,20 @@ class StuCoursesPanel extends AdminPanelBase {
     /**
      * Clears all displayed fields.
      */
-    private void clearDisplay() {
+    void clearDisplay() {
 
         this.historyTable.clear();
         this.transferTable.clear();
         this.currentTable.clear();
 
         this.currentHeader.setText("Current Courses");
+        this.addTransfer.setEnabled(false);
+
+        if (this.addTransferDialog != null) {
+            this.addTransferDialog.setVisible(false);
+            this.addTransferDialog.dispose();
+            this.addTransferDialog = null;
+        }
     }
 
     /**
@@ -196,6 +230,8 @@ class StuCoursesPanel extends AdminPanelBase {
     private void populateDisplay(final StudentData data) {
 
         TermKey active = null;
+
+        this.currentStudentData = data;
 
         try (final Statement s = this.conn.createStatement()) {
             try (final ResultSet rs = s.executeQuery(//
@@ -250,7 +286,34 @@ class StuCoursesPanel extends AdminPanelBase {
             this.transferTable.addData(data.studentTransferCredit, 2);
             this.droppedTable.addData(dropped, 2);
 
-            this.split.setDividerLocation(0.5);
+            this.coursesSplit.setDividerLocation(0.5);
+            this.transferSplit.setDividerLocation(0.6);
+
+            this.addTransfer.setEnabled(true);
+        }
+    }
+
+    /**
+     * Called when an action is invoked.
+     *
+     * @param e the event to be processed
+     */
+    @Override
+    public void actionPerformed(final ActionEvent e) {
+
+        final String cmd = e.getActionCommand();
+
+        if (ADD_TRANSFER_CMD.equals(cmd)) {
+
+            if (this.currentStudentData != null) {
+                if (this.addTransferDialog == null) {
+                    this.addTransferDialog = new DlgAddTransfer(this.conn, this);
+                }
+
+                this.addTransferDialog.populateDisplay(this.currentStudentData);
+                this.addTransferDialog.setVisible(true);
+                this.addTransferDialog.toFront();
+            }
         }
     }
 }

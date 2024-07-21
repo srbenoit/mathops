@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.management;
 
-import dev.mathops.app.adm.AdminPanelBase;
+import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
@@ -29,7 +29,7 @@ import java.time.LocalDate;
 /**
  * A panel that supports management of special student populations.
  */
-class PlacementBillingPanel extends AdminPanelBase implements ActionListener {
+class PlacementBillingPanel extends AdmPanelBase implements ActionListener {
 
     /** Version number for serialization. */
     @Serial

@@ -224,7 +224,8 @@ public final class SemesterCalendarPane extends JPanel implements MouseListener 
                 bgColor = Skin.LT_YELLOW;
             }
 
-            final String label = Integer.toString(current.getDayOfMonth());
+            final int currentDay = current.getDayOfMonth();
+            final String label = Integer.toString(currentDay);
             final Rectangle bounds = drawDay(g, day, y, lineHeight, ascent, label, labelColor, bgColor);
             newDateRects.add(new DateRect(current, bounds));
 

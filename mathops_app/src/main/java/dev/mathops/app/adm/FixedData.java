@@ -88,7 +88,7 @@ public class FixedData {
      * @return {@code null} if the user does not have the permission, a clearance level from 1 (highest) to 5 (lowest)
      *         otherwise
      */
-    public Integer getClearanceLevel(final String permission) {
+    public final Integer getClearanceLevel(final String permission) {
 
         Integer clearance = null;
 

@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.student;
 
-import dev.mathops.app.adm.AbstractAdminTable;
+import dev.mathops.app.adm.AbstractAdmTable;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.old.rawrecord.RawMpeCredit;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * A table to present the all earned placement results on a student's record
  */
-final class JTableEarnedPlacement extends AbstractAdminTable<RawMpeCredit> {
+final class JTableEarnedPlacement extends AbstractAdmTable<RawMpeCredit> {
 
     /** Version number for serialization. */
     @Serial
@@ -32,15 +32,15 @@ final class JTableEarnedPlacement extends AbstractAdminTable<RawMpeCredit> {
      *
      * @return the list of columns.
      */
-    private static List<AdminTableColumn> makeColumns() {
+    private static List<LocalTableColumn> makeColumns() {
 
-        final List<AdminTableColumn> result = new ArrayList<>(8);
+        final List<LocalTableColumn> result = new ArrayList<>(8);
 
-        result.add(new AdminTableColumn("Code", 80));
-        result.add(new AdminTableColumn("Result", 220));
-        result.add(new AdminTableColumn("Exam Date", 120));
-        result.add(new AdminTableColumn("Version", 70));
-        result.add(new AdminTableColumn("Serial", 90));
+        result.add(new LocalTableColumn("Code", 80));
+        result.add(new LocalTableColumn("Result", 220));
+        result.add(new LocalTableColumn("Exam Date", 120));
+        result.add(new LocalTableColumn("Version", 70));
+        result.add(new LocalTableColumn("Serial", 90));
 
         return result;
     }

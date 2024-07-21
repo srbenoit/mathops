@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.management;
 
-import dev.mathops.app.adm.AdminMainWindow;
+import dev.mathops.app.adm.AdmMainWindow;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.old.Cache;
@@ -20,7 +20,7 @@ import java.io.Serial;
 /**
  * The "Management" pane.
  */
-public class ManagementTabPane extends JPanel implements ActionListener {
+public class TopPanelManagement extends JPanel implements ActionListener {
 
     /** A button action command. */
     private static final String GENERAL_CMD = "GENERAL";
@@ -85,10 +85,10 @@ public class ManagementTabPane extends JPanel implements ActionListener {
      *
      * @param theCache         the data cache
      */
-    public ManagementTabPane(final Cache theCache, final Object theRenderingHint) {
+    public TopPanelManagement(final Cache theCache, final Object theRenderingHint) {
 
         super(new BorderLayout(5, 5));
-        setPreferredSize(AdminMainWindow.PREF_SIZE);
+        setPreferredSize(AdmMainWindow.PREF_SIZE);
 
         setBackground(Skin.OFF_WHITE_GRAY);
         setBorder(BorderFactory.createCompoundBorder( //
@@ -214,6 +214,14 @@ public class ManagementTabPane extends JPanel implements ActionListener {
      * Sets the focus when this panel is activated.
      */
     public void focus() {
+
+        // No action
+    }
+
+    /**
+     * Clears the display - this makes sure any open dialogs are closed so the app can close.
+     */
+    public void clearDisplay() {
 
         // No action
     }

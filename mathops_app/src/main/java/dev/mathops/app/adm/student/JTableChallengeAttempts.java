@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.student;
 
-import dev.mathops.app.adm.AbstractAdminTable;
+import dev.mathops.app.adm.AbstractAdmTable;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.old.rawrecord.RawStchallenge;
 
@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * A table to present the all challenge attempts on the student's record.
  */
-final class JTableChallengeAttempts extends AbstractAdminTable<RawStchallenge> {
+final class JTableChallengeAttempts extends AbstractAdmTable<RawStchallenge> {
 
     /** Version number for serialization. */
     @Serial
@@ -33,17 +33,17 @@ final class JTableChallengeAttempts extends AbstractAdminTable<RawStchallenge> {
      *
      * @return the list of columns.
      */
-    private static List<AdminTableColumn> makeColumns() {
+    private static List<LocalTableColumn> makeColumns() {
 
-        final List<AdminTableColumn> result = new ArrayList<>(8);
+        final List<LocalTableColumn> result = new ArrayList<>(8);
 
-        result.add(new AdminTableColumn("Course", 60));
-        result.add(new AdminTableColumn("Version", 65));
-        result.add(new AdminTableColumn("Started", 165));
-        result.add(new AdminTableColumn("Finished", 165));
-        result.add(new AdminTableColumn("Serial", 90));
-        result.add(new AdminTableColumn("Score", 55));
-        result.add(new AdminTableColumn("Passed", 65));
+        result.add(new LocalTableColumn("Course", 60));
+        result.add(new LocalTableColumn("Version", 65));
+        result.add(new LocalTableColumn("Started", 165));
+        result.add(new LocalTableColumn("Finished", 165));
+        result.add(new LocalTableColumn("Serial", 90));
+        result.add(new LocalTableColumn("Score", 55));
+        result.add(new LocalTableColumn("Passed", 65));
 
         return result;
     }

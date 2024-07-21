@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.management;
 
-import dev.mathops.app.adm.AdminPanelBase;
+import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.db.old.Cache;
 
@@ -15,7 +15,7 @@ import java.io.Serial;
 /**
  * A card with people-related data.
  */
-class PeopleCard extends AdminPanelBase implements ActionListener {
+class PeopleCard extends AdmPanelBase implements ActionListener {
 
     /** An action command. */
     private static final String REFRESH = "REFRESH";

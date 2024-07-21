@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.student;
 
-import dev.mathops.app.adm.AbstractAdminTable;
+import dev.mathops.app.adm.AbstractAdmTable;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 
@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * A table to present the collection of courses being taken by a student in the active term.
  */
-final class JTableCurrentCourses extends AbstractAdminTable<RawStcourse> {
+final class JTableCurrentCourses extends AbstractAdmTable<RawStcourse> {
 
     /** Version number for serialization. */
     @Serial
@@ -31,19 +31,19 @@ final class JTableCurrentCourses extends AbstractAdminTable<RawStcourse> {
      *
      * @return the list of columns.
      */
-    private static List<AdminTableColumn> makeColumns() {
+    private static List<LocalTableColumn> makeColumns() {
 
-        final List<AdminTableColumn> result = new ArrayList<>(10);
+        final List<LocalTableColumn> result = new ArrayList<>(10);
 
-        result.add(new AdminTableColumn("Course", 60));
-        result.add(new AdminTableColumn("Section", 60));
-        result.add(new AdminTableColumn("Format", 60));
-        result.add(new AdminTableColumn("Prereq", 60));
-        result.add(new AdminTableColumn("Order", 50));
-        result.add(new AdminTableColumn("Open", 50));
-        result.add(new AdminTableColumn("Complete", 70));
-        result.add(new AdminTableColumn("Score", 50));
-        result.add(new AdminTableColumn("Incomplete", 140));
+        result.add(new LocalTableColumn("Course", 60));
+        result.add(new LocalTableColumn("Section", 60));
+        result.add(new LocalTableColumn("Format", 60));
+        result.add(new LocalTableColumn("Prereq", 60));
+        result.add(new LocalTableColumn("Order", 50));
+        result.add(new LocalTableColumn("Open", 50));
+        result.add(new LocalTableColumn("Complete", 70));
+        result.add(new LocalTableColumn("Score", 50));
+        result.add(new LocalTableColumn("Incomplete", 140));
 
         return result;
     }

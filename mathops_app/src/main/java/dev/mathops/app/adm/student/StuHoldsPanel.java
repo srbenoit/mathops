@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.student;
 
-import dev.mathops.app.adm.AdminPanelBase;
+import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
@@ -23,7 +23,7 @@ import java.util.Objects;
 /**
  * A panel that shows student administrative holds.
  */
-class StuHoldsPanel extends AdminPanelBase implements ActionListener {
+class StuHoldsPanel extends AdmPanelBase implements ActionListener {
 
     /** A button action command. */
     private static final String SHOW_CMD = "SHOW";
@@ -110,7 +110,7 @@ class StuHoldsPanel extends AdminPanelBase implements ActionListener {
     /**
      * Clears all displayed fields.
      */
-    private void clearDisplay() {
+    void clearDisplay() {
 
         this.holdsCard.clear();
         this.addHoldCard.reset();

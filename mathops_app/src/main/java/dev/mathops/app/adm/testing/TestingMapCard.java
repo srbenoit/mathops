@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.testing;
 
-import dev.mathops.app.adm.AdminPanelBase;
+import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * A card panel that displays a map of the testing center, with usage of each station.
  */
-class TestingMapCard extends AdminPanelBase implements ActionListener {
+class TestingMapCard extends AdmPanelBase implements ActionListener {
 
     /** Version number for serialization. */
     @Serial

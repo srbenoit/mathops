@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.student;
 
-import dev.mathops.app.adm.AdminPanelBase;
+import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
@@ -25,7 +25,7 @@ import java.io.Serial;
 /**
  * A card to display when the user selects a single student.
  */
-final class CardStudentDetail extends AdminPanelBase implements ActionListener {
+final class CardStudentDetail extends AdmPanelBase implements ActionListener {
 
     /** Version number for serialization. */
     @Serial
@@ -80,8 +80,7 @@ final class CardStudentDetail extends AdminPanelBase implements ActionListener {
      * @param liveContext      the database context used to access live data
      * @param theFixed         the fixed data
      */
-    CardStudentDetail(final Cache theCache, final DbContext liveContext,
-                      final FixedData theFixed) {
+    CardStudentDetail(final Cache theCache, final DbContext liveContext, final FixedData theFixed) {
 
         super();
 
@@ -173,9 +172,26 @@ final class CardStudentDetail extends AdminPanelBase implements ActionListener {
     /**
      * Sets the focus when this panel is activated.
      */
-    public void focus() {
+    void focus() {
 
         // TODO:
+    }
+
+    /**
+     * Clears the display - this makes sure any open dialogs are closed so the app can close.
+     */
+    void clearDisplay() {
+
+        this.summaryPanel.clearDisplay();
+        this.infoPanel.clearDisplay();
+        this.coursePanel.clearDisplay();
+        this.deadlinesPanel.clearDisplay();
+        this.activityPanel.clearDisplay();
+        this.disciplinePanel.clearDisplay();
+        this.holdsPanel.clearDisplay();
+        this.examsPanel.clearDisplay();
+        this.mptPanel.clearDisplay();
+        this.mathPlanPanel.clearDisplay();
     }
 
     /**

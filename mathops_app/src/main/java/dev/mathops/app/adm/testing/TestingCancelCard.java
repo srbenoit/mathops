@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.testing;
 
-import dev.mathops.app.adm.AdminPanelBase;
+import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
@@ -31,7 +31,7 @@ import java.util.List;
  * A card panel that allows an administrator to cancel an exam that's in the "LOGIN" phase (often due to the wrong exam
  * being issued).
  */
-class TestingCancelCard extends AdminPanelBase implements ActionListener, FocusListener {
+class TestingCancelCard extends AdmPanelBase implements ActionListener, FocusListener {
 
     /** An action command. */
     private static final String STU = "STU";

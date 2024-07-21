@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.resource;
 
-import dev.mathops.app.adm.AdminPanelBase;
+import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 
 import javax.swing.BorderFactory;
@@ -13,7 +13,7 @@ import java.io.Serial;
 /**
  * A card panel to manage inventory.
  */
-class InventoryCard extends AdminPanelBase implements ActionListener {
+class InventoryCard extends AdmPanelBase implements ActionListener {
 
     /** Version number for serialization. */
     @Serial

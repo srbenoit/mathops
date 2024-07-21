@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.student;
 
-import dev.mathops.app.adm.AdminPanelBase;
+import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
 import dev.mathops.commons.CoreConstants;
@@ -47,7 +47,7 @@ import java.util.List;
 /**
  * The "Summary" panel of the admin system.
  */
-final class StuSummaryPanel extends AdminPanelBase {
+final class StuSummaryPanel extends AdmPanelBase {
 
     /** Version number for serialization. */
     @Serial
@@ -370,7 +370,7 @@ final class StuSummaryPanel extends AdminPanelBase {
     /**
      * Clears all displayed fields.
      */
-    private void clearDisplay() {
+    void clearDisplay() {
 
         this.placedOutOfList.setText(CoreConstants.EMPTY);
         this.eligibleForList.setText(CoreConstants.EMPTY);

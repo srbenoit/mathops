@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.student;
 
-import dev.mathops.app.adm.AdminPanelBase;
+import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
 import dev.mathops.db.old.Cache;
@@ -18,7 +18,7 @@ import java.sql.SQLException;
 /**
  * A panel that shows a students disciplinary history.
  */
-class StuDisciplinePanel extends AdminPanelBase implements ActionListener {
+class StuDisciplinePanel extends AdmPanelBase implements ActionListener {
 
     /** An action command. */
     static final String ADD_CMD = "ADD";
@@ -106,7 +106,7 @@ class StuDisciplinePanel extends AdminPanelBase implements ActionListener {
     /**
      * Clears all displayed fields.
      */
-    private void clearDisplay() {
+    void clearDisplay() {
 
         this.incidentListCard.clear();
         this.addIncidentCard.reset();

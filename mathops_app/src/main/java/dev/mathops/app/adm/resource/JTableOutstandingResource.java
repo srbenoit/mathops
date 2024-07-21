@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.resource;
 
-import dev.mathops.app.adm.AbstractAdminTable;
+import dev.mathops.app.adm.AbstractAdmTable;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.db.old.rawrecord.RawResource;
@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * A table to present all outstanding resources.
  */
-final class JTableOutstandingResource extends AbstractAdminTable<OutstandingResourceRow> {
+final class JTableOutstandingResource extends AbstractAdmTable<OutstandingResourceRow> {
 
     /** Version number for serialization. */
     @Serial
@@ -32,16 +32,16 @@ final class JTableOutstandingResource extends AbstractAdminTable<OutstandingReso
      *
      * @return the list of columns.
      */
-    private static List<AdminTableColumn> makeColumns() {
+    private static List<LocalTableColumn> makeColumns() {
 
-        final List<AdminTableColumn> result = new ArrayList<>(8);
+        final List<LocalTableColumn> result = new ArrayList<>(8);
 
-        result.add(new AdminTableColumn("Student ID", 100));
-        result.add(new AdminTableColumn("Student Name", 180));
-        result.add(new AdminTableColumn("Resource ID", 80));
-        result.add(new AdminTableColumn("Resource type", 180));
-        result.add(new AdminTableColumn("When Borrowed", 210));
-        result.add(new AdminTableColumn("When Due", 100));
+        result.add(new LocalTableColumn("Student ID", 100));
+        result.add(new LocalTableColumn("Student Name", 180));
+        result.add(new LocalTableColumn("Resource ID", 80));
+        result.add(new LocalTableColumn("Resource type", 180));
+        result.add(new LocalTableColumn("When Borrowed", 210));
+        result.add(new LocalTableColumn("When Due", 100));
 
         return result;
     }

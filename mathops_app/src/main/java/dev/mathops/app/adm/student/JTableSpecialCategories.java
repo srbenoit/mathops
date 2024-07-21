@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.student;
 
-import dev.mathops.app.adm.AbstractAdminTable;
+import dev.mathops.app.adm.AbstractAdmTable;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.old.rawrecord.RawSpecialStus;
 
@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * A table to present all special categories to which a student belongs.
  */
-final class JTableSpecialCategories extends AbstractAdminTable<RawSpecialStus> {
+final class JTableSpecialCategories extends AbstractAdmTable<RawSpecialStus> {
 
     /** Version number for serialization. */
     @Serial
@@ -31,13 +31,13 @@ final class JTableSpecialCategories extends AbstractAdminTable<RawSpecialStus> {
      *
      * @return the list of columns.
      */
-    private static List<AdminTableColumn> makeColumns() {
+    private static List<LocalTableColumn> makeColumns() {
 
-        final List<AdminTableColumn> result = new ArrayList<>(4);
+        final List<LocalTableColumn> result = new ArrayList<>(4);
 
-        result.add(new AdminTableColumn("Category", 70));
-        result.add(new AdminTableColumn("Start", 55));
-        result.add(new AdminTableColumn("End", 55));
+        result.add(new LocalTableColumn("Category", 70));
+        result.add(new LocalTableColumn("Start", 55));
+        result.add(new LocalTableColumn("End", 55));
 
         return result;
     }

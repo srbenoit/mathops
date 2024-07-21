@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.student;
 
-import dev.mathops.app.adm.AdminPanelBase;
+import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
@@ -37,7 +37,7 @@ import java.util.TreeMap;
  * A card to display when the user selects the "Populations" option. This card includes a tabbed pane with ways to
  * select a population.
  */
-final class CardPopulations extends AdminPanelBase implements ActionListener {
+final class CardPopulations extends AdmPanelBase implements ActionListener {
 
     /** Button action command. */
     private static final String BYCSECT_CMD = "BYCSECT";
@@ -193,9 +193,17 @@ final class CardPopulations extends AdminPanelBase implements ActionListener {
     /**
      * Sets the focus when this panel is activated.
      */
-    public void focus() {
+    void focus() {
 
         // TODO:
+    }
+
+    /**
+     * Clears the display - this makes sure any open dialogs are closed so the app can close.
+     */
+    void clearDisplay() {
+
+        // No action
     }
 
     /**

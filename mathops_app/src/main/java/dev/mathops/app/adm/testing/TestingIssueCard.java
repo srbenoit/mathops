@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.testing;
 
-import dev.mathops.app.adm.AdminPanelBase;
+import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.checkin.CourseNumbers;
 import dev.mathops.app.checkin.DataCheckInAttempt;
@@ -51,7 +51,7 @@ import java.util.Objects;
 /**
  * A card panel that allows an administrator to issue an exam to a testing center machine manually.
  */
-final class TestingIssueCard extends AdminPanelBase implements ActionListener, FocusListener {
+final class TestingIssueCard extends AdmPanelBase implements ActionListener, FocusListener {
 
     /** An action command. */
     private static final String STU = "STU";

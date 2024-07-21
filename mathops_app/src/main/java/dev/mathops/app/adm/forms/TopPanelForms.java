@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.forms;
 
-import dev.mathops.app.adm.AdminMainWindow;
+import dev.mathops.app.adm.AdmMainWindow;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
@@ -28,7 +28,7 @@ import java.util.Map;
 /**
  * The "Tables" pane.
  */
-public class FormsTabPane extends JPanel implements ActionListener {
+public class TopPanelForms extends JPanel implements ActionListener {
 
     /** Version number for serialization. */
     @Serial
@@ -96,13 +96,13 @@ public class FormsTabPane extends JPanel implements ActionListener {
      *
      * @param theCache the data cache
      */
-    public FormsTabPane(final Cache theCache) {
+    public TopPanelForms(final Cache theCache) {
 
         super(null);
 
         setBorder(BorderFactory.createEmptyBorder(4, 2, 4, 2));
         setBackground(Skin.LIGHT);
-        setPreferredSize(AdminMainWindow.PREF_SIZE);
+        setPreferredSize(AdmMainWindow.PREF_SIZE);
 
         this.cards = new CardLayout();
         this.forms = new HashMap<>(TABLE_NAMES.length);
@@ -269,6 +269,14 @@ public class FormsTabPane extends JPanel implements ActionListener {
      * Sets the focus when this panel is activated.
      */
     public void focus() {
+
+        // No action
+    }
+
+    /**
+     * Clears the display - this makes sure any open dialogs are closed so the app can close.
+     */
+    public void clearDisplay() {
 
         // No action
     }

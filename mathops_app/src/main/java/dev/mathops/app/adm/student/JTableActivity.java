@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.student;
 
-import dev.mathops.app.adm.AbstractAdminTable;
+import dev.mathops.app.adm.AbstractAdmTable;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.old.rawrecord.RawStexam;
@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * A table to present student activity in each week.
  */
-final class JTableActivity extends AbstractAdminTable<ActivityRow> {
+final class JTableActivity extends AbstractAdmTable<ActivityRow> {
 
     /** Version number for serialization. */
     @Serial
@@ -52,20 +52,20 @@ final class JTableActivity extends AbstractAdminTable<ActivityRow> {
      *
      * @return the list of columns.
      */
-    private static List<AdminTableColumn> makeColumns() {
+    private static List<LocalTableColumn> makeColumns() {
 
-        final List<AdminTableColumn> result = new ArrayList<>(12);
+        final List<LocalTableColumn> result = new ArrayList<>(12);
 
-        result.add(new AdminTableColumn("Week", 50));
-        result.add(new AdminTableColumn("Course", 60));
-        result.add(new AdminTableColumn("Unit", 40));
-        result.add(new AdminTableColumn("Activity", 90));
-        result.add(new AdminTableColumn("ID", 60));
-        result.add(new AdminTableColumn("Date", 90));
-        result.add(new AdminTableColumn("Finish", 70));
-        result.add(new AdminTableColumn("Dur (min)", 90));
-        result.add(new AdminTableColumn("Score", 75));
-        result.add(new AdminTableColumn("Passed", 70));
+        result.add(new LocalTableColumn("Week", 50));
+        result.add(new LocalTableColumn("Course", 60));
+        result.add(new LocalTableColumn("Unit", 40));
+        result.add(new LocalTableColumn("Activity", 90));
+        result.add(new LocalTableColumn("ID", 60));
+        result.add(new LocalTableColumn("Date", 90));
+        result.add(new LocalTableColumn("Finish", 70));
+        result.add(new LocalTableColumn("Dur (min)", 90));
+        result.add(new LocalTableColumn("Score", 75));
+        result.add(new LocalTableColumn("Passed", 70));
 
         return result;
     }

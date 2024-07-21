@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.student;
 
-import dev.mathops.app.adm.AbstractAdminTable;
+import dev.mathops.app.adm.AbstractAdmTable;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.db.old.rawrecord.RawStcourse;
@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * A table to present the collection of courses that have been dropped by a student this term.
  */
-final class JTableDroppedCourses extends AbstractAdminTable<RawStcourse> {
+final class JTableDroppedCourses extends AbstractAdmTable<RawStcourse> {
 
     /** Version number for serialization. */
     @Serial
@@ -33,16 +33,16 @@ final class JTableDroppedCourses extends AbstractAdminTable<RawStcourse> {
      *
      * @return the list of columns.
      */
-    private static List<AdminTableColumn> makeColumns() {
+    private static List<LocalTableColumn> makeColumns() {
 
-        final List<AdminTableColumn> result = new ArrayList<>(8);
+        final List<LocalTableColumn> result = new ArrayList<>(8);
 
-        result.add(new AdminTableColumn("Course", 55));
-        result.add(new AdminTableColumn("Section", 55));
-        result.add(new AdminTableColumn("Format", 55));
-        result.add(new AdminTableColumn("Prereq", 50));
-        result.add(new AdminTableColumn("Open", 45));
-        result.add(new AdminTableColumn("Last Roll Date", 120));
+        result.add(new LocalTableColumn("Course", 55));
+        result.add(new LocalTableColumn("Section", 55));
+        result.add(new LocalTableColumn("Format", 55));
+        result.add(new LocalTableColumn("Prereq", 50));
+        result.add(new LocalTableColumn("Open", 45));
+        result.add(new LocalTableColumn("Last Roll Date", 120));
 
         return result;
     }

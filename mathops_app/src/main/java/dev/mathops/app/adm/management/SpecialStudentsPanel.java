@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.management;
 
-import dev.mathops.app.adm.AdminPanelBase;
+import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
@@ -49,7 +49,7 @@ import java.util.TreeMap;
 /**
  * A panel that supports management of special student populations.
  */
-class SpecialStudentsPanel extends AdminPanelBase implements ActionListener, ListSelectionListener {
+class SpecialStudentsPanel extends AdmPanelBase implements ActionListener, ListSelectionListener {
 
     /** Version number for serialization. */
     @Serial

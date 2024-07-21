@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.resource;
 
-import dev.mathops.app.adm.AdminMainWindow;
+import dev.mathops.app.adm.AdmMainWindow;
 import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
@@ -21,7 +21,7 @@ import java.io.Serial;
 /**
  * The "Resource" pane.
  */
-public class ResourceTabPane extends JPanel implements ActionListener {
+public final class TopPanelResource extends JPanel implements ActionListener {
 
     /** A button action command. */
     private static final String LEND_CMD = "LEND";
@@ -73,13 +73,12 @@ public class ResourceTabPane extends JPanel implements ActionListener {
     private String showing;
 
     /**
-     * Constructs a new {@code ResourceTabPane}.
+     * Constructs a new {@code TopPanelResource}.
      *
      * @param theCache         the data cache
      * @param fixed            the fixed data
      */
-    public ResourceTabPane(final Cache theCache,
-                           final FixedData fixed) {
+    public TopPanelResource(final Cache theCache, final FixedData fixed) {
 
         // Functions:
         // [ Loan Item ]
@@ -90,11 +89,11 @@ public class ResourceTabPane extends JPanel implements ActionListener {
         // [ Inventory ]
 
         super(new BorderLayout(5, 5));
-        setPreferredSize(AdminMainWindow.PREF_SIZE);
+        setPreferredSize(AdmMainWindow.PREF_SIZE);
 
         setBackground(Skin.OFF_WHITE_GRAY);
-        setBorder(BorderFactory.createCompoundBorder( //
-                BorderFactory.createEtchedBorder(), //
+        setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createEtchedBorder(),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
 
         final JPanel menu = new JPanel();
@@ -225,7 +224,7 @@ public class ResourceTabPane extends JPanel implements ActionListener {
     /**
      * Sets the focus when this panel is activated.
      */
-    public void focus() {
+    public final void focus() {
 
         if (LEND_CMD.equals(this.showing)) {
             if (this.loanCard != null) {
@@ -252,6 +251,14 @@ public class ResourceTabPane extends JPanel implements ActionListener {
                 this.inventoryCard.focus();
             }
         }
+    }
+
+    /**
+     * Clears the display - this makes sure any open dialogs are closed so the app can close.
+     */
+    public void clearDisplay() {
+
+        // No action
     }
 
     /**

@@ -19,7 +19,7 @@ import java.util.Locale;
  *
  * @param <T> the record type
  */
-public abstract class AbstractAdminTable<T> extends JTable {
+public abstract class AbstractAdmTable<T> extends JTable {
 
     /** Date formatter. */
     protected static final DateTimeFormatter FMT_TEXT =
@@ -45,54 +45,65 @@ public abstract class AbstractAdminTable<T> extends JTable {
     @Serial
     private static final long serialVersionUID = -8079216057369843513L;
 
+    /** The default row height. */
+    private static final int DEFAULT_ROW_HEIGHT = 20;
+
     /** The table model. */
-    private final AdminTableModel model;
+    private final LocalTableModel model;
 
     /** The table width. */
     private final int width;
 
     /**
-     * Constructs a new {@code AbstractAdminTable}.
+     * Constructs a new {@code AbstractAdmTable}.
      *
-     * @param columns          the list of columns in the table
+     * @param columns the list of columns in the table
      */
-    protected AbstractAdminTable(final List<AdminTableColumn> columns) {
+    protected AbstractAdmTable(final List<LocalTableColumn> columns) {
 
         super();
 
+        this.model = new LocalTableModel(columns);
+        this.width = init(columns);
+
+        updatePrefSize();
+    }
+
+    /**
+     * Initialize the UI.
+     */
+    private int init(final List<? extends LocalTableColumn> columns) {
+
         setFont(Skin.MONO_14_FONT);
-        setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        setAutoResizeMode(AUTO_RESIZE_ALL_COLUMNS);
 
         getTableHeader().setFont(Skin.MEDIUM_15_FONT);
-        setRowHeight(20);
-
-        this.model = new AdminTableModel(columns);
+        setRowHeight(DEFAULT_ROW_HEIGHT);
         setModel(this.model);
 
-        setColumnModel(new AdminTableColumnModel(columns));
+        setColumnModel(new LocalColumnModel(columns));
 
         final Dimension spacing = getIntercellSpacing();
 
         int w = (columns.size() + 1) * spacing.width;
-        for (final AdminTableColumn col : columns) {
+        for (final LocalTableColumn col : columns) {
             w += col.colWidth;
         }
 
-        this.width = w;
-        updatePrefSize();
+        return w;
     }
 
     /**
      * Updates the preferred size.
      */
-    public void updatePrefSize() {
+    public final void updatePrefSize() {
 
-        final int numRows = Math.max(2, this.model.getRowCount());
+        final int numModelRows = this.model.getRowCount();
+        final int numRows = Math.max(2, numModelRows);
 
         final int spacing = getIntercellSpacing().height;
 
-        final int height =
-                getTableHeader().getHeight() + spacing + numRows * (getRowHeight() + spacing);
+        final int height = getTableHeader().getHeight() + spacing + numRows * (getRowHeight() + spacing);
 
         final Dimension newPref = new Dimension(this.width, height);
 
@@ -104,7 +115,7 @@ public abstract class AbstractAdminTable<T> extends JTable {
      * Gets the table model.
      */
     @Override
-    public final AdminTableModel getModel() {
+    public final LocalTableModel getModel() {
 
         return this.model;
     }
@@ -183,7 +194,7 @@ public abstract class AbstractAdminTable<T> extends JTable {
     /**
      * Data used to configure one column in the table.
      */
-    public static class AdminTableColumn {
+    public static class LocalTableColumn {
 
         /** The column name. */
         final String name;
@@ -197,7 +208,7 @@ public abstract class AbstractAdminTable<T> extends JTable {
          * @param theName     the column name
          * @param theColWidth the column width
          */
-        public AdminTableColumn(final String theName, final int theColWidth) {
+        public LocalTableColumn(final String theName, final int theColWidth) {
 
             this.name = theName;
             this.colWidth = theColWidth;
@@ -207,22 +218,22 @@ public abstract class AbstractAdminTable<T> extends JTable {
     /**
      * The table model for the table.
      */
-    public static final class AdminTableModel extends DefaultTableModel {
+    public static final class LocalTableModel extends DefaultTableModel {
 
         /** Version number for serialization. */
         @Serial
         private static final long serialVersionUID = -1135232376661549453L;
 
         /**
-         * Constructs a new {@code AdminTableModel}.
+         * Constructs a new {@code TableModel}.
          *
          * @param columns the table columns
          */
-        AdminTableModel(final Iterable<? extends AdminTableColumn> columns) {
+        LocalTableModel(final Iterable<? extends LocalTableColumn> columns) {
 
             super();
 
-            for (final AdminTableColumn col : columns) {
+            for (final LocalTableColumn col : columns) {
                 addColumn(col.name);
             }
         }
@@ -231,25 +242,25 @@ public abstract class AbstractAdminTable<T> extends JTable {
     /**
      * The column model for the table.
      */
-    static final class AdminTableColumnModel extends DefaultTableColumnModel {
+    static final class LocalColumnModel extends DefaultTableColumnModel {
 
         /** Version number for serialization. */
         @Serial
         private static final long serialVersionUID = 6467398116324893177L;
 
         /**
-         * Constructs a new {@code AdminTableColumnModel}.
+         * Constructs a new {@code TableColumnModel}.
          *
          * @param columns the table columns
          */
-        AdminTableColumnModel(final List<? extends AdminTableColumn> columns) {
+        LocalColumnModel(final List<? extends LocalTableColumn> columns) {
 
             super();
 
             final int numCols = columns.size();
 
             for (int i = 0; i < numCols; ++i) {
-                final AdminTableColumn col = columns.get(i);
+                final LocalTableColumn col = columns.get(i);
 
                 final TableColumn tableCol = new TableColumn(i, col.colWidth);
                 tableCol.setHeaderValue(col.name);

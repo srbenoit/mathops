@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.resource;
 
-import dev.mathops.app.adm.AdminPanelBase;
+import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.old.Cache;
@@ -33,7 +33,7 @@ import java.util.Map;
 /**
  * A card panel to display recent activity.
  */
-final class RecentActivityCard extends AdminPanelBase implements ActionListener {
+final class RecentActivityCard extends AdmPanelBase implements ActionListener {
 
     /** An action command. */
     private static final String REFRESH = "REFRESH";

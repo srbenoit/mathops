@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.testing;
 
-import dev.mathops.app.adm.AdminPanelBase;
+import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
@@ -36,7 +36,7 @@ import java.util.List;
 /**
  * A card panel that allows an administrator to turn blocks of testing machines or individual machines on and off.
  */
-final class TestingManageCard extends AdminPanelBase implements ActionListener {
+final class TestingManageCard extends AdmPanelBase implements ActionListener {
 
     /** Version number for serialization. */
     @Serial
@@ -76,7 +76,7 @@ final class TestingManageCard extends AdminPanelBase implements ActionListener {
      * @param theServerSiteUrl the server site URL to use when constructing a ScramClientStub
      * @param theOwner         the owning pane
      */
-    TestingManageCard(final Cache theCache, final String theServerSiteUrl, final TestingTabPane theOwner) {
+    TestingManageCard(final Cache theCache, final String theServerSiteUrl, final TopPanelTesting theOwner) {
 
         super();
 

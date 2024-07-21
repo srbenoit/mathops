@@ -9,6 +9,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.border.Border;
+import javax.swing.border.MatteBorder;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -149,7 +151,8 @@ public abstract class AbstractZTable<T> extends JPanel implements ActionListener
      */
     protected final void addHeaderCell(final Object text, final int x, final int y, final int numColumns) {
 
-        add(new HeaderPanel(text, x == 0, x == numColumns - 1), makeConstraints(x, y));
+        final GridBagConstraints constraints = makeConstraints(x, y);
+        add(new HeaderPanel(text, x == 0, x == numColumns - 1), constraints);
     }
 
     /**
@@ -161,9 +164,11 @@ public abstract class AbstractZTable<T> extends JPanel implements ActionListener
      */
     protected final void addCell(final Object text, final int x, final int y) {
 
-        final JTextField fld = new JTextField(valueToString(text));
+        final String valueStr = valueToString(text);
+        final JTextField fld = new JTextField(valueStr);
         fld.setEditable(false);
-        fld.setBorder(BorderFactory.createEmptyBorder(1, 3, 1, 3));
+        final Border padding = BorderFactory.createEmptyBorder(1, 3, 1, 3);
+        fld.setBorder(padding);
         fld.setFont(Skin.MONO_12_FONT);
         fld.setOpaque(true);
 
@@ -173,7 +178,8 @@ public abstract class AbstractZTable<T> extends JPanel implements ActionListener
             fld.setBackground(Skin.TABLE_ROW_HIGHLIGHT);
         }
 
-        add(fld, makeConstraints(x, y));
+        final GridBagConstraints constraints = makeConstraints(x, y);
+        add(fld, constraints);
     }
 
     /**
@@ -204,7 +210,8 @@ public abstract class AbstractZTable<T> extends JPanel implements ActionListener
             flow.setBackground(Skin.TABLE_ROW_HIGHLIGHT);
         }
 
-        add(flow, makeConstraints(x, y));
+        final GridBagConstraints constraints = makeConstraints(x, y);
+        add(flow, constraints);
 
         return btn;
     }
@@ -227,7 +234,8 @@ public abstract class AbstractZTable<T> extends JPanel implements ActionListener
         final int rowIndex = y - 1;
 
         final JCheckBox check = new JCheckBox(label, checked);
-        check.setBorder(BorderFactory.createEmptyBorder(1, 3, 1, 3));
+        final Border padding = BorderFactory.createEmptyBorder(1, 3, 1, 3);
+        check.setBorder(padding);
         check.setActionCommand(cmd + "_" + rowIndex);
         check.addActionListener(this);
         check.setOpaque(true);
@@ -238,7 +246,8 @@ public abstract class AbstractZTable<T> extends JPanel implements ActionListener
             check.setBackground(Skin.TABLE_ROW_HIGHLIGHT);
         }
 
-        add(check, makeConstraints(x, y));
+        final GridBagConstraints constraints = makeConstraints(x, y);
+        add(check, constraints);
 
         return check;
     }
@@ -253,7 +262,8 @@ public abstract class AbstractZTable<T> extends JPanel implements ActionListener
     protected final void addLastRow(final int y, final int numColumns) {
 
         final JPanel empty = new JPanel();
-        empty.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Skin.MEDIUM));
+        final MatteBorder overline = BorderFactory.createMatteBorder(1, 0, 0, 0, Skin.MEDIUM);
+        empty.setBorder(overline);
 
         if (y % 2 == 0) {
             empty.setBackground(Skin.WHITE);
@@ -302,7 +312,7 @@ public abstract class AbstractZTable<T> extends JPanel implements ActionListener
     public final void actionPerformed(final ActionEvent e) {
 
         final String cmd = e.getActionCommand();
-        final int sep = cmd.lastIndexOf('_');
+        final int sep = cmd.lastIndexOf((int) CoreConstants.SPC_CHAR);
         if (sep == -1) {
             Log.warning("Unrecognized action command");
         } else if (this.listener != null) {
@@ -314,7 +324,9 @@ public abstract class AbstractZTable<T> extends JPanel implements ActionListener
                 if (index < 0 || index >= this.curData.size()) {
                     Log.warning("Invalid row index: '", indexStr, "'");
                 } else {
-                    this.listener.commandOnRow(index, this.curData.get(index), cmd.substring(0, sep));
+                    final String substring = cmd.substring(0, sep);
+                    final T rowData = this.curData.get(index);
+                    this.listener.commandOnRow(index, rowData, substring);
                 }
             } catch (final NumberFormatException ex) {
                 Log.warning("Invalid row index: '", indexStr, "'", ex);
@@ -351,7 +363,8 @@ public abstract class AbstractZTable<T> extends JPanel implements ActionListener
 
             super(new FlowLayout(FlowLayout.LEADING, 0, 0));
             setBackground(Skin.LIGHTEST);
-            setBorder(BorderFactory.createEmptyBorder(3, 6, 3, 6));
+            final Border padding = BorderFactory.createEmptyBorder(3, 6, 3, 6);
+            setBorder(padding);
             setAlignmentY(0.0f);
 
             this.text = value == null ? CoreConstants.SPC : value.toString();
@@ -380,8 +393,8 @@ public abstract class AbstractZTable<T> extends JPanel implements ActionListener
                 g.drawLine(0, size.height - 1, size.width, size.height - 1);
             } else {
                 for (int y = size.height - 1; y >= 0; --y) {
-                    final int value =
-                            251 - (int) Math.round(28.0 * Math.sin(Math.PI * (double) y / (double) size.height));
+                    final double sine = Math.sin(Math.PI * (double) y / (double) size.height);
+                    final int value = 251 - (int) Math.round(28.0 * sine);
                     final Color color = new Color(value - 5, value - 5, value);
                     g.setColor(color);
                     g.drawLine(0, size.height - y, size.width - 1, size.height - y);

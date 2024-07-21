@@ -1,10 +1,10 @@
 package dev.mathops.app.adm;
 
-import dev.mathops.app.adm.forms.FormsTabPane;
-import dev.mathops.app.adm.management.ManagementTabPane;
-import dev.mathops.app.adm.resource.ResourceTabPane;
+import dev.mathops.app.adm.forms.TopPanelForms;
+import dev.mathops.app.adm.management.TopPanelManagement;
+import dev.mathops.app.adm.resource.TopPanelResource;
 import dev.mathops.app.adm.student.TopPanelStudent;
-import dev.mathops.app.adm.testing.TestingTabPane;
+import dev.mathops.app.adm.testing.TopPanelTesting;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
@@ -16,6 +16,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.WindowConstants;
+import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.BorderLayout;
@@ -31,7 +32,7 @@ import java.sql.SQLException;
 /**
  * The main window for the administration application.
  */
-public final class AdminMainWindow extends WindowAdapter implements Runnable, ChangeListener {
+public final class AdmMainWindow extends WindowAdapter implements Runnable, ChangeListener {
 
     /** The preferred size for panes. */
     public static final Dimension PREF_SIZE = new Dimension(1200, 800);
@@ -61,16 +62,16 @@ public final class AdminMainWindow extends WindowAdapter implements Runnable, Ch
     private TopPanelStudent studentPane;
 
     /** The resource pane. */
-    private ResourceTabPane resourcePane;
+    private TopPanelResource resourcePane;
 
     /** The testing pane. */
-    private TestingTabPane testingPane;
+    private TopPanelTesting testingPane;
 
     /** The management pane. */
-    private ManagementTabPane managementPane;
+    private TopPanelManagement managementPane;
 
-    /** The forms pane. */
-    private FormsTabPane formsPane;
+    /** The form pane. */
+    private TopPanelForms formsPane;
 
     /** The text render hint to use. */
     private final Object renderingHint;
@@ -84,9 +85,8 @@ public final class AdminMainWindow extends WindowAdapter implements Runnable, Ch
      * @param theLiveContext   the live data database context
      * @throws SQLException if there is an error accessing the database
      */
-    AdminMainWindow(final String theUsername, final DbContext theIfxContext,
-                    final Cache theIfxCache,  final DbContext theLiveContext,
-                    final Object theRenderingHint) throws SQLException {
+    AdmMainWindow(final String theUsername, final DbContext theIfxContext, final Cache theIfxCache,
+                  final DbContext theLiveContext, final Object theRenderingHint) throws SQLException {
 
         super();
 
@@ -118,12 +118,14 @@ public final class AdminMainWindow extends WindowAdapter implements Runnable, Ch
     @Override
     public void run() {
 
-        this.frame = new JFrame(Res.get(Res.TITLE));
+        final String title = Res.get(Res.TITLE);
+        this.frame = new JFrame(title);
         this.frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         this.frame.addWindowListener(this);
 
         final JPanel content = new JPanel(new BorderLayout());
-        content.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+        final Border padding = BorderFactory.createEmptyBorder(2, 2, 2, 2);
+        content.setBorder(padding);
         content.setBackground(Skin.WHITE);
         this.frame.setContentPane(content);
 
@@ -135,7 +137,8 @@ public final class AdminMainWindow extends WindowAdapter implements Runnable, Ch
         windowTitle.add("Connected to Informix [", ifxDbName, "] on [", ifxServer,
                 "] (", this.ifxContext.loginConfig.db.use, ")  as  [", username, "]");
 
-        this.frame.setTitle(windowTitle.toString());
+        final String windowTitleStr = windowTitle.toString();
+        this.frame.setTitle(windowTitleStr);
 
         this.tabs = new JTabbedPane();
         this.tabs.setFont(Skin.TAB_15_FONT);
@@ -144,29 +147,33 @@ public final class AdminMainWindow extends WindowAdapter implements Runnable, Ch
         this.tabs.setBackground(Skin.WHITE);
         content.add(this.tabs, BorderLayout.CENTER);
         if (this.fixed.getClearanceLevel("STU_MENU") != null) {
-            this.studentPane = new TopPanelStudent(this.ifxCache, this.renderingHint,
-                    this.liveContext, this.fixed);
-            this.tabs.addTab(Res.get(Res.STUDENT_TAB), this.studentPane);
+            this.studentPane = new TopPanelStudent(this.ifxCache, this.renderingHint, this.liveContext, this.fixed);
+            final String tabTitle = Res.get(Res.STUDENT_TAB);
+            this.tabs.addTab(tabTitle, this.studentPane);
         }
 
         if (this.fixed.getClearanceLevel("RES_MENU") != null) {
-            this.resourcePane = new ResourceTabPane(this.ifxCache, this.fixed);
-            this.tabs.addTab(Res.get(Res.RESOURCES_TAB), this.resourcePane);
+            this.resourcePane = new TopPanelResource(this.ifxCache, this.fixed);
+            final String tabTitle = Res.get(Res.RESOURCES_TAB);
+            this.tabs.addTab(tabTitle, this.resourcePane);
         }
 
         if (this.fixed.getClearanceLevel("TST_MENU") != null) {
-            this.testingPane = new TestingTabPane(this.ifxCache, this.serverSiteUrl, this.fixed, this.frame);
-            this.tabs.addTab(Res.get(Res.TESTING_TAB), this.testingPane);
+            this.testingPane = new TopPanelTesting(this.ifxCache, this.serverSiteUrl, this.fixed, this.frame);
+            final String tabTitle = Res.get(Res.TESTING_TAB);
+            this.tabs.addTab(tabTitle, this.testingPane);
         }
 
         if (this.fixed.getClearanceLevel("MGT_MENU") != null) {
-            this.managementPane = new ManagementTabPane(this.ifxCache, this.renderingHint);
-            this.tabs.addTab(Res.get(Res.MGT_TAB), this.managementPane);
+            this.managementPane = new TopPanelManagement(this.ifxCache, this.renderingHint);
+            final String tabTitle = Res.get(Res.MGT_TAB);
+            this.tabs.addTab(tabTitle, this.managementPane);
         }
 
         if (this.fixed.getClearanceLevel("FRM_MENU") != null) {
-            this.formsPane = new FormsTabPane(this.ifxCache);
-            this.tabs.addTab(Res.get(Res.FORMS_TAB), this.formsPane);
+            this.formsPane = new TopPanelForms(this.ifxCache);
+            final String tabTitle = Res.get(Res.FORMS_TAB);
+            this.tabs.addTab(tabTitle, this.formsPane);
         }
 
         if (this.tabs.getTabCount() == 0) {
@@ -178,16 +185,6 @@ public final class AdminMainWindow extends WindowAdapter implements Runnable, Ch
 
         final GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
         final GraphicsDevice selected = env.getDefaultScreenDevice();
-
-        // final GraphicsDevice[] devs = env.getScreenDevices();
-        // if (devs.length > 1) {
-        // for (GraphicsDevice test : devs) {
-        // if (test != selected) {
-        // selected = test;
-        // break;
-        // }
-        // }
-        // }
 
         final Rectangle bounds = selected.getDefaultConfiguration().getBounds();
 
@@ -234,8 +231,17 @@ public final class AdminMainWindow extends WindowAdapter implements Runnable, Ch
     @Override
     public void windowClosing(final WindowEvent e) {
 
-        if (JOptionPane.showConfirmDialog(this.frame, "Close the application?", Res.get(Res.TITLE),
-                JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+        final String title = Res.get(Res.TITLE);
+        if (JOptionPane.showConfirmDialog(this.frame, "Close the application?", title, JOptionPane.YES_NO_OPTION)
+                == JOptionPane.YES_OPTION) {
+
+            this.studentPane.clearDisplay();
+            this.resourcePane.clearDisplay();
+            this.testingPane.clearDisplay();
+            this.managementPane.clearDisplay();
+            this.formsPane.clearDisplay();
+
+
             this.frame.setVisible(false);
             this.frame.dispose();
         }
