@@ -66,7 +66,7 @@ public final class GetPastExamReply extends AbstractReplyBase {
             String selProb = extractField(message, "selected-problems");
 
             if (selProb != null) {
-                int pos = selProb.indexOf("</problem>");
+                int pos = selProb.indexOf("</problem");
 
                 for (int i = 0; i < numSect; i++) {
                     final ExamSection sect = this.exam.getSection(i);
@@ -82,8 +82,10 @@ public final class GetPastExamReply extends AbstractReplyBase {
                         final ExamProblem prob = sect.getProblem(j);
 
                         // Carve off one problem's XML
-                        final String sub = selProb.substring(0, pos + 10);
-                        selProb = selProb.substring(pos + 10);
+                        final int tagEnd = selProb.indexOf('>', pos + 9);
+                        final String sub = selProb.substring(0, tagEnd + 1);
+                        selProb = selProb.substring(tagEnd + 1);
+
 
                         try {
                             final XmlContent content = new XmlContent(sub, false, false);
@@ -96,7 +98,7 @@ public final class GetPastExamReply extends AbstractReplyBase {
                             throw new IllegalArgumentException(Res.get(Res.CANT_PARSE_PROBLEM));
                         }
 
-                        pos = selProb.indexOf("</problem>");
+                        pos = selProb.indexOf("</problem");
                     }
                 }
             } else {

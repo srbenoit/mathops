@@ -20,7 +20,6 @@ import java.util.List;
 /**
  * This class constructs {@code Formula} objects from text representations.
  */
-@Deprecated
 public enum FormulaFactory {
     ;
 

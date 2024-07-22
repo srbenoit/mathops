@@ -12,7 +12,6 @@ import dev.mathops.commons.builder.HtmlBuilder;
  * A grouping operation to control order of evaluation. Everything inside a grouping operation (which can be either a
  * matched pair of parentheses, or a matched pair of square brackets) is treated as a self-contained formula.
  */
-@Deprecated
 public final class GroupingOper extends AbstractFormulaContainer implements IEditableFormulaObject {
 
     /**

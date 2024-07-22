@@ -94,7 +94,8 @@ public class GetExamReply extends AbstractReplyBase {
             String selProb = extractField(message, "selected-problems");
 
             if (selProb != null) {
-                int pos = selProb.indexOf("</problem>");
+                int pos = selProb.indexOf("</problem");
+
                 final int numSect = this.presentedExam.getNumSections();
 
                 for (int i = 0; i < numSect; i++) {
@@ -113,8 +114,9 @@ public class GetExamReply extends AbstractReplyBase {
                         final ExamProblem prob = sect.getProblem(j);
 
                         // Carve off one problem's XML
-                        sub = selProb.substring(0, pos + 10);
-                        selProb = selProb.substring(pos + 10);
+                        final int tagEnd = selProb.indexOf('>', pos + 9);
+                        sub = selProb.substring(0, tagEnd + 1);
+                        selProb = selProb.substring(tagEnd + 1);
 
                         try {
                             final XmlContent content = new XmlContent(sub, false, false);
@@ -128,7 +130,7 @@ public class GetExamReply extends AbstractReplyBase {
                             throw new IllegalArgumentException(Res.get(Res.CANT_PARSE_PROBLEM));
                         }
 
-                        pos = selProb.indexOf("</problem>");
+                        pos = selProb.indexOf("</problem");
                     }
                 }
             } else {
