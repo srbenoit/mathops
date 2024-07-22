@@ -9,10 +9,9 @@ import jwabbit.CoreConstants;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
+import javax.swing.JWindow;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
@@ -20,6 +19,7 @@ import javax.swing.plaf.basic.BasicArrowButton;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.Point;
@@ -29,6 +29,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
@@ -40,7 +41,7 @@ import java.util.List;
  * open a calendar from which to choose the date.  When a date is selected or entered, an action event is fired to all
  * registered listeners.
  */
-public final class JDateChooser extends JPanel implements ActionListener, MouseListener {
+public final class JDateChooser extends JPanel implements ActionListener, MouseListener, JMonthCalendar.Listener {
 
     /** The action command to open a dropdown calendar picker. */
     private static final String DATE_TYPED_CMD = "DATE_TYPED_CMD";
@@ -57,14 +58,19 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
     /** The current date. */
     private LocalDate date;
 
-    private JPopupMenu popup;
+    /** The month calendar. */
+    private final JMonthCalendar monthCalendar;
+
+    /** The month calendar window. */
+    private final JWindow monthCalendarWindow;
 
     /**
-     * Constructs a new {@code JDateChooser}with a specified starting value.
+     * Constructs a new {@code JDateChooser} with a specified starting value.
      *
      * @param currentValue the current value (can be null)
+     * @param holidays     an optional list of holidays
      */
-    public JDateChooser(final LocalDate currentValue) {
+    public JDateChooser(final LocalDate currentValue, final List<LocalDate> holidays) {
 
         super(new BorderLayout());
 
@@ -87,24 +93,17 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
 
         this.date = currentValue;
         if (currentValue != null) {
-            final String dateStr = TemporalUtils.FMT_MDY_COMPACT_FIXED.format(currentValue);
+            final String dateStr = TemporalUtils.FMT_MDY.format(currentValue);
             this.dateField.setText(dateStr);
         }
 
-        this.popup = new JPopupMenu();
+        final LocalDate today = LocalDate.now();
+        final YearMonth thisMonth = YearMonth.from(today);
+        this.monthCalendar = new JMonthCalendar(thisMonth, today, holidays, currentValue, this);
 
-        final JMenuItem menuItem = new JMenuItem("A popup menu item");
-        menuItem.addActionListener(this);
-        this.popup.add(menuItem);
-
-    }
-
-    /**
-     * Constructs a new {@code JDateChooser) with today's date as the current value.
-     */
-    public JDateChooser() {
-
-        this(LocalDate.now());
+        this.monthCalendarWindow = new JWindow();
+        this.monthCalendarWindow.add(this.monthCalendar);
+        this.monthCalendarWindow.pack();
     }
 
     /**
@@ -183,7 +182,7 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
             final LocalDate parsed = interpretDate(dateText);
 
             if (parsed != null) {
-                final String newText = TemporalUtils.FMT_MDY_COMPACT_FIXED.format(parsed);
+                final String newText = TemporalUtils.FMT_MDY.format(parsed);
                 if (!newText.equals(dateText)) {
                     this.dateField.setText(newText);
                     fireActionEvent();
@@ -207,7 +206,7 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
             newDate = TemporalUtils.FMT_MDY_COMPACT.parse(dateString);
         } catch (final DateTimeParseException ex2) {
             try {
-                newDate = TemporalUtils.FMT_MDY_COMPACT_FIXED.parse(dateString);
+                newDate = TemporalUtils.FMT_MDY.parse(dateString);
             } catch (final DateTimeParseException ex3) {
                 if (dateString.length() == 6) {
                     // Try MMDDYY, like 123199
@@ -247,13 +246,14 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
     @Override
     public void mousePressed(final MouseEvent e) {
 
-        final Point where = getLocation();
-        final Dimension size = getSize();
         final Dimension fieldSize = this.dateField.getSize();
+        final Point fieldLocation = this.dateField.getLocationOnScreen();
 
-        Log.info("Location = ", where, ", size = ", size);
+        final int x = fieldLocation.x - 1;
+        final int y = fieldLocation.y + fieldSize.height;
 
-        this.popup.show(e.getComponent(), -fieldSize.width, where.y + size.height - 1);
+        this.monthCalendarWindow.setLocation(x, y);
+        this.monthCalendarWindow.setVisible(true);
     }
 
     @Override
@@ -280,6 +280,20 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
     }
 
     /**
+     * Called when a date is selected.
+     *
+     * @param date the selected date
+     */
+    @Override
+    public void dateSelected(final LocalDate date) {
+
+        final String dateStr = TemporalUtils.FMT_MDY.format(date);
+        this.dateField.setText(dateStr);
+
+        this.monthCalendarWindow.setVisible(false);
+    }
+
+    /**
      * Main method to test the control.
      *
      * @param args command-line arguments
@@ -287,6 +301,15 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
     public static void main(final String... args) {
 
         FlatLightLaf.setup();
+
+        final LocalDate today = LocalDate.now();
+        final YearMonth yearMonth = YearMonth.from(today);
+        final List<LocalDate> holidays = new ArrayList<>(10);
+        holidays.add(LocalDate.of(2024, 5, 27));
+        holidays.add(LocalDate.of(2024, 6, 19));
+        holidays.add(LocalDate.of(2024, 7, 4));
+        holidays.add(LocalDate.of(2024, 9, 2));
+        final LocalDate selected = LocalDate.of(2024, 7, 25);
 
         SwingUtilities.invokeLater(() -> {
             final JFrame frame = new JFrame("Test");
@@ -298,7 +321,7 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
             content.add(flow, BorderLayout.PAGE_START);
             flow.add(new JLabel("Date: "), BorderLayout.LINE_START);
 
-            final JDateChooser chooser = new JDateChooser();
+            final JDateChooser chooser = new JDateChooser(selected, holidays);
             chooser.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 17));
             chooser.setForeground(Color.BLUE);
             chooser.setActionCommand("FOO");
@@ -306,6 +329,11 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
             final Dimension minSize = new Dimension(150, prefSize.height);
             chooser.setPreferredSize(minSize);
             flow.add(chooser, BorderLayout.CENTER);
+
+
+//            final JMonthCalendar month = new JMonthCalendar(yearMonth, today, holidays, selected, chooser);
+//            monthFlow.add(month);
+//            content.add(monthFlow, BorderLayout.CENTER);
 
             final JLabel result = new JLabel(" ");
             content.add(result, BorderLayout.PAGE_END);

@@ -55,7 +55,8 @@ public final class ScramServerStub {
             rnd = SecureRandom.getInstanceStrong();
         } catch (final NoSuchAlgorithmException ex) {
             Log.warning(ex);
-            rnd = new Random(System.currentTimeMillis());
+            final long seed = System.currentTimeMillis();
+            rnd = new Random(seed);
         }
 
         this.random = rnd;
@@ -76,37 +77,34 @@ public final class ScramServerStub {
 
         String result;
 
-        synchronized (this) {
-            final long now = System.currentTimeMillis();
-            this.requests.removeIf(request -> request.timeout < now);
+        final long now = System.currentTimeMillis();
+        this.requests.removeIf(request -> request.timeout < now);
 
-            if (this.requests.size() > 100) {
-                Log.warning("Too many pending requests");
-                result = "!Too many pending requests";
-            } else {
-                try {
-                    final ClientFirstMessage clientFirst = new ClientFirstMessage(hex);
-                    final UserCredentials cred =
-                            this.credManager.getCredentials(new String(clientFirst.normalizedUsername,
-                                    StandardCharsets.UTF_8));
+        if (this.requests.size() > 100) {
+            Log.warning("Too many pending requests");
+            result = "!Too many pending requests";
+        } else {
+            try {
+                final ClientFirstMessage clientFirst = new ClientFirstMessage(hex);
+                final UserCredentials cred =
+                        this.credManager.getCredentials(new String(clientFirst.normalizedUsername,
+                                StandardCharsets.UTF_8));
 
-                    if (cred == null) {
-                        Log.warning("Invalid username");
-                        result = "!Invalid username";
-                    } else {
-                        // Request is valid - store for the next step in the process
-                        final ServerFirstMessage serverFirst = new ServerFirstMessage(clientFirst, cred, this.random);
-                        result = serverFirst.hex;
+                if (cred == null) {
+                    Log.warning("Invalid username");
+                    result = "!Invalid username";
+                } else {
+                    // Request is valid - store for the next step in the process
+                    final ServerFirstMessage serverFirst = new ServerFirstMessage(clientFirst, cred, this.random);
+                    result = serverFirst.hex;
 
-                        final Request req = new Request(cred, clientFirst, serverFirst,
-                                System.currentTimeMillis() + REQUEST_TIMEOUT);
-                        this.requests.add(req);
-                    }
-
-                } catch (final IllegalArgumentException ex) {
-                    Log.warning("Unable to parse client-first message: ", ex.getMessage());
-                    result = "!Invalid client-first request";
+                    final Request req = new Request(cred, clientFirst, serverFirst, now + REQUEST_TIMEOUT);
+                    this.requests.add(req);
                 }
+
+            } catch (final IllegalArgumentException ex) {
+                Log.warning("Unable to parse client-first message: ", ex.getMessage());
+                result = "!Invalid client-first request";
             }
         }
 
@@ -133,41 +131,40 @@ public final class ScramServerStub {
                 System.arraycopy(decoded, 0, cNonce, 0, 30);
                 System.arraycopy(decoded, 30, sNonce, 0, 30);
 
-                synchronized (this) {
-                    Request req = null;
-                    for (final Request test : this.requests) {
-                        if (Arrays.equals(cNonce, test.clientFirst.cNonce)
-                                && Arrays.equals(sNonce, test.serverFirst.sNonce)) {
-                            req = test;
-                        }
+                Request req = null;
+                for (final Request test : this.requests) {
+                    if (Arrays.equals(cNonce, test.clientFirst.cNonce)
+                            && Arrays.equals(sNonce, test.serverFirst.sNonce)) {
+                        req = test;
                     }
+                }
 
-                    if (req == null) {
-                        Log.warning("client-final without matching client-first");
-                        result = "!client-final without matching client-first";
-                    } else {
-                        final ClientFinalMessage clientFinal = new ClientFinalMessage(hex, req.clientFirst,
-                                req.serverFirst, req.credentials);
+                if (req == null) {
+                    Log.warning("client-final without matching client-first");
+                    result = "!client-final without matching client-first";
+                } else {
+                    final ClientFinalMessage clientFinal = new ClientFinalMessage(hex, req.clientFirst,
+                            req.serverFirst, req.credentials);
 
-                        final String token = CoreConstants.newId(30);
+                    final String token = CoreConstants.newId(30);
+                    final ServerFinalMessage serverFinal = new ServerFinalMessage(clientFinal, req.credentials, token);
+                    result = serverFinal.hex;
 
-                        final ServerFinalMessage serverFinal = new ServerFinalMessage(clientFinal, req.credentials,
-                                token);
-                        result = serverFinal.hex;
+                    final long now = System.currentTimeMillis();
+                    final Long timeout = Long.valueOf(now + TOKEN_TIMEOUT);
+                    this.tokenTimeouts.put(token, timeout);
+                    this.tokenCredentials.put(token, req.credentials);
 
-                        this.tokenTimeouts.put(token, Long.valueOf(System.currentTimeMillis() + TOKEN_TIMEOUT));
-                        this.tokenCredentials.put(token, req.credentials);
-
-                        Log.info("SCRAM-SHA-256 authentication of user ",
-                                new String(req.credentials.normalizedUsername, StandardCharsets.UTF_8));
-                    }
+                    Log.info("SCRAM-SHA-256 authentication of user ", new String(req.credentials.normalizedUsername,
+                            StandardCharsets.UTF_8));
                 }
             } else {
                 Log.warning("Invalid client-final message");
                 result = "!Invalid client-final message";
             }
         } catch (final IllegalArgumentException ex) {
-            Log.warning("Invalid client-final message: ", ex.getMessage());
+            final String msg = ex.getMessage();
+            Log.warning("Invalid client-final message: ", msg);
             result = "!Invalid client-final message";
         }
 
@@ -184,23 +181,21 @@ public final class ScramServerStub {
 
         UserCredentials result = null;
 
-        synchronized (this) {
-            final Long timeout = this.tokenTimeouts.get(token);
-            if (timeout != null) {
-                final long now = System.currentTimeMillis();
+        final Long timeout = this.tokenTimeouts.get(token);
+        if (timeout != null) {
+            final long now = System.currentTimeMillis();
 
-                if (timeout.longValue() < now) {
-                    this.tokenCredentials.remove(token);
+            if (timeout.longValue() < now) {
+                this.tokenCredentials.remove(token);
+                this.tokenTimeouts.remove(token);
+            } else {
+                result = this.tokenCredentials.get(token);
+
+                if (result == null) {
+                    Log.warning("Timeout present but credentials not");
                     this.tokenTimeouts.remove(token);
                 } else {
-                    result = this.tokenCredentials.get(token);
-
-                    if (result == null) {
-                        Log.warning("Timeout present but credentials not");
-                        this.tokenTimeouts.remove(token);
-                    } else {
-                        this.tokenTimeouts.put(token, Long.valueOf(now + TOKEN_TIMEOUT));
-                    }
+                    this.tokenTimeouts.put(token, Long.valueOf(now + TOKEN_TIMEOUT));
                 }
             }
         }

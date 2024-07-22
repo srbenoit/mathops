@@ -212,7 +212,7 @@ enum PageCourseStatus {
                         exam.serialNbr.longValue());
 
                 htm.sDiv("indent2");
-                htm.addln(" <a class='ulink' href='see_past_exam.html?course=", course, "&exam=", exam.version,
+                htm.addln(" <a class='ulink' href='see_past_exam.html?course=", course.course, "&exam=", exam.version,
                         "&xml=", path, CoreConstants.SLASH, ExamWriter.EXAM_FILE,
                         "&upd=", path, CoreConstants.SLASH, ExamWriter.ANSWERS_FILE,
                         "'>View the ", exam.getExamLabel(), "</a>");
