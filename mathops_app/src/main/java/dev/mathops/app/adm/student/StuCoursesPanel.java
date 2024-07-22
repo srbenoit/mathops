@@ -6,9 +6,9 @@ import dev.mathops.app.adm.StudentData;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
-import dev.mathops.db.old.DbConnection;
+import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.db.type.TermKey;
-import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 
 import javax.swing.JButton;
@@ -22,9 +22,7 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serial;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -41,8 +39,8 @@ final class StuCoursesPanel extends AdmPanelBase implements ActionListener {
     /** An action command. */
     private static final String ADD_TRANSFER_CMD = "ADD_TRANSFER";
 
-    /** The database connection. */
-    private final DbConnection conn;
+    /** The data cache. */
+    private final Cache cache;
 
     /** The course history table. */
     private final JTableCourseHistory historyTable;
@@ -92,14 +90,14 @@ final class StuCoursesPanel extends AdmPanelBase implements ActionListener {
     /**
      * Constructs a new {@code AdminCoursePanel}.
      *
-     * @param theConn the database connection
+     * @param theCache the data cache
      */
-    StuCoursesPanel(final DbConnection theConn) {
+    StuCoursesPanel(final Cache theCache) {
 
         super();
         setBackground(Skin.LIGHTEST);
 
-        this.conn = theConn;
+        this.cache = theCache;
 
         // Left side: history of past registrations
 
@@ -229,22 +227,13 @@ final class StuCoursesPanel extends AdmPanelBase implements ActionListener {
      */
     private void populateDisplay(final StudentData data) {
 
-        TermKey active = null;
-
         this.currentStudentData = data;
 
-        try (final Statement s = this.conn.createStatement()) {
-            try (final ResultSet rs = s.executeQuery(//
-                    "SELECT term, term_yr FROM term WHERE active='Y'")) {
-                if (rs.next()) {
-                    final ETermName name = ETermName.forName(rs.getString(1));
-                    final int y = rs.getInt(2);
+        TermKey active = null;
 
-                    if (name != null) {
-                        active = new TermKey(name, y <= 80 ? y + 2000 : y + 1900);
-                    }
-                }
-            }
+        try {
+            final TermRec activeTerm = this.cache.getSystemData().getActiveTerm();
+            active = activeTerm.term;
         } catch (final SQLException ex) {
             Log.warning(ex);
             this.error.setText("Unable to query for active term: " + ex.getMessage());
@@ -307,7 +296,7 @@ final class StuCoursesPanel extends AdmPanelBase implements ActionListener {
 
             if (this.currentStudentData != null) {
                 if (this.addTransferDialog == null) {
-                    this.addTransferDialog = new DlgAddTransfer(this.conn, this);
+                    this.addTransferDialog = new DlgAddTransfer(this.cache, this);
                 }
 
                 this.addTransferDialog.populateDisplay(this.currentStudentData);

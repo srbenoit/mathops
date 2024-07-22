@@ -19,7 +19,6 @@ import javax.swing.plaf.basic.BasicArrowButton;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.Point;
@@ -48,6 +47,9 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
 
     /** The text field into which the user can type, or in which the selected date is displayed. */
     private final JTextField dateField;
+
+    /** The button to drop down the calendar display. */
+    private final BasicArrowButton dateDropdownArrow;
 
     /** The list of action listeners. */
     private final List<ActionListener> listeners;
@@ -87,9 +89,9 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
         this.dateField.setActionCommand(DATE_TYPED_CMD);
         this.dateField.addActionListener(this);
 
-        final BasicArrowButton arrow = new BasicArrowButton(SwingConstants.SOUTH);
-        arrow.addMouseListener(this);
-        add(arrow, BorderLayout.LINE_END);
+        this.dateDropdownArrow = new BasicArrowButton(SwingConstants.SOUTH);
+        this.dateDropdownArrow.addMouseListener(this);
+        add(this.dateDropdownArrow, BorderLayout.LINE_END);
 
         this.date = currentValue;
         if (currentValue != null) {
@@ -114,6 +116,52 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
     public LocalDate getDate() {
 
         return this.date;
+    }
+
+    /**
+     * Sets the date.
+     *
+     * @param newDate the new date
+     */
+    public void setDate(final LocalDate newDate) {
+
+        this.date = newDate;
+
+        if (newDate == null) {
+            this.dateField.setText("");
+        } else {
+            this.dateField.setText(TemporalUtils.FMT_MDY.format(newDate));
+        }
+    }
+
+    /**
+     * Sets the font to use when displaying this control.
+     *
+     * @param newFont the desired {@code Font} for this component
+     */
+    public void setFont(final Font newFont) {
+
+        super.setFont(newFont);
+
+        if (this.dateField != null) {
+            this.dateField.setFont(newFont);
+        }
+        if (this.monthCalendar != null) {
+            this.monthCalendar.setFont(newFont);
+
+            if (this.dateField != null) {
+                final Dimension calendarSize = this.monthCalendar.getPreferredSize();
+                final Dimension fieldSize = this.dateField.getPreferredSize();
+                final Dimension buttonSize = this.dateDropdownArrow.getPreferredSize();
+
+                final int w = calendarSize.width - buttonSize.width;
+                final Dimension newFieldSize = new Dimension(w, fieldSize.height);
+                this.dateField.setPreferredSize(newFieldSize);
+            }
+        }
+
+        invalidate();
+        revalidate();
     }
 
     /**
@@ -252,8 +300,12 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
         final int x = fieldLocation.x - 1;
         final int y = fieldLocation.y + fieldSize.height;
 
-        this.monthCalendarWindow.setLocation(x, y);
-        this.monthCalendarWindow.setVisible(true);
+        if (this.monthCalendarWindow.isVisible()) {
+            this.monthCalendarWindow.setVisible(false);
+        } else {
+            this.monthCalendarWindow.setLocation(x, y);
+            this.monthCalendarWindow.setVisible(true);
+        }
     }
 
     @Override
