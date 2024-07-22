@@ -170,7 +170,6 @@ final class TestingManageCard extends AdmPanelBase implements ActionListener {
 
             try {
                 final List<RawClientPc> stations = RawClientPcLogic.INSTANCE.queryAll(this.cache);
-Upt                Log.info("Powering up testing center");
 
                 for (final RawClientPc station : stations) {
 
