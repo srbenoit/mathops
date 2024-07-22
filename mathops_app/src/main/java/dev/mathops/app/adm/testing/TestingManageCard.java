@@ -170,13 +170,9 @@ final class TestingManageCard extends AdmPanelBase implements ActionListener {
 
             try {
                 final List<RawClientPc> stations = RawClientPcLogic.INSTANCE.queryAll(this.cache);
+Upt                Log.info("Powering up testing center");
 
                 for (final RawClientPc station : stations) {
-
-                    if (RawClientPc.USAGE_PAPER.equals(station.pcUsage)) {
-                        // Skip stations with "paper" usage when powering up room
-                        continue;
-                    }
 
                     if (RawClientPc.POWER_REPORTING_ON.equals(station.powerStatus)
                             && station.lastPing != null && station.lastPing.intValue() > recent) {
