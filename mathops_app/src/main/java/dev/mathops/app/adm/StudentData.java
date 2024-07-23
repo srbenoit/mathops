@@ -308,4 +308,22 @@ public final class StudentData {
 
         return result;
     }
+
+    /**
+     * Called when the transfer credit data is altered.
+     *
+     * @param cache the data cache
+     */
+    public void updateTransferCreditList(final Cache cache) {
+
+        final String stuId = this.student.stuId;
+
+        try {
+            final List<RawFfrTrns> newList =  RawFfrTrnsLogic.queryByStudent(cache, stuId);
+            this.studentTransferCredit.clear();
+            this.studentTransferCredit.addAll(newList);
+        } catch (final SQLException ex) {
+            Log.warning(ex);
+        }
+    }
 }

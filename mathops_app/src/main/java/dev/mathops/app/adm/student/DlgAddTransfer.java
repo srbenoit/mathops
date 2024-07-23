@@ -8,13 +8,16 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawlogic.RawFfrTrnsLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
+import dev.mathops.db.old.rawrecord.RawFfrTrns;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
@@ -85,12 +88,6 @@ final class DlgAddTransfer extends JFrame implements ActionListener, ItemListene
 
         super("Add Transfer Credit");
         setBackground(Skin.LIGHTEST);
-
-//        stu_id               char(9)                                 no
-//        course               char(10)                                no
-//        exam_placed          char(1)                                 no
-//        exam_dt              date                                    no
-//        dt_cr_refused        date                                    yes
 
         this.cache = theCache;
         this.owner = theOwner;
@@ -229,6 +226,38 @@ final class DlgAddTransfer extends JFrame implements ActionListener, ItemListene
 
         if (APPLY_CMD.equals(cmd)) {
 
+            final String stuId = this.studentIdField.getText();
+            final Object course = this.courseIdDropdown.getSelectedItem();
+            final LocalDate date = this.examDate.getDate();
+            final Object type = this.typeDropdown.getSelectedItem();
+
+            if (stuId == null || course == null || date == null || type == null) {
+                Log.warning("Apply button was enabled when it should not have been");
+                this.applyButton.setEnabled(false);
+            } else if (course instanceof final String courseStr) {
+                if (type instanceof final String typeStr) {
+                    final String examPlaced = typeStr.startsWith("Transfer") ? "T" : "C";
+                    final RawFfrTrns newRecord = new RawFfrTrns(stuId, courseStr, examPlaced, date, null);
+
+                    try {
+                        RawFfrTrnsLogic.INSTANCE.insert(this.cache, newRecord);
+                        setVisible(false);
+                        this.owner.updateTransferCreditList();
+                    } catch (final SQLException ex) {
+                        final String[] msg = {"Failed to insert FFR_TRNS record", ex.getMessage()};
+                        Log.warning(ex);
+                        JOptionPane.showMessageDialog(this, msg, "Add Transfer Credit", JOptionPane.ERROR_MESSAGE);
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this, "Invalid type", "Add Transfer Credit",
+                            JOptionPane.ERROR_MESSAGE);
+                    this.applyButton.setEnabled(false);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Invalid course ID", "Add Transfer Credit",
+                        JOptionPane.ERROR_MESSAGE);
+                this.applyButton.setEnabled(false);
+            }
         } else if (CANCEL_CMD.equals(cmd)) {
             setVisible(false);
         }

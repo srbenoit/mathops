@@ -1,6 +1,7 @@
 package dev.mathops.app.adm.student;
 
 import dev.mathops.app.adm.AdmPanelBase;
+import dev.mathops.app.adm.FixedData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
 import dev.mathops.commons.CoreConstants;
@@ -91,13 +92,17 @@ final class StuCoursesPanel extends AdmPanelBase implements ActionListener {
      * Constructs a new {@code AdminCoursePanel}.
      *
      * @param theCache the data cache
+     * @param theFixed the fixed data container
      */
-    StuCoursesPanel(final Cache theCache) {
+    StuCoursesPanel(final Cache theCache, final FixedData theFixed) {
 
         super();
         setBackground(Skin.LIGHTEST);
 
         this.cache = theCache;
+
+        final Integer placementPermission = theFixed.getClearanceLevel("STU_PLCMT");
+        final boolean addTransferAllowed = placementPermission != null && placementPermission.intValue() < 4;
 
         // Left side: history of past registrations
 
@@ -126,14 +131,19 @@ final class StuCoursesPanel extends AdmPanelBase implements ActionListener {
         this.transferScroll.setPreferredSize(this.transferTable.getPreferredScrollSize(this.transferScroll, 3));
         transferBlock.add(this.transferScroll, BorderLayout.CENTER);
 
-        final JPanel transferButtonBar = makeOffWhitePanel(new FlowLayout(FlowLayout.CENTER, 2, 2));
-        transferButtonBar.setBackground(Skin.LIGHTEST);
-        this.addTransfer = new JButton("Add...");
-        this.addTransfer.setActionCommand(ADD_TRANSFER_CMD);
-        this.addTransfer.addActionListener(this);
-        this.addTransfer.setEnabled(false);
-        transferButtonBar.add(this.addTransfer);
-        transferBlock.add(transferButtonBar, BorderLayout.PAGE_END);
+        // See if this user is allowed to add transfer credit...
+        this.addTransfer = new JButton("Add Transfer Credit...");
+
+        if (addTransferAllowed) {
+            final JPanel transferButtonBar = makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 2, 2));
+            transferButtonBar.setBackground(Skin.LIGHTEST);
+            this.addTransfer.setFont(Skin.BUTTON_13_FONT);
+            this.addTransfer.setActionCommand(ADD_TRANSFER_CMD);
+            this.addTransfer.addActionListener(this);
+            this.addTransfer.setEnabled(false);
+            transferButtonBar.add(this.addTransfer);
+            transferBlock.add(transferButtonBar, BorderLayout.PAGE_END);
+        }
 
         this.transferSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, historyBlock, transferBlock);
         this.transferSplit.setBackground(Skin.LIGHTEST);
@@ -270,15 +280,33 @@ final class StuCoursesPanel extends AdmPanelBase implements ActionListener {
             Collections.sort(priorTerms);
             Collections.sort(dropped);
 
+            this.currentTable.clear();
             this.currentTable.addData(currentTerm, 2);
+
+            this.historyTable.clear();
             this.historyTable.addData(priorTerms, 2);
+
+            this.transferTable.clear();
             this.transferTable.addData(data.studentTransferCredit, 2);
+
+            this.droppedTable.clear();
             this.droppedTable.addData(dropped, 2);
 
             this.coursesSplit.setDividerLocation(0.5);
             this.transferSplit.setDividerLocation(0.6);
 
             this.addTransfer.setEnabled(true);
+        }
+    }
+
+    /**
+     * Called after transfer credit has been updated.
+     */
+    void updateTransferCreditList() {
+
+        if (this.currentStudentData != null){
+            this.currentStudentData.updateTransferCreditList(this.cache);
+            populateDisplay(this.currentStudentData);
         }
     }
 

@@ -136,7 +136,7 @@ final class CardStudentDetail extends AdmPanelBase implements ActionListener {
         this.infoPanel = new StuInfoPanel(this.fixed);
         this.tabs.addTab("Info", this.infoPanel);
 
-        this.coursePanel = new StuCoursesPanel(theCache);
+        this.coursePanel = new StuCoursesPanel(theCache, this.fixed);
         this.tabs.addTab("Courses", this.coursePanel);
 
         this.deadlinesPanel = new StuDeadlinesPanel(theCache, this.fixed);

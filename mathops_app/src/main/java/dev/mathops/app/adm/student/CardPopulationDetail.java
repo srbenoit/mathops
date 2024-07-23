@@ -144,7 +144,7 @@ final class CardPopulationDetail extends JPanel implements ActionListener {
         final StuInfoPanel infoPanel = new StuInfoPanel(theFixed);
         tabs.addTab("Info", infoPanel);
 
-        final StuCoursesPanel coursePanel = new StuCoursesPanel(theCache);
+        final StuCoursesPanel coursePanel = new StuCoursesPanel(theCache, theFixed);
         tabs.addTab("Courses", coursePanel);
 
         final StuDeadlinesPanel deadlinesPanel = new StuDeadlinesPanel(theCache, theFixed);
