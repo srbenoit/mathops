@@ -187,7 +187,22 @@ public final class RawPaceAppeals extends RawTermRecordBase implements Comparabl
             if (result == 0) {
                 result = compareAllowingNull(this.msNbr, o.msNbr);
                 if (result == 0) {
-                    result = compareAllowingNull(this.msType, o.msType);
+                    // We want "F1" to sort after "FE", which is not the normal collation order for Strings
+                    if ("FE".equals(this.msType)) {
+                        if ("F1".equals(o.msType)) {
+                            result = -1;
+                        } else {
+                            result = compareAllowingNull(this.msType, o.msType);
+                        }
+                    } else if ("F1".equals(this.msType)) {
+                        if ("FE".equals(o.msType)) {
+                            result = 1;
+                        } else {
+                            result = compareAllowingNull(this.msType, o.msType);
+                        }
+                    } else {
+                        result = compareAllowingNull(this.msType, o.msType);
+                    }
                 }
             }
         }

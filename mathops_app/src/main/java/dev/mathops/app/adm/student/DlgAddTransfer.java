@@ -58,7 +58,7 @@ final class DlgAddTransfer extends JFrame implements ActionListener, ItemListene
     private final Cache cache;
 
     /** The owning student courses panel to be refreshed if a transfer record is added. */
-    private final StuCoursesPanel owner;
+    private final PlacementTransferPanel owner;
 
     /** The field for the student ID. */
     private final JTextField studentIdField;
@@ -84,7 +84,7 @@ final class DlgAddTransfer extends JFrame implements ActionListener, ItemListene
      * @param theCache the data cache
      * @param theOwner the owning student courses panel to be refreshed if a transfer record is added
      */
-    DlgAddTransfer(final Cache theCache, final StuCoursesPanel theOwner) {
+    DlgAddTransfer(final Cache theCache, final PlacementTransferPanel theOwner) {
 
         super("Add Transfer Credit");
         setBackground(Skin.LIGHTEST);
@@ -99,19 +99,27 @@ final class DlgAddTransfer extends JFrame implements ActionListener, ItemListene
 
         final JLabel[] labels = new JLabel[5];
 
-        labels[0] = AdmPanelBase.makeLabelMedium("Student ID: ");
-        labels[1] = AdmPanelBase.makeLabelMedium("Student Name: ");
-        labels[2] = AdmPanelBase.makeLabelMedium("Course ID: ");
-        labels[3] = AdmPanelBase.makeLabelMedium("Date: ");
-        labels[4] = AdmPanelBase.makeLabelMedium("Type: ");
+        labels[0] = new JLabel("Student ID: ");
+        labels[1] = new JLabel("Student Name: ");
+        labels[2] = new JLabel("Course ID: ");
+        labels[3] = new JLabel("Date: ");
+        labels[4] = new JLabel("Type: ");
+        for (final JLabel lbl : labels) {
+            lbl.setFont(Skin.MEDIUM_13_FONT);
+            lbl.setForeground(Skin.LABEL_COLOR);
+        }
         UIUtilities.makeLabelsSameSizeRightAligned(labels);
 
-        this.studentIdField = AdmPanelBase.makeTextFieldMedium(9);
-        this.studentNameField = AdmPanelBase.makeTextFieldMedium(20);
-        final Font fieldFont = this.studentIdField.getFont();
+        this.studentIdField = new JTextField(9);
+        this.studentIdField.setFont(Skin.MEDIUM_13_FONT);
+        this.studentIdField.setEditable(false);
+
+        this.studentNameField = new JTextField(20);
+        this.studentNameField.setFont(Skin.MEDIUM_13_FONT);
+        this.studentNameField.setEditable(false);
 
         this.courseIdDropdown = new JComboBox<>(COURSE_IDS);
-        this.courseIdDropdown.setFont(fieldFont);
+        this.courseIdDropdown.setFont(Skin.MEDIUM_13_FONT);
         this.courseIdDropdown.setEditable(true);
         this.courseIdDropdown.setSelectedIndex(-1);
         this.courseIdDropdown.addItemListener(this);
@@ -130,10 +138,10 @@ final class DlgAddTransfer extends JFrame implements ActionListener, ItemListene
 
         final LocalDate today = LocalDate.now();
         this.examDate = new JDateChooser(today, holidays);
-        this.examDate.setFont(this.studentIdField.getFont());
+        this.examDate.setFont(Skin.MEDIUM_13_FONT);
 
         this.typeDropdown = new JComboBox<>(TRANSFER_OR_CHALLENGE);
-        this.typeDropdown.setFont(fieldFont);
+        this.typeDropdown.setFont(Skin.MEDIUM_13_FONT);
         this.typeDropdown.setEditable(true);
         this.typeDropdown.addItemListener(this);
 
@@ -163,12 +171,12 @@ final class DlgAddTransfer extends JFrame implements ActionListener, ItemListene
         content.add(flow5, StackedBorderLayout.NORTH);
 
         this.applyButton = new JButton("Apply");
-        this.applyButton.setFont(fieldFont);
+        this.applyButton.setFont(Skin.BUTTON_13_FONT);
         this.applyButton.setActionCommand(APPLY_CMD);
         this.applyButton.addActionListener(this);
 
         final JButton cancelButton = new JButton("Cancel");
-        cancelButton.setFont(fieldFont);
+        cancelButton.setFont(Skin.BUTTON_13_FONT);
         cancelButton.setActionCommand(CANCEL_CMD);
         cancelButton.addActionListener(this);
 

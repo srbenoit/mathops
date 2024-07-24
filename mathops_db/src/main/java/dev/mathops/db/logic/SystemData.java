@@ -11,6 +11,7 @@ import dev.mathops.db.old.rawlogic.RawCusectionLogic;
 import dev.mathops.db.old.rawlogic.RawHoldTypeLogic;
 import dev.mathops.db.old.rawlogic.RawLessonComponentLogic;
 import dev.mathops.db.old.rawlogic.RawLessonLogic;
+import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawSemesterCalendarLogic;
 import dev.mathops.db.old.rawlogic.RawWhichDbLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
@@ -22,6 +23,7 @@ import dev.mathops.db.old.rawrecord.RawCusection;
 import dev.mathops.db.old.rawrecord.RawHoldType;
 import dev.mathops.db.old.rawrecord.RawLesson;
 import dev.mathops.db.old.rawrecord.RawLessonComponent;
+import dev.mathops.db.old.rawrecord.RawMilestone;
 import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawWhichDb;
@@ -97,8 +99,8 @@ public final class SystemData {
 //    /** A map from course ID to all mastery exams for that course. */
 //    private Map<String, List<MasteryExamRec>> masteryExams;
 
-//    /** The list of all course milestones. */
-//    private List<RawMilestone> milestones = null;
+    /** The list of all course milestones. */
+    private List<RawMilestone> milestones = null;
 //
 //    /** The list of all standards-based milestones. */
 //    private List<StandardMilestoneRec> standardMilestones = null;
@@ -1086,70 +1088,70 @@ public final class SystemData {
         return result;
     }
 
-//    /**
-//     * Gets the list of all course milestones.
-//     *
-//     * @return the course milestones
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawMilestone> getMilestones() throws SQLException {
-//
-//        if (this.milestones == null) {
-//            this.milestones = RawMilestoneLogic.INSTANCE.queryAll(this.cache);
-//            Collections.sort(this.milestones);
-//        }
-//
-//        return this.milestones;
-//    }
-//
-//    /**
-//     * Gets the list of all course milestones in a specified term.
-//     *
-//     * @param term      the term whose milestones to retrieve
-//     * @return the course milestones
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawMilestone> getMilestones(final TermKey term) throws SQLException {
-//
-//        final List<RawMilestone> all = getMilestones();
-//        final int size = all.size();
-//        final List<RawMilestone> result = new ArrayList<>(size);
-//
-//        for (final RawMilestone test : all) {
-//            if (test.termKey.equals(term)) {
-//                result.add(test);
-//            }
-//        }
-//
-//        return result;
-//    }
-//
-//    /**
-//     * Gets the list of all course milestones in a specified term with a specified pace and pace track.
-//     *
-//     * @param term      the term whose milestones to retrieve
-//     * @param pace      the pace whose milestones to retrieve
-//     * @param paceTrack the pace track whose milestones to retrieve
-//     * @return the course milestones
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawMilestone> getMilestones(final TermKey term, final Integer pace, final String paceTrack)
-//            throws SQLException {
-//
-//        final List<RawMilestone> all = getMilestones();
-//        final int paceInt = pace.intValue();
-//        final int size = Math.max(35, 7 * paceInt);
-//        final List<RawMilestone> result = new ArrayList<>(size);
-//
-//        for (final RawMilestone test : all) {
-//            if (test.termKey.equals(term) && test.pace.equals(pace) && test.paceTrack.equals(paceTrack)) {
-//                result.add(test);
-//            }
-//        }
-//
-//        return result;
-//    }
-//
+    /**
+     * Gets the list of all course milestones.
+     *
+     * @return the course milestones
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawMilestone> getMilestones() throws SQLException {
+
+        if (this.milestones == null) {
+            this.milestones = RawMilestoneLogic.INSTANCE.queryAll(this.cache);
+            Collections.sort(this.milestones);
+        }
+
+        return this.milestones;
+    }
+
+    /**
+     * Gets the list of all course milestones in a specified term.
+     *
+     * @param term      the term whose milestones to retrieve
+     * @return the course milestones
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawMilestone> getMilestones(final TermKey term) throws SQLException {
+
+        final List<RawMilestone> all = getMilestones();
+        final int size = all.size();
+        final List<RawMilestone> result = new ArrayList<>(size);
+
+        for (final RawMilestone test : all) {
+            if (test.termKey.equals(term)) {
+                result.add(test);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets the list of all course milestones in a specified term with a specified pace and pace track.
+     *
+     * @param term      the term whose milestones to retrieve
+     * @param pace      the pace whose milestones to retrieve
+     * @param paceTrack the pace track whose milestones to retrieve
+     * @return the course milestones
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawMilestone> getMilestones(final TermKey term, final Integer pace, final String paceTrack)
+            throws SQLException {
+
+        final List<RawMilestone> all = getMilestones();
+        final int paceInt = pace.intValue();
+        final int size = Math.max(35, 7 * paceInt);
+        final List<RawMilestone> result = new ArrayList<>(size);
+
+        for (final RawMilestone test : all) {
+            if (test.termKey.equals(term) && test.pace.equals(pace) && test.paceTrack.equals(paceTrack)) {
+                result.add(test);
+            }
+        }
+
+        return result;
+    }
+
 //    /**
 //     * Gets the list of all standard milestones in the current term.
 //     *

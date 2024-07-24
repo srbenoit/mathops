@@ -40,7 +40,7 @@ import java.util.List;
 /**
  * A panel that displays student activity.
  */
-final class StuActivityPanel extends AdmPanelBase {
+final class CourseActivityPanel extends AdmPanelBase {
 
     /** Version number for serialization. */
     @Serial
@@ -65,7 +65,7 @@ final class StuActivityPanel extends AdmPanelBase {
      * Constructs a new {@code StudentActivityPanel}.
      *
      */
-    StuActivityPanel() {
+    CourseActivityPanel() {
 
         super();
 

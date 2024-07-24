@@ -147,7 +147,7 @@ public final class AdmMainWindow extends WindowAdapter implements Runnable, Chan
         this.tabs.setBackground(Skin.WHITE);
         content.add(this.tabs, BorderLayout.CENTER);
         if (this.fixed.getClearanceLevel("STU_MENU") != null) {
-            this.studentPane = new TopPanelStudent(this.ifxCache, this.renderingHint, this.liveContext, this.fixed);
+            this.studentPane = new TopPanelStudent(this.ifxCache, this.liveContext, this.fixed);
             final String tabTitle = Res.get(Res.STUDENT_TAB);
             this.tabs.addTab(tabTitle, this.studentPane);
         }

@@ -5,6 +5,7 @@ import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.DbConnection;
 import dev.mathops.db.old.DbUtils;
+import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.EDisciplineActionType;
 import dev.mathops.db.enums.EDisciplineIncidentType;
@@ -70,7 +71,7 @@ public final class StudentData {
     public final TermKey activeKey;
 
     /** The student record. */
-    public final RawStudent student;
+    public RawStudent student;
 
     /** The student record. */
     public final RawStterm studentTerm;
@@ -310,6 +311,41 @@ public final class StudentData {
     }
 
     /**
+     * Called when the student record has been altered.
+     *
+     * @param cache the data cache
+     */
+    public void updateStudent(final Cache cache) {
+
+        final String stuId = this.student.stuId;
+
+        try {
+            final RawStudent newStu = RawStudentLogic.query(cache, stuId, false);
+            this.student = newStu;
+        } catch (final SQLException ex) {
+            Log.warning(ex);
+        }
+    }
+
+    /**
+     * Called when pace appeal data is altered.
+     *
+     * @param cache the data cache
+     */
+    public void updatePaceAppeals(final Cache cache) {
+
+        final String stuId = this.student.stuId;
+
+        try {
+            final List<RawPaceAppeals> newList = RawPaceAppealsLogic.queryByStudent(cache, stuId);
+            this.paceAppeals.clear();
+            this.paceAppeals.addAll(newList);
+        } catch (final SQLException ex) {
+            Log.warning(ex);
+        }
+    }
+
+    /**
      * Called when the transfer credit data is altered.
      *
      * @param cache the data cache
@@ -319,7 +355,7 @@ public final class StudentData {
         final String stuId = this.student.stuId;
 
         try {
-            final List<RawFfrTrns> newList =  RawFfrTrnsLogic.queryByStudent(cache, stuId);
+            final List<RawFfrTrns> newList = RawFfrTrnsLogic.queryByStudent(cache, stuId);
             this.studentTransferCredit.clear();
             this.studentTransferCredit.addAll(newList);
         } catch (final SQLException ex) {

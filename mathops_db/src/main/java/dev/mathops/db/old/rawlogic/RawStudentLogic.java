@@ -1066,6 +1066,41 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
     }
 
     /**
+     * Updates a student's number of extension days.
+     *
+     * @param cache            the data cache
+     * @param studentId        the ID of the student whose time limit factor to update
+     * @param newExtensionDays the new number of extension days
+     * @return true if successful; false if not
+     * @throws SQLException if there is an error accessing the database
+     */
+    public static boolean updateExtensionDays(final Cache cache, final String studentId,
+                                              final Integer newExtensionDays) throws SQLException {
+
+        final boolean result;
+
+        if (studentId.startsWith("99")) {
+            Log.info(SKIPPING_UPDATE);
+            Log.info(STU_ID, studentId);
+            result = false;
+        } else {
+            final String sql = "UPDATE student SET extension_days="
+                    + newExtensionDays + " WHERE stu_id='" + studentId
+                    + "'";
+
+            result = executeSimpleUpdate(cache, sql) == 1;
+
+            if (result) {
+                cache.conn.commit();
+            } else {
+                cache.conn.rollback();
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Updates a student's licensed status.
      *
      * @param cache       the data cache

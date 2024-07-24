@@ -144,13 +144,13 @@ final class CardPopulationDetail extends JPanel implements ActionListener {
         final StuInfoPanel infoPanel = new StuInfoPanel(theFixed);
         tabs.addTab("Info", infoPanel);
 
-        final StuCoursesPanel coursePanel = new StuCoursesPanel(theCache, theFixed);
+        final CourseRegistrationsPanel coursePanel = new CourseRegistrationsPanel(theCache);
         tabs.addTab("Courses", coursePanel);
 
-        final StuDeadlinesPanel deadlinesPanel = new StuDeadlinesPanel(theCache, theFixed);
+        final CourseDeadlinesPanel deadlinesPanel = new CourseDeadlinesPanel(theCache, theFixed);
         tabs.addTab("Deadlines", deadlinesPanel);
 
-        final StuActivityPanel activityPanel = new StuActivityPanel();
+        final CourseActivityPanel activityPanel = new CourseActivityPanel();
         tabs.addTab("Activity", activityPanel);
 
         final StuDisciplinePanel disciplinePanel = new StuDisciplinePanel(theCache);
@@ -159,16 +159,16 @@ final class CardPopulationDetail extends JPanel implements ActionListener {
         final StuHoldsPanel holdsPanel = new StuHoldsPanel(theCache, theFixed);
         tabs.addTab("Holds", holdsPanel);
 
-        final StuExamsPanel examsPanel = new StuExamsPanel(theCache, liveContext, theFixed);
+        final CourseExamsPanel examsPanel = new CourseExamsPanel(theCache, liveContext, theFixed);
         tabs.addTab("Exams", examsPanel);
 
-        final StuPlacementPanel mptPanel = new StuPlacementPanel();
+        final PlacementToolPanel mptPanel = new PlacementToolPanel();
         final JScrollPane scroll = new JScrollPane(mptPanel);
         scroll.getVerticalScrollBar().setUnitIncrement(10);
         scroll.getVerticalScrollBar().setBlockIncrement(30);
         tabs.addTab("Placement", scroll);
 
-        final StuMathPlanPanel mathPlanPanel = new StuMathPlanPanel();
+        final PlacementMathPlanPanel mathPlanPanel = new PlacementMathPlanPanel();
         tabs.addTab("Math Plan", mathPlanPanel);
 
         cards.show(cardPane, PICK_CMD);

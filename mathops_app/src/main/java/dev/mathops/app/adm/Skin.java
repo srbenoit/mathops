@@ -165,6 +165,9 @@ public enum Skin {
     public static final Color LT_BLUE = new Color(160, 160, 243);
 
     /** A color for backgrounds. */
+    public static final Color LIGHTER_BLUE = new Color(0xEE, 0xEE, 0xFF);
+
+    /** A color for backgrounds. */
     public static final Color LIGHTER_GRAY = new Color(0xEE, 0xEE, 0xEE);
 
     /** A color for backgrounds. */

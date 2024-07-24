@@ -39,17 +39,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serial;
 import java.sql.SQLException;
-import java.time.DateTimeException;
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoField;
-import java.time.temporal.TemporalAccessor;
 import java.util.Objects;
 
 /**
  * A panel that shows student deadlines.
  */
-final class StuDeadlinesPanel extends AdmPanelBase implements ActionListener, ISemesterCalendarPaneListener {
+final class CourseDeadlinesPanel extends AdmPanelBase implements ActionListener, ISemesterCalendarPaneListener {
 
     /** Version number for serialization. */
     @Serial
@@ -136,7 +132,7 @@ final class StuDeadlinesPanel extends AdmPanelBase implements ActionListener, IS
      * @param theCache the cache
      * @param theFixed the fixed data container
      */
-    StuDeadlinesPanel(final Cache theCache, final FixedData theFixed) {
+    CourseDeadlinesPanel(final Cache theCache, final FixedData theFixed) {
 
         super();
 

@@ -184,6 +184,17 @@ public final class JMonthCalendar extends JPanel implements ActionListener {
     }
 
     /**
+     * Sets the "selected" date.
+     *
+     * @param newSelectedDate the new selected date
+     */
+    public void setSelectedDate(final LocalDate newSelectedDate) {
+
+        this.selectedDate = newSelectedDate;
+        update();
+    }
+
+    /**
      * Updates the calendar based on current member variables.
      */
     public void update() {

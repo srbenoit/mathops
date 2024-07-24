@@ -82,12 +82,11 @@ public final class TopPanelStudent extends JPanel implements ActionListener {
     /**
      * Constructs a new {@code TopPanelStudent}.
      *
-     * @param theCache         the data cache
-     * @param liveContext      the database context used to access live data
-     * @param theFixed         the fixed data
+     * @param theCache    the data cache
+     * @param liveContext the database context used to access live data
+     * @param theFixed    the fixed data
      */
-    public TopPanelStudent(final Cache theCache, final Object theRenderingHint, final DbContext liveContext,
-                           final FixedData theFixed) {
+    public TopPanelStudent(final Cache theCache, final DbContext liveContext, final FixedData theFixed) {
 
         super(new BorderLayout(5, 5));
         setPreferredSize(AdmMainWindow.PREF_SIZE);
@@ -155,10 +154,10 @@ public final class TopPanelStudent extends JPanel implements ActionListener {
     /**
      * Creates a button for the top of the pane.
      *
-     * @param title            the button title
-     * @param command          the action command
-     * @param background       the background color
-     * @param btn              an array to populate with the created button
+     * @param title      the button title
+     * @param command    the action command
+     * @param background the background color
+     * @param btn        an array to populate with the created button
      * @return the button panel
      */
     private JPanel makeTopButton(final String title, final String command, final Color background,
@@ -171,8 +170,8 @@ public final class TopPanelStudent extends JPanel implements ActionListener {
 
         final JPanel menuBox = new JPanel(new BorderLayout());
         menuBox.setBackground(background);
-        menuBox.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLoweredBevelBorder(), BorderFactory.createEmptyBorder(2, 2, 2, 2)));
+        menuBox.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLoweredBevelBorder(),
+                BorderFactory.createEmptyBorder(2, 2, 2, 2)));
         menuBox.add(btn[0], BorderLayout.CENTER);
 
         return menuBox;

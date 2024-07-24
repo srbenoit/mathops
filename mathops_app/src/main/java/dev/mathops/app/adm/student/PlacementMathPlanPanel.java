@@ -32,7 +32,7 @@ import java.util.List;
 /**
  * A panel that shows student Math Plan and RamReady status.
  */
-class StuMathPlanPanel extends AdmPanelBase {
+class PlacementMathPlanPanel extends AdmPanelBase {
 
     /** Version number for serialization. */
     @Serial
@@ -63,7 +63,7 @@ class StuMathPlanPanel extends AdmPanelBase {
      * Constructs a new {@code StudentMathPlanPanel}.
      *
      */
-    StuMathPlanPanel() {
+    PlacementMathPlanPanel() {
 
         super();
         setBackground(Skin.WHITE);

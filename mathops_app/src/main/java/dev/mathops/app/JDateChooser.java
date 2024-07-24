@@ -1,10 +1,10 @@
 package dev.mathops.app;
 
 import com.formdev.flatlaf.FlatLightLaf;
+import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.UIUtilities;
-import jwabbit.CoreConstants;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -128,10 +128,12 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
         this.date = newDate;
 
         if (newDate == null) {
-            this.dateField.setText("");
+            this.dateField.setText(CoreConstants.EMPTY);
         } else {
             this.dateField.setText(TemporalUtils.FMT_MDY.format(newDate));
         }
+
+        this.monthCalendar.setSelectedDate(newDate);
     }
 
     /**
@@ -226,6 +228,7 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
         final String cmd = e.getActionCommand();
 
         if (DATE_TYPED_CMD.equals(cmd)) {
+            Log.info("Date typed");
             final String dateText = this.dateField.getText();
             final LocalDate parsed = interpretDate(dateText);
 
@@ -233,8 +236,9 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
                 final String newText = TemporalUtils.FMT_MDY.format(parsed);
                 if (!newText.equals(dateText)) {
                     this.dateField.setText(newText);
-                    fireActionEvent();
                 }
+                fireActionEvent();
+                this.date = parsed;
             }
         }
     }
@@ -339,8 +343,7 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
     @Override
     public void dateSelected(final LocalDate date) {
 
-        final String dateStr = TemporalUtils.FMT_MDY.format(date);
-        this.dateField.setText(dateStr);
+        setDate(date);
 
         this.monthCalendarWindow.setVisible(false);
     }
