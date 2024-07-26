@@ -2,8 +2,8 @@ package dev.mathops.db.old.logic;
 
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
@@ -40,7 +40,9 @@ public enum CourseLogic {
         final String course = stcourse.course;
         String error = null;
 
-        final TermRec active = cache.getSystemData().getActiveTerm();
+        final SystemData systemData = cache.getSystemData();
+
+        final TermRec active = systemData.getActiveTerm();
         if (active == null) {
             error = "Unable to query active term";
         } else {
@@ -54,17 +56,18 @@ public enum CourseLogic {
             for (final RawStexam exam : passedExams) {
                 if (exam.unit != null && exam.examScore != null) {
                     final int unit = exam.unit.intValue();
+                    final int scoreValue = exam.examScore.intValue();
 
                     if (unit == 1) {
-                        maxUnit1 = Math.max(maxUnit1, exam.examScore.intValue());
+                        maxUnit1 = Math.max(maxUnit1, scoreValue);
                     } else if (unit == 2) {
-                        maxUnit2 = Math.max(maxUnit2, exam.examScore.intValue());
+                        maxUnit2 = Math.max(maxUnit2, scoreValue);
                     } else if (unit == 3) {
-                        maxUnit3 = Math.max(maxUnit3, exam.examScore.intValue());
+                        maxUnit3 = Math.max(maxUnit3, scoreValue);
                     } else if (unit == 4) {
-                        maxUnit4 = Math.max(maxUnit4, exam.examScore.intValue());
+                        maxUnit4 = Math.max(maxUnit4, scoreValue);
                     } else if (unit == 5) {
-                        maxFinal = Math.max(maxFinal, exam.examScore.intValue());
+                        maxFinal = Math.max(maxFinal, scoreValue);
                     }
                 }
             }
@@ -81,11 +84,11 @@ public enum CourseLogic {
                     final int pace = stterm.pace.intValue();
                     final int order = stcourse.paceOrder.intValue();
 
-                    final List<RawMilestone> milestones = RawMilestoneLogic.getAllMilestones(cache,
-                            active.term, pace, stterm.paceTrack);
+                    final List<RawMilestone> milestones = systemData.getMilestones(active.term, stterm.pace,
+                            stterm.paceTrack);
 
-                    final List<RawStmilestone> stmilestones = RawStmilestoneLogic
-                            .getStudentMilestones(cache, active.term, stterm.paceTrack, stuId);
+                    final List<RawStmilestone> stmilestones = RawStmilestoneLogic.getStudentMilestones(cache,
+                            active.term, stterm.paceTrack, stuId);
                     stmilestones.sort(null);
 
                     LocalDate unit1 = null;
@@ -116,7 +119,8 @@ public enum CourseLogic {
                             } else if (unit4 != null && test.msNbr.intValue() == pace * 100 + order * 10 + 4) {
                                 unit4 = test.msDate;
                             }
-                            // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
+                            // Don't break - student milestones are sorted by deadline date, and if there are
+                            // multiple, we want
                             // the later date
                         }
                     }
@@ -284,9 +288,12 @@ public enum CourseLogic {
         final int pace = PaceTrackLogic.determinePace(paced);
         final String track = PaceTrackLogic.determinePaceTrack(paced, pace);
 
-        final List<RawMilestone> milestones = RawMilestoneLogic.getAllMilestones(cache, reg.termKey, pace, track);
-        final List<RawStmilestone> stmilestones = RawStmilestoneLogic.getStudentMilestones(cache, reg.termKey,
-                track, reg.stuId);
+        final SystemData systemData = cache.getSystemData();
+        final Integer paceObj = Integer.valueOf(pace);
+
+        final List<RawMilestone> milestones = systemData.getMilestones(reg.termKey, paceObj, track);
+        final List<RawStmilestone> stmilestones = RawStmilestoneLogic.getStudentMilestones(cache, reg.termKey, track,
+                reg.stuId);
         stmilestones.sort(null);
 
         int index = 1;
@@ -318,8 +325,8 @@ public enum CourseLogic {
                         for (final RawStmilestone stms : stmilestones) {
                             if ("RE".equals(stms.msType) && test.msNbr.equals(stms.msNbr)) {
                                 re1 = stms.msDate;
-                                // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
-                                // the later date
+                                // Don't break - student milestones are sorted by deadline date, and if there are
+                                // multiple, we want the later date
                             }
                         }
                     } else if (unit == 2) {
@@ -327,8 +334,8 @@ public enum CourseLogic {
                         for (final RawStmilestone stms : stmilestones) {
                             if ("RE".equals(stms.msType) && test.msNbr.equals(stms.msNbr)) {
                                 re2 = stms.msDate;
-                                // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
-                                // the later date
+                                // Don't break - student milestones are sorted by deadline date, and if there are
+                                // multiple, we want the later date
                             }
                         }
                     } else if (unit == 3) {
@@ -336,8 +343,8 @@ public enum CourseLogic {
                         for (final RawStmilestone stms : stmilestones) {
                             if ("RE".equals(stms.msType) && test.msNbr.equals(stms.msNbr)) {
                                 re3 = stms.msDate;
-                                // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
-                                // the later date
+                                // Don't break - student milestones are sorted by deadline date, and if there are
+                                // multiple, we want the later date
                             }
                         }
                     } else if (unit == 4) {
@@ -345,8 +352,8 @@ public enum CourseLogic {
                         for (final RawStmilestone stms : stmilestones) {
                             if ("RE".equals(stms.msType) && test.msNbr.equals(stms.msNbr)) {
                                 re4 = stms.msDate;
-                                // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
-                                // the later date
+                                // Don't break - student milestones are sorted by deadline date, and if there are
+                                // multiple, we want the later date
                             }
                         }
                     }
@@ -357,8 +364,8 @@ public enum CourseLogic {
                         for (final RawStmilestone stms : stmilestones) {
                             if ("FE".equals(stms.msType) && test.msNbr.equals(stms.msNbr)) {
                                 fe = stms.msDate;
-                                // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
-                                // the later date
+                                // Don't break - student milestones are sorted by deadline date, and if there are
+                                // multiple, we want the later date
                             }
                         }
                     }

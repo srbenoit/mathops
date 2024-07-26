@@ -1,7 +1,7 @@
 package dev.mathops.session.sitelogic.data;
 
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawrecord.RawCunit;
 import dev.mathops.db.old.rawrecord.RawCusection;
 import dev.mathops.db.old.rawrecord.RawExam;
@@ -33,12 +33,11 @@ public final class SiteDataCfgUnit {
      */
     SiteDataCfgUnit(final Cache cache, final RawCusection theCusection) throws SQLException {
 
+        final SystemData systemData = cache.getSystemData();
+
         this.courseSectionUnit = theCusection;
-
-        this.courseUnit = cache.getSystemData().getCourseUnit(theCusection.course, theCusection.unit,
-                theCusection.termKey);
-
-        this.exams = RawExamLogic.queryActiveByCourseUnit(cache, theCusection.course, theCusection.unit);
+        this.courseUnit = systemData.getCourseUnit(theCusection.course, theCusection.unit, theCusection.termKey);
+        this.exams = systemData.getActiveExamByCourseUnit(theCusection.course, theCusection.unit);
     }
 
     /**

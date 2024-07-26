@@ -41,7 +41,6 @@ import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.logic.PlacementLogic;
 import dev.mathops.db.old.logic.PlacementStatus;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawMpecrDeniedLogic;
 import dev.mathops.db.old.rawlogic.RawMpscorequeueLogic;
@@ -318,7 +317,9 @@ public final class ReviewExamSession extends HtmlSessionBase {
         // Look up the exam and store it in an AvailableExam object.
         final AvailableExam avail = new AvailableExam();
 
-        avail.exam = RawExamLogic.query(cache, this.version);
+        final SystemData systemData = cache.getSystemData();
+
+        avail.exam = systemData.getActiveExam(this.version);
 
         if (avail.exam == null) {
             error = "No exam found with the requested version";
@@ -1360,7 +1361,7 @@ public final class ReviewExamSession extends HtmlSessionBase {
 
         Log.info("Grading review exam for student ", this.studentId, ", exam ", getExam().examVersion);
 
-        final RawExam examRec = RawExamLogic.query(cache, this.version);
+        final RawExam examRec = systemData.getActiveExam(this.version);
         if (examRec == null) {
             return "Exam " + this.version + " not found!";
         }

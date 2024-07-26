@@ -9,6 +9,8 @@ import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
+import dev.mathops.session.sitelogic.data.SiteData;
+import dev.mathops.session.sitelogic.data.SiteDataCfgCourse;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -78,6 +80,9 @@ enum PageStdsCourse {
             htm.addln("Unable to determine class schedule.");
             htm.eP();
         } else {
+            final SiteData data = logic.data;
+            final SiteDataCfgCourse courseData = data.courseData.getCourse(reg.course, reg.sect);
+
             final List<RawStcourse> paceRegs = logic.data.registrationData.getPaceRegistrations();
             final int pace = paceRegs == null ? 0 : PaceTrackLogic.determinePace(paceRegs);
             final String paceTrack = paceRegs == null ? CoreConstants.EMPTY :
@@ -86,7 +91,8 @@ enum PageStdsCourse {
             final ZonedDateTime now = ZonedDateTime.now();
             final boolean isTutor = logic.data.studentData.isSpecialType(now, "TUTOR");
 
-            final StdsMasteryStatus masteryStatus = new StdsMasteryStatus(cache, pace, paceTrack, reg, isTutor);
+            final StdsMasteryStatus masteryStatus = new StdsMasteryStatus(cache, courseData, pace, paceTrack, reg,
+                    isTutor);
 
             final int targetsFirstHalf = masteryStatus.getNbrMasteredInFirstHalf();
             final int targetsSecondHalf = masteryStatus.getNbrMasteredInSecondHalf();

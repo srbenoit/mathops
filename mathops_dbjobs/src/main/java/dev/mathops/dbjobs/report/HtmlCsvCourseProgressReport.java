@@ -4,6 +4,7 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.old.DbConnection;
@@ -13,7 +14,6 @@ import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.logic.PaceTrackLogic;
-import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
@@ -160,7 +160,7 @@ public final class HtmlCsvCourseProgressReport {
             final List<RawStcourse> regs = entry.getValue();
             // Remove "forfeit" courses and Incomplete courses not counted in pace
             regs.removeIf(r -> "G".equals(r.openStatus) || ("Y".equals(r.iInProgress) && "N".equals(r.iCounted)));
-            processStudent(stuId, regs, cache, html);
+            processStudent(cache, stuId, regs, html);
         }
 
         html.add("</table>");
@@ -238,13 +238,13 @@ public final class HtmlCsvCourseProgressReport {
     /**
      * Processes a single student record.
      *
+     * @param cache the data cache
      * @param stuId the student ID
      * @param regs  the list of student registrations
-     * @param cache the data cache
      * @param html  a collection to which to add HTML report lines
      * @throws SQLException if there is an error accessing the database
      */
-    private static void processStudent(final String stuId, final List<RawStcourse> regs, final Cache cache,
+    private static void processStudent(final Cache cache, final String stuId, final List<RawStcourse> regs,
                                        final Collection<? super String> html) throws SQLException {
 
         // Order them by "pace order" if present, by course number if not
@@ -289,7 +289,8 @@ public final class HtmlCsvCourseProgressReport {
             }
         }
 
-        final TermRec activeTerm = cache.getSystemData().getActiveTerm();
+        final SystemData systemData = cache.getSystemData();
+        final TermRec activeTerm = systemData.getActiveTerm();
         final TermKey activeKey = activeTerm == null ? null : activeTerm.term;
 
         final RawStudent stu = ordered.isEmpty() || activeKey == null ? null
@@ -297,13 +298,13 @@ public final class HtmlCsvCourseProgressReport {
 
         if (stu != null) {
             final int pace = PaceTrackLogic.determinePace(ordered);
+            final Integer paceObj = Integer.valueOf(pace);
             final String track = PaceTrackLogic.determinePaceTrack(ordered, pace);
 
-            final List<RawMilestone> milestones =
-                    RawMilestoneLogic.getAllMilestones(cache, activeKey, pace, track);
+            final List<RawMilestone> milestones = systemData.getMilestones(activeKey, paceObj, track);
 
-            final List<RawStmilestone> stmilestones =
-                    RawStmilestoneLogic.getStudentMilestones(cache, activeKey, track, stu.stuId);
+            final List<RawStmilestone> stmilestones = RawStmilestoneLogic.getStudentMilestones(cache, activeKey, track,
+                    stu.stuId);
             stmilestones.sort(null);
 
             // Generate report

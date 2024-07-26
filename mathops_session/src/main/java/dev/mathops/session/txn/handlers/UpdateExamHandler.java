@@ -34,7 +34,6 @@ import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.logic.ChallengeExamLogic;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawMpeLogLogic;
 import dev.mathops.db.old.rawlogic.RawMpecrDeniedLogic;
@@ -79,7 +78,6 @@ import dev.mathops.db.old.rec.MasteryAttemptRec;
 import dev.mathops.db.old.rec.MasteryExamRec;
 import dev.mathops.db.old.reclogic.MasteryAttemptLogic;
 import dev.mathops.db.old.reclogic.MasteryAttemptQaLogic;
-import dev.mathops.db.old.reclogic.MasteryExamLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ExamWriter;
 import dev.mathops.session.ISessionManager;
@@ -183,7 +181,6 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
         final String stuId = getStudent().stuId;
 
         if ("GUEST".equals(stuId) || "AACTUTOR".equals(stuId)) {
-
             reply.error = "Guest login exams will not be recorded.";
             return reply.toXml();
         }
@@ -196,16 +193,17 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
         Log.info("Writing updated exam state");
 
         // Write the updated exam state out somewhere permanent
+        final Object[][] requestAnswers = request.getAnswers();
         if (request.realizationTime != null && request.identifierReference != null) {
-            new ExamWriter().writeUpdatedExam(stuId, active, request.getAnswers(), false);
+            new ExamWriter().writeUpdatedExam(stuId, active, requestAnswers, false);
         }
 
         if (request.finalize) {
             if (request.realizationTime != null) {
 
                 long serial = 0L;
-                if (request.getAnswers()[0][0] instanceof Long) {
-                    serial = ((Long) request.getAnswers()[0][0]).longValue();
+                if (requestAnswers[0][0] instanceof Long) {
+                    serial = ((Long) requestAnswers[0][0]).longValue();
                 }
 
                 Log.info("Reading presented exam");
@@ -214,7 +212,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
 
                 // grade the exam
                 if (exam != null) {
-                    exam.importState(request.getAnswers());
+                    exam.importState(requestAnswers);
                     finalizeExam(cache, exam, request, reply);
                     Log.info("Finished grading ", exam.examVersion, " exam ", exam.serialNumber);
                 } else {
@@ -247,9 +245,11 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
             final ExamObj exam = new ExamWriter().readPresentedExam(stuId, active, 0L);
 
             if (exam != null) {
-                exam.importState(request.getAnswers());
+                exam.importState(requestAnswers);
 
-                final RawExam examObj = RawExamLogic.query(cache, exam.examVersion);
+                final SystemData systemData = cache.getSystemData();
+
+                final RawExam examObj = systemData.getActiveExam(exam.examVersion);
 
                 if (examObj != null) {
                     Long ser = exam.serialNumber;
@@ -486,6 +486,8 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
         final Object[][] answers = req.getAnswers();
         int answerId = 1;
 
+        final SystemData systemData = cache.getSystemData();
+
         final int numSect = presented.getNumSections();
         for (int i = 0; i < numSect; ++i) {
             final ExamSection sect = presented.getSection(i);
@@ -495,8 +497,8 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
                 final Integer unitInt = Integer.valueOf(unitObjective[0]);
                 final Integer objInt = Integer.valueOf(unitObjective[1]);
 
-                final List<MasteryExamRec> masteryExams = MasteryExamLogic.get(cache)
-                        .queryActiveByCourseUnitObjective(cache, presented.course, unitInt, objInt);
+                final List<MasteryExamRec> masteryExams = systemData.getActiveMasteryExamsByCourseUnitObjective(
+                        presented.course, unitInt, objInt);
 
                 final int count = masteryExams.size();
                 if (count == 1) {
@@ -627,10 +629,12 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
         Log.info("Grading exam for student ", student.stuId, ", exam ", presented.examVersion, ": Proctored=",
                 param1.getValue(), ", Remote=" + presented.remote);
 
+        final SystemData systemData = cache.getSystemData();
+
         // Get the student's SAT and ACT scores from the database, and store in parameters for use in scoring formulas.
         loadSatActSurvey(cache, params);
 
-        final RawExam exam = RawExamLogic.query(cache, presented.examVersion);
+        final RawExam exam = systemData.getActiveExam(presented.examVersion);
         if (exam == null) {
             Log.warning("Exam not ", presented.examVersion, " not found!");
             return false;
@@ -663,7 +667,6 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
         }
         stexam.serialNumber = presented.serialNumber;
 
-        final SystemData systemData = cache.getSystemData();
         final TermRec active = systemData.getActiveTerm();
 
         boolean ok = true;

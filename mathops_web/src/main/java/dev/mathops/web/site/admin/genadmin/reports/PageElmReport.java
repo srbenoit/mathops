@@ -3,8 +3,8 @@ package dev.mathops.web.site.admin.genadmin.reports;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
+import dev.mathops.db.old.rawrecord.RawExam;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -214,7 +214,7 @@ public enum PageElmReport {
                     htm.add("<td>", row.version, "</td>");
                     htm.add("<td>", start == null ? "N/A" : start.format(TemporalUtils.FMT_HM_A), "</td>");
                     htm.add("<td>", fin == null ? "N/A" : fin.format(TemporalUtils.FMT_HM_A), "</td>");
-                    htm.add("<td>", RawExamLogic.getExamTypeName(row.examType), "</td>");
+                    htm.add("<td>", RawExam.getExamTypeName(row.examType), "</td>");
                     htm.add("<td>", row.examScore, "</td>");
                     htm.add("<td>", row.passed, "</td>");
                     htm.add("<td>", row.examSource, "</td>");

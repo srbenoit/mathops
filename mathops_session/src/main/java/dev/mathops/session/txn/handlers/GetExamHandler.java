@@ -15,6 +15,7 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.logic.ChallengeExamLogic;
@@ -23,7 +24,6 @@ import dev.mathops.db.old.logic.PlacementLogic;
 import dev.mathops.db.old.logic.PlacementStatus;
 import dev.mathops.db.old.logic.StandardsMasteryLogic;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawMpeLogLogic;
 import dev.mathops.db.old.rawlogic.RawPendingExamLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
@@ -132,20 +132,22 @@ public final class GetExamHandler extends AbstractHandlerBase {
         boolean ok = loadStudentInfo(cache, request.studentId, reply);
 
         if (ok) {
+            final SystemData systemData = cache.getSystemData();
+
             LogBase.setSessionInfo("TXN", request.studentId);
 
             // Look up the exam and store it in an AvailableExam object.
             final AvailableExam avail = new AvailableExam();
 
             if (request.examVersion != null) {
-                avail.exam = RawExamLogic.query(cache, request.examVersion);
+                avail.exam = systemData.getActiveExam(request.examVersion);
                 if (avail.exam == null) {
                     reply.error = "No exam found with the requested version";
                     ok = false;
                 }
             } else if (request.examCourse != null && request.examUnit != null && request.examType != null) {
 
-                avail.exam = RawExamLogic.queryActiveByCourseUnitType(cache, request.examCourse, request.examUnit,
+                avail.exam = systemData.getActiveExamByCourseUnitType(request.examCourse, request.examUnit,
                         request.examType);
                 if (avail.exam == null) {
                     reply.error = "Failed to query for exam for course, unit, and type.";

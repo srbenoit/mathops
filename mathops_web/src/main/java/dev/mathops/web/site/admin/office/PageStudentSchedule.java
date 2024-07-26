@@ -4,9 +4,9 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.enums.ERole;
-import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawPaceAppealsLogic;
 import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
@@ -22,8 +22,6 @@ import dev.mathops.db.old.rec.MasteryExamRec;
 import dev.mathops.db.old.rec.StandardMilestoneRec;
 import dev.mathops.db.old.rec.StudentStandardMilestoneRec;
 import dev.mathops.db.old.reclogic.MasteryAttemptLogic;
-import dev.mathops.db.old.reclogic.MasteryExamLogic;
-import dev.mathops.db.old.reclogic.StandardMilestoneLogic;
 import dev.mathops.db.old.reclogic.StudentStandardMilestoneLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ISessionManager;
@@ -37,6 +35,7 @@ import dev.mathops.web.site.admin.AdminSite;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -160,8 +159,7 @@ enum PageStudentSchedule {
     private static void emitStudentSchedule(final Cache cache, final AdminSite site, final HtmlBuilder htm,
                                             final RawStudent student) throws SQLException {
 
-        final SiteData data = new SiteData(site.getDbProfile(), ZonedDateTime.now()
-        );
+        final SiteData data = new SiteData(site.getDbProfile(), ZonedDateTime.now());
 
         final LiveSessionInfo live =
                 new LiveSessionInfo(CoreConstants.newId(ISessionManager.SESSION_ID_LEN), "none", ERole.STUDENT);
@@ -169,7 +167,7 @@ enum PageStudentSchedule {
         live.setUserInfo(student.stuId, student.firstName, student.lastName, student.getScreenName());
 
         final ImmutableSessionInfo session = new ImmutableSessionInfo(live);
-        if (data.load(session)) {
+        if (data.load(cache, session)) {
             emitStudentSchedule(cache, data, student.stuId, htm);
         } else {
             htm.sP("red").addln("Failed to load student data: ", data.getError()).eP();
@@ -519,22 +517,22 @@ enum PageStudentSchedule {
     private static void emitStudentScheduleNew(final Cache cache, final SiteData data, final String studentId,
                                                final HtmlBuilder htm) throws SQLException {
 
-        final TermRec active = cache.getSystemData().getActiveTerm();
+        final SystemData systemData = cache.getSystemData();
+        final TermRec active = systemData.getActiveTerm();
         final String key = active.term.shortString;
 
         final RawStterm stterm = data.milestoneData.getStudentTerm(key);
         if (stterm == null) {
             htm.sP().add("No STTERM record found").eP();
         } else {
-            final List<StandardMilestoneRec>  milestones = StandardMilestoneLogic.get(cache).queryByPaceTrackPace(cache,
+            final List<StandardMilestoneRec> milestones = systemData.getStandardMilestonesForPaceTrack(
                     stterm.paceTrack, stterm.pace);
             milestones.sort(null);
 
-            final List<StudentStandardMilestoneRec>  overrides =
+            final List<StudentStandardMilestoneRec> overrides =
                     StudentStandardMilestoneLogic.get(cache).queryByStuPaceTrackPace(cache, studentId,
-                    stterm.paceTrack, stterm.pace);
+                            stterm.paceTrack, stterm.pace);
 
-            final List<MasteryExamRec> allMastery = MasteryExamLogic.get(cache).queryAll(cache);
             final List<MasteryAttemptRec> allAttempts = MasteryAttemptLogic.get(cache).queryByStudent(cache, studentId);
 
             htm.sTable("report");
@@ -564,6 +562,8 @@ enum PageStudentSchedule {
 
                 final RawStcourse reg = getCourseForIndex(data, ms.paceIndex);
                 final String courseLabel = reg == null ? "Course " + ms.paceIndex : reg.course;
+
+                final List<MasteryExamRec> allMastery = systemData.getActiveMasteryExamsByCourse(reg.course);
 
                 final String msDateStr = TemporalUtils.FMT_MDY.format(ms.msDate);
                 final String overrideDateStr = override == null ? CoreConstants.EMPTY
@@ -625,7 +625,7 @@ enum PageStudentSchedule {
                         "<input type='hidden' name='unt' value='", ms.unit, "'/>",
                         "<input type='hidden' name='obj' value='", ms.objective, "'/>",
                         "<input type='hidden' name='typ' value='", ms.msType, "'/>",
-                        "<input type='hidden' name='dat' value='",TemporalUtils.FMT_MDY.format(ms.msDate), "'/>",
+                        "<input type='hidden' name='dat' value='", TemporalUtils.FMT_MDY.format(ms.msDate), "'/>",
                         "<input type='submit' value='Appeal'/>",
                         "</form>").eTd().eTr();
             }
@@ -636,7 +636,8 @@ enum PageStudentSchedule {
 
     /**
      * Gets the course ID having a specified pace index.
-     * @param data the site data
+     *
+     * @param data      the site data
      * @param paceIndex the pace index (1 for first course)
      * @return the registration record
      */
@@ -750,7 +751,8 @@ enum PageStudentSchedule {
 
                 htm.div("vgap");
 
-                htm.sP("studentname").add("<strong>", student.getScreenName(), "</strong> &nbsp; <strong><code>", student.stuId,
+                htm.sP("studentname").add("<strong>", student.getScreenName(), "</strong> &nbsp; <strong><code>",
+                        student.stuId,
                         "</code></strong>").eP();
 
                 if (session.getEffectiveRole().canActAs(ERole.ADMINISTRATOR)) {
@@ -899,16 +901,16 @@ enum PageStudentSchedule {
                 || type == null) {
             doGet(cache, site, req, resp, session);
         } else {
-            final TermRec active = cache.getSystemData().getActiveTerm();
+            final SystemData systemData = cache.getSystemData();
+            final TermRec active = systemData.getActiveTerm();
 
             try {
-                final Integer intPace = Integer.valueOf(pace);
+                final Integer paceObj = Integer.valueOf(pace);
                 final Integer intMs = Integer.valueOf(milestone);
 
                 // Find the original milestone record
                 RawMilestone ms = null;
-                final List<RawMilestone> all = RawMilestoneLogic.getAllMilestones(cache, active.term,
-                        intPace.intValue(), track);
+                final List<RawMilestone> all = systemData.getMilestones(active.term, paceObj, track);
 
                 for (final RawMilestone test : all) {
                     if (test.msNbr.equals(intMs) && test.msType.equals(type)) {
@@ -927,7 +929,7 @@ enum PageStudentSchedule {
                     }
 
                     final RawPaceAppeals appeal = new RawPaceAppeals(active.term, studentId, LocalDate.now(), relief,
-                            intPace, track, intMs, type, ms.msDate, newDate, attempts, ci, co, iv);
+                            paceObj, track, intMs, type, ms.msDate, newDate, attempts, ci, co, iv);
 
                     RawPaceAppealsLogic.INSTANCE.insert(cache, appeal);
 

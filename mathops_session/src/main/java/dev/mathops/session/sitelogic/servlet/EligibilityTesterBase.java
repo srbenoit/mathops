@@ -5,7 +5,6 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
-import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
 import dev.mathops.db.old.rawlogic.RawPendingExamLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
@@ -382,7 +381,8 @@ class EligibilityTesterBase {
                     reasons.add("Unable to query course section information");
                     ok = false;
                 } else {
-                    final List<RawCusection> cusections = systemData.getCourseUnitSections(course, this.studentCourse.sect,
+                    final List<RawCusection> cusections = systemData.getCourseUnitSections(course,
+                            this.studentCourse.sect,
                             term);
                     for (final RawCusection cusect : cusections) {
                         if (cusect.unit.equals(unit)) {
@@ -405,7 +405,8 @@ class EligibilityTesterBase {
                                     && this.student.pacingStructure == null && pacingId != null) {
 
                                 // Set the student's rule set if not yet known and this is a real course
-                                Log.info("Setting student pacing to ", pacingId, " as part of testing exam eligibility");
+                                Log.info("Setting student pacing to ", pacingId, " as part of testing exam " +
+                                        "eligibility");
                                 RawStudentLogic.updatePacingStructure(cache, this.student.stuId, pacingId);
                             }
                         }
@@ -607,9 +608,8 @@ class EligibilityTesterBase {
                     reasons.add("Unable to determine your course pace.");
                     ok = false;
                 } else {
-                    final int pace = stterm.pace.intValue();
-                    final List<RawMilestone> allMs = RawMilestoneLogic.getAllMilestones(cache, this.activeTerm.term,
-                            pace, stterm.paceTrack);
+                    final List<RawMilestone> allMs = cache.getSystemData().getMilestones(this.activeTerm.term,
+                            stterm.pace, stterm.paceTrack);
                     final List<RawStmilestone> stuMs = RawStmilestoneLogic.getStudentMilestones(cache,
                             this.activeTerm.term, stterm.paceTrack, this.studentId);
                     stuMs.sort(null);
@@ -624,6 +624,8 @@ class EligibilityTesterBase {
                         }
                     }
                     if (deadline != null) {
+                        final int pace = stterm.pace.intValue();
+
                         for (final RawStmilestone ms : stuMs) {
                             if (ms.getPace() == pace && ms.getUnit() == 5
                                     && ms.getIndex() == this.studentCourse.paceOrder.intValue()

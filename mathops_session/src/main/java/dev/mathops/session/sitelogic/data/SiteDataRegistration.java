@@ -1,6 +1,7 @@
 package dev.mathops.session.sitelogic.data;
 
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.logic.PaceTrackLogic;
@@ -455,6 +456,8 @@ public final class SiteDataRegistration {
 
         boolean addSpecials = false;
 
+        final SystemData systemData = cache.getSystemData();
+
         if (session.getEffectiveRole().canActAs(ERole.ADMINISTRATOR)) {
             addSpecials = true;
         } else {
@@ -493,13 +496,13 @@ public final class SiteDataRegistration {
 
                 // Make a synthetic registration for it - try section 001 first, section 401 next, then take any
                 // section we can get
-                RawCsection sect = this.owner.contextData.getCourseSection(courseId, "001", this.active.term);
+                RawCsection sect = cache.getSystemData().getCourseSection(courseId, "001", this.active.term);
                 if (sect == null) {
-                    sect = this.owner.contextData.getCourseSection(courseId, "401", this.active.term);
+                    sect = cache.getSystemData().getCourseSection(courseId, "401", this.active.term);
                     if (sect == null) {
-                        final List<RawCsection> all = this.owner.contextData.getAllCourseSections(courseId,
+                        final List<RawCsection> all = systemData.getCourseSectionsByCourse(courseId,
                                 this.active.term);
-                        if (all != null && !all.isEmpty()) {
+                        if (!all.isEmpty()) {
                             sect = all.getFirst();
                         }
                     }

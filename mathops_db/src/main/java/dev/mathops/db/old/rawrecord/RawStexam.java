@@ -2,7 +2,6 @@ package dev.mathops.db.old.rawrecord;
 
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rec.RecBase;
 
 import java.sql.ResultSet;
@@ -235,7 +234,7 @@ public final class RawStexam extends RecBase implements Comparable<RawStexam> {
 
         String lbl = null;
         if (this.examType != null) {
-            String name = RawExamLogic.getExamTypeName(this.examType);
+            String name = RawExam.getExamTypeName(this.examType);
 
             if ("R".equals(this.examType)) {
                 if (Integer.valueOf(0).equals(this.unit)) {

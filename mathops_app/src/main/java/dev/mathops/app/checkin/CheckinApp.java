@@ -8,6 +8,7 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.ChangeUI;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.old.DbConnection;
@@ -16,7 +17,6 @@ import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawStvisitLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.old.rawrecord.RawClientPc;
@@ -848,18 +848,20 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
             this.info.selections.course = course;
             this.info.selections.unit = unit;
 
+            final SystemData systemData = cache.getSystemData();
+
             // Look up the version of the exam
 
             if (RawRecordConstants.M100P.equals(course)) {
-                this.info.selections.exam = RawExamLogic.query(cache, "MPTTC");
+                this.info.selections.exam = systemData.getActiveExam("MPTTC");
                 this.bottom.setMessage(name);
             } else if (RawRecordConstants.M100U.equals(course)) {
-                this.info.selections.exam = RawExamLogic.query(cache, "UOOOO");
+                this.info.selections.exam = systemData.getActiveExam("UOOOO");
                 this.bottom.setMessage(name);
             } else {
                 final Integer unitObj = Integer.valueOf(unit);
                 if ("CH".equals(type)) {
-                    this.info.selections.exam = RawExamLogic.queryActiveByCourseUnitType(cache, course, unitObj, type);
+                    this.info.selections.exam = systemData.getActiveExamByCourseUnitType(course, unitObj, type);
                     if (this.info.selections.exam == null) {
                         Log.warning("Unable to query exam ", course, CoreConstants.SPC, unitObj, CoreConstants.SPC,
                                 type);
@@ -872,7 +874,7 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
                     // All check-in needs to do is look up a general "RawExam" record with the course and unit
                     // specified, and store that so the server can generate the proper synthetic exam.
 
-                    this.info.selections.exam = RawExamLogic.queryActiveByCourseUnitType(cache, course, unitObj, type);
+                    this.info.selections.exam = systemData.getActiveExamByCourseUnitType(course, unitObj, type);
                     if (this.info.selections.exam == null) {
                         this.bottom.setMessage("INVALID EXAM");
                     } else {
@@ -882,7 +884,7 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
 
 
                 } else {
-                    this.info.selections.exam = RawExamLogic.queryActiveByCourseUnitType(cache, course, unitObj, type);
+                    this.info.selections.exam = systemData.getActiveExamByCourseUnitType(course, unitObj, type);
                     if (this.info.selections.exam == null) {
                         this.bottom.setMessage("INVALID EXAM");
                     } else {

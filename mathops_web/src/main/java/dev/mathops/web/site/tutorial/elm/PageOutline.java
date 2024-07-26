@@ -2,9 +2,9 @@ package dev.mathops.web.site.tutorial.elm;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.logic.ELMTutorialStatus;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawCunit;
 import dev.mathops.db.old.rawrecord.RawCuobjective;
@@ -332,12 +332,12 @@ enum PageOutline {
                                          final StudentCourseStatus courseStatus, final int unitNum,
                                          final HtmlBuilder htm) throws SQLException {
 
+        final SystemData systemData = cache.getSystemData();
+
         final String courseId = courseStatus.getCourse().course;
         final boolean reviewAvail = courseStatus.isReviewExamAvailable(unitNum);
-        final RawExam reviewExam = RawExamLogic.queryActiveByCourseUnitType(cache, courseId,
-                Integer.valueOf(unitNum), "R");
-        final RawExam unitExam = RawExamLogic.queryActiveByCourseUnitType(cache, courseId,
-                Integer.valueOf(unitNum), "U");
+        final RawExam reviewExam = systemData.getActiveExamByCourseUnitType(courseId, Integer.valueOf(unitNum), "R");
+        final RawExam unitExam = systemData.getActiveExamByCourseUnitType(courseId, Integer.valueOf(unitNum), "U");
 
         final String label;
         final String version;

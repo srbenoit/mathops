@@ -6,12 +6,12 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.enums.ERole;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawStchallengeLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
 import dev.mathops.db.old.rawlogic.RawStmpeLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
+import dev.mathops.db.old.rawrecord.RawExam;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
 import dev.mathops.db.old.rawrecord.RawStchallenge;
@@ -543,7 +543,7 @@ public enum PageStudentCourseActivity {
         htm.eTd();
         htm.sTd().add(RawRecordConstants.M100P).eTd();
         htm.sTd().add("N/A").eTd();
-        htm.sTd(null, "style='background-color:#fdd'").add(RawExamLogic.getExamTypeName("Q")).eTd();
+        htm.sTd(null, "style='background-color:#fdd'").add(RawExam.getExamTypeName("Q")).eTd();
         htm.sTd().add(ex.version).eTd();
 
         final LocalDateTime start = ex.getStartDateTime();
@@ -610,7 +610,7 @@ public enum PageStudentCourseActivity {
         htm.eTd();
         htm.sTd().add(ex.course).eTd();
         htm.sTd().add("N/A").eTd();
-        htm.sTd(null, "style='background-color:#fdd'").add(RawExamLogic.getExamTypeName("CH")).eTd();
+        htm.sTd(null, "style='background-color:#fdd'").add(RawExam.getExamTypeName("CH")).eTd();
         htm.sTd().add(ex.version).eTd();
         htm.sTd().add(TemporalUtils.FMT_WMD.format(ex.examDt)).eTd();
         final int tm = ex.finishTime.intValue();

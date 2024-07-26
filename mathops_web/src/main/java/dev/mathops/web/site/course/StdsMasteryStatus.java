@@ -2,6 +2,7 @@ package dev.mathops.web.site.course;
 
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
 import dev.mathops.db.old.rawrecord.RawStcourse;
@@ -11,9 +12,8 @@ import dev.mathops.db.old.rec.MasteryExamRec;
 import dev.mathops.db.old.rec.StandardMilestoneRec;
 import dev.mathops.db.old.rec.StudentStandardMilestoneRec;
 import dev.mathops.db.old.reclogic.MasteryAttemptLogic;
-import dev.mathops.db.old.reclogic.MasteryExamLogic;
-import dev.mathops.db.old.reclogic.StandardMilestoneLogic;
 import dev.mathops.db.old.reclogic.StudentStandardMilestoneLogic;
+import dev.mathops.session.sitelogic.data.SiteDataCfgCourse;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -46,6 +46,9 @@ final class StdsMasteryStatus {
 
     /** A possible value for "standardStatus" member. */
     private static final int MASTERED_ON_TIME = 3;
+
+    /** The course data based on the student's registration. */
+    final SiteDataCfgCourse courseData;
 
     /** True if the user should have tutor access to assignments. */
     final boolean tutor;
@@ -83,16 +86,19 @@ final class StdsMasteryStatus {
     /**
      * Constructs a new {@code StdsMasteryStatus}.
      *
-     * @param cache     the data cache
-     * @param pace      the student's pace
-     * @param paceTrack the student's pace track
-     * @param reg       the course registration for which to generate status
-     * @param isTutor   true if the user should have TUTOR access to assignments
+     * @param cache         the data cache
+     * @param theCourseData the course data based on the student's registration
+     * @param pace          the student's pace
+     * @param paceTrack     the student's pace track
+     * @param reg           the course registration for which to generate status
+     * @param isTutor       true if the user should have TUTOR access to assignments
      */
-    StdsMasteryStatus(final Cache cache, final int pace, final String paceTrack, final RawStcourse reg,
-                      final boolean isTutor) {
+    StdsMasteryStatus(final Cache cache, final SiteDataCfgCourse theCourseData, final int pace, final String paceTrack,
+                      final RawStcourse reg, final boolean isTutor) {
 
+        this.courseData = theCourseData;
         this.tutor = isTutor;
+
         this.skillsReviewStatus = new int[NUM_UNITS];
         this.assignmentStatus = new int[NUM_STANDARDS];
         this.standardStatus = new int[NUM_STANDARDS];
@@ -102,7 +108,7 @@ final class StdsMasteryStatus {
         if ("Y".equals(reg.iInProgress) && !("Y".equals(reg.iCounted))) {
 
             // TODO: Incomplete that is not counted in current pace. Due dates from the I term should govern for all
-            // work completed in the I term, but current-term dates should govern new work. How to do?
+            //  work completed in the I term, but current-term dates should govern new work. How to do?
 
         } else if (reg.paceOrder != null) {
             // Current term "in pace" registration
@@ -110,20 +116,21 @@ final class StdsMasteryStatus {
             final Integer paceObj = Integer.valueOf(pace);
             final int order = reg.paceOrder.intValue();
 
+            final SystemData systemData = cache.getSystemData();
+
             try {
-                final List<StandardMilestoneRec> standardMilestones = StandardMilestoneLogic.get(cache)
-                        .queryByPaceTrackPace(cache, paceTrack, paceObj);
+                final List<StandardMilestoneRec> standardMilestones =
+                        systemData.getStandardMilestonesForPaceTrack(paceTrack, paceObj);
                 final List<StudentStandardMilestoneRec> studentMilestones = StudentStandardMilestoneLogic
                         .get(cache).queryByStuPaceTrackPace(cache, reg.stuId, paceTrack, paceObj);
-                final List<MasteryExamRec> masteryExams = MasteryExamLogic.get(cache)
-                        .queryActiveByCourse(cache, reg.course);
+                final List<MasteryExamRec> masteryExams = systemData.getActiveMasteryExamsByCourse(reg.course);
                 final List<MasteryAttemptRec> masteryAttempts = MasteryAttemptLogic.get(cache)
                         .queryByStudent(cache, reg.stuId);
                 final List<RawSthomework> sthomeworks = RawSthomeworkLogic.queryByStudent(cache, reg.stuId, false);
 
                 Log.info("Found " + masteryAttempts.size() + " mastery attempts");
 
-                for (int unitIdx = 0 ; unitIdx < NUM_UNITS; ++unitIdx) {
+                for (int unitIdx = 0; unitIdx < NUM_UNITS; ++unitIdx) {
                     final int unit = unitIdx + 1;
                     final Integer unitObj = Integer.valueOf(unit);
 
@@ -158,8 +165,7 @@ final class StdsMasteryStatus {
 
                             if (hwUnit == unit && hwObj == obj) {
                                 final int value = "Y".equals(sthomework.passed) ? 2 : 1;
-                                this.assignmentStatus[arrayIndex] = Math.max(this.assignmentStatus[arrayIndex],
-                                        value);
+                                this.assignmentStatus[arrayIndex] = Math.max(this.assignmentStatus[arrayIndex], value);
                             }
                         }
 

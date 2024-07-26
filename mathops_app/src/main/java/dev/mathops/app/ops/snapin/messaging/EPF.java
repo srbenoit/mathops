@@ -1,6 +1,7 @@
 package dev.mathops.app.ops.snapin.messaging;
 
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.old.DbConnection;
@@ -10,7 +11,6 @@ import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.logic.PaceTrackLogic;
-import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
@@ -176,7 +176,8 @@ public enum EPF {
         // Next, we get all milestones and organize into a map from pace to map from track to list of milestones.
         final Map<Integer, Map<String, List<RawMilestone>>> msMap = new HashMap<>(5);
 
-        final List<RawMilestone> allMilestones = RawMilestoneLogic.getAllMilestones(cache, activeKey);
+        final SystemData systemData = cache.getSystemData();
+        final List<RawMilestone> allMilestones = systemData.getMilestones(activeKey);
 
         for (final RawMilestone ms : allMilestones) {
             final Integer paceKey = ms.pace;

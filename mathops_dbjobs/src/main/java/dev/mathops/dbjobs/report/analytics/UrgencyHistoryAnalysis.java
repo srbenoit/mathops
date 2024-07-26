@@ -4,6 +4,7 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.IProgressListener;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.DbConnection;
 import dev.mathops.db.old.DbContext;
@@ -12,7 +13,6 @@ import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.logic.PaceTrackLogic;
-import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
@@ -285,8 +285,10 @@ final class UrgencyHistoryAnalysis {
      */
     private void gatherOneTimeInformation() throws SQLException {
 
+        final SystemData systemData = this.cache.getSystemData();
+
         fireProgress("Querying active term", 1);
-        this.active = this.cache.getSystemData().getActiveTerm();
+        this.active = systemData.getActiveTerm();
         Log.info("    Active term is ", this.active.term);
 
         fireProgress("Querying registrations term", 2);
@@ -300,7 +302,7 @@ final class UrgencyHistoryAnalysis {
         }
 
         fireProgress("Querying milestones", 4);
-        this.milestones = RawMilestoneLogic.getAllMilestones(this.cache, this.active.term);
+        this.milestones = systemData.getMilestones(this.active.term);
         Log.info("    Queried ", Integer.toString(this.milestones.size()), " milstones");
     }
 

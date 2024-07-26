@@ -3,10 +3,7 @@ package dev.mathops.session.sitelogic.data;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.DbConnection;
-import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.session.ImmutableSessionInfo;
 
 import java.sql.SQLException;
@@ -23,9 +20,6 @@ public final class SiteData {
 
     /** The date/time to consider "now". */
     public final ZonedDateTime now;
-
-    /** Data relating to context. */
-    public SiteDataContext contextData;
 
     /** Data relating to student. */
     public final SiteDataStudent studentData;
@@ -106,26 +100,17 @@ public final class SiteData {
      * TODO: support flags that govern which data to load, so this object may be used everywhere, including checkin
      *    and checkout, the admin site, etc.
      *
-     * @param session the session info
+     * @param theCache the cache
+     * @param session  the session info
      * @return {@code true} if success; {@code false} on any error
      */
-    public boolean load(final ImmutableSessionInfo session) {
+    public boolean load(final Cache theCache, final ImmutableSessionInfo session) {
 
         final long start = System.currentTimeMillis();
 
-        final DbContext primaryDbContext = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
-
         boolean success;
         try {
-            final DbConnection conn = primaryDbContext.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
-            this.contextData = new SiteDataContext(cache);
-
-            try {
-                success = loadData(cache, session);
-            } finally {
-                primaryDbContext.checkInConnection(conn);
-            }
+            success = loadData(theCache, session);
         } catch (final SQLException ex) {
             setError("Exception while querying data");
             Log.warning("Failed to query course site data", ex);

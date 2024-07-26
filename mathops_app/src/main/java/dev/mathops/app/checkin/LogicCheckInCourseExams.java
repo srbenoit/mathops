@@ -7,8 +7,6 @@ import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
 import dev.mathops.db.old.logic.StandardsMasteryLogic;
-import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
-import dev.mathops.db.old.rawlogic.RawPacingRulesLogic;
 import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
 import dev.mathops.db.old.rawlogic.RawStchallengeLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
@@ -28,7 +26,6 @@ import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rec.StandardMilestoneRec;
 import dev.mathops.db.old.rec.StudentStandardMilestoneRec;
-import dev.mathops.db.old.reclogic.StandardMilestoneLogic;
 import dev.mathops.db.old.reclogic.StudentStandardMilestoneLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 
@@ -448,8 +445,7 @@ final class LogicCheckInCourseExams {
                 for (final RawPacingStructure test : allPacing) {
                     if (test.pacingStructure.equals(cSection.pacingStructure)) {
                         pacing = test;
-                        rules = RawPacingRulesLogic.queryByTermAndPacingStructure(cache, effTerm.term,
-                                test.pacingStructure);
+                        rules = systemData.getPacingRulesByTermAndPacing(effTerm.term, test.pacingStructure);
                         break;
                     }
                 }
@@ -630,14 +626,15 @@ final class LogicCheckInCourseExams {
         // Check the course deadline date based on pace track, pace, and pace order
         final CourseDeadlines courseDeadlines;
 
+        final SystemData systemData = cache.getSystemData();
+
         if (reg.paceOrder == null) {
             courseDeadlines = new CourseDeadlines(null, null, null, null, null, null, 0, null);
         } else if (numbers.isNew(reg.course)) {
             // New course - look for course deadline
             final Integer paceObj = Integer.valueOf(pace);
             final List<StandardMilestoneRec> allMilestones =
-                    StandardMilestoneLogic.get(cache).queryByPaceTrackPaceIndex(cache, paceTrack, paceObj,
-                            reg.paceOrder);
+                    systemData.getStandardMilestonesForPaceTrackIndex(paceTrack, paceObj, reg.paceOrder);
             final List<StudentStandardMilestoneRec> allStMilestones =
                     StudentStandardMilestoneLogic.get(cache).queryByStuPaceTrackPaceIndex(cache, reg.stuId,
                             paceTrack, paceObj, reg.paceOrder);
@@ -656,12 +653,13 @@ final class LogicCheckInCourseExams {
 
             courseDeadlines = new CourseDeadlines(null, null, null, null, null, null, 0, deadline);
         } else {
-            // Old course - look for "FE" and "F1" milestones
-            final List<RawMilestone> allMilestones =
-                    RawMilestoneLogic.getAllMilestones(cache, this.activeTerm.term, pace, paceTrack);
+            final Integer paceObj = Integer.valueOf(pace);
 
-            final List<RawStmilestone> allStMilestones =
-                    RawStmilestoneLogic.getStudentMilestones(cache, this.activeTerm.term, paceTrack, reg.stuId);
+            // Old course - look for "FE" and "F1" milestones
+            final List<RawMilestone> allMilestones = systemData.getMilestones(this.activeTerm.term, paceObj, paceTrack);
+
+            final List<RawStmilestone> allStMilestones = RawStmilestoneLogic.getStudentMilestones(cache,
+                    this.activeTerm.term, paceTrack, reg.stuId);
             allStMilestones.sort(null);
 
             final int msNumber = pace * 100 + reg.paceOrder.intValue() * 10 + 5;
@@ -945,8 +943,8 @@ final class LogicCheckInCourseExams {
             final RawStexam passedU4 = workRecord.getFirstPassingUnitExam(4);
 
             // See if the prior unit exam must be passed before accessing a Unit exam
-            if (sectData.isRequired(RawPacingRulesLogic.ACTIVITY_UNIT_EXAM, RawPacingRulesLogic.UE_MSTR)
-                    || sectData.isRequired(RawPacingRulesLogic.ACTIVITY_UNIT_EXAM, RawPacingRulesLogic.UE_PASS)) {
+            if (sectData.isRequired(RawPacingRules.ACTIVITY_UNIT_EXAM, RawPacingRules.UE_MSTR)
+                    || sectData.isRequired(RawPacingRules.ACTIVITY_UNIT_EXAM, RawPacingRules.UE_PASS)) {
 
                 if (passedU1 == null) {
                     indicateExamUnavailable(data.unit2Exam, "Must Pass Unit 1", enforceEligibility);
@@ -962,8 +960,8 @@ final class LogicCheckInCourseExams {
             }
 
             // See if the unit review exam must be passed before accessing a Unit exam
-            if (sectData.isRequired(RawPacingRulesLogic.ACTIVITY_UNIT_EXAM, RawPacingRulesLogic.UR_MSTR)
-                    || sectData.isRequired(RawPacingRulesLogic.ACTIVITY_UNIT_EXAM, RawPacingRulesLogic.UR_PASS)) {
+            if (sectData.isRequired(RawPacingRules.ACTIVITY_UNIT_EXAM, RawPacingRules.UR_MSTR)
+                    || sectData.isRequired(RawPacingRules.ACTIVITY_UNIT_EXAM, RawPacingRules.UR_PASS)) {
 
                 final RawStexam passedR1 = workRecord.getFirstPassingReviewExam(1);
                 if (passedR1 == null && passedU1 == null) {
@@ -987,8 +985,8 @@ final class LogicCheckInCourseExams {
             }
 
             // See if the last unit exam must be passed before accessing Final exam
-            if (sectData.isRequired(RawPacingRulesLogic.ACTIVITY_FINAL_EXAM, RawPacingRulesLogic.UE_MSTR)
-                    || sectData.isRequired(RawPacingRulesLogic.ACTIVITY_FINAL_EXAM, RawPacingRulesLogic.UE_PASS)) {
+            if (sectData.isRequired(RawPacingRules.ACTIVITY_FINAL_EXAM, RawPacingRules.UE_MSTR)
+                    || sectData.isRequired(RawPacingRules.ACTIVITY_FINAL_EXAM, RawPacingRules.UE_PASS)) {
 
                 if (passedU4 == null) {
                     indicateExamUnavailable(data.finalExam, "Must Pass Unit 4", enforceEligibility);

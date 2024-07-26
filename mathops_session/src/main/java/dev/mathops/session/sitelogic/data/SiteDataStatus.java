@@ -1,10 +1,9 @@
 package dev.mathops.session.sitelogic.data;
 
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.type.TermKey;
-import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
-import dev.mathops.db.old.rawlogic.RawPacingRulesLogic;
 import dev.mathops.db.old.rawlogic.RawPendingExamLogic;
 import dev.mathops.db.old.rawlogic.RawStcuobjectiveLogic;
 import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
@@ -341,6 +340,7 @@ public final class SiteDataStatus {
         // Determine all deadlines, if we have a pace order set, and see whether the student has
         // earned a "U2" deadline extension benefit.
         final Integer paceOrder = reg.paceOrder;
+        final SystemData systemData = cache.getSystemData();
 
         if (paceOrder == null) {
             // Could be just a non-counted Incomplete
@@ -360,11 +360,10 @@ public final class SiteDataStatus {
 
                 if (effStterm != null && effStterm.pace != null && reg.paceOrder != null) {
 
-                    final int pace = effStterm.pace.intValue();
                     final int order = reg.paceOrder.intValue();
 
-                    final List<RawMilestone> iMilestones =
-                            RawMilestoneLogic.getAllMilestones(cache, key, pace, effStterm.paceTrack);
+                    final List<RawMilestone> iMilestones = systemData.getMilestones(key, effStterm.pace,
+                            effStterm.paceTrack);
                     final List<RawStmilestone> iStmilestones = RawStmilestoneLogic
                             .getStudentMilestones(cache, key, effStterm.paceTrack, reg.stuId);
 
@@ -392,14 +391,13 @@ public final class SiteDataStatus {
                     }
                 }
             }
-
         } else {
             final TermKey key;
 
             if ("Y".equals(reg.iInProgress) && !"Y".equals(reg.iCounted)) {
                 key = reg.iTermKey;
             } else {
-                final TermRec term = cache.getSystemData().getActiveTerm();
+                final TermRec term = systemData.getActiveTerm();
                 key = term.term;
             }
 
@@ -740,28 +738,29 @@ public final class SiteDataStatus {
         boolean reqUeComp = false;
         boolean reqUeMstr = false;
 
-        final TermRec activeTerm = cache.getSystemData().getActiveTerm();
+        final SystemData systemData = cache.getSystemData();
+        final TermRec activeTerm = systemData.getActiveTerm();
 
-        final List<RawPacingRules> rsRules = RawPacingRulesLogic.queryByTermAndPacingStructure(cache, activeTerm.term,
+        final List<RawPacingRules> rsRules = systemData.getPacingRulesByTermAndPacing(activeTerm.term,
                 pacingStructure.pacingStructure);
 
         for (final RawPacingRules rule : rsRules) {
-            if (RawPacingRulesLogic.ACTIVITY_HOMEWORK.equals(rule.activityType)) {
+            if (RawPacingRules.ACTIVITY_HOMEWORK.equals(rule.activityType)) {
                 final String req = rule.requirement;
 
-                if (RawPacingRulesLogic.LECT_VIEWED.equals(req)) {
+                if (RawPacingRules.LECT_VIEWED.equals(req)) {
                     reqLect = true;
-                } else if (RawPacingRulesLogic.HW_PASS.equals(req)) {
+                } else if (RawPacingRules.HW_PASS.equals(req)) {
                     reqHwComp = true;
-                } else if (RawPacingRulesLogic.HW_MSTR.equals(req)) {
+                } else if (RawPacingRules.HW_MSTR.equals(req)) {
                     reqHwMstr = true;
-                } else if (RawPacingRulesLogic.UR_PASS.equals(req)) {
+                } else if (RawPacingRules.UR_PASS.equals(req)) {
                     reqReComp = true;
-                } else if (RawPacingRulesLogic.UR_MSTR.equals(req)) {
+                } else if (RawPacingRules.UR_MSTR.equals(req)) {
                     reqReMstr = true;
-                } else if (RawPacingRulesLogic.UE_PASS.equals(req)) {
+                } else if (RawPacingRules.UE_PASS.equals(req)) {
                     reqUeComp = true;
-                } else if (RawPacingRulesLogic.UE_MSTR.equals(req)) {
+                } else if (RawPacingRules.UE_MSTR.equals(req)) {
                     reqUeMstr = true;
                 }
             }
@@ -955,8 +954,8 @@ public final class SiteDataStatus {
      * Tests whether the course section requires the student to be "licensed", and if so, makes the student ineligible
      * if they are not yet licensed.
      *
-     * @param courseCfg the course configuration, used to test whether the course requires licensing but the student
-     *                  is not yet licensed
+     * @param courseCfg the course configuration, used to test whether the course requires licensing but the student is
+     *                  not yet licensed
      * @param stat      the status object being populated
      */
     private static void courseEligByLicensed(final SiteDataCfgCourse courseCfg, final SiteDataCfgStatusBase stat) {
@@ -1095,13 +1094,13 @@ public final class SiteDataStatus {
             switch (examType) {
                 case "R" -> {
                     if (Integer.valueOf(0).equals(exam.unit)) {
-                        targetActivity = RawPacingRulesLogic.ACTIVITY_SR_EXAM;
+                        targetActivity = RawPacingRules.ACTIVITY_SR_EXAM;
                     } else {
-                        targetActivity = RawPacingRulesLogic.ACTIVITY_UNIT_REV_EXAM;
+                        targetActivity = RawPacingRules.ACTIVITY_UNIT_REV_EXAM;
                     }
                 }
-                case "U" -> targetActivity = RawPacingRulesLogic.ACTIVITY_UNIT_EXAM;
-                case "F" -> targetActivity = RawPacingRulesLogic.ACTIVITY_FINAL_EXAM;
+                case "U" -> targetActivity = RawPacingRules.ACTIVITY_UNIT_EXAM;
+                case "F" -> targetActivity = RawPacingRules.ACTIVITY_FINAL_EXAM;
                 case null, default -> targetActivity = null;
             }
 
@@ -1111,10 +1110,11 @@ public final class SiteDataStatus {
                 // Find the set of prerequisites for the target activity
                 final SiteDataCourse courseData = this.owner.courseData;
 
-                final TermRec activeTerm = cache.getSystemData().getActiveTerm();
+                final SystemData systemData = cache.getSystemData();
+                final TermRec activeTerm = systemData.getActiveTerm();
 
-                final List<RawPacingRules> rsRules = RawPacingRulesLogic.queryByTermAndPacingStructure(cache,
-                                activeTerm.term, pacingStructure.pacingStructure);
+                final List<RawPacingRules> rsRules = systemData.getPacingRulesByTermAndPacing(activeTerm.term,
+                        pacingStructure.pacingStructure);
 
                 boolean reqHwComp = false;
                 boolean reqHwMstr = false;
@@ -1127,17 +1127,17 @@ public final class SiteDataStatus {
                     if (targetActivity.equals(rule.activityType)) {
                         final String req = rule.requirement;
 
-                        if (RawPacingRulesLogic.HW_PASS.equals(req)) {
+                        if (RawPacingRules.HW_PASS.equals(req)) {
                             reqHwComp = true;
-                        } else if (RawPacingRulesLogic.HW_MSTR.equals(req)) {
+                        } else if (RawPacingRules.HW_MSTR.equals(req)) {
                             reqHwMstr = true;
-                        } else if (RawPacingRulesLogic.UR_PASS.equals(req)) {
+                        } else if (RawPacingRules.UR_PASS.equals(req)) {
                             reqReComp = true;
-                        } else if (RawPacingRulesLogic.UR_MSTR.equals(req)) {
+                        } else if (RawPacingRules.UR_MSTR.equals(req)) {
                             reqReMstr = true;
-                        } else if (RawPacingRulesLogic.UE_PASS.equals(req)) {
+                        } else if (RawPacingRules.UE_PASS.equals(req)) {
                             reqUeComp = true;
-                        } else if (RawPacingRulesLogic.UE_MSTR.equals(req)) {
+                        } else if (RawPacingRules.UE_MSTR.equals(req)) {
                             reqUeMstr = true;
                         }
                     }

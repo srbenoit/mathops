@@ -115,7 +115,7 @@ public class CourseSite extends AbstractPageSite {
 
                     // TODO: Replace all logic with this
 
-                    final CourseSiteLogic logic = new CourseSiteLogic(this.siteProfile, session);
+                    final CourseSiteLogic logic = new CourseSiteLogic(cache, this.siteProfile, session);
                     logic.gatherData();
 
                     switch (subpath) {
@@ -204,7 +204,7 @@ public class CourseSite extends AbstractPageSite {
             if (session != null) {
                 LogBase.setSessionInfo(session.loginSessionId, session.getEffectiveUserId());
 
-                final CourseSiteLogic logic = new CourseSiteLogic(this.siteProfile, session);
+                final CourseSiteLogic logic = new CourseSiteLogic(cache, this.siteProfile, session);
                 logic.gatherData();
 
                 switch (subpath) {

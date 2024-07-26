@@ -2,8 +2,8 @@ package dev.mathops.web.site.tutorial.precalc;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawrecord.RawExam;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -154,7 +154,9 @@ enum PageInstructionsPrecalcPu {
         final PrecalcTutorialCourseStatus tutStatus = new PrecalcTutorialCourseStatus(cache, student, courseId);
 
         final boolean unitAvail = tutStatus.isEligibleForProctored();
-        final RawExam unitExam = RawExamLogic.queryActiveByCourseUnitType(cache, courseId, Integer.valueOf(4), "U");
+
+        final SystemData systemData = cache.getSystemData();
+        final RawExam unitExam = systemData.getActiveExamByCourseUnitType(courseId, Integer.valueOf(4), "U");
 
         final String version = unitExam == null ? null : unitExam.version;
 

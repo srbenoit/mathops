@@ -7,15 +7,18 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
+import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawSthomework;
+import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ExamWriter;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
 import dev.mathops.session.sitelogic.data.SiteData;
 import dev.mathops.session.sitelogic.data.SiteDataCfgCourse;
+import dev.mathops.session.sitelogic.servlet.LearningTargetAssignmentEligibilityTester;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.course.data.CourseData;
@@ -34,6 +37,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -50,6 +54,42 @@ enum PageStdsTextModule {
 
     /** A color. */
     private static final String CSU_GREEN = "#1E4D2B";
+
+    /** A color. */
+    private static final String CSU_GOLD = "#C8C372";
+
+    /** A color. */
+    private static final String CSU_ORANGE = "#D9782D";
+
+    /** A color. */
+    private static final String ENERGY_GREEN1 = "#006144";
+
+    /** A color. */
+    private static final String ENERGY_GREEN2 = "#82C503";
+
+    /** A color. */
+    private static final String ENERGY_GREEN3 = "#CFFC00";
+
+    /** A color. */
+    private static final String ENERGY_RED = "#E56A54";
+
+    /** A color. */
+    private static final String ENERGY_PURPLE = "#7E5475";
+
+    /** A color. */
+    private static final String ENERGY_BLUE = "#008FB3";
+
+    /** A color. */
+    private static final String ENERGY_SLATE = "#105456";
+
+    /** A color. */
+    private static final String ENERGY_YELLOW = "#FFC038";
+
+    /** A color. */
+    private static final String CSU_TAN = "#E3CDB1";
+
+    /** A color. */
+    private static final String CSU_GRAY = "#CCCCCC";
 
     /** A common string. */
     private static final String REVIEW_MATERIALS = "Review Materials";
@@ -139,25 +179,32 @@ enum PageStdsTextModule {
                                          final int moduleNumber, final String mode, final HtmlBuilder htm) {
 
         final SiteData data = logic.data;
+        final RawStudent student = data.studentData.getStudent();
         final RawStcourse reg = data.registrationData.getRegistration(courseId);
 
         if (reg == null) {
             htm.sP().add("ERROR: Unable to find course registration.").eP();
         } else {
-            final List<RawStcourse> paceRegs = logic.data.registrationData.getPaceRegistrations();
-            final int pace = paceRegs == null ? 0 : PaceTrackLogic.determinePace(paceRegs);
-            final String paceTrack = paceRegs == null ? CoreConstants.EMPTY :
-                    PaceTrackLogic.determinePaceTrack(paceRegs, pace);
+            final SiteDataCfgCourse courseData = data.courseData.getCourse(reg.course, reg.sect);
 
-            final ZonedDateTime now = ZonedDateTime.now();
-            final boolean isTutor = data.studentData.isSpecialType(now, "TUTOR");
-            final StdsMasteryStatus masteryStatus = new StdsMasteryStatus(cache, pace, paceTrack, reg, isTutor);
-            final SiteDataCfgCourse courseCfg = data.courseData.getCourse(courseId, reg.sect);
+            if (courseData == null || courseData.pacingStructure == null) {
+                htm.sP().add("ERROR: Unable to find course section data.").eP();
+            } else {
+                final List<RawStcourse> paceRegs = logic.data.registrationData.getPaceRegistrations();
+                final int pace = paceRegs == null ? 0 : PaceTrackLogic.determinePace(paceRegs);
+                final String paceTrack = paceRegs == null ? CoreConstants.EMPTY :
+                        PaceTrackLogic.determinePaceTrack(paceRegs, pace);
 
-            if (RawRecordConstants.MATH125.equals(reg.course)) {
-                doModule(cache, reg.stuId, Math125.MATH_125, moduleNumber, courseCfg, masteryStatus, mode, htm);
-            } else if (RawRecordConstants.MATH126.equals(reg.course)) {
-                doModule(cache, reg.stuId, Math126.MATH_126, moduleNumber, courseCfg, masteryStatus, mode, htm);
+                final ZonedDateTime now = ZonedDateTime.now();
+                final boolean isTutor = data.studentData.isSpecialType(now, "TUTOR");
+                final StdsMasteryStatus masteryStatus = new StdsMasteryStatus(cache, courseData, pace, paceTrack, reg,
+                        isTutor);
+
+                if (RawRecordConstants.MATH125.equals(reg.course)) {
+                    doModule(cache, student, reg, Math125.MATH_125, moduleNumber, masteryStatus, mode, htm);
+                } else if (RawRecordConstants.MATH126.equals(reg.course)) {
+                    doModule(cache, student, reg, Math126.MATH_126, moduleNumber, masteryStatus, mode, htm);
+                }
             }
         }
     }
@@ -166,24 +213,24 @@ enum PageStdsTextModule {
      * Generates module content.
      *
      * @param cache         the cache
-     * @param stuId         the student ID
+     * @param student       the student record
+     * @param reg           the course registration record
      * @param courseData    the course data
-     * @param courseCfg     the course configuration data
      * @param masteryStatus the mastery status
      * @param moduleNumber  the module number
      * @param mode          the mode ("course", "practice", or "locked")
      * @param htm           the {@code HtmlBuilder} to which to append the HTML
      */
-    private static void doModule(final Cache cache, final String stuId, final CourseData courseData,
-                                 final int moduleNumber, final SiteDataCfgCourse courseCfg,
+    private static void doModule(final Cache cache, final RawStudent student, final RawStcourse reg,
+                                 final CourseData courseData, final int moduleNumber,
                                  final StdsMasteryStatus masteryStatus, final String mode, final HtmlBuilder htm) {
 
         if (moduleNumber == 0) {
-            doHowToNavigate(courseCfg, mode, htm);
+            doHowToNavigate(masteryStatus.courseData, mode, htm);
         } else if (moduleNumber >= 1 && moduleNumber <= 8) {
             final ModuleData moduleData = courseData.modules.get(moduleNumber - 1);
 
-            doModule(cache, stuId, moduleData, courseCfg, masteryStatus, mode, htm);
+            doModule(cache, student, reg, moduleData, masteryStatus, mode, htm);
         } else {
             htm.sP().add("ERROR: Invalid module number.").eP();
         }
@@ -323,45 +370,40 @@ enum PageStdsTextModule {
      * Generates a module outline.
      *
      * @param cache         the cache
-     * @param stuId         the student ID
+     * @param student       the student record
+     * @param reg           the course registration record
      * @param moduleData    the module data
-     * @param courseCfg     the course configuration data
      * @param masteryStatus the mastery status
      * @param mode          the mode ("course", "practice", or "locked")
      * @param htm           the {@code HtmlBuilder} to which to append the HTML
      */
-    private static void doModule(final Cache cache, final String stuId, final ModuleData moduleData,
-                                 final SiteDataCfgCourse courseCfg,
-                                 final StdsMasteryStatus masteryStatus, final String mode,
+    private static void doModule(final Cache cache, final RawStudent student, final RawStcourse reg,
+                                 final ModuleData moduleData, final StdsMasteryStatus masteryStatus, final String mode,
                                  final HtmlBuilder htm) {
 
-        emitModuleTitle(htm, courseCfg, moduleData.moduleNumber, moduleData.moduleTitle,
+        emitModuleTitle(htm, masteryStatus.courseData, moduleData.moduleNumber, moduleData.moduleTitle,
                 moduleData.thumbnailImage, moduleData.course.courseId, mode);
 
         if (!moduleData.skillsReview.exampleBlocks.isEmpty()) {
-            startSkillsReview(cache, stuId, htm, moduleData, masteryStatus, mode);
-            htm.addln("<ul>");
+            startSkillsReview(cache, student.stuId, htm, moduleData, masteryStatus, mode);
             boolean first = true;
             for (final ExampleBlock block : moduleData.skillsReview.exampleBlocks) {
                 emitExampleBlock(htm, block, REVIEW_TOPIC, first);
                 first = false;
             }
-            htm.addln("</ul>");
         }
         endSkillsReview(htm);
 
         for (final LearningTargetData learningTarget : moduleData.learningTargets) {
             startLearningTarget(htm, learningTarget);
             if (!learningTarget.exampleBlocks.isEmpty()) {
-                htm.addln("<ul>");
                 boolean first = true;
                 for (final ExampleBlock block : learningTarget.exampleBlocks) {
                     emitExampleBlock(htm, block, CoreConstants.EMPTY, first);
                     first = false;
                 }
-                htm.addln("</ul>");
             }
-            endLearningTarget(cache, stuId, htm, learningTarget, mode, masteryStatus);
+            endLearningTarget(cache, student, reg, htm, learningTarget, mode, masteryStatus);
         }
     }
 
@@ -386,7 +428,7 @@ enum PageStdsTextModule {
 
         htm.sH(2, "title");
         if ("Y".equals(courseCfg.courseSection.courseLabelShown)) {
-            htm.add(courseCfg.course.courseLabel);
+            htm.add(courseCfg.course.courseLabel.replaceAll("\\s+", "&nbsp;"));
             htm.add(": ");
         }
         htm.sSpan(null, "style='color:#D9782D'").add(courseCfg.course.courseName).eSpan().br();
@@ -430,6 +472,10 @@ enum PageStdsTextModule {
 
         htm.sH(3).add("Skills Review").eH(3);
 
+        htm.sP(null, "style='font-family:prox-regular,sans-serif;'")
+                .add("This is a refresher that reviews some material and techniques you will use in this module.")
+                .eP();
+
         final int srStatus = masteryStatus.skillsReviewStatus[moduleData.moduleNumber - 1];
         final boolean tried = srStatus >= 1;
         final boolean passed = srStatus >= 2;
@@ -438,8 +484,7 @@ enum PageStdsTextModule {
         if (tried) {
             if (passed) {
                 htm.sP(null, "style='font-family:prox-regular,sans-serif;'")
-                        .add("You have passed this assignment - you may access the module learning targets.")
-                        .eP();
+                        .add("You have passed this assignment - you may access the module learning targets.").eP();
                 title = "Practice Skills Review Problems";
             } else {
                 title = "Skills Review Assignment";
@@ -481,7 +526,11 @@ enum PageStdsTextModule {
         htm.hr();
         htm.sH(3).add("Learning Target ", learningTarget.targetNumber).eH(3);
 
-        htm.sDiv("learning_target").addln(learningTarget.mainOutcome);
+        htm.sP("learning_target_main").add("<img src='/images/etext/target.png' alt='' ",
+                "style='padding-right:5px; position:relative; top:-2px;'/> <q>",
+                learningTarget.mainOutcome, "</q>").eP();
+
+        htm.sDiv("learning_target").addln("Specifically, I can:");
 
         if (learningTarget.subOutcomes != null && learningTarget.subOutcomes.length > 0) {
             htm.addln("<ul>");
@@ -507,35 +556,50 @@ enum PageStdsTextModule {
     private static void emitExampleBlock(final HtmlBuilder htm, final ExampleBlock block, final String heading,
                                          final boolean first) {
 
-        htm.add(first ? "<li>" : "<li style='border-top:1px solid gray;'>");
+        if (first) {
+            htm.sDiv(null, "style='padding:6px 10px;'");
+        } else {
+            htm.sDiv(null, "style='padding:6px 10px;border-top:1px solid gray;'");
+        }
 
         htm.add(heading, "<strong style='color:", CSU_GREEN, ";'>", block.title, "</strong>");
 
         final List<ExampleData> examples = block.examples;
         final int count = examples.size();
 
-        htm.sDiv(null, "style='margin:0 0 8px 0;'");
         for (int i = 0; i < count; ++i) {
             final ExampleData ex = examples.get(i);
 
-            htm.sDiv(null, "style='font-size:15px;margin:6px 0 4px 0'")
-                    .add("Example ", Integer.toString(i + 1), ": ", ex.label).eDiv();
+            htm.sDiv(null, "style='font-size:15px;margin:10px 0 6px 16px;'")
+                    .add("Example&nbsp;", Integer.toString(i + 1), ":&nbsp; <strong style='color:", ENERGY_GREEN1, "'>",
+                            ex.label, "</strong>").eDiv();
 
-            htm.sDiv(null, "style='font-size:15px;padding-left:22px;'");
+            htm.sDiv(null, "style='font-size:15px;margin:0 0 6px 16px;padding-left:16px; ",
+                    "background:white; border: 1px solid #ccc'");
+
+            htm.add("<span style='display:inline-block;white-space:nowrap;padding:6px 30px 6px 0;'>");
+            htm.add("<a class='linkbtn' target='_blank' href='https://nibbler.math.colostate.edu/media/",
+                    block.course.mediaDir, "/pdf/", ex.mediaId, ".pdf'>");
             htm.add("<img src='/images/etext/pdf.png' alt='' ",
-                            "style='padding-right:5px'/>",
-                            "<a class='linkbtn' target='_blank' ",
-                            "href='https://nibbler.math.colostate.edu/media/", block.course.mediaDir,
-                            "/pdf/", ex.mediaId, ".pdf'>Example with Solution (PDF)</a>")
-                    .add("<img src='/images/etext/video_icon.png' alt='' ",
-                            "style='padding-left:20px;padding-right:5px'/>",
-                            "<a class='linkbtn' target='_blank' href='video_example.html?dir=",
-                            block.course.mediaDir, "&id=", ex.mediaId, "&course=", block.course.courseId,
-                            "'>Video Walkthrough</a>");
+                    "style='padding-right:5px; position:relative; top:-2px;'/>");
+            htm.add("<span class='hidebelow400'>Example with Solution (PDF)</span>");
+            htm.add("<span class='hideabove400'>Example (PDF)</span>");
+            htm.add("</a>");
+            htm.add("</span>");
+
+            htm.add("<span style='display:inline-block;white-space:nowrap;padding:6px 0 6px 0;'>");
+            htm.add("<a class='linkbtn' target='_blank' href='video_example.html?dir=", block.course.mediaDir,
+                    "&id=", ex.mediaId, "&course=", block.course.courseId, "'>");
+            htm.add("<img src='/images/etext/video_icon.png' alt='' ",
+                    "style='padding-right:5px; position:relative; top:-2px;'/>");
+            htm.add("Video Walkthrough");
+            htm.add("</a>");
+            htm.add("</span>");
+
             htm.eDiv();
         }
 
-        htm.addln("</li>");
+        htm.eDiv(); // padding, top-border
     }
 
     /**
@@ -572,29 +636,31 @@ enum PageStdsTextModule {
         htm.addln("  <input type='hidden' name='mode' value='", mode, "'/>");
         htm.addln("  <input type='hidden' name='assign' value='", assignmentId, "'/>");
         if (ineligible) {
-            htm.addln("  <input class='smallbtndim' type='submit' value='", title, "' disabled />");
+            htm.addln("  <input class='btndim' type='submit' value='", title, "' disabled />");
         } else {
-            htm.addln("  <input class='smallbtn' type='submit' value='", title, "'/>");
+            htm.addln("  <input class='btn' type='submit' value='", title, "'/>");
         }
         htm.addln("</form>");
 
         if (ineligible) {
-            htm.addln(" <span style='color:#B00000;border:1px #B00000 solid;border-radius:6px;padding:3px 19px;",
-                    "margin-left:16px;'>Skills Review not yet completed</span>");
+            htm.addln(" <span style='white-space:nowrap;color:#B00000;border:1px #B00000 solid;border-radius:6px;",
+                    "padding:3px 19px;margin-left:16px;'>Skills Review not yet completed</span>");
         } else if (attempted) {
             if (mastered) {
-                htm.addln(" <span style='background-color:#EBF9EB;color:#105456;",
+                htm.addln(" <span style='white-space:nowrap;background-color:#EBF9EB;color:#105456;",
                         "border:1px #105456 solid;border-radius:6px;padding:3px 19px;",
                         "margin-left:16px;'>Passed</span>");
             } else {
-                htm.addln(" <span style='color:#B00000;border:1px #B00000 solid;border-radius:6px;padding:3px 19px;",
-                        "margin-left:16px;'>Not Yet Passed</span>");
+                htm.addln(" <span style='white-space:nowrap;color:#B00000;border:1px #B00000 solid;border-radius:6px;",
+                        "padding:3px 19px;margin-left:16px;'>Not Yet Passed</span>");
             }
         } else {
-            htm.addln(" <span style='color:#B00000;border:1px #B00000 solid;border-radius:6px;padding:3px 19px;",
-                    "margin-left:16px;'>Not Yet Attempted</span>");
+            htm.addln(" <span style='white-space:nowrap;color:#B00000;border:1px #B00000 solid;border-radius:6px;",
+                    "padding:3px 19px;margin-left:16px;'>Not Yet Attempted</span>");
         }
         htm.eDiv();
+
+        // TODO: If there is a due date, show that here...
 
         try {
             final TermRec active = cache.getSystemData().getActiveTerm();
@@ -657,10 +723,9 @@ enum PageStdsTextModule {
 
         htm.addln("<details style='padding-left:20px;'>");
 
-        htm.addln("<summary style='font-family:prox-regular,sans-serif;margin-bottom:6px;'>", text,
-                " (expand with arrow on the left)</summary>");
+        htm.addln("<summary><h4 style='display:inline;'>", text, "</h4> (expand with arrow on the left)</summary>");
 
-        htm.sDiv(null, "style='padding-left:20px;line-height:1.1em;'");
+        htm.sDiv(null, "style='padding:6px 0 0 20px;line-height:1.1em;'");
         htm.sDiv(null, "style='font-family:prox-regular,sans-serif;color:black;",
                 "border:1px solid black;background:#f8f8f8;'");
     }
@@ -681,58 +746,71 @@ enum PageStdsTextModule {
      * Emits the student's status with respect to demonstrating mastery of a learning target.
      *
      * @param cache          the cache
-     * @param stuId          the student ID
+     * @param student        the student record
+     * @param reg            the course registration record
      * @param htm            the {@code HtmlBuilder} to which to append the HTML
      * @param learningTarget the learning target data
      * @param mode           the page mode
      * @param masteryStatus  the mastery status
      */
-    private static void endLearningTarget(final Cache cache, final String stuId, final HtmlBuilder htm,
-                                          final LearningTargetData learningTarget, final String mode,
-                                          final StdsMasteryStatus masteryStatus) {
+    private static void endLearningTarget(final Cache cache, final RawStudent student, final RawStcourse reg,
+                                          final HtmlBuilder htm, final LearningTargetData learningTarget,
+                                          final String mode, final StdsMasteryStatus masteryStatus) {
 
         final int unitIndex = learningTarget.unit - 1;
         final int objIndex = learningTarget.objective - 1;
         final int arrayIndex = unitIndex * 3 + objIndex;
         final int assignmentStatus = masteryStatus.assignmentStatus[arrayIndex];
         final int standardStatus = masteryStatus.standardStatus[arrayIndex];
-        final int srStatus = masteryStatus.skillsReviewStatus[unitIndex];
 
         final boolean triedHw = assignmentStatus > 0;
         final boolean passedHw = assignmentStatus > 1;
         final boolean mastered = standardStatus > 1;
-        final boolean ineligible = srStatus < 2 && !masteryStatus.tutor;
 
-        endDetailsBlock(htm);
+        final HtmlBuilder reasons = new HtmlBuilder(100);
+        final List<RawAdminHold> holds = new ArrayList<>(2);
 
-        final String title;
-        if (passedHw) {
-            title = "Practice Learning Target " + learningTarget.targetNumber + " Assignment";
-        } else {
-            title = "Learning Target " + learningTarget.targetNumber + " Assignment";
-        }
+        try {
+            final boolean eligible = LearningTargetAssignmentEligibilityTester.isEligible(cache, reg, student,
+                    learningTarget.unit, learningTarget.objective, reasons, holds);
 
-        emitStandardAssignment(cache, stuId, htm, learningTarget.module.course.courseId, learningTarget.unit,
-                learningTarget.objective, title, learningTarget.assignmentId, mode, ineligible, triedHw, passedHw);
+            endDetailsBlock(htm);
 
-        if (ineligible) {
+            final String title;
+            if (passedHw) {
+                title = "Practice Learning Target " + learningTarget.targetNumber + " Assignment";
+            } else {
+                title = "Learning Target " + learningTarget.targetNumber + " Assignment";
+            }
+
+            emitStandardAssignment(cache, student.stuId, htm, learningTarget.module.course.courseId,
+                    learningTarget.unit, learningTarget.objective, title, learningTarget.assignmentId, mode,
+                    !eligible, triedHw, passedHw);
+
+            if (!eligible) {
+                htm.sDiv(null, "style='padding-left:24px;font-family:prox-regular,sans-serif;'")
+                        .add("This assignment will become available when you have completed the ",
+                                "<strong>Skills Review</strong>.")
+                        .eDiv();
+            } else if (mastered) {
+                htm.sDiv(null, "style='padding-left:24px;font-family:prox-regular,sans-serif;'")
+                        .add("This learning target has <strong>already been mastered</strong>!").eDiv();
+            } else if (passedHw) {
+                htm.sDiv(null, "style='padding-left:24px;font-family:prox-regular,sans-serif;'")
+                        .add("You are <strong style='color:#D9782D'>eligible to master this learning target</strong> ",
+                                "in the testing center!")
+                        .eDiv();
+            } else {
+                htm.sDiv(null, "style='padding-left:24px;font-family:prox-regular,sans-serif;'")
+                        .add("Once you pass the <strong>Learning Target ", learningTarget.targetNumber,
+                                " Assignment</strong>, you will become eligible to master this learning target in the ",
+                                "testing center.")
+                        .eDiv();
+            }
+        } catch (final SQLException ex) {
+            Log.warning(ex);
             htm.sDiv(null, "style='padding-left:24px;font-family:prox-regular,sans-serif;'")
-                    .add("This assignment will become available when you have completed the ",
-                            "<strong>Skills Review</strong>.")
-                    .eDiv();
-        } else if (mastered) {
-            htm.sDiv(null, "style='padding-left:24px;font-family:prox-regular,sans-serif;'")
-                    .add("This learning target has <strong>already been mastered</strong>!").eDiv();
-        } else if (passedHw) {
-            htm.sDiv(null, "style='padding-left:24px;font-family:prox-regular,sans-serif;'")
-                    .add("You are <strong style='color:#D9782D'>eligible to master this learning target</strong> ",
-                            "in the testing center!")
-                    .eDiv();
-        } else {
-            htm.sDiv(null, "style='padding-left:24px;font-family:prox-regular,sans-serif;'")
-                    .add("Once you pass the <strong>Learning Target ", learningTarget.targetNumber,
-                            " Assignment</strong>, you will become eligible to master this learning target in the ",
-                            "testing center.")
+                    .add("Unable to determine eligibility.")
                     .eDiv();
         }
     }

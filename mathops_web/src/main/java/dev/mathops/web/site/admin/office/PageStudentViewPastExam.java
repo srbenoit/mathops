@@ -16,11 +16,11 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawStchallengeLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawStmpeLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
+import dev.mathops.db.old.rawrecord.RawExam;
 import dev.mathops.db.old.rawrecord.RawStchallenge;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmpe;
@@ -249,7 +249,7 @@ enum PageStudentViewPastExam {
 
             htm.sTr().sTh().add("Course / Unit").eTh().sTd().add(examRec.course, ", Unit ", examRec.unit).eTd().eTr();
             htm.sTr().sTh().add("Exam").eTh().sTd()
-                    .add(examRec.version, " (", RawExamLogic.getExamTypeName(examRec.examType), ")").eTd().eTr();
+                    .add(examRec.version, " (", RawExam.getExamTypeName(examRec.examType), ")").eTd().eTr();
             htm.sTr().sTh().add("Serial No.").eTh().sTd().add(examRec.serialNbr).eTd().eTr();
             htm.sTr().sTh().add("Date").eTh().sTd().add(TemporalUtils.FMT_WMD.format(examRec.examDt)).eTd().eTr();
             htm.sTr().sTh().add("Time").eTh().sTd()

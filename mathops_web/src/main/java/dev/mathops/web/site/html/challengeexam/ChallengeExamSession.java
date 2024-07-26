@@ -31,6 +31,7 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
 import dev.mathops.commons.parser.xml.XmlEscaper;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.DbConnection;
 import dev.mathops.db.old.DbContext;
@@ -39,7 +40,6 @@ import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.logic.ChallengeExamLogic;
 import dev.mathops.db.old.logic.ChallengeExamStatus;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawMpeLogLogic;
 import dev.mathops.db.old.rawlogic.RawMpecrDeniedLogic;
@@ -329,7 +329,9 @@ public final class ChallengeExamSession extends HtmlSessionBase {
 
         Log.info("Retrieving exam ", this.version);
 
-        avail.exam = RawExamLogic.query(cache, this.version);
+        final SystemData systemData = cache.getSystemData();
+
+        avail.exam = systemData.getActiveExam(this.version);
 
         if (avail.exam == null) {
             Log.warning("Exam ", this.version, " was not found by ExamCache");
@@ -383,8 +385,7 @@ public final class ChallengeExamSession extends HtmlSessionBase {
                             // Apply time limit factor adjustment
                             if (reply.presentedExam.allowedSeconds != null) {
 
-                                final RawStudent stu =
-                                        RawStudentLogic.query(cache, this.studentId, false);
+                                final RawStudent stu = RawStudentLogic.query(cache, this.studentId, false);
 
                                 if (stu != null && stu.timelimitFactor != null) {
                                     avail.timelimitFactor = stu.timelimitFactor;
@@ -438,8 +439,7 @@ public final class ChallengeExamSession extends HtmlSessionBase {
      * @param reply  the reply message to populate with the realized exam or the error status
      * @param term   the term under which to file the presented exam
      */
-    private void buildPresentedExam(final String ref, final long serial, final GetExamReply reply,
-                                    final TermRec term) {
+    private void buildPresentedExam(final String ref, final long serial, final GetExamReply reply, final TermRec term) {
 
         final ExamObj theExam = InstructionalCache.getExam(ref);
 
@@ -1382,8 +1382,7 @@ public final class ChallengeExamSession extends HtmlSessionBase {
         final Long ser = examObj.serialNumber;
         final LocalDateTime start = TemporalUtils.toLocalDateTime(examObj.realizationTime);
 
-        final List<RawStchallenge> existing =
-                RawStchallengeLogic.queryByStudent(cache, this.studentId);
+        final List<RawStchallenge> existing = RawStchallengeLogic.queryByStudent(cache, this.studentId);
 
         for (final RawStchallenge test : existing) {
             if (test.startTime == null) {
@@ -1410,7 +1409,9 @@ public final class ChallengeExamSession extends HtmlSessionBase {
 
         RawPendingExamLogic.delete(cache, examObj.serialNumber, this.studentId);
 
-        final RawExam examRec = RawExamLogic.query(cache, this.version);
+        final SystemData systemData = cache.getSystemData();
+
+        final RawExam examRec = systemData.getActiveExam(this.version);
         if (examRec == null) {
             return "Exam " + this.version + " not found!";
         }

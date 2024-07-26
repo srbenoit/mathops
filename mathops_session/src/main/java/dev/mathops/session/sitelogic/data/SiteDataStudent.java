@@ -1,9 +1,9 @@
 package dev.mathops.session.sitelogic.data;
 
 import dev.mathops.commons.CoreConstants;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
-import dev.mathops.db.old.rawlogic.RawEtextCourseLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
@@ -357,6 +357,8 @@ public final class SiteDataStudent {
      */
     private boolean loadStudentETexts(final Cache cache, final String studentId) throws SQLException {
 
+        final SystemData systemData = cache.getSystemData();
+
         this.studentETexts = RawStetextLogic.queryByStudent(cache, studentId);
 
         final LocalDate today = this.owner.now.toLocalDate();
@@ -369,7 +371,7 @@ public final class SiteDataStudent {
             if (expiry == null || !today.isAfter(expiry)) {
                 final String etextId = stetext.etextId;
 
-                final List<RawEtextCourse> courses = RawEtextCourseLogic.queryByEtext(cache, etextId);
+                final List<RawEtextCourse> courses = systemData.getETextCoursesByETextId(etextId);
                 for (final RawEtextCourse crs : courses) {
                     this.etextCourseIds.add(crs.course);
                 }

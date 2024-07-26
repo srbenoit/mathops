@@ -12,6 +12,7 @@ import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
 import dev.mathops.session.sitelogic.data.SiteData;
+import dev.mathops.session.sitelogic.data.SiteDataCfgCourse;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.course.data.CourseData;
@@ -21,6 +22,7 @@ import dev.mathops.web.site.course.data.ModuleData;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -77,11 +79,6 @@ enum PageStdsText {
         } else if (course == null || mode == null) {
             PageError.doGet(cache, site, req, resp, session, "No course and mode provided for course outline");
         } else {
-            final List<RawStcourse> paceRegs = logic.data.registrationData.getPaceRegistrations();
-            final int pace = paceRegs == null ? 0 : PaceTrackLogic.determinePace(paceRegs);
-            final String paceTrack = paceRegs == null ? CoreConstants.EMPTY :
-                    PaceTrackLogic.determinePaceTrack(paceRegs, pace);
-
             final HtmlBuilder htm = new HtmlBuilder(2000);
             final String siteTitle = site.getTitle();
             Page.startOrdinaryPage(htm, siteTitle, session, false, Page.ADMIN_BAR | Page.USER_DATE_BAR, null, false,
@@ -91,13 +88,23 @@ enum PageStdsText {
             CourseMenu.buildMenu(cache, site, session, logic, htm);
             htm.sDiv("panelu");
 
-            final RawStcourse reg = logic.data.registrationData.getRegistration(course);
+            final SiteData data = logic.data;
+            final RawStcourse reg = data.registrationData.getRegistration(course);
+
             if (reg == null) {
                 htm.sP("error").addln("You are not registered in this course.").eP();
             } else {
+                final SiteDataCfgCourse courseData = data.courseData.getCourse(reg.course, reg.sect);
+
+                final List<RawStcourse> paceRegs = data.registrationData.getPaceRegistrations();
+                final int pace = paceRegs == null ? 0 : PaceTrackLogic.determinePace(paceRegs);
+                final String paceTrack = paceRegs == null ? CoreConstants.EMPTY :
+                        PaceTrackLogic.determinePaceTrack(paceRegs, pace);
+
                 final ZonedDateTime now = session.getNow();
-                final boolean isTutor = logic.data.studentData.isSpecialType(now, "TUTOR");
-                final StdsMasteryStatus masteryStatus = new StdsMasteryStatus(cache, pace, paceTrack, reg, isTutor);
+                final boolean isTutor = data.studentData.isSpecialType(now, "TUTOR");
+                final StdsMasteryStatus masteryStatus = new StdsMasteryStatus(cache, courseData, pace, paceTrack, reg,
+                        isTutor);
 
                 if (RawRecordConstants.MATH125.equals(course)) {
                     showCourseText(session, Math125.MATH_125, logic, masteryStatus, mode, htm);
@@ -106,7 +113,6 @@ enum PageStdsText {
                 } else {
                     htm.sP("error").addln("Invalid course ID").eP();
                 }
-
             }
 
             htm.eDiv(); // panelu
@@ -388,19 +394,19 @@ enum PageStdsText {
 
             htm.sTr().sTh("status").add("Learning&nbsp;Target&nbsp;1:  ").eTh().sTd("status");
             if (srStatus == 2) {
-                    if (s1Status == 3) {
-                        htm.add("Mastered! (after due date, 4 points earned)");
-                    } else if (s1Status == 2) {
-                        htm.add("Mastered! (5 points earned)");
-                    } else if (s1Status == 1) {
-                        htm.add("In progress...");
-                    } else if (a1Status == 2) {
-                        htm.add("<strong>Ready to attempt mastery</strong>");
-                    } else if (a1Status == 1) {
-                        htm.add("Working on practice problems");
-                    } else {
-                        htm.add("Available to start");
-                    }
+                if (s1Status == 3) {
+                    htm.add("Mastered! (after due date, 4 points earned)");
+                } else if (s1Status == 2) {
+                    htm.add("Mastered! (5 points earned)");
+                } else if (s1Status == 1) {
+                    htm.add("In progress...");
+                } else if (a1Status == 2) {
+                    htm.add("<strong>Ready to attempt mastery</strong>");
+                } else if (a1Status == 1) {
+                    htm.add("Working on practice problems");
+                } else {
+                    htm.add("Available to start");
+                }
             } else {
                 htm.add("Opens when Skills Review completed");
             }

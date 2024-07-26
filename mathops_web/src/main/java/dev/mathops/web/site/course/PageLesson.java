@@ -7,9 +7,9 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.old.rawrecord.RawPacingRules;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ERole;
-import dev.mathops.db.old.rawlogic.RawPacingRulesLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStcuobjectiveLogic;
 import dev.mathops.db.old.rawrecord.RawLessonComponent;
@@ -270,12 +270,14 @@ enum PageLesson {
 
         final StudentCourseStatus courseStatus = new StudentCourseStatus(site.getDbProfile());
 
-        if (courseStatus.gatherData(cache, session, session.getEffectiveUserId(), courseId, false, //
+        if (courseStatus.gatherData(cache, session, session.getEffectiveUserId(), courseId, false,
                 !"course".equals(assignmentMode))) {
 
             if (courseStatus.hasHomework(unit, objective)) {
 
                 if ("course".equals(assignmentMode)) {
+
+                    final SystemData systemData = cache.getSystemData();
 
                     final boolean hw = courseStatus.isHomeworkAvailable(unit, objective);
                     final String status = courseStatus.getHomeworkStatus(unit, objective);
@@ -292,9 +294,8 @@ enum PageLesson {
                     htm.addln("  <input type='hidden' name='mode' value='", assignmentMode, "'/>");
                     htm.addln("  <input type='hidden' name='assign' value='", assignId, "'/>");
 
-                    final boolean mustWatchLecture =
-                            RawPacingRulesLogic.isRequired(cache, activeKey, pacing,
-                                    RawPacingRulesLogic.ACTIVITY_HOMEWORK, RawPacingRulesLogic.LECT_VIEWED);
+                    final boolean mustWatchLecture = systemData.isRequiredByPacingRules(activeKey, pacing,
+                            RawPacingRules.ACTIVITY_HOMEWORK, RawPacingRules.LECT_VIEWED);
                     final boolean viewed = RawStcuobjectiveLogic.hasLectureBeenViewed(cache,
                             session.getEffectiveUserId(), courseId, Integer.valueOf(unit),
                             Integer.valueOf(objective));

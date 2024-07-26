@@ -3,8 +3,8 @@ package dev.mathops.web.site.tutorial.precalc;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawCunit;
 import dev.mathops.db.old.rawrecord.RawCuobjective;
@@ -164,7 +164,9 @@ enum PageCourseOutline {
 
         final String courseId = tutStatus.getCourse().course;
 
-        final RawExam revExam = RawExamLogic.queryActiveByCourseUnitType(cache, courseId, Integer.valueOf(0), "R");
+        final SystemData systemData = cache.getSystemData();
+
+        final RawExam revExam = systemData.getActiveExamByCourseUnitType(courseId, Integer.valueOf(0), "R");
         final String version;
         if (RawRecordConstants.M1170.equals(courseId) && !logic.hasPlacedInto117()) {
             version = "7TELM";
@@ -416,7 +418,10 @@ enum PageCourseOutline {
                                          final Integer unit, final HtmlBuilder htm) throws SQLException {
 
         final String courseId = tutStatus.getCourse().course;
-        final RawExam reviewExam = RawExamLogic.queryActiveByCourseUnitType(cache, courseId, unit, "R");
+
+        final SystemData systemData = cache.getSystemData();
+
+        final RawExam reviewExam = systemData.getActiveExamByCourseUnitType(courseId, unit, "R");
 
         String label;
         final String examId;
@@ -525,7 +530,10 @@ enum PageCourseOutline {
 //
 //        final String courseId = tutStatus.getCourse().course;
 //        final boolean unitAvail = tutStatus.isEligibleForProctored();
-//        final RawExam unitExam = RawExamLogic.queryActiveByCourseUnitType(cache, courseId, Integer.valueOf(4), "U");
+//
+//        final SystemData systemData = cache.getSystemData();
+//
+//        final RawExam unitExam = systemData.getActiveExamByCourseUnitType(courseId, Integer.valueOf(4), "U");
 //
 //        final String version = unitExam == null ? null : unitExam.version;
 //

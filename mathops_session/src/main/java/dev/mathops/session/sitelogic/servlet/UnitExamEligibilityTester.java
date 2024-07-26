@@ -2,6 +2,7 @@ package dev.mathops.session.sitelogic.servlet;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.DbConnection;
 import dev.mathops.db.old.DbContext;
@@ -9,7 +10,6 @@ import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.enums.ERole;
-import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawSttermLogic;
@@ -385,14 +385,16 @@ public final class UnitExamEligibilityTester extends EligibilityTesterBase {
             }
 
             if (finalNotYetPassed && this.studentCourse.paceOrder != null) {
+
                 final RawStterm stterm = RawSttermLogic.query(cache, this.activeTerm.term, this.studentId);
 
                 if (stterm == null || stterm.pace == null) {
                     reasons.add("Unable to determine your course pace.");
                     ok = false;
                 } else {
-                    final List<RawMilestone> allMs = RawMilestoneLogic.getAllMilestones(cache,
-                            this.activeTerm.term, stterm.pace.intValue(), stterm.paceTrack);
+                    final SystemData systemData = cache.getSystemData();
+                    final List<RawMilestone> allMs = systemData.getMilestones(this.activeTerm.term, stterm.pace,
+                            stterm.paceTrack);
 
                     final List<RawStmilestone> stuMs = RawStmilestoneLogic.getStudentMilestones(
                             cache, this.activeTerm.term, stterm.paceTrack, this.studentId);

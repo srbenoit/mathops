@@ -2,11 +2,12 @@ package dev.mathops.session.sitelogic.servlet;
 
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawPacingRulesLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
+import dev.mathops.db.old.rawrecord.RawPacingRules;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawSthomework;
@@ -337,12 +338,14 @@ public class HomeworkEligibilityTester extends EligibilityTesterBase {
             if (this.pacingStructure != null) {
                 final String pacing = this.pacingStructure.pacingStructure;
 
-                final boolean reqHw = RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
-                        RawPacingRulesLogic.ACTIVITY_HOMEWORK, RawPacingRulesLogic.HW_PASS);
-                final boolean reqRe = RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
-                        RawPacingRulesLogic.ACTIVITY_HOMEWORK, RawPacingRulesLogic.UR_MSTR);
-                final boolean reqUe = RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
-                        RawPacingRulesLogic.ACTIVITY_HOMEWORK, RawPacingRulesLogic.UE_MSTR);
+                final SystemData systemData = cache.getSystemData();
+
+                final boolean reqHw = systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
+                        RawPacingRules.ACTIVITY_HOMEWORK, RawPacingRules.HW_PASS);
+                final boolean reqRe = systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
+                        RawPacingRules.ACTIVITY_HOMEWORK, RawPacingRules.UR_MSTR);
+                final boolean reqUe = systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
+                        RawPacingRules.ACTIVITY_HOMEWORK, RawPacingRules.UE_MSTR);
 
                 final String courseId = hw.courseId;
                 final int unit = hw.unit == null ? -1 : hw.unit.intValue();

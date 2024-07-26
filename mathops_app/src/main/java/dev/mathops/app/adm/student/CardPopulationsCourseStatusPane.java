@@ -3,8 +3,8 @@ package dev.mathops.app.adm.student;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawSttermLogic;
 import dev.mathops.db.old.rawrecord.RawMilestone;
 import dev.mathops.db.old.rawrecord.RawStterm;
@@ -79,9 +79,10 @@ final class CardPopulationsCourseStatusPane extends JPanel implements ActionList
 
         this.cache = theCache;
 
+        final SystemData systemData = theCache.getSystemData();
         TermRec active;
         try {
-            active = theCache.getSystemData().getActiveTerm();
+            active = systemData.getActiveTerm();
         } catch (final SQLException ex) {
             active = null;
         }
@@ -97,7 +98,7 @@ final class CardPopulationsCourseStatusPane extends JPanel implements ActionList
         final List<RawMilestone> milestones;
 
         try {
-            milestones = RawMilestoneLogic.getAllMilestones(theCache, this.activeKey);
+            milestones = systemData.getMilestones(this.activeKey);
 
             for (final RawMilestone ms : milestones) {
                 final Set<String> tracks = paceTracks.computeIfAbsent(ms.pace, k -> new TreeSet<>());

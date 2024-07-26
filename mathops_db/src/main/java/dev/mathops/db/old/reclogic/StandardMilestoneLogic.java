@@ -202,9 +202,8 @@ public abstract class StandardMilestoneLogic implements IRecLogic<StandardMilest
                 throw new SQLException("Null value in primary key or required field.");
             }
 
-            final String sql = SimpleBuilder.concat(//
-                    "INSERT INTO std_milestone (pace_track,pace,pace_index,",
-                    "unit,objective,ms_type,ms_date) VALUES (",
+            final String sql = SimpleBuilder.concat(
+                    "INSERT INTO std_milestone (pace_track,pace,pace_index,unit,objective,ms_type,ms_date) VALUES (",
                     sqlStringValue(record.paceTrack), ",",
                     sqlIntegerValue(record.pace), ",",
                     sqlIntegerValue(record.paceIndex), ",",
@@ -228,7 +227,7 @@ public abstract class StandardMilestoneLogic implements IRecLogic<StandardMilest
         public boolean delete(final Cache cache, final StandardMilestoneRec record)
                 throws SQLException {
 
-            final String sql = SimpleBuilder.concat(//
+            final String sql = SimpleBuilder.concat(
                     "DELETE FROM std_milestone ",
                     "WHERE pace_track=", sqlStringValue(record.paceTrack),
                     " AND pace=", sqlIntegerValue(record.pace),
@@ -266,7 +265,7 @@ public abstract class StandardMilestoneLogic implements IRecLogic<StandardMilest
         public boolean updateDate(final Cache cache, final StandardMilestoneRec record,
                                   final LocalDate newDate) throws SQLException {
 
-            final String sql = SimpleBuilder.concat(//
+            final String sql = SimpleBuilder.concat(
                     "UPDATE std_milestone ",
                     "SET ms_date=", sqlDateValue(newDate),
                     " WHERE pace_track=", sqlStringValue(record.paceTrack),
@@ -290,10 +289,10 @@ public abstract class StandardMilestoneLogic implements IRecLogic<StandardMilest
          * @throws SQLException if there is an error performing the query
          */
         @Override
-        public List<StandardMilestoneRec> queryByPaceTrackPace(final Cache cache,
-                                                               final String track, final Integer pace) throws SQLException {
+        public List<StandardMilestoneRec> queryByPaceTrackPace(final Cache cache, final String track,
+                                                               final Integer pace) throws SQLException {
 
-            final String sql = SimpleBuilder.concat(//
+            final String sql = SimpleBuilder.concat(
                     "SELECT * FROM std_milestone ",
                     "WHERE pace_track=", sqlStringValue(track),
                     " AND pace=", sqlIntegerValue(pace));
@@ -312,11 +311,11 @@ public abstract class StandardMilestoneLogic implements IRecLogic<StandardMilest
          * @throws SQLException if there is an error performing the query
          */
         @Override
-        public List<StandardMilestoneRec> queryByPaceTrackPaceIndex(final Cache cache,
-                                                                    final String track, final Integer pace,
-                                                                    final Integer paceIndex) throws SQLException {
+        public List<StandardMilestoneRec> queryByPaceTrackPaceIndex(final Cache cache, final String track,
+                                                                    final Integer pace, final Integer paceIndex)
+                throws SQLException {
 
-            final String sql = SimpleBuilder.concat(//
+            final String sql = SimpleBuilder.concat(
                     "SELECT * FROM std_milestone ",
                     "WHERE pace_track=", sqlStringValue(track),
                     " AND pace=", sqlIntegerValue(pace),
@@ -343,7 +342,7 @@ public abstract class StandardMilestoneLogic implements IRecLogic<StandardMilest
                                           final Integer paceIndex, final Integer unit, final Integer objective,
                                           final String msType) throws SQLException {
 
-            final String sql = SimpleBuilder.concat(//
+            final String sql = SimpleBuilder.concat(
                     "SELECT * FROM std_milestone ",
                     "WHERE pace_track=", sqlStringValue(track),
                     " AND pace=", sqlIntegerValue(pace),

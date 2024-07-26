@@ -12,9 +12,9 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.logic.ChallengeExamLogic;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawrecord.RawExam;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStexam;
@@ -78,7 +78,7 @@ final class TestingIssueCard extends AdmPanelBase implements ActionListener, Foc
     private static final String MASTERY = "Mastery";
 
     /** An action command. */
-    private static final String CHALLENGE= "Challenge";
+    private static final String CHALLENGE = "Challenge";
 
     /** A commonly used integer. */
     static final Integer ZERO = Integer.valueOf(0);
@@ -117,8 +117,8 @@ final class TestingIssueCard extends AdmPanelBase implements ActionListener, Foc
     /**
      * Constructs a new {@code TestingIssueCard}.
      *
-     * @param theCache         the data cache
-     * @param theFrame         the main window frame
+     * @param theCache the data cache
+     * @param theFrame the main window frame
      */
     TestingIssueCard(final Cache theCache, final JFrame theFrame) {
 
@@ -634,8 +634,10 @@ final class TestingIssueCard extends AdmPanelBase implements ActionListener, Foc
     private void startCourseExam(final String stuId, final String courseId, final int unit, final boolean check) {
 
         try {
+            final SystemData systemData = this.cache.getSystemData();
+
             final Integer unitObj = Integer.valueOf(unit);
-            final RawExam examRec = RawExamLogic.queryActiveByCourseUnitType(this.cache, courseId, unitObj,
+            final RawExam examRec = systemData.getActiveExamByCourseUnitType(courseId, unitObj,
                     unit == 5 ? RawStexam.FINAL_EXAM : RawStexam.UNIT_EXAM);
 
             if (examRec != null) {
@@ -671,8 +673,10 @@ final class TestingIssueCard extends AdmPanelBase implements ActionListener, Foc
 
         Log.info("Attempting to start challenge exam.");
 
+        final SystemData systemData = this.cache.getSystemData();
+
         try {
-            final RawExam examRec = RawExamLogic.queryActiveByCourseUnitType(this.cache, courseId, ZERO, "CH");
+            final RawExam examRec = systemData.getActiveExamByCourseUnitType(courseId, ZERO, "CH");
 
             if (examRec == null) {
                 Log.warning("Could not find an exam of type 'CH' for ", courseId);
@@ -694,9 +698,10 @@ final class TestingIssueCard extends AdmPanelBase implements ActionListener, Foc
      */
     private void startUsersExam(final String stuId, final boolean check) {
 
+        final SystemData systemData = this.cache.getSystemData();
+
         try {
-            final RawExam examRec = RawExamLogic.queryActiveByCourseUnitType(this.cache, RawRecordConstants.M100U, ONE,
-                    "Q");
+            final RawExam examRec = systemData.getActiveExamByCourseUnitType(RawRecordConstants.M100U, ONE, "Q");
 
             if (examRec != null) {
                 new StartExamDialog(this.cache, this.frame, stuId, RawRecordConstants.M100U, 1, examRec.version,
@@ -836,7 +841,7 @@ final class TestingIssueCard extends AdmPanelBase implements ActionListener, Foc
      * @param cleanedStuId the student ID
      * @throws SQLException if there is an error accessing the database
      */
-    private void studentFound(final String cleanedStuId) throws SQLException{
+    private void studentFound(final String cleanedStuId) throws SQLException {
 
         final boolean enforceElig = this.enforceEligible.isSelected();
         final DataCheckInAttempt info = this.logic.performCheckInLogic(cleanedStuId, enforceElig);

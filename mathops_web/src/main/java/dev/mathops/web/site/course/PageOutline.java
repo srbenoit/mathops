@@ -10,9 +10,6 @@ import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.EProctoringOption;
 import dev.mathops.db.enums.ERole;
-import dev.mathops.db.old.rawlogic.RawEtextCourseLogic;
-import dev.mathops.db.old.rawlogic.RawEtextLogic;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
@@ -406,8 +403,10 @@ enum PageOutline {
 
             // Find the e-texts that can grant access to this course and that are active
 
-            final List<RawEtextCourse> etCourses = RawEtextCourseLogic.queryByCourse(cache, courseId);
-            final List<RawEtext> etexts = RawEtextLogic.INSTANCE.queryAll(cache);
+            final SystemData systemData = cache.getSystemData();
+
+            final List<RawEtextCourse> etCourses = systemData.getETextCoursesByCourseId(courseId);
+            final List<RawEtext> etexts = systemData.getETexts();
             final Collection<RawEtext> urlEtexts = new ArrayList<>(etexts.size());
             boolean keyEntry = false;
 
@@ -520,8 +519,7 @@ enum PageOutline {
 
             htm.sDiv("indent11");
             htm.sP("red");
-            htm.add("<strong>This course is an incomplete from the ", incTerm.term.longString,
-                    " semester.</strong>");
+            htm.add("<strong>This course is an incomplete from the ", incTerm.term.longString, " semester.</strong>");
             htm.eP();
             htm.eDiv();
         }
@@ -535,7 +533,8 @@ enum PageOutline {
             final SiteDataMilestone msData = logic.data.milestoneData;
 
             // Print all pace deadlines, including student override dates
-            final TermRec term = cache.getSystemData().getActiveTerm();
+            final SystemData systemData = cache.getSystemData();
+            final TermRec term = systemData.getActiveTerm();
             final TermKey termKey = reg.iTermKey == null ? (term == null ? null : term.term) : reg.iTermKey;
 
             // Log.info("Querying milestones for ", termKey);
@@ -647,8 +646,7 @@ enum PageOutline {
 
                     htm.eTd(); // scored (review exam column)
 
-                    final RawExam exam = RawExamLogic.queryActiveByCourseUnitType(cache, courseId, Integer.valueOf(i),
-                            "U");
+                    final RawExam exam = systemData.getActiveExamByCourseUnitType(courseId, Integer.valueOf(i), "U");
                     final SiteDataCfgExamStatus ueStatus = status.getExamStatus(courseId, Integer.valueOf(i), "U");
 
                     // Proctored exam column:
@@ -1102,8 +1100,9 @@ enum PageOutline {
         final int unitNum = gwSecUnit.unit.intValue();
         final RawStcourse stcourse = courseStatus.getStudentCourse();
 
-        final RawExam unitExam =
-                RawExamLogic.queryActiveByCourseUnitType(cache, courseId, gwSecUnit.unit, "R");
+        final SystemData systemData = cache.getSystemData();
+
+        final RawExam unitExam = systemData.getActiveExamByCourseUnitType(courseId, gwSecUnit.unit, "R");
         final String examLabel;
         final String examTitle;
         String examId;
@@ -1355,12 +1354,14 @@ enum PageOutline {
             actualMode = "practice";
         }
 
+        final SystemData systemData = cache.getSystemData();
+
         // Unit materials dimmed if gateway exam not passed
         if ("course".equals(actualMode) && gwSecUnit != null && !courseStatus.isStudentVisiting()) {
 
             final RawCusection gw = courseStatus.getGatewaySectionUnit();
             final RawExam gwExam = gw == null ? null
-                    : RawExamLogic.queryActiveByCourseUnitType(cache, courseId, unit.unit, "R");
+                    : systemData.getActiveExamByCourseUnitType(courseId, unit.unit, "R");
 
             if (gwExam != null && !courseStatus.isCourseGatewayPassed()) {
                 dimmed = true;
@@ -1501,11 +1502,13 @@ enum PageOutline {
 
         boolean dimmed = false;
 
+        final SystemData systemData = cache.getSystemData();
+
         if ("course".equals(mode)) {
 
             // Unit materials dimmed if gateway exam not passed
             if (gwSecUnit != null && !courseStatus.isStudentVisiting()) {
-                final RawExam finalExam = RawExamLogic.queryActiveByCourseUnitType(cache, courseId, unit.unit, "F");
+                final RawExam finalExam = systemData.getActiveExamByCourseUnitType(courseId, unit.unit, "F");
                 if (finalExam != null && !courseStatus.isCourseGatewayPassed()) {
                     dimmed = true;
                 }
@@ -1573,7 +1576,7 @@ enum PageOutline {
 
             // Unit materials dimmed if gateway exam not passed
             if (gwSecUnit != null && !courseStatus.isStudentVisiting()) {
-                final RawExam finalExam = RawExamLogic.queryActiveByCourseUnitType(cache, courseId, unit.unit, "F");
+                final RawExam finalExam = systemData.getActiveExamByCourseUnitType(courseId, unit.unit, "F");
                 if (finalExam != null && !courseStatus.isCourseGatewayPassed()) {
                     dimmed = true;
                 }
@@ -1869,9 +1872,11 @@ enum PageOutline {
         final boolean reviewAvail = courseStatus.isReviewExamAvailable(unitNum);
         final boolean unitAvail = courseStatus.isProctoredExamAvailable(unitNum);
 
+        final SystemData systemData = cache.getSystemData();
+
         final Integer unitNumObj = Integer.valueOf(unitNum);
-        final RawExam revExam = RawExamLogic.queryActiveByCourseUnitType(cache, courseId, unitNumObj, "R");
-        final RawExam unitExam = RawExamLogic.queryActiveByCourseUnitType(cache, courseId, unitNumObj, "U");
+        final RawExam revExam = systemData.getActiveExamByCourseUnitType(courseId, unitNumObj, "R");
+        final RawExam unitExam = systemData.getActiveExamByCourseUnitType(courseId, unitNumObj, "U");
 
         String unitLabel = "Unit Exam";
         if (unitExam != null) {
@@ -2040,11 +2045,11 @@ enum PageOutline {
                             // Determine which exam the user would take after passing the unit exam
                             final RawExam nextExam;
                             if ("FIN".equals(type)) {
-                                nextExam = RawExamLogic.queryActiveByCourseUnitType(cache, courseId,
-                                        Integer.valueOf(nextUnit), "U");
+                                nextExam = systemData.getActiveExamByCourseUnitType(courseId, Integer.valueOf(nextUnit),
+                                        "U");
                             } else {
-                                nextExam = RawExamLogic.queryActiveByCourseUnitType(cache, courseId,
-                                        Integer.valueOf(nextUnit), "R");
+                                nextExam = systemData.getActiveExamByCourseUnitType(courseId, Integer.valueOf(nextUnit),
+                                        "R");
                             }
 
                             if (nextExam != null) {
@@ -2184,8 +2189,10 @@ enum PageOutline {
 
         final String courseId = courseStatus.getCourse().course;
         final boolean unitAvail = courseStatus.isProctoredExamAvailable(unitNum);
-        final RawExam unitExam = RawExamLogic.queryActiveByCourseUnitType(cache, courseId, Integer.valueOf(unitNum),
-                "F");
+
+        final SystemData systemData = cache.getSystemData();
+
+        final RawExam unitExam = systemData.getActiveExamByCourseUnitType(courseId, Integer.valueOf(unitNum), "F");
 
         final String label;
         if (unitExam == null) {
@@ -2223,7 +2230,7 @@ enum PageOutline {
 
                 if ("INST".equals(type)) {
                     final Integer unitInt = Integer.valueOf(i);
-                    final RawExam rev = RawExamLogic.queryActiveByCourseUnitType(cache, courseId, unitInt, "R");
+                    final RawExam rev = systemData.getActiveExamByCourseUnitType(courseId, unitInt, "R");
 
                     if (rev != null) {
                         final String pastLabel = rev.buttonLabel;
@@ -2468,8 +2475,10 @@ enum PageOutline {
         final String courseId = courseStatus.getCourse().course;
         final boolean unitAvail = courseStatus.isProctoredExamAvailable(unitNum);
         final boolean unitPassed = courseStatus.isProctoredPassed(unitNum);
-        final RawExam unitExam = RawExamLogic.queryActiveByCourseUnitType(cache, courseId, Integer.valueOf(unitNum),
-                "U");
+
+        final SystemData systemData = cache.getSystemData();
+
+        final RawExam unitExam = systemData.getActiveExamByCourseUnitType(courseId, Integer.valueOf(unitNum), "U");
         final String version;
 
         if (unitExam == null) {
@@ -2563,8 +2572,10 @@ enum PageOutline {
 
         final String courseId = courseStatus.getCourse().course;
         final boolean unitAvail = courseStatus.isProctoredExamAvailable(unitNum);
-        final RawExam unitExam = RawExamLogic.queryActiveByCourseUnitType(cache, courseId, Integer.valueOf(unitNum),
-                "F");
+
+        final SystemData systemData = cache.getSystemData();
+
+        final RawExam unitExam = systemData.getActiveExamByCourseUnitType(courseId, Integer.valueOf(unitNum), "F");
         final String version;
 
         if (unitExam == null) {

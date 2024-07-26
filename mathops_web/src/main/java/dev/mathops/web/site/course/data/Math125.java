@@ -46,7 +46,7 @@ public enum Math125 {
 
         final LearningTargetData m125m1t1 = m125m1.addLearningTarget(1, 1, "1.1",
                 "TR01_ST1_HW",
-                "I can classify and work with angles.  Specifically, I can:",
+                "I can classify and work with angles.",
                 "interpret and describe degree or radian measure as a quantity of rotation,",
                 // "recognize and identify acute, right, obtuse, straight, and reflex angles,",
                 "convert between degree and radian units of measure,",
@@ -73,7 +73,7 @@ public enum Math125 {
                 .addEx("TR01_ST1F_01", "Calculate complement and supplement in both degrees and radians");
 
         final LearningTargetData m125m1t2 = m125m1.addLearningTarget(1, 2, "1.2", "TR01_ST2_HW",
-                "I can classify and work with triangles.  Specifically, I can:",
+                "I can classify and work with triangles.",
                 "calculate the measure of any angle in a triangle given the measure of the other two angles,",
                 "recognize congruent and similar triangles,",
                 "use proportion to calculate side lengths in similar triangles,",
@@ -101,7 +101,7 @@ public enum Math125 {
                         "Given a rectangle whose side lengths are given, find the length of its diagonal");
 
         final LearningTargetData m125m1t3 = m125m1.addLearningTarget(1, 3, "1.3", "TR01_ST3_HW",
-                "I can work with angles in standard position in the plane.  Specifically, I can:",
+                "I can work with angles in standard position in the plane.",
                 "locate the terminal ray of an angle with positive or negative measure in standard position,",
                 "identify the quadrant in which an angle's terminal ray lies,",
                 "identify equivalent/coterminal angles in either degrees or radians,",
@@ -147,7 +147,7 @@ public enum Math125 {
                 .addEx("TR02_SR4_01b", "Find angles, in radians, in a drawing with intersecting lines");
 
         final LearningTargetData m125m2t1 = m125m2.addLearningTarget(2, 1, "2.1", "TR02_ST1_HW",
-                "I can interpret angles in terms of arc length.  Specifically, I can:",
+                "I can interpret angles in terms of arc length.",
                 "interpret radian measure as arc length along the unit circle,",
                 "calculate the length of the arc that a given angle subtends on a circle of any radius,",
                 "calculate the angle subtended by an arc of any length along a circle of any radius, and",
@@ -171,7 +171,7 @@ public enum Math125 {
                 .addEx("TR02_ST1D_APP_02", "Laying out a shape in cloth to create a garment with desired sizing");
 
         final LearningTargetData m125m2t2 = m125m2.addLearningTarget(2, 2, "2.2", "TR02_ST2_HW",
-                "I can locate points on the unit circle.  Specifically, I can:",
+                "I can locate points on the unit circle.",
                 "construct a right triangle whose side lengths are the x- and y-coordinates of a point on the unit "
                         + "circle,",
                 "associate an angle with every point on the unit circle, and identify angles whose associated points "
@@ -196,7 +196,7 @@ public enum Math125 {
                 .addEx("TR02_ST2C_01", "Given radius and one coordinate on a circle, find the missing coordinate");
 
         final LearningTargetData m125m2t3 = m125m2.addLearningTarget(2, 3, "2.3", "TR02_ST3_HW",
-                "I can work with sector area.  Specifically, I can:",
+                "I can work with sector area.",
                 "describe the relationship between radian measure and sector area,",
                 "calculate the area of a sector of a circle of any radius subtended by a given angle,",
                 "calculate the measure of the angle that subtends a sector of a circle of any radius with specified "
@@ -489,7 +489,7 @@ public enum Math125 {
                         + "function, find its equation for either function");
 
         final LearningTargetData m125m4t3 = m125m4.addLearningTarget(4, 3, "4.3", "TR04_ST3_HW",
-                "I can model data or real-world phenomena using sine and cosine functions.  Specifically, I can:",
+                "I can model data or real-world phenomena using sine and cosine functions.",
                 "determine a model of tabular data in the form y = A sin(B(x-h)) + k or y = A cos(B(x-h)) + k,",
                 "determine a model from a verbal description in the form y = A sin(B(x-h)) + k or y = A cos(B(x-h)) + k,",
                 "interpret models and make predictions of behavior.");
@@ -542,7 +542,7 @@ public enum Math125 {
 
         final LearningTargetData m125m5t1 = m125m5.addLearningTarget(5, 1, "5.1", "TR05_ST1_HW",
                 "Given a right triangle, I can express the relationships between side lengths using trigonometric "
-                        + "functions.  Specifically, I can:",
+                        + "functions.",
                 "deduce the \"SOH-CAH-TOA\" relationships from the definitions of sine, cosine, and tangent in the "
                         + "context of a unit circle,",
                 "identify the hypotenuse, and which sides are \"adjacent\" and \"opposite\" relative to each acute "
@@ -565,7 +565,7 @@ public enum Math125 {
                 .addEx("TR05_ST1C_03", "Calculate tangent and cotangent values using the tangent relationship");
 
         final LearningTargetData m125m5t2 = m125m5.addLearningTarget(5, 2, "5.2", "TR05_ST2_HW",
-                "I can use trigonometric functions to solve for side lengths in right triangles.  Specifically, I can:",
+                "I can use trigonometric functions to solve for side lengths in right triangles.",
                 "find a side length given one other side length and one angle using sine,",
                 "find a side length given one other side length and one angle using cosine,",
                 "find a side length given one other side length and one angle using tangent,",
@@ -606,7 +606,7 @@ public enum Math125 {
 
         final LearningTargetData m125m5t3 = m125m5.addLearningTarget(5, 3, "5.3", "TR05_ST3_HW",
                 "I can apply relationships between right triangle side lengths and trigonometric functions to "
-                        + "reference angles corresponding to angles in quadrants 2, 3, and 4.  Specifically, I can:",
+                        + "reference angles corresponding to angles in quadrants 2, 3, and 4.",
                 "draw a right triangle using the reference angle in any quadrant, and",
                 "use right triangle relationships in these reference triangles to find relationships between side "
                         + "lengths.");
@@ -651,7 +651,7 @@ public enum Math125 {
                         + "trigonometric functions");
 
         final LearningTargetData m125m6t1 = m125m6.addLearningTarget(6, 1, "6.1", "TR06_ST1_HW",
-                "I can work with inverse functions and identify when a function has an inverse.  Specifically, I can:",
+                "I can work with inverse functions and identify when a function has an inverse.",
                 "describe the requirements for a function to be one-to-one, and apply the horizontal line test,",
                 "describe the relationships that inverse functions satisfy and the relationships between the domain "
                         + "and range of inverse functions, find an inverse function algebraically,",
@@ -679,7 +679,7 @@ public enum Math125 {
                 .addEx("TR06_ST1E_05", "Find domain restrictions of secant and cosecant that are one-to-one");
 
         final LearningTargetData m125m6t2 = m125m6.addLearningTarget(6, 2, "6.2", "TR06_ST2_HW",
-                "I can work with inverse trigonometric functions.  Specifically, I can:",
+                "I can work with inverse trigonometric functions.",
                 "state the definitions of the inverse trigonometric functions, along with their domain and range, and "
                         + "identify or sketch their graphs,",
                 "interpret values of inverse trigonometric functions as angles in appropriate units, and",
@@ -702,7 +702,7 @@ public enum Math125 {
                 .addEx("TR06_ST2C_03", "Evaluate inverse tangent, then find all angles having a specified tangent");
 
         final LearningTargetData m125m6t3 = m125m6.addLearningTarget(6, 3, "6.3", "TR06_ST3_HW",
-                "I can apply inverse trigonometric functions to solve problems.  Specifically, I can:",
+                "I can apply inverse trigonometric functions to solve problems.",
                 "solve for an angle in a right triangle with known side lengths,",
                 "find the angle whose terminal ray has a specified slope, and",
                 "evaluate compositions of trigonometric functions with their inverse functions.");
@@ -889,7 +889,7 @@ public enum Math125 {
                         "Find the shortest vector from a point to a line and the distance from the point to the line");
 
         final LearningTargetData m125m8t3 = m125m8.addLearningTarget(8, 3, "8.3", "TR08_ST3_HW",
-                "I can use vectors and trigonometry to analyze applied contexts.  Specifically, I can:",
+                "I can use vectors and trigonometry to analyze applied contexts.",
                 "write a force as a resultant sum of forces acting in specified directions,",
                 "model tensions in cables using vectors, and",
                 "interpret a vector as a speed and using time plus speed to compute distance.");

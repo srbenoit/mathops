@@ -2,10 +2,9 @@ package dev.mathops.web.site.course;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.old.rawlogic.RawEtextCourseLogic;
-import dev.mathops.db.old.rawlogic.RawEtextLogic;
 import dev.mathops.db.old.rawlogic.RawStetextLogic;
 import dev.mathops.db.old.rawrecord.RawEtext;
 import dev.mathops.db.old.rawrecord.RawEtextCourse;
@@ -20,6 +19,7 @@ import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -129,6 +129,8 @@ enum PageETexts {
             final Collection<RawStetext> completed = new ArrayList<>(count);
             final Collection<RawStetext> termOnly = new ArrayList<>(count);
 
+            final SystemData systemData = cache.getSystemData();
+
             for (final RawStetext stetext : stetexts) {
                 if (stetext.refundDt != null) {
                     refunded.add(stetext);
@@ -136,7 +138,7 @@ enum PageETexts {
                         && stetext.expirationDt.isBefore(session.getNow().toLocalDate())) {
                     expired.add(stetext);
                 } else {
-                    final RawEtext theEtext = RawEtextLogic.query(cache, stetext.etextId);
+                    final RawEtext theEtext = systemData.getEText(stetext.etextId);
 
                     if (theEtext != null) {
                         if ("Y".equals(theEtext.retention)) {
@@ -361,8 +363,10 @@ enum PageETexts {
                                    final ImmutableSessionInfo session, final CourseSiteLogic logic,
                                    final boolean showLinks) throws SQLException {
 
+        final SystemData systemData = cache.getSystemData();
+
         for (final RawStetext text : texts) {
-            final List<RawEtextCourse> etcourses = RawEtextCourseLogic.queryByEtext(cache, text.etextId);
+            final List<RawEtextCourse> etcourses = systemData.getETextCoursesByETextId(text.etextId);
             if (etcourses.isEmpty()) {
                 continue;
             }
@@ -374,7 +378,7 @@ enum PageETexts {
                 builder.add("Precalculus Program");
             } else {
                 for (final RawEtextCourse etcours : etcourses) {
-                    final String crsLabel = cache.getSystemData().getCourseLabel(etcours.course);
+                    final String crsLabel = systemData.getCourseLabel(etcours.course);
                     if (crsLabel == null) {
                         builder.add(etcours.course);
                     } else {
@@ -486,7 +490,7 @@ enum PageETexts {
             } else if (isCurPastRefundDeadline(text, session.getNow())) {
                 htm.add("The deadline for a refund for withdrawal was ", getCurRefundDeadlineDateString(text));
             } else {
-                final RawEtext etext = RawEtextLogic.query(cache, text.etextId);
+                final RawEtext etext = systemData.getEText(text.etextId);
 
                 if (etext.purchaseUrl == null) {
                     htm.add("Refunds only through the CSU Bookstore");

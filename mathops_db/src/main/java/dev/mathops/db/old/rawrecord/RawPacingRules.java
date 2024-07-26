@@ -12,6 +12,72 @@ import java.util.Objects;
  */
 public final class RawPacingRules extends RawTermRecordBase implements Comparable<RawPacingRules> {
 
+    // /** Lecture. */
+    // public static final String ACTIVITY_LECTURE = "LE";
+
+    /** Homework. */
+    public static final String ACTIVITY_HOMEWORK = "HW";
+
+    /** Skills Review Exam. */
+    public static final String ACTIVITY_SR_EXAM = "SR";
+
+    /** Unit Review Exam. */
+    public static final String ACTIVITY_UNIT_REV_EXAM = "RE";
+
+    /** Unit Exam. */
+    public static final String ACTIVITY_UNIT_EXAM = "UE";
+
+    /** Final Exam. */
+    public static final String ACTIVITY_FINAL_EXAM = "FE";
+
+    /** Video lecture accessed. */
+    public static final String LECT_VIEWED = "LECT";
+
+    // /** Homework attempted. */
+    // public static final String HW_ATMT = "HW_A";
+
+    /** Homework passed. */
+    public static final String HW_PASS = "HW_P";
+
+    /** Homework mastered. */
+    public static final String HW_MSTR = "HW_M";
+
+    // /** Skills Review Exam attempted. */
+    // public static final String SR_ATMT = "SR_A";
+
+    // /** Skills Review Exam passed. */
+    // public static final String SR_PASS = "SR_P";
+
+    // /** Skills Review Exam mastered. */
+    // public static final String SR_MSTR = "SR_M";
+
+    // /** Unit Review Exam attempted. */
+    // public static final String UR_ATMT = "RE_A";
+
+    /** Unit Review Exam passed. */
+    public static final String UR_PASS = "RE_P";
+
+    /** Unit Review Exam mastered. */
+    public static final String UR_MSTR = "RE_M";
+
+    // /** Unit Exam attempted. */
+    // public static final String UE_ATMT = "UE_A";
+
+    /** Unit Exam passed. */
+    public static final String UE_PASS = "UE_P";
+
+    /** Unit Exam mastered. */
+    public static final String UE_MSTR = "UE_M";
+
+    // /** Unit Terminal Exam attempted. */
+    // public static final String TE_ATMT = "TE_A";
+
+    /** Unit Terminal Exam passed. */
+    public static final String TE_PASS = "TE_P";
+
+    /** Unit Terminal Exam mastered. */
+    public static final String TE_MSTR = "TE_M";
+
     /** A field name. */
     private static final String FLD_PACING_STRUCTURE = "pacing_structure";
 

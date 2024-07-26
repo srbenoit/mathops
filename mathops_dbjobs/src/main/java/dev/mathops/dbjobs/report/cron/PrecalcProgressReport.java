@@ -4,6 +4,7 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.old.DbConnection;
@@ -13,7 +14,6 @@ import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.logic.PaceTrackLogic;
-import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
@@ -140,23 +140,25 @@ public final class PrecalcProgressReport {
         final List<RawStudent> students = gatherStudents(cache);
 
         for (final RawStudent stu : students) {
-            processStudent(stu, cache, report);
+            processStudent(cache, stu, report);
         }
     }
 
     /**
      * Processes a single student record.
      *
-     * @param stu   the student record
      * @param cache the data cache
+     * @param stu   the student record
      * @param rpt   a list of strings to which to add report output lines
      * @throws SQLException if there is an error accessing the database
      */
-    private static void processStudent(final RawStudent stu, final Cache cache,
+    private static void processStudent(final Cache cache, final RawStudent stu,
                                        final Collection<? super String> rpt) throws SQLException {
 
+        final SystemData systemData = cache.getSystemData();
+
         TermKey activeKey = null;
-        final TermRec active = cache.getSystemData().getActiveTerm();
+        final TermRec active = systemData.getActiveTerm();
         if (active != null) {
             activeKey = active.term;
         }
@@ -187,8 +189,7 @@ public final class PrecalcProgressReport {
         }
 
         if (!regs.isEmpty()) {
-            // Courses remain with no pace order (or with a gap in pace order) - sort what remains
-            // by course number
+            // Courses remain with no pace order (or with a gap in pace order) - sort what remains by course number
             final String[] courses = {RawRecordConstants.M117, RawRecordConstants.M118,
                     RawRecordConstants.M124, RawRecordConstants.M125, RawRecordConstants.M126};
 
@@ -214,9 +215,10 @@ public final class PrecalcProgressReport {
         if (!ordered.isEmpty() && activeKey != null) {
 
             final int pace = PaceTrackLogic.determinePace(ordered);
+            final Integer paceObj = Integer.valueOf(pace);
             final String track = PaceTrackLogic.determinePaceTrack(ordered, pace);
 
-            final List<RawMilestone> milestones = RawMilestoneLogic.getAllMilestones(cache, activeKey, pace, track);
+            final List<RawMilestone> milestones = systemData.getMilestones(activeKey, paceObj, track);
 
             final List<RawStmilestone> stmilestones = RawStmilestoneLogic.getStudentMilestones(cache, activeKey, track,
                     stu.stuId);
@@ -256,8 +258,8 @@ public final class PrecalcProgressReport {
                     for (final RawStmilestone test : stmilestones) {
                         if (test.msNbr.intValue() == msnbr && "RE".equals(test.msType)) {
                             due = test.msDate;
-                            // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
-                            // the later date
+                            // Don't break - student milestones are sorted by deadline date, and if there are multiple,
+                            // we want the later date
                         }
                     }
 
@@ -314,8 +316,8 @@ public final class PrecalcProgressReport {
                 for (final RawStmilestone test : stmilestones) {
                     if (test.msNbr.intValue() == msnbr && "FE".equals(test.msType)) {
                         due = test.msDate;
-                        // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
-                        // the later date
+                        // Don't break - student milestones are sorted by deadline date, and if there are multiple, we
+                        // want the later date
                     }
                 }
 

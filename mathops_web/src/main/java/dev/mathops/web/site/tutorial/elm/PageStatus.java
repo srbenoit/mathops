@@ -8,7 +8,6 @@ import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.logic.ELMTutorialStatus;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawrecord.RawCunit;
 import dev.mathops.db.old.rawrecord.RawCusection;
@@ -213,11 +212,13 @@ enum PageStatus {
 
         final int unit = cunit.unit.intValue();
 
+        final SystemData systemData = cache.getSystemData();
+
         // Gather the exam model and label for the needed exams
-        final RawExam unitExam = RawExamLogic.queryActiveByCourseUnitType(cache, cunit.course, cunit.unit, "U");
+        final RawExam unitExam = systemData.getActiveExamByCourseUnitType(cunit.course, cunit.unit, "U");
         final String unitExamLabel = unitExam == null ? null : unitExam.buttonLabel;
 
-        final RawExam unitRevExam = RawExamLogic.queryActiveByCourseUnitType(cache, cunit.course, cunit.unit, "R");
+        final RawExam unitRevExam = systemData.getActiveExamByCourseUnitType(cunit.course, cunit.unit, "R");
         final String unitRevExamLabel = unitRevExam == null ? null : unitRevExam.buttonLabel;
 
         // See if the student has a passing review exam on record and display the student's review

@@ -1,6 +1,7 @@
 package dev.mathops.db.old.logic;
 
 import dev.mathops.commons.builder.SimpleBuilder;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
 import dev.mathops.db.old.rawrecord.RawSthomework;
@@ -9,7 +10,6 @@ import dev.mathops.db.old.rec.MasteryAttemptRec;
 import dev.mathops.db.old.rec.MasteryExamRec;
 import dev.mathops.db.old.reclogic.MasteryAttemptLogic;
 import dev.mathops.db.old.reclogic.MasteryAttemptQaLogic;
-import dev.mathops.db.old.reclogic.MasteryExamLogic;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -47,10 +47,12 @@ public final class StandardsMasteryLogic {
      */
     public StandardsMasteryLogic(final Cache cache, final String stuId, final String courseId) throws SQLException {
 
+        final SystemData systemData = cache.getSystemData();
+
         this.stHomeworks = RawSthomeworkLogic.getHomeworks(cache, stuId, courseId, false,
                 RawSthomeworkLogic.ALL_HW_TYPES);
 
-        this.masteryExams = MasteryExamLogic.get(cache).queryActiveByCourse(cache, courseId);
+        this.masteryExams = systemData.getActiveMasteryExamsByCourse(courseId);
         final int numExams = this.masteryExams.size();
 
         this.masteryAttempts = new HashMap<>(numExams);

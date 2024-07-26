@@ -4,6 +4,7 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.old.DbConnection;
@@ -18,7 +19,6 @@ import dev.mathops.db.old.logic.PlacementStatus;
 import dev.mathops.db.old.logic.PrecalcTutorialLogic;
 import dev.mathops.db.old.logic.PrecalcTutorialStatus;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
@@ -501,7 +501,8 @@ public final class MPSEndpoint {
 
         final List<ExamCategory> result = new ArrayList<>(3);
 
-        final TermRec active = cache.getSystemData().getActiveTerm();
+        final SystemData systemData = cache.getSystemData();
+        final TermRec active = systemData.getActiveTerm();
 
         // Check for course exams
         final List<ExamEntry> courseExams = new ArrayList<>(10);
@@ -544,7 +545,7 @@ public final class MPSEndpoint {
 
                     final String lbl = course.replace("M ", "MATH ");
 
-                    final RawExam u1 = RawExamLogic.queryActiveByCourseUnitType(cache, course, Integer.valueOf(1), "U");
+                    final RawExam u1 = systemData.getActiveExamByCourseUnitType(course, Integer.valueOf(1), "U");
                     if (u1 != null && unitElig.isExamEligible(cache, loginSession,
                             new UnitExamAvailability(course, Integer.valueOf(1)), reasons, holds)) {
                         courseExams.add(new ExamEntry(u1.version, lbl + " - " + u1.buttonLabel, null));
@@ -552,7 +553,7 @@ public final class MPSEndpoint {
                         Log.warning("Unit 1 in course not available: ", reasons.toString());
                     }
 
-                    final RawExam u2 = RawExamLogic.queryActiveByCourseUnitType(cache, course, Integer.valueOf(2), "U");
+                    final RawExam u2 = systemData.getActiveExamByCourseUnitType(course, Integer.valueOf(2), "U");
                     if ((u2 != null) && unitElig.isExamEligible(cache, loginSession,
                             new UnitExamAvailability(course, Integer.valueOf(2)), reasons, holds)) {
                         courseExams.add(new ExamEntry(u2.version, lbl + " - " + u2.buttonLabel, null));
@@ -560,7 +561,7 @@ public final class MPSEndpoint {
                         Log.warning("Unit 2 in course not available: ", reasons.toString());
                     }
 
-                    final RawExam u3 = RawExamLogic.queryActiveByCourseUnitType(cache, course, Integer.valueOf(3), "U");
+                    final RawExam u3 = systemData.getActiveExamByCourseUnitType(course, Integer.valueOf(3), "U");
                     if ((u3 != null) && unitElig.isExamEligible(cache, loginSession,
                             new UnitExamAvailability(course, Integer.valueOf(3)), reasons, holds)) {
                         courseExams.add(new ExamEntry(u3.version, lbl + " - " + u3.buttonLabel, null));
@@ -568,7 +569,7 @@ public final class MPSEndpoint {
                         Log.warning("Unit 3 in course not available: ", reasons.toString());
                     }
 
-                    final RawExam u4 = RawExamLogic.queryActiveByCourseUnitType(cache, course, Integer.valueOf(4), "U");
+                    final RawExam u4 = systemData.getActiveExamByCourseUnitType(course, Integer.valueOf(4), "U");
                     if ((u4 != null) && unitElig.isExamEligible(cache, loginSession,
                             new UnitExamAvailability(course, Integer.valueOf(4)), reasons, holds)) {
                         courseExams.add(new ExamEntry(u4.version, lbl + " - " + u4.buttonLabel, null));
@@ -576,7 +577,7 @@ public final class MPSEndpoint {
                         Log.warning("Unit 4 in course not available: ", reasons.toString());
                     }
 
-                    final RawExam fe = RawExamLogic.queryActiveByCourseUnitType(cache, course, Integer.valueOf(5), "F");
+                    final RawExam fe = systemData.getActiveExamByCourseUnitType(course, Integer.valueOf(5), "F");
                     if ((fe != null) && finalElig.isExamEligible(cache, loginSession,
                             new FinalExamAvailability(course, Integer.valueOf(5)), reasons, holds)) {
                         courseExams.add(new ExamEntry(fe.version, lbl + " - " + fe.buttonLabel, null));
@@ -606,8 +607,8 @@ public final class MPSEndpoint {
         final PrecalcTutorialStatus precalcStatus = precalc.status;
         if (precalcStatus.eligiblePrecalcExamCourses != null) {
             final Collection<RawExam> exams = new ArrayList<>(10);
-            for (final String s : precalcStatus.eligiblePrecalcExamCourses) {
-                exams.addAll(RawExamLogic.queryActiveByCourse(cache, s));
+            for (final String course : precalcStatus.eligiblePrecalcExamCourses) {
+                exams.addAll(systemData.getActiveExams(course));
             }
             for (final RawExam ex : exams) {
                 if ("U".equals(ex.examType) && ex.unit.intValue() == 4) {
@@ -627,7 +628,7 @@ public final class MPSEndpoint {
                 loginSession.getNow());
         final PlacementStatus placementStatus = placement.status;
         if (placementStatus.attemptsRemaining > 0) {
-            final RawExam ex = RawExamLogic.query(cache, "MPTRW");
+            final RawExam ex = systemData.getActiveExam("MPTRW");
             if (ex != null) {
                 placementExams.add(new ExamEntry(ex.version, ex.buttonLabel, "One-time $15 fee"));
             }
@@ -676,8 +677,9 @@ public final class MPSEndpoint {
                     final DbConnection conn = ctx.checkOutConnection();
                     try {
                         final Cache cache = new Cache(this.siteProfile.dbProfile, conn);
+                        final SystemData systemData = cache.getSystemData();
 
-                        final RawExam exam = RawExamLogic.query(cache, examId);
+                        final RawExam exam = systemData.getActiveExam(examId);
 
                         if (exam == null) {
                             Log.warning("Received START request with bad exam ID: " + examId);

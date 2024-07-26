@@ -2,7 +2,6 @@ package dev.mathops.session.sitelogic.data;
 
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.type.TermKey;
-import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawSttermLogic;
 import dev.mathops.db.old.rawrecord.RawMilestone;
@@ -281,8 +280,7 @@ public final class SiteDataMilestone {
 
         final String track = stTerm.paceTrack.substring(0, 1);
 
-        final List<RawMilestone> allMilestones = RawMilestoneLogic.getAllMilestones(cache, term.term,
-                stTerm.pace.intValue(), track);
+        final List<RawMilestone> allMilestones = cache.getSystemData().getMilestones(term.term, stTerm.pace, track);
         Collections.sort(allMilestones);
         this.milestones.put(term.term, allMilestones);
 

@@ -230,7 +230,16 @@ div.sidebtngap {
   padding-right:8px;
 }
 
+.learning_target_main {
+  line-height:1.1em;
+  font-family:prox-regular,sans-serif;
+  font-size:16px;
+  margin-top:0;
+  margin-left:10px;
+  margin-right:10px;
+}
 .learning_target {
+  display:inline-block;
   background-color: #EBF9EB;
   color: #105456;
   border: 1px #105456 solid;
@@ -242,8 +251,10 @@ div.sidebtngap {
   font-family:prox-regular,sans-serif;
   font-size:15px;
   margin-bottom:8px;
-  margin-left:10px;
+  margin-left:34px;
   margin-right:10px;
+  max-width:1000px;
+  width:auto;
 }
 .learning_target ul {
   line-height:1.1em;

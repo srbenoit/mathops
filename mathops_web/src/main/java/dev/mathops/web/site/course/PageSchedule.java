@@ -4,9 +4,9 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.type.TermKey;
-import dev.mathops.db.old.rawlogic.RawPacingRulesLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawCsection;
@@ -33,6 +33,7 @@ import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -472,7 +473,7 @@ enum PageSchedule {
                 if (courseData == null) {
                     htm.addln(" <strong>", reg.course, "</strong> - unable to query course status.");
 
-                    final Map<String, Map<String, SiteDataCfgCourse>> courses =  logic.data.courseData.getCourses();
+                    final Map<String, Map<String, SiteDataCfgCourse>> courses = logic.data.courseData.getCourses();
                     for (final Map.Entry<String, Map<String, SiteDataCfgCourse>> e1 : courses.entrySet()) {
                         final String courseId = e1.getKey();
                         for (final Map.Entry<String, SiteDataCfgCourse> e2 : e1.getValue().entrySet()) {
@@ -484,7 +485,8 @@ enum PageSchedule {
                     final RawCourse course = courseData.course;
 
                     htm.sP();
-                    htm.addln(" <strong>", course.courseLabel, "</strong> (an incomplete from the ", incTerm.name.fullName,
+                    htm.addln(" <strong>", course.courseLabel, "</strong> (an incomplete from the ",
+                            incTerm.name.fullName,
                             ", ", incTerm.year, " semester) must be completed by <strong>",
                             TemporalUtils.FMT_WMDY.format(deadline), "</strong>.");
 
@@ -609,9 +611,8 @@ enum PageSchedule {
      * @param pacingStructure the pacing structure record
      * @throws SQLException if there is an error accessing the database
      */
-    private static void presentPaceCourse(final Cache cache, final CourseSiteLogic logic,
-                                          final HtmlBuilder htm, final RawStcourse reg, final RawCourse course,
-                                          final RawCusection[] csUnits,
+    private static void presentPaceCourse(final Cache cache, final CourseSiteLogic logic, final HtmlBuilder htm,
+                                          final RawStcourse reg, final RawCourse course, final RawCusection[] csUnits,
                                           final RawPacingStructure pacingStructure) throws SQLException {
 
         final String courseId = reg.course;
@@ -639,7 +640,8 @@ enum PageSchedule {
         final SiteDataMilestone msData = logic.data.milestoneData;
 
         // Print all pace deadlines, including student override dates
-        final TermRec activeTerm = cache.getSystemData().getActiveTerm();
+        final SystemData systemData = cache.getSystemData();
+        final TermRec activeTerm = systemData.getActiveTerm();
 
         final List<RawMilestone> allMilestones = msData.getMilestones(activeTerm.term);
         final List<RawStmilestone> stMilestones = msData.getStudentMilestones(activeTerm.term);
@@ -901,13 +903,13 @@ enum PageSchedule {
                     "deadline date. If a <b>Review Exam</b> is not passed by this time, you receive ",
                     "no points for the <b>Review Exam</b>.");
 
-            final List<RawPacingRules> rsRules = RawPacingRulesLogic.queryByTermAndPacingStructure(cache,
-                    activeTerm.term, pacingStructure.pacingStructure);
+            final List<RawPacingRules> rsRules = systemData.getPacingRulesByTermAndPacing(activeTerm.term,
+                    pacingStructure.pacingStructure);
 
             boolean unitRequiresReview = false;
             for (final RawPacingRules rule : rsRules) {
                 if ("UE".equals(rule.activityType)
-                        && RawPacingRulesLogic.UR_MSTR.equals(rule.requirement)) {
+                        && RawPacingRules.UR_MSTR.equals(rule.requirement)) {
                     unitRequiresReview = true;
                     break;
                 }

@@ -144,7 +144,7 @@ public final class RawPacingStructure extends RawTermRecordBase implements Compa
     /** The 'pacing_name' field value. */
     public String pacingName;
 
-    /** The 'schedule_source' field value. */
+    /** The 'schedule_source' field value ('pace' or 'f2f'). */
     public String scheduleSource;
 
     /** The 'sr_due_date_enforced' field value. */

@@ -11,9 +11,6 @@ import dev.mathops.db.old.reclogic.MasteryAttemptQaLogic;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.old.rawlogic.RawEtextCourseLogic;
-import dev.mathops.db.old.rawlogic.RawEtextLogic;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
@@ -41,7 +38,6 @@ import dev.mathops.db.old.rec.AssignmentRec;
 import dev.mathops.db.old.rec.MasteryAttemptRec;
 import dev.mathops.db.old.rec.MasteryExamRec;
 import dev.mathops.db.old.reclogic.MasteryAttemptLogic;
-import dev.mathops.db.old.reclogic.MasteryExamLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -54,6 +50,7 @@ import dev.mathops.web.site.admin.AdminSite;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -214,7 +211,7 @@ enum PageTestStudent {
                         CoreConstants.EMPTY,
                 ">x 2.0</option>");
         htm.addln("  <option id='tl25' value='25'", lim >= 2.25 && lim < 2.75 ? " selected='selected'" :
-         CoreConstants.EMPTY,
+                        CoreConstants.EMPTY,
                 ">x 2.5</option>");
         htm.addln("  <option id='tl30' value='30'", lim >= 2.75 ? " selected='selected'" : CoreConstants.EMPTY,
                 ">x 3.0</option>");
@@ -888,7 +885,7 @@ enum PageTestStudent {
 
             // See if student has an e-text
             final LiveSessionInfo live = new LiveSessionInfo(CoreConstants.newId(ISessionManager.SESSION_ID_LEN),
-                            "None", ERole.STUDENT);
+                    "None", ERole.STUDENT);
             live.setUserInfo(RawStudent.TEST_STUDENT_ID, "Test", "Student", "Test Student");
             final ImmutableSessionInfo session = new ImmutableSessionInfo(live);
 
@@ -968,8 +965,7 @@ enum PageTestStudent {
         final SystemData systemData = cache.getSystemData();
 
         final List<AssignmentRec> allAssignments = systemData.getActiveAssignmentsByCourseType(reg.course, "ST");
-
-        final List<MasteryExamRec> allExams = MasteryExamLogic.get(cache).queryActiveByCourse(cache, reg.course);
+        final List<MasteryExamRec> allExams = systemData.getActiveMasteryExamsByCourse(reg.course);
         allExams.sort(null);
 
         final List<RawSthomework> allHw = RawSthomeworkLogic.getHomeworks(cache, RawStudent.TEST_STUDENT_ID,
@@ -1527,9 +1523,10 @@ enum PageTestStudent {
         htm.addln("      <th class='blr'>Status</th>");
         htm.addln("  </tr>");
 
-        final List<RawEtext> allEtexts = RawEtextLogic.INSTANCE.queryAll(cache);
-        final List<RawStetext> stEtexts =
-                RawStetextLogic.queryByStudent(cache, RawStudent.TEST_STUDENT_ID);
+        final SystemData systemData = cache.getSystemData();
+
+        final List<RawEtext> allEtexts = systemData.getETexts();
+        final List<RawStetext> stEtexts = RawStetextLogic.queryByStudent(cache, RawStudent.TEST_STUDENT_ID);
 
         // Emit active rows first, then inactive rows
         for (final RawEtext etext : allEtexts) {
@@ -1577,7 +1574,9 @@ enum PageTestStudent {
 
         // emit the courses that e-text grants access to
 
-        final List<RawEtextCourse> etc = RawEtextCourseLogic.queryByEtext(cache, etextId);
+        final SystemData systemData = cache.getSystemData();
+
+        final List<RawEtextCourse> etc = systemData.getETextCoursesByETextId(etextId);
         final int numEtc = etc.size();
         final HtmlBuilder builder = new HtmlBuilder(10 * numEtc);
         for (int j = 0; j < numEtc; ++j) {
@@ -2060,15 +2059,17 @@ enum PageTestStudent {
      * @param passing  {@code true} to insert a passing exam; {@code false} for a non-passing exam
      * @throws SQLException if there is an error accessing the database
      */
-    private static void insertTutorialReview(final Cache cache, final String tutorial,
-                                             final Integer unit, final boolean passing) throws SQLException {
+    private static void insertTutorialReview(final Cache cache, final String tutorial, final Integer unit,
+                                             final boolean passing) throws SQLException {
 
         final long serial = AbstractHandlerBase.generateSerialNumber(false);
         final LocalDateTime examDt = LocalDateTime.now();
         // Use passing scores of 8, 12, 16, 20, to make sane values easy to calculate
         final int passingScore = 4 + (unit.intValue() << 2);
 
-        final RawExam exam = RawExamLogic.queryActiveByCourseUnitType(cache, tutorial, unit, "R");
+        final SystemData systemData = cache.getSystemData();
+
+        final RawExam exam = systemData.getActiveExamByCourseUnitType(tutorial, unit, "R");
 
         if (exam != null) {
             final int time = examDt.getHour() * 60 + examDt.getMinute();
@@ -2099,7 +2100,9 @@ enum PageTestStudent {
         final long serial = AbstractHandlerBase.generateSerialNumber(false);
         final LocalDateTime examDt = LocalDateTime.now();
 
-        final RawExam exam = RawExamLogic.queryActiveByCourseUnitType(cache, tutorial, Integer.valueOf(4), "U");
+        final SystemData systemData = cache.getSystemData();
+
+        final RawExam exam = systemData.getActiveExamByCourseUnitType(tutorial, Integer.valueOf(4), "U");
 
         if (exam != null) {
             final int time = examDt.getHour() * 60 + examDt.getMinute();
@@ -2127,8 +2130,9 @@ enum PageTestStudent {
     static void updateETexts(final Cache cache, final ServletRequest req,
                              final HttpServletResponse resp) throws IOException, SQLException {
 
-        final List<RawEtext> allEtexts = RawEtextLogic.INSTANCE.queryAll(cache);
+        final SystemData systemData = cache.getSystemData();
 
+        final List<RawEtext> allEtexts = systemData.getETexts();
         final List<RawStetext> stEtexts = RawStetextLogic.queryByStudent(cache, RawStudent.TEST_STUDENT_ID);
 
         for (final RawEtext etext : allEtexts) {
@@ -2255,7 +2259,7 @@ enum PageTestStudent {
             final String crs = courseId.replace(' ', '_');
 
             final List<AssignmentRec> assignments = systemData.getActiveAssignmentsByCourseType(courseId, null);
-            final List<MasteryExamRec> masteryExams = MasteryExamLogic.get(cache).queryActiveByCourse(cache, courseId);
+            final List<MasteryExamRec> masteryExams = systemData.getActiveMasteryExamsByCourse(courseId);
 
             final boolean isReg = "on".equals(req.getParameter(crs + "reg"));
             final boolean hasPrereq = "on".equals(req.getParameter(crs + "prereq"));
@@ -2448,8 +2452,10 @@ enum PageTestStudent {
             RawStexamLogic.INSTANCE.delete(cache, exam);
         }
 
+        final SystemData systemData = cache.getSystemData();
+
         // Delete mastery attempts on record
-        final List<MasteryExamRec> masteryExams = MasteryExamLogic.get(cache).queryActiveByCourse(cache, courseId);
+        final List<MasteryExamRec> masteryExams = systemData.getActiveMasteryExamsByCourse(courseId);
 
         final MasteryAttemptLogic attemptLogic = MasteryAttemptLogic.get(cache);
         final MasteryAttemptQaLogic attemptQaLogic = MasteryAttemptQaLogic.get(cache);
@@ -2524,7 +2530,7 @@ enum PageTestStudent {
 
                     if (assignId == null) {
                         Log.warning("Unable to determine unit " + u + " Skills Review assignment ID");
-                    } else{
+                    } else {
                         insertHW(cache, u, 0, courseId, sect, assignId, "ST", sr);
                     }
                 }
@@ -2539,7 +2545,7 @@ enum PageTestStudent {
 
                     if (assignId == null) {
                         Log.warning("Unable to determine unit " + u + " Learning Target 1 assignment ID");
-                    } else{
+                    } else {
                         insertHW(cache, u, 1, courseId, sect, assignId, "ST", a1);
                     }
                 }
@@ -2554,7 +2560,7 @@ enum PageTestStudent {
 
                     if (assignId == null) {
                         Log.warning("Unable to determine unit " + u + " Learning Target 2 assignment ID");
-                    } else{
+                    } else {
                         insertHW(cache, u, 2, courseId, sect, assignId, "ST", a2);
                     }
                 }
@@ -2569,7 +2575,7 @@ enum PageTestStudent {
 
                     if (assignId == null) {
                         Log.warning("Unable to determine unit " + u + " Learning Target 3 assignment ID");
-                    } else{
+                    } else {
                         insertHW(cache, u, 3, courseId, sect, assignId, "ST", a3);
                     }
                 }

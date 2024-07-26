@@ -96,7 +96,7 @@ enum PageHome {
                 final String regSect = reg.sect;
                 final TermKey regTerm = "Y".equals(reg.iInProgress) ? reg.iTermKey : reg.termKey;
 
-                final RawCsection csect = logic.data.contextData.getCourseSection(regCourseId, regSect, regTerm);
+                final RawCsection csect = cache.getSystemData().getCourseSection(regCourseId, regSect, regTerm);
                 if (csect != null) {
                     tempList.add(reg);
                 }

@@ -3,11 +3,11 @@ package dev.mathops.web.site.tutorial.precalc;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.logic.PrecalcTutorialLogic;
 import dev.mathops.db.old.logic.PrecalcTutorialStatus;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawrecord.RawExam;
 import dev.mathops.db.old.rawrecord.RawStexam;
@@ -102,8 +102,8 @@ enum PageTakingExamPrecalc {
                 LocalDateTime mostRecent = null;
 
                 for (final String testCourse : courses) {
-                    final List<RawStexam> passed = RawStexamLogic.getExams(cache, studentId,
-                            testCourse, Integer.valueOf(4), true, "U");
+                    final List<RawStexam> passed = RawStexamLogic.getExams(cache, studentId, testCourse,
+                            Integer.valueOf(4), true, "U");
 
                     for (final RawStexam testExam : passed) {
                         final LocalDateTime fin = testExam.getFinishDateTime();
@@ -118,7 +118,8 @@ enum PageTakingExamPrecalc {
                 }
             }
 
-            final RawExam exam = RawExamLogic.queryActiveByCourseUnitType(cache, course, Integer.valueOf(4), "U");
+            final SystemData systemData = cache.getSystemData();
+            final RawExam exam = systemData.getActiveExamByCourseUnitType(course, Integer.valueOf(4), "U");
             if (exam != null) {
                 version = exam.version;
             }

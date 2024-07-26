@@ -23,8 +23,6 @@ import dev.mathops.db.old.rec.MasteryExamRec;
 import dev.mathops.db.old.rec.StandardMilestoneRec;
 import dev.mathops.db.old.rec.StudentStandardMilestoneRec;
 import dev.mathops.db.old.reclogic.MasteryAttemptLogic;
-import dev.mathops.db.old.reclogic.MasteryExamLogic;
-import dev.mathops.db.old.reclogic.StandardMilestoneLogic;
 import dev.mathops.db.old.reclogic.StudentStandardMilestoneLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -375,14 +373,13 @@ enum PageStudentInfo {
             }
 
             if (cunit == null || "SR".equals(cunit.unitType)) {
-                final RawExam sr = cunit == null ? null : RawExamLogic
-                        .queryActiveByCourseUnitType(cache, reg.course, Integer.valueOf(unit), "R");
+                final RawExam sr = cunit == null ? null : systemData.getActiveExamByCourseUnitType(reg.course,
+                        Integer.valueOf(unit), "R");
                 final int cols = numHw + (sr == null ? 0 : 1);
                 htm.add("<th ", alt, " colspan=" + cols + ">Pre").eTh();
             } else if ("INST".equals(cunit.unitType)) {
-                final RawExam ur = RawExamLogic.queryActiveByCourseUnitType(cache, reg.course,
-                        Integer.valueOf(unit), "R");
-                final RawExam ue = RawExamLogic.queryActiveByCourseUnitType(cache, reg.course, Integer.valueOf(unit), "U");
+                final RawExam ur = systemData.getActiveExamByCourseUnitType(reg.course, Integer.valueOf(unit), "R");
+                final RawExam ue = systemData.getActiveExamByCourseUnitType(reg.course, Integer.valueOf(unit), "U");
 
                 final int cols = numHw + (ur == null ? 0 : 1) + (ue == null ? 0 : 1);
 
@@ -390,8 +387,7 @@ enum PageStudentInfo {
 
             } else if ("FIN".equals(cunit.unitType)) {
 
-                final RawExam ue = RawExamLogic.queryActiveByCourseUnitType(cache, reg.course,
-                        Integer.valueOf(unit), "F");
+                final RawExam ue = systemData.getActiveExamByCourseUnitType(reg.course, Integer.valueOf(unit), "F");
 
                 final int cols = numHw + (ue == null ? 0 : 1);
 
@@ -430,8 +426,7 @@ enum PageStudentInfo {
 
             if (cunit == null || "SR".equals(cunit.unitType)) {
 
-                if (RawExamLogic.queryActiveByCourseUnitType(cache, reg.course, Integer.valueOf(unit),
-                        "R") != null) {
+                if (systemData.getActiveExamByCourseUnitType(reg.course, Integer.valueOf(unit), "R") != null) {
                     htm.add("<th style='padding:2px 1px;' class='special'>UR").eTh();
                 } else if (numHw == 0) {
                     htm.sTh().eTh();
@@ -439,13 +434,12 @@ enum PageStudentInfo {
             } else if ("INST".equals(cunit.unitType)) {
 
                 int count = 0;
-                if (RawExamLogic.queryActiveByCourseUnitType(cache, reg.course, Integer.valueOf(unit),
-                        "R") != null) {
+                if (systemData.getActiveExamByCourseUnitType(reg.course, Integer.valueOf(unit), "R") != null) {
                     htm.add("<th style='padding:2px 1px;' class='special'>UR").eTh();
                     ++count;
                 }
 
-                if (RawExamLogic.queryActiveByCourseUnitType(cache, reg.course, Integer.valueOf(unit), "U") != null) {
+                if (systemData.getActiveExamByCourseUnitType(reg.course, Integer.valueOf(unit), "U") != null) {
                     htm.add("<th style='padding:2px 1px;' class='special'>UE").eTh();
                     ++count;
                 }
@@ -457,8 +451,7 @@ enum PageStudentInfo {
             } else if ("FIN".equals(cunit.unitType)) {
 
                 int count = 0;
-                if (RawExamLogic.queryActiveByCourseUnitType(cache, reg.course, Integer.valueOf(unit),
-                        "F") != null) {
+                if (systemData.getActiveExamByCourseUnitType(reg.course, Integer.valueOf(unit), "F") != null) {
                     htm.add("<th style='padding:2px 1px;' class='special'>FE").eTh();
                     ++count;
                 }
@@ -502,8 +495,8 @@ enum PageStudentInfo {
 
             if (cunit == null || "SR".equals(cunit.unitType)) {
                 htm.sTd("ctr", "style='padding:2px 1px;'");
-                if ((RawExamLogic.queryActiveByCourseUnitType(cache, reg.course, Integer.valueOf(unit),
-                        "R") != null) && stat.isReviewPassed(unit)) {
+                if ((systemData.getActiveExamByCourseUnitType(reg.course, Integer.valueOf(unit), "R") != null)
+                        && stat.isReviewPassed(unit)) {
                     final boolean ontime = stat.isReviewPassedOnTime(unit);
                     final Integer pts = ontime ? cusect.rePointsOntime : null;
                     final int ptsInt = pts == null ? 0 : pts.intValue();
@@ -522,7 +515,7 @@ enum PageStudentInfo {
             } else if ("INST".equals(cunit.unitType)) {
 
                 int count = 0;
-                if (RawExamLogic.queryActiveByCourseUnitType(cache, reg.course, Integer.valueOf(unit), "R") != null) {
+                if (systemData.getActiveExamByCourseUnitType(reg.course, Integer.valueOf(unit), "R") != null) {
 
                     htm.sTd("ctr", "style='padding:2px 1px;'");
                     if (stat.isReviewPassed(unit)) {
@@ -544,7 +537,7 @@ enum PageStudentInfo {
                     htm.eTd();
                 }
 
-                if (RawExamLogic.queryActiveByCourseUnitType(cache, reg.course, Integer.valueOf(unit), "U") != null) {
+                if (systemData.getActiveExamByCourseUnitType(reg.course, Integer.valueOf(unit), "U") != null) {
 
                     htm.sTd("ctr", "style='padding:2px 1px;'");
                     if (stat.isProctoredPassed(unit)) {
@@ -574,8 +567,7 @@ enum PageStudentInfo {
             } else if ("FIN".equals(cunit.unitType)) {
 
                 int count = 0;
-                if (RawExamLogic.queryActiveByCourseUnitType(cache, reg.course, Integer.valueOf(unit),
-                        "F") != null) {
+                if (systemData.getActiveExamByCourseUnitType(reg.course, Integer.valueOf(unit), "F") != null) {
                     if (stat.isProctoredPassed(unit)) {
                         final boolean ontime = stat.isProctoredPassedOnTime(unit);
                         final int score = scores.getRawUnitExamScore(unit);
@@ -743,7 +735,8 @@ enum PageStudentInfo {
     private static void emitNewCourseDeadlines(final Cache cache, final HtmlBuilder htm,
                                                final RawStcourse reg) throws SQLException {
 
-        final TermRec active = cache.getSystemData().getActiveTerm();
+        final SystemData systemData = cache.getSystemData();
+        final TermRec active = systemData.getActiveTerm();
         final RawStterm stterm = RawSttermLogic.query(cache, active.term, reg.stuId);
 
         if (stterm == null) {
@@ -757,7 +750,7 @@ enum PageStudentInfo {
             htm.sTh().add("Notes").eTh();
             htm.eTr();
 
-            final List<StandardMilestoneRec> milestones = StandardMilestoneLogic.get(cache).queryByPaceTrackPace(cache,
+            final List<StandardMilestoneRec> milestones = systemData.getStandardMilestonesForPaceTrack(
                     stterm.paceTrack, stterm.pace);
             milestones.sort(null);
 
@@ -765,7 +758,7 @@ enum PageStudentInfo {
                     StudentStandardMilestoneLogic.get(cache).queryByStuPaceTrackPace(cache, reg.stuId,
                             stterm.paceTrack, stterm.pace);
 
-            final List<MasteryExamRec> allMastery = MasteryExamLogic.get(cache).queryAll(cache);
+            final List<MasteryExamRec> allMastery = systemData.getActiveMasteryExamsByCourse(reg.course);
             final List<MasteryAttemptRec> allAttempts = MasteryAttemptLogic.get(cache).queryByStudent(cache, reg.stuId);
 
             StudentStandardMilestoneRec override;
@@ -790,8 +783,7 @@ enum PageStudentInfo {
                 if ("MA".equals(ms.msType)) {
                     MasteryExamRec masteryExam = null;
                     for (final MasteryExamRec rec : allMastery) {
-                        if (rec.courseId.equals(reg.course) && rec.unit.equals(ms.unit)
-                                && rec.objective.equals(ms.objective)) {
+                        if (rec.unit.equals(ms.unit) && rec.objective.equals(ms.objective)) {
                             masteryExam = rec;
                             break;
                         }

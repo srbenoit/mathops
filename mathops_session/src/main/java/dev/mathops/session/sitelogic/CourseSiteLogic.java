@@ -2,10 +2,7 @@ package dev.mathops.session.sitelogic;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.DbConnection;
-import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -32,6 +29,9 @@ public final class CourseSiteLogic {
             RawRecordConstants.MATH118, RawRecordConstants.MATH124, RawRecordConstants.MATH125,
             RawRecordConstants.MATH126);
 
+    /** The data cache. */
+    private final Cache cache;
+
     /** The site profile. */
     private final WebSiteProfile siteProfile;
 
@@ -40,9 +40,6 @@ public final class CourseSiteLogic {
 
     /** The error message if loading data failed. */
     private String error;
-
-    /** The courses to include. */
-    private final String[] courses;
 
     /** The course site data. */
     public SiteData data = null;
@@ -53,17 +50,16 @@ public final class CourseSiteLogic {
     /**
      * Constructs a new {@code CourseSiteLogic}.
      *
+     * @param theCache       the data cache
      * @param theSiteProfile the site profile
      * @param theSessionInfo the session info
      */
-    public CourseSiteLogic(final WebSiteProfile theSiteProfile, final ImmutableSessionInfo theSessionInfo) {
+    public CourseSiteLogic(final Cache theCache, final WebSiteProfile theSiteProfile,
+                           final ImmutableSessionInfo theSessionInfo) {
 
+        this.cache = theCache;
         this.siteProfile = theSiteProfile;
         this.sessionInfo = theSessionInfo;
-
-        this.courses = new String[] {RawRecordConstants.M117, RawRecordConstants.M118, RawRecordConstants.M124,
-                RawRecordConstants.M125, RawRecordConstants.M126, RawRecordConstants.MATH125,
-                RawRecordConstants.MATH126};
     }
 
     /**
@@ -120,21 +116,12 @@ public final class CourseSiteLogic {
         final SiteData theData = new SiteData(profile, now);
 
         // First, do all database queries we'll need, so we get as close to a consistent image of the data as we can.
-        final boolean success = theData.load(this.sessionInfo);
+        final boolean success = theData.load(this.cache, this.sessionInfo);
         this.data = theData;
 
         if (success) {
-            final DbContext ctx = profile.getDbContext(ESchemaUse.PRIMARY);
-
             try {
-                final DbConnection conn = ctx.checkOutConnection();
-                final Cache cache = new Cache(profile, conn);
-
-                try {
-                    this.course = new CourseSiteLogicCourse(cache, this, theData, this.sessionInfo);
-                } finally {
-                    ctx.checkInConnection(conn);
-                }
+                this.course = new CourseSiteLogicCourse(this.cache, this, theData, this.sessionInfo);
             } catch (final SQLException ex) {
                 Log.warning(ex);
             }

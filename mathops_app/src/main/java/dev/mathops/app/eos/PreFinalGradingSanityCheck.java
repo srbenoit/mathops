@@ -1,6 +1,7 @@
 package dev.mathops.app.eos;
 
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.old.DbConnection;
@@ -9,7 +10,6 @@ import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.logic.PaceTrackLogic;
-import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
@@ -114,8 +114,11 @@ final class PreFinalGradingSanityCheck {
         final int pace = PaceTrackLogic.determinePace(regs);
         final String track = PaceTrackLogic.determinePaceTrack(regs, pace);
 
+        final SystemData systemData = cache.getSystemData();
+        final Integer paceObj = Integer.valueOf(pace);
+
         // Determine the milestones for the pace/track combination
-        final List<RawMilestone> milestones = RawMilestoneLogic.getAllMilestones(cache, active.term, pace, track);
+        final List<RawMilestone> milestones = systemData.getMilestones(active.term, paceObj, track);
 
         // Get student milestone overrides
         final List<RawStmilestone> stmilestones =
@@ -126,7 +129,8 @@ final class PreFinalGradingSanityCheck {
                 : computeEffectiveMilestones(milestones, stmilestones);
 
         // Sort registrations on pace order
-        final Collection<RawStcourse> sorted = new ArrayList<>(regs.size());
+        final int numRegs = regs.size();
+        final Collection<RawStcourse> sorted = new ArrayList<>(numRegs);
         for (int i = 0; i < 5; ++i) {
             final Iterator<RawStcourse> iter = regs.iterator();
             while (iter.hasNext()) {
@@ -139,8 +143,8 @@ final class PreFinalGradingSanityCheck {
             }
         }
         if (!regs.isEmpty()) {
-            // What remains are courses with no pace order - they should not be open, but sort
-            // by natural order and add them anyway
+            // What remains are courses with no pace order - they should not be open, but sort by natural order and
+            // add them anyway
             Collections.sort(regs);
             sorted.addAll(regs);
         }
@@ -149,8 +153,7 @@ final class PreFinalGradingSanityCheck {
         int paceIndex = 1;
         for (final RawStcourse reg : sorted) {
             if ("Y".equals(reg.openStatus)) {
-                // Log.info("Processing " + reg.getStudentId(), " ", reg.getCourseId(), " ",
-                // reg.getOpenStatus());
+                // Log.info("Processing " + reg.getStudentId(), " ", reg.getCourseId(), " ", reg.getOpenStatus());
                 errors += processReg(cache, reg, paceIndex, effectiveMilestones);
             }
             ++paceIndex;

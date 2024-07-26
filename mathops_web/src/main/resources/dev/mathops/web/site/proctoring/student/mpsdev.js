@@ -355,7 +355,7 @@ function compatibilityTests() {
     divChooseExamButton.style.display = 'none';
     divScreenExistingSession.style.display = 'none';
     
-    setTimeout(hasWebSocketConnected, 2000);
+    setTimeout(hasWebSocketConnected, 5000);
 
     console.log("Checking system compatibility.");
 

@@ -14,12 +14,12 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.logic.PlacementLogic;
 import dev.mathops.db.old.logic.PlacementStatus;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.svc.term.TermRec;
@@ -108,6 +108,8 @@ public final class GetReviewExamHandler extends AbstractHandlerBase {
         if (ok) {
             LogBase.setSessionInfo("TXN", request.studentId);
 
+            final SystemData systemData = cache.getSystemData();
+
             // Look up the exam and store it in an AvailableExam object.
             final AvailableExam avail = new AvailableExam();
 
@@ -116,7 +118,7 @@ public final class GetReviewExamHandler extends AbstractHandlerBase {
                 reply.error = "Invalid request to server for review exam.";
                 ok = false;
             } else {
-                avail.exam = RawExamLogic.query(cache, request.examVersion);
+                avail.exam = systemData.getActiveExam(request.examVersion);
 
                 if (avail.exam == null) {
                     reply.error = "No exam found with the requested version";

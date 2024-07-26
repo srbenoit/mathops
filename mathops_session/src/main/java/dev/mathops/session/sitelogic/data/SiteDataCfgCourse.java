@@ -1,7 +1,10 @@
 package dev.mathops.session.sitelogic.data;
 
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
+import dev.mathops.db.old.rawrecord.RawPacingRules;
+import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
 import dev.mathops.db.old.rawrecord.RawCourse;
@@ -9,6 +12,7 @@ import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawPacingStructure;
 
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * A container for the configuration records associated with a course.
@@ -26,6 +30,9 @@ public final class SiteDataCfgCourse {
 
     /** The rule set record. */
     public final RawPacingStructure pacingStructure;
+
+    /** The pacing rules. */
+    public final List<RawPacingRules> pacingRules;
 
     /** Flag indicating the student must take the user's exam before beginning this course. */
     boolean mustTakeUsersExam;
@@ -52,12 +59,13 @@ public final class SiteDataCfgCourse {
         this.owner = siteData;
 
         final RawCourse theCourse = cache.getSystemData().getCourse(courseId);
-        final RawCsection theSect = loadCourseSection(courseId, sectionNum, termKey);
+        final RawCsection theSect = loadCourseSection(cache, courseId, sectionNum, termKey);
 
         if (theCourse == null || theSect == null) {
             this.course = null;
             this.courseSection = null;
             this.pacingStructure = null;
+            this.pacingRules = null;
         } else {
             this.course = theCourse;
             this.courseSection = theSect;
@@ -68,9 +76,14 @@ public final class SiteDataCfgCourse {
                             this.courseSection.sect);
                 }
                 this.pacingStructure = null;
+                this.pacingRules = null;
             } else {
-                this.pacingStructure =
-                        RawPacingStructureLogic.query(cache, this.courseSection.pacingStructure);
+                final SystemData systemData = cache.getSystemData();
+                final TermRec activeTerm = systemData.getActiveTerm();
+
+                this.pacingStructure = RawPacingStructureLogic.query(cache, this.courseSection.pacingStructure);
+                this.pacingRules = systemData.getPacingRulesByTermAndPacing(activeTerm.term,
+                        this.courseSection.pacingStructure);
             }
         }
 
@@ -80,14 +93,17 @@ public final class SiteDataCfgCourse {
     /**
      * Loads the course section record (or fetches it from existing data if already loaded).
      *
+     * @param cache      the data cache
      * @param courseId   the course ID
      * @param sectionNum the section number
      * @param termKey    the term in which the course was taken
      * @return the loaded course record; {@code null} on error
+     * @throws SQLException if there is an error accessing the database
      */
-    private RawCsection loadCourseSection(final String courseId, final String sectionNum, final TermKey termKey) {
+    private RawCsection loadCourseSection(final Cache cache, final String courseId, final String sectionNum,
+                                          final TermKey termKey) throws SQLException {
 
-        final RawCsection result = this.owner.contextData.getCourseSection(courseId, sectionNum, termKey);
+        final RawCsection result = cache.getSystemData().getCourseSection(courseId, sectionNum, termKey);
 
         if (result == null) {
             this.owner.setError("Unable to query for course " + courseId + " section " + sectionNum + " in term "

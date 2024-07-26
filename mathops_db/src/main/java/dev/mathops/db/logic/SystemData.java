@@ -8,10 +8,15 @@ import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawCunitLogic;
 import dev.mathops.db.old.rawlogic.RawCuobjectiveLogic;
 import dev.mathops.db.old.rawlogic.RawCusectionLogic;
+import dev.mathops.db.old.rawlogic.RawEtextCourseLogic;
+import dev.mathops.db.old.rawlogic.RawEtextLogic;
+import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawHoldTypeLogic;
 import dev.mathops.db.old.rawlogic.RawLessonComponentLogic;
 import dev.mathops.db.old.rawlogic.RawLessonLogic;
 import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
+import dev.mathops.db.old.rawlogic.RawPacingRulesLogic;
+import dev.mathops.db.old.rawlogic.RawRemoteMpeLogic;
 import dev.mathops.db.old.rawlogic.RawSemesterCalendarLogic;
 import dev.mathops.db.old.rawlogic.RawWhichDbLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
@@ -20,15 +25,24 @@ import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawCunit;
 import dev.mathops.db.old.rawrecord.RawCuobjective;
 import dev.mathops.db.old.rawrecord.RawCusection;
+import dev.mathops.db.old.rawrecord.RawEtext;
+import dev.mathops.db.old.rawrecord.RawEtextCourse;
+import dev.mathops.db.old.rawrecord.RawExam;
 import dev.mathops.db.old.rawrecord.RawHoldType;
 import dev.mathops.db.old.rawrecord.RawLesson;
 import dev.mathops.db.old.rawrecord.RawLessonComponent;
 import dev.mathops.db.old.rawrecord.RawMilestone;
+import dev.mathops.db.old.rawrecord.RawPacingRules;
+import dev.mathops.db.old.rawrecord.RawRemoteMpe;
 import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawWhichDb;
 import dev.mathops.db.old.rec.AssignmentRec;
+import dev.mathops.db.old.rec.MasteryExamRec;
+import dev.mathops.db.old.rec.StandardMilestoneRec;
 import dev.mathops.db.old.reclogic.AssignmentLogic;
+import dev.mathops.db.old.reclogic.MasteryExamLogic;
+import dev.mathops.db.old.reclogic.StandardMilestoneLogic;
 import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.db.type.TermKey;
@@ -93,33 +107,33 @@ public final class SystemData {
     /** A map from course ID to all assignments for that course. */
     private Map<String, List<AssignmentRec>> assignments;
 
-//    /** A map from course ID to all exams for that course. */
-//    private Map<String, List<RawExam>> exams;
-//
-//    /** A map from course ID to all mastery exams for that course. */
-//    private Map<String, List<MasteryExamRec>> masteryExams;
+    /** A map from course ID to all exams for that course. */
+    private Map<String, List<RawExam>> exams;
+
+    /** A map from course ID to all mastery exams for that course. */
+    private Map<String, List<MasteryExamRec>> masteryExams;
 
     /** The list of all course milestones. */
     private List<RawMilestone> milestones = null;
-//
-//    /** The list of all standards-based milestones. */
-//    private List<StandardMilestoneRec> standardMilestones = null;
-//
-//    /** All remote placement windows. */
-//    private List<RawRemoteMpe> remotePlacementWindows;
-//
-//    /** All e-texts. */
-//    private List<RawEtext> etexts;
-//
-//    /** All e-text course mappings. */
-//    private List<RawEtextCourse> etextCourses;
-//
+
+    /** The list of all standards-based milestones. */
+    private List<StandardMilestoneRec> standardMilestones = null;
+
+    /** All remote placement windows. */
+    private List<RawRemoteMpe> remotePlacementWindows;
+
+    /** All e-texts. */
+    private List<RawEtext> etexts;
+
+    /** All e-text course mappings. */
+    private List<RawEtextCourse> etextCourses;
+
 //    /** A map from term key to a list of pacing structures for that term. */
 //    private Map<TermKey, List<RawPacingStructure>> pacingStructures;
 //
-//    /** A map from term key to a list of pacing rules for that term. */
-//    private Map<TermKey, List<RawPacingRules>> pacingRules;
-//
+    /** A map from term key to a list of pacing rules for that term. */
+    private Map<TermKey, List<RawPacingRules>> pacingRules;
+
 //    /** All survey questions for the active term. */
 //    private List<RawSurveyqa> surveyQuestions;
 
@@ -332,7 +346,6 @@ public final class SystemData {
 
         return result;
     }
-
 
     /**
      * Tests whether a date is a holiday.
@@ -1089,6 +1102,158 @@ public final class SystemData {
     }
 
     /**
+     * Gets all active exams for a course.
+     *
+     * @param course the course ID
+     * @return the list of exams
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawExam> getActiveExams(final String course) throws SQLException {
+
+        List<RawExam> result = null;
+
+        if (this.exams == null) {
+            this.exams = new HashMap<>(5);
+        } else {
+            result = this.exams.get(course);
+        }
+
+        if (result == null) {
+            result = RawExamLogic.queryActiveByCourse(this.cache, course);
+            this.exams.put(course, result);
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets a single active exam by its version
+     *
+     * @param version the version
+     * @return the matching exam; null if not found
+     * @throws SQLException if there is an error accessing the database
+     */
+    public RawExam getActiveExam(final String version) throws SQLException {
+
+        RawExam result = null;
+
+        if (this.exams == null) {
+            result = RawExamLogic.query(this.cache, version);
+        } else {
+            outer:
+            for (final List<RawExam> list : this.exams.values()) {
+                for (final RawExam test : list) {
+                    if (test.version.equals(version)) {
+                        result = test;
+                        break outer;
+                    }
+                }
+            }
+            if (result == null) {
+                result = RawExamLogic.query(this.cache, version);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets all exams for a specified course unit.
+     *
+     * @param course the course
+     * @param unit   the unit
+     * @return the list of exams
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawExam> getActiveExamByCourseUnit(final String course, final Integer unit) throws SQLException {
+
+        final List<RawExam> all = getActiveExams(course);
+        final List<RawExam> result = new ArrayList<>(10);
+
+        for (final RawExam test : all) {
+            if (test.unit.equals(unit)) {
+                result.add(test);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets the exam (if it exists) for a specified course unit of a specified type.
+     *
+     * @param course the course
+     * @param unit   the unit
+     * @param type   the exam type
+     * @return the exam; null if none found
+     * @throws SQLException if there is an error accessing the database
+     */
+    public RawExam getActiveExamByCourseUnitType(final String course, final Integer unit, final String type)
+            throws SQLException {
+
+        final List<RawExam> all = getActiveExams(course);
+        RawExam result = null;
+
+        for (final RawExam test : all) {
+            if (test.unit.equals(unit) && test.examType.equals(type)) {
+                result = test;
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets a list of all mastery exams for a course.
+     *
+     * @param course the course
+     * @return the list of mastery exams
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<MasteryExamRec> getActiveMasteryExamsByCourse(final String course) throws SQLException {
+
+        List<MasteryExamRec> result = null;
+
+        if (this.masteryExams == null) {
+            this.masteryExams = new HashMap<>(5);
+        } else {
+            result = this.masteryExams.get(course);
+        }
+
+        if (result == null) {
+            result = MasteryExamLogic.get(this.cache).queryActiveByCourse(this.cache, course);
+            this.masteryExams.put(course, result);
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets a list of all mastery exams for a course.
+     *
+     * @param course    the course
+     * @param unit      the unit
+     * @param objective the objective
+     * @return the list of mastery exams
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<MasteryExamRec> getActiveMasteryExamsByCourseUnitObjective(final String course, final Integer unit,
+                                                                           final Integer objective) throws SQLException {
+
+        final List<MasteryExamRec> all = getActiveMasteryExamsByCourse(course);
+        final List<MasteryExamRec> result = new ArrayList<>(5);
+
+        for (final MasteryExamRec test : all) {
+            if (unit.equals(test.unit) && objective.equals(test.objective)) {
+                result.add(test);
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Gets the list of all course milestones.
      *
      * @return the course milestones
@@ -1107,7 +1272,7 @@ public final class SystemData {
     /**
      * Gets the list of all course milestones in a specified term.
      *
-     * @param term      the term whose milestones to retrieve
+     * @param term the term whose milestones to retrieve
      * @return the course milestones
      * @throws SQLException if there is an error accessing the database
      */
@@ -1152,281 +1317,199 @@ public final class SystemData {
         return result;
     }
 
-//    /**
-//     * Gets the list of all standard milestones in the current term.
-//     *
-//     * @return the standard milestones
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<StandardMilestoneRec> getStandardMilestones() throws SQLException {
-//
-//        if (this.standardMilestones == null) {
-//            this.standardMilestones = StandardMilestoneLogic.get(this.cache).queryAll(this.cache);
-//        }
-//
-//        return this.standardMilestones;
-//    }
-//
-//    /**
-//     * Gets the list of all standard milestones in the current term for a specified pace track and pace.
-//     *
-//     * @param paceTrack the pace track
-//     * @param pace      the pace
-//     * @return the standard milestones
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<StandardMilestoneRec> getStandardMilestonesForPaceAndTrack(final String paceTrack,
-//                                                                           final Integer pace) throws SQLException {
-//
-//        final List<StandardMilestoneRec> all = getStandardMilestones();
-//        final List<StandardMilestoneRec> result = new ArrayList<>(20);
-//
-//        for (final StandardMilestoneRec test : all) {
-//            if (test.paceTrack.equals(paceTrack) && test.pace.equals(pace)) {
-//                result.add(test);
-//            }
-//        }
-//
-//        return result;
-//    }
-//
-//    /**
-//     * Gets all remote placement windows.
-//     *
-//     * @return the list of remote placement windows
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawRemoteMpe> getRemotePlacementWindows() throws SQLException {
-//
-//        if (this.remotePlacementWindows == null) {
-//            this.remotePlacementWindows = RawRemoteMpeLogic.INSTANCE.queryAll(this.cache);
-//        }
-//
-//        return this.remotePlacementWindows;
-//    }
-//
-//    /**
-//     * Gets all remote placement windows for a specified course.  Windows for all application terms are included.
-//     *
-//     * @param course the course ID
-//     * @return the list of remote placement windows
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawRemoteMpe> getRemotePlacementWindowsForCourse(final String course) throws SQLException {
-//
-//        final List<RawRemoteMpe> all = getRemotePlacementWindows();
-//        final List<RawRemoteMpe> match = new ArrayList<>(5);
-//
-//        for (final RawRemoteMpe test : all) {
-//            if (test.course.equals(course)) {
-//                match.add(test);
-//            }
-//        }
-//
-//        return match;
-//    }
-//
-//    /**
-//     * Gets all e-texts.
-//     *
-//     * @return the list of e-texts
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawEtext> getETexts() throws SQLException {
-//
-//        if (this.etexts == null) {
-//            this.etexts = RawEtextLogic.INSTANCE.queryAll(this.cache);
-//        }
-//
-//        return this.etexts;
-//    }
-//
-//    /**
-//     * Gets a single e-text.
-//     *
-//     * @param eTextId the e-text ID
-//     * @return the e-text
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public RawEtext getEText(final String eTextId) throws SQLException {
-//
-//        final List<RawEtext> all = getETexts();
-//        RawEtext result = null;
-//
-//        for (final RawEtext test : all) {
-//            if (test.etextId.equals(eTextId)) {
-//                result = test;
-//                break;
-//            }
-//        }
-//
-//        return result;
-//    }
-//
-//    /**
-//     * Gets all e-texts.
-//     *
-//     * @return the list of e-texts
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawEtextCourse> getETextCourses() throws SQLException {
-//
-//        if (this.etextCourses == null) {
-//            this.etextCourses = RawEtextCourseLogic.INSTANCE.queryAll(this.cache);
-//        }
-//
-//        return this.etextCourses;
-//    }
-//
-//    /**
-//     * Gets all e-texts.
-//     *
-//     * @param eTextId the e-text Id
-//     * @return the list of e-texts
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawEtextCourse> getETextCoursesByETextId(final String eTextId) throws SQLException {
-//
-//        final List<RawEtextCourse> all = getETextCourses();
-//        final List<RawEtextCourse> match = new ArrayList<>(5);
-//
-//        for (final RawEtextCourse test : all) {
-//            if (test.etextId.equals(eTextId)) {
-//                match.add(test);
-//            }
-//        }
-//
-//        return match;
-//    }
-//
-//    /**
-//     * Gets a list of all mastery exams for a course.
-//     *
-//     * @param course the course
-//     * @return the list of mastery exams
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<MasteryExamRec> getActiveMasteryExamsByCourse(final String course) throws SQLException {
-//
-//        List<MasteryExamRec> result = null;
-//
-//        if (this.masteryExams == null) {
-//            this.masteryExams = new HashMap<>(5);
-//        } else {
-//            result = this.masteryExams.get(course);
-//        }
-//
-//        if (result == null) {
-//            result = MasteryExamLogic.get(this.cache).queryActiveByCourse(this.cache, course);
-//            this.masteryExams.put(course, result);
-//        }
-//
-//        return result;
-//    }
-//
-//    /**
-//     * Gets all active exams for a course.
-//     *
-//     * @param course the course ID
-//     * @return the list of exams
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawExam> getActiveExams(final String course) throws SQLException {
-//
-//        List<RawExam> result = null;
-//
-//        if (this.exams == null) {
-//            this.exams = new HashMap<>(5);
-//        } else {
-//            result = this.exams.get(course);
-//        }
-//
-//        if (result == null) {
-//            result = RawExamLogic.queryActiveByCourse(this.cache, course);
-//            this.exams.put(course, result);
-//        }
-//
-//        return result;
-//    }
-//
-//    /**
-//     * Gets a single active exam by its version
-//     *
-//     * @param version the version
-//     * @return the matching exam; null if not found
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public RawExam getActiveExam(final String version) throws SQLException {
-//
-//        RawExam result = null;
-//
-//        if (this.exams == null) {
-//            result = RawExamLogic.query(this.cache, version);
-//        } else {
-//            outer:
-//            for (final List<RawExam> list : this.exams.values()) {
-//                for (final RawExam test : list) {
-//                    if (test.version.equals(version)) {
-//                        result = test;
-//                        break outer;
-//                    }
-//                }
-//            }
-//            if (result == null) {
-//                result = RawExamLogic.query(this.cache, version);
-//            }
-//        }
-//
-//        return result;
-//    }
-//
-//    /**
-//     * Gets all exams for a specified course unit.
-//     *
-//     * @param course the course
-//     * @param unit   the unit
-//     * @return the list of exams
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawExam> getActiveExamByCourseUnit(final String course, final Integer unit) throws SQLException {
-//
-//        final List<RawExam> all = getActiveExams(course);
-//        final List<RawExam> result = new ArrayList<>(10);
-//
-//        for (final RawExam test : all) {
-//            if (test.unit.equals(unit)) {
-//                result.add(test);
-//            }
-//        }
-//
-//        return result;
-//    }
-//
-//    /**
-//     * Gets the exam (if it exists) for a specified course unit of a specified type.
-//     *
-//     * @param course the course
-//     * @param unit   the unit
-//     * @param type   the exam type
-//     * @return the exam; null if none found
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public RawExam getActiveExamByCourseUnitType(final String course, final Integer unit, final String type)
-//            throws SQLException {
-//
-//        final List<RawExam> all = getActiveExams(course);
-//        RawExam result = null;
-//
-//        for (final RawExam test : all) {
-//            if (test.unit.equals(unit) && test.examType.equals(type)) {
-//                result = test;
-//                break;
-//            }
-//        }
-//
-//        return result;
-//    }
-//
+    /**
+     * Gets the list of all standard milestones in the current term.
+     *
+     * @return the standard milestones
+     * @throws SQLException if there is an error accessing the database
+     */
+    private List<StandardMilestoneRec> getStandardMilestones() throws SQLException {
+
+        if (this.standardMilestones == null) {
+            this.standardMilestones = StandardMilestoneLogic.get(this.cache).queryAll(this.cache);
+        }
+
+        return this.standardMilestones;
+    }
+
+    /**
+     * Gets the list of all standard milestones in the current term for a specified pace track and pace.
+     *
+     * @param paceTrack the pace track
+     * @param pace      the pace
+     * @return the standard milestones
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<StandardMilestoneRec> getStandardMilestonesForPaceTrack(final String paceTrack,
+                                                                        final Integer pace) throws SQLException {
+
+        final List<StandardMilestoneRec> all = getStandardMilestones();
+        final List<StandardMilestoneRec> result = new ArrayList<>(20);
+
+        for (final StandardMilestoneRec test : all) {
+            if (test.paceTrack.equals(paceTrack) && test.pace.equals(pace)) {
+                result.add(test);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets the list of all standard milestones in the current term for a specified pace track, pace and pace index.
+     *
+     * @param paceTrack the pace track
+     * @param pace      the pace
+     * @param paceIndex the pace index
+     * @return the standard milestones
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<StandardMilestoneRec> getStandardMilestonesForPaceTrackIndex(final String paceTrack, final Integer pace,
+                                                                             final Integer paceIndex)
+            throws SQLException {
+
+        final List<StandardMilestoneRec> all = getStandardMilestones();
+        final List<StandardMilestoneRec> result = new ArrayList<>(20);
+
+        for (final StandardMilestoneRec test : all) {
+            if (test.paceTrack.equals(paceTrack) && test.pace.equals(pace) && test.paceIndex.equals(paceIndex)) {
+                result.add(test);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets all remote placement windows.
+     *
+     * @return the list of remote placement windows
+     * @throws SQLException if there is an error accessing the database
+     */
+    private List<RawRemoteMpe> getRemotePlacementWindows() throws SQLException {
+
+        if (this.remotePlacementWindows == null) {
+            this.remotePlacementWindows = RawRemoteMpeLogic.INSTANCE.queryAll(this.cache);
+        }
+
+        return this.remotePlacementWindows;
+    }
+
+    /**
+     * Gets all remote placement windows for a specified course.  Windows for all application terms are included.
+     *
+     * @param course the course ID
+     * @return the list of remote placement windows
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawRemoteMpe> getRemotePlacementWindowsForCourse(final String course) throws SQLException {
+
+        final List<RawRemoteMpe> all = getRemotePlacementWindows();
+        final List<RawRemoteMpe> match = new ArrayList<>(5);
+
+        for (final RawRemoteMpe test : all) {
+            if (test.course.equals(course)) {
+                match.add(test);
+            }
+        }
+
+        return match;
+    }
+
+    /**
+     * Gets all e-texts.
+     *
+     * @return the list of e-texts
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawEtext> getETexts() throws SQLException {
+
+        if (this.etexts == null) {
+            this.etexts = RawEtextLogic.INSTANCE.queryAll(this.cache);
+        }
+
+        return this.etexts;
+    }
+
+    /**
+     * Gets a single e-text.
+     *
+     * @param eTextId the e-text ID
+     * @return the e-text
+     * @throws SQLException if there is an error accessing the database
+     */
+    public RawEtext getEText(final String eTextId) throws SQLException {
+
+        final List<RawEtext> all = getETexts();
+        RawEtext result = null;
+
+        for (final RawEtext test : all) {
+            if (test.etextId.equals(eTextId)) {
+                result = test;
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets all e-texts.
+     *
+     * @return the list of e-texts
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawEtextCourse> getETextCourses() throws SQLException {
+
+        if (this.etextCourses == null) {
+            this.etextCourses = RawEtextCourseLogic.INSTANCE.queryAll(this.cache);
+        }
+
+        return this.etextCourses;
+    }
+
+    /**
+     * Gets all e-texts.
+     *
+     * @param eTextId the e-text Id
+     * @return the list of e-texts
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawEtextCourse> getETextCoursesByETextId(final String eTextId) throws SQLException {
+
+        final List<RawEtextCourse> all = getETextCourses();
+        final List<RawEtextCourse> match = new ArrayList<>(5);
+
+        for (final RawEtextCourse test : all) {
+            if (test.etextId.equals(eTextId)) {
+                match.add(test);
+            }
+        }
+
+        return match;
+    }
+
+    /**
+     * Gets all e-texts for a course.
+     *
+     * @param courseId the course Id
+     * @return the list of e-texts
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawEtextCourse> getETextCoursesByCourseId(final String courseId) throws SQLException {
+
+        final List<RawEtextCourse> all = getETextCourses();
+        final List<RawEtextCourse> match = new ArrayList<>(5);
+
+        for (final RawEtextCourse test : all) {
+            if (test.course.equals(courseId)) {
+                match.add(test);
+            }
+        }
+
+        return match;
+    }
+
 //    /**
 //     * Gets all pacing structures for a single term.
 //     *
@@ -1476,82 +1559,83 @@ public final class SystemData {
 //        return result;
 //    }
 //
-//    /**
-//     * Gets all pacing rules for a single term.
-//     *
-//     * @param term the term key
-//     * @return the list of pacing rules
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawPacingRules> getPacingRules(final TermKey term) throws SQLException {
-//
-//        List<RawPacingRules> result = null;
-//
-//        if (this.pacingRules == null) {
-//            this.pacingRules = new HashMap<>(4);
-//        } else {
-//            result = this.pacingRules.get(term);
-//        }
-//
-//        if (result == null) {
-//            result = RawPacingRulesLogic.queryByTerm(this.cache, term);
-//            this.pacingRules.put(term, result);
-//        }
-//
-//        return result;
-//    }
-//
-//    /**
-//     * Gets all pacing rules in a specified pacing structure for a single term.
-//     *
-//     * @param term            the term key
-//     * @param pacingStructure the pacing structure
-//     * @return the list of pacing rules
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawPacingRules> getPacingRulesByTermAndPacing(final TermKey term, final String pacingStructure)
-//            throws SQLException {
-//
-//        final List<RawPacingRules> all = getPacingRules(term);
-//        final List<RawPacingRules> result = new ArrayList<>(10);
-//
-//        for (final RawPacingRules test : all) {
-//            if (test.pacingStructure.equals(pacingStructure)) {
-//                result.add(test);
-//            }
-//        }
-//
-//        return result;
-//    }
-//
-//    /**
-//     * Tests whether the pacing rules for a term and pacing structure require some prerequisite condition before
-//     * allowing some activity.
-//     *
-//     * @param term            the term key
-//     * @param pacingStructure the pacing structure
-//     * @param activity        the activity
-//     * @param prerequisite    the condition
-//     * @return true if the condition must be met before the activity can take place
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public boolean isRequiredByPacingRules(final TermKey term, final String pacingStructure,
-//                                           final String activity, final String prerequisite)
-//            throws SQLException {
-//
-//        final List<RawPacingRules> all = getPacingRulesByTermAndPacing(term, pacingStructure);
-//        boolean result = false;
-//
-//        for (final RawPacingRules test : all) {
-//            if (test.activityType.equals(activity) && test.requirement.equals(prerequisite)) {
-//                result = true;
-//                break;
-//            }
-//        }
-//
-//        return result;
-//    }
-//
+
+    /**
+     * Gets all pacing rules for a single term.
+     *
+     * @param term the term key
+     * @return the list of pacing rules
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawPacingRules> getPacingRules(final TermKey term) throws SQLException {
+
+        List<RawPacingRules> result = null;
+
+        if (this.pacingRules == null) {
+            this.pacingRules = new HashMap<>(4);
+        } else {
+            result = this.pacingRules.get(term);
+        }
+
+        if (result == null) {
+            result = RawPacingRulesLogic.queryByTerm(this.cache, term);
+            this.pacingRules.put(term, result);
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets all pacing rules in a specified pacing structure for a single term.
+     *
+     * @param term            the term key
+     * @param pacingStructure the pacing structure
+     * @return the list of pacing rules
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawPacingRules> getPacingRulesByTermAndPacing(final TermKey term, final String pacingStructure)
+            throws SQLException {
+
+        final List<RawPacingRules> all = getPacingRules(term);
+        final List<RawPacingRules> result = new ArrayList<>(10);
+
+        for (final RawPacingRules test : all) {
+            if (test.pacingStructure.equals(pacingStructure)) {
+                result.add(test);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Tests whether the pacing rules for a term and pacing structure require some prerequisite condition before
+     * allowing some activity.
+     *
+     * @param term            the term key
+     * @param pacingStructure the pacing structure
+     * @param activity        the activity
+     * @param prerequisite    the condition
+     * @return true if the condition must be met before the activity can take place
+     * @throws SQLException if there is an error accessing the database
+     */
+    public boolean isRequiredByPacingRules(final TermKey term, final String pacingStructure,
+                                           final String activity, final String prerequisite)
+            throws SQLException {
+
+        final List<RawPacingRules> all = getPacingRulesByTermAndPacing(term, pacingStructure);
+        boolean result = false;
+
+        for (final RawPacingRules test : all) {
+            if (test.activityType.equals(activity) && test.requirement.equals(prerequisite)) {
+                result = true;
+                break;
+            }
+        }
+
+        return result;
+    }
+
 //    /**
 //     * Gets all question records for the active term.
 //     *

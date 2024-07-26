@@ -14,9 +14,6 @@ import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
-import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
-import dev.mathops.db.old.rawlogic.RawPacingRulesLogic;
 import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
@@ -34,6 +31,7 @@ import dev.mathops.db.old.rawrecord.RawCusection;
 import dev.mathops.db.old.rawrecord.RawExam;
 import dev.mathops.db.old.rawrecord.RawLesson;
 import dev.mathops.db.old.rawrecord.RawMilestone;
+import dev.mathops.db.old.rawrecord.RawPacingRules;
 import dev.mathops.db.old.rawrecord.RawPacingStructure;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
@@ -1606,7 +1604,9 @@ public final class StudentCourseStatus extends LogicBase {
 
         final String crs = this.studentCourse.course;
 
-        final List<RawExam> exams = RawExamLogic.queryActiveByCourse(cache, crs);
+        final SystemData systemData = cache.getSystemData();
+
+        final List<RawExam> exams = systemData.getActiveExams(crs);
         final int numUnits = this.courseUnits.length;
         for (int i = 0; i < numUnits; ++i) {
             for (final RawExam exam : exams) {
@@ -1645,10 +1645,12 @@ public final class StudentCourseStatus extends LogicBase {
         TermRec term = this.activeTerm;
         RawStterm stterm = this.studentTerm;
 
+        final SystemData systemData = cache.getSystemData();
+
         // Determine the term to use for deadlines
         if ("Y".equals(this.studentCourse.iInProgress) && "N".equals(this.studentCourse.iCounted)) {
 
-            term = cache.getSystemData().getTerm(this.studentCourse.iTermKey);
+            term = systemData.getTerm(this.studentCourse.iTermKey);
 
             Log.info("Term to use for milestones: ", term.term);
 
@@ -1657,8 +1659,7 @@ public final class StudentCourseStatus extends LogicBase {
             if (stterm != null) {
                 pace = stterm.pace.intValue();
 
-                allMilestones = RawMilestoneLogic.getAllMilestones(cache, term.term, pace,
-                        stterm.paceTrack.substring(0, 1));
+                allMilestones = systemData.getMilestones(term.term, stterm.pace, stterm.paceTrack);
 
                 stMilestones = RawStmilestoneLogic.getStudentMilestones(cache, term.term,
                         stterm.paceTrack.substring(0, 1), studentId);
@@ -1672,8 +1673,7 @@ public final class StudentCourseStatus extends LogicBase {
         for (final RawStcourse model : paced) {
             if (stterm != null && courseId.equals(model.course) && sect.equals(model.sect)) {
 
-                allMilestones = RawMilestoneLogic.getAllMilestones(cache, term.term, pace,
-                        stterm.paceTrack.substring(0, 1));
+                allMilestones = systemData.getMilestones(term.term, stterm.pace, stterm.paceTrack);
 
                 stMilestones = RawStmilestoneLogic.getStudentMilestones(cache, term.term,
                         stterm.paceTrack.substring(0, 1), studentId);
@@ -2057,10 +2057,13 @@ public final class StudentCourseStatus extends LogicBase {
      * @param now   the date/time to consider "now"
      * @throws SQLException if there is an error accessing the database
      */
-    private void checkHomeworkAvailability(final Cache cache, final ChronoZonedDateTime<LocalDate> now) throws SQLException {
+    private void checkHomeworkAvailability(final Cache cache, final ChronoZonedDateTime<LocalDate> now)
+            throws SQLException {
 
         final String studentId = this.student.stuId;
         final String pacing = this.pacingStructure.pacingStructure;
+
+        final SystemData systemData = cache.getSystemData();
 
         // determine availability of each homework assignment
         final int numHw = this.homeworks.size();
@@ -2143,11 +2146,10 @@ public final class StudentCourseStatus extends LogicBase {
                     RawSpecialStusLogic.isSpecialType(cache, studentId, now.toLocalDate(), "SKIP-UE")
                             || !"Y".equals(this.pacingStructure.requireUnitExams);
 
-            // If homework is only available if the prior unit exam has been done, test for the
-            // required unit exam, and if the homework is only available if the prior review exam
-            // has been done, test for the required review exam. However, if a student is
-            // authorized to skip unit exams based on a special student entry, override this
-            // condition.
+            // If homework is only available if the prior unit exam has been done, test for the required unit exam, and
+            // if the homework is only available if the prior review exam has been done, test for the required review
+            // exam. However, if a student is authorized to skip unit exams based on a special student entry, override
+            // this condition.
             if (unit == 1) {
                 final RawCusection gwSecUnit = getGatewaySectionUnit();
 
@@ -2164,32 +2166,32 @@ public final class StudentCourseStatus extends LogicBase {
             } else if (unit > 1 && !skipUnitExams) {
 
                 if (this.unitExams[unit - 1] != null
-                        && RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
-                        RawPacingRulesLogic.ACTIVITY_HOMEWORK, RawPacingRulesLogic.UE_MSTR)
+                        && systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
+                        RawPacingRules.ACTIVITY_HOMEWORK, RawPacingRules.UE_MSTR)
                         && this.unitPassedExams[unit - 1] == 0) {
 
                     this.homeworkAvailable[i] = false;
                     this.homeworkReasons[i] = this.unitExams[unit - 1].buttonLabel + " not yet passed.";
                     break;
                 } else if (this.unitExams[unit - 1] != null
-                        && RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
-                        RawPacingRulesLogic.ACTIVITY_HOMEWORK, RawPacingRulesLogic.UE_PASS)
+                        && systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
+                        RawPacingRules.ACTIVITY_HOMEWORK, RawPacingRules.UE_PASS)
                         && this.unitTotalExams[unit - 1] == 0) {
 
                     this.homeworkAvailable[i] = false;
                     this.homeworkReasons[i] = this.unitExams[unit - 1].buttonLabel + " not yet completed.";
                     break;
                 } else if (this.reviewExams[unit - 1] != null
-                        && RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
-                        RawPacingRulesLogic.ACTIVITY_HOMEWORK, RawPacingRulesLogic.UR_MSTR)
+                        && systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
+                        RawPacingRules.ACTIVITY_HOMEWORK, RawPacingRules.UR_MSTR)
                         && this.unitPassedReviews[unit - 1] == 0) {
 
                     this.homeworkAvailable[i] = false;
                     this.homeworkReasons[i] = this.reviewExams[unit - 1].buttonLabel + " not yet passed.";
                     break;
                 } else if (this.reviewExams[unit - 1] != null
-                        && RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
-                        RawPacingRulesLogic.ACTIVITY_HOMEWORK, RawPacingRulesLogic.UR_PASS)
+                        && systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
+                        RawPacingRules.ACTIVITY_HOMEWORK, RawPacingRules.UR_PASS)
                         && this.unitTotalReviews[unit - 1] == 0) {
 
                     this.homeworkAvailable[i] = false;
@@ -2229,8 +2231,8 @@ public final class StudentCourseStatus extends LogicBase {
             // required homework.
 
             if (priorObj > 0) {
-                if (RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
-                        RawPacingRulesLogic.ACTIVITY_HOMEWORK, RawPacingRulesLogic.HW_MSTR)) {
+                if (systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
+                        RawPacingRules.ACTIVITY_HOMEWORK, RawPacingRules.HW_MSTR)) {
 
                     if (this.unitObjMasteredHw[priorUnit] != null
                             && this.unitObjMasteredHw[priorUnit][priorObj - 1] > 0) {
@@ -2239,8 +2241,8 @@ public final class StudentCourseStatus extends LogicBase {
                         this.homeworkAvailable[i] = false;
                         this.homeworkReasons[i] = "Prior assignment not yet mastered.";
                     }
-                } else if (RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
-                        RawPacingRulesLogic.ACTIVITY_HOMEWORK, RawPacingRulesLogic.HW_PASS)) {
+                } else if (systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
+                        RawPacingRules.ACTIVITY_HOMEWORK, RawPacingRules.HW_PASS)) {
 
                     if (this.unitObjTotalHw[unit] != null && this.unitObjTotalHw[priorUnit][priorObj - 1] > 0) {
                         this.homeworkAvailable[i] = true;
@@ -2260,8 +2262,8 @@ public final class StudentCourseStatus extends LogicBase {
             // If the pacing structure requires student to view lecture before accessing HW, check
             // that
 
-            if ((this.homeworkAvailable[i] && RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
-                    RawPacingRulesLogic.ACTIVITY_HOMEWORK, RawPacingRulesLogic.LECT_VIEWED))
+            if ((this.homeworkAvailable[i] && systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
+                    RawPacingRules.ACTIVITY_HOMEWORK, RawPacingRules.LECT_VIEWED))
                     && !RawStcuobjectiveLogic.hasLectureBeenViewed(cache, studentId,
                     this.homeworks.get(i).courseId, unitInt, objInt)) {
                 this.homeworkAvailable[i] = false;
@@ -2523,6 +2525,8 @@ public final class StudentCourseStatus extends LogicBase {
         final String pacing = this.pacingStructure.pacingStructure;
         final boolean isIncomplete = "Y".equals(this.studentCourse.iInProgress);
 
+        final SystemData systemData = cache.getSystemData();
+
         // Determine availability of review exams in each unit
         for (int unit = 0; unit <= this.maxUnit; ++unit) {
             final RawCusection sectionUnit = this.courseSectionUnits[unit];
@@ -2579,35 +2583,35 @@ public final class StudentCourseStatus extends LogicBase {
             if (unit > 1 && unit < this.unitExams.length) {
 
                 if (this.unitExams[unit - 1] != null
-                        && (RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
-                        RawPacingRulesLogic.ACTIVITY_UNIT_REV_EXAM, RawPacingRulesLogic.UE_MSTR)
-                        || RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
-                        RawPacingRulesLogic.ACTIVITY_UNIT_REV_EXAM,
-                        RawPacingRulesLogic.TE_MSTR))
+                        && (systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
+                        RawPacingRules.ACTIVITY_UNIT_REV_EXAM, RawPacingRules.UE_MSTR)
+                        || systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
+                        RawPacingRules.ACTIVITY_UNIT_REV_EXAM,
+                        RawPacingRules.TE_MSTR))
                         && this.unitPassedExams[unit - 1] == 0) {
 
                     this.reviewAvailable[unit] = false;
                     this.reviewReasons[unit] = this.unitExams[unit - 1].buttonLabel + " not yet completed.";
                 } else if (this.unitExams[unit - 1] != null
-                        && (RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
-                        RawPacingRulesLogic.ACTIVITY_UNIT_REV_EXAM, RawPacingRulesLogic.UE_PASS)
-                        || RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
-                        RawPacingRulesLogic.ACTIVITY_UNIT_REV_EXAM,
-                        RawPacingRulesLogic.TE_PASS))
+                        && (systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
+                        RawPacingRules.ACTIVITY_UNIT_REV_EXAM, RawPacingRules.UE_PASS)
+                        || systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
+                        RawPacingRules.ACTIVITY_UNIT_REV_EXAM,
+                        RawPacingRules.TE_PASS))
                         && this.unitTotalExams[unit - 1] == 0) {
 
                     this.reviewAvailable[unit] = false;
                     this.reviewReasons[unit] = this.unitExams[unit - 1].buttonLabel + " not yet completed.";
                 } else if (this.reviewExams[unit - 1] != null
-                        && RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
-                        RawPacingRulesLogic.ACTIVITY_UNIT_REV_EXAM, RawPacingRulesLogic.UR_MSTR)
+                        && systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
+                        RawPacingRules.ACTIVITY_UNIT_REV_EXAM, RawPacingRules.UR_MSTR)
                         && this.unitPassedReviews[unit - 1] == 0) {
 
                     this.reviewAvailable[unit] = false;
                     this.reviewReasons[unit] = this.reviewExams[unit - 1].buttonLabel + " not yet mastered.";
                 } else if (this.reviewExams[unit - 1] != null
-                        && RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
-                        RawPacingRulesLogic.ACTIVITY_UNIT_REV_EXAM, RawPacingRulesLogic.UR_PASS)
+                        && systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
+                        RawPacingRules.ACTIVITY_UNIT_REV_EXAM, RawPacingRules.UR_PASS)
                         && this.unitTotalReviews[unit - 1] == 0) {
 
                     this.reviewAvailable[unit] = false;
@@ -2617,8 +2621,8 @@ public final class StudentCourseStatus extends LogicBase {
 
             if (unit < this.unitExams.length && this.reviewAvailable[unit]) {
 
-                if (RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
-                        RawPacingRulesLogic.ACTIVITY_UNIT_REV_EXAM, RawPacingRulesLogic.HW_MSTR)) {
+                if (systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
+                        RawPacingRules.ACTIVITY_UNIT_REV_EXAM, RawPacingRules.HW_MSTR)) {
 
                     final int numObj = this.unitObjMasteredHw[unit] == null ? 0
                             : this.unitObjMasteredHw[unit].length;
@@ -2627,8 +2631,8 @@ public final class StudentCourseStatus extends LogicBase {
                         this.reviewAvailable[unit] = false;
                         this.reviewReasons[unit] = "Unit required assignments not yet mastered.";
                     }
-                } else if (RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
-                        RawPacingRulesLogic.ACTIVITY_UNIT_REV_EXAM, RawPacingRulesLogic.HW_PASS)) {
+                } else if (systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
+                        RawPacingRules.ACTIVITY_UNIT_REV_EXAM, RawPacingRules.HW_PASS)) {
 
                     final int numObj = this.unitObjTotalHw[unit] == null ? 0 : this.unitObjTotalHw[unit].length;
 
@@ -2656,9 +2660,11 @@ public final class StudentCourseStatus extends LogicBase {
         final boolean isIncomplete = "Y".equals(this.studentCourse.iInProgress);
         final boolean isUncounted = "N".equals(this.studentCourse.iCounted);
 
+        final SystemData systemData = cache.getSystemData();
+
         // Get the first and last dates in the term where students may work
-        final LocalDate termFirst = cache.getSystemData().getFirstClassDay();
-        final LocalDate termLast = cache.getSystemData().getLastClassDay();
+        final LocalDate termFirst = systemData.getFirstClassDay();
+        final LocalDate termLast = systemData.getLastClassDay();
         final LocalDate today = now.toLocalDate();
 
         // Determine availability of unit/proctored exams in each unit
@@ -2720,64 +2726,64 @@ public final class StudentCourseStatus extends LogicBase {
                 if (isFinal) {
 
                     if (this.unitExams[unit - 1] != null
-                            && RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
-                            RawPacingRulesLogic.ACTIVITY_FINAL_EXAM, RawPacingRulesLogic.UE_MSTR)
+                            && systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
+                            RawPacingRules.ACTIVITY_FINAL_EXAM, RawPacingRules.UE_MSTR)
                             && this.unitPassedExams[unit - 1] == 0) {
 
                         this.proctoredAvailable[unit] = false;
                         this.proctoredReasons[unit] = this.unitExams[unit - 1].buttonLabel + " not yet passed.";
                     } else if (this.unitExams[unit - 1] != null
-                            && RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
-                            RawPacingRulesLogic.ACTIVITY_FINAL_EXAM, RawPacingRulesLogic.UE_PASS)
+                            && systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
+                            RawPacingRules.ACTIVITY_FINAL_EXAM, RawPacingRules.UE_PASS)
                             && this.unitTotalExams[unit - 1] == 0) {
 
                         this.proctoredAvailable[unit] = false;
                         this.proctoredReasons[unit] = this.unitExams[unit - 1].buttonLabel + " not yet completed.";
                     } else if (this.reviewExams[unit] != null
-                            && RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
-                            RawPacingRulesLogic.ACTIVITY_FINAL_EXAM, RawPacingRulesLogic.UR_MSTR)
+                            && systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
+                            RawPacingRules.ACTIVITY_FINAL_EXAM, RawPacingRules.UR_MSTR)
                             && this.unitPassedReviews[unit] == 0) {
 
                         this.proctoredAvailable[unit] = false;
                         this.proctoredReasons[unit] = this.reviewExams[unit].buttonLabel + " not yet passed.";
                     } else if (this.reviewExams[unit] != null
-                            && RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
-                            RawPacingRulesLogic.ACTIVITY_FINAL_EXAM, RawPacingRulesLogic.UR_PASS)
+                            && systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
+                            RawPacingRules.ACTIVITY_FINAL_EXAM, RawPacingRules.UR_PASS)
                             && this.unitTotalReviews[unit] == 0) {
 
                         this.proctoredAvailable[unit] = false;
                         this.proctoredReasons[unit] = this.reviewExams[unit].buttonLabel + " not yet completed.";
                     }
                 } else if (unit > 0 && this.unitExams[unit - 1] != null
-                        && RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
-                        RawPacingRulesLogic.ACTIVITY_UNIT_EXAM, RawPacingRulesLogic.UE_MSTR)
+                        && systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
+                        RawPacingRules.ACTIVITY_UNIT_EXAM, RawPacingRules.UE_MSTR)
                         && this.unitPassedExams[unit - 1] == 0) {
 
                     this.proctoredAvailable[unit] = false;
                     this.proctoredReasons[unit] = this.unitExams[unit - 1].buttonLabel + " not yet passed.";
                 } else if (unit > 0 && this.unitExams[unit - 1] != null
-                        && RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
-                        RawPacingRulesLogic.ACTIVITY_UNIT_EXAM, RawPacingRulesLogic.UE_PASS)
+                        && systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
+                        RawPacingRules.ACTIVITY_UNIT_EXAM, RawPacingRules.UE_PASS)
                         && this.unitTotalExams[unit - 1] == 0) {
 
                     this.proctoredAvailable[unit] = false;
                     this.proctoredReasons[unit] = this.unitExams[unit - 1].buttonLabel + " not yet completed.";
                 } else if (this.reviewExams[unit] != null
-                        && RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
-                        RawPacingRulesLogic.ACTIVITY_UNIT_EXAM, RawPacingRulesLogic.UR_MSTR)
+                        && systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
+                        RawPacingRules.ACTIVITY_UNIT_EXAM, RawPacingRules.UR_MSTR)
                         && this.unitPassedReviews[unit] == 0) {
 
                     this.proctoredAvailable[unit] = false;
                     this.proctoredReasons[unit] = this.reviewExams[unit].buttonLabel + " not yet passed.";
                 } else if (this.reviewExams[unit] != null
-                        && RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
-                        RawPacingRulesLogic.ACTIVITY_UNIT_EXAM, RawPacingRulesLogic.UR_PASS)
+                        && systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
+                        RawPacingRules.ACTIVITY_UNIT_EXAM, RawPacingRules.UR_PASS)
                         && this.unitTotalReviews[unit] == 0) {
 
                     this.proctoredAvailable[unit] = false;
                     this.proctoredReasons[unit] = this.reviewExams[unit].buttonLabel + " not yet completed.";
-                } else if (RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
-                        RawPacingRulesLogic.ACTIVITY_UNIT_EXAM, RawPacingRulesLogic.HW_MSTR)) {
+                } else if (systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
+                        RawPacingRules.ACTIVITY_UNIT_EXAM, RawPacingRules.HW_MSTR)) {
 
                     final int numObj = this.unitObjMasteredHw[unit] == null ? 0 : this.unitObjMasteredHw[unit].length;
 
@@ -2785,8 +2791,8 @@ public final class StudentCourseStatus extends LogicBase {
                         this.proctoredAvailable[unit] = false;
                         this.proctoredReasons[unit] = "Unit required assignments not yet mastered.";
                     }
-                } else if (RawPacingRulesLogic.isRequired(cache, this.activeTerm.term, pacing,
-                        RawPacingRulesLogic.ACTIVITY_UNIT_EXAM, RawPacingRulesLogic.HW_PASS)) {
+                } else if (systemData.isRequiredByPacingRules(this.activeTerm.term, pacing,
+                        RawPacingRules.ACTIVITY_UNIT_EXAM, RawPacingRules.HW_PASS)) {
 
                     final int numObj = this.unitObjTotalHw[unit] == null ? 0 : this.unitObjTotalHw[unit].length;
 
@@ -2988,10 +2994,10 @@ public final class StudentCourseStatus extends LogicBase {
         } else {
             final StudentCourseStatus status = new StudentCourseStatus(siteProfile.dbProfile);
 
-            final LiveSessionInfo live = new LiveSessionInfo(
-                    CoreConstants.newId(ISessionManager.SESSION_ID_LEN), "None", ERole.STUDENT);
-            live.setUserInfo("888888888", "Test",
-                    "Student", "Test Student");
+            final String sessionId = CoreConstants.newId(ISessionManager.SESSION_ID_LEN);
+
+            final LiveSessionInfo live = new LiveSessionInfo(sessionId, "None", ERole.STUDENT);
+            live.setUserInfo("888888888", "Test", "Student", "Test Student");
 
             final DbContext ctx = siteProfile.dbProfile.getDbContext(ESchemaUse.PRIMARY);
             try {
@@ -3001,37 +3007,37 @@ public final class StudentCourseStatus extends LogicBase {
                 try {
                     final ImmutableSessionInfo session = new ImmutableSessionInfo(live);
 
-                    if (status.gatherData(cache, session, "888888888",
-                            RawRecordConstants.M117, false, false)) {
+                    if (status.gatherData(cache, session, "888888888", RawRecordConstants.M117, false, false)) {
 
-                        final TermRec active = cache.getSystemData().getActiveTerm();
+                        final SystemData systemData = cache.getSystemData();
+                        final TermRec active = systemData.getActiveTerm();
                         final RawPacingStructure pacing = status.pacingStructure;
 
                         Log.info("Pacing structure: ", pacing.pacingStructure);
 
                         Log.info("Prior UE mastery required for Unit exam: "
-                                + RawPacingRulesLogic.isRequired(cache, active.term, pacing.pacingStructure,
-                                RawPacingRulesLogic.ACTIVITY_UNIT_EXAM, RawPacingRulesLogic.UE_MSTR));
+                                + systemData.isRequiredByPacingRules(active.term, pacing.pacingStructure,
+                                RawPacingRules.ACTIVITY_UNIT_EXAM, RawPacingRules.UE_MSTR));
 
                         Log.info("Prior UE passed required for Unit exam: "
-                                + RawPacingRulesLogic.isRequired(cache, active.term, pacing.pacingStructure,
-                                RawPacingRulesLogic.ACTIVITY_UNIT_EXAM, RawPacingRulesLogic.UE_PASS));
+                                + systemData.isRequiredByPacingRules(active.term, pacing.pacingStructure,
+                                RawPacingRules.ACTIVITY_UNIT_EXAM, RawPacingRules.UE_PASS));
 
                         Log.info("UR mastery required for Unit exam: "
-                                + RawPacingRulesLogic.isRequired(cache, active.term, pacing.pacingStructure,
-                                RawPacingRulesLogic.ACTIVITY_UNIT_EXAM, RawPacingRulesLogic.UR_MSTR));
+                                + systemData.isRequiredByPacingRules(active.term, pacing.pacingStructure,
+                                RawPacingRules.ACTIVITY_UNIT_EXAM, RawPacingRules.UR_MSTR));
 
                         Log.info("UR passed required for Unit exam: "
-                                + RawPacingRulesLogic.isRequired(cache, active.term, pacing.pacingStructure,
-                                RawPacingRulesLogic.ACTIVITY_UNIT_EXAM, RawPacingRulesLogic.UR_PASS));
+                                + systemData.isRequiredByPacingRules(active.term, pacing.pacingStructure,
+                                RawPacingRules.ACTIVITY_UNIT_EXAM, RawPacingRules.UR_PASS));
 
                         Log.info("Homework mastery required for Unit exam: "
-                                + RawPacingRulesLogic.isRequired(cache, active.term, pacing.pacingStructure,
-                                RawPacingRulesLogic.ACTIVITY_UNIT_EXAM, RawPacingRulesLogic.HW_MSTR));
+                                + systemData.isRequiredByPacingRules(active.term, pacing.pacingStructure,
+                                RawPacingRules.ACTIVITY_UNIT_EXAM, RawPacingRules.HW_MSTR));
 
                         Log.info("Homework passed required for Unit exam: "
-                                + RawPacingRulesLogic.isRequired(cache, active.term, pacing.pacingStructure,
-                                RawPacingRulesLogic.ACTIVITY_UNIT_EXAM, RawPacingRulesLogic.HW_PASS));
+                                + systemData.isRequiredByPacingRules(active.term, pacing.pacingStructure,
+                                RawPacingRules.ACTIVITY_UNIT_EXAM, RawPacingRules.HW_PASS));
 
                         final StudentCourseScores scores = status.scores;
 

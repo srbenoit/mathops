@@ -6,11 +6,11 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.enums.ERole;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawStchallengeLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawStmpeLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
+import dev.mathops.db.old.rawrecord.RawExam;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStchallenge;
 import dev.mathops.db.old.rawrecord.RawStexam;
@@ -560,7 +560,7 @@ enum PageStudentExams {
                             }
                         }
                         case "Q" -> htm.sTd(null, "style='background-color:#cff'").add("Users Exam").eTd();
-                        case null, default -> htm.sTd().add(RawExamLogic.getExamTypeName(ex.examType)).eTd();
+                        case null, default -> htm.sTd().add(RawExam.getExamTypeName(ex.examType)).eTd();
                     }
 
                     htm.sTd("ctr").add(ex.version).eTd();

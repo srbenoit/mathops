@@ -4,6 +4,7 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.enums.ETermName;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.DbConnection;
 import dev.mathops.db.old.DbContext;
@@ -13,7 +14,6 @@ import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
-import dev.mathops.db.old.rawlogic.RawRemoteMpeLogic;
 import dev.mathops.db.old.rawlogic.RawStmpeLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawMpeCredit;
@@ -283,13 +283,15 @@ public class PlacementLogic {
 
         // Create list of date ranges for unproctored exams
 
+        final SystemData systemData = cache.getSystemData();
+
         final List<DateRange> unproctoredRanges = new ArrayList<>(10);
 
         // For each remote MPE record, create a date range and add to list.
 
         if (this.applicationTerm != null) {
             boolean hasFutureRemote = false;
-            for (final RawRemoteMpe rec : RawRemoteMpeLogic.queryByCourse(cache, RawRecordConstants.M100P)) {
+            for (final RawRemoteMpe rec : systemData.getRemotePlacementWindowsForCourse(RawRecordConstants.M100P)) {
                 if (this.applicationTerm.equals(rec.aplnTerm)) {
                     final DateRange range = new DateRange(rec.startDt, rec.endDt);
                     unproctoredRanges.add(range);

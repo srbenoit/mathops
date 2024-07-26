@@ -2,6 +2,7 @@ package dev.mathops.dbjobs.report;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.old.DbConnection;
@@ -9,7 +10,6 @@ import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
-import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawrecord.RawMilestone;
 import dev.mathops.db.old.svc.term.TermRec;
 
@@ -39,11 +39,13 @@ public enum MilestoneSanityCheck {
         try {
             final DbConnection conn = ctx.checkOutConnection();
             final Cache cache = new Cache(profile, conn);
-            final TermRec active = cache.getSystemData().getActiveTerm();
+
+            final SystemData systemData = cache.getSystemData();
+            final TermRec active = systemData.getActiveTerm();
 
             try {
                 final Collection<String> report = new ArrayList<>(100);
-                final List<RawMilestone> milestones = RawMilestoneLogic.getAllMilestones(cache, active.term);
+                final List<RawMilestone> milestones = systemData.getMilestones(active.term);
 
                 runTests(milestones, active, report);
 
@@ -145,14 +147,14 @@ public enum MilestoneSanityCheck {
         gatherMilestonesForCourse(milestones, 5, 4, "A", track5A, report);
         gatherMilestonesForCourse(milestones, 5, 5, "A", track5A, report);
 
-        if (track1A.size() == 32 //
-                && track1B.size() == 32 //
-                && track1C.size() == 32 //
-                && track2A.size() == 63 //
-                && track2B.size() == 63 //
-                && track2C.size() == 63 //
-                && track3A.size() == 94 //
-                && track4A.size() == 125 //
+        if (track1A.size() == 32
+                && track1B.size() == 32
+                && track1C.size() == 32
+                && track2A.size() == 63
+                && track2B.size() == 63
+                && track2C.size() == 63
+                && track3A.size() == 94
+                && track4A.size() == 125
                 && track5A.size() == 156) {
 
             report.add("    All expected milestones were found.");
@@ -170,14 +172,14 @@ public enum MilestoneSanityCheck {
 
         report.add(CoreConstants.EMPTY);
         report.add("TEST 3: Checking that dates within each track are in proper order:");
-        final boolean goodSequence = checkSequence(track1A, report) //
-                && checkSequence(track1B, report) //
-                && checkSequence(track1C, report) //
-                && checkSequence(track2A, report) //
-                && checkSequence(track2B, report) //
-                && checkSequence(track2C, report) //
-                && checkSequence(track3A, report) //
-                && checkSequence(track4A, report) //
+        final boolean goodSequence = checkSequence(track1A, report)
+                && checkSequence(track1B, report)
+                && checkSequence(track1C, report)
+                && checkSequence(track2A, report)
+                && checkSequence(track2B, report)
+                && checkSequence(track2C, report)
+                && checkSequence(track3A, report)
+                && checkSequence(track4A, report)
                 && checkSequence(track5A, report);
         if (goodSequence) {
             report.add("    All milestone sequences are sensible.");

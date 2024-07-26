@@ -1,6 +1,7 @@
 package dev.mathops.dbjobs.batch;
 
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.old.DbConnection;
@@ -8,7 +9,6 @@ import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
-import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
@@ -328,7 +328,9 @@ final class StillNeeds54Points {
 
         // Determine student's pace
 
-        final TermRec active = cache.getSystemData().getActiveTerm();
+        final SystemData systemData = cache.getSystemData();
+
+        final TermRec active = systemData.getActiveTerm();
         final RawStterm stterm = RawSttermLogic.query(cache, active.term, reg.stuId);
 
         // See when student first passed each review exam, accumulate best scores on units/finals
@@ -363,16 +365,15 @@ final class StillNeeds54Points {
                         if (whenPassedRE3 == null || test.examDt.isBefore(whenPassedRE3)) {
                             whenPassedRE3 = test.examDt;
                         }
-                    } else if ((unit == 4)
-                            && (whenPassedRE4 == null || test.examDt.isBefore(whenPassedRE4))) {
+                    } else if ((unit == 4) && (whenPassedRE4 == null || test.examDt.isBefore(whenPassedRE4))) {
                         whenPassedRE4 = test.examDt;
                     }
                 }
                 case "U" -> {
                     if (test.examScore != null) {
                         final int unit = test.unit == null ? -1 : test.unit.intValue();
-
                         final int score = test.examScore.intValue();
+
                         if (unit == 1) {
                             scoreUE1 = Math.max(scoreUE1, score);
                         } else if (unit == 2) {
@@ -399,9 +400,8 @@ final class StillNeeds54Points {
         }
 
         if (whenPassedFIN != null) {
-            final int pace = stterm.pace.intValue();
-            final List<RawMilestone> allMilestones = RawMilestoneLogic.getAllMilestones(cache,
-                    active.term, pace, stterm.paceTrack);
+            final List<RawMilestone> allMilestones = systemData.getMilestones(active.term, stterm.pace,
+                    stterm.paceTrack);
 
             final List<RawStmilestone> stMilestones = RawStmilestoneLogic
                     .getStudentMilestones(cache, active.term, stterm.paceTrack, reg.stuId);
@@ -421,8 +421,8 @@ final class StillNeeds54Points {
                         for (final RawStmilestone sms : stMilestones) {
                             if ("RE".equals(sms.msType) && sms.msNbr.equals(ms.msNbr)) {
                                 deadlineRE1 = sms.msDate;
-                                // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
-                                // the later date
+                                // Don't break - student milestones are sorted by deadline date, and if there are
+                                // multiple, we want the later date
                             }
                         }
                     } else if (ms.getUnit() == 2) {
@@ -430,8 +430,8 @@ final class StillNeeds54Points {
                         for (final RawStmilestone sms : stMilestones) {
                             if ("RE".equals(sms.msType) && sms.msNbr.equals(ms.msNbr)) {
                                 deadlineRE2 = sms.msDate;
-                                // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
-                                // the later date
+                                // Don't break - student milestones are sorted by deadline date, and if there are
+                                // multiple, we want the later date
                             }
                         }
                     } else if (ms.getUnit() == 3) {
@@ -439,8 +439,8 @@ final class StillNeeds54Points {
                         for (final RawStmilestone sms : stMilestones) {
                             if ("RE".equals(sms.msType) && sms.msNbr.equals(ms.msNbr)) {
                                 deadlineRE3 = sms.msDate;
-                                // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
-                                // the later date
+                                // Don't break - student milestones are sorted by deadline date, and if there are
+                                // multiple, we want the later date
                             }
                         }
                     } else if (ms.getUnit() == 4) {
@@ -448,8 +448,8 @@ final class StillNeeds54Points {
                         for (final RawStmilestone sms : stMilestones) {
                             if ("RE".equals(sms.msType) && sms.msNbr.equals(ms.msNbr)) {
                                 deadlineRE4 = sms.msDate;
-                                // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
-                                // the later date
+                                // Don't break - student milestones are sorted by deadline date, and if there are
+                                // multiple, we want the later date
                             }
                         }
                     }
@@ -487,8 +487,7 @@ final class StillNeeds54Points {
                 }
 
                 if ((!totalInt.equals(reg.score) || !grade.equals(reg.courseGrade))) {
-                    Log.info("Storing score of ", totalInt, " (", grade, ") for ", reg.stuId, " in ",
-                            reg.course);
+                    Log.info("Storing score of ", totalInt, " (", grade, ") for ", reg.stuId, " in ", reg.course);
 
                     // FIXME:
 //                     RawStcourseLo.tgic.updateCompletedScoreGrade(cache, reg.stuId, reg.course,

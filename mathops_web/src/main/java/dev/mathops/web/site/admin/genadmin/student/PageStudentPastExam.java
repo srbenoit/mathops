@@ -4,9 +4,9 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
+import dev.mathops.db.old.rawrecord.RawExam;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -242,7 +242,7 @@ public enum PageStudentPastExam {
             htm.sTr();
             htm.sTd().add(ex.course).eTd();
             htm.sTd().add(ex.unit).eTd();
-            htm.sTd().add(RawExamLogic.getExamTypeName(ex.examType)).eTd();
+            htm.sTd().add(RawExam.getExamTypeName(ex.examType)).eTd();
             htm.sTd().add(ex.version).eTd();
             htm.sTd().add(ex.getStartDateTime() == null ? "N/A"
                     : TemporalUtils.FMT_MDY_AT_HMS_A.format(ex.getStartDateTime())).eTd();

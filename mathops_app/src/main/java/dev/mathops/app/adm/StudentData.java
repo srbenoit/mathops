@@ -12,7 +12,6 @@ import dev.mathops.db.enums.EDisciplineIncidentType;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawlogic.RawChallengeFeeLogic;
 import dev.mathops.db.old.rawlogic.RawFfrTrnsLogic;
-import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawPaceAppealsLogic;
 import dev.mathops.db.old.rawlogic.RawPlcFeeLogic;
@@ -155,8 +154,7 @@ public final class StudentData {
         this.studentTerm = RawSttermLogic.query(cache, this.activeKey, stuId);
 
         this.milestones = this.studentTerm == null ? new ArrayList<>(0)
-                : RawMilestoneLogic.getAllMilestones(cache, this.activeKey,
-                this.studentTerm.pace.intValue(), this.studentTerm.paceTrack);
+                : systemData.getMilestones(this.activeKey, this.studentTerm.pace, this.studentTerm.paceTrack);
 
         this.studentHolds = RawAdminHoldLogic.queryByStudent(cache, stuId);
 

@@ -10,7 +10,6 @@ import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.logic.PlacementLogic;
 import dev.mathops.db.old.logic.PlacementStatus;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawPendingExamLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
@@ -304,9 +303,11 @@ public final class LogicCheckIn {
     private void determineAvailableNonCourseExams(final DataCheckInAttempt info, final boolean enforceEligibility)
             throws SQLException {
 
+        final SystemData systemData = this.cache.getSystemData();
+
         // See if there is an active user's exam
         boolean searchingForUsersExam = true;
-        final List<RawExam> exams = RawExamLogic.queryActiveByCourse(this.cache, RawRecordConstants.M100U);
+        final List<RawExam> exams = systemData.getActiveExams(RawRecordConstants.M100U);
         for (final RawExam exam : exams) {
             if ("Q".equals(exam.examType)) {
                 searchingForUsersExam = false;

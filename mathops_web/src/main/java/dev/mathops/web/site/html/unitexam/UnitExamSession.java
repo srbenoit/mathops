@@ -43,7 +43,6 @@ import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.logic.CourseLogic;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawMpecrDeniedLogic;
 import dev.mathops.db.old.rawlogic.RawMpscorequeueLogic;
@@ -85,6 +84,7 @@ import dev.mathops.web.site.tutorial.precalc.EEligibility;
 import dev.mathops.web.site.tutorial.precalc.PrecalcExamEligibility;
 
 import jakarta.servlet.ServletRequest;
+
 import java.awt.Font;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -166,21 +166,21 @@ public final class UnitExamSession extends HtmlSessionBase {
      * Constructs a new {@code UnitExamSession}. This is called when the user clicks a button to start a review exam. It
      * stores data but does not generate the HTML until the page is actually generated.
      *
-     * @param cache                   the data cache
-     * @param theSiteProfile          the context
-     * @param theSessionId            the session ID
-     * @param theStudentId            the student ID
-     * @param theExamId               the exam ID being worked on
-     * @param theRedirectOnEnd        the URL to which to redirect at the end of the exam
-     * @param theState                the session state
-     * @param theScore                the score
-     * @param theMastery              the mastery score
-     * @param theStarted              true if exam has been started
-     * @param theItem                 the current item
-     * @param theTimeout              the timeout
+     * @param cache                the data cache
+     * @param theSiteProfile       the context
+     * @param theSessionId         the session ID
+     * @param theStudentId         the student ID
+     * @param theExamId            the exam ID being worked on
+     * @param theRedirectOnEnd     the URL to which to redirect at the end of the exam
+     * @param theState             the session state
+     * @param theScore             the score
+     * @param theMastery           the mastery score
+     * @param theStarted           true if exam has been started
+     * @param theItem              the current item
+     * @param theTimeout           the timeout
      * @param theStartInstructTime the time instructions were first viewed
-     * @param theExam                 the exam
-     * @param theError                the grading error
+     * @param theExam              the exam
+     * @param theError             the grading error
      * @throws SQLException if there is an error accessing the database
      */
     UnitExamSession(final Cache cache, final WebSiteProfile theSiteProfile,
@@ -336,7 +336,9 @@ public final class UnitExamSession extends HtmlSessionBase {
         // Look up the exam and store it in an AvailableExam object.
         final AvailableExam avail = new AvailableExam();
 
-        avail.exam = RawExamLogic.query(cache, this.version);
+        final SystemData systemData = cache.getSystemData();
+
+        avail.exam = systemData.getActiveExam(this.version);
 
         if (avail.exam == null) {
             error = "No exam found with the requested version";
@@ -823,7 +825,7 @@ public final class UnitExamSession extends HtmlSessionBase {
         htm.sDiv(null, "style='margin:20pt; padding:20pt; border:1px solid black; "
                 + "background:white; text-align:center; color:Green;'");
 
-        htm.sSpan(null, "style='color:green;'") .add("Exam completed.").br().br();
+        htm.sSpan(null, "style='color:green;'").add("Exam completed.").br().br();
 
         if (this.score != null) {
             htm.addln("Your score on this exam was ", this.score).br().br();
@@ -1594,7 +1596,7 @@ public final class UnitExamSession extends HtmlSessionBase {
 
         Log.info("Grading unit exam for student ", this.studentId, ", exam ", getExam().examVersion);
 
-        final RawExam examRec = RawExamLogic.query(cache, this.version);
+        final RawExam examRec = systemData.getActiveExam(this.version);
         if (examRec == null) {
             return "Exam " + this.version + " not found!";
         }
@@ -2400,7 +2402,7 @@ public final class UnitExamSession extends HtmlSessionBase {
         }
 
         final RawUsers attempt = new RawUsers(this.active.term, stexam.studentId, stexam.serialNumber, stexam.examId,
-                        stexam.finish.toLocalDate(), stexam.subtestScores.get("score"), calc, passed ? "Y" : "N");
+                stexam.finish.toLocalDate(), stexam.subtestScores.get("score"), calc, passed ? "Y" : "N");
 
         String error = null;
         if (!RawUsersLogic.INSTANCE.insert(cache, attempt)) {

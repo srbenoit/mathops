@@ -32,6 +32,7 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
 import dev.mathops.commons.parser.xml.XmlEscaper;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.DbConnection;
 import dev.mathops.db.old.DbContext;
@@ -42,7 +43,6 @@ import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.logic.PlacementLogic;
 import dev.mathops.db.old.logic.PlacementStatus;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
-import dev.mathops.db.old.rawlogic.RawExamLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawMpeLogLogic;
 import dev.mathops.db.old.rawlogic.RawMpecrDeniedLogic;
@@ -382,7 +382,9 @@ public final class PlacementExamSession extends HtmlSessionBase {
 
         Log.info("Retrieving exam ", this.version);
 
-        avail.exam = RawExamLogic.query(cache, this.version);
+        final SystemData systemData = cache.getSystemData();
+
+        avail.exam = systemData.getActiveExam(this.version);
 
         if (avail.exam == null) {
             Log.warning("Exam ", this.version, " was not found by ExamCache");
@@ -1957,7 +1959,9 @@ public final class PlacementExamSession extends HtmlSessionBase {
 
         loadSatActSurvey(cache, params);
 
-        final RawExam examRec = RawExamLogic.query(cache, this.version);
+        final SystemData systemData = cache.getSystemData();
+
+        final RawExam examRec = systemData.getActiveExam(this.version);
         if (examRec == null) {
             return "Exam " + this.version + " not found!";
         }

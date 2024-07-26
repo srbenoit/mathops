@@ -252,4 +252,23 @@ public final class RawExam extends RecBase implements Comparable<RawExam> {
 
         return equal;
     }
+
+    /**
+     * Gets the full name corresponding to an exam type.
+     *
+     * @param examType the exam type
+     * @return the full name
+     */
+    public static String getExamTypeName(final String examType) {
+
+        return switch (examType) {
+            case "U" -> "Unit Exam";
+            case "R" -> "Unit Review Exam";
+            case "F" -> "Final Exam";
+            case "Q" -> "Qualifying Exam";
+            case "L" -> "User's Exam";
+            case "CH" -> "Challenge Exam";
+            case null, default -> "Exam";
+        };
+    }
 }
