@@ -6,7 +6,6 @@ import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawrecord.RawPacingRules;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.db.type.TermKey;
-import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
 import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawPacingStructure;
@@ -79,10 +78,10 @@ public final class SiteDataCfgCourse {
                 this.pacingRules = null;
             } else {
                 final SystemData systemData = cache.getSystemData();
-                final TermRec activeTerm = systemData.getActiveTerm();
+                final TermRec active = systemData.getActiveTerm();
 
-                this.pacingStructure = RawPacingStructureLogic.query(cache, this.courseSection.pacingStructure);
-                this.pacingRules = systemData.getPacingRulesByTermAndPacing(activeTerm.term,
+                this.pacingStructure = systemData.getPacingStructure(this.courseSection.pacingStructure, active.term);
+                this.pacingRules = systemData.getPacingRulesByTermAndPacing(active.term,
                         this.courseSection.pacingStructure);
             }
         }

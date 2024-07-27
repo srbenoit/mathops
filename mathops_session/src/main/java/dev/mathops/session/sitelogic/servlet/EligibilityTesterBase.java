@@ -5,7 +5,6 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
-import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
 import dev.mathops.db.old.rawlogic.RawPendingExamLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
@@ -318,14 +317,14 @@ class EligibilityTesterBase {
             final LocalDate start = this.activeTerm.startDate;
 
             if (today.isBefore(start)) {
-                reasons.add("The term has not yet started. It will begin ",
-                        this.activeTerm.startDate.toString());
+                final String startDateStr = this.activeTerm.startDate.toString();
+                reasons.add("The term has not yet started. It will begin ", startDateStr);
             } else {
                 final LocalDate end = this.activeTerm.endDate;
 
                 if (today.isAfter(end)) {
-                    reasons.add("The term ended ", this.activeTerm.endDate.toString(),
-                            ".  Testing will resume next term.");
+                    final String endDateStr = this.activeTerm.endDate.toString();
+                    reasons.add("The term ended ", endDateStr, ".  Testing will resume next term.");
                 } else {
                     ok = true;
                 }
@@ -382,8 +381,7 @@ class EligibilityTesterBase {
                     ok = false;
                 } else {
                     final List<RawCusection> cusections = systemData.getCourseUnitSections(course,
-                            this.studentCourse.sect,
-                            term);
+                            this.studentCourse.sect, term);
                     for (final RawCusection cusect : cusections) {
                         if (cusect.unit.equals(unit)) {
                             this.courseSectionUnit = cusect;
@@ -405,8 +403,8 @@ class EligibilityTesterBase {
                                     && this.student.pacingStructure == null && pacingId != null) {
 
                                 // Set the student's rule set if not yet known and this is a real course
-                                Log.info("Setting student pacing to ", pacingId, " as part of testing exam " +
-                                        "eligibility");
+                                Log.info("Setting student pacing to ", pacingId,
+                                        " as part of testing exam eligibility");
                                 RawStudentLogic.updatePacingStructure(cache, this.student.stuId, pacingId);
                             }
                         }
@@ -416,7 +414,7 @@ class EligibilityTesterBase {
                             return false;
                         }
 
-                        this.pacingStructure = RawPacingStructureLogic.query(cache, pacingId);
+                        this.pacingStructure = systemData.getPacingStructure(pacingId, this.activeTerm.term);
 
                         if (this.pacingStructure == null) {
                             reasons.add("Unable to look up pacing structure.");
@@ -499,8 +497,8 @@ class EligibilityTesterBase {
 
         if (this.studentCourse == null) {
 
-            // Some special student types automatically have access to all precalculus courses
-            // without having an actual registration record
+            // Some special student types automatically have access to all precalculus courses without having an actual
+            // registration record
             boolean isSpecial = false;
             if (RawRecordConstants.M117.equals(course) || RawRecordConstants.M118.equals(course)
                     || RawRecordConstants.M124.equals(course) || RawRecordConstants.M125.equals(course)

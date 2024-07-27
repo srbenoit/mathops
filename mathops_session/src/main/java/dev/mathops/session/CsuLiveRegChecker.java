@@ -8,7 +8,6 @@ import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.rawlogic.AbstractLogicModule;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
-import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
@@ -785,13 +784,11 @@ public final class CsuLiveRegChecker {
 
             // Find each registration's course section
             final RawCsection csection = systemData.getCourseSection(reg.course, reg.sect, active.term);
-
             if (csection == null || "OT".equals(csection.instrnType)) {
                 continue;
             }
 
-            final RawPacingStructure ruleSet = RawPacingStructureLogic.query(cache, csection.pacingStructure);
-
+            final RawPacingStructure ruleSet = systemData.getPacingStructure(csection.pacingStructure, active.term);
             if (ruleSet == null || !"pace".equals(ruleSet.scheduleSource)) {
                 continue;
             }

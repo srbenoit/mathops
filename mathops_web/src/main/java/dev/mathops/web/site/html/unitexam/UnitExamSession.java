@@ -52,7 +52,6 @@ import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawStqaLogic;
 import dev.mathops.db.old.rawlogic.RawStsurveyqaLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
-import dev.mathops.db.old.rawlogic.RawSurveyqaLogic;
 import dev.mathops.db.old.rawlogic.RawUsersLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rawrecord.RawCsection;
@@ -2389,8 +2388,8 @@ public final class UnitExamSession extends HtmlSessionBase {
         }
 
         if (answer != null) {
-            final List<RawSurveyqa> choices = RawSurveyqaLogic.queryByVersionAndQuestion(cache, "UOOOO",
-                    Integer.valueOf(1));
+            final SystemData systemData = cache.getSystemData();
+            final List<RawSurveyqa> choices = systemData.getSurveyQuestions("UOOOO", Integer.valueOf(1));
 
             for (final RawSurveyqa choice : choices) {
                 if (answer.equals(choice.answer)) {

@@ -6,7 +6,6 @@ import dev.mathops.db.old.Cache;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.rawlogic.RawFfrTrnsLogic;
-import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
 import dev.mathops.db.old.rawlogic.RawPrereqLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawSttermLogic;
@@ -761,12 +760,15 @@ public final class SiteDataRegistration {
         }
 
         if (this.owner.studentData.getStudentPacingStructure() == null) {
+            final SystemData systemData = cache.getSystemData();
+
             // Query for the default rule set
             final RawPacingStructure record =
-                    RawPacingStructureLogic.query(cache, RawPacingStructure.DEF_PACING_STRUCTURE);
+                    systemData.getPacingStructure(RawPacingStructure.DEF_PACING_STRUCTURE, this.active.term);
 
             if (record == null) {
-                this.owner.setError("Unable to query for default rule set " + RawPacingStructure.DEF_PACING_STRUCTURE);
+                this.owner.setError("Unable to query for default pacing structure "
+                        + RawPacingStructure.DEF_PACING_STRUCTURE);
                 success = false;
             } else {
                 this.owner.studentData.setStudentPacingStructure(record);

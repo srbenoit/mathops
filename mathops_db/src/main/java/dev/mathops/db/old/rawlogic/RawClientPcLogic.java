@@ -251,10 +251,10 @@ public final class RawClientPcLogic extends AbstractRawLogic<RawClientPc> {
      * @return {@code true} if successful; {@code false} otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    public static boolean updateAllCurrent(final Cache cache, final String computerId,
-                                           final Integer newCurrentStatus, final String newCurrentStuId,
-                                           final String newCurrentCourse,
-                                           final Integer newCurrentUnit, final String newCurrentVersion) throws SQLException {
+    public static boolean updateAllCurrent(final Cache cache, final String computerId, final Integer newCurrentStatus,
+                                           final String newCurrentStuId, final String newCurrentCourse,
+                                           final Integer newCurrentUnit, final String newCurrentVersion)
+            throws SQLException {
 
         final String sql = SimpleBuilder.concat("UPDATE client_pc",
                 " SET current_status=", sqlIntegerValue(newCurrentStatus), ",",

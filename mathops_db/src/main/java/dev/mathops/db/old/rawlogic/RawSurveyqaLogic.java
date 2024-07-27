@@ -4,6 +4,7 @@ import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawrecord.RawSurveyqa;
 import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.type.TermKey;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -136,6 +137,25 @@ public final class RawSurveyqaLogic extends AbstractRawLogic<RawSurveyqa> {
     }
 
     /**
+     * Gets all questions in a term. WARNING: This method will return one row for every possible answer to a  question,
+     * so if you want just the questions, the list needs to be filtered to eliminate duplicates.
+     *
+     * @param cache   the data cache
+     * @param termKey the term key whose questions to retrieve
+     * @return the list of models that matched the criteria, a zero-length array if none matched
+     * @throws SQLException if there is an error accessing the database
+     */
+    public static List<RawSurveyqa> queryByTerm(final Cache cache, final TermKey termKey) throws SQLException {
+
+        final String sql = SimpleBuilder.concat(
+                "SELECT * FROM surveyqa",
+                " WHERE term=", sqlStringValue(termKey.termCode),
+                "   AND term_yr=", sqlIntegerValue(termKey.shortYear));
+
+        return executeQuery(cache, sql);
+    }
+
+    /**
      * Gets the questions for a profile. WARNING: This method will return one row for every possible answer to a
      * question, so if you want just the questions, the list needs to be filtered to eliminate duplicates.
      *
@@ -144,8 +164,7 @@ public final class RawSurveyqaLogic extends AbstractRawLogic<RawSurveyqa> {
      * @return the list of models that matched the criteria, a zero-length array if none matched
      * @throws SQLException if there is an error accessing the database
      */
-    public static List<RawSurveyqa> queryByVersion(final Cache cache, final String theVersion)
-            throws SQLException {
+    public static List<RawSurveyqa> queryByVersion(final Cache cache, final String theVersion) throws SQLException {
 
         final TermRec active = cache.getSystemData().getActiveTerm();
 

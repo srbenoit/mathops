@@ -7,7 +7,6 @@ import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCsection;
@@ -139,7 +138,7 @@ public final class StartCourse extends LogicBase {
             }
         }
 
-        final RawPacingStructure pacingStructure = RawPacingStructureLogic.query(cache, stu.pacingStructure);
+        final RawPacingStructure pacingStructure = systemData.getPacingStructure(stu.pacingStructure, activeTerm.term);
         if (pacingStructure == null) {
             setErrorText("Unable to look up rule set.");
             return false;

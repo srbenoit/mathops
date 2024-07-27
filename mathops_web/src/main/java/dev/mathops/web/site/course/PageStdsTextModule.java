@@ -18,7 +18,7 @@ import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
 import dev.mathops.session.sitelogic.data.SiteData;
 import dev.mathops.session.sitelogic.data.SiteDataCfgCourse;
-import dev.mathops.session.sitelogic.servlet.LearningTargetAssignmentEligibilityTester;
+import dev.mathops.session.sitelogic.servlet.LtaEligibilityTester;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.course.data.CourseData;
@@ -147,7 +147,8 @@ enum PageStdsTextModule {
                 CourseMenu.buildMenu(cache, site, session, logic, htm);
                 htm.sDiv(null, "style='padding:0 10pt 10pt 10pt;'");
 
-                showCourseModule(cache, logic, course, modNumber, mode, htm);
+                final ZonedDateTime now = session.getNow();
+                showCourseModule(cache, now, logic, course, modNumber, mode, htm);
 
                 htm.eDiv(); // padding
                 htm.eDiv(); // menupanelu
@@ -168,6 +169,7 @@ enum PageStdsTextModule {
      * Creates the HTML of the course module.
      *
      * @param cache        the cache
+     * @param now          the date/time to consider "now"
      * @param logic        the course site logic
      * @param courseId     the course for which to generate the status page
      * @param moduleNumber the unit number
@@ -175,8 +177,9 @@ enum PageStdsTextModule {
      *                     "locked" (in course, but past all deadlines so practice access only)
      * @param htm          the {@code HtmlBuilder} to which to append the HTML
      */
-    private static void showCourseModule(final Cache cache, final CourseSiteLogic logic, final String courseId,
-                                         final int moduleNumber, final String mode, final HtmlBuilder htm) {
+    private static void showCourseModule(final Cache cache, final ZonedDateTime now, final CourseSiteLogic logic,
+                                         final String courseId, final int moduleNumber, final String mode,
+                                         final HtmlBuilder htm) {
 
         final SiteData data = logic.data;
         final RawStudent student = data.studentData.getStudent();
@@ -195,15 +198,14 @@ enum PageStdsTextModule {
                 final String paceTrack = paceRegs == null ? CoreConstants.EMPTY :
                         PaceTrackLogic.determinePaceTrack(paceRegs, pace);
 
-                final ZonedDateTime now = ZonedDateTime.now();
                 final boolean isTutor = data.studentData.isSpecialType(now, "TUTOR");
                 final StdsMasteryStatus masteryStatus = new StdsMasteryStatus(cache, courseData, pace, paceTrack, reg,
                         isTutor);
 
                 if (RawRecordConstants.MATH125.equals(reg.course)) {
-                    doModule(cache, student, reg, Math125.MATH_125, moduleNumber, masteryStatus, mode, htm);
+                    doModule(cache, now, student, reg, Math125.MATH_125, moduleNumber, masteryStatus, mode, htm);
                 } else if (RawRecordConstants.MATH126.equals(reg.course)) {
-                    doModule(cache, student, reg, Math126.MATH_126, moduleNumber, masteryStatus, mode, htm);
+                    doModule(cache, now, student, reg, Math126.MATH_126, moduleNumber, masteryStatus, mode, htm);
                 }
             }
         }
@@ -213,6 +215,7 @@ enum PageStdsTextModule {
      * Generates module content.
      *
      * @param cache         the cache
+     * @param now           the date/time to consider "now"
      * @param student       the student record
      * @param reg           the course registration record
      * @param courseData    the course data
@@ -221,8 +224,8 @@ enum PageStdsTextModule {
      * @param mode          the mode ("course", "practice", or "locked")
      * @param htm           the {@code HtmlBuilder} to which to append the HTML
      */
-    private static void doModule(final Cache cache, final RawStudent student, final RawStcourse reg,
-                                 final CourseData courseData, final int moduleNumber,
+    private static void doModule(final Cache cache, final ZonedDateTime now, final RawStudent student,
+                                 final RawStcourse reg, final CourseData courseData, final int moduleNumber,
                                  final StdsMasteryStatus masteryStatus, final String mode, final HtmlBuilder htm) {
 
         if (moduleNumber == 0) {
@@ -230,7 +233,7 @@ enum PageStdsTextModule {
         } else if (moduleNumber >= 1 && moduleNumber <= 8) {
             final ModuleData moduleData = courseData.modules.get(moduleNumber - 1);
 
-            doModule(cache, student, reg, moduleData, masteryStatus, mode, htm);
+            doModule(cache, now, student, reg, moduleData, masteryStatus, mode, htm);
         } else {
             htm.sP().add("ERROR: Invalid module number.").eP();
         }
@@ -370,6 +373,7 @@ enum PageStdsTextModule {
      * Generates a module outline.
      *
      * @param cache         the cache
+     * @param now           the date/time to consider "now"
      * @param student       the student record
      * @param reg           the course registration record
      * @param moduleData    the module data
@@ -377,8 +381,9 @@ enum PageStdsTextModule {
      * @param mode          the mode ("course", "practice", or "locked")
      * @param htm           the {@code HtmlBuilder} to which to append the HTML
      */
-    private static void doModule(final Cache cache, final RawStudent student, final RawStcourse reg,
-                                 final ModuleData moduleData, final StdsMasteryStatus masteryStatus, final String mode,
+    private static void doModule(final Cache cache, final ZonedDateTime now, final RawStudent student,
+                                 final RawStcourse reg, final ModuleData moduleData,
+                                 final StdsMasteryStatus masteryStatus, final String mode,
                                  final HtmlBuilder htm) {
 
         emitModuleTitle(htm, masteryStatus.courseData, moduleData.moduleNumber, moduleData.moduleTitle,
@@ -403,7 +408,7 @@ enum PageStdsTextModule {
                     first = false;
                 }
             }
-            endLearningTarget(cache, student, reg, htm, learningTarget, mode, masteryStatus);
+            endLearningTarget(cache, now, student, reg, htm, learningTarget, mode, masteryStatus);
         }
     }
 
@@ -746,6 +751,7 @@ enum PageStdsTextModule {
      * Emits the student's status with respect to demonstrating mastery of a learning target.
      *
      * @param cache          the cache
+     * @param now            the date/time to consider "now"
      * @param student        the student record
      * @param reg            the course registration record
      * @param htm            the {@code HtmlBuilder} to which to append the HTML
@@ -753,9 +759,10 @@ enum PageStdsTextModule {
      * @param mode           the page mode
      * @param masteryStatus  the mastery status
      */
-    private static void endLearningTarget(final Cache cache, final RawStudent student, final RawStcourse reg,
-                                          final HtmlBuilder htm, final LearningTargetData learningTarget,
-                                          final String mode, final StdsMasteryStatus masteryStatus) {
+    private static void endLearningTarget(final Cache cache, final ZonedDateTime now, final RawStudent student,
+                                          final RawStcourse reg, final HtmlBuilder htm,
+                                          final LearningTargetData learningTarget, final String mode,
+                                          final StdsMasteryStatus masteryStatus) {
 
         final int unitIndex = learningTarget.unit - 1;
         final int objIndex = learningTarget.objective - 1;
@@ -771,7 +778,8 @@ enum PageStdsTextModule {
         final List<RawAdminHold> holds = new ArrayList<>(2);
 
         try {
-            final boolean eligible = LearningTargetAssignmentEligibilityTester.isEligible(cache, reg, student,
+            final LtaEligibilityTester tester = new LtaEligibilityTester(student.stuId);
+            final boolean ineligible = !tester.isLtaEligible(cache, now, reg.course,
                     learningTarget.unit, learningTarget.objective, reasons, holds);
 
             endDetailsBlock(htm);
@@ -785,9 +793,9 @@ enum PageStdsTextModule {
 
             emitStandardAssignment(cache, student.stuId, htm, learningTarget.module.course.courseId,
                     learningTarget.unit, learningTarget.objective, title, learningTarget.assignmentId, mode,
-                    !eligible, triedHw, passedHw);
+                    ineligible, triedHw, passedHw);
 
-            if (!eligible) {
+            if (ineligible) {
                 htm.sDiv(null, "style='padding-left:24px;font-family:prox-regular,sans-serif;'")
                         .add("This assignment will become available when you have completed the ",
                                 "<strong>Skills Review</strong>.")

@@ -2,11 +2,13 @@ package dev.mathops.session.sitelogic.servlet;
 
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
+import dev.mathops.db.old.rawrecord.RawCsection;
+import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawSthomework;
-import dev.mathops.db.old.rec.AssignmentRec;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -49,17 +51,19 @@ public class LtaEligibilityTester extends EligibilityTesterBase {
      * status information is accumulated, including holds on the student record, or the reason the homework cannot be
      * taken at this time.
      *
-     * @param cache      the data cache
-     * @param now        the date/time to consider as "now"
-     * @param assignment the assignment being tested
-     * @param reasons    a buffer to which to append the reason the exam is unavailable
-     * @param holds      a list to which holds are added if present on the student account
+     * @param cache     the data cache
+     * @param now       the date/time to consider as "now"
+     * @param course    the course ID
+     * @param unit      the unit
+     * @param objective the objective
+     * @param reasons   a buffer to which to append the reason the exam is unavailable
+     * @param holds     a list to which holds are added if present on the student account
      * @return {@code true} if the request was handled successfully; {@code false} on any error
      * @throws SQLException if there is an error accessing the database
      */
-    public final boolean isLtaEligible(final Cache cache, final ZonedDateTime now, final AssignmentRec assignment,
-                                       final HtmlBuilder reasons, final Collection<? super RawAdminHold> holds)
-            throws SQLException {
+    public final boolean isLtaEligible(final Cache cache, final ZonedDateTime now, final String course, final int unit,
+                                       final int objective, final HtmlBuilder reasons,
+                                       final Collection<? super RawAdminHold> holds) throws SQLException {
 
         final boolean ok;
 
@@ -67,7 +71,7 @@ public class LtaEligibilityTester extends EligibilityTesterBase {
             if (isSpecialStudentId() || isSpecial()) {
                 ok = true;
             } else {
-                ok = checkAssignmentAvailability(cache, now, reasons, assignment);
+                ok = checkAssignmentAvailability(cache, now, reasons, course, unit, objective);
             }
         } else {
             ok = false;
@@ -79,24 +83,28 @@ public class LtaEligibilityTester extends EligibilityTesterBase {
     /**
      * Determine whether a learning target assignment may be accessed by the student.
      *
-     * @param cache   the data cache
-     * @param now     the date/time to consider as "now"
-     * @param reasons a buffer to populate with the reason the exam is unavailable, to be shown to the student
-     * @param hw      the homework to test
+     * @param cache     the data cache
+     * @param now       the date/time to consider as "now"
+     * @param reasons   a buffer to populate with the reason the exam is unavailable, to be shown to the student
+     * @param course    the course ID
+     * @param unit      the unit
+     * @param objective the objective
      * @return {@code true} if request completed successfully; {@code false} otherwise
      * @throws SQLException if there is an error accessing the database
      */
     private boolean checkAssignmentAvailability(final Cache cache, final ZonedDateTime now, final HtmlBuilder reasons,
-                                                final AssignmentRec hw) throws SQLException {
+                                                final String course, final int unit, final int objective)
+            throws SQLException {
 
         final boolean ok;
 
+        final Integer unitObj = Integer.valueOf(unit);
+
         if (isSpecialStudentId() || isSpecial()) {
-            ok = gatherSectionInfo(cache, reasons, hw.courseId, hw.unit, false);
-        } else if (gatherSectionInfo(cache, reasons, hw.courseId, hw.unit, true)) {
+            ok = gatherSectionInfo(cache, reasons, course, unitObj, false);
+        } else if (gatherSectionInfo(cache, reasons, course, unitObj, true)) {
             ok = checkSectionStartDate(now, reasons) && checkIncomplete(now, reasons)
-                    && checkTimeWindows(now, reasons) && checkObjectiveEligibility(cache, reasons, hw)
-                    && checkForCourseLockout(cache, now, reasons);
+                    && checkTimeWindows(now, reasons) && checkObjectiveEligibility(cache, reasons, unit, objective);
         } else {
             ok = false;
         }
@@ -148,7 +156,7 @@ public class LtaEligibilityTester extends EligibilityTesterBase {
         final boolean ok;
 
         if (this.incompleteOnly) {
-            if ("Y".equals(this.studentCourse.iInProgress)) {
+            if ("Y".equals(this.studentCourse.iInProgress) && "N".equals(this.studentCourse.iCounted)) {
 
                 final LocalDate deadline = this.studentCourse.iDeadlineDt;
 
@@ -210,44 +218,105 @@ public class LtaEligibilityTester extends EligibilityTesterBase {
      * The "objective 0" assignment is always available in a unit.  And objectives greater than 0 are available if the
      * unit 0 assignment has been passed.
      *
-     * @param cache      the data cache
-     * @param reasons    a buffer to populate with the reason the exam is unavailable, to be shown to the student
-     * @param assignment the assignment to test
+     * @param cache     the data cache
+     * @param reasons   a buffer to populate with the reason the exam is unavailable, to be shown to the student
+     * @param unit      the unit
+     * @param objective the objective
      * @return {@code true} if request completed successfully; {@code false} otherwise
      * @throws SQLException if there is an error accessing the database
      */
     private boolean checkObjectiveEligibility(final Cache cache, final HtmlBuilder reasons,
-                                              final AssignmentRec assignment) throws SQLException {
+                                              final int unit, final int objective) throws SQLException {
 
         boolean ok = true;
 
-        // Pacing structure will be null if we are under ADMIN/TUTOR access or similar, which does
-        // not enforce objective eligibility rules.
+        // Pacing structure will be null if we are under ADMIN/TUTOR access or similar, which does not enforce
+        // objective eligibility rules.
 
         if (!isSpecial()) {
-            final String courseId = assignment.courseId;
-            final int unit = assignment.unit == null ? -1 : assignment.unit.intValue();
-            final int obj = assignment.objective == null ? -1 : assignment.objective.intValue();
+            final SystemData systemData = cache.getSystemData();
+            final RawCsection csection = systemData.getCourseSection(this.studentCourse.course,
+                    this.studentCourse.sect, this.studentCourse.termKey);
 
-            if (obj > 1) {
-                final List<RawSthomework> hws = RawSthomeworkLogic.getHomeworks(cache, this.studentId, courseId,
-                        assignment.unit, true, "ST");
+            if (csection == null) {
+                reasons.add("Unable to look up data for " + this.studentCourse.course + " section "
+                        + this.studentCourse.sect + " in " + this.studentCourse.termKey.longString);
+            } else if (csection.pacingStructure == null) {
+                reasons.add("No pacing structure defined for " + this.studentCourse.course + " section "
+                        + this.studentCourse.sect + " in " + this.studentCourse.termKey.longString);
+            } else {
+                final String pacing = csection.pacingStructure;
 
-                ok = false;
-                for (final RawSthomework homework : hws) {
-                    if (homework.objective != null && homework.objective.intValue() == 0
-                            && "Y".equals(homework.passed)) {
-                        ok = true;
-                        break;
+                if (objective == 1) {
+                    if (systemData.isRequiredByPacingRules(this.studentCourse.termKey, pacing, "HW", "SR_M")) {
+                        final List<RawSthomework> sthw = getObjectiveHw(cache, this.studentCourse, unit, objective - 1);
+                        if (!hasPassed(sthw)) {
+                            reasons.add("Skills Review assignment not yet passed");
+                            ok = false;
+                        }
+                    } else if (systemData.isRequiredByPacingRules(this.studentCourse.termKey, pacing, "HW", "SR_A")) {
+                        final List<RawSthomework> sthw = getObjectiveHw(cache, this.studentCourse, unit, objective - 1);
+                        if (sthw.isEmpty()) {
+                            reasons.add("Skills Review assignment not yet attempted");
+                            ok = false;
+                        }
                     }
-                }
-
-                if (!ok) {
-                    reasons.add("Skills Review assignment has not yet been completed.");
+                } else {
+                    if (systemData.isRequiredByPacingRules(this.studentCourse.termKey, pacing, "HW", "HW_M")) {
+                        final List<RawSthomework> sthw = getObjectiveHw(cache, this.studentCourse, unit, objective - 1);
+                        if (!hasPassed(sthw)) {
+                            reasons.add("Prior learning target assignment not yet passed");
+                            ok = false;
+                        }
+                    } else if (systemData.isRequiredByPacingRules(this.studentCourse.termKey, pacing, "HW", "HW_A")) {
+                        final List<RawSthomework> sthw = getObjectiveHw(cache, this.studentCourse, unit, objective - 1);
+                        if (sthw.isEmpty()) {
+                            reasons.add("Prior learning target assignment not yet attempted");
+                            ok = false;
+                        }
+                    }
                 }
             }
         }
 
         return ok;
+    }
+
+    /**
+     * Retrieves homework records for a unit and objective.
+     *
+     * @param cache     the data cache
+     * @param reg       the course registration
+     * @param unit      the unit
+     * @param objective the objective
+     * @return the list of homeworks on record for the specified course, unit, and objective
+     * @throws SQLException if there is an error accessing the database
+     */
+    private static List<RawSthomework> getObjectiveHw(final Cache cache, final RawStcourse reg, final int unit,
+                                                      final int objective) throws SQLException {
+        final Integer unitObj = Integer.valueOf(unit);
+        final Integer obj = Integer.valueOf(objective);
+
+        return RawSthomeworkLogic.queryByStudentCourseUnitObjective(cache, reg.stuId, reg.course, unitObj, obj, false);
+    }
+
+    /**
+     * Checks whether there is at least one passing homework record in a list of homeworks.
+     *
+     * @param sthw the list of homeworks
+     * @return true if there is at least one record marked as passing
+     */
+    private static boolean hasPassed(final List<RawSthomework> sthw) {
+
+        boolean passed = false;
+
+        for (final RawSthomework test : sthw) {
+            if ("Y".equals(test.passed)) {
+                passed = true;
+                break;
+            }
+        }
+
+        return passed;
     }
 }

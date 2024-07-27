@@ -14,7 +14,6 @@ import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStcuobjectiveLogic;
@@ -1444,7 +1443,7 @@ public final class StudentCourseStatus extends LogicBase {
                 ruleSetId = RawPacingStructure.DEF_PACING_STRUCTURE;
             }
 
-            this.pacingStructure = RawPacingStructureLogic.query(cache, ruleSetId);
+            this.pacingStructure = systemData.getPacingStructure(ruleSetId, this.activeTerm.term);
         }
 
         return result;

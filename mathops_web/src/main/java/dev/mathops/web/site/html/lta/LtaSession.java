@@ -296,7 +296,7 @@ public final class LtaSession extends HtmlSessionBase {
         String error = null;
         if (avail == null) {
             error = "Learning target assignment " + this.version + " not found.";
-        } else if (ltaTest.isLtaEligible(cache, now, avail, reasons, holds)) {
+        } else if (ltaTest.isLtaEligible(cache, now, avail.courseId, avail.unit, avail.objective, reasons, holds)) {
 
             final Long serial = Long.valueOf(AbstractHandlerBase.generateSerialNumber(false));
             this.minMastery = ltaTest.getMinMasteryScore();
@@ -337,7 +337,8 @@ public final class LtaSession extends HtmlSessionBase {
                 if (Integer.valueOf(-1).equals(this.minMastery)) {
                     this.minMastery = Integer.valueOf(numProblems);
                 }
-//                Log.info("Learning target assignment has " + numProblems + " problems, minMastery=" + this.minMastery);
+//                Log.info("Learning target assignment has " + numProblems + " problems, minMastery=" + this
+//                .minMastery);
 
                 theExamObj.realizationTime = System.currentTimeMillis();
                 theExamObj.serialNumber = serial;
@@ -763,7 +764,6 @@ public final class LtaSession extends HtmlSessionBase {
                                         final String label, final String prevCmd, final String prevLabel,
                                         final String nextCmd,
                                         final String nextLabel) {
-
 
         htm.sDiv(null, "style='flex: 1 100%; order:99; background-color:", HEADER_BG_COLOR,
                 "; display:block; border:1px solid ", OUTLINE_COLOR,

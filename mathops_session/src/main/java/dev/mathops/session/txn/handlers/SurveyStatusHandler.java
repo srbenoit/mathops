@@ -1,11 +1,11 @@
 package dev.mathops.session.txn.handlers;
 
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.rawlogic.RawStsurveyqaLogic;
-import dev.mathops.db.old.rawlogic.RawSurveyqaLogic;
-import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.txn.messages.AbstractRequestBase;
 import dev.mathops.session.txn.messages.SurveyStatusReply;
 import dev.mathops.session.txn.messages.SurveyStatusRequest;
@@ -39,8 +39,7 @@ public final class SurveyStatusHandler extends AbstractHandlerBase {
      * @throws SQLException if there is an error accessing the database
      */
     @Override
-    public String process(final Cache cache, final AbstractRequestBase message)
-            throws SQLException {
+    public String process(final Cache cache, final AbstractRequestBase message) throws SQLException {
 
         setMachineId(message);
         touch(cache);
@@ -51,8 +50,7 @@ public final class SurveyStatusHandler extends AbstractHandlerBase {
         if (message instanceof final SurveyStatusRequest request) {
             result = processRequest(cache, request);
         } else {
-            Log.info("SurveyStatusHandler called with ",
-                    message.getClass().getName());
+            Log.info("SurveyStatusHandler called with ", message.getClass().getName());
 
             final SurveyStatusReply reply = new SurveyStatusReply();
             reply.error = "Invalid request type for survey status request";
@@ -70,54 +68,29 @@ public final class SurveyStatusHandler extends AbstractHandlerBase {
      * @return the generated reply XML to send to the client
      * @throws SQLException if there is an error accessing the database
      */
-    private String processRequest(final Cache cache, final SurveyStatusRequest request)
-            throws SQLException {
+    private String processRequest(final Cache cache, final SurveyStatusRequest request) throws SQLException {
 
         final SurveyStatusReply reply = new SurveyStatusReply();
 
         if (request.version == null) {
             reply.error = "Version not included in survey status request.";
         } else if (loadStudentInfo(cache, request.studentId, reply)) {
+            final RawStudent student = getStudent();
 
-            if (getStudent().stuId == null) {
+            if (student.stuId == null) {
                 reply.error = "Invalid session ID";
-            } else if (populateSurveyQuestions(cache, request.version, reply)) {
-                reply.answers = RawStsurveyqaLogic.queryLatestByStudentProfile(cache, getStudent().stuId,
-                        request.version);
+            } else {
+                final SystemData systemData = cache.getSystemData();
+                reply.questions = systemData.getSurveyQuestions(request.version);
+
+                if (reply.questions.isEmpty()) {
+                    Log.warning("No survey questions found for ", request.version);
+                }
+
+                reply.answers = RawStsurveyqaLogic.queryLatestByStudentProfile(cache, student.stuId, request.version);
             }
         }
 
         return reply.toXml();
-    }
-
-    /**
-     * Look up the list of survey questions for the given exam version for the current term, and store the results in
-     * the reply, in ascending order of question number.
-     *
-     * @param cache   the data cache
-     * @param version the exam version for which to retrieve questions
-     * @param reply   the reply message that will be sent back to the client
-     * @return true if successful; false otherwise
-     * @throws SQLException if there is an error accessing the database
-     */
-    private static boolean populateSurveyQuestions(final Cache cache, final String version,
-                                                   final SurveyStatusReply reply) throws SQLException {
-
-        final boolean ok;
-
-        final TermRec active = cache.getSystemData().getActiveTerm();
-        if (active == null) {
-            reply.error = "Unable to query active term";
-            ok = false;
-        } else {
-            reply.questions = RawSurveyqaLogic.queryUniqueQuestionsByVersion(cache, version);
-
-            if (reply.questions.isEmpty()) {
-                Log.warning("No survey questions found for ", version);
-            }
-            ok = true;
-        }
-
-        return ok;
     }
 }

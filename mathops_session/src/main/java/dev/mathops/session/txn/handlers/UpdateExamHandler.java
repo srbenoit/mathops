@@ -50,7 +50,6 @@ import dev.mathops.db.old.rawlogic.RawStmpeqaLogic;
 import dev.mathops.db.old.rawlogic.RawStqaLogic;
 import dev.mathops.db.old.rawlogic.RawStsurveyqaLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
-import dev.mathops.db.old.rawlogic.RawSurveyqaLogic;
 import dev.mathops.db.old.rawlogic.RawTestingCenterLogic;
 import dev.mathops.db.old.rawlogic.RawUsersLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
@@ -2032,7 +2031,8 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
     private static boolean insertUsersExam(final Cache cache, final StudentExamRec stexam,
                                            final boolean passed) throws SQLException {
 
-        final TermRec active = cache.getSystemData().getActiveTerm();
+        final SystemData systemData = cache.getSystemData();
+        final TermRec active = systemData.getActiveTerm();
 
         final RawStudent stu = RawStudentLogic.query(cache, stexam.studentId, false);
         if (stu == null) {
@@ -2056,8 +2056,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
         }
 
         if (answer != null) {
-            final List<RawSurveyqa> possible = RawSurveyqaLogic.queryByVersionAndQuestion(cache, "UOOOO",
-                    Integer.valueOf(1));
+            final List<RawSurveyqa> possible = systemData.getSurveyQuestions("UOOOO", Integer.valueOf(1));
 
             for (final RawSurveyqa rawSurveyqa : possible) {
                 if (answer.equals(rawSurveyqa.answer)) {

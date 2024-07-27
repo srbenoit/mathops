@@ -4,7 +4,6 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCusection;
 import dev.mathops.db.old.rawrecord.RawPacingStructure;
@@ -96,7 +95,7 @@ public final class StudentInfo extends LogicBase {
                 if (this.cuSection == null) {
                     setErrorText("No data for course M 100U section 1 unit 1");
                 } else if (this.student.pacingStructure != null) {
-                    this.pacingStructure = RawPacingStructureLogic.query(cache, this.student.pacingStructure);
+                    this.pacingStructure = systemData.getPacingStructure(this.student.pacingStructure, active.term);
 
                     if (this.pacingStructure == null) {
                         setErrorText("No data for pacing structure");

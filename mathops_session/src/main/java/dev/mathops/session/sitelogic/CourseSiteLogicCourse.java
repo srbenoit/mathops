@@ -2,10 +2,10 @@ package dev.mathops.session.sitelogic;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.logic.PaceTrackLogic;
-import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCourse;
@@ -879,7 +879,10 @@ public final class CourseSiteLogicCourse {
             }
         }
 
-        return RawPacingStructureLogic.query(cache, pacingStructure);
+        final SystemData systemData = cache.getSystemData();
+        final TermRec active = systemData.getActiveTerm();
+
+        return systemData.getPacingStructure(pacingStructure, active.term);
     }
 
     /**

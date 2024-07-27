@@ -16,8 +16,10 @@ import dev.mathops.db.old.rawlogic.RawLessonComponentLogic;
 import dev.mathops.db.old.rawlogic.RawLessonLogic;
 import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawPacingRulesLogic;
+import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
 import dev.mathops.db.old.rawlogic.RawRemoteMpeLogic;
 import dev.mathops.db.old.rawlogic.RawSemesterCalendarLogic;
+import dev.mathops.db.old.rawlogic.RawSurveyqaLogic;
 import dev.mathops.db.old.rawlogic.RawWhichDbLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.old.rawrecord.RawCourse;
@@ -33,9 +35,11 @@ import dev.mathops.db.old.rawrecord.RawLesson;
 import dev.mathops.db.old.rawrecord.RawLessonComponent;
 import dev.mathops.db.old.rawrecord.RawMilestone;
 import dev.mathops.db.old.rawrecord.RawPacingRules;
+import dev.mathops.db.old.rawrecord.RawPacingStructure;
 import dev.mathops.db.old.rawrecord.RawRemoteMpe;
 import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
 import dev.mathops.db.old.rawrecord.RawStcourse;
+import dev.mathops.db.old.rawrecord.RawSurveyqa;
 import dev.mathops.db.old.rawrecord.RawWhichDb;
 import dev.mathops.db.old.rec.AssignmentRec;
 import dev.mathops.db.old.rec.MasteryExamRec;
@@ -54,6 +58,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * A data container for system data (not related to individual students) used in a single webpage generation or business
@@ -128,14 +133,14 @@ public final class SystemData {
     /** All e-text course mappings. */
     private List<RawEtextCourse> etextCourses;
 
-//    /** A map from term key to a list of pacing structures for that term. */
-//    private Map<TermKey, List<RawPacingStructure>> pacingStructures;
-//
+    /** A map from term key to a list of pacing structures for that term. */
+    private Map<TermKey, List<RawPacingStructure>> pacingStructures;
+
     /** A map from term key to a list of pacing rules for that term. */
     private Map<TermKey, List<RawPacingRules>> pacingRules;
 
-//    /** All survey questions for the active term. */
-//    private List<RawSurveyqa> surveyQuestions;
+    /** All survey questions for the active term. */
+    private List<RawSurveyqa> surveyQuestions;
 
     /**
      * Constructs a new {@code SystemData}.
@@ -1239,7 +1244,8 @@ public final class SystemData {
      * @throws SQLException if there is an error accessing the database
      */
     public List<MasteryExamRec> getActiveMasteryExamsByCourseUnitObjective(final String course, final Integer unit,
-                                                                           final Integer objective) throws SQLException {
+                                                                           final Integer objective)
+            throws SQLException {
 
         final List<MasteryExamRec> all = getActiveMasteryExamsByCourse(course);
         final List<MasteryExamRec> result = new ArrayList<>(5);
@@ -1459,7 +1465,7 @@ public final class SystemData {
      * @return the list of e-texts
      * @throws SQLException if there is an error accessing the database
      */
-    public List<RawEtextCourse> getETextCourses() throws SQLException {
+    private List<RawEtextCourse> getETextCourses() throws SQLException {
 
         if (this.etextCourses == null) {
             this.etextCourses = RawEtextCourseLogic.INSTANCE.queryAll(this.cache);
@@ -1510,55 +1516,54 @@ public final class SystemData {
         return match;
     }
 
-//    /**
-//     * Gets all pacing structures for a single term.
-//     *
-//     * @param term the term key
-//     * @return the list of pacing structures
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawPacingStructure> getPacingStructures(final TermKey term) throws SQLException {
-//
-//        List<RawPacingStructure> result = null;
-//
-//        if (this.pacingStructures == null) {
-//            this.pacingStructures = new HashMap<>(4);
-//        } else {
-//            result = this.pacingStructures.get(term);
-//        }
-//
-//        if (result == null) {
-//            result = RawPacingStructureLogic.queryByTerm(this.cache, term);
-//            this.pacingStructures.put(term, result);
-//        }
-//
-//        return result;
-//    }
-//
-//    /**
-//     * Gets a single pacing structure for a single term.
-//     *
-//     * @param pacingStructureId the ID of the pacing structure to retrieve
-//     * @param term              the term key
-//     * @return the  pacing structure; null if not found
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public RawPacingStructure getPacingStructure(final String pacingStructureId, final TermKey term)
-//            throws SQLException {
-//
-//        final List<RawPacingStructure> all = getPacingStructures(term);
-//        RawPacingStructure result = null;
-//
-//        for (final RawPacingStructure test : all) {
-//            if (test.pacingStructure.equals(pacingStructureId)) {
-//                result = test;
-//                break;
-//            }
-//        }
-//
-//        return result;
-//    }
-//
+    /**
+     * Gets all pacing structures for a single term.
+     *
+     * @param term the term key
+     * @return the list of pacing structures
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawPacingStructure> getPacingStructures(final TermKey term) throws SQLException {
+
+        List<RawPacingStructure> result = null;
+
+        if (this.pacingStructures == null) {
+            this.pacingStructures = new HashMap<>(4);
+        } else {
+            result = this.pacingStructures.get(term);
+        }
+
+        if (result == null) {
+            result = RawPacingStructureLogic.queryByTerm(this.cache, term);
+            this.pacingStructures.put(term, result);
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets a single pacing structure for a single term.
+     *
+     * @param pacingStructureId the ID of the pacing structure to retrieve
+     * @param term              the term key
+     * @return the  pacing structure; null if not found
+     * @throws SQLException if there is an error accessing the database
+     */
+    public RawPacingStructure getPacingStructure(final String pacingStructureId, final TermKey term)
+            throws SQLException {
+
+        final List<RawPacingStructure> all = getPacingStructures(term);
+        RawPacingStructure result = null;
+
+        for (final RawPacingStructure test : all) {
+            if (test.pacingStructure.equals(pacingStructureId)) {
+                result = test;
+                break;
+            }
+        }
+
+        return result;
+    }
 
     /**
      * Gets all pacing rules for a single term.
@@ -1567,7 +1572,7 @@ public final class SystemData {
      * @return the list of pacing rules
      * @throws SQLException if there is an error accessing the database
      */
-    public List<RawPacingRules> getPacingRules(final TermKey term) throws SQLException {
+    private List<RawPacingRules> getPacingRules(final TermKey term) throws SQLException {
 
         List<RawPacingRules> result = null;
 
@@ -1636,87 +1641,87 @@ public final class SystemData {
         return result;
     }
 
-//    /**
-//     * Gets all question records for the active term.
-//     *
-//     * @return the list of survey records
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawSurveyqa> getSurveyQuestions() throws SQLException {
-//
-//        if (this.surveyQuestions == null) {
-//            final TermRec active = getActiveTerm();
-//            if (active != null) {
-//                this.surveyQuestions = RawSurveyqaLogic.queryByTerm(this.cache, active.term);
-//            }
-//        }
-//
-//        return this.surveyQuestions;
-//    }
-//
-//    /**
-//     * Gets all question records for a single survey version.
-//     *
-//     * @param version the survey version
-//     * @return the list of survey records
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawSurveyqa> getSurveyQuestions(final String version) throws SQLException {
-//
-//        final List<RawSurveyqa> all = getSurveyQuestions();
-//        final List<RawSurveyqa> result = new ArrayList<>(10);
-//
-//        for (final RawSurveyqa test : all) {
-//            if (test.version.equals(version)) {
-//                result.add(test);
-//            }
-//        }
-//
-//        return result;
-//    }
-//
-//    /**
-//     * Gets all question records for a single item on a survey version.
-//     *
-//     * @param version the survey version
-//     * @param number  the item number
-//     * @return the list of survey records
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawSurveyqa> getSurveyQuestions(final String version, final Integer number) throws SQLException {
-//
-//        final List<RawSurveyqa> all = getSurveyQuestions();
-//        final List<RawSurveyqa> result = new ArrayList<>(10);
-//
-//        for (final RawSurveyqa test : all) {
-//            if (test.version.equals(version) && test.surveyNbr.equals(number)) {
-//                result.add(test);
-//            }
-//        }
-//
-//        return result;
-//    }
-//
-//    /**
-//     * Gets all questions for a survey, with one record per question (that record will have answer-related fields from
-//     * an arbitrary record). Results are ordered by question number.
-//     *
-//     * @param theVersion the profile ID whose questions to retrieve
-//     * @return the list of models that matched the criteria, a zero-length array if none matched
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public List<RawSurveyqa> getUniqueQuestionsByVersion(final String theVersion) throws SQLException {
-//
-//        final List<RawSurveyqa> all = getSurveyQuestions(theVersion);
-//
-//        final Map<Integer, RawSurveyqa> map = new TreeMap<>();
-//        for (final RawSurveyqa record : all) {
-//            map.put(record.surveyNbr, record);
-//        }
-//
-//        return new ArrayList<>(map.values());
-//    }
-//
+    /**
+     * Gets all question records for the active term.
+     *
+     * @return the list of survey records
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawSurveyqa> getSurveyQuestions() throws SQLException {
+
+        if (this.surveyQuestions == null) {
+            final TermRec active = getActiveTerm();
+            if (active != null) {
+                this.surveyQuestions = RawSurveyqaLogic.queryByTerm(this.cache, active.term);
+            }
+        }
+
+        return this.surveyQuestions;
+    }
+
+    /**
+     * Gets all question records for a single survey version.
+     *
+     * @param version the survey version
+     * @return the list of survey records
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawSurveyqa> getSurveyQuestions(final String version) throws SQLException {
+
+        final List<RawSurveyqa> all = getSurveyQuestions();
+        final List<RawSurveyqa> result = new ArrayList<>(10);
+
+        for (final RawSurveyqa test : all) {
+            if (test.version.equals(version)) {
+                result.add(test);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets all question records for a single item on a survey version.
+     *
+     * @param version the survey version
+     * @param number  the item number
+     * @return the list of survey records
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawSurveyqa> getSurveyQuestions(final String version, final Integer number) throws SQLException {
+
+        final List<RawSurveyqa> all = getSurveyQuestions();
+        final List<RawSurveyqa> result = new ArrayList<>(10);
+
+        for (final RawSurveyqa test : all) {
+            if (test.version.equals(version) && test.surveyNbr.equals(number)) {
+                result.add(test);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets all questions for a survey, with one record per question (that record will have answer-related fields from
+     * an arbitrary record). Results are ordered by question number.
+     *
+     * @param theVersion the profile ID whose questions to retrieve
+     * @return the list of models that matched the criteria, a zero-length array if none matched
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawSurveyqa> getUniqueQuestionsByVersion(final String theVersion) throws SQLException {
+
+        final List<RawSurveyqa> all = getSurveyQuestions(theVersion);
+
+        final Map<Integer, RawSurveyqa> map = new TreeMap<>();
+        for (final RawSurveyqa record : all) {
+            map.put(record.surveyNbr, record);
+        }
+
+        return new ArrayList<>(map.values());
+    }
+
 //    /**
 //     * Gets the list of courses that can satisfy the prerequisites of a specified course.
 //     *

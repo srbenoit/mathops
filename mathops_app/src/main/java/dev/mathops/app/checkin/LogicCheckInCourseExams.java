@@ -7,7 +7,6 @@ import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
 import dev.mathops.db.old.logic.StandardsMasteryLogic;
-import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
 import dev.mathops.db.old.rawlogic.RawStchallengeLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
@@ -404,7 +403,7 @@ final class LogicCheckInCourseExams {
 
         final SystemData systemData = cache.getSystemData();
 
-        final List<RawPacingStructure> allPacing = RawPacingStructureLogic.queryByTerm(cache, this.activeTerm.term);
+        final List<RawPacingStructure> allPacing = systemData.getPacingStructures(this.activeTerm.term);
 
         for (final RawStcourse reg : registrations) {
 
