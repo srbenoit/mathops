@@ -474,8 +474,7 @@ public final class UnitExamEligibilityTester extends EligibilityTesterBase {
 
         DbConnection.registerDrivers();
 
-        final DbProfile dbProfile = ContextMap.getDefaultInstance().getCodeProfile(//
-                "checkin");
+        final DbProfile dbProfile = ContextMap.getDefaultInstance().getCodeProfile("checkin");
 
         final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
         try {
@@ -483,16 +482,14 @@ public final class UnitExamEligibilityTester extends EligibilityTesterBase {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final LiveSessionInfo live = new LiveSessionInfo("abcdef",
-                        "Local", ERole.STUDENT);
+                final LiveSessionInfo live = new LiveSessionInfo("abcdef", "Local", ERole.STUDENT);
 
-                live.setUserInfo("831599651", "Test",
-                        "Student", "Test Student");
+                live.setUserInfo("836624279", "Test", "Student", "Test Student");
 
                 final ImmutableSessionInfo session = new ImmutableSessionInfo(live);
 
-                final UnitExamAvailability avail =
-                        new UnitExamAvailability(RawRecordConstants.M125, Integer.valueOf(4));
+                final UnitExamAvailability avail = new UnitExamAvailability(RawRecordConstants.M124,
+                        Integer.valueOf(4));
 
                 final UnitExamEligibilityTester tester = new UnitExamEligibilityTester(session.userId);
 
