@@ -2,7 +2,7 @@ package dev.mathops.web.site.tutorial.precalc;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.logic.PrecalcTutorialLogic;
 import dev.mathops.db.old.logic.PrecalcTutorialStatus;
 import dev.mathops.db.old.rawrecord.RawSpecialStus;
@@ -303,7 +303,7 @@ final class PrecalcTutorialSiteLogic {
      */
     boolean hasPlacedInto117() {
 
-        return this.prereqLogic.hasSatisfiedPrereqsFor(RawRecordConstants.M117);
+        return this.prereqLogic.hasSatisfiedPrerequisitesFor(RawRecordConstants.M117);
     }
 
     /**

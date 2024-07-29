@@ -2,7 +2,7 @@ package dev.mathops.web.site.course;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.builder.SimpleBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.old.rawrecord.RawCourse;

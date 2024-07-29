@@ -1,10 +1,9 @@
 package dev.mathops.session.txn.handlers;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.Cache;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
-import dev.mathops.db.old.rawlogic.RawTestingCenterLogic;
 import dev.mathops.db.old.rawrecord.RawClientPc;
 import dev.mathops.db.old.rawrecord.RawTestingCenter;
 import dev.mathops.session.txn.messages.AbstractRequestBase;
@@ -30,16 +29,14 @@ public final class MachineSetupHandler extends AbstractHandlerBase {
     private static final Object SYNCH = new Object();
 
     /** A random generator used to create unique machine IDs. */
-    private static Random rand;
+    private static Random rand = null;
 
     /**
      * Construct a new {@code MachineSetupHandler}.
-     *
-     * @param theDbProfile the database profile under which the handler is being accessed
      */
-    public MachineSetupHandler(final DbProfile theDbProfile) {
+    public MachineSetupHandler() {
 
-        super(theDbProfile);
+        super();
     }
 
     /**
@@ -56,7 +53,6 @@ public final class MachineSetupHandler extends AbstractHandlerBase {
 
         String result;
 
-        // Validate the type of request
         if (message instanceof final MachineSetupRequest request) {
 
             try {
@@ -68,7 +64,8 @@ public final class MachineSetupHandler extends AbstractHandlerBase {
                 result = reply.toXml();
             }
         } else {
-            Log.info("MachineSetupHandler called with ", message.getClass().getName());
+            final String clsName = message.getClass().getName();
+            Log.info("MachineSetupHandler called with ", clsName);
 
             final MachineSetupReply reply = new MachineSetupReply();
             reply.error = "Invalid request type for machine setup request";
@@ -96,6 +93,8 @@ public final class MachineSetupHandler extends AbstractHandlerBase {
         String stationNumber = null;
         String description = null;
 
+        final SystemData systemData = cache.getSystemData();
+
         if (request.testingCenterId == 0) {
             // Public Internet
             testingCenterId = "0";
@@ -106,7 +105,7 @@ public final class MachineSetupHandler extends AbstractHandlerBase {
             stationNumber = request.stationNumber;
 
             // Verify testing center exists
-            final RawTestingCenter center = RawTestingCenterLogic.query(cache, testingCenterId);
+            final RawTestingCenter center = systemData.getTestingCenter(testingCenterId);
 
             if (center == null) {
                 Log.info("Testing center " + testingCenterId + " was not found");
@@ -126,6 +125,7 @@ public final class MachineSetupHandler extends AbstractHandlerBase {
                 now, now, null, RawClientPc.POWER_OFF, null, null, null, null, null, null);
 
         if (!RawClientPcLogic.INSTANCE.insert(cache, obj)) {
+            systemData.forgetClientPcs();
             code = MachineSetupReply.FAILURE;
             error = "Unable to create client_pc record.";
         }
@@ -147,7 +147,8 @@ public final class MachineSetupHandler extends AbstractHandlerBase {
 
         synchronized (SYNCH) {
             if (rand == null) {
-                rand = new Random(System.currentTimeMillis());
+                final long seed = System.currentTimeMillis();
+                rand = new Random(seed);
             }
             rand.nextBytes(data);
         }

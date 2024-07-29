@@ -2,7 +2,7 @@ package dev.mathops.web.site.reporting;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.logic.SystemData;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.svc.term.TermRec;

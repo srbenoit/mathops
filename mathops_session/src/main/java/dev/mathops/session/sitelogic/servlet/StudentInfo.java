@@ -2,7 +2,7 @@ package dev.mathops.session.sitelogic.servlet;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.logic.SystemData;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCusection;

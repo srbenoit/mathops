@@ -15,9 +15,9 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.logic.SystemData;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.logic.ChallengeExamLogic;
 import dev.mathops.db.old.logic.ChallengeExamStatus;
 import dev.mathops.db.old.logic.PlacementLogic;
@@ -74,12 +74,10 @@ public final class GetExamHandler extends AbstractHandlerBase {
 
     /**
      * Construct a new {@code GetExamHandler}.
-     *
-     * @param theDbProfile the database profile under which the handler is being accessed
      */
-    public GetExamHandler(final DbProfile theDbProfile) {
+    public GetExamHandler() {
 
-        super(theDbProfile);
+        super();
     }
 
     /**
@@ -97,7 +95,6 @@ public final class GetExamHandler extends AbstractHandlerBase {
 
         String result;
 
-        // Validate the type of request
         if (message instanceof final GetExamRequest request) {
             try {
                 result = processRequest(cache, request);
@@ -107,7 +104,8 @@ public final class GetExamHandler extends AbstractHandlerBase {
                 result = reply.toXml();
             }
         } else {
-            Log.info("GetExamHandler called with ", message.getClass().getName());
+            final String clsName = message.getClass().getName();
+            Log.info("GetExamHandler called with ", clsName);
 
             final GetExamReply reply = new GetExamReply();
             reply.error = "Invalid request type for get exam request";
@@ -161,7 +159,9 @@ public final class GetExamHandler extends AbstractHandlerBase {
             final ZonedDateTime now = ZonedDateTime.now();
 
             if (ok) {
-                final RawStudent student = getStudent();
+                final StudentData studentData = getStudentData();
+                final RawStudent student = studentData.getStudentRecord();
+
                 final List<RawAdminHold> holds = RawAdminHoldLogic.queryByStudent(cache, student.stuId);
 
                 // We need to verify the exam and fill in the remaining fields in AvailableExam
@@ -606,10 +606,11 @@ public final class GetExamHandler extends AbstractHandlerBase {
         if (exam.realize("Y".equals(getTestingCenter().isRemote), true, serial)) {
             reply.presentedExam = exam;
             reply.status = GetExamReply.SUCCESS;
-            reply.studentId = getStudent().stuId;
+            final String studentId = getStudentData().getStudentId();
+            reply.studentId = studentId;
 
-            if (!new ExamWriter().writePresentedExam(getStudent().stuId, term, reply.presentedExam,
-                    reply.toXml())) {
+            final String xml = reply.toXml();
+            if (!new ExamWriter().writePresentedExam(studentId, term, reply.presentedExam, xml)) {
                 Log.warning("Unable to cache exam " + exam.ref);
                 reply.presentedExam = null;
                 reply.status = GetExamReply.CANNOT_REALIZE_EXAM;
@@ -650,8 +651,10 @@ public final class GetExamHandler extends AbstractHandlerBase {
             final Collection<Integer> autoPassItems = new ArrayList<>(10);
 
             // See which items the student has already gotten correct twice on this exam version
-            final RawStudent student = getStudent();
+            final StudentData studentData = getStudentData();
             try {
+                final RawStudent student = studentData.getStudentRecord();
+
                 final List<RawStexam> stexams = RawStexamLogic.getExamsByVersion(cache, student.stuId, exam.examVersion,
                         false);
 
@@ -699,61 +702,61 @@ public final class GetExamHandler extends AbstractHandlerBase {
                         }
                     }
                 }
-            } catch (final SQLException ex) {
-                Log.warning("Failed to look up exam history", ex);
-            }
 
-            // Now we must add the exam's problems so it can be realized.
-            final int numSect = exam.getNumSections();
+                // Now we must add the exam's problems so it can be realized.
+                final int numSect = exam.getNumSections();
 
-            for (int onSect = 0; onSect < numSect; ++onSect) {
-                final ExamSection esect = exam.getSection(onSect);
-                final int numProb = esect.getNumProblems();
+                for (int onSect = 0; onSect < numSect; ++onSect) {
+                    final ExamSection esect = exam.getSection(onSect);
+                    final int numProb = esect.getNumProblems();
 
-                for (int onProb = 0; onProb < numProb; ++onProb) {
+                    for (int onProb = 0; onProb < numProb; ++onProb) {
 
-                    final ExamProblem eprob = esect.getProblem(onProb);
-                    final int num = eprob.getNumProblems();
+                        final ExamProblem eprob = esect.getProblem(onProb);
+                        final int num = eprob.getNumProblems();
 
-                    if (autoPassItems.contains(Integer.valueOf(eprob.problemId))) {
-                        final ProblemAutoCorrectTemplate prb = new ProblemAutoCorrectTemplate(2);
-                        for (int i = 0; i < num; ++i) {
-                            eprob.setProblem(i, prb);
-                        }
-                    } else {
-                        for (int i = 0; i < num; ++i) {
-                            AbstractProblemTemplate prb = eprob.getProblem(i);
+                        final Integer problemIdObj = Integer.valueOf(eprob.problemId);
+                        if (autoPassItems.contains(problemIdObj)) {
+                            final ProblemAutoCorrectTemplate prb = new ProblemAutoCorrectTemplate(2);
+                            for (int i = 0; i < num; ++i) {
+                                eprob.setProblem(i, prb);
+                            }
+                        } else {
+                            for (int i = 0; i < num; ++i) {
+                                AbstractProblemTemplate prb = eprob.getProblem(i);
 
-                            if (prb == null || prb.id == null) {
-                                Log.warning("Exam " + ref + " section " + onSect + " problem " + onProb + " choice "
-                                        + i + " getProblem() returned " + prb);
-                            } else {
-                                prb = InstructionalCache.getProblem(prb.id);
+                                if (prb == null || prb.id == null) {
+                                    Log.warning("Exam " + ref + " section " + onSect + " problem " + onProb + " choice "
+                                            + i + " getProblem() returned " + prb);
+                                } else {
+                                    prb = InstructionalCache.getProblem(prb.id);
 
-                                if (prb != null) {
-                                    eprob.setProblem(i, prb);
+                                    if (prb != null) {
+                                        eprob.setProblem(i, prb);
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
 
-            if (exam.realize("Y".equals(getTestingCenter().isRemote), isProctored,
-                    serial)) {
-                reply.presentedExam = exam;
-                reply.status = GetExamReply.SUCCESS;
-                reply.studentId = student.stuId;
+                if (exam.realize("Y".equals(getTestingCenter().isRemote), isProctored, serial)) {
+                    reply.presentedExam = exam;
+                    reply.status = GetExamReply.SUCCESS;
+                    reply.studentId = student.stuId;
 
-                if (!new ExamWriter().writePresentedExam(student.stuId, term, reply.presentedExam,
-                        reply.toXml())) {
-                    Log.warning("Unable to cache exam " + ref);
-                    reply.presentedExam = null;
+                    final String xml = reply.toXml();
+                    if (!new ExamWriter().writePresentedExam(student.stuId, term, reply.presentedExam, xml)) {
+                        Log.warning("Unable to cache exam " + ref);
+                        reply.presentedExam = null;
+                        reply.status = GetExamReply.CANNOT_REALIZE_EXAM;
+                    }
+                } else {
+                    Log.warning("Unable to realize " + ref);
                     reply.status = GetExamReply.CANNOT_REALIZE_EXAM;
                 }
-            } else {
-                Log.warning("Unable to realize " + ref);
-                reply.status = GetExamReply.CANNOT_REALIZE_EXAM;
+            } catch (final SQLException ex) {
+                Log.warning("Failed to look up exam history", ex);
             }
         }
 

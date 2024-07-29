@@ -2,7 +2,7 @@ package dev.mathops.web.site.admin.genadmin.dbadmin;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.EDbUse;
 import dev.mathops.db.old.cfg.LoginConfig;

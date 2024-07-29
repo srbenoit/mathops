@@ -2,7 +2,7 @@ package dev.mathops.web.site.placement.main;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.builder.SimpleBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.logic.PlacementStatus;
 import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
 import dev.mathops.db.old.rawrecord.RawCourse;
@@ -12,7 +12,7 @@ import dev.mathops.db.old.rec.LiveCsuCredit;
 import dev.mathops.db.old.rec.LiveTransferCredit;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
-import dev.mathops.db.old.logic.mathplan.data.StudentData;
+import dev.mathops.db.old.logic.mathplan.data.MathPlanStudentData;
 import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
@@ -51,7 +51,7 @@ enum PagePlanRecord {
         final MathPlanLogic logic = new MathPlanLogic(site.getDbProfile());
 
         final String stuId = session.getEffectiveUserId();
-        final StudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
+        final MathPlanStudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
                 session.actAsUserId == null);
 
         final HtmlBuilder htm = new HtmlBuilder(8192);
@@ -100,7 +100,7 @@ enum PagePlanRecord {
      * @param data  the student data
      * @param logic the site logic
      */
-    private static void emitHistory(final HtmlBuilder htm, final StudentData data, final MathPlanLogic logic) {
+    private static void emitHistory(final HtmlBuilder htm, final MathPlanStudentData data, final MathPlanLogic logic) {
 
         htm.sDiv("center");
         emitTransferCredit(htm, data, logic);
@@ -116,7 +116,7 @@ enum PagePlanRecord {
      * @param data  the student data
      * @param logic the site logic
      */
-    private static void emitTransferCredit(final HtmlBuilder htm, final StudentData data, final MathPlanLogic logic) {
+    private static void emitTransferCredit(final HtmlBuilder htm, final MathPlanStudentData data, final MathPlanLogic logic) {
 
         // Query student's transfer credit and print out
         final List<LiveTransferCredit> xfer = data.getLiveTransferCredit();
@@ -189,7 +189,7 @@ enum PagePlanRecord {
      * @param htm  the {@code HtmlBuilder} to which to append
      * @param data the student data
      */
-    private static void emitPlacement(final HtmlBuilder htm, final StudentData data) {
+    private static void emitPlacement(final HtmlBuilder htm, final MathPlanStudentData data) {
 
         htm.sDiv("historyblock");
         htm.addln("<strong>Math Placement Results</strong>");
@@ -299,7 +299,7 @@ enum PagePlanRecord {
      * @param htm  the {@code HtmlBuilder} to which to append
      * @param data the student data
      */
-    private static void emitEligibility(final HtmlBuilder htm, final StudentData data) {
+    private static void emitEligibility(final HtmlBuilder htm, final MathPlanStudentData data) {
 
         htm.sDiv("historyblock last");
         htm.addln("<strong>Mathematics Eligibility</strong>");

@@ -6,9 +6,9 @@ import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.installation.Installation;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.old.DbConnection;
+import dev.mathops.db.DbConnection;
 import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
@@ -24,7 +24,6 @@ import dev.mathops.web.site.html.pastla.PastLtaSessionStore;
 import dev.mathops.web.site.html.placementexam.PlacementExamSessionStore;
 import dev.mathops.web.site.html.reviewexam.ReviewExamSessionStore;
 import dev.mathops.web.site.html.unitexam.UnitExamSessionStore;
-
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
@@ -32,6 +31,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -53,9 +53,6 @@ public final class FrontController extends HttpServlet {
     /** Start of a path for a public file. */
     private static final String PUBLIC_PATH_START = "/www/";
 
-//    /** Interval between open request report (1 hour). */
-//    public static final long REPORT_INTERVAL = 60L * 60L * 1000L;
-
     /** Version number for serialization. */
     @Serial
     private static final long serialVersionUID = 3089749430061848046L;
@@ -66,23 +63,26 @@ public final class FrontController extends HttpServlet {
     /** The default public directory, used when none specified. */
     private static final String DEFAULT_PUBLIC_DIR = "/opt/public";
 
+    /** A commonly used character. */
+    private static final char DOT = '.';
+
     /** The servlet configuration. */
-    private ServletConfig servletConfig;
+    private ServletConfig servletConfig = null;
 
     /** The servlet context. */
-    private ServletContext servletContext;
+    private ServletContext servletContext = null;
 
-    /** The server instance. */
-    private ServerInstance serverInstance;
+    /** The installation. */
+    private Installation installation = null;
 
     /** The website mid-controller. */
-    private IMidController webMidController;
+    private IMidController webMidController = null;
 
     /** The public directory configured for the server instance. */
-    private File publicDir;
+    private File publicDir = null;
 
     /** Count of hits from blacklisted sites. */
-    private int blacklist;
+    private int blacklist = 0;
 
     /**
      * Constructs a new {@code FrontController}.
@@ -104,22 +104,22 @@ public final class FrontController extends HttpServlet {
         this.servletConfig = config;
         this.servletContext = config.getServletContext();
 
-        final Installation installation = (Installation) this.servletContext.getAttribute("Installation");
-
-        this.serverInstance = ServerInstance.get(installation);
+        this.installation = (Installation) this.servletContext.getAttribute("Installation");
 
         // This gets called from a thread different from the context initialization, so store the thread-local
         // installation for logging
 
-        Log.info(Res.fmt(Res.SERVLET_INIT, this.servletContext.getServerInfo()));
+        final String serverInfo = this.servletContext.getServerInfo();
+        final String initMsg = Res.fmt(Res.SERVLET_INIT, serverInfo);
+        Log.info(initMsg);
 
-        final String buildDateTime = BuildDateTime.get().value;
+        final String buildDateTime = BuildDateTime.getValue();
         if (buildDateTime != null) {
-            Log.info(Res.fmt(Res.BUILD_DATETIME, buildDateTime));
+            final String buildMsg = Res.fmt(Res.BUILD_DATETIME, buildDateTime);
+            Log.info(buildMsg);
         }
 
-        this.publicDir = this.serverInstance.getInstallation().extractFileProperty(PUBLIC_DIR_PROPERTY,
-                new File(DEFAULT_PUBLIC_DIR));
+        this.publicDir = this.installation.extractFileProperty(PUBLIC_DIR_PROPERTY, new File(DEFAULT_PUBLIC_DIR));
 
         final DbProfile dbProfile = ContextMap.getDefaultInstance().getCodeProfile(Contexts.BATCH_PATH);
         if (dbProfile == null) {
@@ -132,6 +132,10 @@ public final class FrontController extends HttpServlet {
             final DbConnection conn = ctx.checkOutConnection();
             final Cache cache = new Cache(dbProfile, conn);
 
+            // NOTE: This cache is not stored in the web mid-controller.  It is used only for initialization.
+            // Each web page request will generate its own cache, so we get consistency of data within a page
+            // request, but responsiveness to changes in underlying data between page requests.
+
             try {
                 this.webMidController = new WebMidController(cache, config);
             } finally {
@@ -141,7 +145,8 @@ public final class FrontController extends HttpServlet {
             throw new ServletException("Unable to connect to to database", ex);
         }
 
-        Log.info(Res.get(Res.SERVLET_INITIALIZED));
+        final String initializedMsg = Res.get(Res.SERVLET_INITIALIZED);
+        Log.info(initializedMsg);
     }
 
     /**
@@ -173,7 +178,7 @@ public final class FrontController extends HttpServlet {
      */
     private Installation getInstallation() {
 
-        return this.serverInstance.getInstallation();
+        return this.installation;
     }
 
     /**
@@ -198,7 +203,8 @@ public final class FrontController extends HttpServlet {
         PastExamSessionStore.getInstance().persist(dir);
         PastLtaSessionStore.getInstance().persist(dir);
 
-        Log.info(Res.get(Res.SERVLET_TERMINATED));
+        final String terminatedMsg = Res.get(Res.SERVLET_TERMINATED);
+        Log.info(terminatedMsg);
         Log.fine(CoreConstants.EMPTY);
     }
 
@@ -229,7 +235,7 @@ public final class FrontController extends HttpServlet {
         req.setCharacterEncoding("UTF-8");
 
         final String remote = req.getRemoteAddr();
-        if (remote != null && remote.startsWith("100.27.42.")) {
+        if (remote != null && (remote.startsWith("100.27.42.") || remote.startsWith("34.237.25."))) {
             ++this.blacklist;
             if (this.blacklist % 100 == 1) {
                 Log.warning("Connection from blacklisted Amazon AWS site: ", remote);
@@ -243,27 +249,24 @@ public final class FrontController extends HttpServlet {
             }
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 
-        } else if (remote != null && remote.startsWith("34.237.25.")) {
-            ++this.blacklist;
-            if (this.blacklist % 100 == 1) {
-                Log.warning("Connection from blacklisted Amazon AWS site: ", remote);
-            }
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
-
         } else {
             try {
                 final String requestHost = ServletUtils.getHost(req);
                 final String requestPath = ServletUtils.getPath(req);
-                LogBase.setHostPath(requestHost, requestPath, req.getRemoteAddr());
+                LogBase.setHostPath(requestHost, requestPath, remote);
 
                 try {
                     if (req.isSecure()) {
                         serviceSecure(requestPath, req, resp);
-                    } else if ("http".equals(req.getScheme())) {
-                        serviceInsecure(requestPath, req, resp);
                     } else {
-                        Log.warning(Res.fmt(Res.BAD_SCHEME, req.getScheme()));
-                        resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                        final String reqScheme = req.getScheme();
+                        if ("http".equals(reqScheme)) {
+                            serviceInsecure(requestPath, req, resp);
+                        } else {
+                            final String msg = Res.fmt(Res.BAD_SCHEME, reqScheme);
+                            Log.warning(msg);
+                            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                        }
                     }
                 } finally {
                     LogBase.setHostPath(null, null, null);
@@ -284,11 +287,10 @@ public final class FrontController extends HttpServlet {
      * @param requestPath the request path
      * @param req         the HTTP servlet request
      * @param resp        the HTTP servlet response
-     * @throws IOException      if there is an error writing the response
-     * @throws ServletException if there is an exception processing the request
+     * @throws IOException if there is an error writing the response
      */
     private void serviceSecure(final String requestPath, final HttpServletRequest req,
-                               final HttpServletResponse resp) throws IOException, ServletException {
+                               final HttpServletResponse resp) throws IOException {
 
         // Log.info("Servicing secure request: " + requestPath);
 
@@ -307,11 +309,10 @@ public final class FrontController extends HttpServlet {
      * @param requestPath the request path
      * @param req         the HTTP servlet request
      * @param resp        the HTTP servlet response
-     * @throws IOException      if there is an error writing the response
-     * @throws ServletException if there is an exception processing the request
+     * @throws IOException if there is an error writing the response
      */
     private void serviceInsecure(final String requestPath, final HttpServletRequest req,
-                                 final HttpServletResponse resp) throws IOException, ServletException {
+                                 final HttpServletResponse resp) throws IOException {
 
         // Log.info("Servicing insecure request: " + requestPath);
 
@@ -340,7 +341,8 @@ public final class FrontController extends HttpServlet {
 
         final File file = new File(this.publicDir, requestPath);
 
-        Log.info("Checking for '", file.getAbsolutePath(), "'");
+        final String absolutePath = file.getAbsolutePath();
+        Log.info("Checking for '", absolutePath, "'");
 
         if (file.exists()) {
             final byte[] data = FileLoader.loadFileAsBytes(file, true);
@@ -348,23 +350,25 @@ public final class FrontController extends HttpServlet {
             if (data == null) {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             } else {
-                final String fname = file.getName().toLowerCase(Locale.ROOT);
-                final int lastDot = fname.lastIndexOf('.');
+                final String filename = file.getName().toLowerCase(Locale.ROOT);
+                final int lastDot = filename.lastIndexOf((int) DOT);
                 EMimeType mime = EMimeType.TEXTPLAIN;
                 if (lastDot != -1) {
-                    final String ext = fname.substring(lastDot + 1);
+                    final String ext = filename.substring(lastDot + 1);
                     mime = EMimeType.forExtension(ext);
                 }
 
                 resp.setContentType(mime.mime);
                 resp.setCharacterEncoding("UTF-8");
                 resp.setContentLength(data.length);
-                resp.setLocale(req.getLocale());
+                final Locale locale = req.getLocale();
+                resp.setLocale(locale);
 
                 try (final OutputStream out = resp.getOutputStream()) {
                     out.write(data);
                 } catch (final IOException ex) {
-                    if (!"ClientAbortException".equals(ex.getClass().getSimpleName())) {
+                    final String className = ex.getClass().getSimpleName();
+                    if (!"ClientAbortException".equals(className)) {
                         throw ex;
                     }
                 }

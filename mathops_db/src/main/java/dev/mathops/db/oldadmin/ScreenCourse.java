@@ -4,7 +4,7 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.logic.SystemData;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.logic.CourseLogic;
 import dev.mathops.db.old.logic.CourseStatus;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;

@@ -1,8 +1,9 @@
 package dev.mathops.db.logic;
 
 import dev.mathops.commons.builder.SimpleBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
+import dev.mathops.db.old.rawlogic.RawClientPcLogic;
 import dev.mathops.db.old.rawlogic.RawCourseLogic;
 import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawCunitLogic;
@@ -17,11 +18,14 @@ import dev.mathops.db.old.rawlogic.RawLessonLogic;
 import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawPacingRulesLogic;
 import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
+import dev.mathops.db.old.rawlogic.RawPrereqLogic;
 import dev.mathops.db.old.rawlogic.RawRemoteMpeLogic;
 import dev.mathops.db.old.rawlogic.RawSemesterCalendarLogic;
 import dev.mathops.db.old.rawlogic.RawSurveyqaLogic;
+import dev.mathops.db.old.rawlogic.RawTestingCenterLogic;
 import dev.mathops.db.old.rawlogic.RawWhichDbLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
+import dev.mathops.db.old.rawrecord.RawClientPc;
 import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawCunit;
@@ -36,10 +40,12 @@ import dev.mathops.db.old.rawrecord.RawLessonComponent;
 import dev.mathops.db.old.rawrecord.RawMilestone;
 import dev.mathops.db.old.rawrecord.RawPacingRules;
 import dev.mathops.db.old.rawrecord.RawPacingStructure;
+import dev.mathops.db.old.rawrecord.RawPrereq;
 import dev.mathops.db.old.rawrecord.RawRemoteMpe;
 import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawSurveyqa;
+import dev.mathops.db.old.rawrecord.RawTestingCenter;
 import dev.mathops.db.old.rawrecord.RawWhichDb;
 import dev.mathops.db.old.rec.AssignmentRec;
 import dev.mathops.db.old.rec.MasteryExamRec;
@@ -58,7 +64,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * A data container for system data (not related to individual students) used in a single webpage generation or business
@@ -98,25 +103,25 @@ public final class SystemData {
     private List<RawCourse> courses = null;
 
     /** A map from term key to a list of course sections for that term. */
-    private Map<TermKey, List<RawCsection>> courseSections;
+    private Map<TermKey, List<RawCsection>> courseSections = null;
 
     /** A map from term key to a list of course units for that term. */
-    private Map<TermKey, List<RawCunit>> courseUnits;
+    private Map<TermKey, List<RawCunit>> courseUnits = null;
 
     /** A map from term key to a list of course unit sections for that term. */
-    private Map<TermKey, List<RawCusection>> courseUnitSections;
+    private Map<TermKey, List<RawCusection>> courseUnitSections = null;
 
     /** A map from term key to a list of course unit objectives for that term. */
-    private Map<TermKey, List<RawCuobjective>> courseUnitObjectives;
+    private Map<TermKey, List<RawCuobjective>> courseUnitObjectives = null;
 
     /** A map from course ID to all assignments for that course. */
-    private Map<String, List<AssignmentRec>> assignments;
+    private Map<String, List<AssignmentRec>> assignments = null;
 
     /** A map from course ID to all exams for that course. */
-    private Map<String, List<RawExam>> exams;
+    private Map<String, List<RawExam>> exams = null;
 
     /** A map from course ID to all mastery exams for that course. */
-    private Map<String, List<MasteryExamRec>> masteryExams;
+    private Map<String, List<MasteryExamRec>> masteryExams = null;
 
     /** The list of all course milestones. */
     private List<RawMilestone> milestones = null;
@@ -125,22 +130,31 @@ public final class SystemData {
     private List<StandardMilestoneRec> standardMilestones = null;
 
     /** All remote placement windows. */
-    private List<RawRemoteMpe> remotePlacementWindows;
+    private List<RawRemoteMpe> remotePlacementWindows = null;
 
     /** All e-texts. */
-    private List<RawEtext> etexts;
+    private List<RawEtext> etexts = null;
 
     /** All e-text course mappings. */
-    private List<RawEtextCourse> etextCourses;
+    private List<RawEtextCourse> etextCourses = null;
 
     /** A map from term key to a list of pacing structures for that term. */
-    private Map<TermKey, List<RawPacingStructure>> pacingStructures;
+    private Map<TermKey, List<RawPacingStructure>> pacingStructures = null;
 
     /** A map from term key to a list of pacing rules for that term. */
-    private Map<TermKey, List<RawPacingRules>> pacingRules;
+    private Map<TermKey, List<RawPacingRules>> pacingRules = null;
 
     /** All survey questions for the active term. */
-    private List<RawSurveyqa> surveyQuestions;
+    private List<RawSurveyqa> surveyQuestions = null;
+
+    /** Prerequisites. */
+    private List<RawPrereq> prerequisites = null;
+
+    /** Client PCs. */
+    private List<RawClientPc> clientPCs = null;
+
+    /** Testing Centers. */
+    private List<RawTestingCenter> testingCenters = null;
 
     /**
      * Constructs a new {@code SystemData}.
@@ -1647,7 +1661,7 @@ public final class SystemData {
      * @return the list of survey records
      * @throws SQLException if there is an error accessing the database
      */
-    public List<RawSurveyqa> getSurveyQuestions() throws SQLException {
+    private List<RawSurveyqa> getSurveyQuestions() throws SQLException {
 
         if (this.surveyQuestions == null) {
             final TermRec active = getActiveTerm();
@@ -1702,45 +1716,154 @@ public final class SystemData {
         return result;
     }
 
-    /**
-     * Gets all questions for a survey, with one record per question (that record will have answer-related fields from
-     * an arbitrary record). Results are ordered by question number.
-     *
-     * @param theVersion the profile ID whose questions to retrieve
-     * @return the list of models that matched the criteria, a zero-length array if none matched
-     * @throws SQLException if there is an error accessing the database
-     */
-    public List<RawSurveyqa> getUniqueQuestionsByVersion(final String theVersion) throws SQLException {
-
-        final List<RawSurveyqa> all = getSurveyQuestions(theVersion);
-
-        final Map<Integer, RawSurveyqa> map = new TreeMap<>();
-        for (final RawSurveyqa record : all) {
-            map.put(record.surveyNbr, record);
-        }
-
-        return new ArrayList<>(map.values());
-    }
-
 //    /**
-//     * Gets the list of courses that can satisfy the prerequisites of a specified course.
+//     * Gets all questions for a survey, with one record per question (that record will have answer-related fields from
+//     * an arbitrary record). Results are ordered by question number.
 //     *
-//     * @param course the course
-//     * @return the list of courses
-//     * @throws SQLException if there is an error performing the query
+//     * @param theVersion the profile ID whose questions to retrieve
+//     * @return the list of models that matched the criteria, a zero-length array if none matched
+//     * @throws SQLException if there is an error accessing the database
 //     */
-//    public List<String> getPrerequisitesByCourse(final String course) throws SQLException {
+//    public List<RawSurveyqa> getUniqueQuestionsByVersion(final String theVersion) throws SQLException {
 //
-//        // FIXME: This does no caching...
+//        final List<RawSurveyqa> all = getSurveyQuestions(theVersion);
 //
-//        final TermRec active = getActiveTerm();
-//        final List<RawPrereq> list = RawPrereqLogic.queryByTermAndCourse(this.cache, active.term, course);
-//
-//        final List<String> result = new ArrayList<>(list.size());
-//        for (final RawPrereq rec : list) {
-//            result.add(rec.prerequisite);
+//        final Map<Integer, RawSurveyqa> map = new TreeMap<>();
+//        for (final RawSurveyqa record : all) {
+//            map.put(record.surveyNbr, record);
 //        }
 //
-//        return result;
+//        final Collection<RawSurveyqa> values = map.values();
+//        return new ArrayList<>(values);
 //    }
+
+    /**
+     * Gets the list of courses that can satisfy the prerequisites of a specified course.
+     *
+     * @param course the course
+     * @return the list of courses
+     * @throws SQLException if there is an error performing the query
+     */
+    public List<String> getPrerequisitesByCourse(final String course) throws SQLException {
+
+        if (this.prerequisites == null) {
+            final TermRec active = getActiveTerm();
+            if (active == null) {
+                this.prerequisites = new ArrayList<>(0);
+            } else {
+                this.prerequisites = RawPrereqLogic.queryByTermAndCourse(this.cache, active.term, course);
+            }
+        }
+
+        final int count = this.prerequisites.size();
+        final List<String> result = new ArrayList<>(count);
+        for (final RawPrereq rec : this.prerequisites) {
+            result.add(rec.prerequisite);
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets all client PC records.
+     *
+     * @return the list of client PCs
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawClientPc> getClientPcs() throws SQLException {
+
+        if (this.clientPCs == null) {
+            this.clientPCs = RawClientPcLogic.INSTANCE.queryAll(this.cache);
+        }
+
+        return this.clientPCs;
+    }
+
+    /**
+     * Gets all client PC records in a specified testing center.
+     *
+     * @param testingCenterId the testing center ID
+     * @return the list of client PCs
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<RawClientPc> getClientPcsByTestingCenter(final String testingCenterId) throws SQLException {
+
+        final List<RawClientPc> all = getClientPcs();
+
+        final List<RawClientPc> result = new ArrayList<>(100);
+        for (final RawClientPc test : all) {
+            if (test.testingCenterId.equals(testingCenterId)) {
+                result.add(test);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets a specific client PC.
+     *
+     * @param computerId the ID of the PC to retrieve
+     * @return the matching client PC; {@code null} if none found
+     * @throws SQLException if there is an error accessing the database
+     */
+    public RawClientPc getClientPc(final String computerId) throws SQLException {
+
+        final List<RawClientPc> all = getClientPcs();
+
+        RawClientPc result = null;
+        for (final RawClientPc test : all) {
+            if (test.computerId.equals(computerId)) {
+                result = test;
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Forgets the cached list of client PCs, if any, forcing a new query on next access.
+     */
+    public void forgetClientPcs() {
+
+        this.clientPCs = null;
+    }
+
+    /**
+     * Gets all testing center records.
+     *
+     * @return the list of testing centers
+     * @throws SQLException if there is an error accessing the database
+     */
+    private List<RawTestingCenter> getTestingCenters() throws SQLException {
+
+        if (this.testingCenters == null) {
+            this.testingCenters = RawTestingCenterLogic.INSTANCE.queryAll(this.cache);
+        }
+
+        return this.testingCenters;
+    }
+
+    /**
+     * Gets a specific client PC.
+     *
+     * @param testingCenterId the ID of the testing center to retrieve
+     * @return the matching testing center; {@code null} if none found
+     * @throws SQLException if there is an error accessing the database
+     */
+    public RawTestingCenter getTestingCenter(final String testingCenterId) throws SQLException {
+
+        final List<RawTestingCenter> all = getTestingCenters();
+
+        RawTestingCenter result = null;
+        for (final RawTestingCenter test : all) {
+            if (test.testingCenterId.equals(testingCenterId)) {
+                result = test;
+                break;
+            }
+        }
+
+        return result;
+    }
 }

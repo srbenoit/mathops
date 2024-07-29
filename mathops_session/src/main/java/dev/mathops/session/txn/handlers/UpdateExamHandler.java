@@ -24,12 +24,12 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
+import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
 import dev.mathops.db.enums.ERole;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.logic.SystemData;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.DbConnection;
 import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.logic.ChallengeExamLogic;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
@@ -108,12 +108,10 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
 
     /**
      * Constructs a new {@code UpdateExamHandler}.
-     *
-     * @param theDbProfile the database profile under which the handler is being accessed
      */
-    public UpdateExamHandler(final DbProfile theDbProfile) {
+    public UpdateExamHandler() {
 
-        super(theDbProfile);
+        super();
     }
 
     /**
@@ -131,9 +129,9 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
 
         String result;
 
-        // Validate the type of request
         if (message instanceof final UpdateExamRequest request) {
-            Log.info(request.toXml());
+            final String xml = request.toXml();
+            Log.info(xml);
 
             try {
                 result = processRequest(cache, request);
@@ -144,7 +142,8 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
                 result = reply.toXml();
             }
         } else {
-            Log.warning("UpdateExamHandler called with ", message.getClass().getName());
+            final String clsName = message.getClass().getName();
+            Log.warning("UpdateExamHandler called with ", clsName);
 
             final UpdateExamReply reply = new UpdateExamReply();
             reply.error = "Invalid request type for exam submission request";
@@ -177,7 +176,8 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
 
         LogBase.setSessionInfo("TXN", request.studentId);
 
-        final String stuId = getStudent().stuId;
+        final StudentData studentData = cache.getLoggedInUser();
+        final String stuId = studentData.getStudentId();
 
         if ("GUEST".equals(stuId) || "AACTUTOR".equals(stuId)) {
             reply.error = "Guest login exams will not be recorded.";
@@ -253,11 +253,13 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
                 if (examObj != null) {
                     Long ser = exam.serialNumber;
                     if (ser == null || ser.intValue() == -1) {
-                        ser = Long.valueOf(generateSerialNumber(false));
+                        final long serial = generateSerialNumber(false);
+                        ser = Long.valueOf(serial);
                     }
 
-                    final LocalDateTime finish = TemporalUtils.toLocalDateTime(System.currentTimeMillis());
-                    final LocalDateTime start = TemporalUtils.toLocalDateTime(System.currentTimeMillis() - duration);
+                    final long now = System.currentTimeMillis();
+                    final LocalDateTime finish = TemporalUtils.toLocalDateTime(now);
+                    final LocalDateTime start = TemporalUtils.toLocalDateTime(now - duration);
 
                     Integer unit = null;
                     try {
@@ -277,11 +279,11 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
                         }
                     }
 
-                    final RawStexam stexam = new RawStexam(ser, exam.examVersion, getStudent().stuId,
-                            finish.toLocalDate(), Integer.valueOf(0), Integer.valueOf(0),
+                    final RawStexam stexam = new RawStexam(ser, exam.examVersion, stuId, finish.toLocalDate(),
+                            Integer.valueOf(0), Integer.valueOf(0),
                             Integer.valueOf(start.getHour() * 60 + start.getMinute()),
-                            Integer.valueOf(finish.getHour() * 60 + finish.getMinute()), "Y", "C", null, exam.course,
-                            unit, examObj.examType, "N", source, null);
+                            Integer.valueOf(finish.getHour() * 60 + finish.getMinute()),
+                            "Y", "C", null, exam.course, unit, examObj.examType, "N", source, null);
 
                     RawStexamLogic.INSTANCE.insert(cache, stexam);
                 }
@@ -314,8 +316,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
 
         // Store the presentation and completion times in the exam object
         Long serial = null;
-        if (req.getAnswers() != null && req.getAnswers().length > 0
-                && req.getAnswers()[0].length == 4) {
+        if (req.getAnswers() != null && req.getAnswers().length > 0 && req.getAnswers()[0].length == 4) {
 
             if (req.getAnswers()[0][0] instanceof Long) {
                 serial = (Long) req.getAnswers()[0][0];
@@ -350,7 +351,9 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
         final Long ser = presented.serialNumber;
         final LocalDateTime start = TemporalUtils.toLocalDateTime(presented.realizationTime);
 
-        final RawStudent student = getStudent();
+        final StudentData studentData = getStudentData();
+        final RawStudent student = studentData.getStudentRecord();
+
         if (RawRecordConstants.M100P.equals(presented.course)) {
             final List<RawStmpe> existing = RawStmpeLogic.queryLegalByStudent(cache, student.stuId);
 
@@ -441,10 +444,11 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
             processOldExam(cache, presented, student, isTut, req, rep);
         }
 
-        if (getClient() != null) {
-            RawClientPcLogic.updateCurrentStatus(cache, getClient().computerId, RawClientPc.STATUS_EXAM_RESULTS);
+        final RawClientPc client = getClient();
+        if (client != null) {
+            RawClientPcLogic.updateCurrentStatus(cache, client.computerId, RawClientPc.STATUS_EXAM_RESULTS);
+            cache.getSystemData().forgetClientPcs();
         }
-
     }
 
     /**
@@ -854,9 +858,11 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
      */
     private void loadSatActSurvey(final Cache cache, final EvalContext params) throws SQLException {
 
-        final int act = getStudent().actScore == null ? 0 : getStudent().actScore.intValue();
+        final StudentData studentData = getStudentData();
+        final RawStudent student = studentData.getStudentRecord();
 
-        final int sat = getStudent().satScore == null ? 0 : getStudent().satScore.intValue();
+        final int act = student.actScore == null ? 0 : student.actScore.intValue();
+        final int sat = student.satScore == null ? 0 : student.satScore.intValue();
 
         final VariableInteger param1 = new VariableInteger("student-ACT-math");
         param1.setValue(Long.valueOf((long) act));
@@ -866,8 +872,8 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
         param2.setValue(Long.valueOf((long) sat));
         params.addVariable(param2);
 
-        final List<RawStsurveyqa> answers = RawStsurveyqaLogic.queryLatestByStudentProfile(cache,
-                getStudent().stuId, "POOOO");
+        final List<RawStsurveyqa> answers = RawStsurveyqaLogic.queryLatestByStudentProfile(cache, student.stuId,
+                "POOOO");
 
         int prep = 0;
         int resources = 0;
@@ -982,8 +988,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
                     stanswer.id = id;
                     stanswer.studentAnswer = String.valueOf(answerStr);
 
-                    final String key = Integer.toString(id / 100) + id / 10 % 10
-                            + id % 10;
+                    final String key = Integer.toString(id / 100) + id / 10 % 10 + id % 10;
                     stexam.surveys.put(key, stanswer);
                 }
             }
@@ -1374,8 +1379,12 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
 
                                 Log.info("  Outcome action: INDICATE_LICENSED");
 
-                                if ("N".equals(getStudent().licensed)) {
-                                    RawStudentLogic.updateLicensed(cache, getStudent().stuId, "Y");
+                                final RawStudent student = getStudentData().getStudentRecord();
+
+                                if ("N".equals(student.licensed)) {
+                                    RawStudentLogic.updateLicensed(cache, student.stuId, "Y");
+                                    // Update cached record in place to avoid re-query
+                                    student.licensed = "Y";
                                 }
                             }
                         }
@@ -1573,8 +1582,13 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
 
                 // Now that we've inserted a fatal hold, update the student record to
                 // indicate a fatal hold exists. TODO: Fix hardcode
-                if (RawAdminHoldLogic.INSTANCE.insert(cache, hold) && !"F".equals(getStudent().sevAdminHold)) {
-                    RawStudentLogic.updateHoldSeverity(cache, getStudent().stuId, "F");
+
+                final RawStudent student = getStudentData().getStudentRecord();
+
+                if (RawAdminHoldLogic.INSTANCE.insert(cache, hold) && !"F".equals(student.sevAdminHold)) {
+                    RawStudentLogic.updateHoldSeverity(cache, student.stuId, "F");
+                    // Update cached record in place to avoid re-query
+                    student.sevAdminHold = "F";
                 }
             } else {
                 // Already a hold 18, but update its date to now
@@ -1612,10 +1626,12 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
             howValidated = Character.toString(stexam.howValidated);
         }
 
+        final RawStudent student = getStudentData().getStudentRecord();
+
         final RawStmpe attempt = new RawStmpe(stexam.studentId, stexam.examId, active.academicYear,
                 stexam.finish.toLocalDate(), Integer.valueOf(TemporalUtils.minuteOfDay(stexam.start)),
-                Integer.valueOf(TemporalUtils.minuteOfDay(stexam.finish)), getStudent().lastName,
-                getStudent().firstName, getStudent().middleInitial, null, stexam.serialNumber,
+                Integer.valueOf(TemporalUtils.minuteOfDay(stexam.finish)), student.lastName,
+                student.firstName, student.middleInitial, null, stexam.serialNumber,
                 stexam.subtestScores.get("A"),
                 stexam.subtestScores.get("117"),
                 stexam.subtestScores.get("118"),
@@ -1755,22 +1771,23 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
         }
 
         // Send results to BANNER, or store in queue table
-        final RawStudent stu = getStudent();
+        final RawStudent student = getStudentData().getStudentRecord();
 
-        if (stu == null) {
+        if (student == null) {
             RawMpscorequeueLogic.logActivity("Unable to upload placement result for student " + stexam.studentId
                     + ": student record not found");
         } else {
-            final DbContext liveCtx = this.dbProfile.getDbContext(ESchemaUse.LIVE);
+            final DbContext liveCtx = cache.dbProfile.getDbContext(ESchemaUse.LIVE);
             final DbConnection liveConn = liveCtx.checkOutConnection();
 
             try {
                 if (RawRecordConstants.M100P.equals(stexam.course)) {
-                    RawMpscorequeueLogic.INSTANCE.postPlacementToolResult(cache, liveConn, stu.pidm,
+                    RawMpscorequeueLogic.INSTANCE.postPlacementToolResult(cache, liveConn, student.pidm,
                             new ArrayList<>(stexam.earnedPlacement), stexam.finish);
                 } else if (RawRecordConstants.M100T.equals(stexam.course)) {
                     if (stexam.earnedPlacement.contains(RawRecordConstants.M100C)) {
-                        RawMpscorequeueLogic.INSTANCE.postELMTutorialResult(cache, liveConn, stu.pidm, stexam.finish);
+                        RawMpscorequeueLogic.INSTANCE.postELMTutorialResult(cache, liveConn, student.pidm,
+                                stexam.finish);
                     }
                 } else {
                     String course = null;
@@ -1787,12 +1804,12 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
                     }
 
                     if (course != null && stexam.earnedPlacement.contains(course)) {
-                        RawMpscorequeueLogic.INSTANCE.postPrecalcTutorialResult(cache, liveConn, stu.pidm, course,
+                        RawMpscorequeueLogic.INSTANCE.postPrecalcTutorialResult(cache, liveConn, student.pidm, course,
                                 stexam.finish);
                     }
 
                     for (final String credit : stexam.earnedCredit) {
-                        RawMpscorequeueLogic.INSTANCE.postChallengeCredit(cache, liveConn, stu.pidm, credit,
+                        RawMpscorequeueLogic.INSTANCE.postChallengeCredit(cache, liveConn, student.pidm, credit,
                                 stexam.finish);
                     }
                 }
@@ -1855,19 +1872,22 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
             stexam.earnedPlacement.clear();
             stexam.earnedCredit.clear();
 
-            // Since we have detected an illegal challenge exam attempt, we place a hold 18
-            // on the
-            // student account. TODO: Fix hardcode
+            // Since we have detected an illegal challenge exam attempt, we place a hold 18 on the student account.
+            // TODO: Fix hardcode
             RawAdminHold hold = RawAdminHoldLogic.query(cache, stexam.studentId, "18");
 
             if (hold == null) {
                 // No hold, so create a new one
                 hold = new RawAdminHold(stexam.studentId, "18", "F", Integer.valueOf(0), LocalDate.now());
 
-                // Now that we've inserted a fatal hold, update the student record to
-                // indicate a fatal hold exists. TODO: Fix hardcode
-                if (RawAdminHoldLogic.INSTANCE.insert(cache, hold) && !"F".equals(getStudent().sevAdminHold)) {
-                    RawStudentLogic.updateHoldSeverity(cache, getStudent().stuId, "F");
+                final RawStudent student = getStudentData().getStudentRecord();
+
+                // Now that we've inserted a fatal hold, update the student record to indicate a fatal hold exists.
+                // TODO: Fix hardcode
+                if (RawAdminHoldLogic.INSTANCE.insert(cache, hold) && !"F".equals(student.sevAdminHold)) {
+                    RawStudentLogic.updateHoldSeverity(cache, student.stuId, "F");
+                    // Update cached record in place to avoid re-query
+                    student.sevAdminHold = "F";
                 }
             } else {
                 // Already a hold 18, but update its date to now
@@ -1918,11 +1938,11 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
             finishDate = stexam.finish.toLocalDate();
         }
 
-        final RawStchallenge attempt = new RawStchallenge(stexam.studentId, stexam.course,
-                stexam.examId, active.academicYear, finishDate, startTime, finishTime,
-                getStudent().lastName, getStudent().firstName, getStudent().middleInitial, null,
-                stexam.serialNumber, stexam.subtestScores.get("score"),
-                passed, howVal);
+        final RawStudent student = getStudentData().getStudentRecord();
+
+        final RawStchallenge attempt = new RawStchallenge(stexam.studentId, stexam.course, stexam.examId,
+                active.academicYear, finishDate, startTime, finishTime, student.lastName, student.firstName,
+                student.middleInitial, null, stexam.serialNumber, stexam.subtestScores.get("score"), passed, howVal);
 
         final Iterator<StudentExamAnswerRec> answers = stexam.answers.values().iterator();
 
@@ -2087,16 +2107,17 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
     private void checkForCourseCompleted(final Cache cache, final String studentId,
                                          final String courseId) throws SQLException {
 
-        Log.info("  Testing for completion of ", courseId, " by student ", getStudent().stuId);
+        final RawStudent student = getStudentData().getStudentRecord();
 
-        final LiveSessionInfo live = new LiveSessionInfo(
-                CoreConstants.newId(ISessionManager.SESSION_ID_LEN), "None", ERole.STUDENT);
-        live.setUserInfo(getStudent().stuId, getStudent().firstName, getStudent().lastName,
-                getStudent().getScreenName());
+        Log.info("  Testing for completion of ", courseId, " by student ", student.stuId);
+
+        final LiveSessionInfo live = new LiveSessionInfo(CoreConstants.newId(ISessionManager.SESSION_ID_LEN), "None",
+                ERole.STUDENT);
+        live.setUserInfo(student.stuId, student.firstName, student.lastName, student.getScreenName());
 
         final ImmutableSessionInfo session = new ImmutableSessionInfo(live);
 
         // The following call calculates the score and updates COMPLETED if needed
-        new StudentCourseStatus(this.dbProfile).gatherData(cache, session, studentId, courseId, false, false);
+        new StudentCourseStatus(cache.dbProfile).gatherData(cache, session, studentId, courseId, false, false);
     }
 }

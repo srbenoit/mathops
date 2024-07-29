@@ -1,7 +1,6 @@
 package dev.mathops.session.txn.messages;
 
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.session.txn.handlers.AbstractHandlerBase;
 
 /**
@@ -10,7 +9,7 @@ import dev.mathops.session.txn.handlers.AbstractHandlerBase;
 public abstract class AbstractRequestBase extends AbstractMessageBase {
 
     /** The ID of the machine sending the message. */
-    public String machineId;
+    public String machineId = null;
 
     /**
      * Constructs a new {@code AbstractRequestBase}.
@@ -35,8 +34,7 @@ public abstract class AbstractRequestBase extends AbstractMessageBase {
     /**
      * Generates a handler that can process this message.
      *
-     * @param dbProfile the database profile in which the handler will operate
      * @return a handler that can process the message
      */
-    public abstract AbstractHandlerBase createHandler(DbProfile dbProfile);
+    public abstract AbstractHandlerBase createHandler();
 }

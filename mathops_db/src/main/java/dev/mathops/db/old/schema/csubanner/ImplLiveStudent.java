@@ -2,8 +2,8 @@ package dev.mathops.db.old.schema.csubanner;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.DbConnection;
+import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.ifaces.ILiveStudent;

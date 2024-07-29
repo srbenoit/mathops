@@ -2,7 +2,7 @@ package dev.mathops.web.site.tutorial.elm;
 
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.logic.DateRange;
 import dev.mathops.db.old.logic.DateRangeGroups;
 import dev.mathops.db.old.logic.ELMTutorialStatus;
@@ -108,7 +108,7 @@ final class PageHome {
 
         final PrerequisiteLogic prereqLogic = new PrerequisiteLogic(cache, status.student.stuId);
 
-        if (prereqLogic.hasSatisfiedPrereqsFor(RawRecordConstants.M117)) {
+        if (prereqLogic.hasSatisfiedPrerequisitesFor(RawRecordConstants.M117)) {
 
             htm.sDiv(null, "style='margin:8pt 30pt 10pt 30pt; padding:0 8pt 4pt 8pt; "
                     + "border:3px double #004f39; background-color:#ffffc6;'");

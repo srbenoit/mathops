@@ -1,7 +1,7 @@
 package dev.mathops.session.sitelogic.data;
 
 import dev.mathops.db.logic.SystemData;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawrecord.RawCunit;
 import dev.mathops.db.old.rawrecord.RawCusection;
 import dev.mathops.db.old.rawrecord.RawExam;

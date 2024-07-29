@@ -1,7 +1,7 @@
 package dev.mathops.web.site.course;
 
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.logic.PrecalcTutorialLogic;
 import dev.mathops.db.old.logic.PrecalcTutorialStatus;

@@ -3,7 +3,7 @@ package dev.mathops.session.scramsha256;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.parser.HexEncoder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;

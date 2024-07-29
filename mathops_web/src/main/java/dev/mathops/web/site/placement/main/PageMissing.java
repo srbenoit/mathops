@@ -1,10 +1,10 @@
 package dev.mathops.web.site.placement.main;
 
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
-import dev.mathops.db.old.logic.mathplan.data.StudentData;
+import dev.mathops.db.old.logic.mathplan.data.MathPlanStudentData;
 import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
@@ -38,7 +38,7 @@ enum PageMissing {
 
         final String stuId = session.getEffectiveUserId();
         final ZonedDateTime now = session.getNow();
-        final StudentData data = logic.getStudentData(cache, stuId, now, session.loginSessionTag,
+        final MathPlanStudentData data = logic.getStudentData(cache, stuId, now, session.loginSessionTag,
                 session.actAsUserId == null);
 
         final HtmlBuilder htm = new HtmlBuilder(8192);

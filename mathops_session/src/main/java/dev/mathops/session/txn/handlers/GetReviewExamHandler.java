@@ -14,14 +14,15 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.logic.SystemData;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.logic.PlacementLogic;
 import dev.mathops.db.old.logic.PlacementStatus;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ExamWriter;
 import dev.mathops.session.sitelogic.servlet.ReviewExamEligibilityTester;
@@ -48,12 +49,10 @@ public final class GetReviewExamHandler extends AbstractHandlerBase {
 
     /**
      * Construct a new {@code GetReviewExamHandler}.
-     *
-     * @param theDbProfile the database profile under which the handler is being accessed
      */
-    public GetReviewExamHandler(final DbProfile theDbProfile) {
+    public GetReviewExamHandler() {
 
-        super(theDbProfile);
+        super();
     }
 
     /**
@@ -136,7 +135,8 @@ public final class GetReviewExamHandler extends AbstractHandlerBase {
 
             if (ok) {
                 reply.status = GetExamReply.SUCCESS;
-                reply.studentId = getStudent().stuId;
+                final StudentData studentData = getStudentData();
+                reply.studentId = studentData.getStudentId();
 
                 final HtmlBuilder reasons = new HtmlBuilder(100);
                 final List<RawAdminHold> holds = new ArrayList<>(1);
@@ -153,8 +153,7 @@ public final class GetReviewExamHandler extends AbstractHandlerBase {
                     if ("R".equals(type)) {
 
                         // We need to verify the exam and fill in the remaining fields in AvailableExam
-                        final ReviewExamEligibilityTester examtest =
-                                new ReviewExamEligibilityTester(getStudent().stuId);
+                        final ReviewExamEligibilityTester examtest = new ReviewExamEligibilityTester(reply.studentId);
 
                         eligible = examtest.isExamEligible(cache, now, avail, reasons, holds);
                         reply.masteryScore = examtest.getMasteryScore(type);
@@ -165,8 +164,8 @@ public final class GetReviewExamHandler extends AbstractHandlerBase {
                             // This exam had to be marked as EnumExamType.QUALIFYING_VAL to avoid a
                             // key duplication, but is treated as a review exam
 
-                            final ReviewExamEligibilityTester examtest =
-                                    new ReviewExamEligibilityTester(getStudent().stuId);
+                            final ReviewExamEligibilityTester examtest = new ReviewExamEligibilityTester(
+                                    reply.studentId);
 
                             eligible = examtest.isExamEligible(cache, now, avail, reasons, holds);
 
@@ -184,8 +183,9 @@ public final class GetReviewExamHandler extends AbstractHandlerBase {
                             }
                         } else {
                             try {
-                                final PlacementStatus placementStat = new PlacementLogic(cache,
-                                        getStudent().stuId, getStudent().aplnTerm, now).status;
+                                final RawStudent student = studentData.getStudentRecord();
+                                final PlacementStatus placementStat = new PlacementLogic(cache, reply.studentId,
+                                        student.aplnTerm, now).status;
 
                                 eligible = placementStat.attemptsRemaining > 0;
                             } catch (final SQLException ex) {
@@ -287,7 +287,8 @@ public final class GetReviewExamHandler extends AbstractHandlerBase {
                         reply.holds = new String[numHolds];
 
                         for (int i = 0; i < numHolds; ++i) {
-                            reply.holds[i] = RawAdminHoldLogic.getStudentMessage(holds.get(i).holdId);
+                            final RawAdminHold hold = holds.get(i);
+                            reply.holds[i] = RawAdminHoldLogic.getStudentMessage(hold.holdId);
                         }
                     }
                 } else {
@@ -354,15 +355,15 @@ public final class GetReviewExamHandler extends AbstractHandlerBase {
                 }
             }
 
-            if (exam.realize("Y".equals(getTestingCenter().isRemote),
-                    "Y".equals(getTestingCenter().isProctored), serial)) {
+            if (exam.realize("Y".equals(getTestingCenter().isRemote), "Y".equals(getTestingCenter().isProctored),
+                    serial)) {
 
                 reply.presentedExam = exam;
                 reply.status = GetExamReply.SUCCESS;
-                reply.studentId = getStudent().stuId;
+                reply.studentId = getStudentData().getStudentId();
 
-                if (!new ExamWriter().writePresentedExam(getStudent().stuId, term, reply.presentedExam,
-                        reply.toXml())) {
+                final String xml = reply.toXml();
+                if (!new ExamWriter().writePresentedExam(reply.studentId, term, reply.presentedExam, xml)) {
                     Log.warning("Unable to cache ", ref);
                     reply.status = GetExamReply.CANNOT_REALIZE_EXAM;
                 }

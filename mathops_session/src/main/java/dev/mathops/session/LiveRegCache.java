@@ -2,8 +2,8 @@ package dev.mathops.session;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.DbConnection;
+import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
 import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.rawlogic.AbstractLogicModule;

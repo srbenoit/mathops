@@ -9,9 +9,9 @@ import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.ChangeUI;
 import dev.mathops.db.logic.SystemData;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.old.DbConnection;
+import dev.mathops.db.DbConnection;
 import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
@@ -318,8 +318,7 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
             final DbConnection conn = ctx.checkOutConnection();
             final Cache cache = new Cache(this.dbProfile, conn);
             try {
-                final List<RawClientPc> clients =
-                        RawClientPcLogic.queryByTestingCenter(cache, this.centerId);
+                final List<RawClientPc> clients = RawClientPcLogic.queryByTestingCenter(cache, this.centerId);
 
                 for (final RawClientPc client : clients) {
                     final String usage = client.pcUsage;

@@ -2,11 +2,12 @@ package dev.mathops.session.txn.handlers;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawClientPc;
+import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.txn.messages.AbstractRequestBase;
 import dev.mathops.session.txn.messages.TestingStationStatusReply;
 import dev.mathops.session.txn.messages.TestingStationStatusRequest;
@@ -22,12 +23,10 @@ public final class TestingStationStatusHandler extends AbstractHandlerBase {
 
     /**
      * Construct a new {@code TestingStationStatusHandler}.
-     *
-     * @param theDbProfile the database profile under which the handler is being accessed
      */
-    public TestingStationStatusHandler(final DbProfile theDbProfile) {
+    public TestingStationStatusHandler() {
 
-        super(theDbProfile);
+        super();
     }
 
     /**
@@ -56,8 +55,8 @@ public final class TestingStationStatusHandler extends AbstractHandlerBase {
                 result = reply.toXml();
             }
         } else {
-            Log.warning("TestingStationStatusHandler called with ",
-                    message.getClass().getName());
+            final String clsName = message.getClass().getName();
+            Log.warning("TestingStationStatusHandler called with ", clsName);
 
             final TestingStationStatusReply reply = new TestingStationStatusReply();
             reply.error = "Invalid request type for testing station status request";
@@ -79,7 +78,10 @@ public final class TestingStationStatusHandler extends AbstractHandlerBase {
         final TestingStationStatusReply reply = new TestingStationStatusReply();
 
         // Query client computer to obtain the status information
-        final RawClientPc pc = RawClientPcLogic.query(cache, getMachineId());
+        final String machineId = getMachineId();
+        final SystemData systemData = cache.getSystemData();
+
+        final RawClientPc pc = systemData.getClientPc(machineId);
 
         if (pc == null) {
             reply.error = "Unable to query testing station status.";
@@ -95,21 +97,19 @@ public final class TestingStationStatusHandler extends AbstractHandlerBase {
                 reply.studentId = "GROUP";
             } else if (pc.currentStuId != null) {
 
-                setStudent(RawStudentLogic.query(cache, pc.currentStuId, false));
+                final StudentData studentData = cache.setLoggedInUser(pc.currentStuId);
+                final RawStudent student = studentData.getStudentRecord();
 
-                if (getStudent() == null) {
+                if (student == null) {
                     reply.error = "Unable to query student information.";
-                    setStudent(null);
                 } else {
                     reply.studentId = pc.currentStuId;
-                    reply.studentName =
-                            getStudent().prefName + CoreConstants.SPC + getStudent().lastName;
+                    reply.studentName = student.prefName + CoreConstants.SPC + student.lastName;
                 }
             }
 
             if (RawClientPc.POWER_TURNING_ON.equals(pc.powerStatus)) {
-                RawClientPcLogic.updatePowerStatus(cache, getMachineId(),
-                        RawClientPc.POWER_REPORTING_ON);
+                RawClientPcLogic.updatePowerStatus(cache, machineId, RawClientPc.POWER_REPORTING_ON);
             }
         }
 

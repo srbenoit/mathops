@@ -2,7 +2,7 @@ package dev.mathops.web.site.tutorial.precalc;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.SystemData;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawCunit;

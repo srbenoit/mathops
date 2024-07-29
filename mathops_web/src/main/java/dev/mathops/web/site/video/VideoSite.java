@@ -3,17 +3,17 @@ package dev.mathops.web.site.video;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
@@ -79,10 +79,11 @@ public final class VideoSite extends AbstractSite {
             // Used by MATH 160 and 161 course videos
             doVideo(req, resp);
         } else if (subpath.startsWith("lessons/")) {
-            final String fname = subpath.substring(8);
-            serveLesson(fname, req, resp);
+            final String filename = subpath.substring(8);
+            serveLesson(filename, req, resp);
         } else {
-            Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
+            final String msg = Res.fmt(Res.UNRECOGNIZED_PATH, subpath);
+            Log.warning(msg);
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
     }
@@ -101,7 +102,8 @@ public final class VideoSite extends AbstractSite {
     public void doPost(final Cache cache, final String subpath, final ESiteType type,
                        final HttpServletRequest req, final HttpServletResponse resp) throws IOException {
 
-        Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
+        final String msg = Res.fmt(Res.UNRECOGNIZED_PATH, subpath);
+        Log.warning(msg);
         resp.sendError(HttpServletResponse.SC_NOT_FOUND);
     }
 
@@ -126,8 +128,7 @@ public final class VideoSite extends AbstractSite {
      * @param resp the response
      * @throws IOException if there is an error writing the response
      */
-    private static void doVideo(final ServletRequest req, final HttpServletResponse resp)
-            throws IOException {
+    private static void doVideo(final ServletRequest req, final HttpServletResponse resp) throws IOException {
 
         final String mediaId = req.getParameter("media-id");
         final String course = req.getParameter("course");
@@ -135,10 +136,10 @@ public final class VideoSite extends AbstractSite {
         final String id = req.getParameter("id");
         final String width = req.getParameter("width");
 
-        if (AbstractSite.isParamInvalid(dir) || AbstractSite.isParamInvalid(id)
-                || AbstractSite.isParamInvalid(width) || AbstractSite.isParamInvalid(course)
-                || AbstractSite.isParamInvalid(mediaId)) {
-            Log.warning(Res.get(Res.BAD_PARAMETERS));
+        if (isParamInvalid(dir) || isParamInvalid(id) || isParamInvalid(width) || isParamInvalid(course)
+                || isParamInvalid(mediaId)) {
+            final String msg = Res.get(Res.BAD_PARAMETERS);
+            Log.warning(msg);
             Log.warning("  dir='", dir, "'");
             Log.warning("  id='", id, "'");
             Log.warning("  width='", width, "'");
@@ -160,34 +161,19 @@ public final class VideoSite extends AbstractSite {
                     .addln("<head>")
                     .addln(" <meta charset='utf-8'>")
                     .addln(" <meta http-equiv='X-UA-Compatible' content='IE=edge'/>")
-                    .addln(" <meta http-equiv='Content-Type' ",
-                            "content='text/html;charset=utf-8'/>")
-
-                    .addln("<script async src='https://www.googletagmanager.com/gtag/js?",
-                            "id=G-JTNEG80W4C'></script>")
-                    .addln("<script>")
-                    .addln("window.dataLayer = window.dataLayer || [];")
-                    .addln("function gtag(){dataLayer.push(arguments);}")
-                    .addln("gtag('js', new Date());")
-                    .addln("gtag('config', 'G-JTNEG80W4C');")
-                    .addln("</script>")
-
+                    .addln(" <meta http-equiv='Content-Type' content='text/html;charset=utf-8'/>")
                     .addln(" <title>Department of Mathematics - Colorado State University</title>")
                     .addln("</head>")
                     .addln("<body style='padding:0;margin:0;'>")
                     .addln("<div style='width:100vw;height:100vh;'>")
-                    .addln("<video style='", style,
-                            "' controls='controls' poster='", STREAM, dir,
-                            "/poster/", id, ".png'>")
-                    .addln(" <source src='", STREAM, dir, "/mp4/", id,
-                            ".mp4' type='video/mp4'/>")
-                    .addln(" <source src='", STREAM, dir, "/webm/", id,
-                            ".webm' type='video/webm'/>")
-                    .addln(" <source src='", STREAM, dir, "/ogv/", id,
-                            ".ogv' type='video/ogg'/>")
+                    .addln("<video style='", style, "' controls='controls' poster='", STREAM, dir, "/poster/", id,
+                            ".png'>")
+                    .addln(" <source src='", STREAM, dir, "/mp4/", id, ".mp4' type='video/mp4'/>")
+                    .addln(" <source src='", STREAM, dir, "/webm/", id, ".webm' type='video/webm'/>")
+                    .addln(" <source src='", STREAM, dir, "/ogv/", id, ".ogv' type='video/ogg'/>")
                     .addln(" <track  src='", STREAM, dir, "/vtt/", id,
                             ".vtt' kind='subtitles' srclang='en' label='English' default/>")
-                    .addln(Res.get(Res.VIDEO_NOT_SUPP)) //
+                    .addln(Res.get(Res.VIDEO_NOT_SUPP))
                     .addln("</video>")
                     .addln("</div>")
                     .addln("</body>")
@@ -195,7 +181,8 @@ public final class VideoSite extends AbstractSite {
 
             final String reply = htm.toString();
 
-            sendReply(req, resp, Page.MIME_TEXT_HTML, reply.getBytes(StandardCharsets.UTF_8));
+            final byte[] bytes = reply.getBytes(StandardCharsets.UTF_8);
+            sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
         } else {
             // For the tutorial courses, we don't want to force duplication of the video files in a
             // new directory, so map those course numbers to the corresponding non-tutorial courses
@@ -218,18 +205,7 @@ public final class VideoSite extends AbstractSite {
                     .addln("<head>")
                     .addln(" <meta charset='utf-8'>")
                     .addln(" <meta http-equiv='X-UA-Compatible' content='IE=edge'/>")
-                    .addln(" <meta http-equiv='Content-Type' ",
-                            "content='text/html;charset=utf-8'/>")
-
-                    .addln("<script async src='https://www.googletagmanager.com/gtag/js?",
-                            "id=G-JTNEG80W4C'></script>")
-                    .addln("<script>")
-                    .addln("window.dataLayer = window.dataLayer || [];")
-                    .addln("function gtag(){dataLayer.push(arguments);}")
-                    .addln("gtag('js', new Date());")
-                    .addln("gtag('config', 'G-JTNEG80W4C');")
-                    .addln("</script>")
-
+                    .addln(" <meta http-equiv='Content-Type' content='text/html;charset=utf-8'/>")
                     .addln(" <title>Department of Mathematics - Colorado State University</title>")
                     .addln("</head>")
                     .addln("<body style='padding:0;margin:0;'>");
@@ -241,43 +217,36 @@ public final class VideoSite extends AbstractSite {
             } else {
                 htm.addln("<script>");
                 htm.addln(" function showReportError() {");
-                htm.addln("  document.getElementById('error_rpt_link')",
-                        ".className='hidden';");
-                htm.addln("  document.getElementById('error_rpt')",
-                        ".className='visible';");
+                htm.addln("  document.getElementById('error_rpt_link').className='hidden';");
+                htm.addln("  document.getElementById('error_rpt').className='visible';");
                 htm.addln(" }");
                 htm.addln("</script>");
 
                 htm.sDiv("indent11");
 
-                htm.addln("<video ", "M160".equals(actualCourse)
-                                ? "width='1024' height='768'"
-                                : "width='640' height='480'",
+                final boolean is160 = "M160".equals(actualCourse);
+
+                htm.addln("<video ", (is160 ? "width='1024' height='768'" : "width='640' height='480'"),
                         " controls='controls' autoplay='autoplay'>");
-                htm.addln(" <source src='", STREAM, direct, "/mp4/",
-                        mediaId, ".mp4' type='video/mp4'/>");
-                htm.addln(" <source src='", STREAM, direct, "/ogv/",
-                        mediaId, ".ogv' type='video/ogg'/>");
-                htm.addln(" <track src='/www/math/", direct, "/vtt/",
-                        mediaId, ".vtt' kind='subtitles' srclang='en' ",
+                htm.addln(" <source src='", STREAM, direct, "/mp4/", mediaId, ".mp4' type='video/mp4'/>");
+                htm.addln(" <source src='", STREAM, direct, "/ogv/", mediaId, ".ogv' type='video/ogg'/>");
+                htm.addln(" <track src='/www/math/", direct, "/vtt/", mediaId, ".vtt' kind='subtitles' srclang='en' ",
                         "label='English' default='default'/>");
                 htm.addln(" Your browser does not support inline video.");
                 htm.addln("</video>");
 
-                htm.addln("<div><a href='/math/", direct,
-                        "/transcripts/", mediaId, ".pdf'>",
-                        "Access a plain-text transcript for screen-readers (Adobe PDF).", //
-                        "</a></div>");
+                htm.addln("<div><a href='/math/", direct, "/transcripts/", mediaId, ".pdf'>",
+                        "Access a plain-text transcript for screen-readers (Adobe PDF).</a></div>");
 
                 htm.sDiv().add("<a href='", STREAM, direct, "/pdf/",
                         mediaId, ".pdf'>Access a static (Adobe PDF) version.</a>").eDiv();
             }
 
-            htm.addln("</body>")
-                    .addln("</html>");
+            htm.addln("</body>").addln("</html>");
 
-            AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML,
-                    htm.toString().getBytes(StandardCharsets.UTF_8));
+            final String htmStr = htm.toString();
+            final byte[] bytes = htmStr.getBytes(StandardCharsets.UTF_8);
+            sendReply(req, resp, MIME_TEXT_HTML, bytes);
         }
     }
 }

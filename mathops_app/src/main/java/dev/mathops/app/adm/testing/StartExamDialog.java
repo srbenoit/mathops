@@ -4,8 +4,8 @@ import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.Cache;
 import dev.mathops.db.logic.SystemData;
-import dev.mathops.db.old.Cache;
 import dev.mathops.db.old.logic.ChallengeExamLogic;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
 import dev.mathops.db.old.rawlogic.RawPaceAppealsLogic;
@@ -49,7 +49,7 @@ import java.util.List;
  * This dialog asks whether to issue in the regular center or in quiet testing, reminds the user of any accommodations
  * the student has, and allows an office calculator be issued as well.
  */
-class StartExamDialog extends JDialog implements ActionListener {
+final class StartExamDialog extends JDialog implements ActionListener {
 
     /** Version for serialization. */
     @Serial
@@ -96,9 +96,8 @@ class StartExamDialog extends JDialog implements ActionListener {
      * @param theExamId           the exam ID
      * @param theCheckEligibility true if the testing station should check eligibility; false if not
      */
-    StartExamDialog(final Cache theCache, final Frame frame, final String theStudentId,
-                    final String theCourseId, final int theUnit, final String theExamId,
-                    final boolean theCheckEligibility) {
+    StartExamDialog(final Cache theCache, final Frame frame, final String theStudentId, final String theCourseId,
+                    final int theUnit, final String theExamId, final boolean theCheckEligibility) {
 
         super(frame, "Issue Exam", ModalityType.APPLICATION_MODAL);
 
@@ -128,15 +127,14 @@ class StartExamDialog extends JDialog implements ActionListener {
 
         final Rectangle outer = frame.getBounds();
         final Dimension size = getSize();
-        setLocation(outer.x + (outer.width - size.width) / 2,
-                outer.y + (outer.height - size.height) / 2);
+        setLocation(outer.x + (outer.width - size.width) / 2, outer.y + (outer.height - size.height) / 2);
     }
 
     /**
      * Creates a header panel that shows the name of the exam being started.
      *
-     * @param course           the course
-     * @param unit             the unit
+     * @param course the course
+     * @param unit   the unit
      * @return the panel
      */
     private static JPanel makeHeader(final String course, final int unit) {
@@ -368,9 +366,11 @@ class StartExamDialog extends JDialog implements ActionListener {
      */
     private JPanel makeButtonBar() {
 
-        final JPanel bar = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 8));
-        bar.setBackground(Skin.LIGHTEST);
-        bar.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Skin.MEDIUM));
+        final JPanel result = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 8));
+
+        result.setBackground(Skin.LIGHTEST);
+        final MatteBorder matteBorder = BorderFactory.createMatteBorder(1, 0, 0, 0, Skin.MEDIUM);
+        result.setBorder(matteBorder);
 
         final JButton cancel = new JButton("Cancel");
         cancel.setFont(Skin.BIG_BUTTON_16_FONT);
@@ -381,10 +381,10 @@ class StartExamDialog extends JDialog implements ActionListener {
         this.issue.setActionCommand(CMD_ISSUE);
         this.issue.addActionListener(this);
 
-        bar.add(cancel);
-        bar.add(this.issue);
+        result.add(cancel);
+        result.add(this.issue);
 
-        return bar;
+        return result;
     }
 
     /**
@@ -399,14 +399,15 @@ class StartExamDialog extends JDialog implements ActionListener {
 
         if (CMD_ISSUE.equals(cmd)) {
             // Identify testing center
-            final String tcId = this.quietTesting.isSelected() ? "4"
-                    : "1";
+            final String tcId = this.quietTesting.isSelected() ? "4" : "1";
+
+            final SystemData systemData = this.cache.getSystemData();
 
             // Select a computer
             RawClientPc selected = null;
             List<RawClientPc> pcs;
             try {
-                pcs = RawClientPcLogic.queryByTestingCenter(this.cache, tcId);
+                pcs = systemData.getClientPcsByTestingCenter(tcId);
             } catch (final SQLException ex) {
                 Log.warning("Failed to query available PCs", ex);
                 pcs = new ArrayList<>(0);
@@ -422,10 +423,11 @@ class StartExamDialog extends JDialog implements ActionListener {
                 JOptionPane.showMessageDialog(this, "Unable to find an open computer.");
             } else {
                 try {
+                    final Integer unitObj = Integer.valueOf(this.unit);
                     if (RawClientPcLogic.updateAllCurrent(this.cache, selected.computerId,
-                            this.checkEligibility ? RawClientPc.STATUS_AWAIT_STUDENT
-                                    : RawClientPc.STATUS_LOGIN_NOCHECK,
-                            this.studentId, this.courseId, Integer.valueOf(this.unit), this.examId)) {
+                            this.checkEligibility ? RawClientPc.STATUS_AWAIT_STUDENT : RawClientPc.STATUS_LOGIN_NOCHECK,
+                            this.studentId, this.courseId, unitObj, this.examId)) {
+                        systemData.forgetClientPcs();
 
                         setVisible(false);
                         dispose();

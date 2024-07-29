@@ -1,8 +1,7 @@
 package dev.mathops.session.txn.handlers;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.Cache;
 import dev.mathops.session.txn.messages.AbstractRequestBase;
 import dev.mathops.session.txn.messages.EchoReply;
 import dev.mathops.session.txn.messages.EchoRequest;
@@ -16,12 +15,10 @@ public final class EchoHandler extends AbstractHandlerBase {
 
     /**
      * Constructs a new {@code EchoHandler}.
-     *
-     * @param theDbProfile the database profile under which the handler is being accessed
      */
-    public EchoHandler(final DbProfile theDbProfile) {
+    public EchoHandler() {
 
-        super(theDbProfile);
+        super();
     }
 
     /**
@@ -38,9 +35,9 @@ public final class EchoHandler extends AbstractHandlerBase {
 
         final EchoReply reply = new EchoReply();
 
-        // Validate the type of request
         if (!(message instanceof EchoRequest)) {
-            Log.info("EchoHandler called with ", message.getClass().getName());
+            final String clsName = message.getClass().getName();
+            Log.warning("EchoHandler called with ", clsName);
             reply.error = "Invalid request type for echo request";
         }
 

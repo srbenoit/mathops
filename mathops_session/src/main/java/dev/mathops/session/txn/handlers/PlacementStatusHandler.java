@@ -2,8 +2,7 @@ package dev.mathops.session.txn.handlers;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawrecord.RawMpeCredit;
 import dev.mathops.session.txn.messages.AbstractRequestBase;
@@ -22,12 +21,10 @@ public final class PlacementStatusHandler extends AbstractHandlerBase {
 
     /**
      * Construct a new {@code PlacementStatusHandler}.
-     *
-     * @param theDbProfile the database profile under which the handler is being accessed
      */
-    public PlacementStatusHandler(final DbProfile theDbProfile) {
+    public PlacementStatusHandler() {
 
-        super(theDbProfile);
+        super();
     }
 
     /**
@@ -46,11 +43,11 @@ public final class PlacementStatusHandler extends AbstractHandlerBase {
 
         final String result;
 
-        // Validate the type of request
         if (message instanceof final PlacementStatusRequest request) {
             result = processRequest(cache, request);
         } else {
-            Log.info("PlacementStatusHandler called with ", message.getClass().getName());
+            final String clsName = message.getClass().getName();
+            Log.info("PlacementStatusHandler called with ", clsName);
 
             final PlacementStatusReply reply = new PlacementStatusReply();
             reply.error = "Invalid request type for placement status request";
@@ -90,7 +87,8 @@ public final class PlacementStatusHandler extends AbstractHandlerBase {
      */
     private void populatePlacementStatus(final Cache cache, final PlacementStatusReply reply) throws SQLException {
 
-        final List<RawMpeCredit> credits = RawMpeCreditLogic.queryByStudent(cache, getStudent().stuId);
+        final String studentId = getStudentData().getStudentId();
+        final List<RawMpeCredit> credits = RawMpeCreditLogic.queryByStudent(cache, studentId);
         final int numCredits = credits.size();
 
         // Determine the number that have "C" or "P" results.

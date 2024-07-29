@@ -7,7 +7,7 @@ import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.commons.ui.layout.AlignedFlowLayout;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStmathplan;

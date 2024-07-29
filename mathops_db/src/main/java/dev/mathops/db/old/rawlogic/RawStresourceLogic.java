@@ -1,8 +1,8 @@
 package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.commons.builder.SimpleBuilder;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.DbConnection;
+import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
 import dev.mathops.db.old.rawrecord.RawStresource;
 
 import java.sql.ResultSet;

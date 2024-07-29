@@ -7,8 +7,8 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawClientPcLogic;
+import dev.mathops.db.Cache;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawrecord.RawClientPc;
 import dev.mathops.session.scramsha256.ScramClientStub;
 
@@ -453,7 +453,8 @@ public final class TopPanelTesting extends JPanel implements ActionListener {
         final int numStations = stationIds.length;
         final RawClientPc[] result = new RawClientPc[numStations];
 
-        final List<RawClientPc> stations = RawClientPcLogic.INSTANCE.queryAll(this.cache);
+        final SystemData systemData = this.cache.getSystemData();
+        final List<RawClientPc> stations = systemData.getClientPcs();
 
         for (int i = 0; i < numStations; ++i) {
             for (final RawClientPc station : stations) {

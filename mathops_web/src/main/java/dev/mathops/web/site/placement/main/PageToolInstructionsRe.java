@@ -2,7 +2,7 @@ package dev.mathops.web.site.placement.main;
 
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.logic.DateRange;
 import dev.mathops.db.old.logic.DateRangeGroups;
 import dev.mathops.db.old.logic.PlacementLogic;

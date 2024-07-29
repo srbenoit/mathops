@@ -1,10 +1,8 @@
 package dev.mathops.session.txn.handlers;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.rawlogic.RawClientPcLogic;
-import dev.mathops.db.old.rawlogic.RawTestingCenterLogic;
+import dev.mathops.db.Cache;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawrecord.RawClientPc;
 import dev.mathops.db.old.rawrecord.RawTestingCenter;
 import dev.mathops.session.txn.messages.AbstractRequestBase;
@@ -23,12 +21,10 @@ public final class TestingStationInfoHandler extends AbstractHandlerBase {
 
     /**
      * Construct a new {@code TestingStationInfoHandler}.
-     *
-     * @param theDbProfile the database profile under which the handler is being accessed
      */
-    public TestingStationInfoHandler(final DbProfile theDbProfile) {
+    public TestingStationInfoHandler() {
 
-        super(theDbProfile);
+        super();
     }
 
     /**
@@ -46,9 +42,7 @@ public final class TestingStationInfoHandler extends AbstractHandlerBase {
 
         String result;
 
-        // Validate the type of request
         if (message instanceof TestingStationInfoRequest) {
-
             try {
                 result = processRequest(cache);
             } catch (final SQLException ex) {
@@ -58,8 +52,8 @@ public final class TestingStationInfoHandler extends AbstractHandlerBase {
                 result = reply.toXml();
             }
         } else {
-            Log.info("TestingStationInfoHandler called with ",
-                    message.getClass().getName());
+            final String clsName = message.getClass().getName();
+            Log.info("TestingStationInfoHandler called with ", clsName);
 
             final TestingStationInfoReply reply = new TestingStationInfoReply();
             reply.error = "Invalid request type for testing station info request";
@@ -80,18 +74,19 @@ public final class TestingStationInfoHandler extends AbstractHandlerBase {
 
         final TestingStationInfoReply reply = new TestingStationInfoReply();
 
-        // Query client computer to obtain the information
-        final RawClientPc pc = RawClientPcLogic.query(cache, getMachineId());
+        final String machineId = getMachineId();
+        final SystemData systemData = cache.getSystemData();
+
+        final RawClientPc pc = systemData.getClientPc(machineId);
 
         if (pc == null) {
             reply.error = "Unable to query client computer record.";
         } else if (pc.testingCenterId != null) {
 
-            final RawTestingCenter center = RawTestingCenterLogic.query(cache, pc.testingCenterId);
+            final RawTestingCenter center = systemData.getTestingCenter(pc.testingCenterId);
 
             if (center == null) {
-                Log.warning("Unable to query for testing center ",
-                        pc.testingCenterId);
+                Log.warning("Unable to query for testing center ", pc.testingCenterId);
                 reply.error = "This station is not in a valid testing center";
             } else {
                 reply.testingCenterName = center.tcName;
@@ -100,8 +95,7 @@ public final class TestingStationInfoHandler extends AbstractHandlerBase {
                 reply.status = pc.currentStatus;
             }
         } else {
-            Log.warning("Test station ", reply.stationNumber,
-                    " info - station not valid");
+            Log.warning("Test station ", reply.stationNumber, " info - station not valid");
             reply.error = "This station is not in a valid testing center";
         }
 

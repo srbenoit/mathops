@@ -1,7 +1,7 @@
 package dev.mathops.app.ops.snapin.messaging.epf;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;

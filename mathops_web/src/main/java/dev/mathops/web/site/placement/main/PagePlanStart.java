@@ -1,13 +1,13 @@
 package dev.mathops.web.site.placement.main;
 
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
-import dev.mathops.db.old.logic.mathplan.data.StudentData;
+import dev.mathops.db.old.logic.mathplan.data.MathPlanStudentData;
 import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
@@ -65,7 +65,7 @@ enum PagePlanStart {
                               final MathPlanLogic logic) throws IOException, SQLException {
 
         final String stuId = session.getEffectiveUserId();
-        final StudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
+        final MathPlanStudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
                 session.actAsUserId == null);
 
         final HtmlBuilder htm = new HtmlBuilder(8192);
@@ -96,7 +96,7 @@ enum PagePlanStart {
      * @param htm  the {@code HtmlBuilder} to which to append
      * @param data student math plan data
      */
-    private static void emitPlanSteps(final HtmlBuilder htm, final StudentData data) {
+    private static void emitPlanSteps(final HtmlBuilder htm, final MathPlanStudentData data) {
 
         final Map<Integer, RawStmathplan> majorResponses = data.getMajorProfileResponses();
         final boolean viewedExisting = data.viewedExisting;
@@ -236,7 +236,7 @@ enum PagePlanStart {
         if (session.actAsUserId == null) {
             final String studentId = session.getEffectiveUserId();
 
-            final StudentData data = logic.getStudentData(cache, studentId, now, session.loginSessionTag,
+            final MathPlanStudentData data = logic.getStudentData(cache, studentId, now, session.loginSessionTag,
                     true);
 
             if (req.getParameter(INPUT_NAME) != null) {

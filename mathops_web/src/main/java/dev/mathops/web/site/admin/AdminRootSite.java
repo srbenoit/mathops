@@ -1,7 +1,7 @@
 package dev.mathops.web.site.admin;
 
 import dev.mathops.commons.file.FileLoader;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.web.site.AbstractSite;

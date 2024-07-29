@@ -4,8 +4,8 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.Cache;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.old.rawlogic.RawStsurveyqaLogic;
 import dev.mathops.db.old.rawrecord.RawStsurveyqa;
 import dev.mathops.session.txn.messages.AbstractRequestBase;
@@ -24,12 +24,10 @@ public final class SurveySubmitHandler extends AbstractHandlerBase {
 
     /**
      * Construct a new {@code SurveySubmitHandler}.
-     *
-     * @param theDbProfile the database profile under which the handler is being accessed
      */
-    public SurveySubmitHandler(final DbProfile theDbProfile) {
+    public SurveySubmitHandler() {
 
-        super(theDbProfile);
+        super();
     }
 
     /**
@@ -47,11 +45,11 @@ public final class SurveySubmitHandler extends AbstractHandlerBase {
 
         final String result;
 
-        // Validate the type of request
         if (message instanceof final SurveySubmitRequest request) {
             result = processRequest(cache, request);
         } else {
-            Log.info("SurveySubmitHandler called with ", message.getClass().getName());
+            final String clsName = message.getClass().getName();
+            Log.info("SurveySubmitHandler called with ", clsName);
 
             final SurveySubmitReply reply = new SurveySubmitReply();
             reply.error = "Invalid request type for survey submission request";
@@ -83,7 +81,10 @@ public final class SurveySubmitHandler extends AbstractHandlerBase {
                 if (loadStudentInfo(cache, request.studentId, reply)) {
                     LogBase.setSessionInfo("TXN", request.studentId);
 
-                    storeAnswers(cache, request.version, request.answers, reply, getStudent().stuId);
+                    final StudentData studentData = getStudentData();
+                    final String stuId = studentData.getStudentId();
+
+                    storeAnswers(cache, request.version, request.answers, reply, stuId);
                 }
             } catch (final SQLException ex) {
                 Log.warning(ex);

@@ -4,7 +4,7 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.SystemData;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
 import dev.mathops.db.old.logic.StandardsMasteryLogic;
 import dev.mathops.db.old.rawlogic.RawStchallengeLogic;
@@ -237,7 +237,7 @@ final class LogicCheckInCourseExams {
                 }
             }
 
-            if (!prereqLogic.hasSatisfiedPrereqsFor(oldCourseId)) {
+            if (!prereqLogic.hasSatisfiedPrerequisitesFor(oldCourseId)) {
                 indicateExamUnavailable(status, "Needs Prereq.", enforceEligibility);
             }
         }

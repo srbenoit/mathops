@@ -1,13 +1,13 @@
 package dev.mathops.app.checkin;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.DbConnection;
+import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.logic.ChallengeExamLogic;
-import dev.mathops.db.old.rawlogic.RawClientPcLogic;
 import dev.mathops.db.old.rawrecord.RawClientPc;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.font.BundledFontManager;
@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A panel to appear in the center of the check-in application. This panel displays a map of the testing center,
- * showing the status of all stations, and is used for buttons when selecting course/unit for exams.
+ * A panel to appear in the center of the check-in application. This panel displays a map of the testing center, showing
+ * the status of all stations, and is used for buttons when selecting course/unit for exams.
  */
 final class CenterPanel extends JPanel implements ActionListener, Runnable {
 
@@ -236,7 +236,6 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable {
 
         // NOTE: Runs in the AWT event thread.
 
-
         // Divide the screen into a 7x6 grid.
         final int width = getWidth();
         final int height = getHeight();
@@ -394,10 +393,10 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable {
     /**
      * Updates the buttons associated with a single course.
      *
-     * @param exams the exams data for that course
+     * @param exams     the exams data for that course
      * @param tagPrefix the tag prefix used to obtain the course's buttons
      */
-    private void updateCourseButtons( final DataCourseExams exams, final String tagPrefix) {
+    private void updateCourseButtons(final DataCourseExams exams, final String tagPrefix) {
 
         final String keyUnit1 = tagPrefix + "-1";
         final String keyUnit2 = tagPrefix + "-2";
@@ -715,9 +714,11 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable {
             try {
                 final DbConnection conn = ctx.checkOutConnection();
                 final Cache cache = new Cache(this.dbProfile, conn);
+
+                final SystemData systemData = cache.getSystemData();
+
                 try {
-                    final List<RawClientPc> stations = RawClientPcLogic.queryByTestingCenter(cache,
-                            this.testingCenterId);
+                    final List<RawClientPc> stations = systemData.getClientPcsByTestingCenter(this.testingCenterId);
                     this.map.updateTestingStations(stations);
                     repaint();
                 } finally {

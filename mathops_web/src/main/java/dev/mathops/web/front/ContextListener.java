@@ -6,10 +6,10 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LoggingSubsystem;
 import dev.mathops.web.cron.Cron;
 import dev.mathops.web.cron.CronJobs;
-
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
+
 import java.io.File;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -22,10 +22,10 @@ import java.util.concurrent.TimeUnit;
 public final class ContextListener implements ServletContextListener { // Public so Tomcat can see it...
 
     /** The installation. */
-    private Installation installation;
+    private Installation installation = null;
 
     /** The scheduler. */
-    private ScheduledExecutorService scheduler;
+    private ScheduledExecutorService scheduler = null;
 
     /**
      * Constructs a new {@code ContextListener}.
@@ -37,11 +37,13 @@ public final class ContextListener implements ServletContextListener { // Public
 
     /**
      * Called when the context is initialized.
+     *
+     * @param sce the servlet context event
      */
     @Override
-    public void contextInitialized(final ServletContextEvent servletContextEvent) {
+    public void contextInitialized(final ServletContextEvent sce) {
 
-        final ServletContext ctx = servletContextEvent.getServletContext();
+        final ServletContext ctx = sce.getServletContext();
 
         // Gather enough information to configure logging before logging anything
         final String baseDir = ctx.getInitParameter("zircon-base-dir");
@@ -52,15 +54,17 @@ public final class ContextListener implements ServletContextListener { // Public
         this.installation = Installations.get().getInstallation(baseFile, cfgFile);
         LoggingSubsystem.setInstallation(this.installation);
 
-        Log.info(Res.get(Res.CONTEXT_INITIALIZING), ctx.getServerInfo());
-        Log.config(Res.get(Res.BASE_DIR), baseDir);
-        Log.config(Res.get(Res.CFG_FILE), cfgFile);
+        final String initializintMsg = Res.get(Res.CONTEXT_INITIALIZING);
+        final String serverInfo = ctx.getServerInfo();
+        Log.info(initializintMsg, serverInfo);
+
+        final String baseDirMsg = Res.get(Res.BASE_DIR);
+        Log.config(baseDirMsg, baseDir);
+
+        final String configFileMsg = Res.get(Res.CFG_FILE);
+        Log.config(configFileMsg, cfgFile);
 
         ctx.setAttribute("Installation", this.installation);
-
-        // final ServerInstance instance = //
-        ServerInstance.get(this.installation);
-        // Log.config(CoreConstants.SPC, instance.toString());
 
         this.scheduler = Executors.newSingleThreadScheduledExecutor();
         final Cron cron = Cron.getInstance();
@@ -68,22 +72,28 @@ public final class ContextListener implements ServletContextListener { // Public
 
         if ("true".equalsIgnoreCase(reports)) {
             cron.registerJob(new CronJobs());
-            Log.info(Res.get(Res.REPORTS_ENABLED));
+            final String reportsMsg = Res.get(Res.REPORTS_ENABLED);
+            Log.info(reportsMsg);
         }
 
-        Log.info(Res.get(Res.CONTEXT_INITIALIZED));
+        final String initializedMsg = Res.get(Res.CONTEXT_INITIALIZED);
+        Log.info(initializedMsg);
     }
 
     /**
      * Called when the context is destroyed.
+     *
+     * @param sce the servlet context event
      */
     @Override
-    public void contextDestroyed(final ServletContextEvent servletContextEvent) {
+    public void contextDestroyed(final ServletContextEvent sce) {
 
-        Log.info(Res.get(Res.CRON_TERMINATING));
+        final String cronEndingMsg = Res.get(Res.CRON_TERMINATING);
+        Log.info(cronEndingMsg);
         this.scheduler.shutdownNow();
 
-        Log.info(Res.get(Res.CONTEXT_DESTROYED));
+        final String descroyedMsg = Res.get(Res.CONTEXT_DESTROYED);
+        Log.info(descroyedMsg);
         this.installation = null;
     }
 }

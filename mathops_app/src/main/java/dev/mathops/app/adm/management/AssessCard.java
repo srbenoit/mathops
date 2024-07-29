@@ -3,7 +3,7 @@ package dev.mathops.app.adm.management;
 import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawrecord.RawCourse;
 
 import javax.swing.BorderFactory;

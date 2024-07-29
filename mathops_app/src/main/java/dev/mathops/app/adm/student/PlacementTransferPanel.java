@@ -6,7 +6,7 @@ import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;

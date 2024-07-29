@@ -2,7 +2,6 @@ package dev.mathops.session.txn.messages;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.session.txn.handlers.AbstractHandlerBase;
 import dev.mathops.session.txn.handlers.UpdateExamHandler;
 
@@ -21,10 +20,10 @@ public final class UpdateExamRequest extends AbstractRequestBase {
     public final Long presentationTime;
 
     /** The timestamp when the update was generated. */
-    public Long updateTime;
+    public Long updateTime = null;
 
     /** An array of answers. */
-    private Object[][] answers;
+    private Object[][] answers = null;
 
     /** True if exam is being submitted for grading; false otherwise. */
     public final boolean finalize;
@@ -36,7 +35,7 @@ public final class UpdateExamRequest extends AbstractRequestBase {
     public final boolean proctored;
 
     /** True if this exam was recovered after an error sending. */
-    private boolean recovered;
+    private boolean recovered = false;
 
     /**
      * Constructs a new {@code UpdateExamRequest}.
@@ -79,10 +78,10 @@ public final class UpdateExamRequest extends AbstractRequestBase {
         this.identifierReference = extractField(message, "exam-ref");
 
         Long realizeTime = null;
-        String value = extractField(message, "realized");
-        if (value != null) {
+        final String realizedField = extractField(message, "realized");
+        if (realizedField != null) {
             try {
-                realizeTime = Long.valueOf(value);
+                realizeTime = Long.valueOf(realizedField);
             } catch (final NumberFormatException e) {
                 final String msg = Res.get(Res.BAD_REALIZED);
                 Log.warning(msg);
@@ -91,10 +90,10 @@ public final class UpdateExamRequest extends AbstractRequestBase {
         this.realizationTime = realizeTime;
 
         Long curSect = null;
-        value = extractField(message, "cur-section");
-        if (value != null) {
+        final String curSectionField = extractField(message, "cur-section");
+        if (curSectionField != null) {
             try {
-                curSect = Long.valueOf(value);
+                curSect = Long.valueOf(curSectionField);
             } catch (final NumberFormatException e) {
                 final String msg = Res.get(Res.BAD_CUR_SECTION);
                 Log.warning(msg);
@@ -102,10 +101,10 @@ public final class UpdateExamRequest extends AbstractRequestBase {
         }
 
         Long curProb = null;
-        value = extractField(message, "cur-problem");
-        if (value != null) {
+        final String curProblemField = extractField(message, "cur-problem");
+        if (curProblemField != null) {
             try {
-                curProb = Long.valueOf(value);
+                curProb = Long.valueOf(curProblemField);
             } catch (final NumberFormatException e) {
                 final String msg = Res.get(Res.BAD_CUR_PROBLEM);
                 Log.warning(msg);
@@ -113,10 +112,10 @@ public final class UpdateExamRequest extends AbstractRequestBase {
         }
 
         Long presentTime = null;
-        value = extractField(message, "presented");
-        if (value != null) {
+        final String presentedField = extractField(message, "presented");
+        if (presentedField != null) {
             try {
-                presentTime = Long.valueOf(value);
+                presentTime = Long.valueOf(presentedField);
             } catch (final NumberFormatException e) {
                 final String msg = Res.get(Res.BAD_PRESENTED);
                 Log.warning(msg);
@@ -124,11 +123,11 @@ public final class UpdateExamRequest extends AbstractRequestBase {
         }
         this.presentationTime = presentTime;
 
-        value = extractField(message, "updated");
+        final String updatedField = extractField(message, "updated");
 
-        if (value != null) {
+        if (updatedField != null) {
             try {
-                this.updateTime = Long.valueOf(value);
+                this.updateTime = Long.valueOf(updatedField);
             } catch (final NumberFormatException e) {
                 final String msg = Res.get(Res.BAD_UPDATED);
                 Log.warning(msg);
@@ -136,11 +135,11 @@ public final class UpdateExamRequest extends AbstractRequestBase {
         }
 
         int count = 0;
-        value = extractField(message, "num-answers");
+        final String numAnswersField = extractField(message, "num-answers");
 
-        if (value != null) {
+        if (numAnswersField != null) {
             try {
-                count = Integer.parseInt(value);
+                count = Integer.parseInt(numAnswersField);
             } catch (final NumberFormatException e) {
                 final String msg = Res.get(Res.BAD_NUM_ANSWERS);
                 Log.warning(msg);
@@ -162,10 +161,10 @@ public final class UpdateExamRequest extends AbstractRequestBase {
             this.answers[0][1] = curProb;
             this.answers[0][2] = this.presentationTime;
 
-            final String sub = extractField(message, "answers");
+            final String answersField = extractField(message, "answers");
 
-            if (sub != null) {
-                final String[] list = extractFieldList(sub, "answer");
+            if (answersField != null) {
+                final String[] list = extractFieldList(answersField, "answer");
                 if (list != null) {
                     if (count > list.length) {
                         count = list.length;
@@ -181,14 +180,14 @@ public final class UpdateExamRequest extends AbstractRequestBase {
             }
         }
 
-        value = extractField(message, "finalize");
-        this.finalize = "TRUE".equalsIgnoreCase(value);
+        final String finalizeField = extractField(message, "finalize");
+        this.finalize = "TRUE".equalsIgnoreCase(finalizeField);
 
-        value = extractField(message, "proctored");
-        this.proctored = "TRUE".equalsIgnoreCase(value);
+        final String proctoredField = extractField(message, "proctored");
+        this.proctored = "TRUE".equalsIgnoreCase(proctoredField);
 
-        value = extractField(message, "recovered");
-        this.recovered = "TRUE".equalsIgnoreCase(value);
+        final String recoveredField = extractField(message, "recovered");
+        this.recovered = "TRUE".equalsIgnoreCase(recoveredField);
     }
 
     /**
@@ -339,12 +338,11 @@ public final class UpdateExamRequest extends AbstractRequestBase {
     /**
      * Generates a handler that can process this message.
      *
-     * @param dbProfile the database profile in which the handler will operate
      * @return a handler that can process the message
      */
     @Override
-    public AbstractHandlerBase createHandler(final DbProfile dbProfile) {
+    public AbstractHandlerBase createHandler() {
 
-        return new UpdateExamHandler(dbProfile);
+        return new UpdateExamHandler();
     }
 }

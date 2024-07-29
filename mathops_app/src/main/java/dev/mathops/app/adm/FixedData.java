@@ -1,6 +1,6 @@
 package dev.mathops.app.adm;
 
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawUserClearanceLogic;
 import dev.mathops.db.old.rawrecord.RawUserClearance;
 

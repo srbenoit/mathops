@@ -1,22 +1,19 @@
 package dev.mathops.session.txn.handlers;
 
-import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
-import dev.mathops.db.old.rawlogic.RawTestingCenterLogic;
 import dev.mathops.db.old.rawrecord.RawClientPc;
-import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.rawrecord.RawTestingCenter;
 import dev.mathops.session.txn.messages.AbstractReplyBase;
 import dev.mathops.session.txn.messages.AbstractRequestBase;
 
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Calendar;
 
 /**
  * The base class for handlers of messages sent by clients.
@@ -30,32 +27,23 @@ public abstract class AbstractHandlerBase {
     private static Long lastSerial = Long.valueOf(0L);
 
     /** The ID of the machine from which the request came. */
-    private String machineId;
+    private String machineId = null;
 
     /** The client computer from which the request came. */
-    private RawClientPc client;
+    private RawClientPc client = null;
 
     /** The testing center that the client computer is registered in. */
-    private RawTestingCenter testingCenter;
+    private RawTestingCenter testingCenter = null;
 
-    /** The logged in student. */
-    private RawStudent student;
-
-    /** The database profile of the request. */
-    final DbProfile dbProfile;
+    /** The data for the logged in student. */
+    private StudentData student = null;
 
     /**
-     * Construct a new {@code HandlerBase}.
-     *
-     * @param theDbProfile the database profile under which the handler is being accessed
+     * Construct a new {@code AbstractHandlerBase}.
      */
-    AbstractHandlerBase(final DbProfile theDbProfile) {
+    AbstractHandlerBase() {
 
-        if (theDbProfile == null) {
-            throw new IllegalArgumentException("Context may not be null");
-        }
-
-        this.dbProfile = theDbProfile;
+        // No action
     }
 
     /**
@@ -67,7 +55,7 @@ public abstract class AbstractHandlerBase {
      * @return the reply to be sent to the client, or null if the connection should be closed
      * @throws SQLException if there is an error accessing the database
      */
-    public abstract String process(final Cache cache, AbstractRequestBase message) throws SQLException;
+    public abstract String process(Cache cache, AbstractRequestBase message) throws SQLException;
 
     /**
      * Gets the machine ID.
@@ -110,23 +98,13 @@ public abstract class AbstractHandlerBase {
     }
 
     /**
-     * Gets the student.
+     * Gets the data on the current student.
      *
      * @return the student
      */
-    final RawStudent getStudent() {
+    final StudentData getStudentData() {
 
         return this.student;
-    }
-
-    /**
-     * Sets the student.
-     *
-     * @param theStudent the new student
-     */
-    final void setStudent(final RawStudent theStudent) {
-
-        this.student = theStudent;
     }
 
     /**
@@ -163,56 +141,58 @@ public abstract class AbstractHandlerBase {
      * @return true if request completed successfully; false otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    final boolean loadStudentInfo(final Cache cache, final String studentId,
-                                  final AbstractReplyBase reply) throws SQLException {
+    final boolean loadStudentInfo(final Cache cache, final String studentId, final AbstractReplyBase reply)
+            throws SQLException {
 
-        boolean ok;
+        final boolean ok;
+
+        final SystemData systemData = cache.getSystemData();
 
         if (this.machineId != null) {
-            this.client = RawClientPcLogic.query(cache, this.machineId);
+            this.client = systemData.getClientPc(this.machineId);
             if (this.client == null) {
                 reply.error = "Computer " + this.machineId + " is not in the database.";
                 Log.info(reply.error);
-                return false;
+                ok = false;
+            } else {
+                this.testingCenter = systemData.getTestingCenter(this.client.testingCenterId);
+                if (this.testingCenter == null) {
+                    reply.error = "Computer " + this.machineId + " is not in a valid testing center";
+                    Log.info(reply.error);
+                    ok = false;
+                } else {
+                    final String stuId = studentId == null ? this.client.currentStuId : studentId;
+                    this.student = cache.setLoggedInUser(stuId);
+
+                    if (this.student == null) {
+                        reply.error = "Failed to obtain student info.";
+                        Log.info(reply.error);
+                        ok = false;
+                    } else {
+                        ok = true;
+                    }
+                }
             }
-
-            this.testingCenter = RawTestingCenterLogic.query(cache, this.client.testingCenterId);
-            if (this.testingCenter == null) {
-                reply.error = "Computer " + this.machineId + " is not in a valid testing center";
-                Log.info(reply.error);
-                return false;
-            }
-
-            final String stuId = studentId == null ? this.client.currentStuId : studentId;
-
-            this.student = RawStudentLogic.query(cache, stuId, true);
-
-            if (this.student == null) {
-                reply.error = "Failed to obtain student info.";
-                Log.info(reply.error);
-                return false;
-            }
-
-            ok = true;
         } else {
             // "Testing center" is 0 (Public Internet)
             this.client = null;
-            this.testingCenter = RawTestingCenterLogic.query(cache, "0");
+
+            this.testingCenter = systemData.getTestingCenter("0");
             if (this.testingCenter == null) {
                 reply.error = "Unable to query public internet site data";
                 Log.info(reply.error);
-                return false;
-            }
-            ok = true;
-
-            if ("GUEST".equals(studentId) || "AACTUTOR".equals(studentId) || "ETEXT".equals(studentId)) {
-                this.student = RawStudentLogic.makeFakeStudent("GUEST", CoreConstants.EMPTY, "GUEST");
+                ok = false;
+            } else if ("GUEST".equals(studentId) || "AACTUTOR".equals(studentId) || "ETEXT".equals(studentId)) {
+                this.student = cache.setLoggedInUser("GUEST");
+                ok = true;
             } else {
-                this.student = RawStudentLogic.query(cache, studentId, true);
+                this.student = cache.setLoggedInUser(studentId);
                 if (this.student == null) {
                     reply.error = "Unable to look up your student info.";
                     Log.info(reply.error);
                     ok = false;
+                } else {
+                    ok = true;
                 }
             }
         }
@@ -232,12 +212,13 @@ public abstract class AbstractHandlerBase {
      */
     public static long generateSerialNumber(final boolean isPractice) {
 
-        final Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(System.currentTimeMillis());
+        final LocalDateTime now = LocalDateTime.now();
 
-        long ser = (long) ((cal.get(Calendar.YEAR) - 2000) % 20 * 100000000
-                + cal.get(Calendar.DAY_OF_YEAR) * 100000 + cal.get(Calendar.HOUR_OF_DAY) * 3600
-                + cal.get(Calendar.MINUTE) * 60 + cal.get(Calendar.SECOND));
+        long ser = (long) (now.getYear() - 2000) % 20L * 100000000L
+                + (long) (now.getDayOfYear() * 100000)
+                + (long) (now.getHour() * 3600)
+                + (long) (now.getMinute() * 60)
+                + (long) now.getSecond();
 
         synchronized (SYNCH) {
             if (ser <= lastSerial.longValue()) {
@@ -249,32 +230,4 @@ public abstract class AbstractHandlerBase {
 
         return isPractice ? -ser : ser;
     }
-
-    ///**
-    // * Generates a date/time string that corresponds to a serial number.
-    // *
-    // * @param theSerial the serial number
-    // * @return the resulting date/time string
-    // */
-    // public static String serialToDateString(final long theSerial) {
-    //
-    // final long serial = Math.abs(theSerial);
-    //
-    // final long longYear = serial / 100000000;
-    // int remains = (int) (serial - longYear * 100000000);
-    // final int year = (int) (longYear + 2000);
-    //
-    // final int dayOfYear = remains / 100000;
-    // remains -= dayOfYear * 100000;
-    //
-    // final int hourOfDay = remains / 3600;
-    // remains -= hourOfDay * 3600;
-    //
-    // final int minute = remains / 60;
-    // remains -= minute * 60;
-    // final int second = remains;
-    //
-    // return TemporalUtils.FMT_MDY_AT_HM_A.format(LocalDateTime
-    // .of(LocalDate.ofYearDay(year, dayOfYear), LocalTime.of(hourOfDay, minute, second)));
-    // }
 }

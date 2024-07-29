@@ -1,7 +1,6 @@
 package dev.mathops.session.txn.messages;
 
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.session.txn.handlers.AbstractHandlerBase;
 import dev.mathops.session.txn.handlers.ExceptionSubmissionHandler;
 
@@ -60,7 +59,8 @@ public final class ExceptionSubmissionRequest extends AbstractRequestBase {
 
         super();
 
-        final String message = extractMessage(xml, xmlTag());
+        final String tag = xmlTag();
+        final String message = extractMessage(xml, tag);
 
         this.machineId = extractField(message, "machine-id");
         this.testingStationId = extractField(message, "station-id");
@@ -111,12 +111,11 @@ public final class ExceptionSubmissionRequest extends AbstractRequestBase {
     /**
      * Generates a handler that can process this message.
      *
-     * @param dbProfile the database profile in which the handler will operate
      * @return a handler that can process the message
      */
     @Override
-    public AbstractHandlerBase createHandler(final DbProfile dbProfile) {
+    public AbstractHandlerBase createHandler() {
 
-        return new ExceptionSubmissionHandler(dbProfile);
+        return new ExceptionSubmissionHandler();
     }
 }

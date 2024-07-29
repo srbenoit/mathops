@@ -1,7 +1,6 @@
 package dev.mathops.session.txn.messages;
 
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.session.txn.handlers.AbstractHandlerBase;
 import dev.mathops.session.txn.handlers.GetExamHandler;
 
@@ -17,13 +16,13 @@ public final class GetExamRequest extends AbstractRequestBase {
     public final String examVersion;
 
     /** The course number of the exam to start. */
-    public String examCourse;
+    public String examCourse = null;
 
     /** The course number of the exam to start. */
-    public Integer examUnit;
+    public Integer examUnit = null;
 
     /** The type of exam to fetch. */
-    public String examType;
+    public String examType = null;
 
     /** True if the exam is being taken as homework; false otherwise. */
     private final boolean takeAsHomework;
@@ -41,8 +40,7 @@ public final class GetExamRequest extends AbstractRequestBase {
      * @param theExamVersion    the version of the exam being requested
      * @param theTakeAsHomework true if the exam is being taken as a homework assignment
      */
-    public GetExamRequest(final String theStudentId, final String theExamVersion,
-                          final boolean theTakeAsHomework) {
+    public GetExamRequest(final String theStudentId, final String theExamVersion, final boolean theTakeAsHomework) {
 
         super();
 
@@ -60,7 +58,8 @@ public final class GetExamRequest extends AbstractRequestBase {
     GetExamRequest(final char[] xml) throws IllegalArgumentException {
         super();
 
-        final String message = extractMessage(xml, xmlTag());
+        final String tag = xmlTag();
+        final String message = extractMessage(xml, tag);
 
         this.machineId = extractField(message, "machine-id");
 
@@ -68,22 +67,23 @@ public final class GetExamRequest extends AbstractRequestBase {
         this.examVersion = extractField(message, "version");
         this.examCourse = extractField(message, "course");
 
-        String value = extractField(message, "unit");
-        if (value != null) {
+        final String unitValue = extractField(message, "unit");
+        if (unitValue != null) {
             try {
-                this.examUnit = Integer.valueOf(value);
+                this.examUnit = Integer.valueOf(unitValue);
             } catch (final NumberFormatException ex) {
                 throw new IllegalArgumentException(ex);
             }
         }
 
-        value = extractField(message, "homework");
-        this.takeAsHomework = "TRUE".equalsIgnoreCase(value);
+        final String homeworkValue = extractField(message, "homework");
+        this.takeAsHomework = "TRUE".equalsIgnoreCase(homeworkValue);
 
-        value = extractField(message, "check-coupons");
-        this.checkCoupons = !("FALSE".equalsIgnoreCase(value));
-        value = extractField(message, "check-eligibility");
-        this.checkEligibility = !("FALSE".equalsIgnoreCase(value));
+        final String couponsValue = extractField(message, "check-coupons");
+        this.checkCoupons = !("FALSE".equalsIgnoreCase(couponsValue));
+
+        final String eligibilityValue = extractField(message, "check-eligibility");
+        this.checkEligibility = !("FALSE".equalsIgnoreCase(eligibilityValue));
     }
 
     /**
@@ -145,12 +145,11 @@ public final class GetExamRequest extends AbstractRequestBase {
     /**
      * Generates a handler that can process this message.
      *
-     * @param dbProfile the database profile in which the handler will operate
      * @return a handler that can process the message
      */
     @Override
-    public AbstractHandlerBase createHandler(final DbProfile dbProfile) {
+    public AbstractHandlerBase createHandler() {
 
-        return new GetExamHandler(dbProfile);
+        return new GetExamHandler();
     }
 }

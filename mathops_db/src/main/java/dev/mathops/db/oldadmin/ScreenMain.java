@@ -1,7 +1,7 @@
 package dev.mathops.db.oldadmin;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawrecord.RawStudent;
 
 import java.awt.event.KeyEvent;

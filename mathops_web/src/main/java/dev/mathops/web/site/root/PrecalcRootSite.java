@@ -5,7 +5,7 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.WebSiteProfile;

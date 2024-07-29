@@ -2,7 +2,7 @@ package dev.mathops.web.site.admin.office;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.logic.ChallengeExamLogic;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
@@ -308,7 +308,7 @@ enum PageTestingIssueExam {
                 if (in117) {
                     errmsg = "Student cannot challenge MATH 117 while enrolled";
                 } else if (!new PrerequisiteLogic(cache, studentId)
-                        .hasSatisfiedPrereqsFor(RawRecordConstants.M117)) {
+                        .hasSatisfiedPrerequisitesFor(RawRecordConstants.M117)) {
                     errmsg = "Student has not satisfied prereqs for MATH 117";
                 }
             } else {
@@ -332,7 +332,7 @@ enum PageTestingIssueExam {
                 if (in118) {
                     errmsg = "Student cannot challenge MATH 118 while enrolled";
                 } else if (!new PrerequisiteLogic(cache, studentId)
-                        .hasSatisfiedPrereqsFor(RawRecordConstants.M118)) {
+                        .hasSatisfiedPrerequisitesFor(RawRecordConstants.M118)) {
                     errmsg = "Student has not satisfied prereqs for MATH 118";
                 }
             } else {
@@ -356,7 +356,7 @@ enum PageTestingIssueExam {
                 if (in124) {
                     errmsg = "Student cannot challenge MATH 124 while enrolled";
                 } else if (!new PrerequisiteLogic(cache, studentId)
-                        .hasSatisfiedPrereqsFor(RawRecordConstants.M124)) {
+                        .hasSatisfiedPrerequisitesFor(RawRecordConstants.M124)) {
                     errmsg = "Student has not satisfied prereqs for MATH 124";
                 }
             } else {
@@ -381,7 +381,7 @@ enum PageTestingIssueExam {
                 if (in125) {
                     errmsg = "Student cannot challenge MATH 125 while enrolled";
                 } else if (!new PrerequisiteLogic(cache, studentId)
-                        .hasSatisfiedPrereqsFor(RawRecordConstants.M125)) {
+                        .hasSatisfiedPrerequisitesFor(RawRecordConstants.M125)) {
                     errmsg = "Student has not satisfied prereqs for MATH 125";
                 }
             } else {
@@ -405,7 +405,7 @@ enum PageTestingIssueExam {
                 if (in126) {
                     errmsg = "Student cannot challenge MATH 126 while enrolled";
                 } else if (!new PrerequisiteLogic(cache, studentId)
-                        .hasSatisfiedPrereqsFor(RawRecordConstants.M126)) {
+                        .hasSatisfiedPrerequisitesFor(RawRecordConstants.M126)) {
                     errmsg = "Student has not satisfied prereqs for MATH 126";
                 }
             } else {

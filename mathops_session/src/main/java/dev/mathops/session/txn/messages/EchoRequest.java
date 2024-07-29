@@ -1,7 +1,6 @@
 package dev.mathops.session.txn.messages;
 
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.session.txn.handlers.AbstractHandlerBase;
 import dev.mathops.session.txn.handlers.EchoHandler;
 
@@ -9,14 +8,6 @@ import dev.mathops.session.txn.handlers.EchoHandler;
  * A network message to test connectivity.
  */
 public final class EchoRequest extends AbstractRequestBase {
-
-//    /**
-//     * Constructs a new {@code EchoRequest}.
-//     */
-//    public EchoRequest() {
-//
-//        super();
-//    }
 
     /**
      * Constructs a new {@code EchoRequest}, initializing with data from an XML stream.
@@ -63,12 +54,11 @@ public final class EchoRequest extends AbstractRequestBase {
     /**
      * Generates a handler that can process this message.
      *
-     * @param dbProfile the database profile in which the handler will operate
      * @return a handler that can process the message
      */
     @Override
-    public AbstractHandlerBase createHandler(final DbProfile dbProfile) {
+    public AbstractHandlerBase createHandler() {
 
-        return new EchoHandler(dbProfile);
+        return new EchoHandler();
     }
 }

@@ -4,7 +4,7 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawrecord.RawWhichDb;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.front.BuildDateTime;
@@ -101,7 +101,7 @@ public enum SysAdminPage {
         final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("HH:mm:ss 'on' EEEE, MMM d, yyyy", Locale.US);
 
         final String now = LocalDateTime.now().format(fmt);
-        final String buildDateTime = BuildDateTime.get().value;
+        final String buildDateTime = BuildDateTime.getValue();
         final String javaVersion = System.getProperty("java.version");
         final String javaVendor = System.getProperty("java.vendor");
         final String osName = System.getProperty("os.name");

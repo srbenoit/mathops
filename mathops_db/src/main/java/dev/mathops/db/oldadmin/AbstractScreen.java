@@ -1,7 +1,7 @@
 package dev.mathops.db.oldadmin;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 
 import java.awt.event.KeyEvent;
 

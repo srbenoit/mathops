@@ -1,6 +1,6 @@
 package dev.mathops.db.old.schema.csubanner;
 
-import dev.mathops.db.old.DbConnection;
+import dev.mathops.db.DbConnection;
 import dev.mathops.db.old.ifaces.ILiveRegFa;
 import dev.mathops.db.old.rec.LiveReg;
 

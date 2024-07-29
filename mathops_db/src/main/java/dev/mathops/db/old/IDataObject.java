@@ -1,5 +1,8 @@
 package dev.mathops.db.old;
 
+import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
+
 import java.sql.SQLException;
 import java.util.List;
 

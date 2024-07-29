@@ -2,7 +2,6 @@ package dev.mathops.session.txn.messages;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.parser.xml.XmlEscaper;
-import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.session.txn.handlers.AbstractHandlerBase;
 import dev.mathops.session.txn.handlers.MachineSetupHandler;
 
@@ -46,8 +45,8 @@ public final class MachineSetupRequest extends AbstractRequestBase {
      * @param theDescription      the description of the machine
      * @param theSystemProperties the client machine's system properties
      */
-    public MachineSetupRequest(final int theTestingCenterId, final String theStationNumber,
-                               final String theDescription, final Map<String, String> theSystemProperties) {
+    public MachineSetupRequest(final int theTestingCenterId, final String theStationNumber, final String theDescription,
+                               final Map<String, String> theSystemProperties) {
 
         super();
 
@@ -67,44 +66,47 @@ public final class MachineSetupRequest extends AbstractRequestBase {
 
         super();
 
-        final String message = extractMessage(xml, xmlTag());
+        final String tag = xmlTag();
+        final String message = extractMessage(xml, tag);
 
         this.machineId = extractField(message, "machine-id");
 
-        String sub = extractField(message, "testing-center");
+        final String testingCenterField = extractField(message, "testing-center");
 
         try {
-            this.testingCenterId = Integer.parseInt(sub);
+            this.testingCenterId = Integer.parseInt(testingCenterField);
 
             if (this.testingCenterId < 0) {
-                throw new IllegalArgumentException(Res.fmt(Res.BAD_CENTER_ID, sub));
+                final String msg = Res.fmt(Res.BAD_CENTER_ID, testingCenterField);
+                throw new IllegalArgumentException(msg);
             }
         } catch (final NumberFormatException e) {
-            throw new IllegalArgumentException(Res.fmt(Res.NONINT_CENTER_ID, sub));
+            final String msg = Res.fmt(Res.NONINT_CENTER_ID, testingCenterField);
+            throw new IllegalArgumentException(msg);
         }
 
-        sub = extractField(message, "station-number");
+        final String stationNumberField = extractField(message, "station-number");
 
-        if ((sub != null) && (!sub.isEmpty())) {
-            this.stationNumber = XmlEscaper.unescape(sub);
+        if ((stationNumberField != null) && (!stationNumberField.isEmpty())) {
+            this.stationNumber = XmlEscaper.unescape(stationNumberField);
         } else {
             this.stationNumber = null;
         }
 
-        sub = extractField(message, "description");
+        final String descriptionField = extractField(message, "description");
 
-        if ((sub != null) && (!sub.isEmpty())) {
-            this.description = XmlEscaper.unescape(sub);
+        if ((descriptionField != null) && (!descriptionField.isEmpty())) {
+            this.description = XmlEscaper.unescape(descriptionField);
         } else {
             this.description = null;
         }
 
-        sub = extractField(message, "system-properties");
+        final String propertiesField = extractField(message, "system-properties");
 
-        if (sub != null && !sub.isEmpty()) {
+        if (propertiesField != null && !propertiesField.isEmpty()) {
             this.systemProperties = new TreeMap<>();
 
-            final String[] list = extractFieldList(sub, "property");
+            final String[] list = extractFieldList(propertiesField, "property");
 
             if (list != null) {
                 for (final String s : list) {
@@ -154,25 +156,22 @@ public final class MachineSetupRequest extends AbstractRequestBase {
 
         builder.addln("<machine-setup-request>");
 
-        builder.addln(" <testing-center>",
-                Integer.toString(this.testingCenterId), "</testing-center>");
+        builder.addln(" <testing-center>", Integer.toString(this.testingCenterId), "</testing-center>");
 
         if (this.stationNumber != null) {
-            builder.addln(" <station-number>", XmlEscaper.escape(this.stationNumber),
-                    "</station-number>");
+            builder.addln(" <station-number>", XmlEscaper.escape(this.stationNumber), "</station-number>");
         }
 
         if (this.description != null) {
-            builder.addln(" <description>", XmlEscaper.escape(this.description),
-                    "</description>");
+            builder.addln(" <description>", XmlEscaper.escape(this.description), "</description>");
         }
 
         if (this.systemProperties != null) {
             builder.addln(" <system-properties>");
 
             for (final Map.Entry<String, String> entry : this.systemProperties.entrySet()) {
-                builder.addln("  <property>", XmlEscaper.escape(entry.getKey()), "=", XmlEscaper.escape(entry.getValue()),
-                        "</property>");
+                builder.addln("  <property>", XmlEscaper.escape(entry.getKey()), "=",
+                        XmlEscaper.escape(entry.getValue()), "</property>");
             }
 
             builder.addln(" </system-properties>");
@@ -187,12 +186,11 @@ public final class MachineSetupRequest extends AbstractRequestBase {
     /**
      * Generates a handler that can process this message.
      *
-     * @param dbProfile the database profile in which the handler will operate
      * @return a handler that can process the message
      */
     @Override
-    public AbstractHandlerBase createHandler(final DbProfile dbProfile) {
+    public AbstractHandlerBase createHandler() {
 
-        return new MachineSetupHandler(dbProfile);
+        return new MachineSetupHandler();
     }
 }

@@ -6,7 +6,7 @@ import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawResourceLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
@@ -657,7 +657,7 @@ final class LendCard extends AdmPanelBase implements ActionListener, FocusListen
             this.error2.setText(CoreConstants.SPC);
 
             // TODO: A way to check back in, and immediately check out to new student
-            // (which may remove a hold placed on the old student's account)
+            //  (which may remove a hold placed on the old student's account)
 
             this.errorPane.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.RED, 2),
                     BorderFactory.createEmptyBorder(20, 0, 0, 0)));

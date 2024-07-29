@@ -1,7 +1,7 @@
 package dev.mathops.web.site.admin.sysadmin.db;
 
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.EDbProduct;
 import dev.mathops.db.enums.ERole;

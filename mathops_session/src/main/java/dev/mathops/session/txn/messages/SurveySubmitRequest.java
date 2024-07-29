@@ -1,7 +1,6 @@
 package dev.mathops.session.txn.messages;
 
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.session.txn.handlers.AbstractHandlerBase;
 import dev.mathops.session.txn.handlers.SurveySubmitHandler;
 
@@ -26,8 +25,7 @@ public final class SurveySubmitRequest extends AbstractRequestBase {
      * @param theVersion   the exam version
      * @param theAnswers   the list of student answers
      */
-    public SurveySubmitRequest(final String theStudentId, final String theVersion,
-                               final String[] theAnswers) {
+    public SurveySubmitRequest(final String theStudentId, final String theVersion, final String[] theAnswers) {
 
         super();
 
@@ -46,7 +44,8 @@ public final class SurveySubmitRequest extends AbstractRequestBase {
 
         super();
 
-        final String message = extractMessage(xml, xmlTag());
+        final String tag = xmlTag();
+        final String message = extractMessage(xml, tag);
 
         this.machineId = extractField(message, "machine-id");
         this.studentId = extractField(message, "student-id");
@@ -91,11 +90,9 @@ public final class SurveySubmitRequest extends AbstractRequestBase {
 
             for (final String answer : this.answers) {
                 builder.add("  <answer>");
-
                 if (answer != null) {
                     builder.add(answer);
                 }
-
                 builder.addln("</answer>");
             }
 
@@ -111,12 +108,11 @@ public final class SurveySubmitRequest extends AbstractRequestBase {
     /**
      * Generates a handler that can process this message.
      *
-     * @param dbProfile the database profile in which the handler will operate
      * @return a handler that can process the message
      */
     @Override
-    public AbstractHandlerBase createHandler(final DbProfile dbProfile) {
+    public AbstractHandlerBase createHandler() {
 
-        return new SurveySubmitHandler(dbProfile);
+        return new SurveySubmitHandler();
     }
 }

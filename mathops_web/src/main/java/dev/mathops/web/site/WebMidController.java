@@ -5,11 +5,12 @@ import dev.mathops.commons.PathList;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.installation.Installation;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.DbConnection;
+import dev.mathops.db.DbConnection;
 import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.ContextMap;
+import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.SessionManager;
@@ -40,7 +41,7 @@ import dev.mathops.web.site.root.PrecalcRootSite;
 import dev.mathops.web.site.testing.TestingCenterSite;
 import dev.mathops.web.site.tutorial.elm.ElmTutorialSite;
 import dev.mathops.web.site.tutorial.precalc.PrecalcTutorialSite;
-import dev.mathops.web.site.txn.TxnSite;
+import dev.mathops.web.site.txn.Site;
 import dev.mathops.web.site.video.VideoSite;
 import dev.mathops.web.webservice.WebServiceSite;
 import jakarta.servlet.ServletConfig;
@@ -73,6 +74,9 @@ public final class WebMidController implements IMidController {
     /** Purge interval, in milliseconds (10 minutes). */
     private static final long PURGE_INTERVAL = (long) (10 * 60000);
 
+    /** A commonly used character. */
+    private static final int SLASH = (int) '/';
+
     /** Map from host to map from site to its implementation. */
     private final Map<String, SortedMap<String, AbstractSite>> sites;
 
@@ -88,7 +92,7 @@ public final class WebMidController implements IMidController {
     /**
      * Constructs a new {@code WebSiteMidController}.
      *
-     * @param cache  the data cache
+     * @param cache  the data cache (not stored in this object - used only during initialization)
      * @param config the servlet context in which the servlet is being initialized
      * @throws ServletException if the servlet could not be initialized
      * @throws SQLException     if there is an error accessing the database
@@ -106,14 +110,17 @@ public final class WebMidController implements IMidController {
         final File baseDir = new File(dir);
 
         if (!baseDir.exists() && !baseDir.mkdirs()) {
-            throw new ServletException(Res.fmt(Res.CANT_CREATE_DIR, dir));
+            final String msg = Res.fmt(Res.CANT_CREATE_DIR, dir);
+            throw new ServletException(msg);
         }
 
         if (!baseDir.isDirectory()) {
-            throw new ServletException(Res.fmt(Res.BAD_DIR, dir));
+            final String msg = Res.fmt(Res.BAD_DIR, dir);
+            throw new ServletException(msg);
         }
 
-        Log.info(Res.fmt(Res.STARTING, INFO, dir));
+        final String startingMsg = Res.fmt(Res.STARTING, INFO, dir);
+        Log.info(startingMsg);
 
         // Initialize paths list for data and source paths
         PathList.init(baseDir);
@@ -125,7 +132,8 @@ public final class WebMidController implements IMidController {
         // Initialize the session manager
         this.sessions = SessionManager.getInstance();
 
-        final List<String> webHosts = Arrays.asList(map.getWebHosts());
+        final String[] hosts = map.getWebHosts();
+        final List<String> webHosts = Arrays.asList(hosts);
 
         // Create and register the sites
 
@@ -162,7 +170,7 @@ public final class WebMidController implements IMidController {
             add(map, Contexts.TESTING_HOST, Contexts.TESTING_CENTER_PATH, TestingCenterSite.class);
             add(map, Contexts.TESTING_HOST, Contexts.RAMWORK_PATH, RamWorkSite.class);
             add(map, Contexts.TESTING_HOST, Contexts.REPORTING_PATH, ReportingSite.class);
-            add(map, Contexts.TESTING_HOST, Contexts.TXN_PATH, TxnSite.class);
+            add(map, Contexts.TESTING_HOST, Contexts.TXN_PATH, Site.class);
             add(map, Contexts.TESTING_HOST, Contexts.WEBSVC_PATH, WebServiceSite.class);
         }
 
@@ -172,21 +180,22 @@ public final class WebMidController implements IMidController {
         }
 
         // Load any sessions persisted from a prior shutdown
-        final File sess = new File(baseDir, "sessions");
-        this.sessions.load(sess);
+        final File session = new File(baseDir, "sessions");
+        this.sessions.load(session);
 
-        ChallengeExamSessionStore.getInstance().restore(cache, sess);
-        PlacementExamSessionStore.getInstance().restore(cache, sess);
-        UnitExamSessionStore.getInstance().restore(cache, sess);
-        ReviewExamSessionStore.getInstance().restore(cache, sess);
-        LtaSessionStore.getInstance().restore(cache, sess);
-        HomeworkSessionStore.getInstance().restore(cache, sess);
-        PastExamSessionStore.getInstance().restore(cache, sess);
-        PastLtaSessionStore.getInstance().restore(cache, sess);
+        ChallengeExamSessionStore.getInstance().restore(cache, session);
+        PlacementExamSessionStore.getInstance().restore(cache, session);
+        UnitExamSessionStore.getInstance().restore(cache, session);
+        ReviewExamSessionStore.getInstance().restore(cache, session);
+        LtaSessionStore.getInstance().restore(cache, session);
+        HomeworkSessionStore.getInstance().restore(cache, session);
+        PastExamSessionStore.getInstance().restore(cache, session);
+        PastLtaSessionStore.getInstance().restore(cache, session);
 
         this.lastPurge = System.currentTimeMillis();
 
-        Log.info(Res.fmt(Res.STARTED, INFO));
+        final String startedMsg = Res.fmt(Res.STARTED, INFO);
+        Log.info(startedMsg);
     }
 
     /**
@@ -209,7 +218,8 @@ public final class WebMidController implements IMidController {
             final Constructor<? extends AbstractSite> constr;
             try {
                 constr = cls.getConstructor(WebSiteProfile.class, ISessionManager.class);
-                regSite(constr.newInstance(profile, this.sessions));
+                final AbstractSite site = constr.newInstance(profile, this.sessions);
+                regSite(site);
             } catch (final NoSuchMethodException | SecurityException | InstantiationException
                            | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                 Log.warning("Failed to create web site for ", host, CoreConstants.COLON, path, ex);
@@ -281,7 +291,10 @@ public final class WebMidController implements IMidController {
                 final long timerStart = System.currentTimeMillis();
 
                 final DbConnection conn = ctx.checkOutConnection();
-                final Cache cache = new Cache(site.getDbProfile(), conn);
+                final DbProfile siteProfile = site.getDbProfile();
+
+                // The lifetime of this cache should be the page request only.
+                final Cache cache = new Cache(siteProfile, conn);
 
                 try {
                     if (timerStart > this.lastPurge + PURGE_INTERVAL) {
@@ -298,35 +311,38 @@ public final class WebMidController implements IMidController {
                         this.lastPurge = timerStart;
                     }
 
-                    String subpath = reqPath.substring(site.siteProfile.path.length());
+                    final int pathLen = site.siteProfile.path.length();
+                    String subpath = reqPath.substring(pathLen);
 
                     if (req.isSecure()) {
 
-                        if (!subpath.isEmpty() && subpath.charAt(0) == '/') {
+                        if (!subpath.isEmpty() && (int) subpath.charAt(0) == SLASH) {
                             subpath = subpath.substring(1);
                         }
 
                         final long start = System.currentTimeMillis();
-                        if ("GET".equals(req.getMethod())) {
+                        final String reqMethod = req.getMethod();
+
+                        if ("GET".equals(reqMethod)) {
                             site.doGet(cache, subpath, type, req, resp);
-                        } else if ("POST".equals(req.getMethod())) {
+                        } else if ("POST".equals(reqMethod)) {
                             site.doPost(cache, subpath, type, req, resp);
                         } else {
                             resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
                         }
                         final long elapsed = System.currentTimeMillis() - start;
-                        this.timer.recordAccess(site.getDbProfile(), subpath, elapsed);
+                        this.timer.recordAccess(siteProfile, subpath, elapsed);
                     } else if (Contexts.TESTING_HOST.equals(reqHost) || Contexts.ONLINE_HOST.equals(reqHost)
                             && reqPath.startsWith(Contexts.TESTING_CENTER_PATH)) {
 
-                        if (!subpath.isEmpty() && subpath.charAt(0) == '/') {
+                        if (!subpath.isEmpty() && (int) subpath.charAt(0) == SLASH) {
                             subpath = subpath.substring(1);
                         }
 
                         final long start = System.currentTimeMillis();
                         site.doPost(cache, subpath, type, req, resp);
                         final long elapsed = System.currentTimeMillis() - start;
-                        this.timer.recordAccess(site.getDbProfile(), subpath, elapsed);
+                        this.timer.recordAccess(siteProfile, subpath, elapsed);
                     } else {
                         // Site requires secure connections
                         final String loc = "https://" + req.getServerName() + req.getServletPath();
@@ -388,27 +404,33 @@ public final class WebMidController implements IMidController {
 
             try {
                 final DbConnection conn = ctx.checkOutConnection();
-                final Cache cache = new Cache(site.getDbProfile(), conn);
+                final DbProfile siteProfile = site.getDbProfile();
+
+                // The lifetime of this cache should be the page request only.
+                final Cache cache = new Cache(siteProfile, conn);
 
                 try {
                     if (Contexts.TESTING_HOST.equals(reqHost)) {
 
-                        String subpath = reqPath.substring(site.siteProfile.path.length());
+                        final int pathLen = site.siteProfile.path.length();
+                        String subpath = reqPath.substring(pathLen);
 
-                        if (!subpath.isEmpty() && subpath.charAt(0) == '/') {
+                        if (!subpath.isEmpty() && (int) subpath.charAt(0) == SLASH) {
                             subpath = subpath.substring(1);
                         }
 
                         final long start = System.currentTimeMillis();
-                        if ("GET".equals(req.getMethod())) {
+                        final String reqMethod = req.getMethod();
+
+                        if ("GET".equals(reqMethod)) {
                             site.doGet(cache, subpath, type, req, resp);
-                        } else if ("POST".equals(req.getMethod())) {
+                        } else if ("POST".equals(reqMethod)) {
                             site.doPost(cache, subpath, type, req, resp);
                         } else {
                             resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
                         }
                         final long elapsed = System.currentTimeMillis() - start;
-                        this.timer.recordAccess(site.getDbProfile(), subpath, elapsed);
+                        this.timer.recordAccess(siteProfile, subpath, elapsed);
                     } else {
                         // Site requires secure connections
                         final String loc = "https://" + req.getServerName() + req.getServletPath();
@@ -456,7 +478,7 @@ public final class WebMidController implements IMidController {
                 if (testPathLen > len) {
 
                     if ((pathLen > testPathLen && path.startsWith(testPath)
-                            && path.charAt(testPathLen) == '/') || path.equals(testPath)) {
+                            && (int) path.charAt(testPathLen) == SLASH) || path.equals(testPath)) {
                         site = test;
                         len = testPathLen;
                     }
@@ -520,6 +542,8 @@ public final class WebMidController implements IMidController {
 
         htm.addln("</body>");
         Page.endPage(htm);
-        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        final String htmStr = htm.toString();
+        final byte[] htmBytes = htmStr.getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htmBytes);
     }
 }

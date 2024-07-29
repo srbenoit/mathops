@@ -2,7 +2,7 @@ package dev.mathops.db.old.logic;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawStchallengeLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
@@ -135,7 +135,7 @@ public final class ChallengeExamLogic {
 
                 if (enrolled) {
                     reason = "Course challenge exam may not be taken while enrolled in the course.";
-                } else if (this.prereqLogic.hasSatisfiedPrereqsFor(theCourseId)) {
+                } else if (this.prereqLogic.hasSatisfiedPrerequisitesFor(theCourseId)) {
                     available = examId;
                 } else {
                     reason = "In order to take Challenge Exam, you must have satisfied the "

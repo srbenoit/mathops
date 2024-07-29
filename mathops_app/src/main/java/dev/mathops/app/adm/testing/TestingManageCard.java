@@ -5,7 +5,8 @@ import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
 import dev.mathops.db.old.rawrecord.RawClientPc;
 import dev.mathops.session.scramsha256.ScramClientStub;
@@ -168,8 +169,10 @@ final class TestingManageCard extends AdmPanelBase implements ActionListener {
         if (handshakeError == null) {
             final String token = stub.getToken();
 
+            final SystemData systemData = this.cache.getSystemData();
+
             try {
-                final List<RawClientPc> stations = RawClientPcLogic.INSTANCE.queryAll(this.cache);
+                final List<RawClientPc> stations = systemData.getClientPcs();
 
                 for (final RawClientPc station : stations) {
 
@@ -247,7 +250,9 @@ final class TestingManageCard extends AdmPanelBase implements ActionListener {
             try {
                 final String token = stub.getToken();
 
-                final List<RawClientPc> stations = RawClientPcLogic.INSTANCE.queryAll(this.cache);
+                final SystemData systemData = this.cache.getSystemData();
+
+                final List<RawClientPc> stations = systemData.getClientPcs();
 
                 for (final RawClientPc station : stations) {
                     if (station.currentStuId == null) {

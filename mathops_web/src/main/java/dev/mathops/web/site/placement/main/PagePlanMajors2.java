@@ -1,7 +1,7 @@
 package dev.mathops.web.site.placement.main;
 
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.WebSiteProfile;
@@ -11,7 +11,7 @@ import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
 import dev.mathops.db.old.logic.mathplan.data.Major;
 import dev.mathops.db.old.logic.mathplan.data.MajorMathRequirement;
-import dev.mathops.db.old.logic.mathplan.data.StudentData;
+import dev.mathops.db.old.logic.mathplan.data.MathPlanStudentData;
 import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
@@ -51,7 +51,7 @@ enum PagePlanMajors2 {
 
         final String stuId = session.getEffectiveUserId();
         final ZonedDateTime now = session.getNow();
-        final StudentData data = logic.getStudentData(cache, stuId, now, session.loginSessionTag,
+        final MathPlanStudentData data = logic.getStudentData(cache, stuId, now, session.loginSessionTag,
                 session.actAsUserId == null);
 
         final HtmlBuilder htm = new HtmlBuilder(8192);
@@ -111,7 +111,7 @@ enum PagePlanMajors2 {
      */
     private static void emitMajorsSelectionForm(final HtmlBuilder htm,
                                                 final Map<Integer, RawStmathplan> curResponses,
-                                                final StudentData data, final ImmutableSessionInfo session,
+                                                final MathPlanStudentData data, final ImmutableSessionInfo session,
                                                 final MathPlanLogic logic) {
 
         final boolean disable = session.actAsUserId != null;
@@ -369,7 +369,7 @@ enum PagePlanMajors2 {
         final MathPlanLogic logic = new MathPlanLogic(site.getDbProfile());
 
         final String stuId = session.getEffectiveUserId();
-        final StudentData data = stuId == null ? null : logic.getStudentData(cache, stuId, session.getNow(),
+        final MathPlanStudentData data = stuId == null ? null : logic.getStudentData(cache, stuId, session.getNow(),
                 session.loginSessionTag, session.actAsUserId == null);
 
         // Only perform updates if data present AND this is not an adviser using "Act As"

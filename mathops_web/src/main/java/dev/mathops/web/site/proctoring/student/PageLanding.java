@@ -1,7 +1,7 @@
 package dev.mathops.web.site.proctoring.student;
 
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 

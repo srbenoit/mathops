@@ -1,6 +1,6 @@
 package dev.mathops.app.ops.snapin.messaging;
 
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.DbContext;
 import dev.mathops.app.ops.snapin.AbstractFullPanel;
 import dev.mathops.app.ops.snapin.AbstractSnapIn;

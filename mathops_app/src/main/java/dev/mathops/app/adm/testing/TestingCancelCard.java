@@ -4,7 +4,8 @@ import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
 import dev.mathops.db.old.rawrecord.RawClientPc;
 
@@ -31,7 +32,7 @@ import java.util.List;
  * A card panel that allows an administrator to cancel an exam that's in the "LOGIN" phase (often due to the wrong exam
  * being issued).
  */
-class TestingCancelCard extends AdmPanelBase implements ActionListener, FocusListener {
+final class TestingCancelCard extends AdmPanelBase implements ActionListener, FocusListener {
 
     /** An action command. */
     private static final String STU = "STU";
@@ -67,7 +68,7 @@ class TestingCancelCard extends AdmPanelBase implements ActionListener, FocusLis
     /**
      * Constructs a new {@code TestingCancelCard}.
      *
-     * @param theCache         the data cache
+     * @param theCache the data cache
      */
     TestingCancelCard(final Cache theCache) {
 
@@ -240,8 +241,7 @@ class TestingCancelCard extends AdmPanelBase implements ActionListener, FocusLis
         final String foundFirstName;
         final String foundLastName;
         final String foundPrefName;
-        final String sql1 = "SELECT first_name, last_name, pref_name "
-                + "FROM student WHERE stu_id=?";
+        final String sql1 = "SELECT first_name, last_name, pref_name FROM student WHERE stu_id=?";
 
         this.studentStatusDisplay.setText(CoreConstants.SPC);
 
@@ -254,18 +254,14 @@ class TestingCancelCard extends AdmPanelBase implements ActionListener, FocusLis
                     foundPrefName = rs.getString(3);
                     this.studentIdField.setBackground(Skin.FIELD_BG);
 
-                    final String first =
-                            foundFirstName == null ? CoreConstants.EMPTY : foundFirstName.trim();
-                    final String last =
-                            foundLastName == null ? CoreConstants.EMPTY : foundLastName.trim();
-                    final String pref =
-                            foundPrefName == null ? CoreConstants.EMPTY : foundPrefName.trim();
+                    final String first = foundFirstName == null ? CoreConstants.EMPTY : foundFirstName.trim();
+                    final String last = foundLastName == null ? CoreConstants.EMPTY : foundLastName.trim();
+                    final String pref = foundPrefName == null ? CoreConstants.EMPTY : foundPrefName.trim();
 
                     if (pref.isEmpty() || pref.equals(first)) {
                         this.studentNameDisplay.setText(first + CoreConstants.SPC + last);
                     } else {
-                        this.studentNameDisplay.setText(first + CoreConstants.SPC + last //
-                                + " (" + pref + ")");
+                        this.studentNameDisplay.setText(first + CoreConstants.SPC + last + " (" + pref + ")");
                     }
 
                     checkForUnstartedExams(cleanStu);
@@ -275,12 +271,12 @@ class TestingCancelCard extends AdmPanelBase implements ActionListener, FocusLis
                 }
             }
         } catch (final SQLException ex) {
-            if (ex.getMessage() == null) {
-                this.studentStatusDisplay
-                        .setText("Error querying student table: " + ex.getClass().getSimpleName());
+            final String exMsg = ex.getMessage();
+            if (exMsg == null) {
+                final String clsName = ex.getClass().getSimpleName();
+                this.studentStatusDisplay.setText("Error querying student table: " + clsName);
             } else {
-                this.studentStatusDisplay
-                        .setText("Error querying student table: " + ex.getMessage());
+                this.studentStatusDisplay.setText("Error querying student table: " + exMsg);
             }
         }
     }
@@ -295,9 +291,10 @@ class TestingCancelCard extends AdmPanelBase implements ActionListener, FocusLis
         this.cancelButton.setEnabled(false);
         this.found = null;
 
-        try {
-            final List<RawClientPc> records = RawClientPcLogic.INSTANCE.queryAll(this.cache);
+        final SystemData systemData = this.cache.getSystemData();
 
+        try {
+            final List<RawClientPc> records = systemData.getClientPcs();
             for (final RawClientPc record : records) {
                 if (stuId.equals(record.currentStuId)
                         && (RawClientPc.STATUS_AWAIT_STUDENT.equals(record.currentStatus))) {
@@ -307,12 +304,10 @@ class TestingCancelCard extends AdmPanelBase implements ActionListener, FocusLis
             }
 
             if (this.found == null) {
-                this.studentStatusDisplay
-                        .setText("No testing stations found awaiting student login.");
+                this.studentStatusDisplay.setText("No testing stations found awaiting student login.");
             } else {
-                this.studentStatusDisplay
-                        .setText("FOUND: Testing station " + this.found.stationNbr + ", "
-                                + this.found.currentCourse + ", unit " + this.found.currentUnit + " exam.");
+                this.studentStatusDisplay.setText("FOUND: Testing station " + this.found.stationNbr + ", "
+                        + this.found.currentCourse + ", unit " + this.found.currentUnit + " exam.");
                 this.cancelButton.setEnabled(true);
                 this.cancelButton.requestFocus();
             }
@@ -329,26 +324,25 @@ class TestingCancelCard extends AdmPanelBase implements ActionListener, FocusLis
         if (this.found == null) {
             this.studentStatusDisplay.setText("No exam to cancel!");
         } else {
+            final SystemData systemData = this.cache.getSystemData();
+
             try {
-                final RawClientPc record =
-                        RawClientPcLogic.query(this.cache, this.found.computerId);
+                final RawClientPc record = systemData.getClientPc(this.found.computerId);
 
-                if (record != null
-                        && (RawClientPc.STATUS_AWAIT_STUDENT.equals(record.currentStatus))) {
+                if (record != null && (RawClientPc.STATUS_AWAIT_STUDENT.equals(record.currentStatus))) {
 
-                    if (RawClientPcLogic.updateAllCurrent(this.cache, this.found.computerId,
-                            RawClientPc.STATUS_LOCKED, null, null, null, null)) {
+                    if (RawClientPcLogic.updateAllCurrent(this.cache, this.found.computerId, RawClientPc.STATUS_LOCKED,
+                            null, null, null, null)) {
+                        systemData.forgetClientPcs();
                         this.studentStatusDisplay.setText("Exam Canceled.");
                     } else {
                         this.studentStatusDisplay.setText("Error while canceling exam!");
                     }
                 } else {
-                    this.studentStatusDisplay
-                            .setText("Testing station is no longer in the login state.");
+                    this.studentStatusDisplay.setText("Testing station is no longer in the login state.");
                 }
             } catch (final SQLException ex) {
-                this.studentStatusDisplay
-                        .setText("Error checking client PC table: " + ex.getMessage());
+                this.studentStatusDisplay.setText("Error checking client PC table: " + ex.getMessage());
             }
 
             this.found = null;

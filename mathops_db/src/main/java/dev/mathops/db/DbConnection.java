@@ -1,6 +1,7 @@
-package dev.mathops.db.old;
+package dev.mathops.db;
 
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.old.DbContext;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -55,7 +56,7 @@ public final class DbConnection {
      *
      * @param theDbContext the database context this connection uses
      */
-    DbConnection(final DbContext theDbContext) {
+    public DbConnection(final DbContext theDbContext) {
 
         this.dbContext = theDbContext;
     }

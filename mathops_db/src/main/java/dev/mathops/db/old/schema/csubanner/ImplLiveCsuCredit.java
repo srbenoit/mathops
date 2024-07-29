@@ -1,8 +1,8 @@
 package dev.mathops.db.old.schema.csubanner;
 
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.DbConnection;
+import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
 import dev.mathops.db.old.ifaces.ILiveCsuCredit;
 import dev.mathops.db.old.schema.AbstractImpl;
 import dev.mathops.db.old.rec.LiveCsuCredit;

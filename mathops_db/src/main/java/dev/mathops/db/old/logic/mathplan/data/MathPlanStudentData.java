@@ -1,7 +1,7 @@
 package dev.mathops.db.old.logic.mathplan.data;
 
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ETermName;
@@ -36,7 +36,7 @@ import java.util.Set;
  * re-used on subsequent page loads, since this data is unlikely to change rapidly. If an update is made to the data by
  * the site (like the list of majors of interest), the cache is updated at the same time.
  */
-public final class StudentData {
+public final class MathPlanStudentData {
 
     /** Retain data for 60 seconds (adjust as needed). */
     private static final long RETENTION_MS = (long) (60 * 1000);
@@ -120,8 +120,8 @@ public final class StudentData {
      *                        a student)
      * @throws SQLException if there is an error accessing the database
      */
-    public StudentData(final Cache cache, final RawStudent theStudent, final MathPlanLogic logic,
-                       final ZonedDateTime now, final long loginSessionTag, final boolean writeChanges)
+    public MathPlanStudentData(final Cache cache, final RawStudent theStudent, final MathPlanLogic logic,
+                               final ZonedDateTime now, final long loginSessionTag, final boolean writeChanges)
             throws SQLException {
 
         this.expiry = System.currentTimeMillis() + RETENTION_MS;

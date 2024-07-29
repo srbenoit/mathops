@@ -1,7 +1,6 @@
 package dev.mathops.session.txn.messages;
 
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.session.txn.handlers.AbstractHandlerBase;
 import dev.mathops.session.txn.handlers.GetReviewExamHandler;
 
@@ -51,16 +50,15 @@ public final class GetReviewExamRequest extends AbstractRequestBase {
 
         super();
 
-        final String message = extractMessage(xml, xmlTag());
+        final String tag = xmlTag();
+        final String message = extractMessage(xml, tag);
 
         this.machineId = extractField(message, "machine-id");
 
         this.studentId = extractField(message, "student-id");
         this.examVersion = extractField(message, "version");
-        this.takeAsHomework = "true".equalsIgnoreCase(
-                extractField(message, "homework"));
-        this.isPractice = "true".equalsIgnoreCase(
-                extractField(message, "is-practice"));
+        this.takeAsHomework = "true".equalsIgnoreCase(extractField(message, "homework"));
+        this.isPractice = "true".equalsIgnoreCase(extractField(message, "is-practice"));
     }
 
     /**
@@ -110,12 +108,11 @@ public final class GetReviewExamRequest extends AbstractRequestBase {
     /**
      * Generates a handler that can process this message.
      *
-     * @param dbProfile the database profile in which the handler will operate
      * @return a handler that can process the message
      */
     @Override
-    public AbstractHandlerBase createHandler(final DbProfile dbProfile) {
+    public AbstractHandlerBase createHandler() {
 
-        return new GetReviewExamHandler(dbProfile);
+        return new GetReviewExamHandler();
     }
 }

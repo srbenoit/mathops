@@ -1,7 +1,7 @@
 package dev.mathops.app.ops.snapin.activity;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.DbContext;
 import dev.mathops.app.ops.snapin.AbstractDashboardPanel;
 import dev.mathops.app.ops.snapin.AbstractFullPanel;

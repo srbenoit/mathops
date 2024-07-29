@@ -2,7 +2,7 @@ package dev.mathops.web.site.testing;
 
 import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.html.item.EItemState;

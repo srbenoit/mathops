@@ -2,8 +2,8 @@ package dev.mathops.app.adm;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.SystemData;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.DbConnection;
+import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
 import dev.mathops.db.old.DbUtils;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.type.TermKey;

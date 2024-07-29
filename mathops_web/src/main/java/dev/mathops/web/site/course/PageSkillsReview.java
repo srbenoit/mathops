@@ -2,8 +2,8 @@ package dev.mathops.web.site.course;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawPrereqLogic;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -58,9 +58,9 @@ enum PageSkillsReview {
             courseStatus.gatherData(cache, session, session.getEffectiveUserId(), course, false,
                     !"course".equals(mode));
 
-            // FIXME: Hack here - if a student is in M 117, section 401/801/003, and prerequisite
-            // satisfied is provisional (as set in RegistrationCache for this population), then we
-            // make the gateway course M 100T to force a larger Skills Review.
+            // FIXME: Hack here - if a student is in M 117, section 401/801/003, and prerequisite satisfied is
+            //  provisional (as set in RegistrationCache for this population), then we make the gateway course M 100T
+            //  to force a larger Skills Review.
             final RawStcourse stcourse = courseStatus.getStudentCourse();
 
             String lessonCourse = null;
@@ -74,13 +74,15 @@ enum PageSkillsReview {
                 lessonCourse = RawRecordConstants.M100T;
             }
 
-            // FIXME: Hack here - if a student is in M 1170, and prerequisite satisfied is
-            // provisional (as set in RegistrationCache for this population), then we make the
-            // gateway course M 100T to force a larger Skills Review.
+            // FIXME: Hack here - if a student is in M 1170, and prerequisite satisfied is provisional (as set in
+            //  RegistrationCache for this population), then we make the gateway course M 100T to force a larger Skills
+            //  Review.
             if (RawRecordConstants.M1170.equals(stcourse.course)) {
 
+                final SystemData systemData = cache.getSystemData();
+
                 // No real student course row to use for prereq checking, so do it manually...
-                final List<String> prereqs = RawPrereqLogic.getPrerequisitesByCourse(cache, RawRecordConstants.M117);
+                final List<String> prereqs = systemData.getPrerequisitesByCourse(RawRecordConstants.M117);
 
                 boolean prereq = prereqs.isEmpty();
                 final int count = prereqs.size();

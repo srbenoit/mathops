@@ -1,8 +1,7 @@
 package dev.mathops.session.txn.handlers;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
 import dev.mathops.db.old.rawlogic.RawPendingExamLogic;
 import dev.mathops.db.old.rawrecord.RawClientPc;
@@ -22,12 +21,10 @@ public final class ExamStartResultHandler extends AbstractHandlerBase {
 
     /**
      * Construct a new {@code ExamStartResultHandler}.
-     *
-     * @param theDbProfile the database profile under which the handler is being accessed
      */
-    public ExamStartResultHandler(final DbProfile theDbProfile) {
+    public ExamStartResultHandler() {
 
-        super(theDbProfile);
+        super();
     }
 
     /**
@@ -45,7 +42,6 @@ public final class ExamStartResultHandler extends AbstractHandlerBase {
 
         String result;
 
-        // Validate the type of request
         if (message instanceof final ExamStartResultRequest request) {
             try {
                 result = processRequest(cache, request);
@@ -57,7 +53,8 @@ public final class ExamStartResultHandler extends AbstractHandlerBase {
                 result = reply.toXml();
             }
         } else {
-            Log.warning("ExamStartResultHandler called with ", message.getClass().getName());
+            final String clsName = message.getClass().getName();
+            Log.warning("ExamStartResultHandler called with ", clsName);
 
             final ExamStartResultReply reply = new ExamStartResultReply();
             reply.error = "Invalid request type for exam start result request";
@@ -75,8 +72,7 @@ public final class ExamStartResultHandler extends AbstractHandlerBase {
      * @return the generated reply XML to send to the client
      * @throws SQLException if there was an error accessing the database
      */
-    private String processRequest(final Cache cache, final ExamStartResultRequest request)
-            throws SQLException {
+    private String processRequest(final Cache cache, final ExamStartResultRequest request) throws SQLException {
 
         final ExamStartResultReply reply = new ExamStartResultReply();
 
@@ -87,6 +83,8 @@ public final class ExamStartResultHandler extends AbstractHandlerBase {
                 final boolean started = request.result != null
                         && request.result.intValue() == ExamStartResultRequest.EXAM_STARTED;
 
+                final RawClientPc client = getClient();
+
                 final Integer state;
                 final String student;
                 final String course;
@@ -94,10 +92,10 @@ public final class ExamStartResultHandler extends AbstractHandlerBase {
                 final String version;
                 if (started) {
                     state = RawClientPc.STATUS_TAKING_EXAM;
-                    student = getClient().currentStuId;
-                    course = getClient().currentCourse;
-                    unit = getClient().currentUnit;
-                    version = getClient().currentVersion;
+                    student = client.currentStuId;
+                    course = client.currentCourse;
+                    unit = client.currentUnit;
+                    version = client.currentVersion;
                 } else {
                     state = RawClientPc.STATUS_LOCKED;
                     student = null;
@@ -106,17 +104,19 @@ public final class ExamStartResultHandler extends AbstractHandlerBase {
                     version = null;
 
                     if (request.serialNumber == null) {
-                        Log.warning("ExamStartResultRequest without serial number ",
-                                request.toXml());
+                        final String xml = request.toXml();
+                        Log.warning("ExamStartResultRequest without serial number ", xml);
                     } else {
-                        RawPendingExamLogic.delete(cache, request.serialNumber, getStudent().stuId);
+                        final String studentId = getStudentData().getStudentId();
+                        RawPendingExamLogic.delete(cache, request.serialNumber, studentId);
                     }
                 }
 
-                RawClientPcLogic.updateAllCurrent(cache, getClient().computerId, state, student,
+                RawClientPcLogic.updateAllCurrent(cache, client.computerId, state, student,
                         course, unit, version);
             } else {
-                RawPendingExamLogic.delete(cache, request.serialNumber, getStudent().stuId);
+                final String studentId = getStudentData().getStudentId();
+                RawPendingExamLogic.delete(cache, request.serialNumber, studentId);
             }
         }
 

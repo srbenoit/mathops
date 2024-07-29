@@ -330,7 +330,7 @@ public final class MessagingCourseStatus {
         this.instructorName = theInstructorName;
         this.specials = context.specials;
 
-        this.metPrereq = context.prereqLogic != null && context.prereqLogic.hasSatisfiedPrereqsFor(theReg.course);
+        this.metPrereq = context.prereqLogic != null && context.prereqLogic.hasSatisfiedPrerequisitesFor(theReg.course);
 
         this.started = "Y".equals(theReg.openStatus) || "N".equals(theReg.openStatus);
 

@@ -6,8 +6,8 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.enums.EDisciplineActionType;
 import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.DbConnection;
+import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
 import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
@@ -1073,7 +1073,7 @@ public final class ImportBannerStudentRegistrations {
             placedByExam = "A";
         } else {
             final PrerequisiteLogic logic = new PrerequisiteLogic(cache, bannerReg.stuId);
-            if (logic.hasSatisfiedPrereqsFor(bannerReg.course)) {
+            if (logic.hasSatisfiedPrerequisitesFor(bannerReg.course)) {
                 prereq = "Y";
             }
         }

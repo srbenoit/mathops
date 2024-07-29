@@ -2,8 +2,7 @@ package dev.mathops.web.site.placement.main;
 
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
 import dev.mathops.db.old.rawrecord.RawCourse;
@@ -17,7 +16,7 @@ import dev.mathops.db.old.logic.mathplan.data.CourseSequence;
 import dev.mathops.db.old.logic.mathplan.data.ENextStep;
 import dev.mathops.db.old.logic.mathplan.data.Major;
 import dev.mathops.db.old.logic.mathplan.data.MajorMathRequirement;
-import dev.mathops.db.old.logic.mathplan.data.StudentData;
+import dev.mathops.db.old.logic.mathplan.data.MathPlanStudentData;
 import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
@@ -74,7 +73,7 @@ enum PagePlanView {
                       final MathPlanLogic logic) throws IOException, SQLException {
 
         final String stuId = session.getEffectiveUserId();
-        final StudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
+        final MathPlanStudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
                 session.actAsUserId == null);
 
         final HtmlBuilder htm = new HtmlBuilder(8192);
@@ -171,7 +170,7 @@ enum PagePlanView {
                                  final MathPlanLogic logic) throws SQLException {
 
         final String stuId = session.getEffectiveUserId();
-        final StudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
+        final MathPlanStudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
                 session.actAsUserId == null);
 
         htm.sDiv("shaded2left");
@@ -246,7 +245,7 @@ enum PagePlanView {
                               final HtmlBuilder htm, final MathPlanLogic logic) throws SQLException {
 
         final String stuId = session.getEffectiveUserId();
-        final StudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
+        final MathPlanStudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
                 session.actAsUserId == null);
 
         htm.sDiv("indent");
@@ -284,7 +283,7 @@ enum PagePlanView {
      * @param logic the site logic
      * @return the number of selected majors of interest
      */
-    private static int emitMajors(final HtmlBuilder htm, final StudentData data, final MathPlanLogic logic) {
+    private static int emitMajors(final HtmlBuilder htm, final MathPlanStudentData data, final MathPlanLogic logic) {
 
         // See if the student has already submitted a list of majors
         final Map<Integer, RawStmathplan> profileResponses = data.getMajorProfileResponses();
@@ -338,7 +337,7 @@ enum PagePlanView {
      * @param logic       the site logic
      * @param numSelected the number of selected majors of interest
      */
-    private static void emitPlan(final HtmlBuilder htm, final StudentData data, final MathPlanLogic logic,
+    private static void emitPlan(final HtmlBuilder htm, final MathPlanStudentData data, final MathPlanLogic logic,
                                  final int numSelected) {
 
         final Map<String, RawCourse> courses = logic.getCourses();
@@ -423,7 +422,7 @@ enum PagePlanView {
      * @return the number of majors selected
      */
     private static int emitCurrentMajorSelections(final HtmlBuilder htm, final Map<Integer, RawStmathplan> curResponses,
-                                                  final StudentData data, final MathPlanLogic logic) {
+                                                  final MathPlanStudentData data, final MathPlanLogic logic) {
 
         int count = 0;
         final Map<Major, MajorMathRequirement> majors = logic.getMajors();
@@ -594,7 +593,7 @@ enum PagePlanView {
 
             final String studentId = session.getEffectiveUserId();
             final ZonedDateTime sessNow = session.getNow();
-            final StudentData data = logic.getStudentData(cache, studentId, sessNow, session.loginSessionTag, true);
+            final MathPlanStudentData data = logic.getStudentData(cache, studentId, sessNow, session.loginSessionTag, true);
             final Integer key = Integer.valueOf(1);
 
             final Map<Integer, RawStmathplan> existing = MathPlanLogic.getMathPlanResponses(cache, studentId, cmd);

@@ -1,6 +1,6 @@
 package dev.mathops.db.old.logic;
 
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
@@ -125,11 +125,11 @@ public class PrecalcTutorialLogic {
 
         this.status.holds.addAll(RawAdminHoldLogic.queryByStudent(cache, this.studentId));
 
-        final boolean okFor117 = prereqLogic.hasSatisfiedPrereqsFor(RawRecordConstants.M117) || pct117;
-        final boolean okFor118 = prereqLogic.hasSatisfiedPrereqsFor(RawRecordConstants.M118) || pct118;
-        final boolean okFor124 = prereqLogic.hasSatisfiedPrereqsFor(RawRecordConstants.M124) || pct124;
-        final boolean okFor125 = prereqLogic.hasSatisfiedPrereqsFor(RawRecordConstants.M125) || pct125;
-        final boolean okFor126 = prereqLogic.hasSatisfiedPrereqsFor(RawRecordConstants.M126) || pct126;
+        final boolean okFor117 = prereqLogic.hasSatisfiedPrerequisitesFor(RawRecordConstants.M117) || pct117;
+        final boolean okFor118 = prereqLogic.hasSatisfiedPrerequisitesFor(RawRecordConstants.M118) || pct118;
+        final boolean okFor124 = prereqLogic.hasSatisfiedPrerequisitesFor(RawRecordConstants.M124) || pct124;
+        final boolean okFor125 = prereqLogic.hasSatisfiedPrerequisitesFor(RawRecordConstants.M125) || pct125;
+        final boolean okFor126 = prereqLogic.hasSatisfiedPrerequisitesFor(RawRecordConstants.M126) || pct126;
 
         boolean doneWith117 = hasPlacedOut(RawRecordConstants.M117)
                 || prereqLogic.hasCreditFor(RawRecordConstants.M117);
@@ -186,19 +186,19 @@ public class PrecalcTutorialLogic {
         // Tutorial by using the PCT### special student types - this can help a student with a transfer C who needs
         // the B (or placement) to get into Calculus.
 
-        if (pct126 && doneWith126 && prereqLogic.hasSatisfiedPrereqsByTransferFor(RawRecordConstants.M126)) {
+        if (pct126 && doneWith126 && prereqLogic.hasSatisfiedPrerequisitesByTransferFor(RawRecordConstants.M126)) {
             doneWith126 = false;
         }
-        if (pct125 && doneWith125 && prereqLogic.hasSatisfiedPrereqsByTransferFor(RawRecordConstants.M125)) {
+        if (pct125 && doneWith125 && prereqLogic.hasSatisfiedPrerequisitesByTransferFor(RawRecordConstants.M125)) {
             doneWith125 = false;
         }
-        if (pct124 && doneWith124 && prereqLogic.hasSatisfiedPrereqsByTransferFor(RawRecordConstants.M124)) {
+        if (pct124 && doneWith124 && prereqLogic.hasSatisfiedPrerequisitesByTransferFor(RawRecordConstants.M124)) {
             doneWith124 = false;
         }
-        if (pct118 && doneWith118 && prereqLogic.hasSatisfiedPrereqsByTransferFor(RawRecordConstants.M118)) {
+        if (pct118 && doneWith118 && prereqLogic.hasSatisfiedPrerequisitesByTransferFor(RawRecordConstants.M118)) {
             doneWith118 = false;
         }
-        if (pct117 && doneWith117 && prereqLogic.hasSatisfiedPrereqsByTransferFor(RawRecordConstants.M117)) {
+        if (pct117 && doneWith117 && prereqLogic.hasSatisfiedPrerequisitesByTransferFor(RawRecordConstants.M117)) {
             doneWith117 = false;
         }
 

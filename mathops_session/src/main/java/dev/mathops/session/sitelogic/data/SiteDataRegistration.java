@@ -1,12 +1,11 @@
 package dev.mathops.session.sitelogic.data;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.SystemData;
-import dev.mathops.db.old.Cache;
 import dev.mathops.db.enums.ERole;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.rawlogic.RawFfrTrnsLogic;
-import dev.mathops.db.old.rawlogic.RawPrereqLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawSttermLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
@@ -40,34 +39,34 @@ public final class SiteDataRegistration {
     private final SiteData owner;
 
     /** The active term. */
-    private TermRec active;
+    private TermRec active = null;
 
     /** All completed student course records, including past terms. */
-    private List<RawStcourse> allCompletedCourses;
+    private List<RawStcourse> allCompletedCourses = null;
 
     /** All student course records in the current term. */
-    private List<RawStcourse> registrations;
+    private List<RawStcourse> registrations = null;
 
     /** All student course records in the current term. */
-    private List<TermRec> registrationTerms;
+    private List<TermRec> registrationTerms = null;
 
     /** The student course records in the current term that count towards pace . */
-    private List<RawStcourse> paceRegistrations;
+    private List<RawStcourse> paceRegistrations = null;
 
     /** The student transfer credit records (CTransferCredit). */
-    private List<RawFfrTrns> transferCredit;
+    private List<RawFfrTrns> transferCredit = null;
 
     /** The list of prerequisites for each course (course ID). */
-    private List<List<String>> prereqs;
+    private List<List<String>> prereqs = null;
 
     /** A flag indicating student has at least one incomplete that is not completed. */
-    private boolean nonPacedIncompletePending;
+    private boolean nonPacedIncompletePending = false;
 
     /**
      * A flag indicating student has fatal holds, but they are all type "30" (locked out), meaning the student may not
      * work in paced courses.
      */
-    private boolean lockedOut;
+    private boolean lockedOut = true;
 
     /**
      * Constructs a new {@code SiteDataRegistration}.
@@ -77,15 +76,6 @@ public final class SiteDataRegistration {
     SiteDataRegistration(final SiteData theOwner) {
 
         this.owner = theOwner;
-
-        this.active = null;
-        this.allCompletedCourses = null;
-        this.registrations = null;
-        this.registrationTerms = null;
-        this.paceRegistrations = null;
-        this.transferCredit = null;
-        this.prereqs = null;
-        this.lockedOut = true;
     }
 
     /**
@@ -264,7 +254,8 @@ public final class SiteDataRegistration {
      */
     boolean loadData(final Cache cache, final ImmutableSessionInfo session) throws SQLException {
 
-        this.active = cache.getSystemData().getActiveTerm();
+        final SystemData systemData = cache.getSystemData();
+        this.active = systemData.getActiveTerm();
 
         final String studentId = this.owner.studentData.getStudent().stuId;
 
@@ -279,16 +270,18 @@ public final class SiteDataRegistration {
         if (success) {
             final int numCourses = getRegistrations().size();
 
-            // Allocate arrays
             this.prereqs = new ArrayList<>(numCourses);
+            for (final RawStcourse registration : this.registrations) {
+                final List<String> prerequisites = systemData.getPrerequisitesByCourse(registration.course);
+                this.prereqs.add(prerequisites);
+            }
 
-            final boolean b5 = loadCoursePrereqs(cache);
             final boolean b6 = checkPrerequisites(cache);
             final boolean b7 = loadPaceRegistrations(cache);
             final boolean b8 = determineStudentRuleSet(cache);
             final boolean b9 = determinePaceTrack(cache);
 
-            success = b5 && b6 && b7 && b8 && b9;
+            success = b6 && b7 && b8 && b9;
 
             // Determine whether the student may work in paced and non-paced, only non-paced, or
             // neither based on hold status
@@ -574,8 +567,10 @@ public final class SiteDataRegistration {
 
         final boolean success = true;
 
+        final SystemData systemData = cache.getSystemData();
+
         for (final RawStcourse registration : this.registrations) {
-            this.prereqs.add(RawPrereqLogic.getPrerequisitesByCourse(cache, registration.course));
+            this.prereqs.add(systemData.getPrerequisitesByCourse(registration.course));
         }
 
         return success;

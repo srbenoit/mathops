@@ -9,8 +9,7 @@ import dev.mathops.assessment.problem.template.ProblemMultipleSelectionTemplate;
 import dev.mathops.assessment.problem.template.ProblemNumericTemplate;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.Cache;
 import dev.mathops.session.txn.messages.AbstractRequestBase;
 import dev.mathops.session.txn.messages.GetExamReply;
 import dev.mathops.session.txn.messages.GetPastExamReply;
@@ -39,12 +38,10 @@ public final class GetPastExamHandler extends AbstractHandlerBase {
 
     /**
      * Construct a new {@code GetPastExamHandler}.
-     *
-     * @param theDbProfile the database profile under which the handler is being accessed
      */
-    public GetPastExamHandler(final DbProfile theDbProfile) {
+    public GetPastExamHandler() {
 
-        super(theDbProfile);
+        super();
     }
 
     /**
@@ -62,11 +59,11 @@ public final class GetPastExamHandler extends AbstractHandlerBase {
 
         final String result;
 
-        // Validate the type of request
         if (message instanceof final GetPastExamRequest request) {
             result = processRequest(request);
         } else {
-            Log.info("GetPastExamHandler called with ", message.getClass().getName());
+            final String clsName = message.getClass().getName();
+            Log.info("GetPastExamHandler called with ", clsName);
 
             final GetPastExamReply reply = new GetPastExamReply();
             reply.error = "Invalid request type for get past exam request";
@@ -111,13 +108,16 @@ public final class GetPastExamHandler extends AbstractHandlerBase {
 
         if (!xmlPath.exists()) {
             reply.error = "Requested exam not found.";
-            Log.warning(reply.error + CoreConstants.SPC + xmlPath.getAbsolutePath());
+            final String xmlAbsPath = xmlPath.getAbsolutePath();
+            Log.warning(reply.error + CoreConstants.SPC + xmlAbsPath);
             return reply.toXml();
         }
 
+        final String updAbsPath = updPath.getAbsolutePath();
+
         if (!updPath.exists()) {
             reply.error = "Requested exam answers not found.";
-            Log.warning(reply.error + CoreConstants.SPC + updPath.getAbsolutePath());
+            Log.warning(reply.error + CoreConstants.SPC + updAbsPath);
             return reply.toXml();
         }
 
@@ -128,7 +128,7 @@ public final class GetPastExamHandler extends AbstractHandlerBase {
         // Load the updates file
         if (!loadUpdates(updPath, reply.exam)) {
             reply.error = "Unable to read historical exam answer record.";
-            Log.warning(reply.error + CoreConstants.SPC + updPath.getAbsolutePath());
+            Log.warning(reply.error + CoreConstants.SPC + updAbsPath);
             return reply.toXml();
         }
 
@@ -248,7 +248,9 @@ public final class GetPastExamHandler extends AbstractHandlerBase {
                     break;
                 }
 
-                data.add(line.substring(test.length()));
+                final int testLen = test.length();
+                final String substring = line.substring(testLen);
+                data.add(substring);
                 line = br.readLine();
                 ++num;
             }
@@ -323,7 +325,8 @@ public final class GetPastExamHandler extends AbstractHandlerBase {
                             final Long[] ints = new Long[1];
 
                             try {
-                                ints[0] = Long.valueOf(split[0].trim());
+                                final String trimmed = split[0].trim();
+                                ints[0] = Long.valueOf(trimmed);
                                 ans[num] = ints;
                             } catch (final NumberFormatException e) {
                                 Log.warning("Multiple choice answer " + num + " not integer" + split[0]);
@@ -338,7 +341,8 @@ public final class GetPastExamHandler extends AbstractHandlerBase {
                         final Long[] ints = new Long[len];
                         try {
                             for (int i = 0; i < len; ++i) {
-                                ints[i] = Long.valueOf(split[i].trim());
+                                final String trimmed = split[i].trim();
+                                ints[i] = Long.valueOf(trimmed);
                             }
 
                             ans[num] = ints;
@@ -355,7 +359,8 @@ public final class GetPastExamHandler extends AbstractHandlerBase {
                             final Double[] reals = new Double[1];
 
                             try {
-                                reals[0] = Double.valueOf(split[0].trim());
+                                final String trimmed = split[0].trim();
+                                reals[0] = Double.valueOf(trimmed);
                                 ans[num] = reals;
                             } catch (final NumberFormatException e) {
                                 Log.warning("Numeric real answer " + num + " invalid: " + split[0]);

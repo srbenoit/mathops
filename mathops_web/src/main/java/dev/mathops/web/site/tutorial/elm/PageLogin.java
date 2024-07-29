@@ -1,7 +1,7 @@
 package dev.mathops.web.site.tutorial.elm;
 
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.web.site.AbstractSite;

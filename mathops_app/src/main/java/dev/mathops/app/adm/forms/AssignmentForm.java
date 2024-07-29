@@ -8,7 +8,7 @@ import dev.mathops.app.adm.fields.DateTimeField;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.rec.AssignmentRec;
 import dev.mathops.db.old.reclogic.AssignmentLogic;
 import dev.mathops.db.old.reclogic.query.DateTimeCriteria;

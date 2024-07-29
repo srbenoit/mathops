@@ -4,8 +4,8 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.DbConnection;
+import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
 import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
@@ -21,7 +21,7 @@ import dev.mathops.db.old.logic.mathplan.data.CourseInfo;
 import dev.mathops.db.old.logic.mathplan.data.CourseRecommendations;
 import dev.mathops.db.old.logic.mathplan.data.CourseSequence;
 import dev.mathops.db.old.logic.mathplan.data.ENextStep;
-import dev.mathops.db.old.logic.mathplan.data.StudentData;
+import dev.mathops.db.old.logic.mathplan.data.MathPlanStudentData;
 import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
@@ -79,7 +79,7 @@ enum PagePlanNext {
         final MathPlanLogic logic = new MathPlanLogic(site.getDbProfile());
 
         final String stuId = session.getEffectiveUserId();
-        final StudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
+        final MathPlanStudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
                 session.actAsUserId == null);
 
         final HtmlBuilder htm = new HtmlBuilder(8192);
@@ -124,7 +124,7 @@ enum PagePlanNext {
 
         final String screenName = session.getEffectiveScreenName();
         final String stuId = session.getEffectiveUserId();
-        final StudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
+        final MathPlanStudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
                 session.actAsUserId == null);
 
         final Map<Integer, RawStmathplan> intentions = data.getIntentions();
@@ -204,7 +204,7 @@ enum PagePlanNext {
      * @param data the student data
      * @return true if the student needs to complete placement, false if not
      */
-    private static boolean showNextSteps(final HtmlBuilder htm, final StudentData data) {
+    private static boolean showNextSteps(final HtmlBuilder htm, final MathPlanStudentData data) {
 
         boolean needsPlacement = true;
 
@@ -249,7 +249,7 @@ enum PagePlanNext {
      * @param htm  the {@code HtmlBuilder} to which to append
      * @param data the student data
      */
-    static void showNextStepsBrief(final HtmlBuilder htm, final StudentData data) {
+    static void showNextStepsBrief(final HtmlBuilder htm, final MathPlanStudentData data) {
 
         boolean needsPlacement = true;
 
@@ -295,7 +295,7 @@ enum PagePlanNext {
      * @param showActions     true to include calls to action
      */
     private static void emitStep(final HtmlBuilder htm, final ENextStep step, final ETermName applicationTerm,
-                                 final StudentData data, final boolean showActions) {
+                                 final MathPlanStudentData data, final boolean showActions) {
 
         final CourseSequence critical = data.recommendations.criticalSequence;
         final CourseSequence typical = data.recommendations.typicalSequence;
@@ -998,7 +998,7 @@ enum PagePlanNext {
         if (session.actAsUserId == null) {
             final String effectiveId = session.getEffectiveUserId();
             final ZonedDateTime sessNow = session.getNow();
-            final StudentData data = logic.getStudentData(cache, effectiveId, sessNow, session.loginSessionTag, true);
+            final MathPlanStudentData data = logic.getStudentData(cache, effectiveId, sessNow, session.loginSessionTag, true);
 
             logic.deleteMathPlanResponses(cache, data.student, MathPlanConstants.INTENTIONS_PROFILE, sessNow,
                     session.loginSessionTag);

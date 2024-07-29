@@ -7,7 +7,7 @@ import dev.mathops.app.adm.student.TopPanelStudent;
 import dev.mathops.app.adm.testing.TopPanelTesting;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.DbContext;
 
 import javax.swing.BorderFactory;

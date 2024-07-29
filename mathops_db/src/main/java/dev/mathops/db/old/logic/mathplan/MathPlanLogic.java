@@ -4,8 +4,8 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.DbConnection;
+import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
 import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
@@ -32,7 +32,7 @@ import dev.mathops.db.old.logic.mathplan.data.CourseGroup;
 import dev.mathops.db.old.logic.mathplan.data.Major;
 import dev.mathops.db.old.logic.mathplan.data.MajorMathRequirement;
 import dev.mathops.db.old.logic.mathplan.data.RequiredPrereq;
-import dev.mathops.db.old.logic.mathplan.data.StudentData;
+import dev.mathops.db.old.logic.mathplan.data.MathPlanStudentData;
 import dev.mathops.db.old.schema.csubanner.ImplLiveCsuCredit;
 import dev.mathops.db.old.schema.csubanner.ImplLiveTransferCredit;
 
@@ -90,7 +90,7 @@ public final class MathPlanLogic {
     private Map<String, List<RequiredPrereq>> requiredPrereqs = null;
 
     /** A cache of student data. */
-    private final LinkedHashMap<String, StudentData> studentDataCache;
+    private final LinkedHashMap<String, MathPlanStudentData> studentDataCache;
 
     /**
      * Constructs a new {@code MathPlanLogic}.
@@ -4393,19 +4393,19 @@ public final class MathPlanLogic {
      *         queried
      * @throws SQLException if there is an error accessing the database
      */
-    public StudentData getStudentData(final Cache cache, final String studentId, final ZonedDateTime now,
-                                      final long loginSessionTag, final boolean writeChanges) throws SQLException {
+    public MathPlanStudentData getStudentData(final Cache cache, final String studentId, final ZonedDateTime now,
+                                              final long loginSessionTag, final boolean writeChanges) throws SQLException {
 
         synchronized (this.synch) {
             expireCache();
 
-            StudentData result = this.studentDataCache.get(studentId);
+            MathPlanStudentData result = this.studentDataCache.get(studentId);
 
             if (result == null) {
                 final RawStudent student = RawStudentLogic.query(cache, studentId, true);
 
                 if (student != null) {
-                    result = new StudentData(cache, student, this, now, loginSessionTag,
+                    result = new MathPlanStudentData(cache, student, this, now, loginSessionTag,
                             writeChanges);
                     this.studentDataCache.put(studentId, result);
                 }
@@ -4425,7 +4425,7 @@ public final class MathPlanLogic {
 
         // Called only from within synchronized block
 
-        final Iterator<StudentData> iter = this.studentDataCache.values().iterator();
+        final Iterator<MathPlanStudentData> iter = this.studentDataCache.values().iterator();
         while (iter.hasNext() && iter.next().isExpired()) {
             iter.remove();
         }
@@ -4718,7 +4718,7 @@ public final class MathPlanLogic {
         if (result) {
             synchronized (this.synch) {
                 // Rebuild student data
-                this.studentDataCache.put(student.stuId, new StudentData(cache, student, this, now,
+                this.studentDataCache.put(student.stuId, new MathPlanStudentData(cache, student, this, now,
                         loginSessionTag, false));
             }
         }
@@ -4795,7 +4795,7 @@ public final class MathPlanLogic {
 
         synchronized (this.synch) {
             // Responses have changed - rebuild student data
-            this.studentDataCache.put(student.stuId, new StudentData(cache, student, this, now, loginSessionTag,
+            this.studentDataCache.put(student.stuId, new MathPlanStudentData(cache, student, this, now, loginSessionTag,
                     false));
         }
     }

@@ -1,11 +1,10 @@
 package dev.mathops.session.txn.handlers;
 
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.Cache;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.logic.SystemData;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.rawlogic.RawStsurveyqaLogic;
-import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.txn.messages.AbstractRequestBase;
 import dev.mathops.session.txn.messages.SurveyStatusReply;
 import dev.mathops.session.txn.messages.SurveyStatusRequest;
@@ -22,12 +21,10 @@ public final class SurveyStatusHandler extends AbstractHandlerBase {
 
     /**
      * Construct a new {@code SurveyStatusHandler}.
-     *
-     * @param theDbProfile the database profile under which the handler is being accessed
      */
-    public SurveyStatusHandler(final DbProfile theDbProfile) {
+    public SurveyStatusHandler() {
 
-        super(theDbProfile);
+        super();
     }
 
     /**
@@ -50,7 +47,8 @@ public final class SurveyStatusHandler extends AbstractHandlerBase {
         if (message instanceof final SurveyStatusRequest request) {
             result = processRequest(cache, request);
         } else {
-            Log.info("SurveyStatusHandler called with ", message.getClass().getName());
+            final String clsName = message.getClass().getName();
+            Log.info("SurveyStatusHandler called with ", clsName);
 
             final SurveyStatusReply reply = new SurveyStatusReply();
             reply.error = "Invalid request type for survey status request";
@@ -75,9 +73,10 @@ public final class SurveyStatusHandler extends AbstractHandlerBase {
         if (request.version == null) {
             reply.error = "Version not included in survey status request.";
         } else if (loadStudentInfo(cache, request.studentId, reply)) {
-            final RawStudent student = getStudent();
+            final StudentData studentData = getStudentData();
+            final String stuId = studentData.getStudentId();
 
-            if (student.stuId == null) {
+            if (stuId == null) {
                 reply.error = "Invalid session ID";
             } else {
                 final SystemData systemData = cache.getSystemData();
@@ -87,7 +86,7 @@ public final class SurveyStatusHandler extends AbstractHandlerBase {
                     Log.warning("No survey questions found for ", request.version);
                 }
 
-                reply.answers = RawStsurveyqaLogic.queryLatestByStudentProfile(cache, student.stuId, request.version);
+                reply.answers = RawStsurveyqaLogic.queryLatestByStudentProfile(cache, stuId, request.version);
             }
         }
 

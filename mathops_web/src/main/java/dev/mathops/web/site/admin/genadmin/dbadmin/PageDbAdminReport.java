@@ -3,7 +3,7 @@ package dev.mathops.web.site.admin.genadmin.dbadmin;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawStvisitLogic;
 import dev.mathops.db.old.rawrecord.RawStvisit;
 import dev.mathops.session.ImmutableSessionInfo;

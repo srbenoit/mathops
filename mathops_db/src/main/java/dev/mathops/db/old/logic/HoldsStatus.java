@@ -1,6 +1,6 @@
 package dev.mathops.db.old.logic;
 
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
 

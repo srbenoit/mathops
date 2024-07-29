@@ -8,7 +8,7 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.logic.PlacementLogic;
 import dev.mathops.db.old.logic.PlacementStatus;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
@@ -426,39 +426,39 @@ final class StuSummaryPanel extends AdmPanelBase {
             final PrerequisiteLogic prereq = new PrerequisiteLogic(this.cache, data.student.stuId);
 
             int numEligible = 0;
-            if (prereq.hasSatisfiedPrereqsFor(RawRecordConstants.M117)) {
+            if (prereq.hasSatisfiedPrerequisitesFor(RawRecordConstants.M117)) {
                 eligibleFor.append("MATH 117");
                 ++numEligible;
             }
-            if (prereq.hasSatisfiedPrereqsFor(RawRecordConstants.M118)) {
+            if (prereq.hasSatisfiedPrerequisitesFor(RawRecordConstants.M118)) {
                 if (numEligible > 0) {
                     eligibleFor.append(", ");
                 }
                 eligibleFor.append("MATH 118");
                 ++numEligible;
             }
-            if (prereq.hasSatisfiedPrereqsFor(RawRecordConstants.M124)) {
+            if (prereq.hasSatisfiedPrerequisitesFor(RawRecordConstants.M124)) {
                 if (numEligible > 0) {
                     eligibleFor.append(", ");
                 }
                 eligibleFor.append("MATH 124");
                 ++numEligible;
             }
-            if (prereq.hasSatisfiedPrereqsFor(RawRecordConstants.M125)) {
+            if (prereq.hasSatisfiedPrerequisitesFor(RawRecordConstants.M125)) {
                 if (numEligible > 0) {
                     eligibleFor.append(", ");
                 }
                 eligibleFor.append("MATH 125");
                 ++numEligible;
             }
-            if (prereq.hasSatisfiedPrereqsFor(RawRecordConstants.M126)) {
+            if (prereq.hasSatisfiedPrerequisitesFor(RawRecordConstants.M126)) {
                 if (numEligible > 0) {
                     eligibleFor.append(", ");
                 }
                 eligibleFor.append("MATH 126");
                 ++numEligible;
             }
-            if (prereq.hasSatisfiedPrereqsFor(RawRecordConstants.M117)) {
+            if (prereq.hasSatisfiedPrerequisitesFor(RawRecordConstants.M117)) {
                 if (numEligible > 0) {
                     eligibleFor.append(", ");
                 }

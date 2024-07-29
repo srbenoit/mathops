@@ -5,7 +5,7 @@ import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawPlcFeeLogic;
 import dev.mathops.dbjobs.batch.ChallengeBilling;
 import dev.mathops.dbjobs.batch.PlacementBilling;

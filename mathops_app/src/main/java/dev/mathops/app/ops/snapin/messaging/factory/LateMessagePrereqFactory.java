@@ -2,7 +2,7 @@ package dev.mathops.app.ops.snapin.messaging.factory;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawStmpeLogic;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStmpe;
@@ -357,15 +357,15 @@ enum LateMessagePrereqFactory {
             body.add("  Do you have room in your schedule to add MATH 117?");
         } else if (RawRecordConstants.M124.equals(courseId)
                 || RawRecordConstants.M125.equals(courseId)) {
-            if (context.prereqLogic.hasSatisfiedPrereqsFor(RawRecordConstants.M118)) {
+            if (context.prereqLogic.hasSatisfiedPrerequisitesFor(RawRecordConstants.M118)) {
                 body.add("  Do you have room in your schedule to add MATH 118?");
             } else {
                 body.add("  Do you have room in your schedule to add MATH 117 and MATH 118?");
             }
         } else if (RawRecordConstants.M126.equals(courseId)) {
-            if (context.prereqLogic.hasSatisfiedPrereqsFor(RawRecordConstants.M125)) {
+            if (context.prereqLogic.hasSatisfiedPrerequisitesFor(RawRecordConstants.M125)) {
                 body.add("  Do you have room in your schedule to add MATH 125?");
-            } else if (context.prereqLogic.hasSatisfiedPrereqsFor(RawRecordConstants.M118)) {
+            } else if (context.prereqLogic.hasSatisfiedPrerequisitesFor(RawRecordConstants.M118)) {
                 body.add("  Do you have room in your schedule to add MATH 118 and MATH 125?");
             } else {
                 body.add("  Do you have room in your schedule to add MATH 117, MATH 118, and ",

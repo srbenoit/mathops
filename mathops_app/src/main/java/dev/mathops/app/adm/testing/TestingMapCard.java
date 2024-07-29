@@ -4,8 +4,8 @@ import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.rawlogic.RawClientPcLogic;
+import dev.mathops.db.Cache;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawrecord.RawClientPc;
 
 import javax.swing.BorderFactory;
@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * A card panel that displays a map of the testing center, with usage of each station.
  */
-class TestingMapCard extends AdmPanelBase implements ActionListener {
+final class TestingMapCard extends AdmPanelBase implements ActionListener {
 
     /** Version number for serialization. */
     @Serial
@@ -62,8 +62,7 @@ class TestingMapCard extends AdmPanelBase implements ActionListener {
 
         final JPanel top = new JPanel(new StackedBorderLayout(10, 0));
         top.setBackground(Skin.OFF_WHITE_GREEN);
-        top.add(makeHeader("Testing Center Map", false),
-                StackedBorderLayout.WEST);
+        top.add(makeHeader("Testing Center Map", false), StackedBorderLayout.WEST);
 
         final JButton refresh = new JButton("Refresh");
         refresh.setFont(Skin.BIG_BUTTON_16_FONT);
@@ -102,7 +101,7 @@ class TestingMapCard extends AdmPanelBase implements ActionListener {
     /**
      * Refreshes the card.
      */
-    public void refresh() {
+    void refresh() {
 
         loadClients();
         this.map.refresh();
@@ -116,8 +115,10 @@ class TestingMapCard extends AdmPanelBase implements ActionListener {
         synchronized (this.clients) {
             this.clients.clear();
 
+            final SystemData systemData = this.cache.getSystemData();
+
             try {
-                final List<RawClientPc> stations = RawClientPcLogic.INSTANCE.queryAll(this.cache);
+                final List<RawClientPc> stations = systemData.getClientPcs();
 
                 for (final RawClientPc station : stations) {
                     final String center = station.testingCenterId;

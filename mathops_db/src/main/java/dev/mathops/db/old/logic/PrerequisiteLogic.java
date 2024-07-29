@@ -1,9 +1,9 @@
 package dev.mathops.db.old.logic;
 
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawFfrTrnsLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
-import dev.mathops.db.old.rawlogic.RawPrereqLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawrecord.RawFfrTrns;
 import dev.mathops.db.old.rawrecord.RawMpeCredit;
@@ -68,16 +68,18 @@ public final class PrerequisiteLogic {
         this.satisfied = new ArrayList<>(5);
         this.satisfiedByTransfer = new ArrayList<>(5);
 
-        checkPrerequisites(cache, RawRecordConstants.M117,
-                RawPrereqLogic.getPrerequisitesByCourse(cache, RawRecordConstants.M117));
-        checkPrerequisites(cache, RawRecordConstants.M118,
-                RawPrereqLogic.getPrerequisitesByCourse(cache, RawRecordConstants.M118));
-        checkPrerequisites(cache, RawRecordConstants.M124,
-                RawPrereqLogic.getPrerequisitesByCourse(cache, RawRecordConstants.M124));
-        checkPrerequisites(cache, RawRecordConstants.M125,
-                RawPrereqLogic.getPrerequisitesByCourse(cache, RawRecordConstants.M125));
-        checkPrerequisites(cache, RawRecordConstants.M126,
-                RawPrereqLogic.getPrerequisitesByCourse(cache, RawRecordConstants.M126));
+        final SystemData systemData = cache.getSystemData();
+
+        final List<String> m117Prerequisites = systemData.getPrerequisitesByCourse(RawRecordConstants.M117);
+        scanPrerequisites(cache, RawRecordConstants.M117, m117Prerequisites);
+        final List<String> m118Prerequisites = systemData.getPrerequisitesByCourse(RawRecordConstants.M118);
+        scanPrerequisites(cache, RawRecordConstants.M118, m118Prerequisites);
+        final List<String> m124Prerequisites = systemData.getPrerequisitesByCourse(RawRecordConstants.M124);
+        scanPrerequisites(cache, RawRecordConstants.M124, m124Prerequisites);
+        final List<String> m125Prerequisites = systemData.getPrerequisitesByCourse(RawRecordConstants.M125);
+        scanPrerequisites(cache, RawRecordConstants.M125, m125Prerequisites);
+        final List<String> m126Prerequisites = systemData.getPrerequisitesByCourse(RawRecordConstants.M126);
+        scanPrerequisites(cache, RawRecordConstants.M126, m126Prerequisites);
 
         this.creditFor = new ArrayList<>(5);
         if (checkCredit(RawRecordConstants.M117)) {
@@ -103,7 +105,7 @@ public final class PrerequisiteLogic {
      * @param theCourseId the course ID
      * @return true if the student has satisfied the prerequisites for the course
      */
-    public boolean hasSatisfiedPrereqsFor(final String theCourseId) {
+    public boolean hasSatisfiedPrerequisitesFor(final String theCourseId) {
 
         return this.satisfied.contains(theCourseId);
     }
@@ -114,7 +116,7 @@ public final class PrerequisiteLogic {
      * @param theCourseId the course ID
      * @return true if the student has satisfied the prerequisites for the course with transfer credit
      */
-    public boolean hasSatisfiedPrereqsByTransferFor(final String theCourseId) {
+    boolean hasSatisfiedPrerequisitesByTransferFor(final String theCourseId) {
 
         return this.satisfiedByTransfer.contains(theCourseId);
     }
@@ -126,7 +128,7 @@ public final class PrerequisiteLogic {
      * @param theCourseId the course ID
      * @return true if the student has credit for the course
      */
-    public boolean hasCreditFor(final String theCourseId) {
+    boolean hasCreditFor(final String theCourseId) {
 
         return this.creditFor.contains(theCourseId);
     }
@@ -141,8 +143,8 @@ public final class PrerequisiteLogic {
      * @param prereqCourseIds the list of courses which can satisfy the prerequisites for the course
      * @throws SQLException if there is an error accessing the database
      */
-    private void checkPrerequisites(final Cache cache, final String courseId,
-                                    final Iterable<String> prereqCourseIds) throws SQLException {
+    private void scanPrerequisites(final Cache cache, final String courseId,
+                                   final Iterable<String> prereqCourseIds) throws SQLException {
 
         boolean prereqSatisfied = false;
 
@@ -188,9 +190,9 @@ public final class PrerequisiteLogic {
             }
         }
 
-        // Special-case handling - section 801/401/809 students can start the course without
-        // prereqs, but they get a longer Skills Review (ideally, we would only afford this to
-        // non-degree-seeking DCE students, but we tend not to get that data from CSU Online
+        // Special-case handling - section 801/401/809 students can start the course without prerequisites, but they
+        // get a longer Skills Review (ideally, we would only afford this to non-degree-seeking DCE students, but we
+        // tend not to get that data from CSU Online
 
         if (!prereqSatisfied && RawRecordConstants.M117.equals(courseId)) {
 
@@ -278,15 +280,20 @@ public final class PrerequisiteLogic {
 //
 //                Log.fine("Student: ", prereq.studentId);
 //
-//                Log.fine(" OK for 117: " + prereq.hasSatisfiedPrereqsFor(RawRecordConstants.M117) + "; by transfer: " +
+//                Log.fine(" OK for 117: " + prereq.hasSatisfiedPrereqsFor(RawRecordConstants.M117) + "; by transfer:
+//                " +
 //                        prereq.hasSatisfiedPrereqsByTransferFor(RawRecordConstants.M117));
-//                Log.fine(" OK for 118: " + prereq.hasSatisfiedPrereqsFor(RawRecordConstants.M118) + "; by transfer: " +
+//                Log.fine(" OK for 118: " + prereq.hasSatisfiedPrereqsFor(RawRecordConstants.M118) + "; by transfer:
+//                " +
 //                        prereq.hasSatisfiedPrereqsByTransferFor(RawRecordConstants.M118));
-//                Log.fine(" OK for 124: " + prereq.hasSatisfiedPrereqsFor(RawRecordConstants.M124) + "; by transfer: " +
+//                Log.fine(" OK for 124: " + prereq.hasSatisfiedPrereqsFor(RawRecordConstants.M124) + "; by transfer:
+//                " +
 //                        prereq.hasSatisfiedPrereqsByTransferFor(RawRecordConstants.M124));
-//                Log.fine(" OK for 125: " + prereq.hasSatisfiedPrereqsFor(RawRecordConstants.M125) + "; by transfer: " +
+//                Log.fine(" OK for 125: " + prereq.hasSatisfiedPrereqsFor(RawRecordConstants.M125) + "; by transfer:
+//                " +
 //                        prereq.hasSatisfiedPrereqsByTransferFor(RawRecordConstants.M125));
-//                Log.fine(" OK for 126: " + prereq.hasSatisfiedPrereqsFor(RawRecordConstants.M126) + "; by transfer: " +
+//                Log.fine(" OK for 126: " + prereq.hasSatisfiedPrereqsFor(RawRecordConstants.M126) + "; by transfer:
+//                " +
 //                        prereq.hasSatisfiedPrereqsByTransferFor(RawRecordConstants.M126));
 //            } finally {
 //                ctx.checkInConnection(conn);

@@ -6,7 +6,7 @@ import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.enums.ERole;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.session.ImmutableSessionInfo;
 import jakarta.servlet.ServletRequest;
 

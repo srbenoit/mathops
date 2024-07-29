@@ -1,8 +1,8 @@
 package dev.mathops.session.txn.handlers;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.Cache;
-import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.Cache;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
 import dev.mathops.db.old.rawrecord.RawClientPc;
 import dev.mathops.session.txn.messages.AbstractRequestBase;
@@ -20,12 +20,10 @@ public final class TestingStationResetHandler extends AbstractHandlerBase {
 
     /**
      * Construct a new {@code TestingStationResetHandler}.
-     *
-     * @param theDbProfile the database profile under which the handler is being accessed
      */
-    public TestingStationResetHandler(final DbProfile theDbProfile) {
+    public TestingStationResetHandler() {
 
-        super(theDbProfile);
+        super();
     }
 
     /**
@@ -43,7 +41,6 @@ public final class TestingStationResetHandler extends AbstractHandlerBase {
 
         String result;
 
-        // Validate the type of request
         if (message instanceof TestingStationResetRequest) {
             try {
                 result = processRequest(cache);
@@ -55,8 +52,8 @@ public final class TestingStationResetHandler extends AbstractHandlerBase {
                 result = reply.toXml();
             }
         } else {
-            Log.warning("TestingStationResetHandler called with ",
-                    message.getClass().getName());
+            final String clsName = message.getClass().getName();
+            Log.warning("TestingStationResetHandler called with ", clsName);
 
             final TestingStationResetReply reply = new TestingStationResetReply();
             reply.error = "Invalid request type for testing station reset request";
@@ -78,12 +75,16 @@ public final class TestingStationResetHandler extends AbstractHandlerBase {
         final TestingStationResetReply reply = new TestingStationResetReply();
 
         // Query client computer to obtain the information
-        final RawClientPc pc = RawClientPcLogic.query(cache, getMachineId());
+        final String machineId = getMachineId();
+        final SystemData systemData = cache.getSystemData();
+
+        final RawClientPc pc = systemData.getClientPc(machineId);
 
         if (pc != null) {
             if (!RawClientPcLogic.updateAllCurrent(cache, pc.computerId, RawClientPc.STATUS_LOCKED,
                     null, null, null, null)) {
                 reply.error = "Failed to reset testing station.";
+                systemData.forgetClientPcs();
             }
         } else {
             reply.error = "Unable to query testing station to perform a reset";

@@ -1,6 +1,6 @@
 package dev.mathops.app.ops.snapin.messaging.factory;
 
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.app.ops.snapin.messaging.MessagingContext;
 import dev.mathops.app.ops.snapin.messaging.MessagingCourseStatus;
 import dev.mathops.app.ops.snapin.messaging.tosend.MessageToSend;

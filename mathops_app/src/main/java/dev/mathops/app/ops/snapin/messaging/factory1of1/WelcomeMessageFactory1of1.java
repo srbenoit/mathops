@@ -129,10 +129,10 @@ enum WelcomeMessageFactory1of1 {
                 "prerequisites you need to start ", MsgUtils.courseName(firstReg), ".  ");
 
         if (RawRecordConstants.M126.equals(firstReg)) {
-            if (context.prereqLogic.hasSatisfiedPrereqsFor(RawRecordConstants.M125)) {
+            if (context.prereqLogic.hasSatisfiedPrerequisitesFor(RawRecordConstants.M125)) {
                 body.add("You have the prereqs for MATH 125 - you may need to add MATH 125 too so ",
                         "you can meet the prerequisite for MATH 126.  ");
-            } else if (context.prereqLogic.hasSatisfiedPrereqsFor(RawRecordConstants.M118)) {
+            } else if (context.prereqLogic.hasSatisfiedPrerequisitesFor(RawRecordConstants.M118)) {
                 body.add("You have the prereqs for MATH 118 - you may need to add MATH 118 and ",
                         "MATH 125 too so you can meet the prerequisite for MATH 126.  ");
             } else {
@@ -140,10 +140,10 @@ enum WelcomeMessageFactory1of1 {
                         "credit coming in?");
             }
         } else if (RawRecordConstants.M125.equals(firstReg)) {
-            if (context.prereqLogic.hasSatisfiedPrereqsFor(RawRecordConstants.M118)) {
+            if (context.prereqLogic.hasSatisfiedPrerequisitesFor(RawRecordConstants.M118)) {
                 body.add("You have the prereqs for MATH 118 - you may need to add MATH 118 too so ",
                         "you can meet the prerequisite for MATH 125.");
-            } else if (context.prereqLogic.hasSatisfiedPrereqsFor(RawRecordConstants.M117)) {
+            } else if (context.prereqLogic.hasSatisfiedPrerequisitesFor(RawRecordConstants.M117)) {
                 body.add("You have the prereqs for MATH 117 - you may need to add MATH 117 and ",
                         "MATH 118 too so you can meet the prerequisite for MATH 125.");
             } else {
@@ -151,10 +151,10 @@ enum WelcomeMessageFactory1of1 {
                         "credit coming in?");
             }
         } else if (RawRecordConstants.M124.equals(firstReg)) {
-            if (context.prereqLogic.hasSatisfiedPrereqsFor(RawRecordConstants.M118)) {
+            if (context.prereqLogic.hasSatisfiedPrerequisitesFor(RawRecordConstants.M118)) {
                 body.add("You have the prereqs for MATH 118 - you may need to add MATH 118 too so ",
                         "you can meet the prerequisite for MATH 124.");
-            } else if (context.prereqLogic.hasSatisfiedPrereqsFor(RawRecordConstants.M117)) {
+            } else if (context.prereqLogic.hasSatisfiedPrerequisitesFor(RawRecordConstants.M117)) {
                 body.add("You have the prereqs for MATH 117 - you may need to add MATH 117 and ",
                         "MATH 118 too so you can meet the prerequisite for MATH 124.");
             } else {
@@ -162,7 +162,7 @@ enum WelcomeMessageFactory1of1 {
                         "credit coming in?");
             }
         } else if (RawRecordConstants.M118.equals(firstReg)
-                && context.prereqLogic.hasSatisfiedPrereqsFor(RawRecordConstants.M117)) {
+                && context.prereqLogic.hasSatisfiedPrerequisitesFor(RawRecordConstants.M117)) {
             body.add("You have the prereqs for MATH 117 - you may need to add MATH 117 too so ",
                     "you can meet the prerequisite for MATH 118.");
         } else {

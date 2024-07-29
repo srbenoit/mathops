@@ -10,7 +10,7 @@ import dev.mathops.commons.parser.xml.EmptyElement;
 import dev.mathops.commons.parser.xml.IElement;
 import dev.mathops.commons.parser.xml.INode;
 import dev.mathops.commons.parser.xml.XmlContent;
-import dev.mathops.db.old.Cache;
+import dev.mathops.db.Cache;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStudent;
