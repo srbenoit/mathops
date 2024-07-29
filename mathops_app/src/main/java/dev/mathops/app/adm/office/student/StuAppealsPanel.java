@@ -473,7 +473,7 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
                             this.editPaceAppealDialog = new DlgEditPaceAppeal(this.cache, this);
                         }
 
-                        this.editPaceAppealDialog.populateDisplay(this.fixed, this.currentStudentData, appeal);
+                        this.editPaceAppealDialog.populateDisplay(this.currentStudentData, appeal);
                         this.editPaceAppealDialog.setVisible(true);
                         this.editPaceAppealDialog.toFront();
                     }

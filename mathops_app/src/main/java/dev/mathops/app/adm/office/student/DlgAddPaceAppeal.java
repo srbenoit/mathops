@@ -378,8 +378,11 @@ final class DlgAddPaceAppeal extends JFrame implements ActionListener, DocumentL
         // Right side is "student milestone" or "student standard milestone" record, if applicable
 
         final JPanel milestoneUpdate = AdmPanelBase.makeOffWhitePanel(new StackedBorderLayout());
+
         final Border leftLine = BorderFactory.createMatteBorder(0, 1, 0, 0, Color.GRAY);
-        milestoneUpdate.setBorder(leftLine);
+        final Border padLeftBottom = BorderFactory.createEmptyBorder(0, 10, 10, 0);
+        final Border border1 = BorderFactory.createCompoundBorder(leftLine, padLeftBottom);
+        milestoneUpdate.setBorder(border1);
         content.add(milestoneUpdate, StackedBorderLayout.WEST);
 
         final JLabel[] rightLabels = new JLabel[5];

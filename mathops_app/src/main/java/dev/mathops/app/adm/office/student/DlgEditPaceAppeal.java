@@ -2,7 +2,6 @@ package dev.mathops.app.adm.office.student;
 
 import dev.mathops.app.JDateChooser;
 import dev.mathops.app.adm.AdmPanelBase;
-import dev.mathops.app.adm.UserData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
 import dev.mathops.commons.CoreConstants;
@@ -10,8 +9,14 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.old.rawlogic.RawPaceAppealsLogic;
+import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.old.rawrecord.RawPaceAppeals;
+import dev.mathops.db.old.rawrecord.RawStmilestone;
+import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.type.TermKey;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -19,6 +24,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -35,11 +41,15 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A dialog to edit an existing row to "PACE_APPEALS" and (if relief is given) the related "STMILESTONE".
  */
 final class DlgEditPaceAppeal extends JFrame implements ActionListener, ItemListener {
+
+    /** The dialog title. */
+    private static final String TITLE = "Edit Pace Appeal";
 
     /** An action command. */
     private static final String APPLY_CMD = "APPLY";
@@ -52,6 +62,12 @@ final class DlgEditPaceAppeal extends JFrame implements ActionListener, ItemList
 
     /** The data cache. */
     private final Cache cache;
+
+    /** The active term key. */
+    private final TermKey active;
+
+    /** The record being edited. */
+    private RawPaceAppeals currentRecord;
 
     /** The owning panel to be refreshed if an appeal record is added. */
     private final StuAppealsPanel owner;
@@ -112,11 +128,23 @@ final class DlgEditPaceAppeal extends JFrame implements ActionListener, ItemList
      */
     DlgEditPaceAppeal(final Cache theCache, final StuAppealsPanel theOwner) {
 
-        super("Edit Pace Appeal");
+        super(TITLE);
         setBackground(Skin.LIGHTEST);
 
         this.cache = theCache;
         this.owner = theOwner;
+
+        TermKey activeKey = null;
+        try {
+            final SystemData systemData = theCache.getSystemData();
+            final TermRec activeTerm = systemData.getActiveTerm();
+            if (activeTerm != null) {
+                activeKey = activeTerm.term;
+            }
+        } catch (final SQLException ex) {
+            Log.warning("Failed to query milestones", ex);
+        }
+        this.active = activeKey;
 
         final JPanel content = AdmPanelBase.makeOffWhitePanel(new StackedBorderLayout());
         final Border padding = BorderFactory.createEmptyBorder(10, 10, 10, 10);
@@ -310,11 +338,12 @@ final class DlgEditPaceAppeal extends JFrame implements ActionListener, ItemList
     /**
      * Populates all displayed fields for a selected student.
      *
-     * @param fixed  the fixed data with logged-in user information
      * @param data   the student data
      * @param record the record to edit
      */
-    void populateDisplay(final UserData fixed, final StudentData data, final RawPaceAppeals record) {
+    void populateDisplay(final StudentData data, final RawPaceAppeals record) {
+
+        this.currentRecord = record;
 
         this.studentIdField.setText(data.student.stuId);
 
@@ -333,8 +362,10 @@ final class DlgEditPaceAppeal extends JFrame implements ActionListener, ItemList
             final int nbr = record.msNbr.intValue();
             final int course = (nbr / 10) % 10;
             final int unit = nbr % 10;
-            this.courseField.setText(Integer.toString(course));
-            this.unitField.setText(Integer.toString(unit));
+            final String courseStr = Integer.toString(course);
+            this.courseField.setText(courseStr);
+            final String unitStr = Integer.toString(unit);
+            this.unitField.setText(unitStr);
         }
 
         if ("RE".equals(record.msType)) {
@@ -375,14 +406,183 @@ final class DlgEditPaceAppeal extends JFrame implements ActionListener, ItemList
         final String cmd = e.getActionCommand();
 
         if (APPLY_CMD.equals(cmd)) {
-
-            // TODO: validation
-
-            // TODO: update
+            final String error = validateFields();
+            if (error == null) {
+                final String[] errors = doUpdateAppeal();
+                if (errors == null) {
+                    this.owner.updateAppeals();
+                    setVisible(false);
+                } else {
+                    JOptionPane.showMessageDialog(this, errors, TITLE, JOptionPane.ERROR_MESSAGE);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, error, TITLE, JOptionPane.ERROR_MESSAGE);
+            }
 
         } else if (CANCEL_CMD.equals(cmd)) {
             setVisible(false);
         }
+    }
+
+    /**
+     * Validates inputs.
+     *
+     * @return null if inputs are valid, an error message if not
+     */
+    private String validateFields() {
+
+        Log.info("Validating...");
+
+        String error = null;
+
+        if (this.appealDatePicker.getCurrentDate() == null) {
+            error = "Appeal date must be set.";
+        }
+
+        boolean hasPace = false;
+        int paceInt = 0;
+        try {
+            final String paceText = this.paceField.getText();
+            paceInt = Integer.parseInt(paceText);
+            hasPace = true;
+        } catch (final NumberFormatException ex) {
+            error = "Invalid Pace.";
+        }
+
+        int courseInt = 0;
+        try {
+            final String courseText = this.courseField.getText();
+            courseInt = Integer.parseInt(courseText);
+
+            if (courseInt < 0 || (hasPace && courseInt > paceInt)) {
+                error = "Course number must fall within pace.";
+            }
+        } catch (final NumberFormatException ex) {
+            error = "Invalid Course number.";
+        }
+
+        int unitInt = 0;
+        try {
+            final String unitText = this.unitField.getText();
+            unitInt = Integer.parseInt(unitText);
+
+            if (unitInt < 0 || unitInt > 5) {
+                error = "Unit number not in valid range.";
+            }
+        } catch (final NumberFormatException ex) {
+            error = "Invalid Course number.";
+        }
+
+        final int msIndex = this.milestoneTypeDropdown.getSelectedIndex();
+        if (msIndex == -1) {
+            error = "A milestone type must be selected.";
+        }
+
+        if (this.origDatePicker.getCurrentDate() == null) {
+            error = "Original deadline date may not be null.";
+        } else if (this.interviewerField.getText() == null
+                || this.interviewerField.getText().isBlank()) {
+            error = "Interviewer may not be blank.";
+        } else if (this.circumstancesField.getText() == null
+                || this.circumstancesField.getText().isBlank()) {
+            error = "Circumstances field may not be blank.";
+        }
+
+        if (error == null) {
+            final String attemptsText = this.attemptsAllowedField.getText();
+            if (attemptsText != null && !attemptsText.isBlank()) {
+                try {
+                    Integer.parseInt(attemptsText);
+                } catch (final NumberFormatException ex) {
+                    error = "Invalid number of attempts.";
+                }
+            }
+        }
+
+        return error;
+    }
+
+    /**
+     * Attempts to insert the new pace appeal record.
+     *
+     * @return null if insert succeeded; an error message if not
+     */
+    private String[] doUpdateAppeal() {
+
+        String error[] = null;
+
+        if (this.currentRecord == null) {
+            error = new String[]{"No current record to edit."};
+        } else {
+            try {
+                final LocalDate appealDate = this.appealDatePicker.getCurrentDate();
+                final String relief = this.reliefGiven.isSelected() ? "Y" : "N";
+
+                final String paceText = this.paceField.getText();
+                final Integer paceInt = Integer.valueOf(paceText);
+
+                final String paceTrack = this.paceTrackField.getText();
+
+                final String courseText = this.courseField.getText();
+                final Integer courseInt = Integer.valueOf(courseText);
+
+                final String unitText = this.unitField.getText();
+                final Integer unitInt = Integer.valueOf(unitText);
+
+                final int number = paceInt.intValue() * 100 + courseInt.intValue() * 10 + unitInt.intValue();
+                final Integer msNbr = Integer.valueOf(number);
+
+                final String msType;
+                if (this.milestoneTypeDropdown.getSelectedIndex() == 0) {
+                    msType = "RE";
+                } else if (this.milestoneTypeDropdown.getSelectedIndex() == 1) {
+                    msType = "FE";
+                } else if (this.milestoneTypeDropdown.getSelectedIndex() == 2) {
+                    msType = "F1";
+                } else {
+                    msType = null;
+                }
+
+                final LocalDate msDate = this.origDatePicker.getCurrentDate();
+                final LocalDate newDate = this.newDatePicker.getCurrentDate();
+
+                final String attemptsText = this.attemptsAllowedField.getText();
+                final Integer numAttempts = attemptsText == null || attemptsText.isBlank() ? null
+                        : Integer.valueOf(attemptsText);
+
+                final String circumstances = this.circumstancesField.getText();
+                final String comment = this.commentField.getText();
+                final String interviewer = this.interviewerField.getText();
+
+                final boolean changed = !(Objects.equals(this.currentRecord.appealDt, appealDate)
+                        && Objects.equals(this.currentRecord.reliefGiven, relief)
+                        && Objects.equals(this.currentRecord.pace, paceInt)
+                        && Objects.equals(this.currentRecord.paceTrack, paceTrack)
+                        && Objects.equals(this.currentRecord.msNbr, msNbr)
+                        && Objects.equals(this.currentRecord.msType, msType)
+                        && Objects.equals(this.currentRecord.msDate, msDate)
+                        && Objects.equals(this.currentRecord.newDeadlineDt, newDate)
+                        && Objects.equals(this.currentRecord.nbrAtmptsAllow, numAttempts)
+                        && Objects.equals(this.currentRecord.circumstances, circumstances)
+                        && Objects.equals(this.currentRecord.comment, comment)
+                        && Objects.equals(this.currentRecord.interviewer, interviewer));
+
+                if (changed) {
+                    final RawPaceAppeals newRecord = new RawPaceAppeals(this.currentRecord.termKey,
+                            this.currentRecord.stuId, appealDate, relief, paceInt, paceTrack, msNbr, msType,
+                            msDate, newDate, numAttempts, circumstances, comment, interviewer);
+
+                    RawPaceAppealsLogic.INSTANCE.delete(this.cache, this.currentRecord);
+                    RawPaceAppealsLogic.INSTANCE.insert(this.cache, newRecord);
+                }
+            } catch (final NumberFormatException ex) {
+                error = new String[]{"Invalid Course number."};
+            } catch (final SQLException ex) {
+                error = new String[]{"There was an error updating the record.", ex.getLocalizedMessage()};
+            }
+        }
+
+        return error;
     }
 
     /**
@@ -393,7 +593,8 @@ final class DlgEditPaceAppeal extends JFrame implements ActionListener, ItemList
     @Override
     public void itemStateChanged(final ItemEvent e) {
 
-        // TODO:
+        final String error = validateFields();
+        this.applyButton.setEnabled(error == null);
     }
 }
 
