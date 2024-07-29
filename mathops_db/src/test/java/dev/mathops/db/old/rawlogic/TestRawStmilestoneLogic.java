@@ -113,15 +113,15 @@ final class TestRawStmilestoneLogic {
                 final Cache cache = new Cache(dbProfile, conn);
 
                 final RawStmilestone raw1 = new RawStmilestone(fa21, "111111111", "A", Integer.valueOf(541), "RE",
-                        date1, Integer.valueOf(1), null);
+                        date1, Integer.valueOf(1));
                 final RawStmilestone raw2 = new RawStmilestone(fa21, "111111111", "A", Integer.valueOf(542), "UE",
-                        date2, Integer.valueOf(2), null);
+                        date2, Integer.valueOf(2));
                 final RawStmilestone raw3 = new RawStmilestone(fa21, "111111111", "B", Integer.valueOf(543), "FE",
-                        date3, Integer.valueOf(3), null);
+                        date3, Integer.valueOf(3));
                 final RawStmilestone raw4 = new RawStmilestone(fa21, "222222222", "C", Integer.valueOf(432), "RE",
-                        date4, Integer.valueOf(0), null);
+                        date4, Integer.valueOf(0));
                 final RawStmilestone raw5 = new RawStmilestone(sp22, "222222222", "D", Integer.valueOf(123), "F1",
-                        date5, Integer.valueOf(4), null);
+                        date5, Integer.valueOf(4));
 
                 assertTrue(RawStmilestoneLogic.INSTANCE.insert(cache, raw1), "Failed to insert stmilestone 1");
                 assertTrue(RawStmilestoneLogic.INSTANCE.insert(cache, raw2), "Failed to insert stmilestone 2");
@@ -371,7 +371,7 @@ final class TestRawStmilestoneLogic {
 
             try {
                 final RawStmilestone raw1 = new RawStmilestone(fa21, "111111111", "A", Integer.valueOf(541), "RE",
-                        date6, Integer.valueOf(100), null);
+                        date6, Integer.valueOf(100));
 
                 final boolean result = RawStmilestoneLogic.update(cache, raw1);
 
@@ -438,7 +438,7 @@ final class TestRawStmilestoneLogic {
 
             try {
                 final RawStmilestone raw1 = new RawStmilestone(fa21, "111111111", "A", Integer.valueOf(541), "RE",
-                        date6, Integer.valueOf(100), null);
+                        date6, Integer.valueOf(100));
 
                 final boolean result = RawStmilestoneLogic.INSTANCE.delete(cache, raw1);
 

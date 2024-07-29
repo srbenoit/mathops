@@ -31,9 +31,6 @@ public final class RawStmilestone extends RawTermRecordBase implements Comparabl
     /** A field name. */
     private static final String FLD_NBR_ATMPTS_ALLOW = "nbr_atmpts_allow";
 
-    /** A field name. */
-    private static final String FLD_EXT_TYPE = "ext_type";
-
     /** The 'stu_id' field value. */
     public String stuId;
 
@@ -51,9 +48,6 @@ public final class RawStmilestone extends RawTermRecordBase implements Comparabl
 
     /** The 'nbr_atmpts_allow' field value. */
     public Integer nbrAtmptsAllow;
-
-    /** The 'ext_type' field value. */
-    public String extType;
 
     /**
      * Constructs a new {@code RawStmilestone}.
@@ -73,11 +67,10 @@ public final class RawStmilestone extends RawTermRecordBase implements Comparabl
      * @param theMsType         the milestone type
      * @param theMsDate         the milestone date
      * @param theNbrAtmptsAllow the number of attempts allowed
-     * @param theExtType the extension type
      */
     public RawStmilestone(final TermKey theTermKey, final String theStuId, final String thePaceTrack,
                           final Integer theMsNbr, final String theMsType, final LocalDate theMsDate,
-                          final Integer theNbrAtmptsAllow, final String theExtType) {
+                          final Integer theNbrAtmptsAllow) {
 
         super(theTermKey);
 
@@ -87,7 +80,6 @@ public final class RawStmilestone extends RawTermRecordBase implements Comparabl
         this.msType = theMsType;
         this.msDate = theMsDate;
         this.nbrAtmptsAllow = theNbrAtmptsAllow;
-        this.extType = theExtType;
     }
 
     /**
@@ -169,11 +161,7 @@ public final class RawStmilestone extends RawTermRecordBase implements Comparabl
                         result = compareAllowingNull(this.msType, o.msType);
 
                         if (result == 0) {
-                            result = compareAllowingNull(this.extType, o.extType);
-
-                            if (result == 0) {
-                                result = compareAllowingNull(this.stuId, o.stuId);
-                            }
+                            result = compareAllowingNull(this.stuId, o.stuId);
                         }
                     }
                 }
@@ -207,8 +195,6 @@ public final class RawStmilestone extends RawTermRecordBase implements Comparabl
         appendField(htm, FLD_MS_DATE, this.msDate);
         htm.add(DIVIDER);
         appendField(htm, FLD_NBR_ATMPTS_ALLOW, this.nbrAtmptsAllow);
-        htm.add(DIVIDER);
-        appendField(htm, FLD_EXT_TYPE, this.extType);
 
         return htm.toString();
     }
@@ -227,8 +213,7 @@ public final class RawStmilestone extends RawTermRecordBase implements Comparabl
                 + Objects.hashCode(this.msNbr)
                 + Objects.hashCode(this.msType)
                 + Objects.hashCode(this.msDate)
-                + Objects.hashCode(this.nbrAtmptsAllow)
-                + Objects.hashCode(this.extType);
+                + Objects.hashCode(this.nbrAtmptsAllow);
     }
 
     /**
@@ -251,8 +236,7 @@ public final class RawStmilestone extends RawTermRecordBase implements Comparabl
                     && Objects.equals(this.msNbr, rec.msNbr)
                     && Objects.equals(this.msType, rec.msType)
                     && Objects.equals(this.msDate, rec.msDate)
-                    && Objects.equals(this.nbrAtmptsAllow, rec.nbrAtmptsAllow)
-                    && Objects.equals(this.extType, rec.extType);
+                    && Objects.equals(this.nbrAtmptsAllow, rec.nbrAtmptsAllow);
         } else {
             equal = false;
         }

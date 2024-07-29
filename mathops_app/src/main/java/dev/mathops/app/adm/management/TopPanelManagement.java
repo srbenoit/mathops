@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.management;
 
-import dev.mathops.app.adm.AdmMainWindow;
+import dev.mathops.app.adm.MainWindow;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.Cache;
@@ -88,7 +88,7 @@ public class TopPanelManagement extends JPanel implements ActionListener {
     public TopPanelManagement(final Cache theCache, final Object theRenderingHint) {
 
         super(new BorderLayout(5, 5));
-        setPreferredSize(AdmMainWindow.PREF_SIZE);
+        setPreferredSize(MainWindow.PREF_SIZE);
 
         setBackground(Skin.OFF_WHITE_GRAY);
         setBorder(BorderFactory.createCompoundBorder( //

@@ -58,7 +58,7 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
     private String actionCommand = CoreConstants.EMPTY;
 
     /** The current date. */
-    private LocalDate date;
+    private LocalDate currentDate;
 
     /** The month calendar. */
     private final JMonthCalendar monthCalendar;
@@ -69,10 +69,10 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
     /**
      * Constructs a new {@code JDateChooser} with a specified starting value.
      *
-     * @param currentValue the current value (can be null)
-     * @param holidays     an optional list of holidays
+     * @param theCurrentDate the current date (can be null)
+     * @param holidays       an optional list of holidays
      */
-    public JDateChooser(final LocalDate currentValue, final List<LocalDate> holidays) {
+    public JDateChooser(final LocalDate theCurrentDate, final List<LocalDate> holidays) {
 
         super(new BorderLayout());
 
@@ -93,15 +93,15 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
         this.dateDropdownArrow.addMouseListener(this);
         add(this.dateDropdownArrow, BorderLayout.LINE_END);
 
-        this.date = currentValue;
-        if (currentValue != null) {
-            final String dateStr = TemporalUtils.FMT_MDY.format(currentValue);
+        this.currentDate = theCurrentDate;
+        if (theCurrentDate != null) {
+            final String dateStr = TemporalUtils.FMT_MDY.format(theCurrentDate);
             this.dateField.setText(dateStr);
         }
 
         final LocalDate today = LocalDate.now();
         final YearMonth thisMonth = YearMonth.from(today);
-        this.monthCalendar = new JMonthCalendar(thisMonth, today, holidays, currentValue, this);
+        this.monthCalendar = new JMonthCalendar(thisMonth, today, holidays, theCurrentDate, this);
 
         this.monthCalendarWindow = new JWindow();
         this.monthCalendarWindow.add(this.monthCalendar);
@@ -113,9 +113,9 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
      *
      * @return the date
      */
-    public LocalDate getDate() {
+    public LocalDate getCurrentDate() {
 
-        return this.date;
+        return this.currentDate;
     }
 
     /**
@@ -123,9 +123,9 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
      *
      * @param newDate the new date
      */
-    public void setDate(final LocalDate newDate) {
+    public void setCurrentDate(final LocalDate newDate) {
 
-        this.date = newDate;
+        this.currentDate = newDate;
 
         if (newDate == null) {
             this.dateField.setText(CoreConstants.EMPTY);
@@ -134,22 +134,23 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
         }
 
         this.monthCalendar.setSelectedDate(newDate);
+        fireActionEvent();
     }
 
     /**
      * Sets the font to use when displaying this control.
      *
-     * @param newFont the desired {@code Font} for this component
+     * @param font the desired {@code Font} for this component
      */
-    public void setFont(final Font newFont) {
+    public void setFont(final Font font) {
 
-        super.setFont(newFont);
+        super.setFont(font);
 
         if (this.dateField != null) {
-            this.dateField.setFont(newFont);
+            this.dateField.setFont(font);
         }
         if (this.monthCalendar != null) {
-            this.monthCalendar.setFont(newFont);
+            this.monthCalendar.setFont(font);
 
             if (this.dateField != null) {
                 final Dimension calendarSize = this.monthCalendar.getPreferredSize();
@@ -203,7 +204,7 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
     /**
      * Fires an action event to all registered listeners.
      */
-    public void fireActionEvent() {
+    private void fireActionEvent() {
 
         synchronized (this.listeners) {
             if (!this.listeners.isEmpty()) {
@@ -238,7 +239,7 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
                     this.dateField.setText(newText);
                 }
                 fireActionEvent();
-                this.date = parsed;
+                this.currentDate = parsed;
             }
         }
     }
@@ -289,12 +290,22 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
         return date;
     }
 
+    /**
+     * Called when the mouse is clicked in the component.
+     *
+     * @param e the mouse event
+     */
     @Override
     public void mouseClicked(final MouseEvent e) {
 
         // No action
     }
 
+    /**
+     * Called when the mouse is pressed in the component.
+     *
+     * @param e the mouse event
+     */
     @Override
     public void mousePressed(final MouseEvent e) {
 
@@ -312,23 +323,33 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
         }
     }
 
+    /**
+     * Called when the mouse is released after being pressed in the component.
+     *
+     * @param e the mouse event
+     */
     @Override
     public void mouseReleased(final MouseEvent e) {
 
         // No action
     }
 
-    private void maybeShowPopup(final MouseEvent e) {
-
-        // No action
-    }
-
+    /**
+     * Called when the mouse enters the component.
+     *
+     * @param e the mouse event
+     */
     @Override
     public void mouseEntered(final MouseEvent e) {
 
         // No action
     }
 
+    /**
+     * Called when the mouse exits the component.
+     *
+     * @param e the mouse event
+     */
     @Override
     public void mouseExited(final MouseEvent e) {
 
@@ -343,9 +364,9 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
     @Override
     public void dateSelected(final LocalDate date) {
 
-        setDate(date);
-
+        setCurrentDate(date);
         this.monthCalendarWindow.setVisible(false);
+        fireActionEvent();
     }
 
     /**
@@ -385,18 +406,13 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
             chooser.setPreferredSize(minSize);
             flow.add(chooser, BorderLayout.CENTER);
 
-
-//            final JMonthCalendar month = new JMonthCalendar(yearMonth, today, holidays, selected, chooser);
-//            monthFlow.add(month);
-//            content.add(monthFlow, BorderLayout.CENTER);
-
             final JLabel result = new JLabel(" ");
             content.add(result, BorderLayout.PAGE_END);
 
             chooser.addActionListener(e -> {
                 final String cmd = e.getActionCommand();
                 if ("FOO".equals(cmd)) {
-                    final LocalDate parsed = chooser.getDate();
+                    final LocalDate parsed = chooser.getCurrentDate();
 
                     if (parsed == null) {
                         result.setText("(No date entered)");

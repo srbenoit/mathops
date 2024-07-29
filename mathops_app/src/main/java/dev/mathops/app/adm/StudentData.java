@@ -140,7 +140,7 @@ public final class StudentData {
      * @param theStudent the student record
      * @throws SQLException if there is an error reading from the database
      */
-    public StudentData(final Cache cache, final FixedData fixed, final RawStudent theStudent) throws SQLException {
+    public StudentData(final Cache cache, final UserData fixed, final RawStudent theStudent) throws SQLException {
 
         this.errorMessages = new ArrayList<>(10);
 
@@ -255,7 +255,7 @@ public final class StudentData {
      * @param fixed the fixed data
      * @return the list of discipline records
      */
-    private List<RawDiscipline> loadStudentDisciplines(final DbConnection conn, final FixedData fixed) {
+    private List<RawDiscipline> loadStudentDisciplines(final DbConnection conn, final UserData fixed) {
 
         final List<RawDiscipline> result = new ArrayList<>(10);
 

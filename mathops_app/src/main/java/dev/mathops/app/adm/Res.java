@@ -52,16 +52,13 @@ final class Res extends ResBundle {
     /** A resource key. */
     static final String LOGIN_BAD_LOGIN_ERR = key(index++);
 
-    /** A resource key. */
-    static final String LOGIN_CANT_CREATE_SCHEMA_ERR = key(index++);
-
     // Used by MainWindow
 
     /** A resource key. */
-    static final String STUDENT_TAB = key(index++);
+    static final String OFFICE_TAB = key(index++);
 
     /** A resource key. */
-    static final String RESOURCES_TAB = key(index++);
+    static final String RESOURCE_TAB = key(index++);
 
     /** A resource key. */
     static final String TESTING_TAB = key(index++);
@@ -75,7 +72,7 @@ final class Res extends ResBundle {
     //
 
     /** The resources - an array of key-values pairs. */
-    private static final String[][] EN_US = {//
+    private static final String[][] EN_US = {
 
             {TITLE, "Precalculus Program Adminstration"},
 
@@ -90,10 +87,9 @@ final class Res extends ResBundle {
             {LOGIN_NO_DB_ERR, "No database selected."},
             {LOGIN_NO_SCHEMA_ERR, "Selected database has no primary schema."},
             {LOGIN_BAD_LOGIN_ERR, "Invalid login."},
-            {LOGIN_CANT_CREATE_SCHEMA_ERR, "Unable to create schema object."},
 
-            {STUDENT_TAB, "  Students  "},
-            {RESOURCES_TAB, "  Resources  "},
+            {OFFICE_TAB, "  Office  "},
+            {RESOURCE_TAB, "  Resource Desk  "},
             {TESTING_TAB, "  Testing Center  "},
             {FORMS_TAB, "  Forms  "},
             {MGT_TAB, "  Management  "},

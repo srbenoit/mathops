@@ -1,7 +1,7 @@
 package dev.mathops.app.adm.testing;
 
-import dev.mathops.app.adm.AdmMainWindow;
-import dev.mathops.app.adm.FixedData;
+import dev.mathops.app.adm.MainWindow;
+import dev.mathops.app.adm.UserData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
@@ -91,7 +91,7 @@ public final class TopPanelTesting extends JPanel implements ActionListener {
      * @param fixed            the fixed data
      * @param theFrame         the owning frame
      */
-    public TopPanelTesting(final Cache theCache, final String theServerSiteUrl, final FixedData fixed,
+    public TopPanelTesting(final Cache theCache, final String theServerSiteUrl, final UserData fixed,
                            final JFrame theFrame) {
 
         // Functions:
@@ -100,7 +100,7 @@ public final class TopPanelTesting extends JPanel implements ActionListener {
         // [ Issue ]
 
         super(new BorderLayout(5, 5));
-        setPreferredSize(AdmMainWindow.PREF_SIZE);
+        setPreferredSize(MainWindow.PREF_SIZE);
 
         this.cache = theCache;
         this.serverSiteUrl = theServerSiteUrl;

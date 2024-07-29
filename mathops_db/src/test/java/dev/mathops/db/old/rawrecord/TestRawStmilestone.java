@@ -65,7 +65,7 @@ final class TestRawStmilestone {
     void test0001() {
 
         final RawStmilestone obj = new RawStmilestone(TEST_TERM, TEST_STU_ID, TEST_PACE_TRACK,
-                TEST_MS_NBR, TEST_MS_TYPE, TEST_MS_DATE, TEST_NBR_ATMPTS_ALLOW, null);
+                TEST_MS_NBR, TEST_MS_TYPE, TEST_MS_DATE, TEST_NBR_ATMPTS_ALLOW);
 
         assertEquals(TEST_TERM, obj.termKey, "Invalid term value after constructor");
         assertEquals(TEST_STU_ID, obj.stuId, "Invalid std_id value after constructor");
@@ -74,7 +74,6 @@ final class TestRawStmilestone {
         assertEquals(TEST_MS_TYPE, obj.msType, "Invalid ms_type value after constructor");
         assertEquals(TEST_MS_DATE, obj.msDate, "Invalid ms_date value after constructor");
         assertEquals(TEST_NBR_ATMPTS_ALLOW, obj.nbrAtmptsAllow, "Invalid nbr_atmpts_allow value after constructor");
-        assertEquals(TEST_EXT_TYPE, obj.extType, "Invalid ext_type value after constructor");
     }
 
     /** Test case. */
@@ -83,7 +82,7 @@ final class TestRawStmilestone {
     void test0098() {
 
         final RawStmilestone obj = new RawStmilestone(TEST_TERM, TEST_STU_ID, TEST_PACE_TRACK,
-                TEST_MS_NBR, TEST_MS_TYPE, TEST_MS_DATE, TEST_NBR_ATMPTS_ALLOW, null);
+                TEST_MS_NBR, TEST_MS_TYPE, TEST_MS_DATE, TEST_NBR_ATMPTS_ALLOW);
 
         final String ser = obj.toString();
 

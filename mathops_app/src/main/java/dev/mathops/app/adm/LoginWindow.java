@@ -2,7 +2,6 @@ package dev.mathops.app.adm;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.ParsingException;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.EDbProduct;
@@ -26,13 +25,11 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.WindowConstants;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.MatteBorder;
@@ -49,7 +46,6 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -64,7 +60,7 @@ import java.util.prefs.Preferences;
  * preferences API), and then enters a username and password to connect to the server. Once a connection is created, the
  * databases in that cluster become available, and the main application window opens.
  */
-final class LoginWindow implements Runnable, ActionListener {
+final class LoginWindow extends JFrame implements ActionListener {
 
     /** An action command. */
     private static final String LOGIN_CMD = "LOGIN";
@@ -90,26 +86,17 @@ final class LoginWindow implements Runnable, ActionListener {
     /** The database context map. */
     private final ContextMap map;
 
-    /** The initial username. */
-    private final String initialUsername;
-
-    /** The initial password. */
-    private final String initialPassword;
-
-    /** The frame. */
-    private JFrame frame = null;
-
     /** A combo box from which to choose database. */
-    private JComboBox<EDbUse> schemaCombo = null;
+    private final JComboBox<EDbUse> schemaCombo;
 
     /** The username. */
-    private JTextField username = null;
+    private final JTextField username;
 
     /** The password. */
-    private JPasswordField password = null;
+    private final JPasswordField password;
 
     /** An error message. */
-    private JLabel error = null;
+    private final JLabel error;
 
     /** Font antialiasing selections. */
     private final JRadioButton[] radios;
@@ -118,7 +105,7 @@ final class LoginWindow implements Runnable, ActionListener {
     private final JPanel content;
 
     /** The settings button. */
-    private JButton settingsBtn = null;
+    private final JButton settingsBtn;
 
     /** A panel to set text antialiasing. */
     private final JPanel pickAntialias;
@@ -126,41 +113,24 @@ final class LoginWindow implements Runnable, ActionListener {
     /**
      * Constructs a new {@code LoginWindow}
      *
+     * @param theContextMap      the context map
      * @param theInitialUsername the username to pre-populate (from command-line)
      * @param theInitialPassword the password to pre-populate (from command-line)
      */
-    LoginWindow(final String theInitialUsername, final String theInitialPassword) {
+    LoginWindow(final ContextMap theContextMap, final String theInitialUsername, final String theInitialPassword) {
 
-        this.initialUsername = theInitialUsername;
-        this.initialPassword = theInitialPassword;
+        super();
+
+        this.map = theContextMap;
+
+        final String title = Res.get(Res.TITLE);
+        setTitle(title);
+
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+
         this.radios = new JRadioButton[6];
         this.content = new JPanel(new BorderLayout());
         this.pickAntialias = new JPanel(new StackedBorderLayout(0, 0));
-
-        final String path = System.getProperty("user.dir");
-        final File dir = new File(path);
-        final File cfgFile = new File(dir, "db-config.xml");
-
-        ContextMap theMap;
-        if (cfgFile.exists()) {
-            try {
-                theMap = ContextMap.load(dir);
-            } catch (final ParsingException ex) {
-                theMap = ContextMap.getDefaultInstance();
-                Log.warning(ex);
-            }
-        } else {
-            theMap = ContextMap.getDefaultInstance();
-        }
-
-        this.map = theMap;
-    }
-
-    /**
-     * Constructs the UI in the AWT event thread.
-     */
-    @Override
-    public void run() {
 
         int pref = -1;
         final Class<? extends LoginWindow> cls = getClass();
@@ -169,285 +139,275 @@ final class LoginWindow implements Runnable, ActionListener {
             pref = prefs.getInt(ANTIALIAS, -1);
         }
 
-        if (this.map == null) {
-            JOptionPane.showMessageDialog(null, "Failed to load database configuration");
-        } else {
-            final String title = Res.get(Res.TITLE);
-            this.frame = new JFrame(title);
-            this.frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        final Border contentPadding = BorderFactory.createEmptyBorder(10, 20, 10, 20);
+        this.content.setBorder(contentPadding);
+        this.content.setBackground(Skin.OFF_WHITE_GRAY);
+        setContentPane(this.content);
 
-            final Border contentPadding = BorderFactory.createEmptyBorder(10, 20, 10, 20);
-            this.content.setBorder(contentPadding);
-            this.content.setBackground(Skin.OFF_WHITE_GRAY);
-            this.frame.setContentPane(this.content);
+        // NORTH: Header
+        final JPanel north = new JPanel(new BorderLayout());
+        final MatteBorder underline = BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY);
+        final Border northBorder = BorderFactory.createEmptyBorder(10, 10, 10, 10);
+        final CompoundBorder paddedOutline = BorderFactory.createCompoundBorder(underline, northBorder);
+        north.setBorder(paddedOutline);
+        north.setBackground(Skin.OFF_WHITE_GRAY);
 
-            // NORTH: Header
-            final JPanel north = new JPanel(new BorderLayout());
-            final MatteBorder underline = BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY);
-            final Border northBorder = BorderFactory.createEmptyBorder(10, 10, 10, 10);
-            final CompoundBorder paddedOutline = BorderFactory.createCompoundBorder(underline, northBorder);
-            north.setBorder(paddedOutline);
-            north.setBackground(Skin.OFF_WHITE_GRAY);
+        final JLabel header = new JLabel(title);
+        header.setFont(Skin.BIG_HEADER_18_FONT);
+        header.setForeground(Skin.LABEL_COLOR);
+        header.setHorizontalAlignment(SwingConstants.CENTER);
+        north.add(header, BorderLayout.CENTER);
+        this.content.add(north, BorderLayout.PAGE_START);
 
-            final JLabel header = new JLabel(title);
-            header.setFont(Skin.BIG_HEADER_18_FONT);
-            header.setForeground(Skin.LABEL_COLOR);
-            header.setHorizontalAlignment(SwingConstants.CENTER);
-            north.add(header, BorderLayout.CENTER);
-            this.content.add(north, BorderLayout.PAGE_START);
+        // CENTER: Fields
+        final JPanel center = new JPanel();
+        final Border centerPadding = BorderFactory.createEmptyBorder(20, 10, 20, 10);
+        center.setBorder(centerPadding);
+        center.setBackground(Skin.OFF_WHITE_GRAY);
+        final LayoutManager box = new BoxLayout(center, BoxLayout.PAGE_AXIS);
+        center.setLayout(box);
 
-            // CENTER: Fields
-            final JPanel center = new JPanel();
-            final Border centerPadding = BorderFactory.createEmptyBorder(20, 10, 20, 10);
-            center.setBorder(centerPadding);
-            center.setBackground(Skin.OFF_WHITE_GRAY);
-            final LayoutManager box = new BoxLayout(center, BoxLayout.PAGE_AXIS);
-            center.setLayout(box);
+        final String schemaLabelTxt = Res.get(Res.LOGIN_SCHEMA_FIELD_LBL);
+        final JLabel schemaPickLbl = new JLabel(schemaLabelTxt);
+        schemaPickLbl.setHorizontalAlignment(SwingConstants.RIGHT);
+        schemaPickLbl.setFont(Skin.BOLD_12_FONT);
 
-            final String schemaLabelTxt = Res.get(Res.LOGIN_SCHEMA_FIELD_LBL);
-            final JLabel schemaPickLbl = new JLabel(schemaLabelTxt);
-            schemaPickLbl.setHorizontalAlignment(SwingConstants.RIGHT);
-            schemaPickLbl.setFont(Skin.BOLD_12_FONT);
+        final String userLabelTxt = Res.get(Res.LOGIN_USER_FIELD_LBL);
+        final JLabel usernameLbl = new JLabel(userLabelTxt);
+        usernameLbl.setHorizontalAlignment(SwingConstants.RIGHT);
+        usernameLbl.setFont(Skin.BOLD_12_FONT);
 
-            final String userLabelTxt = Res.get(Res.LOGIN_USER_FIELD_LBL);
-            final JLabel usernameLbl = new JLabel(userLabelTxt);
-            usernameLbl.setHorizontalAlignment(SwingConstants.RIGHT);
-            usernameLbl.setFont(Skin.BOLD_12_FONT);
+        final String passwordLabelTxt = Res.get(Res.LOGIN_PWD_FIELD_LBL);
+        final JLabel passwordLbl = new JLabel(passwordLabelTxt);
+        passwordLbl.setHorizontalAlignment(SwingConstants.RIGHT);
+        passwordLbl.setFont(Skin.BOLD_12_FONT);
 
-            final String passwordLabelTxt = Res.get(Res.LOGIN_PWD_FIELD_LBL);
-            final JLabel passwordLbl = new JLabel(passwordLabelTxt);
-            passwordLbl.setHorizontalAlignment(SwingConstants.RIGHT);
-            passwordLbl.setFont(Skin.BOLD_12_FONT);
+        final Dimension schemaPickSize = schemaPickLbl.getPreferredSize();
+        final Dimension usernameSize = usernameLbl.getPreferredSize();
+        final Dimension passwordSize = passwordLbl.getPreferredSize();
+        final int max1 = Math.max(usernameSize.width, passwordSize.width);
+        final int max2 = Math.max(schemaPickSize.width, max1);
+        final Dimension lblSize = new Dimension(max2, schemaPickSize.height);
 
-            final Dimension schemaPickSize = schemaPickLbl.getPreferredSize();
-            final Dimension usernameSize = usernameLbl.getPreferredSize();
-            final Dimension passwordSize = passwordLbl.getPreferredSize();
-            final int max1 = Math.max(usernameSize.width, passwordSize.width);
-            final int max2 = Math.max(schemaPickSize.width, max1);
-            final Dimension lblSize = new Dimension(max2, schemaPickSize.height);
+        schemaPickLbl.setPreferredSize(lblSize);
+        usernameLbl.setPreferredSize(lblSize);
+        passwordLbl.setPreferredSize(lblSize);
 
-            schemaPickLbl.setPreferredSize(lblSize);
-            usernameLbl.setPreferredSize(lblSize);
-            passwordLbl.setPreferredSize(lblSize);
+        final JPanel schemaPick = new JPanel(new BorderLayout(10, 10));
+        schemaPick.setBackground(Skin.OFF_WHITE_GRAY);
+        schemaPick.add(schemaPickLbl, BorderLayout.LINE_START);
 
-            final JPanel schemaPick = new JPanel(new BorderLayout(10, 10));
-            schemaPick.setBackground(Skin.OFF_WHITE_GRAY);
-            schemaPick.add(schemaPickLbl, BorderLayout.LINE_START);
-
-            final Set<EDbUse> uses = EnumSet.noneOf(EDbUse.class);
-            for (final ServerConfig server : this.map.getServers()) {
-                for (final DbConfig db : server.getDatabases()) {
-                    if (db.id.startsWith("term")) {
-                        continue;
-                    }
-                    final EDbUse use = db.use;
-                    if (use == EDbUse.PROD || use == EDbUse.DEV) {
-                        uses.add(use);
-                    }
+        final Set<EDbUse> uses = EnumSet.noneOf(EDbUse.class);
+        for (final ServerConfig server : this.map.getServers()) {
+            for (final DbConfig db : server.getDatabases()) {
+                if (db.id.startsWith("term")) {
+                    continue;
+                }
+                final EDbUse use = db.use;
+                if (use == EDbUse.PROD || use == EDbUse.DEV) {
+                    uses.add(use);
                 }
             }
-            final List<EDbUse> toChooseFrom = new ArrayList<>(uses);
+        }
+        final List<EDbUse> toChooseFrom = new ArrayList<>(uses);
 
-            this.schemaCombo = new JComboBox<>(toChooseFrom.toArray(new EDbUse[0]));
-            this.schemaCombo.setBackground(Color.WHITE);
-            this.schemaCombo.setSelectedItem(EDbUse.PROD);
-            schemaPick.add(this.schemaCombo);
-            center.add(schemaPick);
+        final EDbUse[] useArray = toChooseFrom.toArray(new EDbUse[0]);
+        this.schemaCombo = new JComboBox<>(useArray);
+        this.schemaCombo.setBackground(Color.WHITE);
+        this.schemaCombo.setSelectedItem(EDbUse.PROD);
+        schemaPick.add(this.schemaCombo);
+        center.add(schemaPick);
 
-            final Component spacer24 = Box.createRigidArea(new Dimension(0, 24));
-            center.add(spacer24);
+        final Component spacer24 = Box.createRigidArea(new Dimension(0, 24));
+        center.add(spacer24);
 
-            final JPanel usernamePanel = new JPanel(new BorderLayout(10, 10));
-            usernamePanel.setBackground(Skin.OFF_WHITE_GRAY);
-            usernamePanel.add(usernameLbl, BorderLayout.LINE_START);
-            this.username = new JTextField(FIELD_WIDTH);
-            this.username.setBackground(Color.WHITE);
-            usernamePanel.add(this.username);
-            final Component spacer30a = Box.createRigidArea(new Dimension(30, 1));
-            usernamePanel.add(spacer30a, BorderLayout.LINE_END);
-            center.add(usernamePanel);
+        final JPanel usernamePanel = new JPanel(new BorderLayout(10, 10));
+        usernamePanel.setBackground(Skin.OFF_WHITE_GRAY);
+        usernamePanel.add(usernameLbl, BorderLayout.LINE_START);
+        this.username = new JTextField(FIELD_WIDTH);
+        this.username.setBackground(Color.WHITE);
+        usernamePanel.add(this.username);
+        final Component spacer30a = Box.createRigidArea(new Dimension(30, 1));
+        usernamePanel.add(spacer30a, BorderLayout.LINE_END);
+        center.add(usernamePanel);
 
-            final Component spacer6 = Box.createRigidArea(new Dimension(0, 6));
-            center.add(spacer6);
+        final Component spacer6 = Box.createRigidArea(new Dimension(0, 6));
+        center.add(spacer6);
 
-            final JPanel passwordPanel = new JPanel(new BorderLayout(10, 10));
-            passwordPanel.setBackground(Skin.OFF_WHITE_GRAY);
-            passwordPanel.add(passwordLbl, BorderLayout.LINE_START);
-            this.password = new JPasswordField(FIELD_WIDTH);
-            this.password.setBackground(Color.WHITE);
-            passwordPanel.add(this.password);
-            final Component spacer30b = Box.createRigidArea(new Dimension(30, 1));
-            passwordPanel.add(spacer30b, BorderLayout.LINE_END);
-            center.add(passwordPanel);
+        final JPanel passwordPanel = new JPanel(new BorderLayout(10, 10));
+        passwordPanel.setBackground(Skin.OFF_WHITE_GRAY);
+        passwordPanel.add(passwordLbl, BorderLayout.LINE_START);
+        this.password = new JPasswordField(FIELD_WIDTH);
+        this.password.setBackground(Color.WHITE);
+        passwordPanel.add(this.password);
+        final Component spacer30b = Box.createRigidArea(new Dimension(30, 1));
+        passwordPanel.add(spacer30b, BorderLayout.LINE_END);
+        center.add(passwordPanel);
 
-            final Component spacer12 = Box.createRigidArea(new Dimension(0, 12));
-            center.add(spacer12);
+        final Component spacer12 = Box.createRigidArea(new Dimension(0, 12));
+        center.add(spacer12);
 
-            final JPanel errorPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-            errorPanel.setBackground(Skin.OFF_WHITE_GRAY);
-            this.error = new JLabel(CoreConstants.SPC);
-            this.error.setFont(Skin.BOLD_12_FONT);
-            this.error.setForeground(Skin.ERROR_COLOR);
-            errorPanel.add(this.error);
-            center.add(errorPanel);
+        final JPanel errorPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        errorPanel.setBackground(Skin.OFF_WHITE_GRAY);
+        this.error = new JLabel(CoreConstants.SPC);
+        this.error.setFont(Skin.BOLD_12_FONT);
+        this.error.setForeground(Skin.ERROR_COLOR);
+        errorPanel.add(this.error);
+        center.add(errorPanel);
 
-            this.content.add(center, BorderLayout.CENTER);
+        this.content.add(center, BorderLayout.CENTER);
 
-            // SOUTH: Buttons
-            final JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 15));
-            final MatteBorder overline = BorderFactory.createMatteBorder(1, 0, 0, 0, Color.GRAY);
-            buttons.setBorder(overline);
-            buttons.setBackground(Skin.OFF_WHITE_GRAY);
+        // SOUTH: Buttons
+        final JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 15));
+        final MatteBorder overline = BorderFactory.createMatteBorder(1, 0, 0, 0, Color.GRAY);
+        buttons.setBorder(overline);
+        buttons.setBackground(Skin.OFF_WHITE_GRAY);
 
-            final String loginButtonTxt = Res.get(Res.LOGIN_LOGIN_BTN);
-            final JButton loginBtn = new JButton(loginButtonTxt);
-            loginBtn.setFont(Skin.BUTTON_13_FONT);
-            loginBtn.setActionCommand(LOGIN_CMD);
-            loginBtn.addActionListener(this);
+        final String loginButtonTxt = Res.get(Res.LOGIN_LOGIN_BTN);
+        final JButton loginBtn = new JButton(loginButtonTxt);
+        loginBtn.setFont(Skin.BUTTON_13_FONT);
+        loginBtn.setActionCommand(LOGIN_CMD);
+        loginBtn.addActionListener(this);
 
-            final String cancenButtonTxt = Res.get(Res.LOGIN_CANCEL_BTN);
-            final JButton cancelBtn = new JButton(cancenButtonTxt);
-            cancelBtn.setFont(Skin.BUTTON_13_FONT);
-            cancelBtn.setActionCommand(CANCEL_CMD);
-            cancelBtn.addActionListener(this);
+        final String cancenButtonTxt = Res.get(Res.LOGIN_CANCEL_BTN);
+        final JButton cancelBtn = new JButton(cancenButtonTxt);
+        cancelBtn.setFont(Skin.BUTTON_13_FONT);
+        cancelBtn.setActionCommand(CANCEL_CMD);
+        cancelBtn.addActionListener(this);
 
-            final String settingsButtonTxt = Res.get(Res.LOGIN_SETTINGS_BTN);
-            this.settingsBtn = new JButton(settingsButtonTxt);
-            this.settingsBtn.setFont(Skin.BUTTON_13_FONT);
-            this.settingsBtn.setActionCommand(SETTINGS_CMD);
-            this.settingsBtn.addActionListener(this);
+        final String settingsButtonTxt = Res.get(Res.LOGIN_SETTINGS_BTN);
+        this.settingsBtn = new JButton(settingsButtonTxt);
+        this.settingsBtn.setFont(Skin.BUTTON_13_FONT);
+        this.settingsBtn.setActionCommand(SETTINGS_CMD);
+        this.settingsBtn.addActionListener(this);
 
-            buttons.add(loginBtn);
-            buttons.add(cancelBtn);
-            buttons.add(this.settingsBtn);
-            this.content.add(buttons, BorderLayout.PAGE_END);
+        buttons.add(loginBtn);
+        buttons.add(cancelBtn);
+        buttons.add(this.settingsBtn);
+        this.content.add(buttons, BorderLayout.PAGE_END);
 
-            //
+        final Border etchedOutline = BorderFactory.createEtchedBorder();
+        final Border antialiasPad = BorderFactory.createEmptyBorder(5, 5, 5, 5);
+        final CompoundBorder antialiasInner = BorderFactory.createCompoundBorder(antialiasPad, etchedOutline);
+        final CompoundBorder antialiasOuter = BorderFactory.createCompoundBorder(antialiasInner, antialiasPad);
+        this.pickAntialias.setBorder(antialiasOuter);
+        this.pickAntialias.setBackground(Skin.OFF_WHITE_GRAY);
 
-            final Border etchedOutline = BorderFactory.createEtchedBorder();
-            final Border antialiasPad = BorderFactory.createEmptyBorder(5, 5, 5, 5);
-            final CompoundBorder antialiasInner = BorderFactory.createCompoundBorder(antialiasPad, etchedOutline);
-            final CompoundBorder antialiasOuter = BorderFactory.createCompoundBorder(antialiasInner, antialiasPad);
-            this.pickAntialias.setBorder(antialiasOuter);
-            this.pickAntialias.setBackground(Skin.OFF_WHITE_GRAY);
+        final JLabel antialiasHeader = new JLabel("Select the item below with the clearest text: ");
+        this.pickAntialias.add(antialiasHeader, StackedBorderLayout.NORTH);
 
-            final JLabel antialiasHeader = new JLabel("Select the item below with the clearest text: ");
-            this.pickAntialias.add(antialiasHeader, StackedBorderLayout.NORTH);
+        final Font tiny = new Font(Font.DIALOG, Font.PLAIN, 8);
 
-            final Font tiny = new Font(Font.DIALOG, Font.PLAIN, 8);
+        final JLabel lbl1 = new JLabel("No anti-aliasing");
+        final JLabel lbl1b = new JLabel(TEST_STRING);
+        lbl1b.setFont(tiny);
 
-            final JLabel lbl1 = new JLabel("No anti-aliasing");
-            final JLabel lbl1b = new JLabel(TEST_STRING);
-            lbl1b.setFont(tiny);
+        final JLabel lbl2 = new JLabel("Basic anti-aliasing");
+        final JLabel lbl2b = new JLabel(TEST_STRING);
+        lbl2b.setFont(tiny);
 
-            final JLabel lbl2 = new JLabel("Basic anti-aliasing");
-            final JLabel lbl2b = new JLabel(TEST_STRING);
-            lbl2b.setFont(tiny);
+        final JLabel lbl3 = new JLabel("HBGR anti-aliasing");
+        final JLabel lbl3b = new JLabel(TEST_STRING);
+        lbl3b.setFont(tiny);
 
-            final JLabel lbl3 = new JLabel("HBGR anti-aliasing");
-            final JLabel lbl3b = new JLabel(TEST_STRING);
-            lbl3b.setFont(tiny);
+        final JLabel lbl4 = new JLabel("HRGB anti-aliasing");
+        final JLabel lbl4b = new JLabel(TEST_STRING);
+        lbl4b.setFont(tiny);
 
-            final JLabel lbl4 = new JLabel("HRGB anti-aliasing");
-            final JLabel lbl4b = new JLabel(TEST_STRING);
-            lbl4b.setFont(tiny);
+        final JLabel lbl5 = new JLabel("VBGR anti-aliasing");
+        final JLabel lbl5b = new JLabel(TEST_STRING);
+        lbl5b.setFont(tiny);
 
-            final JLabel lbl5 = new JLabel("VBGR anti-aliasing");
-            final JLabel lbl5b = new JLabel(TEST_STRING);
-            lbl5b.setFont(tiny);
+        final JLabel lbl6 = new JLabel("VRGB anti-aliasing");
+        final JLabel lbl6b = new JLabel(TEST_STRING);
+        lbl6b.setFont(tiny);
 
-            final JLabel lbl6 = new JLabel("VRGB anti-aliasing");
-            final JLabel lbl6b = new JLabel(TEST_STRING);
-            lbl6b.setFont(tiny);
+        final ButtonGroup group = new ButtonGroup();
 
-            final ButtonGroup group = new ButtonGroup();
+        final JPanel flow1 = new JPanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
+        flow1.setBackground(Skin.OFF_WHITE_GRAY);
+        this.radios[0] = new JRadioButton();
+        group.add(this.radios[0]);
+        flow1.add(this.radios[0]);
+        flow1.add(lbl1);
+        flow1.add(lbl1b);
 
-            final JPanel flow1 = new JPanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
-            flow1.setBackground(Skin.OFF_WHITE_GRAY);
-            this.radios[0] = new JRadioButton();
-            group.add(this.radios[0]);
-            flow1.add(this.radios[0]);
-            flow1.add(lbl1);
-            flow1.add(lbl1b);
+        final JPanel flow2 = new JPanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
+        flow2.setBackground(Skin.OFF_WHITE_GRAY);
+        this.radios[1] = new JRadioButton();
+        group.add(this.radios[1]);
+        flow2.add(this.radios[1]);
+        flow2.add(lbl2);
+        flow2.add(lbl2b);
 
-            final JPanel flow2 = new JPanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
-            flow2.setBackground(Skin.OFF_WHITE_GRAY);
-            this.radios[1] = new JRadioButton();
-            group.add(this.radios[1]);
-            flow2.add(this.radios[1]);
-            flow2.add(lbl2);
-            flow2.add(lbl2b);
+        final JPanel flow3 = new JPanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
+        flow3.setBackground(Skin.OFF_WHITE_GRAY);
+        this.radios[2] = new JRadioButton();
+        group.add(this.radios[2]);
+        flow3.add(this.radios[2]);
+        flow3.add(lbl3);
+        flow3.add(lbl3b);
 
-            final JPanel flow3 = new JPanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
-            flow3.setBackground(Skin.OFF_WHITE_GRAY);
-            this.radios[2] = new JRadioButton();
-            group.add(this.radios[2]);
-            flow3.add(this.radios[2]);
-            flow3.add(lbl3);
-            flow3.add(lbl3b);
+        final JPanel flow4 = new JPanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
+        flow4.setBackground(Skin.OFF_WHITE_GRAY);
+        this.radios[3] = new JRadioButton();
+        group.add(this.radios[3]);
+        flow4.add(this.radios[3]);
+        flow4.add(lbl4);
+        flow4.add(lbl4b);
 
-            final JPanel flow4 = new JPanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
-            flow4.setBackground(Skin.OFF_WHITE_GRAY);
-            this.radios[3] = new JRadioButton();
-            group.add(this.radios[3]);
-            flow4.add(this.radios[3]);
-            flow4.add(lbl4);
-            flow4.add(lbl4b);
+        final JPanel flow5 = new JPanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
+        flow5.setBackground(Skin.OFF_WHITE_GRAY);
+        this.radios[4] = new JRadioButton();
+        group.add(this.radios[4]);
+        flow5.add(this.radios[4]);
+        flow5.add(lbl5);
+        flow5.add(lbl5b);
 
-            final JPanel flow5 = new JPanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
-            flow5.setBackground(Skin.OFF_WHITE_GRAY);
-            this.radios[4] = new JRadioButton();
-            group.add(this.radios[4]);
-            flow5.add(this.radios[4]);
-            flow5.add(lbl5);
-            flow5.add(lbl5b);
+        final JPanel flow6 = new JPanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
+        flow6.setBackground(Skin.OFF_WHITE_GRAY);
+        this.radios[5] = new JRadioButton();
+        group.add(this.radios[5]);
+        flow6.add(this.radios[5]);
+        flow6.add(lbl6);
+        flow6.add(lbl6b);
 
-            final JPanel flow6 = new JPanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
-            flow6.setBackground(Skin.OFF_WHITE_GRAY);
-            this.radios[5] = new JRadioButton();
-            group.add(this.radios[5]);
-            flow6.add(this.radios[5]);
-            flow6.add(lbl6);
-            flow6.add(lbl6b);
+        this.pickAntialias.add(flow1, StackedBorderLayout.NORTH);
+        this.pickAntialias.add(flow2, StackedBorderLayout.NORTH);
+        this.pickAntialias.add(flow3, StackedBorderLayout.NORTH);
+        this.pickAntialias.add(flow4, StackedBorderLayout.NORTH);
+        this.pickAntialias.add(flow5, StackedBorderLayout.NORTH);
+        this.pickAntialias.add(flow6, StackedBorderLayout.NORTH);
 
-            this.pickAntialias.add(flow1, StackedBorderLayout.NORTH);
-            this.pickAntialias.add(flow2, StackedBorderLayout.NORTH);
-            this.pickAntialias.add(flow3, StackedBorderLayout.NORTH);
-            this.pickAntialias.add(flow4, StackedBorderLayout.NORTH);
-            this.pickAntialias.add(flow5, StackedBorderLayout.NORTH);
-            this.pickAntialias.add(flow6, StackedBorderLayout.NORTH);
+        if (pref >= 0 && pref <= 5) {
+            this.radios[pref].setSelected(true);
+        } else if (pref == -1) {
+            this.radios[2].setSelected(true);
+        }
 
-            if (pref >= 0 && pref <= 5) {
-                this.radios[pref].setSelected(true);
-            } else if (pref == -1) {
-                this.radios[2].setSelected(true);
-            }
+        getRootPane().setDefaultButton(loginBtn);
+        pack();
 
-            this.frame.getRootPane().setDefaultButton(loginBtn);
-            this.frame.pack();
+        final GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        final GraphicsDevice selected = env.getDefaultScreenDevice();
 
-            final GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            final GraphicsDevice selected = env.getDefaultScreenDevice();
+        final Rectangle bounds = selected.getDefaultConfiguration().getBounds();
 
-            final Rectangle bounds = selected.getDefaultConfiguration().getBounds();
+        final Dimension size = getSize();
+        setLocation(bounds.x + (bounds.width - size.width) / 2, bounds.y + (bounds.height - size.height) / 2);
 
-            final Dimension size = this.frame.getSize();
-            this.frame.setLocation(bounds.x + (bounds.width - size.width) / 2,
-                    bounds.y + (bounds.height - size.height) / 2);
-            this.frame.setVisible(true);
+        if (theInitialUsername != null) {
+            this.username.setText(theInitialUsername);
+        }
 
-            if (this.initialUsername != null) {
-                this.username.setText(this.initialUsername);
-            }
-            if (this.initialPassword != null) {
-                this.password.setText(this.initialPassword);
-            }
+        if (theInitialPassword != null) {
+            this.password.setText(theInitialPassword);
+        }
 
-            if (this.initialUsername == null) {
-                this.username.requestFocus();
-            } else if (this.initialPassword == null) {
-                this.password.requestFocus();
-            }
+        if (theInitialUsername == null) {
+            this.username.requestFocus();
+        } else if (theInitialPassword == null) {
+            this.password.requestFocus();
         }
     }
 
@@ -543,7 +503,6 @@ final class LoginWindow implements Runnable, ActionListener {
                 ifxContexts.put(ESchemaUse.ODS, odsContext);
                 ifxContexts.put(ESchemaUse.LIVE, liveContext);
 
-
                 final DbProfile ifxProfile = new DbProfile("AdminIfx", ifxContexts);
 
                 final DbConnection ifxConn = ifxCtx.checkOutConnection();
@@ -582,9 +541,10 @@ final class LoginWindow implements Runnable, ActionListener {
                         prefs.putInt(ANTIALIAS, pref);
                     }
 
-                    new AdmMainWindow(u, ifxCtx, ifxCache, liveContext, renderingHint).run();
-                    this.frame.setVisible(false);
-                    this.frame.dispose();
+                    new MainWindow(u, ifxCtx, ifxCache, liveContext, renderingHint).setVisible(true);
+
+                    setVisible(false);
+                    dispose();
                 } catch (final SQLException ex2) {
                     Log.warning(ex2);
                     final String msg = Res.get(Res.LOGIN_BAD_LOGIN_ERR);
@@ -596,12 +556,12 @@ final class LoginWindow implements Runnable, ActionListener {
                 this.error.setText(err);
             }
         } else if (CANCEL_CMD.equals(cmd)) {
-            this.frame.setVisible(false);
-            this.frame.dispose();
+            setVisible(false);
+            dispose();
         } else if (SETTINGS_CMD.equals(cmd)) {
             this.settingsBtn.setEnabled(false);
             this.content.add(this.pickAntialias, BorderLayout.LINE_END);
-            this.frame.pack();
+            pack();
         }
     }
 }

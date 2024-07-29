@@ -1,7 +1,7 @@
 package dev.mathops.app.adm.resource;
 
-import dev.mathops.app.adm.AdmMainWindow;
-import dev.mathops.app.adm.FixedData;
+import dev.mathops.app.adm.MainWindow;
+import dev.mathops.app.adm.UserData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.Cache;
@@ -78,7 +78,7 @@ public final class TopPanelResource extends JPanel implements ActionListener {
      * @param theCache         the data cache
      * @param fixed            the fixed data
      */
-    public TopPanelResource(final Cache theCache, final FixedData fixed) {
+    public TopPanelResource(final Cache theCache, final UserData fixed) {
 
         // Functions:
         // [ Loan Item ]
@@ -89,7 +89,7 @@ public final class TopPanelResource extends JPanel implements ActionListener {
         // [ Inventory ]
 
         super(new BorderLayout(5, 5));
-        setPreferredSize(AdmMainWindow.PREF_SIZE);
+        setPreferredSize(MainWindow.PREF_SIZE);
 
         setBackground(Skin.OFF_WHITE_GRAY);
         setBorder(BorderFactory.createCompoundBorder(

@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.forms;
 
-import dev.mathops.app.adm.AdmMainWindow;
+import dev.mathops.app.adm.MainWindow;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
@@ -102,7 +102,7 @@ public class TopPanelForms extends JPanel implements ActionListener {
 
         setBorder(BorderFactory.createEmptyBorder(4, 2, 4, 2));
         setBackground(Skin.LIGHT);
-        setPreferredSize(AdmMainWindow.PREF_SIZE);
+        setPreferredSize(MainWindow.PREF_SIZE);
 
         this.cards = new CardLayout();
         this.forms = new HashMap<>(TABLE_NAMES.length);

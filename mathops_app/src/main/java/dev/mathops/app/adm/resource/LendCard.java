@@ -1,7 +1,7 @@
 package dev.mathops.app.adm.resource;
 
 import dev.mathops.app.adm.AdmPanelBase;
-import dev.mathops.app.adm.FixedData;
+import dev.mathops.app.adm.UserData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.file.FileLoader;
@@ -105,7 +105,7 @@ final class LendCard extends AdmPanelBase implements ActionListener, FocusListen
      * @param theCache         the data cache
      * @param fixed            the fixed data
      */
-    LendCard(final Cache theCache, final FixedData fixed) {
+    LendCard(final Cache theCache, final UserData fixed) {
 
         super();
 

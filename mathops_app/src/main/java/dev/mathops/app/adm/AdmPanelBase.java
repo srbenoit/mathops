@@ -70,7 +70,7 @@ public class AdmPanelBase extends JPanel {
      * @param str the label string
      * @return the label
      */
-    public static JLabel makeLabel(final String str) {
+    protected static JLabel makeLabel(final String str) {
 
         final JLabel result = new JLabel(str);
 
@@ -118,7 +118,7 @@ public class AdmPanelBase extends JPanel {
      * @param len the length (number of characters)
      * @return the text field
      */
-    public static JTextField makeTextField(final int len) {
+    protected static JTextField makeTextField(final int len) {
 
         final JTextField result = new JTextField(len);
 
