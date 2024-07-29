@@ -1,18 +1,18 @@
-package dev.mathops.app.adm.office.student;
+package dev.mathops.app.adm.office.dialogs;
 
 import dev.mathops.app.JDateChooser;
 import dev.mathops.app.adm.AdmPanelBase;
-import dev.mathops.app.adm.UserData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
+import dev.mathops.app.adm.UserData;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
-import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawPaceAppealsLogic;
 import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
@@ -52,7 +52,7 @@ import java.util.Objects;
 /**
  * A dialog to add a row to "PACE_APPEALS" and (if relief is given) to "STMILESTONE" or "STU_STD_MILESTONE".
  */
-final class DlgAddPaceAppeal extends JFrame implements ActionListener, DocumentListener {
+public final class DlgAddPaceAppeal extends JFrame implements ActionListener, DocumentListener {
 
     /** An action command. */
     private static final String APPLY_CMD = "APPLY";
@@ -75,11 +75,14 @@ final class DlgAddPaceAppeal extends JFrame implements ActionListener, DocumentL
     /** The active term key. */
     private final TermKey active;
 
+    /** The initial milestone this dialog was created to edit. */
+    private final RawMilestone initialMilestone;
+
     /** The list of all milestones. */
     private final List<RawMilestone> allMilestones;
 
     /** The owning panel to be refreshed if an appeal record is added. */
-    private final StuAppealsPanel owner;
+    private final IPaceAppealsListener owner;
 
     /** The field for the student ID. */
     private final JTextField studentIdField;
@@ -150,16 +153,20 @@ final class DlgAddPaceAppeal extends JFrame implements ActionListener, DocumentL
     /**
      * Constructs a new {@code DlgAddPaceAppeal}.
      *
-     * @param theCache the data cache
-     * @param theOwner the owning panel to be refreshed if an appeal record is added
+     * @param theCache         the data cache
+     * @param theOwner         the owning panel to be refreshed if an appeal record is added
+     * @param theInitialMilestone the milestone for which an appeal is being added; {@code null} for a generic appeal that
+     *                         could be for any milestone
      */
-    DlgAddPaceAppeal(final Cache theCache, final StuAppealsPanel theOwner) {
+    public DlgAddPaceAppeal(final Cache theCache, final IPaceAppealsListener theOwner,
+                            final RawMilestone theInitialMilestone) {
 
         super(TITLE);
         setBackground(Skin.LIGHTEST);
 
         this.cache = theCache;
         this.owner = theOwner;
+        this.initialMilestone = theInitialMilestone;
 
         this.allMilestones = new ArrayList<>(50);
         TermKey activeKey = null;
@@ -203,21 +210,21 @@ final class DlgAddPaceAppeal extends JFrame implements ActionListener, DocumentL
         leftLabels[10] = new JLabel("New Deadline: ");
         leftLabels[11] = new JLabel("Attempts: ");
         for (final JLabel lbl : leftLabels) {
-            lbl.setFont(Skin.MEDIUM_13_FONT);
+            lbl.setFont(Skin.BODY_12_FONT);
             lbl.setForeground(Skin.LABEL_COLOR);
         }
         UIUtilities.makeLabelsSameSizeRightAligned(leftLabels);
 
         this.studentIdField = new JTextField(9);
-        this.studentIdField.setFont(Skin.MEDIUM_13_FONT);
+        this.studentIdField.setFont(Skin.BODY_12_FONT);
         this.studentIdField.setEditable(false);
 
         this.studentNameField = new JTextField(20);
-        this.studentNameField.setFont(Skin.MEDIUM_13_FONT);
+        this.studentNameField.setFont(Skin.BODY_12_FONT);
         this.studentNameField.setEditable(false);
 
         this.interviewerField = new JTextField(12);
-        this.interviewerField.setFont(Skin.MEDIUM_13_FONT);
+        this.interviewerField.setFont(Skin.BODY_12_FONT);
         this.interviewerField.setEditable(true);
         this.interviewerField.getDocument().addDocumentListener(this);
 
@@ -235,76 +242,64 @@ final class DlgAddPaceAppeal extends JFrame implements ActionListener, DocumentL
 
         final LocalDate today = LocalDate.now();
         this.appealDatePicker = new JDateChooser(today, holidays);
-        this.appealDatePicker.setFont(Skin.MEDIUM_13_FONT);
+        this.appealDatePicker.setFont(Skin.BODY_12_FONT);
         this.appealDatePicker.setActionCommand(VALIDATE_CMD);
-        this.appealDatePicker.addActionListener(this);
 
         this.statusLabel = new JLabel("Student is not enrolled in any paced courses");
         this.statusLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        this.statusLabel.setFont(Skin.MEDIUM_13_FONT);
+        this.statusLabel.setFont(Skin.BODY_12_FONT);
 
         this.paceField = new JTextField(2);
-        this.paceField.setFont(Skin.MEDIUM_13_FONT);
+        this.paceField.setFont(Skin.BODY_12_FONT);
         this.paceField.setEditable(true);
-        this.paceField.getDocument().addDocumentListener(this);
 
         this.paceTrackField = new JTextField(2);
-        this.paceTrackField.setFont(Skin.MEDIUM_13_FONT);
+        this.paceTrackField.setFont(Skin.BODY_12_FONT);
 
         this.courseField = new JTextField(2);
-        this.courseField.setFont(Skin.MEDIUM_13_FONT);
+        this.courseField.setFont(Skin.BODY_12_FONT);
         this.courseField.setEditable(true);
-        this.courseField.getDocument().addDocumentListener(this);
 
         this.unitField = new JTextField(2);
-        this.unitField.setFont(Skin.MEDIUM_13_FONT);
+        this.unitField.setFont(Skin.BODY_12_FONT);
         this.unitField.setEditable(true);
-        this.unitField.getDocument().addDocumentListener(this);
 
         this.milestoneTypeDropdown = new JComboBox<>(MS_TYPES);
-        this.milestoneTypeDropdown.setFont(Skin.MEDIUM_13_FONT);
+        this.milestoneTypeDropdown.setFont(Skin.BODY_12_FONT);
         this.milestoneTypeDropdown.setActionCommand(VALIDATE_CMD);
-        this.milestoneTypeDropdown.addActionListener(this);
 
         this.reliefGiven = new JCheckBox("Relief Given");
-        this.reliefGiven.setFont(Skin.MEDIUM_13_FONT);
+        this.reliefGiven.setFont(Skin.BODY_12_FONT);
         this.reliefGiven.setActionCommand(VALIDATE_CMD);
-        this.reliefGiven.addActionListener(this);
 
         this.origDatePicker = new JDateChooser(today, holidays);
-        this.origDatePicker.setFont(Skin.MEDIUM_13_FONT);
+        this.origDatePicker.setFont(Skin.BODY_12_FONT);
         this.origDatePicker.setActionCommand(VALIDATE_CMD);
-        this.origDatePicker.addActionListener(this);
 
         this.newDatePicker = new JDateChooser(today, holidays);
-        this.newDatePicker.setFont(Skin.MEDIUM_13_FONT);
+        this.newDatePicker.setFont(Skin.BODY_12_FONT);
         this.newDatePicker.setActionCommand(VALIDATE_CMD);
-        this.newDatePicker.addActionListener(this);
 
         this.attemptsAllowedField = new JTextField(2);
-        this.attemptsAllowedField.setFont(Skin.MEDIUM_13_FONT);
+        this.attemptsAllowedField.setFont(Skin.BODY_12_FONT);
         this.attemptsAllowedField.setEditable(true);
-        this.attemptsAllowedField.getDocument().addDocumentListener(this);
 
         this.circumstancesField = new JTextArea(3, 30);
-        this.circumstancesField.setFont(Skin.MEDIUM_13_FONT);
+        this.circumstancesField.setFont(Skin.BODY_12_FONT);
         this.circumstancesField.setBorder(this.attemptsAllowedField.getBorder());
         this.circumstancesField.setEditable(true);
-        this.circumstancesField.getDocument().addDocumentListener(this);
 
         this.commentField = new JTextArea(3, 30);
-        this.commentField.setFont(Skin.MEDIUM_13_FONT);
+        this.commentField.setFont(Skin.BODY_12_FONT);
         this.commentField.setBorder(this.attemptsAllowedField.getBorder());
 
         this.applyButton = new JButton("Apply");
         this.applyButton.setFont(Skin.BUTTON_13_FONT);
         this.applyButton.setActionCommand(APPLY_CMD);
-        this.applyButton.addActionListener(this);
 
         final JButton cancelButton = new JButton("Cancel");
         cancelButton.setFont(Skin.BUTTON_13_FONT);
         cancelButton.setActionCommand(CANCEL_CMD);
-        cancelButton.addActionListener(this);
 
         final JPanel flow1 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
         flow1.add(leftLabels[0]);
@@ -364,13 +359,13 @@ final class DlgAddPaceAppeal extends JFrame implements ActionListener, DocumentL
         paceAppeal.add(flow10, StackedBorderLayout.NORTH);
 
         final JLabel circumstancesLbl = new JLabel("Circumstances:");
-        circumstancesLbl.setFont(Skin.MEDIUM_13_FONT);
+        circumstancesLbl.setFont(Skin.BODY_12_FONT);
         circumstancesLbl.setForeground(Skin.LABEL_COLOR);
         paceAppeal.add(circumstancesLbl, StackedBorderLayout.NORTH);
         paceAppeal.add(this.circumstancesField, StackedBorderLayout.NORTH);
 
         final JLabel commentLbl = new JLabel("Comment:");
-        commentLbl.setFont(Skin.MEDIUM_13_FONT);
+        commentLbl.setFont(Skin.BODY_12_FONT);
         commentLbl.setForeground(Skin.LABEL_COLOR);
         paceAppeal.add(commentLbl, StackedBorderLayout.NORTH);
         paceAppeal.add(this.commentField, StackedBorderLayout.NORTH);
@@ -393,7 +388,7 @@ final class DlgAddPaceAppeal extends JFrame implements ActionListener, DocumentL
         rightLabels[3] = new JLabel("New Deadline: ");
         rightLabels[4] = new JLabel("Attempts: ");
         for (final JLabel lbl : rightLabels) {
-            lbl.setFont(Skin.MEDIUM_13_FONT);
+            lbl.setFont(Skin.BODY_12_FONT);
             lbl.setForeground(Skin.LABEL_COLOR);
         }
         UIUtilities.makeLabelsSameSizeRightAligned(rightLabels);
@@ -405,7 +400,7 @@ final class DlgAddPaceAppeal extends JFrame implements ActionListener, DocumentL
         this.overrideOriginalSource = new JTextField(20);
         this.overrideOriginalSource.setEditable(false);
         this.overrideNewDate = new JDateChooser(today, holidays);
-        this.overrideNewDate.setFont(Skin.MEDIUM_13_FONT);
+        this.overrideNewDate.setFont(Skin.BODY_12_FONT);
         this.overrideAttemptsAllowed = new JTextField(2);
 
         final JPanel flow21 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
@@ -450,6 +445,50 @@ final class DlgAddPaceAppeal extends JFrame implements ActionListener, DocumentL
         flow11.add(cancelButton);
         content.add(flow11, StackedBorderLayout.SOUTH);
 
+        if (Objects.nonNull(theInitialMilestone)) {
+            final String paceStr = theInitialMilestone.pace.toString();
+            this.paceField.setText(paceStr);
+            this.paceField.setEditable(false);
+
+            this.paceTrackField.setText(theInitialMilestone.paceTrack);
+            this.paceTrackField.setEditable(false);
+
+            final int courseIndex = theInitialMilestone.getIndex();
+            final String courseIndexStr = Integer.toString(courseIndex);
+            this.courseField.setText(courseIndexStr);
+            this.courseField.setEditable(false);
+
+            final int unit = theInitialMilestone.getUnit();
+            final String unitStr = Integer.toString(unit);
+            this.unitField.setText(unitStr);
+            this.unitField.setEditable(false);
+
+            if ("RE".equals(theInitialMilestone.msType)) {
+                this.milestoneTypeDropdown.setSelectedIndex(0);
+            } else if ("FE".equals(theInitialMilestone.msType)) {
+                this.milestoneTypeDropdown.setSelectedIndex(1);
+            } else if ("F1".equals(theInitialMilestone.msType)) {
+                this.milestoneTypeDropdown.setSelectedIndex(2);
+            }
+            this.milestoneTypeDropdown.setEnabled(false);
+
+            this.origDatePicker.setCurrentDate(theInitialMilestone.msDate);
+            this.origDatePicker.setEnabled(false);
+        }
+
+        this.appealDatePicker.addActionListener(this);
+        this.paceField.getDocument().addDocumentListener(this);
+        this.courseField.getDocument().addDocumentListener(this);
+        this.unitField.getDocument().addDocumentListener(this);
+        this.milestoneTypeDropdown.addActionListener(this);
+        this.reliefGiven.addActionListener(this);
+        this.origDatePicker.addActionListener(this);
+        this.newDatePicker.addActionListener(this);
+        this.attemptsAllowedField.getDocument().addDocumentListener(this);
+        this.circumstancesField.getDocument().addDocumentListener(this);
+        this.applyButton.addActionListener(this);
+        cancelButton.addActionListener(this);
+
         //
 
         pack();
@@ -475,7 +514,7 @@ final class DlgAddPaceAppeal extends JFrame implements ActionListener, DocumentL
      * @param fixed the fixed data with logged-in user information
      * @param data  the student data
      */
-    void populateDisplay(final UserData fixed, final StudentData data) {
+    public void populateDisplay(final UserData fixed, final StudentData data) {
 
         this.studentIdField.setText(data.student.stuId);
 
@@ -489,24 +528,29 @@ final class DlgAddPaceAppeal extends JFrame implements ActionListener, DocumentL
 
         if (data.studentTerm == null) {
             this.statusLabel.setText("Student is not enrolled in any paced courses");
-            this.paceField.setText("0");
-            this.paceTrackField.setText(CoreConstants.EMPTY);
-            this.courseField.setText("0");
-            this.unitField.setText("0");
-            this.milestoneTypeDropdown.setSelectedIndex(0);
-            this.origDatePicker.setCurrentDate(today);
             this.newDatePicker.setCurrentDate(today);
         } else {
-            this.statusLabel.setText("Student is not enrolled in any paced courses");
-
-            this.paceField.setText(data.studentTerm.pace == null ? CoreConstants.EMPTY :
-                    data.studentTerm.pace.toString());
-            this.paceTrackField.setText(data.studentTerm.paceTrack);
-            this.courseField.setText(CoreConstants.EMPTY);
-            this.unitField.setText(CoreConstants.EMPTY);
-            this.milestoneTypeDropdown.setSelectedIndex(-1);
-            this.origDatePicker.setCurrentDate(null);
+            this.statusLabel.setText(CoreConstants.EMPTY);
             this.newDatePicker.setCurrentDate(null);
+        }
+
+        if (this.initialMilestone == null) {
+            if (data.studentTerm == null) {
+                this.paceField.setText("0");
+                this.paceTrackField.setText(CoreConstants.EMPTY);
+                this.courseField.setText("0");
+                this.unitField.setText("0");
+                this.milestoneTypeDropdown.setSelectedIndex(0);
+                this.origDatePicker.setCurrentDate(today);
+            } else {
+                this.paceField.setText(data.studentTerm.pace == null ? CoreConstants.EMPTY :
+                        data.studentTerm.pace.toString());
+                this.paceTrackField.setText(data.studentTerm.paceTrack);
+                this.courseField.setText(CoreConstants.EMPTY);
+                this.unitField.setText(CoreConstants.EMPTY);
+                this.milestoneTypeDropdown.setSelectedIndex(-1);
+                this.origDatePicker.setCurrentDate(null);
+            }
         }
 
         this.reliefGiven.setSelected(false);
@@ -554,8 +598,6 @@ final class DlgAddPaceAppeal extends JFrame implements ActionListener, DocumentL
      * @return null if inputs are valid, an error message if not
      */
     private String validateFields() {
-
-        Log.info("Validating...");
 
         String error = null;
 

@@ -168,6 +168,19 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
     }
 
     /**
+     * Sets the enabled state of this control.
+     *
+     * @param enabled true if this component should be enabled, false otherwise
+     */
+    public void setEnabled(final boolean enabled) {
+
+        super.setEnabled(enabled);
+
+        this.dateField.setEnabled(enabled);
+        this.dateDropdownArrow.setEnabled(enabled);
+    }
+
+    /**
      * Sets the action command to include with actions fired by this component.
      *
      * @param theActionCommand the new action command

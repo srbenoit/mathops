@@ -20,6 +20,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.YearMonth;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
@@ -60,6 +61,9 @@ public final class JMonthCalendar extends JPanel implements ActionListener {
     /** The year label. */
     private final JLabel yearLabel;
 
+    /** The weekday label. */
+    private final JLabel[] weekdayLabels;
+
     /** The date buttons [week index 0 - 5][day index 0(Sun) - 6(Sat)]. */
     private final JButton[][] dateButtons;
 
@@ -68,6 +72,9 @@ public final class JMonthCalendar extends JPanel implements ActionListener {
 
     /** The listener to notify when a date is selected. */
     private final Listener listener;
+
+    /** Flag indicating constructor has finished and fonts can be updated. */
+    private boolean constructed;
 
     /**
      * Constructs a new {@code JMonthCalendar}.
@@ -95,8 +102,6 @@ public final class JMonthCalendar extends JPanel implements ActionListener {
 
         // Top row has the month and year, with left/right buttons to scroll
 
-        final Font titleFont = new Font(Font.SANS_SERIF, Font.PLAIN, 14);
-
         final JPanel topRow = new JPanel(new StackedBorderLayout());
 
         final JButton priorMonth = new BasicArrowButton(SwingConstants.WEST);
@@ -112,11 +117,9 @@ public final class JMonthCalendar extends JPanel implements ActionListener {
         final JPanel topRowFlow = new JPanel(new FlowLayout(FlowLayout.CENTER, 4, 0));
 
         this.monthNameLabel = new JLabel(CoreConstants.SPC);
-        this.monthNameLabel.setFont(titleFont);
         topRowFlow.add(this.monthNameLabel);
 
         this.yearLabel = new JLabel(CoreConstants.SPC);
-        this.yearLabel.setFont(titleFont);
         this.yearLabel.setForeground(Color.GRAY);
         topRowFlow.add(this.yearLabel);
 
@@ -129,8 +132,6 @@ public final class JMonthCalendar extends JPanel implements ActionListener {
         final JPanel body = new JPanel(new GridLayout(7, 7, 2, 2));
         add(body, StackedBorderLayout.NORTH);
 
-        final Font weekdayFont = new Font(Font.SANS_SERIF, Font.PLAIN, 11);
-
         final String sunStr = DayOfWeek.SUNDAY.getDisplayName(TextStyle.SHORT, locale);
         final String monStr = DayOfWeek.MONDAY.getDisplayName(TextStyle.SHORT, locale);
         final String tueStr = DayOfWeek.TUESDAY.getDisplayName(TextStyle.SHORT, locale);
@@ -139,17 +140,16 @@ public final class JMonthCalendar extends JPanel implements ActionListener {
         final String friStr = DayOfWeek.FRIDAY.getDisplayName(TextStyle.SHORT, locale);
         final String satStr = DayOfWeek.SATURDAY.getDisplayName(TextStyle.SHORT, locale);
 
-        final JLabel[] lbls = new JLabel[7];
-        lbls[0] = new JLabel(sunStr);
-        lbls[1] = new JLabel(monStr);
-        lbls[2] = new JLabel(tueStr);
-        lbls[3] = new JLabel(wedStr);
-        lbls[4] = new JLabel(thuStr);
-        lbls[5] = new JLabel(friStr);
-        lbls[6] = new JLabel(satStr);
+        this.weekdayLabels = new JLabel[7];
+        this.weekdayLabels[0] = new JLabel(sunStr);
+        this.weekdayLabels[1] = new JLabel(monStr);
+        this.weekdayLabels[2] = new JLabel(tueStr);
+        this.weekdayLabels[3] = new JLabel(wedStr);
+        this.weekdayLabels[4] = new JLabel(thuStr);
+        this.weekdayLabels[5] = new JLabel(friStr);
+        this.weekdayLabels[6] = new JLabel(satStr);
 
-        for (final JLabel lbl : lbls) {
-            lbl.setFont(weekdayFont);
+        for (final JLabel lbl : this.weekdayLabels) {
             lbl.setForeground(Color.GRAY);
             lbl.setHorizontalAlignment(SwingConstants.CENTER);
             body.add(lbl);
@@ -158,7 +158,6 @@ public final class JMonthCalendar extends JPanel implements ActionListener {
         // Next 6 rows are the weeks - we will create a grid of general buttons and then set their text, colors,
         // and enabled state on "update()" to reflect the current month
 
-        final Font dateFont = new Font(Font.SANS_SERIF, Font.PLAIN, 12);
         this.dateButtons = new JButton[6][7];
         this.dates = new LocalDate[6][7];
 
@@ -171,7 +170,6 @@ public final class JMonthCalendar extends JPanel implements ActionListener {
                 btn.setEnabled(true);
                 btn.setActionCommand(cmd);
                 btn.addActionListener(this);
-                btn.setFont(dateFont);
                 btn.setForeground(Color.BLACK);
                 btn.setBorder(buttonPad);
                 btn.setBackground(j == 0 || j == 6 ? getBackground() : Color.WHITE);
@@ -180,7 +178,54 @@ public final class JMonthCalendar extends JPanel implements ActionListener {
             }
         }
 
+        this.constructed = true;
+        updateFonts();
         update();
+    }
+
+    /**
+     * Sets this component's font.
+     *
+     * @param font the desired {@code Font} for this component
+     */
+    public void setFont(final Font font) {
+
+        super.setFont(font);
+
+        if (this.constructed) {
+            updateFonts();
+        }
+    }
+
+    /**
+     * Sets fonts on inner elements based on the current font of this component.
+     */
+    private void updateFonts() {
+
+        final Font myFont = getFont();
+        final float size = myFont.getSize2D();
+
+        final Font titleFont = myFont.deriveFont(size + 2.0f);
+        this.monthNameLabel.setFont(titleFont);
+        this.yearLabel.setFont(titleFont);
+
+        final Font weekdayFont = myFont.deriveFont(size - 1.0f);
+        for (final JLabel lbl : this.weekdayLabels) {
+            lbl.setFont(weekdayFont);
+        }
+
+        for (int i = 0; i < 6; ++i) {
+            for (int j = 0; j < 7; ++j) {
+                final JButton btn = this.dateButtons[i][j];
+                btn.setFont(myFont);
+            }
+        }
+
+        invalidate();
+        revalidate();
+
+        setSize(getPreferredSize());
+        repaint();
     }
 
     /**
@@ -188,7 +233,7 @@ public final class JMonthCalendar extends JPanel implements ActionListener {
      *
      * @param newSelectedDate the new selected date
      */
-    public void setSelectedDate(final LocalDate newSelectedDate) {
+    void setSelectedDate(final LocalDate newSelectedDate) {
 
         this.selectedDate = newSelectedDate;
         update();
@@ -201,21 +246,30 @@ public final class JMonthCalendar extends JPanel implements ActionListener {
 
         final Locale locale = Locale.getDefault();
 
-        final String monthNameString = this.yearMonth.getMonth().getDisplayName(TextStyle.FULL_STANDALONE, locale);
+        final int year = this.yearMonth.getYear();
+        final Month month = this.yearMonth.getMonth();
+
+        final String monthNameString = month.getDisplayName(TextStyle.FULL_STANDALONE, locale);
         this.monthNameLabel.setText(monthNameString);
 
-        final int year = this.yearMonth.getYear();
         final String yearString = Integer.toString(year);
         this.yearLabel.setText(yearString);
+
+        final Color yellow = ColorNames.getColor("yellow");
+        final Color azure2 = ColorNames.getColor("azure2");
+        final Color indianRed = ColorNames.getColor("IndianRed");
+        final Color background = getBackground();
 
         // Populate the dates grid
 
         // Fill in numbers of dates in the prior month
-        LocalDate past = LocalDate.of(this.yearMonth.getYear(), this.yearMonth.getMonth(), 1).minusDays(1L);
+        LocalDate past = LocalDate.of(year, month, 1).minusDays(1L);
+
         while (past.getDayOfWeek() != DayOfWeek.SATURDAY) {
 
             final DayOfWeek day = past.getDayOfWeek();
-            final String dateStr = Integer.toString(past.getDayOfMonth());
+            final int dayOfMonth = past.getDayOfMonth();
+            final String dateStr = Integer.toString(dayOfMonth);
             JButton btn = null;
 
             if (day == DayOfWeek.SUNDAY) {
@@ -239,14 +293,16 @@ public final class JMonthCalendar extends JPanel implements ActionListener {
             }
             if (btn != null) {
                 if (past.equals(this.selectedDate)) {
-                    btn.setBackground(ColorNames.getColor("yellow"));
+                    btn.setBackground(yellow);
                 } else if (past.equals(this.currentDate)) {
-                    btn.setBackground(ColorNames.getColor("azure2"));
+                    btn.setBackground(azure2);
                 } else {
-                    btn.setBackground(getBackground());
+                    btn.setBackground(background);
                 }
 
-                btn.setForeground(this.holidays.contains(past) ? ColorNames.getColor("RosyBrown") : Color.GRAY);
+                final Color rosyBrown = ColorNames.getColor("RosyBrown");
+                final boolean pastIsHoliday = this.holidays.contains(past);
+                btn.setForeground(pastIsHoliday ? indianRed : Color.GRAY);
                 btn.setText(dateStr);
             }
 
@@ -255,10 +311,11 @@ public final class JMonthCalendar extends JPanel implements ActionListener {
 
         // Fill in numbers of dates in the current month
         int currentRow = 0;
-        LocalDate current = LocalDate.of(this.yearMonth.getYear(), this.yearMonth.getMonth(), 1);
-        while (current.getMonth() == this.yearMonth.getMonth()) {
+        LocalDate current = LocalDate.of(year, month, 1);
+        while (current.getMonth() == month) {
             final DayOfWeek day = current.getDayOfWeek();
-            final String dateStr = Integer.toString(current.getDayOfMonth());
+            final int dayOfMonth = current.getDayOfMonth();
+            final String dateStr = Integer.toString(dayOfMonth);
             JButton btn = null;
 
             if (day == DayOfWeek.SUNDAY) {
@@ -287,13 +344,14 @@ public final class JMonthCalendar extends JPanel implements ActionListener {
 
             if (btn != null) {
                 if (current.equals(this.selectedDate)) {
-                    btn.setBackground(ColorNames.getColor("yellow"));
+                    btn.setBackground(yellow);
                 } else if (current.equals(this.currentDate)) {
-                    btn.setBackground(ColorNames.getColor("azure2"));
+                    btn.setBackground(azure2);
                 } else {
-                    btn.setBackground(day == DayOfWeek.SUNDAY || day == DayOfWeek.SATURDAY ? getBackground() : Color.WHITE);
+                    btn.setBackground(day == DayOfWeek.SUNDAY || day == DayOfWeek.SATURDAY ? background : Color.WHITE);
                 }
-                btn.setForeground(this.holidays.contains(current) ? Color.RED : Color.BLACK);
+                final boolean currentIsHoliday = this.holidays.contains(current);
+                btn.setForeground(currentIsHoliday ? Color.RED : Color.BLACK);
 
                 btn.setText(dateStr);
             }
@@ -305,7 +363,8 @@ public final class JMonthCalendar extends JPanel implements ActionListener {
         while (currentRow < 6) {
 
             final DayOfWeek day = current.getDayOfWeek();
-            final String dateStr = Integer.toString(current.getDayOfMonth());
+            final int dayOfMonth = current.getDayOfMonth();
+            final String dateStr = Integer.toString(dayOfMonth);
             JButton btn = null;
 
             if (day == DayOfWeek.SUNDAY) {
@@ -334,20 +393,20 @@ public final class JMonthCalendar extends JPanel implements ActionListener {
 
             if (btn != null) {
                 if (current.equals(this.selectedDate)) {
-                    btn.setBackground(ColorNames.getColor("yellow"));
+                    btn.setBackground(yellow);
                 } else if (current.equals(this.currentDate)) {
-                    btn.setBackground(ColorNames.getColor("azure2"));
+                    btn.setBackground(azure2);
                 } else {
-                    btn.setBackground(getBackground());
+                    btn.setBackground(background);
                 }
 
-                btn.setForeground(this.holidays.contains(current) ? ColorNames.getColor("IndianRed") : Color.GRAY);
+                final boolean currentIsHoliday = this.holidays.contains(current);
+                btn.setForeground(currentIsHoliday ? indianRed : Color.GRAY);
                 btn.setText(dateStr);
             }
 
             current = current.plusDays(1L);
         }
-
 
         repaint();
     }

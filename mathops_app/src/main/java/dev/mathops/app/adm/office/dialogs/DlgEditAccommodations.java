@@ -1,4 +1,4 @@
-package dev.mathops.app.adm.office.student;
+package dev.mathops.app.adm.office.dialogs;
 
 import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
@@ -31,7 +31,7 @@ import java.util.Objects;
 /**
  * A dialog to edit the time-limit factor and extension days fields on a student record.
  */
-final class DlgEditAccommodations extends JFrame implements ActionListener {
+public final class DlgEditAccommodations extends JFrame implements ActionListener {
 
     /** The dialog title. */
     private static final String TITLE = "Edit Accommodations";
@@ -46,7 +46,7 @@ final class DlgEditAccommodations extends JFrame implements ActionListener {
     private final Cache cache;
 
     /** The owning panel to be refreshed if an appeal record is added. */
-    private final StuAppealsPanel owner;
+    private final IStudentListener owner;
 
     /** The field for the student ID. */
     private final JTextField studentIdField;
@@ -69,7 +69,7 @@ final class DlgEditAccommodations extends JFrame implements ActionListener {
      * @param theCache the data cache
      * @param theOwner the owning panel to be refreshed if an appeal record is added
      */
-    DlgEditAccommodations(final Cache theCache, final StuAppealsPanel theOwner) {
+    public DlgEditAccommodations(final Cache theCache, final IStudentListener theOwner) {
 
         super(TITLE);
         setBackground(Skin.LIGHTEST);
@@ -166,7 +166,7 @@ final class DlgEditAccommodations extends JFrame implements ActionListener {
      *
      * @param data the student data
      */
-    void populateDisplay(final StudentData data) {
+    public void populateDisplay(final StudentData data) {
 
         this.studentIdField.setText(data.student.stuId);
 
@@ -239,7 +239,7 @@ final class DlgEditAccommodations extends JFrame implements ActionListener {
                             }
 
                             if (ok) {
-                                this.owner.updateAccommodations();
+                                this.owner.updateStudent();
                                 setVisible(false);
                             }
                         } catch (final NumberFormatException ex) {

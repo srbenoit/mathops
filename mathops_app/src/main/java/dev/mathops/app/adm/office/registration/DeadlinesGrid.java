@@ -4,6 +4,7 @@ import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
+import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.old.rawrecord.RawMilestone;
 import dev.mathops.db.old.rawrecord.RawPaceAppeals;
@@ -68,6 +69,8 @@ final class DeadlinesGrid extends JPanel {
     void populateDisplay(final StudentData data, final ActionListener listener) {
 
         clearDisplay();
+
+        Log.info("Deadlines grid is populating with " + data.studentMilestones.size() + " milestone overrides");
 
         final GroupLayout.ParallelGroup hGroup = this.layout.createParallelGroup(GroupLayout.Alignment.LEADING);
         final GroupLayout.SequentialGroup vGroup = this.layout.createSequentialGroup();
@@ -426,7 +429,6 @@ final class DeadlinesGrid extends JPanel {
         msg1.setBackground(Skin.LIGHTEST);
         msg1.setForeground(Skin.DARK);
         messages.add(msg1, StackedBorderLayout.NORTH);
-
 
         final JLabel msg2 = new JLabel("toward their pace in this term.");
         msg2.setFont(Skin.MEDIUM_15_FONT);

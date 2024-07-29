@@ -338,6 +338,11 @@ public final class StudentData {
             final List<RawPaceAppeals> newList = RawPaceAppealsLogic.queryByStudent(cache, stuId);
             this.paceAppeals.clear();
             this.paceAppeals.addAll(newList);
+
+            final List<RawStmilestone> newMilestones = RawStmilestoneLogic.getStudentMilestones(cache, this.activeKey,
+                    this.studentTerm.paceTrack, stuId);
+            this.studentMilestones.clear();
+            this.studentMilestones.addAll(newMilestones);
         } catch (final SQLException ex) {
             Log.warning(ex);
         }

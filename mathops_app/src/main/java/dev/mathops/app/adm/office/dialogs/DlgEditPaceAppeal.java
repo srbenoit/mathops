@@ -1,9 +1,10 @@
-package dev.mathops.app.adm.office.student;
+package dev.mathops.app.adm.office.dialogs;
 
 import dev.mathops.app.JDateChooser;
 import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
+import dev.mathops.app.adm.office.student.StuAppealsPanel;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.UIUtilities;
@@ -11,10 +12,8 @@ import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawPaceAppealsLogic;
-import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.old.rawrecord.RawPaceAppeals;
-import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.db.type.TermKey;
 
@@ -46,7 +45,7 @@ import java.util.Objects;
 /**
  * A dialog to edit an existing row to "PACE_APPEALS" and (if relief is given) the related "STMILESTONE".
  */
-final class DlgEditPaceAppeal extends JFrame implements ActionListener, ItemListener {
+public final class DlgEditPaceAppeal extends JFrame implements ActionListener, ItemListener {
 
     /** The dialog title. */
     private static final String TITLE = "Edit Pace Appeal";
@@ -70,7 +69,7 @@ final class DlgEditPaceAppeal extends JFrame implements ActionListener, ItemList
     private RawPaceAppeals currentRecord;
 
     /** The owning panel to be refreshed if an appeal record is added. */
-    private final StuAppealsPanel owner;
+    private final IPaceAppealsListener owner;
 
     /** The field for the student ID. */
     private final JTextField studentIdField;
@@ -126,7 +125,7 @@ final class DlgEditPaceAppeal extends JFrame implements ActionListener, ItemList
      * @param theCache the data cache
      * @param theOwner the owning panel to be refreshed if an appeal record is added
      */
-    DlgEditPaceAppeal(final Cache theCache, final StuAppealsPanel theOwner) {
+    public DlgEditPaceAppeal(final Cache theCache, final IPaceAppealsListener theOwner) {
 
         super(TITLE);
         setBackground(Skin.LIGHTEST);
@@ -341,7 +340,7 @@ final class DlgEditPaceAppeal extends JFrame implements ActionListener, ItemList
      * @param data   the student data
      * @param record the record to edit
      */
-    void populateDisplay(final StudentData data, final RawPaceAppeals record) {
+    public void populateDisplay(final StudentData data, final RawPaceAppeals record) {
 
         this.currentRecord = record;
 

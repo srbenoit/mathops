@@ -6,6 +6,9 @@ import dev.mathops.app.adm.UserData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
 import dev.mathops.app.adm.office.ISemesterCalendarPaneListener;
+import dev.mathops.app.adm.office.dialogs.DlgAddPaceAppeal;
+import dev.mathops.app.adm.office.dialogs.DlgEditPaceAppeal;
+import dev.mathops.app.adm.office.dialogs.IPaceAppealsListener;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
@@ -44,7 +47,8 @@ import java.util.Objects;
 /**
  * A panel that shows student deadlines.
  */
-public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionListener, ISemesterCalendarPaneListener {
+public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionListener,
+        ISemesterCalendarPaneListener, IPaceAppealsListener {
 
     /** Version number for serialization. */
     @Serial
@@ -63,7 +67,7 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
     private final UserData fixed;
 
     /** The current student data. */
-    private StudentData studentData = null;
+    private StudentData currentStudentData = null;
 
     /** A display for the student's pace. */
     private final JTextField paceDisplay;
@@ -124,6 +128,12 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
 
     /** The milestone for which an appeal is being added. */
     private RawMilestone addMilestone;
+
+    /** The dialog to add new pace appeals. */
+    private DlgAddPaceAppeal addPaceAppealDialog = null;
+
+    /** The dialog to edit existing pace appeals. */
+    private DlgEditPaceAppeal editPaceAppealDialog = null;
 
     /**
      * Constructs a new {@code StuDeadlinesPanel}.
@@ -342,12 +352,12 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
 
         this.calendar.initialize();
 
-        this.studentData = data;
+        this.currentStudentData = data;
 
         final RawStterm stterm = data.studentTerm;
 
         if (data.pacedRegistrations.isEmpty()) {
-          this.deadlinesGrid.indicateNoCourses();
+            this.deadlinesGrid.indicateNoCourses();
         } else {
             if (data.student.extensionDays == null) {
                 this.extDaysDisplay.setText(CoreConstants.EMPTY);
@@ -364,6 +374,10 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
                 this.deadlinesGrid.populateDisplay(data, this);
             }
         }
+
+        this.deadlinesGrid.invalidate();
+        this.deadlinesGrid.revalidate();
+        repaint();
 
         clearAndHideForm();
     }
@@ -401,60 +415,72 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
         final boolean allowEdit = permission != null && permission.intValue() < 3;
 
         if (allowEdit) {
-        final String nbr = cmd.substring(5);
 
-        this.editAppeal = null;
-        this.editMilestone = null;
-        this.addMilestone = null;
+            final String nbr = cmd.substring(5);
 
-        try {
-            final int nbrValue = Integer.parseInt(nbr);
+            this.editAppeal = null;
+            this.editMilestone = null;
+            this.addMilestone = null;
 
-            final String type = cmd.substring(3, 5);
-            RawMilestone ms = null;
-            for (final RawMilestone test : this.studentData.milestones) {
-                if (test.msNbr.intValue() == nbrValue && test.msType.equals(type)) {
-                    ms = test;
-                    break;
+            try {
+                final int nbrValue = Integer.parseInt(nbr);
+
+                final String type = cmd.substring(3, 5);
+                RawMilestone ms = null;
+                for (final RawMilestone test : this.currentStudentData.milestones) {
+                    if (test.msNbr.intValue() == nbrValue && test.msType.equals(type)) {
+                        ms = test;
+                        break;
+                    }
                 }
+
+                if (ms != null) {
+
+                    if (Objects.nonNull(this.currentStudentData)) {
+                        if (this.addPaceAppealDialog == null) {
+                            this.addPaceAppealDialog = new DlgAddPaceAppeal(this.cache, this, ms);
+                        }
+
+                        this.addPaceAppealDialog.populateDisplay(this.fixed, this.currentStudentData);
+                        this.addPaceAppealDialog.setVisible(true);
+                        this.addPaceAppealDialog.toFront();
+                    }
+
+                    this.addMilestone = ms;
+
+                    final int order = (nbrValue / 10) % 10;
+                    final int unit = nbrValue % 10;
+                    final String typeStr = ms.getTypeString();
+
+                    final RawStcourse reg = this.currentStudentData.pacedRegistrations.get(order - 1);
+
+                    this.appealHeading.setText("New Appeal for: " + reg.course + " Unit " + unit + " " + typeStr);
+                    this.interviewerField.setText(this.fixed.username);
+                    final LocalDate now = LocalDate.now();
+                    final String nowStr = TemporalUtils.FMT_MDY_COMPACT_FIXED.format(now);
+                    this.appealDateField.setText(nowStr);
+                    this.reliefGiven.setSelected(false);
+                    this.newDeadlineField.setText(CoreConstants.EMPTY);
+                    this.nbrAttemptsField.setText(CoreConstants.EMPTY);
+                    this.circumstancesArea.setText(CoreConstants.EMPTY);
+                    this.commentsArea.setText(CoreConstants.EMPTY);
+
+                    this.reliefGiven.setEnabled(true);
+                    this.nbrAttemptsField.setEnabled(true);
+                    this.newDeadlineField.setEnabled(true);
+                    this.circumstancesArea.setEnabled(true);
+                    this.commentsArea.setEnabled(true);
+                    this.applyBtn.setEnabled(true);
+
+                    this.appealForm.setVisible(true);
+                    this.calendar.setListener(this);
+
+                    invalidate();
+                    revalidate();
+                }
+            } catch (final NumberFormatException ex) {
+                Log.warning("Invalid milestone number (", nbr, ")", ex);
             }
-
-            if (ms != null) {
-                this.addMilestone = ms;
-
-                final int order = (nbrValue / 10) % 10;
-                final int unit = nbrValue % 10;
-                final String typeStr = ms.getTypeString();
-
-                final RawStcourse reg = this.studentData.pacedRegistrations.get(order - 1);
-
-                this.appealHeading.setText("New Appeal for: " + reg.course + " Unit " + unit + " " + typeStr);
-                this.interviewerField.setText(this.fixed.username);
-                final LocalDate now = LocalDate.now();
-                final String nowStr = TemporalUtils.FMT_MDY_COMPACT_FIXED.format(now);
-                this.appealDateField.setText(nowStr);
-                this.reliefGiven.setSelected(false);
-                this.newDeadlineField.setText(CoreConstants.EMPTY);
-                this.nbrAttemptsField.setText(CoreConstants.EMPTY);
-                this.circumstancesArea.setText(CoreConstants.EMPTY);
-                this.commentsArea.setText(CoreConstants.EMPTY);
-
-                this.reliefGiven.setEnabled(true);
-                this.nbrAttemptsField.setEnabled(true);
-                this.newDeadlineField.setEnabled(true);
-                this.circumstancesArea.setEnabled(true);
-                this.commentsArea.setEnabled(true);
-                this.applyBtn.setEnabled(true);
-
-                this.appealForm.setVisible(true);
-                this.calendar.setListener(this);
-
-                invalidate();
-                revalidate();
-            }
-        } catch (final NumberFormatException ex) {
-            Log.warning("Invalid milestone number (", nbr, ")", ex);
-        }
         }
     }
 
@@ -486,7 +512,7 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
                     final String type = cmd.substring(4, 6);
 
                     RawMilestone ms = null;
-                    for (final RawMilestone test : this.studentData.milestones) {
+                    for (final RawMilestone test : this.currentStudentData.milestones) {
                         if (test.msNbr.intValue() == nbrValue && test.msType.equals(type)) {
                             ms = test;
                             break;
@@ -498,7 +524,7 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
                     } else {
                         RawStmilestone stms = null;
                         int i = 0;
-                        for (final RawStmilestone test : this.studentData.studentMilestones) {
+                        for (final RawStmilestone test : this.currentStudentData.studentMilestones) {
                             if (test.msNbr.intValue() == nbrValue && test.msType.equals(type)) {
                                 if (i == indexValue) {
                                     stms = test;
@@ -511,10 +537,10 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
                         if (stms == null) {
                             Log.warning("Unable to find student milestone associated with appeal being edited.");
                         } else {
-                            final String track = this.studentData.studentTerm.paceTrack;
+                            final String track = this.currentStudentData.studentTerm.paceTrack;
 
                             RawPaceAppeals appeal = null;
-                            for (final RawPaceAppeals test : this.studentData.paceAppeals) {
+                            for (final RawPaceAppeals test : this.currentStudentData.paceAppeals) {
                                 if (test.paceTrack.equals(track) && test.msNbr.equals(stms.msNbr)
                                         && test.newDeadlineDt.equals(stms.msDate)
                                         && Objects.equals(test.nbrAtmptsAllow, stms.nbrAtmptsAllow)) {
@@ -533,7 +559,7 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
                                 final int unit = nbrValue % 10;
                                 final String typeStr = ms.getTypeString();
 
-                                final RawStcourse reg = this.studentData.pacedRegistrations.get(order - 1);
+                                final RawStcourse reg = this.currentStudentData.pacedRegistrations.get(order - 1);
 
                                 this.appealHeading.setText("Edit Appeal for: " + reg.course + " Unit " + unit + " " + typeStr);
 
@@ -552,7 +578,8 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
                                         Integer.toString(stms.nbrAtmptsAllow));
                                 this.circumstancesArea.setText(appeal.circumstances == null ? CoreConstants.EMPTY :
                                         appeal.circumstances);
-                                this.commentsArea.setText(appeal.comment == null ? CoreConstants.EMPTY : appeal.comment);
+                                this.commentsArea.setText(appeal.comment == null ? CoreConstants.EMPTY :
+                                        appeal.comment);
 
                                 this.reliefGiven.setEnabled(true);
                                 this.nbrAttemptsField.setEnabled(true);
@@ -583,7 +610,7 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
      */
     private void doApply() {
 
-        if (this.studentData == null || this.studentData.studentTerm == null) {
+        if (this.currentStudentData == null || this.currentStudentData.studentTerm == null) {
             JOptionPane.showMessageDialog(this, "Don't have enough student data to do an appeal...",
                     "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
         } else if (this.editAppeal == null || this.editMilestone == null) {
@@ -650,13 +677,16 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
                 final LocalDate appealDate = LocalDate.now();
 
                 final RawPaceAppeals appealRec = new RawPaceAppeals(active.term,
-                        this.studentData.student.stuId, appealDate, newRelief, this.studentData.studentTerm.pace,
-                        this.studentData.studentTerm.paceTrack, this.addMilestone.msNbr, this.addMilestone.msType,
+                        this.currentStudentData.student.stuId, appealDate, newRelief,
+                        this.currentStudentData.studentTerm.pace,
+                        this.currentStudentData.studentTerm.paceTrack, this.addMilestone.msNbr,
+                        this.addMilestone.msType,
                         this.addMilestone.msDate, newDate, newAttempts, this.circumstancesArea.getText(),
                         this.commentsArea.getText(), this.interviewerField.getText());
 
-                final RawStmilestone stmilestoneRec = new RawStmilestone(active.term, this.studentData.student.stuId,
-                        this.studentData.studentTerm.paceTrack, this.addMilestone.msNbr,
+                final RawStmilestone stmilestoneRec = new RawStmilestone(active.term,
+                        this.currentStudentData.student.stuId,
+                        this.currentStudentData.studentTerm.paceTrack, this.addMilestone.msNbr,
                         this.addMilestone.msType, newDate, newAttempts);
 
                 try {
@@ -665,14 +695,33 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
                     clearAndHideForm();
 
                     // Refresh
-                    this.studentData.studentMilestones.add(stmilestoneRec);
-                    this.studentData.paceAppeals.add(appealRec);
-                    populateDisplay(this.studentData);
+                    this.currentStudentData.studentMilestones.add(stmilestoneRec);
+                    this.currentStudentData.paceAppeals.add(appealRec);
+                    populateDisplay(this.currentStudentData);
                 } catch (final SQLException ex) {
                     JOptionPane.showMessageDialog(this, "Failed to insert appeal: " + ex.getMessage(),
                             "Deadline Appeal", JOptionPane.ERROR_MESSAGE);
                 }
             }
+        }
+    }
+
+    /**
+     * Called by the dialog that edits accommodations when an edit is applied.
+     */
+    @Override
+    public void updateAppeals() {
+
+        if (this.currentStudentData != null) {
+
+            Log.info("Updating appeals.");
+
+            this.currentStudentData.updatePaceAppeals(this.cache);
+
+            Log.info("There are now " + this.currentStudentData.paceAppeals.size() + " pace appeals and "
+                    + this.currentStudentData.studentMilestones.size() + " student milestones");
+
+            populateDisplay(this.currentStudentData);
         }
     }
 
@@ -766,7 +815,7 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
 
         if (ok) {
             clearAndHideForm();
-            this.populateDisplay(this.studentData);
+            this.populateDisplay(this.currentStudentData);
         }
     }
 
