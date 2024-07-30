@@ -4,9 +4,8 @@ import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.UserData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
-import dev.mathops.app.adm.office.dialogs.DlgAddPaceAppeal;
-import dev.mathops.app.adm.office.dialogs.DlgEditPaceAppeal;
-import dev.mathops.app.adm.office.dialogs.IPaceAppealsListener;
+import dev.mathops.app.adm.office.student.DlgAddPaceAppeal;
+import dev.mathops.app.adm.office.student.IPaceAppealsListener;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
@@ -44,7 +43,7 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
     private final Cache cache;
 
     /** The fixed data. */
-    private final UserData fixed;
+    private final UserData userData;
 
     /** The current student data. */
     private StudentData currentStudentData = null;
@@ -76,8 +75,8 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
     /** The dialog to add new pace appeals. */
     private DlgAddPaceAppeal addPaceAppealDialog = null;
 
-    /** The dialog to edit existing pace appeals. */
-    private DlgEditPaceAppeal editPaceAppealDialog = null;
+    /** The dialog to edit an existing extension. */
+    private DlgEditExtension editExtensionDialog = null;
 
     /**
      * Constructs a new {@code StuDeadlinesPanel}.
@@ -90,7 +89,7 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
         super();
 
         this.cache = theCache;
-        this.fixed = theFixed;
+        this.userData = theFixed;
         setBackground(Skin.LIGHTEST);
 
         final Integer permission = theFixed.getClearanceLevel("STU_DLINE");
@@ -234,7 +233,7 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
      */
     private void initiateAdd(final String cmd) {
 
-        final Integer permission = this.fixed.getClearanceLevel("STU_DLINE");
+        final Integer permission = this.userData.getClearanceLevel("STU_DLINE");
         final boolean allowEdit = permission != null && permission.intValue() < 3;
 
         if (allowEdit) {
@@ -257,24 +256,23 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
                 }
 
                 if (ms != null) {
-                    if (Objects.nonNull(this.currentStudentData)) {
-                        if (this.addPaceAppealDialog == null) {
-                            this.addPaceAppealDialog = new DlgAddPaceAppeal(this.cache, this, ms);
-                        }
-
-                        this.addPaceAppealDialog.populateDisplay(this.fixed, this.currentStudentData);
-
-                        final Point loc = getLocationOnScreen();
-                        final Dimension size = getSize();
-                        final int cx = loc.x + size.width / 2;
-                        final int cy = loc.y + size.height / 2;
-                        final Dimension dialogSize = this.addPaceAppealDialog.getSize();
-
-                        this.addPaceAppealDialog.setLocation(cx - dialogSize.width / 2,
-                                cy - dialogSize.height / 2);
-                        this.addPaceAppealDialog.setVisible(true);
-                        this.addPaceAppealDialog.toFront();
+                    if (this.addPaceAppealDialog == null) {
+                        this.addPaceAppealDialog = new DlgAddPaceAppeal(this.cache, this);
                     }
+
+                    Log.info("Adding appeal for ", ms);
+
+                    this.addPaceAppealDialog.populateDisplay(this.userData, this.currentStudentData, ms);
+
+                    final Point loc = getLocationOnScreen();
+                    final Dimension size = getSize();
+                    final int cx = loc.x + size.width / 2;
+                    final int cy = loc.y + size.height / 2;
+                    final Dimension dialogSize = this.addPaceAppealDialog.getSize();
+
+                    this.addPaceAppealDialog.setLocation(cx - dialogSize.width / 2, cy - dialogSize.height / 2);
+                    this.addPaceAppealDialog.setVisible(true);
+                    this.addPaceAppealDialog.toFront();
 
                     this.addMilestone = ms;
                 }
@@ -292,7 +290,7 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
      */
     private void initiateEdit(final String cmd) {
 
-        final Integer permission = this.fixed.getClearanceLevel("STU_DLINE");
+        final Integer permission = this.userData.getClearanceLevel("STU_DLINE");
         final boolean allowEdit = permission != null && permission.intValue() < 3;
 
         if (allowEdit) {
@@ -352,22 +350,23 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
                             if (appeal == null) {
                                 Log.warning("Unable to find pace appeal associated with appeal being edited.");
                             } else {
-                                if (this.editPaceAppealDialog == null) {
-                                    this.editPaceAppealDialog = new DlgEditPaceAppeal(this.cache, this);
+                                if (this.editExtensionDialog == null) {
+                                    this.editExtensionDialog = new DlgEditExtension(this.cache, this);
                                 }
 
-                                this.editPaceAppealDialog.populateDisplay(this.currentStudentData, appeal);
+                                this.editExtensionDialog.populateDisplay(this.userData, this.currentStudentData,
+                                        ms, stms, appeal);
 
                                 final Point loc = getLocationOnScreen();
                                 final Dimension size = getSize();
                                 final int cx = loc.x + size.width / 2;
                                 final int cy = loc.y + size.height / 2;
-                                final Dimension dialogSize = this.editPaceAppealDialog.getSize();
+                                final Dimension dialogSize = this.editExtensionDialog.getSize();
 
-                                this.editPaceAppealDialog.setLocation(cx - dialogSize.width / 2,
+                                this.editExtensionDialog.setLocation(cx - dialogSize.width / 2,
                                         cy - dialogSize.height / 2);
-                                this.editPaceAppealDialog.setVisible(true);
-                                this.editPaceAppealDialog.toFront();
+                                this.editExtensionDialog.setVisible(true);
+                                this.editExtensionDialog.toFront();
 
                                 this.editMilestone = stms;
                                 this.editAppeal = appeal;
@@ -391,14 +390,7 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
     public void updateAppeals() {
 
         if (this.currentStudentData != null) {
-
-            Log.info("Updating appeals.");
-
             this.currentStudentData.updatePaceAppeals(this.cache);
-
-            Log.info("There are now " + this.currentStudentData.paceAppeals.size() + " pace appeals and "
-                    + this.currentStudentData.studentMilestones.size() + " student milestones");
-
             populateDisplay(this.currentStudentData);
         }
     }

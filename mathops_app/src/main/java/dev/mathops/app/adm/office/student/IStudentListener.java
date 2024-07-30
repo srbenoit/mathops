@@ -1,4 +1,4 @@
-package dev.mathops.app.adm.office.dialogs;
+package dev.mathops.app.adm.office.student;
 
 import java.awt.Container;
 

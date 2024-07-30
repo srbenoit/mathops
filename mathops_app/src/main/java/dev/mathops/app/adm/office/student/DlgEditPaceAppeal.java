@@ -1,4 +1,4 @@
-package dev.mathops.app.adm.office.dialogs;
+package dev.mathops.app.adm.office.student;
 
 import dev.mathops.app.JDateChooser;
 import dev.mathops.app.adm.AdmPanelBase;

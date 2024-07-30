@@ -4,11 +4,6 @@ import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.UserData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
-import dev.mathops.app.adm.office.dialogs.DlgAddPaceAppeal;
-import dev.mathops.app.adm.office.dialogs.DlgEditAccommodations;
-import dev.mathops.app.adm.office.dialogs.DlgEditPaceAppeal;
-import dev.mathops.app.adm.office.dialogs.IPaceAppealsListener;
-import dev.mathops.app.adm.office.dialogs.IStudentListener;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.SimpleBuilder;
@@ -449,10 +444,10 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
         if (ADD_APPEAL_CMD.equals(cmd)) {
             if (Objects.nonNull(this.currentStudentData)) {
                 if (this.addPaceAppealDialog == null) {
-                    this.addPaceAppealDialog = new DlgAddPaceAppeal(this.cache, this, null);
+                    this.addPaceAppealDialog = new DlgAddPaceAppeal(this.cache, this);
                 }
 
-                this.addPaceAppealDialog.populateDisplay(this.fixed, this.currentStudentData);
+                this.addPaceAppealDialog.populateDisplay(this.fixed, this.currentStudentData, null);
                 this.addPaceAppealDialog.setVisible(true);
                 this.addPaceAppealDialog.toFront();
             }

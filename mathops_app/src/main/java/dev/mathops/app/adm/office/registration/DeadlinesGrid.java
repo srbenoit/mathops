@@ -70,8 +70,6 @@ final class DeadlinesGrid extends JPanel {
 
         clearDisplay();
 
-        Log.info("Deadlines grid is populating with " + data.studentMilestones.size() + " milestone overrides");
-
         final GroupLayout.ParallelGroup hGroup = this.layout.createParallelGroup(GroupLayout.Alignment.LEADING);
         final GroupLayout.SequentialGroup vGroup = this.layout.createSequentialGroup();
 
@@ -153,7 +151,7 @@ final class DeadlinesGrid extends JPanel {
         // Create column headings
         final Border underline = BorderFactory.createMatteBorder(0, 0, 1, 0, Skin.DARK);
         final JLabel unitHeading = new JLabel("Unit:");
-        unitHeading.setFont(Skin.MEDIUM_15_FONT);
+        unitHeading.setFont(Skin.BUTTON_13_FONT);
         unitHeading.setBorder(underline);
         final JLabel milestoneHeading = new JLabel("Milestone:");
         milestoneHeading.setFont(Skin.MEDIUM_15_FONT);

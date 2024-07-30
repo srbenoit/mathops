@@ -1,4 +1,4 @@
-package dev.mathops.app.adm.office.dialogs;
+package dev.mathops.app.adm.office.student;
 
 import dev.mathops.app.JDateChooser;
 import dev.mathops.app.adm.AdmPanelBase;
@@ -76,7 +76,7 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
     private final TermKey active;
 
     /** The initial milestone this dialog was created to edit. */
-    private final RawMilestone initialMilestone;
+    private RawMilestone milestone;
 
     /** The list of all milestones. */
     private final List<RawMilestone> allMilestones;
@@ -153,20 +153,16 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
     /**
      * Constructs a new {@code DlgAddPaceAppeal}.
      *
-     * @param theCache            the data cache
-     * @param theListener         the listener to be notified if an appeal record is added
-     * @param theInitialMilestone the milestone for which an appeal is being added; {@code null} for a generic appeal
-     *                            that could be for any milestone
+     * @param theCache    the data cache
+     * @param theListener the listener to be notified if an appeal record is added
      */
-    public DlgAddPaceAppeal(final Cache theCache, final IPaceAppealsListener theListener,
-                            final RawMilestone theInitialMilestone) {
+    public DlgAddPaceAppeal(final Cache theCache, final IPaceAppealsListener theListener) {
 
         super(TITLE);
         setBackground(Skin.LIGHTEST);
 
         this.cache = theCache;
         this.listener = theListener;
-        this.initialMilestone = theInitialMilestone;
 
         this.allMilestones = new ArrayList<>(50);
         TermKey activeKey = null;
@@ -445,34 +441,34 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
         flow11.add(cancelButton);
         content.add(flow11, StackedBorderLayout.SOUTH);
 
-        if (Objects.nonNull(theInitialMilestone)) {
-            final String paceStr = theInitialMilestone.pace.toString();
+        if (Objects.nonNull(this.milestone)) {
+            final String paceStr = this.milestone.pace.toString();
             this.paceField.setText(paceStr);
             this.paceField.setEditable(false);
 
-            this.paceTrackField.setText(theInitialMilestone.paceTrack);
+            this.paceTrackField.setText(this.milestone.paceTrack);
             this.paceTrackField.setEditable(false);
 
-            final int courseIndex = theInitialMilestone.getIndex();
+            final int courseIndex = this.milestone.getIndex();
             final String courseIndexStr = Integer.toString(courseIndex);
             this.courseField.setText(courseIndexStr);
             this.courseField.setEditable(false);
 
-            final int unit = theInitialMilestone.getUnit();
+            final int unit = this.milestone.getUnit();
             final String unitStr = Integer.toString(unit);
             this.unitField.setText(unitStr);
             this.unitField.setEditable(false);
 
-            if ("RE".equals(theInitialMilestone.msType)) {
+            if ("RE".equals(this.milestone.msType)) {
                 this.milestoneTypeDropdown.setSelectedIndex(0);
-            } else if ("FE".equals(theInitialMilestone.msType)) {
+            } else if ("FE".equals(this.milestone.msType)) {
                 this.milestoneTypeDropdown.setSelectedIndex(1);
-            } else if ("F1".equals(theInitialMilestone.msType)) {
+            } else if ("F1".equals(this.milestone.msType)) {
                 this.milestoneTypeDropdown.setSelectedIndex(2);
             }
             this.milestoneTypeDropdown.setEnabled(false);
 
-            this.origDatePicker.setCurrentDate(theInitialMilestone.msDate);
+            this.origDatePicker.setCurrentDate(this.milestone.msDate);
             this.origDatePicker.setEnabled(false);
         }
 
@@ -511,10 +507,14 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
     /**
      * Populates all displayed fields for a selected student.
      *
-     * @param fixed the fixed data with logged-in user information
-     * @param data  the student data
+     * @param userData     the user data
+     * @param data         the student data
+     * @param theMilestone the milestone for which an appeal is being added; {@code null} for a generic appeal that
+     *                     could be for any milestone
      */
-    public void populateDisplay(final UserData fixed, final StudentData data) {
+    public void populateDisplay(final UserData userData, final StudentData data, final RawMilestone theMilestone) {
+
+        this.milestone = theMilestone;
 
         this.studentIdField.setText(data.student.stuId);
 
@@ -523,7 +523,7 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
 
         final LocalDate today = LocalDate.now();
 
-        this.interviewerField.setText(fixed.username);
+        this.interviewerField.setText(userData.username);
         this.appealDatePicker.setCurrentDate(today);
 
         if (data.studentTerm == null) {
@@ -534,7 +534,7 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
             this.newDatePicker.setCurrentDate(null);
         }
 
-        if (this.initialMilestone == null) {
+        if (theMilestone == null) {
             if (data.studentTerm == null) {
                 this.paceField.setText("0");
                 this.paceTrackField.setText(CoreConstants.EMPTY);
@@ -551,6 +551,25 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
                 this.milestoneTypeDropdown.setSelectedIndex(-1);
                 this.origDatePicker.setCurrentDate(null);
             }
+        } else {
+            final String paceStr = theMilestone.pace.toString();
+            this.paceField.setText(paceStr);
+            this.paceTrackField.setText(theMilestone.paceTrack);
+            final String courseStr = Integer.toString(theMilestone.getIndex());
+            this.courseField.setText(courseStr);
+            final int unit = theMilestone.getUnit();
+            final String unitStr = Integer.toString(unit);
+            this.unitField.setText(unitStr);
+            if ("RE".equals(theMilestone.msType)) {
+                this.milestoneTypeDropdown.setSelectedIndex(0);
+            } else if ("FE".equals(theMilestone.msType)) {
+                this.milestoneTypeDropdown.setSelectedIndex(1);
+            } else if ("F1".equals(theMilestone.msType)) {
+                this.milestoneTypeDropdown.setSelectedIndex(2);
+            } else {
+                this.milestoneTypeDropdown.setSelectedIndex(-1);
+            }
+            this.origDatePicker.setCurrentDate(theMilestone.msDate);
         }
 
         this.reliefGiven.setSelected(false);
