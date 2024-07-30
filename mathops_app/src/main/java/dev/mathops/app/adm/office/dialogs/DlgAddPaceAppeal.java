@@ -82,7 +82,7 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
     private final List<RawMilestone> allMilestones;
 
     /** The owning panel to be refreshed if an appeal record is added. */
-    private final IPaceAppealsListener owner;
+    private final IPaceAppealsListener listener;
 
     /** The field for the student ID. */
     private final JTextField studentIdField;
@@ -153,19 +153,19 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
     /**
      * Constructs a new {@code DlgAddPaceAppeal}.
      *
-     * @param theCache         the data cache
-     * @param theOwner         the owning panel to be refreshed if an appeal record is added
-     * @param theInitialMilestone the milestone for which an appeal is being added; {@code null} for a generic appeal that
-     *                         could be for any milestone
+     * @param theCache            the data cache
+     * @param theListener         the listener to be notified if an appeal record is added
+     * @param theInitialMilestone the milestone for which an appeal is being added; {@code null} for a generic appeal
+     *                            that could be for any milestone
      */
-    public DlgAddPaceAppeal(final Cache theCache, final IPaceAppealsListener theOwner,
+    public DlgAddPaceAppeal(final Cache theCache, final IPaceAppealsListener theListener,
                             final RawMilestone theInitialMilestone) {
 
         super(TITLE);
         setBackground(Skin.LIGHTEST);
 
         this.cache = theCache;
-        this.owner = theOwner;
+        this.listener = theListener;
         this.initialMilestone = theInitialMilestone;
 
         this.allMilestones = new ArrayList<>(50);
@@ -241,7 +241,7 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
         }
 
         final LocalDate today = LocalDate.now();
-        this.appealDatePicker = new JDateChooser(today, holidays);
+        this.appealDatePicker = new JDateChooser(today, holidays, Skin.BODY_12_FONT);
         this.appealDatePicker.setFont(Skin.BODY_12_FONT);
         this.appealDatePicker.setActionCommand(VALIDATE_CMD);
 
@@ -272,11 +272,11 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
         this.reliefGiven.setFont(Skin.BODY_12_FONT);
         this.reliefGiven.setActionCommand(VALIDATE_CMD);
 
-        this.origDatePicker = new JDateChooser(today, holidays);
+        this.origDatePicker = new JDateChooser(today, holidays, Skin.BODY_12_FONT);
         this.origDatePicker.setFont(Skin.BODY_12_FONT);
         this.origDatePicker.setActionCommand(VALIDATE_CMD);
 
-        this.newDatePicker = new JDateChooser(today, holidays);
+        this.newDatePicker = new JDateChooser(today, holidays, Skin.BODY_12_FONT);
         this.newDatePicker.setFont(Skin.BODY_12_FONT);
         this.newDatePicker.setActionCommand(VALIDATE_CMD);
 
@@ -284,12 +284,12 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
         this.attemptsAllowedField.setFont(Skin.BODY_12_FONT);
         this.attemptsAllowedField.setEditable(true);
 
-        this.circumstancesField = new JTextArea(3, 30);
+        this.circumstancesField = new JTextArea(2, 30);
         this.circumstancesField.setFont(Skin.BODY_12_FONT);
         this.circumstancesField.setBorder(this.attemptsAllowedField.getBorder());
         this.circumstancesField.setEditable(true);
 
-        this.commentField = new JTextArea(3, 30);
+        this.commentField = new JTextArea(2, 30);
         this.commentField.setFont(Skin.BODY_12_FONT);
         this.commentField.setBorder(this.attemptsAllowedField.getBorder());
 
@@ -301,59 +301,59 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
         cancelButton.setFont(Skin.BUTTON_13_FONT);
         cancelButton.setActionCommand(CANCEL_CMD);
 
-        final JPanel flow1 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
+        final JPanel flow1 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
         flow1.add(leftLabels[0]);
         flow1.add(this.studentIdField);
         paceAppeal.add(flow1, StackedBorderLayout.NORTH);
 
-        final JPanel flow2 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
+        final JPanel flow2 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
         flow2.add(leftLabels[1]);
         flow2.add(this.studentNameField);
         paceAppeal.add(flow2, StackedBorderLayout.NORTH);
-        final JPanel flow3 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
+        final JPanel flow3 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
         flow3.add(leftLabels[2]);
         flow3.add(this.interviewerField);
         paceAppeal.add(flow3, StackedBorderLayout.NORTH);
 
-        final JPanel flow4 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
+        final JPanel flow4 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
         flow4.add(leftLabels[3]);
         flow4.add(this.appealDatePicker);
         paceAppeal.add(flow4, StackedBorderLayout.NORTH);
 
         paceAppeal.add(this.statusLabel, StackedBorderLayout.NORTH);
 
-        final JPanel flow5 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
+        final JPanel flow5 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
         flow5.add(leftLabels[4]);
         flow5.add(this.paceField);
         flow5.add(leftLabels[5]);
         flow5.add(this.paceTrackField);
         paceAppeal.add(flow5, StackedBorderLayout.NORTH);
 
-        final JPanel flow6 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
+        final JPanel flow6 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
         flow6.add(leftLabels[6]);
         flow6.add(this.courseField);
         flow6.add(leftLabels[7]);
         flow6.add(this.unitField);
         paceAppeal.add(flow6, StackedBorderLayout.NORTH);
 
-        final JPanel flow7 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
+        final JPanel flow7 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
         flow7.add(leftLabels[8]);
         flow7.add(this.milestoneTypeDropdown);
         flow7.add(new JLabel("      "));
         flow7.add(this.reliefGiven);
         paceAppeal.add(flow7, StackedBorderLayout.NORTH);
 
-        final JPanel flow8 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
+        final JPanel flow8 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
         flow8.add(leftLabels[9]);
         flow8.add(this.origDatePicker);
         paceAppeal.add(flow8, StackedBorderLayout.NORTH);
 
-        final JPanel flow9 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
+        final JPanel flow9 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
         flow9.add(leftLabels[10]);
         flow9.add(this.newDatePicker);
         paceAppeal.add(flow9, StackedBorderLayout.NORTH);
 
-        final JPanel flow10 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
+        final JPanel flow10 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
         flow10.add(leftLabels[11]);
         flow10.add(this.attemptsAllowedField);
         paceAppeal.add(flow10, StackedBorderLayout.NORTH);
@@ -399,44 +399,44 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
         this.overrideOriginalDate.setEditable(false);
         this.overrideOriginalSource = new JTextField(20);
         this.overrideOriginalSource.setEditable(false);
-        this.overrideNewDate = new JDateChooser(today, holidays);
+        this.overrideNewDate = new JDateChooser(today, holidays, Skin.BODY_12_FONT);
         this.overrideNewDate.setFont(Skin.BODY_12_FONT);
         this.overrideAttemptsAllowed = new JTextField(2);
 
-        final JPanel flow21 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
+        final JPanel flow21 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
         final JLabel topLbl = new JLabel("Student Milestone Update:");
         topLbl.setFont(Skin.MEDIUM_15_FONT);
         flow21.add(topLbl);
         milestoneUpdate.add(flow21, StackedBorderLayout.NORTH);
 
-        final JPanel flow22 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
+        final JPanel flow22 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
         flow22.add(rightLabels[0]);
         flow22.add(this.overrideDescription);
         milestoneUpdate.add(flow22, StackedBorderLayout.NORTH);
 
-        final JPanel flow23 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
+        final JPanel flow23 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
         flow23.add(rightLabels[1]);
         flow23.add(this.overrideOriginalDate);
         milestoneUpdate.add(flow23, StackedBorderLayout.NORTH);
 
-        final JPanel flow24 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
+        final JPanel flow24 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
         flow24.add(rightLabels[2]);
         flow24.add(this.overrideOriginalSource);
         milestoneUpdate.add(flow24, StackedBorderLayout.NORTH);
 
-        final JPanel flow25 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
+        final JPanel flow25 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
         flow25.add(rightLabels[3]);
         flow25.add(this.overrideNewDate);
         milestoneUpdate.add(flow25, StackedBorderLayout.NORTH);
 
-        final JPanel flow26 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
+        final JPanel flow26 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
         flow26.add(rightLabels[4]);
         flow26.add(this.overrideAttemptsAllowed);
         milestoneUpdate.add(flow26, StackedBorderLayout.NORTH);
 
         // Buttons bar at the bottom
 
-        final JPanel flow11 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
+        final JPanel flow11 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.CENTER, 5, 3));
         final Border lineAbove = BorderFactory.createMatteBorder(1, 0, 0, 0, Color.GRAY);
         final Border padAbove = BorderFactory.createEmptyBorder(10, 0, 0, 0);
         final Border buttonBarBorder = BorderFactory.createCompoundBorder(lineAbove, padAbove);
@@ -494,7 +494,7 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
         pack();
         final Dimension size = getSize();
 
-        Container parent = theOwner.getParent();
+        Container parent = theListener.getParent();
         while (parent != null) {
             if (parent instanceof final JFrame owningFrame) {
                 final Rectangle bounds = owningFrame.getBounds();
@@ -530,7 +530,7 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
             this.statusLabel.setText("Student is not enrolled in any paced courses");
             this.newDatePicker.setCurrentDate(today);
         } else {
-            this.statusLabel.setText(CoreConstants.EMPTY);
+            this.statusLabel.setText(CoreConstants.SPC);
             this.newDatePicker.setCurrentDate(null);
         }
 
@@ -579,7 +579,7 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
             if (error == null) {
                 final String[] errors = doInsertAppeal();
                 if (errors == null) {
-                    this.owner.updateAppeals();
+                    this.listener.updateAppeals();
                     setVisible(false);
                 } else {
                     JOptionPane.showMessageDialog(this, errors, TITLE, JOptionPane.ERROR_MESSAGE);

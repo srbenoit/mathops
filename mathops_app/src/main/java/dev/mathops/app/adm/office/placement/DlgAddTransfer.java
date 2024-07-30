@@ -136,7 +136,7 @@ final class DlgAddTransfer extends JFrame implements ActionListener, ItemListene
         }
 
         final LocalDate today = LocalDate.now();
-        this.examDate = new JDateChooser(today, holidays);
+        this.examDate = new JDateChooser(today, holidays, Skin.BODY_12_FONT);
         this.examDate.setFont(Skin.MEDIUM_13_FONT);
 
         this.typeDropdown = new JComboBox<>(TRANSFER_OR_CHALLENGE);

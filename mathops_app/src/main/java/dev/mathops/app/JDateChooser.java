@@ -1,6 +1,7 @@
 package dev.mathops.app;
 
 import com.formdev.flatlaf.FlatLightLaf;
+import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
@@ -71,8 +72,9 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
      *
      * @param theCurrentDate the current date (can be null)
      * @param holidays       an optional list of holidays
+     * @param theFont        the font
      */
-    public JDateChooser(final LocalDate theCurrentDate, final List<LocalDate> holidays) {
+    public JDateChooser(final LocalDate theCurrentDate, final List<LocalDate> holidays, final Font theFont) {
 
         super(new BorderLayout());
 
@@ -85,6 +87,7 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
 
         final Border padding = BorderFactory.createEmptyBorder(insets.top, insets.left, insets.bottom, insets.right);
         this.dateField.setBorder(padding);
+        this.dateField.setFont(theFont);
         add(this.dateField, BorderLayout.CENTER);
         this.dateField.setActionCommand(DATE_TYPED_CMD);
         this.dateField.addActionListener(this);
@@ -101,7 +104,7 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
 
         final LocalDate today = LocalDate.now();
         final YearMonth thisMonth = YearMonth.from(today);
-        this.monthCalendar = new JMonthCalendar(thisMonth, today, holidays, theCurrentDate, this);
+        this.monthCalendar = new JMonthCalendar(thisMonth, today, holidays, theCurrentDate, theFont, this);
 
         this.monthCalendarWindow = new JWindow();
         this.monthCalendarWindow.add(this.monthCalendar);
@@ -410,7 +413,7 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
             content.add(flow, BorderLayout.PAGE_START);
             flow.add(new JLabel("Date: "), BorderLayout.LINE_START);
 
-            final JDateChooser chooser = new JDateChooser(selected, holidays);
+            final JDateChooser chooser = new JDateChooser(selected, holidays, Skin.BODY_12_FONT);
             chooser.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 17));
             chooser.setForeground(Color.BLUE);
             chooser.setActionCommand("FOO");

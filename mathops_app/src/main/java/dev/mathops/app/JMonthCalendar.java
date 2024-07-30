@@ -11,6 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
+import javax.swing.border.MatteBorder;
 import javax.swing.plaf.basic.BasicArrowButton;
 import java.awt.Color;
 import java.awt.FlowLayout;
@@ -35,7 +36,7 @@ import java.util.Locale;
  * The user can scroll forward and backward through months or years.  The calendar can display defined holidays and the
  * "current day" in different styles.
  */
-public final class JMonthCalendar extends JPanel implements ActionListener {
+final class JMonthCalendar extends JPanel implements ActionListener {
 
     /** An action command. */
     private static final String PRIOR_MONTH_CMD = "PRIOR_MONTH";
@@ -64,6 +65,9 @@ public final class JMonthCalendar extends JPanel implements ActionListener {
     /** The weekday label. */
     private final JLabel[] weekdayLabels;
 
+    /** The grid panel that holds date buttons. */
+    private final JPanel body;
+
     /** The date buttons [week index 0 - 5][day index 0(Sun) - 6(Sat)]. */
     private final JButton[][] dateButtons;
 
@@ -73,9 +77,6 @@ public final class JMonthCalendar extends JPanel implements ActionListener {
     /** The listener to notify when a date is selected. */
     private final Listener listener;
 
-    /** Flag indicating constructor has finished and fonts can be updated. */
-    private boolean constructed;
-
     /**
      * Constructs a new {@code JMonthCalendar}.
      *
@@ -83,14 +84,18 @@ public final class JMonthCalendar extends JPanel implements ActionListener {
      * @param theCurrentDate  the current date ({@code null} if the current date should not be displayed)
      * @param theHolidays     a list of dates to display as "holiday"
      * @param theSelectedDate a date to display as "selected"
+     * @param theFont         the font
+     * @param theListener     a listener to be notified when a date is selected
      */
-    public JMonthCalendar(final YearMonth theYearMonth, final LocalDate theCurrentDate,
-                          final List<LocalDate> theHolidays, final LocalDate theSelectedDate,
-                          final Listener theListener) {
+    JMonthCalendar(final YearMonth theYearMonth, final LocalDate theCurrentDate, final List<LocalDate> theHolidays,
+                   final LocalDate theSelectedDate, final Font theFont, final Listener theListener) {
 
         super(new StackedBorderLayout());
 
-        setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.lightGray));
+        setFont(theFont);
+
+        final MatteBorder outline = BorderFactory.createMatteBorder(1, 1, 1, 1, Color.lightGray);
+        setBorder(outline);
 
         this.yearMonth = theYearMonth;
         this.currentDate = theCurrentDate;
@@ -116,11 +121,16 @@ public final class JMonthCalendar extends JPanel implements ActionListener {
 
         final JPanel topRowFlow = new JPanel(new FlowLayout(FlowLayout.CENTER, 4, 0));
 
+        final float size = theFont.getSize2D();
+        final Font titleFont = theFont.deriveFont(size + 2.0f);
+
         this.monthNameLabel = new JLabel(CoreConstants.SPC);
+        this.monthNameLabel.setFont(titleFont);
         topRowFlow.add(this.monthNameLabel);
 
         this.yearLabel = new JLabel(CoreConstants.SPC);
         this.yearLabel.setForeground(Color.GRAY);
+        this.yearLabel.setFont(titleFont);
         topRowFlow.add(this.yearLabel);
 
         topRow.add(priorMonth, StackedBorderLayout.WEST);
@@ -129,8 +139,8 @@ public final class JMonthCalendar extends JPanel implements ActionListener {
         add(topRow, StackedBorderLayout.NORTH);
 
         // Body is a grid 7 units wide and 7 units tall (top row is names of weekdays)
-        final JPanel body = new JPanel(new GridLayout(7, 7, 2, 2));
-        add(body, StackedBorderLayout.NORTH);
+        this.body = new JPanel(new GridLayout(7, 7, 2, 2));
+        add(this.body, StackedBorderLayout.NORTH);
 
         final String sunStr = DayOfWeek.SUNDAY.getDisplayName(TextStyle.SHORT, locale);
         final String monStr = DayOfWeek.MONDAY.getDisplayName(TextStyle.SHORT, locale);
@@ -149,10 +159,12 @@ public final class JMonthCalendar extends JPanel implements ActionListener {
         this.weekdayLabels[5] = new JLabel(friStr);
         this.weekdayLabels[6] = new JLabel(satStr);
 
+        final Font weekdayFont = theFont.deriveFont(size - 1.0f);
         for (final JLabel lbl : this.weekdayLabels) {
+            lbl.setFont(weekdayFont);
             lbl.setForeground(Color.GRAY);
             lbl.setHorizontalAlignment(SwingConstants.CENTER);
-            body.add(lbl);
+            this.body.add(lbl);
         }
 
         // Next 6 rows are the weeks - we will create a grid of general buttons and then set their text, colors,
@@ -167,6 +179,7 @@ public final class JMonthCalendar extends JPanel implements ActionListener {
             for (int j = 0; j < 7; ++j) {
                 final String cmd = i + "." + j;
                 final JButton btn = new JButton(CoreConstants.SPC);
+                btn.setFont(theFont);
                 btn.setEnabled(true);
                 btn.setActionCommand(cmd);
                 btn.addActionListener(this);
@@ -178,8 +191,6 @@ public final class JMonthCalendar extends JPanel implements ActionListener {
             }
         }
 
-        this.constructed = true;
-        updateFonts();
         update();
     }
 
@@ -191,41 +202,6 @@ public final class JMonthCalendar extends JPanel implements ActionListener {
     public void setFont(final Font font) {
 
         super.setFont(font);
-
-        if (this.constructed) {
-            updateFonts();
-        }
-    }
-
-    /**
-     * Sets fonts on inner elements based on the current font of this component.
-     */
-    private void updateFonts() {
-
-        final Font myFont = getFont();
-        final float size = myFont.getSize2D();
-
-        final Font titleFont = myFont.deriveFont(size + 2.0f);
-        this.monthNameLabel.setFont(titleFont);
-        this.yearLabel.setFont(titleFont);
-
-        final Font weekdayFont = myFont.deriveFont(size - 1.0f);
-        for (final JLabel lbl : this.weekdayLabels) {
-            lbl.setFont(weekdayFont);
-        }
-
-        for (int i = 0; i < 6; ++i) {
-            for (int j = 0; j < 7; ++j) {
-                final JButton btn = this.dateButtons[i][j];
-                btn.setFont(myFont);
-            }
-        }
-
-        invalidate();
-        revalidate();
-
-        setSize(getPreferredSize());
-        repaint();
     }
 
     /**

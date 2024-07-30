@@ -4,18 +4,14 @@ import dev.mathops.app.JDateChooser;
 import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
-import dev.mathops.app.adm.office.student.StuAppealsPanel;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
-import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawPaceAppealsLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.old.rawrecord.RawPaceAppeals;
-import dev.mathops.db.old.svc.term.TermRec;
-import dev.mathops.db.type.TermKey;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -62,14 +58,11 @@ public final class DlgEditPaceAppeal extends JFrame implements ActionListener, I
     /** The data cache. */
     private final Cache cache;
 
-    /** The active term key. */
-    private final TermKey active;
-
     /** The record being edited. */
     private RawPaceAppeals currentRecord;
 
     /** The owning panel to be refreshed if an appeal record is added. */
-    private final IPaceAppealsListener owner;
+    private final IPaceAppealsListener listener;
 
     /** The field for the student ID. */
     private final JTextField studentIdField;
@@ -122,28 +115,16 @@ public final class DlgEditPaceAppeal extends JFrame implements ActionListener, I
     /**
      * Constructs a new {@code DlgEditPaceAppeal}.
      *
-     * @param theCache the data cache
-     * @param theOwner the owning panel to be refreshed if an appeal record is added
+     * @param theCache    the data cache
+     * @param theListener the listener to be notified if an appeal record is added
      */
-    public DlgEditPaceAppeal(final Cache theCache, final IPaceAppealsListener theOwner) {
+    public DlgEditPaceAppeal(final Cache theCache, final IPaceAppealsListener theListener) {
 
         super(TITLE);
         setBackground(Skin.LIGHTEST);
 
         this.cache = theCache;
-        this.owner = theOwner;
-
-        TermKey activeKey = null;
-        try {
-            final SystemData systemData = theCache.getSystemData();
-            final TermRec activeTerm = systemData.getActiveTerm();
-            if (activeTerm != null) {
-                activeKey = activeTerm.term;
-            }
-        } catch (final SQLException ex) {
-            Log.warning("Failed to query milestones", ex);
-        }
-        this.active = activeKey;
+        this.listener = theListener;
 
         final JPanel content = AdmPanelBase.makeOffWhitePanel(new StackedBorderLayout());
         final Border padding = BorderFactory.createEmptyBorder(10, 10, 10, 10);
@@ -195,7 +176,7 @@ public final class DlgEditPaceAppeal extends JFrame implements ActionListener, I
         }
 
         final LocalDate today = LocalDate.now();
-        this.appealDatePicker = new JDateChooser(today, holidays);
+        this.appealDatePicker = new JDateChooser(today, holidays, Skin.BODY_12_FONT);
         this.appealDatePicker.setFont(Skin.MEDIUM_13_FONT);
 
         this.paceField = new JTextField(2);
@@ -217,20 +198,20 @@ public final class DlgEditPaceAppeal extends JFrame implements ActionListener, I
         this.reliefGiven = new JCheckBox("Relief Given");
         this.reliefGiven.setFont(Skin.MEDIUM_13_FONT);
 
-        this.origDatePicker = new JDateChooser(today, holidays);
+        this.origDatePicker = new JDateChooser(today, holidays, Skin.BODY_12_FONT);
         this.origDatePicker.setFont(Skin.MEDIUM_13_FONT);
 
-        this.newDatePicker = new JDateChooser(today, holidays);
+        this.newDatePicker = new JDateChooser(today, holidays, Skin.BODY_12_FONT);
         this.newDatePicker.setFont(Skin.MEDIUM_13_FONT);
 
         this.attemptsAllowedField = new JTextField(2);
         this.attemptsAllowedField.setFont(Skin.MEDIUM_13_FONT);
 
-        this.circumstancesField = new JTextArea(3, 30);
+        this.circumstancesField = new JTextArea(2, 30);
         this.circumstancesField.setFont(Skin.MEDIUM_13_FONT);
         this.circumstancesField.setBorder(this.attemptsAllowedField.getBorder());
 
-        this.commentField = new JTextArea(3, 30);
+        this.commentField = new JTextArea(2, 30);
         this.commentField.setFont(Skin.MEDIUM_13_FONT);
         this.commentField.setBorder(this.attemptsAllowedField.getBorder());
 
@@ -244,57 +225,57 @@ public final class DlgEditPaceAppeal extends JFrame implements ActionListener, I
         cancelButton.setActionCommand(CANCEL_CMD);
         cancelButton.addActionListener(this);
 
-        final JPanel flow1 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
+        final JPanel flow1 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
         flow1.add(labels[0]);
         flow1.add(this.studentIdField);
         content.add(flow1, StackedBorderLayout.NORTH);
 
-        final JPanel flow2 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
+        final JPanel flow2 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
         flow2.add(labels[1]);
         flow2.add(this.studentNameField);
         content.add(flow2, StackedBorderLayout.NORTH);
-        final JPanel flow3 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
+        final JPanel flow3 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
         flow3.add(labels[2]);
         flow3.add(this.interviewerField);
         content.add(flow3, StackedBorderLayout.NORTH);
 
-        final JPanel flow4 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
+        final JPanel flow4 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
         flow4.add(labels[3]);
         flow4.add(this.appealDatePicker);
         content.add(flow4, StackedBorderLayout.NORTH);
 
-        final JPanel flow5 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
+        final JPanel flow5 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
         flow5.add(labels[4]);
         flow5.add(this.paceField);
         flow5.add(labels[5]);
         flow5.add(this.paceTrackField);
         content.add(flow5, StackedBorderLayout.NORTH);
 
-        final JPanel flow6 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
+        final JPanel flow6 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
         flow6.add(labels[6]);
         flow6.add(this.courseField);
         flow6.add(labels[7]);
         flow6.add(this.unitField);
         content.add(flow6, StackedBorderLayout.NORTH);
 
-        final JPanel flow7 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
+        final JPanel flow7 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
         flow7.add(labels[8]);
         flow7.add(this.milestoneTypeDropdown);
         flow7.add(new JLabel("      "));
         flow7.add(this.reliefGiven);
         content.add(flow7, StackedBorderLayout.NORTH);
 
-        final JPanel flow8 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
+        final JPanel flow8 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
         flow8.add(labels[9]);
         flow8.add(this.origDatePicker);
         content.add(flow8, StackedBorderLayout.NORTH);
 
-        final JPanel flow9 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
+        final JPanel flow9 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
         flow9.add(labels[10]);
         flow9.add(this.newDatePicker);
         content.add(flow9, StackedBorderLayout.NORTH);
 
-        final JPanel flow10 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
+        final JPanel flow10 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
         flow10.add(labels[11]);
         flow10.add(this.attemptsAllowedField);
         content.add(flow10, StackedBorderLayout.NORTH);
@@ -312,7 +293,8 @@ public final class DlgEditPaceAppeal extends JFrame implements ActionListener, I
         content.add(this.commentField, StackedBorderLayout.NORTH);
 
         final JPanel flow11 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
-        flow11.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+        final Border padTop = BorderFactory.createEmptyBorder(10, 0, 0, 0);
+        flow11.setBorder(padTop);
         flow11.add(this.applyButton);
         flow11.add(cancelButton);
         content.add(flow11, StackedBorderLayout.NORTH);
@@ -320,7 +302,7 @@ public final class DlgEditPaceAppeal extends JFrame implements ActionListener, I
         pack();
         final Dimension size = getSize();
 
-        Container parent = theOwner.getParent();
+        Container parent = theListener.getParent();
         while (parent != null) {
             if (parent instanceof final JFrame owningFrame) {
                 final Rectangle bounds = owningFrame.getBounds();
@@ -409,7 +391,7 @@ public final class DlgEditPaceAppeal extends JFrame implements ActionListener, I
             if (error == null) {
                 final String[] errors = doUpdateAppeal();
                 if (errors == null) {
-                    this.owner.updateAppeals();
+                    this.listener.updateAppeals();
                     setVisible(false);
                 } else {
                     JOptionPane.showMessageDialog(this, errors, TITLE, JOptionPane.ERROR_MESSAGE);
@@ -510,6 +492,8 @@ public final class DlgEditPaceAppeal extends JFrame implements ActionListener, I
 
         String error[] = null;
 
+        Log.info("doUpdateAppeals()");
+
         if (this.currentRecord == null) {
             error = new String[]{"No current record to edit."};
         } else {
@@ -571,8 +555,11 @@ public final class DlgEditPaceAppeal extends JFrame implements ActionListener, I
                             this.currentRecord.stuId, appealDate, relief, paceInt, paceTrack, msNbr, msType,
                             msDate, newDate, numAttempts, circumstances, comment, interviewer);
 
+                    Log.info("Replacing appeal record");
                     RawPaceAppealsLogic.INSTANCE.delete(this.cache, this.currentRecord);
                     RawPaceAppealsLogic.INSTANCE.insert(this.cache, newRecord);
+                } else {
+                    Log.info("Nothing changed - skipping update");
                 }
             } catch (final NumberFormatException ex) {
                 error = new String[]{"Invalid Course number."};

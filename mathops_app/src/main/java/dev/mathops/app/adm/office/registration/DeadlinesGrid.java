@@ -331,7 +331,7 @@ final class DeadlinesGrid extends JPanel {
                 if (this.editAllowed) {
                     final JPanel flow = new JPanel(new FlowLayout(FlowLayout.LEADING, 4, 0));
                     flow.setBackground(Skin.WHITE);
-                    final JButton addExtension = new JButton("Add...");
+                    final JButton addExtension = new JButton("Appeal...");
                     addExtension.setActionCommand("ADD" + ms.msType + ms.msNbr);
                     addExtension.addActionListener(listener);
                     addExtension.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Skin.DARK));
