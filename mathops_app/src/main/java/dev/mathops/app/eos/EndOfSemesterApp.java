@@ -1,6 +1,8 @@
 package dev.mathops.app.eos;
 
 import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatLaf;
+import com.formdev.flatlaf.FlatLightLaf;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -60,7 +62,7 @@ final class EndOfSemesterApp implements Runnable {
      */
     public static void main(final String... args) {
 
-        FlatDarkLaf.setup();
+        FlatLightLaf.setup();
 
         SwingUtilities.invokeLater(new EndOfSemesterApp());
     }
