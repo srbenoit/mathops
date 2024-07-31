@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -282,6 +283,24 @@ public abstract class AbstractLogicModule {
             ps.setNull(index, Types.DATE);
         } else {
             ps.setDate(index, Date.valueOf(value));
+        }
+    }
+
+    /**
+     * Sets a date/time parameter in a prepared statement based on a {@code LocalDateTime} which may be {@code null}.
+     *
+     * @param ps    the prepared statement
+     * @param index the index of the parameter to set
+     * @param value the value
+     * @throws SQLException if there is an error setting the value
+     */
+    static void setPsTimestamp(final PreparedStatement ps, final int index, final LocalDateTime value)
+            throws SQLException {
+
+        if (value == null) {
+            ps.setNull(index, Types.TIMESTAMP);
+        } else {
+            ps.setTimestamp(index, Timestamp.valueOf(value));
         }
     }
 
