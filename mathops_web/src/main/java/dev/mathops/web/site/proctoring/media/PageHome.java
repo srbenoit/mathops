@@ -228,7 +228,7 @@ enum PageHome {
                 if (numElevated + numWithoutReviews > 0) {
                     htm.add(" (");
                     if (numElevated > 0) {
-                        htm.add("<strong class='elevated'>").add(numElevated).add(" elevated</strong>");
+                        htm.add("<strong class='elevated'>").add(numElevated).add(" elevated</strong> ");
                         if (numWithoutReviews > 0 && numReviewed > 0) {
                             htm.add(", ");
                         }
@@ -236,13 +236,13 @@ enum PageHome {
                     if (numWithoutReviews > 0) {
                         htm.add("<strong class='needsreview'>")
                                 .add(numWithoutReviews).add(numWithoutReviews == 1 ? " needs" : " need")
-                                .add(" review</strong>");
+                                .add(" review</strong> ");
                         if (numReviewed > 0) {
                             htm.add(", ");
                         }
                     }
                     if (numReviewed > 0) {
-                        htm.add("<strong class='reviewed'>").add(numReviewed).add(" reviewed</strong>");
+                        htm.add("<strong class='reviewed'>").add(numReviewed).add(" reviewed</strong> ");
                     }
 
                     htm.add(")");

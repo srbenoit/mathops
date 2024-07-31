@@ -8,6 +8,7 @@ import dev.mathops.db.old.rawrecord.RawClientPc;
 import dev.mathops.session.scramsha256.UserCredentials;
 
 import jakarta.servlet.ServletRequest;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -34,8 +35,7 @@ enum TestingWebServices {
      * @param request     the request
      * @return the reply ("OK" or "!" followed by an error message)
      */
-    static String powerStationOn(final Cache cache, final UserCredentials credentials,
-                                        final ServletRequest request) {
+    static String powerStationOn(final Cache cache, final UserCredentials credentials, final ServletRequest request) {
 
         String result;
 
@@ -76,8 +76,7 @@ enum TestingWebServices {
      * @return the reply ("OK" or "!" followed by an error message)
      * @throws SQLException if there is an error accessing the database
      */
-    private static String turnOnStation(final Cache cache, final RawClientPc station)
-            throws SQLException {
+    private static String turnOnStation(final Cache cache, final RawClientPc station) throws SQLException {
 
         String result;
 
@@ -93,7 +92,7 @@ enum TestingWebServices {
                 for (int i = 0; i < 6; i++) {
                     bytes[i] = (byte) 0xff;
                 }
-                for (int i = 6; i <count; i += macBytes.length) {
+                for (int i = 6; i < count; i += macBytes.length) {
                     System.arraycopy(macBytes, 0, bytes, i, macBytes.length);
                 }
 
@@ -103,8 +102,7 @@ enum TestingWebServices {
                     socket.send(packet);
                 }
 
-                RawClientPcLogic.updatePowerStatus(cache, station.computerId,
-                        RawClientPc.POWER_TURNING_ON);
+                RawClientPcLogic.updatePowerStatus(cache, station.computerId, RawClientPc.POWER_TURNING_ON);
                 result = "OK";
             } catch (final IOException ex) {
                 Log.warning(ex);
@@ -131,8 +129,7 @@ enum TestingWebServices {
      * @param request     the request
      * @return the reply ("OK" or "!" followed by an error message)
      */
-     static String powerStationOff(final Cache cache, final UserCredentials credentials,
-                                   final ServletRequest request) {
+    static String powerStationOff(final Cache cache, final UserCredentials credentials, final ServletRequest request) {
 
         String result;
 
@@ -175,8 +172,7 @@ enum TestingWebServices {
      * @return the reply ("OK" or "!" followed by an error message)
      * @throws SQLException if there is an error accessing the database
      */
-    private static String turnOffStation(final Cache cache, final RawClientPc station)
-            throws SQLException {
+    private static String turnOffStation(final Cache cache, final RawClientPc station) throws SQLException {
 
         String result;
 
