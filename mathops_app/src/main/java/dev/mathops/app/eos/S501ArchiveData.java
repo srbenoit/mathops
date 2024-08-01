@@ -1,23 +1,28 @@
 package dev.mathops.app.eos;
 
+import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
+import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.DbConnection;
 import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.type.TermKey;
 
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.SwingWorker;
+import java.awt.BorderLayout;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 
 /**
- * Logic to perform "archive" processing between semesters.  Replaces the Informix "eos_arc.sql" and "eos_load" scripts
- * from Informix.
+ * STEP 501: Archive data to the term database.
  *
  * <p>
- * This process is run after grades have been finalized for the ending term.  It copies data from the production
- * database into a "term archive" database for the ending term (which must have been created already).
+ * Logic to copy all data that is to be archived from the production database to the term archive database.
  */
-public class EOSArchive {
+public final class S501ArchiveData extends SwingWorker<Boolean, StepStatus> {
 
     /** TRUE to simply print what actions would be taken, FALSE to actually take actions. */
     private static final boolean DEBUG = true;
@@ -28,30 +33,110 @@ public class EOSArchive {
     /** The database connection to the archive database. */
     private final DbConnection archiveConnection;
 
+    /** The panel to update with status. */
+    private final JProgressBar progress;
+
+    /** The panel to update with status. */
+    private final StepPanel panel;
+
     /**
-     * Constructs a new {@code EOSArchive}.
+     * Constructs a new {@code S501ArchiveData}.
      *
      * @param theProductionConnection the database connection to the production database
      * @param theArchiveConnection    the database connection to the archive database
      */
-    public EOSArchive(final DbConnection theProductionConnection, final DbConnection theArchiveConnection) {
+    public S501ArchiveData(final DbConnection theProductionConnection, final DbConnection theArchiveConnection) {
 
         this.productionConnection = theProductionConnection;
         this.archiveConnection = theArchiveConnection;
+
+        final JPanel myStatus = new JPanel(new BorderLayout());
+        this.progress = new JProgressBar(0, 100);
+        this.progress.setStringPainted(true);
+        this.progress.setString(CoreConstants.EMPTY);
+
+        myStatus.add(this.progress, StackedBorderLayout.CENTER);
+
+        this.panel = new StepPanel(501, "Copy production data into the archive database", myStatus, this);
     }
 
     /**
-     * Performs the archiving process.
+     * Gets the step panel.
+     *
+     * @return the step panel
      */
-    public void run() {
+    public StepPanel getPanel() {
+
+        return this.panel;
+    }
+
+    /**
+     * Called on the AWT event dispatch thread after "doInBackground" has completed.
+     */
+    public void done() {
+
+        this.progress.setString("Finished");
+        this.progress.setValue(100);
+        this.panel.setFinished(true);
+    }
+
+    /**
+     * Called on the AWT event dispatch thread asynchronously with data from "publish".
+     *
+     * @param chunks the chunks being processed
+     */
+    @Override
+    protected void process(final List<StepStatus> chunks) {
+
+        if (!chunks.isEmpty()) {
+            final StepStatus last = chunks.getLast();
+
+            final String task = last.currentTask();
+            final int percent = last.percentComplete();
+
+            this.progress.setString(task);
+            this.progress.setValue(percent);
+        }
+    }
+
+    /**
+     * Fires a "publish" action to send status to the UI.
+     *
+     * @param percentage the percentage complete
+     * @param task       the current task
+     */
+    private void firePublish(final int percentage, final String task) {
+
+        publish(new StepStatus(percentage, task));
+    }
+
+    /**
+     * Executes table construction logic on a worker thread.
+     *
+     * @return TRUE if successful; FALSE if not
+     */
+    @Override
+    protected Boolean doInBackground() {
+
+        Boolean result = Boolean.TRUE;
+
+        firePublish(0, "Checking identities of source and target database...");
 
         if (areDatabasesCorrect()) {
             final TermKey activeTerm = queryActiveTerm();
 
-            if (activeTerm != null) {
+            if (activeTerm == null) {
+                result = Boolean.FALSE;
+            } else {
+                firePublish(1, "The active term is " + activeTerm.longString);
+
                 archiveAdminHold(activeTerm);
             }
+        } else {
+            result = Boolean.FALSE;
         }
+
+        return result;
     }
 
     /**
