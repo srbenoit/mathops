@@ -13,6 +13,9 @@ import java.util.Objects;
  */
 public final class RawAdminHold extends RecBase implements Comparable<RawAdminHold> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "admin_hold";
+
     /** A field name. */
     public static final String FLD_STU_ID = "stu_id";
 

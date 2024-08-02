@@ -12,6 +12,9 @@ import java.util.Objects;
  */
 public final class RawExceptStu extends RawTermRecordBase implements Comparable<RawExceptStu> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "except_stu";
+
     /** A field name. */
     private static final String FLD_STU_ID = "stu_id";
 

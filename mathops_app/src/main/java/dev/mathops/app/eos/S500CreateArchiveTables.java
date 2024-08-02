@@ -4,7 +4,86 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
-import dev.mathops.db.DbConnection;
+import dev.mathops.db.Cache;
+import dev.mathops.db.old.rawrecord.RawAdminHold;
+import dev.mathops.db.old.rawrecord.RawCalcs;
+import dev.mathops.db.old.rawrecord.RawCampusCalendar;
+import dev.mathops.db.old.rawrecord.RawChallengeFee;
+import dev.mathops.db.old.rawrecord.RawClientPc;
+import dev.mathops.db.old.rawrecord.RawCohort;
+import dev.mathops.db.old.rawrecord.RawCourse;
+import dev.mathops.db.old.rawrecord.RawCsection;
+import dev.mathops.db.old.rawrecord.RawCunit;
+import dev.mathops.db.old.rawrecord.RawCuobjective;
+import dev.mathops.db.old.rawrecord.RawCusection;
+import dev.mathops.db.old.rawrecord.RawDiscipline;
+import dev.mathops.db.old.rawrecord.RawDontSubmit;
+import dev.mathops.db.old.rawrecord.RawEtext;
+import dev.mathops.db.old.rawrecord.RawEtextCourse;
+import dev.mathops.db.old.rawrecord.RawEtextKey;
+import dev.mathops.db.old.rawrecord.RawExam;
+import dev.mathops.db.old.rawrecord.RawExamQa;
+import dev.mathops.db.old.rawrecord.RawExceptStu;
+import dev.mathops.db.old.rawrecord.RawFfrTrns;
+import dev.mathops.db.old.rawrecord.RawGradeRoll;
+import dev.mathops.db.old.rawrecord.RawGradingStd;
+import dev.mathops.db.old.rawrecord.RawHighSchools;
+import dev.mathops.db.old.rawrecord.RawHoldType;
+import dev.mathops.db.old.rawrecord.RawLogins;
+import dev.mathops.db.old.rawrecord.RawMilestone;
+import dev.mathops.db.old.rawrecord.RawMilestoneAppeal;
+import dev.mathops.db.old.rawrecord.RawMpe;
+import dev.mathops.db.old.rawrecord.RawMpeCredit;
+import dev.mathops.db.old.rawrecord.RawMpeLog;
+import dev.mathops.db.old.rawrecord.RawMpecrDenied;
+import dev.mathops.db.old.rawrecord.RawMsg;
+import dev.mathops.db.old.rawrecord.RawMsgLookup;
+import dev.mathops.db.old.rawrecord.RawPaceAppeals;
+import dev.mathops.db.old.rawrecord.RawPaceTrackRule;
+import dev.mathops.db.old.rawrecord.RawPacingRules;
+import dev.mathops.db.old.rawrecord.RawPacingStructure;
+import dev.mathops.db.old.rawrecord.RawParameters;
+import dev.mathops.db.old.rawrecord.RawPlcFee;
+import dev.mathops.db.old.rawrecord.RawPrereq;
+import dev.mathops.db.old.rawrecord.RawRemoteMpe;
+import dev.mathops.db.old.rawrecord.RawResource;
+import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
+import dev.mathops.db.old.rawrecord.RawSpecialStus;
+import dev.mathops.db.old.rawrecord.RawStchallenge;
+import dev.mathops.db.old.rawrecord.RawStchallengeqa;
+import dev.mathops.db.old.rawrecord.RawStcourse;
+import dev.mathops.db.old.rawrecord.RawStcunit;
+import dev.mathops.db.old.rawrecord.RawStcuobjective;
+import dev.mathops.db.old.rawrecord.RawStetext;
+import dev.mathops.db.old.rawrecord.RawStexam;
+import dev.mathops.db.old.rawrecord.RawSthomework;
+import dev.mathops.db.old.rawrecord.RawSthwqa;
+import dev.mathops.db.old.rawrecord.RawStmathplan;
+import dev.mathops.db.old.rawrecord.RawStmilestone;
+import dev.mathops.db.old.rawrecord.RawStmpe;
+import dev.mathops.db.old.rawrecord.RawStmpeqa;
+import dev.mathops.db.old.rawrecord.RawStmsg;
+import dev.mathops.db.old.rawrecord.RawStpaceSummary;
+import dev.mathops.db.old.rawrecord.RawStqa;
+import dev.mathops.db.old.rawrecord.RawStresource;
+import dev.mathops.db.old.rawrecord.RawStsurveyqa;
+import dev.mathops.db.old.rawrecord.RawStterm;
+import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.old.rawrecord.RawStvisit;
+import dev.mathops.db.old.rawrecord.RawSurveyqa;
+import dev.mathops.db.old.rawrecord.RawTestingCenter;
+import dev.mathops.db.old.rawrecord.RawUserClearance;
+import dev.mathops.db.old.rawrecord.RawUsers;
+import dev.mathops.db.old.rec.AssignmentRec;
+import dev.mathops.db.old.rec.MasteryAttemptQaRec;
+import dev.mathops.db.old.rec.MasteryAttemptRec;
+import dev.mathops.db.old.rec.MasteryExamRec;
+import dev.mathops.db.old.rec.ReportPermsRec;
+import dev.mathops.db.old.rec.StandardMilestoneRec;
+import dev.mathops.db.old.rec.StudentCourseMasteryRec;
+import dev.mathops.db.old.rec.StudentStandardMilestoneRec;
+import dev.mathops.db.old.rec.StudentUnitMasteryRec;
+import dev.mathops.db.old.svc.term.TermRec;
 
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -24,13 +103,13 @@ import java.util.List;
  * must be turned on ("ontape -s -U "term****") and we must be able to connect to it and pass a connection object into
  * this class's methods.
  */
-public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStatus> {
+final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStatus> {
 
     /** TRUE to simply print what actions would be taken, FALSE to actually take actions. */
     private static final boolean DEBUG = true;
 
-    /** The database connection to the archive database. */
-    private final DbConnection archiveConnection;
+    /** The data cache for the archive database. */
+    private final Cache archiveCache;
 
     /** The panel to update with status. */
     private final JProgressBar progress;
@@ -41,11 +120,13 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
     /**
      * Constructs a new {@code S500CreateArchiveTables}.  This should be called on the AWT event dispatch thread.
      *
-     * @param theArchiveConnection the database connection to the archive database
+     * @param theArchiveCache the data cache for the archive database
      */
-    S500CreateArchiveTables(final DbConnection theArchiveConnection) {
+    S500CreateArchiveTables(final Cache theArchiveCache) {
 
-        this.archiveConnection = theArchiveConnection;
+        super();
+
+        this.archiveCache = theArchiveCache;
 
         final JPanel myStatus = new JPanel(new BorderLayout());
         this.progress = new JProgressBar(0, 100);
@@ -129,7 +210,6 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                 && wasClientPcCreated()
                 && wasCohortCreated()
                 && wasCourseCreated()
-                && wasCrsectionCreated()
                 && wasCsectionCreated()
                 && wasCunitCreated()
                 && wasCuobjectiveCreated()
@@ -206,7 +286,7 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                 && wasUsersCreated()) {
 
                 try {
-                    this.archiveConnection.commit();
+                    this.archiveCache.conn.commit();
                     firePublish(100, "Archive database tables created.");
                 } catch (final SQLException ex) {
                     Log.warning("Failed to commit table creations", ex);
@@ -229,22 +309,32 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
 
         final String sql = "SELECT COUNT(*) FROM systables WHERE tabname=?";
 
-        final String[] tables = {"admin_hold", "calcs", "campus_calendar", "challenge_fee", "client_pc", "cohort",
-                "course", "crsection", "csection", "cunit", "cuobjective", "cusection", "discipline", "dont_submit",
-                "etext", "etext_course", "etext_key", "exam", "examqa", "except_stu", "ffr_trns", "grade_roll",
-                "grading_std", "high_schools", "hold_type", "homework", "index_descriptions", "index_frequency",
-                "logins", "mastery_attempt", "mastery_attempt_qa", "mastery_exam", "milestone", "milestone_appeal",
-                "mpe", "mpe_credit", "mpe_log", "mpecr_denied", "msg", "msg_lookup", "pace_appeals", "pace_track_rule",
-                "pacing_rules", "pacing_structure", "parameters", "plc_fee", "prereq_created", "remote_mpe",
-                "report_perms", "resource", "semester_calendar", "special_stus", "stchallenge", "stchallengeqa",
-                "stcourse", "sstcunit", "stcuobjective", "std_milestone", "stetext", "stexam", "sthomework", "sthwqa",
-                "stmathplan", "stmilestone", "stmpe", "stmpeqa", "stmsg", "stpace_summary", "stqa", "stresource",
-                "stsurveyqa", "stterm", "stu_course_mastery", "stu_std_milestone", "stu_unit_mastery", "student",
-                "stvisit", "surveyqa", "term", "testing_centers", "user_clearance", "users"};
+        final String[] tables = {RawAdminHold.TABLE_NAME, RawCalcs.TABLE_NAME, RawCampusCalendar.TABLE_NAME,
+                RawChallengeFee.TABLE_NAME, RawClientPc.TABLE_NAME, RawCohort.TABLE_NAME, RawCourse.TABLE_NAME,
+                RawCsection.TABLE_NAME, RawCunit.TABLE_NAME, RawCuobjective.TABLE_NAME, RawCusection.TABLE_NAME,
+                RawDiscipline.TABLE_NAME, RawDontSubmit.TABLE_NAME, RawEtext.TABLE_NAME, RawEtextCourse.TABLE_NAME,
+                RawEtextKey.TABLE_NAME, RawExam.TABLE_NAME, RawExamQa.TABLE_NAME, RawExceptStu.TABLE_NAME,
+                RawFfrTrns.TABLE_NAME, RawGradeRoll.TABLE_NAME, RawGradingStd.TABLE_NAME, RawHighSchools.TABLE_NAME,
+                RawHoldType.TABLE_NAME, AssignmentRec.TABLE_NAME, "index_descriptions", "index_frequency",
+                RawLogins.TABLE_NAME, MasteryAttemptRec.TABLE_NAME, MasteryAttemptQaRec.TABLE_NAME,
+                MasteryExamRec.TABLE_NAME, RawMilestone.TABLE_NAME, RawMilestoneAppeal.TABLE_NAME, RawMpe.TABLE_NAME,
+                RawMpeCredit.TABLE_NAME, RawMpeLog.TABLE_NAME, RawMpecrDenied.TABLE_NAME, RawMsg.TABLE_NAME,
+                RawMsgLookup.TABLE_NAME, RawPaceAppeals.TABLE_NAME, RawPaceTrackRule.TABLE_NAME,
+                RawPacingRules.TABLE_NAME, RawPacingStructure.TABLE_NAME, RawParameters.TABLE_NAME,
+                RawPlcFee.TABLE_NAME, RawPrereq.TABLE_NAME, RawRemoteMpe.TABLE_NAME, ReportPermsRec.TABLE_NAME,
+                RawResource.TABLE_NAME, RawSemesterCalendar.TABLE_NAME, RawSpecialStus.TABLE_NAME,
+                RawStchallenge.TABLE_NAME, RawStchallengeqa.TABLE_NAME, RawStcourse.TABLE_NAME, RawStcunit.TABLE_NAME,
+                RawStcuobjective.TABLE_NAME, StandardMilestoneRec.TABLE_NAME, RawStetext.TABLE_NAME,
+                RawStexam.TABLE_NAME, RawSthomework.TABLE_NAME, RawSthwqa.TABLE_NAME, RawStmathplan.TABLE_NAME,
+                RawStmilestone.TABLE_NAME, RawStmpe.TABLE_NAME, RawStmpeqa.TABLE_NAME, RawStmsg.TABLE_NAME,
+                RawStpaceSummary.TABLE_NAME, RawStqa.TABLE_NAME, RawStresource.TABLE_NAME, RawStsurveyqa.TABLE_NAME,
+                RawStterm.TABLE_NAME, StudentCourseMasteryRec.TABLE_NAME, StudentStandardMilestoneRec.TABLE_NAME,
+                StudentUnitMasteryRec.TABLE_NAME, RawStudent.TABLE_NAME, RawStvisit.TABLE_NAME, RawSurveyqa.TABLE_NAME,
+                TermRec.TABLE_NAME, RawTestingCenter.TABLE_NAME, RawUserClearance.TABLE_NAME, RawUsers.TABLE_NAME};
 
         boolean ok = true;
 
-        try (final PreparedStatement pstmt = this.archiveConnection.prepareStatement(sql)) {
+        try (final PreparedStatement pstmt = this.archiveCache.conn.prepareStatement(sql)) {
 
             for (final String table : tables) {
                 pstmt.setString(1, table);
@@ -292,9 +382,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       times_display   integer,
                       create_dt       date);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("admin_hold");
+                ok = werePermissionsSet(RawAdminHold.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'admin_hold' table in archive database");
                 ok = false;
@@ -324,9 +414,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       serial_nbr  integer  not null,
                       exam_dt     date     not null);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("calcs");
+                ok = werePermissionsSet(RawCalcs.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'calcs' table in archive database");
                 ok = false;
@@ -361,9 +451,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       weekdays_1   char(20),
                       weekdays_2   char(20));""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("campus_calendar");
+                ok = werePermissionsSet(RawCampusCalendar.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'campus_calendar' table in archive database");
                 ok = false;
@@ -392,9 +482,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       exam_dt  date      not null,
                       bill_dt  date      not null);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("challenge_fee");
+                ok = werePermissionsSet(RawChallengeFee.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'challenge_fee' table in archive database");
                 ok = false;
@@ -437,9 +527,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       current_unit       smallint,
                       current_version    char(5));""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("client_pc");
+                ok = werePermissionsSet(RawClientPc.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'client_pc' table in archive database");
                 ok = false;
@@ -467,9 +557,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       size        smallint  not null,
                       instructor  char(30));""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("cohort");
+                ok = werePermissionsSet(RawCohort.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'cohort' table in archive database");
                 ok = false;
@@ -503,49 +593,11 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       is_tutorial    char(1)   not null,
                       require_etext  char(1)   not null);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("course");
+                ok = werePermissionsSet(RawCourse.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'course' table in archive database");
-                ok = false;
-            }
-        }
-
-        return ok;
-    }
-
-    /**
-     * Creates the "crsection" table.
-     *
-     * @return true if the table was created; false if not
-     */
-    private boolean wasCrsectionCreated() {
-
-        boolean ok = true;
-
-        firePublish(10, "Creating 'crsection' table...");
-
-        if (!DEBUG) {
-            final String sql = """
-                    CREATE TABLE math.crsection (
-                      course              char(10)  not null,
-                      sect                char(4)   not null,
-                      unit                smallint  not null,
-                      term                char(2)   not null,
-                      term_yr             smallint  not null,
-                      re_start_dt         date,
-                      re_end_dt           date,
-                      re_first_credit_dt  date,
-                      re_last_credit_dt   date,
-                      re_points_ontime    smallint,
-                      re_points_late      smallint);""";
-
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
-                stmt.executeUpdate(sql);
-                ok = werePermissionsSet("crsection");
-            } catch (final SQLException ex) {
-                Log.warning("Failed to create 'crsection' table in archive database");
                 ok = false;
             }
         }
@@ -598,9 +650,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       canvas_id             char(40),
                       subterm               char(4))""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("csection");
+                ok = werePermissionsSet(RawCsection.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'csection' table in archive database");
                 ok = false;
@@ -635,9 +687,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       nbr_questions   smallint,
                       unit_type       char(4));""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("cunit");
+                ok = werePermissionsSet(RawCunit.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'cunit' table in archive database");
                 ok = false;
@@ -670,9 +722,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       lesson_nbr  char(10),
                       start_dt    date);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("cuobjective");
+                ok = werePermissionsSet(RawCuobjective.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'cuobjective' table in archive database");
                 ok = false;
@@ -718,9 +770,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       unproctored_exam   char(1),
                       re_points_ontime   smallint);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("cusection");
+                ok = werePermissionsSet(RawCusection.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'cusection' table in archive database");
                 ok = false;
@@ -755,9 +807,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       interviewer     char(20),
                       proctor         char(20));""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("discipline");
+                ok = werePermissionsSet(RawDiscipline.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'discipline' table in archive database");
                 ok = false;
@@ -786,9 +838,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       term     char(2)   not null,
                       term_yr  smallint  not null);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("dont_submit");
+                ok = werePermissionsSet(RawDontSubmit.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'dont_submit' table in archive database");
                 ok = false;
@@ -820,9 +872,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       active         char(1)  not null,
                       button_label   char(80));""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("etext");
+                ok = werePermissionsSet(RawEtext.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'etext' table in archive database");
                 ok = false;
@@ -849,9 +901,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       etext_id  char(6)   not null,
                       course    char(10)  not null);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("etext_course");
+                ok = werePermissionsSet(RawEtextCourse.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'etext_course' table in archive database");
                 ok = false;
@@ -879,9 +931,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       etext_key  char(20)  not null,
                       active_dt  datetime year to second);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("etext_key");
+                ok = werePermissionsSet(RawEtextKey.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'etext_key' table in archive database");
                 ok = false;
@@ -916,9 +968,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       pull_dt       date,
                       button_label  char(50));""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("exam");
+                ok = werePermissionsSet(RawExam.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'exam' table in archive database");
                 ok = false;
@@ -951,9 +1003,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       bogus             char(1)   not null,
                       subtest           char(1));""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("examqa");
+                ok = werePermissionsSet(RawExamQa.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'examqa' table in archive database");
                 ok = false;
@@ -987,9 +1039,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       sect           char(4)   not null,
                       sect_enroll    char(4)   not null);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("except_stu");
+                ok = werePermissionsSet(RawExceptStu.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'except_stu' table in archive database");
                 ok = false;
@@ -1019,9 +1071,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       exam_dt        date      not null,
                       dt_cr_refused  date);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("ffr_trns");
+                ok = werePermissionsSet(RawFfrTrns.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'ffr_trns' table in archive database");
                 ok = false;
@@ -1053,9 +1105,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       term       char(2),
                       term_yr    smallint);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("grade_roll");
+                ok = werePermissionsSet(RawGradeRoll.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'grade_roll' table in archive database");
                 ok = false;
@@ -1085,9 +1137,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       max_coupon_points    smallint,
                       coupon_factor        decimal(3,2)  not null);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("grading_std");
+                ok = werePermissionsSet(RawGradingStd.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'grading_std' table in archive database");
                 ok = false;
@@ -1118,9 +1170,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       state     char(2),
                       zip_code  char(10));""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("high_schools");
+                ok = werePermissionsSet(RawHighSchools.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'high_schools' table in archive database");
                 ok = false;
@@ -1150,9 +1202,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       add_hold        char(1)   not null,
                       delete_hold     char(1)   not null);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("hold_type");
+                ok = werePermissionsSet(RawHoldType.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'hold_type' table in archive database");
                 ok = false;
@@ -1186,9 +1238,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       active_dt  date      not null,
                       pull_dt    date);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("homework");
+                ok = werePermissionsSet(AssignmentRec.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'homework' table in archive database");
                 ok = false;
@@ -1217,7 +1269,7 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       indxtype  char(15),
                       indxkeys  char(150)  not null);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
                 ok = werePermissionsSet("index_descriptions");
             } catch (final SQLException ex) {
@@ -1248,7 +1300,7 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       weekend_indx  char(1),
                       tblname       char(20)  not null);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
                 ok = werePermissionsSet("index_frequency");
             } catch (final SQLException ex) {
@@ -1287,9 +1339,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       salt                char(32),
                       nbr_invalid_atmpts  smallint);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("logins");
+                ok = werePermissionsSet(RawLogins.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'logins' table in archive database");
                 ok = false;
@@ -1324,9 +1376,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       is_first_passed  char(1),
                       exam_source      char(2));""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("mastery_attempt");
+                ok = werePermissionsSet(MasteryAttemptRec.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'mastery_attempt' table in archive database");
                 ok = false;
@@ -1355,9 +1407,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       question_nbr  smallint  not null,
                       correct       char(1)   not null);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("mastery_attempt_qa");
+                ok = werePermissionsSet(MasteryAttemptQaRec.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'mastery_attempt_qa' table in archive database");
                 ok = false;
@@ -1392,9 +1444,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       when_active   date,
                       when_pulled   date);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("mastery_exam");
+                ok = werePermissionsSet(MasteryExamRec.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'mastery_exam' table in archive database");
                 ok = false;
@@ -1427,9 +1479,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       ms_date           date      not null,
                       nbr_atmpts_allow  smallint);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("milestone");
+                ok = werePermissionsSet(RawMilestone.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'milestone' table in archive database");
                 ok = false;
@@ -1469,9 +1521,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       comment           char(200),
                       interviewer       char(20)                 not null);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("milestone_appeal");
+                ok = werePermissionsSet(RawMilestoneAppeal.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'milestone_appeal' table in archive database");
                 ok = false;
@@ -1499,9 +1551,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       max_online_atmpts     smallint  not null,
                       max_proctored_atmpts  smallint  not null);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("mpe");
+                ok = werePermissionsSet(RawMpe.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'mpe' table in archive database");
                 ok = false;
@@ -1534,9 +1586,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       version        char(5),
                       exam_source    char(2));""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("mpe_credit");
+                ok = werePermissionsSet(RawMpeCredit.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'mpe_credit' table in archive database");
                 ok = false;
@@ -1571,9 +1623,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       start_time   integer   not null,
                       calc_nbr     char(4));""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("mpe_log");
+                ok = werePermissionsSet(RawMpeLog.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'mpe_log' table in archive database");
                 ok = false;
@@ -1606,9 +1658,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       version      char(5),
                       exam_source  char(2));""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("mpecr_denied");
+                ok = werePermissionsSet(RawMpecrDenied.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'mpecr_denied' table in archive database");
                 ok = false;
@@ -1639,9 +1691,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       subject      char(60),
                       template     lvarchar(2000));""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("msg");
+                ok = werePermissionsSet(RawMsg.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'msg' table in archive database");
                 ok = false;
@@ -1669,9 +1721,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       code    char(2)    not null,
                       value   char(200)  not null);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("msg_lookup");
+                ok = werePermissionsSet(RawMsgLookup.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'msg_lookup' table in archive database");
                 ok = false;
@@ -1711,9 +1763,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       comment           char(200),
                       interviewer       char(20)   not null);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("pace_appeals");
+                ok = werePermissionsSet(RawPaceAppeals.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'pace_appeals' table in archive database");
                 ok = false;
@@ -1744,9 +1796,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       pace_track  char(2)   not null,
                       criteria    char(30)  not null);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("pace_track_rule");
+                ok = werePermissionsSet(RawPaceTrackRule.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'pace_track_rule' table in archive database");
                 ok = false;
@@ -1776,9 +1828,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       activity_type     char(2)   not null,
                       requirement       char(4)   not null);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("pacing_rules");
+                ok = werePermissionsSet(RawPacingRules.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'pacing_rules' table in archive database");
                 ok = false;
@@ -1829,9 +1881,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       fe_due_date_enforced  char(1),
                       first_obj_avail       char(1));""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("pacing_structure");
+                ok = werePermissionsSet(RawPacingStructure.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'pacing_structure' table in archive database");
                 ok = false;
@@ -1867,9 +1919,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       parm9     char(20),
                       parm10    date);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("parameters");
+                ok = werePermissionsSet(RawParameters.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'parameters' table in archive database");
                 ok = false;
@@ -1898,9 +1950,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       exam_dt  date      not null,
                       bill_dt  date      not null);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("plc_fee");
+                ok = werePermissionsSet(RawPlcFee.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'plc_fee' table in archive database");
                 ok = false;
@@ -1929,9 +1981,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       term_yr       smallint  not null,
                       prerequisite  char(6)   not null);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("prereq");
+                ok = werePermissionsSet(RawPrereq.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'prereq' table in archive database");
                 ok = false;
@@ -1962,9 +2014,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       start_dt   date      not null,
                       end_dt     date      not null);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("remote_mpe");
+                ok = werePermissionsSet(RawRemoteMpe.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'remote_mpe' table in archive database");
                 ok = false;
@@ -1992,9 +2044,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       rpt_id      char(9)   not null,
                       perm_level  smallint  not null);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("report_perms");
+                ok = werePermissionsSet(ReportPermsRec.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'report_perms' table in archive database");
                 ok = false;
@@ -2025,9 +2077,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       holds_allowed  smallint  not null,
                       hold_id        char(2)   not null);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("resource");
+                ok = werePermissionsSet(RawResource.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'resource' table in archive database");
                 ok = false;
@@ -2057,9 +2109,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       start_dt  date      not null,
                       end_dt    date      not null);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("semester_calendar");
+                ok = werePermissionsSet(RawSemesterCalendar.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'semester_calendar' table in archive database");
                 ok = false;
@@ -2088,9 +2140,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       start_dt  date,
                       end_dt    date);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("special_stus");
+                ok = werePermissionsSet(RawSpecialStus.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'special_stus' table in archive database");
                 ok = false;
@@ -2130,9 +2182,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       passed          char(1)   not null,
                       how_validated   char(1));""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("stchallenge");
+                ok = werePermissionsSet(RawStchallenge.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'stchallenge' table in archive database");
                 ok = false;
@@ -2165,9 +2217,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       stu_answer    char(5),
                       ans_correct   char(1));""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("stchallengeqa");
+                ok = werePermissionsSet(RawStchallengeqa.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'stchallengeqa' table in archive database");
                 ok = false;
@@ -2222,9 +2274,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       i_term_yr            smallint,
                       i_deadline_dt        date);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("stcourse");
+                ok = werePermissionsSet(RawStcourse.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'stcourse' table in archive database");
                 ok = false;
@@ -2258,9 +2310,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       proctored_score   smallint,
                       proctored_points  smallint);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("stcunit");
+                ok = werePermissionsSet(RawStcunit.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'stcunit' table in archive database");
                 ok = false;
@@ -2292,9 +2344,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       seed                     integer,
                       last_component_finished  smallint);""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("stcuobjective");
+                ok = werePermissionsSet(RawStcuobjective.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'stcuobjective' table in archive database");
                 ok = false;
@@ -2326,9 +2378,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       ms_type     char(2)   not null,
                       ms_date     date      not null)""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("std_milestone");
+                ok = werePermissionsSet(StandardMilestoneRec.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'std_milestone' table in archive database");
                 ok = false;
@@ -2361,9 +2413,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       refund_dt           date,
                       refund_reason       char(60))""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("stetext");
+                ok = werePermissionsSet(RawStetext.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'stetext' table in archive database");
                 ok = false;
@@ -2405,9 +2457,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       exam_source      char(2),
                       calc_nbr         char(7))""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("stexam");
+                ok = werePermissionsSet(RawStexam.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'stexam' table in archive database");
                 ok = false;
@@ -2449,9 +2501,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       used_dt          date,
                       used_serial_nbr  integer)""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("sthomework");
+                ok = werePermissionsSet(RawSthomework.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'sthomework' table in archive database");
                 ok = false;
@@ -2486,9 +2538,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       hw_dt         date          not null,
                       finish_time   integer)""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("sthwqa");
+                ok = werePermissionsSet(RawSthwqa.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'sthwqa' table in archive database");
                 ok = false;
@@ -2522,9 +2574,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       finish_time  integer   not null,
                       session      bigint)""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("stmathplan");
+                ok = werePermissionsSet(RawStmathplan.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'stmathplan' table in archive database");
                 ok = false;
@@ -2557,9 +2609,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       ms_date           date      not null,
                       nbr_atmpts_allow  smallint)""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("stmilestone");
+                ok = werePermissionsSet(RawStmilestone.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'stmilestone' table in archive database");
                 ok = false;
@@ -2603,9 +2655,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       placed          char(1)   not null,
                       how_validated   char(1))""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("stmpe");
+                ok = werePermissionsSet(RawStmpe.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'stmpe' table in archive database");
                 ok = false;
@@ -2639,9 +2691,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       subtest       char(3),
                       tree_ref      char(40))""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("stmpeqa");
+                ok = werePermissionsSet(RawStmpeqa.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'stmpeqa' table in archive database");
                 ok = false;
@@ -2673,9 +2725,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       msg_code      char(8)   not null,
                       sender        char(50))""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("stmsg");
+                ok = werePermissionsSet(RawStmsg.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'stmsg' table in archive database");
                 ok = false;
@@ -2715,9 +2767,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       exam_dt        date      not null,
                       re_points      smallint  not null)""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("stpace_summary");
+                ok = werePermissionsSet(RawStpaceSummary.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'stpace_summary' table in archive database");
                 ok = false;
@@ -2753,9 +2805,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       subtest       char(1),
                       finish_time   integer)""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("stqa");
+                ok = werePermissionsSet(RawStqa.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'stqa' table in archive database");
                 ok = false;
@@ -2789,9 +2841,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       times_display  smallint  not null,
                       create_dt      date)""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("stresource");
+                ok = werePermissionsSet(RawStresource.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'stresource' table in archive database");
                 ok = false;
@@ -2822,9 +2874,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       stu_answer   char(50),
                       finish_time  integer   not null)""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("stsurveyqa");
+                ok = werePermissionsSet(RawStsurveyqa.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'stsurveyqa' table in archive database");
                 ok = false;
@@ -2860,9 +2912,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       case_mgr        char(20),
                       do_not_disturb  char(1))""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("stterm");
+                ok = werePermissionsSet(RawStterm.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'stterm' table in archive database");
                 ok = false;
@@ -2895,9 +2947,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       explor_1_status  char(2),
                       explor_2_status  char(2))""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("stu_course_mastery");
+                ok = werePermissionsSet(StudentCourseMasteryRec.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'stu_course_mastery' table in archive database");
                 ok = false;
@@ -2930,9 +2982,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       ms_type     char(2)   not null,
                       ms_date     date      not null)""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("stu_std_milestone");
+                ok = werePermissionsSet(StudentStandardMilestoneRec.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'stu_std_milestone' table in archive database");
                 ok = false;
@@ -2965,9 +3017,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       s2_status  char(3),
                       s3_status  char(3))""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("stu_unit_mastery");
+                ok = werePermissionsSet(StudentUnitMasteryRec.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'stu_unit_mastery' table in archive database");
                 ok = false;
@@ -3032,9 +3084,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       extension_days    smallint,
                       canvas_id         char(10))""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("student");
+                ok = werePermissionsSet(RawStudent.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'student' table in archive database");
                 ok = false;
@@ -3064,9 +3116,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       location      char(2)                  not null,
                       seat          char(3))""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("stvisit");
+                ok = werePermissionsSet(RawStvisit.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'stvisit' table in archive database");
                 ok = false;
@@ -3102,9 +3154,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       must_answer     char(1),
                       tree_ref        char(40))""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("surveyqa");
+                ok = werePermissionsSet(RawSurveyqa.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'surveyqa' table in archive database");
                 ok = false;
@@ -3149,9 +3201,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       view_required    smallint,
                       disp_admin_hold  smallint)""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("term");
+                ok = werePermissionsSet(TermRec.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'term' table in archive database");
                 ok = false;
@@ -3191,9 +3243,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       is_remote          char(1)                  not null,
                       is_proctored       char(1)                  not null)""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("testing_centers");
+                ok = werePermissionsSet(RawTestingCenter.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'testing_centers' table in archive database");
                 ok = false;
@@ -3222,9 +3274,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       clear_type      smallint  not null,
                       clear_passwd    char(8))""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("user_clearance");
+                ok = werePermissionsSet(RawUserClearance.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'user_clearance' table in archive database");
                 ok = false;
@@ -3258,9 +3310,9 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
                       calc_course  char(2)   not null,
                       passed       char(1))""";
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                ok = werePermissionsSet("users");
+                ok = werePermissionsSet(RawUsers.TABLE_NAME);
             } catch (final SQLException ex) {
                 Log.warning("Failed to create 'users' table in archive database");
                 ok = false;
@@ -3284,7 +3336,7 @@ public final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStat
         if (!DEBUG) {
             final String sql = SimpleBuilder.concat("REVOKE ALL ON math.", tableName, " FROM public AS math");
 
-            try (final Statement stmt = this.archiveConnection.createStatement()) {
+            try (final Statement stmt = this.archiveCache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
             } catch (final SQLException ex) {
                 Log.warning("Failed to revoke public permissions on '", tableName, "' table in archive database");

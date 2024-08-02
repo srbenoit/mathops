@@ -10,6 +10,9 @@ import java.util.Objects;
  */
 public final class StandardMilestoneRec extends RecBase implements Comparable<StandardMilestoneRec> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "std_milestone";
+
     /** A possible value for 'ms_type' field (indicating due date for a standard assignment). */
     public static final String MS_TYPE_STD_ASSIGNMENT = "HW";
 

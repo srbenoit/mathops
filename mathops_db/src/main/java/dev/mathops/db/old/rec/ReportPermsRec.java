@@ -9,6 +9,9 @@ import java.util.Objects;
  */
 public final class ReportPermsRec extends RecBase implements Comparable<ReportPermsRec> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "report_perms";
+
     /** A field name for serialization of records. */
     private static final String FLD_STU_ID = "stu_id";
 

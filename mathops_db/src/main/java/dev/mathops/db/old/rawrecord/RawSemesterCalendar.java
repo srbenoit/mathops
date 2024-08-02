@@ -13,6 +13,9 @@ import java.util.Objects;
  */
 public final class RawSemesterCalendar extends RawTermRecordBase implements Comparable<RawSemesterCalendar> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "semester_calendar";
+
     /** A field name. */
     private static final String FLD_WEEK_NBR = "week_nbr";
 

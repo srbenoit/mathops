@@ -13,6 +13,9 @@ import java.util.Objects;
  */
 public final class RawCuobjective extends RawTermRecordBase implements Comparable<RawCuobjective> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "cuobjective";
+
     /** A field name. */
     private static final String FLD_COURSE = "course";
 

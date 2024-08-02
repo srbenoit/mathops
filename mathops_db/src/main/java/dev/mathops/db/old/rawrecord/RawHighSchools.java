@@ -12,6 +12,9 @@ import java.util.Objects;
  */
 public final class RawHighSchools extends RecBase implements Comparable<RawHighSchools> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "high_schools";
+
     /** A field name. */
     private static final String FLD_HS_CODE = "hs_code";
 

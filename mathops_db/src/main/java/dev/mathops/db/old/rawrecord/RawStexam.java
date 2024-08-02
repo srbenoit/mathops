@@ -16,6 +16,9 @@ import java.util.Objects;
  */
 public final class RawStexam extends RecBase implements Comparable<RawStexam> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "stexam";
+
     /** A field name. */
     private static final String FLD_SERIAL_NBR = "serial_nbr";
 

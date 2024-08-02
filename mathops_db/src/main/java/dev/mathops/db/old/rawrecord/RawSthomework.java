@@ -17,6 +17,9 @@ import java.util.Objects;
  */
 public final class RawSthomework extends RecBase implements Comparable<RawSthomework> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "sthomework";
+
     /** A field name. */
     private static final String FLD_SERIAL_NBR = "serial_nbr";
 

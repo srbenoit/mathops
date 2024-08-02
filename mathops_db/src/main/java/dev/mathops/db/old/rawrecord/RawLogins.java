@@ -13,6 +13,9 @@ import java.util.Objects;
  */
 public final class RawLogins extends RecBase implements Comparable<RawLogins> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "logins";
+
     /** A field name. */
     private static final String FLD_USER_ID = "user_id";
 

@@ -13,6 +13,9 @@ import java.util.Objects;
  */
 public final class RawCalcs extends RecBase implements Comparable<RawCalcs> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "calcs";
+
     /** A field name. */
     private static final String FLD_STU_ID = "stu_id";
 

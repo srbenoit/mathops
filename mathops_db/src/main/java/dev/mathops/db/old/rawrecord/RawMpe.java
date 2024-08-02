@@ -12,6 +12,9 @@ import java.util.Objects;
  */
 public final class RawMpe extends RecBase implements Comparable<RawMpe> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "mpe";
+
     /** A field name. */
     private static final String FLD_VERSION = "version";
 

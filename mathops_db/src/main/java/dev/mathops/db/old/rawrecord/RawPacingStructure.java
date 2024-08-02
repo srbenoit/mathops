@@ -12,6 +12,9 @@ import java.util.Objects;
  */
 public final class RawPacingStructure extends RawTermRecordBase implements Comparable<RawPacingStructure> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "pacing_structure";
+
     /** A field name. */
     private static final String FLD_PACING_STRUCTURE = "pacing_structure";
 

@@ -13,6 +13,9 @@ import java.util.Objects;
  */
 public final class RawChallengeFee extends RecBase implements Comparable<RawChallengeFee> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "challenge_fee";
+
     /** A field name. */
     private static final String FLD_STU_ID = "stu_id";
 

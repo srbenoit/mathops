@@ -13,6 +13,9 @@ import java.util.Objects;
  */
 public final class RawParameters extends RecBase implements Comparable<RawParameters> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "parameters";
+
     /** A field name. */
     private static final String FLD_PGM_NAME = "pgm_name";
 

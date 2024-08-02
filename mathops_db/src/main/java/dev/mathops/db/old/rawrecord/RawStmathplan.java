@@ -15,6 +15,9 @@ import java.util.Objects;
  */
 public final class RawStmathplan extends RecBase implements Comparable<RawStmathplan> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "stmathplan";
+
     /** A field name. */
     private static final String FLD_STU_ID = "stu_id";
 

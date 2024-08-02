@@ -12,6 +12,9 @@ import java.util.Objects;
  */
 public final class RawCunit extends RawTermRecordBase implements Comparable<RawCunit> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "cunit";
+
     /** A field name. */
     private static final String FLD_COURSE = "course";
 

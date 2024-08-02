@@ -13,6 +13,9 @@ import java.util.Objects;
  */
 public final class RawClientPc extends RecBase implements Comparable<RawClientPc> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "client_pc";
+
     /** A field name. */
     private static final String FLD_COMPUTER_ID = "computer_id";
 

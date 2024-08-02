@@ -1,51 +1,44 @@
-package dev.mathops.dbjobs.batch.daily;
+package dev.mathops.dbjobs.batch;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
+import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.rawlogic.RawApplicantLogic;
-import dev.mathops.db.old.rawrecord.RawApplicant;
-import dev.mathops.db.old.schema.csubanner.ImplLiveStudent;
-import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
-import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.old.ifaces.ILiveStudent;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
+import dev.mathops.db.old.rawlogic.RawApplicantLogic;
+import dev.mathops.db.old.rawrecord.RawApplicant;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.rec.LiveStudent;
 import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.type.TermKey;
 
-import javax.swing.GroupLayout;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
- * A class that performs an import of applicant data from the ODS.
+ * A class that performs an import of applicant data from the ODS and populates the APPLICANTS table.  It does not
+ * update the STUDENT table at all.
  */
-public final class ImportOdsApplicants {
+public final class ImportOdsApplicants2 {
 
     /** Debug flag - set to 'true' to print changes rather than performing them. */
-    private static final boolean DEBUG = false;
-
-    /** Flag to enable reconciling with Banner live data (make it VERY slow, >24 hours). */
-    private static final boolean RECONCILE_WITH_LIVE = false;
+    private static final boolean DEBUG = true;
 
     /** The database profile through which to access the database. */
     private final DbProfile dbProfile;
@@ -56,20 +49,16 @@ public final class ImportOdsApplicants {
     /** The ODS database context. */
     private final DbContext odsCtx;
 
-    /** The live database context. */
-    private final DbContext liveCtx;
-
     /**
-     * Constructs a new {@code ImportOdsApplicants}.
+     * Constructs a new {@code ImportOdsApplicants2}.
      */
-    public ImportOdsApplicants() {
+    private ImportOdsApplicants2() {
 
         final ContextMap map = ContextMap.getDefaultInstance();
 
         this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
         this.primaryCtx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
         this.odsCtx = this.dbProfile.getDbContext(ESchemaUse.ODS);
-        this.liveCtx = this.dbProfile.getDbContext(ESchemaUse.LIVE);
     }
 
     /**
@@ -133,49 +122,33 @@ public final class ImportOdsApplicants {
     private void executeInTerm(final Cache cache, final TermRec active, final Collection<? super String> report)
             throws SQLException {
 
-        final List<RawStudent> all = RawStudentLogic.INSTANCE.queryAll(cache);
-        final String msg1 = "Retrieved " + all.size() + " existing student records.";
-        report.add(msg1);
-        Log.info(msg1);
-
         final DbConnection odsConn = this.odsCtx.checkOutConnection();
 
         try {
-            final DbConnection liveConn = this.liveCtx.checkOutConnection();
+            Map<String, ApplicantRecord> applicants = null;
 
-            try {
-                Map<String, ApplicantRecord> applicants = null;
-
-                if (active.term.name == ETermName.SPRING) {
-                    report.add("Processing under the SPRING term");
-                    applicants = queryApplicants(odsConn, "SPR", report);
-                } else if (active.term.name == ETermName.SUMMER) {
-                    report.add("Processing under the SUMMER term");
-                    applicants = queryApplicants(odsConn, "SMR", report);
-                } else if (active.term.name == ETermName.FALL) {
-                    report.add("Processing under the FALL term");
-                    applicants = queryApplicants(odsConn, "FAL", report);
-                } else {
-                    report.add("Active term has invalid term name: " + active.term.name);
-                }
-
-                if (applicants != null) {
-                    final String msg2 = "Found " + applicants.size() + " applicants.";
-                    report.add(msg2);
-                    Log.info(msg2);
-
-                    // Update majors every Sunday
-                    if (LocalDate.now().getDayOfWeek() == DayOfWeek.SUNDAY) {
-                        queryFieldOfStudy(odsConn, applicants.values());
-                        report.add("Updated field of study, college, and department.");
-                    }
-                    processList(cache, liveConn, all, applicants, report);
-                }
-
-                report.add("Job completed");
-            } finally {
-                this.liveCtx.checkInConnection(liveConn);
+            if (active.term.name == ETermName.SPRING) {
+                report.add("Processing under the SPRING term");
+                applicants = queryApplicants(odsConn, "SPR", report);
+            } else if (active.term.name == ETermName.SUMMER) {
+                report.add("Processing under the SUMMER term");
+                applicants = queryApplicants(odsConn, "SMR", report);
+            } else if (active.term.name == ETermName.FALL) {
+                report.add("Processing under the FALL term");
+                applicants = queryApplicants(odsConn, "FAL", report);
+            } else {
+                report.add("Active term has invalid term name: " + active.term.name);
             }
+
+            if (applicants != null) {
+                final String msg = "Found " + applicants.size() + " applicants.";
+                report.add(msg);
+                Log.info(msg);
+
+                processList(cache, applicants, report);
+            }
+
+            report.add("Job completed");
         } catch (final SQLException ex) {
             Log.warning(ex);
             report.add("Unable to perform query: " + ex.getMessage());
@@ -201,7 +174,7 @@ public final class ImportOdsApplicants {
         final Map<String, Map<String, Integer>> decisions = new HashMap<>(100);
 
         final int curYear = LocalDate.now().getYear();
-        final String start = curYear - 1 + "90";
+        final String start = curYear - 4 + "10";
         final String end = curYear + 2 + "90";
 
         try (final Statement stmt = odsConn.createStatement()) {
@@ -253,8 +226,7 @@ public final class ImportOdsApplicants {
                                + "WHERE (B.APLN_STATUS <> 'U') "
                                + "  AND (B.APLCT_LATEST_DECN IS NULL OR B.APLCT_LATEST_DECN<>'RA') "
                                + "  AND (B.APLN_COUNT_PRIORITY_FLAG = 'Y') "
-                               + "  AND (B.TERM Between '" + start
-                               + "'      And '" + end + "') "
+                               + "  AND (B.TERM Between '" + start + "' And '" + end + "') "
                                + "  AND (A.LAST_NAME Not Like '-Purge%') "
                                + "  AND (A.MULTI_SOURCE = 'CSU') "
                                + "  AND (   (B.ADM_CAMPUS = 'MC')"
@@ -265,17 +237,10 @@ public final class ImportOdsApplicants {
                                + "           And (B.STUDENT_TYPE = 'E') "
                                + "           And (SUBSTR(B.ADM_PROGRAM_OF_STUDY,1,2) = 'N2')))";
 
-            // final Set<String> csuidsFound = new HashSet<>(100);
-
             try (final ResultSet rs = stmt.executeQuery(sql)) {
                 while (rs.next()) {
 
                     final String csuId = rs.getString("csuid");
-
-                    // if (csuidsFound.contains(csuId)) {
-                    // Log.warning("Multiple applicant records for student '", csuId, "'");
-                    // }
-                    // csuidsFound.add(csuId);
 
                     if (csuId == null) {
                         report.add("ODS record had null CSU ID");
@@ -386,295 +351,46 @@ public final class ImportOdsApplicants {
                             inner.put(admitted, Integer.valueOf(count.intValue() + 1));
                         }
 
-                        Boolean isAdmitted = null;
+                        boolean isAdmitted;
                         if (admitted != null) {
-                            isAdmitted = Boolean.valueOf(decision != null || "Y".equals(admitted));
-                        }
+                            isAdmitted = decision != null || "Y".equals(admitted);
 
-                        final ApplicantRecord newRec = new ApplicantRecord(csuId, firstName, lastName, prefName,
-                                middleName, birthDate, gender, email, admType, stuClass, hsCode, residency,
-                                residencyState, residencyCounty, hsGpa, hsClassRank, hsClassSize, actMath, usedSat,
-                                pidm,
-                                applicationTerm, applicationDate, gradTerm, campus, isAdmitted, programOfStudy);
+                            if (isAdmitted) {
+                                final ApplicantRecord newRec = new ApplicantRecord(csuId, firstName, lastName, prefName,
+                                        middleName, birthDate, gender, email, admType, stuClass, hsCode, residency,
+                                        residencyState, residencyCounty, hsGpa, hsClassRank, hsClassSize, actMath,
+                                        usedSat, pidm, applicationTerm, applicationDate, gradTerm, campus, isAdmitted,
+                                        programOfStudy);
 
-                        final ApplicantRecord existing = result.get(csuId);
+                                final ApplicantRecord existing = result.get(csuId);
 
-                        if (existing == null || newRec.isMoreRecentThan(existing)) {
-                            result.put(csuId, newRec);
+                                if (existing == null || newRec.isMoreRecentThan(existing)) {
+                                    result.put(csuId, newRec);
+                                }
+                            }
                         }
                     } else {
                         report.add("ODS record had bad student ID: '" + csuId + "'");
                     }
                 }
             }
-
-            report.add(CoreConstants.EMPTY);
-            report.add("Decision:   Admitted:   Count:   Applicant?");
-            report.add("---------   ---------   ------   ----------");
-
-            final HtmlBuilder htm = new HtmlBuilder(100);
-            for (final Map.Entry<String, Map<String, Integer>> entry1 : decisions.entrySet()) {
-                for (final Map.Entry<String, Integer> entry2 : entry1.getValue().entrySet()) {
-
-                    htm.add(entry1.getKey()).padToLength(12);
-                    htm.add(entry2.getKey()).padToLength(24);
-                    htm.add(entry2.getValue()).padToLength(33);
-
-                    final boolean isApplicant = entry1.getKey() != null || "Y".equals(entry2.getKey());
-                    htm.add(isApplicant);
-
-                    report.add(htm.toString());
-                    htm.reset();
-                }
-            }
-            report.add(CoreConstants.EMPTY);
         }
 
         return result;
     }
 
     /**
-     * Queries the field of study for all applicants and applies updates as needed.
-     *
-     * @param odsConn    the ODS database connection
-     * @param applicants the applicants list
-     */
-    private static void queryFieldOfStudy(final DbConnection odsConn,
-                                          final Iterable<ApplicantRecord> applicants) {
-
-        // final int curYear = LocalDate.now().getYear();
-        // final String term = Integer.toString(curYear) + termSuffix;
-
-        try (final Statement stmt = odsConn.createStatement()) {
-            for (final ApplicantRecord rec : applicants) {
-                final String sql = SimpleBuilder.concat(
-                        "SELECT academic_period,program,college,department FROM ",
-                        "CSUS_FIELD_OF_STUDY WHERE id='", rec.csuId, "'");
-
-                String maxPeriod = null;
-                try (final ResultSet rs = stmt.executeQuery(sql)) {
-
-                    while (rs.next()) {
-                        final String period = rs.getString(1);
-                        if (maxPeriod == null || maxPeriod.compareTo(period) < 0) {
-                            rec.programOfStudy = ApplicantRecord.prune(rs.getString(2), 16);
-                            rec.college = ApplicantRecord.prune(rs.getString(3), 2);
-                            rec.department = ApplicantRecord.prune(rs.getString(4), 4);
-
-                            maxPeriod = period;
-                        }
-                    }
-                }
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-        }
-    }
-
-    /**
      * Processes a list of applicant records.
      *
-     * @param cache            the data cache
-     * @param liveConn         a live database connection
-     * @param existingStudents the list of all existing students in the database
-     * @param applicants       the list of applicants from the ODS
-     * @param report           a list of strings to which to add report output lines
+     * @param cache      the data cache
+     * @param applicants the list of applicants from the ODS
+     * @param report     a list of strings to which to add report output lines
      * @throws SQLException if there is an error accessing the database
      */
-    private static void processList(final Cache cache, final DbConnection liveConn,
-                                    final Collection<RawStudent> existingStudents,
-                                    final Map<String, ApplicantRecord> applicants,
+    private static void processList(final Cache cache, final Map<String, ApplicantRecord> applicants,
                                     final Collection<? super String> report) throws SQLException {
 
-        final Map<String, RawStudent> existingMap = new HashMap<>(existingStudents.size());
-        for (final RawStudent student : existingStudents) {
-            existingMap.put(student.stuId, student);
-        }
-
-        final Map<String, RawStudent> newMap = new HashMap<>(applicants.size());
-
-        final ILiveStudent impl = ImplLiveStudent.INSTANCE;
-
-        reconcileApplicants(cache, applicants.values());
-
-        for (final ApplicantRecord app : applicants.values()) {
-
-            final RawStudent newRec = app.toStudent();
-
-            if (RECONCILE_WITH_LIVE) {
-                final List<LiveStudent> liveRecords = impl.query(liveConn, app.csuId);
-
-                if (liveRecords.size() == 1) {
-                    final LiveStudent liveStu = liveRecords.getFirst();
-
-                    if (!Objects.equals(liveStu.internalId, newRec.pidm)) {
-                        Log.warning("Banner/ODS mismatch on pidm: ", liveStu.internalId, "/", newRec.pidm);
-                    }
-
-                    if (!Objects.equals(liveStu.lastName, newRec.lastName)) {
-                        Log.warning("Banner/ODS mismatch on lastName: ", liveStu.lastName, "/", newRec.lastName);
-                    }
-
-                    if (liveStu.firstName != null
-                        && !Objects.equals(liveStu.firstName, newRec.firstName)) {
-                        Log.warning("Banner/ODS mismatch on firstName: ", liveStu.firstName, "/", newRec.firstName);
-                        newRec.firstName = liveStu.firstName;
-                    }
-
-                    if (liveStu.firstName != null && !Objects.equals(liveStu.prefFirstName, newRec.prefName)) {
-                        Log.warning("Banner/ODS mismatch on prefName: ", liveStu.prefFirstName, "/", newRec.prefName);
-                        newRec.prefName = liveStu.prefFirstName;
-                    }
-
-                    if (liveStu.middleInitial != null && !Objects.equals(liveStu.middleInitial, newRec.middleInitial)) {
-                        Log.warning("Banner/ODS mismatch on middleInitial for ", newRec.stuId, ": ",
-                                liveStu.middleInitial, "/", newRec.middleInitial);
-                        newRec.middleInitial = liveStu.middleInitial;
-                    }
-
-                    if (liveStu.collegeCode != null
-                        && !Objects.equals(liveStu.collegeCode, newRec.college)) {
-                        Log.warning("Banner/ODS mismatch on college: ", liveStu.collegeCode, "/", newRec.college);
-                        newRec.college = liveStu.collegeCode;
-                    }
-
-                    if (liveStu.departmentCode != null
-                        && !Objects.equals(liveStu.departmentCode, newRec.dept)) {
-                        Log.warning("Banner/ODS mismatch on dept: ", liveStu.departmentCode, "/", newRec.dept);
-                        newRec.dept = liveStu.departmentCode;
-                    }
-
-                    if (liveStu.programCode != null && !Objects.equals(liveStu.programCode, newRec.programCode)) {
-                        Log.warning("Banner/ODS mismatch on programCode: ", liveStu.programCode, "/",
-                                newRec.programCode);
-                        newRec.programCode = liveStu.programCode;
-                    }
-
-                    if (liveStu.minorCode != null
-                        && !Objects.equals(liveStu.minorCode, newRec.minor)) {
-                        Log.warning("Banner/ODS mismatch on minor: ", liveStu.minorCode, "/", newRec.minor);
-                        newRec.minor = liveStu.minorCode;
-                    }
-
-                    if (liveStu.highSchoolCode != null && !Objects.equals(liveStu.highSchoolCode, newRec.hsCode)) {
-                        Log.warning("Banner/ODS mismatch on hsCode: ", liveStu.highSchoolCode, "/", newRec.hsCode);
-                        newRec.hsCode = liveStu.highSchoolCode;
-                    }
-
-                    if (liveStu.highSchoolGpa != null
-                        && !Objects.equals(liveStu.highSchoolGpa, newRec.hsGpa)) {
-                        Log.warning("Banner/ODS mismatch on hsGpa: ", liveStu.highSchoolGpa, "/", newRec.hsGpa);
-                        newRec.hsGpa = liveStu.highSchoolGpa;
-                    }
-
-                    if (liveStu.highSchoolClassRank != null && !Objects.equals(liveStu.highSchoolClassRank,
-                            newRec.hsClassRank)) {
-                        Log.warning("Banner/ODS mismatch on hsClassRank: ", liveStu.highSchoolClassRank, "/",
-                                newRec.hsClassRank);
-                        newRec.hsClassRank = liveStu.highSchoolClassRank;
-                    }
-
-                    if (liveStu.highSchoolClassSize != null && !Objects.equals(liveStu.highSchoolClassSize,
-                            newRec.hsSizeClass)) {
-                        Log.warning("Banner/ODS mismatch on hsSizeClass: ", liveStu.highSchoolClassSize, "/",
-                                newRec.hsSizeClass);
-                        newRec.hsSizeClass = liveStu.highSchoolClassSize;
-                    }
-
-                    if (liveStu.actScore != null
-                        && !Objects.equals(liveStu.actScore, newRec.actScore)) {
-                        Log.warning("Banner/ODS mismatch on actScore: ", liveStu.actScore, "/", newRec.actScore);
-                        newRec.actScore = liveStu.actScore;
-                    }
-
-                    if (liveStu.satScore != null
-                        && !Objects.equals(liveStu.satScore, newRec.satScore)) {
-                        Log.warning("Banner/ODS mismatch on satScore: ", liveStu.satScore, "/", newRec.satScore);
-                        newRec.actScore = liveStu.actScore;
-                    }
-
-                    if (liveStu.satrScore != null
-                        && !Objects.equals(liveStu.satrScore, newRec.satScore)) {
-                        Log.warning("Banner/ODS mismatch on satScore: ",
-                                liveStu.satrScore, "/", newRec.satScore);
-                        newRec.satScore = liveStu.satScore;
-                    }
-
-                    if (liveStu.state != null
-                        && !Objects.equals(liveStu.state, newRec.resident)) {
-                        Log.warning("Banner/ODS mismatch on resident: ", liveStu.state, "/", newRec.resident);
-                        newRec.resident = liveStu.state;
-                    }
-
-                    if (liveStu.admitTerm != null
-                        && !Objects.equals(liveStu.admitTerm, newRec.aplnTerm)) {
-                        Log.warning("Banner/ODS mismatch on aplnTerm: ", liveStu.admitTerm, "/", newRec.aplnTerm);
-                        newRec.aplnTerm = liveStu.admitTerm;
-                    }
-
-                    if (liveStu.admitType != null
-                        && !Objects.equals(liveStu.admitType, newRec.admitType)) {
-                        Log.warning("Banner/ODS mismatch on admitType: ", liveStu.admitType, "/", newRec.admitType);
-                        newRec.admitType = liveStu.admitType;
-                    }
-
-                    if (liveStu.birthDate != null
-                        && !Objects.equals(liveStu.birthDate, newRec.birthdate)) {
-                        Log.warning("Banner/ODS mismatch on birthDate: ", liveStu.birthDate, "/", newRec.birthdate);
-                        newRec.birthdate = liveStu.birthDate;
-                    }
-
-                    if (liveStu.gender != null
-                        && !Objects.equals(liveStu.gender, newRec.gender)) {
-                        Log.warning("Banner/ODS mismatch on gender: ", liveStu.gender, "/", newRec.gender);
-                        newRec.gender = liveStu.gender;
-                    }
-
-                    if (liveStu.birthDate != null
-                        && !Objects.equals(liveStu.email, newRec.stuEmail)) {
-                        Log.warning("Banner/ODS mismatch on stuEmail: ", liveStu.email, "/", newRec.stuEmail);
-                        newRec.stuEmail = liveStu.email;
-                    }
-
-                    if (liveStu.adviserEmail != null && !Objects.equals(liveStu.adviserEmail, newRec.adviserEmail)) {
-                        Log.warning("Banner/ODS mismatch on adviserEmail: ", liveStu.adviserEmail, "/",
-                                newRec.adviserEmail);
-                        newRec.adviserEmail = liveStu.adviserEmail;
-                    }
-
-                    if (liveStu.campus != null
-                        && !Objects.equals(liveStu.campus, newRec.campus)) {
-                        Log.warning("Banner/ODS mismatch on campus: ", liveStu.campus, "/", newRec.campus);
-                        newRec.campus = liveStu.campus;
-                    }
-                }
-            }
-
-            newMap.put(newRec.stuId, newRec);
-        }
-
-        StudentReconciliation.reconcile(cache, existingMap, newMap, report, DEBUG);
-    }
-
-    /**
-     * Reconciles the list of applicants from ODS with the list in the local APPLICANTS table.
-     *
-     * @param cache      the data cache
-     * @param odsApplicants the applicants list from ODS
-     */
-    private static void reconcileApplicants(final Cache cache, final Collection<ApplicantRecord> odsApplicants) {
-
-        // Organize all ODS applicants by student ID
-        final int numOds = odsApplicants.size();
-        final Map<String, ApplicantRecord> odsSorted = new HashMap<>(numOds);
-        for (final ApplicantRecord record : odsApplicants) {
-            if (Boolean.TRUE.equals(record.admitted)) {
-                odsSorted.put(record.csuId, record);
-            }
-        }
-
         try {
-            // Load all current APPLICANT table rows and organize by student ID.
             final List<RawApplicant> currentApplicants = RawApplicantLogic.INSTANCE.queryAll(cache);
             final int numCurrent = currentApplicants.size();
             final Map<String, RawApplicant> currentSorted = new HashMap<>(numCurrent);
@@ -682,16 +398,142 @@ public final class ImportOdsApplicants {
                 currentSorted.put(applicant.stuId, applicant);
             }
 
-            Log.info("There are " + odsSorted.size() + " admitted records from ODS");
-            Log.info("There are " + currentSorted.size() + " records in local APPLICANTS table");
+            int total = currentSorted.size();
+
+            report.add("There are " + applicants.size() + " admitted records from ODS");
+            report.add("There are " + total + " records in local APPLICANTS table");
+
+            int numInserted = 0;
+            int numUpdated = 0;
+            int numDeleted = 0;
+
+            final Set<String> studentIds = new HashSet<>(120000);
+
+            for (final ApplicantRecord record : applicants.values()) {
+
+                if (studentIds.contains(record.csuId)) {
+                    Log.warning("Multiple rows for " + record.csuId);
+                } else {
+                    studentIds.add(record.csuId);
+                }
 
 
+                final RawApplicant existing = currentSorted.get(record.csuId);
 
+                if (existing == null) {
+                    // INSERT A NEW RECORD
+                    insertNew(cache, record, report);
+                    ++numInserted;
+                    ++total;
+                } else {
+                    // RECONCILE WITH EXISTING RECORD
+                    numUpdated += reconcile(cache, record, existing, report);
+                    currentSorted.remove(record.csuId);
+                }
+            }
 
+            // Any rows left from the local table can be deleted
+            for (final RawApplicant toDelete : currentSorted.values()) {
+                report.add("Deleting obsolete record for " + toDelete.stuId);
+
+                if (!DEBUG) {
+                    RawApplicantLogic.INSTANCE.delete(cache, toDelete);
+                }
+                ++numDeleted;
+                --total;
+            }
+
+            report.add(CoreConstants.EMPTY);
+            report.add("  Number of APPLICANT records inserted:  " + numInserted);
+            report.add("  Number of APPLICANT records updated:   " + numUpdated);
+            report.add("  Number of APPLICANT records deleted:   " + numDeleted);
+            report.add("  Final number of APPLICANT records:     " + total);
 
         } catch (final SQLException ex) {
             Log.warning(ex);
+            final String msg = ex.getMessage();
+            report.add("Database exception: " + msg);
         }
+    }
+
+    /**
+     * Inserts a new record in the local APPLICANT table.
+     *
+     * @param cache   the data cache
+     * @param odsData the ODS record
+     * @throws SQLException if there is an error accessing the database
+     */
+    private static void insertNew(final Cache cache, final ApplicantRecord odsData,
+                                  final Collection<? super String> report) throws SQLException {
+
+        final LocalDate birthDate = odsData.birthDate == null ? null : odsData.birthDate.toLocalDate();
+
+        final RawApplicant newRow = new RawApplicant(odsData.csuId, odsData.firstName, odsData.lastName, birthDate,
+                null, odsData.gender, odsData.college, odsData.programOfStudy, odsData.hsCode, null,
+                odsData.residency, odsData.residencyState, odsData.residencyCounty, odsData.hsGpa,
+                odsData.hsClassRank, odsData.hsClassSize, odsData.actMath, odsData.satMath, odsData.pidm,
+                odsData.applicationTerm);
+
+        report.add("Inserting applicant record for " + odsData.csuId);
+
+        if (!DEBUG) {
+            RawApplicantLogic.INSTANCE.insert(cache, newRow);
+        }
+    }
+
+    /**
+     * Reconciles ODS and local data for a single applicant.
+     *
+     * @param cache     the data cache
+     * @param odsData   the ODS record
+     * @param localData the local record
+     * @return 1 if the record was updated; 0 if not (the number of records updated)
+     * @throws SQLException if there is an error accessing the database
+     */
+    private static int reconcile(final Cache cache, final ApplicantRecord odsData, final RawApplicant localData,
+                                 final Collection<? super String> report)
+            throws SQLException {
+
+        final LocalDate birthDate = odsData.birthDate == null ? null : odsData.birthDate.toLocalDate();
+
+        final boolean same = Objects.equals(odsData.firstName, localData.firstName)
+                             && Objects.equals(odsData.lastName, localData.lastName)
+                             && Objects.equals(birthDate, localData.birthdate)
+                             && Objects.equals(odsData.gender, localData.gender)
+                             && Objects.equals(odsData.college, localData.college)
+                             && Objects.equals(odsData.programOfStudy, localData.progStudy)
+                             && Objects.equals(odsData.hsCode, localData.hsCode)
+                             && Objects.equals(odsData.residency, localData.resident)
+                             && Objects.equals(odsData.residencyState, localData.residentState)
+                             && Objects.equals(odsData.residencyCounty, localData.residentCounty)
+                             && Objects.equals(odsData.hsGpa, localData.hsGpa)
+                             && Objects.equals(odsData.hsClassRank, localData.hsClassRank)
+                             && Objects.equals(odsData.hsClassSize, localData.hsSizeClass)
+                             && Objects.equals(odsData.actMath, localData.actScore)
+                             && Objects.equals(odsData.satMath, localData.satScore)
+                             && Objects.equals(odsData.pidm, localData.pidm)
+                             && Objects.equals(odsData.applicationTerm, localData.aplnTerm);
+
+        int result = 0;
+
+        if (!same) {
+            report.add("Updating applicant record for " + odsData.csuId);
+
+            if (!DEBUG) {
+                RawApplicantLogic.INSTANCE.delete(cache, localData);
+
+                final RawApplicant newRow = new RawApplicant(odsData.csuId, odsData.firstName, odsData.lastName,
+                        birthDate, null, odsData.gender, odsData.college, odsData.programOfStudy, odsData.hsCode, null,
+                        odsData.residency, odsData.residencyState, odsData.residencyCounty, odsData.hsGpa,
+                        odsData.hsClassRank, odsData.hsClassSize, odsData.actMath, odsData.satMath, odsData.pidm,
+                        odsData.applicationTerm);
+
+                RawApplicantLogic.INSTANCE.insert(cache, newRow);
+                result = 1;
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -703,7 +545,7 @@ public final class ImportOdsApplicants {
 
         DbConnection.registerDrivers();
 
-        final ImportOdsApplicants job = new ImportOdsApplicants();
+        final ImportOdsApplicants2 job = new ImportOdsApplicants2();
 
         Log.fine(job.execute());
     }
@@ -762,7 +604,7 @@ public final class ImportOdsApplicants {
         final String residencyState;
 
         /** The residency state. */
-        final String residencyCountry;
+        final String residencyCounty;
 
         /** The high school GPA. */
         final String hsGpa;
@@ -850,7 +692,7 @@ public final class ImportOdsApplicants {
             this.hsCode = prune(theHsCode, 6);
             this.residency = prune(theResidency, 4);
             this.residencyState = prune(theResidencyState, 4);
-            this.residencyCountry = prune(theResidencyCountry, 6);
+            this.residencyCounty = prune(theResidencyCountry, 6);
             this.hsGpa = prune(theHsGpa, 4);
             this.hsClassRank = theHsClassRank;
             this.hsClassSize = theHsClassSize;

@@ -16,6 +16,9 @@ import java.util.Objects;
  */
 public final class RawCsection extends RawTermRecordBase implements Comparable<RawCsection> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "csection";
+
     /** A field name. */
     public static final String FLD_COURSE = "course";
 

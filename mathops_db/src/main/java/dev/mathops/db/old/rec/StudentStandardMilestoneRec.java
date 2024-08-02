@@ -11,6 +11,9 @@ import java.util.Objects;
 public final class StudentStandardMilestoneRec extends RecBase
         implements Comparable<StudentStandardMilestoneRec> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "stu_std_milestone";
+
     /** A field name for serialization of records. */
     private static final String FLD_STU_ID = "stu_id";
 

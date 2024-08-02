@@ -13,6 +13,9 @@ import java.util.Objects;
  */
 public final class RawFfrTrns extends RecBase implements Comparable<RawFfrTrns> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "ffr_trns";
+
     /** A field name. */
     private static final String FLD_STU_ID = "stu_id";
 

@@ -45,6 +45,9 @@ import java.util.Objects;
  */
 public final class RawMilestoneAppeal extends RawTermRecordBase implements Comparable<RawMilestoneAppeal> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "milestone_appeal";
+
     /** A field name. */
     private static final String FLD_STU_ID = "stu_id";
 

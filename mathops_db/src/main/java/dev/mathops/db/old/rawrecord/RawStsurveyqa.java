@@ -13,6 +13,9 @@ import java.util.Objects;
  */
 public final class RawStsurveyqa extends RecBase implements Comparable<RawStsurveyqa> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "stsurveyqa";
+
     /** A field name. */
     private static final String FLD_STU_ID = "stu_id";
 

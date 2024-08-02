@@ -13,6 +13,9 @@ import java.util.Objects;
  */
 public final class RawPaceAppeals extends RawTermRecordBase implements Comparable<RawPaceAppeals> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "pace_appeals";
+
     /** A field name. */
     private static final String FLD_STU_ID = "stu_id";
 

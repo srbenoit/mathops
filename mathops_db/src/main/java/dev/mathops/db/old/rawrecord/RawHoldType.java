@@ -12,6 +12,9 @@ import java.util.Objects;
  */
 public final class RawHoldType extends RecBase implements Comparable<RawHoldType> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "hold_type";
+
     /** A field name. */
     private static final String FLD_HOLD_ID = "hold_id";
 

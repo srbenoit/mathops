@@ -12,6 +12,9 @@ import java.util.Objects;
  */
 public final class RawCohort extends RecBase implements Comparable<RawCohort> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "cohort";
+
     /** A field name. */
     private static final String FLD_COHORT = "cohort";
 

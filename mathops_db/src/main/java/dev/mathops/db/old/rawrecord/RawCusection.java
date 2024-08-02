@@ -14,6 +14,9 @@ import java.util.Objects;
  */
 public final class RawCusection extends RawTermRecordBase implements Comparable<RawCusection> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "cusection";
+
     /** Prefix for course numbers. */
     private static final String PREFIX = "M";
 

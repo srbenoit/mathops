@@ -11,6 +11,9 @@ import java.util.Objects;
 public final class AssignmentRec extends RecBase implements Comparable<AssignmentRec> {
 
     /** A field name for serialization of records. */
+    public static final String TABLE_NAME = "homework";
+
+    /** A field name for serialization of records. */
     public static final String FLD_ASSIGNMENT_ID = "assignment_id";
 
     /** A field name for serialization of records. */

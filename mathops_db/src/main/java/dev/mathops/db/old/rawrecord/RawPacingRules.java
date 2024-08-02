@@ -12,6 +12,9 @@ import java.util.Objects;
  */
 public final class RawPacingRules extends RawTermRecordBase implements Comparable<RawPacingRules> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "pacing_rules";
+
     // /** Lecture. */
     // public static final String ACTIVITY_LECTURE = "LE";
 

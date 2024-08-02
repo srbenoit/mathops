@@ -12,6 +12,9 @@ import java.util.Objects;
  */
 public final class RawEtextCourse extends RecBase implements Comparable<RawEtextCourse> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "etext_course";
+
     /** A field name. */
     private static final String FLD_ETEXT_ID = "etext_id";
 

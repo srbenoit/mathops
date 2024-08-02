@@ -14,6 +14,9 @@ import java.util.Objects;
  */
 public final class RawStcourse extends RawTermRecordBase implements Comparable<RawStcourse> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "stcourse";
+
     /** A field name. */
     private static final String FLD_STU_ID = "stu_id";
 

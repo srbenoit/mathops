@@ -13,6 +13,9 @@ import java.util.Objects;
  */
 public final class RawMpecrDenied extends RecBase implements Comparable<RawMpecrDenied> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "mpecr_denied";
+
     /** A field name. */
     private static final String FLD_STU_ID = "stu_id";
 

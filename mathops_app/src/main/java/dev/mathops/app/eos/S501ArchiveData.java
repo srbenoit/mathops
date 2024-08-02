@@ -3,17 +3,16 @@ package dev.mathops.app.eos;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
-import dev.mathops.db.DbConnection;
-import dev.mathops.db.enums.ETermName;
+import dev.mathops.db.Cache;
+import dev.mathops.db.old.rawrecord.RawWhichDb;
+import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.db.type.TermKey;
 
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 import java.awt.BorderLayout;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.List;
 
 /**
@@ -27,11 +26,11 @@ public final class S501ArchiveData extends SwingWorker<Boolean, StepStatus> {
     /** TRUE to simply print what actions would be taken, FALSE to actually take actions. */
     private static final boolean DEBUG = true;
 
-    /** The database connection to the production database. */
-    private final DbConnection productionConnection;
+    /** The cache for the production database. */
+    private final Cache productionCache;
 
-    /** The database connection to the archive database. */
-    private final DbConnection archiveConnection;
+    /** The cache for the archive database. */
+    private final Cache archiveCache;
 
     /** The panel to update with status. */
     private final JProgressBar progress;
@@ -42,13 +41,13 @@ public final class S501ArchiveData extends SwingWorker<Boolean, StepStatus> {
     /**
      * Constructs a new {@code S501ArchiveData}.
      *
-     * @param theProductionConnection the database connection to the production database
-     * @param theArchiveConnection    the database connection to the archive database
+     * @param theProductionCache the data cache for the production database
+     * @param theArchiveCache    the data cache for the archive database
      */
-    public S501ArchiveData(final DbConnection theProductionConnection, final DbConnection theArchiveConnection) {
+    public S501ArchiveData(final Cache theProductionCache, final Cache theArchiveCache) {
 
-        this.productionConnection = theProductionConnection;
-        this.archiveConnection = theArchiveConnection;
+        this.productionCache = theProductionCache;
+        this.archiveCache = theArchiveCache;
 
         final JPanel myStatus = new JPanel(new BorderLayout());
         this.progress = new JProgressBar(0, 100);
@@ -123,14 +122,22 @@ public final class S501ArchiveData extends SwingWorker<Boolean, StepStatus> {
         firePublish(0, "Checking identities of source and target database...");
 
         if (areDatabasesCorrect()) {
-            final TermKey activeTerm = queryActiveTerm();
+            try {
+                final TermRec activeTerm = this.productionCache.getSystemData().getActiveTerm();
 
-            if (activeTerm == null) {
+                if (activeTerm == null) {
+                    firePublish(0, "NO ACTIVE TERM FOUND");
+                    result = Boolean.FALSE;
+                } else {
+                    final TermKey activeKey = activeTerm.term;
+                    firePublish(1, "The active term is " + activeKey.longString);
+
+                    archiveAdminHold(activeKey);
+                }
+            } catch (final SQLException ex) {
+                Log.warning(ex);
+                firePublish(0, "FAILED TO QUERY ACTIVE TERM");
                 result = Boolean.FALSE;
-            } else {
-                firePublish(1, "The active term is " + activeTerm.longString);
-
-                archiveAdminHold(activeTerm);
             }
         } else {
             result = Boolean.FALSE;
@@ -151,21 +158,15 @@ public final class S501ArchiveData extends SwingWorker<Boolean, StepStatus> {
      */
     private boolean areDatabasesCorrect() {
 
-        final String sql = "SELECT * FROM which_db";
-
         boolean ok = true;
 
-        try (final Statement stmt = this.productionConnection.createStatement();
-             final ResultSet rs = stmt.executeQuery(sql)) {
-
-            if (rs.next()) {
-                final String desc = rs.getString(1);
-                if (!"PROD".equals(desc)) {
-                    Log.warning("'which_db' record production database has '", desc, "' rather than 'PROD'.");
-                    ok = false;
-                }
-            } else {
+        try {
+            final RawWhichDb which = this.productionCache.getSystemData().getWhichDb();
+            if (which == null) {
                 Log.warning("No 'which_db' record found in production database");
+                ok = false;
+            } else if (!"PROD".equals(which.descr)) {
+                Log.warning("'which_db' record production database has '", which.descr, "' rather than 'PROD'.");
                 ok = false;
             }
         } catch (final SQLException ex) {
@@ -174,64 +175,16 @@ public final class S501ArchiveData extends SwingWorker<Boolean, StepStatus> {
         }
 
         if (ok) {
-            try (final Statement stmt = this.archiveConnection.createStatement();
-                 final ResultSet rs = stmt.executeQuery(sql)) {
-
-                if (rs.next()) {
-                    final String desc = rs.getString(1);
-                    Log.warning("The archive database had a 'which_db' table that indicates '", desc, "'");
-                    ok = false;
-                } else {
-                    Log.warning("The archive database had a 'which_db' table that should not exist.");
-                    ok = false;
-                }
+            try {
+                final RawWhichDb which = this.archiveCache.getSystemData().getWhichDb();
+                Log.warning("A 'which_db' record was found in archive database - there should be none.");
+                ok = false;
             } catch (final SQLException ex) {
-                // No action - this is what should happen in a "term archive" database
+                // No action - this is the expected behavior
             }
         }
 
         return ok;
-    }
-
-    /**
-     * Queries the term key for the active term.
-     *
-     * @return the term key; {@code null} if unable to query from production database
-     */
-    private TermKey queryActiveTerm() {
-
-        final String sql = "SELECT term, term_yr FROM term WHERE active='Y'";
-
-        TermKey result = null;
-
-        try (final Statement stmt = this.productionConnection.createStatement();
-             final ResultSet rs = stmt.executeQuery(sql)) {
-
-            if (rs.next()) {
-                final String term = rs.getString("term");
-
-                final ETermName termName = ETermName.forName(term);
-                if (termName == null) {
-                    Log.warning("Unrecognized 'term' field in active term: '", term, "'");
-                } else {
-                    final int year = rs.getInt("term_yr");
-                    if (rs.wasNull()) {
-                        Log.warning("Null 'term_yr' field in active term");
-                    } else if (year >= 20 && year < 100) {
-                        result = new TermKey(termName, 2000 + year);
-                    } else {
-                        final String yearStr = Integer.toString(year);
-                        Log.warning("Invalid 'term_yr' field in active term: '", yearStr, "'");
-                    }
-                }
-            } else {
-                Log.warning("No 'term' record with active='Y' found in production database");
-            }
-        } catch (final SQLException ex) {
-            Log.warning("Failed to query 'term' table in PROD");
-        }
-
-        return result;
     }
 
     /**
@@ -242,8 +195,8 @@ public final class S501ArchiveData extends SwingWorker<Boolean, StepStatus> {
     private void archiveAdminHold(final TermKey activeTerm) {
 
         final String sql = "SELECT * FROM admin_hold"
-                + " WHERE create_dt >= (SELECT start_dt FROM term WHERE active='Y'"
-                + "   AND (hold_id IN ('06','30') OR hold_id MATCHES '4?'";
+                           + " WHERE create_dt >= (SELECT start_dt FROM term WHERE active='Y'"
+                           + "   AND (hold_id IN ('06','30') OR hold_id MATCHES '4?'";
     }
 }
 

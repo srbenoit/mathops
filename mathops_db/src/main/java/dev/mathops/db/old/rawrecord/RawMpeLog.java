@@ -13,6 +13,9 @@ import java.util.Objects;
  */
 public final class RawMpeLog extends RecBase implements Comparable<RawMpeLog> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "mpe_log";
+
     /** A field name. */
     private static final String FLD_STU_ID = "stu_id";
 

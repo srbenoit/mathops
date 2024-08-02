@@ -12,6 +12,9 @@ import java.util.Objects;
  */
 public final class RawUserClearance extends RecBase implements Comparable<RawUserClearance> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "user_clearance";
+
     /** A field name. */
     private static final String FLD_LOGIN = "login";
 

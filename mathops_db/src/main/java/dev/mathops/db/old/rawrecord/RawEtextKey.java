@@ -13,6 +13,9 @@ import java.util.Objects;
  */
 public final class RawEtextKey extends RecBase implements Comparable<RawEtextKey> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "etext_key";
+
     /** A field name. */
     private static final String FLD_ETEXT_ID = "etext_id";
 

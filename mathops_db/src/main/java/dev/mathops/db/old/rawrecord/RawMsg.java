@@ -12,6 +12,9 @@ import java.util.Objects;
  */
 public final class RawMsg extends RawTermRecordBase implements Comparable<RawMsg> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "msg";
+
     /** A field name. */
     private static final String FLD_TOUCH_POINT = "touch_point";
 

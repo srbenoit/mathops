@@ -12,6 +12,9 @@ import java.util.Objects;
  */
 public final class RawResource extends RecBase implements Comparable<RawResource> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "resource";
+
     /** A field name. */
     private static final String FLD_RESOURCE_ID = "resource_id";
 

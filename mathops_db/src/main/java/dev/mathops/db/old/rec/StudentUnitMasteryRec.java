@@ -9,6 +9,9 @@ import java.util.Objects;
  */
 public final class StudentUnitMasteryRec extends RecBase implements Comparable<StudentUnitMasteryRec> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "stu_unit_mastery";
+
     /** A field name for serialization of records. */
     private static final String FLD_STU_ID = "stu_id";
 

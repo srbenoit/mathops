@@ -13,6 +13,9 @@ import java.util.Objects;
  */
 public final class RawExam extends RecBase implements Comparable<RawExam> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "exam";
+
     /** A field name. */
     private static final String FLD_VERSION = "version";
 

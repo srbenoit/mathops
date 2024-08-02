@@ -13,6 +13,9 @@ import java.util.Objects;
  */
 public final class RawCampusCalendar extends RecBase implements Comparable<RawCampusCalendar> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "campus_calendar";
+
     /** A field name. */
     private static final String FLD_CAMPUS_DT = "campus_dt";
 

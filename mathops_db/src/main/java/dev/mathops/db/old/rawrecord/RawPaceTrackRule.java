@@ -12,6 +12,9 @@ import java.util.Objects;
  */
 public final class RawPaceTrackRule extends RawTermRecordBase implements Comparable<RawPaceTrackRule> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "pace_track_rule";
+
     /** A field name. */
     private static final String FLD_SUBTERM = "subterm";
 

@@ -12,6 +12,9 @@ import java.util.Objects;
  */
 public final class RawGradeRoll extends RawTermRecordBase implements Comparable<RawGradeRoll> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "grade_roll";
+
     /** A field name. */
     private static final String FLD_STU_ID = "stu_id";
 

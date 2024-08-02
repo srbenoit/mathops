@@ -17,6 +17,9 @@ import java.util.Objects;
  */
 public final class RawStudent extends RecBase implements Comparable<RawStudent> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "student";
+
     /** A comparator to allow student records to be sorted by CSI UD. */
     public static final CSUIDComparator CSUID_COMPARATOR = new CSUIDComparator();
 

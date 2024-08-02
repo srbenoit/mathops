@@ -12,6 +12,9 @@ import java.util.Objects;
  */
 public final class RawPrereq extends RawTermRecordBase implements Comparable<RawPrereq> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "prereq";
+
     /** A field name. */
     private static final String FLD_COURSE = "course";
 

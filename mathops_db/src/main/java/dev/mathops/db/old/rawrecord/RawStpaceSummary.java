@@ -13,6 +13,9 @@ import java.util.Objects;
  */
 public final class RawStpaceSummary extends RawTermRecordBase implements Comparable<RawStpaceSummary> {
 
+    /** The table name. */
+    public static final String TABLE_NAME = "stpace_summary";
+
     /** A field name. */
     private static final String FLD_STU_ID = "stu_id";
 
