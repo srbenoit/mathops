@@ -33,6 +33,7 @@ import java.sql.SQLException;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A card panel that allows an administrator to turn blocks of testing machines or individual machines on and off.
@@ -177,45 +178,49 @@ final class TestingManageCard extends AdmPanelBase implements ActionListener {
                 for (final RawClientPc station : stations) {
 
                     if (RawClientPc.POWER_REPORTING_ON.equals(station.powerStatus)
-                            && station.lastPing != null && station.lastPing.intValue() > recent) {
+                        && station.lastPing != null && station.lastPing.intValue() > recent) {
                         // Station is already on and reporting - skip
                         continue;
                     }
 
                     final String center = station.testingCenterId;
                     if ("1".equals(center) || "4".equals(center)) {
-                        Log.info("Powering on ", station.stationNbr);
 
-                        try {
-                            final URI uri = new URI(this.serverSiteUrl + "testing-power-station-on.ws?token="
-                                    + token + "&computer-id=" + station.computerId);
-                            final URL url = uri.toURL();
+                        if ("O".equals(station.pcUsage)) {
+                            Log.info("Powering on ", station.stationNbr);
 
-                            final URLConnection conn = url.openConnection();
-                            final Object content = conn.getContent();
-                            if (content == null) {
-                                Log.warning("Server response from 'testing-power-station-on.ws' was null");
-                            } else if (content instanceof InputStream) {
-                                try (final InputStream in = (InputStream) content) {
-                                    baos.reset();
-                                    int count = in.read(buffer);
-                                    while (count > 0) {
-                                        baos.write(buffer, 0, count);
-                                        count = in.read(buffer);
+                            try {
+                                final URI uri = new URI(this.serverSiteUrl + "testing-power-station-on.ws?token="
+                                                        + token + "&computer-id=" + station.computerId);
+                                final URL url = uri.toURL();
+
+                                final URLConnection conn = url.openConnection();
+                                final Object content = conn.getContent();
+                                if (content == null) {
+                                    Log.warning("Server response from 'testing-power-station-on.ws' was null");
+                                } else if (content instanceof InputStream) {
+                                    try (final InputStream in = (InputStream) content) {
+                                        baos.reset();
+                                        int count = in.read(buffer);
+                                        while (count > 0) {
+                                            baos.write(buffer, 0, count);
+                                            count = in.read(buffer);
+                                        }
+
+                                        final String result = baos.toString();
+                                        if (!"OK".equals(result)) {
+                                            Log.info(result);
+                                        }
                                     }
-
-                                    final String result = baos.toString();
-                                    if (!"OK".equals(result)) {
-                                        Log.info(result);
-                                    }
+                                } else {
+                                    final Class<?> contentClass = content.getClass();
+                                    final String contentClassName = contentClass.getName();
+                                    Log.warning("Server response from 'testing-power-station-on.ws' was ",
+                                            contentClassName);
                                 }
-                            } else {
-                                final Class<?> contentClass = content.getClass();
-                                final String contentClassName = contentClass.getName();
-                                Log.warning("Server response from 'testing-power-station-on.ws' was ", contentClassName);
+                            } catch (final URISyntaxException | IOException ex) {
+                                Log.warning(ex);
                             }
-                        } catch (final URISyntaxException | IOException ex) {
-                            Log.warning(ex);
                         }
                     }
 
@@ -255,46 +260,47 @@ final class TestingManageCard extends AdmPanelBase implements ActionListener {
                 final List<RawClientPc> stations = systemData.getClientPcs();
 
                 for (final RawClientPc station : stations) {
-                    if (station.currentStuId == null) {
-                        final String center = station.testingCenterId;
-                        if ("1".equals(center) || "4".equals(center)) {
-                            Log.info("Powering off ", station.stationNbr);
-
-                            try {
-                                final URI uri = new URI(this.serverSiteUrl + "testing-power-station-off.ws?token="
-                                        + token + "&computer-id=" + station.computerId);
-                                final URL url = uri.toURL();
-
-                                final URLConnection conn = url.openConnection();
-                                final Object content = conn.getContent();
-                                if (content == null) {
-                                    Log.warning("Server response from 'testing-power-station-off.ws' was null");
-                                } else if (content instanceof InputStream) {
-                                    try (final InputStream in = (InputStream) content) {
-                                        baos.reset();
-                                        int count = in.read(buffer);
-                                        while (count > 0) {
-                                            baos.write(buffer, 0, count);
-                                            count = in.read(buffer);
-                                        }
-
-                                        final String result = baos.toString();
-                                        if (!"OK".equals(result)) {
-                                            Log.info(result);
-                                        }
-                                    }
-                                } else {
-                                    final Class<?> contentClass = content.getClass();
-                                    final String contentClassName = contentClass.getName();
-                                    Log.warning("Server response from 'testing-power-station-off.ws' was ",
-                                            contentClassName);
-                                }
-                            } catch (final URISyntaxException | IOException ex) {
-                                Log.warning(ex);
-                            }
-                        }
-                    } else {
+                    if (Objects.nonNull(station.currentStuId)) {
                         Log.warning("Skipping station ", station.stationNbr, " (currently in use)");
+                        continue;
+                    }
+
+                    final String center = station.testingCenterId;
+                    if ("1".equals(center) || "4".equals(center)) {
+                        Log.info("Powering off ", station.stationNbr);
+
+                        try {
+                            final URI uri = new URI(this.serverSiteUrl + "testing-power-station-off.ws?token="
+                                                    + token + "&computer-id=" + station.computerId);
+                            final URL url = uri.toURL();
+
+                            final URLConnection conn = url.openConnection();
+                            final Object content = conn.getContent();
+                            if (content == null) {
+                                Log.warning("Server response from 'testing-power-station-off.ws' was null");
+                            } else if (content instanceof InputStream) {
+                                try (final InputStream in = (InputStream) content) {
+                                    baos.reset();
+                                    int count = in.read(buffer);
+                                    while (count > 0) {
+                                        baos.write(buffer, 0, count);
+                                        count = in.read(buffer);
+                                    }
+
+                                    final String result = baos.toString();
+                                    if (!"OK".equals(result)) {
+                                        Log.info(result);
+                                    }
+                                }
+                            } else {
+                                final Class<?> contentClass = content.getClass();
+                                final String contentClassName = contentClass.getName();
+                                Log.warning("Server response from 'testing-power-station-off.ws' was ",
+                                        contentClassName);
+                            }
+                        } catch (final URISyntaxException | IOException ex) {
+                            Log.warning(ex);
+                        }
                     }
                 }
             } catch (final SQLException ex) {
