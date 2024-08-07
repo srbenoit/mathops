@@ -411,20 +411,8 @@ public final class SiteDataRegistration {
             // it, they can still access in practice mode if they have taken the course in the
             // past. In this case, use their past registration's section number.
 
-            // HACK: If section is "401", and the current term is not "SM", then change section
-            // to "801", and if section is 00*, change to 001
-//            final boolean isNotSummer = this.active.term.name != ETermName.SUMMER;
-
             for (final RawStcourse test : this.allCompletedCourses) {
                 if (courseId.equals(test.course)) {
-//                    String sect = test.sect;
-//
-//                    if ("002".equals(sect) || "003".equals(sect) || "004".equals(sect)) {
-//                        sect = "001";
-//                    } else if ((isNotSummer && "401".equals(sect)) || "809".equals(sect)) {
-//                        sect = "801";
-//                    }
-
                     this.owner.courseData.addCourse(cache, test.course, test.sect, test.termKey);
                     break;
                 }

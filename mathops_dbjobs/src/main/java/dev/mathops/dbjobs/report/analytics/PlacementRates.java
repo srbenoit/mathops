@@ -774,7 +774,7 @@ final class PlacementRates {
         final ContextMap map = ContextMap.getDefaultInstance();
         final DbProfile profile = map.getCodeProfile("batch");
 
-        final TermKey term = new TermKey(ETermName.SPRING, 2023);
+        final TermKey term = new TermKey(ETermName.SUMMER, 2023);
 
         executeWithProfile(profile, term, IdentifyEngineering.SPECIAL_CATEGORY);
     }

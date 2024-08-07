@@ -108,7 +108,7 @@ public enum SetHolds {
     /**
      * Applies "overdue rental calculator" holds.
      *
-     * @param cache the cache
+     * @param cache     the cache
      * @param resources the list of student resource records
      * @throws SQLException if there is an error accessing the database
      */
@@ -158,7 +158,7 @@ public enum SetHolds {
     /**
      * Applies "overdue loan" holds.
      *
-     * @param cache the cache
+     * @param cache     the cache
      * @param resources the list of student resource records
      * @throws SQLException if there is an error accessing the database
      */
@@ -185,7 +185,7 @@ public enum SetHolds {
                 final RawResource res = RawResourceLogic.query(cache, stres.resourceId);
                 if (res == null) {
                     Log.info("  ** WARNING: Unrecognized resource ID '" + stres.resourceId + "' in STRESOURCE for "
-                            + stres.stuId);
+                             + stres.stuId);
                     continue;
                 }
 
@@ -227,13 +227,14 @@ public enum SetHolds {
      * <li>Hold "27(F)" if the student has an registered for 550 credit without a passing challenge exam</li>
      * </ul>
      *
-     * @param cache the cache
+     * @param cache  the cache
      * @param active the active term
      * @throws SQLException if there is an error accessing the database
      */
     private static void addRegistrationHolds(final Cache cache, final TermRec active) throws SQLException {
 
         final LocalDate today = LocalDate.now();
+        // The following includes OT (challenge credit) courses but not dropped
         final List<RawStcourse> allRegs = RawStcourseLogic.queryByTerm(cache, active.term, true, false);
 
         int num03Applied = 0;
@@ -328,10 +329,20 @@ public enum SetHolds {
             }
 
             // Check for students in a mix of courses incompatible pacing structures
-            boolean hasNormalDistance = false;
-            boolean hasF2F117Sect001 = false;
-            boolean hasF2F117Sect002 = false;
-            boolean hasF2F118Sect002 = false;
+            boolean hasNormalRI = false;
+            boolean hasLateStartRI = false;
+            boolean hasNormalCE = false;
+            boolean hasF2F117Sect003 = false;
+            boolean hasF2F117Sect004 = false;
+            boolean hasF2F117Sect005 = false;
+            boolean hasF2F117Sect006 = false;
+            boolean hasF2F117Sect007 = false;
+            boolean hasF2F117Sect008 = false;
+            boolean hasF2F118Sect003 = false;
+            boolean hasF2F125Sect003 = false;
+            boolean hasF2F125Sect004 = false;
+            boolean hasF2F125Sect005 = false;
+            boolean hasF2F126Sect003 = false;
 
             for (final RawStcourse reg : regs) {
                 if ("OT".equals(reg.instrnType)) {
@@ -346,37 +357,101 @@ public enum SetHolds {
 
                 if ("M 117".equals(course)) {
                     switch (sect) {
-                        case "001" -> hasF2F117Sect001 = true;
-                        case "002", "102" -> hasF2F117Sect002 = true;
-                        case "401", "801", "809" -> hasNormalDistance = true;
+                        case "001" -> hasNormalRI = true;
+                        case "002" -> hasLateStartRI = true;
+                        case "003" -> hasF2F117Sect003 = true;
+                        case "004" -> hasF2F117Sect004 = true;
+                        case "005" -> hasF2F117Sect005 = true;
+                        case "006" -> hasF2F117Sect006 = true;
+                        case "007" -> hasF2F117Sect007 = true;
+                        case "008" -> hasF2F117Sect008 = true;
+                        case "801", "809" -> hasNormalCE = true;
                         case null, default -> Log.warning("Unexpected ", course, " section number: ", sect);
                     }
                 } else if ("M 118".equals(course)) {
-                    if ("002".equals(sect) || "102".equals(sect)) {
-                        hasF2F118Sect002 = true;
-                    } else if ("401".equals(sect) || "801".equals(sect) || "809".equals(sect)) {
-                        hasNormalDistance = true;
-                    } else {
-                        Log.warning("Unexpected ", course, " section number: ", sect);
+                    switch (sect) {
+                        case "001" -> hasNormalRI = true;
+                        case "002" -> hasLateStartRI = true;
+                        case "003" -> hasF2F118Sect003 = true;
+                        case "801", "809" -> hasNormalCE = true;
+                        case null, default -> Log.warning("Unexpected ", course, " section number: ", sect);
                     }
-                } else if ("M 124".equals(course) || "M 125".equals(course) || "M 126".equals(course)) {
-                    if ("401".equals(sect) || "801".equals(sect) || "809".equals(sect)) {
-                        hasNormalDistance = true;
-                    } else {
-                        Log.warning("Unexpected ", course, " section number: ", sect);
+                } else if ("M 124".equals(course)) {
+                    switch (sect) {
+                        case "001" -> hasNormalRI = true;
+                        case "002" -> hasLateStartRI = true;
+                        case "801", "809" -> hasNormalCE = true;
+                        case null, default -> Log.warning("Unexpected ", course, " section number: ", sect);
                     }
-                } else if ("MATH 125".equals(course) || "MATH 126".equals(course)) {
+                } else if ("M 125".equals(course) || "M 126".equals(course)) {
+                    switch (sect) {
+                        case "001" -> hasNormalRI = true;
+                        case "002" -> hasLateStartRI = true;
+                        case "801" -> hasNormalCE = true;
+                        case null, default -> Log.warning("Unexpected ", course, " section number: ", sect);
+                    }
+                } else if ("MATH 125".equals(course)) {
+                    switch (sect) {
+                        case "003" -> hasF2F125Sect003 = true;
+                        case "004" -> hasF2F125Sect004 = true;
+                        case "005" -> hasF2F125Sect005 = true;
+                        case null, default -> Log.warning("Unexpected ", course, " section number: ", sect);
+                    }
+                } else if ("MATH 126".equals(course)) {
+                    switch (sect) {
+                        case "003" -> hasF2F126Sect003 = true;
+                        case null, default -> Log.warning("Unexpected ", course, " section number: ", sect);
+                    }
                 }
             }
 
             boolean applyHold23 = false;
 
-            if (hasNormalDistance) {
-                if (hasF2F117Sect001 || hasF2F117Sect002 || hasF2F118Sect002) {
+            if (hasNormalCE) {
+                if (hasNormalRI || hasLateStartRI) {
                     Log.warning("Student '", stuId,
-                            "' is registered for both in-person and distance sections - adding hold 23");
+                            "' is registered for both online and distance sections - adding hold 23");
                     applyHold23 = true;
+                } else if (hasF2F117Sect003 || hasF2F117Sect004 || hasF2F117Sect005 || hasF2F117Sect006
+                           || hasF2F117Sect007 || hasF2F117Sect008 || hasF2F118Sect003 || hasF2F125Sect003
+                           || hasF2F125Sect004 || hasF2F125Sect005 || hasF2F126Sect003) {
+                    Log.warning("Student '", stuId,
+                            "' is registered for both online and face-to-face sections - adding hold 23");
                 }
+            } else if (hasLateStartRI) {
+                if (hasNormalRI) {
+                    Log.warning("Student '", stuId,
+                            "' is registered for both normal and late-start sections - adding hold 23");
+                    applyHold23 = true;
+                } else if (hasF2F117Sect003 || hasF2F117Sect004 || hasF2F117Sect005 || hasF2F117Sect006
+                           || hasF2F117Sect007 || hasF2F117Sect008 || hasF2F118Sect003 || hasF2F125Sect003
+                           || hasF2F125Sect004 || hasF2F125Sect005 || hasF2F126Sect003) {
+                    Log.warning("Student '", stuId,
+                            "' is registered for both late-start and face-to-face sections - adding hold 23");
+                }
+            } else if (hasNormalRI) {
+                if (hasF2F117Sect003 || hasF2F117Sect004 || hasF2F117Sect005 || hasF2F117Sect006
+                    || hasF2F117Sect007 || hasF2F117Sect008 || hasF2F118Sect003 || hasF2F125Sect003
+                    || hasF2F125Sect004 || hasF2F125Sect005 || hasF2F126Sect003) {
+                    Log.warning("Student '", stuId,
+                            "' is registered for both online and face-to-face sections - adding hold 23");
+                }
+            } else if (hasF2F117Sect003) {
+                if (hasF2F125Sect003 || hasF2F125Sect004 || hasF2F125Sect005 || hasF2F126Sect003) {
+                    Log.warning("Student '", stuId,
+                            "' is registered for face-to-face MATH 117 and MATH 125 - adding hold 23");
+                }
+            } else if (hasF2F117Sect004 || hasF2F117Sect005 || hasF2F117Sect006 || hasF2F117Sect007
+                       || hasF2F117Sect008) {
+                if (hasF2F118Sect003) {
+                    Log.warning("Student '", stuId,
+                            "' has MATH 117 (004/005/006/007/008), but MATH 118 (003) - adding hold 23");
+                } else if (hasF2F125Sect003 || hasF2F125Sect004 || hasF2F125Sect005 || hasF2F126Sect003) {
+                    Log.warning("Student '", stuId,
+                            "' is registered for face-to-face MATH 117 and MATH 125 - adding hold 23");
+                }
+            } else if (hasF2F118Sect003) {
+                Log.warning("Student '", stuId, "' has MATH 118 (003), but not MATH 117 (003) - adding hold 23");
             }
 
             if (applyHold23) {
@@ -446,8 +521,8 @@ public enum SetHolds {
             // present
             for (final RawAdminHold test : existingHolds) {
                 final String holdId = test.holdId;
-                if ("03".equals(holdId) || "04".equals(holdId) ||  "16".equals(holdId) ||  "23".equals(holdId)
-                        || "25".equals(holdId) || "27".equals(holdId)) {
+                if ("03".equals(holdId) || "04".equals(holdId) || "16".equals(holdId) || "23".equals(holdId)
+                    || "25".equals(holdId) || "27".equals(holdId)) {
 
                     boolean searching = true;
                     for (final RawAdminHold hold : holdsToApply.values()) {

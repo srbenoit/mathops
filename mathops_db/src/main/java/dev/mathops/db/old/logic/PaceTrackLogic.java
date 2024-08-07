@@ -31,15 +31,15 @@ public enum PaceTrackLogic {
     private static boolean isApplicableCourse(final String courseId) {
 
         return RawRecordConstants.M117.equals(courseId)
-                || RawRecordConstants.M118.equals(courseId)
-                || RawRecordConstants.M124.equals(courseId)
-                || RawRecordConstants.M125.equals(courseId)
-                || RawRecordConstants.M126.equals(courseId)
-                || RawRecordConstants.MATH117.equals(courseId)
-                || RawRecordConstants.MATH118.equals(courseId)
-                || RawRecordConstants.MATH124.equals(courseId)
-                || RawRecordConstants.MATH125.equals(courseId)
-                || RawRecordConstants.MATH126.equals(courseId);
+               || RawRecordConstants.M118.equals(courseId)
+               || RawRecordConstants.M124.equals(courseId)
+               || RawRecordConstants.M125.equals(courseId)
+               || RawRecordConstants.M126.equals(courseId)
+               || RawRecordConstants.MATH117.equals(courseId)
+               || RawRecordConstants.MATH118.equals(courseId)
+               || RawRecordConstants.MATH124.equals(courseId)
+               || RawRecordConstants.MATH125.equals(courseId)
+               || RawRecordConstants.MATH126.equals(courseId);
     }
 
     /**
@@ -81,7 +81,7 @@ public enum PaceTrackLogic {
             // are not counted toward pace
             final String status = test.openStatus;
             counts = !"D".equals(status) && !"G".equals(status) &&
-                    (!"Y".equals(test.iInProgress) || !"N".equals(test.iCounted));
+                     (!"Y".equals(test.iInProgress) || !"N".equals(test.iCounted));
         }
 
         return counts;
@@ -133,8 +133,7 @@ public enum PaceTrackLogic {
         }
 
         if (sect == null) {
-            // Last check is for non-counted incompletes (if we get here, the student has ONLY
-            // non-counted incompletes)
+            // Last check is for non-counted incompletes (if we get here, the student has ONLY non-counted incompletes)
             for (final RawStcourse test : registrations) {
                 if (isApplicableCourse(test.course)) {
                     if (test.synthetic || "OT".equals(test.instrnType)) {
@@ -152,67 +151,78 @@ public enum PaceTrackLogic {
             }
         }
 
-        // Default track is "A"
+        // Default track is "A" (used for all 3-course, 4-course, and 5-course pace students)
         String track = "A";
 
         if ("001".equals(sect)) {
-
             // In Fall/Spring, 001 is the normal full-semester online section
-
-            // In Summer 24, section MATH 117 (001) is a Face-to-Face 117 (paired with 116) - Track B
+            if (pace == 1) {
+                // Students whose single course is MATH 117 or 124 are track A, the others are track B
+                for (final RawStcourse test : registrations) {
+                    if ((RawRecordConstants.M118.equals(test.course)
+                         || RawRecordConstants.M125.equals(test.course)
+                         || RawRecordConstants.M126.equals(test.course))
+                        && isCountedTowardPace(test)) {
+                        track = "B";
+                        break;
+                    }
+                }
+            } else if (pace == 2) {
+                // If a student in 2 courses has MATH 117, they are track A; otherwise track B
+                track = "B";
+                for (final RawStcourse test : registrations) {
+                    if (RawRecordConstants.M117.equals(test.course) && isCountedTowardPace(test)) {
+                        track = "A";
+                        break;
+                    }
+                }
+            }
+        } else if ("002".equals(sect)) {
+            // In Fall/Spring, 002 is a "late-start" section: track C (only 1 or 2 course pace)
+            track = "C";
+        } else if ("003".equals(sect)) {
+            // An in-person section: either 116 + 117 + 118 with Will Bromley, or NEW 125 + NEW 126 with Alissa Romero
+            // For students without NEW 125 in their list, this will map to track D
+            // For students with NEW 125 in their list, this will map to track F
+            track = "D";
             for (final RawStcourse test : registrations) {
-                if (RawRecordConstants.M117.equals(test.course) && isCountedTowardPace(test)) {
-                    track = "B";
+                if ((RawRecordConstants.MATH125.equals(test.course)
+                     || RawRecordConstants.MATH126.equals(test.course))
+                    && isCountedTowardPace(test)) {
+                    track = "F";
                     break;
                 }
             }
-        } else if ("002".equals(sect) || "102".equals(sect)) {
-
-            // In Fall/Spring, 002 is a "late-start" section - track C (only 1 or 2 course pace)
-            // track = "C";
-
-            // In Summer 24, section MATH 117 (002/102) is a Face-to-Face 117 (paired with 116) - Track C
+        } else if ("004".equals(sect)) {
+            // An in-person section: either 116 + 117 with Patrick Orchard, or NEW 125 with Parker Montfort
+            // For students without NEW 125 in their list, this will map to track E
+            // For students with NEW 125 in their list, this will map to track G
+            track = "E";
             for (final RawStcourse test : registrations) {
-                if (RawRecordConstants.M117.equals(test.course) && isCountedTowardPace(test)) {
-                    track = "C";
+                if (RawRecordConstants.MATH125.equals(test.course)
+                    && isCountedTowardPace(test)) {
+                    track = "G";
                     break;
                 }
             }
-//        } else if ("003".equals(sect) || "004".equals(sect) || "005".equals(sect) || "006".equals(sect)
-//                || "007".equals(sect)) {
-//            // In-person sections - if "MATH 125" or "MATH 126" is included, use track E, otherwise, use track D
-//
-//            track = "D";
-//            for (final RawStcourse test : registrations) {
-//                if ((RawRecordConstants.MATH125.equals(test.course)
-//                        || RawRecordConstants.MATH126.equals(test.course))
-//                        && isCountedTowardPace(test)) {
-//                    track = "E";
-//                    break;
-//                }
-//            }
-//        } else if (pace == 2) {
-//            // 2-course students who have MATH 117 (Fall) or MATH 125 (Spring) are track "A".  Otherwise, track "B".
-//            // Summer has only track A.
-//            track = "B";
-//            for (final RawStcourse test : registrations) {
-//                if (RawRecordConstants.M125.equals(test.course) && isCountedTowardPace(test)) {
-//                    track = "A";
-//                    break;
-//                }
-//            }
-//        } else if (pace == 1) {
-//            // 1-course students who have MATH 117 or {MATH 125 (Fall) or MATH 124 (Spring)} are
-//            // track "A". Otherwise, track "B".  Summer has only track A.
-//            track = "B";
-//            for (final RawStcourse test : registrations) {
-//                if ((RawRecordConstants.M117.equals(test.course)
-//                        || RawRecordConstants.M124.equals(test.course))
-//                        && isCountedTowardPace(test)) {
-//                    track = "A";
-//                    break;
-//                }
-//            }
+        } else if ("005".equals(sect)) {
+            // An in-person section: either 116 + 117 (canceled), or late-start NEW 125 with Parker Montfort
+            // For students without NEW 125 in their list, this will map to track E
+            // For students with NEW 125 in their list, this will map to track G
+            track = "E";
+            for (final RawStcourse test : registrations) {
+                if (RawRecordConstants.MATH125.equals(test.course)
+                    && isCountedTowardPace(test)) {
+                    track = "G";
+                    break;
+                }
+            }
+        } else if ("006".equals(sect) || "008".equals(sect)) {
+            // An in-person section: either 116 + 117 with Patrick Orchard, track is E
+            track = "E";
+        } else if ("007".equals(sect)) {
+            // An in-person section: either 116 + 117 with Will Bromley, track is D
+            track = "D";
         }
 
         return track;
@@ -278,7 +288,7 @@ public enum PaceTrackLogic {
 
             for (final RawStcourse reg : notOpen) {
                 if (("Y".equals(reg.prereqSatis) || "P".equals(reg.prereqSatis))
-                        && (first == null || reg.course.compareTo(first) < 0)) {
+                    && (first == null || reg.course.compareTo(first) < 0)) {
                     first = reg.course;
                 }
             }
@@ -405,7 +415,7 @@ public enum PaceTrackLogic {
                     RawSttermLogic.INSTANCE.insert(cache, newRec);
 
                 } else if (existing.pace.intValue() != pace || !existing.paceTrack.equals(track)
-                        || !existing.firstCourse.equals(first)) {
+                           || !existing.firstCourse.equals(first)) {
 
                     final String paceStr = Integer.toString(pace);
                     Log.info("Updating STTERM <", active.term.shortString, ",", studentId, ",", paceStr, ",", track,

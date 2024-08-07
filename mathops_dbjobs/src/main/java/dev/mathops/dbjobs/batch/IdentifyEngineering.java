@@ -188,7 +188,7 @@ public class IdentifyEngineering {
 
         final IdentifyEngineering job = new IdentifyEngineering();
 
-        final TermKey applicationTerm = new TermKey(ETermName.SPRING, 2024);
+        final TermKey applicationTerm = new TermKey(ETermName.FALL, 2024);
 
         Log.fine(job.execute(applicationTerm));
     }
