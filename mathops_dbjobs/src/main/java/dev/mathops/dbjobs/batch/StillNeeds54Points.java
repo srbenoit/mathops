@@ -103,13 +103,13 @@ final class StillNeeds54Points {
             // Remove incompletes from this list
             if ("002".equals(reg.sect)) {
                 if (("D".equals(reg.openStatus) && reg.lastClassRollDt.isBefore(DAY_AFTER_DROP_SECT_2))
-                        || "Y".equals(reg.iInProgress)) {
+                    || "Y".equals(reg.iInProgress)) {
                     iter.remove();
                     continue;
                 }
             } else {
                 if (("D".equals(reg.openStatus) && reg.lastClassRollDt.isBefore(DAY_AFTER_DROP_SECT_1))
-                        || "Y".equals(reg.iInProgress)) {
+                    || "Y".equals(reg.iInProgress)) {
                     iter.remove();
                     continue;
                 }
@@ -490,8 +490,8 @@ final class StillNeeds54Points {
                     Log.info("Storing score of ", totalInt, " (", grade, ") for ", reg.stuId, " in ", reg.course);
 
                     // FIXME:
-//                     RawStcourseLo.tgic.updateCompletedScoreGrade(cache, reg.stuId, reg.course,
-////                     reg.sect, regermKey, "Y", totalInt, grade);
+//                    RawStcourseLogic.updateCompletedScoreGrade(cache, reg.stuId, reg.course,
+//                            reg.sect, reg.termKey, "Y", totalInt, grade);
                 }
             } else {
                 Log.warning(reg.course, " not marked as completed for ", reg.stuId);
