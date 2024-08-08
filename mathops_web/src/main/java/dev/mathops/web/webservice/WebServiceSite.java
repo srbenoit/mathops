@@ -12,6 +12,7 @@ import dev.mathops.web.site.ESiteType;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
@@ -65,11 +66,11 @@ public final class WebServiceSite extends AbstractSite {
      * Processes a GET request. Before this method is called, the request will have been verified to be secure and have
      * a session ID.
      *
-     * @param cache    the data cache
-     * @param subpath  the portion of the path beyond that which was used to select this site
-     * @param type     the site type
-     * @param req  the request
-     * @param resp the response
+     * @param cache   the data cache
+     * @param subpath the portion of the path beyond that which was used to select this site
+     * @param type    the site type
+     * @param req     the request
+     * @param resp    the response
      * @throws IOException if there is an error writing the response
      */
     @Override
@@ -145,11 +146,11 @@ public final class WebServiceSite extends AbstractSite {
      * Processes a POST request. Before this method is called, the request will have been verified to be secure and have
      * a session ID.
      *
-     * @param cache    the data cache
-     * @param subpath  the portion of the path beyond that which was used to select this site
-     * @param type     the site type
-     * @param req  the request
-     * @param resp the response
+     * @param cache   the data cache
+     * @param subpath the portion of the path beyond that which was used to select this site
+     * @param type    the site type
+     * @param req     the request
+     * @param resp    the response
      * @throws IOException if there is an error writing the response
      */
     @Override
@@ -178,17 +179,13 @@ public final class WebServiceSite extends AbstractSite {
 
         Log.info("SCRAM client first");
 
-        synchronized (this.sync) {
-            if (this.stub == null) {
-                reply = "!Failed to initialize web services.";
-            } else {
-                final String firstData = request.getParameter("first");
+        final String firstData = request.getParameter("first");
 
-                if (firstData == null) {
-                    reply = "!Request did not contain a 'first' parameter with request data.";
-                } else {
-                    reply = this.stub.handleClientFirst(firstData);
-                }
+        if (firstData == null) {
+            reply = "!Request did not contain a 'first' parameter with request data.";
+        } else {
+            synchronized (this.sync) {
+                reply = this.stub.handleClientFirst(firstData);
             }
         }
 
