@@ -1,6 +1,13 @@
 package dev.mathops.db.old.logic;
 
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.Contexts;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.old.DbContext;
+import dev.mathops.db.old.cfg.ContextMap;
+import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
@@ -132,19 +139,19 @@ public class PrecalcTutorialLogic {
         final boolean okFor126 = prereqLogic.hasSatisfiedPrerequisitesFor(RawRecordConstants.M126) || pct126;
 
         boolean doneWith117 = hasPlacedOut(RawRecordConstants.M117)
-                || prereqLogic.hasCreditFor(RawRecordConstants.M117);
+                              || prereqLogic.hasCreditFor(RawRecordConstants.M117);
 
         boolean doneWith118 = hasPlacedOut(RawRecordConstants.M118)
-                || prereqLogic.hasCreditFor(RawRecordConstants.M118);
+                              || prereqLogic.hasCreditFor(RawRecordConstants.M118);
 
         boolean doneWith124 = hasPlacedOut(RawRecordConstants.M124)
-                || prereqLogic.hasCreditFor(RawRecordConstants.M124);
+                              || prereqLogic.hasCreditFor(RawRecordConstants.M124);
 
         boolean doneWith125 = hasPlacedOut(RawRecordConstants.M125)
-                || prereqLogic.hasCreditFor(RawRecordConstants.M125);
+                              || prereqLogic.hasCreditFor(RawRecordConstants.M125);
 
         boolean doneWith126 = hasPlacedOut(RawRecordConstants.M126)
-                || prereqLogic.hasCreditFor(RawRecordConstants.M126);
+                              || prereqLogic.hasCreditFor(RawRecordConstants.M126);
 
         final boolean needsPrecalc = !doneWith117 || !doneWith118 || !doneWith124 || !doneWith125 || !doneWith126;
 
@@ -171,8 +178,8 @@ public class PrecalcTutorialLogic {
                         aplnTerm = new TermKey(ETermName.SUMMER, aplnTerm.year.intValue() + 1);
                     }
                 } else if ("PLCFA".equals(type) || "PCT117".equals(type)
-                        || "PCT118".equals(type) || "PCT124".equals(type)
-                        || "PCT125".equals(type) || "PCT126".equals(type)) {
+                           || "PCT118".equals(type) || "PCT124".equals(type)
+                           || "PCT125".equals(type) || "PCT126".equals(type)) {
 
                     // Force a "FALL" application term
                     if (aplnTerm.name != ETermName.FALL) {
@@ -205,12 +212,13 @@ public class PrecalcTutorialLogic {
         final TermRec active = cache.getSystemData().getActiveTerm();
         boolean isIncoming = false;
         if (active != null && aplnTerm != null && aplnTerm.name == ETermName.FALL
-                && (active.term.name == ETermName.SUMMER || active.term.name == ETermName.FALL)) {
+            && (active.term.name == ETermName.SUMMER || active.term.name == ETermName.FALL)) {
             isIncoming = active.term.year.equals(aplnTerm.year);
         }
 
         this.status.eligibleForPrecalcTutorial = isIncoming
-                && ((hasPlacement && needsPrecalc) || pct117 || pct118 || pct124 || pct125 || pct126);
+                                                 && ((hasPlacement && needsPrecalc) || pct117 || pct118 || pct124
+                                                     || pct125 || pct126);
 
         String next = null;
         if (okFor124 && !doneWith124) {
@@ -335,70 +343,75 @@ public class PrecalcTutorialLogic {
         return placed;
     }
 
-//    /**
-//     * Main method to exercise the logic object.
-//     *
-//     * @param args command-line arguments
-//     */
-//     public static void main(final String... args) {
-//
-//     final ContextMap map = ContextMap.getDefaultInstance();
-//     DbConnection.registerDrivers();
-//
-//     final DbProfile dbProfile =
-//     map.getWebSiteProfile(Contexts.PLACEMENT_HOST, Contexts.ROOT_PATH).getDbProfile();
-//
-//     final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
-//
-//     try {
-//     final DbConnection conn = ctx.checkOutConnection();
-//     final Cache cache = new Cache(dbProfile, conn);
-//
-//     try {
-//     final LocalDate today = LocalDate.now();
-//
-//     final PrerequisiteLogic prereq =
-//     new PrerequisiteLogic(cache, dbProfile, "888888888");
-//     final PrecalcTutorialLogic logic = new PrecalcTutorialLogic(cache, dbProfile, //
-//     "888888888", today, prereq);
-//
-//     mainPrintStatus(logic.getStatus());
-//     } finally {
-//     ctx.checkInConnection(conn);
-//     }
-//     } catch (SQLException ex) {
-//     Log.warning(ex);
-//     }
-//     }
+    /**
+     * Main method to exercise the logic object.
+     *
+     * @param args command-line arguments
+     */
+    public static void main(final String... args) {
 
-//    /**
-//     * Prints the contents of a {@code PrecalcTutorialStatus}.
-//     *
-//     * @param status the {@code PrecalcTutorialStatus} whose contents to print
-//     */
-//     private static void mainPrintStatus(final PrecalcTutorialStatus status) {
-//
-//     Log.fine("Student ", status.student.stuId);
-//     Log.fine(" Application term: ", status.student.aplnTerm);
-//
-//     Log.fine(" Eligible for Precalc Tutorial : "
-//     + status.eligibleForPrecalcTutorial);
-//
-//     final DateRangeGroups site = status.webSiteAvailability;
-//     for (final DateRange r : site.past) {
-//     Log.fine(" Precalc site was available : ", r);
-//     }
-//     if (site.current != null) {
-//     Log.fine(" Precalc site is available : ", site.current);
-//     }
-//     for (final DateRange r : site.future) {
-//     Log.fine(" Precalc site will be available : ", r);
-//     }
-//
-//     for (final String completed : status.completedPrecalcTutorials) {
-//     Log.fine(" Completed Precalc : ", completed);
-//     }
-//
-//     Log.fine(" Next Precalc : ", status.getNextPrecalcTutorial());
-//     }
+        final ContextMap map = ContextMap.getDefaultInstance();
+        DbConnection.registerDrivers();
+
+        final DbProfile dbProfile = map.getWebSiteProfile(Contexts.PLACEMENT_HOST, Contexts.ROOT_PATH).dbProfile;
+
+        final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
+
+        try {
+            final DbConnection conn = ctx.checkOutConnection();
+            final Cache cache = new Cache(dbProfile, conn);
+
+            try {
+                final LocalDate today = LocalDate.now();
+                final String stuId = "837401930";
+
+                final RawStudent student = RawStudentLogic.query(cache, stuId, false);
+                final PrerequisiteLogic prereq = new PrerequisiteLogic(cache, stuId);
+                final PrecalcTutorialLogic logic = new PrecalcTutorialLogic(cache, stuId, today, prereq);
+
+                mainPrintStatus(student, logic.status);
+            } finally {
+                ctx.checkInConnection(conn);
+            }
+        } catch (final SQLException ex) {
+            Log.warning(ex);
+        }
+    }
+
+    /**
+     * Prints the contents of a {@code PrecalcTutorialStatus}.
+     *
+     * @param status the {@code PrecalcTutorialStatus} whose contents to print
+     */
+    private static void mainPrintStatus(final RawStudent student, final PrecalcTutorialStatus status) {
+
+        final String screenName = student.getScreenName();
+        Log.fine("Student ", student.stuId, " (", screenName, ")");
+        Log.fine(" Application term: ", student.aplnTerm);
+
+        Log.fine(" Eligible for Precalc Tutorial : "  + status.eligibleForPrecalcTutorial);
+
+        final DateRangeGroups site = status.webSiteAvailability;
+        if (site != null) {
+            if (site.past != null) {
+                for (final DateRange r : site.past) {
+                    Log.fine(" Precalc site was available : ", r);
+                }
+            }
+            if (site.current != null) {
+                Log.fine(" Precalc site is available : ", site.current);
+            }
+            if (site.future != null) {
+                for (final DateRange r : site.future) {
+                    Log.fine(" Precalc site will be available : ", r);
+                }
+            }
+        }
+
+        for (final String completed : status.completedPrecalcTutorials) {
+            Log.fine(" Completed Precalc : ", completed);
+        }
+
+        Log.fine(" Next Precalc : ", status.nextPrecalcTutorial);
+    }
 }

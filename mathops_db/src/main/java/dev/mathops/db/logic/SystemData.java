@@ -147,8 +147,8 @@ public final class SystemData {
     /** All survey questions for the active term. */
     private List<RawSurveyqa> surveyQuestions = null;
 
-    /** Prerequisites. */
-    private List<RawPrereq> prerequisites = null;
+    /** Prerequisites (map from course to the list of prerequisites for that course). */
+    private Map<String, List<RawPrereq>> prerequisites = null;
 
     /** Client PCs. */
     private List<RawClientPc> clientPCs = null;
@@ -1747,17 +1747,24 @@ public final class SystemData {
     public List<String> getPrerequisitesByCourse(final String course) throws SQLException {
 
         if (this.prerequisites == null) {
-            final TermRec active = getActiveTerm();
-            if (active == null) {
-                this.prerequisites = new ArrayList<>(0);
-            } else {
-                this.prerequisites = RawPrereqLogic.queryByTermAndCourse(this.cache, active.term, course);
-            }
+            this.prerequisites = new HashMap<>(5);
         }
 
-        final int count = this.prerequisites.size();
+        List<RawPrereq> records = this.prerequisites.get(course);
+
+        if (records == null) {
+            final TermRec active = getActiveTerm();
+            if (active == null) {
+                records = new ArrayList<>(0);
+            } else {
+                records = RawPrereqLogic.queryByTermAndCourse(this.cache, active.term, course);
+            }
+            this.prerequisites.put(course, records);
+        }
+
+        final int count = records.size();
         final List<String> result = new ArrayList<>(count);
-        for (final RawPrereq rec : this.prerequisites) {
+        for (final RawPrereq rec : records) {
             result.add(rec.prerequisite);
         }
 
