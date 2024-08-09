@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * A server stub that a web service can use to manage SCRAM-SHA-256 authentication.
+ * A server stub that web services can use to manage SCRAM-SHA-256 authentication.
  */
 public final class ScramServerStub {
 
@@ -101,9 +101,9 @@ public final class ScramServerStub {
                     final Request req = new Request(cred, clientFirst, serverFirst, now + REQUEST_TIMEOUT);
                     this.requests.add(req);
                 }
-
             } catch (final IllegalArgumentException ex) {
-                Log.warning("Unable to parse client-first message: ", ex.getMessage());
+                final String exMsg = ex.getMessage();
+                Log.warning("Unable to parse client-first message: ", exMsg);
                 result = "!Invalid client-first request";
             }
         }

@@ -89,13 +89,14 @@ final class UserCredentialsManager {
      */
     static UserCredentialsManager getInstance(final Cache cache) {
 
-        synchronized (CoreConstants.INSTANCE_SYNCH) {
-            if (instance == null) {
-                instance = new UserCredentialsManager(cache);
-            }
+        // Called only from WebServiceSite, and only from within a block synchronized on a single object, so no
+        // need for synchronization here.
 
-            return instance;
+        if (instance == null) {
+            instance = new UserCredentialsManager(cache);
         }
+
+        return instance;
     }
 
     /**

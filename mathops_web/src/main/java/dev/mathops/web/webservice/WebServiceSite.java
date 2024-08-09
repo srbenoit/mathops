@@ -74,8 +74,8 @@ public final class WebServiceSite extends AbstractSite {
      * @throws IOException if there is an error writing the response
      */
     @Override
-    public void doGet(final Cache cache, final String subpath, final ESiteType type,
-                      final HttpServletRequest req, final HttpServletResponse resp) throws IOException {
+    public void doGet(final Cache cache, final String subpath, final ESiteType type, final HttpServletRequest req,
+                      final HttpServletResponse resp) throws IOException {
 
         Log.info("GET Request to WebServiceSite, subpath=", subpath);
 
@@ -98,10 +98,7 @@ public final class WebServiceSite extends AbstractSite {
             if (token == null) {
                 resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
             } else {
-                final UserCredentials credentials;
-                synchronized (this.sync) {
-                    credentials = this.stub.validateToken(token);
-                }
+                final UserCredentials credentials = this.stub.validateToken(token);
 
                 if (credentials == null) {
                     reply = "!Unable to validate token.";
@@ -184,9 +181,7 @@ public final class WebServiceSite extends AbstractSite {
         if (firstData == null) {
             reply = "!Request did not contain a 'first' parameter with request data.";
         } else {
-            synchronized (this.sync) {
-                reply = this.stub.handleClientFirst(firstData);
-            }
+            reply = this.stub.handleClientFirst(firstData);
         }
 
         Log.info("SCRAM client first reply is ", reply);
@@ -213,9 +208,7 @@ public final class WebServiceSite extends AbstractSite {
         if (finalData == null) {
             reply = "!Request did not contain a 'final' parameter with request data.";
         } else {
-            synchronized (this.sync) {
-                reply = this.stub.handleClientFinal(finalData);
-            }
+            reply = this.stub.handleClientFinal(finalData);
         }
 
         Log.info("SCRAM client final reply is ", reply);
