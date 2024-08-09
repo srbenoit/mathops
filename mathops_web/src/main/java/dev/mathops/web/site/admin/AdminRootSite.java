@@ -10,6 +10,7 @@ import dev.mathops.web.site.ESiteType;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 
 /**
@@ -18,11 +19,20 @@ import java.io.IOException;
  */
 public final class AdminRootSite extends AbstractSite {
 
+    /** The name of a style sheet. */
+    private static final String ADMIN_CSS = "admin.css";
+
+    /** The name of a style sheet. */
+    private static final String STYLE_CSS = "style.css";
+
+    /** A path. */
+    private static final String IMAGES_PATH = "images/";
+
     /**
      * Constructs a new {@code AdminRootSite}.
      *
-     * @param theSiteProfile  the context under which this site is accessed
-     * @param theSessions the singleton user session repository
+     * @param theSiteProfile the context under which this site is accessed
+     * @param theSessions    the singleton user session repository
      */
     public AdminRootSite(final WebSiteProfile theSiteProfile, final ISessionManager theSessions) {
 
@@ -66,12 +76,15 @@ public final class AdminRootSite extends AbstractSite {
     public void doGet(final Cache cache, final String subpath, final ESiteType type,
                       final HttpServletRequest req, final HttpServletResponse resp) throws IOException {
 
-        if ("style.css".equals(subpath)) {
-            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(getClass(), "style.css", true));
-        } else if ("admin.css".equals(subpath)) {
+        if (STYLE_CSS.equals(subpath)) {
+            final Class<? extends AdminRootSite> siteClass = getClass();
+            final byte[] cssBytes = FileLoader.loadFileAsBytes(siteClass, STYLE_CSS, true);
+            sendReply(req, resp, "text/css", cssBytes);
+        } else if (ADMIN_CSS.equals(subpath)) {
             BasicCss.getInstance().serveCss(req, resp);
-        } else if (subpath.startsWith("images/")) {
-            serveImage(subpath.substring(7), req, resp);
+        } else if (subpath.startsWith(IMAGES_PATH)) {
+            final String imagePath = subpath.substring(7);
+            serveImage(imagePath, req, resp);
         } else {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         }

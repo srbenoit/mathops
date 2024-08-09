@@ -12,15 +12,14 @@ import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractPageSite;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
-import dev.mathops.web.site.admin.bookstore.BookstoreSubsite;
 import dev.mathops.web.site.admin.genadmin.GenAdminSubsite;
 import dev.mathops.web.site.admin.office.OfficeSubsite;
 import dev.mathops.web.site.admin.proctor.ProctorSubsite;
-import dev.mathops.web.site.admin.sysadmin.SysAdminSubsite;
 import dev.mathops.web.site.admin.testing.TestingSubsite;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -32,17 +31,20 @@ import java.sql.SQLException;
  */
 public final class AdminSite extends AbstractPageSite {
 
-    /** The sub-site for system administrators. */
-    private final SysAdminSubsite sysadmin;
+    /** The name of a style sheet. */
+    private static final String BASE_STYLE_CSS = "basestyle.css";
+
+    /** The name of a style sheet. */
+    private static final String STYLE_CSS = "style.css";
+
+    /** A path. */
+    private static final String IMAGES_PATH = "images/";
 
     /** The sub-site for general administrators. */
-    private final GenAdminSubsite genadmin;
+    private final GenAdminSubsite general;
 
     /** The sub-site for office staff. */
     private final OfficeSubsite office;
-
-    /** The sub-site for bookstore staff. */
-    private final BookstoreSubsite bookstore;
 
     /** The sub-site for proctors. */
     private final ProctorSubsite proctor;
@@ -61,10 +63,8 @@ public final class AdminSite extends AbstractPageSite {
 
         super(theSiteProfile, theSessions);
 
-        this.sysadmin = new SysAdminSubsite(this);
-        this.genadmin = new GenAdminSubsite(this);
+        this.general = new GenAdminSubsite(this);
         this.office = new OfficeSubsite(this);
-        this.bookstore = new BookstoreSubsite(this);
         this.proctor = new ProctorSubsite(this);
         this.testing = new TestingSubsite(this);
     }
@@ -103,21 +103,25 @@ public final class AdminSite extends AbstractPageSite {
      * @throws IOException if there is an error writing the response
      */
     @Override
-    public void doGet(final Cache cache, final String subpath, final ESiteType type,
-                      final HttpServletRequest req, final HttpServletResponse resp)
-            throws IOException, SQLException {
+    public void doGet(final Cache cache, final String subpath, final ESiteType type, final HttpServletRequest req,
+                      final HttpServletResponse resp) throws IOException, SQLException {
 
         if (CoreConstants.EMPTY.equals(subpath)) {
             final String path = this.siteProfile.path;
-            resp.sendRedirect(path + (path.endsWith(Contexts.ROOT_PATH) ? "login.html" : "/login.html"));
+            final boolean trailingSlash = path.endsWith(Contexts.ROOT_PATH);
+            resp.sendRedirect(path + (trailingSlash ? "login.html" : "/login.html"));
         } else if ("login.html".equals(subpath)) {
             PageLogin.doLoginPage(cache, this, req, resp);
-        } else if ("basestyle.css".equals(subpath)) {
-            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
-        } else if ("style.css".equals(subpath)) {
-            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(getClass(), "style.css", true));
-        } else if (subpath.startsWith("images/")) {
-            serveImage(subpath.substring(7), req, resp);
+        } else if (BASE_STYLE_CSS.equals(subpath)) {
+            final byte[] cssBytes = FileLoader.loadFileAsBytes(Page.class, BASE_STYLE_CSS, true);
+            sendReply(req, resp, "text/css", cssBytes);
+        } else if (STYLE_CSS.equals(subpath)) {
+            final Class<? extends AdminSite> myClass = getClass();
+            final byte[] cssBytes = FileLoader.loadFileAsBytes(myClass, STYLE_CSS, true);
+            sendReply(req, resp, "text/css", cssBytes);
+        } else if (subpath.startsWith(IMAGES_PATH)) {
+            final String imgPath = subpath.substring(7);
+            serveImage(imgPath, req, resp);
         } else if ("favicon.ico".equals(subpath)) {
             serveImage(subpath, req, resp);
         } else {
@@ -129,33 +133,34 @@ public final class AdminSite extends AbstractPageSite {
                     doShibbolethLogin(cache, req, resp, null, "home.html");
                 } else {
                     final String path = this.siteProfile.path;
-                    resp.sendRedirect(path + (path.endsWith(Contexts.ROOT_PATH) ? "login.html" : "/login.html"));
+                    final boolean trailingSlash = path.endsWith(Contexts.ROOT_PATH);
+                    resp.sendRedirect(path + (trailingSlash ? "login.html" : "/login.html"));
                 }
             } else {
-                LogBase.setSessionInfo(session.loginSessionId, session.getEffectiveUserId());
+                final String effectiveId = session.getEffectiveUserId();
+                LogBase.setSessionInfo(session.loginSessionId, effectiveId);
 
                 if ("home.html".equals(subpath)) {
                     PageHome.doGet(cache, this, req, resp, session);
                 } else if ("secure/shibboleth.html".equals(subpath)) {
                     final String path = this.siteProfile.path;
-                    resp.sendRedirect(path + (path.endsWith(Contexts.ROOT_PATH) ? "home.html" : "/home.html"));
-                } else if (subpath.startsWith("sysadmin/")) {
-                    this.sysadmin.doGet(cache, subpath.substring(9), session, req, resp);
+                    final boolean trailingSlash = path.endsWith(Contexts.ROOT_PATH);
+                    resp.sendRedirect(path + (trailingSlash ? "home.html" : "/home.html"));
                 } else if (subpath.startsWith("genadmin/")) {
-                    this.genadmin.doGet(cache, subpath.substring(9), session, req, resp);
+                    final String innerPath = subpath.substring(9);
+                    this.general.doGet(cache, innerPath, session, req, resp);
                 } else if (subpath.startsWith("office/")) {
-                    this.office.doGet(cache, subpath.substring(7), session, req, resp);
-                } else if (subpath.startsWith("bookstore/")) {
-                    this.bookstore.doGet(cache, subpath.substring(10), session, req, resp);
+                    final String innerPath = subpath.substring(7);
+                    this.office.doGet(cache, innerPath, session, req, resp);
                 } else if (subpath.startsWith("proctor/")) {
-                    this.proctor.doGet(cache, subpath.substring(8), session, req, resp);
+                    final String innerPath = subpath.substring(8);
+                    this.proctor.doGet(cache, innerPath, session, req, resp);
                 } else if (subpath.startsWith("testing/")) {
-                    this.testing.doGet(cache, subpath.substring(8), session, req, resp);
-
-                    // ... etc. ...
-
+                    final String innerPath = subpath.substring(8);
+                    this.testing.doGet(cache, innerPath, session, req, resp);
                 } else {
-                    Log.warning(Res.fmt(Res.GET_BAD_PATH, subpath));
+                    final String msg = Res.fmt(Res.GET_BAD_PATH, subpath);
+                    Log.warning(msg);
                     resp.sendError(HttpServletResponse.SC_NOT_FOUND);
                 }
 
@@ -169,17 +174,16 @@ public final class AdminSite extends AbstractPageSite {
      * Processes a POST request. Before this method is called, the request will have been verified to be secure and have
      * a session ID.
      *
-     * @param cache    the data cache
-     * @param subpath  the portion of the path beyond that which was used to select this site
-     * @param type the site type
-     * @param req      the request
-     * @param resp     the response
+     * @param cache   the data cache
+     * @param subpath the portion of the path beyond that which was used to select this site
+     * @param type    the site type
+     * @param req     the request
+     * @param resp    the response
      * @throws IOException if there is an error writing the response
      */
     @Override
-    public void doPost(final Cache cache, final String subpath, final ESiteType type,
-                       final HttpServletRequest req, final HttpServletResponse resp)
-            throws IOException, SQLException {
+    public void doPost(final Cache cache, final String subpath, final ESiteType type, final HttpServletRequest req,
+                       final HttpServletResponse resp) throws IOException, SQLException {
 
         if ("login.html".equals(subpath)) {
             PageLogin.doLoginPage(cache, this, req, resp);
@@ -188,28 +192,28 @@ public final class AdminSite extends AbstractPageSite {
             final ImmutableSessionInfo session = validateSession(req, resp, "login.html");
 
             if (session == null) {
-                Log.warning(Res.fmt(Res.POST_NO_SESSION, subpath));
+                final String msg = Res.fmt(Res.POST_NO_SESSION, subpath);
+                Log.warning(msg);
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             } else {
-                LogBase.setSessionInfo(session.loginSessionId, session.getEffectiveUserId());
+                final String effectiveId = session.getEffectiveUserId();
+                LogBase.setSessionInfo(session.loginSessionId, effectiveId);
 
-                if (subpath.startsWith("sysadmin/")) {
-                    this.sysadmin.doPost(cache, subpath.substring(9), session, req, resp);
-                } else if (subpath.startsWith("genadmin/")) {
-                    this.genadmin.doPost(cache, subpath.substring(9), session, req, resp);
+                if (subpath.startsWith("genadmin/")) {
+                    final String innerPath = subpath.substring(9);
+                    this.general.doPost(cache, innerPath, session, req, resp);
                 } else if (subpath.startsWith("office/")) {
-                    this.office.doPost(cache, subpath.substring(7), session, req, resp);
-                } else if (subpath.startsWith("bookstore/")) {
-                    this.bookstore.doPost(cache, subpath.substring(10), session, req, resp);
+                    final String innerPath = subpath.substring(7);
+                    this.office.doPost(cache, innerPath, session, req, resp);
                 } else if (subpath.startsWith("proctor/")) {
-                    this.proctor.doPost(cache, subpath.substring(8), session, req, resp);
+                    final String innerPath = subpath.substring(8);
+                    this.proctor.doPost(cache, innerPath, session, req, resp);
                 } else if (subpath.startsWith("testing/")) {
-                    this.testing.doPost(cache, subpath.substring(8), session, req, resp);
-
-                    // ... etc. ...
-
+                    final String innerPath = subpath.substring(8);
+                    this.testing.doPost(cache, innerPath, session, req, resp);
                 } else {
-                    Log.warning(Res.fmt(Res.POST_BAD_PATH, subpath));
+                    final String msg = Res.fmt(Res.POST_BAD_PATH, subpath);
+                    Log.warning(msg);
                     resp.sendError(HttpServletResponse.SC_NOT_FOUND);
                 }
 

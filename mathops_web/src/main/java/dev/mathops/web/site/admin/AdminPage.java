@@ -26,12 +26,14 @@ public enum AdminPage {
             htm.sDiv("floatnav");
 
             htm.addln("<form style='display:inline;' method='get' action='home.html'>");
-            htm.add("<button class='floatnav'>", Res.get(Res.HOME_BTN_LBL), "</button>");
+            final String homeLbl = Res.get(Res.HOME_BTN_LBL);
+            htm.add("<button class='floatnav'>", homeLbl, "</button>");
             htm.addln("</form>");
 
             if (session != null && session.role == ERole.SYSADMIN) {
                 htm.addln("<form style='display:inline;' method='get' action='/adminsys/home.html'>");
-                htm.add("<button class='floatnav'>", Res.get(Res.ROOT_BTN_LBL), "</button>");
+                final String rootLbl = Res.get(Res.ROOT_BTN_LBL);
+                htm.add("<button class='floatnav'>", rootLbl, "</button>");
                 htm.addln("</form>");
             }
 
@@ -40,16 +42,19 @@ public enum AdminPage {
             htm.sDiv("floatnav");
 
             htm.addln("<form style='display:inline;' method='get' action='/adminsys/home.html'>");
-            htm.add("<button class='floatnav'>", Res.get(Res.ROOT_BTN_LBL), "</button>");
+            final String rootLbl = Res.get(Res.ROOT_BTN_LBL);
+            htm.add("<button class='floatnav'>", rootLbl, "</button>");
             htm.addln("</form>");
 
             htm.eDiv(); // floatnav
         }
 
-        htm.sH(1).add(Res.get(Res.SITE_TITLE)).eH(1);
+        final String title = Res.get(Res.SITE_TITLE);
+        htm.sH(1).add(title).eH(1);
 
         if (session != null && whichDb != null) {
-            htm.sH(3).add(Res.fmt(Res.LOGGED_IN_TO_AS, whichDb.descr, session.screenName)).eH(3);
+            final String loggedInLbl = Res.fmt(Res.LOGGED_IN_TO_AS, whichDb.descr, session.screenName);
+            htm.sH(3).add(loggedInLbl).eH(3);
         }
 
         htm.div("clear");

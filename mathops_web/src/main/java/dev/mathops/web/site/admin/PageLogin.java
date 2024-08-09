@@ -7,6 +7,7 @@ import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -31,24 +32,29 @@ enum PageLogin {
                             final HttpServletResponse resp) throws IOException, SQLException {
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
-        Page.startOrdinaryPage(htm, site.getTitle(), null, false, null, "home.html", Page.NO_BARS, null, false, true);
+        final String siteTitle = site.getTitle();
+        Page.startOrdinaryPage(htm, siteTitle, null, false, null, "home.html", Page.NO_BARS, null, false, true);
 
-        htm.sH(1).add(Res.get(Res.SITE_TITLE)).eH(1);
+        final String headerTitle = Res.get(Res.SITE_TITLE);
+        htm.sH(1).add(headerTitle).eH(1);
         htm.div("vgap");
 
         htm.sDiv("loginpane", "style='max-width:380pt;'");
         htm.sP("center", "style='margin:auto; max-width:320pt; padding:.6em 0;'");
-        htm.addln(Res.get(Res.LOGIN_PROMPT));
+        final String loginPrompt = Res.get(Res.LOGIN_PROMPT);
+        htm.addln(loginPrompt);
         htm.eP();
 
         htm.sDiv("center");
-        htm.addln(" <a href='secure/shibboleth.html' class='btn'>", Res.get(Res.LOGIN_BTN_LBL), "</a>");
+        final String loginBtnLbl = Res.get(Res.LOGIN_BTN_LBL);
+        htm.addln(" <a href='secure/shibboleth.html' class='btn'>", loginBtnLbl, "</a>");
         htm.eDiv();
 
         htm.eDiv();
 
         Page.endOrdinaryPage(cache, site, htm, true);
 
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
     }
 }

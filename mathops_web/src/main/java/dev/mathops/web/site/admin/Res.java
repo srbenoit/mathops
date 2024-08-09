@@ -48,19 +48,10 @@ final class Res extends ResBundle {
     // Used by PageHome
 
     /** A resource key. */
-    static final String SYSADM_BTN_LBL = key(index++);
-
-    /** A resource key. */
     static final String GENADM_BTN_LBL = key(index++);
 
     /** A resource key. */
-    static final String DIRECTOR_BTN_LBL = key(index++);
-
-    /** A resource key. */
     static final String OFFICE_BTN_LBL = key(index++);
-
-    /** A resource key. */
-    static final String RESOURCE_BTN_LBL = key(index++);
 
     /** A resource key. */
     static final String TESTING_BTN_LBL = key(index++);
@@ -68,13 +59,10 @@ final class Res extends ResBundle {
     /** A resource key. */
     static final String PROCTOR_BTN_LBL = key(index++);
 
-    /** A resource key. */
-    static final String BOOKSTORE_BTN_LBL = key(index++);
-
     //
 
     /** The resources - an array of key-values pairs. */
-    private static final String[][] EN_US = { //
+    private static final String[][] EN_US = {
 
             {SITE_TITLE, "Precalculus System Administration"},
             {GET_BAD_PATH, "GET: Path {0} not found"},
@@ -88,14 +76,10 @@ final class Res extends ResBundle {
             {LOGIN_PROMPT, "Use your Colorado State University <strong>eID</strong> to log in."},
             {LOGIN_BTN_LBL, "eID Login"},
 
-            {SYSADM_BTN_LBL, "System Administration"},
             {GENADM_BTN_LBL, "General Administration"},
-            {DIRECTOR_BTN_LBL, "Director View"},
             {OFFICE_BTN_LBL, "Office Staff View"},
-            {RESOURCE_BTN_LBL, "Resource Desk View"},
             {TESTING_BTN_LBL, "Testing Center View"},
             {PROCTOR_BTN_LBL, "Proctor View"},
-            {BOOKSTORE_BTN_LBL, "Bookstore Staff View"},
 
             //
     };

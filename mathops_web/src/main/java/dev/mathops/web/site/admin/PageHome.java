@@ -1,19 +1,28 @@
 package dev.mathops.web.site.admin;
 
+import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.rawrecord.RawWhichDb;
 import dev.mathops.session.ImmutableSessionInfo;
+import dev.mathops.web.front.BuildDateTime;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 /**
  * The home page.
@@ -32,9 +41,8 @@ enum PageHome {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void doGet(final Cache cache, final AdminSite site, final ServletRequest req,
-                      final HttpServletResponse resp, final ImmutableSessionInfo session)
-            throws IOException, SQLException {
+    static void doGet(final Cache cache, final AdminSite site, final ServletRequest req, final HttpServletResponse resp,
+                      final ImmutableSessionInfo session) throws IOException, SQLException {
 
         final RawWhichDb whichDb = cache.getSystemData().getWhichDb();
 
@@ -50,7 +58,8 @@ enum PageHome {
             htm.div("vgap");
 
             Page.endOrdinaryPage(cache, site, htm, true);
-            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+            final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
         } else if (role == ERole.ADMINISTRATOR) {
             resp.sendRedirect("genadmin/home.html");
         } else if (role.canActAs(ERole.DIRECTOR)) {
@@ -66,7 +75,8 @@ enum PageHome {
         } else if (role.canActAs(ERole.BOOKSTORE)) {
             resp.sendRedirect("bookstore/home.html");
         } else {
-            Log.warning("GET: invalid role: ", role.name());
+            final String roleName = role.name();
+            Log.warning("GET: invalid role: ", roleName);
             resp.sendError(HttpServletResponse.SC_FORBIDDEN);
         }
     }
@@ -86,18 +96,134 @@ enum PageHome {
 
         htm.addln("<nav>");
 
-        navButton(htm, "first", Res.get(Res.SYSADM_BTN_LBL), "sysadmin/home.html");
-        navButton(htm, null, Res.get(Res.GENADM_BTN_LBL), "genadmin/home.html");
-        navButton(htm, null, Res.get(Res.DIRECTOR_BTN_LBL), "director/home.html");
-        navButton(htm, "last", Res.get(Res.OFFICE_BTN_LBL), "office/home.html");
+        final String generalLbl = Res.get(Res.GENADM_BTN_LBL);
+        navButton(htm, "first", generalLbl, "genadmin/home.html");
 
-        navButton(htm, "first", Res.get(Res.RESOURCE_BTN_LBL), "resource/home.html");
-        navButton(htm, null, Res.get(Res.TESTING_BTN_LBL), "testing/home.html");
-        navButton(htm, null, Res.get(Res.PROCTOR_BTN_LBL), "proctor/home.html");
-        navButton(htm, "last", Res.get(Res.BOOKSTORE_BTN_LBL), "bookstore/home.html");
+        final String officeLbl = Res.get(Res.OFFICE_BTN_LBL);
+        navButton(htm, null, officeLbl, "office/home.html");
+
+        final String testingLbl = Res.get(Res.TESTING_BTN_LBL);
+        navButton(htm, null, testingLbl, "testing/home.html");
+
+        final String proctorLbl = Res.get(Res.PROCTOR_BTN_LBL);
+        navButton(htm, "last", proctorLbl, "proctor/home.html");
 
         htm.addln("</nav>");
-        htm.hr("orange");
+        htm.hr("orange").div("vgap");
+
+        // Show some basic information on the build and runtime environment
+
+        final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("HH:mm:ss 'on' EEEE, MMM d, yyyy", Locale.US);
+
+        final String now = LocalDateTime.now().format(fmt);
+        final String buildDateTime = BuildDateTime.getValue();
+        final String javaVersion = System.getProperty("java.version");
+        final String javaVendor = System.getProperty("java.vendor");
+        final String osName = System.getProperty("os.name");
+        final String osVersion = System.getProperty("os.version");
+
+        // Attempt to determine operating system release
+
+        String osRelease = null;
+        final File releaseFile = new File("/etc/os-release");
+        final String[] relLines = FileLoader.loadFileAsLines(releaseFile, false);
+        if (relLines != null) {
+            for (final String line : relLines) {
+                final int index = line.indexOf("PRETTY_NAME=");
+                if (index >= 0) {
+                    final String sub = line.substring(index + 12).trim();
+                    if (sub.startsWith("\"") && sub.endsWith("\"")) {
+                        final int len = sub.length();
+                        osRelease = sub.substring(1, len - 1);
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Attempt to glean HTTPD version
+        String httpdVersion = null;
+        try {
+            final String[] command = {"/opt/httpd/bin/httpd", "-v"};
+            final Process p = Runtime.getRuntime().exec(command);
+            try (final InputStream in = p.getInputStream()) {
+                final byte[] data = FileLoader.readStreamAsBytes(in);
+                final String s = new String(data, StandardCharsets.UTF_8).replace(CoreConstants.CRLF, "\n");
+                final String[] lines = s.split("\n");
+
+                for (final String line : lines) {
+                    if (line.startsWith("Server version: ")) {
+                        httpdVersion = line.substring(16);
+                        break;
+                    }
+                }
+            }
+        } catch (final IOException ex) {
+            Log.warning(ex);
+        }
+        if (httpdVersion == null) {
+            httpdVersion = "(unable to determine)";
+        }
+
+        // Attempt to glean OpenSSL version
+        String openSslVersion = null;
+        final File sslInclude = new File("/opt/httpd/include/openssl/opensslv.h");
+        final String[] incLines = FileLoader.loadFileAsLines(sslInclude, false);
+        if (incLines != null) {
+            for (final String line : incLines) {
+                final int index = line.indexOf("define OPENSSL_VERSION_TEXT");
+                if (index >= 0) {
+                    final String sub = line.substring(index + 27).trim();
+                    if (sub.startsWith("\"") && sub.endsWith("\"")) {
+                        final int len = sub.length();
+                        openSslVersion = sub.substring(1, len - 1);
+                        break;
+                    }
+                }
+            }
+        }
+        if (openSslVersion == null) {
+            openSslVersion = "(unable to determine)";
+        }
+
+        // Attempt to glean Tomcat version
+        String tomcatVersion = null;
+        try {
+            final String[] command = {"/opt/tomcat/bin/version.sh"};
+            final Process p = Runtime.getRuntime().exec(command);
+            try (final InputStream in = p.getInputStream()) {
+                final byte[] data = FileLoader.readStreamAsBytes(in);
+                final String s = new String(data, StandardCharsets.UTF_8).replace(CoreConstants.CRLF, "\n");
+                final String[] versionLines = s.split("\n");
+
+                for (final String line : versionLines) {
+                    if (line.startsWith("Server version: ")) {
+                        tomcatVersion = line.substring(16);
+                        break;
+                    }
+                }
+            }
+        } catch (final IOException ex) {
+            Log.warning(ex);
+        }
+        if (tomcatVersion == null) {
+            tomcatVersion = "(unable to determine)";
+        }
+
+        htm.sTable();
+        htm.sTr().sTh().add("Current date &nbsp;").eTh().sTd().add(now).eTd().eTr();
+        htm.sTr().sTh().add("Build date &nbsp;").eTh().sTd().add(buildDateTime).eTd().eTr();
+        htm.sTr().sTh().add("Java Version &nbsp;").eTh().sTd().add(javaVersion, " (", javaVendor, ")").eTd().eTr();
+        htm.sTr().sTh().add("HTTPD Version &nbsp;").eTh().sTd().add(httpdVersion).eTd().eTr();
+        htm.sTr().sTh().add("OpenSSL Version &nbsp;").eTh().sTd().add(openSslVersion).eTd().eTr();
+        htm.sTr().sTh().add("Tomcat Version &nbsp;").eTh().sTd().add(tomcatVersion).eTd().eTr();
+        if (osRelease == null) {
+            htm.sTr().sTh().add("OS &nbsp;").eTh().sTd().add(osName, CoreConstants.SPC, osVersion).eTd().eTr();
+        } else {
+            htm.sTr().sTh().add("OS &nbsp;").eTh().sTd().add(osRelease, " (", osName, CoreConstants.SPC, osVersion,
+                    ")").eTd().eTr();
+        }
+        htm.eTable();
     }
 
     /**

@@ -17,6 +17,15 @@ import java.sql.SQLException;
  */
 public abstract class AbstractSubsite {
 
+    /** The name of a style sheet. */
+    private static final String BASE_STYLE_CSS = "basestyle.css";
+
+    /** The name of a style sheet. */
+    private static final String STYLE_CSS = "style.css";
+
+    /** A path. */
+    private static final String IMAGES_PATH = "images/";
+
     /** The owning site. */
     public final AdminSite site;
 
@@ -46,14 +55,16 @@ public abstract class AbstractSubsite {
                             final HttpServletRequest req, final HttpServletResponse resp) throws IOException,
             SQLException {
 
-        if ("basestyle.css".equals(subpath)) {
-            AbstractSite.sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css",
-                    true));
-        } else if ("style.css".equals(subpath)) {
-            AbstractSite.sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(this.site.getClass(),
-                    "style.css", true));
-        } else if (subpath.startsWith("images/")) {
-            this.site.serveImage(subpath.substring(7), req, resp);
+        if (BASE_STYLE_CSS.equals(subpath)) {
+            final byte[] cssBytes = FileLoader.loadFileAsBytes(Page.class, BASE_STYLE_CSS, true);
+            AbstractSite.sendReply(req, resp, "text/css", cssBytes);
+        } else if (STYLE_CSS.equals(subpath)) {
+            final Class<? extends AdminSite> siteClass = this.site.getClass();
+            final byte[] cssBytes = FileLoader.loadFileAsBytes(siteClass, STYLE_CSS, true);
+            AbstractSite.sendReply(req, resp, "text/css", cssBytes);
+        } else if (subpath.startsWith(IMAGES_PATH)) {
+            final String imagePath = subpath.substring(7);
+            this.site.serveImage(imagePath, req, resp);
         } else {
             subsiteGet(cache, subpath, session, req, resp);
         }
