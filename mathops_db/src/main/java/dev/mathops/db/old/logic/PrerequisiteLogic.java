@@ -51,6 +51,9 @@ public final class PrerequisiteLogic {
     /** List of courses for which the student has earned credit. */
     private final List<String> creditFor;
 
+    /** List of courses for which the student has transfer credit. */
+    private final List<String> creditByTransfer;
+
     /**
      * Constructs a new {@code PrerequisiteLogic}.
      *
@@ -74,6 +77,7 @@ public final class PrerequisiteLogic {
 
         this.satisfied = new ArrayList<>(5);
         this.satisfiedByTransfer = new ArrayList<>(5);
+        this.creditByTransfer = new ArrayList<>(5);
 
         final SystemData systemData = cache.getSystemData();
 
@@ -126,6 +130,17 @@ public final class PrerequisiteLogic {
     boolean hasSatisfiedPrerequisitesByTransferFor(final String theCourseId) {
 
         return this.satisfiedByTransfer.contains(theCourseId);
+    }
+
+    /**
+     * Tests whether the student has transfer credit for a course but not CSU credit.
+     *
+     * @param theCourseId the course ID
+     * @return true if the student has credit for the course by transfer
+     */
+    boolean isCreditByTransferFor(final String theCourseId) {
+
+        return this.creditByTransfer.contains(theCourseId);
     }
 
     /**
@@ -259,6 +274,9 @@ public final class PrerequisiteLogic {
             if (!hasCredit) {
                 for (final RawFfrTrns xfer : this.allTransfer) {
                     if (courseId.equals(xfer.course)) {
+                        if (!this.creditByTransfer.contains(courseId)) {
+                            this.creditByTransfer.add(courseId);
+                        }
                         hasCredit = true;
                         break;
                     }
@@ -288,7 +306,7 @@ public final class PrerequisiteLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final PrerequisiteLogic prereq = new PrerequisiteLogic(cache, "837401930");
+                final PrerequisiteLogic prereq = new PrerequisiteLogic(cache, "837165351");
 
                 Log.fine("Student: ", prereq.studentId);
 
@@ -302,6 +320,12 @@ public final class PrerequisiteLogic {
                          + "; by transfer: " + prereq.hasSatisfiedPrerequisitesByTransferFor(RawRecordConstants.M125));
                 Log.fine(" OK for 126: " + prereq.hasSatisfiedPrerequisitesFor(RawRecordConstants.M126)
                          + "; by transfer: " + prereq.hasSatisfiedPrerequisitesByTransferFor(RawRecordConstants.M126));
+
+                Log.fine(" Credit for 117: " + prereq.hasCreditFor(RawRecordConstants.M117));
+                Log.fine(" Credit for 118: " + prereq.hasCreditFor(RawRecordConstants.M118));
+                Log.fine(" Credit for 124: " + prereq.hasCreditFor(RawRecordConstants.M124));
+                Log.fine(" Credit for 125: " + prereq.hasCreditFor(RawRecordConstants.M125));
+                Log.fine(" Credit for 126: " + prereq.hasCreditFor(RawRecordConstants.M126));
             } finally {
                 ctx.checkInConnection(conn);
             }

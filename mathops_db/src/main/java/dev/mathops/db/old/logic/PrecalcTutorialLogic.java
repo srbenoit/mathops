@@ -140,18 +140,23 @@ public class PrecalcTutorialLogic {
 
         boolean doneWith117 = hasPlacedOut(RawRecordConstants.M117)
                               || prereqLogic.hasCreditFor(RawRecordConstants.M117);
+        Log.info("Done with 117: + " + doneWith117);
 
         boolean doneWith118 = hasPlacedOut(RawRecordConstants.M118)
                               || prereqLogic.hasCreditFor(RawRecordConstants.M118);
+        Log.info("Done with 118: + " + doneWith117);
 
         boolean doneWith124 = hasPlacedOut(RawRecordConstants.M124)
                               || prereqLogic.hasCreditFor(RawRecordConstants.M124);
+        Log.info("Done with 124: + " + doneWith124);
 
         boolean doneWith125 = hasPlacedOut(RawRecordConstants.M125)
                               || prereqLogic.hasCreditFor(RawRecordConstants.M125);
+        Log.info("Done with 125: + " + doneWith125);
 
         boolean doneWith126 = hasPlacedOut(RawRecordConstants.M126)
                               || prereqLogic.hasCreditFor(RawRecordConstants.M126);
+        Log.info("Done with 126: + " + doneWith126);
 
         final boolean needsPrecalc = !doneWith117 || !doneWith118 || !doneWith124 || !doneWith125 || !doneWith126;
 
@@ -193,19 +198,21 @@ public class PrecalcTutorialLogic {
         // Tutorial by using the PCT### special student types - this can help a student with a transfer C who needs
         // the B (or placement) to get into Calculus.
 
-        if (pct126 && doneWith126 && prereqLogic.hasSatisfiedPrerequisitesByTransferFor(RawRecordConstants.M126)) {
+        if (pct126 && doneWith126 && prereqLogic.isCreditByTransferFor(RawRecordConstants.M126)) {
             doneWith126 = false;
         }
-        if (pct125 && doneWith125 && prereqLogic.hasSatisfiedPrerequisitesByTransferFor(RawRecordConstants.M125)) {
+        if (pct125 && doneWith125
+            && (prereqLogic.hasSatisfiedPrerequisitesByTransferFor(RawRecordConstants.M126)
+                || prereqLogic.isCreditByTransferFor(RawRecordConstants.M125))) {
             doneWith125 = false;
         }
-        if (pct124 && doneWith124 && prereqLogic.hasSatisfiedPrerequisitesByTransferFor(RawRecordConstants.M124)) {
+        if (pct124 && doneWith124 && prereqLogic.isCreditByTransferFor(RawRecordConstants.M124)) {
             doneWith124 = false;
         }
-        if (pct118 && doneWith118 && prereqLogic.hasSatisfiedPrerequisitesByTransferFor(RawRecordConstants.M118)) {
+        if (pct118 && doneWith118 && prereqLogic.isCreditByTransferFor(RawRecordConstants.M118)) {
             doneWith118 = false;
         }
-        if (pct117 && doneWith117 && prereqLogic.hasSatisfiedPrerequisitesByTransferFor(RawRecordConstants.M117)) {
+        if (pct117 && doneWith117 && prereqLogic.isCreditByTransferFor(RawRecordConstants.M117)) {
             doneWith117 = false;
         }
 
@@ -363,7 +370,7 @@ public class PrecalcTutorialLogic {
 
             try {
                 final LocalDate today = LocalDate.now();
-                final String stuId = "837401930";
+                final String stuId = "837165351";
 
                 final RawStudent student = RawStudentLogic.query(cache, stuId, false);
                 final PrerequisiteLogic prereq = new PrerequisiteLogic(cache, stuId);
@@ -389,7 +396,7 @@ public class PrecalcTutorialLogic {
         Log.fine("Student ", student.stuId, " (", screenName, ")");
         Log.fine(" Application term: ", student.aplnTerm);
 
-        Log.fine(" Eligible for Precalc Tutorial : "  + status.eligibleForPrecalcTutorial);
+        Log.fine(" Eligible for Precalc Tutorial : " + status.eligibleForPrecalcTutorial);
 
         final DateRangeGroups site = status.webSiteAvailability;
         if (site != null) {
