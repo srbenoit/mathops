@@ -50,16 +50,8 @@ public final class ScramServerStub {
 
         this.credManager = UserCredentialsManager.getInstance(cache);
 
-        Random rnd;
-        try {
-            rnd = SecureRandom.getInstanceStrong();
-        } catch (final NoSuchAlgorithmException ex) {
-            Log.warning(ex);
-            final long seed = System.currentTimeMillis();
-            rnd = new Random(seed);
-        }
-
-        this.random = rnd;
+        final long seed = System.currentTimeMillis() + System.nanoTime();
+        this.random = new Random(seed);
 
         this.requests = new ArrayList<>(10);
         this.tokenTimeouts = new HashMap<>(10);
@@ -86,6 +78,7 @@ public final class ScramServerStub {
         } else {
             try {
                 final ClientFirstMessage clientFirst = new ClientFirstMessage(hex);
+
                 final UserCredentials cred =
                         this.credManager.getCredentials(new String(clientFirst.normalizedUsername,
                                 StandardCharsets.UTF_8));
@@ -134,7 +127,7 @@ public final class ScramServerStub {
                 Request req = null;
                 for (final Request test : this.requests) {
                     if (Arrays.equals(cNonce, test.clientFirst.cNonce)
-                            && Arrays.equals(sNonce, test.serverFirst.sNonce)) {
+                        && Arrays.equals(sNonce, test.serverFirst.sNonce)) {
                         req = test;
                     }
                 }

@@ -1,6 +1,7 @@
 package dev.mathops.session.scramsha256;
 
 import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.log.Log;
 import dev.mathops.commons.parser.HexEncoder;
 
 import java.util.Arrays;
@@ -55,6 +56,18 @@ class ServerFirstMessage {
         }
         if (rnd == null) {
             throw new IllegalArgumentException("Random source may not be null");
+        }
+        if (theCredentials.normalizedUsername == null) {
+            throw new IllegalArgumentException("User credentials did not contain normalized username");
+        }
+        if (theCredentials.salt == null) {
+            throw new IllegalArgumentException("User credentials did not contain salt");
+        }
+        if (theClientFirst.normalizedUsername == null) {
+            throw new IllegalArgumentException("Client first message did not contain normalized username");
+        }
+        if (theClientFirst.cNonce == null) {
+            throw new IllegalArgumentException("Client first message did not contain client NONCE");
         }
         if (!Arrays.equals(theCredentials.normalizedUsername, theClientFirst.normalizedUsername)) {
             throw new IllegalArgumentException("User name in credentials does not match that in client-first");

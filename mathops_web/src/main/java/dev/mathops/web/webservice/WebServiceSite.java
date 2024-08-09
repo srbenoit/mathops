@@ -25,7 +25,7 @@ public final class WebServiceSite extends AbstractSite {
     private final Object sync;
 
     /** The server stub. */
-    private ScramServerStub stub;
+    private ScramServerStub stub = null;
 
     /**
      * Constructs a new {@code WebServiceSite}.
@@ -106,7 +106,8 @@ public final class WebServiceSite extends AbstractSite {
                     reply = processValidatedRequest(cache, subpath, credentials, req);
                 }
 
-                sendReply(req, resp, "text/plain", reply.getBytes(StandardCharsets.UTF_8));
+                final byte[] bytes = reply.getBytes(StandardCharsets.UTF_8);
+                sendReply(req, resp, MIME_TEXT_PLAIN, bytes);
             }
         }
     }
@@ -156,7 +157,8 @@ public final class WebServiceSite extends AbstractSite {
 
         // Log.info("POST Request to WebServiceSite, subpath=", subpath);
 
-        Log.warning(req.getRequestURI(), " (", subpath, ") not found");
+        final String requestURI = req.getRequestURI();
+        Log.warning(requestURI, " (", subpath, ") not found");
 
         resp.sendError(HttpServletResponse.SC_NOT_FOUND);
     }
@@ -186,7 +188,8 @@ public final class WebServiceSite extends AbstractSite {
 
         Log.info("SCRAM client first reply is ", reply);
 
-        sendReply(request, response, "text/plain", reply.getBytes(StandardCharsets.UTF_8));
+        final byte[] bytes = reply.getBytes(StandardCharsets.UTF_8);
+        sendReply(request, response, MIME_TEXT_PLAIN, bytes);
     }
 
     /**
@@ -213,6 +216,7 @@ public final class WebServiceSite extends AbstractSite {
 
         Log.info("SCRAM client final reply is ", reply);
 
-        sendReply(request, response, "text/plain", reply.getBytes(StandardCharsets.UTF_8));
+        final byte[] bytes = reply.getBytes(StandardCharsets.UTF_8);
+        sendReply(request, response, MIME_TEXT_PLAIN, bytes);
     }
 }

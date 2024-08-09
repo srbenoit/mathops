@@ -98,7 +98,7 @@ public final class MainWindow extends JFrame implements WindowListener, ChangeLi
                 || "fadir".equals(theUsername)
                 || "spdir".equals(theUsername)
                 || "smdir".equals(theUsername)) {
-            this.serverSiteUrl = "https://testing.math.colostate.edu/websvc/";
+            this.serverSiteUrl = "https://testingdev.math.colostate.edu/websvc/";
         } else {
             Log.warning("User not authorized to control testing stations remotely.");
             this.serverSiteUrl = null;

@@ -221,14 +221,14 @@ final class TestingManageCard extends AdmPanelBase implements ActionListener {
                             } catch (final URISyntaxException | IOException ex) {
                                 Log.warning(ex);
                             }
-                        }
-                    }
 
-                    try {
-                        Thread.sleep(100L);
-                    } catch (final InterruptedException ex) {
-                        Log.warning(ex);
-                        Thread.currentThread().interrupt();
+                            try {
+                                Thread.sleep(100L);
+                            } catch (final InterruptedException ex) {
+                                Log.warning(ex);
+                                Thread.currentThread().interrupt();
+                            }
+                        }
                     }
                 }
             } catch (final SQLException ex) {
