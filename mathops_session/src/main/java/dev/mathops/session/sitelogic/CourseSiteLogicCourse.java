@@ -697,7 +697,7 @@ public final class CourseSiteLogicCourse {
         final List<String> prereqs = this.data.registrationData.getPrerequisites(studentCourse.course);
         final int numPrereq = prereqs.size();
 
-        boolean prereq = numPrereq == 0;
+        boolean prereq = false;
         for (int j = 0; !prereq && j < numPrereq; ++j) {
             prereq = hasCourseAsPrereq(prereqs.get(j));
         }

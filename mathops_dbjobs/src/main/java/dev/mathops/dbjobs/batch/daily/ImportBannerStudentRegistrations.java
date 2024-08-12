@@ -34,6 +34,7 @@ import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.schema.AbstractImpl;
 import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.type.TermKey;
 import dev.mathops.dbjobs.report.SpecialOpenReport;
 
 import java.sql.ResultSet;
@@ -209,13 +210,13 @@ public final class ImportBannerStudentRegistrations {
 
             final String regSql =
                     "SELECT * FROM CSUS_MATH_REGISTRATION_" + suffix
-                            + " WHERE TERM = '" + term + "' "
-                            + "  AND SUBJECT_CODE='MATH'"
-                            + "  AND (COURSE_NUMBER='117' OR "
-                            + "       COURSE_NUMBER='118' OR "
-                            + "       COURSE_NUMBER='124' OR "
-                            + "       COURSE_NUMBER='125' OR "
-                            + "       COURSE_NUMBER='126')";
+                    + " WHERE TERM = '" + term + "' "
+                    + "  AND SUBJECT_CODE='MATH'"
+                    + "  AND (COURSE_NUMBER='117' OR "
+                    + "       COURSE_NUMBER='118' OR "
+                    + "       COURSE_NUMBER='124' OR "
+                    + "       COURSE_NUMBER='125' OR "
+                    + "       COURSE_NUMBER='126')";
 
             final LocalDate today = LocalDate.now();
 
@@ -278,7 +279,7 @@ public final class ImportBannerStudentRegistrations {
                                 "N", // stuProvided
                                 "Y", // finalClassRoll
                                 null, // examPlaced
-                                null, // zeroUunit
+                                null, // zeroUnit
                                 null, // timeoutFactor
                                 null, // forfeitI
                                 "N", // i-in-progress
@@ -612,7 +613,7 @@ public final class ImportBannerStudentRegistrations {
                     final RawStcourse nextDb = dbIter.next();
 
                     if (nextDb.stuId.equals(nextOds.stuId) && nextDb.course.equals(nextOds.course)
-                            && nextDb.sect.equals(nextOds.sect)) {
+                        && nextDb.sect.equals(nextOds.sect)) {
 
                         dbIter.remove();
                         searching = false;
@@ -705,7 +706,7 @@ public final class ImportBannerStudentRegistrations {
                     }
 
                     report.add("  Placement credit record to be added to STCOURSE for " + newRec.stuId + " / "
-                            + newRec.course + SECTION + newRec.sect + " (" + newRec.instrnType + ")");
+                               + newRec.course + SECTION + newRec.sect + " (" + newRec.instrnType + ")");
                     if (!DEBUG) {
                         RawStcourseLogic.INSTANCE.insert(cache, newRec);
                     }
@@ -728,7 +729,7 @@ public final class ImportBannerStudentRegistrations {
                 // Need to delete!
                 try {
                     report.add("  Placement credit record in STCOURSE for " + nextDb.stuId + " / " + nextDb.course
-                            + " is not present in Banner data and will be deleted.");
+                               + " is not present in Banner data and will be deleted.");
                     if (!DEBUG && !RawStcourseLogic.INSTANCE.delete(cache, nextDb)) {
                         report.add("  *** ERROR deleting STCOURSE placement credit record.");
                     }
@@ -786,7 +787,7 @@ public final class ImportBannerStudentRegistrations {
 
                 if (instrnType != null) {
                     report.add("  Updating instruction type to " + instrnType + FOR + test.course + SECTION
-                            + test.sect);
+                               + test.sect);
                     test.instrnType = instrnType;
                     odsRegs.set(i, test);
                 }
@@ -870,7 +871,7 @@ public final class ImportBannerStudentRegistrations {
         final Collection<String> studentIds = new HashSet<>(dbRegs.size());
         for (final RawStcourse obsolete : dbRegs) {
             report.add("  Marking as dropped registration for " + obsolete.stuId + " in " + obsolete.course + SECTION
-                    + obsolete.sect);
+                       + obsolete.sect);
 
             if (!DEBUG && RawStcourseLogic.updateOpenStatusAndFinalClassRoll(cache, obsolete.stuId,
                     obsolete.course, obsolete.sect, obsolete.termKey, "D", "N", obsolete.lastClassRollDt)) {
@@ -963,7 +964,7 @@ public final class ImportBannerStudentRegistrations {
                 }
 
                 report.add("  *** DUPLICATE loaded into DUP_REGISTR " + odsReg.course + SECTION + odsReg.sect + FOR
-                        + odsReg.stuId);
+                           + odsReg.stuId);
                 break;
             }
         }
@@ -974,15 +975,15 @@ public final class ImportBannerStudentRegistrations {
 
             if (odsCsect == null) {
                 report.add("  *** ERROR: STCOURSE section " + odsReg.sect + " not in CSECTION for " + odsReg.course
-                        + " ID: " + odsReg.stuId);
+                           + " ID: " + odsReg.stuId);
             } else if (odsReg.sect.equals(existing.sect)) {
 
                 if (!DEBUG) {
                     if (odsReg.gradingOption != null && !odsReg.gradingOption.equals(existing.gradingOption)) {
 
                         report.add("  Updating grading option from " + existing.gradingOption + " to "
-                                + odsReg.gradingOption + FOR + odsReg.course + SECTION + odsReg.sect + ": "
-                                + odsReg.stuId);
+                                   + odsReg.gradingOption + FOR + odsReg.course + SECTION + odsReg.sect + ": "
+                                   + odsReg.stuId);
 
                         if (RawStcourseLogic.updateGradingOption(cache, existing.stuId, existing.course, existing.sect,
                                 existing.termKey, odsReg.gradingOption)) {
@@ -994,8 +995,8 @@ public final class ImportBannerStudentRegistrations {
                     if (odsCsect.instrnType != null && !odsCsect.instrnType.equals(existing.instrnType)) {
 
                         report.add("  Updating instruction type from " + existing.instrnType + " to "
-                                + odsCsect.instrnType + FOR + odsReg.course + SECTION + odsReg.sect + ": "
-                                + odsReg.stuId);
+                                   + odsCsect.instrnType + FOR + odsReg.course + SECTION + odsReg.sect + ": "
+                                   + odsReg.stuId);
 
                         if (RawStcourseLogic.updateInstructionType(cache, existing.stuId, existing.course,
                                 existing.sect, existing.termKey, odsCsect.instrnType)) {
@@ -1007,7 +1008,7 @@ public final class ImportBannerStudentRegistrations {
                     final LocalDate now = LocalDate.now();
 
                     if ((!"Y".equals(existing.finalClassRoll) || !now.equals(existing.lastClassRollDt))
-                            && RawStcourseLogic.updateOpenStatusAndFinalClassRoll(cache, existing.stuId,
+                        && RawStcourseLogic.updateOpenStatusAndFinalClassRoll(cache, existing.stuId,
                             existing.course, existing.sect, existing.termKey, existing.openStatus, "Y", now)) {
 
                         existing.finalClassRoll = "Y";
@@ -1019,7 +1020,7 @@ public final class ImportBannerStudentRegistrations {
                 // Registration is changing sections
 
                 report.add("SECTION CHANGE for ID: " + odsReg.stuId + " in " + odsReg.course + " from " + existing.sect
-                        + " to " + odsReg.sect);
+                           + " to " + odsReg.sect);
 
                 // Mark old record as "dropped"
 
@@ -1112,7 +1113,7 @@ public final class ImportBannerStudentRegistrations {
         }
 
         report.add("  STCOURSE row created for ID: " + toInsert.stuId + CoreConstants.SPC + toInsert.course
-                + CoreConstants.SPC + toInsert.sect + CoreConstants.SPC + toInsert.instrnType);
+                   + CoreConstants.SPC + toInsert.sect + CoreConstants.SPC + toInsert.instrnType);
 
         final List<RawStcourse> regs = RawStcourseLogic.getActiveForStudent(cache, bannerReg.stuId, active.term);
 
@@ -1218,17 +1219,17 @@ public final class ImportBannerStudentRegistrations {
 
                     if (pace != existing.pace.intValue()) {
                         report.add(STUDENT + stuId + " had incorrect pace (was " + existing.pace + ", changing to "
-                                + pace + ").");
+                                   + pace + ").");
                         diff = true;
                     }
                     if (!track.equals(existing.paceTrack)) {
                         report.add(STUDENT + stuId + " had incorrect pace track (was " + existing.paceTrack
-                                + ", changing to " + track + ").");
+                                   + ", changing to " + track + ").");
                         diff = true;
                     }
                     if (!Objects.equals(first, existing.firstCourse)) {
                         report.add(STUDENT + stuId + " had incorrect first course (was " + existing.firstCourse
-                                + ", changing to " + first + ").");
+                                   + ", changing to " + first + ").");
                         diff = true;
                     }
 

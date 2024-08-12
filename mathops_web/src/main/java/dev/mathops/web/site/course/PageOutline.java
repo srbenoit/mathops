@@ -178,9 +178,7 @@ enum PageOutline {
         RawStcourse studentCourse = RawStcourseLogic.getRegistration(cache, userId, courseId);
         RawCsection csection;
 
-        if (studentCourse != null) {
-            csection = systemData.getCourseSection(courseId, studentCourse.sect, activeTerm.term);
-        } else {
+        if (studentCourse == null) {
             csection = systemData.getCourseSection(courseId, defaultSect, activeTerm.term);
             if (csection != null) {
                 studentCourse = new RawStcourse();
@@ -196,6 +194,8 @@ enum PageOutline {
                 studentCourse.instrnType = "CE";
                 studentCourse.synthetic = true;
             }
+        } else {
+            csection = systemData.getCourseSection(courseId, studentCourse.sect, activeTerm.term);
         }
 
         if (csection != null && "MAS".equals(csection.gradingStd)) {

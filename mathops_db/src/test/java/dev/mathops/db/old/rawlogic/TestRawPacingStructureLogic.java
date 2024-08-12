@@ -102,17 +102,17 @@ final class TestRawPacingStructureLogic {
                 final RawPacingStructure raw1 = new RawPacingStructure(fa21, "A", "B", "C", "D", Integer.valueOf(1),
                         "E", Integer.valueOf(2), Integer.valueOf(3), "F", "G", "H", "I", Integer.valueOf(4),
                         Integer.valueOf(5), Integer.valueOf(6), Integer.valueOf(7), Integer.valueOf(8), "J", "K", "L",
-                        "M", "N", "O", "P");
+                        "M", "N", "O", "P", null);
 
                 final RawPacingStructure raw2 = new RawPacingStructure(fa20, "a", "b", "c", "d", Integer.valueOf(11),
                         "e", Integer.valueOf(12), Integer.valueOf(13), "f", "g", "h", "i", Integer.valueOf(14),
                         Integer.valueOf(15), Integer.valueOf(16), Integer.valueOf(17), Integer.valueOf(18), "j", "k",
-                        "l", "m", "n", "o", "p");
+                        "l", "m", "n", "o", "p", null);
 
                 final RawPacingStructure raw3 = new RawPacingStructure(fa21, "Z", "Y", "X", "W", Integer.valueOf(0),
                         "V", Integer.valueOf(1), Integer.valueOf(2), "U", "T", "S", "R", Integer.valueOf(3),
                         Integer.valueOf(4), Integer.valueOf(5), Integer.valueOf(6), Integer.valueOf(7), "Q", "P", "O",
-                        "N", "M", "L", "K");
+                        "N", "M", "L", "K", null);
 
                 assertTrue(cache.getSystemData().insertTerm(term1), "Failed to insert term 1");
 
@@ -498,7 +498,7 @@ final class TestRawPacingStructureLogic {
                 final RawPacingStructure raw2 = new RawPacingStructure(fa20, "a", "b", "c", "d", Integer.valueOf(11),
                         "e", Integer.valueOf(12), Integer.valueOf(13), "f", "g", "h", "i", Integer.valueOf(14),
                         Integer.valueOf(15), Integer.valueOf(16), Integer.valueOf(17), Integer.valueOf(18), "j", "k",
-                        "l", "m", "n", "o", "p");
+                        "l", "m", "n", "o", "p", null);
 
                 final boolean result = RawPacingStructureLogic.INSTANCE.delete(cache, raw2);
                 assertTrue(result, "delete returned false");

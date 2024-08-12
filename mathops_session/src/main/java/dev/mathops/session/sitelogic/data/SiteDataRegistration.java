@@ -585,8 +585,7 @@ public final class SiteDataRegistration {
             }
 
             final List<String> coursePrereqs = this.prereqs.get(i);
-
-            boolean prereq = coursePrereqs.isEmpty();
+            boolean prereq = false;
 
             if (!prereq) {
                 // See if student has completed any course prerequisites

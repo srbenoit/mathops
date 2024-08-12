@@ -137,7 +137,7 @@ final class TestRawPacingStructure {
                 TEST_USERS_PROGRESS_CR, TEST_HW_PROGRESS_CR, TEST_RE_PROGRESS_CR, TEST_UE_PROGRESS_CR,
                 TEST_FIN_PROGRESS_CR, TEST_PACING_NAME, TEST_SCHEDULE_SOURCE, TEST_SR_DUE_DATE_ENFORCED,
                 TEST_RE_DUE_DATE_ENFORCED, TEST_UE_DUE_DATE_ENFORCED, TEST_FE_DUE_DATE_ENFORCED,
-                TEST_FIRST_OBJ_AVAIL);
+                TEST_FIRST_OBJ_AVAIL, null);
 
         assertEquals(TEST_TERM, obj.termKey, "Invalid term value after constructor");
         assertEquals(TEST_PACING_STRUCTURE, obj.pacingStructure, "Invalid pacing_structure value after constructor");
@@ -184,7 +184,7 @@ final class TestRawPacingStructure {
                 TEST_USERS_PROGRESS_CR, TEST_HW_PROGRESS_CR, TEST_RE_PROGRESS_CR, TEST_UE_PROGRESS_CR,
                 TEST_FIN_PROGRESS_CR, TEST_PACING_NAME, TEST_SCHEDULE_SOURCE, TEST_SR_DUE_DATE_ENFORCED,
                 TEST_RE_DUE_DATE_ENFORCED, TEST_UE_DUE_DATE_ENFORCED, TEST_FE_DUE_DATE_ENFORCED,
-                TEST_FIRST_OBJ_AVAIL);
+                TEST_FIRST_OBJ_AVAIL, null);
 
         final String ser = obj.toString();
 
