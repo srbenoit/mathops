@@ -87,6 +87,9 @@ public final class RawPacingStructure extends RawTermRecordBase implements Compa
     /** A field name. */
     private static final String FLD_FIRST_OBJ_AVAIL = "first_obj_avail";
 
+    /** A field name. */
+    private static final String FLD_FREE_EXTENSION_DAYS = "free_extension_days";
+
     /** The pacing structure to use when a student has none specified. */
     public static final String DEF_PACING_STRUCTURE = "M";
 
@@ -165,6 +168,9 @@ public final class RawPacingStructure extends RawTermRecordBase implements Compa
     /** The 'first_obj_avail' field value. */
     public String firstObjAvail;
 
+    /** The 'free_extension_days' field value. */
+    public Integer freeExtensionDays;
+
     /**
      * Constructs a new {@code RawPacingStructure}.
      */
@@ -201,21 +207,20 @@ public final class RawPacingStructure extends RawTermRecordBase implements Compa
      * @param theUDueDateEnforced   "Y" if due date is enforced on Unit exam, "N" if not
      * @param theFeDueDateEnforced  "Y" if due date is enforced on Final exam, "N" if not
      * @param theFirstObjAvail      "Y" if first objective is always available; "N" if not
+     * @param theFreeExtensionDays  the number of "free" extension days the student can take on request
      */
-    public RawPacingStructure(final TermKey theTermKey, final String thePacingStructure,
-                              final String theDefPaceTrack, final String theRequireLicensed,
-                              final String theRequirePartic, final Integer theMaxParticMissed, final String theAllowInc,
-                              final Integer theMaxCourses, final Integer theNbrOpenAllowed,
-                              final String theRequireUnitExams, final String theUseMidterms,
-                              final String theAllowCoupons,
+    public RawPacingStructure(final TermKey theTermKey, final String thePacingStructure, final String theDefPaceTrack,
+                              final String theRequireLicensed, final String theRequirePartic,
+                              final Integer theMaxParticMissed, final String theAllowInc, final Integer theMaxCourses,
+                              final Integer theNbrOpenAllowed, final String theRequireUnitExams,
+                              final String theUseMidterms, final String theAllowCoupons,
                               final String theCouponsAfterWindow, final Integer theUsersProgressCr,
                               final Integer theHwProgressCr, final Integer theReProgressCr,
-                              final Integer theUeProgressCr,
-                              final Integer theFinProgressCr, final String thePacingName,
-                              final String theScheduleSource,
-                              final String theSrDueDateEnforced, final String theReDueDateEnforced,
-                              final String theUDueDateEnforced, final String theFeDueDateEnforced,
-                              final String theFirstObjAvail) {
+                              final Integer theUeProgressCr, final Integer theFinProgressCr, final String thePacingName,
+                              final String theScheduleSource, final String theSrDueDateEnforced,
+                              final String theReDueDateEnforced, final String theUDueDateEnforced,
+                              final String theFeDueDateEnforced, final String theFirstObjAvail,
+                              final Integer theFreeExtensionDays) {
 
         super(theTermKey);
 
@@ -243,6 +248,7 @@ public final class RawPacingStructure extends RawTermRecordBase implements Compa
         this.ueDueDateEnforced = theUDueDateEnforced;
         this.feDueDateEnforced = theFeDueDateEnforced;
         this.firstObjAvail = theFirstObjAvail;
+        this.freeExtensionDays = theFreeExtensionDays;
     }
 
     /**
@@ -281,6 +287,9 @@ public final class RawPacingStructure extends RawTermRecordBase implements Compa
         result.ueDueDateEnforced = getStringField(rs, FLD_UE_DUE_DATE_ENFORCED);
         result.feDueDateEnforced = getStringField(rs, FLD_FE_DUE_DATE_ENFORCED);
         result.firstObjAvail = getStringField(rs, FLD_FIRST_OBJ_AVAIL);
+
+        // FIXME: Convert hardcode into database field
+        result.freeExtensionDays = Integer.valueOf(2);
 
         return result;
     }
@@ -364,6 +373,8 @@ public final class RawPacingStructure extends RawTermRecordBase implements Compa
         appendField(htm, FLD_FE_DUE_DATE_ENFORCED, this.feDueDateEnforced);
         htm.add(DIVIDER);
         appendField(htm, FLD_FIRST_OBJ_AVAIL, this.firstObjAvail);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_FREE_EXTENSION_DAYS, this.freeExtensionDays);
 
         return htm.toString();
     }
@@ -377,30 +388,31 @@ public final class RawPacingStructure extends RawTermRecordBase implements Compa
     public int hashCode() {
 
         return Objects.hashCode(this.termKey)
-                + Objects.hashCode(this.pacingStructure)
-                + Objects.hashCode(this.defPaceTrack)
-                + Objects.hashCode(this.requireLicensed)
-                + Objects.hashCode(this.requirePartic)
-                + Objects.hashCode(this.maxParticMissed)
-                + Objects.hashCode(this.allowInc)
-                + Objects.hashCode(this.maxCourses)
-                + Objects.hashCode(this.nbrOpenAllowed)
-                + Objects.hashCode(this.requireUnitExams)
-                + Objects.hashCode(this.useMidterms)
-                + Objects.hashCode(this.allowCoupons)
-                + Objects.hashCode(this.couponsAfterWindow)
-                + Objects.hashCode(this.usersProgressCr)
-                + Objects.hashCode(this.hwProgressCr)
-                + Objects.hashCode(this.reProgressCr)
-                + Objects.hashCode(this.ueProgressCr)
-                + Objects.hashCode(this.finProgressCr)
-                + Objects.hashCode(this.pacingName)
-                + Objects.hashCode(this.scheduleSource)
-                + Objects.hashCode(this.srDueDateEnforced)
-                + Objects.hashCode(this.reDueDateEnforced)
-                + Objects.hashCode(this.ueDueDateEnforced)
-                + Objects.hashCode(this.feDueDateEnforced)
-                + Objects.hashCode(this.firstObjAvail);
+               + Objects.hashCode(this.pacingStructure)
+               + Objects.hashCode(this.defPaceTrack)
+               + Objects.hashCode(this.requireLicensed)
+               + Objects.hashCode(this.requirePartic)
+               + Objects.hashCode(this.maxParticMissed)
+               + Objects.hashCode(this.allowInc)
+               + Objects.hashCode(this.maxCourses)
+               + Objects.hashCode(this.nbrOpenAllowed)
+               + Objects.hashCode(this.requireUnitExams)
+               + Objects.hashCode(this.useMidterms)
+               + Objects.hashCode(this.allowCoupons)
+               + Objects.hashCode(this.couponsAfterWindow)
+               + Objects.hashCode(this.usersProgressCr)
+               + Objects.hashCode(this.hwProgressCr)
+               + Objects.hashCode(this.reProgressCr)
+               + Objects.hashCode(this.ueProgressCr)
+               + Objects.hashCode(this.finProgressCr)
+               + Objects.hashCode(this.pacingName)
+               + Objects.hashCode(this.scheduleSource)
+               + Objects.hashCode(this.srDueDateEnforced)
+               + Objects.hashCode(this.reDueDateEnforced)
+               + Objects.hashCode(this.ueDueDateEnforced)
+               + Objects.hashCode(this.feDueDateEnforced)
+               + Objects.hashCode(this.firstObjAvail)
+               + Objects.hashCode(this.freeExtensionDays);
     }
 
     /**
@@ -441,7 +453,8 @@ public final class RawPacingStructure extends RawTermRecordBase implements Compa
                     && Objects.equals(this.reDueDateEnforced, rec.reDueDateEnforced)
                     && Objects.equals(this.ueDueDateEnforced, rec.ueDueDateEnforced)
                     && Objects.equals(this.feDueDateEnforced, rec.feDueDateEnforced)
-                    && Objects.equals(this.firstObjAvail, rec.firstObjAvail);
+                    && Objects.equals(this.firstObjAvail, rec.firstObjAvail)
+                    && Objects.equals(this.freeExtensionDays, rec.freeExtensionDays);
         } else {
             equal = false;
         }

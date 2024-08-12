@@ -82,9 +82,9 @@ public final class StudentStandardMilestoneRec extends RecBase
      * @param theMsType    the milestone type
      * @param theMsDate    the milestone date
      */
-    public StudentStandardMilestoneRec(final String theStuId, final String thePaceTrack,
-                                       final Integer thePace, final Integer thePaceIndex, final Integer theUnit,
-                                       final Integer theObjective, final String theMsType, final LocalDate theMsDate) {
+    public StudentStandardMilestoneRec(final String theStuId, final String thePaceTrack, final Integer thePace,
+                                       final Integer thePaceIndex, final Integer theUnit, final Integer theObjective,
+                                       final String theMsType, final LocalDate theMsDate) {
 
         super();
 

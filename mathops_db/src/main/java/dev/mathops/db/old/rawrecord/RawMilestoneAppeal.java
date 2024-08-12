@@ -48,6 +48,30 @@ public final class RawMilestoneAppeal extends RawTermRecordBase implements Compa
     /** The table name. */
     public static final String TABLE_NAME = "milestone_appeal";
 
+    /** An appeal type (accommodation). */
+    public static final String APPEAL_TYPE_ACC = "ACC";
+
+    /** An appeal type (excused absence). */
+    public static final String APPEAL_TYPE_EXC = "EXC";
+
+    /** An appeal type (close to finishing). */
+    public static final String APPEAL_TYPE_FIN = "FIN";
+
+    /** An appeal type (medical). */
+    public static final String APPEAL_TYPE_MED = "MED";
+
+    /** An appeal type (family emergency). */
+    public static final String APPEAL_TYPE_FAM = "FAM";
+
+    /** An appeal type (requested automatic extension) */
+    public static final String APPEAL_TYPE_REQ = "REQ";
+
+    /** An appeal type (automatically-applied automatic extension) */
+    public static final String APPEAL_TYPE_AUT = "AUT";
+
+    /** An appeal type (other) */
+    public static final String APPEAL_TYPE_OTH = "OTH";
+
     /** A field name. */
     private static final String FLD_STU_ID = "stu_id";
 
