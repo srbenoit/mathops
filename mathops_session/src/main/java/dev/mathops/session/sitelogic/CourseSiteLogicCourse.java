@@ -6,6 +6,7 @@ import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.logic.PaceTrackLogic;
+import dev.mathops.db.old.logic.PrerequisiteLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCourse;
@@ -563,7 +564,7 @@ public final class CourseSiteLogicCourse {
                             continue;
                         }
                     } else if (lastTryDeadlineDay.isBefore(today) && paceDeadlineDay.isBefore(today)
-                            && this.courseLabels.containsKey(courseId)) {
+                               && this.courseLabels.containsKey(courseId)) {
                         this.pastDeadlineCourses.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
                         continue;
                     } else if (paceDeadlineDay.isBefore(today)) {
@@ -605,7 +606,7 @@ public final class CourseSiteLogicCourse {
             }
 
             if ("Y".equals(openStatus) && ("Y".equals(prereq) || "P".equals(prereq))
-                    && this.courseLabels.containsKey(courseId)) {
+                && this.courseLabels.containsKey(courseId)) {
                 this.inProgressCourses.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
             }
         }
@@ -668,7 +669,7 @@ public final class CourseSiteLogicCourse {
                         }
                     }
                 } else if ("Y".equals(studentCourse.prereqSatis)
-                        || "P".equals(studentCourse.prereqSatis)) {
+                           || "P".equals(studentCourse.prereqSatis)) {
                     this.incUnopened = true;
                 } else if (checkPrerequisites(cache, studentCourse)) {
                     this.availableIncCourses.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
@@ -691,20 +692,15 @@ public final class CourseSiteLogicCourse {
      * @return {@code true} if prerequisites were satisfied; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    private boolean checkPrerequisites(final Cache cache, final RawStcourse studentCourse)
-            throws SQLException {
+    private boolean checkPrerequisites(final Cache cache, final RawStcourse studentCourse) throws SQLException {
 
-        final List<String> prereqs = this.data.registrationData.getPrerequisites(studentCourse.course);
-        final int numPrereq = prereqs.size();
+        final PrerequisiteLogic logic = new PrerequisiteLogic(cache, studentCourse.stuId);
 
-        boolean prereq = false;
-        for (int j = 0; !prereq && j < numPrereq; ++j) {
-            prereq = hasCourseAsPrereq(prereqs.get(j));
-        }
+        final boolean prereq = logic.hasSatisfiedPrerequisitesFor(studentCourse.course);
 
-        if (prereq && RawStcourseLogic.updatePrereqSatisfied(cache, studentCourse.stuId,
-                studentCourse.course, studentCourse.sect, studentCourse.termKey, "Y")) {
-
+        if (prereq) {
+            RawStcourseLogic.updatePrereqSatisfied(cache, studentCourse.stuId,
+                    studentCourse.course, studentCourse.sect, studentCourse.termKey, "Y");
             studentCourse.prereqSatis = "Y";
         }
 
@@ -930,21 +926,21 @@ public final class CourseSiteLogicCourse {
             // NOTE: Equality comparison of CourseInfo is only based on course ID...
 
             if (this.availableCourses.contains(courseInfo)
-                    || this.unavailableCourses.contains(courseInfo)
-                    || this.noPrereqCourses.contains(courseInfo)
-                    || this.inProgressCourses.contains(courseInfo)
-                    || this.pastDeadlineCourses.contains(courseInfo)
-                    || this.completedCourses.contains(courseInfo)
-                    || this.forfeitCourses.contains(courseInfo)
-                    || this.notAvailableCourses.contains(courseInfo)
-                    || this.otCreditCourses.contains(courseInfo)
-                    || this.availableIncCourses.contains(courseInfo)
-                    || this.unavailableIncCourses.contains(courseInfo)
-                    || this.noPrereqIncCourses.contains(courseInfo)
-                    || this.inProgressIncCourses.contains(courseInfo)
-                    || this.completedIncCourses.contains(courseInfo)
-                    || this.pastDeadlineIncCourses.contains(courseInfo)
-                    || this.forfeitInc.contains(courseInfo)) {
+                || this.unavailableCourses.contains(courseInfo)
+                || this.noPrereqCourses.contains(courseInfo)
+                || this.inProgressCourses.contains(courseInfo)
+                || this.pastDeadlineCourses.contains(courseInfo)
+                || this.completedCourses.contains(courseInfo)
+                || this.forfeitCourses.contains(courseInfo)
+                || this.notAvailableCourses.contains(courseInfo)
+                || this.otCreditCourses.contains(courseInfo)
+                || this.availableIncCourses.contains(courseInfo)
+                || this.unavailableIncCourses.contains(courseInfo)
+                || this.noPrereqIncCourses.contains(courseInfo)
+                || this.inProgressIncCourses.contains(courseInfo)
+                || this.completedIncCourses.contains(courseInfo)
+                || this.pastDeadlineIncCourses.contains(courseInfo)
+                || this.forfeitInc.contains(courseInfo)) {
                 continue;
             }
 
@@ -960,7 +956,7 @@ public final class CourseSiteLogicCourse {
 
             // CSU Online students can take MATH 117 without prereq, but get ELM as unit 0 if prereq is not satisfied
             if (!prereq && RawRecordConstants.M117.equals(courseId)
-                    && (!stcourse.sect.isEmpty() && (int) stcourse.sect.charAt(0) == (int) '8')) {
+                && (!stcourse.sect.isEmpty() && (int) stcourse.sect.charAt(0) == (int) '8')) {
                 prereq = true;
             }
 
@@ -1025,9 +1021,9 @@ public final class CourseSiteLogicCourse {
         // available courses (regular or incomplete), the student is stuck.
 
         this.blocked = this.inProgressCourses.isEmpty() && this.availableCourses.isEmpty()
-                && this.inProgressIncCourses.isEmpty() && this.availableIncCourses.isEmpty() &&
-                !(this.unavailableCourses.isEmpty() && this.noPrereqCourses.isEmpty()
-                        && this.unavailableIncCourses.isEmpty() && this.noPrereqIncCourses.isEmpty());
+                       && this.inProgressIncCourses.isEmpty() && this.availableIncCourses.isEmpty() &&
+                       !(this.unavailableCourses.isEmpty() && this.noPrereqCourses.isEmpty()
+                         && this.unavailableIncCourses.isEmpty() && this.noPrereqIncCourses.isEmpty());
     }
 
     /**

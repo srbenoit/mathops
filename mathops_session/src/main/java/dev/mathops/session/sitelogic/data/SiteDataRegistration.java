@@ -5,6 +5,7 @@ import dev.mathops.db.enums.ERole;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.logic.PaceTrackLogic;
+import dev.mathops.db.old.logic.PrerequisiteLogic;
 import dev.mathops.db.old.rawlogic.RawFfrTrnsLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawSttermLogic;
@@ -276,7 +277,7 @@ public final class SiteDataRegistration {
                 this.prereqs.add(prerequisites);
             }
 
-            final boolean b6 = checkPrerequisites(cache);
+            final boolean b6 = checkPrerequisites(cache, studentId);
             final boolean b7 = loadPaceRegistrations(cache);
             final boolean b8 = determineStudentRuleSet(cache);
             final boolean b9 = determinePaceTrack(cache);
@@ -569,73 +570,28 @@ public final class SiteDataRegistration {
      * satisfied.
      *
      * @param cache the data cache
+     * @param stuId the student ID
      * @return {@code true} if process succeeded; {@code false} on error
      * @throws SQLException if an error occurs reading data
      */
-    private boolean checkPrerequisites(final Cache cache) throws SQLException {
+    private boolean checkPrerequisites(final Cache cache, final String stuId) throws SQLException {
 
         final boolean success = true;
 
-        final int count = this.registrations.size();
-        for (int i = 0; i < count; ++i) {
-            final RawStcourse stcourse = this.registrations.get(i);
+        final PrerequisiteLogic logic = new PrerequisiteLogic(cache, stuId);
 
+        for (final RawStcourse stcourse : this.registrations) {
             if ("Y".equals(stcourse.prereqSatis)) {
                 continue;
             }
 
-            final List<String> coursePrereqs = this.prereqs.get(i);
-            boolean prereq = false;
-
-            if (!prereq) {
-                // See if student has completed any course prerequisites
-                outer:
-                for (final String coursePrereq : coursePrereqs) {
-                    for (final RawStcourse comp : this.allCompletedCourses) {
-                        if (coursePrereq.equals(comp.course)) {
-                            prereq = true;
-                            break outer;
-                        }
-                    }
-                }
-            }
-
-            if (!prereq) {
-                // See if there is a placement result satisfying prerequisite
-                final List<RawMpeCredit> placeCred = this.owner.studentData.getStudentPlacementCredit();
-                outer:
-                for (final String coursePrereq : coursePrereqs) {
-                    for (final RawMpeCredit cred : placeCred) {
-                        if (coursePrereq.equals(cred.course)) {
-                            prereq = true;
-                            break outer;
-                        }
-                    }
-                }
-            }
-
-            if (!prereq) {
-                // See if there are transfer credits satisfying the prerequisite
-                outer:
-                for (final String coursePrereq : coursePrereqs) {
-                    for (final RawFfrTrns cred : this.transferCredit) {
-                        if (coursePrereq.equals(cred.course)) {
-                            prereq = true;
-                            break outer;
-                        }
-                    }
-                }
-            }
-
-            if (prereq) {
+            if (logic.hasSatisfiedPrerequisitesFor(stcourse.course)) {
                 if (RawStcourseLogic.updatePrereqSatisfied(cache, stcourse.stuId, stcourse.course,
                         stcourse.sect, stcourse.termKey, "Y")) {
                     stcourse.prereqSatis = "Y";
                 }
-
-                this.registrations.set(i, stcourse);
-            } else if (RawStcourseLogic.testProvisionalPrereqSatisfied(stcourse)) {
-                this.registrations.set(i, stcourse);
+            } else {
+                RawStcourseLogic.testProvisionalPrereqSatisfied(stcourse);
             }
         }
 
@@ -684,7 +640,7 @@ public final class SiteDataRegistration {
             } else if (stcourse.paceOrder != null) {
                 // Does not count toward pace, so make sure it has no pace order
                 Log.info("loadPaceRegistrations setting " + stcourse.course
-                        + " pace order to null for " + stcourse.stuId);
+                         + " pace order to null for " + stcourse.stuId);
                 updatePaceOrder(cache, stcourse, null);
                 this.registrations.set(i, stcourse);
             }
@@ -711,8 +667,8 @@ public final class SiteDataRegistration {
         for (final RawStcourse stcourse : this.registrations) {
             // Placement-credit, forfeit registrations, and incompletes are not considered
             if (stcourse.iDeadlineDt != null
-                    // FIXME remove once getRegistrationData omits AP credit records
-                    || "OT".equals(stcourse.instrnType) || "G".equals(stcourse.openStatus)) {
+                // FIXME remove once getRegistrationData omits AP credit records
+                || "OT".equals(stcourse.instrnType) || "G".equals(stcourse.openStatus)) {
                 continue;
             }
 
@@ -750,7 +706,7 @@ public final class SiteDataRegistration {
 
             if (record == null) {
                 this.owner.setError("Unable to query for default pacing structure "
-                        + RawPacingStructure.DEF_PACING_STRUCTURE);
+                                    + RawPacingStructure.DEF_PACING_STRUCTURE);
                 success = false;
             } else {
                 this.owner.studentData.setStudentPacingStructure(record);
@@ -809,7 +765,7 @@ public final class SiteDataRegistration {
                 success = true;
             } else // Record exists - verify its contents, and update if needed
                 if (Integer.valueOf(pace).equals(stTerm.pace) && track.equals(stTerm.paceTrack)
-                        && first.equals(stTerm.firstCourse)) {
+                    && first.equals(stTerm.firstCourse)) {
 
                     // All fields match - no change needed
                     success = true;

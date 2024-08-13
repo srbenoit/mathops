@@ -553,8 +553,7 @@ public final class ImportBannerStudentRegistrations {
                                                  final Collection<? super String> report) throws SQLException {
 
         // Get all non-Dropped registrations in our database (includes OT registrations)
-        final List<RawStcourse> dbRegs =
-                RawStcourseLogic.queryByTerm(cache, active.term, true, false);
+        final List<RawStcourse> dbRegs = RawStcourseLogic.queryByTerm(cache, active.term, true, false);
 
         // Move local-database records with "I In Progress = 'Y'" or an "I Deadline Dt" into a
         // separate list
