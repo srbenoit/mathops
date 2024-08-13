@@ -11,7 +11,9 @@ import dev.mathops.db.old.svc.term.TermRec;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.SequencedCollection;
+import java.util.TreeSet;
 
 /**
  * Logic relating to the calculation of pace track.
@@ -77,11 +79,10 @@ public enum PaceTrackLogic {
             // Do not count "credit by challenge exam" registration
             counts = false;
         } else {
-            // Do not count dropped or "ignored" registrations, as well as Incompletes that
-            // are not counted toward pace
+            // Do not count dropped or "ignored" registrations, as well as Incompletes that are not counted toward pace
             final String status = test.openStatus;
-            counts = !"D".equals(status) && !"G".equals(status) &&
-                     (!"Y".equals(test.iInProgress) || !"N".equals(test.iCounted));
+            counts = !("D".equals(status) || "G".equals(status) ||
+                       ("Y".equals(test.iInProgress) && "N".equals(test.iCounted)));
         }
 
         return counts;
@@ -99,7 +100,9 @@ public enum PaceTrackLogic {
     public static String determinePaceTrack(final Iterable<RawStcourse> registrations, final int pace) {
 
         // Determine section number - look first for non-Incompletes, then for Incompletes
-        String sect = null;
+
+        final Collection<String> foundSections = new TreeSet<>(); // Must be a sorted set - see below....
+
         for (final RawStcourse test : registrations) {
             if (isApplicableCourse(test.course)) {
                 if (test.synthetic || "OT".equals(test.instrnType)) {
@@ -107,16 +110,14 @@ public enum PaceTrackLogic {
                 }
                 if ("N".equals(test.iInProgress)) {
                     final String status = test.openStatus;
-
                     if ((!"D".equals(status) && !"G".equals(status))) {
-                        sect = test.sect;
-                        break;
+                        foundSections.add(test.sect);
                     }
                 }
             }
         }
 
-        if (sect == null) {
+        if (foundSections.isEmpty()) {
             // Look next at counted incompletes (if we get here, the student has ONLY incompletes)
             for (final RawStcourse test : registrations) {
                 if (isApplicableCourse(test.course)) {
@@ -124,15 +125,13 @@ public enum PaceTrackLogic {
                         continue;
                     }
                     if ("Y".equals(test.iInProgress) && "Y".equals(test.iCounted)) {
-
-                        sect = test.sect;
-                        break;
+                        foundSections.add(test.sect);
                     }
                 }
             }
         }
 
-        if (sect == null) {
+        if (foundSections.isEmpty()) {
             // Last check is for non-counted incompletes (if we get here, the student has ONLY non-counted incompletes)
             for (final RawStcourse test : registrations) {
                 if (isApplicableCourse(test.course)) {
@@ -143,13 +142,19 @@ public enum PaceTrackLogic {
                     if ("D".equals(status) || "G".equals(status)) {
                         continue;
                     }
-
                     if ("Y".equals(test.iInProgress) && "N".equals(test.iCounted)) {
-                        sect = test.sect;
+                        foundSections.add(test.sect);
                     }
                 }
             }
         }
+
+        // Students might have a mix of online (001 and 002) and face-to-face (higher) - if that occurs, we want to
+        // assign their pace track based on the online section, then do overrides for deadlines in the face-to-face.
+        // We can achieve this by sorting the section numbers we find numerically and taking the lowest, and because
+        // we used a TreeSet for section numbers, we just need to use the first entry
+
+        final String sect = foundSections.isEmpty() ? null : foundSections.iterator().next();
 
         // Default track is "A" (used for all 3-course, 4-course, and 5-course pace students)
         String track = "A";
@@ -388,13 +393,13 @@ public enum PaceTrackLogic {
 
         final TermRec active = cache.getSystemData().getActiveTerm();
 
-        if (active != null) {
+        if (Objects.nonNull(active)) {
             final int pace = determinePace(registrations);
 
             final RawStterm existing = RawSttermLogic.query(cache, active.term, studentId);
 
             if (pace == 0) {
-                if (existing != null) {
+                if (Objects.nonNull(existing)) {
                     Log.info("Deleting STTERM <", existing.termKey.shortString, ",", existing.stuId, ",",
                             existing.pace, ",", existing.paceTrack, ",", existing.firstCourse, ">");
 
@@ -414,8 +419,8 @@ public enum PaceTrackLogic {
 
                     RawSttermLogic.INSTANCE.insert(cache, newRec);
 
-                } else if (existing.pace.intValue() != pace || !existing.paceTrack.equals(track)
-                           || !existing.firstCourse.equals(first)) {
+                } else if (!(existing.pace.intValue() == pace && existing.paceTrack.equals(track)
+                             && existing.firstCourse.equals(first))) {
 
                     final String paceStr = Integer.toString(pace);
                     Log.info("Updating STTERM <", active.term.shortString, ",", studentId, ",", paceStr, ",", track,

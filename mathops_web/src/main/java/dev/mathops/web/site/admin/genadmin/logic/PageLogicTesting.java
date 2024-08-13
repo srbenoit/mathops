@@ -1,4 +1,4 @@
-package dev.mathops.web.site.admin.genadmin.siteadmin;
+package dev.mathops.web.site.admin.genadmin.logic;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.Cache;
@@ -9,21 +9,21 @@ import dev.mathops.web.site.admin.AdminSite;
 import dev.mathops.web.site.admin.genadmin.EAdmSubtopic;
 import dev.mathops.web.site.admin.genadmin.EAdminTopic;
 import dev.mathops.web.site.admin.genadmin.GenAdminPage;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 /**
- * The Website Administration page.
+ * The top-level logic testing page.
  */
-public enum PageSiteAdmin {
+public enum PageLogicTesting {
     ;
 
     /**
-     * Generates the website administration page.
+     * Generates the logic testing page.
      *
      * @param cache   the data cache
      * @param site    the owning site
@@ -39,14 +39,15 @@ public enum PageSiteAdmin {
 
         final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
 
-        GenAdminPage.emitNavBlock(EAdminTopic.SITE_ADMIN, htm);
-        htm.sH(1).add("Web Site Administration").eH(1);
+        GenAdminPage.emitNavBlock(EAdminTopic.LOGIC_TESTING, htm);
+        htm.sH(1).add("Logic Testing").eH(1);
 
         emitNavMenu(htm, null);
         htm.hr().div("vgap");
 
         Page.endOrdinaryPage(cache, site, htm, true);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
     }
 
     /**
@@ -56,13 +57,14 @@ public enum PageSiteAdmin {
      * @param htm      the {@code HtmlBuilder} to which to append
      * @param selected the subtopic to show as selected
      */
-    private static void emitNavMenu(final HtmlBuilder htm, final EAdmSubtopic selected) {
+    static void emitNavMenu(final HtmlBuilder htm, final EAdmSubtopic selected) {
 
         htm.addln("<nav>");
 
-        // TODO:
-        // navButtonSmall(htm, selected, EAdmSubtopic.SRV_SESSIONS, null);
-        // navButtonSmall(htm, selected, EAdmSubtopic.SRV_DIAGNOSTICS, null);
+        GenAdminPage.navButtonSmall(htm, selected, EAdmSubtopic.LOGIC_REGISTRATIONS, null);
+        GenAdminPage.navButtonSmall(htm, selected, EAdmSubtopic.LOGIC_PREREQUISITES, null);
+        GenAdminPage.navButtonSmall(htm, selected, EAdmSubtopic.LOGIC_CALENDAR, null);
+        GenAdminPage.navButtonSmall(htm, selected, EAdmSubtopic.LOGIC_MILESTONES, null);
 
         htm.addln("</nav>");
     }

@@ -40,6 +40,7 @@ public enum PageServerAdmin {
         final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
 
         GenAdminPage.emitNavBlock(EAdminTopic.SERVER_ADMIN, htm);
+        htm.sH(1).add("Server Administration").eH(1);
 
         emitNavMenu(htm, null);
         htm.hr().div("vgap");

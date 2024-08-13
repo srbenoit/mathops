@@ -153,8 +153,8 @@ public final class PageServerAdminSessions {
             htm.sTd().add(sess.screenName).eTd();
             htm.sTd().add(sess.role.abbrev).eTd();
             htm.sTd().add(sess.actAsUserId == null ? CoreConstants.EMPTY : sess.actAsUserId).eTd();
-            htm.sTd().add(GenAdminPage.formatMsDuration(Duration.between(sess.lastActivity, now).toMillis())).eTd();
-            htm.sTd().add(GenAdminPage.formatMsDuration(sess.getTimeUntilPurge())).eTd();
+            htm.sTd().add(formatMsDuration(Duration.between(sess.lastActivity, now).toMillis())).eTd();
+            htm.sTd().add(formatMsDuration(sess.getTimeUntilPurge())).eTd();
             htm.sTd();
             // htm.addln("<form action='srvadm_sessions.html' method='post'>");
             // htm.addln(" <input type='hidden' name='action' value='terminate'>");
@@ -228,8 +228,8 @@ public final class PageServerAdminSessions {
                 htm.sTd().add(sess.getState().name()).eTd();
             }
             htm.sTd().add(sess.isStarted() ? "Yes" : "No").eTd();
-            htm.sTd().add(GenAdminPage.formatMsDuration(sess.getTimeRemaining())).eTd();
-            htm.sTd().add(GenAdminPage.formatMsDuration(sess.getTimeUntilPurge())).eTd();
+            htm.sTd().add(formatMsDuration(sess.getTimeRemaining())).eTd();
+            htm.sTd().add(formatMsDuration(sess.getTimeUntilPurge())).eTd();
             htm.sTd().add(sess.getError()).eTd();
 
             final EForceTerminateState force = sess.getForceTerminate();
@@ -350,7 +350,7 @@ public final class PageServerAdminSessions {
                 htm.sTd().add(sess.getState().name()).eTd();
             }
             htm.sTd().add(sess.isStarted() ? "Yes" : "No").eTd();
-            htm.sTd().add(GenAdminPage.formatMsDuration(sess.getTimeRemaining())).eTd();
+            htm.sTd().add(formatMsDuration(sess.getTimeRemaining())).eTd();
             htm.sTd().add(sess.redirectOnEnd).eTd();
 
             final EForceTerminateState force = sess.getForceTerminate();
@@ -474,7 +474,7 @@ public final class PageServerAdminSessions {
             }
             htm.sTd().add(sess.practice ? "Yes" : "No").eTd();
             htm.sTd().add(sess.isStarted() ? "Yes" : "No").eTd();
-            htm.sTd().add(GenAdminPage.formatMsDuration(sess.getTimeRemaining())).eTd();
+            htm.sTd().add(formatMsDuration(sess.getTimeRemaining())).eTd();
             htm.sTd().add(sess.redirectOnEnd).eTd();
 
             final EForceTerminateState force = sess.getForceTerminate();
@@ -596,7 +596,7 @@ public final class PageServerAdminSessions {
                 htm.sTd().add(sess.getState().name()).eTd();
             }
             htm.sTd().add(sess.isStarted() ? "Yes" : "No").eTd();
-            htm.sTd().add(GenAdminPage.formatMsDuration(sess.getTimeRemaining())).eTd();
+            htm.sTd().add(formatMsDuration(sess.getTimeRemaining())).eTd();
             htm.sTd().add(sess.redirectOnEnd).eTd();
 
             final EForceTerminateState force = sess.getForceTerminate();
@@ -716,7 +716,7 @@ public final class PageServerAdminSessions {
                 htm.sTd().add(sess.version).eTd();
                 htm.sTd().add(sess.getState().name()).eTd();
                 htm.sTd().add(sess.practice ? "Yes" : "No").eTd();
-                htm.sTd().add(GenAdminPage.formatMsDuration(sess.getTimeRemaining())).eTd();
+                htm.sTd().add(formatMsDuration(sess.getTimeRemaining())).eTd();
                 htm.sTd().add(sess.redirectOnEnd).eTd();
 
                 final EForceTerminateState force = sess.getForceTerminate();
@@ -808,7 +808,7 @@ public final class PageServerAdminSessions {
             } else {
                 htm.sTd().add(sess.getState().name()).eTd();
             }
-            htm.sTd().add(GenAdminPage.formatMsDuration(sess.getTimeRemaining())).eTd();
+            htm.sTd().add(formatMsDuration(sess.getTimeRemaining())).eTd();
             htm.sTd().add(sess.redirectOnEnd).eTd();
 
             final EForceTerminateState force = sess.getForceTerminate();
@@ -900,7 +900,7 @@ public final class PageServerAdminSessions {
             } else {
                 htm.sTd().add(sess.getState().name()).eTd();
             }
-            htm.sTd().add(GenAdminPage.formatMsDuration(sess.getTimeRemaining())).eTd();
+            htm.sTd().add(formatMsDuration(sess.getTimeRemaining())).eTd();
             htm.sTd().add(sess.redirectOnEnd).eTd();
 
             final EForceTerminateState force = sess.getForceTerminate();
@@ -1670,5 +1670,40 @@ public final class PageServerAdminSessions {
         }
 
         doGet(cache, site, req, resp, session);
+    }
+
+    /**
+     * Formats a duration in milliseconds as a string of the form "#:##:##".
+     *
+     * @param duration the duration
+     * @return the formatted string
+     */
+    public static String formatMsDuration(final long duration) {
+
+        final String result;
+
+        if (duration < 0L) {
+            result = "negative";
+        } else {
+            final long sec = (duration + 500L) / 1000L;
+            final long ss = sec % 60L;
+            final long mm = sec / 60L % 60L;
+            final long hr = sec / 3600L;
+
+            final StringBuilder sb = new StringBuilder(20);
+            sb.append(hr).append(':');
+            if (mm < 10L) {
+                sb.append('0');
+            }
+            sb.append(mm).append(':');
+            if (ss < 10L) {
+                sb.append('0');
+            }
+            sb.append(ss);
+
+            result = sb.toString();
+        }
+
+        return result;
     }
 }

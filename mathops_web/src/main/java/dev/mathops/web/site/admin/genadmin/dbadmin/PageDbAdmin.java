@@ -9,6 +9,7 @@ import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.admin.AdminSite;
 import dev.mathops.web.site.admin.genadmin.EAdmSubtopic;
+import dev.mathops.web.site.admin.genadmin.EAdminTopic;
 import dev.mathops.web.site.admin.genadmin.GenAdminPage;
 
 import jakarta.servlet.ServletRequest;
@@ -39,8 +40,9 @@ public enum PageDbAdmin {
             throws IOException, SQLException {
 
         final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
-        htm.sH(2, "gray").add("Database Administration").eH(2);
-        htm.hr("orange");
+
+        GenAdminPage.emitNavBlock(EAdminTopic.DB_ADMIN, htm);
+        htm.sH(1).add("Database Administration").eH(1);
 
         emitNavMenu(htm, null);
         htm.hr().div("vgap");

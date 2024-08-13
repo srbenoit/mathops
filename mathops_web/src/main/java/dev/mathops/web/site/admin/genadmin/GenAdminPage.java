@@ -34,7 +34,8 @@ public enum GenAdminPage {
         final RawWhichDb whichDb = cache.getSystemData().getWhichDb();
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
-        Page.startOrdinaryPage(htm, site.getTitle(), null, false, null, "home.html", Page.NO_BARS, null, false, true);
+        final String title = site.getTitle();
+        Page.startOrdinaryPage(htm, title, null, false, null, "home.html", Page.NO_BARS, null, false, true);
 
         AdminPage.emitPageHeader(htm, session, whichDb, showHome);
 
@@ -65,7 +66,7 @@ public enum GenAdminPage {
         navButton(htm, selected, "first", EAdminTopic.SERVER_ADMIN);
         navButton(htm, selected, null, EAdminTopic.DB_ADMIN);
         navButton(htm, selected, null, EAdminTopic.SITE_ADMIN);
-        navButton(htm, selected, "last", EAdminTopic.PROCTORING);
+        navButton(htm, selected, "last", EAdminTopic.LOGIC_TESTING);
 
         htm.addln("</nav>");
         htm.addln("<hr class='orange'/>");
@@ -116,40 +117,5 @@ public enum GenAdminPage {
             htm.add('?').add(query);
         }
         htm.add("\");'>", subtopic.label, "</button>");
-    }
-
-    /**
-     * Formats a duration in milliseconds as a string of the form "#:##:##".
-     *
-     * @param duration the duration
-     * @return the formatted string
-     */
-    public static String formatMsDuration(final long duration) {
-
-        final String result;
-
-        if (duration < 0L) {
-            result = "negative";
-        } else {
-            final long sec = (duration + 500L) / 1000L;
-            final long ss = sec % 60L;
-            final long mm = sec / 60L % 60L;
-            final long hr = sec / 3600L;
-
-            final StringBuilder sb = new StringBuilder(20);
-            sb.append(hr).append(':');
-            if (mm < 10L) {
-                sb.append('0');
-            }
-            sb.append(mm).append(':');
-            if (ss < 10L) {
-                sb.append('0');
-            }
-            sb.append(ss);
-
-            result = sb.toString();
-        }
-
-        return result;
     }
 }

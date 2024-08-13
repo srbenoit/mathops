@@ -10,8 +10,6 @@ import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.admin.AbstractSubsite;
 import dev.mathops.web.site.admin.AdminSite;
-import dev.mathops.web.site.admin.genadmin.automation.PageAutomation;
-import dev.mathops.web.site.admin.genadmin.automation.PageAutomationBot;
 import dev.mathops.web.site.admin.genadmin.dbadmin.PageDbAdmin;
 import dev.mathops.web.site.admin.genadmin.dbadmin.PageDbAdminBatch;
 import dev.mathops.web.site.admin.genadmin.dbadmin.PageDbAdminBatchRun;
@@ -23,6 +21,11 @@ import dev.mathops.web.site.admin.genadmin.dbadmin.PageDbAdminContextsTableMetad
 import dev.mathops.web.site.admin.genadmin.dbadmin.PageDbAdminQueries;
 import dev.mathops.web.site.admin.genadmin.dbadmin.PageDbAdminReport;
 import dev.mathops.web.site.admin.genadmin.dbadmin.PageDbAdminReports;
+import dev.mathops.web.site.admin.genadmin.logic.PageLogicCalendar;
+import dev.mathops.web.site.admin.genadmin.logic.PageLogicMilestones;
+import dev.mathops.web.site.admin.genadmin.logic.PageLogicPrerequisites;
+import dev.mathops.web.site.admin.genadmin.logic.PageLogicRegistrations;
+import dev.mathops.web.site.admin.genadmin.logic.PageLogicTesting;
 import dev.mathops.web.site.admin.genadmin.reports.PageCourseExamsReport;
 import dev.mathops.web.site.admin.genadmin.reports.PageCourseHomeworkReport;
 import dev.mathops.web.site.admin.genadmin.reports.PageElmReport;
@@ -49,6 +52,7 @@ import dev.mathops.web.site.admin.genadmin.student.PageStudentPlacement;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
@@ -123,9 +127,14 @@ public final class GenAdminSubsite extends AbstractSubsite {
                 case "dbadm_prod_views.html" ->
                         PageDbAdminContextsProdViews.doGet(cache, this.site, req, resp, session);
                 case "site_admin.html" -> PageSiteAdmin.doGet(cache, this.site, req, resp, session);
-                case "automation.html" -> PageAutomation.doGet(cache, this.site, req, resp, session);
-                case "automation_bot.html" -> PageAutomationBot.doGet(cache, this.site, req, resp, session);
                 case "monitor.html" -> PageReports.doGet(cache, this.site, req, resp, session);
+
+                case "logic_testing.html" -> PageLogicTesting.doGet(cache, this.site, req, resp, session);
+                case "logic_registrations.html" -> PageLogicRegistrations.doGet(cache, this.site, req, resp, session);
+                case "logic_prerequisites.html" -> PageLogicPrerequisites.doGet(cache, this.site, req, resp, session);
+                case "logic_calendar.html" -> PageLogicCalendar.doGet(cache, this.site, req, resp, session);
+                case "logic_milestones.html" -> PageLogicMilestones.doGet(cache, this.site, req, resp, session);
+
                 case "report_mathplan.html" -> PageMathPlanReport.doGet(cache, this.site, req, resp, session);
                 case "report_placement.html" -> PagePlacementReport.doGet(cache, this.site, req, resp, session);
                 case "report_elm.html" -> PageElmReport.doGet(cache, this.site, req, resp, session);
@@ -184,6 +193,7 @@ public final class GenAdminSubsite extends AbstractSubsite {
             switch (subpath) {
                 case "student_pick.html" -> PageStudentPick.doPost(cache, this.site, req, resp, session);
                 case "population_pick.html" -> PagePopulationPick.doPost(cache, this.site, req, resp, session);
+
                 case "student_info.html" -> PageStudentInfo.doGet(cache, this.site, req, resp, session);
                 case "student_placement.html" -> PageStudentPlacement.doGet(cache, this.site, req, resp, session);
                 case "student_course_status.html" ->
@@ -195,21 +205,28 @@ public final class GenAdminSubsite extends AbstractSubsite {
                         PageStudentPastExam.startPastExam(cache, this.site, req, resp, session);
                 case "student_update_past_exam.html" ->
                         PageStudentPastExam.updatePastExam(cache, this.site, req, resp, session);
+
                 case "maint_mode_update.html" -> PageServerAdminMaintenance.doMaintenanceModeUpdate(req, resp);
+
                 case "teststu_update_student.html" -> PageTestStudent.updateStudent(cache, req, resp);
                 case "teststu_update_special.html" -> PageTestStudent.updateSpecial(cache, req, resp);
                 case "teststu_update_placement.html" -> PageTestStudent.updatePlacement(cache, this.site, req, resp);
                 case "teststu_update_tutorial.html" -> PageTestStudent.updateTutorials(cache, req, resp);
                 case "teststu_update_etext.html" -> PageTestStudent.updateETexts(cache, req, resp);
                 case "teststu_update_reg.html" -> PageTestStudent.updateRegistrations(cache, req, resp);
+
                 case "db_admin_server_login.html" ->
                         PageDbAdminContextsServer.doPost(cache, this.site, req, resp, session);
                 case "dbadm_update_banner.html" -> PageDbAdminContexts.doPost(cache, this.site, req, resp, session);
                 case "dbadm_batch_run.html" -> PageDbAdminBatchRun.doPost(cache, this.site, req, resp, session);
+
                 case "srvadm_sessions.html" -> PageServerAdminSessions.doPost(cache, this.site, req, resp, session);
                 case "srvadm_control.html" -> PageServerAdminControl.doPost(cache, this.site, req, resp, session);
                 case "srvadm_diagnostics.html" ->
                         PageServerAdminDiagnostics.doPost(cache, this.site, req, resp, session);
+
+                case "logic_registrations.html" -> PageLogicRegistrations.doPost(cache, this.site, req, resp, session);
+
                 case null, default -> {
                     Log.warning("POST: unknown path '", subpath, "'");
                     resp.sendError(HttpServletResponse.SC_NOT_FOUND);

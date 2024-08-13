@@ -1,6 +1,5 @@
 package dev.mathops.db.old.rawlogic;
 
-import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
@@ -72,9 +71,6 @@ public final class RawStcourseLogic extends AbstractRawLogic<RawStcourse> {
 
     /** Empty list to return when there are no records. */
     private static final List<RawStcourse> EMPTY_LIST = Collections.unmodifiableList(new ArrayList<>(0));
-
-    /** The active term. */
-    private static TermRec activeTerm;
 
     /**
      * Private constructor to prevent direct instantiation.
@@ -291,11 +287,7 @@ public final class RawStcourseLogic extends AbstractRawLogic<RawStcourse> {
      */
     public static List<RawStcourse> queryActiveForActiveTerm(final Cache cache) throws SQLException {
 
-        synchronized (CoreConstants.INSTANCE_SYNCH) {
-            if (activeTerm == null) {
-                activeTerm = cache.getSystemData().getActiveTerm();
-            }
-        }
+        final TermRec activeTerm = cache.getSystemData().getActiveTerm();
 
         // The following returns all except "OT" and "Dropped" records
 
@@ -328,7 +320,7 @@ public final class RawStcourseLogic extends AbstractRawLogic<RawStcourse> {
         boolean found = false;
 
         if (RawRecordConstants.M117.equals(stcourse.course) && ("801".equals(stcourse.sect)
-                || "809".equals(stcourse.sect))) {
+                                                                || "809".equals(stcourse.sect))) {
 
             if (stcourse.prereqSatis == null || "N".equals(stcourse.prereqSatis)) {
                 stcourse.prereqSatis = "P";
@@ -465,11 +457,7 @@ public final class RawStcourseLogic extends AbstractRawLogic<RawStcourse> {
      */
     public static List<RawStcourse> getPaced(final Cache cache, final String studentId) throws SQLException {
 
-        synchronized (CoreConstants.INSTANCE_SYNCH) {
-            if (activeTerm == null) {
-                activeTerm = cache.getSystemData().getActiveTerm();
-            }
-        }
+        final TermRec activeTerm = cache.getSystemData().getActiveTerm();
 
         // Get all current term non-OT credit registrations (may include incompletes)
 
@@ -478,7 +466,7 @@ public final class RawStcourseLogic extends AbstractRawLogic<RawStcourse> {
         // Remove "ignored" and incompletes that are not counted in pace
 
         // TODO: We really should check the section or rule set to see if these are "paced" courses,
-        // but for now all courses are "paced".
+        //  but for now all courses are "paced".
 
         final Iterator<RawStcourse> iter = result.iterator();
         while (iter.hasNext()) {
@@ -487,7 +475,7 @@ public final class RawStcourseLogic extends AbstractRawLogic<RawStcourse> {
             if ("G".equals(reg.openStatus)) {
                 iter.remove();
             }
-            if ("Y".equals(reg.iInProgress) || "N".equals(reg.iCounted)) {
+            if ("Y".equals(reg.iInProgress) && "N".equals(reg.iCounted)) {
                 iter.remove();
             }
         }
@@ -508,11 +496,7 @@ public final class RawStcourseLogic extends AbstractRawLogic<RawStcourse> {
     public static RawStcourse getRegistration(final Cache cache, final String studentId,
                                               final String courseId) throws SQLException {
 
-        synchronized (CoreConstants.INSTANCE_SYNCH) {
-            if (activeTerm == null) {
-                activeTerm = cache.getSystemData().getActiveTerm();
-            }
-        }
+        final TermRec activeTerm = cache.getSystemData().getActiveTerm();
 
         final HtmlBuilder sql = new HtmlBuilder(160);
 
@@ -1077,11 +1061,7 @@ public final class RawStcourseLogic extends AbstractRawLogic<RawStcourse> {
     private static List<RawStcourse> queryByStudentCheckin(final Cache cache, final String studentId,
                                                            final TermKey term) throws SQLException {
 
-        synchronized (CoreConstants.INSTANCE_SYNCH) {
-            if (activeTerm == null) {
-                activeTerm = cache.getSystemData().getActiveTerm();
-            }
-        }
+        final TermRec activeTerm = cache.getSystemData().getActiveTerm();
 
         final boolean doCurrent = term == null || term.equals(activeTerm.term);
         final boolean doPast = term == null;
@@ -1097,43 +1077,43 @@ public final class RawStcourseLogic extends AbstractRawLogic<RawStcourse> {
 
             if ("017".equals(id) || "022".equals(id)) {
                 if (doPast) {
-                    result.add(makeCompleted(studentId, RawRecordConstants.M117));
+                    result.add(makeCompleted(activeTerm, studentId, RawRecordConstants.M117));
                 }
             } else if ("018".equals(id)) {
                 if (doCurrent) {
-                    result.add(makeCurrent(studentId, RawRecordConstants.M117));
+                    result.add(makeCurrent(activeTerm, studentId, RawRecordConstants.M117));
                 }
             } else if ("024".equals(id) || "032".equals(id)
-                    || "042".equals(id)) {
+                       || "042".equals(id)) {
                 if (doPast) {
-                    result.add(makeCompleted(studentId, RawRecordConstants.M118));
+                    result.add(makeCompleted(activeTerm, studentId, RawRecordConstants.M118));
                 }
             } else if ("025".equals(id)) {
                 if (doCurrent) {
-                    result.add(makeCurrent(studentId, RawRecordConstants.M118));
+                    result.add(makeCurrent(activeTerm, studentId, RawRecordConstants.M118));
                 }
             } else if ("034".equals(id)) {
                 if (doPast) {
-                    result.add(makeCompleted(studentId, RawRecordConstants.M124));
+                    result.add(makeCompleted(activeTerm, studentId, RawRecordConstants.M124));
                 }
             } else if ("035".equals(id)) {
                 if (doCurrent) {
-                    result.add(makeCurrent(studentId, RawRecordConstants.M124));
+                    result.add(makeCurrent(activeTerm, studentId, RawRecordConstants.M124));
                 }
             } else if ("044".equals(id) || "052".equals(id)) {
                 if (doPast) {
-                    result.add(makeCompleted(studentId, RawRecordConstants.M125));
+                    result.add(makeCompleted(activeTerm, studentId, RawRecordConstants.M125));
                 }
             } else if ("045".equals(id)) {
                 if (doCurrent) {
-                    result.add(makeCurrent(studentId, RawRecordConstants.M125));
+                    result.add(makeCurrent(activeTerm, studentId, RawRecordConstants.M125));
                 }
             } else if ("054".equals(id)) {
                 if (doPast) {
-                    result.add(makeCompleted(studentId, RawRecordConstants.M126));
+                    result.add(makeCompleted(activeTerm, studentId, RawRecordConstants.M126));
                 }
             } else if ("055".equals(id) && doCurrent) {
-                result.add(makeCurrent(studentId, RawRecordConstants.M126));
+                result.add(makeCurrent(activeTerm, studentId, RawRecordConstants.M126));
             }
         } else {
             result = EMPTY_LIST;
@@ -1145,11 +1125,12 @@ public final class RawStcourseLogic extends AbstractRawLogic<RawStcourse> {
     /**
      * Creates a record of a completed (passed) course.
      *
-     * @param studentId the student ID
-     * @param course    the course ID
+     * @param activeTerm the active term
+     * @param studentId  the student ID
+     * @param course     the course ID
      * @return the generated student course record
      */
-    private static RawStcourse makeCompleted(final String studentId, final String course) {
+    private static RawStcourse makeCompleted(final TermRec activeTerm, final String studentId, final String course) {
 
         final int termYear = activeTerm.term.year.intValue() - 1;
         final LocalDate end = activeTerm.endDate;
@@ -1164,11 +1145,12 @@ public final class RawStcourseLogic extends AbstractRawLogic<RawStcourse> {
     /**
      * Creates a record of a current course.
      *
-     * @param studentId the student ID
-     * @param course    the course ID
+     * @param activeTerm the active term
+     * @param studentId  the student ID
+     * @param course     the course ID
      * @return the generated student course record
      */
-    private static RawStcourse makeCurrent(final String studentId, final String course) {
+    private static RawStcourse makeCurrent(final TermRec activeTerm, final String studentId, final String course) {
 
         return new RawStcourse(activeTerm.term, studentId, course, "001", Integer.valueOf(1), "N", "I", "Y",
                 Integer.valueOf(64), "B", "Y", "Y", "N", "Y", null, null, null, null, "N", null, null, null, null,

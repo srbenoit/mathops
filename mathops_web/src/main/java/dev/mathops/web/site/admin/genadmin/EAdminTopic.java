@@ -18,8 +18,7 @@ public enum EAdminTopic {
     UTILITIES("Utilities", "utilities.html"),
 
     /** Server administration. */
-    SERVER_ADMIN(//
-            "Server <br class='hidebelow800'>Administration", "server_admin.html"),
+    SERVER_ADMIN("Server <br class='hidebelow800'>Administration", "server_admin.html"),
 
     /** Database administration. */
     DB_ADMIN("Database <br class='hidebelow800'>Administration", "db_admin.html"),
@@ -27,11 +26,8 @@ public enum EAdminTopic {
     /** Web Site administration. */
     SITE_ADMIN("Web Site <br class='hidebelow800'>Administration", "site_admin.html"),
 
-    /** Automation. */
-    AUTOMATION("Automation", "automation.html"),
-
-    /** Proctoring. */
-    PROCTORING("Proctoring", "../proctor/home.html");
+    /** Logic testing. */
+    LOGIC_TESTING("Logic Testing", "logic_testing.html");
 
     /** The button label. */
     final String label;

@@ -5,6 +5,7 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.logic.PaceTrackLogic;
+import dev.mathops.db.old.logic.RegistrationsLogic;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.logic.PlacementLogic;
@@ -212,13 +213,16 @@ public final class LogicCheckIn {
         } else {
             RawStterm stterm = RawSttermLogic.query(this.cache, this.activeTerm.term, stuId);
             if (stterm == null) {
+                final RegistrationsLogic.ActiveTermRegistrations activeRegs =
+                        RegistrationsLogic.gatherActiveTermRegistrations(this.cache, stuId);
+                final List<RawStcourse> pacedRegs = activeRegs.inPace();
+
                 // Attempt to construct an accurate STTERM record
-                final List<RawStcourse> allRegs = RawStcourseLogic.getActiveForStudent(this.cache, stuId,
-                        this.activeTerm.term);
-                final int pace = PaceTrackLogic.determinePace(allRegs);
+
+                final int pace = PaceTrackLogic.determinePace(pacedRegs);
                 if (pace > 0) {
-                    final String paceTrack = PaceTrackLogic.determinePaceTrack(allRegs, pace);
-                    final String first = PaceTrackLogic.determineFirstCourse(allRegs);
+                    final String paceTrack = PaceTrackLogic.determinePaceTrack(pacedRegs, pace);
+                    final String first = PaceTrackLogic.determineFirstCourse(pacedRegs);
 
                     final Integer paceObj = Integer.valueOf(pace);
                     stterm = new RawStterm(this.activeTerm.term, stuId, paceObj, paceTrack, first, null, null, null);

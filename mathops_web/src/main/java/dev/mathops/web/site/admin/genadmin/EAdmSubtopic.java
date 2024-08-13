@@ -39,10 +39,19 @@ public enum EAdmSubtopic {
     /** Database Administration - PROD views. */
     DB_PROD_VIEWS("Views", "dbadm_prod_views.html"),
 
-    // Subtopics of Automation
+    // Subtopics of Logic Testing
 
-    /** Automation - Task List Management. */
-    AUTO_BOT("Student Bots", "automation_bot.html");
+    /** Logic Testing - Registrations. */
+    LOGIC_REGISTRATIONS("Registrations", "logic_registrations.html"),
+
+    /** Logic Testing - Prerequisites. */
+    LOGIC_PREREQUISITES("Prerequisites", "logic_prerequisites.html"),
+
+    /** Logic Testing - Calendar. */
+    LOGIC_CALENDAR("Calendar", "logic_calendar.html"),
+
+    /** Logic Testing - Milestones. */
+    LOGIC_MILESTONES("Milestones", "logic_milestones.html");
 
     /** The button label. */
     public final String label;

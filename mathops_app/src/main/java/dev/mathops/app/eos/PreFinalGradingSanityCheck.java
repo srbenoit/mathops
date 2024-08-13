@@ -10,6 +10,7 @@ import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.logic.PaceTrackLogic;
+import dev.mathops.db.old.logic.RegistrationsLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
@@ -67,7 +68,6 @@ final class PreFinalGradingSanityCheck {
 
                 try {
                     final TermRec active = cache.getSystemData().getActiveTerm();
-
                     final List<RawStcourse> allRegs = RawStcourseLogic.queryActiveForActiveTerm(cache);
 
                     Log.info("Found ", Integer.toString(allRegs.size()), " active registrations");

@@ -36,32 +36,10 @@ enum PageHome {
 
         final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, false);
 
-        emitGenadminNavBlock(htm);
         GenAdminPage.emitNavBlock(null, htm);
 
         Page.endOrdinaryPage(cache, site, htm, true);
         AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
-    }
-
-    /**
-     * Emits the navigation block for a user with the SYSADMIN role.
-     *
-     * @param htm the {@code HtmlBuilder} to which to append
-     */
-    private static void emitGenadminNavBlock(final HtmlBuilder htm) {
-
-        htm.addln("<script>");
-        htm.addln(" function pick(target) {");
-        htm.addln("  window.location.assign(target);");
-        htm.addln(" }");
-        htm.addln("</script>");
-
-        htm.addln("<nav>");
-
-        navButton(htm, "first", "Office Staff View", "../office/home.html");
-
-        htm.addln("</nav>");
-        htm.hr("orange");
     }
 
     /**
