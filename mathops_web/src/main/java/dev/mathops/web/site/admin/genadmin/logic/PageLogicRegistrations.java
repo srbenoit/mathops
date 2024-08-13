@@ -295,7 +295,7 @@ public enum PageLogicRegistrations {
     }
 
     /**
-     * Starts a page.n
+     * Starts a page.
      *
      * @param cache   the data cache
      * @param site    the owning site

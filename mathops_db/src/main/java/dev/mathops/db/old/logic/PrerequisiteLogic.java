@@ -127,7 +127,7 @@ public final class PrerequisiteLogic {
      * @param theCourseId the course ID
      * @return true if the student has satisfied the prerequisites for the course with transfer credit
      */
-    boolean hasSatisfiedPrerequisitesByTransferFor(final String theCourseId) {
+    public boolean hasSatisfiedPrerequisitesByTransferFor(final String theCourseId) {
 
         return this.satisfiedByTransfer.contains(theCourseId);
     }
@@ -173,10 +173,10 @@ public final class PrerequisiteLogic {
         // Scan for STCOURSE records marked as "prereq_satisfied = 'Y'", even records that have been dropped.
 
         for (final RawStcourse test : this.allHistory) {
-            if (test.course.equals(courseId) && ("Y".equals(test.prereqSatis) || "P".equals(test.prereqSatis))) {
+            if (test.course.equals(courseId) && "Y".equals(test.prereqSatis)) {
                 prereqSatisfied = true;
-                Log.info("* Satisfied prerequisite for ", courseId,
-                        " because past registration shows prerequisites satisfied");
+//                Log.info("* Satisfied prerequisite for ", courseId,
+//                        " because past registration shows prerequisites satisfied");
                 break;
             }
         }
@@ -218,7 +218,7 @@ public final class PrerequisiteLogic {
             }
         }
 
-        // Special-case handling - section 801/401/809 students can start the course without prerequisites, but they
+        // Special-case handling - section 801/809 students can start MATH 117 without prerequisites, but they
         // get a longer Skills Review (ideally, we would only afford this to non-degree-seeking DCE students, but we
         // tend not to get that data from CSU Online
 
@@ -237,6 +237,7 @@ public final class PrerequisiteLogic {
             }
 
             if ("801".equals(sect) || "809".equals(sect)) {
+//                Log.info("* Satisfied prerequisite because registered in 80X section of 117");
                 prereqSatisfied = true;
             }
         }
@@ -306,7 +307,7 @@ public final class PrerequisiteLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final PrerequisiteLogic prereq = new PrerequisiteLogic(cache, "837165351");
+                final PrerequisiteLogic prereq = new PrerequisiteLogic(cache, "821559586 ");
 
                 Log.fine("Student: ", prereq.studentId);
 
