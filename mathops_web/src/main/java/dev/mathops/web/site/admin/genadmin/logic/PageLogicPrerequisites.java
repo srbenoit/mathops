@@ -2,21 +2,18 @@ package dev.mathops.web.site.admin.genadmin.logic;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
-import dev.mathops.db.old.logic.RegistrationsLogic;
 import dev.mathops.db.old.rawlogic.RawFfrTrnsLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
-import dev.mathops.db.old.rawlogic.RawSttermLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawFfrTrns;
 import dev.mathops.db.old.rawrecord.RawMpeCredit;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
-import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.type.TermKey;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
@@ -30,12 +27,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 /**
  * A page to test logic related to prerequisites.
@@ -116,55 +110,258 @@ public enum PageLogicPrerequisites {
                 studentIds.add(stc.stuId);
             }
 
-            int numUncountedIncompletes = 0;
-            int numIgnored = 0;
-            int numChallengeCredit = 0;
-            int numPaced = 0;
-            final List<Map<String, Integer>> paceTrackCounts = new ArrayList<>(5);
-            for (int i = 0; i < 5; ++i) {
-                paceTrackCounts.add(new TreeMap<>());
-            }
-
+            htm.addln("<ul>");
             // Scan those students, emit warnings as encountered, and gather summary statistics
             for (final String stuId : studentIds) {
-                final RegistrationsLogic.ActiveTermRegistrations regs =
-                        RegistrationsLogic.gatherActiveTermRegistrations(cache, stuId);
 
-                numIgnored += regs.ignored().size();
-                numUncountedIncompletes += regs.uncountedIncompletes().size();
-                numChallengeCredit += regs.creditByExam().size();
+                boolean okFor117 = false;
+                boolean okFor118 = false;
+                boolean okFor124 = false;
+                boolean okFor125 = false;
+                boolean okFor126 = false;
 
-                final List<RawStcourse> inPaceRegs = regs.inPace();
-                numPaced += inPaceRegs.size();
-
-                if (!inPaceRegs.isEmpty()) {
-                    final int pace = PaceTrackLogic.determinePace(inPaceRegs);
-                    final String track = PaceTrackLogic.determinePaceTrack(inPaceRegs, pace);
-                    final RawStterm stterm = RawSttermLogic.query(cache, active.term, stuId);
-                    if (stterm == null) {
-                        regs.warnings().add("No STTERM record found");
-                    } else if (stterm.pace.intValue() != pace || !stterm.paceTrack.equals(track)) {
-                        regs.warnings().add("STTERM record has pace = " + stterm.pace + " and pace track "
-                                            + stterm.paceTrack + " but logic calculated pace = " + pace
-                                            + " and pace track = " + track);
-                    }
-
-                    final Map<String, Integer> paceMap = paceTrackCounts.get(pace - 1);
-                    final Integer current = paceMap.get(track);
-                    if (current == null) {
-                        paceMap.put(track, Integer.valueOf(1));
-                    } else {
-                        paceMap.put(track, Integer.valueOf(current.intValue() + 1));
+                final List<RawStcourse> completed = RawStcourseLogic.getAllPriorCompleted(cache, stuId);
+                for (final RawStcourse row : completed) {
+                    if ("M 117".equals(row.course)) {
+                        okFor117 = true;
+                        okFor118 = true;
+                    } else if ("M 118".equals(row.course)) {
+                        okFor117 = true;
+                        okFor118 = true;
+                        okFor124 = true;
+                        okFor125 = true;
+                    } else if ("M 124".equals(row.course)) {
+                        okFor117 = true;
+                        okFor118 = true;
+                        okFor124 = true;
+                    } else if ("M 125".equals(row.course) || "M 126".equals(row.course)) {
+                        okFor117 = true;
+                        okFor118 = true;
+                        okFor125 = true;
+                        okFor126 = true;
+                    } else if ("M 120".equals(row.course)) {
+                        okFor117 = true;
+                        okFor118 = true;
+                        okFor124 = true;
+                        okFor125 = true;
+                    } else if ("M 127".equals(row.course)) {
+                        okFor117 = true;
+                        okFor118 = true;
+                        okFor124 = true;
+                        okFor125 = true;
+                        okFor126 = true;
                     }
                 }
 
-                if (!regs.warnings().isEmpty()) {
-                    htm.sP().add("<strong style='color:red'>*** WARNINGS for student ", stuId, " ***)</strong>").eP();
-                    htm.addln("<ul style='margin-top:0;'>");
-                    for (final String row : regs.warnings()) {
-                        htm.add("<li>").add(row).addln("</li>");
+                final List<RawFfrTrns> transfers = RawFfrTrnsLogic.queryByStudent(cache, stuId);
+                for (final RawFfrTrns row : transfers) {
+                    if ("M 002".equals(row.course) || "M 055".equals(row.course) || "M 093".equals(row.course)
+                        || "M 099".equals(row.course)) {
+                        okFor117 = true;
+                    } else if ("M 117".equals(row.course)) {
+                        okFor117 = true;
+                        okFor118 = true;
+                    } else if ("M 118".equals(row.course)) {
+                        okFor117 = true;
+                        okFor118 = true;
+                        okFor124 = true;
+                        okFor125 = true;
+                    } else if ("M 124".equals(row.course)) {
+                        okFor117 = true;
+                        okFor118 = true;
+                        okFor124 = true;
+                    } else if ("M 125".equals(row.course) || "M 126".equals(row.course)) {
+                        okFor117 = true;
+                        okFor118 = true;
+                        okFor125 = true;
+                        okFor126 = true;
+                    } else if ("M 120".equals(row.course)) {
+                        okFor117 = true;
+                        okFor118 = true;
+                        okFor124 = true;
+                        okFor125 = true;
+                    } else if ("M 127".equals(row.course)) {
+                        okFor117 = true;
+                        okFor118 = true;
+                        okFor124 = true;
+                        okFor125 = true;
+                        okFor126 = true;
                     }
-                    htm.addln("</ul>");
+                }
+
+                final List<RawMpeCredit> mpe = RawMpeCreditLogic.queryByStudent(cache, stuId);
+                for (final RawMpeCredit row : mpe) {
+                    if ("M 100A".equals(row.course) || "M 100C".equals(row.course)) {
+                        okFor117 = true;
+                    } else if ("M 117".equals(row.course)) {
+                        okFor117 = true;
+                        okFor118 = true;
+                    } else if ("M 118".equals(row.course) || "M 124".equals(row.course)) {
+                        okFor117 = true;
+                        okFor118 = true;
+                        okFor124 = true;
+                        okFor125 = true;
+                    } else if ("M 125".equals(row.course) || "M 126".equals(row.course)) {
+                        okFor117 = true;
+                        okFor118 = true;
+                        okFor124 = true;
+                        okFor125 = true;
+                        okFor126 = true;
+                    }
+                }
+
+                final List<RawStcourse> history = RawStcourseLogic.getHistory(cache, stuId);
+
+                for (final RawStcourse row : history) {
+                    if (row.termKey.equals(active.term)) {
+                        continue;
+                    }
+
+                    if ("Y".equals(row.prereqSatis)) {
+                        if ("M 117".equals(row.course) && !okFor117) {
+                            okFor117 = true;
+                        } else if ("M 118".equals(row.course) && !okFor118) {
+                            okFor118 = true;
+                        } else if ("M 124".equals(row.course) && !okFor124) {
+                            okFor124 = true;
+                        } else if ("M 125".equals(row.course) && !okFor125) {
+                            okFor125 = true;
+                        } else if ("M 126".equals(row.course) && !okFor126) {
+                            okFor126 = true;
+                        }
+                    }
+                }
+
+                final PrerequisiteLogic prereq = new PrerequisiteLogic(cache, stuId);
+
+                if (prereq.hasSatisfiedPrerequisitesFor(RawRecordConstants.M117)) {
+                    if (!okFor117) {
+                        htm.add("<li style='color:red'>*** WARNING: Logic says student ", stuId,
+                                " eligible for MATH 117");
+                    }
+                } else if (okFor117) {
+                    htm.add("<li style='color:red'>*** WARNING: Logic says student ", stuId,
+                            " not eligible for MATH 117");
+                }
+
+                if (prereq.hasSatisfiedPrerequisitesFor(RawRecordConstants.M118)) {
+                    if (!okFor118) {
+                        htm.add("<li style='color:red'>*** WARNING: Logic says student ", stuId,
+                                " eligible for MATH 118");
+                    }
+                } else if (okFor118) {
+                    htm.add("<li style='color:red'>*** WARNING: Logic says student ", stuId,
+                            " not eligible for MATH 118");
+                }
+
+                if (prereq.hasSatisfiedPrerequisitesFor(RawRecordConstants.M124)) {
+                    if (!okFor124) {
+                        htm.add("<li style='color:red'>*** WARNING: Logic says student ", stuId,
+                                " eligible for MATH 124");
+                    }
+                } else if (okFor124) {
+                    htm.add("<li style='color:red'>*** WARNING: Logic says student ", stuId,
+                            " not eligible for MATH 124");
+                }
+
+                if (prereq.hasSatisfiedPrerequisitesFor(RawRecordConstants.M125)) {
+                    if (!okFor125) {
+                        htm.add("<li style='color:red'>*** WARNING: Logic says student ", stuId,
+                                " eligible for MATH 125");
+                    }
+                } else if (okFor125) {
+                    htm.add("<li style='color:red'>*** WARNING: Logic says student ", stuId,
+                            " not eligible for MATH 125");
+                }
+
+                if (prereq.hasSatisfiedPrerequisitesFor(RawRecordConstants.M126)) {
+                    if (!okFor126) {
+                        htm.add("<li style='color:red'>*** WARNING: Logic says student ", stuId,
+                                " eligible for MATH 126");
+                    }
+                } else if (okFor126) {
+                    htm.add("<li style='color:red'>*** WARNING: Logic says student ", stuId,
+                            " not eligible for MATH 126");
+                }
+
+                final List<RawStcourse> current = RawStcourseLogic.getPaced(cache, stuId);
+                for (final RawStcourse row : current) {
+
+                    if (RawRecordConstants.M117.equals(row.course) || RawRecordConstants.MATH117.equals(row.course)) {
+                        if (okFor117) {
+                            if (!"Y".equals(row.prereqSatis)) {
+                                htm.addln("<li style='color:red;'>*** WARNING: ", row.course, " for student ", stuId,
+                                        " (prereq_satis = ", row.prereqSatis, ")</li>");
+//                                RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
+//                                        row.termKey, "Y");
+                            }
+                        } else if ("Y".equals(row.prereqSatis)) {
+                            htm.addln("<li style='color:red;'>*** WARNING: ", row.course, " for student ", stuId,
+                                    " (prereq_satis = Y)</li>");
+//                            RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect, row.termKey,
+//                                    null);
+                        }
+                    } else if (RawRecordConstants.M118.equals(row.course)
+                               || RawRecordConstants.MATH118.equals(row.course)) {
+                        if (okFor118) {
+                            if (!"Y".equals(row.prereqSatis)) {
+                                htm.addln("<li style='color:red;'>*** WARNING: ", row.course, " for student ", stuId,
+                                        " (prereq_satis = ", row.prereqSatis, ")</li>");
+//                                RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
+//                                        row.termKey, "Y");
+                            }
+                        } else if ("Y".equals(row.prereqSatis)) {
+                            htm.addln("<li style='color:red;'>*** WARNING: ", row.course, " for student ", stuId,
+                                    " (prereq_satis = Y)</li>");
+//                            RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect, row.termKey,
+//                                    null);
+                        }
+                    } else if (RawRecordConstants.M124.equals(row.course)
+                               || RawRecordConstants.MATH124.equals(row.course)) {
+                        if (okFor124) {
+                            if (!"Y".equals(row.prereqSatis)) {
+                                htm.addln("<li style='color:red;'>*** WARNING: ", row.course, " for student ", stuId,
+                                        " (prereq_satis = ", row.prereqSatis, ")</li>");
+//                                RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
+//                                        row.termKey, "Y");
+                            }
+                        } else if ("Y".equals(row.prereqSatis)) {
+                            htm.addln("<li style='color:red;'>*** WARNING: ", row.course, " for student ", stuId,
+                                    " (prereq_satis = Y)</li>");
+//                            RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect, row.termKey,
+//                                    null);
+                        }
+                    } else if (RawRecordConstants.M125.equals(row.course)
+                               || RawRecordConstants.MATH125.equals(row.course)) {
+                        if (okFor125) {
+                            if (!"Y".equals(row.prereqSatis)) {
+                                htm.addln("<li style='color:red;'>*** WARNING: ", row.course, " for student ", stuId,
+                                        " (prereq_satis = ", row.prereqSatis, ")</li>");
+//                                RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
+//                                        row.termKey, "Y");
+                            }
+                        } else if ("Y".equals(row.prereqSatis)) {
+                            htm.addln("<li style='color:red;'>*** WARNING: ", row.course, " for student ", stuId,
+                                    " (prereq_satis = Y)</li>");
+//                            RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect, row.termKey,
+//                                    null);
+                        }
+                    } else if (RawRecordConstants.M126.equals(row.course)
+                               || RawRecordConstants.MATH126.equals(row.course)) {
+                        if (okFor126) {
+                            if (!"Y".equals(row.prereqSatis)) {
+                                htm.addln("<li style='color:red;'>*** WARNING: ", row.course, " for student ", stuId,
+                                        " (prereq_satis = ", row.prereqSatis, ")</li>");
+//                                RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
+//                                        row.termKey, "Y");
+                            }
+                        } else if ("Y".equals(row.prereqSatis)) {
+                            htm.addln("<li style='color:red;'>*** WARNING: ", row.course, " for student ", stuId,
+                                    " (prereq_satis = Y)</li>");
+//                            RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect, row.termKey,
+//                                    null);
+                        }
+                    }
                 }
 
                 // Try not to make this method blast the production server's load up to 100%
@@ -175,30 +372,7 @@ public enum PageLogicPrerequisites {
                 }
             }
 
-            htm.sH(4).add("Summary Statistics:").eH(4);
-            htm.sP("indent");
-            htm.add("Number of students with registrations: ", studentIds.size()).br();
-            htm.add("Number of uncounted Incompletes: ", numUncountedIncompletes).br();
-            htm.add("Number of Ignored registrations: ", numIgnored).br();
-            htm.add("Number of Challenge Credit registrations: ", numChallengeCredit).br();
-            htm.add("Number of 'in-pace' registrations: ", numPaced).br();
-            htm.eP();
-
-            htm.sDiv("indent2");
-            htm.sTable("report");
-            htm.sTr().sTh().add("Pace").eTh().sTh().add("Track").eTh().sTh().add("Registrations").eTh().eTr();
-            for (int i = 0; i < 5; ++i) {
-                final String paceStr = Integer.toString(i + 1);
-
-                final Map<String, Integer> tracks = paceTrackCounts.get(i);
-                for (final Map.Entry<String, Integer> entry : tracks.entrySet()) {
-                    final String key = entry.getKey();
-                    final Integer value = entry.getValue();
-                    htm.sTr().sTd().add(paceStr).eTd().sTd().add(key).eTd().sTd().add(value).eTd().eTr();
-                }
-            }
-            htm.eTable();
-            htm.eDiv();
+            htm.addln("</ul>");
         }
     }
 
