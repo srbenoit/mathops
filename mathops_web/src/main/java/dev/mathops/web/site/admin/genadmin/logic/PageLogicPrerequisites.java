@@ -306,8 +306,8 @@ public enum PageLogicPrerequisites {
                             if (!"Y".equals(row.prereqSatis)) {
                                 htm.addln("<li style='color:red;'>*** WARNING: ", row.course, " for student ", stuId,
                                         " (prereq_satis = ", row.prereqSatis, ")</li>");
-                                RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
-                                        row.termKey, "Y");
+//                                RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
+//                                        row.termKey, "Y");
                                 ++numIssues;
                             }
                         } else if ("Y".equals(row.prereqSatis)) {
@@ -323,8 +323,8 @@ public enum PageLogicPrerequisites {
                             if (!"Y".equals(row.prereqSatis)) {
                                 htm.addln("<li style='color:red;'>*** WARNING: ", row.course, " for student ", stuId,
                                         " (prereq_satis = ", row.prereqSatis, ")</li>");
-                                RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
-                                        row.termKey, "Y");
+//                                RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
+//                                        row.termKey, "Y");
                                 ++numIssues;
                             }
                         } else if ("Y".equals(row.prereqSatis)) {
@@ -340,8 +340,8 @@ public enum PageLogicPrerequisites {
                             if (!"Y".equals(row.prereqSatis)) {
                                 htm.addln("<li style='color:red;'>*** WARNING: ", row.course, " for student ", stuId,
                                         " (prereq_satis = ", row.prereqSatis, ")</li>");
-                                RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
-                                        row.termKey, "Y");
+//                                RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
+//                                        row.termKey, "Y");
                                 ++numIssues;
                             }
                         } else if ("Y".equals(row.prereqSatis)) {
@@ -357,8 +357,8 @@ public enum PageLogicPrerequisites {
                             if (!"Y".equals(row.prereqSatis)) {
                                 htm.addln("<li style='color:red;'>*** WARNING: ", row.course, " for student ", stuId,
                                         " (prereq_satis = ", row.prereqSatis, ")</li>");
-                                RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
-                                        row.termKey, "Y");
+//                                RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
+//                                        row.termKey, "Y");
                                 ++numIssues;
                             }
                         } else if ("Y".equals(row.prereqSatis)) {
@@ -374,8 +374,8 @@ public enum PageLogicPrerequisites {
                             if (!"Y".equals(row.prereqSatis)) {
                                 htm.addln("<li style='color:red;'>*** WARNING: ", row.course, " for student ", stuId,
                                         " (prereq_satis = ", row.prereqSatis, ")</li>");
-                                RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
-                                        row.termKey, "Y");
+//                                RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
+//                                        row.termKey, "Y"); 
                                 ++numIssues;
                             }
                         } else if ("Y".equals(row.prereqSatis)) {
