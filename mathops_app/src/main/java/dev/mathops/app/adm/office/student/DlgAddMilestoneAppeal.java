@@ -13,23 +13,25 @@ import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.SystemData;
-import dev.mathops.db.old.rawlogic.RawPaceAppealsLogic;
+import dev.mathops.db.old.rawlogic.RawMilestoneAppealLogic;
 import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.old.rawrecord.RawMilestone;
-import dev.mathops.db.old.rawrecord.RawPaceAppeals;
+import dev.mathops.db.old.rawrecord.RawMilestoneAppeal;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
+import dev.mathops.db.old.rec.StandardMilestoneRec;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.db.type.TermKey;
 
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
@@ -45,14 +47,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 /**
- * A dialog to add a row to "PACE_APPEALS" and (if relief is given) to "STMILESTONE".
+ * A dialog to add a row to "MILESTONE_APPEAL" and (if relief is given) to "STMILESTONE" or "STU_STD_MILESTONE".
  */
-public final class DlgAddPaceAppeal extends JFrame implements ActionListener, DocumentListener {
+public final class DlgAddMilestoneAppeal extends JFrame implements ActionListener, DocumentListener {
 
     /** An action command. */
     private static final String APPLY_CMD = "APPLY";
@@ -64,10 +68,15 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
     private static final String VALIDATE_CMD = "VALIDATE_CMD";
 
     /** The dialog title. */
-    private static final String TITLE = "Add Pace Appeal";
+    private static final String TITLE = "Add Milestone Appeal";
 
     /** The options with which to populate the milestone type dropdown. */
     private static final String[] MS_TYPES = {"Review Exam", "Final Exam", "Final +1"};
+
+    /** The options with which to populate the milestone type dropdown. */
+    private static final String[] APPEAL_TYPES = {"Accommodation", "University-Excused Absence", "Medical",
+            "Family Emergency", "Very Close to Finishing", "Free Extension", "Automatically-Applied Extension",
+            "Other"};
 
     /** The data cache. */
     private final Cache cache;
@@ -78,8 +87,14 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
     /** The initial milestone this dialog was created to edit. */
     private RawMilestone milestone;
 
+    /** The initial standard milestone this dialog was created to edit. */
+    private StandardMilestoneRec stdMilestone;
+
     /** The list of all milestones. */
     private final List<RawMilestone> allMilestones;
+
+    /** The list of all standard milestones. */
+    private final List<StandardMilestoneRec> allStdMilestones;
 
     /** The owning panel to be refreshed if an appeal record is added. */
     private final IPaceAppealsListener listener;
@@ -96,6 +111,12 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
     /** The appeal date. */
     private final JDateChooser appealDatePicker;
 
+    /** Radio button to select a legacy course milestone. */
+    private final JRadioButton legacy;
+
+    /** Radio button to select a standards-based course milestone. */
+    private final JRadioButton standardsBased;
+
     /** A label in which to show the student's status. */
     private final JLabel statusLabel;
 
@@ -105,20 +126,23 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
     /** The field for the student pace track. */
     private final JTextField paceTrackField;
 
+    /** The appeal type chooser. */
+    private final JComboBox<String> appealTypeDropdown;
+
     /** The field for the course (from 1 to pace). */
     private final JTextField courseField;
 
     /** The field for the unit. */
     private final JTextField unitField;
 
+    /** The field for the objective (for standards-based courses). */
+    private final JTextField objectiveField;
+
     /** The milestone type chooser. */
     private final JComboBox<String> milestoneTypeDropdown;
 
-    /** The checkbox to indicate relief was given. */
-    private final JCheckBox reliefGiven;
-
-    /** The original milestone date. */
-    private final JDateChooser origDatePicker;
+    /** The prior milestone date. */
+    private final JDateChooser priorDatePicker;
 
     /** The new milestone date. */
     private final JDateChooser newDatePicker;
@@ -151,12 +175,12 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
     private final JTextField overrideAttemptsAllowed;
 
     /**
-     * Constructs a new {@code DlgAddPaceAppeal}.
+     * Constructs a new {@code DlgAddMilestoneAppeal}.
      *
      * @param theCache    the data cache
      * @param theListener the listener to be notified if an appeal record is added
      */
-    public DlgAddPaceAppeal(final Cache theCache, final IPaceAppealsListener theListener) {
+    public DlgAddMilestoneAppeal(final Cache theCache, final IPaceAppealsListener theListener) {
 
         super(TITLE);
         setBackground(Skin.LIGHTEST);
@@ -165,6 +189,7 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
         this.listener = theListener;
 
         this.allMilestones = new ArrayList<>(50);
+        this.allStdMilestones = new ArrayList<>(50);
         TermKey activeKey = null;
         try {
             final SystemData systemData = theCache.getSystemData();
@@ -173,6 +198,9 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
                 activeKey = activeTerm.term;
                 final List<RawMilestone> termMilestones = systemData.getMilestones(activeKey);
                 this.allMilestones.addAll(termMilestones);
+
+                final List<StandardMilestoneRec> termStdMilestones = systemData.getStandardMilestones();
+                this.allStdMilestones.addAll(termStdMilestones);
             }
         } catch (final SQLException ex) {
             Log.warning("Failed to query milestones", ex);
@@ -191,7 +219,7 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
         final Border padRightBottom = BorderFactory.createEmptyBorder(0, 0, 10, 10);
         paceAppeal.setBorder(padRightBottom);
 
-        final JLabel[] leftLabels = new JLabel[12];
+        final JLabel[] leftLabels = new JLabel[14];
 
         leftLabels[0] = new JLabel("Student ID: ");
         leftLabels[1] = new JLabel("Student Name: ");
@@ -199,12 +227,14 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
         leftLabels[3] = new JLabel("Appeal Date: ");
         leftLabels[4] = new JLabel("Pace: ");
         leftLabels[5] = new JLabel("Pace Track: ");
-        leftLabels[6] = new JLabel("Course: ");
-        leftLabels[7] = new JLabel("Unit: ");
-        leftLabels[8] = new JLabel("Milestone: ");
-        leftLabels[9] = new JLabel("Original Date: ");
-        leftLabels[10] = new JLabel("New Deadline: ");
-        leftLabels[11] = new JLabel("Attempts: ");
+        leftLabels[6] = new JLabel("Appeal Type: ");
+        leftLabels[7] = new JLabel("Course: ");
+        leftLabels[8] = new JLabel("Unit: ");
+        leftLabels[9] = new JLabel("Objective: ");
+        leftLabels[10] = new JLabel("Milestone: ");
+        leftLabels[11] = new JLabel("Prior Deadline: ");
+        leftLabels[12] = new JLabel("New Deadline: ");
+        leftLabels[13] = new JLabel("Attempts: ");
         for (final JLabel lbl : leftLabels) {
             lbl.setFont(Skin.BODY_12_FONT);
             lbl.setForeground(Skin.LABEL_COLOR);
@@ -245,12 +275,22 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
         this.statusLabel.setHorizontalAlignment(SwingConstants.CENTER);
         this.statusLabel.setFont(Skin.BODY_12_FONT);
 
+        this.legacy = new JRadioButton("Legacy Course");
+        this.standardsBased = new JRadioButton("Standards-Based Course");
+        final ButtonGroup group = new ButtonGroup();
+        group.add(this.legacy);
+        group.add(this.standardsBased);
+
         this.paceField = new JTextField(2);
         this.paceField.setFont(Skin.BODY_12_FONT);
         this.paceField.setEditable(true);
 
         this.paceTrackField = new JTextField(2);
         this.paceTrackField.setFont(Skin.BODY_12_FONT);
+
+        this.appealTypeDropdown = new JComboBox<>(APPEAL_TYPES);
+        this.appealTypeDropdown.setFont(Skin.BODY_12_FONT);
+        this.appealTypeDropdown.setActionCommand(VALIDATE_CMD);
 
         this.courseField = new JTextField(2);
         this.courseField.setFont(Skin.BODY_12_FONT);
@@ -260,17 +300,17 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
         this.unitField.setFont(Skin.BODY_12_FONT);
         this.unitField.setEditable(true);
 
+        this.objectiveField = new JTextField(2);
+        this.objectiveField.setFont(Skin.BODY_12_FONT);
+        this.objectiveField.setEditable(true);
+
         this.milestoneTypeDropdown = new JComboBox<>(MS_TYPES);
         this.milestoneTypeDropdown.setFont(Skin.BODY_12_FONT);
         this.milestoneTypeDropdown.setActionCommand(VALIDATE_CMD);
 
-        this.reliefGiven = new JCheckBox("Relief Given");
-        this.reliefGiven.setFont(Skin.BODY_12_FONT);
-        this.reliefGiven.setActionCommand(VALIDATE_CMD);
-
-        this.origDatePicker = new JDateChooser(today, holidays, Skin.BODY_12_FONT);
-        this.origDatePicker.setFont(Skin.BODY_12_FONT);
-        this.origDatePicker.setActionCommand(VALIDATE_CMD);
+        this.priorDatePicker = new JDateChooser(today, holidays, Skin.BODY_12_FONT);
+        this.priorDatePicker.setFont(Skin.BODY_12_FONT);
+        this.priorDatePicker.setActionCommand(VALIDATE_CMD);
 
         this.newDatePicker = new JDateChooser(today, holidays, Skin.BODY_12_FONT);
         this.newDatePicker.setFont(Skin.BODY_12_FONT);
@@ -319,40 +359,50 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
         paceAppeal.add(this.statusLabel, StackedBorderLayout.NORTH);
 
         final JPanel flow5 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
-        flow5.add(leftLabels[4]);
-        flow5.add(this.paceField);
-        flow5.add(leftLabels[5]);
-        flow5.add(this.paceTrackField);
+        flow5.add(this.legacy);
+        flow5.add(this.standardsBased);
         paceAppeal.add(flow5, StackedBorderLayout.NORTH);
 
         final JPanel flow6 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
-        flow6.add(leftLabels[6]);
-        flow6.add(this.courseField);
+        flow6.add(leftLabels[4]);
+        flow6.add(this.paceField);
+        flow6.add(leftLabels[5]);
+        flow6.add(this.paceTrackField);
         flow6.add(leftLabels[7]);
-        flow6.add(this.unitField);
+        flow6.add(this.courseField);
         paceAppeal.add(flow6, StackedBorderLayout.NORTH);
 
         final JPanel flow7 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
-        flow7.add(leftLabels[8]);
-        flow7.add(this.milestoneTypeDropdown);
-        flow7.add(new JLabel("      "));
-        flow7.add(this.reliefGiven);
+        flow7.add(leftLabels[6]);
+        flow7.add(this.appealTypeDropdown);
         paceAppeal.add(flow7, StackedBorderLayout.NORTH);
 
         final JPanel flow8 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
+        flow8.add(leftLabels[8]);
+        flow8.add(this.unitField);
         flow8.add(leftLabels[9]);
-        flow8.add(this.origDatePicker);
+        flow8.add(this.objectiveField);
         paceAppeal.add(flow8, StackedBorderLayout.NORTH);
 
         final JPanel flow9 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
         flow9.add(leftLabels[10]);
-        flow9.add(this.newDatePicker);
+        flow9.add(this.milestoneTypeDropdown);
         paceAppeal.add(flow9, StackedBorderLayout.NORTH);
 
-        final JPanel flow10 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
-        flow10.add(leftLabels[11]);
-        flow10.add(this.attemptsAllowedField);
-        paceAppeal.add(flow10, StackedBorderLayout.NORTH);
+        final JPanel flow11 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
+        flow11.add(leftLabels[11]);
+        flow11.add(this.priorDatePicker);
+        paceAppeal.add(flow11, StackedBorderLayout.NORTH);
+
+        final JPanel flow12 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
+        flow12.add(leftLabels[12]);
+        flow12.add(this.newDatePicker);
+        paceAppeal.add(flow12, StackedBorderLayout.NORTH);
+
+        final JPanel flow13 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
+        flow13.add(leftLabels[13]);
+        flow13.add(this.attemptsAllowedField);
+        paceAppeal.add(flow13, StackedBorderLayout.NORTH);
 
         final JLabel circumstancesLbl = new JLabel("Circumstances:");
         circumstancesLbl.setFont(Skin.BODY_12_FONT);
@@ -366,7 +416,7 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
         paceAppeal.add(commentLbl, StackedBorderLayout.NORTH);
         paceAppeal.add(this.commentField, StackedBorderLayout.NORTH);
 
-        // Right side is "student milestone" or "student standard milestone" record, if applicable
+        // Right side is "student milestone" or "student standard milestone" record, as applicable
 
         final JPanel milestoneUpdate = AdmPanelBase.makeOffWhitePanel(new StackedBorderLayout());
 
@@ -399,47 +449,47 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
         this.overrideNewDate.setFont(Skin.BODY_12_FONT);
         this.overrideAttemptsAllowed = new JTextField(2);
 
-        final JPanel flow21 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
+        final JPanel flow31 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
         final JLabel topLbl = new JLabel("Student Milestone Update:");
         topLbl.setFont(Skin.MEDIUM_15_FONT);
-        flow21.add(topLbl);
-        milestoneUpdate.add(flow21, StackedBorderLayout.NORTH);
+        flow31.add(topLbl);
+        milestoneUpdate.add(flow31, StackedBorderLayout.NORTH);
 
-        final JPanel flow22 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
-        flow22.add(rightLabels[0]);
-        flow22.add(this.overrideDescription);
-        milestoneUpdate.add(flow22, StackedBorderLayout.NORTH);
+        final JPanel flow32 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
+        flow32.add(rightLabels[0]);
+        flow32.add(this.overrideDescription);
+        milestoneUpdate.add(flow32, StackedBorderLayout.NORTH);
 
-        final JPanel flow23 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
-        flow23.add(rightLabels[1]);
-        flow23.add(this.overrideOriginalDate);
-        milestoneUpdate.add(flow23, StackedBorderLayout.NORTH);
+        final JPanel flow33 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
+        flow33.add(rightLabels[1]);
+        flow33.add(this.overrideOriginalDate);
+        milestoneUpdate.add(flow33, StackedBorderLayout.NORTH);
 
-        final JPanel flow24 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
-        flow24.add(rightLabels[2]);
-        flow24.add(this.overrideOriginalSource);
-        milestoneUpdate.add(flow24, StackedBorderLayout.NORTH);
+        final JPanel flow34 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
+        flow34.add(rightLabels[2]);
+        flow34.add(this.overrideOriginalSource);
+        milestoneUpdate.add(flow34, StackedBorderLayout.NORTH);
 
-        final JPanel flow25 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
-        flow25.add(rightLabels[3]);
-        flow25.add(this.overrideNewDate);
-        milestoneUpdate.add(flow25, StackedBorderLayout.NORTH);
+        final JPanel flow35 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
+        flow35.add(rightLabels[3]);
+        flow35.add(this.overrideNewDate);
+        milestoneUpdate.add(flow35, StackedBorderLayout.NORTH);
 
-        final JPanel flow26 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
-        flow26.add(rightLabels[4]);
-        flow26.add(this.overrideAttemptsAllowed);
-        milestoneUpdate.add(flow26, StackedBorderLayout.NORTH);
+        final JPanel flow36 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
+        flow36.add(rightLabels[4]);
+        flow36.add(this.overrideAttemptsAllowed);
+        milestoneUpdate.add(flow36, StackedBorderLayout.NORTH);
 
         // Buttons bar at the bottom
 
-        final JPanel flow11 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.CENTER, 5, 3));
+        final JPanel flow21 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.CENTER, 5, 3));
         final Border lineAbove = BorderFactory.createMatteBorder(1, 0, 0, 0, Color.GRAY);
         final Border padAbove = BorderFactory.createEmptyBorder(10, 0, 0, 0);
         final Border buttonBarBorder = BorderFactory.createCompoundBorder(lineAbove, padAbove);
-        flow11.setBorder(buttonBarBorder);
-        flow11.add(this.applyButton);
-        flow11.add(cancelButton);
-        content.add(flow11, StackedBorderLayout.SOUTH);
+        flow21.setBorder(buttonBarBorder);
+        flow21.add(this.applyButton);
+        flow21.add(cancelButton);
+        content.add(flow21, StackedBorderLayout.SOUTH);
 
         if (Objects.nonNull(this.milestone)) {
             final String paceStr = this.milestone.pace.toString();
@@ -468,17 +518,21 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
             }
             this.milestoneTypeDropdown.setEnabled(false);
 
-            this.origDatePicker.setCurrentDate(this.milestone.msDate);
-            this.origDatePicker.setEnabled(false);
+            this.priorDatePicker.setCurrentDate(this.milestone.msDate);
+            this.priorDatePicker.setEnabled(false);
         }
 
         this.appealDatePicker.addActionListener(this);
+        this.legacy.addActionListener(this);
+        this.standardsBased.addActionListener(this);
         this.paceField.getDocument().addDocumentListener(this);
+        this.paceTrackField.getDocument().addDocumentListener(this);
+        this.appealTypeDropdown.addActionListener(this);
         this.courseField.getDocument().addDocumentListener(this);
         this.unitField.getDocument().addDocumentListener(this);
+        this.objectiveField.getDocument().addDocumentListener(this);
         this.milestoneTypeDropdown.addActionListener(this);
-        this.reliefGiven.addActionListener(this);
-        this.origDatePicker.addActionListener(this);
+        this.priorDatePicker.addActionListener(this);
         this.newDatePicker.addActionListener(this);
         this.attemptsAllowedField.getDocument().addDocumentListener(this);
         this.circumstancesField.getDocument().addDocumentListener(this);
@@ -507,14 +561,18 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
     /**
      * Populates all displayed fields for a selected student.
      *
-     * @param userData     the user data
-     * @param data         the student data
-     * @param theMilestone the milestone for which an appeal is being added; {@code null} for a generic appeal that
-     *                     could be for any milestone
+     * @param userData        the user data
+     * @param data            the student data
+     * @param theMilestone    the milestone for which an appeal is being added (only one of {@code theMilestone} and
+     *                        {@code theStdMilestone} should be present)
+     * @param theStdMilestone the standard milestone for which an appeal is being added (only one of
+     *                        {@code theMilestone} and  {@code theStdMilestone} should be present)
      */
-    public void populateDisplay(final UserData userData, final StudentData data, final RawMilestone theMilestone) {
+    public void populateDisplay(final UserData userData, final StudentData data, final RawMilestone theMilestone,
+                                final StandardMilestoneRec theStdMilestone) {
 
         this.milestone = theMilestone;
+        this.stdMilestone = theStdMilestone;
 
         this.studentIdField.setText(data.student.stuId);
 
@@ -541,7 +599,7 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
                 this.courseField.setText("0");
                 this.unitField.setText("0");
                 this.milestoneTypeDropdown.setSelectedIndex(0);
-                this.origDatePicker.setCurrentDate(today);
+                this.priorDatePicker.setCurrentDate(today);
             } else {
                 this.paceField.setText(data.studentTerm.pace == null ? CoreConstants.EMPTY :
                         data.studentTerm.pace.toString());
@@ -549,7 +607,7 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
                 this.courseField.setText(CoreConstants.EMPTY);
                 this.unitField.setText(CoreConstants.EMPTY);
                 this.milestoneTypeDropdown.setSelectedIndex(-1);
-                this.origDatePicker.setCurrentDate(null);
+                this.priorDatePicker.setCurrentDate(null);
             }
         } else {
             final String paceStr = theMilestone.pace.toString();
@@ -569,10 +627,9 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
             } else {
                 this.milestoneTypeDropdown.setSelectedIndex(-1);
             }
-            this.origDatePicker.setCurrentDate(theMilestone.msDate);
+            this.priorDatePicker.setCurrentDate(theMilestone.msDate);
         }
 
-        this.reliefGiven.setSelected(false);
         this.attemptsAllowedField.setText(CoreConstants.EMPTY);
         this.circumstancesField.setText(CoreConstants.EMPTY);
         this.commentField.setText(CoreConstants.EMPTY);
@@ -679,13 +736,13 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
             msType = RawMilestone.FINAL_LAST_TRY;
         }
 
-        if (this.origDatePicker.getCurrentDate() == null) {
+        if (this.priorDatePicker.getCurrentDate() == null) {
             error = "Original deadline date may not be null.";
         } else if (this.interviewerField.getText() == null
-                || this.interviewerField.getText().isBlank()) {
+                   || this.interviewerField.getText().isBlank()) {
             error = "Interviewer may not be blank.";
         } else if (this.circumstancesField.getText() == null
-                || this.circumstancesField.getText().isBlank()) {
+                   || this.circumstancesField.getText().isBlank()) {
             error = "Circumstances field may not be blank.";
         }
 
@@ -723,7 +780,6 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
                     }
                 }
 
-                final boolean enableMilestone = this.reliefGiven.isSelected();
                 final LocalDate newDate = this.newDatePicker.getCurrentDate();
 
                 if (ms == null) {
@@ -740,52 +796,39 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
                     } else {
                         msDesc = CoreConstants.EMPTY;
                     }
-                    if (enableMilestone) {
-                        this.overrideDescription.setText(msDesc);
-                    }
+                    this.overrideDescription.setText(msDesc);
 
                     final LocalDate effectiveDate;
                     if (stms == null) {
                         effectiveDate = ms.msDate;
-                        if (enableMilestone) {
-                            this.overrideOriginalSource.setText("Original milestone");
-                        }
+                        this.overrideOriginalSource.setText("Original milestone");
                     } else {
                         effectiveDate = stms.msDate;
-                        if (enableMilestone) {
-                            this.overrideOriginalSource.setText("Milestone override");
-                        }
+                        this.overrideOriginalSource.setText("Milestone override");
                     }
                     final String dateString = TemporalUtils.FMT_MDY.format(effectiveDate);
-                    if (this.origDatePicker.getCurrentDate() == null) {
-                        this.origDatePicker.setCurrentDate(effectiveDate);
+                    if (this.priorDatePicker.getCurrentDate() == null) {
+                        this.priorDatePicker.setCurrentDate(effectiveDate);
                     }
-                    if (enableMilestone) {
-                        this.overrideOriginalDate.setText(dateString);
-                    }
-
-                    if (enableMilestone) {
-                        this.overrideNewDate.setCurrentDate(newDate);
-                    }
+                    this.overrideOriginalDate.setText(dateString);
+                    this.overrideNewDate.setCurrentDate(newDate);
 
                     final String attemptsStr = this.attemptsAllowedField.getText();
                     if (!(attemptsStr == null || attemptsStr.isBlank())) {
                         try {
                             Integer.parseInt(attemptsStr);
-                            if (enableMilestone) {
-                                this.overrideAttemptsAllowed.setText(attemptsStr);
-                            }
+                            this.overrideAttemptsAllowed.setText(attemptsStr);
                         } catch (final NumberFormatException ex) {
                             // No action
                         }
                     }
                 }
 
-                this.overrideDescription.setEnabled(enableMilestone);
-                this.overrideOriginalDate.setEnabled(enableMilestone);
-                this.overrideOriginalSource.setEnabled(enableMilestone);
-                this.overrideNewDate.setEnabled(enableMilestone);
-                this.overrideAttemptsAllowed.setEnabled(enableMilestone);
+                this.overrideDescription.setEnabled(true);
+                this.overrideOriginalDate.setEnabled(true);
+                this.overrideOriginalSource.setEnabled(true);
+                this.overrideNewDate.setEnabled(true);
+                this.overrideAttemptsAllowed.setEnabled(true);
             } catch (final SQLException ex) {
                 Log.warning("Failed to query milestones.", ex);
             }
@@ -818,8 +861,27 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
             final String stuId = this.studentIdField.getText();
 
             final LocalDate appealDate = this.appealDatePicker.getCurrentDate();
+            final LocalDateTime appealDateTime = LocalDateTime.of(appealDate, LocalTime.now());
 
-            final String relief = this.reliefGiven.isSelected() ? "Y" : "N";
+            String typeCode;
+            final int appealTypeIndex = this.appealTypeDropdown.getSelectedIndex();
+            if (appealTypeIndex == 0) {
+                typeCode = RawMilestoneAppeal.APPEAL_TYPE_ACC;
+            } else if (appealTypeIndex == 1) {
+                typeCode = RawMilestoneAppeal.APPEAL_TYPE_EXC;
+            } else if (appealTypeIndex == 2) {
+                typeCode = RawMilestoneAppeal.APPEAL_TYPE_MED;
+            } else if (appealTypeIndex == 3) {
+                typeCode = RawMilestoneAppeal.APPEAL_TYPE_FAM;
+            } else if (appealTypeIndex == 4) {
+                typeCode = RawMilestoneAppeal.APPEAL_TYPE_FIN;
+            } else if (appealTypeIndex == 5) {
+                typeCode = RawMilestoneAppeal.APPEAL_TYPE_REQ;
+            } else if (appealTypeIndex == 6) {
+                typeCode = RawMilestoneAppeal.APPEAL_TYPE_AUT;
+            } else {
+                typeCode = RawMilestoneAppeal.APPEAL_TYPE_OTH;
+            }
 
             final String paceText = this.paceField.getText();
             final Integer paceInt = Integer.valueOf(paceText);
@@ -846,7 +908,7 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
                 msType = null;
             }
 
-            final LocalDate msDate = this.origDatePicker.getCurrentDate();
+            final LocalDate priorDate = this.priorDatePicker.getCurrentDate();
             final LocalDate newDate = this.newDatePicker.getCurrentDate();
 
             final String attemptsText = this.attemptsAllowedField.getText();
@@ -857,33 +919,32 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
             final String comment = this.commentField.getText();
             final String interviewer = this.interviewerField.getText();
 
-            final RawPaceAppeals newRecord = new RawPaceAppeals(this.active, stuId, appealDate, relief, paceInt,
-                    paceTrack, msNbr, msType, msDate, newDate, numAttempts, circumstances, comment, interviewer);
+            final RawMilestoneAppeal newRecord = new RawMilestoneAppeal(this.active, stuId, appealDateTime,
+                    typeCode, paceInt, paceTrack, msNbr, msType, priorDate, newDate, numAttempts, circumstances,
+                    comment, interviewer);
 
-            RawPaceAppealsLogic.INSTANCE.insert(this.cache, newRecord);
+            RawMilestoneAppealLogic.INSTANCE.insert(this.cache, newRecord);
 
             // If relief was given, also insert or update STMILESTONE
-            if (this.reliefGiven.isSelected()) {
-                final List<RawStmilestone> stmilestones = RawStmilestoneLogic.getStudentMilestones(this.cache,
-                        this.active, paceTrack, stuId);
+            final List<RawStmilestone> stmilestones = RawStmilestoneLogic.getStudentMilestones(this.cache,
+                    this.active, paceTrack, stuId);
 
-                RawStmilestone stms = null;
-                for (final RawStmilestone test : stmilestones) {
-                    if (test.msNbr.equals(msNbr) && test.msType.equals(msType)) {
-                        stms = test;
-                        break;
-                    }
+            RawStmilestone stms = null;
+            for (final RawStmilestone test : stmilestones) {
+                if (test.msNbr.equals(msNbr) && test.msType.equals(msType)) {
+                    stms = test;
+                    break;
                 }
+            }
 
-                if (stms == null) {
-                    final RawStmilestone newRow = new RawStmilestone(this.active, stuId, paceTrack,
-                            msNbr, msType, newDate, numAttempts);
-                    RawStmilestoneLogic.INSTANCE.insert(this.cache, newRow);
-                } else if (!(stms.msDate.equals(newDate) && stms.nbrAtmptsAllow.equals(numAttempts))) {
-                    stms.msDate = newDate;
-                    stms.nbrAtmptsAllow = numAttempts;
-                    RawStmilestoneLogic.update(this.cache, stms);
-                }
+            if (stms == null) {
+                final RawStmilestone newRow = new RawStmilestone(this.active, stuId, paceTrack,
+                        msNbr, msType, newDate, numAttempts);
+                RawStmilestoneLogic.INSTANCE.insert(this.cache, newRow);
+            } else if (!(stms.msDate.equals(newDate) && stms.nbrAtmptsAllow.equals(numAttempts))) {
+                stms.msDate = newDate;
+                stms.nbrAtmptsAllow = numAttempts;
+                RawStmilestoneLogic.update(this.cache, stms);
             }
 
         } catch (final NumberFormatException ex) {

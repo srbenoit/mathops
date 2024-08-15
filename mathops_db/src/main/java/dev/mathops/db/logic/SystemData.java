@@ -1343,7 +1343,7 @@ public final class SystemData {
      * @return the standard milestones
      * @throws SQLException if there is an error accessing the database
      */
-    private List<StandardMilestoneRec> getStandardMilestones() throws SQLException {
+    public List<StandardMilestoneRec> getStandardMilestones() throws SQLException {
 
         if (this.standardMilestones == null) {
             this.standardMilestones = StandardMilestoneLogic.get(this.cache).queryAll(this.cache);
