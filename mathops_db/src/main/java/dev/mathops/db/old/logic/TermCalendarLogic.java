@@ -141,7 +141,8 @@ public enum TermCalendarLogic {
                     if (!holidayDates.contains(date)) {
                         result.add(date);
                     }
-                    if (day == DayOfWeek.FRIDAY) {
+                    final DayOfWeek day2 = date.getDayOfWeek();
+                    if (day2 == DayOfWeek.FRIDAY) {
                         date = date.plusDays(3L);
                     } else {
                         date = date.plusDays(1L);

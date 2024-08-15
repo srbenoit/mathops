@@ -116,6 +116,7 @@ public enum PageLogicPrerequisites {
             for (final String stuId : studentIds) {
 
                 boolean okFor117 = false;
+                boolean provisionalFor117 = false;
                 boolean okFor118 = false;
                 boolean okFor124 = false;
                 boolean okFor125 = false;
@@ -162,37 +163,14 @@ public enum PageLogicPrerequisites {
                     } else if ("M 117".equals(row.course)) {
                         okFor117 = true;
                         okFor118 = true;
-                    } else if ("M 118".equals(row.course)) {
+                    } else if ("M 118".equals(row.course) || "M 124".equals(row.course) || "M 120".equals(row.course)
+                               || "M 141".equals(row.course)) {
                         okFor117 = true;
                         okFor118 = true;
                         okFor124 = true;
                         okFor125 = true;
-                    } else if ("M 124".equals(row.course)) {
-                        okFor117 = true;
-                        okFor118 = true;
-                        okFor124 = true;
-                    } else if ("M 125".equals(row.course) || "M 126".equals(row.course)) {
-                        okFor117 = true;
-                        okFor118 = true;
-                        okFor125 = true;
-                        okFor126 = true;
-                    } else if ("M 120".equals(row.course)) {
-                        okFor117 = true;
-                        okFor118 = true;
-                        okFor124 = true;
-                        okFor125 = true;
-                    } else if ("M 127".equals(row.course)) {
-                        okFor117 = true;
-                        okFor118 = true;
-                        okFor124 = true;
-                        okFor125 = true;
-                        okFor126 = true;
-                    } else if ("M 141".equals(row.course)) {
-                        okFor117 = true;
-                        okFor118 = true;
-                        okFor124 = true;
-                        okFor125 = true;
-                    } else if ("M 155".equals(row.course) || "M 156".equals(row.course) || "M 157".equals(row.course)
+                    } else if ("M 125".equals(row.course) || "M 126".equals(row.course) || "M 127".equals(row.course)
+                               || "M 155".equals(row.course) || "M 156".equals(row.course) || "M 157".equals(row.course)
                                || "M 159".equals(row.course) || "M 160".equals(row.course)
                                || "M 161".equals(row.course)) {
                         okFor117 = true;
@@ -227,10 +205,6 @@ public enum PageLogicPrerequisites {
                 final List<RawStcourse> history = RawStcourseLogic.getHistory(cache, stuId);
 
                 for (final RawStcourse row : history) {
-                    if (row.termKey.equals(active.term)) {
-                        continue;
-                    }
-
                     if ("Y".equals(row.prereqSatis)) {
                         if ("M 117".equals(row.course) && !okFor117) {
                             okFor117 = true;
@@ -246,10 +220,23 @@ public enum PageLogicPrerequisites {
                     }
                 }
 
+                if (!okFor117) {
+                    for (final RawStcourse row : history) {
+                        if (row.termKey.equals(active.term)) {
+                            if (RawRecordConstants.M117.equals(row.course)
+                                && ("801".equals(row.sect) || "809".equals(row.sect))
+                                && ("Y".equals(row.openStatus) || row.openStatus == null)) {
+                                provisionalFor117 = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+
                 final PrerequisiteLogic prereq = new PrerequisiteLogic(cache, stuId);
 
                 if (prereq.hasSatisfiedPrerequisitesFor(RawRecordConstants.M117)) {
-                    if (!okFor117) {
+                    if (!okFor117 && !provisionalFor117) {
                         htm.add("<li style='color:red'>*** WARNING: Logic says student ", stuId,
                                 " eligible for MATH 117");
                     }
@@ -305,16 +292,16 @@ public enum PageLogicPrerequisites {
                         if (okFor117) {
                             if (!"Y".equals(row.prereqSatis)) {
                                 htm.addln("<li style='color:red;'>*** WARNING: ", row.course, " for student ", stuId,
-                                        " (prereq_satis = ", row.prereqSatis, ")</li>");
-//                                RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
-//                                        row.termKey, "Y");
+                                        " (prereq_satis = ", row.prereqSatis, ") - fixed</li>");
+                                RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
+                                        row.termKey, "Y");
                                 ++numIssues;
                             }
                         } else if ("Y".equals(row.prereqSatis)) {
                             htm.addln("<li style='color:red;'>*** WARNING: ", row.course, " for student ", stuId,
-                                    " (prereq_satis = Y)</li>");
-//                            RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
-//                            row.termKey, null);
+                                    " (prereq_satis = Y) - fixed</li>");
+                            RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
+                                    row.termKey, null);
                             ++numIssues;
                         }
                     } else if (RawRecordConstants.M118.equals(row.course)
@@ -322,16 +309,16 @@ public enum PageLogicPrerequisites {
                         if (okFor118) {
                             if (!"Y".equals(row.prereqSatis)) {
                                 htm.addln("<li style='color:red;'>*** WARNING: ", row.course, " for student ", stuId,
-                                        " (prereq_satis = ", row.prereqSatis, ")</li>");
-//                                RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
-//                                        row.termKey, "Y");
+                                        " (prereq_satis = ", row.prereqSatis, ") - fixed</li>");
+                                RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
+                                        row.termKey, "Y");
                                 ++numIssues;
                             }
                         } else if ("Y".equals(row.prereqSatis)) {
                             htm.addln("<li style='color:red;'>*** WARNING: ", row.course, " for student ", stuId,
-                                    " (prereq_satis = Y)</li>");
-//                            RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
-//                            row.termKey, null);
+                                    " (prereq_satis = Y) - fixed</li>");
+                            RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
+                                    row.termKey, null);
                             ++numIssues;
                         }
                     } else if (RawRecordConstants.M124.equals(row.course)
@@ -339,16 +326,16 @@ public enum PageLogicPrerequisites {
                         if (okFor124) {
                             if (!"Y".equals(row.prereqSatis)) {
                                 htm.addln("<li style='color:red;'>*** WARNING: ", row.course, " for student ", stuId,
-                                        " (prereq_satis = ", row.prereqSatis, ")</li>");
-//                                RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
-//                                        row.termKey, "Y");
+                                        " (prereq_satis = ", row.prereqSatis, ") - fixed</li>");
+                                RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
+                                        row.termKey, "Y");
                                 ++numIssues;
                             }
                         } else if ("Y".equals(row.prereqSatis)) {
                             htm.addln("<li style='color:red;'>*** WARNING: ", row.course, " for student ", stuId,
-                                    " (prereq_satis = Y)</li>");
-//                            RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
-//                            row.termKey, null);
+                                    " (prereq_satis = Y) - fixed</li>");
+                            RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
+                                    row.termKey, null);
                             ++numIssues;
                         }
                     } else if (RawRecordConstants.M125.equals(row.course)
@@ -356,16 +343,16 @@ public enum PageLogicPrerequisites {
                         if (okFor125) {
                             if (!"Y".equals(row.prereqSatis)) {
                                 htm.addln("<li style='color:red;'>*** WARNING: ", row.course, " for student ", stuId,
-                                        " (prereq_satis = ", row.prereqSatis, ")</li>");
-//                                RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
-//                                        row.termKey, "Y");
+                                        " (prereq_satis = ", row.prereqSatis, ") - fixed</li>");
+                                RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
+                                        row.termKey, "Y");
                                 ++numIssues;
                             }
                         } else if ("Y".equals(row.prereqSatis)) {
                             htm.addln("<li style='color:red;'>*** WARNING: ", row.course, " for student ", stuId,
-                                    " (prereq_satis = Y)</li>");
-//                            RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
-//                            row.termKey, null);
+                                    " (prereq_satis = Y) - fixed</li>");
+                            RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
+                                    row.termKey, null);
                             ++numIssues;
                         }
                     } else if (RawRecordConstants.M126.equals(row.course)
@@ -373,16 +360,16 @@ public enum PageLogicPrerequisites {
                         if (okFor126) {
                             if (!"Y".equals(row.prereqSatis)) {
                                 htm.addln("<li style='color:red;'>*** WARNING: ", row.course, " for student ", stuId,
-                                        " (prereq_satis = ", row.prereqSatis, ")</li>");
-//                                RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
-//                                        row.termKey, "Y"); 
+                                        " (prereq_satis = ", row.prereqSatis, ") - fixed</li>");
+                                RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
+                                        row.termKey, "Y");
                                 ++numIssues;
                             }
                         } else if ("Y".equals(row.prereqSatis)) {
                             htm.addln("<li style='color:red;'>*** WARNING: ", row.course, " for student ", stuId,
-                                    " (prereq_satis = Y)</li>");
-//                            RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
-//                            row.termKey, null);
+                                    " (prereq_satis = Y) - fixed</li>");
+                            RawStcourseLogic.updatePrereqSatisfied(cache, row.stuId, row.course, row.sect,
+                                    row.termKey, null);
                             ++numIssues;
                         }
                     }

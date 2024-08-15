@@ -519,6 +519,7 @@ public enum MilestoneLogic {
 
         final StudentData studentData = cache.getStudent(stuId);
         if (studentData == null) {
+            Log.warning("Unable to create student data object for ", stuId);
             result = -1;
         } else {
             final SystemData systemData = cache.getSystemData();
@@ -526,6 +527,7 @@ public enum MilestoneLogic {
 
             final RawStudent stu = studentData.getStudentRecord();
             if (stu == null || stu.pacingStructure == null || active == null) {
+                Log.warning("Unable to determine pacing structure for ", stuId);
                 result = -1;
             } else {
                 final RawPacingStructure pacing = systemData.getPacingStructure(stu.pacingStructure, active.term);

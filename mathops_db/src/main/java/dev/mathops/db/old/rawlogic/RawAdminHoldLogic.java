@@ -200,8 +200,8 @@ public final class RawAdminHoldLogic extends AbstractRawLogic<RawAdminHold> {
                 "Your Profile response said you are adding a course whose add deadline "
                         + "has passed");
         STUDENT_HOLD_MSG.put("23",
-                "You are registered for two different formats; pick *all* sect 001 or "
-                        + "*all* sect 401 in RamWeb");
+                "You are registered for two different formats; pick *all* on-campus or "
+                        + "*all* CSU Online sections");
         STUDENT_HOLD_MSG.put("25",
                 "You are working on an INCOMPLETE but have re-registered for the "
                         + "course in error");

@@ -2,15 +2,21 @@ package dev.mathops.db.old.logic;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawSttermLogic;
+import dev.mathops.db.old.rawlogic.RawStudentLogic;
+import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStterm;
+import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.SequencedCollection;
 import java.util.TreeSet;
@@ -376,6 +382,75 @@ public enum PaceTrackLogic {
         }
 
         return lowest;
+    }
+
+    /**
+     * Given a list of in-pace registrations, determines the student's pacing structure.
+     *
+     * @param cache         the data cache
+     * @param stuId         the student ID
+     * @param registrations the list of registrations (this collection could include dropped/withdrawn/ignored
+     *                      registrations or incompletes not counted in pace - such records will be ignored when
+     *                      computing pace track)
+     * @param warnings      a list to which to add warnings
+     * @return the pacing structure; null none can be determined
+     * @throws SQLException if there is an error accessing the database
+     */
+    public static String determinePacingStructure(final Cache cache, final String stuId,
+                                                  final Iterable<RawStcourse> registrations,
+                                                  final Collection<? super String> warnings)
+            throws SQLException {
+
+        final SystemData systemData = cache.getSystemData();
+        final TermRec active = systemData.getActiveTerm();
+
+        final Collection<String> pacingStructures = new HashSet<>(5);
+
+        for (final RawStcourse reg : registrations) {
+            if (isCountedTowardPace(reg)) {
+
+                final RawCsection csection = systemData.getCourseSection(reg.course, reg.sect, active.term);
+                if (csection == null) {
+                    warnings.add("No CSECTION record found for " + reg.course + " section " + reg.sect);
+                } else if (csection.pacingStructure != null) {
+                    pacingStructures.add(csection.pacingStructure);
+                }
+            }
+        }
+
+        final RawStudent student = RawStudentLogic.query(cache, stuId, false);
+
+        String result = null;
+
+        final int count = pacingStructures.size();
+        if (count > 1) {
+            warnings.add("Student " + stuId + " has registrations with different pacing structures.");
+
+            if (pacingStructures.contains("M")) {
+                result = "M";
+            } else if (pacingStructures.contains("O")) {
+                result = "O";
+            } else if (pacingStructures.contains("S")) {
+                result = "S";
+            } else {
+                warnings.add("Student " + stuId + " has no recognized pacing structures.");
+            }
+        } else if (count == 1) {
+            result = pacingStructures.iterator().next();
+            if (student.pacingStructure == null) {
+                warnings.add("Student " + stuId + " registration had pacing structure " + result
+                             + " but student record has null (fixed)");
+                RawStudentLogic.updatePacingStructure(cache, stuId, result);
+            } else if (!student.pacingStructure.equals(result)) {
+                warnings.add("Student " + stuId + " registration had pacing structure " + result
+                             + " but student record has " + student.pacingStructure + " (fixed)");
+                RawStudentLogic.updatePacingStructure(cache, stuId, result);
+            }
+        } else {
+            warnings.add("Unable to determine any pacing structure for student " + stuId);
+        }
+
+        return result;
     }
 
     /**

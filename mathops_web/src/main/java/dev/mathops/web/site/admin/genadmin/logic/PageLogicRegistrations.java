@@ -2,11 +2,13 @@ package dev.mathops.web.site.admin.genadmin.logic;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.Cache;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.logic.RegistrationsLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawSttermLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
+import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rawrecord.RawStudent;
@@ -25,6 +27,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -97,7 +100,9 @@ public enum PageLogicRegistrations {
      */
     private static void scanAllStudents(final Cache cache, final HtmlBuilder htm) throws SQLException {
 
-        final TermRec active = cache.getSystemData().getActiveTerm();
+        final SystemData systemData = cache.getSystemData();
+        final TermRec active = systemData.getActiveTerm();
+
         if (active == null) {
             htm.sH(4).add("Unable to query the active term.").eH(4);
         } else {
@@ -142,6 +147,12 @@ public enum PageLogicRegistrations {
                                             + " and pace track = " + track);
                     }
 
+                    final String pacingStructure = PaceTrackLogic.determinePacingStructure(cache, stuId, inPaceRegs,
+                            regs.warnings());
+                    if (pacingStructure == null) {
+                        regs.warnings().add("Unable to determine pacing structure");
+                    }
+
                     final Map<String, Integer> paceMap = paceTrackCounts.get(pace - 1);
                     final Integer current = paceMap.get(track);
                     if (current == null) {
@@ -152,7 +163,7 @@ public enum PageLogicRegistrations {
                 }
 
                 if (!regs.warnings().isEmpty()) {
-                    htm.sP().add("<strong style='color:red'>*** WARNINGS for student ", stuId, " ***)</strong>").eP();
+                    htm.sP().add("<strong style='color:red'>*** WARNINGS for student ", stuId, " ***</strong>").eP();
                     htm.addln("<ul style='margin-top:0;'>");
                     for (final String row : regs.warnings()) {
                         htm.add("<li>").add(row).addln("</li>");
@@ -204,14 +215,16 @@ public enum PageLogicRegistrations {
      * @param stuId the student ID
      * @throws SQLException if there is an error accessing the database
      */
-    private static void scanOneStudent(final Cache cache, final HtmlBuilder htm, final String stuId) throws SQLException {
+    private static void scanOneStudent(final Cache cache, final HtmlBuilder htm, final String stuId)
+            throws SQLException {
 
         final RawStudent student = RawStudentLogic.query(cache, stuId, false);
         if (student == null) {
             htm.sH(4).add("Student ", stuId, " not found in database.").eH(4);
         } else {
             final String screenName = student.getScreenName();
-            htm.sH(4).add("Registrations for student ", stuId, " (", screenName, ")").eH(4);
+            htm.sH(4).add("Registrations for student ", stuId, " (", screenName, "), pacing structure ",
+                    student.pacingStructure).eH(4);
 
             final RegistrationsLogic.ActiveTermRegistrations regs =
                     RegistrationsLogic.gatherActiveTermRegistrations(cache, stuId);
@@ -219,28 +232,53 @@ public enum PageLogicRegistrations {
             final List<RawStcourse> inPaceRegs = regs.inPace();
 
             if (!inPaceRegs.isEmpty()) {
+
+                final Collection<String> pacingStructures = new HashSet<>(5);
+
+                final SystemData systemData = cache.getSystemData();
+                final TermRec active = systemData.getActiveTerm();
+
                 htm.sP().add("<strong>Counted toward pace</strong>").eP();
                 htm.addln("<ul style='margin-top:0;'>");
                 for (final RawStcourse row : inPaceRegs) {
                     htm.add("<li>").add(row.course, " (", row.sect, "), pace order = ", row.paceOrder,
-                            ", open = ", row.openStatus, ", completed = ", row.completed).addln("</li>");
+                            ", open = ", row.openStatus, ", completed = ", row.completed);
+
+                    final RawCsection csection = systemData.getCourseSection(row.course, row.sect, active.term);
+                    if (csection == null) {
+                        htm.add(" (no CSECTION found");
+                    } else {
+                        htm.add(" pacing structure = ", csection.pacingStructure);
+                        if (csection.pacingStructure != null) {
+                            pacingStructures.add(csection.pacingStructure);
+                        }
+                    }
+
+                    htm.addln("</li>");
                 }
                 htm.addln("</ul>");
 
                 final int pace = PaceTrackLogic.determinePace(inPaceRegs);
                 final String track = PaceTrackLogic.determinePaceTrack(inPaceRegs, pace);
+                final String pacing = PaceTrackLogic.determinePacingStructure(cache, stuId, inPaceRegs,
+                        regs.warnings());
 
-                htm.sP("indent").add("Calculated pace = ", pace + " and pace track = ", track).eP();
+                htm.sP("indent").add("Calculated pace = ", pace + ", pace track = ", track, " and pacing structure = ",
+                        pacing).eP();
 
-                final TermRec active = cache.getSystemData().getActiveTerm();
                 final RawStterm stterm = RawSttermLogic.query(cache, active.term, stuId);
                 if (stterm == null) {
                     htm.sP("indent").add("(There is no STTERM record for this student yet").eP();
                 } else if (stterm.pace.intValue() == pace && stterm.paceTrack.equals(track)) {
                     htm.sP("indent").add("STTERM record found and has correct pace and pace track.").eP();
                 } else {
-                    htm.sP("indent").add("*** WARNING: STTERM record found but has pace = ", stterm.pace,
-                            " and pace track ", stterm.paceTrack).eP();
+                    htm.sP("indent").add("<strong style='color:red'>*** WARNING: STTERM record found but has pace = "
+                            , stterm.pace, " and pace track ", stterm.paceTrack, "</strong>").eP();
+                }
+
+                if (pacing == null) {
+                    htm.sP("indent").add("<strong style='color:red'>",
+                            "*** WARNING: Unable to determine pacing structure</strong>").eP();
                 }
             }
 

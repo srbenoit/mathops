@@ -140,23 +140,23 @@ public class PrecalcTutorialLogic {
 
         boolean doneWith117 = hasPlacedOut(RawRecordConstants.M117)
                               || prereqLogic.hasCreditFor(RawRecordConstants.M117);
-        Log.info("Done with 117: + " + doneWith117);
+//        Log.info("Done with 117: " + doneWith117);
 
         boolean doneWith118 = hasPlacedOut(RawRecordConstants.M118)
                               || prereqLogic.hasCreditFor(RawRecordConstants.M118);
-        Log.info("Done with 118: + " + doneWith117);
+//        Log.info("Done with 118: " + doneWith117);
 
         boolean doneWith124 = hasPlacedOut(RawRecordConstants.M124)
                               || prereqLogic.hasCreditFor(RawRecordConstants.M124);
-        Log.info("Done with 124: + " + doneWith124);
+//        Log.info("Done with 124: " + doneWith124);
 
         boolean doneWith125 = hasPlacedOut(RawRecordConstants.M125)
                               || prereqLogic.hasCreditFor(RawRecordConstants.M125);
-        Log.info("Done with 125: + " + doneWith125);
+//        Log.info("Done with 125: " + doneWith125);
 
         boolean doneWith126 = hasPlacedOut(RawRecordConstants.M126)
                               || prereqLogic.hasCreditFor(RawRecordConstants.M126);
-        Log.info("Done with 126: + " + doneWith126);
+//        Log.info("Done with 126: " + doneWith126);
 
         final boolean needsPrecalc = !doneWith117 || !doneWith118 || !doneWith124 || !doneWith125 || !doneWith126;
 

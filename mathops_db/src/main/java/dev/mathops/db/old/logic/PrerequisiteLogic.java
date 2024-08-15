@@ -27,6 +27,9 @@ import java.util.List;
  */
 public final class PrerequisiteLogic {
 
+    /** Flag to turn on debugging messages. */
+    private static final boolean DEBUG = false;
+
     /** The student ID. */
     private final String studentId;
 
@@ -175,8 +178,10 @@ public final class PrerequisiteLogic {
         for (final RawStcourse test : this.allHistory) {
             if (test.course.equals(courseId) && "Y".equals(test.prereqSatis)) {
                 prereqSatisfied = true;
-                Log.info("* Satisfied prerequisite for ", courseId,
-                        " because past registration shows prerequisites satisfied");
+                if (DEBUG) {
+                    Log.info("* Satisfied prerequisite for ", courseId,
+                            " because past registration shows prerequisites satisfied");
+                }
                 break;
             }
         }
@@ -189,8 +194,10 @@ public final class PrerequisiteLogic {
                 for (final RawStcourse complete : this.allCompletions) {
                     if (preq.equals(complete.course)) {
                         prereqSatisfied = true;
-                        Log.info("* Satisfied prerequisite for ", courseId,
-                                " because course was completed in the past");
+                        if (DEBUG) {
+                            Log.info("* Satisfied prerequisite for ", courseId,
+                                    " because course was completed in the past");
+                        }
                         break outer;
                     }
                 }
@@ -199,8 +206,10 @@ public final class PrerequisiteLogic {
                 for (final RawMpeCredit cred : this.allPlacementCredit) {
                     if (preq.equals(cred.course)) {
                         prereqSatisfied = true;
-                        Log.info("* Satisfied prerequisite for ", courseId,
-                                " through placement credit for ", cred.course);
+                        if (DEBUG) {
+                            Log.info("* Satisfied prerequisite for ", courseId,
+                                    " through placement credit for ", cred.course);
+                        }
                         break outer;
                     }
                 }
@@ -209,8 +218,10 @@ public final class PrerequisiteLogic {
                 for (final RawFfrTrns xfer : this.allTransfer) {
                     if (preq.equals(xfer.course)) {
                         this.satisfiedByTransfer.add(courseId);
-                        Log.info("* Satisfied prerequisite for ", courseId,
-                                " through transfer credit for ", xfer.course);
+                        if (DEBUG) {
+                            Log.info("* Satisfied prerequisite for ", courseId,
+                                    " through transfer credit for ", xfer.course);
+                        }
                         prereqSatisfied = true;
                         break outer;
                     }
@@ -237,7 +248,9 @@ public final class PrerequisiteLogic {
             }
 
             if ("801".equals(sect) || "809".equals(sect)) {
-                Log.info("* Satisfied prerequisite because registered in 80X section of 117");
+                if (DEBUG) {
+                    Log.info("* Satisfied prerequisite because registered in 80X section of 117");
+                }
                 prereqSatisfied = true;
             }
         }
@@ -307,7 +320,7 @@ public final class PrerequisiteLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final PrerequisiteLogic prereq = new PrerequisiteLogic(cache, "837352363");
+                final PrerequisiteLogic prereq = new PrerequisiteLogic(cache, "837011470");
 
                 Log.fine("Student: ", prereq.studentId);
 

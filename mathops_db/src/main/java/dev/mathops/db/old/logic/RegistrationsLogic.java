@@ -2,12 +2,14 @@ package dev.mathops.db.old.logic;
 
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
+import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rec.RecBase;
 import dev.mathops.db.old.svc.term.TermRec;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -28,11 +30,20 @@ import java.util.List;
 public enum RegistrationsLogic {
     ;
 
+    /** The list of legacy course IDs. */
+    private static final List<String> LEGACY_COURSE_IDS = Arrays.asList(RawRecordConstants.M117,
+            RawRecordConstants.M118, RawRecordConstants.M124, RawRecordConstants.M125, RawRecordConstants.M126);
+
+    /** The list of standards-based course IDs. */
+    private static final List<String> STANDARDS_BASED_COURSE_IDS = Arrays.asList(RawRecordConstants.MATH117,
+            RawRecordConstants.MATH118, RawRecordConstants.MATH124, RawRecordConstants.MATH125,
+            RawRecordConstants.MATH126);
+
     /** A comparator to order counted Incompletes by deadline date, then course ID. */
-    private static final CountedIncompleteComparator COUNTED_INCOMPLETE_COMPARATOR = new CountedIncompleteComparator();
+    private static final Comparator<RawStcourse> COUNTED_INCOMPLETE_COMPARATOR = new CountedIncompleteComparator();
 
     /** A comparator that uses only course ID. */
-    private static final CourseIDComparator COURSE_ID_COMPARATOR = new CourseIDComparator();
+    private static final Comparator<RawStcourse> COURSE_ID_COMPARATOR = new CourseIDComparator();
 
     /**
      * Gathers all active term registrations for a student.
@@ -129,7 +140,7 @@ public enum RegistrationsLogic {
      * @param warnings a list to which to add warnings
      */
     private static void sortPacedRegistrations(final List<RawStcourse> toSort, final Collection<RawStcourse> sorted,
-                                               final List<? super String> warnings) {
+                                               final Collection<? super String> warnings) {
 
         // Do "counted" incompletes first
         int numCounted = 0;
@@ -344,6 +355,44 @@ public enum RegistrationsLogic {
     public record ActiveTermRegistrations(List<RawStcourse> inPace, List<RawStcourse> uncountedIncompletes,
                                           List<RawStcourse> dropped, List<RawStcourse> ignored,
                                           List<RawStcourse> creditByExam, List<String> warnings) {
+
+        /**
+         * Tests whether this student has any courses in their "paced" list that are standards-based.
+         *
+         * @return true if the student has at least one standards-based course
+         */
+        public boolean hasStandardsBased() {
+
+            boolean hasStandardsBased = false;
+
+            for (final RawStcourse row : this.inPace) {
+                if (STANDARDS_BASED_COURSE_IDS.contains(row.course)) {
+                    hasStandardsBased = true;
+                    break;
+                }
+            }
+
+            return hasStandardsBased;
+        }
+
+        /**
+         * Tests whether this student has any courses in their "paced" list that are legacy mastery courses.
+         *
+         * @return true if the student has at least one legacy mastery course
+         */
+        public boolean hasLegacy() {
+
+            boolean hasLegacy = false;
+
+            for (final RawStcourse row : this.inPace) {
+                if (LEGACY_COURSE_IDS.contains(row.course)) {
+                    hasLegacy = true;
+                    break;
+                }
+            }
+
+            return hasLegacy;
+        }
     }
 
     /**

@@ -332,16 +332,20 @@ public enum SetHolds {
             boolean hasNormalRI = false;
             boolean hasLateStartRI = false;
             boolean hasNormalCE = false;
+
             boolean hasF2F117Sect003 = false;
             boolean hasF2F117Sect004 = false;
             boolean hasF2F117Sect005 = false;
             boolean hasF2F117Sect006 = false;
             boolean hasF2F117Sect007 = false;
             boolean hasF2F117Sect008 = false;
+
             boolean hasF2F118Sect003 = false;
+
             boolean hasF2F125Sect003 = false;
             boolean hasF2F125Sect004 = false;
             boolean hasF2F125Sect005 = false;
+
             boolean hasF2F126Sect003 = false;
 
             for (final RawStcourse reg : regs) {
@@ -405,6 +409,10 @@ public enum SetHolds {
                 }
             }
 
+            final boolean hasF2F = hasF2F117Sect003 || hasF2F117Sect004 || hasF2F117Sect005 || hasF2F117Sect006
+                                   || hasF2F117Sect007 || hasF2F117Sect008 || hasF2F118Sect003 || hasF2F125Sect003
+                                   || hasF2F125Sect004 || hasF2F125Sect005 || hasF2F126Sect003;
+
             boolean applyHold23 = false;
 
             if (hasNormalCE) {
@@ -412,46 +420,46 @@ public enum SetHolds {
                     Log.warning("Student '", stuId,
                             "' is registered for both online and distance sections - adding hold 23");
                     applyHold23 = true;
-                } else if (hasF2F117Sect003 || hasF2F117Sect004 || hasF2F117Sect005 || hasF2F117Sect006
-                           || hasF2F117Sect007 || hasF2F117Sect008 || hasF2F118Sect003 || hasF2F125Sect003
-                           || hasF2F125Sect004 || hasF2F125Sect005 || hasF2F126Sect003) {
+                } else if (hasF2F) {
                     Log.warning("Student '", stuId,
-                            "' is registered for both online and face-to-face sections - adding hold 23");
+                            "' is registered for both distance and face-to-face sections - adding hold 23");
+                    applyHold23 = true;
                 }
             } else if (hasLateStartRI) {
                 if (hasNormalRI) {
                     Log.warning("Student '", stuId,
                             "' is registered for both normal and late-start sections - adding hold 23");
                     applyHold23 = true;
-                } else if (hasF2F117Sect003 || hasF2F117Sect004 || hasF2F117Sect005 || hasF2F117Sect006
-                           || hasF2F117Sect007 || hasF2F117Sect008 || hasF2F118Sect003 || hasF2F125Sect003
-                           || hasF2F125Sect004 || hasF2F125Sect005 || hasF2F126Sect003) {
+                } else if (hasF2F) {
                     Log.warning("Student '", stuId,
                             "' is registered for both late-start and face-to-face sections - adding hold 23");
+                    applyHold23 = true;
                 }
             } else if (hasNormalRI) {
-                if (hasF2F117Sect003 || hasF2F117Sect004 || hasF2F117Sect005 || hasF2F117Sect006
-                    || hasF2F117Sect007 || hasF2F117Sect008 || hasF2F118Sect003 || hasF2F125Sect003
-                    || hasF2F125Sect004 || hasF2F125Sect005 || hasF2F126Sect003) {
-                    Log.warning("Student '", stuId,
-                            "' is registered for both online and face-to-face sections - adding hold 23");
+                if (hasF2F) {
+                    Log.warning("Student '", stuId, "' is registered for both online and face-to-face sections - ",
+                            "try to make it work with deadline overrides");
                 }
             } else if (hasF2F117Sect003) {
                 if (hasF2F125Sect003 || hasF2F125Sect004 || hasF2F125Sect005 || hasF2F126Sect003) {
                     Log.warning("Student '", stuId,
                             "' is registered for face-to-face MATH 117 and MATH 125 - adding hold 23");
+                    applyHold23 = true;
                 }
             } else if (hasF2F117Sect004 || hasF2F117Sect005 || hasF2F117Sect006 || hasF2F117Sect007
                        || hasF2F117Sect008) {
                 if (hasF2F118Sect003) {
                     Log.warning("Student '", stuId,
                             "' has MATH 117 (004/005/006/007/008), but MATH 118 (003) - adding hold 23");
+                    applyHold23 = true;
                 } else if (hasF2F125Sect003 || hasF2F125Sect004 || hasF2F125Sect005 || hasF2F126Sect003) {
                     Log.warning("Student '", stuId,
                             "' is registered for face-to-face MATH 117 and MATH 125 - adding hold 23");
+                    applyHold23 = true;
                 }
             } else if (hasF2F118Sect003) {
                 Log.warning("Student '", stuId, "' has MATH 118 (003), but not MATH 117 (003) - adding hold 23");
+                applyHold23 = true;
             }
 
             if (applyHold23) {

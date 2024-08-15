@@ -173,7 +173,7 @@ enum PageSchedule {
         for (final RawStcourse reg : paceReg) {
             if (reg.paceOrder == null) {
                 Log.warning("Registration for " + reg.stuId + " in " + reg.course
-                        + " with no pace order assigned - resetting pace orders");
+                            + " with no pace order assigned - resetting pace orders");
                 allInOrder = false;
                 break;
             }
@@ -299,30 +299,28 @@ enum PageSchedule {
         }
 
         if (!paceReg.isEmpty()) {
-            final boolean allMidterms = presentPaceCourses(cache, logic, htm, paceReg);
+            presentPaceCourses(cache, logic, htm, paceReg);
 
             final TermRec active = cache.getSystemData().getActiveTerm();
             htm.addln("<ul class='boxlist'>");
 
-            if (!allMidterms) {
-                htm.addln("<li class='boxlist'>");
-                htm.addln(" You may retake Unit Exams and Final Exams through the last regular ",
-                        "class day of the ", active.term.longString, " term to improve ",
-                        "your score in any course in which the Final Exam is passed by the deadline ",
-                        "date.");
-                htm.addln("</li>");
-            }
+            htm.addln("<li class='boxlist'>");
+            htm.addln(" You may retake Unit Exams and Final Exams through the last regular class day of the ",
+                    active.term.longString, " term to improve your score in any course in which the Final Exam is ",
+                    "passed by the deadline date.");
+            htm.addln("</li>");
 
             // If we're still before the term withdrawal deadline, show a message
             final LocalDate wDeadline = active.withdrawDeadline;
             if (paceReg.size() > 1 && wDeadline != null
-                    && !wDeadline.isBefore(logic.data.now.toLocalDate())) {
+                && !wDeadline.isBefore(logic.data.now.toLocalDate())) {
                 htm.addln("<li class='boxlist'>");
-                htm.addln(" If you fail to complete a course by its deadline, you may withdraw ",
-                        "from one or more courses, which will adjust the deadline dates for the ",
-                        "courses that remain.");
+                htm.addln(" If you fail to complete a course by its deadline, you may withdraw from one or more ",
+                        "courses, which will adjust the deadline dates for the courses that remain.");
                 htm.addln("</li>");
             }
+
+            htm.addln("</ul>");
         }
     }
 
@@ -405,8 +403,7 @@ enum PageSchedule {
                 }
                 htm.addln("</strong> according to the schedule shown below.</p>");
 
-                htm.addln("<p>You must <strong>PASS</strong> each exam listed below by its ",
-                        "deadline date.</p>");
+                htm.addln("<p>You must <strong>PASS</strong> each exam listed below by its deadline date.</p>");
             }
         }
 
@@ -550,12 +547,10 @@ enum PageSchedule {
      * @param logic   the site logic
      * @param htm     the {@code HtmlBuilder} to which to append the HTML
      * @param paceReg the list of registrations that contribute toward pace
-     * @return {@code true} if all registrations are based on midterms rather than unit and final exams; {@code false}
-     *         if at least one course uses unit and final exams
      * @throws SQLException if there is an error accessing the database
      */
-    private static boolean presentPaceCourses(final Cache cache, final CourseSiteLogic logic,
-                                              final HtmlBuilder htm, final Iterable<RawStcourse> paceReg)
+    private static void presentPaceCourses(final Cache cache, final CourseSiteLogic logic,
+                                           final HtmlBuilder htm, final Iterable<RawStcourse> paceReg)
             throws SQLException {
 
         final TermRec active = cache.getSystemData().getActiveTerm();
@@ -591,12 +586,54 @@ enum PageSchedule {
                 htm.addln(" </span>");
                 htm.eP();
             } else {
-                presentPaceCourse(cache, logic, htm, reg, course, csUnits, pacingStructure);
+                if ("S".equals(pacingStructure.pacingStructure)) {
+                    presentStandardsBasedCourse(cache, logic, htm, reg, course, csUnits, pacingStructure);
+                } else {
+                    presentPaceCourse(cache, logic, htm, reg, course, csUnits, pacingStructure);
+                }
             }
         }
         htm.eDiv(); // indent22
+    }
 
-        return true;
+    /**
+     * Presents information on a single face-to-face course.
+     *
+     * @param cache           the data cache
+     * @param logic           the site logic
+     * @param htm             the {@code HtmlBuilder} to which to append the HTML
+     * @param reg             the registration record
+     * @param course          the course record
+     * @param csUnits         the set of units records
+     * @param pacingStructure the pacing structure record
+     * @throws SQLException if there is an error accessing the database
+     */
+    private static void presentStandardsBasedCourse(final Cache cache, final CourseSiteLogic logic,
+                                                    final HtmlBuilder htm, final RawStcourse reg,
+                                                    final RawCourse course, final RawCusection[] csUnits,
+                                                    final RawPacingStructure pacingStructure) throws SQLException {
+
+        final String courseId = reg.course;
+        final String sectionNum = reg.sect;
+
+        htm.sP();
+
+        htm.sDiv("left").add("<img src='/images/stock-jump-to-32.png'/> &nbsp;").eDiv();
+
+        htm.sDiv("larger", "style='height:32px;line-height:24px;'");
+        htm.addln(" <strong>", course.courseLabel, ": ", course.courseName, ", <span class='gray'>Section ", sectionNum,
+                "</span></strong>");
+
+        if (reg.iDeadlineDt != null) {
+            htm.addln(" (Incomplete)");
+        }
+        htm.eDiv(); // larger
+
+        htm.div("clear");
+
+        htm.sDiv("indent22");
+        htm.sP().addln("This is a face-to-face section.  Deadlines for assignments are set by your instructor.").eP();
+        htm.eDiv().hr(); // indent22
     }
 
     /**
@@ -658,9 +695,9 @@ enum PageSchedule {
             final String type = milestoneRec.msType;
 
             if ("US".equals(type) || "SR".equals(type)
-                    || "H1".equals(type) || "H2".equals(type)
-                    || "H3".equals(type) || "H4".equals(type)
-                    || "H5".equals(type) || "UE".equals(type)) {
+                || "H1".equals(type) || "H2".equals(type)
+                || "H3".equals(type) || "H4".equals(type)
+                || "H5".equals(type) || "UE".equals(type)) {
                 continue;
             }
 
@@ -712,8 +749,7 @@ enum PageSchedule {
                 case "F1" -> {
                     RawStexam firstPassing = null;
                     // FIXME: Hardcoded unit number 4
-                    final List<RawStexam> stuExams =
-                            actData.getStudentExams(courseId, Integer.valueOf(4));
+                    final List<RawStexam> stuExams = actData.getStudentExams(courseId, Integer.valueOf(4));
                     for (final RawStexam stexam : stuExams) {
                         if ("U".equals(stexam.examType) && "Y".equals(stexam.isFirstPassed)) {
                             firstPassing = stexam;
@@ -909,7 +945,7 @@ enum PageSchedule {
             boolean unitRequiresReview = false;
             for (final RawPacingRules rule : rsRules) {
                 if ("UE".equals(rule.activityType)
-                        && RawPacingRules.UR_MSTR.equals(rule.requirement)) {
+                    && RawPacingRules.UR_MSTR.equals(rule.requirement)) {
                     unitRequiresReview = true;
                     break;
                 }
@@ -997,6 +1033,7 @@ enum PageSchedule {
         }
 
         htm.addln("</ul>");
+
         htm.eDiv().hr(); // indent22
     }
 
@@ -1273,7 +1310,7 @@ enum PageSchedule {
             final int index = paceRegs.indexOf(reg);
             if (index >= 0) {
                 Log.info("presentCourseOrderPage setting " + reg.course + " pace order to " + newOrder + " for "
-                        + reg.stuId);
+                         + reg.stuId);
                 SiteDataRegistration.updatePaceOrder(cache, reg, newOrder);
                 paceRegs.set(index, reg);
             }
@@ -2171,7 +2208,7 @@ enum PageSchedule {
 
                     if (whichCourse.equals(reg.course)) {
                         Log.info("Setting " + reg.course + " to pace order " + i + " for "
-                                + reg.stuId + " based on schedule page form submission");
+                                 + reg.stuId + " based on schedule page form submission");
                         SiteDataRegistration.updatePaceOrder(cache, reg, Integer.valueOf(i));
                         allReg.set(j, reg);
                         break;

@@ -832,8 +832,7 @@ public final class ImportBannerStudentRegistrations {
 
             final String stuId = entry.getKey();
 
-            // Find all existing records for this student (and remove them from the "dbRegs" list
-            // as we go)
+            // Find all existing records for this student (and remove them from the "dbRegs" list as we go)
             stuDbRegs.clear();
             final Iterator<RawStcourse> iter = dbRegs.iterator();
             while (iter.hasNext()) {
@@ -865,8 +864,8 @@ public final class ImportBannerStudentRegistrations {
             }
         }
 
-        // If there remain DB registrations that had no Banner registration, mark them as
-        // dropped and not on final class roll.
+        // If there remain DB registrations that had no Banner registration, mark them as dropped and not on final
+        // class roll.
         final Collection<String> studentIds = new HashSet<>(dbRegs.size());
         for (final RawStcourse obsolete : dbRegs) {
             report.add("  Marking as dropped registration for " + obsolete.stuId + " in " + obsolete.course + SECTION

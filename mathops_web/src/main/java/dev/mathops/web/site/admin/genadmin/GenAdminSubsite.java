@@ -227,6 +227,7 @@ public final class GenAdminSubsite extends AbstractSubsite {
 
                 case "logic_registrations.html" -> PageLogicRegistrations.doPost(cache, this.site, req, resp, session);
                 case "logic_prerequisites.html" -> PageLogicPrerequisites.doPost(cache, this.site, req, resp, session);
+                case "logic_milestones.html" -> PageLogicMilestones.doPost(cache, this.site, req, resp, session);
 
                 case null, default -> {
                     Log.warning("POST: unknown path '", subpath, "'");
