@@ -3,10 +3,14 @@ package dev.mathops.web.site.course;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.old.logic.MilestoneLogic;
+import dev.mathops.db.old.rawrecord.RawStterm;
+import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.EProctoringOption;
 import dev.mathops.db.enums.ERole;
@@ -18,8 +22,6 @@ import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawCunit;
 import dev.mathops.db.old.rawrecord.RawCuobjective;
 import dev.mathops.db.old.rawrecord.RawCusection;
-import dev.mathops.db.old.rawrecord.RawEtext;
-import dev.mathops.db.old.rawrecord.RawEtextCourse;
 import dev.mathops.db.old.rawrecord.RawExam;
 import dev.mathops.db.old.rawrecord.RawLesson;
 import dev.mathops.db.old.rawrecord.RawLessonComponent;
@@ -32,7 +34,6 @@ import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ExamWriter;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
-import dev.mathops.session.sitelogic.bogus.ETextLogic;
 import dev.mathops.session.sitelogic.data.SiteDataCfgCourse;
 import dev.mathops.session.sitelogic.data.SiteDataCfgCourseStatus;
 import dev.mathops.session.sitelogic.data.SiteDataCfgExamStatus;
@@ -53,12 +54,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.chrono.ChronoZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -93,7 +91,7 @@ enum PageOutline {
         final String error = req.getParameter("error");
 
         if (AbstractSite.isParamInvalid(course) || AbstractSite.isParamInvalid(mode)
-                || AbstractSite.isParamInvalid(errorExam) || AbstractSite.isParamInvalid(error)) {
+            || AbstractSite.isParamInvalid(errorExam) || AbstractSite.isParamInvalid(error)) {
             Log.warning("Invalid request parameters - possible attack:");
             Log.warning("  course='", course, "'");
             Log.warning("  mode='", mode, "'");
@@ -105,23 +103,252 @@ enum PageOutline {
             PageError.doGet(cache, site, req, resp, session,
                     "No course and mode provided for course outline");
         } else {
-            final HtmlBuilder htm = new HtmlBuilder(2000);
-            Page.startOrdinaryPage(htm, site.getTitle(), session, false, Page.ADMIN_BAR | Page.USER_DATE_BAR, null,
-                    false, true);
+            emitOutlineContent(cache, siteType, site, req, resp, session, logic, course, mode, errorExam, error, null);
+        }
+    }
 
-            htm.sDiv("menupanelu");
-            CourseMenu.buildMenu(cache, site, session, logic, htm);
-            htm.sDiv("panelu");
+    /**
+     * Emits the outline content.
+     *
+     * @param cache     the data cache
+     * @param siteType  the site type
+     * @param site      the owning site
+     * @param req       the request
+     * @param resp      the response
+     * @param session   the user's login session information
+     * @param logic     the course site logic
+     * @param course    the course ID
+     * @param mode      the page mode
+     * @param errorExam the error exam
+     * @param error     the error
+     * @param preMsg    an optional message to show at the top of the page
+     * @throws IOException  if there is an error writing the response
+     * @throws SQLException if there is an error accessing the database
+     */
+    private static void emitOutlineContent(final Cache cache, final ESiteType siteType, final CourseSite site,
+                                           final ServletRequest req, final HttpServletResponse resp,
+                                           final ImmutableSessionInfo session, final CourseSiteLogic logic,
+                                           final String course, final String mode, final String errorExam,
+                                           final String error, final String preMsg) throws IOException, SQLException {
 
-            doOutline(cache, siteType, site, session, logic, course, mode, errorExam, error, htm, null);
+        final HtmlBuilder htm = new HtmlBuilder(2000);
+        Page.startOrdinaryPage(htm, site.getTitle(), session, false, Page.ADMIN_BAR | Page.USER_DATE_BAR, null,
+                false, true);
 
-            htm.eDiv(); // panelu
-            htm.eDiv(); // menupanelu
+        htm.sDiv("menupanelu");
+        CourseMenu.buildMenu(cache, site, session, logic, htm);
+        htm.sDiv("panelu");
 
-            Page.endOrdinaryPage(cache, site, htm, true);
+        doOutline(cache, siteType, site, session, logic, course, mode, errorExam, error, htm, null, preMsg);
 
-            AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML,
-                    htm.toString().getBytes(StandardCharsets.UTF_8));
+        htm.eDiv(); // panelu
+        htm.eDiv(); // menupanelu
+
+        Page.endOrdinaryPage(cache, site, htm, true);
+
+        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML,
+                htm.toString().getBytes(StandardCharsets.UTF_8));
+    }
+
+    /**
+     * Processes a POST request when the user wants to apply an available accommodation extension.
+     *
+     * @param cache    the data cache
+     * @param siteType the site type
+     * @param site     the owning site
+     * @param req      the request
+     * @param resp     the response
+     * @param session  the user's login session information
+     * @param logic    the course site logic
+     * @throws IOException  if there is an error writing the response
+     * @throws SQLException if there is an error accessing the database
+     */
+    static void doRequestAccomExtension(final Cache cache, final ESiteType siteType, final CourseSite site,
+                                        final ServletRequest req, final HttpServletResponse resp,
+                                        final ImmutableSessionInfo session, final CourseSiteLogic logic)
+            throws IOException, SQLException {
+
+        final String course = req.getParameter("course");
+        final String stu = req.getParameter("stu");
+        final String track = req.getParameter("track");
+        final String pace = req.getParameter("pace");
+        final String index = req.getParameter("index");
+        final String unit = req.getParameter("unit");
+        final String type = req.getParameter("type");
+
+        if (AbstractSite.isParamInvalid(course)) {
+            Log.warning("Invalid request parameters - possible attack:");
+            Log.warning("  course='", course, "'");
+            PageError.doGet(cache, site, req, resp, session, "No course and mode provided for course outline");
+        } else if (AbstractSite.isParamInvalid(stu) || AbstractSite.isParamInvalid(track)
+                   || AbstractSite.isParamInvalid(pace) || AbstractSite.isParamInvalid(index)
+                   || AbstractSite.isParamInvalid(unit) || AbstractSite.isParamInvalid(type)) {
+            Log.warning("Invalid request parameters - possible attack:");
+            Log.warning("  stu='", stu, "'");
+            Log.warning("  track='", track, "'");
+            Log.warning("  pace='", pace, "'");
+            Log.warning("  index='", index, "'");
+            Log.warning("  unit='", unit, "'");
+            Log.warning("  type='", type, "'");
+
+            final String msg = """
+                    We were unable to apply your accommodation extension.
+                    Please send an email to precalc_math@colostate.edu to let us know of this issue.""";
+            emitOutlineContent(cache, siteType, site, req, resp, session, logic, course, "course", null, null, msg);
+        } else {
+            String msg = null;
+
+            if (stu != null && track != null && pace != null && index != null && unit != null && type != null) {
+                if (session.getEffectiveUserId().equals(stu)) {
+                    try {
+                        final int paceValue = Integer.parseInt(pace);
+                        final int indexValue = Integer.parseInt(index);
+                        final int unitValue = Integer.parseInt(unit);
+
+                        final int days = MilestoneLogic.applyLegacyAccommodationExtension(cache, stu, track,
+                                paceValue, indexValue, unitValue, type);
+
+                        logic.gatherData();
+
+                        final String typeStr = "RE".equals(type) ? "Review Exam" :
+                                ("FE".equals(type) ? "Final Exam" : "Exam");
+
+                        if (days > 100) {
+                            final int granted = days % 100;
+                            final String grantedStr = Integer.toString(granted);
+                            final int available = days / 100;
+                            final String availableStr = Integer.toString(available);
+                            msg = SimpleBuilder.concat("You had an extension of ", availableStr,
+                                    " days available for the Unit ", unit, " ", typeStr,
+                                    " based on your accommodation, but there were only ", grantedStr,
+                                    " days before the end of the term, so we moved your deadline to the end of the ",
+                                    "term.  If you cannot finish the course by the end of the term, please stop in to ",
+                                    "the Precalculus Center (Weber 137) or send an email to ",
+                                    "precalc_math@colostate.edu to discuss your situation.");
+                        } else if (days > 0 || days == -1) {
+                            msg = SimpleBuilder.concat("Your accommodation extension on the Unit ", unit, " ", typeStr,
+                                    " has been applied.");
+                        } else if (days == 0) {
+                            msg = """
+                                    We were unable to apply your accommodation extension.
+                                    Please send an email to precalc_math@colostate.edu to let us know of this issue.""";
+                        }
+                    } catch (final NumberFormatException ex) {
+                        Log.warning("Attempt to apply accommodation extension for ", stu, " with invalid parameters.");
+                        msg = """
+                                We were unable to apply your accommodation extension.
+                                Please send an email to precalc_math@colostate.edu to let us know of this issue.""";
+                    }
+                } else {
+                    Log.warning("Attempt to apply accommodation extension for ", stu,
+                            " from session with effective user ID ", session.getEffectiveUserId());
+                    msg = """
+                            We were unable to apply your accommodation extension.
+                            Please send an email to precalc_math@colostate.edu to let us know of this issue.""";
+                }
+            } else {
+                Log.warning("Attempt to apply accommodation extension for ", stu, " with missing required parameters.");
+                msg = """
+                        We were unable to apply your accommodation extension.
+                        Please send an email to precalc_math@colostate.edu to let us know of this issue.""";
+            }
+
+            emitOutlineContent(cache, siteType, site, req, resp, session, logic, course, "course", null, null, msg);
+        }
+    }
+
+    /**
+     * Processes a POST request when the user wants to apply an available free extension.
+     *
+     * @param cache    the data cache
+     * @param siteType the site type
+     * @param site     the owning site
+     * @param req      the request
+     * @param resp     the response
+     * @param session  the user's login session information
+     * @param logic    the course site logic
+     * @throws IOException  if there is an error writing the response
+     * @throws SQLException if there is an error accessing the database
+     */
+    static void doRequestFreeExtension(final Cache cache, final ESiteType siteType, final CourseSite site,
+                                       final ServletRequest req, final HttpServletResponse resp,
+                                       final ImmutableSessionInfo session, final CourseSiteLogic logic)
+            throws IOException, SQLException {
+
+        final String course = req.getParameter("course");
+        final String stu = req.getParameter("stu");
+        final String track = req.getParameter("track");
+        final String pace = req.getParameter("pace");
+        final String index = req.getParameter("index");
+        final String unit = req.getParameter("unit");
+        final String type = req.getParameter("type");
+
+        if (AbstractSite.isParamInvalid(course)) {
+            Log.warning("Invalid request parameters - possible attack:");
+            Log.warning("  course='", course, "'");
+            PageError.doGet(cache, site, req, resp, session, "No course and mode provided for course outline");
+        } else if (AbstractSite.isParamInvalid(stu) || AbstractSite.isParamInvalid(track)
+                   || AbstractSite.isParamInvalid(pace) || AbstractSite.isParamInvalid(index)
+                   || AbstractSite.isParamInvalid(unit) || AbstractSite.isParamInvalid(type)) {
+            Log.warning("Invalid request parameters - possible attack:");
+            Log.warning("  stu='", stu, "'");
+            Log.warning("  track='", track, "'");
+            Log.warning("  pace='", pace, "'");
+            Log.warning("  index='", index, "'");
+            Log.warning("  unit='", unit, "'");
+            Log.warning("  type='", type, "'");
+
+            final String msg = """
+                    We were unable to apply your free extension.
+                    Please send an email to precalc_math@colostate.edu to let us know of this issue.""";
+            emitOutlineContent(cache, siteType, site, req, resp, session, logic, course, "course", null, null, msg);
+        } else {
+            String msg = null;
+
+            if (stu != null && track != null && pace != null && index != null && unit != null && type != null) {
+                if (session.getEffectiveUserId().equals(stu)) {
+                    try {
+                        final int paceValue = Integer.parseInt(pace);
+                        final int indexValue = Integer.parseInt(index);
+                        final int unitValue = Integer.parseInt(unit);
+
+                        final int days = MilestoneLogic.applyLegacyFreeExtension(cache, stu, track,
+                                paceValue, indexValue, unitValue, type);
+
+                        logic.gatherData();
+
+                        final String typeStr = "RE".equals(type) ? "Review Exam" :
+                                ("FE".equals(type) ? "Final Exam" : "Exam");
+
+                        if (days > 0 || days == -1) {
+                            msg = SimpleBuilder.concat("Your free extension on the Unit ", unit, " ", typeStr,
+                                    " has been applied.");
+                        } else if (days == 0) {
+                            msg = """
+                                    We were unable to apply your free extension.
+                                    Please send an email to precalc_math@colostate.edu to let us know of this issue.""";
+                        }
+                    } catch (final NumberFormatException ex) {
+                        Log.warning("Attempt to apply free extension for ", stu, " with invalid parameters.");
+                        msg = """
+                                We were unable to apply your free extension.
+                                Please send an email to precalc_math@colostate.edu to let us know of this issue.""";
+                    }
+                } else {
+                    Log.warning("Attempt to apply free extension for ", stu,
+                            " from session with effective user ID ", session.getEffectiveUserId());
+                    msg = """
+                            We were unable to apply your free extension.
+                            Please send an email to precalc_math@colostate.edu to let us know of this issue.""";
+                }
+            } else {
+                Log.warning("Attempt to apply free extension for ", stu, " with missing required parameters.");
+                msg = """
+                        We were unable to apply your free extension.
+                        Please send an email to precalc_math@colostate.edu to let us know of this issue.""";
+            }
+
+            emitOutlineContent(cache, siteType, site, req, resp, session, logic, course, "course", null, null, msg);
         }
     }
 
@@ -141,12 +368,13 @@ enum PageOutline {
      * @param htm                the {@code HtmlBuilder} to which to append the HTML
      * @param skillsReviewCourse the course for which this course is being presented as a skills review, {@code null} if
      *                           this course is being presented on its own
+     * @param preMsg             an optional message to show at the top of the page
      * @throws SQLException if there is an error accessing the database
      */
     static void doOutline(final Cache cache, final ESiteType siteType, final CourseSite site,
                           final ImmutableSessionInfo session, final CourseSiteLogic logic, final String courseId,
                           final String mode, final String errorExam, final String error, final HtmlBuilder htm,
-                          final String skillsReviewCourse) throws SQLException {
+                          final String skillsReviewCourse, final String preMsg) throws SQLException {
 
         final ZonedDateTime now = session.getNow();
         final String userId = session.getEffectiveUserId();
@@ -210,20 +438,24 @@ enum PageOutline {
             final StudentCourseStatus courseStatus = new StudentCourseStatus(site.getDbProfile());
 
             if (courseStatus.gatherData(cache, session, userId, courseId, false, isPractice)
-                    && courseStatus.getCourse().courseName != null) {
+                && courseStatus.getCourse().courseName != null) {
 
                 csection = courseStatus.getCourseSection();
                 if ("course".equals(mode)) {
+
+                    if (preMsg != null) {
+                        htm.sDiv("box");
+                        htm.add("<b>", preMsg, "</b>");
+                        htm.eDiv();
+                        htm.div("vgap2");
+                    }
 
                     if (skillsReviewCourse == null) {
 
                         // Normal course display (user's exam, e-text, status, course outline)
                         doUsersExamLink(cache, now, courseStatus, htm);
 
-                        doBookPurchaseLink(cache, session, courseId, mode, htm);
-
-                        if (courseStatus.isStudentLicensed()
-                                && ETextLogic.canStudentAccessCourse(cache, session, courseId)) {
+                        if (courseStatus.isStudentLicensed()) {
 
                             final String section = csection.sect;
 
@@ -264,20 +496,16 @@ enum PageOutline {
                         doUsersExamLink(cache, now, courseStatus, htm);
                     }
 
-                    // Require book purchased in all modes
-                    doBookPurchaseLink(cache, session, courseId, mode, htm);
-
                     if ("locked".equals(mode)) {
                         // Require licensed in locked mode
-                        if (courseStatus.isStudentLicensed()
-                                && ETextLogic.canStudentAccessCourse(cache, session, courseId)) {
+                        if (courseStatus.isStudentLicensed()) {
 
                             // TODO: Locked status display at top
 
                             doCourseOutline(cache, siteType, site, session, logic, courseStatus, mode, errorExam,
                                     error, htm, null);
                         }
-                    } else if (ETextLogic.canStudentAccessCourse(cache, session, courseId)) {
+                    } else {
                         // Don't require licensed in practice mode
                         doCourseOutline(cache, siteType, site, session, logic, courseStatus, mode, errorExam, error,
                                 htm, null);
@@ -332,7 +560,7 @@ enum PageOutline {
                 htm.sP().add("Information on User's Exam not found.");
                 avail = false;
             } else if ((cusection.firstTestDt == null)
-                    || !cusection.firstTestDt.isAfter(now.toLocalDate())) {
+                       || !cusection.firstTestDt.isAfter(now.toLocalDate())) {
                 avail = true;
             } else {
                 htm.eP();
@@ -350,118 +578,6 @@ enum PageOutline {
             }
 
             htm.br();
-            htm.eDiv();
-            htm.eDiv();
-        }
-    }
-
-    /**
-     * Tests whether the student has purchased the e-text, and if not, presents the link to do so.
-     *
-     * @param cache    the data cache
-     * @param session  the user's login session information
-     * @param courseId the ID of the course
-     * @param mode     the mode under which course is being accessed
-     * @param htm      the {@code HtmlBuilder} to which to append the HTML
-     * @throws SQLException if there is an error accessing the database
-     */
-    private static void doBookPurchaseLink(final Cache cache, final ImmutableSessionInfo session,
-                                           final String courseId, final String mode, final HtmlBuilder htm)
-            throws SQLException {
-
-        if (!ETextLogic.canStudentAccessCourse(cache, session, courseId)) {
-
-            htm.div("vgap");
-            htm.hr();
-            htm.sP("indent2");
-            htm.addln(" In order to access instructional materials, you will need to purchase an");
-            htm.addln(" e-text activation code.  These codes may be purchased through");
-            htm.addln(" the <a target='_blank' href='",
-                    "https://www.bookstore.colostate.edu/shop/supplies/class-kits/csu-precalculus-tutorial'");
-            htm.addln(">Colorado State University Bookstore</a></strong>.");
-            htm.eP();
-
-            htm.sP("indent2");
-            htm.addln("  CSU Bookstore staff will email your access code within 24 hours of");
-            htm.addln("  receiving your order. Allow additional processing time when ordering");
-            htm.addln("  Precalculus access codes after 4 pm on Friday, and during the final");
-            htm.addln("  two weeks of August and January. You will not be charged for shipping");
-            htm.addln("  on the access code even though their website may display a shipping");
-            htm.addln("  charge.");
-            htm.eP();
-            htm.hr();
-
-            htm.div("vgap");
-
-            htm.sDiv("indent11");
-            htm.sDiv("advice", "style='text-align:center;'");
-            htm.addln("  <strong class='red'>");
-            htm.addln("    You have not yet entered an access code for an e-text for ");
-            htm.addln("    this course.");
-            htm.addln("  </strong>");
-            htm.br().br();
-
-            // Find the e-texts that can grant access to this course and that are active
-
-            final SystemData systemData = cache.getSystemData();
-
-            final List<RawEtextCourse> etCourses = systemData.getETextCoursesByCourseId(courseId);
-            final List<RawEtext> etexts = systemData.getETexts();
-            final Collection<RawEtext> urlEtexts = new ArrayList<>(etexts.size());
-            boolean keyEntry = false;
-
-            for (final RawEtext etext : etexts) {
-                if ("Y".equals(etext.active)) {
-                    final String etextId = etext.etextId;
-
-                    for (final RawEtextCourse etCourse : etCourses) {
-                        if (etextId.equals(etCourse.etextId)) {
-                            if ("Y".equals(etext.keyEntry)) {
-                                keyEntry = true;
-                            }
-                            if (etext.purchaseUrl != null) {
-                                urlEtexts.add(etext);
-                            }
-                        }
-                    }
-                }
-            }
-
-            for (final RawEtext etext : urlEtexts) {
-
-                final String url = etext.purchaseUrl;
-                final String url1 = url.replace("%STUDENT_ID%", session.getEffectiveUserId());
-                final String url2 = url1.replace("%SESSION_ID%", session.loginSessionId);
-                final String url3 = url2.replace("%ETEXT_ID%", etext.etextId);
-
-                htm.addln(" <form method='POST' action='", url3, "'>");
-                htm.add("  <button class='btn' type='submit'>", etext.buttonLabel, "</button>");
-                if ("C".equals(etext.retention)) {
-                    htm.sDiv("red");
-                    htm.addln(" * For courses <strong>completed</strong> using this e-Text,");
-                    htm.addln("   course materials will remain available in future terms.");
-                    htm.eDiv();
-                }
-                htm.addln("</form>");
-            }
-
-            if (keyEntry) {
-                htm.sDiv("indent").hr();
-                htm.addln("  If you purchased an e-Text access code through the <strong>");
-                htm.addln("  <a target='_blank' href='",
-                        "https://www.bookstore.colostate.edu/shop/supplies/class-kits/csu-precalculus-tutorial'");
-                htm.addln(">Colorado State University Bookstore</a></strong>, activate here:");
-
-                htm.addln("  <form method='POST' action='etext_key_entry.html'>");
-                htm.addln("   <input type='hidden' id='course' name='course' value='", courseId, "'>");
-                htm.addln("   <input type='hidden' id='mode' name='mode' value='", mode, "'>");
-                htm.addln("   <input type='text' id='key' name='key'>");
-                htm.addln("   <button class='btn' type='submit'>Activate Key</button>");
-                htm.addln("  </form>").hr();
-                htm.eDiv();
-            }
-
-            htm.br().br();
             htm.eDiv();
             htm.eDiv();
         }
@@ -631,7 +747,7 @@ enum PageOutline {
                                 htm.add("Not&nbsp;yet&nbsp;passed - <strong>due&nbsp;", reDeadline, "</strong>");
                             }
                         } else if (cusect.rePointsOntime != null
-                                && cusect.rePointsOntime.intValue() > 0) {
+                                   && cusect.rePointsOntime.intValue() > 0) {
 
                             if (reStatus.passedOnTime) {
                                 rePoints = Integer.valueOf(reStatus.onTimePoints);
@@ -845,7 +961,7 @@ enum PageOutline {
             }
 
             if (RawRecordConstants.M124.equals(courseId)
-                    || RawRecordConstants.M126.equals(courseId)) {
+                || RawRecordConstants.M126.equals(courseId)) {
                 htm.div("vgap");
                 htm.sDiv("indent22");
                 htm.sDiv("blue");
@@ -859,8 +975,8 @@ enum PageOutline {
 
             // Show incomplete deadline date if applicable
             if (reg.iDeadlineDt != null //
-                    && !"Y".equals(reg.iCounted)
-                    && "Y".equals(reg.iInProgress)) {
+                && !"Y".equals(reg.iCounted)
+                && "Y".equals(reg.iInProgress)) {
 
                 htm.div("vgap");
                 htm.sDiv("indent11");
@@ -893,13 +1009,11 @@ enum PageOutline {
      *                           this course is being presented on its own
      * @throws SQLException if there is an error accessing the database
      */
-    private static void doCourseOutline(final Cache cache, final ESiteType siteType,
-                                        final CourseSite site, final ImmutableSessionInfo session,
-                                        final CourseSiteLogic logic,
+    private static void doCourseOutline(final Cache cache, final ESiteType siteType, final CourseSite site,
+                                        final ImmutableSessionInfo session, final CourseSiteLogic logic,
                                         final StudentCourseStatus courseStatus, final String mode,
-                                        final String errorExam,
-                                        final String error, final HtmlBuilder htm, final String skillsReviewCourse)
-            throws SQLException {
+                                        final String errorExam, final String error, final HtmlBuilder htm,
+                                        final String skillsReviewCourse) throws SQLException {
 
         // This is essentially a table of contents for the e-text, with student-specific status
         // on each entry, and selected enable/disable.
@@ -1124,7 +1238,7 @@ enum PageOutline {
         htm.div("clear");
 
         if ("course".equals(mode) && courseStatus.isCourseGatewayPassed()
-                && !courseStatus.isCourseGatewayAttempted() && unitExam != null) {
+            && !courseStatus.isCourseGatewayAttempted() && unitExam != null) {
             htm.sDiv(null, "style='padding-left:37px;'");
             htm.add("Based on your course status, you are not required to pass the ", examTitle,
                     ". However, you may practice the exam.");
@@ -1139,10 +1253,10 @@ enum PageOutline {
 
         String gwCourse = null;
         if (RawRecordConstants.M117.equals(stcourse.course) //
-                && ("801".equals(stcourse.sect)
+            && ("801".equals(stcourse.sect)
                 || "809".equals(stcourse.sect)
                 || "401".equals(stcourse.sect))
-                && "P".equals(stcourse.prereqSatis)) {
+            && "P".equals(stcourse.prereqSatis)) {
 
             gwCourse = RawRecordConstants.M100T;
             examId = "17ELM";
@@ -1379,10 +1493,20 @@ enum PageOutline {
 
                 htm.sDiv("indent2");
                 htm.addln("<img src='/images/info.png' alt=''/> ");
-                htm.addln("<strong class='blue' style='position:relative;top:2px;'>The Unit ",
-                        Integer.toString(unitNum), " Exam is due ",
-                        TemporalUtils.FMT_MDY.format(deadline), ".</strong>");
-                htm.eDiv(); // indent2
+                htm.add("<strong class='blue' style='position:relative;top:2px;'>The Unit ",
+                        Integer.toString(unitNum), " Exam is due ");
+
+                final LocalDate today = LocalDate.now();
+                if (today.equals(deadline)) {
+                    htm.add("TODAY");
+                } else if (today.plusDays(1L).equals(deadline)) {
+                    htm.add("TOMORROW");
+                } else {
+                    final String deadlineStr = TemporalUtils.FMT_MDY.format(deadline);
+                    htm.add(deadlineStr);
+                }
+
+                htm.addln(".</strong>").eDiv(); // indent2
 
                 htm.div("vgap");
             }
@@ -1393,10 +1517,20 @@ enum PageOutline {
 
                 htm.sDiv("indent2");
                 htm.addln("<img src='/images/info.png' alt=''/> ");
-                htm.addln("<strong class='blue' style='position:relative;top:2px;'>The Unit ",
-                        Integer.toString(unitNum), " Review Exam is due ",
-                        TemporalUtils.FMT_MDY.format(deadline), ".</strong>");
-                htm.eDiv(); // indent2
+                htm.add("<strong class='blue' style='position:relative;top:2px;'>The Unit ",
+                        Integer.toString(unitNum), " Review Exam is due ");
+
+                final LocalDate today = LocalDate.now();
+                if (today.equals(deadline)) {
+                    htm.add("TODAY");
+                } else if (today.plusDays(1L).equals(deadline)) {
+                    htm.add("TOMORROW");
+                } else {
+                    final String deadlineStr = TemporalUtils.FMT_MDY.format(deadline);
+                    htm.add(deadlineStr);
+                }
+
+                htm.addln(".</strong>").eDiv(); // indent2
 
                 htm.div("vgap");
             }
@@ -1426,10 +1560,10 @@ enum PageOutline {
 
                 // Show a link to take the exam with proctoring service
                 if (RawRecordConstants.M117.equals(courseId)
-                        || RawRecordConstants.M118.equals(courseId)
-                        || RawRecordConstants.M124.equals(courseId)
-                        || RawRecordConstants.M125.equals(courseId)
-                        || RawRecordConstants.M126.equals(courseId)) {
+                    || RawRecordConstants.M118.equals(courseId)
+                    || RawRecordConstants.M124.equals(courseId)
+                    || RawRecordConstants.M125.equals(courseId)
+                    || RawRecordConstants.M126.equals(courseId)) {
                     doCanvasUnitExam(cache, siteType, session, courseStatus, unitNum, actualMode, htm);
                 }
             }
@@ -1736,9 +1870,9 @@ enum PageOutline {
 
             final boolean avail;
             avail = (!courseStatus.hasHomework(unit, seqNum.intValue())
-                    || courseStatus.isHomeworkAvailable(unit, seqNum.intValue()))
+                     || courseStatus.isHomeworkAvailable(unit, seqNum.intValue()))
                     || "Instructor Lecture not yet viewed."
-                    .equals(courseStatus.getHomeworkReason(unit, seqNum.intValue()));
+                            .equals(courseStatus.getHomeworkReason(unit, seqNum.intValue()));
             final String status = courseStatus.getHomeworkStatus(unit, seqNum.intValue());
 
             // Show any "PREMED" media components for the lesson in the outline page
@@ -1910,7 +2044,6 @@ enum PageOutline {
                 htm.addln("</form>");
                 htm.eDiv();
             } else if (reviewAvail) {
-
                 htm.addln(" <input type='hidden' name='mode' value='course'/>");
                 htm.addln(" <input type='hidden' name='course' value='", course.course, "'/>");
                 htm.addln(" <input type='hidden' name='exam' value='", version, "'/>");
@@ -1918,12 +2051,14 @@ enum PageOutline {
 
                 final String status = courseStatus.getReviewStatus(unitNum);
 
+                boolean passedOnTime = false;
                 if ("Passed".equals(status)) {
                     htm.add(" <span class='why_done'>",
                             "<img src='/images/check.png' style='position:relative;top:-2px;' alt=''/> Passed ");
 
                     if (courseStatus.isReviewPassedOnTime(unitNum)) {
                         htm.add("(On-Time)");
+                        passedOnTime = true;
                     } else {
                         htm.add("(Late)");
                     }
@@ -1935,24 +2070,8 @@ enum PageOutline {
                 htm.eDiv();
                 htm.addln("</form>");
 
-                if (dueDate != null) {
-                    final LocalDate extendedDueDate = computeExtendedDueDate(cache, courseStatus, sessionNow, unitNum,
-                            dueDate);
-                    if (extendedDueDate != null) {
-                        // If passed late, but within extended deadline window, allow student to request extension
-                        final LocalDate earliestPassing = courseStatus.getEarliestPassingReview(unitNum);
-
-                        if ("Passed".equals(status) && !courseStatus.isReviewPassedOnTime(unitNum)
-                                && !earliestPassing.isAfter(extendedDueDate)) {
-
-                            // FIXME: How to detect, in the calculation of the "due date" whether the automatic
-                            //  extension has already been used?
-
-                            // TODO: Make this a button in a form that actually requests the extension
-                            htm.sP().add("You may request an extension of this due date until ",
-                                    TemporalUtils.FMT_WMD_LONG.format(extendedDueDate)).eP();
-                        }
-                    }
+                if (dueDate != null && !passedOnTime) {
+                    emitReviewExamExtensions(cache, courseStatus, dueDate, unitNum, htm);
                 }
 
                 htm.eDiv(); // indent2
@@ -1970,24 +2089,18 @@ enum PageOutline {
                 htm.addln("</form>");
 
                 if (dueDate != null) {
-                    final LocalDate extendedDueDate = computeExtendedDueDate(cache, courseStatus, sessionNow, unitNum,
-                            dueDate);
-                    if (extendedDueDate != null) {
-                        // TODO: Make this a button in a form that actually requests the extension
-                        htm.sP().add("You may request an extension of this due date until ",
-                                TemporalUtils.FMT_WMD_LONG.format(extendedDueDate)).eP();
-                    }
+                    emitReviewExamExtensions(cache, courseStatus, dueDate, unitNum, htm);
                 }
 
                 htm.eDiv(); // indent
             }
 
-            final int timesTaken = courseStatus.getProctoredTimesTaken(unitNum);
-            final int curScore = courseStatus.getScores().getRawUnitExamScore(unitNum);
-            final int perfectScore = courseStatus.getPerfectScore(unitNum);
-            final boolean isPassing = courseStatus.isPassing(unitNum);
-
             if (unitExam != null) {
+                final int timesTaken = courseStatus.getProctoredTimesTaken(unitNum);
+                final int curScore = courseStatus.getScores().getRawUnitExamScore(unitNum);
+                final int perfectScore = courseStatus.getPerfectScore(unitNum);
+                final boolean isPassing = courseStatus.isPassing(unitNum);
+
                 if (timesTaken > 0) {
                     htm.div("gap2");
                     htm.sDiv("indent");
@@ -2035,7 +2148,7 @@ enum PageOutline {
                     final int nextUnit = unitNum + 1;
 
                     if ("Y".equals(courseStatus.getPacingStructure().requireUnitExams)
-                            && nextUnit <= courseStatus.getMaxUnit()) {
+                        && nextUnit <= courseStatus.getMaxUnit()) {
                         final RawCusection nextSecUnit =
                                 courseStatus.getCourseSectionUnit(nextUnit);
 
@@ -2112,60 +2225,96 @@ enum PageOutline {
     }
 
     /**
-     * Computes the "extended due date" for the automatically-granted extension allowed to every student.
+     * Checks whether the student is eligible for automatic extensions on a Review Exam, and emits buttons to request
+     * those.
      *
      * @param cache        the data cache
-     * @param courseStatus the student's status in the course
-     * @param sessionNow   the time to consider "now"
-     * @param unitNum      the unit
-     * @param dueDate      the original due date
-     * @return the extended due date, if applicable; null if not
+     * @param courseStatus the course status object
+     * @param dueDate      the current review exam due date
+     * @param unitNum      the unit number
+     * @param htm          the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private static LocalDate computeExtendedDueDate(final Cache cache, final StudentCourseStatus courseStatus,
-                                                    final ZonedDateTime sessionNow, final int unitNum,
-                                                    final LocalDate dueDate) throws SQLException {
+    private static void emitReviewExamExtensions(final Cache cache, final StudentCourseStatus courseStatus,
+                                                 final LocalDate dueDate, final int unitNum, final HtmlBuilder htm)
+            throws SQLException {
 
-        // FIXME: We are temporarily using "coupon_cost" to store the number of days of extension we allow for a
-        //  review exam on request.
+        final RawStterm stterm = courseStatus.getStudentTerm();
+        final RawStcourse stcourse = courseStatus.getStudentCourse();
 
-        // TODO: See if the student has already used the automatic extension for this unit...
+        final RawStudent stu = courseStatus.getStudent();
+        final String course = courseStatus.getCourse().course;
 
-        int lateDaysAllowed = 0;
-        final RawCusection cusection = courseStatus.getCourseSectionUnit(unitNum);
-        if (cusection != null && cusection.couponCost != null) {
-            lateDaysAllowed = cusection.couponCost.intValue();
-        }
+        if (stcourse != null && stcourse.paceOrder != null && stterm != null && stterm.pace != null
+            && stterm.paceTrack != null) {
 
-        LocalDate extendedDueDate = null;
-        final LocalDate today = sessionNow.toLocalDate();
-        if (dueDate != null && today.isAfter(dueDate) && lateDaysAllowed > 0) {
-            // See if an "automatically granted" extension makes sense...
-            final SystemData systemData = cache.getSystemData();
+            final int index = stcourse.paceOrder.intValue();
+            final int paceInt = stterm.pace.intValue();
 
-            extendedDueDate = dueDate;
-            for (int i = 0; i < lateDaysAllowed; ++i) {
-                extendedDueDate = extendedDueDate.plusDays(1L);
-                final DayOfWeek day = extendedDueDate.getDayOfWeek();
+            final int accommodationExtensionDays = MilestoneLogic.daysAvailableLegacyAccommodationExtension(
+                    cache, stu.stuId, stterm.paceTrack, paceInt, index, unitNum, "RE");
 
-                if (day == DayOfWeek.SATURDAY) {
-                    extendedDueDate = extendedDueDate.plusDays(2L);
-                } else if (day == DayOfWeek.SUNDAY) {
-                    extendedDueDate = extendedDueDate.plusDays(1L);
-                }
+            if (accommodationExtensionDays == 0) {
+                htm.sP("indent");
+                htm.add("Your SDC accommodation extension has already been applied to this due date.");
+                htm.eP();
+            } else if (accommodationExtensionDays > 0) {
+                // If the due date is in the past or near future, show SDC accommodation
+                final LocalDate today = LocalDate.now();
+                final LocalDate soon = today.plusDays(4L);
+                if (dueDate.isBefore(soon)) {
+                    final String daysStr = Integer.toString(accommodationExtensionDays);
 
-                while (systemData.isHoliday(extendedDueDate)) {
-                    extendedDueDate = extendedDueDate.plusDays(1L);
+                    htm.addln("<form method='POST' action='request_accom_extension.html'>");
+
+                    htm.sP("indent").add("You have an extension of ", daysStr,
+                            " days available based on your SDC accommodation.").br();
+                    htm.addln(" <input type='hidden' name='course' value='", course, "'/>");
+                    htm.addln(" <input type='hidden' name='stu' value='", stu.stuId, "'/>");
+                    htm.addln(" <input type='hidden' name='track' value='", stterm.paceTrack, "'/>");
+                    htm.addln(" <input type='hidden' name='pace' value='", stterm.pace, "'/>");
+                    htm.addln(" <input type='hidden' name='index' value='", index, "'/>");
+                    htm.addln(" <input type='hidden' name='unit' value='", unitNum, "'/>");
+                    htm.addln(" <input type='hidden' name='type' value='RE'/>");
+
+                    htm.addln(" &nbsp; <button class='smallbtn' type='submit'>",
+                            "Apply my accommodation extension</button>");
+                    htm.eP();
+                    htm.addln("</form>");
                 }
             }
 
-            final LocalDate lastClassDay = systemData.getLastClassDay();
-            if (lastClassDay.isAfter(extendedDueDate)) {
-                extendedDueDate = lastClassDay;
+            final int freeExtensionDays = MilestoneLogic.daysAvailableLegacyFreeExtension(cache, stu.stuId,
+                    stterm.paceTrack, paceInt, index, unitNum, "RE");
+
+            if (freeExtensionDays == 0) {
+                htm.sP("indent");
+                htm.add("Your free extension has already been applied to this due date.");
+                htm.eP();
+            } else if (freeExtensionDays > 0) {
+                // If the due date is in the past or near future, show SDC accommodation
+                final LocalDate today = LocalDate.now();
+                final LocalDate soon = today.plusDays(2L);
+                if (dueDate.isBefore(soon)) {
+                    final String daysStr = Integer.toString(freeExtensionDays);
+                    htm.addln("<form method='POST' action='request_free_extension.html'>");
+                    htm.sP("indent");
+                    htm.add("All students are allowed a ", daysStr,
+                            "-day free extension to account for unexpected situations that may arise.").br();
+
+                    htm.addln(" <input type='hidden' name='course' value='", course, "'/>");
+                    htm.addln(" <input type='hidden' name='stu' value='", stu.stuId, "'/>");
+                    htm.addln(" <input type='hidden' name='track' value='", stterm.paceTrack, "'/>");
+                    htm.addln(" <input type='hidden' name='pace' value='", stterm.pace, "'/>");
+                    htm.addln(" <input type='hidden' name='index' value='", index, "'/>");
+                    htm.addln(" <input type='hidden' name='unit' value='", unitNum, "'/>");
+                    htm.addln(" <input type='hidden' name='type' value='RE'/>");
+                    htm.addln(" &nbsp; <button class='smallbtn' type='submit'>Apply my free extension</button>");
+                    htm.eP();
+                    htm.addln("</form>");
+                }
             }
         }
-
-        return extendedDueDate;
     }
 
     /**
@@ -2353,7 +2502,7 @@ enum PageOutline {
                 htm.eP();
 
                 final boolean nonCountedIncomplete = courseStatus.isIncompleteInProgress()
-                        && "N".equals(courseStatus.getStudentCourse().iCounted);
+                                                     && "N".equals(courseStatus.getStudentCourse().iCounted);
 
                 if (!nonCountedIncomplete) {
                     // Don't show "Last try" prompt for a student with a non-counted incomplete who has a fixed I
@@ -2386,8 +2535,8 @@ enum PageOutline {
 
         // Show a link to take the exam with proctoring service
         if (RawRecordConstants.M117.equals(courseId) || RawRecordConstants.M118.equals(courseId)
-                || RawRecordConstants.M124.equals(courseId) || RawRecordConstants.M125.equals(courseId)
-                || RawRecordConstants.M126.equals(courseId)) {
+            || RawRecordConstants.M124.equals(courseId) || RawRecordConstants.M125.equals(courseId)
+            || RawRecordConstants.M126.equals(courseId)) {
             doCanvasFinalExam(cache, siteType, session, courseStatus, unitNum, mode, htm);
         }
 

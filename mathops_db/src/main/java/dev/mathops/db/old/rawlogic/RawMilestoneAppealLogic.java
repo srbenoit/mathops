@@ -71,7 +71,7 @@ public final class RawMilestoneAppealLogic extends AbstractRawLogic<RawMilestone
             result = false;
         } else {
             final String sql = "INSERT INTO milestone_appeal (stu_id,term,term_yr,appeal_date_time,appeal_type,pace,"
-                    + "pace_track,ms_nbr,ms_type,prior_ms_date,new_ms_dt,attempts_allowed,circumstances,comment,"
+                    + "pace_track,ms_nbr,ms_type,prior_ms_dt,new_ms_dt,attempts_allowed,circumstances,comment,"
                     + "interviewer) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
             try (final PreparedStatement ps = cache.conn.prepareStatement(sql)) {
@@ -158,7 +158,7 @@ public final class RawMilestoneAppealLogic extends AbstractRawLogic<RawMilestone
                 ", pace_track=", sqlStringValue(record.paceTrack),
                 ", ms_nbr=", sqlIntegerValue(record.msNbr),
                 ", ms_type=", sqlStringValue(record.msType),
-                ", prior_ms_date=", sqlDateValue(record.priorMsDt),
+                ", prior_ms_dt=", sqlDateValue(record.priorMsDt),
                 ", new_ms_dt=", sqlDateValue(record.newMsDt),
                 ", attempts_allowed=", sqlIntegerValue(record.attemptsAllowed),
                 ", circumstances=", sqlStringValue(record.circumstances),

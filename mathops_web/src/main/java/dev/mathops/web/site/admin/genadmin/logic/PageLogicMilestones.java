@@ -172,14 +172,12 @@ public enum PageLogicMilestones {
                             .sTd().add(activeFe).eTd().sTd().add(availFe).eTd().eTr();
 
                     final String activeF1 = buildActiveLegacyAppealsString(pace, index, 5, "F1", appeals);
-                    final String availF1 = buildAvailableLegacyExtensionsString(cache, stuId, paceTrack, pace, index,
-                            5, "F1");
                     final LocalDate f1Date = legacy.f1();
                     final String f1Str = TemporalUtils.FMT_MDY.format(f1Date);
                     final Integer attempts = legacy.numF1Tries();
                     final String attemptsStr = attempts == null ? "null" : attempts.toString();
                     htm.sTr().sTd().add("Final +1").eTd().sTd().add(f1Str).eTd().sTd().add(attemptsStr).eTd()
-                            .sTd().add(activeF1).eTd().sTd().add(availF1).eTd().eTr();
+                            .sTd().add(activeF1).eTd().sTd().eTd().eTr();
 
                     htm.eTable();
                     htm.eDiv();
@@ -280,12 +278,10 @@ public enum PageLogicMilestones {
      * @param unit      the unit
      * @param msType    the milestone type
      * @return the string
-     * @throws SQLException if there is an error accessing the database
      */
     private static String buildAvailableLegacyExtensionsString(final Cache cache, final String stuId,
                                                                final String paceTrack, final int pace,
-                                                               final int index, final int unit, final String msType)
-            throws SQLException {
+                                                               final int index, final int unit, final String msType) {
 
         final HtmlBuilder work = new HtmlBuilder(100);
         boolean newline = false;
@@ -304,7 +300,8 @@ public enum PageLogicMilestones {
                 newline = true;
             }
         } catch (final IllegalArgumentException | SQLException ex) {
-            work.add("Exception: ", ex.getMessage());
+            final String exMsg = ex.getMessage();
+            work.add("Exception: ", exMsg);
             newline = true;
         }
 
@@ -328,7 +325,8 @@ public enum PageLogicMilestones {
             if (newline) {
                 work.br();
             }
-            work.add("Exception: ", ex.getMessage());
+            final String exMsg = ex.getMessage();
+            work.add("Exception: ", exMsg);
         }
 
         return work.toString();

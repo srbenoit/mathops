@@ -15,6 +15,7 @@ import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -58,18 +59,16 @@ enum PageSkillsReview {
             courseStatus.gatherData(cache, session, session.getEffectiveUserId(), course, false,
                     !"course".equals(mode));
 
-            // FIXME: Hack here - if a student is in M 117, section 401/801/003, and prerequisite satisfied is
-            //  provisional (as set in RegistrationCache for this population), then we make the gateway course M 100T
+            // FIXME: Hack here - if a student is in M 117, section 801/003, and prerequisite satisfied is provisional
+            //  (as set in RegistrationCache for this population), then we make the gateway course M 100T
             //  to force a larger Skills Review.
             final RawStcourse stcourse = courseStatus.getStudentCourse();
 
             String lessonCourse = null;
 
             if (RawRecordConstants.M117.equals(stcourse.course)
-                    && ("801".equals(stcourse.sect)
-                    || "809".equals(stcourse.sect)
-                    || "401".equals(stcourse.sect))
-                    && "P".equals(stcourse.prereqSatis)) {
+                && ("801".equals(stcourse.sect) || "809".equals(stcourse.sect))
+                && "P".equals(stcourse.prereqSatis)) {
 
                 lessonCourse = RawRecordConstants.M100T;
             }
@@ -114,7 +113,7 @@ enum PageSkillsReview {
                 }
 
                 PageOutline.doOutline(cache, siteType, site, session, logic, lessonCourse, mode,
-                        null, null, htm, course);
+                        null, null, htm, course, null);
 
                 htm.eDiv(); // panelu
                 htm.eDiv(); // menupanelu

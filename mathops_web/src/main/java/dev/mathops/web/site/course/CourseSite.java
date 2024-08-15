@@ -166,6 +166,7 @@ public class CourseSite extends AbstractPageSite {
                                 PageHtmlPastExam.startPastExam(cache, this, req, resp, session, logic);
                         case "see_past_lta.html" ->
                                 PageHtmlPastLta.startPastLta(cache, this, req, resp, session, logic);
+
                         default -> {
                             Log.warning("Unrecognized GET request path: ", subpath);
                             final String path = this.siteProfile.path;
@@ -215,6 +216,12 @@ public class CourseSite extends AbstractPageSite {
                     case "process_proctor_login.html" -> doProcessProctorLogin(req, resp);
                     case "process_honorlock_login.html" -> doProcessHonorlockLogin(req, resp);
                     case "set_course_schedule.html" -> PageSchedule.doSetCourseOrder(cache, req, resp, logic);
+
+                    case "request_accom_extension.html" -> PageOutline.doRequestAccomExtension(cache, type, this, req,
+                            resp, session, logic);
+                    case "request_free_extension.html" -> PageOutline.doRequestFreeExtension(cache, type, this, req,
+                            resp, session, logic);
+
                     case "update_homework.html" ->
                             PageHtmlHomework.updateHomework(cache, this, req, resp, session, logic);
                     case "update_lta.html" -> PageHtmlLta.updateLta(cache, this, req, resp, session, logic);

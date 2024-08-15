@@ -6,6 +6,8 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
+import dev.mathops.db.old.logic.PaceTrackLogic;
+import dev.mathops.db.old.logic.RegistrationsLogic;
 import dev.mathops.db.old.rec.MasteryAttemptQaRec;
 import dev.mathops.db.old.reclogic.MasteryAttemptQaLogic;
 import dev.mathops.db.type.TermKey;
@@ -495,8 +497,7 @@ enum PageTestStudent {
      * @param htm   the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitTutorials(final Cache cache, final HtmlBuilder htm)
-            throws SQLException {
+    private static void emitTutorials(final Cache cache, final HtmlBuilder htm) throws SQLException {
 
         final Map<String, String[]> results = new HashMap<>(6);
 
@@ -705,7 +706,22 @@ enum PageTestStudent {
             sorted.clear();
         }
 
-        htm.addln("<h3>Course Registrations and Progress</h3>");
+        final RawStterm existingStterm = RawSttermLogic.query(cache, active.term, RawStudent.TEST_STUDENT_ID);
+
+        if (existingStterm == null) {
+            htm.addln("<h3>Course Registrations and Progress (no STTERM record)</h3>");
+        } else {
+            final RawStudent student = RawStudentLogic.query(cache, RawStudent.TEST_STUDENT_ID, false);
+
+            htm.sH(3).add("Course Registrations and Progress (pace ", existingStterm.pace, " track ",
+                    existingStterm.paceTrack);
+            if (student == null || student.pacingStructure == null) {
+                htm.add(", no pacing structure");
+            } else {
+                htm.add(" pacing structure ", student.pacingStructure);
+            }
+            htm.add(")").eH(3);
+        }
         htm.addln("<form action='teststu_update_reg.html' method='post'>");
 
         htm.addln(" <table>");
@@ -1660,8 +1676,8 @@ enum PageTestStudent {
         String sat = req.getParameter("sat_score");
 
         if (AbstractSite.isParamInvalid(aplnTerm) || AbstractSite.isParamInvalid(timeLimit)
-                || AbstractSite.isParamInvalid(licensed) || AbstractSite.isParamInvalid(act)
-                || AbstractSite.isParamInvalid(sat)) {
+            || AbstractSite.isParamInvalid(licensed) || AbstractSite.isParamInvalid(act)
+            || AbstractSite.isParamInvalid(sat)) {
             Log.warning("Invalid request parameters - possible attack:");
             Log.warning("  apln_term='", aplnTerm, "'");
             Log.warning("  timelimit='", timeLimit, "'");
@@ -1698,7 +1714,7 @@ enum PageTestStudent {
 
             if (stuModel != null) {
                 if (aplnTerm != null && stuModel.aplnTerm != null
-                        && !aplnTerm.equals(stuModel.aplnTerm.shortString)) {
+                    && !aplnTerm.equals(stuModel.aplnTerm.shortString)) {
 
                     final ETermName termName = ETermName.forName(aplnTerm.substring(0, 2));
                     try {
@@ -1728,7 +1744,7 @@ enum PageTestStudent {
                             RawStudentLogic.updateTimeLimitFactor(cache, stuModel.stuId, Float.valueOf(2.5f));
                         }
                     } else if ("30".equals(timeLimit)
-                            && (existing == null || Math.abs(existing.doubleValue() - 3.0) > 0.01)) {
+                               && (existing == null || Math.abs(existing.doubleValue() - 3.0) > 0.01)) {
                         RawStudentLogic.updateTimeLimitFactor(cache, stuModel.stuId, Float.valueOf(3.0f));
                     }
                 }
@@ -1746,7 +1762,7 @@ enum PageTestStudent {
                 final Integer oldSat = stuModel.satScore;
 
                 if ((!Objects.equals(oldAct, newAct)
-                        || !Objects.equals(oldSat, newSat))) {
+                     || !Objects.equals(oldSat, newSat))) {
 
                     RawStudentLogic.updateTestScores(cache, stuModel.stuId, newAct, newSat, stuModel.apScore);
                 }
@@ -1872,7 +1888,7 @@ enum PageTestStudent {
                             // Delete any results we don't want
                             for (final RawMpeCredit res : results) {
                                 if ((PT_OUTCOMES[j].equals(res.course) && res.serialNbr.equals(serial))
-                                        && !RawMpeCreditLogic.INSTANCE.delete(cache, res)) {
+                                    && !RawMpeCreditLogic.INSTANCE.delete(cache, res)) {
                                     Log.warning("Failed to delete test student MPE_CREDIT");
                                     error = true;
                                 }
@@ -1904,7 +1920,7 @@ enum PageTestStudent {
 
                         for (final RawMpeCredit res : results) {
                             if ((res.serialNbr != null && res.serialNbr.equals(serial))
-                                    && !RawMpeCreditLogic.INSTANCE.delete(cache, res)) {
+                                && !RawMpeCreditLogic.INSTANCE.delete(cache, res)) {
                                 Log.warning("Failed to delete test student MPE_CREDIT");
                                 error = true;
                             }
@@ -2293,6 +2309,40 @@ enum PageTestStudent {
             }
         }
 
+        // Fix up the STTERM record and the pacing structure on the STUDENT record
+
+        final RegistrationsLogic.ActiveTermRegistrations activeRegs =
+                RegistrationsLogic.gatherActiveTermRegistrations(cache, RawStudent.TEST_STUDENT_ID);
+        final List<RawStcourse> inPace = activeRegs.inPace();
+
+        final RawStterm existingStterm = RawSttermLogic.query(cache, active.term, RawStudent.TEST_STUDENT_ID);
+        if (existingStterm != null) {
+            RawSttermLogic.INSTANCE.delete(cache, existingStterm);
+        }
+
+        RawStudent student = RawStudentLogic.query(cache, RawStudent.TEST_STUDENT_ID, false);
+
+        if (inPace.isEmpty()) {
+            if (student != null && student.pacingStructure != null) {
+                RawStudentLogic.updatePacingStructure(cache, RawStudent.TEST_STUDENT_ID, null);
+            }
+        } else {
+            final int pace = PaceTrackLogic.determinePace(inPace);
+            final String track = PaceTrackLogic.determinePaceTrack(inPace, pace);
+            final String first = PaceTrackLogic.determineFirstCourse(inPace);
+
+            final RawStterm newStterm = new RawStterm(active.term, RawStudent.TEST_STUDENT_ID, Integer.valueOf(pace),
+                    track, first, null, null, null);
+            RawSttermLogic.INSTANCE.insert(cache, newStterm);
+
+            final String pacing = PaceTrackLogic.determinePacingStructure(cache, RawStudent.TEST_STUDENT_ID, inPace,
+                    null);
+
+            if (student != null && !Objects.equals(student.pacingStructure, pacing)) {
+                RawStudentLogic.updatePacingStructure(cache, RawStudent.TEST_STUDENT_ID, pacing);
+            }
+        }
+
         resp.sendRedirect("test_student.html");
     }
 
@@ -2523,7 +2573,7 @@ enum PageTestStudent {
                     String assignId = null;
                     for (final AssignmentRec rec : assignments) {
                         if (rec.unit.intValue() == u && rec.objective.intValue() == 0
-                                && "ST".equals(rec.assignmentType)) {
+                            && "ST".equals(rec.assignmentType)) {
                             assignId = rec.assignmentId;
                         }
                     }

@@ -812,6 +812,10 @@ h2.menu {
   text-decoration: none;
   white-space:nowrap;
 }
+.smallbtn:hover {
+  background: #257742;
+  text-decoration: none;
+}
 
 nav.menu div.courses {
   background:#D0F0D0;
