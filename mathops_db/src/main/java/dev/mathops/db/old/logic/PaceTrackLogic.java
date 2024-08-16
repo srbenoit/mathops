@@ -204,20 +204,8 @@ public enum PaceTrackLogic {
                     break;
                 }
             }
-        } else if ("004".equals(sect)) {
+        } else if ("004".equals(sect) || "005".equals(sect)) {
             // An in-person section: either 116 + 117 with Patrick Orchard, or NEW 125 with Parker Montfort
-            // For students without NEW 125 in their list, this will map to track E
-            // For students with NEW 125 in their list, this will map to track G
-            track = "E";
-            for (final RawStcourse test : registrations) {
-                if (RawRecordConstants.MATH125.equals(test.course)
-                    && isCountedTowardPace(test)) {
-                    track = "G";
-                    break;
-                }
-            }
-        } else if ("005".equals(sect)) {
-            // An in-person section: either 116 + 117 (canceled), or late-start NEW 125 with Parker Montfort
             // For students without NEW 125 in their list, this will map to track E
             // For students with NEW 125 in their list, this will map to track G
             track = "E";

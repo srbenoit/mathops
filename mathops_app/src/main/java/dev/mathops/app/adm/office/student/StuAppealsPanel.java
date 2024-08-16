@@ -62,7 +62,7 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
     private static final long serialVersionUID = -4908492242412815193L;
 
     /** An action command. */
-    private static final String ADD_PACE_APPEAL_CMD = "ADD_PACE_APPEAL";
+    private static final String ADD_GEN_APPEAL_CMD = "ADD_PACE_APPEAL";
 
     /** An action command. */
     private static final String ADD_MS_APPEAL_CMD = "ADD_MS_APPEAL";
@@ -76,8 +76,8 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
     /** The data cache. */
     private final Cache cache;
 
-    /** The fixed data. */
-    private final UserData fixed;
+    /** The user data. */
+    private final UserData userData;
 
     /** Flag indicating the logged-in user can see appeal details. */
     private final boolean canSeeDetails;
@@ -107,10 +107,10 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
     private DlgEditAccommodations editAccommodationsDialog = null;
 
     /** The dialog to add new pace appeals. */
-    private DlgAddGeneralAppeal addPaceAppealDialog = null;
+    private DlgAddGeneralAppeal addGeneralAppealDialog = null;
 
     /** The dialog to edit existing pace appeals. */
-    private DlgEditPaceAppeal editPaceAppealDialog = null;
+    private DlgEditGeneralAppeal editPaceAppealDialog = null;
 
     /**
      * Constructs a new {@code StuAppealsPanel}.
@@ -128,14 +128,14 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
         this.canSeeDetails = clearance != null && clearance.intValue() <= 3;
 
         this.cache = theCache;
-        this.fixed = theUserData;
+        this.userData = theUserData;
 
         final JPanel north = makeOffWhitePanel(new StackedBorderLayout(5, 5));
         north.setBackground(Skin.WHITE);
         north.setLayout(new BoxLayout(north, BoxLayout.PAGE_AXIS));
         add(north, StackedBorderLayout.NORTH);
 
-        final JPanel headerFlow = new JPanel(new FlowLayout(FlowLayout.LEADING, 10, 6));
+        final JPanel headerFlow = new JPanel(new FlowLayout(FlowLayout.LEADING, 10, 0));
         headerFlow.setBackground(Skin.WHITE);
         final JLabel header = makeHeader("Accommodations and Appeals", false);
         headerFlow.add(header, BorderLayout.PAGE_START);
@@ -196,9 +196,9 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
             south1.setLayout(new FlowLayout(FlowLayout.LEADING, 10, 6));
             add(south1, StackedBorderLayout.SOUTH);
 
-            final JButton addPace = new JButton("Add Pace Appeal...");
+            final JButton addPace = new JButton("Add General Appeal...");
             addPace.setFont(Skin.BUTTON_13_FONT);
-            addPace.setActionCommand(ADD_PACE_APPEAL_CMD);
+            addPace.setActionCommand(ADD_GEN_APPEAL_CMD);
             addPace.addActionListener(this);
             south1.add(addPace);
             final JLabel addPaceLbl = new JLabel("(use for placement, tutorials, general accommodations)");
@@ -209,7 +209,7 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
             addMs.setActionCommand(ADD_MS_APPEAL_CMD);
             addMs.addActionListener(this);
             south2.add(addMs);
-            final JLabel addMsLbl = new JLabel("(use for course milestones)");
+            final JLabel addMsLbl = new JLabel("(use to change course due dates)");
             south2.add(addMsLbl);
         }
     }
@@ -247,10 +247,10 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
             this.editAccommodationsDialog = null;
         }
 
-        if (this.addPaceAppealDialog != null) {
-            this.addPaceAppealDialog.setVisible(false);
-            this.addPaceAppealDialog.dispose();
-            this.addPaceAppealDialog = null;
+        if (this.addGeneralAppealDialog != null) {
+            this.addGeneralAppealDialog.setVisible(false);
+            this.addGeneralAppealDialog.dispose();
+            this.addGeneralAppealDialog = null;
         }
 
         if (this.editPaceAppealDialog != null) {
@@ -626,15 +626,15 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
 
         final String cmd = e.getActionCommand();
 
-        if (ADD_PACE_APPEAL_CMD.equals(cmd)) {
+        if (ADD_GEN_APPEAL_CMD.equals(cmd)) {
             if (Objects.nonNull(this.currentStudentData)) {
-                if (this.addPaceAppealDialog == null) {
-                    this.addPaceAppealDialog = new DlgAddGeneralAppeal(this.cache, this);
+                if (this.addGeneralAppealDialog == null) {
+                    this.addGeneralAppealDialog = new DlgAddGeneralAppeal(this.cache, this);
                 }
 
-                this.addPaceAppealDialog.populateDisplay(this.fixed, this.currentStudentData, null);
-                this.addPaceAppealDialog.setVisible(true);
-                this.addPaceAppealDialog.toFront();
+                this.addGeneralAppealDialog.populateDisplay(this.userData, this.currentStudentData, null);
+                this.addGeneralAppealDialog.setVisible(true);
+                this.addGeneralAppealDialog.toFront();
             }
         } else if (ADD_MS_APPEAL_CMD.equals(cmd)) {
             // TODO:
@@ -658,7 +658,7 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
 
                     if (Objects.nonNull(this.currentStudentData)) {
                         if (this.editPaceAppealDialog == null) {
-                            this.editPaceAppealDialog = new DlgEditPaceAppeal(this.cache, this);
+                            this.editPaceAppealDialog = new DlgEditGeneralAppeal(this.cache, this);
                         }
 
                         this.editPaceAppealDialog.populateDisplay(this.currentStudentData, appeal);

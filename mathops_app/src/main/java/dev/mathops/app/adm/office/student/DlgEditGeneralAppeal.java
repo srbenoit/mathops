@@ -41,7 +41,7 @@ import java.util.Objects;
 /**
  * A dialog to edit an existing row to "PACE_APPEALS" and (if relief is given) the related "STMILESTONE".
  */
-public final class DlgEditPaceAppeal extends JFrame implements ActionListener, ItemListener {
+public final class DlgEditGeneralAppeal extends JFrame implements ActionListener, ItemListener {
 
     /** The dialog title. */
     private static final String TITLE = "Edit Pace Appeal";
@@ -118,7 +118,7 @@ public final class DlgEditPaceAppeal extends JFrame implements ActionListener, I
      * @param theCache    the data cache
      * @param theListener the listener to be notified if an appeal record is added
      */
-    public DlgEditPaceAppeal(final Cache theCache, final IPaceAppealsListener theListener) {
+    public DlgEditGeneralAppeal(final Cache theCache, final IPaceAppealsListener theListener) {
 
         super(TITLE);
         setBackground(Skin.LIGHTEST);
