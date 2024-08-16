@@ -23,12 +23,12 @@ dependencies {
     implementation(files("lib/mathops_commons.jar"))
 
     implementation("com.oracle.database.jdbc:ojdbc11:23.4.0.24.05")
-    compileOnly("jakarta.servlet:jakarta.servlet-api:6.1.0-M2")
+    compileOnly("jakarta.servlet:jakarta.servlet-api:6.1.0")
     compileOnly("jakarta.websocket:jakarta.websocket-api:2.2.0")
     compileOnly("jakarta.websocket:jakarta.websocket-client-api:2.2.0")
 
-    testImplementation(platform("org.junit:junit-bom:5.11.0-M1"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.11.0-M1")
+    testImplementation(platform("org.junit:junit-bom:5.11.0"))
+    testImplementation("org.junit.jupiter:junit-jupiter:5.11.0")
 }
 
 tasks.test {
