@@ -107,7 +107,7 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
     private DlgEditAccommodations editAccommodationsDialog = null;
 
     /** The dialog to add new pace appeals. */
-    private DlgAddPaceAppeal addPaceAppealDialog = null;
+    private DlgAddGeneralAppeal addPaceAppealDialog = null;
 
     /** The dialog to edit existing pace appeals. */
     private DlgEditPaceAppeal editPaceAppealDialog = null;
@@ -629,7 +629,7 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
         if (ADD_PACE_APPEAL_CMD.equals(cmd)) {
             if (Objects.nonNull(this.currentStudentData)) {
                 if (this.addPaceAppealDialog == null) {
-                    this.addPaceAppealDialog = new DlgAddPaceAppeal(this.cache, this);
+                    this.addPaceAppealDialog = new DlgAddGeneralAppeal(this.cache, this);
                 }
 
                 this.addPaceAppealDialog.populateDisplay(this.fixed, this.currentStudentData, null);

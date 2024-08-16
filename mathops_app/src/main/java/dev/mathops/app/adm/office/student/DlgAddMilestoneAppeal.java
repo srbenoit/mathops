@@ -54,7 +54,8 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * A dialog to add a row to "MILESTONE_APPEAL" and (if relief is given) to "STMILESTONE" or "STU_STD_MILESTONE".
+ * A dialog to add a row to "MILESTONE_APPEAL" that adjusts a student deadline, and the corresponding "STMILESTONE" or
+ * "STU_STD_MILESTONE" record.
  */
 public final class DlgAddMilestoneAppeal extends JFrame implements ActionListener, DocumentListener {
 

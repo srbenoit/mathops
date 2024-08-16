@@ -56,8 +56,8 @@ enum PrecalcRootMenu {
                 "href='https://www.math.colostate.edu/Precalc/Precalc-Student-Guide.pdf'>Student Guide</a>").br();
         htm.div("vgap0");
 
-        htm.addln("<a class='ulink' href='orientation.html'>Online Orientation</a>").br();
-        htm.div("vgap0");
+//        htm.addln("<a class='ulink' href='orientation.html'>Online Orientation</a>").br();
+//        htm.div("vgap0");
 
         htm.addln("<a href='contact.html' class='ulink'>Contact Us</a>").br();
         htm.div("vgap0").hr().div("vgap0");

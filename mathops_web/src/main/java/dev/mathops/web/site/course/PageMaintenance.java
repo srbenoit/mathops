@@ -69,10 +69,10 @@ enum PageMaintenance {
                 "href='https://www.math.colostate.edu/Precalc/Precalc-Student-Guide.pdf'>",
                 "Student Guide</a> for more information.</li>");
 
-        htm.addln("<li class='boxlist'>");
-        htm.addln(" Please review the <a class='ulink' ", "href='/instruction/orientation.html'>",
-                "Online Orientation</a> for an online orientation to the Precalculus Program.");
-        htm.addln(" </li>");
+//        htm.addln("<li class='boxlist'>");
+//        htm.addln(" Please review the <a class='ulink' ", "href='/instruction/orientation.html'>",
+//                "Online Orientation</a> for an online orientation to the Precalculus Program.");
+//        htm.addln(" </li>");
 
         htm.addln("</ul>");
         htm.eDiv();

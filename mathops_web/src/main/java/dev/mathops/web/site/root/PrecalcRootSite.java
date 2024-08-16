@@ -87,8 +87,8 @@ public final class PrecalcRootSite extends AbstractPageSite {
             PageCourses.doGet(cache, this, type, req, resp);
         } else if ("contact.html".equals(subpath)) {
             PageContact.doGet(cache, this, type, req, resp);
-        } else if ("orientation.html".equals(subpath)) {
-            PageOrientation.doGet(cache, this, type, req, resp);
+//        } else if ("orientation.html".equals(subpath)) {
+//            PageOrientation.doGet(cache, this, type, req, resp);
         } else {
             final String maintMsg = isMaintenance(this.siteProfile);
 

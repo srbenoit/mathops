@@ -200,8 +200,8 @@ enum CourseMenu {
                 "https://www.math.colostate.edu/Precalc/Precalc-Student-Guide.pdf'>Student Guide</a>");
         htm.div("vgap0");
 
-        htm.addln("<a class='ulink' href='orientation.html'>Orientation</a>");
-        htm.div("vgap0");
+//        htm.addln("<a class='ulink' href='orientation.html'>Orientation</a>");
+//        htm.div("vgap0");
 
         htm.addln("<a class='ulink' href='onlinehelp.html'><b>Getting Help</b></a>");
         htm.div("vgap0");
@@ -211,9 +211,6 @@ enum CourseMenu {
 
         htm.addln("<a class='ulink' href='etexts.html'>My e-texts</a>");
         htm.div("vgap0");
-
-        // htm.addln("<a class='ulink' href='calendar.html'>Recommended Schedule</a>").br();
-        // htm.div("vgap0");
 
         htm.addln("<a class='ulink' href='schedule.html'>My Exam Deadlines</a>").br();
         htm.div("vgap0");

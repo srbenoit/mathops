@@ -103,7 +103,7 @@ public class CourseSite extends AbstractPageSite {
                                     : "/index.html"));
                         }
                         case "video.html" -> PageVideoExample.doGet(this, req, resp, null);
-                        case "orientation.html" -> PageOrientation.doGet(cache, this, req, resp, null, null);
+//                        case "orientation.html" -> PageOrientation.doGet(cache, this, req, resp, null, null);
                         case "secure/shibboleth.html" -> doShibbolethLogin(cache, req, resp, null, "home.html");
                         default -> {
                             Log.warning("Unrecognized GET request path: ", subpath);
@@ -121,7 +121,7 @@ public class CourseSite extends AbstractPageSite {
                     switch (subpath) {
                         case "index.html", "home.html" -> PageHome.doGet(cache, this, req, resp, session, logic);
                         case "secure/shibboleth.html" -> doShibbolethLogin(cache, req, resp, session, "home.html");
-                        case "orientation.html" -> PageOrientation.doGet(cache, this, req, resp, session, logic);
+//                        case "orientation.html" -> PageOrientation.doGet(cache, this, req, resp, session, logic);
                         case "schedule.html" -> PageSchedule.doGet(cache, this, req, resp, session, logic);
                         case "calendar.html" -> PageCalendar.doGet(cache, this, req, resp, session, logic);
                         case "calendar_print.html" -> PageCalendar.doGetPrintable(cache, this, req, resp, logic);

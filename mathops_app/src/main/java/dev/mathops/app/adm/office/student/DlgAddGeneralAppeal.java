@@ -50,9 +50,10 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * A dialog to add a row to "PACE_APPEALS" and (if relief is given) to "STMILESTONE".
+ * A dialog to add a row to "MILESTONE_APPEAL" that simply documents an accommodation or situation, but does not adjust
+ * a student deadline.
  */
-public final class DlgAddPaceAppeal extends JFrame implements ActionListener, DocumentListener {
+public final class DlgAddGeneralAppeal extends JFrame implements ActionListener, DocumentListener {
 
     /** An action command. */
     private static final String APPLY_CMD = "APPLY";
@@ -151,12 +152,12 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
     private final JTextField overrideAttemptsAllowed;
 
     /**
-     * Constructs a new {@code DlgAddPaceAppeal}.
+     * Constructs a new {@code DlgAddGeneralAppeal}.
      *
      * @param theCache    the data cache
      * @param theListener the listener to be notified if an appeal record is added
      */
-    public DlgAddPaceAppeal(final Cache theCache, final IPaceAppealsListener theListener) {
+    public DlgAddGeneralAppeal(final Cache theCache, final IPaceAppealsListener theListener) {
 
         super(TITLE);
         setBackground(Skin.LIGHTEST);
@@ -682,10 +683,10 @@ public final class DlgAddPaceAppeal extends JFrame implements ActionListener, Do
         if (this.origDatePicker.getCurrentDate() == null) {
             error = "Original deadline date may not be null.";
         } else if (this.interviewerField.getText() == null
-                || this.interviewerField.getText().isBlank()) {
+                   || this.interviewerField.getText().isBlank()) {
             error = "Interviewer may not be blank.";
         } else if (this.circumstancesField.getText() == null
-                || this.circumstancesField.getText().isBlank()) {
+                   || this.circumstancesField.getText().isBlank()) {
             error = "Circumstances field may not be blank.";
         }
 
