@@ -632,7 +632,7 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
                     this.addGeneralAppealDialog = new DlgAddGeneralAppeal(this.cache, this);
                 }
 
-                this.addGeneralAppealDialog.populateDisplay(this.userData, this.currentStudentData, null);
+                this.addGeneralAppealDialog.populateDisplay(this.userData, this.currentStudentData);
                 this.addGeneralAppealDialog.setVisible(true);
                 this.addGeneralAppealDialog.toFront();
             }

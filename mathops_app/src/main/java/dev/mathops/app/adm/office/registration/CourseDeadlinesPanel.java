@@ -4,7 +4,7 @@ import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.UserData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
-import dev.mathops.app.adm.office.student.DlgAddGeneralAppeal;
+import dev.mathops.app.adm.office.student.DlgAddMilestoneAppeal;
 import dev.mathops.app.adm.office.student.IPaceAppealsListener;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
@@ -72,8 +72,8 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
     /** The milestone for which an appeal is being added. */
     private RawMilestone addMilestone = null;
 
-    /** The dialog to add new pace appeals. */
-    private DlgAddGeneralAppeal addPaceAppealDialog = null;
+    /** The dialog to add new milestone appeals. */
+    private DlgAddMilestoneAppeal addMilestoneAppealDialog = null;
 
     /** The dialog to edit an existing extension. */
     private DlgEditExtension editExtensionDialog = null;
@@ -256,23 +256,23 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
                 }
 
                 if (ms != null) {
-                    if (this.addPaceAppealDialog == null) {
-                        this.addPaceAppealDialog = new DlgAddGeneralAppeal(this.cache, this);
+                    if (this.addMilestoneAppealDialog == null) {
+                        this.addMilestoneAppealDialog = new DlgAddMilestoneAppeal(this.cache, this);
                     }
 
                     Log.info("Adding appeal for ", ms);
 
-                    this.addPaceAppealDialog.populateDisplay(this.userData, this.currentStudentData, ms);
+                    this.addMilestoneAppealDialog.populateDisplay(this.userData, this.currentStudentData, ms, null);
 
                     final Point loc = getLocationOnScreen();
                     final Dimension size = getSize();
                     final int cx = loc.x + size.width / 2;
                     final int cy = loc.y + size.height / 2;
-                    final Dimension dialogSize = this.addPaceAppealDialog.getSize();
+                    final Dimension dialogSize = this.addMilestoneAppealDialog.getSize();
 
-                    this.addPaceAppealDialog.setLocation(cx - dialogSize.width / 2, cy - dialogSize.height / 2);
-                    this.addPaceAppealDialog.setVisible(true);
-                    this.addPaceAppealDialog.toFront();
+                    this.addMilestoneAppealDialog.setLocation(cx - dialogSize.width / 2, cy - dialogSize.height / 2);
+                    this.addMilestoneAppealDialog.setVisible(true);
+                    this.addMilestoneAppealDialog.toFront();
 
                     this.addMilestone = ms;
                 }
@@ -340,8 +340,8 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
                             RawPaceAppeals appeal = null;
                             for (final RawPaceAppeals test : this.currentStudentData.paceAppeals) {
                                 if (test.paceTrack.equals(track) && test.msNbr.equals(stms.msNbr)
-                                        && test.newDeadlineDt.equals(stms.msDate)
-                                        && Objects.equals(test.nbrAtmptsAllow, stms.nbrAtmptsAllow)) {
+                                    && test.newDeadlineDt.equals(stms.msDate)
+                                    && Objects.equals(test.nbrAtmptsAllow, stms.nbrAtmptsAllow)) {
                                     appeal = test;
                                     break;
                                 }
@@ -381,7 +381,6 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
             }
         }
     }
-
 
     /**
      * Called by the dialog that edits accommodations when an edit is applied.

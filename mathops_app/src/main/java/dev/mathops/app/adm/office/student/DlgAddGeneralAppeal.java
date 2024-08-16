@@ -350,7 +350,9 @@ public final class DlgAddGeneralAppeal extends JFrame implements ActionListener,
         try {
             final String stuId = this.studentIdField.getText();
 
-            final LocalDateTime appealDateTime = this.appealDateTimePicker.getCurrentDate();
+            // FIXME: get a proper control
+            // final LocalDateTime appealDateTime = this.appealDateTimePicker.getCurrentDate();
+            final LocalDateTime appealDateTime = LocalDateTime.now();
 
             final String circumstances = this.circumstancesField.getText();
             final String comment = this.commentField.getText();
