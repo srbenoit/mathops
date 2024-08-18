@@ -72,7 +72,7 @@ final class PlacementReport {
             // Display list of courses the student is qualified to register for
             boolean heading = true;
             boolean comma = false;
-            boolean noneBut101 = true;
+            boolean noneButAucc = true;
 
             for (final String course : status.clearedFor) {
 
@@ -89,8 +89,9 @@ final class PlacementReport {
                 comma = true;
                 htm.add("<strong>", course, "</strong>");
 
-                if ((!"MATH 101".equals(course) && !"STAT 100".equals(course))) {
-                    noneBut101 = false;
+                if (!("MATH 101".equals(course) || "MATH 105".equals(course) || "STAT 100".equals(course)
+                      || "STAT 201".equals(course) || "STAT 204".equals(course))) {
+                    noneButAucc = false;
                 }
             }
 
@@ -116,7 +117,7 @@ final class PlacementReport {
 
                 comma = true;
                 htm.add("<strong>", course, "</strong>");
-                noneBut101 = false;
+                noneButAucc = false;
             }
 
             if (!heading) {
@@ -141,20 +142,20 @@ final class PlacementReport {
 
                 comma = true;
                 htm.add("<strong>", course, "</strong>");
-                noneBut101 = false;
+                noneButAucc = false;
             }
 
             if (!heading) {
                 htm.eP();
             }
 
-            if (noneBut101) {
+            if (noneButAucc) {
                 htm.addln("<p class='indent11' style='margin-bottom:0;margin-top:10pt;'>");
                 htm.addln("<img style='position:relative; top:-1px' src='/images/error.png'/> &nbsp; ");
 
-                htm.addln("MATH 101 and STAT 100 do not satisfy the degree requirements for many majors.  Consult the ",
-                        "<a href='https://www.catalog.colostate.edu/'>University  Catalog</a> to see if these courses ",
-                        "are appropriate for your desired major.");
+                htm.addln("MATH 101, MATH 105, STAT 100, STAT 201, and STAT 204 do not satisfy the degree requirements",
+                        " for some majors.  Consult the <a href='https://www.catalog.colostate.edu/'>University  ",
+                        "Catalog</a> to see if these courses are appropriate for your desired major.");
                 htm.eP();
 
                 htm.addln("<p class='indent11' style='margin-top:10pt;'>");

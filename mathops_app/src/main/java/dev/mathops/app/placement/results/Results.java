@@ -202,6 +202,8 @@ public enum Results {
                     "  MATH 124: Logarithmic & Exponential Functions";
             case RawRecordConstants.M118, RawRecordConstants.MATH118 -> "  MATH 118: College Algebra in Context II";
             case RawRecordConstants.M117, RawRecordConstants.MATH117 -> "  MATH 117: College Algebra in Context I";
+            case RawRecordConstants.M120 -> "  MATH 120: College Algebra";
+            case RawRecordConstants.M127 -> "  MATH 127: Precalculus";
             case null, default -> course;
         };
     }

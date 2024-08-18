@@ -13,6 +13,7 @@ import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -117,7 +118,8 @@ enum PagePlacementReport {
                 comma = true;
                 htm.add("<strong>", course, "</strong>");
 
-                if ((!"MATH 101".equals(course) && !"STAT 100".equals(course))) {
+                if (!("MATH 101".equals(course) || "MATH 105".equals(course) || "STAT 100".equals(course)
+                      || ("STAT 201").equals(course) || "STAT 204".equals(course))) {
                     noneBut101 = false;
                 }
             }
@@ -179,9 +181,10 @@ enum PagePlacementReport {
             if (noneBut101) {
                 htm.addln("<p class='indent11' style='margin-bottom:0;margin-top:10pt;'>");
                 htm.addln("<img style='position:relative; top:-1px' src='/images/error.png'/> &nbsp; ");
-                htm.addln("MATH 101 and STAT 100 do not satisfy the degree requirements for many majors.  ",
-                        "Consult the <a href='https://www.catalog.colostate.edu/'>University Catalog</a> ",
-                        "to see if these courses are appropriate for your desired major.");
+                htm.addln("MATH 101, MATh 105, STAT 100, STAT 201, and STAT 204 do not satisfy the degree ",
+                        "requirements for some majors.  Consult the ",
+                        "<a href='https://www.catalog.colostate.edu/'>University Catalog</a> to see if these courses ",
+                        "are appropriate for your desired major.");
                 htm.eP();
 
                 htm.addln("<p class='indent11' style='margin-top:10pt;'>");

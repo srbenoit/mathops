@@ -418,14 +418,20 @@ public class PlacementLogic {
         cleared.add("MATH 101");
         cleared.add("MATH 105");
         cleared.add("STAT 100");
+        cleared.add("STAT 201");
+        cleared.add("STAT 204");
 
         for (final RawMpeCredit cred : this.allPlacementCredit) {
             final String course = cred.course;
 
             if (RawRecordConstants.M100C.equals(course)) {
                 cleared.add(RawRecordConstants.MATH117);
+                cleared.add("MATH 120");
+                cleared.add("MATH 127");
             } else if ("M 100A".equals(course)) {
                 cleared.add(RawRecordConstants.MATH117);
+                cleared.add("MATH 120");
+                cleared.add("MATH 127");
             } else if (RawRecordConstants.M117.equals(course)) {
                 if ("C".equals(cred.examPlaced)) {
                     earnedCredit.add(RawRecordConstants.MATH117);

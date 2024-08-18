@@ -8,6 +8,7 @@ import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -21,8 +22,8 @@ enum PagePlacement {
 
     /** A commonly used string. */
     private static final String EXT_LINK = "<span title='Links to an external site'>" //
-            + "<img style='width:12px;margin-left:3px;position:relative;top:-2px;' "
-            + "src='/images/external-link-24.png'/></span>";
+                                           + "<img style='width:12px;margin-left:3px;position:relative;top:-2px;' "
+                                           + "src='/images/external-link-24.png'/></span>";
 
     /**
      * Processes a GET request of this form.
@@ -506,12 +507,12 @@ enum PagePlacement {
         htm.sP().add("In general, most entering first-year students will need to complete the ",
                 "Math Placement Tool. Students whose degree program allows them to satisfy their ",
                 "mathematics requirement with <b>MATH 101, Math in the Social Sciences</b>, ",
-                "<b>MATH 105, Patterns of Phenomena</b>, or <b>STAT 100: Statistical Literacy</b> ",
+                "<b>MATH 105, Patterns of Phenomena</b>, <b>STAT 100: Statistical Literacy</b>, ",
+                "<b>STAT 201: General Statistics</b>, or <b>STAT 204: Statistics With Business Applications</b> ",
                 "can do so without completing the Math Placement Tool. Students wishing to take a ",
-                "math course other than MATH 101, MATH 105, or STAT 100 will need to complete the ",
-                "Math Placement Tool. This requirement is waived for students who either scored 3, 4 ",
-                "or 5 on an Advanced Placement Calculus Exam (either AB or BC) or have transfer ",
-                "credit in a math course at the level of College Algebra or above.").eP();
+                "math course other than one of these will need to complete the Math Placement Tool. This requirement ",
+                "is waived for students who either scored 3, 4 or 5 on an Advanced Placement Calculus Exam (either ",
+                "AB or BC) or have transfer credit in a math course at the level of College Algebra or above.").eP();
         htm.sP("center").add("<button class='btn' onclick='nav5()'>",
                 "Do I need Math Placement?</button>").eP();
         htm.eDiv(); // accordionpanel
@@ -551,23 +552,23 @@ enum PagePlacement {
         htm.eDiv(); // accordionpanel
 
         htm.addln("<button class='accordion'>",
-                "What if I don't place into any courses beyond MATH 101 / MATH 105 / STAT 100?", //
+                "What if I don't place into any courses beyond MATH 101 / MATH 105 / STAT 100 / STAT 201 / STAT 204?",
                 "</button>");
         htm.sDiv("accordionpanel");
         htm.sP().add("All students are eligible for <b>MATH 101, Math in the Social Sciences</b>, ",
-                "<b>MATH 105, Patterns of Phenomena</b>, and <b>STAT 100 - Statistical Literacy</b>. ",
+                "<b>MATH 105, Patterns of Phenomena</b>, <b>STAT 100: Statistical Literacy</b>, ",
+                "<b>STAT 201: General Statistics</b>, and <b>STAT 204: Statistics With Business Applications</b>.",
                 "The other entry-level math courses have enforced prerequisites that require you to ",
                 "demonstrate a greater level of preparation on the Math Placement Tool than is ",
                 "required for these three courses.");
-        htm.sP().add("<b>Be sure to check the requirements for your degree program in the ",
-                "University Catalog to verify that MATH 101, MATH 105, or STAT 100 is the right ",
-                "course for you.</b> Many academic programs do not accept these coures toward ",
-                "degree requirements. Also, they do NOT satisfy the prerequisites for any other ",
-                "mathematics course at the University (such as <b>MATH 117, College Algebra I</b>). ",
-                "If you are eligible for only MATH 101, MATH 105, and STAT 100 and need to take a ",
-                "different math class, you can use your second Math Placement Tool attempt, or you ",
-                "can complete the <a href='/elm-tutorial/' target='_blank'>ELM Tutorial ", EXT_LINK,
-                "</a> to become eligible for MATH 117.").eP();
+        htm.sP().add("<b>Be sure to check the requirements for your degree program in the University Catalog to ",
+                "verify that MATH 101, MATH 105, STAT 100, STAT 201, or STAT 204 is the right course for you.</b> ",
+                "Many academic programs do not accept these courses toward degree requirements. Also, they do NOT ",
+                "satisfy the prerequisites for any other mathematics course at the University (such as ",
+                "<b>MATH 117, College Algebra I</b>).  If you are eligible for only MATH 101, MATH 105, STAT 100,",
+                " STAT 201, and STAT 204, and need to take a different math class, you can use your second Math ",
+                "Placement Tool attempt or you can complete the <a href='/elm-tutorial/' target='_blank'>ELM Tutorial ",
+                EXT_LINK, "</a> to become eligible for MATH 117.").eP();
         htm.eDiv(); // accordionpanel
 
         htm.addln("<button class='accordion'>",

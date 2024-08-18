@@ -116,7 +116,8 @@ enum PagePlacementReport {
                 comma = true;
                 htm.add("<strong>", course, "</strong>");
 
-                if ((!"MATH 101".equals(course) && !"STAT 100".equals(course))) {
+                if (!("MATH 101".equals(course) || "MATH 105".equals(course) || "STAT 100".equals(course)
+                      || "STAT 201".equals(course) || "STAT 204".equals(course))) {
                     noneBut101 = false;
                 }
             }
@@ -180,9 +181,9 @@ enum PagePlacementReport {
             if (noneBut101) {
                 htm.addln("<p class='indent11' style='margin-bottom:0;margin-top:10pt;'>");
                 htm.addln("<img style='position:relative; top:-1px' src='/images/error.png'/> &nbsp; ");
-                htm.addln("MATH 101, MATH 105, and STAT 100 do not satisfy the degree requirements for many majors. ",
-                        "Ask your adviser if these courses are appropriate for your major, or consult the ",
-                        "<a href='https://www.catalog.colostate.edu/'>University  Catalog</a>.");
+                htm.addln("MATH 101, MATH 105, STAT 100, STAT 201, and STAT 204 do not satisfy the degree ",
+                        "requirements for some majors. Ask your adviser if these courses are appropriate for your ",
+                        "major, or consult the <a href='https://www.catalog.colostate.edu/'>University Catalog</a>.");
                 htm.eP();
 
                 htm.addln("<p class='indent11' style='margin-top:10pt;'>");

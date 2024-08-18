@@ -163,7 +163,7 @@ public final class MathPlanStudentData {
 
         // Determine if student is to be treated as "remedial"
         this.remedial = potentialRemedial && this.placementCredit.isEmpty()
-                && this.completedCourses.isEmpty() && this.liveTransferCredit.isEmpty();
+                        && this.completedCourses.isEmpty() && this.liveTransferCredit.isEmpty();
 
         // Gather math courses required by all selected majors (if any)
         this.requirements = accumulateRequirements(this.student.programCode, this.majorProfileResponses, logic);
@@ -255,7 +255,7 @@ public final class MathPlanStudentData {
                 }
 
                 if (completed.getGradeGpa() != null && completed.getGradeGpa().doubleValue() > 1.9
-                        && coreCourses.contains(courseId)) {
+                    && coreCourses.contains(courseId)) {
 
                     final RawCourse course = courseMap.get(courseId);
                     if (course != null && course.nbrCredits != null) {
@@ -304,10 +304,12 @@ public final class MathPlanStudentData {
 
         // Build a list of courses that the student can register for
 
-        // If student has cut scores, they can register for MATH 101
-        if (!this.remedial) {
-            result.add("M 101");
-        }
+        // All students can register for MATH 101, MATH 1051
+        result.add("M 101");
+        result.add("M 105");
+        result.add("STAT 100");
+        result.add("STAT 201");
+        result.add("STAT 204");
 
         boolean bOrBetter124 = false;
         boolean bOrBetter126 = false;
@@ -317,24 +319,14 @@ public final class MathPlanStudentData {
         for (final RawMpeCredit cr : this.placementCredit) {
             final String courseId = cr.course;
 
-            if (RawRecordConstants.M100C.equals(courseId)) {
+            if (RawRecordConstants.M100C.equals(courseId) || "M 100A".equals(courseId)) {
                 result.add(RawRecordConstants.M117);
-                result.add("M 101");
-                result.add("M 105");
-            } else if ("M 100M".equals(courseId)) {
-                result.add("M 101");
-                result.add("M 105");
-            } else if (RawRecordConstants.M100T.equals(courseId)) {
-                result.add("M 101");
-            } else if ("M 100A".equals(courseId)) {
-                result.add(RawRecordConstants.M117);
-                result.add("M 101");
             } else if (RawRecordConstants.M117.equals(courseId)) {
                 result.add(RawRecordConstants.M117);
                 result.add(RawRecordConstants.M118);
             } else if (RawRecordConstants.M118.equals(courseId) || "M 120".equals(courseId)
-                    || "M 120A".equals(courseId)
-                    || "M 121".equals(courseId)) {
+                       || "M 120A".equals(courseId)
+                       || "M 121".equals(courseId)) {
                 result.add(RawRecordConstants.M117);
                 result.add(RawRecordConstants.M118);
                 result.add(RawRecordConstants.M124);
@@ -372,16 +364,14 @@ public final class MathPlanStudentData {
             final String id = cr.courseId;
             final Float gpa = cr.getGradeGpa();
 
-            if ("M 001".equals(id)) {
-                result.add("M 101");
-            } else if ("M 002".equals(id)) {
+            if ("M 002".equals(id)) {
                 result.add(RawRecordConstants.M117);
             } else if (RawRecordConstants.M117.equals(id)) {
                 result.add(RawRecordConstants.M117);
                 result.add(RawRecordConstants.M118);
             } else if (RawRecordConstants.M118.equals(id) || "M 120".equals(id)
-                    || "M 120A".equals(id)
-                    || "M 121".equals(id)) {
+                       || "M 120A".equals(id)
+                       || "M 121".equals(id)) {
                 result.add(RawRecordConstants.M117);
                 result.add(RawRecordConstants.M118);
                 result.add(RawRecordConstants.M124);
@@ -435,9 +425,9 @@ public final class MathPlanStudentData {
                 result.add(RawRecordConstants.M117);
                 result.add(RawRecordConstants.M118);
             } else if (RawRecordConstants.M118.equals(courseId) //
-                    || "M 120".equals(courseId)
-                    || "M 120A".equals(courseId)
-                    || "M 121".equals(courseId)) {
+                       || "M 120".equals(courseId)
+                       || "M 120A".equals(courseId)
+                       || "M 121".equals(courseId)) {
                 result.add(RawRecordConstants.M117);
                 result.add(RawRecordConstants.M118);
                 result.add(RawRecordConstants.M124);
@@ -494,26 +484,26 @@ public final class MathPlanStudentData {
         // Look for completed/transfer Precalculus courses and check grades as needed to register
         // for Calculus
         if (!result.contains("M 141")
-                && testForCompletedOrTransfer(RawRecordConstants.M118, 2.0f)) {
+            && testForCompletedOrTransfer(RawRecordConstants.M118, 2.0f)) {
             result.add("M 141");
         }
 
         if (!result.contains("M 155")
-                && testForCompletedOrTransfer(RawRecordConstants.M124, 2.0f)
-                && testForCompletedOrTransfer(RawRecordConstants.M125, 2.0f)) {
+            && testForCompletedOrTransfer(RawRecordConstants.M124, 2.0f)
+            && testForCompletedOrTransfer(RawRecordConstants.M125, 2.0f)) {
             result.add("M 155");
         }
 
         if (!result.contains("M 160")
-                && testForCompletedOrTransfer(RawRecordConstants.M124, 3.0f)
-                && testForCompletedOrTransfer(RawRecordConstants.M124, 3.0f)) {
+            && testForCompletedOrTransfer(RawRecordConstants.M124, 3.0f)
+            && testForCompletedOrTransfer(RawRecordConstants.M124, 3.0f)) {
 
             result.add("M 160");
         }
 
         if (!result.contains("M 161")
-                && testForCompletedOrTransfer("M 160", 1.0f)
-                && testForCompletedOrTransfer(RawRecordConstants.M124, 3.0f)) {
+            && testForCompletedOrTransfer("M 160", 1.0f)
+            && testForCompletedOrTransfer(RawRecordConstants.M124, 3.0f)) {
 
             result.add("M 161");
         }
@@ -522,7 +512,7 @@ public final class MathPlanStudentData {
     }
 
     /**
-     * Tests whether the student has completed or transfered a course with a certain minimum grade.
+     * Tests whether the student has completed or transferred a course with a certain minimum grade.
      *
      * @param course   the course
      * @param minGrade the minimum grade
@@ -549,7 +539,7 @@ public final class MathPlanStudentData {
                 final String courseId = rec.courseId;
 
                 if (rec.getGradeGpa() != null && course.equals(courseId)
-                        && rec.getGradeGpa().floatValue() >= minGrade) {
+                    && rec.getGradeGpa().floatValue() >= minGrade) {
                     hasCourse = true;
                     break;
                 }
@@ -673,10 +663,10 @@ public final class MathPlanStudentData {
             final RawStmathplan exist4 = existing.get(key4);
 
             final boolean shouldInsertNew = exist1 == null || exist1.stuAnswer == null
-                    || !exist1.stuAnswer.equals(value1) || exist2 == null || exist2.stuAnswer == null
-                    || !exist2.stuAnswer.equals(value2) || exist3 == null || exist3.stuAnswer == null
-                    || !exist3.stuAnswer.equals(value3) || exist4 == null || exist4.stuAnswer == null
-                    || !exist4.stuAnswer.equals(value4);
+                                            || !exist1.stuAnswer.equals(value1) || exist2 == null || exist2.stuAnswer == null
+                                            || !exist2.stuAnswer.equals(value2) || exist3 == null || exist3.stuAnswer == null
+                                            || !exist3.stuAnswer.equals(value3) || exist4 == null || exist4.stuAnswer == null
+                                            || !exist4.stuAnswer.equals(value4);
 
             if (shouldInsertNew) {
                 final List<Integer> questions = new ArrayList<>(4);
@@ -920,7 +910,7 @@ public final class MathPlanStudentData {
         if (typical.hasSemester1Data()) {
             // Student is eligible for something - check for case of MATH 101 + MATH 117
             if (typical.isEligibleToRegisterForSemester1(this.canRegisterFor)
-                    && (this.canRegisterFor.contains(RawRecordConstants.M117)
+                && (this.canRegisterFor.contains(RawRecordConstants.M117)
                     || !typical.needs117InSem1())) {
                 eligible = true;
             }
@@ -1073,7 +1063,7 @@ public final class MathPlanStudentData {
                 }
                 this.nextSteps.add(ENextStep.ACT_MATH_PLACEMENT_EXAM);
             } else if (sequence.getPreArrivalCourses().containsKey(RawRecordConstants.M117)
-                    && !sequence.getPreArrivalCourses()
+                       && !sequence.getPreArrivalCourses()
                     .get(RawRecordConstants.M117).status.sufficient) {
                 // Case C
                 if (openingMessagePast == ENextStep.MSG_1A_PLURAL) {
@@ -1134,32 +1124,32 @@ public final class MathPlanStudentData {
         }
 
         if (critical.isCourseInSemester1(RawRecordConstants.M117)
-                && !critical.getSemester1Courses().get(RawRecordConstants.M117).status.sufficient
-                || critical.isGroupInSemester1("AGED3")
-                || critical.isGroupInSemester1("ANIM3")) {
+            && !critical.getSemester1Courses().get(RawRecordConstants.M117).status.sufficient
+            || critical.isGroupInSemester1("AGED3")
+            || critical.isGroupInSemester1("ANIM3")) {
 
             // Case 2.1.1 or 2.2.1
             createPlanCase211Or212(critical, isInFuture ? ENextStep.MSG_2A : ENextStep.MSG_2F);
         } else if (recommend.isCourseInSemester1(RawRecordConstants.M117)
-                && !recommend.getSemester1Courses().get(RawRecordConstants.M117).status.sufficient
-                || recommend.isGroupInSemester1("AGED3")
-                || recommend.isGroupInSemester1("ANIM3")) {
+                   && !recommend.getSemester1Courses().get(RawRecordConstants.M117).status.sufficient
+                   || recommend.isGroupInSemester1("AGED3")
+                   || recommend.isGroupInSemester1("ANIM3")) {
 
             // Case 2.1.2A or 2.2.1A
             createPlanCase211Or212(critical, isInFuture ? ENextStep.MSG_2B : ENextStep.MSG_2G);
         } else if (typical.isCourseInSemester1(RawRecordConstants.M117)
-                && !typical.getSemester1Courses().get(RawRecordConstants.M117).status.sufficient
-                || typical.isGroupInSemester1("AGED3")
-                || typical.isGroupInSemester1("ANIM3")) {
+                   && !typical.getSemester1Courses().get(RawRecordConstants.M117).status.sufficient
+                   || typical.isGroupInSemester1("AGED3")
+                   || typical.isGroupInSemester1("ANIM3")) {
 
             // Case 2.1.2B or 2.2.1B
             createPlanCase211Or212(critical, isInFuture ? ENextStep.MSG_2C : ENextStep.MSG_2H);
         } else {
             if (critical.isCourseInSemester1("M 101")
-                    && !critical.getSemester1Courses().get("M 101")
+                && !critical.getSemester1Courses().get("M 101")
                     .status.sufficient
-                    || critical.isGroupInSemester1("AUCC2")
-                    || critical.isGroupInSemester1("AUCC3")) {
+                || critical.isGroupInSemester1("AUCC2")
+                || critical.isGroupInSemester1("AUCC3")) {
 
                 // Case 2.1.3 or 2.2.3
                 this.nextSteps.add(isInFuture ? ENextStep.MSG_2D : ENextStep.MSG_2I);
@@ -1194,8 +1184,8 @@ public final class MathPlanStudentData {
             allCourses.addAll(sequence.getAdditionalCourses().keySet());
 
             final boolean needsBeyond118 = allCourses.contains(RawRecordConstants.M124)
-                    || allCourses.contains(RawRecordConstants.M125)
-                    || allCourses.contains(RawRecordConstants.M126);
+                                           || allCourses.contains(RawRecordConstants.M125)
+                                           || allCourses.contains(RawRecordConstants.M126);
 
             if (!needsBeyond118) {
                 this.nextSteps.add(ENextStep.MSG_2L);
@@ -1266,10 +1256,10 @@ public final class MathPlanStudentData {
                     }
 
                     final boolean needsPrecalc = allNeeded.contains(RawRecordConstants.M117)
-                            || allNeeded.contains(RawRecordConstants.M118)
-                            || allNeeded.contains(RawRecordConstants.M124)
-                            || allNeeded.contains(RawRecordConstants.M125)
-                            || allNeeded.contains(RawRecordConstants.M126);
+                                                 || allNeeded.contains(RawRecordConstants.M118)
+                                                 || allNeeded.contains(RawRecordConstants.M124)
+                                                 || allNeeded.contains(RawRecordConstants.M125)
+                                                 || allNeeded.contains(RawRecordConstants.M126);
 
                     // 3.3.2
                     if (needsPrecalc) {
@@ -1394,8 +1384,8 @@ public final class MathPlanStudentData {
             final String id = info.course.course;
 
             if ((RawRecordConstants.M117.equals(id) || RawRecordConstants.M118.equals(id)
-                    || RawRecordConstants.M124.equals(id) || RawRecordConstants.M125.equals(id)
-                    || RawRecordConstants.M126.equals(id)) && info.addedAsPrerequisite) {
+                 || RawRecordConstants.M124.equals(id) || RawRecordConstants.M125.equals(id)
+                 || RawRecordConstants.M126.equals(id)) && info.addedAsPrerequisite) {
 
                 allNamed = false;
                 break;

@@ -258,7 +258,7 @@ enum PagePlanRecord {
                 // Must be cleared for something...
                 htm.addln("You are cleared to register for:");
                 htm.addln(" <ul style='list-style: none;'>");
-                htm.addln(" <li>MATH 101, MATH 105, or STAT 100</li>");
+                htm.addln(" <li>MATH 101, MATH 105, STAT 100, STAT 201, and STAT 204</li>");
                 if (cleared117) {
                     htm.addln(" <li>MATH 117</li>");
                 }

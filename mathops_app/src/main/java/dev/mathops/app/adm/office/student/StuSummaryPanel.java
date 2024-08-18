@@ -459,13 +459,6 @@ public final class StuSummaryPanel extends AdmPanelBase {
                 eligibleFor.append("MATH 126");
                 ++numEligible;
             }
-            if (prereq.hasSatisfiedPrerequisitesFor(RawRecordConstants.M117)) {
-                if (numEligible > 0) {
-                    eligibleFor.append(", ");
-                }
-                eligibleFor.append("MATH 127");
-                ++numEligible;
-            }
 
             if (numEligible == 0) {
                 final int numPlacement = data.studentPlacementAttempts.size();
@@ -1262,6 +1255,8 @@ public final class StuSummaryPanel extends AdmPanelBase {
             result = "MATH 126";
         } else if ("M 127".equals(course)) {
             result = "MATH 127";
+        } else if ("M 120".equals(course)) {
+            result = "MATH 120";
         } else if (RawRecordConstants.M100T.equals(course)) {
             result = "ELM Tutorial";
         }

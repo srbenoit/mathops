@@ -248,9 +248,12 @@ final class TestPlacementLogic {
 
         // 99CIMP000: Has not taken MPT/MPE, not eligible for unproctored
 
-        assertEquals(2, statusCIMP000.clearedFor.size(), "Expected 2 cleared for");
+        assertEquals(5, statusCIMP000.clearedFor.size(), "Expected 5 cleared for");
         assertTrue(statusCIMP000.clearedFor.contains("MATH 101"), "Expected cleared for MATH 101");
+        assertTrue(statusCIMP000.clearedFor.contains("MATH 105"), "Expected cleared for MATH 105");
         assertTrue(statusCIMP000.clearedFor.contains("STAT 100"), "Expected cleared for STAT 100");
+        assertTrue(statusCIMP000.clearedFor.contains("STAT 201"), "Expected cleared for STAT 201");
+        assertTrue(statusCIMP000.clearedFor.contains("STAT 204"), "Expected cleared for STAT 204");
     }
 
     /** Test case. */
@@ -395,7 +398,7 @@ final class TestPlacementLogic {
         // 99CIMP001: Has not taken MPT/MPE, eligible for unproctored by Application Term
 
         assertTrue(statusCIMP001.unproctoredDateRanges.current != null
-                        && statusCIMP001.unproctoredDateRanges.current.contains(now.toLocalDate()),
+                   && statusCIMP001.unproctoredDateRanges.current.contains(now.toLocalDate()),
                 "Expected null when unproctored currently available");
     }
 
@@ -427,8 +430,11 @@ final class TestPlacementLogic {
 
         // 99CIMP001: Has not taken MPT/MPE, eligible for unproctored by Application Term
 
-        assertEquals(2, statusCIMP001.clearedFor.size(), "Expected 2 cleared for");
-        assertTrue(statusCIMP001.clearedFor.contains("MATH 101"), "Expected cleared for MATH 101");
-        assertTrue(statusCIMP001.clearedFor.contains("STAT 100"), "Expected cleared for STAT 100");
+        assertEquals(5, statusCIMP001.clearedFor.size(), "Expected 5 cleared for");
+        assertTrue(statusCIMP000.clearedFor.contains("MATH 101"), "Expected cleared for MATH 101");
+        assertTrue(statusCIMP000.clearedFor.contains("MATH 105"), "Expected cleared for MATH 105");
+        assertTrue(statusCIMP000.clearedFor.contains("STAT 100"), "Expected cleared for STAT 100");
+        assertTrue(statusCIMP000.clearedFor.contains("STAT 201"), "Expected cleared for STAT 201");
+        assertTrue(statusCIMP000.clearedFor.contains("STAT 204"), "Expected cleared for STAT 204");
     }
 }

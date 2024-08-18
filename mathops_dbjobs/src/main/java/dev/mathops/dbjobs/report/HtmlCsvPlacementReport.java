@@ -341,10 +341,10 @@ public final class HtmlCsvPlacementReport {
                     reportLine.add("Placed out of MATH 117");
                 }
             } else {
-                reportLine.add("OK for MATH 101/105, STAT 100, and MATH 117/120/127");
+                reportLine.add("OK for MATH 101/105, STAT 100/201/204, and MATH 117/120/127");
             }
         } else {
-            reportLine.add("OK for MATH 101/105 and STAT 100 only");
+            reportLine.add("OK for MATH 101/105 and STAT 100/201/204 only");
         }
         reportLine.add("</td></tr>");
 

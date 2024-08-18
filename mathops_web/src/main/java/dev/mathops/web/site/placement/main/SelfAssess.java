@@ -392,15 +392,16 @@ enum SelfAssess {
         htm.div("vgap");
         htm.sDiv("advice");
         htm.addln("You are eligible to register for <b>MATH 101, Math in the Social Sciences</b>, ",
-                        "<b>MATH 105: Patterns of Phenomena</b>, or <b>STAT 100, Statistical Literacy</b>.")
+                        "<b>MATH 105, Patterns of Phenomena</b>, <b>STAT 100: Statistical Literacy</b>, ",
+                        "<b>STAT 201: General Statistics</b>, and <b>STAT 204: Statistics With Business " +
+                        "Applications</b>.")
                 .br().br();
         emitCheckMajorReqs(htm);
         htm.eDiv().br();
 
         emitNumberedQuestion(htm, 4,
-                "Is <b>MATH 101</b>, <b>MATH 105</b> or <b>STAT 100</b> appropriate for your degree ",
-                "program at CSU?");
-
+                "Is <b>MATH 101</b>, <b>MATH 105</b>, <b>STAT 100</b>, <b>STAT 201</b>, or <b>STAT 204</b> ",
+                "appropriate for your degree program at CSU?");
         htm.div("vgap");
         htm.sDiv("center");
         emitYButton(htm, "YNNY");
@@ -417,11 +418,12 @@ enum SelfAssess {
 
         emitResultsHeader(htm); // opens 'advice' div
         emitDiv(htm, "You may register for <b>MATH 101, Math in the Social Sciences</b>, ",
-                "<b>MATH 105: Patterns of Phenomena</b>, or <b>STAT 100, Statistical Literacy</b> ",
+                "<b>MATH 105, Patterns of Phenomena</b>, <b>STAT 100: Statistical Literacy</b>, ",
+                "<b>STAT 201: General Statistics</b>, and <b>STAT 204: Statistics With Business Applications</b> ",
                 "without completing the Math Placement Tool.");
         htm.sP("center");
-        htm.addln("Please note: <em style='color:red'><b>MATH 101</b>, <b>MATH 105</b>, or ",
-                "<b>STAT 100</b> do not satisfy the prerequisites for <b>MATH 117</b>.</em>");
+        htm.addln("Please note: <em style='color:red'><b>MATH 101</b>, <b>MATH 105</b>, <b>STAT 100</b>, ",
+                "<b>STAT 201</b> and <b>STAT 204</b> do not satisfy the prerequisites for <b>MATH 117</b>.</em>");
         htm.eP();
         htm.eDiv(); // advice
 
@@ -434,8 +436,8 @@ enum SelfAssess {
         htm.sDiv(null, "id='saQ5YNNN'", DISPLAY_NONE);
 
         htm.sP("center");
-        htm.addln("Please note: <em style='color:red'><b>MATH 101</b>, <b>MATH 105</b>, or ",
-                "<b>STAT 100</b> do not satisfy the prerequisites for <b>MATH 117</b>.</em>");
+        htm.addln("Please note: <em style='color:red'><b>MATH 101</b>, <b>MATH 105</b>, <b>STAT 100</b>, ",
+                "<b>STAT 201</b> and <b>STAT 204</b> do not satisfy the prerequisites for <b>MATH 117</b>.</em>");
         htm.eP();
 
         emitNumberedQuestion(htm, 5,
@@ -953,8 +955,8 @@ enum SelfAssess {
         htm.sDiv(null, "id='saQ3NN'", DISPLAY_NONE);
 
         emitNumberedQuestion(htm, 3,
-                "Does your major accept <strong>any</strong> 3 credits of AUCC Core Mathematics, ",
-                "including <b>MATH 101</b>, <b>MATH 105</b>, or <b>STAT 100</b>?");
+                "Does your major accept <strong>any</strong> 3 credits of AUCC Core Mathematics, including ",
+                "<b>MATH 101</b>, <b>MATH 105</b>, <b>STAT 100</b>, <b>STAT 201</b> and <b>STAT 204</b>?");
 
         htm.sP("center");
         htm.addln("Check <a class='ulink' target='_blank' ",
@@ -977,14 +979,13 @@ enum SelfAssess {
         htm.sDiv(null, "id='saR4NNY'", DISPLAY_NONE);
 
         emitResultsHeader(htm); // opens 'advice' div
-        emitDiv(htm,
-                "You are eligible to register for <b>MATH 101, Math in the Social Sciences</b>, ",
-                "<b>MATH 105, Patterns of Phenomena</b>, or <b>STAT 100, Statistical ",
-                "Literacy</b> without completing the Math Placement Tool.");
+        emitDiv(htm, "You are eligible to register for <b>MATH 101: Math in the Social Sciences</b>, ",
+                "<b>MATH 105: Patterns of Phenomena</b>, <b>STAT 100: Statistical Literacy</b>, ",
+                "<b>STAT 201: General Statistics</b>, or <b>STAT 204: Statistics With Business Applications</b> ",
+                "without completing the Math Placement Tool.");
         htm.div("vgap");
-        emitDiv(htm, "Please note: <em style='color:red'><b>MATH 101</b>, <b>MATH ",
-                "105</b>, or <b>STAT 100</b> do not satisfy the prerequisites for <b>MATH 117</b>.",
-                "</em>");
+        emitDiv(htm, "Please note: <em style='color:red'><b>MATH 101</b>, <b>MATH 105</b>, <b>STAT 100</b>, ",
+                "<b>STAT 201</b>, and <b>STAT 204</b> do not satisfy the prerequisites for <b>MATH 117</b>.");
         htm.eDiv(); // advice
 
         htm.eDiv(); // id=saR4NNY

@@ -293,10 +293,10 @@ public final class PlacementReport {
                     results.setLength(0);
 
                     if (has100C) {
-                        results.append("OK for MATH 101, 105, 117, and 127");
+                        results.append("OK for MATH 101/105, STAT 100/201/204, and MATH 117/120/127");
                         csvLine.append("YES,no,no,no,no,no,no");
                     } else {
-                        results.append("OK for MATH 101 & 105 *only*");
+                        results.append("OK for MATH 101/105 and STAT 100/201/204 *only*");
                         csvLine.append("no,no,no,no,no,no,no");
                     }
                 }

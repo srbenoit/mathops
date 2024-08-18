@@ -44,13 +44,11 @@ class DisciplineAddIncidentCard extends JPanel implements ActionListener {
     private static final String CANCEL_CMD = "CANCEL";
 
     /** Courses. */
-    private static final String[] COURSES = {"(None)", "Placement", "ELM Tutorial",
-            "Precalc Tutorial", "MATH 117", "MATH 118",
-            "MATH 124", "MATH 125", "MATH 126"};
+    private static final String[] COURSES = {"(None)", "Placement", "ELM Tutorial", "Precalc Tutorial", "MATH 117",
+            "MATH 118", "MATH 124", "MATH 125", "MATH 126"};
 
     /** Courses. */
-    private static final String[] UNITS = {"(None)", "1",
-            "2", "3", "4", "5"};
+    private static final String[] UNITS = {"(None)", "1", "2", "3", "4", "5"};
 
     /** The owning discipline panel. */
     private final StuDisciplinePanel owner;

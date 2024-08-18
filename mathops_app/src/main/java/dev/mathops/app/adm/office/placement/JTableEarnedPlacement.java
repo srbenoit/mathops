@@ -63,7 +63,7 @@ final class JTableEarnedPlacement extends AbstractAdmTable<RawMpeCredit> {
 
             if (RawRecordConstants.M100C.equals(record.course)) {
                 if ("P".equals(record.examPlaced) || "C".equals(record.examPlaced)) {
-                    row[1] = "Placed Into MATH 117";
+                    row[1] = "Placed Into MATH 117, MATH 120, or MATH 127";
                 } else {
                     row[1] = record.examPlaced;
                 }
