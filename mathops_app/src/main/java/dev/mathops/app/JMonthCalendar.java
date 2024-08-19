@@ -186,7 +186,7 @@ final class JMonthCalendar extends JPanel implements ActionListener {
                 btn.setForeground(Color.BLACK);
                 btn.setBorder(buttonPad);
                 btn.setBackground(j == 0 || j == 6 ? getBackground() : Color.WHITE);
-                body.add(btn);
+                this.body.add(btn);
                 this.dateButtons[i][j] = btn;
             }
         }
@@ -202,6 +202,40 @@ final class JMonthCalendar extends JPanel implements ActionListener {
     public void setFont(final Font font) {
 
         super.setFont(font);
+
+        final float size = font.getSize2D();
+        final Font titleFont = font.deriveFont(size * 1.15f);
+        final Font weekdayFont = font.deriveFont(size * 0.8f);
+
+        if (this.monthNameLabel != null) {
+            this.monthNameLabel.setFont(titleFont);
+        }
+        if (this.yearLabel != null) {
+            this.yearLabel.setFont(titleFont);
+        }
+
+        if (this.weekdayLabels != null) {
+            for (final JLabel lbl : weekdayLabels) {
+                lbl.setFont(weekdayFont);
+            }
+        }
+
+        if (this.dateButtons != null) {
+            for (final JButton[] row : dateButtons) {
+                for (final JButton button : row) {
+                    button.setFont(font);
+                }
+            }
+        }
+
+        if (this.body != null) {
+            this.body.invalidate();
+            this.body.revalidate();
+            this.body.setSize(this.body.getPreferredSize());
+
+            Log.info("Pref = " + this.body.getPreferredSize());
+            Log.info("Size = " + this.body.getSize());
+        }
     }
 
     /**

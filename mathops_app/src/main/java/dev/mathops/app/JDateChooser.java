@@ -16,9 +16,10 @@ import javax.swing.JWindow;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.plaf.basic.BasicArrowButton;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
@@ -41,7 +42,7 @@ import java.util.List;
  * open a calendar from which to choose the date.  When a date is selected or entered, an action event is fired to all
  * registered listeners.
  */
-public final class JDateChooser extends JPanel implements ActionListener, MouseListener, JMonthCalendar.Listener {
+public final class JDateChooser extends JPanel implements MouseListener, DocumentListener, JMonthCalendar.Listener {
 
     /** The action command to open a dropdown calendar picker. */
     private static final String DATE_TYPED_CMD = "DATE_TYPED_CMD";
@@ -67,6 +68,9 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
     /** The month calendar window. */
     private final JWindow monthCalendarWindow;
 
+    /** Flag indicating we are updating the date string (to prevent multiple calls to document listeners). */
+    private boolean updatingDateString = false;
+
     /**
      * Constructs a new {@code JDateChooser} with a specified starting value.
      *
@@ -89,8 +93,7 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
         this.dateField.setBorder(padding);
         this.dateField.setFont(theFont);
         add(this.dateField, BorderLayout.CENTER);
-        this.dateField.setActionCommand(DATE_TYPED_CMD);
-        this.dateField.addActionListener(this);
+        this.dateField.getDocument().addDocumentListener(this);
 
         this.dateDropdownArrow = new BasicArrowButton(SwingConstants.SOUTH);
         this.dateDropdownArrow.addMouseListener(this);
@@ -109,6 +112,14 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
         this.monthCalendarWindow = new JWindow();
         this.monthCalendarWindow.add(this.monthCalendar);
         this.monthCalendarWindow.pack();
+
+        final int monthWidth = this.monthCalendarWindow.getPreferredSize().width;
+        final int dropdownWidth = this.dateDropdownArrow.getPreferredSize().width;
+        final int remainingWidth = monthWidth - dropdownWidth;
+
+        final Dimension pref = this.dateField.getPreferredSize();
+        final Dimension newPref = new Dimension(remainingWidth, pref.height);
+        this.dateField.setPreferredSize(newPref);
     }
 
     /**
@@ -154,6 +165,7 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
         }
         if (this.monthCalendar != null) {
             this.monthCalendar.setFont(font);
+            this.monthCalendarWindow.pack();
 
             if (this.dateField != null) {
                 final Dimension calendarSize = this.monthCalendar.getPreferredSize();
@@ -235,27 +247,57 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
     }
 
     /**
-     * Called when an action is performed.
+     * Called when text is inserted into the date field.
      *
-     * @param e the event to be processed
+     * @param e the document event
      */
     @Override
-    public void actionPerformed(final ActionEvent e) {
+    public void insertUpdate(final DocumentEvent e) {
 
-        final String cmd = e.getActionCommand();
+        handleDateTextUpdate();
+    }
 
-        if (DATE_TYPED_CMD.equals(cmd)) {
-            Log.info("Date typed");
+    /**
+     * Called when text is removed from the date field.
+     *
+     * @param e the document event
+     */
+    @Override
+    public void removeUpdate(final DocumentEvent e) {
+
+        handleDateTextUpdate();
+    }
+
+    /**
+     * Called when text is changed in the date field.
+     *
+     * @param e the document event
+     */
+    @Override
+    public void changedUpdate(final DocumentEvent e) {
+
+        handleDateTextUpdate();
+    }
+
+    /**
+     * Called when the text in the date field has changed.
+     */
+    private void handleDateTextUpdate() {
+
+        if (!this.updatingDateString) {
             final String dateText = this.dateField.getText();
             final LocalDate parsed = interpretDate(dateText);
 
             if (parsed != null) {
                 final String newText = TemporalUtils.FMT_MDY.format(parsed);
                 if (!newText.equals(dateText)) {
+                    this.updatingDateString = true;
+                    this.updatingDateString = false;
                     this.dateField.setText(newText);
                 }
-                fireActionEvent();
+
                 this.currentDate = parsed;
+                fireActionEvent();
             }
         }
     }
@@ -294,9 +336,7 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
             }
         }
 
-        if (newDate == null) {
-            Log.warning("Failed to interpret '", dateString, "' as date");
-        } else {
+        if (newDate != null) {
             final int day = newDate.get(ChronoField.DAY_OF_MONTH);
             final int month = newDate.get(ChronoField.MONTH_OF_YEAR);
             final int year = newDate.get(ChronoField.YEAR);
@@ -394,8 +434,6 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
 
         FlatLightLaf.setup();
 
-        final LocalDate today = LocalDate.now();
-        final YearMonth yearMonth = YearMonth.from(today);
         final List<LocalDate> holidays = new ArrayList<>(10);
         holidays.add(LocalDate.of(2024, 5, 27));
         holidays.add(LocalDate.of(2024, 6, 19));
@@ -415,11 +453,7 @@ public final class JDateChooser extends JPanel implements ActionListener, MouseL
 
             final JDateChooser chooser = new JDateChooser(selected, holidays, Skin.BODY_12_FONT);
             chooser.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 17));
-            chooser.setForeground(Color.BLUE);
             chooser.setActionCommand("FOO");
-            final Dimension prefSize = chooser.getPreferredSize();
-            final Dimension minSize = new Dimension(150, prefSize.height);
-            chooser.setPreferredSize(minSize);
             flow.add(chooser, BorderLayout.CENTER);
 
             final JLabel result = new JLabel(" ");

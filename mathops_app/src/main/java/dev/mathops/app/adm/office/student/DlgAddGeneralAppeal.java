@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.office.student;
 
-import dev.mathops.app.JDateChooser;
+import dev.mathops.app.JDateTimeChooser;
 import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
@@ -25,6 +25,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -77,8 +78,8 @@ public final class DlgAddGeneralAppeal extends JFrame implements ActionListener,
     /** The interviewer login name. */
     private final JTextField interviewerField;
 
-    /** The appeal date. */
-    private final JDateChooser appealDateTimePicker;
+    /** The appeal date/time. */
+    private final JDateTimeChooser appealDateTimePicker;
 
     /** The circumstances. */
     private final JTextArea circumstancesField;
@@ -164,8 +165,8 @@ public final class DlgAddGeneralAppeal extends JFrame implements ActionListener,
             Log.warning("Failed to query holidays.");
         }
 
-        final LocalDate today = LocalDate.now();
-        this.appealDateTimePicker = new JDateChooser(today, holidays, Skin.BODY_12_FONT);
+        final LocalDateTime now = LocalDateTime.now();
+        this.appealDateTimePicker = new JDateTimeChooser(now, holidays, Skin.BODY_12_FONT, SwingConstants.VERTICAL);
         this.appealDateTimePicker.setFont(Skin.BODY_12_FONT);
         this.appealDateTimePicker.setActionCommand(VALIDATE_CMD);
 
@@ -276,9 +277,9 @@ public final class DlgAddGeneralAppeal extends JFrame implements ActionListener,
         this.studentNameField.setText(screenName);
         this.interviewerField.setText(userData.username);
 
-        final LocalDate today = LocalDate.now();
+        final LocalDateTime now = LocalDateTime.now();
 
-        this.appealDateTimePicker.setCurrentDate(today);
+        this.appealDateTimePicker.setCurrentDateTime(now);
         this.circumstancesField.setText(CoreConstants.EMPTY);
         this.commentField.setText(CoreConstants.EMPTY);
 
@@ -325,7 +326,7 @@ public final class DlgAddGeneralAppeal extends JFrame implements ActionListener,
 
         String error = null;
 
-        if (this.appealDateTimePicker.getCurrentDate() == null) {
+        if (this.appealDateTimePicker.getCurrentDateTime() == null) {
             error = "Appeal date/time must be set.";
         }
 

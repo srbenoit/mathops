@@ -4,35 +4,28 @@ import com.formdev.flatlaf.FlatLightLaf;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
-import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.UIUtilities;
 
 import javax.swing.BorderFactory;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.JWindow;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.border.Border;
-import javax.swing.plaf.basic.BasicArrowButton;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.Insets;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.time.DateTimeException;
 import java.time.LocalDate;
-import java.time.YearMonth;
-import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoField;
-import java.time.temporal.TemporalAccessor;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,16 +34,46 @@ import java.util.List;
  * open a calendar from which to choose the date.  When a date is selected or entered, an action event is fired to all
  * registered listeners.
  */
-public final class JDateTimeChooser extends JPanel implements ActionListener, MouseListener, JMonthCalendar.Listener {
+public final class JDateTimeChooser extends JPanel implements ActionListener, ChangeListener {
 
-    /** The action command to open a dropdown calendar picker. */
-    private static final String DATE_TYPED_CMD = "DATE_TYPED_CMD";
+    /** The action command fired when the date chooser's value changes. */
+    private static final String DATE_CHOOSER_CMD = "DATE_CHOOSER";
 
-    /** The text field into which the user can type, or in which the selected date is displayed. */
-    private final JTextField dateField;
+    /** The action command fired when the AM/PM selection changes. */
+    private static final String AM_PM_CHANGED_CMD = "AM_PM_CHANGED";
 
-    /** The button to drop down the calendar display. */
-    private final BasicArrowButton dateDropdownArrow;
+    /** A commonly used integer. */
+    private static final Integer ZERO = Integer.valueOf(0);
+
+    /** The date chooser, with associated month calendar. */
+    private final JDateChooser dateChooser;
+
+    /** The model for the hour spinner. */
+    private final SpinnerNumberModel hourModel;
+
+    /** The hour spinner. */
+    private final JSpinner hourSpinner;
+
+    /** The model for the minute spinner. */
+    private final SpinnerNumberModel minuteModel;
+
+    /** The minute spinner. */
+    private final JSpinner minuteSpinner;
+
+    /** The model for the second spinner. */
+    private final SpinnerNumberModel secondModel;
+
+    /** The second spinner. */
+    private final JSpinner secondSpinner;
+
+    /** The Am/PM selector. */
+    private final JComboBox<String> amPm;
+
+    /** A colon label (stored so we can update its font if needed). */
+    private final JLabel colon1;
+
+    /** A colon label (stored so we can update its font if needed). */
+    private final JLabel colon2;
 
     /** The list of action listeners. */
     private final List<ActionListener> listeners;
@@ -58,57 +81,106 @@ public final class JDateTimeChooser extends JPanel implements ActionListener, Mo
     /** The action command. */
     private String actionCommand = CoreConstants.EMPTY;
 
-    /** The current date. */
-    private LocalDate currentDate;
-
-    /** The month calendar. */
-    private final JMonthCalendar monthCalendar;
-
-    /** The month calendar window. */
-    private final JWindow monthCalendarWindow;
+    /** The current date/time. */
+    private LocalDateTime currentDateTime;
 
     /**
-     * Constructs a new {@code JDateChooser} with a specified starting value.
+     * Constructs a new {@code JDateTimeChooser} with a specified starting value.
      *
-     * @param theCurrentDate the current date (can be null)
-     * @param holidays       an optional list of holidays
-     * @param theFont        the font
+     * @param theCurrentDateTime the current date/time (can be null)
+     * @param holidays           an optional list of holidays
+     * @param theFont            the font
+     * @param orientation        the orientation (SwingConstants.HORIZONTAL to show the time to the right of the date;
+     *                           SwingConstants.VERTICAL to show the time below the date.
      */
-    public JDateTimeChooser(final LocalDate theCurrentDate, final List<LocalDate> holidays, final Font theFont) {
+    public JDateTimeChooser(final LocalDateTime theCurrentDateTime, final List<LocalDate> holidays,
+                            final Font theFont, final int orientation) {
 
-        super(new BorderLayout());
+        super(new BorderLayout(4, 4));
+
+
+        final LocalDate date = theCurrentDateTime == null ? null : theCurrentDateTime.toLocalDate();
+        final LocalTime time = theCurrentDateTime == null ? null : theCurrentDateTime.toLocalTime();
+        this.currentDateTime = theCurrentDateTime;
 
         this.listeners = new ArrayList<>(2);
 
-        this.dateField = new JTextField();
-        final Insets insets = this.dateField.getInsets();
-        final Border border = this.dateField.getBorder();
-        setBorder(border);
+        this.dateChooser = new JDateChooser(date, holidays, theFont);
+        this.dateChooser.setActionCommand(DATE_CHOOSER_CMD);
+        this.dateChooser.addActionListener(this);
 
-        final Border padding = BorderFactory.createEmptyBorder(insets.top, insets.left, insets.bottom, insets.right);
-        this.dateField.setBorder(padding);
-        this.dateField.setFont(theFont);
-        add(this.dateField, BorderLayout.CENTER);
-        this.dateField.setActionCommand(DATE_TYPED_CMD);
-        this.dateField.addActionListener(this);
+        this.hourModel = new SpinnerNumberModel(0, 0, 11, 1);
+        this.hourSpinner = new JSpinner(this.hourModel);
+        this.hourSpinner.setFont(theFont);
 
-        this.dateDropdownArrow = new BasicArrowButton(SwingConstants.SOUTH);
-        this.dateDropdownArrow.addMouseListener(this);
-        add(this.dateDropdownArrow, BorderLayout.LINE_END);
+        final Dimension wholeSize = this.hourSpinner.getPreferredSize();
+        final int size = wholeSize.height;
+        final Dimension newSpinnerSize = new Dimension(size * 9 / 4, size);
 
-        this.currentDate = theCurrentDate;
-        if (theCurrentDate != null) {
-            final String dateStr = TemporalUtils.FMT_MDY.format(theCurrentDate);
-            this.dateField.setText(dateStr);
+        this.hourSpinner.setPreferredSize(newSpinnerSize);
+        this.hourSpinner.addChangeListener(this);
+
+        this.minuteModel = new SpinnerNumberModel(0, 0, 59, 1);
+        this.minuteSpinner = new JSpinner(this.minuteModel);
+        this.minuteSpinner.setFont(theFont);
+        this.minuteSpinner.setPreferredSize(newSpinnerSize);
+        this.minuteSpinner.addChangeListener(this);
+
+        this.secondModel = new SpinnerNumberModel(0, 0, 59, 1);
+        this.secondSpinner = new JSpinner(this.secondModel);
+        this.secondSpinner.setFont(theFont);
+        this.secondSpinner.setPreferredSize(newSpinnerSize);
+        this.secondSpinner.addChangeListener(this);
+
+        final String[] choices = {"AM", "PM"};
+        this.amPm = new JComboBox<>(choices);
+        this.amPm.setFont(theFont);
+        this.amPm.setActionCommand(AM_PM_CHANGED_CMD);
+        this.amPm.addActionListener(this);
+
+        final Dimension newAmPmSize = new Dimension(size * 10 / 4, size);
+        this.amPm.setPreferredSize(newAmPmSize);
+
+        if (time != null) {
+            final int curHour = time.getHour() % 12;
+            final Integer hourObj = Integer.valueOf(curHour);
+            this.hourModel.setValue(hourObj);
+
+            final int curMinute = time.getMinute();
+            final Integer minuteObj = Integer.valueOf(curMinute);
+            this.minuteSpinner.setValue(minuteObj);
+
+            final int curSecond = time.getSecond();
+            final Integer secondObj = Integer.valueOf(curSecond);
+            this.secondModel.setValue(secondObj);
+
+            final int curAmPm = time.getHour() > 11 ? 1 : 0;
+            this.amPm.setSelectedIndex(curAmPm);
         }
 
-        final LocalDate today = LocalDate.now();
-        final YearMonth thisMonth = YearMonth.from(today);
-        this.monthCalendar = new JMonthCalendar(thisMonth, today, holidays, theCurrentDate, theFont, this);
+        this.colon1 = new JLabel(":");
+        this.colon1.setFont(theFont);
+        this.colon2 = new JLabel(":");
+        this.colon2.setFont(theFont);
 
-        this.monthCalendarWindow = new JWindow();
-        this.monthCalendarWindow.add(this.monthCalendar);
-        this.monthCalendarWindow.pack();
+        final JPanel dateRow = new JPanel(new FlowLayout(FlowLayout.LEADING, 3, 0));
+        dateRow.add(this.dateChooser);
+
+        final JPanel timeRow = new JPanel(new FlowLayout(FlowLayout.LEADING, 3, 0));
+        timeRow.add(this.hourSpinner);
+        timeRow.add(this.colon1);
+        timeRow.add(this.minuteSpinner);
+        timeRow.add(this.colon2);
+        timeRow.add(this.secondSpinner);
+        timeRow.add(this.amPm);
+
+        add(dateRow, BorderLayout.CENTER);
+
+        if (orientation == SwingConstants.VERTICAL) {
+            add(timeRow, BorderLayout.PAGE_END);
+        } else {
+            add(timeRow, BorderLayout.LINE_END);
+        }
     }
 
     /**
@@ -116,27 +188,47 @@ public final class JDateTimeChooser extends JPanel implements ActionListener, Mo
      *
      * @return the date
      */
-    public LocalDate getCurrentDate() {
+    public LocalDateTime getCurrentDateTime() {
 
-        return this.currentDate;
+        return this.currentDateTime;
     }
 
     /**
-     * Sets the date.
+     * Sets the date/time.
      *
-     * @param newDate the new date
+     * @param newDateTime the new date/time
      */
-    public void setCurrentDate(final LocalDate newDate) {
+    public void setCurrentDateTime(final LocalDateTime newDateTime) {
 
-        this.currentDate = newDate;
+        final LocalDate date = newDateTime == null ? null : newDateTime.toLocalDate();
+        final LocalTime time = newDateTime == null ? null : newDateTime.toLocalTime();
 
-        if (newDate == null) {
-            this.dateField.setText(CoreConstants.EMPTY);
+        this.currentDateTime = newDateTime;
+
+        this.dateChooser.setCurrentDate(date);
+
+        if (time == null) {
+            this.hourSpinner.setValue(ZERO);
+            this.minuteSpinner.setValue(ZERO);
+            this.secondSpinner.setValue(ZERO);
+            this.amPm.setSelectedIndex(0);
         } else {
-            this.dateField.setText(TemporalUtils.FMT_MDY.format(newDate));
+            final int hour = time.getHour() % 12;
+            final Integer hourNum = Integer.valueOf(hour);
+            this.hourSpinner.setValue(hourNum);
+
+            final int min = time.getMinute();
+            final Integer minNum = Integer.valueOf(min);
+            this.minuteSpinner.setValue(minNum);
+
+            final int sec = time.getSecond();
+            final Integer secNum = Integer.valueOf(sec);
+            this.secondSpinner.setValue(secNum);
+
+            final int amPmIndex = time.getHour() / 12;
+            this.amPm.setSelectedIndex(amPmIndex);
         }
 
-        this.monthCalendar.setSelectedDate(newDate);
         fireActionEvent();
     }
 
@@ -149,21 +241,26 @@ public final class JDateTimeChooser extends JPanel implements ActionListener, Mo
 
         super.setFont(font);
 
-        if (this.dateField != null) {
-            this.dateField.setFont(font);
+        if (this.dateChooser != null) {
+            this.dateChooser.setFont(font);
         }
-        if (this.monthCalendar != null) {
-            this.monthCalendar.setFont(font);
-
-            if (this.dateField != null) {
-                final Dimension calendarSize = this.monthCalendar.getPreferredSize();
-                final Dimension fieldSize = this.dateField.getPreferredSize();
-                final Dimension buttonSize = this.dateDropdownArrow.getPreferredSize();
-
-                final int w = calendarSize.width - buttonSize.width;
-                final Dimension newFieldSize = new Dimension(w, fieldSize.height);
-                this.dateField.setPreferredSize(newFieldSize);
-            }
+        if (this.hourSpinner != null) {
+            this.hourSpinner.setFont(font);
+        }
+        if (this.minuteSpinner != null) {
+            this.minuteSpinner.setFont(font);
+        }
+        if (this.secondSpinner != null) {
+            this.secondSpinner.setFont(font);
+        }
+        if (this.amPm != null) {
+            this.amPm.setFont(font);
+        }
+        if (this.colon1 != null) {
+            this.colon1.setFont(font);
+        }
+        if (this.colon2 != null) {
+            this.colon2.setFont(font);
         }
 
         invalidate();
@@ -179,8 +276,11 @@ public final class JDateTimeChooser extends JPanel implements ActionListener, Mo
 
         super.setEnabled(enabled);
 
-        this.dateField.setEnabled(enabled);
-        this.dateDropdownArrow.setEnabled(enabled);
+        this.dateChooser.setEnabled(enabled);
+        this.hourSpinner.setEnabled(enabled);
+        this.minuteSpinner.setEnabled(enabled);
+        this.secondSpinner.setEnabled(enabled);
+        this.amPm.setEnabled(enabled);
     }
 
     /**
@@ -222,10 +322,12 @@ public final class JDateTimeChooser extends JPanel implements ActionListener, Mo
      */
     private void fireActionEvent() {
 
+        final String cmd = this.actionCommand;
+
         synchronized (this.listeners) {
             if (!this.listeners.isEmpty()) {
 
-                final ActionEvent evt = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, this.actionCommand);
+                final ActionEvent evt = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, cmd);
 
                 for (final ActionListener listener : this.listeners) {
                     listener.actionPerformed(evt);
@@ -244,145 +346,60 @@ public final class JDateTimeChooser extends JPanel implements ActionListener, Mo
 
         final String cmd = e.getActionCommand();
 
-        if (DATE_TYPED_CMD.equals(cmd)) {
-            Log.info("Date typed");
-            final String dateText = this.dateField.getText();
-            final LocalDate parsed = interpretDate(dateText);
-
-            if (parsed != null) {
-                final String newText = TemporalUtils.FMT_MDY.format(parsed);
-                if (!newText.equals(dateText)) {
-                    this.dateField.setText(newText);
-                }
-                fireActionEvent();
-                this.currentDate = parsed;
-            }
+        if (DATE_CHOOSER_CMD.equals(cmd)) {
+            // The date chooser's value has changed
+            this.currentDateTime = interpretFields();
+            fireActionEvent();
+        } else if (AM_PM_CHANGED_CMD.equals(cmd)) {
+            // The AM/PM selector has changed
+            this.currentDateTime = interpretFields();
+            fireActionEvent();
         }
     }
 
     /**
-     * Attempts to interpret a date string
+     * Called when one of the spinners changes state.
      *
-     * @param dateString the date string
-     * @return the parsed date; null if unable to interpret
-     */
-    public static LocalDate interpretDate(final String dateString) {
-
-        LocalDate date = null;
-        TemporalAccessor newDate = null;
-
-        try {
-            newDate = TemporalUtils.FMT_MDY_COMPACT.parse(dateString);
-        } catch (final DateTimeParseException ex2) {
-            try {
-                newDate = TemporalUtils.FMT_MDY.parse(dateString);
-            } catch (final DateTimeParseException ex3) {
-                if (dateString.length() == 6) {
-                    // Try MMDDYY, like 123199
-                    try {
-                        final int value = Integer.parseInt(dateString);
-                        final int month = value / 10000;
-                        final int day = (value / 100) % 100;
-                        final int year2 = value % 100;
-                        final int year = year2 < 50 ? 2000 + year2 : 1900 + year2;
-
-                        newDate = LocalDate.of(year, month, day);
-                    } catch (final NumberFormatException | DateTimeException ex) {
-                        // No action
-                    }
-                }
-            }
-        }
-
-        if (newDate == null) {
-            Log.warning("Failed to interpret '", dateString, "' as date");
-        } else {
-            final int day = newDate.get(ChronoField.DAY_OF_MONTH);
-            final int month = newDate.get(ChronoField.MONTH_OF_YEAR);
-            final int year = newDate.get(ChronoField.YEAR);
-            date = LocalDate.of(year, month, day);
-        }
-
-        return date;
-    }
-
-    /**
-     * Called when the mouse is clicked in the component.
-     *
-     * @param e the mouse event
+     * @param e the change event
      */
     @Override
-    public void mouseClicked(final MouseEvent e) {
+    public void stateChanged(final ChangeEvent e) {
 
-        // No action
-    }
-
-    /**
-     * Called when the mouse is pressed in the component.
-     *
-     * @param e the mouse event
-     */
-    @Override
-    public void mousePressed(final MouseEvent e) {
-
-        final Dimension fieldSize = this.dateField.getSize();
-        final Point fieldLocation = this.dateField.getLocationOnScreen();
-
-        final int x = fieldLocation.x - 1;
-        final int y = fieldLocation.y + fieldSize.height;
-
-        if (this.monthCalendarWindow.isVisible()) {
-            this.monthCalendarWindow.setVisible(false);
-        } else {
-            this.monthCalendarWindow.setLocation(x, y);
-            this.monthCalendarWindow.setVisible(true);
-        }
-    }
-
-    /**
-     * Called when the mouse is released after being pressed in the component.
-     *
-     * @param e the mouse event
-     */
-    @Override
-    public void mouseReleased(final MouseEvent e) {
-
-        // No action
-    }
-
-    /**
-     * Called when the mouse enters the component.
-     *
-     * @param e the mouse event
-     */
-    @Override
-    public void mouseEntered(final MouseEvent e) {
-
-        // No action
-    }
-
-    /**
-     * Called when the mouse exits the component.
-     *
-     * @param e the mouse event
-     */
-    @Override
-    public void mouseExited(final MouseEvent e) {
-
-        // No action
-    }
-
-    /**
-     * Called when a date is selected.
-     *
-     * @param date the selected date
-     */
-    @Override
-    public void dateSelected(final LocalDate date) {
-
-        setCurrentDate(date);
-        this.monthCalendarWindow.setVisible(false);
+        this.currentDateTime = interpretFields();
         fireActionEvent();
+    }
+
+    /**
+     * Interprets field values and constructs a {@code LocalDateTime}.
+     *
+     * @return the constructed  {@code LocalDateTime}
+     */
+    private LocalDateTime interpretFields() {
+
+        final LocalDateTime result;
+
+        final LocalDate date = this.dateChooser.getCurrentDate();
+
+        if (date == null) {
+            result = null;
+        } else {
+            final Number hourValue = this.hourModel.getNumber();
+            final Number minuteValue = this.minuteModel.getNumber();
+            final Number secondValue = this.secondModel.getNumber();
+
+            if (hourValue == null || minuteValue == null || secondValue == null) {
+                result = null;
+            } else {
+                final int hour = hourValue.intValue() + this.amPm.getSelectedIndex() * 12;
+                final int minute = minuteValue.intValue();
+                final int second = secondValue.intValue();
+
+                final LocalTime time = LocalTime.of(hour, minute, second);
+                result = LocalDateTime.of(date, time);
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -394,14 +411,12 @@ public final class JDateTimeChooser extends JPanel implements ActionListener, Mo
 
         FlatLightLaf.setup();
 
-        final LocalDate today = LocalDate.now();
-        final YearMonth yearMonth = YearMonth.from(today);
         final List<LocalDate> holidays = new ArrayList<>(10);
         holidays.add(LocalDate.of(2024, 5, 27));
         holidays.add(LocalDate.of(2024, 6, 19));
         holidays.add(LocalDate.of(2024, 7, 4));
         holidays.add(LocalDate.of(2024, 9, 2));
-        final LocalDate selected = LocalDate.of(2024, 7, 25);
+        final LocalDateTime selected = LocalDateTime.of(2024, 7, 25, 13, 30, 45);
 
         SwingUtilities.invokeLater(() -> {
             final JFrame frame = new JFrame("Test");
@@ -410,16 +425,17 @@ public final class JDateTimeChooser extends JPanel implements ActionListener, Mo
             frame.setContentPane(content);
 
             final JPanel flow = new JPanel(new BorderLayout());
-            content.add(flow, BorderLayout.PAGE_START);
-            flow.add(new JLabel("Date: "), BorderLayout.LINE_START);
+            final JPanel left = new JPanel(new BorderLayout());
+            flow.add(left, BorderLayout.LINE_START);
 
-            final JDateTimeChooser chooser = new JDateTimeChooser(selected, holidays, Skin.BODY_12_FONT);
-            chooser.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 17));
-            chooser.setForeground(Color.BLUE);
+            content.add(flow, BorderLayout.PAGE_START);
+            left.setBorder(BorderFactory.createEmptyBorder(4, 0, 0, 0));
+            left.add(new JLabel("Date/Time: "), BorderLayout.PAGE_START);
+
+            final JDateTimeChooser chooser = new JDateTimeChooser(selected, holidays, Skin.BODY_12_FONT,
+                    SwingConstants.VERTICAL);
+//            chooser.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 17));
             chooser.setActionCommand("FOO");
-            final Dimension prefSize = chooser.getPreferredSize();
-            final Dimension minSize = new Dimension(150, prefSize.height);
-            chooser.setPreferredSize(minSize);
             flow.add(chooser, BorderLayout.CENTER);
 
             final JLabel result = new JLabel(" ");
@@ -428,12 +444,12 @@ public final class JDateTimeChooser extends JPanel implements ActionListener, Mo
             chooser.addActionListener(e -> {
                 final String cmd = e.getActionCommand();
                 if ("FOO".equals(cmd)) {
-                    final LocalDate parsed = chooser.getCurrentDate();
+                    final LocalDateTime parsed = chooser.getCurrentDateTime();
 
                     if (parsed == null) {
-                        result.setText("(No date entered)");
+                        result.setText("(No date/time entered)");
                     } else {
-                        final String dateStr = TemporalUtils.FMT_MDY.format(parsed);
+                        final String dateStr = TemporalUtils.FMT_MDY_AT_HMS_A.format(parsed);
                         result.setText(dateStr);
                     }
                 }
