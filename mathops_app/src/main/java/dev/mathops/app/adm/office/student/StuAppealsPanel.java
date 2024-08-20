@@ -112,6 +112,9 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
     /** The dialog to edit existing general appeals. */
     private DlgEditGeneralAppeal editGeneralAppealDialog = null;
 
+    /** The dialog to add new milestone appeals. */
+    private DlgAddMilestoneAppeal addMilestoneAppealDialog = null;
+
     /**
      * Constructs a new {@code StuAppealsPanel}.
      *
@@ -257,6 +260,12 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
             this.editGeneralAppealDialog.setVisible(false);
             this.editGeneralAppealDialog.dispose();
             this.editGeneralAppealDialog = null;
+        }
+
+        if (this.addMilestoneAppealDialog != null) {
+            this.addMilestoneAppealDialog.setVisible(false);
+            this.addMilestoneAppealDialog.dispose();
+            this.addMilestoneAppealDialog = null;
         }
     }
 
@@ -652,7 +661,15 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
                 this.addGeneralAppealDialog.toFront();
             }
         } else if (ADD_MS_APPEAL_CMD.equals(cmd)) {
-            // TODO:
+            if (Objects.nonNull(this.currentStudentData)) {
+                if (this.addMilestoneAppealDialog == null) {
+                    this.addMilestoneAppealDialog = new DlgAddMilestoneAppeal(this.cache, this);
+                }
+
+                this.addMilestoneAppealDialog.populateDisplay(this.userData, this.currentStudentData, null, null);
+                this.addMilestoneAppealDialog.setVisible(true);
+                this.addMilestoneAppealDialog.toFront();
+            }
         } else if (EDIT_ACCOMMODATION_CMD.equals(cmd)) {
             if (Objects.nonNull(this.currentStudentData)) {
                 if (this.editAccommodationsDialog == null) {
@@ -667,6 +684,7 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
             if (Objects.nonNull(this.currentStudentData)) {
                 final int cmdLen = EDIT_APPEAL_CMD.length();
                 final String sub = cmd.substring(cmdLen);
+
                 try {
                     final int index = Integer.parseInt(sub);
                     final int numPaceAppeals = this.paceAppeals == null ? 0 : this.paceAppeals.size();
@@ -675,26 +693,37 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
 
                     if (index >= 0 && index < totalAppeals) {
                         if (index < numPaceAppeals) {
+
                             final RawPaceAppeals appeal = this.paceAppeals.get(index);
+                            final boolean isGeneral = appeal.msNbr == null;
 
-                            if (this.editGeneralAppealDialog == null) {
-                                this.editGeneralAppealDialog = new DlgEditGeneralAppeal(this.cache, this);
+                            if (isGeneral) {
+                                if (this.editGeneralAppealDialog == null) {
+                                    this.editGeneralAppealDialog = new DlgEditGeneralAppeal(this.cache, this);
+                                }
+
+                                this.editGeneralAppealDialog.populateDisplay(this.currentStudentData, appeal);
+                                this.editGeneralAppealDialog.setVisible(true);
+                                this.editGeneralAppealDialog.toFront();
+                            } else {
+                                // TODO: Edit appeal with milestone
                             }
-
-                            this.editGeneralAppealDialog.populateDisplay(this.currentStudentData, appeal);
-                            this.editGeneralAppealDialog.setVisible(true);
-                            this.editGeneralAppealDialog.toFront();
                         } else {
                             final int index2 = index - numPaceAppeals;
                             final RawMilestoneAppeal appeal = this.milestoneAppeals.get(index2);
+                            final boolean isGeneral = appeal.msNbr == null;
 
-                            if (this.editGeneralAppealDialog == null) {
-                                this.editGeneralAppealDialog = new DlgEditGeneralAppeal(this.cache, this);
+                            if (isGeneral) {
+                                if (this.editGeneralAppealDialog == null) {
+                                    this.editGeneralAppealDialog = new DlgEditGeneralAppeal(this.cache, this);
+                                }
+
+                                this.editGeneralAppealDialog.populateDisplay(this.currentStudentData, appeal);
+                                this.editGeneralAppealDialog.setVisible(true);
+                                this.editGeneralAppealDialog.toFront();
+                            } else {
+                                // TODO: Edit appeal with milestone
                             }
-
-                            this.editGeneralAppealDialog.populateDisplay(this.currentStudentData, appeal);
-                            this.editGeneralAppealDialog.setVisible(true);
-                            this.editGeneralAppealDialog.toFront();
                         }
                     } else {
                         Log.warning("Command referenced invalid appeal: ", cmd);

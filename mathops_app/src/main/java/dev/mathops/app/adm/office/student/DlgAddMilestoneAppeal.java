@@ -1,6 +1,7 @@
 package dev.mathops.app.adm.office.student;
 
 import dev.mathops.app.JDateChooser;
+import dev.mathops.app.JDateTimeChooser;
 import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
@@ -109,14 +110,17 @@ public final class DlgAddMilestoneAppeal extends JFrame implements ActionListene
     /** The interviewer login name. */
     private final JTextField interviewerField;
 
-    /** The appeal date. */
-    private final JDateChooser appealDatePicker;
+    /** The appeal type chooser. */
+    private final JComboBox<String> appealTypeDropdown;
 
     /** Radio button to select a legacy course milestone. */
     private final JRadioButton legacy;
 
     /** Radio button to select a standards-based course milestone. */
     private final JRadioButton standardsBased;
+
+    /** The appeal date/time. */
+    private final JDateTimeChooser appealDateTimePicker;
 
     /** A label in which to show the student's status. */
     private final JLabel statusLabel;
@@ -126,9 +130,6 @@ public final class DlgAddMilestoneAppeal extends JFrame implements ActionListene
 
     /** The field for the student pace track. */
     private final JTextField paceTrackField;
-
-    /** The appeal type chooser. */
-    private final JComboBox<String> appealTypeDropdown;
 
     /** The field for the course (from 1 to pace). */
     private final JTextField courseField;
@@ -255,6 +256,10 @@ public final class DlgAddMilestoneAppeal extends JFrame implements ActionListene
         this.interviewerField.setEditable(true);
         this.interviewerField.getDocument().addDocumentListener(this);
 
+        this.appealTypeDropdown = new JComboBox<>(APPEAL_TYPES);
+        this.appealTypeDropdown.setFont(Skin.BODY_12_FONT);
+        this.appealTypeDropdown.setActionCommand(VALIDATE_CMD);
+
         final List<LocalDate> holidays = new ArrayList<>(10);
 
         try {
@@ -267,10 +272,12 @@ public final class DlgAddMilestoneAppeal extends JFrame implements ActionListene
             Log.warning("Failed to query holidays.");
         }
 
-        final LocalDate today = LocalDate.now();
-        this.appealDatePicker = new JDateChooser(today, holidays, Skin.BODY_12_FONT);
-        this.appealDatePicker.setFont(Skin.BODY_12_FONT);
-        this.appealDatePicker.setActionCommand(VALIDATE_CMD);
+        final LocalDateTime now = LocalDateTime.now();
+        this.appealDateTimePicker = new JDateTimeChooser(now, holidays, Skin.BODY_12_FONT, SwingConstants.VERTICAL);
+        this.appealDateTimePicker.setFont(Skin.BODY_12_FONT);
+        this.appealDateTimePicker.setActionCommand(VALIDATE_CMD);
+        final Color bg = content.getBackground();
+        this.appealDateTimePicker.setBackground(bg);
 
         this.statusLabel = new JLabel("Student is not enrolled in any paced courses");
         this.statusLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -289,10 +296,6 @@ public final class DlgAddMilestoneAppeal extends JFrame implements ActionListene
         this.paceTrackField = new JTextField(2);
         this.paceTrackField.setFont(Skin.BODY_12_FONT);
 
-        this.appealTypeDropdown = new JComboBox<>(APPEAL_TYPES);
-        this.appealTypeDropdown.setFont(Skin.BODY_12_FONT);
-        this.appealTypeDropdown.setActionCommand(VALIDATE_CMD);
-
         this.courseField = new JTextField(2);
         this.courseField.setFont(Skin.BODY_12_FONT);
         this.courseField.setEditable(true);
@@ -308,6 +311,8 @@ public final class DlgAddMilestoneAppeal extends JFrame implements ActionListene
         this.milestoneTypeDropdown = new JComboBox<>(MS_TYPES);
         this.milestoneTypeDropdown.setFont(Skin.BODY_12_FONT);
         this.milestoneTypeDropdown.setActionCommand(VALIDATE_CMD);
+
+        final LocalDate today = now.toLocalDate();
 
         this.priorDatePicker = new JDateChooser(today, holidays, Skin.BODY_12_FONT);
         this.priorDatePicker.setFont(Skin.BODY_12_FONT);
@@ -354,7 +359,7 @@ public final class DlgAddMilestoneAppeal extends JFrame implements ActionListene
 
         final JPanel flow4 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
         flow4.add(leftLabels[3]);
-        flow4.add(this.appealDatePicker);
+        flow4.add(this.appealDateTimePicker);
         paceAppeal.add(flow4, StackedBorderLayout.NORTH);
 
         paceAppeal.add(this.statusLabel, StackedBorderLayout.NORTH);
@@ -523,7 +528,7 @@ public final class DlgAddMilestoneAppeal extends JFrame implements ActionListene
             this.priorDatePicker.setEnabled(false);
         }
 
-        this.appealDatePicker.addActionListener(this);
+        this.appealDateTimePicker.addActionListener(this);
         this.legacy.addActionListener(this);
         this.standardsBased.addActionListener(this);
         this.paceField.getDocument().addDocumentListener(this);
@@ -580,10 +585,11 @@ public final class DlgAddMilestoneAppeal extends JFrame implements ActionListene
         final String screenName = data.student.getScreenName();
         this.studentNameField.setText(screenName);
 
-        final LocalDate today = LocalDate.now();
+        final LocalDateTime now = LocalDateTime.now();
+        final LocalDate today = now.toLocalDate();
 
         this.interviewerField.setText(userData.username);
-        this.appealDatePicker.setCurrentDate(today);
+        this.appealDateTimePicker.setCurrentDateTime(now);
 
         if (data.studentTerm == null) {
             this.statusLabel.setText("Student is not enrolled in any paced courses");
@@ -678,7 +684,7 @@ public final class DlgAddMilestoneAppeal extends JFrame implements ActionListene
 
         String error = null;
 
-        if (this.appealDatePicker.getCurrentDate() == null) {
+        if (this.appealDateTimePicker.getCurrentDateTime() == null) {
             error = "Appeal date must be set.";
         }
 
@@ -861,10 +867,9 @@ public final class DlgAddMilestoneAppeal extends JFrame implements ActionListene
         try {
             final String stuId = this.studentIdField.getText();
 
-            final LocalDate appealDate = this.appealDatePicker.getCurrentDate();
-            final LocalDateTime appealDateTime = LocalDateTime.of(appealDate, LocalTime.now());
+            final LocalDateTime appealDateTime = this.appealDateTimePicker.getCurrentDateTime();
 
-            String typeCode;
+            final String typeCode;
             final int appealTypeIndex = this.appealTypeDropdown.getSelectedIndex();
             if (appealTypeIndex == 0) {
                 typeCode = RawMilestoneAppeal.APPEAL_TYPE_ACC;
