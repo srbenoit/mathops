@@ -2,7 +2,6 @@ package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.builder.SimpleBuilder;
-import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawrecord.RawPaceAppeals;
 
@@ -71,8 +70,9 @@ public final class RawPaceAppealsLogic extends AbstractRawLogic<RawPaceAppeals> 
             result = false;
         } else {
             final String sql = "INSERT INTO pace_appeals (stu_id,term,term_yr,appeal_dt,relief_given,pace,pace_track,"
-                    + "ms_nbr,ms_type,ms_date,new_deadline_dt,nbr_atmpts_allow,circumstances,comment,interviewer"
-                    + ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                               + "ms_nbr,ms_type,ms_date,new_deadline_dt,nbr_atmpts_allow,circumstances,comment," +
+                               "interviewer"
+                               + ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
             try (final PreparedStatement ps = cache.conn.prepareStatement(sql)) {
                 setPsString(ps, 1, record.stuId);
@@ -160,6 +160,7 @@ public final class RawPaceAppealsLogic extends AbstractRawLogic<RawPaceAppeals> 
                 " SET relief_given=", sqlStringValue(record.reliefGiven),
                 ", new_deadline_dt=", sqlDateValue(record.newDeadlineDt),
                 ", nbr_atmpts_allow=", sqlIntegerValue(record.nbrAtmptsAllow),
+                ", interviewer=", sqlStringValue(record.interviewer),
                 ", circumstances=", sqlStringValue(record.circumstances),
                 ", comment=", sqlStringValue(record.comment),
                 " WHERE stu_id=", sqlStringValue(record.stuId),
@@ -171,10 +172,11 @@ public final class RawPaceAppealsLogic extends AbstractRawLogic<RawPaceAppeals> 
                 "   AND ms_nbr=", sqlIntegerValue(record.msNbr),
                 "   AND ms_type=", sqlStringValue(record.msType));
 
-        Log.info(sql.toString());
+        final String sqlString = sql.toString();
+//        Log.info(sqlString);
 
         try (final Statement stmt = cache.conn.createStatement()) {
-            result = stmt.executeUpdate(sql.toString()) == 1;
+            result = stmt.executeUpdate(sqlString) == 1;
 
             if (result) {
                 cache.conn.commit();

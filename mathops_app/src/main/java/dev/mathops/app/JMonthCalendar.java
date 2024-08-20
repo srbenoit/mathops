@@ -232,9 +232,6 @@ final class JMonthCalendar extends JPanel implements ActionListener {
             this.body.invalidate();
             this.body.revalidate();
             this.body.setSize(this.body.getPreferredSize());
-
-            Log.info("Pref = " + this.body.getPreferredSize());
-            Log.info("Size = " + this.body.getSize());
         }
     }
 

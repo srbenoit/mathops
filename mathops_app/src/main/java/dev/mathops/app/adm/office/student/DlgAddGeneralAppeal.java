@@ -19,6 +19,7 @@ import dev.mathops.db.type.TermKey;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -29,6 +30,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -36,6 +38,8 @@ import java.awt.FlowLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -56,6 +60,10 @@ public final class DlgAddGeneralAppeal extends JFrame implements ActionListener,
 
     /** An action command. */
     private static final String VALIDATE_CMD = "VALIDATE_CMD";
+
+    /** The options with which to populate the milestone type dropdown. */
+    private static final String[] APPEAL_TYPES = {"Accommodation", "University-Excused Absence", "Medical",
+            "Family Emergency", "Other"};
 
     /** The dialog title. */
     private static final String TITLE = "Add General Appeal";
@@ -78,6 +86,9 @@ public final class DlgAddGeneralAppeal extends JFrame implements ActionListener,
     /** The interviewer login name. */
     private final JTextField interviewerField;
 
+    /** The appeal type chooser. */
+    private final JComboBox<String> appealTypeDropdown;
+
     /** The appeal date/time. */
     private final JDateTimeChooser appealDateTimePicker;
 
@@ -96,7 +107,7 @@ public final class DlgAddGeneralAppeal extends JFrame implements ActionListener,
      * @param theCache    the data cache
      * @param theListener the listener to be notified if an appeal record is added
      */
-    public DlgAddGeneralAppeal(final Cache theCache, final IPaceAppealsListener theListener) {
+    DlgAddGeneralAppeal(final Cache theCache, final IPaceAppealsListener theListener) {
 
         super(TITLE);
         setBackground(Skin.LIGHTEST);
@@ -128,12 +139,13 @@ public final class DlgAddGeneralAppeal extends JFrame implements ActionListener,
         final Border padRightBottom = BorderFactory.createEmptyBorder(0, 0, 10, 10);
         paceAppeal.setBorder(padRightBottom);
 
-        final JLabel[] leftLabels = new JLabel[4];
+        final JLabel[] leftLabels = new JLabel[5];
 
         leftLabels[0] = new JLabel("Student ID: ");
         leftLabels[1] = new JLabel("Student Name: ");
         leftLabels[2] = new JLabel("Interviewer: ");
-        leftLabels[3] = new JLabel("Appeal Date/Time: ");
+        leftLabels[3] = new JLabel("Appeal Type: ");
+        leftLabels[4] = new JLabel("Appeal Date/Time: ");
         for (final JLabel lbl : leftLabels) {
             lbl.setFont(Skin.BODY_12_FONT);
             lbl.setForeground(Skin.LABEL_COLOR);
@@ -153,6 +165,10 @@ public final class DlgAddGeneralAppeal extends JFrame implements ActionListener,
         this.interviewerField.setEditable(true);
         this.interviewerField.getDocument().addDocumentListener(this);
 
+        this.appealTypeDropdown = new JComboBox<>(APPEAL_TYPES);
+        this.appealTypeDropdown.setFont(Skin.BODY_12_FONT);
+        this.appealTypeDropdown.setActionCommand(VALIDATE_CMD);
+
         final List<LocalDate> holidays = new ArrayList<>(10);
 
         try {
@@ -169,6 +185,8 @@ public final class DlgAddGeneralAppeal extends JFrame implements ActionListener,
         this.appealDateTimePicker = new JDateTimeChooser(now, holidays, Skin.BODY_12_FONT, SwingConstants.VERTICAL);
         this.appealDateTimePicker.setFont(Skin.BODY_12_FONT);
         this.appealDateTimePicker.setActionCommand(VALIDATE_CMD);
+        final Color bg = content.getBackground();
+        this.appealDateTimePicker.setBackground(bg);
 
         final Border border = this.interviewerField.getBorder();
 
@@ -177,9 +195,37 @@ public final class DlgAddGeneralAppeal extends JFrame implements ActionListener,
         this.circumstancesField.setBorder(border);
         this.circumstancesField.setEditable(true);
 
+        this.circumstancesField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(final KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_TAB) {
+                    if (e.getModifiersEx() > 0) {
+                        DlgAddGeneralAppeal.this.circumstancesField.transferFocusBackward();
+                    } else {
+                        DlgAddGeneralAppeal.this.circumstancesField.transferFocus();
+                    }
+                    e.consume();
+                }
+            }
+        });
+
         this.commentField = new JTextArea(2, 30);
         this.commentField.setFont(Skin.BODY_12_FONT);
         this.commentField.setBorder(border);
+
+        this.commentField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(final KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_TAB) {
+                    if (e.getModifiersEx() > 0) {
+                        DlgAddGeneralAppeal.this.commentField.transferFocusBackward();
+                    } else {
+                        DlgAddGeneralAppeal.this.commentField.transferFocus();
+                    }
+                    e.consume();
+                }
+            }
+        });
 
         this.applyButton = new JButton("Apply");
         this.applyButton.setFont(Skin.BUTTON_13_FONT);
@@ -198,6 +244,7 @@ public final class DlgAddGeneralAppeal extends JFrame implements ActionListener,
         flow2.add(leftLabels[1]);
         flow2.add(this.studentNameField);
         paceAppeal.add(flow2, StackedBorderLayout.NORTH);
+
         final JPanel flow3 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
         flow3.add(leftLabels[2]);
         flow3.add(this.interviewerField);
@@ -205,8 +252,17 @@ public final class DlgAddGeneralAppeal extends JFrame implements ActionListener,
 
         final JPanel flow4 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
         flow4.add(leftLabels[3]);
-        flow4.add(this.appealDateTimePicker);
+        flow4.add(this.appealTypeDropdown);
         paceAppeal.add(flow4, StackedBorderLayout.NORTH);
+
+        final JPanel flow5 = AdmPanelBase.makeOffWhitePanel(new BorderLayout(5, 0));
+        flow5.setBorder(BorderFactory.createEmptyBorder(3, 0, 3, 0));
+        final JPanel flow4a = AdmPanelBase.makeOffWhitePanel(new BorderLayout());
+        flow4a.setBorder(BorderFactory.createEmptyBorder(4, 0, 0, 0));
+        flow4a.add(leftLabels[4], BorderLayout.PAGE_START);
+        flow5.add(flow4a, BorderLayout.LINE_START);
+        flow5.add(this.appealDateTimePicker, BorderLayout.CENTER);
+        paceAppeal.add(flow5, StackedBorderLayout.NORTH);
 
         final JLabel circumstancesLbl = new JLabel("Circumstances:");
         circumstancesLbl.setFont(Skin.BODY_12_FONT);
@@ -220,16 +276,6 @@ public final class DlgAddGeneralAppeal extends JFrame implements ActionListener,
         paceAppeal.add(commentLbl, StackedBorderLayout.NORTH);
         paceAppeal.add(this.commentField, StackedBorderLayout.NORTH);
 
-        // Right side is "student milestone" or "student standard milestone" record, if applicable
-
-        final JPanel milestoneUpdate = AdmPanelBase.makeOffWhitePanel(new StackedBorderLayout());
-
-        final Border leftLine = BorderFactory.createMatteBorder(0, 1, 0, 0, Color.GRAY);
-        final Border padLeftBottom = BorderFactory.createEmptyBorder(0, 10, 10, 0);
-        final Border border1 = BorderFactory.createCompoundBorder(leftLine, padLeftBottom);
-        milestoneUpdate.setBorder(border1);
-        content.add(milestoneUpdate, StackedBorderLayout.WEST);
-
         // Buttons bar at the bottom
 
         final JPanel flow11 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.CENTER, 5, 3));
@@ -241,6 +287,7 @@ public final class DlgAddGeneralAppeal extends JFrame implements ActionListener,
         flow11.add(cancelButton);
         content.add(flow11, StackedBorderLayout.SOUTH);
 
+        this.appealTypeDropdown.addActionListener(this);
         this.appealDateTimePicker.addActionListener(this);
         this.circumstancesField.getDocument().addDocumentListener(this);
         this.applyButton.addActionListener(this);
@@ -351,17 +398,35 @@ public final class DlgAddGeneralAppeal extends JFrame implements ActionListener,
         try {
             final String stuId = this.studentIdField.getText();
 
-            // FIXME: get a proper control
-            // final LocalDateTime appealDateTime = this.appealDateTimePicker.getCurrentDate();
-            final LocalDateTime appealDateTime = LocalDateTime.now();
+            final int typeIndex = this.appealTypeDropdown.getSelectedIndex();
+            final String appealType;
+            if (typeIndex == 0) {
+                appealType = RawMilestoneAppeal.APPEAL_TYPE_ACC;
+            } else if (typeIndex == 1) {
+                appealType = RawMilestoneAppeal.APPEAL_TYPE_EXC;
+            } else if (typeIndex == 2) {
+                appealType = RawMilestoneAppeal.APPEAL_TYPE_MED;
+            } else if (typeIndex == 3) {
+                appealType = RawMilestoneAppeal.APPEAL_TYPE_FAM;
+            } else {
+                appealType = RawMilestoneAppeal.APPEAL_TYPE_OTH;
+            }
+
+            final LocalDateTime appealDateTime = this.appealDateTimePicker.getCurrentDateTime();
 
             final String circumstances = this.circumstancesField.getText();
             final String comment = this.commentField.getText();
             final String interviewer = this.interviewerField.getText();
 
-            final RawMilestoneAppeal newRecord = new RawMilestoneAppeal(this.active, stuId, appealDateTime, null,
+            // TODO: Make sure the { stu_id, appeal_date_time } is UNIQUE - this is the primary key for records.
+
+            final RawMilestoneAppeal newRecord = new RawMilestoneAppeal(this.active, stuId, appealDateTime, appealType,
                     null, null, null, null, null, null, null, circumstances, comment, interviewer);
             RawMilestoneAppealLogic.INSTANCE.insert(this.cache, newRecord);
+
+            if (this.listener != null) {
+                this.listener.updateAppeals();
+            }
         } catch (final SQLException ex) {
             error = new String[]{"There was an error inserting the new record.", ex.getLocalizedMessage()};
         }

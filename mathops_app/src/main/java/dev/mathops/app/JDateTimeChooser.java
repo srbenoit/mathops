@@ -18,6 +18,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -44,6 +45,12 @@ public final class JDateTimeChooser extends JPanel implements ActionListener, Ch
 
     /** A commonly used integer. */
     private static final Integer ZERO = Integer.valueOf(0);
+
+    /** The panel with the date (stored so we can update background color if needed). */
+    private final JPanel dateRow;
+
+    /** The panel with the time (stored so we can update background color if needed). */
+    private final JPanel timeRow;
 
     /** The date chooser, with associated month calendar. */
     private final JDateChooser dateChooser;
@@ -97,7 +104,6 @@ public final class JDateTimeChooser extends JPanel implements ActionListener, Ch
                             final Font theFont, final int orientation) {
 
         super(new BorderLayout(4, 4));
-
 
         final LocalDate date = theCurrentDateTime == null ? null : theCurrentDateTime.toLocalDate();
         final LocalTime time = theCurrentDateTime == null ? null : theCurrentDateTime.toLocalTime();
@@ -163,23 +169,23 @@ public final class JDateTimeChooser extends JPanel implements ActionListener, Ch
         this.colon2 = new JLabel(":");
         this.colon2.setFont(theFont);
 
-        final JPanel dateRow = new JPanel(new FlowLayout(FlowLayout.LEADING, 3, 0));
-        dateRow.add(this.dateChooser);
+        this.dateRow = new JPanel(new FlowLayout(FlowLayout.LEADING, 3, 0));
+        this.dateRow.add(this.dateChooser);
 
-        final JPanel timeRow = new JPanel(new FlowLayout(FlowLayout.LEADING, 3, 0));
-        timeRow.add(this.hourSpinner);
-        timeRow.add(this.colon1);
-        timeRow.add(this.minuteSpinner);
-        timeRow.add(this.colon2);
-        timeRow.add(this.secondSpinner);
-        timeRow.add(this.amPm);
+        this.timeRow = new JPanel(new FlowLayout(FlowLayout.LEADING, 3, 0));
+        this.timeRow.add(this.hourSpinner);
+        this.timeRow.add(this.colon1);
+        this.timeRow.add(this.minuteSpinner);
+        this.timeRow.add(this.colon2);
+        this.timeRow.add(this.secondSpinner);
+        this.timeRow.add(this.amPm);
 
-        add(dateRow, BorderLayout.CENTER);
+        add(this.dateRow, BorderLayout.CENTER);
 
         if (orientation == SwingConstants.VERTICAL) {
-            add(timeRow, BorderLayout.PAGE_END);
+            add(this.timeRow, BorderLayout.PAGE_END);
         } else {
-            add(timeRow, BorderLayout.LINE_END);
+            add(this.timeRow, BorderLayout.LINE_END);
         }
     }
 
@@ -265,6 +271,24 @@ public final class JDateTimeChooser extends JPanel implements ActionListener, Ch
 
         invalidate();
         revalidate();
+    }
+
+    /**
+     * Sets the control's background color.
+     *
+     * @param bg the desired background color
+     */
+    @Override
+    public void setBackground(final Color bg) {
+
+        super.setBackground(bg);
+
+        if (this.dateRow != null) {
+            this.dateRow.setBackground(bg);
+        }
+        if (this.timeRow != null) {
+            this.timeRow.setBackground(bg);
+        }
     }
 
     /**

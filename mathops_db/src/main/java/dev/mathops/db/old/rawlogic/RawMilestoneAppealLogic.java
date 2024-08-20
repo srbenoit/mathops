@@ -71,8 +71,8 @@ public final class RawMilestoneAppealLogic extends AbstractRawLogic<RawMilestone
             result = false;
         } else {
             final String sql = "INSERT INTO milestone_appeal (stu_id,term,term_yr,appeal_date_time,appeal_type,pace,"
-                    + "pace_track,ms_nbr,ms_type,prior_ms_dt,new_ms_dt,attempts_allowed,circumstances,comment,"
-                    + "interviewer) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                               + "pace_track,ms_nbr,ms_type,prior_ms_dt,new_ms_dt,attempts_allowed,circumstances,"
+                               + "comment,interviewer) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
             try (final PreparedStatement ps = cache.conn.prepareStatement(sql)) {
                 setPsString(ps, 1, record.stuId);
@@ -123,8 +123,7 @@ public final class RawMilestoneAppealLogic extends AbstractRawLogic<RawMilestone
                 " WHERE stu_id=", sqlStringValue(record.stuId),
                 "   AND term=", sqlStringValue(record.termKey.termCode),
                 "   AND term_yr=", sqlIntegerValue(record.termKey.shortYear),
-                "   AND appeal_date_time=", sqlDateTimeValue(record.appealDateTime),
-                "   AND appeal_type=", sqlStringValue(record.appealType));
+                "   AND appeal_date_time=", sqlDateTimeValue(record.appealDateTime));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             result = stmt.executeUpdate(sql.toString()) == 1;
@@ -156,6 +155,7 @@ public final class RawMilestoneAppealLogic extends AbstractRawLogic<RawMilestone
         sql.add("UPDATE milestone_appeal",
                 " SET pace=", sqlIntegerValue(record.pace),
                 ", pace_track=", sqlStringValue(record.paceTrack),
+                ", appeal_type=", sqlStringValue(record.appealType),
                 ", ms_nbr=", sqlIntegerValue(record.msNbr),
                 ", ms_type=", sqlStringValue(record.msType),
                 ", prior_ms_dt=", sqlDateValue(record.priorMsDt),
@@ -167,18 +167,21 @@ public final class RawMilestoneAppealLogic extends AbstractRawLogic<RawMilestone
                 " WHERE stu_id=", sqlStringValue(record.stuId),
                 "   AND term=", sqlStringValue(record.termKey.termCode),
                 "   AND term_yr=", sqlIntegerValue(record.termKey.shortYear),
-                "   AND appeal_date_time=", sqlDateTimeValue(record.appealDateTime),
-                "   AND appeal_type=", sqlStringValue(record.appealType));
+                "   AND appeal_date_time=", sqlDateTimeValue(record.appealDateTime));
 
-        Log.info(sql.toString());
+        final String sqlString = sql.toString();
+//        Log.info(sqlString);
 
         try (final Statement stmt = cache.conn.createStatement()) {
-            result = stmt.executeUpdate(sql.toString()) == 1;
+            final int count = stmt.executeUpdate(sqlString);
 
-            if (result) {
+            if (count == 1) {
+                result = true;
                 cache.conn.commit();
             } else {
+                result = false;
                 cache.conn.rollback();
+                Log.warning("Update to milestone_appeal indicated " + count + " rows would be changed - rolling back");
             }
         }
 

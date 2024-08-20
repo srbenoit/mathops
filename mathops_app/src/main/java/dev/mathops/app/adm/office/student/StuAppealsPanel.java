@@ -106,11 +106,11 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
     /** The dialog to edit student accommodations. */
     private DlgEditAccommodations editAccommodationsDialog = null;
 
-    /** The dialog to add new pace appeals. */
+    /** The dialog to add new general appeals. */
     private DlgAddGeneralAppeal addGeneralAppealDialog = null;
 
-    /** The dialog to edit existing pace appeals. */
-    private DlgEditGeneralAppeal editPaceAppealDialog = null;
+    /** The dialog to edit existing general appeals. */
+    private DlgEditGeneralAppeal editGeneralAppealDialog = null;
 
     /**
      * Constructs a new {@code StuAppealsPanel}.
@@ -253,10 +253,10 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
             this.addGeneralAppealDialog = null;
         }
 
-        if (this.editPaceAppealDialog != null) {
-            this.editPaceAppealDialog.setVisible(false);
-            this.editPaceAppealDialog.dispose();
-            this.editPaceAppealDialog = null;
+        if (this.editGeneralAppealDialog != null) {
+            this.editGeneralAppealDialog.setVisible(false);
+            this.editGeneralAppealDialog.dispose();
+            this.editGeneralAppealDialog = null;
         }
     }
 
@@ -292,6 +292,9 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
 
             this.milestoneAppeals = RawMilestoneAppealLogic.queryByStudent(this.cache, data.student.stuId);
             this.milestoneAppeals.sort(null);
+
+            Log.info("There are ", this.paceAppeals.size() + " pace appeals and " + this.milestoneAppeals.size()
+                                   + " milestone appeals");
 
             int index = 0;
             for (final RawPaceAppeals appeal : this.paceAppeals) {
@@ -483,10 +486,20 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
         panel.add(row1, StackedBorderLayout.NORTH);
         final String dateString = TemporalUtils.FMT_MDY_AT_HMS_A.format(appeal.appealDateTime);
         final String headerStr;
-        if (appeal.interviewer == null) {
-            headerStr = SimpleBuilder.concat("Milestone appeal on ", dateString, " (no interviewer)");
+
+        final boolean hasMilestone = Objects.nonNull(appeal.msNbr);
+
+        if (hasMilestone) {
+            if (appeal.interviewer == null) {
+                headerStr = SimpleBuilder.concat("Milestone appeal on ", dateString, " (no interviewer)");
+            } else {
+                headerStr = SimpleBuilder.concat("Milestone appeal on ", dateString, " (entered by ",
+                        appeal.interviewer, ")");
+            }
+        } else if (appeal.interviewer == null) {
+            headerStr = SimpleBuilder.concat("General appeal on ", dateString, " (no interviewer)");
         } else {
-            headerStr = SimpleBuilder.concat("Milestone appeal on ", dateString, " (entered by ", appeal.interviewer,
+            headerStr = SimpleBuilder.concat("General appeal on ", dateString, " (entered by ", appeal.interviewer,
                     ")");
         }
         final JLabel lbl11 = new JLabel(headerStr);
@@ -507,21 +520,21 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
             row1.add(edit);
         }
 
-        final JPanel row2 = new JPanel(new FlowLayout(FlowLayout.LEADING, 20, 2));
-        row2.setBackground(Skin.WHITE);
-        panel.add(row2, StackedBorderLayout.NORTH);
+        if (hasMilestone) {
+            final JPanel row2 = new JPanel(new FlowLayout(FlowLayout.LEADING, 20, 2));
+            row2.setBackground(Skin.WHITE);
+            panel.add(row2, StackedBorderLayout.NORTH);
 
-        final String paceLblStr = SimpleBuilder.concat("Pace: ", appeal.pace);
-        final JLabel paceLbl = new JLabel(paceLblStr);
-        paceLbl.setFont(Skin.MEDIUM_13_FONT);
-        row2.add(paceLbl);
+            final String paceLblStr = SimpleBuilder.concat("Pace: ", appeal.pace);
+            final JLabel paceLbl = new JLabel(paceLblStr);
+            paceLbl.setFont(Skin.MEDIUM_13_FONT);
+            row2.add(paceLbl);
 
-        final String trackLblStr = SimpleBuilder.concat("Track: ", appeal.paceTrack);
-        final JLabel trackLbl = new JLabel(trackLblStr);
-        trackLbl.setFont(Skin.MEDIUM_13_FONT);
-        row2.add(trackLbl);
+            final String trackLblStr = SimpleBuilder.concat("Track: ", appeal.paceTrack);
+            final JLabel trackLbl = new JLabel(trackLblStr);
+            trackLbl.setFont(Skin.MEDIUM_13_FONT);
+            row2.add(trackLbl);
 
-        if (Objects.nonNull(appeal.msNbr)) {
             final int number = appeal.msNbr.intValue();
             final int course = (number / 10) % 10;
 
@@ -561,27 +574,29 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
             row3.add(typeLbl);
         }
 
-        if (Objects.nonNull(appeal.priorMsDt)) {
-            final String dateStr = TemporalUtils.FMT_MDY.format(appeal.priorMsDt);
-            final String origDateLblStr = SimpleBuilder.concat("Prior date: ", dateStr);
-            final JLabel origDateLbl = new JLabel(origDateLblStr);
-            origDateLbl.setFont(Skin.MEDIUM_13_FONT);
-            row3.add(origDateLbl);
-        }
+        if (hasMilestone) {
+            if (Objects.nonNull(appeal.priorMsDt)) {
+                final String dateStr = TemporalUtils.FMT_MDY.format(appeal.priorMsDt);
+                final String origDateLblStr = SimpleBuilder.concat("Prior date: ", dateStr);
+                final JLabel origDateLbl = new JLabel(origDateLblStr);
+                origDateLbl.setFont(Skin.MEDIUM_13_FONT);
+                row3.add(origDateLbl);
+            }
 
-        if (Objects.nonNull(appeal.newMsDt)) {
-            final String dateStr = TemporalUtils.FMT_MDY.format(appeal.newMsDt);
-            final String newDateLblStr = SimpleBuilder.concat("New date: ", dateStr);
-            final JLabel newDateLbl = new JLabel(newDateLblStr);
-            newDateLbl.setFont(Skin.MEDIUM_13_FONT);
-            row3.add(newDateLbl);
-        }
+            if (Objects.nonNull(appeal.newMsDt)) {
+                final String dateStr = TemporalUtils.FMT_MDY.format(appeal.newMsDt);
+                final String newDateLblStr = SimpleBuilder.concat("New date: ", dateStr);
+                final JLabel newDateLbl = new JLabel(newDateLblStr);
+                newDateLbl.setFont(Skin.MEDIUM_13_FONT);
+                row3.add(newDateLbl);
+            }
 
-        if (Objects.nonNull(appeal.attemptsAllowed)) {
-            final String attemptsLblStr = SimpleBuilder.concat("Attempts: ", appeal.attemptsAllowed);
-            final JLabel attemptsLbl = new JLabel(attemptsLblStr);
-            attemptsLbl.setFont(Skin.MEDIUM_13_FONT);
-            row3.add(attemptsLbl);
+            if (Objects.nonNull(appeal.attemptsAllowed)) {
+                final String attemptsLblStr = SimpleBuilder.concat("Attempts: ", appeal.attemptsAllowed);
+                final JLabel attemptsLbl = new JLabel(attemptsLblStr);
+                attemptsLbl.setFont(Skin.MEDIUM_13_FONT);
+                row3.add(attemptsLbl);
+            }
         }
 
         if (this.canSeeDetails) {
@@ -649,27 +664,44 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
                 this.editAccommodationsDialog.toFront();
             }
         } else if (cmd != null && cmd.startsWith(EDIT_APPEAL_CMD)) {
-            final int cmdLen = EDIT_APPEAL_CMD.length();
-            final String sub = cmd.substring(cmdLen);
-            try {
-                final int index = Integer.parseInt(sub);
-                if (index >= 0 && Objects.nonNull(this.paceAppeals) && index < this.paceAppeals.size()) {
-                    final RawPaceAppeals appeal = this.paceAppeals.get(index);
+            if (Objects.nonNull(this.currentStudentData)) {
+                final int cmdLen = EDIT_APPEAL_CMD.length();
+                final String sub = cmd.substring(cmdLen);
+                try {
+                    final int index = Integer.parseInt(sub);
+                    final int numPaceAppeals = this.paceAppeals == null ? 0 : this.paceAppeals.size();
+                    final int numMilestoneAppeals = this.milestoneAppeals == null ? 0 : this.milestoneAppeals.size();
+                    final int totalAppeals = numPaceAppeals + numMilestoneAppeals;
 
-                    if (Objects.nonNull(this.currentStudentData)) {
-                        if (this.editPaceAppealDialog == null) {
-                            this.editPaceAppealDialog = new DlgEditGeneralAppeal(this.cache, this);
+                    if (index >= 0 && index < totalAppeals) {
+                        if (index < numPaceAppeals) {
+                            final RawPaceAppeals appeal = this.paceAppeals.get(index);
+
+                            if (this.editGeneralAppealDialog == null) {
+                                this.editGeneralAppealDialog = new DlgEditGeneralAppeal(this.cache, this);
+                            }
+
+                            this.editGeneralAppealDialog.populateDisplay(this.currentStudentData, appeal);
+                            this.editGeneralAppealDialog.setVisible(true);
+                            this.editGeneralAppealDialog.toFront();
+                        } else {
+                            final int index2 = index - numPaceAppeals;
+                            final RawMilestoneAppeal appeal = this.milestoneAppeals.get(index2);
+
+                            if (this.editGeneralAppealDialog == null) {
+                                this.editGeneralAppealDialog = new DlgEditGeneralAppeal(this.cache, this);
+                            }
+
+                            this.editGeneralAppealDialog.populateDisplay(this.currentStudentData, appeal);
+                            this.editGeneralAppealDialog.setVisible(true);
+                            this.editGeneralAppealDialog.toFront();
                         }
-
-                        this.editPaceAppealDialog.populateDisplay(this.currentStudentData, appeal);
-                        this.editPaceAppealDialog.setVisible(true);
-                        this.editPaceAppealDialog.toFront();
+                    } else {
+                        Log.warning("Command referenced invalid appeal: ", cmd);
                     }
-                } else {
-                    Log.warning("Command referenced invalid appeal: ", cmd);
+                } catch (final NumberFormatException ex) {
+                    Log.warning("Failed to interpret command: ", cmd);
                 }
-            } catch (final NumberFormatException ex) {
-                Log.warning("Failed to interpret command: ", cmd);
             }
         }
     }

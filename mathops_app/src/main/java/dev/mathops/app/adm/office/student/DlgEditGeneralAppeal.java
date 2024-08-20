@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.office.student;
 
-import dev.mathops.app.JDateChooser;
+import dev.mathops.app.JDateTimeChooser;
 import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
@@ -9,13 +9,17 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.old.rawlogic.RawMilestoneAppealLogic;
 import dev.mathops.db.old.rawlogic.RawPaceAppealsLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
+import dev.mathops.db.old.rawrecord.RawMilestoneAppeal;
 import dev.mathops.db.old.rawrecord.RawPaceAppeals;
+import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.type.TermKey;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -23,28 +27,34 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.border.Border;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 /**
- * A dialog to edit an existing row to "PACE_APPEALS" and (if relief is given) the related "STMILESTONE".
+ * A dialog to edit a row in either the "PACE_APPEALS" or the "MILESTONE_APPEAL" table that simply documents an
+ * accommodation or situation, but does not adjust a student deadline.  This is identical to the dialog to add an
+ * appeal, except that the appeal date/time is disabled, since that is part of the primary key (with student id).
  */
-public final class DlgEditGeneralAppeal extends JFrame implements ActionListener, ItemListener {
-
-    /** The dialog title. */
-    private static final String TITLE = "Edit Pace Appeal";
+public final class DlgEditGeneralAppeal extends JFrame implements ActionListener, DocumentListener {
 
     /** An action command. */
     private static final String APPLY_CMD = "APPLY";
@@ -52,14 +62,27 @@ public final class DlgEditGeneralAppeal extends JFrame implements ActionListener
     /** An action command. */
     private static final String CANCEL_CMD = "CANCEL";
 
+    /** An action command. */
+    private static final String VALIDATE_CMD = "VALIDATE_CMD";
+
     /** The options with which to populate the milestone type dropdown. */
-    private static final String[] MS_TYPES = {"Review Exam", "Final Exam", "Final +1"};
+    private static final String[] APPEAL_TYPES = {"Accommodation", "University-Excused Absence", "Medical",
+            "Family Emergency", "Other"};
+
+    /** The dialog title. */
+    private static final String TITLE = "Edit General Appeal";
 
     /** The data cache. */
     private final Cache cache;
 
-    /** The record being edited. */
-    private RawPaceAppeals currentRecord;
+    /** The active term key. */
+    private final TermKey active;
+
+    /** The {@code RawPaceAppeals} record being edited. */
+    private RawPaceAppeals currentPaceAppeal;
+
+    /** The {@code RawMilestoneAppeal} record being edited. */
+    private RawMilestoneAppeal currentMilestoneAppeal;
 
     /** The owning panel to be refreshed if an appeal record is added. */
     private final IPaceAppealsListener listener;
@@ -73,35 +96,11 @@ public final class DlgEditGeneralAppeal extends JFrame implements ActionListener
     /** The interviewer login name. */
     private final JTextField interviewerField;
 
-    /** The appeal date. */
-    private final JDateChooser appealDatePicker;
+    /** The appeal type chooser. */
+    private final JComboBox<String> appealTypeDropdown;
 
-    /** The field for the student pace. */
-    private final JTextField paceField;
-
-    /** The field for the student pace track. */
-    private final JTextField paceTrackField;
-
-    /** The field for the course (from 1 to pace). */
-    private final JTextField courseField;
-
-    /** The field for the unit. */
-    private final JTextField unitField;
-
-    /** The milestone type chooser. */
-    private final JComboBox<String> milestoneTypeDropdown;
-
-    /** The checkbox to indicate relief was given. */
-    private final JCheckBox reliefGiven;
-
-    /** The original milestone date. */
-    private final JDateChooser origDatePicker;
-
-    /** The new milestone date. */
-    private final JDateChooser newDatePicker;
-
-    /** The number of attempts allowed. */
-    private final JTextField attemptsAllowedField;
+    /** The appeal date/time. */
+    private final JDateTimeChooser appealDateTimePicker;
 
     /** The circumstances. */
     private final JTextArea circumstancesField;
@@ -113,12 +112,12 @@ public final class DlgEditGeneralAppeal extends JFrame implements ActionListener
     private final JButton applyButton;
 
     /**
-     * Constructs a new {@code DlgEditPaceAppeal}.
+     * Constructs a new {@code DlgAddGeneralAppeal}.
      *
      * @param theCache    the data cache
      * @param theListener the listener to be notified if an appeal record is added
      */
-    public DlgEditGeneralAppeal(final Cache theCache, final IPaceAppealsListener theListener) {
+    DlgEditGeneralAppeal(final Cache theCache, final IPaceAppealsListener theListener) {
 
         super(TITLE);
         setBackground(Skin.LIGHTEST);
@@ -126,42 +125,59 @@ public final class DlgEditGeneralAppeal extends JFrame implements ActionListener
         this.cache = theCache;
         this.listener = theListener;
 
+        TermKey activeKey = null;
+        try {
+            final SystemData systemData = theCache.getSystemData();
+            final TermRec activeTerm = systemData.getActiveTerm();
+            if (activeTerm != null) {
+                activeKey = activeTerm.term;
+            }
+        } catch (final SQLException ex) {
+            Log.warning("Failed to query active term", ex);
+        }
+        this.active = activeKey;
+
         final JPanel content = AdmPanelBase.makeOffWhitePanel(new StackedBorderLayout());
         final Border padding = BorderFactory.createEmptyBorder(10, 10, 10, 10);
         content.setBorder(padding);
         setContentPane(content);
 
-        final JLabel[] labels = new JLabel[12];
+        // Left side is "pace appeals" record, right side will be new milestone, if applicable
 
-        labels[0] = new JLabel("Student ID: ");
-        labels[1] = new JLabel("Student Name: ");
-        labels[2] = new JLabel("Interviewer: ");
-        labels[3] = new JLabel("Appeal Date: ");
-        labels[4] = new JLabel("Pace: ");
-        labels[5] = new JLabel("Pace Track: ");
-        labels[6] = new JLabel("Course: ");
-        labels[7] = new JLabel("Unit: ");
-        labels[8] = new JLabel("Milestone: ");
-        labels[9] = new JLabel("Original Date: ");
-        labels[10] = new JLabel("New Deadline: ");
-        labels[11] = new JLabel("Attempts: ");
-        for (final JLabel lbl : labels) {
-            lbl.setFont(Skin.MEDIUM_13_FONT);
+        final JPanel paceAppeal = AdmPanelBase.makeOffWhitePanel(new StackedBorderLayout());
+        content.add(paceAppeal, StackedBorderLayout.WEST);
+        final Border padRightBottom = BorderFactory.createEmptyBorder(0, 0, 10, 10);
+        paceAppeal.setBorder(padRightBottom);
+
+        final JLabel[] leftLabels = new JLabel[5];
+
+        leftLabels[0] = new JLabel("Student ID: ");
+        leftLabels[1] = new JLabel("Student Name: ");
+        leftLabels[2] = new JLabel("Interviewer: ");
+        leftLabels[3] = new JLabel("Appeal Type: ");
+        leftLabels[4] = new JLabel("Appeal Date/Time: ");
+        for (final JLabel lbl : leftLabels) {
+            lbl.setFont(Skin.BODY_12_FONT);
             lbl.setForeground(Skin.LABEL_COLOR);
         }
-        UIUtilities.makeLabelsSameSizeRightAligned(labels);
+        UIUtilities.makeLabelsSameSizeRightAligned(leftLabels);
 
         this.studentIdField = new JTextField(9);
-        this.studentIdField.setFont(Skin.MEDIUM_13_FONT);
+        this.studentIdField.setFont(Skin.BODY_12_FONT);
         this.studentIdField.setEditable(false);
 
         this.studentNameField = new JTextField(20);
-        this.studentNameField.setFont(Skin.MEDIUM_13_FONT);
+        this.studentNameField.setFont(Skin.BODY_12_FONT);
         this.studentNameField.setEditable(false);
 
         this.interviewerField = new JTextField(12);
-        this.interviewerField.setFont(Skin.MEDIUM_13_FONT);
+        this.interviewerField.setFont(Skin.BODY_12_FONT);
         this.interviewerField.setEditable(true);
+        this.interviewerField.getDocument().addDocumentListener(this);
+
+        this.appealTypeDropdown = new JComboBox<>(APPEAL_TYPES);
+        this.appealTypeDropdown.setFont(Skin.BODY_12_FONT);
+        this.appealTypeDropdown.setActionCommand(VALIDATE_CMD);
 
         final List<LocalDate> holidays = new ArrayList<>(10);
 
@@ -175,129 +191,118 @@ public final class DlgEditGeneralAppeal extends JFrame implements ActionListener
             Log.warning("Failed to query holidays.");
         }
 
-        final LocalDate today = LocalDate.now();
-        this.appealDatePicker = new JDateChooser(today, holidays, Skin.BODY_12_FONT);
-        this.appealDatePicker.setFont(Skin.MEDIUM_13_FONT);
+        final LocalDateTime now = LocalDateTime.now();
+        this.appealDateTimePicker = new JDateTimeChooser(now, holidays, Skin.BODY_12_FONT, SwingConstants.VERTICAL);
+        this.appealDateTimePicker.setFont(Skin.BODY_12_FONT);
+        this.appealDateTimePicker.setActionCommand(VALIDATE_CMD);
+        final Color bg = content.getBackground();
+        this.appealDateTimePicker.setBackground(bg);
+        this.appealDateTimePicker.setEnabled(false);
 
-        this.paceField = new JTextField(2);
-        this.paceField.setFont(Skin.MEDIUM_13_FONT);
-
-        this.paceTrackField = new JTextField(2);
-        this.paceTrackField.setFont(Skin.MEDIUM_13_FONT);
-
-        this.courseField = new JTextField(2);
-        this.courseField.setFont(Skin.MEDIUM_13_FONT);
-
-        this.unitField = new JTextField(2);
-        this.unitField.setFont(Skin.MEDIUM_13_FONT);
-
-        this.milestoneTypeDropdown = new JComboBox<>(MS_TYPES);
-        this.milestoneTypeDropdown.setFont(Skin.MEDIUM_13_FONT);
-        this.milestoneTypeDropdown.addItemListener(this);
-
-        this.reliefGiven = new JCheckBox("Relief Given");
-        this.reliefGiven.setFont(Skin.MEDIUM_13_FONT);
-
-        this.origDatePicker = new JDateChooser(today, holidays, Skin.BODY_12_FONT);
-        this.origDatePicker.setFont(Skin.MEDIUM_13_FONT);
-
-        this.newDatePicker = new JDateChooser(today, holidays, Skin.BODY_12_FONT);
-        this.newDatePicker.setFont(Skin.MEDIUM_13_FONT);
-
-        this.attemptsAllowedField = new JTextField(2);
-        this.attemptsAllowedField.setFont(Skin.MEDIUM_13_FONT);
+        final Border border = this.interviewerField.getBorder();
 
         this.circumstancesField = new JTextArea(2, 30);
-        this.circumstancesField.setFont(Skin.MEDIUM_13_FONT);
-        this.circumstancesField.setBorder(this.attemptsAllowedField.getBorder());
+        this.circumstancesField.setFont(Skin.BODY_12_FONT);
+        this.circumstancesField.setBorder(border);
+        this.circumstancesField.setEditable(true);
+
+        this.circumstancesField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(final KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_TAB) {
+                    if (e.getModifiersEx() > 0) {
+                        DlgEditGeneralAppeal.this.circumstancesField.transferFocusBackward();
+                    } else {
+                        DlgEditGeneralAppeal.this.circumstancesField.transferFocus();
+                    }
+                    e.consume();
+                }
+            }
+        });
 
         this.commentField = new JTextArea(2, 30);
-        this.commentField.setFont(Skin.MEDIUM_13_FONT);
-        this.commentField.setBorder(this.attemptsAllowedField.getBorder());
+        this.commentField.setFont(Skin.BODY_12_FONT);
+        this.commentField.setBorder(border);
+
+        this.commentField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(final KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_TAB) {
+                    if (e.getModifiersEx() > 0) {
+                        DlgEditGeneralAppeal.this.commentField.transferFocusBackward();
+                    } else {
+                        DlgEditGeneralAppeal.this.commentField.transferFocus();
+                    }
+                    e.consume();
+                }
+            }
+        });
 
         this.applyButton = new JButton("Apply");
         this.applyButton.setFont(Skin.BUTTON_13_FONT);
         this.applyButton.setActionCommand(APPLY_CMD);
-        this.applyButton.addActionListener(this);
 
         final JButton cancelButton = new JButton("Cancel");
         cancelButton.setFont(Skin.BUTTON_13_FONT);
         cancelButton.setActionCommand(CANCEL_CMD);
-        cancelButton.addActionListener(this);
 
         final JPanel flow1 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
-        flow1.add(labels[0]);
+        flow1.add(leftLabels[0]);
         flow1.add(this.studentIdField);
-        content.add(flow1, StackedBorderLayout.NORTH);
+        paceAppeal.add(flow1, StackedBorderLayout.NORTH);
 
         final JPanel flow2 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
-        flow2.add(labels[1]);
+        flow2.add(leftLabels[1]);
         flow2.add(this.studentNameField);
-        content.add(flow2, StackedBorderLayout.NORTH);
+        paceAppeal.add(flow2, StackedBorderLayout.NORTH);
+
         final JPanel flow3 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
-        flow3.add(labels[2]);
+        flow3.add(leftLabels[2]);
         flow3.add(this.interviewerField);
-        content.add(flow3, StackedBorderLayout.NORTH);
+        paceAppeal.add(flow3, StackedBorderLayout.NORTH);
 
         final JPanel flow4 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
-        flow4.add(labels[3]);
-        flow4.add(this.appealDatePicker);
-        content.add(flow4, StackedBorderLayout.NORTH);
+        flow4.add(leftLabels[3]);
+        flow4.add(this.appealTypeDropdown);
+        paceAppeal.add(flow4, StackedBorderLayout.NORTH);
 
-        final JPanel flow5 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
-        flow5.add(labels[4]);
-        flow5.add(this.paceField);
-        flow5.add(labels[5]);
-        flow5.add(this.paceTrackField);
-        content.add(flow5, StackedBorderLayout.NORTH);
-
-        final JPanel flow6 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
-        flow6.add(labels[6]);
-        flow6.add(this.courseField);
-        flow6.add(labels[7]);
-        flow6.add(this.unitField);
-        content.add(flow6, StackedBorderLayout.NORTH);
-
-        final JPanel flow7 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
-        flow7.add(labels[8]);
-        flow7.add(this.milestoneTypeDropdown);
-        flow7.add(new JLabel("      "));
-        flow7.add(this.reliefGiven);
-        content.add(flow7, StackedBorderLayout.NORTH);
-
-        final JPanel flow8 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
-        flow8.add(labels[9]);
-        flow8.add(this.origDatePicker);
-        content.add(flow8, StackedBorderLayout.NORTH);
-
-        final JPanel flow9 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
-        flow9.add(labels[10]);
-        flow9.add(this.newDatePicker);
-        content.add(flow9, StackedBorderLayout.NORTH);
-
-        final JPanel flow10 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
-        flow10.add(labels[11]);
-        flow10.add(this.attemptsAllowedField);
-        content.add(flow10, StackedBorderLayout.NORTH);
+        final JPanel flow5 = AdmPanelBase.makeOffWhitePanel(new BorderLayout(5, 0));
+        flow5.setBorder(BorderFactory.createEmptyBorder(3, 0, 3, 0));
+        final JPanel flow4a = AdmPanelBase.makeOffWhitePanel(new BorderLayout());
+        flow4a.setBorder(BorderFactory.createEmptyBorder(4, 0, 0, 0));
+        flow4a.add(leftLabels[4], BorderLayout.PAGE_START);
+        flow5.add(flow4a, BorderLayout.LINE_START);
+        flow5.add(this.appealDateTimePicker, BorderLayout.CENTER);
+        paceAppeal.add(flow5, StackedBorderLayout.NORTH);
 
         final JLabel circumstancesLbl = new JLabel("Circumstances:");
-        circumstancesLbl.setFont(Skin.MEDIUM_13_FONT);
+        circumstancesLbl.setFont(Skin.BODY_12_FONT);
         circumstancesLbl.setForeground(Skin.LABEL_COLOR);
-        content.add(circumstancesLbl, StackedBorderLayout.NORTH);
-        content.add(this.circumstancesField, StackedBorderLayout.NORTH);
+        paceAppeal.add(circumstancesLbl, StackedBorderLayout.NORTH);
+        paceAppeal.add(this.circumstancesField, StackedBorderLayout.NORTH);
 
         final JLabel commentLbl = new JLabel("Comment:");
-        commentLbl.setFont(Skin.MEDIUM_13_FONT);
+        commentLbl.setFont(Skin.BODY_12_FONT);
         commentLbl.setForeground(Skin.LABEL_COLOR);
-        content.add(commentLbl, StackedBorderLayout.NORTH);
-        content.add(this.commentField, StackedBorderLayout.NORTH);
+        paceAppeal.add(commentLbl, StackedBorderLayout.NORTH);
+        paceAppeal.add(this.commentField, StackedBorderLayout.NORTH);
 
-        final JPanel flow11 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
-        final Border padTop = BorderFactory.createEmptyBorder(10, 0, 0, 0);
-        flow11.setBorder(padTop);
+        // Buttons bar at the bottom
+
+        final JPanel flow11 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.CENTER, 5, 3));
+        final Border lineAbove = BorderFactory.createMatteBorder(1, 0, 0, 0, Color.GRAY);
+        final Border padAbove = BorderFactory.createEmptyBorder(10, 0, 0, 0);
+        final Border buttonBarBorder = BorderFactory.createCompoundBorder(lineAbove, padAbove);
+        flow11.setBorder(buttonBarBorder);
         flow11.add(this.applyButton);
         flow11.add(cancelButton);
-        content.add(flow11, StackedBorderLayout.NORTH);
+        content.add(flow11, StackedBorderLayout.SOUTH);
+
+        this.appealTypeDropdown.addActionListener(this);
+        this.appealDateTimePicker.addActionListener(this);
+        this.circumstancesField.getDocument().addDocumentListener(this);
+        this.applyButton.addActionListener(this);
+        cancelButton.addActionListener(this);
 
         pack();
         final Dimension size = getSize();
@@ -317,63 +322,75 @@ public final class DlgEditGeneralAppeal extends JFrame implements ActionListener
     }
 
     /**
-     * Populates all displayed fields for a selected student.
+     * Populates all displayed fields for a selected student and a provided appeal.
      *
-     * @param data   the student data
-     * @param record the record to edit
+     * @param data       the student data
+     * @param paceAppeal the pace appeal to edit
      */
-    public void populateDisplay(final StudentData data, final RawPaceAppeals record) {
+    public void populateDisplay(final StudentData data, final RawPaceAppeals paceAppeal) {
 
-        this.currentRecord = record;
+        this.currentPaceAppeal = paceAppeal;
+        this.currentMilestoneAppeal = null;
 
         this.studentIdField.setText(data.student.stuId);
 
         final String screenName = data.student.getScreenName();
         this.studentNameField.setText(screenName);
+        this.interviewerField.setText(paceAppeal.interviewer);
 
-        this.interviewerField.setText(record.interviewer);
-        this.appealDatePicker.setCurrentDate(record.appealDt);
-        this.paceField.setText(record.pace == null ? CoreConstants.EMPTY : record.pace.toString());
-        this.paceTrackField.setText(record.paceTrack);
+        final LocalDateTime dateTime = LocalDateTime.of(paceAppeal.appealDt, LocalTime.of(12, 0));
+        this.appealDateTimePicker.setCurrentDateTime(dateTime);
+        this.appealTypeDropdown.setEnabled(false);
 
-        if (record.msNbr == null) {
-            this.courseField.setText(CoreConstants.EMPTY);
-            this.unitField.setText(CoreConstants.EMPTY);
+        final String circ = paceAppeal.circumstances == null ? CoreConstants.EMPTY : paceAppeal.circumstances;
+        this.circumstancesField.setText(circ);
+
+        final String comment = paceAppeal.comment == null ? CoreConstants.EMPTY : paceAppeal.comment;
+        this.commentField.setText(comment);
+
+        this.applyButton.setEnabled(false);
+    }
+
+    /**
+     * Populates all displayed fields for a selected student and a provided appeal.
+     *
+     * @param data            the student data
+     * @param milestoneAppeal the milestone appeal to edit
+     */
+    public void populateDisplay(final StudentData data, final RawMilestoneAppeal milestoneAppeal) {
+
+        this.currentPaceAppeal = null;
+        this.currentMilestoneAppeal = milestoneAppeal;
+
+        this.studentIdField.setText(data.student.stuId);
+
+        final String screenName = data.student.getScreenName();
+        this.studentNameField.setText(screenName);
+        this.interviewerField.setText(milestoneAppeal.interviewer);
+
+        this.appealDateTimePicker.setCurrentDateTime(milestoneAppeal.appealDateTime);
+
+        if (RawMilestoneAppeal.APPEAL_TYPE_ACC.equals(milestoneAppeal.appealType)) {
+            this.appealTypeDropdown.setSelectedIndex(0);
+        } else if (RawMilestoneAppeal.APPEAL_TYPE_EXC.equals(milestoneAppeal.appealType)) {
+            this.appealTypeDropdown.setSelectedIndex(1);
+        } else if (RawMilestoneAppeal.APPEAL_TYPE_MED.equals(milestoneAppeal.appealType)) {
+            this.appealTypeDropdown.setSelectedIndex(2);
+        } else if (RawMilestoneAppeal.APPEAL_TYPE_FAM.equals(milestoneAppeal.appealType)) {
+            this.appealTypeDropdown.setSelectedIndex(3);
         } else {
-            final int nbr = record.msNbr.intValue();
-            final int course = (nbr / 10) % 10;
-            final int unit = nbr % 10;
-            final String courseStr = Integer.toString(course);
-            this.courseField.setText(courseStr);
-            final String unitStr = Integer.toString(unit);
-            this.unitField.setText(unitStr);
+            this.appealTypeDropdown.setSelectedIndex(4);
         }
+        this.appealTypeDropdown.setEnabled(true);
 
-        if ("RE".equals(record.msType)) {
-            this.milestoneTypeDropdown.setSelectedIndex(0);
-        } else if ("FE".equals(record.msType)) {
-            this.milestoneTypeDropdown.setSelectedIndex(1);
-        } else if ("F1".equals(record.msType)) {
-            this.milestoneTypeDropdown.setSelectedIndex(2);
-        } else {
-            this.milestoneTypeDropdown.setSelectedIndex(-1);
-        }
+        final String circ = milestoneAppeal.circumstances == null ? CoreConstants.EMPTY :
+                milestoneAppeal.circumstances.trim();
+        this.circumstancesField.setText(circ);
 
-        this.reliefGiven.setSelected("Y".equals(record.reliefGiven));
+        final String comment = milestoneAppeal.comment == null ? CoreConstants.EMPTY : milestoneAppeal.comment.trim();
+        this.commentField.setText(comment);
 
-        this.origDatePicker.setCurrentDate(record.msDate);
-        this.newDatePicker.setCurrentDate(record.newDeadlineDt);
-
-        if (record.nbrAtmptsAllow == null) {
-            this.attemptsAllowedField.setText(CoreConstants.EMPTY);
-        } else {
-            this.attemptsAllowedField.setText(Integer.toString(record.nbrAtmptsAllow));
-        }
-
-        this.circumstancesField.setText(record.circumstances);
-        this.commentField.setText(record.comment);
-
-        this.applyButton.setEnabled(true);
+        this.applyButton.setEnabled(false);
     }
 
     /**
@@ -386,20 +403,23 @@ public final class DlgEditGeneralAppeal extends JFrame implements ActionListener
 
         final String cmd = e.getActionCommand();
 
-        if (APPLY_CMD.equals(cmd)) {
+        if (VALIDATE_CMD.equals(cmd)) {
+            processChange();
+        } else if (APPLY_CMD.equals(cmd)) {
             final String error = validateFields();
             if (error == null) {
-                final String[] errors = doUpdateAppeal();
-                if (errors == null) {
-                    this.listener.updateAppeals();
-                    setVisible(false);
-                } else {
-                    JOptionPane.showMessageDialog(this, errors, TITLE, JOptionPane.ERROR_MESSAGE);
+                final boolean changed = hasChanged();
+                if (changed) {
+                    final String[] result = doUpdateAppeal();
+                    if (result == null) {
+                        setVisible(false);
+                    } else {
+                        JOptionPane.showMessageDialog(this, result, TITLE, JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             } else {
                 JOptionPane.showMessageDialog(this, error, TITLE, JOptionPane.ERROR_MESSAGE);
             }
-
         } else if (CANCEL_CMD.equals(cmd)) {
             setVisible(false);
         }
@@ -412,175 +432,192 @@ public final class DlgEditGeneralAppeal extends JFrame implements ActionListener
      */
     private String validateFields() {
 
-        Log.info("Validating...");
-
         String error = null;
 
-        if (this.appealDatePicker.getCurrentDate() == null) {
-            error = "Appeal date must be set.";
-        }
-
-        boolean hasPace = false;
-        int paceInt = 0;
-        try {
-            final String paceText = this.paceField.getText();
-            paceInt = Integer.parseInt(paceText);
-            hasPace = true;
-        } catch (final NumberFormatException ex) {
-            error = "Invalid Pace.";
-        }
-
-        int courseInt = 0;
-        try {
-            final String courseText = this.courseField.getText();
-            courseInt = Integer.parseInt(courseText);
-
-            if (courseInt < 0 || (hasPace && courseInt > paceInt)) {
-                error = "Course number must fall within pace.";
-            }
-        } catch (final NumberFormatException ex) {
-            error = "Invalid Course number.";
-        }
-
-        int unitInt = 0;
-        try {
-            final String unitText = this.unitField.getText();
-            unitInt = Integer.parseInt(unitText);
-
-            if (unitInt < 0 || unitInt > 5) {
-                error = "Unit number not in valid range.";
-            }
-        } catch (final NumberFormatException ex) {
-            error = "Invalid Course number.";
-        }
-
-        final int msIndex = this.milestoneTypeDropdown.getSelectedIndex();
-        if (msIndex == -1) {
-            error = "A milestone type must be selected.";
-        }
-
-        if (this.origDatePicker.getCurrentDate() == null) {
-            error = "Original deadline date may not be null.";
-        } else if (this.interviewerField.getText() == null
-                || this.interviewerField.getText().isBlank()) {
+        if (this.interviewerField.getText() == null || this.interviewerField.getText().isBlank()) {
             error = "Interviewer may not be blank.";
-        } else if (this.circumstancesField.getText() == null
-                || this.circumstancesField.getText().isBlank()) {
+        } else if (this.circumstancesField.getText() == null || this.circumstancesField.getText().isBlank()) {
             error = "Circumstances field may not be blank.";
         }
 
-        if (error == null) {
-            final String attemptsText = this.attemptsAllowedField.getText();
-            if (attemptsText != null && !attemptsText.isBlank()) {
-                try {
-                    Integer.parseInt(attemptsText);
-                } catch (final NumberFormatException ex) {
-                    error = "Invalid number of attempts.";
-                }
-            }
-        }
-
         return error;
     }
 
     /**
-     * Attempts to insert the new pace appeal record.
+     * Tests whether any fields have changed from the original record being edited.
      *
-     * @return null if insert succeeded; an error message if not
+     * @return true if at least one field has changed
+     */
+    private boolean hasChanged() {
+
+        boolean changed = false;
+
+        final String newCirc = this.circumstancesField.getText().trim();
+        final String newComment = this.commentField.getText().trim();
+        final String newInterviewer = this.interviewerField.getText().trim();
+
+        final int index = this.appealTypeDropdown.getSelectedIndex();
+        final String newAppealType;
+        if (index == 0) {
+            newAppealType = RawMilestoneAppeal.APPEAL_TYPE_ACC;
+        } else if (index == 1) {
+            newAppealType = RawMilestoneAppeal.APPEAL_TYPE_EXC;
+        } else if (index == 2) {
+            newAppealType = RawMilestoneAppeal.APPEAL_TYPE_MED;
+        } else if (index == 3) {
+            newAppealType = RawMilestoneAppeal.APPEAL_TYPE_FAM;
+        } else {
+            newAppealType = RawMilestoneAppeal.APPEAL_TYPE_OTH;
+        }
+
+        if (Objects.nonNull(this.currentPaceAppeal)) {
+            final String oldCirc = this.currentPaceAppeal.circumstances == null ? CoreConstants.EMPTY :
+                    this.currentPaceAppeal.circumstances.trim();
+            if (newCirc.equals(oldCirc)) {
+                final String oldComment = this.currentPaceAppeal.comment == null ? CoreConstants.EMPTY :
+                        this.currentPaceAppeal.comment.trim();
+                if (newComment.equals(oldComment)) {
+                    final String oldInterviewer = this.currentPaceAppeal.interviewer == null ? CoreConstants.EMPTY :
+                            this.currentPaceAppeal.interviewer.trim();
+                    changed = !newInterviewer.equals(oldInterviewer);
+                } else {
+                    changed = true;
+                }
+            } else {
+                changed = true;
+            }
+        } else if (Objects.nonNull(this.currentMilestoneAppeal)) {
+            final String oldCirc = this.currentMilestoneAppeal.circumstances == null ? CoreConstants.EMPTY :
+                    this.currentMilestoneAppeal.circumstances.trim();
+            if (newCirc.equals(oldCirc)) {
+                final String oldComment = this.currentMilestoneAppeal.comment == null ? CoreConstants.EMPTY :
+                        this.currentMilestoneAppeal.comment.trim();
+                if (newComment.equals(oldComment)) {
+                    final String oldInterviewer = this.currentMilestoneAppeal.interviewer == null ?
+                            CoreConstants.EMPTY :
+                            this.currentMilestoneAppeal.interviewer.trim();
+                    if (newInterviewer.equals(oldInterviewer)) {
+                        changed = !newAppealType.equals(this.currentMilestoneAppeal.appealType);
+                    } else {
+                        changed = true;
+                    }
+                } else {
+                    changed = true;
+                }
+            } else {
+                changed = true;
+            }
+        }
+
+        return changed;
+    }
+
+    /**
+     * Attempts to update the current appeal record.
+     *
+     * @return null if update succeeded; an error message if not
      */
     private String[] doUpdateAppeal() {
 
-        String error[] = null;
+        String[] error = null;
 
-        Log.info("doUpdateAppeals()");
+        try {
+            final String circumstances = this.circumstancesField.getText();
+            final String comment = this.commentField.getText();
+            final String interviewer = this.interviewerField.getText();
 
-        if (this.currentRecord == null) {
-            error = new String[]{"No current record to edit."};
-        } else {
-            try {
-                final LocalDate appealDate = this.appealDatePicker.getCurrentDate();
-                final String relief = this.reliefGiven.isSelected() ? "Y" : "N";
+            if (Objects.nonNull(this.currentPaceAppeal)) {
 
-                final String paceText = this.paceField.getText();
-                final Integer paceInt = Integer.valueOf(paceText);
+                this.currentPaceAppeal.interviewer = interviewer;
+                this.currentPaceAppeal.circumstances = circumstances;
+                this.currentPaceAppeal.comment = comment;
 
-                final String paceTrack = this.paceTrackField.getText();
-
-                final String courseText = this.courseField.getText();
-                final Integer courseInt = Integer.valueOf(courseText);
-
-                final String unitText = this.unitField.getText();
-                final Integer unitInt = Integer.valueOf(unitText);
-
-                final int number = paceInt.intValue() * 100 + courseInt.intValue() * 10 + unitInt.intValue();
-                final Integer msNbr = Integer.valueOf(number);
-
-                final String msType;
-                if (this.milestoneTypeDropdown.getSelectedIndex() == 0) {
-                    msType = "RE";
-                } else if (this.milestoneTypeDropdown.getSelectedIndex() == 1) {
-                    msType = "FE";
-                } else if (this.milestoneTypeDropdown.getSelectedIndex() == 2) {
-                    msType = "F1";
+                if (RawPaceAppealsLogic.update(this.cache, this.currentPaceAppeal)) {
+                    if (this.listener != null) {
+                        this.listener.updateAppeals();
+                    }
                 } else {
-                    msType = null;
+                    error = new String[]{"Unable to update pace appeal record."};
+                }
+            } else if (Objects.nonNull(this.currentMilestoneAppeal)) {
+
+                final int typeIndex = this.appealTypeDropdown.getSelectedIndex();
+                final String appealType;
+                if (typeIndex == 0) {
+                    appealType = RawMilestoneAppeal.APPEAL_TYPE_ACC;
+                } else if (typeIndex == 1) {
+                    appealType = RawMilestoneAppeal.APPEAL_TYPE_EXC;
+                } else if (typeIndex == 2) {
+                    appealType = RawMilestoneAppeal.APPEAL_TYPE_MED;
+                } else if (typeIndex == 3) {
+                    appealType = RawMilestoneAppeal.APPEAL_TYPE_FAM;
+                } else {
+                    appealType = RawMilestoneAppeal.APPEAL_TYPE_OTH;
                 }
 
-                final LocalDate msDate = this.origDatePicker.getCurrentDate();
-                final LocalDate newDate = this.newDatePicker.getCurrentDate();
+                this.currentMilestoneAppeal.interviewer = interviewer;
+                this.currentMilestoneAppeal.circumstances = circumstances;
+                this.currentMilestoneAppeal.comment = comment;
+                this.currentMilestoneAppeal.appealType = appealType;
 
-                final String attemptsText = this.attemptsAllowedField.getText();
-                final Integer numAttempts = attemptsText == null || attemptsText.isBlank() ? null
-                        : Integer.valueOf(attemptsText);
-
-                final String circumstances = this.circumstancesField.getText();
-                final String comment = this.commentField.getText();
-                final String interviewer = this.interviewerField.getText();
-
-                final boolean changed = !(Objects.equals(this.currentRecord.appealDt, appealDate)
-                        && Objects.equals(this.currentRecord.reliefGiven, relief)
-                        && Objects.equals(this.currentRecord.pace, paceInt)
-                        && Objects.equals(this.currentRecord.paceTrack, paceTrack)
-                        && Objects.equals(this.currentRecord.msNbr, msNbr)
-                        && Objects.equals(this.currentRecord.msType, msType)
-                        && Objects.equals(this.currentRecord.msDate, msDate)
-                        && Objects.equals(this.currentRecord.newDeadlineDt, newDate)
-                        && Objects.equals(this.currentRecord.nbrAtmptsAllow, numAttempts)
-                        && Objects.equals(this.currentRecord.circumstances, circumstances)
-                        && Objects.equals(this.currentRecord.comment, comment)
-                        && Objects.equals(this.currentRecord.interviewer, interviewer));
-
-                if (changed) {
-                    final RawPaceAppeals newRecord = new RawPaceAppeals(this.currentRecord.termKey,
-                            this.currentRecord.stuId, appealDate, relief, paceInt, paceTrack, msNbr, msType,
-                            msDate, newDate, numAttempts, circumstances, comment, interviewer);
-
-                    Log.info("Replacing appeal record");
-                    RawPaceAppealsLogic.INSTANCE.delete(this.cache, this.currentRecord);
-                    RawPaceAppealsLogic.INSTANCE.insert(this.cache, newRecord);
+                if (RawMilestoneAppealLogic.update(this.cache, this.currentMilestoneAppeal)) {
+                    if (this.listener != null) {
+                        this.listener.updateAppeals();
+                    }
                 } else {
-                    Log.info("Nothing changed - skipping update");
+                    error = new String[]{"Unable to update milestone appeal record."};
                 }
-            } catch (final NumberFormatException ex) {
-                error = new String[]{"Invalid Course number."};
-            } catch (final SQLException ex) {
-                error = new String[]{"There was an error updating the record.", ex.getLocalizedMessage()};
+            } else {
+                error = new String[]{"There is no current record being edited."};
             }
+        } catch (final SQLException ex) {
+            error = new String[]{"There was an error updating the record.", ex.getLocalizedMessage()};
         }
 
         return error;
     }
 
     /**
-     * Called when the selected item changes in any dropdown.
+     * Called when content is inserted into a text field.
      *
-     * @param e the event to be processed
+     * @param e the document event
      */
     @Override
-    public void itemStateChanged(final ItemEvent e) {
+    public void insertUpdate(final DocumentEvent e) {
+
+        processChange();
+    }
+
+    /**
+     * Called when content is removed from a text field.
+     *
+     * @param e the document event
+     */
+    @Override
+    public void removeUpdate(final DocumentEvent e) {
+
+        processChange();
+    }
+
+    /**
+     * Called when text field content is updated.
+     *
+     * @param e the document event
+     */
+    @Override
+    public void changedUpdate(final DocumentEvent e) {
+
+        processChange();
+    }
+
+    /**
+     * Processes some change in input values;
+     */
+    private void processChange() {
 
         final String error = validateFields();
-        this.applyButton.setEnabled(error == null);
+        final boolean changed = hasChanged();
+        this.applyButton.setEnabled(error == null && changed);
     }
 }
 

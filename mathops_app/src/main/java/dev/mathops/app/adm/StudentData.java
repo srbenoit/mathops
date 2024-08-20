@@ -201,7 +201,7 @@ public final class StudentData {
 
         // Remove any that are dropped, not in the current term, or a non-counted Incomplete
         regs.removeIf(test -> "D".equals(test.openStatus) || !test.termKey.equals(this.studentTerm.termKey)
-                || ("Y".equals(test.iInProgress) && "N".equals(test.iCounted)));
+                              || ("Y".equals(test.iInProgress) && "N".equals(test.iCounted)));
         final int numRegs = regs.size();
 
         // Assign pace order if any regs do not yet have a pace order
@@ -340,7 +340,7 @@ public final class StudentData {
             this.paceAppeals.addAll(newList);
 
             final List<RawStmilestone> newMilestones = RawStmilestoneLogic.getStudentMilestones(cache, this.activeKey,
-                    this.studentTerm.paceTrack, stuId);
+                    stuId);
             this.studentMilestones.clear();
             this.studentMilestones.addAll(newMilestones);
         } catch (final SQLException ex) {
