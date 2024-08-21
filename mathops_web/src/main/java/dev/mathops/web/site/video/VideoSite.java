@@ -137,7 +137,7 @@ public final class VideoSite extends AbstractSite {
         final String width = req.getParameter("width");
 
         if (isParamInvalid(dir) || isParamInvalid(id) || isParamInvalid(width) || isParamInvalid(course)
-                || isParamInvalid(mediaId)) {
+            || isParamInvalid(mediaId)) {
             final String msg = Res.get(Res.BAD_PARAMETERS);
             Log.warning(msg);
             Log.warning("  dir='", dir, "'");
@@ -156,28 +156,29 @@ public final class VideoSite extends AbstractSite {
                 style = "width:" + width;
             }
 
-            htm.addln("<!DOCTYPE html>")
-                    .addln("<html>")
-                    .addln("<head>")
-                    .addln(" <meta charset='utf-8'>")
-                    .addln(" <meta http-equiv='X-UA-Compatible' content='IE=edge'/>")
-                    .addln(" <meta http-equiv='Content-Type' content='text/html;charset=utf-8'/>")
-                    .addln(" <title>Department of Mathematics - Colorado State University</title>")
-                    .addln("</head>")
-                    .addln("<body style='padding:0;margin:0;'>")
-                    .addln("<div style='width:100vw;height:100vh;'>")
-                    .addln("<video style='", style, "' controls='controls' poster='", STREAM, dir, "/poster/", id,
-                            ".png'>")
+            htm.addln("""
+                    <!DOCTYPE html>")
+                    <html>
+                    <head>
+                     <meta charset='utf-8'>
+                     <meta http-equiv='X-UA-Compatible' content='IE=edge'/>
+                     <meta http-equiv='Content-Type' content='text/html;charset=utf-8'/>
+                     <title>Department of Mathematics - Colorado State University</title>
+                    </head>
+                    <body style='padding:0;margin:0;'>
+                     <div style='width:100vw;height:100vh;'>""");
+            htm.addln(" <video style='", style, "' controls='controls' poster='", STREAM, dir, "/poster/", id, ".png'>")
                     .addln(" <source src='", STREAM, dir, "/mp4/", id, ".mp4' type='video/mp4'/>")
                     .addln(" <source src='", STREAM, dir, "/webm/", id, ".webm' type='video/webm'/>")
                     .addln(" <source src='", STREAM, dir, "/ogv/", id, ".ogv' type='video/ogg'/>")
                     .addln(" <track  src='", STREAM, dir, "/vtt/", id,
                             ".vtt' kind='subtitles' srclang='en' label='English' default/>")
                     .addln(Res.get(Res.VIDEO_NOT_SUPP))
-                    .addln("</video>")
-                    .addln("</div>")
-                    .addln("</body>")
-                    .addln("</html>");
+                    .addln("""
+                            </video>
+                            </div>
+                            </body>
+                            </html>""");
 
             final String reply = htm.toString();
 
@@ -200,27 +201,29 @@ public final class VideoSite extends AbstractSite {
 
             final HtmlBuilder htm = new HtmlBuilder(2000);
 
-            htm.addln("<!DOCTYPE html>")
-                    .addln("<html>")
-                    .addln("<head>")
-                    .addln(" <meta charset='utf-8'>")
-                    .addln(" <meta http-equiv='X-UA-Compatible' content='IE=edge'/>")
-                    .addln(" <meta http-equiv='Content-Type' content='text/html;charset=utf-8'/>")
-                    .addln(" <title>Department of Mathematics - Colorado State University</title>")
-                    .addln("</head>")
-                    .addln("<body style='padding:0;margin:0;'>");
+            htm.addln("""
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                     <meta charset='utf-8'>
+                     <meta http-equiv='X-UA-Compatible' content='IE=edge'/>
+                     <meta http-equiv='Content-Type' content='text/html;charset=utf-8'/>
+                     <title>Department of Mathematics - Colorado State University</title>
+                    </head>
+                    <body style='padding:0;margin:0;'>""");
 
             if (mediaId == null || actualCourse == null) {
                 htm.sDiv("indent11");
                 htm.addln("Invalid video request.");
                 htm.eDiv();
             } else {
-                htm.addln("<script>");
-                htm.addln(" function showReportError() {");
-                htm.addln("  document.getElementById('error_rpt_link').className='hidden';");
-                htm.addln("  document.getElementById('error_rpt').className='visible';");
-                htm.addln(" }");
-                htm.addln("</script>");
+                htm.addln("""
+                        <script>
+                        function showReportError() {
+                         document.getElementById('error_rpt_link').className='hidden';
+                         document.getElementById('error_rpt').className='visible';
+                        }
+                        </script>""");
 
                 htm.sDiv("indent11");
 
@@ -235,14 +238,16 @@ public final class VideoSite extends AbstractSite {
                 htm.addln(" Your browser does not support inline video.");
                 htm.addln("</video>");
 
-                htm.addln("<div><a href='/math/", direct, "/transcripts/", mediaId, ".pdf'>",
-                        "Access a plain-text transcript for screen-readers (Adobe PDF).</a></div>");
+                htm.addln("<div><a href='/math/", direct, "/transcripts/", mediaId,
+                        ".pdf'>Access a plain-text transcript for screen-readers (Adobe PDF).</a></div>");
 
                 htm.sDiv().add("<a href='", STREAM, direct, "/pdf/",
                         mediaId, ".pdf'>Access a static (Adobe PDF) version.</a>").eDiv();
             }
 
-            htm.addln("</body>").addln("</html>");
+            htm.addln("""
+                    </body>
+                    </html>""");
 
             final String htmStr = htm.toString();
             final byte[] bytes = htmStr.getBytes(StandardCharsets.UTF_8);

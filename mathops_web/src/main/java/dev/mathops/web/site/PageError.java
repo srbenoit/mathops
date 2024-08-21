@@ -3,9 +3,9 @@ package dev.mathops.web.site;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.Cache;
 import dev.mathops.session.ImmutableSessionInfo;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -33,8 +33,8 @@ enum PageError {
             throws IOException, SQLException {
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
-        Page.startOrdinaryPage(htm, site.getTitle(), session, false, Page.ADMIN_BAR | Page.USER_DATE_BAR,
-                null, false, true);
+        final String title = site.getTitle();
+        Page.startOrdinaryPage(htm, title, session, false, Page.ADMIN_BAR | Page.USER_DATE_BAR, null, false, true);
 
         htm.sDiv("error").br();
         htm.addln("<strong>An error has occurred:</strong>").br().br();
@@ -43,6 +43,7 @@ enum PageError {
 
         Page.endOrdinaryPage(cache, site, htm, true);
 
-        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
+        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, bytes);
     }
 }
