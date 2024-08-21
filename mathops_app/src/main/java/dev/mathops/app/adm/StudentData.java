@@ -5,7 +5,9 @@ import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
 import dev.mathops.db.old.DbUtils;
+import dev.mathops.db.old.rawlogic.RawMilestoneAppealLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
+import dev.mathops.db.old.rawrecord.RawMilestoneAppeal;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.EDisciplineActionType;
 import dev.mathops.db.enums.EDisciplineIncidentType;
@@ -120,6 +122,9 @@ public final class StudentData {
     /** All pace appeals for the student. */
     public final List<RawPaceAppeals> paceAppeals;
 
+    /** All milestoneappeals for the student. */
+    public final List<RawMilestoneAppeal> milestoneAppeals;
+
     /** Special categories to which the student belongs. */
     public final List<RawSpecialStus> studentCategories;
 
@@ -181,6 +186,7 @@ public final class StudentData {
 
         this.studentDisciplines = loadStudentDisciplines(cache.conn, fixed);
         this.paceAppeals = RawPaceAppealsLogic.queryByStudent(cache, stuId);
+        this.milestoneAppeals = RawMilestoneAppealLogic.queryByStudent(cache, stuId);
 
         this.studentCategories = RawSpecialStusLogic.queryByStudent(cache, stuId);
 

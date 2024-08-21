@@ -11,10 +11,12 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
+import dev.mathops.db.old.logic.RegistrationsLogic;
 import dev.mathops.db.old.rawlogic.RawMilestoneAppealLogic;
 import dev.mathops.db.old.rawlogic.RawPaceAppealsLogic;
 import dev.mathops.db.old.rawrecord.RawMilestoneAppeal;
 import dev.mathops.db.old.rawrecord.RawPaceAppeals;
+import dev.mathops.db.old.rawrecord.RawStcourse;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -91,6 +93,12 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
     /** A display for the student's number of days of SDC extension. */
     private final JTextField extensionDays;
 
+    /** The button to add a milestone extension (dimmed if there are no paced registrations) */
+    private final JButton addMs;
+
+    /** The label that follows the button to add a milestone. */
+    private final JLabel addMsLbl;
+
     /** The current student data. */
     private StudentData currentStudentData = null;
 
@@ -113,7 +121,7 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
     private DlgEditGeneralAppeal editGeneralAppealDialog = null;
 
     /** The dialog to add new milestone appeals. */
-    private DlgAddMilestoneAppeal addMilestoneAppealDialog = null;
+    private DlgAddLegacyMilestoneAppeal addMilestoneAppealDialog = null;
 
     /**
      * Constructs a new {@code StuAppealsPanel}.
@@ -207,13 +215,16 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
             final JLabel addPaceLbl = new JLabel("(use for placement, tutorials, general accommodations)");
             south1.add(addPaceLbl);
 
-            final JButton addMs = new JButton("Add Milestone Appeal...");
-            addMs.setFont(Skin.BUTTON_13_FONT);
-            addMs.setActionCommand(ADD_MS_APPEAL_CMD);
-            addMs.addActionListener(this);
-            south2.add(addMs);
-            final JLabel addMsLbl = new JLabel("(use to change course due dates)");
-            south2.add(addMsLbl);
+            this.addMs = new JButton("Add Milestone Appeal...");
+            this.addMs.setFont(Skin.BUTTON_13_FONT);
+            this.addMs.setActionCommand(ADD_MS_APPEAL_CMD);
+            this.addMs.addActionListener(this);
+            south2.add(this.addMs);
+            this.addMsLbl = new JLabel("(use to change course due dates)");
+            south2.add(this.addMsLbl);
+        } else {
+            this.addMs = null;
+            this.addMsLbl = null;
         }
     }
 
@@ -302,9 +313,6 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
             this.milestoneAppeals = RawMilestoneAppealLogic.queryByStudent(this.cache, data.student.stuId);
             this.milestoneAppeals.sort(null);
 
-            Log.info("There are ", this.paceAppeals.size() + " pace appeals and " + this.milestoneAppeals.size()
-                                   + " milestone appeals");
-
             int index = 0;
             for (final RawPaceAppeals appeal : this.paceAppeals) {
                 final JPanel paceAppealPanel = makePaceAppealPanel(appeal, index);
@@ -316,6 +324,20 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
                 final JPanel milestoneAppealPanel = makeMilestoneAppealPanel(appeal, index);
                 this.appealsPanel.add(milestoneAppealPanel, StackedBorderLayout.NORTH);
                 ++index;
+            }
+
+            final RegistrationsLogic.ActiveTermRegistrations regs =
+                    RegistrationsLogic.gatherActiveTermRegistrations(this.cache, data.student.stuId);
+            final List<RawStcourse> inPace = regs.inPace();
+
+            if (Objects.nonNull(this.addMs) && Objects.nonNull(this.addMsLbl)) {
+                if (inPace.isEmpty()) {
+                    this.addMs.setEnabled(false);
+                    this.addMsLbl.setText("(not enrolled in any courses that count toward pace);");
+                } else {
+                    this.addMs.setEnabled(true);
+                    this.addMsLbl.setText("(use to change course due dates);");
+                }
             }
 
         } catch (final SQLException ex) {
@@ -663,10 +685,10 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
         } else if (ADD_MS_APPEAL_CMD.equals(cmd)) {
             if (Objects.nonNull(this.currentStudentData)) {
                 if (this.addMilestoneAppealDialog == null) {
-                    this.addMilestoneAppealDialog = new DlgAddMilestoneAppeal(this.cache, this);
+                    this.addMilestoneAppealDialog = new DlgAddLegacyMilestoneAppeal(this.cache, this);
                 }
 
-                this.addMilestoneAppealDialog.populateDisplay(this.userData, this.currentStudentData, null, null);
+                this.addMilestoneAppealDialog.populateDisplay(this.userData, this.currentStudentData, null);
                 this.addMilestoneAppealDialog.setVisible(true);
                 this.addMilestoneAppealDialog.toFront();
             }

@@ -4,7 +4,6 @@ import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
-import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.old.rawrecord.RawMilestone;
 import dev.mathops.db.old.rawrecord.RawPaceAppeals;
@@ -52,12 +51,12 @@ final class DeadlinesGrid extends JPanel {
 
         setBackground(Skin.WHITE);
 
+        this.editAllowed = isEditAllowed;
+
         this.layout = new GroupLayout(this);
         this.layout.setAutoCreateGaps(true);
         this.layout.setAutoCreateContainerGaps(false);
         setLayout(this.layout);
-
-        this.editAllowed = isEditAllowed;
     }
 
     /**
@@ -74,12 +73,13 @@ final class DeadlinesGrid extends JPanel {
         final GroupLayout.SequentialGroup vGroup = this.layout.createSequentialGroup();
 
         final RawStterm stterm = data.studentTerm;
-        final String paceStr = Integer.toString(stterm.pace);
+        final String paceStr = stterm == null || stterm.pace == null ? CoreConstants.EMPTY : stterm.pace.toString();
 
         for (final RawStcourse reg : data.pacedRegistrations) {
 
             final String courseName = reg.course.startsWith("M ") ? reg.course.replace("M ", "MATH ") : reg.course;
-            final String paceOrderStr = Integer.toString(reg.paceOrder);
+
+            final String paceOrderStr = reg.paceOrder == null ? CoreConstants.EMPTY : reg.paceOrder.toString();
 
             final JPanel header = new JPanel(new FlowLayout(FlowLayout.LEADING, 6, 2));
             header.setBackground(Skin.OFF_WHITE_BLUE);
@@ -245,8 +245,8 @@ final class DeadlinesGrid extends JPanel {
                         RawPaceAppeals found = null;
                         for (final RawPaceAppeals testAppeal : paceAppeals) {
                             if (testAppeal.paceTrack.equals(track) && testAppeal.msNbr.equals(test.msNbr)
-                                    && testAppeal.newDeadlineDt.equals(test.msDate)
-                                    && Objects.equals(testAppeal.nbrAtmptsAllow, test.nbrAtmptsAllow)) {
+                                && testAppeal.newDeadlineDt.equals(test.msDate)
+                                && Objects.equals(testAppeal.nbrAtmptsAllow, test.nbrAtmptsAllow)) {
                                 found = testAppeal;
                                 break;
                             }
@@ -357,7 +357,7 @@ final class DeadlinesGrid extends JPanel {
                 for (final RawStexam exam : exams) {
                     if (exam.course.equals(reg.course) && exam.unit.intValue() == unit && exam.examType.equals
                             (examType)
-                            && "Y".equals(exam.passed)) {
+                        && "Y".equals(exam.passed)) {
                         if (earliestCompletion == null || exam.examDt.isBefore(earliestCompletion)) {
                             earliestCompletion = exam.examDt;
                         }
