@@ -449,9 +449,9 @@ public enum MilestoneLogic {
                 final List<RawMilestoneAppeal> all = RawMilestoneAppealLogic.queryByStudent(cache, stuId);
                 for (final RawMilestoneAppeal test : all) {
 
-                    if (RawMilestoneAppeal.APPEAL_TYPE_ACC.equals(test.appealType) && test.paceTrack.equals(paceTrack)
-                        && test.pace != null && test.pace.intValue() == pace && test.msNbr != null
-                        && test.msType.equals(msType)) {
+                    if (RawMilestoneAppeal.APPEAL_TYPE_ACC.equals(test.appealType)
+                        && Objects.equals(test.paceTrack, paceTrack) && test.pace != null
+                        && test.pace.intValue() == pace && test.msNbr != null && test.msType.equals(msType)) {
 
                         final int number = test.msNbr.intValue();
                         if (number < 1000) {
