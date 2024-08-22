@@ -2,6 +2,7 @@ package dev.mathops.assessment.document.template;
 
 import dev.mathops.assessment.document.ELayoutMode;
 import dev.mathops.assessment.variable.EvalContext;
+import dev.mathops.commons.log.Log;
 
 import javax.swing.JPanel;
 import java.awt.Color;

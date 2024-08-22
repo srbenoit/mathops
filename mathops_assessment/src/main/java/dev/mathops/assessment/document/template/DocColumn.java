@@ -195,7 +195,7 @@ public final class DocColumn extends AbstractDocContainer {
     @Override
     public void toXml(final HtmlBuilder xml, final int indent) {
 
-        final String ind = AbstractDocObjectTemplate.makeIndent(indent);
+        final String ind = makeIndent(indent);
 
         if (this.tag != null) {
             xml.addln(ind, "<", this.tag, ">");

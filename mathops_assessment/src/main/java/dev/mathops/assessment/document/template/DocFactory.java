@@ -672,7 +672,7 @@ public enum DocFactory {
                     valid = valid && extractParagraph(evalContext, nonempty, doc, mode);
                 } else {
                     elem.logError("All items in this context must be within &lt;p&gt; tags - found &lt;" + tagName
-                            + "&gt;.");
+                                  + "&gt;.");
                     valid = false;
                 }
             } else if (child instanceof final EmptyElement empty) {
@@ -680,7 +680,7 @@ public enum DocFactory {
                     valid = valid && extractVSpace(empty, doc);
                 } else {
                     elem.logError("All items in this context must be within &lt;p&gt; tags - found &lt;" + tagName
-                            + "&gt;.");
+                                  + "&gt;.");
                     valid = false;
                 }
             } else {
@@ -1327,7 +1327,7 @@ public enum DocFactory {
                             valid = valid && extractNonwrap(evalContext, childTag, nonempty, root, true, mode);
 
                             if (valid && (base == null || (root.getFontSize() == base.getFontSize()
-                                    && base.getFontSize() > 8))) {
+                                                           && base.getFontSize() > 8))) {
                                 root.setFontScale(0.75f);
                             }
                         } else {
@@ -1456,7 +1456,7 @@ public enum DocFactory {
                                 }
 
                                 if (base != null && over.getFontSize() == base.getFontSize()
-                                        && base.getFontSize() > 8) {
+                                    && base.getFontSize() > 8) {
                                     over.setFontScale(0.75f);
                                 }
                             }
@@ -1477,7 +1477,7 @@ public enum DocFactory {
                                 }
 
                                 if (base != null && under.getFontSize() == base.getFontSize()
-                                        && base.getFontSize() > 8) {
+                                    && base.getFontSize() > 8) {
                                     under.setFontScale(0.75f);
                                 }
                             }
@@ -2110,7 +2110,7 @@ public enum DocFactory {
                         which |= DocTable.BOTTOMLINE;
                     } else {
                         elem.logError("Invalid table cell line position, use a comma-separated list of 'left', " +
-                                "'right', 'top' and 'bottom'");
+                                      "'right', 'top' and 'bottom'");
                         valid = false;
                     }
                 }
@@ -2181,7 +2181,6 @@ public enum DocFactory {
                 elem.logError("<image> element has invalid value in '' attribute.");
             }
         }
-
 
         final String altStr = elem.getStringAttr(ALT);
 
@@ -2508,7 +2507,6 @@ public enum DocFactory {
             }
         }
 
-
         for (final INode child : elem.getChildrenAsList()) {
             if (child instanceof final NonemptyElement nonempty) {
                 final String childTag = nonempty.getTagName();
@@ -2595,6 +2593,7 @@ public enum DocFactory {
         final String colorStr = elem.getStringAttr(COLOR);
         final String minxStr = elem.getStringAttr(MIN_X);
         final String maxxStr = elem.getStringAttr(MAX_X);
+        final String strokeWidthStr = elem.getStringAttr(STROKE_WIDTH);
 
         Color color = Color.BLACK;
         if (colorStr != null) {
@@ -2638,6 +2637,23 @@ public enum DocFactory {
                     valid = false;
                 } else if (mode.reportDeprecated) {
                     elem.logError("Deprecated formula in 'maxx' in graph formula");
+                }
+            }
+        }
+
+        Formula strokeWidthF = null;
+        Number strokeWidthC = null;
+        if (strokeWidthStr != null) {
+            try {
+                strokeWidthC = NumberParser.parse(strokeWidthStr);
+            } catch (final NumberFormatException ex) {
+                strokeWidthF = FormulaFactory.parseFormulaString(evalContext, strokeWidthStr, mode);
+
+                if (strokeWidthF == null) {
+                    elem.logError("Failed to parse 'stroke-width' attribute");
+                    valid = false;
+                } else if (mode.reportDeprecated) {
+                    elem.logError("Deprecated formula in 'stroke-width' in graph formula");
                 }
             }
         }
@@ -2699,6 +2715,13 @@ public enum DocFactory {
                                     valid = false;
                                 }
                             }
+                            case STROKE_WIDTH -> {
+                                strokeWidthF = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                                if (maxXF == null) {
+                                    elem.logError("Invalid 'stroke-width' formula");
+                                    valid = false;
+                                }
+                            }
                             case EXPR -> {
                                 form = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                                 if (form == null) {
@@ -2740,8 +2763,15 @@ public enum DocFactory {
             } else if (maxXF != null) {
                 max = new NumberOrFormula(maxXF);
             }
+            NumberOrFormula strokeWidth = null;
+            if (strokeWidthC != null) {
+                strokeWidth = new NumberOrFormula(strokeWidthC);
+            } else if (strokeWidthF != null) {
+                strokeWidth = new NumberOrFormula(strokeWidthF);
+            }
 
-            final DocPrimitiveFormula primitive = new DocPrimitiveFormula(graph, form, null, color, style, min, max);
+            final DocPrimitiveFormula primitive = new DocPrimitiveFormula(graph, form, null, color, style,
+                    strokeWidth, min, max);
             if (domainVarStr != null) {
                 primitive.setDomainVarName(domainVarStr);
             }
@@ -2773,13 +2803,13 @@ public enum DocFactory {
         final DocPrimitiveLine p = new DocPrimitiveLine(container);
 
         boolean valid = p.setAttr(X, e.getStringAttr(X), e, mode)
-                && p.setAttr(Y, e.getStringAttr(Y), e, mode)
-                && p.setAttr(WIDTH, e.getStringAttr(WIDTH), e, mode)
-                && p.setAttr(HEIGHT, e.getStringAttr(HEIGHT), e, mode)
-                && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
-                && p.setAttr(STROKE_WIDTH, e.getStringAttr(STROKE_WIDTH), e, mode)
-                && p.setAttr(DASH, e.getStringAttr(DASH), e, mode)
-                && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
+                        && p.setAttr(Y, e.getStringAttr(Y), e, mode)
+                        && p.setAttr(WIDTH, e.getStringAttr(WIDTH), e, mode)
+                        && p.setAttr(HEIGHT, e.getStringAttr(HEIGHT), e, mode)
+                        && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
+                        && p.setAttr(STROKE_WIDTH, e.getStringAttr(STROKE_WIDTH), e, mode)
+                        && p.setAttr(DASH, e.getStringAttr(DASH), e, mode)
+                        && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
 
         if (valid && e instanceof final NonemptyElement nonempty) {
             for (final IElement child : nonempty.getElementChildrenAsList()) {
@@ -2845,40 +2875,40 @@ public enum DocFactory {
         final DocPrimitiveArc p = new DocPrimitiveArc(container);
 
         boolean valid = p.setAttr(X, e.getStringAttr(X), e, mode)
-                && p.setAttr(Y, e.getStringAttr(Y), e, mode)
-                && p.setAttr(WIDTH, e.getStringAttr(WIDTH), e, mode)
-                && p.setAttr(HEIGHT, e.getStringAttr(HEIGHT), e, mode)
-                && p.setAttr(CX, e.getStringAttr(CX), e, mode)
-                && p.setAttr(CY, e.getStringAttr(CY), e, mode)
-                && p.setAttr(R, e.getStringAttr(R), e, mode)
-                && p.setAttr(RX, e.getStringAttr(RX), e, mode)
-                && p.setAttr(RY, e.getStringAttr(RY), e, mode)
-                && p.setAttr(START_ANGLE, e.getStringAttr(START_ANGLE), e, mode)
-                && p.setAttr(ARC_ANGLE, e.getStringAttr(ARC_ANGLE), e, mode)
-                && p.setAttr(STROKE_WIDTH, e.getStringAttr(STROKE_WIDTH), e, mode)
-                && p.setAttr(STROKE_COLOR, e.getStringAttr(STROKE_COLOR), e, mode)
-                && p.setAttr(STROKE_DASH, e.getStringAttr(STROKE_DASH), e, mode)
-                && p.setAttr(STROKE_ALPHA, e.getStringAttr(STROKE_ALPHA), e, mode)
-                && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode) // *** Deprecated
-                && p.setAttr(DASH, e.getStringAttr(DASH), e, mode) // *** Deprecated
-                && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode) // *** Deprecated
-                && p.setAttr(FILL_STYLE, e.getStringAttr(FILL_STYLE), e, mode)
-                && p.setAttr(FILL_COLOR, e.getStringAttr(FILL_COLOR), e, mode)
-                && p.setAttr(FILL_ALPHA, e.getStringAttr(FILL_ALPHA), e, mode)
-                && p.setAttr(FILLED, e.getStringAttr(FILLED), e, mode) // *** Deprecated
-                && p.setAttr(RAYS_SHOWN, e.getStringAttr(RAYS_SHOWN), e, mode)
-                && p.setAttr(RAY_WIDTH, e.getStringAttr(RAY_WIDTH), e, mode)
-                && p.setAttr(RAY_LENGTH, e.getStringAttr(RAY_LENGTH), e, mode)
-                && p.setAttr(RAY_COLOR, e.getStringAttr(RAY_COLOR), e, mode)
-                && p.setAttr(RAY_DASH, e.getStringAttr(RAY_DASH), e, mode)
-                && p.setAttr(RAY_ALPHA, e.getStringAttr(RAY_ALPHA), e, mode)
-                && p.setAttr(LABEL, e.getStringAttr(LABEL), e, mode)
-                && p.setAttr(LABEL_COLOR, e.getStringAttr(LABEL_COLOR), e, mode)
-                && p.setAttr(LABEL_ALPHA, e.getStringAttr(LABEL_ALPHA), e, mode)
-                && p.setAttr(LABEL_OFFSET, e.getStringAttr(LABEL_OFFSET), e, mode)
-                && p.setAttr(FONT_NAME, e.getStringAttr(FONT_NAME), e, mode)
-                && p.setAttr(FONT_SIZE, e.getStringAttr(FONT_SIZE), e, mode)
-                && p.setAttr(FONT_STYLE, e.getStringAttr(FONT_STYLE), e, mode);
+                        && p.setAttr(Y, e.getStringAttr(Y), e, mode)
+                        && p.setAttr(WIDTH, e.getStringAttr(WIDTH), e, mode)
+                        && p.setAttr(HEIGHT, e.getStringAttr(HEIGHT), e, mode)
+                        && p.setAttr(CX, e.getStringAttr(CX), e, mode)
+                        && p.setAttr(CY, e.getStringAttr(CY), e, mode)
+                        && p.setAttr(R, e.getStringAttr(R), e, mode)
+                        && p.setAttr(RX, e.getStringAttr(RX), e, mode)
+                        && p.setAttr(RY, e.getStringAttr(RY), e, mode)
+                        && p.setAttr(START_ANGLE, e.getStringAttr(START_ANGLE), e, mode)
+                        && p.setAttr(ARC_ANGLE, e.getStringAttr(ARC_ANGLE), e, mode)
+                        && p.setAttr(STROKE_WIDTH, e.getStringAttr(STROKE_WIDTH), e, mode)
+                        && p.setAttr(STROKE_COLOR, e.getStringAttr(STROKE_COLOR), e, mode)
+                        && p.setAttr(STROKE_DASH, e.getStringAttr(STROKE_DASH), e, mode)
+                        && p.setAttr(STROKE_ALPHA, e.getStringAttr(STROKE_ALPHA), e, mode)
+                        && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode) // *** Deprecated
+                        && p.setAttr(DASH, e.getStringAttr(DASH), e, mode) // *** Deprecated
+                        && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode) // *** Deprecated
+                        && p.setAttr(FILL_STYLE, e.getStringAttr(FILL_STYLE), e, mode)
+                        && p.setAttr(FILL_COLOR, e.getStringAttr(FILL_COLOR), e, mode)
+                        && p.setAttr(FILL_ALPHA, e.getStringAttr(FILL_ALPHA), e, mode)
+                        && p.setAttr(FILLED, e.getStringAttr(FILLED), e, mode) // *** Deprecated
+                        && p.setAttr(RAYS_SHOWN, e.getStringAttr(RAYS_SHOWN), e, mode)
+                        && p.setAttr(RAY_WIDTH, e.getStringAttr(RAY_WIDTH), e, mode)
+                        && p.setAttr(RAY_LENGTH, e.getStringAttr(RAY_LENGTH), e, mode)
+                        && p.setAttr(RAY_COLOR, e.getStringAttr(RAY_COLOR), e, mode)
+                        && p.setAttr(RAY_DASH, e.getStringAttr(RAY_DASH), e, mode)
+                        && p.setAttr(RAY_ALPHA, e.getStringAttr(RAY_ALPHA), e, mode)
+                        && p.setAttr(LABEL, e.getStringAttr(LABEL), e, mode)
+                        && p.setAttr(LABEL_COLOR, e.getStringAttr(LABEL_COLOR), e, mode)
+                        && p.setAttr(LABEL_ALPHA, e.getStringAttr(LABEL_ALPHA), e, mode)
+                        && p.setAttr(LABEL_OFFSET, e.getStringAttr(LABEL_OFFSET), e, mode)
+                        && p.setAttr(FONT_NAME, e.getStringAttr(FONT_NAME), e, mode)
+                        && p.setAttr(FONT_SIZE, e.getStringAttr(FONT_SIZE), e, mode)
+                        && p.setAttr(FONT_STYLE, e.getStringAttr(FONT_STYLE), e, mode);
 
         if (valid && e instanceof final NonemptyElement nonempty) {
             for (final IElement child : nonempty.getElementChildrenAsList()) {
@@ -3011,14 +3041,14 @@ public enum DocFactory {
         final DocPrimitiveOval p = new DocPrimitiveOval(container);
 
         boolean valid = p.setAttr(X, e.getStringAttr(X), e, mode)
-                && p.setAttr(Y, e.getStringAttr(Y), e, mode)
-                && p.setAttr(WIDTH, e.getStringAttr(WIDTH), e, mode)
-                && p.setAttr(HEIGHT, e.getStringAttr(HEIGHT), e, mode)
-                && p.setAttr(FILLED, e.getStringAttr(FILLED), e, mode)
-                && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
-                && p.setAttr(STROKE_WIDTH, e.getStringAttr(STROKE_WIDTH), e, mode)
-                && p.setAttr(DASH, e.getStringAttr(DASH), e, mode)
-                && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
+                        && p.setAttr(Y, e.getStringAttr(Y), e, mode)
+                        && p.setAttr(WIDTH, e.getStringAttr(WIDTH), e, mode)
+                        && p.setAttr(HEIGHT, e.getStringAttr(HEIGHT), e, mode)
+                        && p.setAttr(FILLED, e.getStringAttr(FILLED), e, mode)
+                        && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
+                        && p.setAttr(STROKE_WIDTH, e.getStringAttr(STROKE_WIDTH), e, mode)
+                        && p.setAttr(DASH, e.getStringAttr(DASH), e, mode)
+                        && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
 
         if (valid && e instanceof final NonemptyElement nonempty) {
             for (final IElement child : nonempty.getElementChildrenAsList()) {
@@ -3086,14 +3116,14 @@ public enum DocFactory {
         final DocPrimitiveRectangle p = new DocPrimitiveRectangle(container);
 
         boolean valid = p.setAttr(X, e.getStringAttr(X), e, mode)
-                && p.setAttr(Y, e.getStringAttr(Y), e, mode)
-                && p.setAttr(WIDTH, e.getStringAttr(WIDTH), e, mode)
-                && p.setAttr(HEIGHT, e.getStringAttr(HEIGHT), e, mode)
-                && p.setAttr(FILLED, e.getStringAttr(FILLED), e, mode)
-                && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
-                && p.setAttr(STROKE_WIDTH, e.getStringAttr(STROKE_WIDTH), e, mode)
-                && p.setAttr(DASH, e.getStringAttr(DASH), e, mode)
-                && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
+                        && p.setAttr(Y, e.getStringAttr(Y), e, mode)
+                        && p.setAttr(WIDTH, e.getStringAttr(WIDTH), e, mode)
+                        && p.setAttr(HEIGHT, e.getStringAttr(HEIGHT), e, mode)
+                        && p.setAttr(FILLED, e.getStringAttr(FILLED), e, mode)
+                        && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
+                        && p.setAttr(STROKE_WIDTH, e.getStringAttr(STROKE_WIDTH), e, mode)
+                        && p.setAttr(DASH, e.getStringAttr(DASH), e, mode)
+                        && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
 
         if (valid && e instanceof final NonemptyElement nonempty) {
             for (final IElement child : nonempty.getElementChildrenAsList()) {
@@ -3160,12 +3190,12 @@ public enum DocFactory {
         final DocPrimitivePolygon p = new DocPrimitivePolygon(container);
 
         boolean valid = p.setAttr(X_LIST, e.getStringAttr(X_LIST), e, mode)
-                && p.setAttr(Y_LIST, e.getStringAttr(Y_LIST), e, mode)
-                && p.setAttr(FILLED, e.getStringAttr(FILLED), e, mode)
-                && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
-                && p.setAttr(STROKE_WIDTH, e.getStringAttr(STROKE_WIDTH), e, mode)
-                && p.setAttr(DASH, e.getStringAttr(DASH), e, mode)
-                && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
+                        && p.setAttr(Y_LIST, e.getStringAttr(Y_LIST), e, mode)
+                        && p.setAttr(FILLED, e.getStringAttr(FILLED), e, mode)
+                        && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
+                        && p.setAttr(STROKE_WIDTH, e.getStringAttr(STROKE_WIDTH), e, mode)
+                        && p.setAttr(DASH, e.getStringAttr(DASH), e, mode)
+                        && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
 
         if (valid && e instanceof final NonemptyElement nonempty) {
 
@@ -3229,14 +3259,14 @@ public enum DocFactory {
         final DocPrimitiveProtractor p = new DocPrimitiveProtractor(container);
 
         boolean valid = p.setAttr(CX, e.getStringAttr(CX), e, mode)
-                && p.setAttr(CY, e.getStringAttr(CY), e, mode)
-                && p.setAttr(R, e.getStringAttr(R), e, mode)
-                && p.setAttr(ORIENTATION, e.getStringAttr(ORIENTATION), e, mode)
-                && p.setAttr(UNITS, e.getStringAttr(UNITS), e, mode)
-                && p.setAttr(QUADRANTS, e.getStringAttr(QUADRANTS), e, mode)
-                && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
-                && p.setAttr(TEXT_COLOR, e.getStringAttr(TEXT_COLOR), e, mode)
-                && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
+                        && p.setAttr(CY, e.getStringAttr(CY), e, mode)
+                        && p.setAttr(R, e.getStringAttr(R), e, mode)
+                        && p.setAttr(ORIENTATION, e.getStringAttr(ORIENTATION), e, mode)
+                        && p.setAttr(UNITS, e.getStringAttr(UNITS), e, mode)
+                        && p.setAttr(QUADRANTS, e.getStringAttr(QUADRANTS), e, mode)
+                        && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
+                        && p.setAttr(TEXT_COLOR, e.getStringAttr(TEXT_COLOR), e, mode)
+                        && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
 
         if (valid && e instanceof final NonemptyElement nonempty) {
 
@@ -3304,11 +3334,11 @@ public enum DocFactory {
         final DocPrimitiveRaster p = new DocPrimitiveRaster(container);
 
         boolean valid = p.setAttr(X, e.getStringAttr(X), e, mode)
-                && p.setAttr(Y, e.getStringAttr(Y), e, mode)
-                && p.setAttr(WIDTH, e.getStringAttr(WIDTH), e, mode)
-                && p.setAttr(HEIGHT, e.getStringAttr(HEIGHT), e, mode)
-                && p.setAttr(SRC, e.getStringAttr(SRC), e, mode)
-                && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
+                        && p.setAttr(Y, e.getStringAttr(Y), e, mode)
+                        && p.setAttr(WIDTH, e.getStringAttr(WIDTH), e, mode)
+                        && p.setAttr(HEIGHT, e.getStringAttr(HEIGHT), e, mode)
+                        && p.setAttr(SRC, e.getStringAttr(SRC), e, mode)
+                        && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
 
         if (valid && e instanceof final NonemptyElement nonempty) {
             for (final IElement child : nonempty.getElementChildrenAsList()) {
@@ -3374,14 +3404,14 @@ public enum DocFactory {
         final DocPrimitiveText p = new DocPrimitiveText(container);
 
         boolean valid = p.setAttr(X, e.getStringAttr(X), e, mode)
-                && p.setAttr(Y, e.getStringAttr(Y), e, mode)
-                && p.setAttr(ANCHOR, e.getStringAttr(ANCHOR), e, mode)
-                && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
-                && p.setAttr(HIGHLIGHT, e.getStringAttr(HIGHLIGHT), e, mode)
-                && p.setAttr(FONT_NAME, e.getStringAttr(FONT_NAME), e, mode)
-                && p.setAttr(FONT_SIZE, e.getStringAttr(FONT_SIZE), e, mode)
-                && p.setAttr(FONT_STYLE, e.getStringAttr(FONT_STYLE), e, mode)
-                && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
+                        && p.setAttr(Y, e.getStringAttr(Y), e, mode)
+                        && p.setAttr(ANCHOR, e.getStringAttr(ANCHOR), e, mode)
+                        && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
+                        && p.setAttr(HIGHLIGHT, e.getStringAttr(HIGHLIGHT), e, mode)
+                        && p.setAttr(FONT_NAME, e.getStringAttr(FONT_NAME), e, mode)
+                        && p.setAttr(FONT_SIZE, e.getStringAttr(FONT_SIZE), e, mode)
+                        && p.setAttr(FONT_STYLE, e.getStringAttr(FONT_STYLE), e, mode)
+                        && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
 
         String valueStr = e.getStringAttr(VALUE);
         if (valueStr != null) {
@@ -3454,14 +3484,14 @@ public enum DocFactory {
         final DocPrimitiveSpan p = new DocPrimitiveSpan(container);
 
         final boolean valid = p.setAttr(X, e.getStringAttr(X), e, mode)
-                && p.setAttr(Y, e.getStringAttr(Y), e, mode)
-                && p.setAttr(ANCHOR, e.getStringAttr(ANCHOR), e, mode)
-                && p.setAttr(FILLED, e.getStringAttr(FILLED), e, mode)
-                && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
-                && p.setAttr(FONT_NAME, e.getStringAttr(FONT_NAME), e, mode)
-                && p.setAttr(FONT_SIZE, e.getStringAttr(FONT_SIZE), e, mode)
-                && p.setAttr(FONT_STYLE, e.getStringAttr(FONT_STYLE), e, mode)
-                && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
+                              && p.setAttr(Y, e.getStringAttr(Y), e, mode)
+                              && p.setAttr(ANCHOR, e.getStringAttr(ANCHOR), e, mode)
+                              && p.setAttr(FILLED, e.getStringAttr(FILLED), e, mode)
+                              && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
+                              && p.setAttr(FONT_NAME, e.getStringAttr(FONT_NAME), e, mode)
+                              && p.setAttr(FONT_SIZE, e.getStringAttr(FONT_SIZE), e, mode)
+                              && p.setAttr(FONT_STYLE, e.getStringAttr(FONT_STYLE), e, mode)
+                              && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
 
         // <span x="((30+{lb})/2)+10" y="35+{la}" fontsize="20.0">{db2}</span>
         if (valid) {
@@ -3512,14 +3542,14 @@ public enum DocFactory {
         final DocPrimitiveSpan p = new DocPrimitiveSpan(container);
 
         boolean valid = p.setAttr(X, e.getStringAttr(X), e, mode)
-                && p.setAttr(Y, e.getStringAttr(Y), e, mode)
-                && p.setAttr(ANCHOR, e.getStringAttr(ANCHOR), e, mode)
-                && p.setAttr(FILLED, e.getStringAttr(FILLED), e, mode)
-                && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
-                && p.setAttr(FONT_NAME, e.getStringAttr(FONT_NAME), e, mode)
-                && p.setAttr(FONT_SIZE, e.getStringAttr(FONT_SIZE), e, mode)
-                && p.setAttr(FONT_STYLE, e.getStringAttr(FONT_STYLE), e, mode)
-                && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
+                        && p.setAttr(Y, e.getStringAttr(Y), e, mode)
+                        && p.setAttr(ANCHOR, e.getStringAttr(ANCHOR), e, mode)
+                        && p.setAttr(FILLED, e.getStringAttr(FILLED), e, mode)
+                        && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
+                        && p.setAttr(FONT_NAME, e.getStringAttr(FONT_NAME), e, mode)
+                        && p.setAttr(FONT_SIZE, e.getStringAttr(FONT_SIZE), e, mode)
+                        && p.setAttr(FONT_STYLE, e.getStringAttr(FONT_STYLE), e, mode)
+                        && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
 
         boolean newFormat = false;
         for (final IElement grandchild : e.getElementChildrenAsList()) {

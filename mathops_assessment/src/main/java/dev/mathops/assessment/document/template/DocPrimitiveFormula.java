@@ -13,9 +13,12 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.Stroke;
+import java.awt.geom.Path2D;
 import java.io.Serial;
 import java.util.Objects;
 import java.util.Set;
@@ -46,6 +49,9 @@ final class DocPrimitiveFormula extends AbstractDocPrimitive {
 
     /** The style of plot to use for the formula. */
     private final int formulaStyle;
+
+    /** The stroke width. */
+    private final NumberOrFormula strokeWidth;
 
     /** The minimum X value from which to draw the function. */
     private final NumberOrFormula formulaMinX;
@@ -81,7 +87,8 @@ final class DocPrimitiveFormula extends AbstractDocPrimitive {
      */
     DocPrimitiveFormula(final AbstractDocPrimitiveContainer theOwner, final Formula theFormula,
                         final String theColorName, final Color theColor, final int theStyle,
-                        final NumberOrFormula theMinX, final NumberOrFormula theMaxX) {
+                        final NumberOrFormula theStrokeWidth, final NumberOrFormula theMinX,
+                        final NumberOrFormula theMaxX) {
 
         super(theOwner);
 
@@ -89,6 +96,7 @@ final class DocPrimitiveFormula extends AbstractDocPrimitive {
         this.formulaColorName = theColorName;
         this.formulaColor = theColor;
         this.formulaStyle = theStyle;
+        this.strokeWidth = theStrokeWidth;
         this.formulaMinX = theMinX;
         this.formulaMaxX = theMaxX;
 
@@ -157,12 +165,13 @@ final class DocPrimitiveFormula extends AbstractDocPrimitive {
     public DocPrimitiveFormula
     deepCopy(final AbstractDocPrimitiveContainer theOwner) {
 
+        final NumberOrFormula newStrokeWidth = this.strokeWidth == null ? null : this.strokeWidth.deepCopy();
         final Formula newFormula = this.formula == null ? null : this.formula.deepCopy();
         final NumberOrFormula newMinX = this.formulaMinX == null ? null : this.formulaMinX.deepCopy();
         final NumberOrFormula newMaxX = this.formulaMaxX == null ? null : this.formulaMaxX.deepCopy();
 
         return new DocPrimitiveFormula(theOwner, newFormula, this.formulaColorName,
-                this.formulaColor, this.formulaStyle, newMinX, newMaxX);
+                this.formulaColor, this.formulaStyle, newStrokeWidth, newMinX, newMaxX);
     }
 
     /**
@@ -175,7 +184,7 @@ final class DocPrimitiveFormula extends AbstractDocPrimitive {
     public void draw(final Graphics2D grx, final EvalContext context) {
 
         if (this.formula != null && this.formulaStyle == CURVE && this.windowMinX != null
-                && this.windowMaxX != null && this.windowMinY != null && this.windowMaxY != null) {
+            && this.windowMaxX != null && this.windowMinY != null && this.windowMaxY != null) {
 
             final AbstractVariable xValue = context.getVariable(this.domainVarName);
 
@@ -196,6 +205,23 @@ final class DocPrimitiveFormula extends AbstractDocPrimitive {
             if (per <= 0.0) {
                 Log.warning("Bad per-pixel when drawing graph");
             } else {
+                final float width;
+                if (this.strokeWidth == null) {
+                    width = 1.0f;
+                } else if (this.strokeWidth.getFormula() == null) {
+                    width = this.strokeWidth.getNumber().floatValue();
+                } else {
+                    final Object widthValue = this.strokeWidth.getFormula().evaluate(context);
+
+                    if (widthValue instanceof final Number widthNumber) {
+                        width = widthNumber.floatValue();
+                    } else {
+                        Log.warning(new IllegalArgumentException("Unable to evaluate 'stroke-width' ("
+                                                                 + this.strokeWidth));
+                        width = 1.0f;
+                    }
+                }
+
                 int x = this.bounds.x;
 
                 double domainMin = minX;
@@ -207,7 +233,7 @@ final class DocPrimitiveFormula extends AbstractDocPrimitive {
                     } else {
                         // Bad output of 'minx' formula - don't draw
                         Log.warning(new IllegalArgumentException("Bad output from 'minx' when drawing graph ("
-                                + this.formulaMinX + " = " + obj + ")"));
+                                                                 + this.formulaMinX + " = " + obj + ")"));
                         domainMin = maxX;
                     }
                 }
@@ -221,14 +247,31 @@ final class DocPrimitiveFormula extends AbstractDocPrimitive {
                     } else {
                         // Bad output of 'minx' formula - don't draw
                         Log.warning(new IllegalArgumentException("Bad output from 'maxx' when drawing graph ("
-                                + this.formulaMaxX + " = " + obj + ")"));
+                                                                 + this.formulaMaxX + " = " + obj + ")"));
                         domainMax = minX;
                     }
                 }
 
-                for (double dx = minX; dx < maxX; dx += per) {
+                double strokeW = 1.0;
+                if (this.strokeWidth != null) {
+                    final Object obj = this.strokeWidth.evaluate(context);
 
-                    Object obj = null;
+                    if (obj instanceof final Number numberObj) {
+                        strokeW = numberObj.doubleValue();
+                    } else {
+                        Log.warning(new IllegalArgumentException("Bad output from 'stroke0width' when drawing graph ("
+                                                                 + this.strokeWidth + " = " + obj + ")"));
+                    }
+                }
+
+                final Stroke origStroke = grx.getStroke();
+                final Stroke newStroke = new BasicStroke((float) strokeW);
+                grx.setStroke(newStroke);
+
+                final Path2D path = new Path2D.Double();
+                boolean pathPending = false;
+
+                for (double dx = minX; dx < maxX; dx += per) {
 
                     // Check against formula domain
                     if (dx < domainMin) {
@@ -278,17 +321,34 @@ final class DocPrimitiveFormula extends AbstractDocPrimitive {
                         final int y = this.bounds.y + this.bounds.height - (int) (dy * (double) this.bounds.height);
 
                         if (!started) {
-                            grx.drawLine(x, y, x, y);
+                            // FIXME:
+                            path.moveTo((double) x, (double) y);
+                            pathPending = false;
+//                            grx.drawLine(x, y, x, y);
                             started = true;
                         } else // Detect wild swings like asymptotes, avoid drawing
-                            if (Math.abs(y - prior) < 500) {
-                                grx.drawLine(x - 1, prior, x, y);
+                            if (Math.abs(y - prior) < 500) { // The units on these numbers are "pixels"
+                                // FIXME:
+                                path.lineTo((double) x, (double) y);
+                                pathPending = true;
+//                                grx.drawLine(x - 1, prior, x, y);
+                            } else {
+                                grx.draw(path);
+                                path.reset();
+                                path.moveTo(x, y);
+                                pathPending = false;
                             }
 
                         prior = y;
                     }
                     ++x;
                 }
+
+                if (pathPending) {
+                    grx.draw(path);
+                }
+
+                grx.setStroke(origStroke);
             }
         }
     }
@@ -439,11 +499,11 @@ final class DocPrimitiveFormula extends AbstractDocPrimitive {
     public int hashCode() {
 
         return Objects.hashCode(this.formula)
-                + Objects.hashCode(this.formulaColorName)
-                + Objects.hashCode(this.formulaColor)
-                + this.formulaStyle
-                + Objects.hashCode(this.formulaMinX)
-                + Objects.hashCode(this.formulaMaxX);
+               + Objects.hashCode(this.formulaColorName)
+               + Objects.hashCode(this.formulaColor)
+               + this.formulaStyle
+               + Objects.hashCode(this.formulaMinX)
+               + Objects.hashCode(this.formulaMaxX);
     }
 
     /**
