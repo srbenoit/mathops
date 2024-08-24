@@ -1741,6 +1741,8 @@ public final class StudentCourseStatus extends LogicBase {
 
                     if (msNum / 10 % 10 == order && msNum % 10 == unit && reviewImp.equals(ms.msType)) {
                         this.unitReviewDeadlines[unit] = ms.msDate;
+//                        Log.info("Found milestone ", ms.msDate, " for Unit ", unit, " ", ms.msType, " pace ",
+//                                ms.pace, " track ", ms.paceTrack);
                         reIndex = ms.msNbr;
                         break;
                     }
@@ -1749,6 +1751,7 @@ public final class StudentCourseStatus extends LogicBase {
                     for (final RawStmilestone stms : stMilestones) {
                         if (reIndex.equals(stms.msNbr) && reviewImp.equals(stms.msType)) {
                             this.unitReviewDeadlines[unit] = stms.msDate;
+//                            Log.info("Found stmilestone ", stms.msDate, " for Unit ", unit, " ", stms.msType);
                             // Don't break - student milestones are sorted by due date, and if there are multiple
                             // matching rows, we want the latest date
                         }
@@ -1879,8 +1882,9 @@ public final class StudentCourseStatus extends LogicBase {
                     this.earliestPassingReviews[unit] = stuReview.examDt;
                 }
 
-                if (!this.unitPassedReviewOnTime[unit] && ((this.unitReviewDeadlines[unit] == null)
-                                                           || !stuReview.examDt.isAfter(this.unitReviewDeadlines[unit]))) {
+                if (!this.unitPassedReviewOnTime[unit]
+                    && ((this.unitReviewDeadlines[unit] == null)
+                        || !stuReview.examDt.isAfter(this.unitReviewDeadlines[unit]))) {
                     this.unitPassedReviewOnTime[unit] = true;
                 }
             }

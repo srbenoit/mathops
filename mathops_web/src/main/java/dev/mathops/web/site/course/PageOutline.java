@@ -2251,68 +2251,77 @@ enum PageOutline {
             final int index = stcourse.paceOrder.intValue();
             final int paceInt = stterm.pace.intValue();
 
-            final int accommodationExtensionDays = MilestoneLogic.daysAvailableLegacyAccommodationExtension(
-                    cache, stu.stuId, stterm.paceTrack, paceInt, index, unitNum, "RE");
+            try {
+                final int accommodationExtensionDays = MilestoneLogic.daysAvailableLegacyAccommodationExtension(
+                        cache, stu.stuId, stterm.paceTrack, paceInt, index, unitNum, "RE");
 
-            if (accommodationExtensionDays == 0) {
-                htm.sP("indent");
-                htm.add("Your SDC accommodation extension has already been applied to this due date.");
-                htm.eP();
-            } else if (accommodationExtensionDays > 0) {
-                // If the due date is in the past or near future, show SDC accommodation
-                final LocalDate today = LocalDate.now();
-                final LocalDate soon = today.plusDays(4L);
-                if (dueDate.isBefore(soon)) {
-                    final String daysStr = Integer.toString(accommodationExtensionDays);
-
-                    htm.addln("<form method='POST' action='request_accom_extension.html'>");
-
-                    htm.sP("indent").add("You have an extension of ", daysStr,
-                            " days available based on your SDC accommodation.").br();
-                    htm.addln(" <input type='hidden' name='course' value='", course, "'/>");
-                    htm.addln(" <input type='hidden' name='stu' value='", stu.stuId, "'/>");
-                    htm.addln(" <input type='hidden' name='track' value='", stterm.paceTrack, "'/>");
-                    htm.addln(" <input type='hidden' name='pace' value='", stterm.pace, "'/>");
-                    htm.addln(" <input type='hidden' name='index' value='", index, "'/>");
-                    htm.addln(" <input type='hidden' name='unit' value='", unitNum, "'/>");
-                    htm.addln(" <input type='hidden' name='type' value='RE'/>");
-
-                    htm.addln(" &nbsp; <button class='smallbtn' type='submit'>",
-                            "Apply my accommodation extension</button>");
+                if (accommodationExtensionDays == 0) {
+                    htm.sP("indent");
+                    htm.add("Your SDC accommodation extension has already been applied to this due date.");
                     htm.eP();
-                    htm.addln("</form>");
+                } else if (accommodationExtensionDays > 0) {
+                    // If the due date is in the past or near future, show SDC accommodation
+                    final LocalDate today = LocalDate.now();
+                    final LocalDate soon = today.plusDays(4L);
+                    if (dueDate.isBefore(soon)) {
+                        final String daysStr = Integer.toString(accommodationExtensionDays);
+
+                        htm.addln("<form method='POST' action='request_accom_extension.html'>");
+
+                        htm.sP("indent").add("You have an extension of ", daysStr,
+                                " days available based on your SDC accommodation.").br();
+                        htm.addln(" <input type='hidden' name='course' value='", course, "'/>");
+                        htm.addln(" <input type='hidden' name='stu' value='", stu.stuId, "'/>");
+                        htm.addln(" <input type='hidden' name='track' value='", stterm.paceTrack, "'/>");
+                        htm.addln(" <input type='hidden' name='pace' value='", stterm.pace, "'/>");
+                        htm.addln(" <input type='hidden' name='index' value='", index, "'/>");
+                        htm.addln(" <input type='hidden' name='unit' value='", unitNum, "'/>");
+                        htm.addln(" <input type='hidden' name='type' value='RE'/>");
+
+                        htm.addln(" &nbsp; <button class='smallbtn' type='submit'>",
+                                "Apply my accommodation extension</button>");
+                        htm.eP();
+                        htm.addln("</form>");
+                    }
                 }
+            } catch (final IllegalArgumentException ex) {
+                Log.warning(ex);
             }
 
-            final int freeExtensionDays = MilestoneLogic.daysAvailableLegacyFreeExtension(cache, stu.stuId,
-                    stterm.paceTrack, paceInt, index, unitNum, "RE");
+            try {
+                final int freeExtensionDays = MilestoneLogic.daysAvailableLegacyFreeExtension(cache, stu.stuId,
+                        stterm.paceTrack, paceInt, index, unitNum, "RE");
 
-            if (freeExtensionDays == 0) {
-                htm.sP("indent");
-                htm.add("Your free extension has already been applied to this due date.");
-                htm.eP();
-            } else if (freeExtensionDays > 0) {
-                // If the due date is in the past or near future, show SDC accommodation
-                final LocalDate today = LocalDate.now();
-                final LocalDate soon = today.plusDays(2L);
-                if (dueDate.isBefore(soon)) {
-                    final String daysStr = Integer.toString(freeExtensionDays);
-                    htm.addln("<form method='POST' action='request_free_extension.html'>");
+                if (freeExtensionDays == 0) {
                     htm.sP("indent");
-                    htm.add("All students are allowed a ", daysStr,
-                            "-day free extension to account for unexpected situations that may arise.").br();
-
-                    htm.addln(" <input type='hidden' name='course' value='", course, "'/>");
-                    htm.addln(" <input type='hidden' name='stu' value='", stu.stuId, "'/>");
-                    htm.addln(" <input type='hidden' name='track' value='", stterm.paceTrack, "'/>");
-                    htm.addln(" <input type='hidden' name='pace' value='", stterm.pace, "'/>");
-                    htm.addln(" <input type='hidden' name='index' value='", index, "'/>");
-                    htm.addln(" <input type='hidden' name='unit' value='", unitNum, "'/>");
-                    htm.addln(" <input type='hidden' name='type' value='RE'/>");
-                    htm.addln(" &nbsp; <button class='smallbtn' type='submit'>Apply my free extension</button>");
+                    htm.add("Your free extension has already been applied to this due date.");
                     htm.eP();
-                    htm.addln("</form>");
+                } else if (freeExtensionDays > 0) {
+                    // If the due date is in the past or near future, show SDC accommodation
+                    final LocalDate today = LocalDate.now();
+                    final LocalDate soon = today.plusDays(2L);
+
+                    if (dueDate.isBefore(soon)) {
+                        final String daysStr = Integer.toString(freeExtensionDays);
+                        htm.addln("<form method='POST' action='request_free_extension.html'>");
+                        htm.sP("indent");
+                        htm.add("All students are allowed a ", daysStr,
+                                "-day free extension to account for unexpected situations that may arise.").br();
+
+                        htm.addln(" <input type='hidden' name='course' value='", course, "'/>");
+                        htm.addln(" <input type='hidden' name='stu' value='", stu.stuId, "'/>");
+                        htm.addln(" <input type='hidden' name='track' value='", stterm.paceTrack, "'/>");
+                        htm.addln(" <input type='hidden' name='pace' value='", stterm.pace, "'/>");
+                        htm.addln(" <input type='hidden' name='index' value='", index, "'/>");
+                        htm.addln(" <input type='hidden' name='unit' value='", unitNum, "'/>");
+                        htm.addln(" <input type='hidden' name='type' value='RE'/>");
+                        htm.addln(" &nbsp; <button class='smallbtn' type='submit'>Apply my free extension</button>");
+                        htm.eP();
+                        htm.addln("</form>");
+                    }
                 }
+            } catch (final IllegalArgumentException ex) {
+                Log.warning(ex);
             }
         }
     }

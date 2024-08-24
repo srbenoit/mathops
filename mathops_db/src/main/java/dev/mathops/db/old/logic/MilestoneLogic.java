@@ -329,7 +329,8 @@ public enum MilestoneLogic {
         final List<RawMilestoneAppeal> matching = new ArrayList<>(min);
 
         for (final RawMilestoneAppeal test : all) {
-            if (test.paceTrack.equals(paceTrack) && test.pace != null && test.pace.intValue() == pace && test.msNbr != null) {
+            if (Objects.equals(test.paceTrack, paceTrack) && test.pace != null && test.pace.intValue() == pace
+                && test.msNbr != null) {
                 final int number = test.msNbr.intValue();
 
                 final int numberIndex;
@@ -351,7 +352,7 @@ public enum MilestoneLogic {
         final List<RawPaceAppeals> legacy = RawPaceAppealsLogic.queryByStudent(cache, stuId);
 
         for (final RawPaceAppeals test : legacy) {
-            if (test.paceTrack.equals(paceTrack) && test.pace != null && test.pace.intValue() == pace
+            if (Objects.equals(test.paceTrack, paceTrack) && test.pace != null && test.pace.intValue() == pace
                 && test.msNbr != null) {
                 final int number = test.msNbr.intValue();
                 final int numberIndex = (number / 10) % 10;
