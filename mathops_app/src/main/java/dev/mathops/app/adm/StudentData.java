@@ -332,7 +332,7 @@ public final class StudentData {
     }
 
     /**
-     * Called when pace appeal data is altered.
+     * Called when pace appeal or milestone appeal data is altered.
      *
      * @param cache the data cache
      */
@@ -341,9 +341,13 @@ public final class StudentData {
         final String stuId = this.student.stuId;
 
         try {
-            final List<RawPaceAppeals> newList = RawPaceAppealsLogic.queryByStudent(cache, stuId);
+            final List<RawPaceAppeals> newPaceAppeals = RawPaceAppealsLogic.queryByStudent(cache, stuId);
             this.paceAppeals.clear();
-            this.paceAppeals.addAll(newList);
+            this.paceAppeals.addAll(newPaceAppeals);
+
+            final List<RawMilestoneAppeal> newMilestoneAppeals = RawMilestoneAppealLogic.queryByStudent(cache, stuId);
+            this.milestoneAppeals.clear();
+            this.milestoneAppeals.addAll(newMilestoneAppeals);
 
             final List<RawStmilestone> newMilestones = RawStmilestoneLogic.getStudentMilestones(cache, this.activeKey,
                     stuId);

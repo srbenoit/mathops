@@ -5,7 +5,7 @@ import java.awt.Container;
 /**
  * A listener to be notified when pace appeals have been changed.
  */
-public interface IPaceAppealsListener {
+public interface IAppealsListener {
 
     /**
      * Gets a parent container that can be used as the owner of a dialog.

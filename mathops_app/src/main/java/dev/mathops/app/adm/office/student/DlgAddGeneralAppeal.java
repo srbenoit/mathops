@@ -75,7 +75,7 @@ public final class DlgAddGeneralAppeal extends JFrame implements ActionListener,
     private final TermKey active;
 
     /** The owning panel to be refreshed if an appeal record is added. */
-    private final IPaceAppealsListener listener;
+    private final IAppealsListener listener;
 
     /** The field for the student ID. */
     private final JTextField studentIdField;
@@ -107,7 +107,7 @@ public final class DlgAddGeneralAppeal extends JFrame implements ActionListener,
      * @param theCache    the data cache
      * @param theListener the listener to be notified if an appeal record is added
      */
-    DlgAddGeneralAppeal(final Cache theCache, final IPaceAppealsListener theListener) {
+    DlgAddGeneralAppeal(final Cache theCache, final IAppealsListener theListener) {
 
         super(TITLE);
         setBackground(Skin.LIGHTEST);

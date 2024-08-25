@@ -4,6 +4,7 @@ import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.UserData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
+import dev.mathops.app.adm.office.registration.DlgAddLegacyMilestoneAppeal;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.builder.SimpleBuilder;
@@ -54,8 +55,7 @@ import java.util.Objects;
  * When a user adds or edits a pace appeal record, they have the option to update the student's deadline in the
  * milestone tables as well.
  */
-public final class StuAppealsPanel extends AdmPanelBase implements ActionListener, IPaceAppealsListener,
-        IStudentListener {
+public final class StuAppealsPanel extends AdmPanelBase implements ActionListener, IAppealsListener, IStudentListener {
 
     /** Version number for serialization. */
     @Serial

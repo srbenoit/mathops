@@ -4,10 +4,7 @@ import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.UserData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
-import dev.mathops.app.adm.office.student.DlgAddLegacyMilestoneAppeal;
-import dev.mathops.app.adm.office.student.DlgEditLegacyMilestoneAppeal;
-import dev.mathops.app.adm.office.student.DlgEditStandardMilestoneAppeal;
-import dev.mathops.app.adm.office.student.IPaceAppealsListener;
+import dev.mathops.app.adm.office.student.IAppealsListener;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
@@ -38,7 +35,7 @@ import java.util.Objects;
 /**
  * A panel that shows student deadlines.
  */
-public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionListener, IPaceAppealsListener {
+public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionListener, IAppealsListener {
 
     /** Version number for serialization. */
     @Serial
@@ -364,7 +361,7 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
 
                             RawPaceAppeals paceAppeal = null;
                             for (final RawPaceAppeals test : this.currentStudentData.paceAppeals) {
-                                if (test.paceTrack.equals(track) && test.msNbr.equals(stms.msNbr)
+                                if (Objects.equals(test.paceTrack, track) && test.msNbr.equals(stms.msNbr)
                                     && test.newDeadlineDt.equals(stms.msDate)
                                     && Objects.equals(test.nbrAtmptsAllow, stms.nbrAtmptsAllow)) {
                                     paceAppeal = test;
@@ -376,7 +373,7 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
 
                                 RawMilestoneAppeal msAppeal = null;
                                 for (final RawMilestoneAppeal test : this.currentStudentData.milestoneAppeals) {
-                                    if (test.paceTrack.equals(track) && test.msNbr.equals(stms.msNbr)
+                                    if (Objects.equals(test.paceTrack, track) && test.msNbr.equals(stms.msNbr)
                                         && test.newMsDt.equals(stms.msDate)
                                         && Objects.equals(test.attemptsAllowed, stms.nbrAtmptsAllow)) {
                                         msAppeal = test;
@@ -394,7 +391,7 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
                                         // This is a standards-based milestone (pace/course/unit/objective)
                                     } else {
                                         // This is a legacy milestone (pace/course/unit)
-                                        showLegacyEditDialog(ms, stms, msAppeal);
+                                        showLegacyEditDialog(stms, msAppeal);
                                     }
                                 }
                             } else {
@@ -404,7 +401,7 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
                                     // This is a standards-based milestone (pace/course/unit/objective)
                                 } else {
                                     // This is a legacy milestone (pace/course/unit)
-                                    showLegacyEditDialog(ms, stms, paceAppeal);
+                                    showLegacyEditDialog(stms, paceAppeal);
                                 }
                             }
                         }
@@ -421,21 +418,17 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
     /**
      * Presents the dialog to edit an existing pace appeal and extension in a legacy course.
      *
-     * @param ms         the milestone record
      * @param stms       the student milestone record
      * @param paceAppeal the pace appeal record
      */
-    private void showLegacyEditDialog(final RawMilestone ms, final RawStmilestone stms,
-                                      final RawPaceAppeals paceAppeal) {
+    private void showLegacyEditDialog(final RawStmilestone stms, final RawPaceAppeals paceAppeal) {
 
         // This is a legacy milestone (pace/course/unit)
         if (this.editLegacyMilestoneAppealDialog == null) {
-            this.editLegacyMilestoneAppealDialog = new DlgEditLegacyMilestoneAppeal(
-                    this.cache, this);
+            this.editLegacyMilestoneAppealDialog = new DlgEditLegacyMilestoneAppeal(this.cache, this);
         }
 
-        this.editLegacyMilestoneAppealDialog.populateDisplay(this.userData,
-                this.currentStudentData, ms, paceAppeal);
+        this.editLegacyMilestoneAppealDialog.populateDisplay(this.userData, this.currentStudentData, paceAppeal, stms);
 
         final Point loc = getLocationOnScreen();
         final Dimension size = getSize();
@@ -443,8 +436,7 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
         final int cy = loc.y + size.height / 2;
         final Dimension dialogSize = this.editLegacyMilestoneAppealDialog.getSize();
 
-        this.editLegacyMilestoneAppealDialog.setLocation(cx - dialogSize.width / 2,
-                cy - dialogSize.height / 2);
+        this.editLegacyMilestoneAppealDialog.setLocation(cx - dialogSize.width / 2, cy - dialogSize.height / 2);
         this.editLegacyMilestoneAppealDialog.setVisible(true);
         this.editLegacyMilestoneAppealDialog.toFront();
 
@@ -456,21 +448,17 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
     /**
      * Presents the dialog to edit an existing milestone appeal and extension in a legacy course.
      *
-     * @param ms       the milestone record
      * @param stms     the student milestone record
-     * @param msAppeal the milestong appeal record
+     * @param msAppeal the milestone appeal record
      */
-    private void showLegacyEditDialog(final RawMilestone ms, final RawStmilestone stms,
-                                      final RawMilestoneAppeal msAppeal) {
+    private void showLegacyEditDialog(final RawStmilestone stms, final RawMilestoneAppeal msAppeal) {
 
         // This is a legacy milestone (pace/course/unit)
         if (this.editLegacyMilestoneAppealDialog == null) {
-            this.editLegacyMilestoneAppealDialog = new DlgEditLegacyMilestoneAppeal(
-                    this.cache, this);
+            this.editLegacyMilestoneAppealDialog = new DlgEditLegacyMilestoneAppeal(this.cache, this);
         }
 
-        this.editLegacyMilestoneAppealDialog.populateDisplay(this.userData,
-                this.currentStudentData, ms, msAppeal);
+        this.editLegacyMilestoneAppealDialog.populateDisplay(this.userData, this.currentStudentData, msAppeal, stms);
 
         final Point loc = getLocationOnScreen();
         final Dimension size = getSize();
