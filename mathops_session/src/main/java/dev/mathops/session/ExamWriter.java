@@ -73,8 +73,7 @@ public final class ExamWriter {
      * @return the exam path (the exam directory name is the serial number, if positive, or "P" followed by the negated
      *         serial number, if negative)
      */
-    public static String makeWebExamPath(final String shortTermStr, final String studentId,
-                                         final long serial) {
+    public static String makeWebExamPath(final String shortTermStr, final String studentId, final long serial) {
 
         final HtmlBuilder xml = new HtmlBuilder(50);
 

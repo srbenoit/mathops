@@ -35,11 +35,7 @@ public enum PasswordGen {
     private static final String DIGITS = "23456789";
 
     /** Possible password patterns (81890 possible 4-char groups). */
-    private static final String[] HALF_PATTERNS = {//
-            "Cvc#", "Vcv#",
-            "Cvcv", "Vcvc",
-            "Vccv", "cvc#",
-            "vcv#", "cvcv",
+    private static final String[] HALF_PATTERNS = { "Cvc#", "Vcv#", "Cvcv", "Vcvc", "Vccv", "cvc#", "vcv#", "cvcv",
             "vcvc", "vccv",};
 
     /**
@@ -86,16 +82,16 @@ public enum PasswordGen {
 
         final char[] chars = pattern.toCharArray();
 
-        for (final char ch : chars) {
-            if (ch == 'C') {
+        for (final int i : chars) {
+            if (i == (int) 'C') {
                 builder.add(UPPER_CONS.charAt(rnd.nextInt(UPPER_CONS.length())));
-            } else if (ch == 'c') {
+            } else if (i == (int) 'c') {
                 builder.add(LOWER_CONS.charAt(rnd.nextInt(LOWER_CONS.length())));
-            } else if (ch == 'V') {
+            } else if (i == (int) 'V') {
                 builder.add(UPPER_VOWEL.charAt(rnd.nextInt(UPPER_VOWEL.length())));
-            } else if (ch == 'v') {
+            } else if (i == (int) 'v') {
                 builder.add(LOWER_VOWEL.charAt(rnd.nextInt(LOWER_VOWEL.length())));
-            } else if (ch == '#') {
+            } else if (i == (int) '#') {
                 builder.add(DIGITS.charAt(rnd.nextInt(DIGITS.length())));
             }
         }
@@ -109,8 +105,8 @@ public enum PasswordGen {
     public static void main(final String... args) {
 
         Log.info("*** WARNING: screen for embedded inappropriate words before use ***");
-        final String[] pwds = genPasswords(5);
-        for (final String pwd : pwds) {
+        final String[] passwords = genPasswords(5);
+        for (final String pwd : passwords) {
             Log.info(pwd);
         }
     }

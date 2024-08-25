@@ -6,6 +6,7 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
+import dev.mathops.db.logic.ELiveRefreshes;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -43,14 +44,14 @@ public final class ProctoringSite extends AbstractSite {
     }
 
     /**
-     * Indicates whether this site should do live queries to update student registration data.
+     * Tests the live refresh policy for this site.
      *
-     * @return true to do live registration queries; false to skip
+     * @return the live refresh policy
      */
     @Override
-    public boolean doLiveRegQueries() {
+    protected ELiveRefreshes getLiveRefreshes() {
 
-        return false;
+        return ELiveRefreshes.NONE;
     }
 
     /**

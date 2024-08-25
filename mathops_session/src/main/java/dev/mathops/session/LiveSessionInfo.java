@@ -16,14 +16,15 @@ public final class LiveSessionInfo {
 
     /** The tag for the XML representation of a live session. */
     static final String XML_TAG = "live-session";
+
     /** The timeout duration (2 hours), in milliseconds. */
-    static final long TIMEOUT = (long) (2 * 60 * 60 * 1000);
+    private static final long TIMEOUT = (long) (2 * 60 * 60 * 1000);
 
     /** Object on which to synchronize tag creation. */
     private static final Object SYNCH = new Object();
 
     /** The most recently generated tag. */
-    private static long lastTag;
+    private static long lastTag = 0L;
 
     /** The login session ID (unique per session, long but not guessable). */
     final String loginSessionId;
@@ -38,16 +39,16 @@ public final class LiveSessionInfo {
     private Instant established;
 
     /** The ID of the logged-in user. */
-    private String userId;
+    private String userId = null;
 
     /** The first name of the logged-in user. */
-    private String firstName;
+    private String firstName = null;
 
     /** The last name of the logged-in user. */
-    private String lastName;
+    private String lastName = null;
 
     /** The screen name of the logged-in user. */
-    private String screenName;
+    private String screenName = null;
 
     /** The date/time when the session had its last activity. */
     private Instant lastActivity;
@@ -59,22 +60,22 @@ public final class LiveSessionInfo {
     private ERole role;
 
     /** The ID of the effective user. */
-    private String actAsUserId;
+    private String actAsUserId = null;
 
     /** The first name of the effective user. */
-    private String actAsFirstName;
+    private String actAsFirstName = null;
 
     /** The last name of the effective user. */
-    private String actAsLastName;
+    private String actAsLastName = null;
 
     /** The screen name of the effective user. */
-    private String actAsScreenName;
+    private String actAsScreenName = null;
 
     /** The effective role. */
-    private ERole actAsRole;
+    private ERole actAsRole = null;
 
     /** The time offset to apply to this session. */
-    private long timeOffset;
+    private long timeOffset = 0L;
 
     /**
      * Constructs a new {@code LiveSessionInfo}. The user ID, screen name, role, and presence are not set, as these
@@ -142,14 +143,9 @@ public final class LiveSessionInfo {
         this.loginSessionTag = theSessionTag;
         this.authType = theAuthType;
         this.established = Instant.now();
-        this.userId = null;
-        this.screenName = null;
         this.lastActivity = this.established;
         this.timeout = now.plusMillis(TIMEOUT);
         this.role = theRole;
-        this.actAsUserId = null;
-        this.actAsScreenName = null;
-        this.actAsRole = null;
         this.timeOffset = 0L;
     }
 
@@ -406,10 +402,9 @@ public final class LiveSessionInfo {
      * @param theActAsScreenName the screen name of the user for whom the session is acting
      * @param theActAsRole       the role of the user for whom the session is acting
      */
-    void restoreState(final Instant theEstablished, final Instant theLastActivity,
-                      final Instant theTimeout, final Integer theTimeOffset, final String theActAsUser,
-                      final String theActAsFirstName, final String theActAsLastName,
-                      final String theActAsScreenName, final String theActAsRole) {
+    void restoreState(final Instant theEstablished, final Instant theLastActivity, final Instant theTimeout,
+                      final Integer theTimeOffset, final String theActAsUser, final String theActAsFirstName,
+                      final String theActAsLastName, final String theActAsScreenName, final String theActAsRole) {
 
         this.established = theEstablished;
         this.lastActivity = theLastActivity;
@@ -445,16 +440,14 @@ public final class LiveSessionInfo {
 
         xml.addAttribute("last-activity", this.lastActivity, 2);
         xml.addAttribute("timeout", this.timeout, 0);
-        xml.addAttribute("role",
-                this.role == null ? null : this.role.abbrev, 2);
+        xml.addAttribute("role", this.role == null ? null : this.role.abbrev, 2);
         xml.addAttribute("time-offset", Long.toString(this.timeOffset), 0);
 
         xml.addAttribute("act-as-user", this.actAsUserId, 2);
         xml.addAttribute("act-as-first-name", this.actAsFirstName, 0);
         xml.addAttribute("act-as-last-name", this.actAsLastName, 0);
         xml.addAttribute("act-as-name", this.actAsScreenName, 0);
-        xml.addAttribute("act-as-role",
-                this.actAsRole == null ? null : this.actAsRole.abbrev, 0);
+        xml.addAttribute("act-as-role", this.actAsRole == null ? null : this.actAsRole.abbrev, 0);
 
         xml.closeEmptyElement(true);
     }

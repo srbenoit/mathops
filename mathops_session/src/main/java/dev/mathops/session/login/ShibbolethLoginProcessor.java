@@ -4,6 +4,7 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.enums.ERole;
+import dev.mathops.db.logic.ELiveRefreshes;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawSpecialStus;
@@ -74,17 +75,17 @@ public final class ShibbolethLoginProcessor implements ILoginProcessor {
     /**
      * Attempts to authenticate a user based on responses to the login fields and create a login session.
      *
-     * @param cache          the data cache
-     * @param secSessionId   the ID of the new session
-     * @param fieldValues    the values provided by the user in the login field
-     * @param doLiveRegCheck true to include a live registration check in the process
+     * @param cache         the data cache
+     * @param secSessionId  the ID of the new session
+     * @param fieldValues   the values provided by the user in the login field
+     * @param liveRefreshes the live refresh policy
      * @return the login information, which will contain the session and student information (if login was successful)
      *         or an error message (if login did not succeed)
      * @throws SQLException if there was an error accessing the database
      */
     @Override
-    public LoginResult login(final Cache cache, final String secSessionId,
-                             final Map<String, String> fieldValues, final boolean doLiveRegCheck) throws SQLException {
+    public LoginResult login(final Cache cache, final String secSessionId, final Map<String, String> fieldValues,
+                             final ELiveRefreshes liveRefreshes) throws SQLException {
 
         final LoginResult reply;
 
@@ -95,7 +96,7 @@ public final class ShibbolethLoginProcessor implements ILoginProcessor {
         } else {
             final ShibbolethLoginAttempt attempt = new ShibbolethLoginAttempt(secSessionId, csuId);
 
-            if (lookUpStudent(cache, attempt, doLiveRegCheck)) {
+            if (lookUpStudent(cache, attempt, liveRefreshes)) {
                 reply = establishSession(attempt);
             } else {
                 reply = new LoginResult("Unable to access student information");
@@ -108,14 +109,14 @@ public final class ShibbolethLoginProcessor implements ILoginProcessor {
     /**
      * Uses the stored CSU ID to look up a student.
      *
-     * @param cache          the data cache
-     * @param attempt        the login attempt
-     * @param doLiveRegCheck true to do a live registration check as part of the process
+     * @param cache         the data cache
+     * @param attempt       the login attempt
+     * @param liveRefreshes the live refresh policy
      * @return {@code true} if the lookup succeeded, {@code false} if it failed
      * @throws SQLException if there was an error accessing the database
      */
     private static boolean lookUpStudent(final Cache cache, final ShibbolethLoginAttempt attempt,
-                                         final boolean doLiveRegCheck) throws SQLException {
+                                         final ELiveRefreshes liveRefreshes) throws SQLException {
 
         String csuId = attempt.csuId;
         RawStudent student = null;
@@ -124,15 +125,19 @@ public final class ShibbolethLoginProcessor implements ILoginProcessor {
             csuId = filterCsuId(cache, attempt, csuId);
 
             if (attempt.role == ERole.BOOKSTORE) {
-                // Make an artificial student record, so we don't have to add bookstore staff
-                // members to the student table
-                student = RawStudentLogic.makeFakeStudent(csuId, CoreConstants.EMPTY, //
-                        "Bookstore Staff");
+                // Artificial student record, so we don't have to add bookstore staff members to the student table
+                student = RawStudentLogic.makeFakeStudent(csuId, CoreConstants.EMPTY, "Bookstore Staff");
             } else {
-                if (doLiveRegCheck) {
+                if (liveRefreshes == ELiveRefreshes.ALL) {
                     CsuLiveRegChecker.checkLiveReg(cache, csuId);
+                    student = RawStudentLogic.query(cache, csuId, true);
+                } else {
+                    student = RawStudentLogic.query(cache, csuId, false);
+                    if (student == null && liveRefreshes == ELiveRefreshes.IF_MISSING) {
+                        CsuLiveRegChecker.checkLiveReg(cache, csuId);
+                        student = RawStudentLogic.query(cache, csuId, true);
+                    }
                 }
-                student = RawStudentLogic.query(cache, csuId, doLiveRegCheck);
             }
         }
 

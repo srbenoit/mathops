@@ -3,6 +3,7 @@ package dev.mathops.session.login;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.enums.ERole;
+import dev.mathops.db.logic.ELiveRefreshes;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.LiveSessionInfo;
@@ -68,17 +69,17 @@ public final class TestStudentLoginProcessor implements ILoginProcessor {
     /**
      * Attempts to authenticate a user based on responses to the login fields and create a login session.
      *
-     * @param cache          the data cache
-     * @param secSessionId   the ID of the new session
-     * @param fieldValues    the values provided by the user in the login field
-     * @param doLiveRegCheck true to include a live registration check in the process
+     * @param cache         the data cache
+     * @param secSessionId  the ID of the new session
+     * @param fieldValues   the values provided by the user in the login field
+     * @param liveRefreshes the live refresh policy
      * @return the login information, which will contain the session and student information (if login was successful)
      *         or an error message (if login did not succeed)
      * @throws SQLException if there is an error accessing the database
      */
     @Override
     public LoginResult login(final Cache cache, final String secSessionId, final Map<String, String> fieldValues,
-                             final boolean doLiveRegCheck) throws SQLException {
+                             final ELiveRefreshes liveRefreshes) throws SQLException {
 
         final String studentId = fieldValues.get(STU_ID);
         final LoginResult result;

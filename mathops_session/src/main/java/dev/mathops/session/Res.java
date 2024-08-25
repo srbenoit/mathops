@@ -9,21 +9,18 @@ import java.util.Locale;
  */
 final class Res extends ResBundle {
 
-    /** An incrementing index for resource keys. */
-    private static int index = 1;
-
     // Used by LiveRegCache
 
     /** A resource key. */
-    static final String BAD_TERM_NAME = key(index++);
+    static final String BAD_TERM_NAME = key(1);
 
     /** A resource key. */
-    static final String LIVE_REG_QUERY_TIMING = key(index++);
+    static final String LIVE_REG_QUERY_TIMING = key(2);
 
     //
 
     /** The resources - an array of key-values pairs. */
-    private static final String[][] EN_US = {//
+    private static final String[][] EN_US = {
 
             {BAD_TERM_NAME, "Invalid term name: {0}"},
             {LIVE_REG_QUERY_TIMING, "Live registration query took {0} ms."},

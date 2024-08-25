@@ -2,8 +2,8 @@ package dev.mathops.session;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.rawlogic.AbstractLogicModule;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
@@ -36,6 +36,9 @@ public final class CsuLiveRegChecker {
 
     /** Common string in status messages. */
     private static final String IN_COURSE = " IN COURSE ";
+
+    /** A commonly-used integer. */
+    private static final Integer ZERO = Integer.valueOf(0);
 
     /**
      * Private constructor to prevent instantiation.
@@ -119,7 +122,7 @@ public final class CsuLiveRegChecker {
                 Log.info(regStr2.toString());
 
                 // Now see if any "current" registrations are not in the live list
-                checkForDrops(cache, regs1, liveRegs, active);
+                scanForDrops(cache, regs1, liveRegs, active);
 
                 final List<RawStcourse> regs3 = RawStcourseLogic.queryByStudent(cache, stuId, active.term, true, false);
                 final HtmlBuilder regStr3 = new HtmlBuilder(50);
@@ -138,7 +141,7 @@ public final class CsuLiveRegChecker {
                 // hold does not already exist for the student. If none are found, delete any
                 // hold 23 or hold 07 on the student account.
                 if (hasMixedRuleSets(cache, updated, stuId)) {
-                    addFatalHold(cache, stuId, "23", Integer.valueOf(0));
+                    addFatalHold(cache, stuId, "23", ZERO);
                 } else {
                     removeFatalHolds(cache, stuId, "23", "07");
                 }
@@ -165,28 +168,28 @@ public final class CsuLiveRegChecker {
             Log.info(" *** INSERTING STUDENT RECORD FOR STUDENT ", userId);
             RawStudentLogic.INSTANCE.insertFromLive(cache, liveReg);
         } else if (isDifferent(liveReg.studentId, student.stuId)
-                || isDifferent(liveReg.internalId, student.pidm)
-                || isDifferent(liveReg.firstName, student.firstName)
-                || isDifferent(liveReg.lastName, student.lastName)
-                || isDifferent(liveReg.classLevel, student.clazz)
-                || isDifferent(liveReg.college, student.college)
-                || isDifferent(liveReg.department, student.dept)
-                || isDifferent(liveReg.major1, student.programCode)
-                || isDifferent(liveReg.anticGradTerm, student.estGraduation)
-                || isDifferent(liveReg.highSchoolCode, student.hsCode)
-                || isDifferent(liveReg.highSchoolGpa, student.hsGpa)
-                || isDifferent(liveReg.highSchoolClassRank, student.hsClassRank)
-                || isDifferent(liveReg.highSchoolClassSize, student.hsSizeClass)
-                || isDifferent(liveReg.actScore, student.actScore) //
-                || isDifferent(sat, student.satScore) //
-                || isDifferent(liveReg.apScore, student.apScore)
-                || isDifferent(liveReg.birthDate, student.birthdate)
-                || isDifferent(liveReg.gender, student.gender)
-                || isDifferent(liveReg.email, student.stuEmail)
-                || isDifferent(liveReg.adviserEmail, student.adviserEmail)
-                || isDifferent(liveReg.campus, student.campus)
-                || isDifferent(liveReg.admitType, student.admitType)
-                || isDifferent(liveReg.numTransferCredits, student.trCredits)) {
+                   || isDifferent(liveReg.internalId, student.pidm)
+                   || isDifferent(liveReg.firstName, student.firstName)
+                   || isDifferent(liveReg.lastName, student.lastName)
+                   || isDifferent(liveReg.classLevel, student.clazz)
+                   || isDifferent(liveReg.college, student.college)
+                   || isDifferent(liveReg.department, student.dept)
+                   || isDifferent(liveReg.major1, student.programCode)
+                   || isDifferent(liveReg.anticGradTerm, student.estGraduation)
+                   || isDifferent(liveReg.highSchoolCode, student.hsCode)
+                   || isDifferent(liveReg.highSchoolGpa, student.hsGpa)
+                   || isDifferent(liveReg.highSchoolClassRank, student.hsClassRank)
+                   || isDifferent(liveReg.highSchoolClassSize, student.hsSizeClass)
+                   || isDifferent(liveReg.actScore, student.actScore) //
+                   || isDifferent(sat, student.satScore) //
+                   || isDifferent(liveReg.apScore, student.apScore)
+                   || isDifferent(liveReg.birthDate, student.birthdate)
+                   || isDifferent(liveReg.gender, student.gender)
+                   || isDifferent(liveReg.email, student.stuEmail)
+                   || isDifferent(liveReg.adviserEmail, student.adviserEmail)
+                   || isDifferent(liveReg.campus, student.campus)
+                   || isDifferent(liveReg.admitType, student.admitType)
+                   || isDifferent(liveReg.numTransferCredits, student.trCredits)) {
 
             Log.fine(" *** Transfer Credits: ", student.trCredits, " -> ", liveReg.numTransferCredits);
             Log.fine(" *** Resident:         ", student.resident, " -> ", liveReg.residency);
@@ -349,7 +352,7 @@ public final class CsuLiveRegChecker {
                     final String studentId = liveRegs.getFirst().studentId;
                     Log.warning("ADDING HOLD 14 (RI and CE registrations for same course) FOR STUDENT ", studentId,
                             " FOR COURSE ", courseId);
-                    addFatalHold(cache, studentId, "14", Integer.valueOf(0));
+                    addFatalHold(cache, studentId, "14", ZERO);
                 }
             }
         }
@@ -383,11 +386,11 @@ public final class CsuLiveRegChecker {
             final String sect = live.sectionNum;
             final String courseId = live.courseId;
 
-            if ("M 101".equals(courseId) && sect.charAt(0) == 'L') {
+            if ("M 101".equals(courseId) && (int) sect.charAt(0) == 'L') {
                 // Do not add registration rows for lab sections
                 skip = true;
             } else if (("M 160".equals(courseId) || "M 161".equals(courseId) || "M 261".equals(courseId))
-                    && sect.charAt(0) != '8' && sect.charAt(0) != '4') {
+                       && (int) sect.charAt(0) != '8' && (int) sect.charAt(0) != '4') {
                 // Only add 8** and 4** sections of Calculus
                 skip = true;
             } else {
@@ -467,7 +470,7 @@ public final class CsuLiveRegChecker {
 
             Log.warning("ADDING HOLD 25 (active reg while working on incomplete) FOR STUDENT ", reg.stuId,
                     " FOR COURSE ", reg.course);
-            addFatalHold(cache, reg.stuId, "25", Integer.valueOf(0));
+            addFatalHold(cache, reg.stuId, "25", ZERO);
 
             found = true;
         } else {
@@ -507,7 +510,7 @@ public final class CsuLiveRegChecker {
         }
 
         if (live.registrationStatus != null
-                && !Objects.equals(live.registrationStatus, reg.registrationStatus)) {
+            && !Objects.equals(live.registrationStatus, reg.registrationStatus)) {
             Log.info(" *** STUDENT ", live.studentId, IN_COURSE, live.courseId, " Registration Status: ",
                     reg.registrationStatus, " -> ", live.registrationStatus);
 
@@ -553,7 +556,7 @@ public final class CsuLiveRegChecker {
         if (!foundC) {
             // FIXME: Send an email or log to an exception table
             Log.info(" *** GOT 550 SECTION, NO MPE CREDIT FOR STUDENT ", live.studentId, IN_COURSE, live.courseId);
-            addFatalHold(cache, live.studentId, "27", Integer.valueOf(0));
+            addFatalHold(cache, live.studentId, "27", ZERO);
         }
 
         return foundC;
@@ -577,7 +580,7 @@ public final class CsuLiveRegChecker {
         final String option = makeGradingOption(live);
         final String instrType = makeInstructionType(live);
 
-        final RawStcourse stcourse = new RawStcourse(live.term, // term
+        final RawStcourse reg = new RawStcourse(live.term, // term
                 live.studentId, // stuId
                 live.courseId, // course
                 sect, // sect
@@ -599,14 +602,14 @@ public final class CsuLiveRegChecker {
                 null, // iCounted
                 "N", // ctrlTest
                 null, // deferredFDt
-                Integer.valueOf(0), // bypassTimeout
+                ZERO, // bypassTimeout
                 instrType, // instrType
                 live.registrationStatus, // registrationStatus
                 LocalDate.now(), // lastClassRollDt
                 null, // iTermKey
                 null); // iDeadlineDt
 
-        RawStcourseLogic.INSTANCE.insert(cache, stcourse);
+        RawStcourseLogic.INSTANCE.insert(cache, reg);
 
         final List<RawStcourse> regs = RawStcourseLogic.getActiveForStudent(cache, live.studentId, live.term);
 
@@ -623,19 +626,19 @@ public final class CsuLiveRegChecker {
      * @param active   the active term
      * @throws SQLException if there is an error accessing the database
      */
-    private static void checkForDrops(final Cache cache, final Iterable<RawStcourse> regs,
-                                      final Collection<LiveReg> liveRegs, final TermRec active) throws SQLException {
+    private static void scanForDrops(final Cache cache, final Iterable<RawStcourse> regs,
+                                     final Collection<LiveReg> liveRegs, final TermRec active) throws SQLException {
 
         for (final RawStcourse reg : regs) {
 
             // Leave rows from prior terms and dropped rows in place
             // Make sure the row has course/section data (should be unnecessary)
             if (!reg.termKey.longString.equals(active.term.longString) || "D".equals(reg.openStatus)
-                    || reg.course == null || reg.sect == null) {
+                || reg.course == null || reg.sect == null) {
                 continue;
             }
 
-            checkForDrop(cache, reg, liveRegs);
+            scanForDrop(cache, reg, liveRegs);
         }
     }
 
@@ -648,8 +651,8 @@ public final class CsuLiveRegChecker {
      * @param liveRegs the list of live registration records
      * @throws SQLException if there is an error accessing the database
      */
-    private static void checkForDrop(final Cache cache, final RawStcourse reg,
-                                     final Collection<LiveReg> liveRegs) throws SQLException {
+    private static void scanForDrop(final Cache cache, final RawStcourse reg,
+                                    final Collection<LiveReg> liveRegs) throws SQLException {
 
         boolean searching = true;
         for (final LiveReg live : liveRegs) {
@@ -748,10 +751,10 @@ public final class CsuLiveRegChecker {
 
         final RawStudent student = RawStudentLogic.query(cache, studentId, true);
 
-        if (student != null) {
-            if (severity == null && student.sevAdminHold != null) {
+        if (Objects.nonNull(student)) {
+            if (severity == null && Objects.nonNull(student.sevAdminHold)) {
                 RawStudentLogic.updateHoldSeverity(cache, student.stuId, null);
-            } else if (severity != null && !severity.equals(student.sevAdminHold)) {
+            } else if (Objects.nonNull(severity) && !severity.equals(student.sevAdminHold)) {
                 RawStudentLogic.updateHoldSeverity(cache, student.stuId, severity);
             }
         }

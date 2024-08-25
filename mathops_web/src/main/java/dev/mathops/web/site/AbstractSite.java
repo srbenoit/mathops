@@ -7,6 +7,7 @@ import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
+import dev.mathops.db.logic.ELiveRefreshes;
 import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
@@ -16,11 +17,11 @@ import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
 import dev.mathops.session.SessionResult;
 import dev.mathops.session.login.ShibbolethLoginProcessor;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -136,11 +137,11 @@ public abstract class AbstractSite {
     }
 
     /**
-     * Indicates if this site should do live queries to update student registration data.
+     * Tests the live refresh policy for this site.
      *
-     * @return true to do live registration queries; false to skip
+     * @return the live refresh policy
      */
-    protected abstract boolean doLiveRegQueries();
+    protected abstract ELiveRefreshes getLiveRefreshes();
 
     /**
      * Generates the site title.
@@ -158,8 +159,8 @@ public abstract class AbstractSite {
      * @param type    the site type
      * @param req     the request
      * @param resp    the response
-     * @throws IOException      if there is an error writing the response
-     * @throws SQLException     if there is an error accessing the database
+     * @throws IOException  if there is an error writing the response
+     * @throws SQLException if there is an error accessing the database
      */
     public abstract void doGet(final Cache cache, String subpath, ESiteType type, HttpServletRequest req,
                                HttpServletResponse resp) throws IOException, SQLException;
@@ -173,8 +174,8 @@ public abstract class AbstractSite {
      * @param type    the site type
      * @param req     the request
      * @param resp    the response
-     * @throws IOException      if there is an error writing the response
-     * @throws SQLException     if there is an error accessing the database
+     * @throws IOException  if there is an error writing the response
+     * @throws SQLException if there is an error accessing the database
      */
     public abstract void doPost(final Cache cache, String subpath, ESiteType type,
                                 HttpServletRequest req, HttpServletResponse resp)
@@ -228,7 +229,7 @@ public abstract class AbstractSite {
         resp.setContentLength(reply.length);
         resp.setHeader("Accept-Ranges", "bytes");
         resp.setHeader("Content-Range", "bytes " + start + CoreConstants.DASH + (start + (long) reply.length - 1L)
-                + CoreConstants.SLASH + total);
+                                        + CoreConstants.SLASH + total);
         resp.setLocale(req.getLocale());
 
         // Log.info(" Sending ranged reply: bytes " + start + CoreConstants.DASH
@@ -349,7 +350,7 @@ public abstract class AbstractSite {
                 fieldValues.put(ShibbolethLoginProcessor.CSUID, a1.toString());
 
                 final SessionResult res = mgr.login(cache, new ShibbolethLoginProcessor(), fieldValues,
-                        doLiveRegQueries());
+                        getLiveRefreshes());
 
                 if (res.error != null) {
                     Log.info("Error establishing session: ", res.error);
@@ -443,7 +444,7 @@ public abstract class AbstractSite {
             } else if (lower.endsWith(".png")) {
                 sendReply(req, resp, "image/png", data);
             } else if (lower.endsWith(".jpg")
-                    || lower.endsWith(".jpeg")) {
+                       || lower.endsWith(".jpeg")) {
                 sendReply(req, resp, "image/jpeg", data);
             } else if (lower.endsWith(".gif")) {
                 sendReply(req, resp, "image/gif", data);
@@ -527,7 +528,7 @@ public abstract class AbstractSite {
         } else if (file.endsWith(".png")) {
             sendReply(req, resp, "image/png", data);
         } else if (file.endsWith(".jpg")
-                || file.endsWith(".jpeg")) {
+                   || file.endsWith(".jpeg")) {
             sendReply(req, resp, "image/jpeg", data);
         } else if (file.endsWith(".gif")) {
             sendReply(req, resp, "image/gif", data);

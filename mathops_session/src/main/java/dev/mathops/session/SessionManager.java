@@ -12,6 +12,7 @@ import dev.mathops.commons.parser.xml.INode;
 import dev.mathops.commons.parser.xml.XmlContent;
 import dev.mathops.db.Cache;
 import dev.mathops.db.enums.ERole;
+import dev.mathops.db.logic.ELiveRefreshes;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.login.IAuthenticationMethod;
@@ -114,17 +115,17 @@ public final class SessionManager extends SessionCache implements ISessionManage
     /**
      * Attempts to authenticate a user and create a new session.
      *
-     * @param cache          the data cache
-     * @param authMethod     the authentication method to use (one of the values returned by
-     *                       {@code getAuthenticationMethods})
-     * @param fieldValues    the values of the various fields required by the selected authentication method
-     * @param doLiveRegCheck true to include a live registration check in the process
+     * @param cache         the data cache
+     * @param authMethod    the authentication method to use (one of the values returned by
+     *                      {@code getAuthenticationMethods})
+     * @param fieldValues   the values of the various fields required by the selected authentication method
+     * @param liveRefreshes the live refresh policy
      * @return the result of the login attempt
      * @throws SQLException if there was an error accessing the database
      */
     @Override
     public SessionResult login(final Cache cache, final IAuthenticationMethod authMethod,
-                               final Map<String, String> fieldValues, final boolean doLiveRegCheck)
+                               final Map<String, String> fieldValues, final ELiveRefreshes liveRefreshes)
             throws SQLException {
 
         if (authMethod == null || fieldValues == null) {
@@ -141,7 +142,7 @@ public final class SessionManager extends SessionCache implements ISessionManage
         // Identify the login processor
         if (authMethod instanceof final ILoginProcessor proc) {
             final String sessionId = newSessionId();
-            final LoginResult res = proc.login(cache, sessionId, fieldValues, doLiveRegCheck);
+            final LoginResult res = proc.login(cache, sessionId, fieldValues, liveRefreshes);
             final LiveSessionInfo live = res.session;
 
             if (res.error == null && live != null) {
@@ -185,9 +186,9 @@ public final class SessionManager extends SessionCache implements ISessionManage
      * system (any user with only the STUDENT role). A user acting under the INSTRUCTOR role can set this value to any
      * students enrolled any of the instructor's courses.
      *
-     * @param cache       the data cache
-     * @param secSessionId   the ID of the session whose effective user ID to attempt to change
-     * @param userId the desired effective user ID (could be {@code null})
+     * @param cache        the data cache
+     * @param secSessionId the ID of the session whose effective user ID to attempt to change
+     * @param userId       the desired effective user ID (could be {@code null})
      * @return the result of the user ID selection, which will contain the updated login session information on success;
      *         an error message on failure
      * @throws SQLException if there is an error accessing the database
@@ -390,20 +391,23 @@ public final class SessionManager extends SessionCache implements ISessionManage
         if (sessionId == null) {
             Log.warning("Live session record with null 'id'");
         } else {
-            final String tagStr = elem.getStringAttr("tag");
             long tag;
-            try {
-                tag = Long.parseLong(tagStr);
-            } catch (final NullPointerException | NumberFormatException ex) {
-                Log.warning(ex);
+            final String tagStr = elem.getStringAttr("tag");
+            if (tagStr == null) {
                 tag = 0L;
+            } else {
+                try {
+                    tag = Long.parseLong(tagStr);
+                } catch (final NumberFormatException ex) {
+                    Log.warning(ex);
+                    tag = 0L;
+                }
             }
 
             final String authType = elem.getStringAttr("auth-type");
 
             final String role = elem.getStringAttr("role", null);
-            final LiveSessionInfo sess =
-                    new LiveSessionInfo(sessionId, tag, authType, ERole.fromAbbrev(role));
+            final LiveSessionInfo sess = new LiveSessionInfo(sessionId, tag, authType, ERole.fromAbbrev(role));
 
             final String userId = elem.getStringAttr("user-id");
             final String firstName = elem.getStringAttr("first-name");
@@ -441,8 +445,8 @@ public final class SessionManager extends SessionCache implements ISessionManage
             }
 
             if (!sess.isTimedOut()) {
-                Log.info("Adding session '", sess.loginSessionId,
-                        "' from file load, times out ", sess.getTimeout().toString());
+                Log.info("Adding session '", sess.loginSessionId, "' from file load, times out ",
+                        sess.getTimeout().toString());
                 addUserSession(sess);
             }
         }

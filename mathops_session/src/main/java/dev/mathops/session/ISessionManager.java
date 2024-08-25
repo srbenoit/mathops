@@ -2,6 +2,7 @@ package dev.mathops.session;
 
 import dev.mathops.db.Cache;
 import dev.mathops.db.enums.ERole;
+import dev.mathops.db.logic.ELiveRefreshes;
 import dev.mathops.session.login.IAuthenticationMethod;
 import dev.mathops.session.login.ILoginProcessor;
 
@@ -29,16 +30,16 @@ public interface ISessionManager {
     /**
      * Attempts to authenticate a user and create a new session.
      *
-     * @param cache          the data cache
-     * @param authMethod     the authentication method to use (one of the values returned by
-     *                       {@code getAuthenticationMethods})
-     * @param fieldValues    the values of the various fields required by the selected authentication method
-     * @param doLiveRegCheck true to include a live registration check in the process
+     * @param cache         the data cache
+     * @param authMethod    the authentication method to use (one of the values returned by
+     *                      {@code getAuthenticationMethods})
+     * @param fieldValues   the values of the various fields required by the selected authentication method
+     * @param liveRefreshes the live refresh policy
      * @return the result of the login attempt
      * @throws SQLException if there was an error accessing the database
      */
-    SessionResult login(Cache cache, IAuthenticationMethod authMethod,
-                        Map<String, String> fieldValues, boolean doLiveRegCheck) throws SQLException;
+    SessionResult login(Cache cache, IAuthenticationMethod authMethod, Map<String, String> fieldValues,
+                        ELiveRefreshes liveRefreshes) throws SQLException;
 
     /**
      * Identifies the desired login processor by its type name.
@@ -78,8 +79,7 @@ public interface ISessionManager {
      *         an error message on failure
      * @throws SQLException if there is an error accessing the database
      */
-    SessionResult setEffectiveUserId(Cache cache, String secSessionId, String userId)
-            throws SQLException;
+    SessionResult setEffectiveUserId(Cache cache, String secSessionId, String userId) throws SQLException;
 
     /**
      * Sets the user ID for the session. Restrictions on this method are as for setting the effective user ID, but this
@@ -94,8 +94,7 @@ public interface ISessionManager {
      *         an error message on failure
      * @throws SQLException if there is an error accessing the database
      */
-    SessionResult setUserId(Cache cache, String secSessionId, String userId, ERole newRole)
-            throws SQLException;
+    SessionResult setUserId(Cache cache, String secSessionId, String userId, ERole newRole) throws SQLException;
 
     /**
      * Sets the time offset for the session. Restrictions on this method are as for setting the effective user ID. The

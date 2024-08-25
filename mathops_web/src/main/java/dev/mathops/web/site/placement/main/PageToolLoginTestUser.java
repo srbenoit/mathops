@@ -589,7 +589,7 @@ enum PageToolLoginTestUser {
         final Map<String, String> fields = new HashMap<>(1);
         fields.put(TestStudentLoginProcessor.STU_ID, studentId);
         final SessionResult result = mgr.login(cache,
-                mgr.identifyProcessor(TestStudentLoginProcessor.TYPE), fields, site.doLiveRegQueries());
+                mgr.identifyProcessor(TestStudentLoginProcessor.TYPE), fields, site.getLiveRefreshes());
 
         final ImmutableSessionInfo sess = result.session;
 

@@ -201,7 +201,7 @@ final class PageIndex {
             final Map<String, String> fieldValues = new HashMap<>(3);
             fieldValues.put(AutoLoginProcessor.CSUID, stu);
             final SessionResult sr = SessionManager.getInstance().login(cache, proc, fieldValues,
-                    site.doLiveRegQueries());
+                    site.getLiveRefreshes());
             final ImmutableSessionInfo session = sr.session;
             if (session == null) {
                 Log.info("Student ", stu, " attempting to start ", title, ", can't create login session");

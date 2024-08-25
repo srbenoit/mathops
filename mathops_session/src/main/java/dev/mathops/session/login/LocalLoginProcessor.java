@@ -4,6 +4,7 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.enums.ERole;
+import dev.mathops.db.logic.ELiveRefreshes;
 import dev.mathops.db.old.rawlogic.RawLoginsLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawLogins;
@@ -93,14 +94,14 @@ public final class LocalLoginProcessor implements ILoginProcessor {
      * @param cache          the data cache
      * @param secSessionId   the ID of the new session
      * @param fieldValues    the values provided by the user in the login field
-     * @param doLiveRegCheck true to include a live registration check in the process
+     * @param liveRefreshes the live refresh policy
      * @return the login information, which will contain the session and student information (if login was successful)
      *         or an error message (if login did not succeed) @ throws SQLException if there is an error accessing the
      *         database
      */
     @Override
-    public LoginResult login(final Cache cache, final String secSessionId,
-                             final Map<String, String> fieldValues, final boolean doLiveRegCheck) throws SQLException {
+    public LoginResult login(final Cache cache, final String secSessionId, final Map<String, String> fieldValues,
+                             final ELiveRefreshes liveRefreshes) throws SQLException {
 
         final String username = fieldValues.get(USERNAME);
         final LoginResult result;

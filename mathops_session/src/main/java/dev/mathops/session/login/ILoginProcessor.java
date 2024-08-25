@@ -1,6 +1,7 @@
 package dev.mathops.session.login;
 
 import dev.mathops.db.Cache;
+import dev.mathops.db.logic.ELiveRefreshes;
 
 import java.sql.SQLException;
 import java.util.Map;
@@ -22,5 +23,5 @@ public interface ILoginProcessor extends IAuthenticationMethod {
      * @throws SQLException if there was an error accessing the database
      */
     LoginResult login(Cache cache, String secSessionId, Map<String, String> fieldValues,
-                      boolean doLiveRegCheck) throws SQLException;
+                      ELiveRefreshes liveRefreshes) throws SQLException;
 }

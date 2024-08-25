@@ -7,6 +7,7 @@ import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
 import dev.mathops.db.Cache;
+import dev.mathops.db.logic.ELiveRefreshes;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.old.logic.ELMTutorialStatus;
 import dev.mathops.db.old.logic.HoldsStatus;
@@ -47,14 +48,14 @@ public final class ElmTutorialSite extends AbstractPageSite {
     }
 
     /**
-     * Indicates whether this site should do live queries to update student registration data.
+     * Tests the live refresh policy for this site.
      *
-     * @return true to do live registration queries; false to skip
+     * @return the live refresh policy
      */
     @Override
-    public boolean doLiveRegQueries() {
+    protected ELiveRefreshes getLiveRefreshes() {
 
-        return true;
+        return ELiveRefreshes.ALL;
     }
 
     /**
