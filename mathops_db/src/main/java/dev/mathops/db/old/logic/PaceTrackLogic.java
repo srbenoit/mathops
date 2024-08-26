@@ -220,8 +220,8 @@ public enum PaceTrackLogic {
             // An in-person section: either 116 + 117 with Patrick Orchard, track is E
             track = "E";
         } else if ("007".equals(sect)) {
-            // An in-person section: either 116 + 117 with Will Bromley, track is D
-            track = "D";
+            // An in-person section: either 116 + 117 with Will Bromley, track is D (changed to E on request)
+            track = "E";
         }
 
         return track;
