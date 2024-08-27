@@ -29,13 +29,19 @@ public class RegistrationSimulation {
     }
 
     /**
-     * Adds a section.
+     * Adds sections.
      *
-     * @param section the section to add
+     * @param toAdd the sections to add
      */
-    void addSection(final OfferedSection section) {
+    void addSections(final OfferedSection... toAdd) {
 
-        this.sections.add(section);
+        if (toAdd != null) {
+            for (final OfferedSection section : toAdd) {
+                if (section != null) {
+                    this.sections.add(section);
+                }
+            }
+        }
     }
 
     /**
@@ -49,13 +55,19 @@ public class RegistrationSimulation {
     }
 
     /**
-     * Adds a student.
+     * Adds students.
      *
-     * @param student the student to add
+     * @param toAdd the students to add
      */
-    void addStudent(final EnrollingStudent student) {
+    void addStudents(final EnrollingStudent... toAdd) {
 
-        this.students.add(student);
+        if (toAdd != null) {
+            for (final EnrollingStudent student : toAdd) {
+                if (student != null) {
+                    this.students.add(student);
+                }
+            }
+        }
     }
 
     /**

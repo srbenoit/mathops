@@ -9,6 +9,11 @@ package dev.mathops.app.scheduling;
  * <p>
  * Many students in a simulation could share the same class preferences, so we manage those preferences as a separate
  * object.
+ *
+ * @param id          the student ID
+ * @param minCredits  the minimum number of credits the student wants
+ * @param maxCredits  the maximum number of credits the student wants
+ * @param preferences the student's class preferences
  */
-record EnrollingStudent(String id, int minCredits, int maxCredits, ClassPreferences preferences) {
+record EnrollingStudent(int id, int minCredits, int maxCredits, ClassPreferences preferences) {
 }
