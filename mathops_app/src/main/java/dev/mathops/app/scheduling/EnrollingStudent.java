@@ -15,5 +15,5 @@ package dev.mathops.app.scheduling;
  * @param maxCredits  the maximum number of credits the student wants
  * @param preferences the student's class preferences
  */
-record EnrollingStudent(int id, int minCredits, int maxCredits, ClassPreferences preferences) {
+record EnrollingStudent(int id, int minCredits, int maxCredits, StudentClassPreferences preferences) {
 }

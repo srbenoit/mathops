@@ -1,18 +1,24 @@
 package dev.mathops.app.scheduling;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * A simulation of the Spur first-year Fall semester.
  */
-class SpurFirstYearFall {
+final class SpurFirstYearFall {
 
-    /** A section number. */
-    private static final int SECT1 = 1;
+    /** A class preferences key. */
+    private static final String HEALTH_LIFE_FOOD = "A";
 
-    /** A section number. */
-    private static final int SECT2 = 2;
+    /** A class preferences key. */
+    private static final String LAND_PLANT_ANIMAL = "B";
 
-    /** A section number. */
-    private static final int SECT3 = 3;
+    /** A class preferences key. */
+    private static final String SCIENCE_ENGINEERING = "C";
+
+    /** A class preferences key. */
+    private static final String ENVIRONMENTAL_RES = "D";
 
     /** A number of credits. */
     private static final int CRED1 = 1;
@@ -23,110 +29,66 @@ class SpurFirstYearFall {
     /** A number of credits. */
     private static final int CRED4 = 4;
 
-    /** A number of credits. */
-    private static final int CRED5 = 5;
-
-    /** An hour block. */
-    private static final int HR1 = 1;
-
-    /** An hour block. */
-    private static final int HR2 = 2;
-
-    /** An hour block. */
-    private static final int HR3 = 3;
-
-    /** An hour block. */
-    private static final int HR4 = 4;
-
-    /** An hour block. */
-    private static final int HR5 = 5;
-
-    /** An hour block. */
-    private static final int HR6 = 6;
-
-    /** An hour block. */
-    private static final int HR7 = 7;
-
-    /** An hour block. */
-    private static final int HR8 = 8;
-
-    /** An hour block. */
-    private static final int HR9 = 9;
+    /** A number of hours the facility is open per day. */
+    private static final int HOURS_PER_DAY = 9;
 
     /**
      * Constructs a new {@code SpurFirstYearProgram}.
      */
-    SpurFirstYearFall() {
+    private SpurFirstYearFall() {
 
+        // No action
     }
 
     /**
      * Runs the simulation.
      */
-    void runSimulation() {
+    private static void runSimulation() {
 
-        final RegistrationSimulation regSim = new RegistrationSimulation();
+        // Set up the preferences for each "exploratory studies" track
 
-        final OfferedSection LIFE102_1 = new OfferedSection("LIFE 102", SECT1, 40, CRED3, OfferedSection.MWF, HR3,
-                OfferedSection.WEDNESDAY, HR4, 3);
-        final OfferedSection LIFE102_2 = new OfferedSection("LIFE 102", SECT2, 40, CRED3, OfferedSection.MWF, HR7,
-                OfferedSection.FRIDAY, HR4, 3);
-        final OfferedSection LIFE102_3 = new OfferedSection("LIFE 102", SECT3, 40, CRED3, OfferedSection.TR, HR3,
-                OfferedSection.THURSDAY, HR1, 2);
+        final StudentClassPreferences prefs1 = new StudentClassPreferences(HEALTH_LIFE_FOOD, 13, 17);
+        final StudentClassPreferences prefs2 = new StudentClassPreferences(LAND_PLANT_ANIMAL, 13, 17);
+        final StudentClassPreferences prefs3 = new StudentClassPreferences(SCIENCE_ENGINEERING, 13, 17);
+        final StudentClassPreferences prefs4 = new StudentClassPreferences(ENVIRONMENTAL_RES, 13, 17);
 
-        final OfferedSection MATH112_1 = new OfferedSection("MATH 112", SECT1, 40, CRED3, OfferedSection.MWF, HR2);
-        final OfferedSection MATH112_2 = new OfferedSection("MATH 112", SECT2, 40, CRED3, OfferedSection.MWF, HR8);
-        final OfferedSection MATH112_3 = new OfferedSection("MATH 112", SECT3, 40, CRED3, OfferedSection.TR, HR4);
+        // Set up the student distribution
 
-        final OfferedSection SEMINAR_1 = new OfferedSection("SEMINAR", SECT1, 40, CRED1, OfferedSection.MONDAY, HR4);
-        final OfferedSection SEMINAR_2 = new OfferedSection("SEMINAR", SECT2, 40, CRED1, OfferedSection.MONDAY, HR5);
-        final OfferedSection SEMINAR_3 = new OfferedSection("SEMINAR", SECT3, 40, CRED1, OfferedSection.MONDAY, HR6);
+        final StudentDistribution distribution = new StudentDistribution();
+        distribution.addGroup(prefs1, 0.411);
+        distribution.addGroup(prefs2, 0.142);
+        distribution.addGroup(prefs3, 0.265);
+        distribution.addGroup(prefs4, 0.182);
 
-        final OfferedSection CS150B_1 = new OfferedSection("CS 150B", SECT1, 40, CRED3, OfferedSection.MWF, HR2);
-        final OfferedSection CS150B_2 = new OfferedSection("CS 150B", SECT2, 40, CRED3, OfferedSection.TR, HR5);
+        // Set up the available classrooms and labs
 
-        final OfferedSection IDEA_110_1 = new OfferedSection("IDEA 110", SECT1, 40, CRED3, OfferedSection.MWF, HR1);
-        final OfferedSection HDFS_101_1 = new OfferedSection("HDFS 101", SECT1, 40, CRED3, OfferedSection.MWF, HR9);
-        final OfferedSection AGRI_116_1 = new OfferedSection("AGRI 116", SECT1, 40, CRED3, OfferedSection.MWF, HR3);
-        final OfferedSection AB_111_1 = new OfferedSection("AB 111", SECT1, 40, CRED3, OfferedSection.MWF, HR4);
-        final OfferedSection EHRS_220_1 = new OfferedSection("EHRS 220", SECT1, 40, CRED3, OfferedSection.MWF, HR5);
-        final OfferedSection POLS_131_1 = new OfferedSection("POLS 131", SECT1, 40, CRED3, OfferedSection.MWF, HR6);
-        final OfferedSection AREC_222_1 = new OfferedSection("AREC 222", SECT1, 40, CRED3, OfferedSection.MWF, HR7);
-        final OfferedSection SPCM_100_1 = new OfferedSection("SPCM 100", SECT1, 40, CRED3, OfferedSection.MWF, HR8);
-        final OfferedSection BZ_101_1 = new OfferedSection("BZ 101", SECT1, 40, CRED3, OfferedSection.MWF, HR9);
+        final AvailableClassroom classroom1 = new AvailableClassroom(1, HOURS_PER_DAY, 40);
+        final AvailableClassroom classroom2 = new AvailableClassroom(2, HOURS_PER_DAY, 40);
+        final AvailableLab lab1 = new AvailableLab(100, HOURS_PER_DAY, 20);
 
-        regSim.addSections(LIFE102_1, LIFE102_2, LIFE102_3, MATH112_1, MATH112_2, MATH112_3, SEMINAR_1, SEMINAR_2,
-                SEMINAR_3, CS150B_1, CS150B_2, IDEA_110_1, HDFS_101_1, AGRI_116_1, AB_111_1, EHRS_220_1, POLS_131_1,
-                AREC_222_1, SPCM_100_1, BZ_101_1);
+        // Set up lists of classrooms and labs that are "compatible" with classes
 
-        final ClassPreferences prefsHealthLifeFood = new ClassPreferences();
-        final ClassPreferences prefsLandPlantAnimal = new ClassPreferences();
-        final ClassPreferences prefsScienceEngineering = new ClassPreferences();
-        final ClassPreferences prefsEnvironmental = new ClassPreferences();
-        int stuId = 1;
+        final List<AvailableClassroom> allClassrooms = Arrays.asList(classroom1, classroom2);
+        final List<AvailableLab> allLabs = List.of(lab1);
 
-        for (int i = 0; i < 49; ++i) {
-            final EnrollingStudent stu = new EnrollingStudent(stuId, 13, 17, prefsHealthLifeFood);
-            regSim.addStudents(stu);
-            ++stuId;
-        }
-        for (int i = 0; i < 17; ++i) {
-            final EnrollingStudent stu = new EnrollingStudent(stuId, 13, 17, prefsLandPlantAnimal);
-            regSim.addStudents(stu);
-            ++stuId;
-        }
-        for (int i = 0; i < 32; ++i) {
-            final EnrollingStudent stu = new EnrollingStudent(stuId, 13, 17, prefsScienceEngineering);
-            regSim.addStudents(stu);
-            ++stuId;
-        }
-        for (int i = 0; i < 22; ++i) {
-            final EnrollingStudent stu = new EnrollingStudent(stuId, 13, 17, prefsEnvironmental);
-            regSim.addStudents(stu);
-            ++stuId;
-        }
-        
-        regSim.runRegistration();
+        // Set up the offered course list
+
+        final OfferedCourse LIFE102 = new OfferedCourse("LIFE 102", CRED3, 3, allClassrooms, 3, allLabs);
+        final OfferedCourse MATH112 = new OfferedCourse("MATH 112", CRED4, 3, allClassrooms);
+        final OfferedCourse SEMINAR = new OfferedCourse("SEMINAR", CRED1, 1, allClassrooms);
+        final OfferedCourse CS150B = new OfferedCourse("CS 150B", CRED3, 3, allClassrooms);
+        final OfferedCourse IDEA_110 = new OfferedCourse("IDEA 110", CRED3, 3, allClassrooms);
+        final OfferedCourse HDFS_101 = new OfferedCourse("HDFS 101", CRED3, 3, allClassrooms);
+        final OfferedCourse AGRI_116 = new OfferedCourse("AGRI 116", CRED3, 3, allClassrooms);
+        final OfferedCourse AB_111 = new OfferedCourse("AB 111", CRED3, 3, allClassrooms);
+        final OfferedCourse EHRS_220 = new OfferedCourse("EHRS 220", CRED3, 3, allClassrooms);
+        final OfferedCourse POLS_131 = new OfferedCourse("POLS 131", CRED3, 3, allClassrooms);
+        final OfferedCourse AREC_222 = new OfferedCourse("AREC 222", CRED3, 3, allClassrooms);
+        final OfferedCourse SPCM_100 = new OfferedCourse("SPCM 100", CRED3, 3, allClassrooms);
+        final OfferedCourse BZ_101 = new OfferedCourse("BZ 101", CRED3, 3, allClassrooms);
+
+        // SIMULATION PART 1 - DETERMINE MAXIMUM POSSIBLE POPULATION SIZE
+
     }
 
     /**
@@ -136,6 +98,6 @@ class SpurFirstYearFall {
      */
     public static void main(final String... args) {
 
-        new SpurFirstYearFall().runSimulation();
+        runSimulation();
     }
 }

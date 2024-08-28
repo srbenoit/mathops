@@ -110,7 +110,7 @@ public class RegistrationSimulation {
      */
     private void allowStudentToRegister(final EnrollingStudent stu) {
 
-        final ClassPreferences prefs = stu.preferences();
+        final StudentClassPreferences prefs = stu.preferences();
 
         // For every offered section (that is not already full), define a preference level
         final List<OfferedSection> availableSections = new ArrayList<>(20);

@@ -1,5 +1,6 @@
 package dev.mathops.app.canvas;
 
+import dev.mathops.app.canvas.calls.ApiV1Sections;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
@@ -1044,7 +1045,16 @@ final class MainWindow extends JFrame implements ActionListener {
                 this.content.revalidate();
                 repaint();
             }
-        }
+        } else if ("Sections".equals(category)) {
+            if ("List course sections".equals(action)) {
+                final ApiV1Sections pane = new ApiV1Sections(this.api);
 
+                this.content.add(pane, StackedBorderLayout.CENTER);
+                this.currentCenter = pane;
+                this.content.invalidate();
+                this.content.revalidate();
+                repaint();
+            }
+        }
     }
 }

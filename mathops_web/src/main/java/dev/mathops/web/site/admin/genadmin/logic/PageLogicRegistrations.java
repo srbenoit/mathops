@@ -147,6 +147,32 @@ public enum PageLogicRegistrations {
                                             + " and pace track = " + track);
                     }
 
+                    // Check for inconsistent course types
+                    boolean has001 = false;
+                    boolean has002 = false;
+                    boolean hasF2F = false;
+                    for (final RawStcourse reg : inPaceRegs) {
+                        if ("001".equals(reg.sect)) {
+                            has001 = true;
+                        } else if ("002".equals(reg.sect)) {
+                            has002 = true;
+                        } else if ("003".equals(reg.sect) || "004".equals(reg.sect) || "005".equals(reg.sect)
+                                   || "006".equals(reg.sect) || "007".equals(reg.sect)) {
+                            hasF2F = true;
+                        }
+                    }
+
+                    if (has001) {
+                        if (has002) {
+                            regs.warnings().add("Student registered on both '001' and '002' sections.");
+                        }
+                        if (hasF2F) {
+                            regs.warnings().add("Student registered on both '001' and face-to-face sections.");
+                        }
+                    } else if (has002 && hasF2F) {
+                        regs.warnings().add("Student registered on both '002' and face-to-face sections.");
+                    }
+
                     final String pacingStructure = PaceTrackLogic.determinePacingStructure(cache, stuId, inPaceRegs,
                             regs.warnings());
                     if (pacingStructure == null) {
