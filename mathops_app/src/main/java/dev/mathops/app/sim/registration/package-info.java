@@ -35,4 +35,4 @@
  * statistical parameters like mean and standard deviation to support stochastic modeling of student registration
  * choices.
  */
-package dev.mathops.app.scheduling;
+package dev.mathops.app.sim.registration;

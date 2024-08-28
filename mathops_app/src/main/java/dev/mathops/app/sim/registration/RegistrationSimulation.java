@@ -1,4 +1,4 @@
-package dev.mathops.app.scheduling;
+package dev.mathops.app.sim.registration;
 
 import java.util.ArrayList;
 import java.util.Collection;

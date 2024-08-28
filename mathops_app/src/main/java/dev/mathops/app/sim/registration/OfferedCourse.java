@@ -1,4 +1,4 @@
-package dev.mathops.app.scheduling;
+package dev.mathops.app.sim.registration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +25,9 @@ class OfferedCourse {
 
     /** The list of compatible labs. */
     final List<AvailableLab> compatibleLabs;
+
+    /** The total number of seats needed to accommodate a certain student population. */
+    private int numSeatsNeeded;
 
     /**
      * Constructs an {@code OfferedCourse} that has a lab component.
@@ -65,6 +68,34 @@ class OfferedCourse {
         this.compatibleClassrooms = new ArrayList<>(theCompatibleClassrooms);
         this.labContactHours = 0;
         this.compatibleLabs = new ArrayList<>(0);
+    }
+
+    /**
+     * Sets the number of seats needed in this class.
+     *
+     * @param theNumSeatsNeeded the number of seats needed
+     */
+    void setNumSeatsNeeded(final int theNumSeatsNeeded) {
+
+        this.numSeatsNeeded = theNumSeatsNeeded;
+    }
+
+    /**
+     * Increments the number of seats needed in a course.
+     */
+    void incrementNumSeatsNeeded() {
+
+        ++this.numSeatsNeeded;
+    }
+
+    /**
+     * Gets the number of seats needed in this class.
+     *
+     * @return the number of seats needed
+     */
+    int getNumSeatsNeeded() {
+
+        return this.numSeatsNeeded;
     }
 }
 

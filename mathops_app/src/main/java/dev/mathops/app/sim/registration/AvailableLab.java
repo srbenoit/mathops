@@ -1,4 +1,4 @@
-package dev.mathops.app.scheduling;
+package dev.mathops.app.sim.registration;
 
 /**
  * An available lab.

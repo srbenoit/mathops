@@ -1,4 +1,4 @@
-package dev.mathops.app.scheduling;
+package dev.mathops.app.sim.registration;
 
 import java.util.Arrays;
 import java.util.List;
@@ -77,17 +77,21 @@ final class SpurFirstYearFall {
         final OfferedCourse MATH112 = new OfferedCourse("MATH 112", CRED4, 3, allClassrooms);
         final OfferedCourse SEMINAR = new OfferedCourse("SEMINAR", CRED1, 1, allClassrooms);
         final OfferedCourse CS150B = new OfferedCourse("CS 150B", CRED3, 3, allClassrooms);
-        final OfferedCourse IDEA_110 = new OfferedCourse("IDEA 110", CRED3, 3, allClassrooms);
-        final OfferedCourse HDFS_101 = new OfferedCourse("HDFS 101", CRED3, 3, allClassrooms);
-        final OfferedCourse AGRI_116 = new OfferedCourse("AGRI 116", CRED3, 3, allClassrooms);
-        final OfferedCourse AB_111 = new OfferedCourse("AB 111", CRED3, 3, allClassrooms);
-        final OfferedCourse EHRS_220 = new OfferedCourse("EHRS 220", CRED3, 3, allClassrooms);
-        final OfferedCourse POLS_131 = new OfferedCourse("POLS 131", CRED3, 3, allClassrooms);
-        final OfferedCourse AREC_222 = new OfferedCourse("AREC 222", CRED3, 3, allClassrooms);
-        final OfferedCourse SPCM_100 = new OfferedCourse("SPCM 100", CRED3, 3, allClassrooms);
-        final OfferedCourse BZ_101 = new OfferedCourse("BZ 101", CRED3, 3, allClassrooms);
+        final OfferedCourse IDEA110 = new OfferedCourse("IDEA 110", CRED3, 3, allClassrooms);
+        final OfferedCourse HDFS101 = new OfferedCourse("HDFS 101", CRED3, 3, allClassrooms);
+        final OfferedCourse AGRI116 = new OfferedCourse("AGRI 116", CRED3, 3, allClassrooms);
+        final OfferedCourse AB111 = new OfferedCourse("AB 111", CRED3, 3, allClassrooms);
+        final OfferedCourse EHRS220 = new OfferedCourse("EHRS 220", CRED3, 3, allClassrooms);
+        final OfferedCourse POLS131 = new OfferedCourse("POLS 131", CRED3, 3, allClassrooms);
+        final OfferedCourse AREC222 = new OfferedCourse("AREC 222", CRED3, 3, allClassrooms);
+        final OfferedCourse SPCM100 = new OfferedCourse("SPCM 100", CRED3, 3, allClassrooms);
+        final OfferedCourse BZ101 = new OfferedCourse("BZ 101", CRED3, 3, allClassrooms);
+        final List<OfferedCourse> courses = Arrays.asList(LIFE102, MATH112, SEMINAR, CS150B, IDEA110, HDFS101,
+                AGRI116, AB111, EHRS220, POLS131, AREC222, SPCM100, BZ101);
 
-        // SIMULATION PART 1 - DETERMINE MAXIMUM POSSIBLE POPULATION SIZE
+        // SIMULATION PART 1 - DETERMINE MAXIMUM POSSIBLE POPULATION SIZE THAT DOES NOT EXCEED TOTAL CLASSROOM SPACE
+
+        final int maxPopulation = DeterminePopulationSize.compute(courses, distribution, allClassrooms, allLabs);
 
     }
 

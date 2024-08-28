@@ -1,4 +1,4 @@
-package dev.mathops.app.scheduling;
+package dev.mathops.app.sim.registration;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -104,5 +104,15 @@ final class StudentPopulation {
         }
 
         return total;
+    }
+
+    /**
+     * Gets a copy of the population's map from class preferences to the number of students with those preferences.
+     *
+     * @return the population map
+     */
+    Map<StudentClassPreferences, Integer> getCounts() {
+
+        return new HashMap<>(this.counts);
     }
 }

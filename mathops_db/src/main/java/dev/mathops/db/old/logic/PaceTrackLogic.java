@@ -165,7 +165,7 @@ public enum PaceTrackLogic {
         // Default track is "A" (used for all 3-course, 4-course, and 5-course pace students)
         String track = "A";
 
-        if ("001".equals(sect)) {
+        if ("001".equals(sect) || "801".equals(sect) || "809".equals(sect)) {
             // In Fall/Spring, 001 is the normal full-semester online section
             if (pace == 1) {
                 // Students whose single course is MATH 117 or 124 are track A, the others are track B

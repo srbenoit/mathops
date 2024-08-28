@@ -1,4 +1,4 @@
-package dev.mathops.app.scheduling;
+package dev.mathops.app.sim.registration;
 
 /**
  * A student who wants to enroll in classes.  Given the list of classes available in a semester, each student will have
