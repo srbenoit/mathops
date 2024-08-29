@@ -99,6 +99,72 @@ final class OfferedCourse implements Comparable<OfferedCourse> {
     }
 
     /**
+     * Tests whether a classroom is compatible with the course.
+     *
+     * @param classroom the classroom
+     * @return true if the classroom is "compatible" with this course
+     */
+    boolean isClassroomCompatible(final AvailableClassroom classroom) {
+
+        return this.compatibleClassrooms.contains(classroom);
+    }
+
+    /**
+     * Tests whether a all classrooms in a group are compatible with the course.
+     *
+     * @param group the classroom group
+     * @return true if all rooms in the classroom group are "compatible" with this course
+     */
+    boolean isClassroomGroupCompatible(final AvailableClassroomGroup group) {
+
+        boolean compatible = true;
+
+        final List<AvailableClassroom> classrooms = group.getClassrooms();
+
+        for (final AvailableClassroom classroom : classrooms) {
+            if (!isClassroomCompatible(classroom)) {
+                compatible = false;
+                break;
+            }
+        }
+
+        return compatible;
+    }
+
+    /**
+     * Tests whether a lab is compatible with the course.
+     *
+     * @param lab the lab
+     * @return true if the lab is "compatible" with this course
+     */
+    boolean isLabCompatible(final AvailableLab lab) {
+
+        return this.compatibleLabs.contains(lab);
+    }
+
+    /**
+     * Tests whether a all labs in a group are compatible with the course.
+     *
+     * @param group the lab group
+     * @return true if all rooms in the lab group are "compatible" with this course
+     */
+    boolean isLabGroupCompatible(final AvailableLabGroup group) {
+
+        boolean compatible = true;
+
+        final List<AvailableLab> labs = group.getLabs();
+
+        for (final AvailableLab lab : labs) {
+            if (!isLabCompatible(lab)) {
+                compatible = false;
+                break;
+            }
+        }
+
+        return compatible;
+    }
+
+    /**
      * Computes a hash code for the object.
      *
      * @return the hash code
