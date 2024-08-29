@@ -64,7 +64,7 @@ final class SpurFirstYearFall {
 
         final AvailableClassroom classroom1 = new AvailableClassroom(1, HOURS_PER_DAY, 40);
         final AvailableClassroom classroom2 = new AvailableClassroom(2, HOURS_PER_DAY, 40);
-        final AvailableLab lab1 = new AvailableLab(100, HOURS_PER_DAY, 20);
+        final AvailableLab lab1 = new AvailableLab(100, HOURS_PER_DAY, 26);
 
         // Set up lists of classrooms and labs that are "compatible" with classes
 
@@ -91,7 +91,7 @@ final class SpurFirstYearFall {
 
         // SIMULATION PART 1 - DETERMINE MAXIMUM POSSIBLE POPULATION SIZE THAT DOES NOT EXCEED TOTAL CLASSROOM SPACE
 
-        final int maxPopulation = DeterminePopulationSize.compute(courses, distribution, allClassrooms, allLabs);
+        final int maxPopulation = ComputePopulationSize.compute(courses, distribution, allClassrooms, allLabs);
 
     }
 

@@ -6,9 +6,9 @@ import java.util.List;
 /**
  * An offered course.
  */
-class OfferedCourse {
+final class OfferedCourse implements Comparable<OfferedCourse> {
 
-    /** The course ID. */
+    /** The unique course ID. */
     final String courseId;
 
     /** The number of credits. */
@@ -96,6 +96,52 @@ class OfferedCourse {
     int getNumSeatsNeeded() {
 
         return this.numSeatsNeeded;
+    }
+
+    /**
+     * Computes a hash code for the object.
+     *
+     * @return the hash code
+     */
+    public int hashCode() {
+
+        return this.courseId.hashCode();
+    }
+
+    /**
+     * Tests whether this object is equal to another.  Equality of this class is tested only on equality of the unique
+     * course ID.
+     *
+     * @param obj the other object
+     * @return true if this object is equal
+     */
+    public boolean equals(final Object obj) {
+
+        final boolean equal;
+
+        if (obj == this) {
+            equal = true;
+        } else if (obj instanceof final OfferedCourse course) {
+            equal = this.courseId.equals(course.courseId);
+        } else {
+            equal = false;
+        }
+
+        return equal;
+    }
+
+    /**
+     * Compares this object to another for order.  Order comparisons are done on unique key strings.
+     *
+     * @param o the object to be compared
+     * @return 0 if the argument is equal to this object; a value less than 0 if this object's key is lexicographically
+     *         less than the argument's key; and a value greater than 0 if this object's key is lexicographically
+     *         greater than the argument's key
+     */
+    @Override
+    public int compareTo(final OfferedCourse o) {
+
+        return this.courseId.compareTo(o.courseId);
     }
 }
 

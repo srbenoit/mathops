@@ -1,5 +1,9 @@
 package dev.mathops.app.sim.registration;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 /**
  * A student who wants to enroll in classes.  Given the list of classes available in a semester, each student will have
  * some target number of credits, and some preference level for each class.  We can then simulate their registration
@@ -9,11 +13,31 @@ package dev.mathops.app.sim.registration;
  * <p>
  * Many students in a simulation could share the same class preferences, so we manage those preferences as a separate
  * object.
- *
- * @param id          the student ID
- * @param minCredits  the minimum number of credits the student wants
- * @param maxCredits  the maximum number of credits the student wants
- * @param preferences the student's class preferences
  */
-record EnrollingStudent(int id, int minCredits, int maxCredits, StudentClassPreferences preferences) {
+class EnrollingStudent {
+
+    /** The unique student ID. */
+    final int id;
+
+    /** The student's class preferences. */
+    final StudentClassPreferences preferences;
+
+    /** The list of courses for which the student has registered. */
+    final List<OfferedCourse> courses;
+
+    /**
+     * Constructs a new {@code EnrollingStudent}.
+     *
+     * @param theId          the student ID
+     * @param thePreferences the student's class preferences
+     * @param theCourses     the list of courses for which the student is enrolling
+     */
+    EnrollingStudent(final int theId, final StudentClassPreferences thePreferences,
+                     final Collection<OfferedCourse> theCourses) {
+
+        this.id = theId;
+        this.preferences = thePreferences;
+        this.courses = new ArrayList<>(theCourses);
+    }
+
 }

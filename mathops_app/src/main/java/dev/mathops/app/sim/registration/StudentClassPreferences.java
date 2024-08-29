@@ -2,6 +2,8 @@ package dev.mathops.app.sim.registration;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
+import java.util.random.RandomGenerator;
 
 /**
  * A container for a student's preferences with respect to classes taken.  Each class offered has a "desirability" value
@@ -19,7 +21,7 @@ final class StudentClassPreferences implements Comparable<StudentClassPreference
     final int maxCredits;
 
     /** A map from course ID to preference level. */
-    private final Map<String, Double> preferences;
+    private final Map<OfferedCourse, Double> preferences;
 
     /**
      * Constructs a new {@code StudentClassPreferences}.
@@ -44,7 +46,7 @@ final class StudentClassPreferences implements Comparable<StudentClassPreference
      * @param course     the course ID
      * @param preference the preference value
      */
-    void setPreference(final String course, final double preference) {
+    void setPreference(final OfferedCourse course, final double preference) {
 
         final double clampUpperBound = Math.min(preference, 1.0);
         final double clampLowerBound = Math.max(clampUpperBound, 0.0);
@@ -59,11 +61,49 @@ final class StudentClassPreferences implements Comparable<StudentClassPreference
      * @param course the course ID
      * @return the preference value (0 if the course was not found)
      */
-    double getPreference(final String course) {
+    double getPreference(final OfferedCourse course) {
 
         final Double prefObj = this.preferences.get(course);
 
         return prefObj == null ? 0.0 : prefObj.doubleValue();
+    }
+
+    /**
+     * Randomly selects a course with probability proportional to the course's preference value.
+     *
+     * @param rnd a random number generator
+     * @return the selected {@code OfferedCourse}
+     */
+    OfferedCourse pick(final RandomGenerator rnd) {
+
+        double total = 0.0;
+        for (final Double value : this.preferences.values()) {
+            total += value.doubleValue();
+        }
+
+        OfferedCourse result = null;
+
+        if (total > 0.0) {
+            final double choice = rnd.nextDouble(total);
+
+            double soFar = 0.0;
+            for (final Map.Entry<OfferedCourse, Double> entry : this.preferences.entrySet()) {
+                if (result == null) {
+                    // Ensure a choice gets made in case "choice" is right at upper bound and round-off in additions
+                    // below result in "soFar" never making it to "choice".
+                    result = entry.getKey();
+                }
+                final double step = entry.getValue().doubleValue();
+                if (soFar + step >= choice) {
+                    result = entry.getKey();
+                    break;
+                }
+
+                soFar += step;
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -107,7 +147,7 @@ final class StudentClassPreferences implements Comparable<StudentClassPreference
      *         greater than the argument's key
      */
     @Override
-    public int compareTo(StudentClassPreferences o) {
+    public int compareTo(final StudentClassPreferences o) {
 
         return this.key.compareTo(o.key);
     }
