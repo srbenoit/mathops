@@ -22,5 +22,6 @@ enum ComputeSectionRoomAssignments {
                        final List<AvailableClassroom> allClassrooms, final List<AvailableLab> allLabs) {
 
         // TODO:
+        return 1;
     }
 }
