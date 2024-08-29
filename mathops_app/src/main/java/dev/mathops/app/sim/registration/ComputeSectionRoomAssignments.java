@@ -28,6 +28,10 @@ enum ComputeSectionRoomAssignments {
     static int compute(final Collection<OfferedCourse> courses, final List<AvailableClassroom> allClassrooms,
                        final List<AvailableLab> allLabs) {
 
+        for (final OfferedCourse course : courses) {
+            course.clearAssignedSections();
+        }
+
         initializeClassroomsAndLabs(allClassrooms, allLabs);
 
         final List<OfferedCourse> toBeAssignedClassrooms = makeListOfCoursesToBeAssignedClassrooms(courses);
@@ -36,7 +40,22 @@ enum ComputeSectionRoomAssignments {
         final int classroomResult = assignClassrooms(toBeAssignedClassrooms, allClassrooms);
         final int labResult = classroomResult < 0 ? -1 : assignLabs(toBeAssignedLabs, allLabs);
 
-        return Math.min(classroomResult, labResult);
+        final int result = Math.min(classroomResult, labResult);
+
+        if (result >= 0) {
+            for (final AvailableClassroom classroom : allClassrooms) {
+                for (final AssignedSection section : classroom.getAssignedSections()) {
+                    section.course.addAssignedClassSection(section);
+                }
+            }
+            for (final AvailableLab labs : allLabs) {
+                for (final AssignedSection section : labs.getAssignedSections()) {
+                    section.course.addAssignedLabSection(section);
+                }
+            }
+        }
+
+        return result;
     }
 
     /**

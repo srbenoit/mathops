@@ -13,16 +13,16 @@ import java.util.List;
 final class SpurFirstYearFall {
 
     /** A class preferences key. */
-    private static final String HEALTH_LIFE_FOOD = "A";
+    private static final String HEALTH_LIFE_FOOD = "HEALTH_LIFE_FOOD";
 
     /** A class preferences key. */
-    private static final String LAND_PLANT_ANIMAL = "B";
+    private static final String LAND_PLANT_ANIMAL = "LAND_PLANT_ANIMAL";
 
     /** A class preferences key. */
-    private static final String SCIENCE_ENGINEERING = "C";
+    private static final String SCIENCE_ENGINEERING = "SCIENCE_ENGINEERING";
 
     /** A class preferences key. */
-    private static final String ENVIRONMENTAL_RES = "D";
+    private static final String ENVIRONMENTAL_RES = "ENVIRONMENTAL_RES";
 
     /** A number of credits. */
     private static final int CRED1 = 1;
@@ -65,19 +65,19 @@ final class SpurFirstYearFall {
 
         // Set up the offered course list
 
-        final OfferedCourse SEMINAR = new OfferedCourse("SEMINAR", CRED1, 1, allClassrooms);
-        final OfferedCourse LIFE102 = new OfferedCourse("LIFE 102", CRED3, 3, allClassrooms, 3, allLabs);
-        final OfferedCourse MATH112 = new OfferedCourse("MATH 112", CRED4, 3, allClassrooms);
-        final OfferedCourse CS150B = new OfferedCourse("CS 150B", CRED3, 3, allClassrooms);
-        final OfferedCourse IDEA110 = new OfferedCourse("IDEA 110", CRED3, 3, allClassrooms);
-        final OfferedCourse HDFS101 = new OfferedCourse("HDFS 101", CRED3, 3, allClassrooms);
-        final OfferedCourse AGRI116 = new OfferedCourse("AGRI 116", CRED3, 3, allClassrooms);
-        final OfferedCourse AB111 = new OfferedCourse("AB 111", CRED3, 3, allClassrooms);
-        final OfferedCourse EHRS220 = new OfferedCourse("EHRS 220", CRED3, 3, allClassrooms);
-        final OfferedCourse POLS131 = new OfferedCourse("POLS 131", CRED3, 3, allClassrooms);
-        final OfferedCourse AREC222 = new OfferedCourse("AREC 222", CRED3, 3, allClassrooms);
-        final OfferedCourse SPCM100 = new OfferedCourse("SPCM 100", CRED3, 3, allClassrooms);
-        final OfferedCourse BZ101 = new OfferedCourse("BZ 101", CRED3, 3, allClassrooms);
+        final OfferedCourse SEMINAR = new OfferedCourse("SEMINAR", CRED1, true, 1, allClassrooms);
+        final OfferedCourse LIFE102 = new OfferedCourse("LIFE 102", CRED3, false, 3, allClassrooms, 3, allLabs);
+        final OfferedCourse MATH112 = new OfferedCourse("MATH 112", CRED4, false, 3, allClassrooms);
+        final OfferedCourse CS150B = new OfferedCourse("CS 150B", CRED3, false, 3, allClassrooms);
+        final OfferedCourse IDEA110 = new OfferedCourse("IDEA 110", CRED3, false, 3, allClassrooms);
+        final OfferedCourse HDFS101 = new OfferedCourse("HDFS 101", CRED3, false, 3, allClassrooms);
+        final OfferedCourse AGRI116 = new OfferedCourse("AGRI 116", CRED3, false, 3, allClassrooms);
+        final OfferedCourse AB111 = new OfferedCourse("AB 111", CRED3, false, 3, allClassrooms);
+        final OfferedCourse EHRS220 = new OfferedCourse("EHRS 220", CRED3, false, 3, allClassrooms);
+        final OfferedCourse POLS131 = new OfferedCourse("POLS 131", CRED3, false, 3, allClassrooms);
+        final OfferedCourse AREC222 = new OfferedCourse("AREC 222", CRED3, false, 3, allClassrooms);
+        final OfferedCourse SPCM100 = new OfferedCourse("SPCM 100", CRED3, false, 3, allClassrooms);
+        final OfferedCourse BZ101 = new OfferedCourse("BZ 101", CRED3, false, 3, allClassrooms);
         final List<OfferedCourse> immutableCourses = Arrays.asList(LIFE102, MATH112, SEMINAR, CS150B, IDEA110,
                 HDFS101, AGRI116, AB111, EHRS220, POLS131, AREC222, SPCM100, BZ101);
         final Collection<OfferedCourse> courses = new ArrayList<>(immutableCourses);

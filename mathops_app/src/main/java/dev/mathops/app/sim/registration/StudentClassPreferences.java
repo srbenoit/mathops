@@ -1,10 +1,7 @@
 package dev.mathops.app.sim.registration;
 
-import dev.mathops.commons.log.Log;
-
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.random.RandomGenerator;
 
 /**
