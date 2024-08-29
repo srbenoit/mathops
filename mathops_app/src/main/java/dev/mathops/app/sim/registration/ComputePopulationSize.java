@@ -26,7 +26,7 @@ enum ComputePopulationSize {
      * @param allLabs             the list of available labs
      * @return the maximum population size
      */
-    static int compute(final List<OfferedCourse> courses, final StudentDistribution studentDistribution,
+    static int compute(final Collection<OfferedCourse> courses, final StudentDistribution studentDistribution,
                        final List<AvailableClassroom> allClassrooms, final List<AvailableLab> allLabs) {
 
         int pop = 0;
@@ -35,9 +35,14 @@ enum ComputePopulationSize {
 
         while (hoursFree >= 0) {
             ++pop;
-            final StudentPopulation population = new StudentPopulation(studentDistribution, 1);
-            final List<EnrollingStudent> students = simulateRegistrations(courses, population, allClassrooms, allLabs);
+            final StudentPopulation population = new StudentPopulation(studentDistribution, pop);
+            final List<EnrollingStudent> students = simulateRegistrations(courses, population);
 
+            hoursFree = ComputeSectionRoomAssignments.compute(courses, allClassrooms, allLabs);
+
+            if (hoursFree >= 0) {
+                Log.info("Successfully modeled a population of " + pop + " students.");
+            }
         }
 
         --pop;
@@ -50,16 +55,12 @@ enum ComputePopulationSize {
      * objects will have the number of seats required filled in, and there will be a list of student schedules, each
      * with a list of courses populated.
      *
-     * @param courses       the set of offered courses
-     * @param population    the student population
-     * @param allClassrooms the set of all available classrooms
-     * @param allLabs       the set of all available labs
+     * @param courses    the set of offered courses
+     * @param population the student population
      * @return a list of enrolling students, each with a list of selected courses
      */
     private static List<EnrollingStudent> simulateRegistrations(final Collection<OfferedCourse> courses,
-                                                                final StudentPopulation population,
-                                                                final List<AvailableClassroom> allClassrooms,
-                                                                final List<AvailableLab> allLabs) {
+                                                                final StudentPopulation population) {
 
         final List<EnrollingStudent> enrollingStudents = new ArrayList<>(200);
 
@@ -115,6 +116,7 @@ enum ComputePopulationSize {
         int numTries = 0;
         for (int i = 0; i < 1000; ++i) {
             final OfferedCourse selected = classPreferences.pick(rnd);
+
             if (!result.contains(selected) && courses.contains(selected)) {
 
                 final int credits = selected.numCredits;
