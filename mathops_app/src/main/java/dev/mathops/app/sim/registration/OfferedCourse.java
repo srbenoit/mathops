@@ -1,5 +1,10 @@
 package dev.mathops.app.sim.registration;
 
+import dev.mathops.app.sim.registration.rooms.AvailableClassroomGroup;
+import dev.mathops.app.sim.registration.rooms.AvailableClassroomOld;
+import dev.mathops.app.sim.registration.rooms.AvailableLab;
+import dev.mathops.app.sim.registration.rooms.AvailableLabGroup;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +26,7 @@ final class OfferedCourse implements Comparable<OfferedCourse> {
     final int classContactHours;
 
     /** The list of compatible classrooms. */
-    private final List<AvailableClassroom> compatibleClassrooms;
+    private final List<AvailableClassroomOld> compatibleClassrooms;
 
     /** The number of contact hours each week in a lab. */
     final int labContactHours;
@@ -50,7 +55,7 @@ final class OfferedCourse implements Comparable<OfferedCourse> {
      * @param theCompatibleLabs       the list of compatible labs
      */
     OfferedCourse(final String theCourseId, final int theNumCredits, final boolean isMandatory,
-                  final int theClassContactHours, final List<AvailableClassroom> theCompatibleClassrooms,
+                  final int theClassContactHours, final List<AvailableClassroomOld> theCompatibleClassrooms,
                   final int theLabContactHours, final List<AvailableLab> theCompatibleLabs) {
 
         this.courseId = theCourseId;
@@ -75,7 +80,7 @@ final class OfferedCourse implements Comparable<OfferedCourse> {
      * @param theCompatibleClassrooms the list of compatible classrooms
      */
     OfferedCourse(final String theCourseId, final int theNumCredits, final boolean isMandatory,
-                  final int theClassContactHours, final List<AvailableClassroom> theCompatibleClassrooms) {
+                  final int theClassContactHours, final List<AvailableClassroomOld> theCompatibleClassrooms) {
 
         this.courseId = theCourseId;
         this.numCredits = theNumCredits;
@@ -121,7 +126,7 @@ final class OfferedCourse implements Comparable<OfferedCourse> {
      * @param classroom the classroom
      * @return true if the classroom is "compatible" with this course
      */
-    boolean isClassroomCompatible(final AvailableClassroom classroom) {
+    boolean isClassroomCompatible(final AvailableClassroomOld classroom) {
 
         return this.compatibleClassrooms.contains(classroom);
     }
@@ -136,9 +141,9 @@ final class OfferedCourse implements Comparable<OfferedCourse> {
 
         boolean compatible = true;
 
-        final List<AvailableClassroom> classrooms = group.getClassrooms();
+        final List<AvailableClassroomOld> classrooms = group.getClassrooms();
 
-        for (final AvailableClassroom classroom : classrooms) {
+        for (final AvailableClassroomOld classroom : classrooms) {
             if (!isClassroomCompatible(classroom)) {
                 compatible = false;
                 break;
@@ -207,7 +212,7 @@ final class OfferedCourse implements Comparable<OfferedCourse> {
      */
     void addAssignedLabSection(final AssignedSection section) {
 
-        this.assignedClassSections.add(section);
+        this.assignedLabSections.add(section);
     }
 
     /**

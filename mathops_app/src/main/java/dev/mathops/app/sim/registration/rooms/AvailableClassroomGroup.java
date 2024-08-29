@@ -1,4 +1,4 @@
-package dev.mathops.app.sim.registration;
+package dev.mathops.app.sim.registration.rooms;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,20 +7,20 @@ import java.util.List;
  * A possible group of multiple classrooms. This class implements {@code Comparable&lt;AvailableClassroomGroup&gt;},
  * with the ordering based on total capacity of all classrooms in the group.
  */
-final class AvailableClassroomGroup implements Comparable<AvailableClassroomGroup> {
+public final class AvailableClassroomGroup implements Comparable<AvailableClassroomGroup> {
 
     /** The classrooms in the group (at least 2). */
-    final List<AvailableClassroom> classrooms;
+    final List<AvailableClassroomOld> classrooms;
 
     /** The total seating capacity. */
-    final int totalCapacity;
+    public final int totalCapacity;
 
     /**
      * Constructs a new {@code AvailableClassroomGroup}.
      *
      * @param theClassrooms the classrooms in the group
      */
-    AvailableClassroomGroup(final AvailableClassroom... theClassrooms) {
+    public AvailableClassroomGroup(final AvailableClassroomOld... theClassrooms) {
 
         if (theClassrooms == null || theClassrooms.length < 2) {
             throw new IllegalArgumentException("There must be at least 2 classrooms specified for a group");
@@ -29,7 +29,7 @@ final class AvailableClassroomGroup implements Comparable<AvailableClassroomGrou
         int total = 0;
 
         this.classrooms = new ArrayList<>(theClassrooms.length);
-        for (final AvailableClassroom classroom : theClassrooms) {
+        for (final AvailableClassroomOld classroom : theClassrooms) {
             if (classroom == null) {
                 throw new IllegalArgumentException("Classroom may not be null");
             }
@@ -45,7 +45,7 @@ final class AvailableClassroomGroup implements Comparable<AvailableClassroomGrou
      *
      * @return the available classrooms
      */
-    List<AvailableClassroom> getClassrooms() {
+    public List<AvailableClassroomOld> getClassrooms() {
 
         return new ArrayList<>(this.classrooms);
     }
@@ -55,11 +55,11 @@ final class AvailableClassroomGroup implements Comparable<AvailableClassroomGrou
      *
      * @return the number of hours for which all classrooms are available in a week
      */
-    int getHoursRemainingInWeek() {
+    public int getHoursRemainingInWeek() {
 
         int hours = Integer.MAX_VALUE;
 
-        for (final AvailableClassroom classroom : this.classrooms) {
+        for (final AvailableClassroomOld classroom : this.classrooms) {
             final int remaining = classroom.getHoursRemainingInWeek();
             hours = Math.min(hours, remaining);
         }

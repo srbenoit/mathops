@@ -5,7 +5,7 @@ package dev.mathops.app.sim.registration;
  * weekdays or hour blocks for the assignment - just the fact that a particular section of a course, with a defined
  * number of seats, will meet in a classroom or lab a specified number of hours per week.
  */
-final class AssignedSection {
+public final class AssignedSection {
 
     /** The course. */
     final OfferedCourse course;

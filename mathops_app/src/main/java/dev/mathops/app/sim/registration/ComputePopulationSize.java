@@ -1,5 +1,7 @@
 package dev.mathops.app.sim.registration;
 
+import dev.mathops.app.sim.registration.rooms.AvailableClassroomOld;
+import dev.mathops.app.sim.registration.rooms.AvailableLab;
 import dev.mathops.commons.log.Log;
 
 import java.util.ArrayList;
@@ -27,7 +29,7 @@ enum ComputePopulationSize {
      * @return the maximum population size
      */
     static int compute(final Collection<OfferedCourse> courses, final StudentDistribution studentDistribution,
-                       final List<AvailableClassroom> allClassrooms, final List<AvailableLab> allLabs) {
+                       final List<AvailableClassroomOld> allClassrooms, final List<AvailableLab> allLabs) {
 
         int pop = 0;
 

@@ -1,37 +1,39 @@
-package dev.mathops.app.sim.registration;
+package dev.mathops.app.sim.registration.rooms;
+
+import dev.mathops.app.sim.registration.AssignedSection;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * An available lab.  This class implements {@code Comparable&lt;AvailableLab&gt;}, with the ordering based on room
- * capacity (smaller capacities sort before larger capacities).
+ * An available classroom.  This class implements {@code Comparable&lt;AvailableClassroom&gt;}, with the ordering based
+ * on room capacity (smaller capacities sort before larger capacities).
  */
-final class AvailableLab implements Comparable<AvailableLab> {
+public final class AvailableClassroomOld implements Comparable<AvailableClassroomOld> {
 
-    /** The lab ID. */
+    /** The classroom ID. */
     final int id;
 
-    /** The number of hours per day the lab is available. */
-    final int hoursPerDay;
+    /** The number of hours per day the classroom is available. */
+    public final int hoursPerDay;
 
     /** The seating capacity. */
-    final int capacity;
+    public final int capacity;
 
     /** The number of hours remaining in a week. */
-    int hoursRemainingInWeek;
+    private int hoursRemainingInWeek = 0;
 
-    /** The sections assigned to this lab. */
+    /** The sections assigned to this classroom. */
     private final List<AssignedSection> assignedSections;
 
     /**
-     * Constructs a new {@code AvailableLab}.
+     * Constructs a new {@code AvailableClassroom}.
      *
-     * @param theId          the lab ID
-     * @param theHoursPerDay the number of hours per day the lab is available
+     * @param theId          the classroom ID
+     * @param theHoursPerDay the number of hours per day the classroom is available
      * @param theCapacity    the seating capacity
      */
-    AvailableLab(final int theId, final int theHoursPerDay, final int theCapacity) {
+    public AvailableClassroomOld(final int theId, final int theHoursPerDay, final int theCapacity) {
 
         this.id = theId;
         this.hoursPerDay = theHoursPerDay;
@@ -41,11 +43,11 @@ final class AvailableLab implements Comparable<AvailableLab> {
     }
 
     /**
-     * Sets the number of hours of availability remaining per week for this lab.
+     * Sets the number of hours of availability remaining per week for this classroom.
      *
      * @param theHoursRemainingInWeek the new number of hours
      */
-    void setHoursRemainingInWeek(final int theHoursRemainingInWeek) {
+    public void setHoursRemainingInWeek(final int theHoursRemainingInWeek) {
 
         this.hoursRemainingInWeek = theHoursRemainingInWeek;
     }
@@ -55,41 +57,41 @@ final class AvailableLab implements Comparable<AvailableLab> {
      *
      * @param delta the number of hours by which to reduce hours remaining
      */
-    void decreaseHoursRemaining(final int delta) {
+    public void decreaseHoursRemaining(final int delta) {
 
         this.hoursRemainingInWeek -= delta;
     }
 
     /**
-     * Gets the number of hours of availability remaining per week for this lab.
+     * Gets the number of hours of availability remaining per week for this classroom.
      *
      * @return the number of hours
      */
-    int getHoursRemainingInWeek() {
+    public int getHoursRemainingInWeek() {
 
         return this.hoursRemainingInWeek;
     }
 
     /**
-     * Clears the list of sections assigned to this lab.
+     * Clears the list of sections assigned to this classroom.
      */
-    void clearAssignedSections() {
+    public void clearAssignedSections() {
 
         this.assignedSections.clear();
     }
 
     /**
-     * Gets the list of sections assigned to this lab.
+     * Gets the list of sections assigned to this classroom.
      *
      * @return the list of assigned sections
      */
-    List<AssignedSection> getAssignedSections() {
+    public List<AssignedSection> getAssignedSections() {
 
         return new ArrayList<>(this.assignedSections);
     }
 
     /**
-     * Adds an assigned section to this lab.
+     * Adds an assigned section to this classroom.
      *
      * @param section the section
      */
@@ -121,8 +123,8 @@ final class AvailableLab implements Comparable<AvailableLab> {
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final AvailableLab lab) {
-            equal = this.id == lab.id;
+        } else if (obj instanceof final AvailableClassroomOld classroom) {
+            equal = this.id == classroom.id;
         } else {
             equal = false;
         }
@@ -139,7 +141,7 @@ final class AvailableLab implements Comparable<AvailableLab> {
      *         greater than that of the other
      */
     @Override
-    public int compareTo(final AvailableLab o) {
+    public int compareTo(final AvailableClassroomOld o) {
 
         return Integer.compare(this.capacity, o.capacity);
     }

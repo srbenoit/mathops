@@ -1,4 +1,4 @@
-package dev.mathops.app.sim.registration;
+package dev.mathops.app.sim.registration.rooms;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,20 +7,20 @@ import java.util.List;
  * A possible group of multiple labs. This class implements {@code Comparable&lt;AvailableLabGroup&gt;}, with the
  * ordering based on total capacity of all labs in the group.
  */
-final class AvailableLabGroup implements Comparable<AvailableLabGroup> {
+public final class AvailableLabGroup implements Comparable<AvailableLabGroup> {
 
     /** The labs in the group (at least 2). */
     final List<AvailableLab> labs;
 
     /** The total seating capacity. */
-    final int totalCapacity;
+    public final int totalCapacity;
 
     /**
      * Constructs a new {@code AvailableLabGroup}.
      *
      * @param theLabs the labs in the group
      */
-    AvailableLabGroup(final AvailableLab... theLabs) {
+    public AvailableLabGroup(final AvailableLab... theLabs) {
 
         if (theLabs == null || theLabs.length < 2) {
             throw new IllegalArgumentException("There must be at least 2 labs specified for a group");
@@ -45,7 +45,7 @@ final class AvailableLabGroup implements Comparable<AvailableLabGroup> {
      *
      * @return the available labs
      */
-    List<AvailableLab> getLabs() {
+    public List<AvailableLab> getLabs() {
 
         return new ArrayList<>(this.labs);
     }
@@ -55,7 +55,7 @@ final class AvailableLabGroup implements Comparable<AvailableLabGroup> {
      *
      * @return the number of hours for which all labs are available in a week
      */
-    int getHoursRemainingInWeek() {
+    public int getHoursRemainingInWeek() {
 
         int hours = Integer.MAX_VALUE;
 

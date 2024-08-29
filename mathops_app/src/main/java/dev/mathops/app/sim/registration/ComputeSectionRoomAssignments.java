@@ -1,5 +1,9 @@
 package dev.mathops.app.sim.registration;
 
+import dev.mathops.app.sim.registration.rooms.AvailableClassroomGroup;
+import dev.mathops.app.sim.registration.rooms.AvailableClassroomOld;
+import dev.mathops.app.sim.registration.rooms.AvailableLab;
+import dev.mathops.app.sim.registration.rooms.AvailableLabGroup;
 import dev.mathops.commons.log.Log;
 
 import java.util.ArrayList;
@@ -25,7 +29,7 @@ enum ComputeSectionRoomAssignments {
      *         capacity (hours per week), or -1 if there was not enough classroom or lab space to accommodate all
      *         courses
      */
-    static int compute(final Collection<OfferedCourse> courses, final List<AvailableClassroom> allClassrooms,
+    static int compute(final Collection<OfferedCourse> courses, final List<AvailableClassroomOld> allClassrooms,
                        final List<AvailableLab> allLabs) {
 
         for (final OfferedCourse course : courses) {
@@ -38,12 +42,15 @@ enum ComputeSectionRoomAssignments {
         final List<OfferedCourse> toBeAssignedLabs = makeListOfCoursesToBeAssignedLabs(courses);
 
         final int classroomResult = assignClassrooms(toBeAssignedClassrooms, allClassrooms);
+        Log.info("    Classroom result is " + classroomResult);
+
         final int labResult = classroomResult < 0 ? -1 : assignLabs(toBeAssignedLabs, allLabs);
+        Log.info("    Lab result is " + labResult);
 
         final int result = Math.min(classroomResult, labResult);
 
         if (result >= 0) {
-            for (final AvailableClassroom classroom : allClassrooms) {
+            for (final AvailableClassroomOld classroom : allClassrooms) {
                 for (final AssignedSection section : classroom.getAssignedSections()) {
                     section.course.addAssignedClassSection(section);
                 }
@@ -66,10 +73,10 @@ enum ComputeSectionRoomAssignments {
      * @param allClassrooms the list of all classrooms
      * @param allLabs       the list of all labs
      */
-    private static void initializeClassroomsAndLabs(final List<AvailableClassroom> allClassrooms,
+    private static void initializeClassroomsAndLabs(final List<AvailableClassroomOld> allClassrooms,
                                                     final List<AvailableLab> allLabs) {
 
-        for (final AvailableClassroom classroom : allClassrooms) {
+        for (final AvailableClassroomOld classroom : allClassrooms) {
             classroom.setHoursRemainingInWeek(5 * classroom.hoursPerDay);
             classroom.clearAssignedSections();
         }
@@ -194,13 +201,13 @@ enum ComputeSectionRoomAssignments {
      * @param smallestContactHours the smallest allowed number of available hours
      * @return the list of classrooms having at least the smallest number of available hours
      */
-    private static List<AvailableClassroom> findClassroomsOfInterest(final Collection<AvailableClassroom> allClassrooms,
-                                                                     final int smallestContactHours) {
+    private static List<AvailableClassroomOld> findClassroomsOfInterest(final Collection<AvailableClassroomOld> allClassrooms,
+                                                                        final int smallestContactHours) {
 
         final int numClassrooms = allClassrooms.size();
 
-        final List<AvailableClassroom> classroomsOfInterest = new ArrayList<>(numClassrooms);
-        for (final AvailableClassroom classroom : allClassrooms) {
+        final List<AvailableClassroomOld> classroomsOfInterest = new ArrayList<>(numClassrooms);
+        for (final AvailableClassroomOld classroom : allClassrooms) {
             if (classroom.getHoursRemainingInWeek() >= smallestContactHours) {
                 classroomsOfInterest.add(classroom);
             }
@@ -259,7 +266,7 @@ enum ComputeSectionRoomAssignments {
                     int seatsNeeded = course.getNumSeatsNeeded();
 
                     if (hoursNeeded <= hoursAvail && seatsNeeded <= seats) {
-                        for (final AvailableClassroom classroom : group.getClassrooms()) {
+                        for (final AvailableClassroomOld classroom : group.getClassrooms()) {
 
                             final AssignedSection sect;
                             if (seatsNeeded >= classroom.capacity) {
@@ -333,7 +340,7 @@ enum ComputeSectionRoomAssignments {
      *         capacity to assign all courses
      */
     private static int assignClassrooms(final List<OfferedCourse> toBeAssigned,
-                                        final Collection<AvailableClassroom> allClassrooms) {
+                                        final Collection<AvailableClassroomOld> allClassrooms) {
 
         // Classroom Pass 1: take the smallest classroom and assign it to all courses that will fit; then move to the
         // next smallest classroom, and so on, for all classrooms
@@ -377,7 +384,7 @@ enum ComputeSectionRoomAssignments {
         if (toBeAssigned.isEmpty()) {
             // All classes have been assigned - see how many free hours per week remain in classrooms
             result = 0;
-            for (final AvailableClassroom classroom : allClassrooms) {
+            for (final AvailableClassroomOld classroom : allClassrooms) {
                 result += classroom.getHoursRemainingInWeek();
             }
         } else {
@@ -397,9 +404,9 @@ enum ComputeSectionRoomAssignments {
      * @param allClassrooms the list of available classrooms
      */
     private static void assignSingleSectionCourses(final Iterable<OfferedCourse> toBeAssigned,
-                                                   final Iterable<AvailableClassroom> allClassrooms) {
+                                                   final Iterable<AvailableClassroomOld> allClassrooms) {
 
-        for (final AvailableClassroom classroom : allClassrooms) {
+        for (final AvailableClassroomOld classroom : allClassrooms) {
             final int seats = classroom.capacity;
             final int hoursAvail = classroom.getHoursRemainingInWeek();
 
@@ -430,13 +437,13 @@ enum ComputeSectionRoomAssignments {
      * @param allClassrooms the list of available classrooms
      */
     private static void assign2SectionCourses(final Iterable<OfferedCourse> toBeAssigned,
-                                              final Collection<AvailableClassroom> allClassrooms) {
+                                              final Collection<AvailableClassroomOld> allClassrooms) {
 
         // Find the smallest number of hours needed for any remaining course, and then remove from consideration any
         // classrooms that do not have at least that many hours of availability per week remaining
 
         final int smallestContactHours = getSmallestClassContactHours(toBeAssigned);
-        final List<AvailableClassroom> classroomsOfInterest = findClassroomsOfInterest(allClassrooms,
+        final List<AvailableClassroomOld> classroomsOfInterest = findClassroomsOfInterest(allClassrooms,
                 smallestContactHours);
 
         // Make sure there are at least 2 classrooms that could accommodate courses - if not, we're done!
@@ -458,16 +465,16 @@ enum ComputeSectionRoomAssignments {
      * @return the list of groups of 2 classrooms, sorted by total capacity (if there are N classrooms of interest, this
      *         list will contain (N)(N-1) entries)
      */
-    private static List<AvailableClassroomGroup> makeGroupsOf2(final List<AvailableClassroom> classroomsOfInterest) {
+    private static List<AvailableClassroomGroup> makeGroupsOf2(final List<AvailableClassroomOld> classroomsOfInterest) {
 
         final int size = classroomsOfInterest.size();
         final int numGroups = size * (size - 1);
         final List<AvailableClassroomGroup> groups = new ArrayList<>(numGroups);
 
         for (int i = 0; i < (size - 1); ++i) {
-            final AvailableClassroom room1 = classroomsOfInterest.get(i);
+            final AvailableClassroomOld room1 = classroomsOfInterest.get(i);
             for (int j = i + 1; j < size; ++j) {
-                final AvailableClassroom room2 = classroomsOfInterest.get(j);
+                final AvailableClassroomOld room2 = classroomsOfInterest.get(j);
                 final AvailableClassroomGroup group = new AvailableClassroomGroup(room1, room2);
                 groups.add(group);
             }
@@ -487,13 +494,13 @@ enum ComputeSectionRoomAssignments {
      * @param allClassrooms the list of available classrooms
      */
     private static void assign3SectionCourses(final Iterable<OfferedCourse> toBeAssigned,
-                                              final Collection<AvailableClassroom> allClassrooms) {
+                                              final Collection<AvailableClassroomOld> allClassrooms) {
 
         // Find the smallest number of hours needed for any remaining course, and then remove from consideration any
         // classrooms that do not have at least that many hours of availability per week remaining
 
         final int smallestContactHours = getSmallestClassContactHours(toBeAssigned);
-        final List<AvailableClassroom> classroomsOfInterest = findClassroomsOfInterest(allClassrooms,
+        final List<AvailableClassroomOld> classroomsOfInterest = findClassroomsOfInterest(allClassrooms,
                 smallestContactHours);
 
         // Make sure there are at least 3 classrooms that could accommodate courses - if not, we're done!
@@ -515,18 +522,18 @@ enum ComputeSectionRoomAssignments {
      * @return the list of groups of 3 classrooms, sorted by total capacity (if there are N classrooms of interest, this
      *         list will contain (N)(N-1)(N-2) entries)
      */
-    private static List<AvailableClassroomGroup> makeGroupsOf3(final List<AvailableClassroom> classroomsOfInterest) {
+    private static List<AvailableClassroomGroup> makeGroupsOf3(final List<AvailableClassroomOld> classroomsOfInterest) {
 
         final int size = classroomsOfInterest.size();
         final int numGroups = size * (size - 1) * (size - 2);
         final List<AvailableClassroomGroup> groups = new ArrayList<>(numGroups);
 
         for (int i = 0; i < (size - 2); ++i) {
-            final AvailableClassroom room1 = classroomsOfInterest.get(i);
+            final AvailableClassroomOld room1 = classroomsOfInterest.get(i);
             for (int j = i + 1; j < (size - 1); ++j) {
-                final AvailableClassroom room2 = classroomsOfInterest.get(j);
+                final AvailableClassroomOld room2 = classroomsOfInterest.get(j);
                 for (int k = j + 1; k < size; ++k) {
-                    final AvailableClassroom room3 = classroomsOfInterest.get(k);
+                    final AvailableClassroomOld room3 = classroomsOfInterest.get(k);
                     final AvailableClassroomGroup group = new AvailableClassroomGroup(room1, room2, room3);
                     groups.add(group);
                 }
@@ -547,13 +554,13 @@ enum ComputeSectionRoomAssignments {
      * @param allClassrooms the list of available classrooms
      */
     private static void assignLargeCourses(final List<OfferedCourse> toBeAssigned,
-                                           final Collection<AvailableClassroom> allClassrooms) {
+                                           final Collection<AvailableClassroomOld> allClassrooms) {
 
         // As before, we find the smallest number of hours needed for any remaining course, and then remove from
         // consideration any classrooms that do not have at least that many hours of availability per week remaining
 
         final int smallestContactHours = getSmallestClassContactHours(toBeAssigned);
-        final List<AvailableClassroom> classroomsOfInterest = findClassroomsOfInterest(allClassrooms,
+        final List<AvailableClassroomOld> classroomsOfInterest = findClassroomsOfInterest(allClassrooms,
                 smallestContactHours);
 
         // The list of courses to be assigned will be sorted in increasing order by needed capacity, so we start at the
@@ -563,7 +570,7 @@ enum ComputeSectionRoomAssignments {
         final int numCourses = toBeAssigned.size();
         final int numClassrooms = classroomsOfInterest.size();
 
-        final Collection<AvailableClassroom> potentialClassrooms = new ArrayList<>(10);
+        final Collection<AvailableClassroomOld> potentialClassrooms = new ArrayList<>(10);
 
         for (int i = numCourses - 1; i >= 0; --i) {
             final OfferedCourse course = toBeAssigned.get(i);
@@ -576,9 +583,9 @@ enum ComputeSectionRoomAssignments {
             // the "last" room.
 
             potentialClassrooms.clear();
-            AvailableClassroom last = null;
+            AvailableClassroomOld last = null;
             for (int j = numClassrooms - 1; j >= 0; --j) {
-                final AvailableClassroom classroom = classroomsOfInterest.get(j);
+                final AvailableClassroomOld classroom = classroomsOfInterest.get(j);
                 if (course.isClassroomCompatible(classroom) && classroom.getHoursRemainingInWeek() >= hoursNeeded) {
                     if (last == null) {
                         // We are not yet scanning for the smallest "last" room)
@@ -605,7 +612,7 @@ enum ComputeSectionRoomAssignments {
 
                 // The list of potential classrooms will work - make the assignments
                 int stillNeeded = course.getNumSeatsNeeded();
-                for (final AvailableClassroom classroom : potentialClassrooms) {
+                for (final AvailableClassroomOld classroom : potentialClassrooms) {
 
                     final AssignedSection sect;
 
