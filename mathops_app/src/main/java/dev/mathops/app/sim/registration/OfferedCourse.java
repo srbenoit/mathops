@@ -1,10 +1,5 @@
 package dev.mathops.app.sim.registration;
 
-import dev.mathops.app.sim.registration.rooms.AvailableClassroomGroup;
-import dev.mathops.app.sim.registration.rooms.AvailableClassroomOld;
-import dev.mathops.app.sim.registration.rooms.AvailableLab;
-import dev.mathops.app.sim.registration.rooms.AvailableLabGroup;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,13 +21,13 @@ final class OfferedCourse implements Comparable<OfferedCourse> {
     final int classContactHours;
 
     /** The list of compatible classrooms. */
-    private final List<AvailableClassroomOld> compatibleClassrooms;
+    private final List<Room> compatibleClassrooms;
 
     /** The number of contact hours each week in a lab. */
     final int labContactHours;
 
     /** The list of compatible labs. */
-    private final List<AvailableLab> compatibleLabs;
+    private final List<Room> compatibleLabs;
 
     /** The total number of seats needed to accommodate a certain student population. */
     private int numSeatsNeeded = 0;
@@ -55,8 +50,8 @@ final class OfferedCourse implements Comparable<OfferedCourse> {
      * @param theCompatibleLabs       the list of compatible labs
      */
     OfferedCourse(final String theCourseId, final int theNumCredits, final boolean isMandatory,
-                  final int theClassContactHours, final List<AvailableClassroomOld> theCompatibleClassrooms,
-                  final int theLabContactHours, final List<AvailableLab> theCompatibleLabs) {
+                  final int theClassContactHours, final List<Room> theCompatibleClassrooms,
+                  final int theLabContactHours, final List<Room> theCompatibleLabs) {
 
         this.courseId = theCourseId;
         this.numCredits = theNumCredits;
@@ -80,7 +75,7 @@ final class OfferedCourse implements Comparable<OfferedCourse> {
      * @param theCompatibleClassrooms the list of compatible classrooms
      */
     OfferedCourse(final String theCourseId, final int theNumCredits, final boolean isMandatory,
-                  final int theClassContactHours, final List<AvailableClassroomOld> theCompatibleClassrooms) {
+                  final int theClassContactHours, final List<Room> theCompatibleClassrooms) {
 
         this.courseId = theCourseId;
         this.numCredits = theNumCredits;
@@ -126,31 +121,9 @@ final class OfferedCourse implements Comparable<OfferedCourse> {
      * @param classroom the classroom
      * @return true if the classroom is "compatible" with this course
      */
-    boolean isClassroomCompatible(final AvailableClassroomOld classroom) {
+    boolean isClassroomCompatible(final Room classroom) {
 
         return this.compatibleClassrooms.contains(classroom);
-    }
-
-    /**
-     * Tests whether a all classrooms in a group are compatible with the course.
-     *
-     * @param group the classroom group
-     * @return true if all rooms in the classroom group are "compatible" with this course
-     */
-    boolean isClassroomGroupCompatible(final AvailableClassroomGroup group) {
-
-        boolean compatible = true;
-
-        final List<AvailableClassroomOld> classrooms = group.getClassrooms();
-
-        for (final AvailableClassroomOld classroom : classrooms) {
-            if (!isClassroomCompatible(classroom)) {
-                compatible = false;
-                break;
-            }
-        }
-
-        return compatible;
     }
 
     /**
@@ -159,31 +132,9 @@ final class OfferedCourse implements Comparable<OfferedCourse> {
      * @param lab the lab
      * @return true if the lab is "compatible" with this course
      */
-    boolean isLabCompatible(final AvailableLab lab) {
+    boolean isLabCompatible(final Room lab) {
 
         return this.compatibleLabs.contains(lab);
-    }
-
-    /**
-     * Tests whether a all labs in a group are compatible with the course.
-     *
-     * @param group the lab group
-     * @return true if all rooms in the lab group are "compatible" with this course
-     */
-    boolean isLabGroupCompatible(final AvailableLabGroup group) {
-
-        boolean compatible = true;
-
-        final List<AvailableLab> labs = group.getLabs();
-
-        for (final AvailableLab lab : labs) {
-            if (!isLabCompatible(lab)) {
-                compatible = false;
-                break;
-            }
-        }
-
-        return compatible;
     }
 
     /**

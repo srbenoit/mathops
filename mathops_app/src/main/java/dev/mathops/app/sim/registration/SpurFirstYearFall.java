@@ -1,7 +1,5 @@
 package dev.mathops.app.sim.registration;
 
-import dev.mathops.app.sim.registration.rooms.AvailableClassroomOld;
-import dev.mathops.app.sim.registration.rooms.AvailableLab;
 import dev.mathops.commons.log.Log;
 
 import java.util.ArrayList;
@@ -53,17 +51,18 @@ final class SpurFirstYearFall {
 
         // Set up the available classrooms and labs
 
-        final AvailableClassroomOld classroom1 = new AvailableClassroomOld(1, HOURS_PER_DAY, 40);
-        final AvailableClassroomOld classroom2 = new AvailableClassroomOld(2, HOURS_PER_DAY, 40);
-        final AvailableLab lab1 = new AvailableLab(100, HOURS_PER_DAY, 26);
+        final Room classroom1 = new Room("Classroom 1", 40, HOURS_PER_DAY);
+        final Room classroom2 = new Room("Classroom 2", 40, HOURS_PER_DAY);
+        final Room lab1 = new Room("Lab 1", 26, HOURS_PER_DAY);
+        final Rooms rooms = new Rooms(classroom1, classroom2, lab1);
 
         // Set up lists of classrooms and labs that are "compatible" with classes
 
-        final List<AvailableClassroomOld> immutableClassrooms = Arrays.asList(classroom1, classroom2);
-        final List<AvailableClassroomOld> allClassrooms = new ArrayList<>(immutableClassrooms);
+        final List<Room> immutableClassrooms = Arrays.asList(classroom1, classroom2);
+        final List<Room> allClassrooms = new ArrayList<>(immutableClassrooms);
 
-        final List<AvailableLab> immutableLabs = List.of(lab1);
-        final List<AvailableLab> allLabs = new ArrayList<>(immutableLabs);
+        final List<Room> immutableLabs = List.of(lab1);
+        final List<Room> allLabs = new ArrayList<>(immutableLabs);
 
         // Set up the offered course list
 

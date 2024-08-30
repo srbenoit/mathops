@@ -362,7 +362,7 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
                             RawPaceAppeals paceAppeal = null;
                             for (final RawPaceAppeals test : this.currentStudentData.paceAppeals) {
                                 if (Objects.equals(test.paceTrack, track) && test.msNbr.equals(stms.msNbr)
-                                    && test.newDeadlineDt.equals(stms.msDate)
+                                    && Objects.equals(test.newDeadlineDt, stms.msDate)
                                     && Objects.equals(test.nbrAtmptsAllow, stms.nbrAtmptsAllow)) {
                                     paceAppeal = test;
                                     break;
@@ -374,7 +374,7 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
                                 RawMilestoneAppeal msAppeal = null;
                                 for (final RawMilestoneAppeal test : this.currentStudentData.milestoneAppeals) {
                                     if (Objects.equals(test.paceTrack, track) && test.msNbr.equals(stms.msNbr)
-                                        && test.newMsDt.equals(stms.msDate)
+                                        && Objects.equals(test.newMsDt, stms.msDate)
                                         && Objects.equals(test.attemptsAllowed, stms.nbrAtmptsAllow)) {
                                         msAppeal = test;
                                         break;

@@ -1,9 +1,5 @@
 package dev.mathops.app.sim.registration;
 
-import dev.mathops.app.sim.registration.rooms.AvailableClassroomGroup;
-import dev.mathops.app.sim.registration.rooms.AvailableClassroomOld;
-import dev.mathops.app.sim.registration.rooms.AvailableLab;
-import dev.mathops.app.sim.registration.rooms.AvailableLabGroup;
 import dev.mathops.commons.log.Log;
 
 import java.util.ArrayList;

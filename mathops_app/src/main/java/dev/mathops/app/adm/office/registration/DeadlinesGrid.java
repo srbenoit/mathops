@@ -245,7 +245,7 @@ final class DeadlinesGrid extends JPanel {
                         RawPaceAppeals found = null;
                         for (final RawPaceAppeals testAppeal : paceAppeals) {
                             if (testAppeal.paceTrack.equals(track) && testAppeal.msNbr.equals(test.msNbr)
-                                && testAppeal.newDeadlineDt.equals(test.msDate)
+                                && Objects.equals(testAppeal.newDeadlineDt, test.msDate)
                                 && Objects.equals(testAppeal.nbrAtmptsAllow, test.nbrAtmptsAllow)) {
                                 found = testAppeal;
                                 break;
