@@ -446,7 +446,7 @@ enum ComputeSectionRoomAssignments {
             // required capacity.
 
             assignmentsMade.clear();
-            Room last = null;
+            RoomAssignment last = null;
             for (int j = numClassrooms - 1; j >= 0; --j) {
                 final Room room = roomsOfInterest.get(j);
 
@@ -454,27 +454,12 @@ enum ComputeSectionRoomAssignments {
                     final int roomCap = room.getCapacity();
                     final int seatsToAssign = Math.min(roomCap, seatsNeeded);
 
-                    final Optional<RoomAssignment> assignment = room.addAssignment(hoursNeeded * 2, type, course, seatsToAssign, usage);
+                    final Optional<RoomAssignment> assignment = room.addAssignment(hoursNeeded * 2, type, course,
+                            seatsToAssign, usage);
 
                     if (assignment.isPresent()) {
-                       assignmentsMade.add(assignment.get());
-                    }
-
-                    if (last == null) {
-                        // We are not yet scanning for the smallest "last" room)
-                        if (seatsNeeded > room.capacity) {
-                            // This one will not be the last - track it and move on
-                            potentialClassrooms.add(room);
-                            seatsNeeded -= room.capacity;
-                        } else {
-                            // This one would work as the "last" room - track as the current "last" room, but don't
-                            // add yet to "potentialClassrooms" until we're sure it's the right "last" room to use.
-                            last = room;
-                        }
-                    } else if (seatsNeeded <= room.capacity) {
-                        // This room is smaller and will also work as the "last" room - track it as the current "last"
-                        // room, but keep scanning
-                        last = room;
+                        last = assignment.get();
+                        assignmentsMade.add(last);
                     }
                 }
             }
@@ -484,7 +469,6 @@ enum ComputeSectionRoomAssignments {
             // meets needs more efficiently.
 
             if (Objects.nonNull(last)) {
-                assignmentsMade.add(last);
 
                 // The list of potential classrooms will work - make the assignments
                 int stillNeeded = course.getNumSeatsNeeded();
