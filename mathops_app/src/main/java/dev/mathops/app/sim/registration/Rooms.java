@@ -18,7 +18,65 @@ final class Rooms {
      */
     Rooms(final Room... theRooms) {
 
-        this.rooms = theRooms == null ? new ArrayList<>(0) : List.of(theRooms);
+        if (theRooms == null || theRooms.length == 0) {
+            this.rooms = new ArrayList<>(0);
+        } else {
+            final List<Room> unmodifiable = List.of(theRooms);
+            this.rooms = new ArrayList<>(unmodifiable);
+            this.rooms.sort(null);
+        }
+    }
+
+    /**
+     * Gets the list of rooms.
+     *
+     * @return the list of rooms
+     */
+    List<Room> getRooms() {
+
+        return new ArrayList<>(this.rooms);
+    }
+
+    /**
+     * Calculates the total capacity of all rooms in this group.
+     *
+     * @return the total capacity
+     */
+    int totalCapacity() {
+
+        int total = 0;
+
+        for (final Room room : this.rooms) {
+            total += room.getCapacity();
+        }
+
+        return total;
+    }
+
+    /**
+     * Calculates the total number of free hours of all rooms in this group.
+     *
+     * @return the total number of hours free
+     */
+    int totalHoursFree() {
+
+        int total = 0;
+
+        for (final Room room : this.rooms) {
+            total += room.getTotalHoursFree();
+        }
+
+        return total;
+    }
+
+    /**
+     * Clears the lists of assigned sections for each room.
+     */
+    void reset() {
+
+        for (final Room room : this.rooms) {
+            room.clearAssignments();
+        }
     }
 
     /**
@@ -27,7 +85,7 @@ final class Rooms {
      * @param course the course
      * @return true if the course was assigned; false if not
      */
-    public boolean canBeAssigned(final OfferedCourse course) {
+    public boolean canBeAssigned(final Course course) {
 
     }
 }

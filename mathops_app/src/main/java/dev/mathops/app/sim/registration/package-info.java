@@ -1,14 +1,12 @@
 /**
- * Applications focused on scheduling time, classes, people, etc.
- *
- * <p>
- * <b>Registration simulations</b>
+ * A registration simulation designed to determine, for a given set of classrooms and offered courses, and a specified
+ * set of student preferences for courses, how many students can be accommodated.
  *
  * <p>
  * A registration simulation begins with a variable-size population of students, grouped by preferences regarding
  * classes they want to take (for example, 10% of students have preference set 1, 8% have preference set 2, etc.), and a
- * list of offered classes.  It first performs a registration cycle to determine the number of seats of each course
- * that should be offered to meet projected demand.
+ * list of offered classes.  It first performs a registration cycle to determine the number of seats of each course that
+ * should be offered to meet projected demand.
  *
  * <p>
  * The simulation next considers the set of classrooms and hour blocks available, and the number of classroom blocks

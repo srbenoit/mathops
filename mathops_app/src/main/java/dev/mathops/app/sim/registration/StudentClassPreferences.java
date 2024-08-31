@@ -20,7 +20,7 @@ final class StudentClassPreferences implements Comparable<StudentClassPreference
     final int maxCredits;
 
     /** A map from course ID to preference level. */
-    private final Map<OfferedCourse, Double> preferences;
+    private final Map<Course, Double> preferences;
 
     /**
      * Constructs a new {@code StudentClassPreferences}.
@@ -45,7 +45,7 @@ final class StudentClassPreferences implements Comparable<StudentClassPreference
      * @param course     the course ID
      * @param preference the preference value
      */
-    void setPreference(final OfferedCourse course, final double preference) {
+    void setPreference(final Course course, final double preference) {
 
         final double clampUpperBound = Math.min(preference, 1.0);
         final double clampLowerBound = Math.max(clampUpperBound, 0.0);
@@ -60,7 +60,7 @@ final class StudentClassPreferences implements Comparable<StudentClassPreference
      * @param course the course ID
      * @return the preference value (0 if the course was not found)
      */
-    double getPreference(final OfferedCourse course) {
+    double getPreference(final Course course) {
 
         final Double prefObj = this.preferences.get(course);
 
@@ -73,20 +73,20 @@ final class StudentClassPreferences implements Comparable<StudentClassPreference
      * @param rnd a random number generator
      * @return the selected {@code OfferedCourse}
      */
-    OfferedCourse pick(final RandomGenerator rnd) {
+    Course pick(final RandomGenerator rnd) {
 
         double total = 0.0;
         for (final Double value : this.preferences.values()) {
             total += value.doubleValue();
         }
 
-        OfferedCourse result = null;
+        Course result = null;
 
         if (total > 0.0) {
             final double choice = rnd.nextDouble(total);
 
             double soFar = 0.0;
-            for (final Map.Entry<OfferedCourse, Double> entry : this.preferences.entrySet()) {
+            for (final Map.Entry<Course, Double> entry : this.preferences.entrySet()) {
                 if (result == null) {
                     // Ensure a choice gets made in case "choice" is right at upper bound and round-off in additions
                     // below result in "soFar" never making it to "choice".

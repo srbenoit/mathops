@@ -23,7 +23,7 @@ class EnrollingStudent {
     final StudentClassPreferences preferences;
 
     /** The list of courses for which the student has registered. */
-    final List<OfferedCourse> courses;
+    final List<Course> courses;
 
     /**
      * Constructs a new {@code EnrollingStudent}.
@@ -33,7 +33,7 @@ class EnrollingStudent {
      * @param theCourses     the list of courses for which the student is enrolling
      */
     EnrollingStudent(final int theId, final StudentClassPreferences thePreferences,
-                     final Collection<OfferedCourse> theCourses) {
+                     final Collection<Course> theCourses) {
 
         this.id = theId;
         this.preferences = thePreferences;

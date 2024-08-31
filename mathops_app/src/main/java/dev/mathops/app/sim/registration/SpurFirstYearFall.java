@@ -56,32 +56,51 @@ final class SpurFirstYearFall {
         final Room lab1 = new Room("Lab 1", 26, HOURS_PER_DAY);
         final Rooms rooms = new Rooms(classroom1, classroom2, lab1);
 
-        // Set up lists of classrooms and labs that are "compatible" with classes
-
-        final List<Room> immutableClassrooms = Arrays.asList(classroom1, classroom2);
-        final List<Room> allClassrooms = new ArrayList<>(immutableClassrooms);
-
-        final List<Room> immutableLabs = List.of(lab1);
-        final List<Room> allLabs = new ArrayList<>(immutableLabs);
-
         // Set up the offered course list
 
-        final OfferedCourse SEMINAR = new OfferedCourse("SEMINAR", CRED1, true, 1, allClassrooms);
-        final OfferedCourse LIFE102 = new OfferedCourse("LIFE 102", CRED3, false, 3, allClassrooms, 3, allLabs);
-        final OfferedCourse MATH112 = new OfferedCourse("MATH 112", CRED4, false, 3, allClassrooms);
-        final OfferedCourse CS150B = new OfferedCourse("CS 150B", CRED3, false, 3, allClassrooms);
-        final OfferedCourse IDEA110 = new OfferedCourse("IDEA 110", CRED3, false, 3, allClassrooms);
-        final OfferedCourse HDFS101 = new OfferedCourse("HDFS 101", CRED3, false, 3, allClassrooms);
-        final OfferedCourse AGRI116 = new OfferedCourse("AGRI 116", CRED3, false, 3, allClassrooms);
-        final OfferedCourse AB111 = new OfferedCourse("AB 111", CRED3, false, 3, allClassrooms);
-        final OfferedCourse EHRS220 = new OfferedCourse("EHRS 220", CRED3, false, 3, allClassrooms);
-        final OfferedCourse POLS131 = new OfferedCourse("POLS 131", CRED3, false, 3, allClassrooms);
-        final OfferedCourse AREC222 = new OfferedCourse("AREC 222", CRED3, false, 3, allClassrooms);
-        final OfferedCourse SPCM100 = new OfferedCourse("SPCM 100", CRED3, false, 3, allClassrooms);
-        final OfferedCourse BZ101 = new OfferedCourse("BZ 101", CRED3, false, 3, allClassrooms);
-        final List<OfferedCourse> immutableCourses = Arrays.asList(LIFE102, MATH112, SEMINAR, CS150B, IDEA110,
+        final Course SEMINAR = new Course("SEMINAR", CRED1, true);
+        SEMINAR.addRoomType(ERoomUsage.CLASSROOM, 1, classroom1, classroom2);
+
+        final Course LIFE102 = new Course("LIFE 102", CRED3, false);
+        LIFE102.addRoomType(ERoomUsage.CLASSROOM, 3, classroom1, classroom2);
+        LIFE102.addRoomType(ERoomUsage.LAB, 3, lab1);
+
+        final Course MATH112 = new Course("MATH 112", CRED4, false);
+        MATH112.addRoomType(ERoomUsage.CLASSROOM, 3, classroom1, classroom2);
+
+        final Course CS150B = new Course("CS 150B", CRED3, false);
+        CS150B.addRoomType(ERoomUsage.CLASSROOM, 3, classroom1, classroom2);
+
+        final Course IDEA110 = new Course("IDEA 110", CRED3, false);
+        IDEA110.addRoomType(ERoomUsage.CLASSROOM, 3, classroom1, classroom2);
+
+        final Course HDFS101 = new Course("HDFS 101", CRED3, false);
+        HDFS101.addRoomType(ERoomUsage.CLASSROOM, 3, classroom1, classroom2);
+
+        final Course AGRI116 = new Course("AGRI 116", CRED3, false);
+        AGRI116.addRoomType(ERoomUsage.CLASSROOM, 3, classroom1, classroom2);
+
+        final Course AB111 = new Course("AB 111", CRED3, false);
+        AB111.addRoomType(ERoomUsage.CLASSROOM, 3, classroom1, classroom2);
+
+        final Course EHRS220 = new Course("EHRS 220", CRED3, false);
+        EHRS220.addRoomType(ERoomUsage.CLASSROOM, 3, classroom1, classroom2);
+
+        final Course POLS131 = new Course("POLS 131", CRED3, false);
+        POLS131.addRoomType(ERoomUsage.CLASSROOM, 3, classroom1, classroom2);
+
+        final Course AREC222 = new Course("AREC 222", CRED3, false);
+        AREC222.addRoomType(ERoomUsage.CLASSROOM, 3, classroom1, classroom2);
+
+        final Course SPCM100 = new Course("SPCM 100", CRED3, false);
+        SPCM100.addRoomType(ERoomUsage.CLASSROOM, 3, classroom1, classroom2);
+
+        final Course BZ101 = new Course("BZ 101", CRED3, false);
+        BZ101.addRoomType(ERoomUsage.CLASSROOM, 3, classroom1, classroom2);
+
+        final List<Course> immutableCourses = Arrays.asList(LIFE102, MATH112, SEMINAR, CS150B, IDEA110,
                 HDFS101, AGRI116, AB111, EHRS220, POLS131, AREC222, SPCM100, BZ101);
-        final Collection<OfferedCourse> courses = new ArrayList<>(immutableCourses);
+        final Collection<Course> courses = new ArrayList<>(immutableCourses);
 
         // Set up the preferences for each "exploratory studies" track
 
@@ -155,7 +174,7 @@ final class SpurFirstYearFall {
 
         // SIMULATION PART 1 - DETERMINE MAXIMUM POSSIBLE POPULATION SIZE THAT DOES NOT EXCEED TOTAL CLASSROOM SPACE
 
-        final int maxPopulation = ComputePopulationSize.compute(courses, distribution, allClassrooms, allLabs);
+        final int maxPopulation = ComputePopulationSize.compute(courses, distribution, rooms);
         Log.info("The maximum population supported was " + maxPopulation);
 
         // SIMULATION PART 2 - Try to build an assignment of courses to sections across classrooms and labs

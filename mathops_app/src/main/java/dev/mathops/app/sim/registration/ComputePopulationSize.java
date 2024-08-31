@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.random.RandomGenerator;
 
 /**
@@ -22,18 +23,17 @@ enum ComputePopulationSize {
      *
      * @param courses             the list of courses offered
      * @param studentDistribution the student distribution
-     * @param allClassrooms       the list of available classrooms
-     * @param allLabs             the list of available labs
+     * @param rooms               the set of available rooms
      * @return the maximum population size
      */
-    static int compute(final Collection<OfferedCourse> courses, final StudentDistribution studentDistribution,
-                       final List<Room> allClassrooms, final List<Room> allLabs) {
+    static int compute(final Collection<Course> courses, final StudentDistribution studentDistribution,
+                       final Rooms rooms) {
 
         int pop = 0;
 
-        int hoursFree = Integer.MAX_VALUE;
+        boolean solutionFound;
 
-        while (hoursFree >= 0) {
+        do {
             ++pop;
 
             final StudentPopulation population = new StudentPopulation(studentDistribution, pop);
@@ -50,7 +50,7 @@ enum ComputePopulationSize {
 
             final List<EnrollingStudent> students = simulateRegistrations(courses, population);
             Log.info("Registration process has been simulated:");
-            for (final OfferedCourse course : courses) {
+            for (final Course course : courses) {
                 final int count = course.getNumSeatsNeeded();
                 if (count > 0) {
                     final String countStr = Integer.toString(count);
@@ -58,35 +58,38 @@ enum ComputePopulationSize {
                 }
             }
 
-            hoursFree = ComputeSectionRoomAssignments.compute(courses, allClassrooms, allLabs);
+            solutionFound = ComputeSectionRoomAssignments.canCompute(courses, rooms);
 
-            if (hoursFree >= 0) {
-                Log.info("Success with " + hoursFree + " hours free");
+            if (solutionFound) {
+                Log.info("Success!");
 
-                for (final OfferedCourse course : courses) {
-                    final List<AssignedSection> classSections = course.getClassSections();
-                    final int numClassSections = classSections.size();
+                for (final Course course : courses) {
+                    int total = 0;
 
-                    final List<AssignedSection> labSections = course.getLabSections();
-                    final int numLabSections = labSections.size();
-                    final int total = numClassSections + numLabSections;
+                    final Set<ERoomUsage> usages = course.getUsages();
+                    for (final ERoomUsage usage : usages) {
+                        final List<AssignedSection> sections = course.getRoomAssignments(usage);
+                        if (sections != null) {
+                            final int numSections = sections.size();
+                            total += numSections;
+                        }
+                    }
 
                     if (total > 0) {
-                        final String numClassSectionsStr = Integer.toString(numClassSections);
-                        final String numLabSectionsStr = Integer.toString(numLabSections);
+                        final String numSectionsStr = Integer.toString(total);
+                        final int numUsages = usages.size();
 
-                        if (numLabSections == 0) {
-                            Log.info("    ", course.courseId, " has  ", numClassSectionsStr, " class sections.");
-                        } else if (numClassSections == 0) {
-                            Log.info("    ", course.courseId, " has  ", numLabSectionsStr, " lab sections.");
+                        if (numUsages == 1) {
+                            Log.info("    ", course.courseId, " has  ", numSectionsStr, " total sections of 1 type");
                         } else {
-                            Log.info("    ", course.courseId, " has  ", numClassSectionsStr, " class sections and ",
-                                    numLabSectionsStr, " lab sections.");
+                            final String numUsagesStr = Integer.toString(numUsages);
+                            Log.info("    ", course.courseId, " has  ", numSectionsStr, " total sections of ",
+                                    numUsagesStr, " types");
                         }
                     }
                 }
             }
-        }
+        } while (solutionFound);
 
         --pop;
 
@@ -102,14 +105,14 @@ enum ComputePopulationSize {
      * @param population the student population
      * @return a list of enrolling students, each with a list of selected courses
      */
-    private static List<EnrollingStudent> simulateRegistrations(final Collection<OfferedCourse> courses,
+    private static List<EnrollingStudent> simulateRegistrations(final Collection<Course> courses,
                                                                 final StudentPopulation population) {
 
         final List<EnrollingStudent> enrollingStudents = new ArrayList<>(200);
 
         // Generate hypothetical registrations and see how many seats are used in each course
 
-        for (final OfferedCourse course : courses) {
+        for (final Course course : courses) {
             course.resetNumSeatsNeeded();
         }
 
@@ -125,9 +128,9 @@ enum ComputePopulationSize {
             final int count = entry.getValue().intValue();
 
             for (int i = 0; i < count; ++i) {
-                final List<OfferedCourse> coursesToTake = chooseCourses(rnd, courses, classPreferences);
+                final List<Course> coursesToTake = chooseCourses(rnd, courses, classPreferences);
 
-                for (final OfferedCourse course : coursesToTake) {
+                for (final Course course : coursesToTake) {
                     course.incrementNumSeatsNeeded();
                 }
 
@@ -148,10 +151,10 @@ enum ComputePopulationSize {
      * @param classPreferences the class preferences
      * @return the list of courses the student registered for
      */
-    private static List<OfferedCourse> chooseCourses(final RandomGenerator rnd, final Collection<OfferedCourse> courses,
-                                                     final StudentClassPreferences classPreferences) {
+    private static List<Course> chooseCourses(final RandomGenerator rnd, final Collection<Course> courses,
+                                              final StudentClassPreferences classPreferences) {
 
-        final List<OfferedCourse> result = new ArrayList<>(5);
+        final List<Course> result = new ArrayList<>(5);
 
         // This outer loop lets us retry a stochastic process that could fail sometimes many (but not infinite) times.
         for (int i = 0; i < 100; ++i) {
@@ -160,7 +163,7 @@ enum ComputePopulationSize {
             int totalCredits = 0;
 
             // Add all mandatory courses first
-            for (final OfferedCourse course : courses) {
+            for (final Course course : courses) {
                 if (course.mandatory) {
                     result.add(course);
                     totalCredits += course.numCredits;
@@ -171,7 +174,7 @@ enum ComputePopulationSize {
             // number of credits in the student's schedule
 
             for (int j = 0; j < 1000; ++j) {
-                final OfferedCourse selected = classPreferences.pick(rnd);
+                final Course selected = classPreferences.pick(rnd);
 
                 if (!result.contains(selected) && courses.contains(selected)) {
                     final int credits = selected.numCredits;

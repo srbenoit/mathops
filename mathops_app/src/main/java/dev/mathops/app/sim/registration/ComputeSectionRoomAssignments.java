@@ -7,10 +7,11 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
- * Given a list of courses with required seat counts and lists of available classrooms and labs, this class calculates
- * the set of sections and assigns each section to a room.
+ * Given a list of courses with required seat counts and a set of available rooms, this class calculates the set of
+ * sections needed and assigns each section to a room.
  */
 enum ComputeSectionRoomAssignments {
     ;
@@ -18,90 +19,66 @@ enum ComputeSectionRoomAssignments {
     /**
      * Calculates sections and room assignments.
      *
-     * @param courses       the list of courses offered (with the number of seats needed populated)
-     * @param allClassrooms the list of available classrooms
-     * @param allLabs       the list of available labs
-     * @return the smallest of the number of remaining classroom capacity (hours per week) and the remaining lab
-     *         capacity (hours per week), or -1 if there was not enough classroom or lab space to accommodate all
-     *         courses
+     * @param courses the list of courses offered (with the number of seats needed populated)
+     * @param rooms   the set of available rooms
+     * @return true if a set of section assignments was found that provides room space for all courses; false if not
      */
-    static int compute(final Collection<OfferedCourse> courses, final List<AvailableClassroomOld> allClassrooms,
-                       final List<AvailableLab> allLabs) {
+    static boolean canCompute(final Collection<Course> courses, final Rooms rooms) {
 
-        for (final OfferedCourse course : courses) {
-            course.clearAssignedSections();
+        for (final Course course : courses) {
+            course.clearRoomAssignments();
         }
 
-        initializeClassroomsAndLabs(allClassrooms, allLabs);
+        rooms.reset();
 
-        final List<OfferedCourse> toBeAssignedClassrooms = makeListOfCoursesToBeAssignedClassrooms(courses);
-        final List<OfferedCourse> toBeAssignedLabs = makeListOfCoursesToBeAssignedLabs(courses);
+        boolean result = true;
 
-        final int classroomResult = assignClassrooms(toBeAssignedClassrooms, allClassrooms);
-        Log.info("    Classroom result is " + classroomResult);
+        // Consider each possible usage, in turn.
+        for (final ERoomUsage usage : ERoomUsage.values()) {
 
-        final int labResult = classroomResult < 0 ? -1 : assignLabs(toBeAssignedLabs, allLabs);
-        Log.info("    Lab result is " + labResult);
+            // Build a list of courses that have yet to be assigned; we will delete items from this list as they are
+            // assigned.  This list will be sorted based on the number of seats needed (small to large)
+            final List<Course> toBeAssigned = makeListOfCoursesToBeAssigned(courses, usage);
 
-        final int result = Math.min(classroomResult, labResult);
+            assignRooms(toBeAssigned, usage, rooms);
+            final int numUnassigned = toBeAssigned.size();
 
-        if (result >= 0) {
-            for (final AvailableClassroomOld classroom : allClassrooms) {
-                for (final AssignedSection section : classroom.getAssignedSections()) {
-                    section.course.addAssignedClassSection(section);
-                }
+            if (numUnassigned > 0) {
+                // NOTE: this leaves the room data in an incomplete state, but on a failure here, the data is discarded
+                result = false;
+                break;
             }
-            for (final AvailableLab labs : allLabs) {
-                for (final AssignedSection section : labs.getAssignedSections()) {
-                    section.course.addAssignedLabSection(section);
-                }
-            }
+        }
+
+        if (result) {
+            // At this point, the rooms hold the list of their assignments - copy this information over to the courses
+            // so we can present each course's information more easily
+
+//            for (final Room room : rooms.getRooms()) {
+            // TODO: Get "AssignedSection" objects, add to course.
+//            }
         }
 
         return result;
     }
 
     /**
-     * Initializes classroom and lab data structures by setting the hours remaining per week to the daily hours times 5
-     * days, and clearing the list of sections assigned to each classroom or lab.  This also ensures that lists of
-     * classrooms and labs are sorted by room capacity (from low to high).
-     *
-     * @param allClassrooms the list of all classrooms
-     * @param allLabs       the list of all labs
-     */
-    private static void initializeClassroomsAndLabs(final List<AvailableClassroomOld> allClassrooms,
-                                                    final List<AvailableLab> allLabs) {
-
-        for (final AvailableClassroomOld classroom : allClassrooms) {
-            classroom.setHoursRemainingInWeek(5 * classroom.hoursPerDay);
-            classroom.clearAssignedSections();
-        }
-
-        for (final AvailableLab lab : allLabs) {
-            lab.setHoursRemainingInWeek(5 * lab.hoursPerDay);
-            lab.clearAssignedSections();
-        }
-
-        allClassrooms.sort(null);
-        allLabs.sort(null);
-    }
-
-    /**
-     * Scan a list of courses for all that have a nonzero number of needed seats and a nonzero number of classroom hours
-     * per week, and assemble into a list of courses to be assigned to rooms.  The resulting list is sorted by number of
+     * Scan a list of courses for all that have a nonzero number of needed seats and have a need for a specified room
+     * usage, and assemble into a list of courses to be assigned to rooms.  The resulting list is sorted by number of
      * seats needed (low to high).
      *
      * @param courses the list of all courses
-     * @return the list of courses that need to be assigned to classrooms
+     * @param usage   the usage currently being assigned
+     * @return the list of courses that need to be assigned to rooms
      */
-    private static List<OfferedCourse> makeListOfCoursesToBeAssignedClassrooms(
-            final Collection<OfferedCourse> courses) {
+    private static List<Course> makeListOfCoursesToBeAssigned(final Collection<Course> courses,
+                                                              final ERoomUsage usage) {
 
         final int count = courses.size();
 
-        final List<OfferedCourse> toBeAssigned = new ArrayList<>(count);
-        for (final OfferedCourse course : courses) {
-            if (course.getNumSeatsNeeded() > 0 && course.classContactHours > 0) {
+        final List<Course> toBeAssigned = new ArrayList<>(count);
+        for (final Course course : courses) {
+            if (course.getNumSeatsNeeded() > 0 && course.getUsages().contains(usage)) {
                 toBeAssigned.add(course);
             }
         }
@@ -114,56 +91,27 @@ enum ComputeSectionRoomAssignments {
 
         final int numToBeAssigned = toBeAssigned.size();
         final String numToBeAssignedStr = Integer.toString(numToBeAssigned);
-        Log.info("There are ", numToBeAssignedStr, " courses that need to be assigned to classrooms.");
+        final String usageName = usage.name();
+        Log.info("There are ", numToBeAssignedStr, " courses that need to be assigned a ", usageName);
 
         return toBeAssigned;
     }
 
     /**
-     * Scan a list of courses for all that have a nonzero number of needed seats and a nonzero number of lab hours per
-     * week, and assemble into a list of courses to be assigned to rooms.  The resulting list is sorted by number of
-     * seats needed (low to high).
+     * Scans a list of courses to find the smallest number of contact hours.
      *
-     * @param courses the list of all courses
-     * @return the list of courses that need to be assigned to labs
-     */
-    private static List<OfferedCourse> makeListOfCoursesToBeAssignedLabs(final Collection<OfferedCourse> courses) {
-
-        final int count = courses.size();
-
-        final List<OfferedCourse> toBeAssigned = new ArrayList<>(count);
-        for (final OfferedCourse course : courses) {
-            if (course.getNumSeatsNeeded() > 0 && course.labContactHours > 0) {
-                toBeAssigned.add(course);
-            }
-        }
-
-        toBeAssigned.sort((o1, o2) -> {
-            final int o1Needed = o1.getNumSeatsNeeded();
-            final int o2Needed = o2.getNumSeatsNeeded();
-            return Integer.compare(o1Needed, o2Needed);
-        });
-
-        final int numToBeAssigned = toBeAssigned.size();
-        final String numToBeAssignedStr = Integer.toString(numToBeAssigned);
-        Log.info("There are ", numToBeAssignedStr, " courses that need to be assigned to labs.");
-
-        return toBeAssigned;
-    }
-
-    /**
-     * Scans a list of courses to find the smallest number of class contact hours.
-     *
+     * @param usage   the room usage
      * @param courses the list of courses
-     * @return the smallest number of class contact hours found
+     * @return the smallest number of class contact hours found for the specified usage
      */
-    private static int getSmallestClassContactHours(final Iterable<OfferedCourse> courses) {
+    private static int getSmallestContactHours(final ERoomUsage usage, final Iterable<Course> courses) {
 
         int smallest = Integer.MAX_VALUE;
 
-        for (final OfferedCourse course : courses) {
-            if (course.classContactHours < smallest) {
-                smallest = course.classContactHours;
+        for (final Course course : courses) {
+            final int contactHours = course.getContactHours(usage);
+            if (contactHours < smallest) {
+                smallest = contactHours;
             }
         }
 
@@ -171,155 +119,87 @@ enum ComputeSectionRoomAssignments {
     }
 
     /**
-     * Scans a list of courses to find the smallest number of lab contact hours.
+     * Given a set of rooms and a minimum number of contact hours, identifies a sub-list that has at least that minimum
+     * number of hours available in a week.
      *
-     * @param courses the list of courses
-     * @return the smallest number of lab contact hours found
-     */
-    private static int getSmallestLabContactHours(final Iterable<OfferedCourse> courses) {
-
-        int smallest = Integer.MAX_VALUE;
-
-        for (final OfferedCourse course : courses) {
-            if (course.labContactHours < smallest) {
-                smallest = course.labContactHours;
-            }
-        }
-
-        return smallest;
-    }
-
-    /**
-     * Given a list of classrooms and a minimum number of class contact hours, identifies a sub-list that has at least
-     * that minimum number of hours available in a week.
-     *
-     * @param allClassrooms        the list of all classrooms
+     * @param rooms                the set of all rooms
      * @param smallestContactHours the smallest allowed number of available hours
      * @return the list of classrooms having at least the smallest number of available hours
      */
-    private static List<AvailableClassroomOld> findClassroomsOfInterest(final Collection<AvailableClassroomOld> allClassrooms,
-                                                                        final int smallestContactHours) {
+    private static List<Room> findRoomsOfInterest(final Rooms rooms, final int smallestContactHours) {
 
-        final int numClassrooms = allClassrooms.size();
+        final List<Room> allRooms = rooms.getRooms();
+        final int numRooms = allRooms.size();
 
-        final List<AvailableClassroomOld> classroomsOfInterest = new ArrayList<>(numClassrooms);
-        for (final AvailableClassroomOld classroom : allClassrooms) {
-            if (classroom.getHoursRemainingInWeek() >= smallestContactHours) {
-                classroomsOfInterest.add(classroom);
+        final List<Room> roomsOfInterest = new ArrayList<>(numRooms);
+        for (final Room room : allRooms) {
+            if (room.getTotalHoursFree() >= smallestContactHours) {
+                roomsOfInterest.add(room);
             }
         }
 
-        return classroomsOfInterest;
+        return roomsOfInterest;
     }
 
     /**
-     * Given a list of labs and a minimum number of lab contact hours, identifies a sub-list that has at least that
-     * minimum number of hours available in a week.
-     *
-     * @param allLabs              the list of all labs
-     * @param smallestContactHours the smallest allowed number of available hours
-     * @return the list of labs having at least the smallest number of available hours
-     */
-    private static List<AvailableLab> findLabsOfInterest(final Collection<AvailableLab> allLabs,
-                                                         final int smallestContactHours) {
-
-        // FIXME: For labs we need the hours to be contiguous, so we really want to track hours free in a day, not
-        //  in the entire week, and we want to consume hours in blocks tied to a single day
-
-        final int numLabs = allLabs.size();
-
-        final List<AvailableLab> labsOfInterest = new ArrayList<>(numLabs);
-        for (final AvailableLab classroom : allLabs) {
-            if (classroom.getHoursRemainingInWeek() >= smallestContactHours) {
-                labsOfInterest.add(classroom);
-            }
-        }
-
-        return labsOfInterest;
-    }
-
-    /**
-     * Given a list of courses to be assigned, and a list of classroom groups, attempts to assign as many courses to
+     * Given a list of courses to be assigned, and a list of groups of rooms, attempts to assign as many courses to
      * groups as possible.
      *
-     * @param toBeAssigned the list of courses that need to be assigned to classrooms (this list is altered within this
-     *                     method - courses are removed as they are assigned)
-     * @param groups       the list of classroom groups
+     * @param toBeAssigned the list of courses that need to be assigned to rooms for this specific usage (this list is
+     *                     altered within this method - courses are removed as they are assigned)
+     * @param usage        the usage being assigned
+     * @param groups       a list of potential classroom groups across which to try to split sections that are too large
+     *                     to schedule in a single room
      */
-    private static void assignSectionsToGroups(final Iterable<OfferedCourse> toBeAssigned,
-                                               final Iterable<AvailableClassroomGroup> groups) {
+    private static void assignSectionsToGroups(final Iterable<Course> toBeAssigned, final ERoomUsage usage,
+                                               final Iterable<Rooms> groups) {
 
-        for (final AvailableClassroomGroup group : groups) {
-            final int seats = group.totalCapacity;
-            final int hoursAvail = group.getHoursRemainingInWeek();
+        final Collection<RoomAssignment> assignmentsMade = new ArrayList<>(10);
 
-            final Iterator<OfferedCourse> iterator = toBeAssigned.iterator();
+        for (final Rooms group : groups) {
+            final int seatsAvail = group.totalCapacity();
+            final int hoursAvail = group.totalHoursFree();
+            final List<Room> rooms = group.getRooms();
+
+            final Iterator<Course> iterator = toBeAssigned.iterator();
             while (iterator.hasNext()) {
-                final OfferedCourse course = iterator.next();
-                if (course.isClassroomGroupCompatible(group)) {
+                final Course course = iterator.next();
 
-                    final int hoursNeeded = course.classContactHours;
-                    int seatsNeeded = course.getNumSeatsNeeded();
+                if (course.areRoomsCompatible(usage, group)) {
+                    final int hoursNeeded = course.getContactHours(usage);
+                    final int seatsNeeded = course.getNumSeatsNeeded();
 
-                    if (hoursNeeded <= hoursAvail && seatsNeeded <= seats) {
-                        for (final AvailableClassroomOld classroom : group.getClassrooms()) {
+                    if (hoursNeeded <= hoursAvail && seatsNeeded <= seatsAvail) {
 
-                            final AssignedSection sect;
-                            if (seatsNeeded >= classroom.capacity) {
-                                sect = new AssignedSection(course, classroom.capacity);
-                                seatsNeeded -= classroom.capacity;
+                        assignmentsMade.clear();
+                        boolean fail = false;
+
+                        for (final Room room : rooms) {
+                            final int roomCap = room.getCapacity();
+                            final int seatsToAssign = Math.min(seatsNeeded, roomCap);
+                            final EAssignmentType type = course.getAssignmentType(usage);
+
+                            final Optional<RoomAssignment> assignment = room.addAssignment(hoursNeeded * 2, type,
+                                    course, seatsToAssign, usage);
+
+                            if (assignment.isPresent()) {
+                                assignmentsMade.add(assignment.get());
                             } else {
-                                sect = new AssignedSection(course, seatsNeeded);
+                                fail = true;
+                                break;
                             }
-                            classroom.decreaseHoursRemaining(hoursNeeded);
-                            classroom.addAssignedSection(sect);
                         }
 
-                        iterator.remove();
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Given a list of courses whose lab component is to be assigned, and a list of lab groups, attempts to assign as
-     * many courses to groups as possible.
-     *
-     * @param toBeAssigned the list of courses that need to be assigned to classrooms (this list is altered within this
-     *                     method - courses are removed as they are assigned)
-     * @param groups       the list of classroom groups
-     */
-    private static void assignSectionsToLabGroups(final Iterable<OfferedCourse> toBeAssigned,
-                                                  final Iterable<AvailableLabGroup> groups) {
-
-        for (final AvailableLabGroup group : groups) {
-            final int seats = group.totalCapacity;
-            final int hoursAvail = group.getHoursRemainingInWeek();
-
-            final Iterator<OfferedCourse> iterator = toBeAssigned.iterator();
-            while (iterator.hasNext()) {
-                final OfferedCourse course = iterator.next();
-                if (course.isLabGroupCompatible(group)) {
-
-                    final int hoursNeeded = course.labContactHours;
-                    int seatsNeeded = course.getNumSeatsNeeded();
-
-                    if (hoursNeeded <= hoursAvail && seatsNeeded <= seats) {
-                        for (final AvailableLab lab : group.getLabs()) {
-
-                            final AssignedSection sect;
-                            if (seatsNeeded >= lab.capacity) {
-                                sect = new AssignedSection(course, lab.capacity);
-                                seatsNeeded -= lab.capacity;
-                            } else {
-                                sect = new AssignedSection(course, seatsNeeded);
+                        if (fail) {
+                            // At least one room could not accommodate the course (based on the needed distribution of
+                            // blocks of time), so roll back all assignments for this group
+                            for (final RoomAssignment assign : assignmentsMade) {
+                                assign.room().removeAssignment(assign);
                             }
-                            lab.decreaseHoursRemaining(hoursNeeded);
-                            lab.addAssignedSection(sect);
+                        } else {
+                            // This course has been assigned successfully
+                            iterator.remove();
                         }
-
-                        iterator.remove();
                     }
                 }
             }
@@ -329,19 +209,17 @@ enum ComputeSectionRoomAssignments {
     /**
      * Assigns course sections to classrooms.
      *
-     * @param toBeAssigned  the list of courses that need to be assigned to classrooms (this list is altered within this
-     *                      method - courses are removed as they are assigned)
-     * @param allClassrooms the list of available classrooms
-     * @return the number of remaining classroom capacity (hours per week); -1 if there was not sufficient classroom
-     *         capacity to assign all courses
+     * @param toBeAssigned the list of courses that need to be assigned to rooms (this list is altered within this
+     *                     method - courses are removed as they are assigned)
+     * @param usage        the room usage being considered
+     * @param rooms        the set of rooms
      */
-    private static int assignClassrooms(final List<OfferedCourse> toBeAssigned,
-                                        final Collection<AvailableClassroomOld> allClassrooms) {
+    private static void assignRooms(final List<Course> toBeAssigned, final ERoomUsage usage, final Rooms rooms) {
 
         // Classroom Pass 1: take the smallest classroom and assign it to all courses that will fit; then move to the
         // next smallest classroom, and so on, for all classrooms
 
-        assignSingleSectionCourses(toBeAssigned, allClassrooms);
+        assignSingleSectionCourses(toBeAssigned, usage, rooms);
 
         // At this point, all classes that can be offered in one section have been processed.  If we are finished, do
         // no more work.  Otherwise, we need to split high-enrollment courses into multiple sections.
@@ -351,7 +229,7 @@ enum ComputeSectionRoomAssignments {
             // Classroom Pass 2: Generate all combinations of 2 rooms, and sort that list by total capacity.  Then
             // repeat the above assignment process for these groups.
 
-            assign2SectionCourses(toBeAssigned, allClassrooms);
+            assign2SectionCourses(toBeAssigned, usage, rooms);
 
             // At this point, all classes that can be offered in one or two sections have been processed.  If we are
             // finished, do no more work.
@@ -361,7 +239,7 @@ enum ComputeSectionRoomAssignments {
                 // Classroom Pass 3: Generate all combinations of 3 rooms, and sort that list by total capacity.  Then
                 // repeat the above assignment process for these groups.
 
-                assign3SectionCourses(toBeAssigned, allClassrooms);
+                assign3SectionCourses(toBeAssigned, usage, rooms);
 
                 if (!toBeAssigned.isEmpty()) {
 
@@ -370,54 +248,43 @@ enum ComputeSectionRoomAssignments {
                     // assigning classrooms from the largest downward, until we run out of classrooms our have assigned
                     // all courses.
 
-                    assignLargeCourses(toBeAssigned, allClassrooms);
+                    assignLargeCourses(toBeAssigned, usage, rooms);
                 }
             }
         }
-
-        int result;
-
-        if (toBeAssigned.isEmpty()) {
-            // All classes have been assigned - see how many free hours per week remain in classrooms
-            result = 0;
-            for (final AvailableClassroomOld classroom : allClassrooms) {
-                result += classroom.getHoursRemainingInWeek();
-            }
-        } else {
-            // We were not able to assign all classes - there must not be enough classroom space
-            result = -1;
-        }
-
-        return result;
     }
 
     /**
-     * Scans for all courses that can be accommodated with a single section in a classroom, and makes those assignments,
+     * Scans for all courses that can be accommodated with a single section in a room, and makes those assignments,
      * removing those courses from the list to be assigned.
      *
-     * @param toBeAssigned  the list of courses that need to be assigned to classrooms (this list is altered within this
-     *                      method - courses are removed as they are assigned)
-     * @param allClassrooms the list of available classrooms
+     * @param toBeAssigned the list of courses that need to be assigned to classrooms (this list is altered within this
+     *                     method - courses are removed as they are assigned)
+     * @param usage        the room usage being considered
+     * @param rooms        the set of rooms
      */
-    private static void assignSingleSectionCourses(final Iterable<OfferedCourse> toBeAssigned,
-                                                   final Iterable<AvailableClassroomOld> allClassrooms) {
+    private static void assignSingleSectionCourses(final Iterable<Course> toBeAssigned, final ERoomUsage usage,
+                                                   final Rooms rooms) {
 
-        for (final AvailableClassroomOld classroom : allClassrooms) {
-            final int seats = classroom.capacity;
-            final int hoursAvail = classroom.getHoursRemainingInWeek();
+        for (final Room room : rooms.getRooms()) {
+            final int seats = room.getCapacity();
 
-            final Iterator<OfferedCourse> iterator = toBeAssigned.iterator();
+            final Iterator<Course> iterator = toBeAssigned.iterator();
             while (iterator.hasNext()) {
-                final OfferedCourse course = iterator.next();
-                if (course.isClassroomCompatible(classroom)) {
-                    final int hoursNeeded = course.classContactHours;
-                    final int seatsNeeded = course.getNumSeatsNeeded();
+                final Course course = iterator.next();
 
-                    if (hoursNeeded <= hoursAvail && seatsNeeded <= seats) {
-                        final AssignedSection sect = new AssignedSection(course, seatsNeeded);
-                        classroom.decreaseHoursRemaining(hoursNeeded);
-                        classroom.addAssignedSection(sect);
-                        iterator.remove();
+                if (course.isRoomCompatible(usage, room)) {
+                    final int seatsNeeded = course.getNumSeatsNeeded();
+                    if (seatsNeeded <= seats) {
+                        final int hours = course.getContactHours(usage);
+                        final EAssignmentType type = course.getAssignmentType(usage);
+
+                        final Optional<RoomAssignment> assignment = room.addAssignment(
+                                hours * 2, type, course, seatsNeeded, usage);
+
+                        if (assignment.isPresent()) {
+                            iterator.remove();
+                        }
                     }
                 }
             }
@@ -428,50 +295,50 @@ enum ComputeSectionRoomAssignments {
      * Scans for all courses that can be accommodated with two sections and makes those assignments, removing those
      * courses from the list to be assigned.
      *
-     * @param toBeAssigned  the list of courses that need to be assigned to classrooms (this list is altered within this
-     *                      method - courses are removed as they are assigned)
-     * @param allClassrooms the list of available classrooms
+     * @param toBeAssigned the list of courses that need to be assigned to classrooms (this list is altered within this
+     *                     method - courses are removed as they are assigned)
+     * @param usage        the room usage being considered
+     * @param rooms        the set of rooms
      */
-    private static void assign2SectionCourses(final Iterable<OfferedCourse> toBeAssigned,
-                                              final Collection<AvailableClassroomOld> allClassrooms) {
+    private static void assign2SectionCourses(final Iterable<Course> toBeAssigned, final ERoomUsage usage,
+                                              final Rooms rooms) {
 
         // Find the smallest number of hours needed for any remaining course, and then remove from consideration any
         // classrooms that do not have at least that many hours of availability per week remaining
 
-        final int smallestContactHours = getSmallestClassContactHours(toBeAssigned);
-        final List<AvailableClassroomOld> classroomsOfInterest = findClassroomsOfInterest(allClassrooms,
-                smallestContactHours);
+        final int smallestContactHours = getSmallestContactHours(usage, toBeAssigned);
+        final List<Room> roomsOfInterest = findRoomsOfInterest(rooms, smallestContactHours);
 
         // Make sure there are at least 2 classrooms that could accommodate courses - if not, we're done!
 
-        final int numOfInterest = classroomsOfInterest.size();
+        final int numOfInterest = roomsOfInterest.size();
         if (numOfInterest > 1) {
 
             // Generate a set of all groups of 2 classrooms, then assign as many courses to those groups as possible
 
-            final List<AvailableClassroomGroup> groups = makeGroupsOf2(classroomsOfInterest);
-            assignSectionsToGroups(toBeAssigned, groups);
+            final List<Rooms> groups = makeGroupsOf2(roomsOfInterest);
+            assignSectionsToGroups(toBeAssigned, usage, groups);
         }
     }
 
     /**
      * Creates all possible groups of 2 classrooms from a list of classrooms of interest.
      *
-     * @param classroomsOfInterest the list of classrooms of interest
+     * @param roomsOfInterest the list of classrooms of interest
      * @return the list of groups of 2 classrooms, sorted by total capacity (if there are N classrooms of interest, this
      *         list will contain (N)(N-1) entries)
      */
-    private static List<AvailableClassroomGroup> makeGroupsOf2(final List<AvailableClassroomOld> classroomsOfInterest) {
+    private static List<Rooms> makeGroupsOf2(final List<Room> roomsOfInterest) {
 
-        final int size = classroomsOfInterest.size();
+        final int size = roomsOfInterest.size();
         final int numGroups = size * (size - 1);
-        final List<AvailableClassroomGroup> groups = new ArrayList<>(numGroups);
+        final List<Rooms> groups = new ArrayList<>(numGroups);
 
         for (int i = 0; i < (size - 1); ++i) {
-            final AvailableClassroomOld room1 = classroomsOfInterest.get(i);
+            final Room room1 = roomsOfInterest.get(i);
             for (int j = i + 1; j < size; ++j) {
-                final AvailableClassroomOld room2 = classroomsOfInterest.get(j);
-                final AvailableClassroomGroup group = new AvailableClassroomGroup(room1, room2);
+                final Room room2 = roomsOfInterest.get(j);
+                final Rooms group = new Rooms(room1, room2);
                 groups.add(group);
             }
         }
@@ -485,52 +352,52 @@ enum ComputeSectionRoomAssignments {
      * Scans for all courses that can be accommodated with three sections and makes those assignments, removing those
      * courses from the list to be assigned.
      *
-     * @param toBeAssigned  the list of courses that need to be assigned to classrooms (this list is altered within this
-     *                      method - courses are removed as they are assigned)
-     * @param allClassrooms the list of available classrooms
+     * @param toBeAssigned the list of courses that need to be assigned to classrooms (this list is altered within this
+     *                     method - courses are removed as they are assigned)
+     * @param usage        the room usage being considered
+     * @param rooms        the set of rooms
      */
-    private static void assign3SectionCourses(final Iterable<OfferedCourse> toBeAssigned,
-                                              final Collection<AvailableClassroomOld> allClassrooms) {
+    private static void assign3SectionCourses(final Iterable<Course> toBeAssigned, final ERoomUsage usage,
+                                              final Rooms rooms) {
 
         // Find the smallest number of hours needed for any remaining course, and then remove from consideration any
         // classrooms that do not have at least that many hours of availability per week remaining
 
-        final int smallestContactHours = getSmallestClassContactHours(toBeAssigned);
-        final List<AvailableClassroomOld> classroomsOfInterest = findClassroomsOfInterest(allClassrooms,
-                smallestContactHours);
+        final int smallestContactHours = getSmallestContactHours(ERoomUsage.CLASSROOM, toBeAssigned);
+        final List<Room> roomsOfInterest = findRoomsOfInterest(rooms, smallestContactHours);
 
         // Make sure there are at least 3 classrooms that could accommodate courses - if not, we're done!
 
-        final int numOfInterest = classroomsOfInterest.size();
+        final int numOfInterest = roomsOfInterest.size();
         if (numOfInterest > 2) {
 
             // Generate a set of all groups of 3 classrooms, then assign as many courses to those groups as possible
 
-            final List<AvailableClassroomGroup> groups = makeGroupsOf3(classroomsOfInterest);
-            assignSectionsToGroups(toBeAssigned, groups);
+            final List<Rooms> groups = makeGroupsOf3(roomsOfInterest);
+            assignSectionsToGroups(toBeAssigned, usage, groups);
         }
     }
 
     /**
      * Creates all possible groups of 3 classrooms from a list of classrooms of interest.
      *
-     * @param classroomsOfInterest the list of classrooms of interest
+     * @param roomsOfInterest the list of classrooms of interest
      * @return the list of groups of 3 classrooms, sorted by total capacity (if there are N classrooms of interest, this
      *         list will contain (N)(N-1)(N-2) entries)
      */
-    private static List<AvailableClassroomGroup> makeGroupsOf3(final List<AvailableClassroomOld> classroomsOfInterest) {
+    private static List<Rooms> makeGroupsOf3(final List<Room> roomsOfInterest) {
 
-        final int size = classroomsOfInterest.size();
+        final int size = roomsOfInterest.size();
         final int numGroups = size * (size - 1) * (size - 2);
-        final List<AvailableClassroomGroup> groups = new ArrayList<>(numGroups);
+        final List<Rooms> groups = new ArrayList<>(numGroups);
 
         for (int i = 0; i < (size - 2); ++i) {
-            final AvailableClassroomOld room1 = classroomsOfInterest.get(i);
+            final Room room1 = roomsOfInterest.get(i);
             for (int j = i + 1; j < (size - 1); ++j) {
-                final AvailableClassroomOld room2 = classroomsOfInterest.get(j);
+                final Room room2 = roomsOfInterest.get(j);
                 for (int k = j + 1; k < size; ++k) {
-                    final AvailableClassroomOld room3 = classroomsOfInterest.get(k);
-                    final AvailableClassroomGroup group = new AvailableClassroomGroup(room1, room2, room3);
+                    final Room room3 = roomsOfInterest.get(k);
+                    final Rooms group = new Rooms(room1, room2, room3);
                     groups.add(group);
                 }
             }
@@ -545,83 +412,96 @@ enum ComputeSectionRoomAssignments {
      * Scans for all courses that cannot be accommodated with three or fewer sections and makes those assignments,
      * removing those courses from the list to be assigned.
      *
-     * @param toBeAssigned  the list of courses that need to be assigned to classrooms (this list is altered within this
-     *                      method - courses are removed as they are assigned)
-     * @param allClassrooms the list of available classrooms
+     * @param toBeAssigned the list of courses that need to be assigned to classrooms (this list is altered within this
+     *                     method - courses are removed as they are assigned)
+     * @param usage        the room usage being considered
+     * @param rooms        the set of rooms
      */
-    private static void assignLargeCourses(final List<OfferedCourse> toBeAssigned,
-                                           final Collection<AvailableClassroomOld> allClassrooms) {
+    private static void assignLargeCourses(final List<Course> toBeAssigned, final ERoomUsage usage, final Rooms rooms) {
 
         // As before, we find the smallest number of hours needed for any remaining course, and then remove from
         // consideration any classrooms that do not have at least that many hours of availability per week remaining
 
-        final int smallestContactHours = getSmallestClassContactHours(toBeAssigned);
-        final List<AvailableClassroomOld> classroomsOfInterest = findClassroomsOfInterest(allClassrooms,
-                smallestContactHours);
+        final int smallestContactHours = getSmallestContactHours(usage, toBeAssigned);
+        final List<Room> roomsOfInterest = findRoomsOfInterest(rooms, smallestContactHours);
 
         // The list of courses to be assigned will be sorted in increasing order by needed capacity, so we start at the
         // end (the largest capacity need) and work downward.  For each course, we work downward through compatible
         // classrooms (from largest to smallest), and try to assemble a set of classrooms that can meet the need.
 
         final int numCourses = toBeAssigned.size();
-        final int numClassrooms = classroomsOfInterest.size();
+        final int numClassrooms = roomsOfInterest.size();
 
-        final Collection<AvailableClassroomOld> potentialClassrooms = new ArrayList<>(10);
+        // We track assignments made for each course so that, if we cannot ultimately assign the course, we can remove
+        // its partial list of assignments from classrooms
+        final Collection<RoomAssignment> assignmentsMade = new ArrayList<>(10);
 
         for (int i = numCourses - 1; i >= 0; --i) {
-            final OfferedCourse course = toBeAssigned.get(i);
-            final int hoursNeeded = course.classContactHours;
+            final Course course = toBeAssigned.get(i);
+            final int hoursNeeded = course.getContactHours(usage);
             int seatsNeeded = course.getNumSeatsNeeded();
+            final EAssignmentType type = course.getAssignmentType(usage);
 
-            // Note: As we scan downward in classroom capacity, we might end up using a large room for a very small
-            // set of students at the end.  To avoid this, we keep track of the "last" room allocated (when that room
-            // would take needed capacity down to zero), and keep scanning for smaller rooms that could also serve as
-            // the "last" room.
+            // Pass 1: scan from the largest room down to the smallest, assigning as possible, until we have met the
+            // required capacity.
 
-            potentialClassrooms.clear();
-            AvailableClassroomOld last = null;
+            assignmentsMade.clear();
+            Room last = null;
             for (int j = numClassrooms - 1; j >= 0; --j) {
-                final AvailableClassroomOld classroom = classroomsOfInterest.get(j);
-                if (course.isClassroomCompatible(classroom) && classroom.getHoursRemainingInWeek() >= hoursNeeded) {
+                final Room room = roomsOfInterest.get(j);
+
+                if (course.isRoomCompatible(usage, room)) {
+                    final int roomCap = room.getCapacity();
+                    final int seatsToAssign = Math.min(roomCap, seatsNeeded);
+
+                    final Optional<RoomAssignment> assignment = room.addAssignment(hoursNeeded * 2, type, course, seatsToAssign, usage);
+
+                    if (assignment.isPresent()) {
+                       assignmentsMade.add(assignment.get());
+                    }
+
                     if (last == null) {
                         // We are not yet scanning for the smallest "last" room)
-                        if (seatsNeeded > classroom.capacity) {
+                        if (seatsNeeded > room.capacity) {
                             // This one will not be the last - track it and move on
-                            potentialClassrooms.add(classroom);
-                            seatsNeeded -= classroom.capacity;
+                            potentialClassrooms.add(room);
+                            seatsNeeded -= room.capacity;
                         } else {
                             // This one would work as the "last" room - track as the current "last" room, but don't
                             // add yet to "potentialClassrooms" until we're sure it's the right "last" room to use.
-                            last = classroom;
+                            last = room;
                         }
-                    } else if (seatsNeeded <= classroom.capacity) {
+                    } else if (seatsNeeded <= room.capacity) {
                         // This room is smaller and will also work as the "last" room - track it as the current "last"
                         // room, but keep scanning
-                        last = classroom;
+                        last = room;
                     }
                 }
             }
 
-            // If "last" is null here, we failed to find enough available classroom space, so do nothing.
+            // Pass 2: the last room we allocated might not have been the smallest that could have still met class
+            // capacity needs, so start from the small end and see if we could make an alternative assignment that
+            // meets needs more efficiently.
+
             if (Objects.nonNull(last)) {
-                potentialClassrooms.add(last);
+                assignmentsMade.add(last);
 
                 // The list of potential classrooms will work - make the assignments
                 int stillNeeded = course.getNumSeatsNeeded();
-                for (final AvailableClassroomOld classroom : potentialClassrooms) {
+                for (final RoomAssignment assignments : assignmentsMade) {
 
                     final AssignedSection sect;
 
-                    if (classroom.capacity > stillNeeded) {
+                    if (assignments.capacity > stillNeeded) {
                         sect = new AssignedSection(course, stillNeeded);
                         stillNeeded = 0;
                     } else {
-                        sect = new AssignedSection(course, classroom.capacity);
-                        stillNeeded -= classroom.capacity;
+                        sect = new AssignedSection(course, assignments.capacity);
+                        stillNeeded -= assignments.capacity;
                     }
 
-                    classroom.decreaseHoursRemaining(hoursNeeded);
-                    classroom.addAssignedSection(sect);
+                    assignments.decreaseHoursRemaining(hoursNeeded);
+                    assignments.addAssignedSection(sect);
                 }
 
                 // This course has been assigned - remove it from the "toBeAssigned" list
@@ -629,305 +509,4 @@ enum ComputeSectionRoomAssignments {
             }
         }
     }
-
-    /**
-     * Assigns course sections to labs.
-     *
-     * @param toBeAssigned the list of courses that need to be assigned to labs (this list is altered within this method
-     *                     - courses are removed as they are assigned)
-     * @param allLabs      the list of available labs
-     * @return the number of remaining lab capacity (hours per week); -1 if there was not sufficient lab capacity to
-     *         assign all courses
-     */
-    private static int assignLabs(final List<OfferedCourse> toBeAssigned, final List<AvailableLab> allLabs) {
-
-        // Lab Pass 1: take the smallest lab and assign it to all courses that will fit; then move to the next smallest
-        // lab, and so on, for all labs
-
-        assignSingleSectionLabs(toBeAssigned, allLabs);
-
-        // At this point, all labs that can be offered in one section have been processed.  If we are finished, do no
-        // more work.  Otherwise, we need to split high-enrollment labs into multiple sections.
-
-        if (!toBeAssigned.isEmpty()) {
-
-            // Lab Pass 2: Generate all combinations of 2 labs, and sort that list by total capacity.  Then repeat the
-            // above assignment process for these groups.
-
-            assign2SectionLabs(toBeAssigned, allLabs);
-
-            // At this point, all labs that can be offered in one or two sections have been processed.  If we are
-            // finished, do no more work.
-
-            if (!toBeAssigned.isEmpty()) {
-
-                // Lab Pass 3: Generate all combinations of 3 labs, and sort that list by total capacity.  Then repeat
-                // the above assignment process for these groups.
-
-                assign3SectionLabs(toBeAssigned, allLabs);
-
-                if (!toBeAssigned.isEmpty()) {
-
-                    // Lab Pass 4: all that remain at this point are labs too large to split into 3 or fewer sections.
-                    // We change our strategy here to grab the lab with the greatest size, and start assigning labs from
-                    // the largest downward, until we run out of lab our have assigned all courses.
-
-                    assignLargeLabs(toBeAssigned, allLabs);
-                }
-            }
-        }
-
-        int result;
-
-        if (toBeAssigned.isEmpty()) {
-            // All labs have been assigned - see how many free hours per week remain in labs
-            result = 0;
-            for (final AvailableLab lab : allLabs) {
-                result += lab.getHoursRemainingInWeek();
-            }
-        } else {
-            // We were not able to assign all labs - there must not be enough lab space
-            result = -1;
-        }
-
-        return result;
-    }
-
-    /**
-     * Scans for all courses whose lab component can be accommodated with a single section in a lab, and makes those
-     * assignments, removing those courses from the list to be assigned.
-     *
-     * @param toBeAssigned the list of courses whose lab component need to be assigned to labs (this list is altered
-     *                     within this method - courses are removed as they are assigned)
-     * @param allLabs      the list of available labs
-     */
-    private static void assignSingleSectionLabs(final Iterable<OfferedCourse> toBeAssigned,
-                                                final Iterable<AvailableLab> allLabs) {
-
-        for (final AvailableLab lab : allLabs) {
-            final int seats = lab.capacity;
-            final int hoursAvail = lab.getHoursRemainingInWeek();
-
-            final Iterator<OfferedCourse> iterator = toBeAssigned.iterator();
-            while (iterator.hasNext()) {
-                final OfferedCourse course = iterator.next();
-                if (course.isLabCompatible(lab)) {
-                    final int hoursNeeded = course.labContactHours;
-                    final int seatsNeeded = course.getNumSeatsNeeded();
-
-                    if (hoursNeeded <= hoursAvail && seatsNeeded <= seats) {
-                        final AssignedSection sect = new AssignedSection(course, seatsNeeded);
-                        lab.decreaseHoursRemaining(hoursNeeded);
-                        lab.addAssignedSection(sect);
-                        iterator.remove();
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Scans for all courses whose lab component can be accommodated with two sections and makes those assignments,
-     * removing those courses from the list to be assigned.
-     *
-     * @param toBeAssigned the list of courses that need to be assigned to labs (this list is altered within this method
-     *                     - courses are removed as they are assigned)
-     * @param allLabs      the list of available labs
-     */
-    private static void assign2SectionLabs(final Iterable<OfferedCourse> toBeAssigned,
-                                           final Collection<AvailableLab> allLabs) {
-
-        // Find the smallest number of hours needed for any remaining course, and then remove from consideration any
-        // classrooms that do not have at least that many hours of availability per week remaining
-
-        final int smallestContactHours = getSmallestLabContactHours(toBeAssigned);
-        final List<AvailableLab> labsOfInterest = findLabsOfInterest(allLabs, smallestContactHours);
-
-        // Make sure there are at least 2 labs that could accommodate courses - if not, we're done!
-
-        final int numOfInterest = labsOfInterest.size();
-        if (numOfInterest > 1) {
-
-            // Generate a set of all groups of 2 labs, then assign as many courses to those groups as possible
-
-            final List<AvailableLabGroup> groups = makeGroupsOf2Labs(labsOfInterest);
-            assignSectionsToLabGroups(toBeAssigned, groups);
-        }
-    }
-
-    /**
-     * Creates all possible groups of 2 labs from a list of labs of interest.
-     *
-     * @param labsOfInterest the list of labs of interest
-     * @return the list of groups of 2 labs, sorted by total capacity (if there are N labs of interest, this list will
-     *         contain (N)(N-1) entries)
-     */
-    private static List<AvailableLabGroup> makeGroupsOf2Labs(final List<AvailableLab> labsOfInterest) {
-
-        final int size = labsOfInterest.size();
-        final int numGroups = size * (size - 1);
-        final List<AvailableLabGroup> groups = new ArrayList<>(numGroups);
-
-        for (int i = 0; i < (size - 1); ++i) {
-            final AvailableLab lab1 = labsOfInterest.get(i);
-            for (int j = i + 1; j < size; ++j) {
-                final AvailableLab lab2 = labsOfInterest.get(j);
-                final AvailableLabGroup group = new AvailableLabGroup(lab1, lab2);
-                groups.add(group);
-            }
-        }
-
-        groups.sort(null);
-
-        return groups;
-    }
-
-    /**
-     * Scans for all courses whose lab components can be accommodated with three sections and makes those assignments,
-     * removing those courses from the list to be assigned.
-     *
-     * @param toBeAssigned the list of courses that need to be assigned to labs (this list is altered within this method
-     *                     - courses are removed as they are assigned)
-     * @param allLabs      the list of available labs
-     */
-    private static void assign3SectionLabs(final Iterable<OfferedCourse> toBeAssigned,
-                                           final Collection<AvailableLab> allLabs) {
-
-        // Find the smallest number of hours needed for any remaining course, and then remove from consideration any
-        // classrooms that do not have at least that many hours of availability per week remaining
-
-        final int smallestContactHours = getSmallestLabContactHours(toBeAssigned);
-        final List<AvailableLab> labsOfInterest = findLabsOfInterest(allLabs, smallestContactHours);
-
-        // Make sure there are at least 3 labs that could accommodate courses - if not, we're done!
-
-        final int numOfInterest = labsOfInterest.size();
-        if (numOfInterest > 2) {
-
-            // Generate a set of all groups of 3 labs, then assign as many courses to those groups as possible
-
-            final List<AvailableLabGroup> groups = makeGroupsOf3Labs(labsOfInterest);
-            assignSectionsToLabGroups(toBeAssigned, groups);
-        }
-    }
-
-    /**
-     * Creates all possible groups of 3 labs from a list of labs of interest.
-     *
-     * @param labsOfInterest the list of labs of interest
-     * @return the list of groups of 3 labs, sorted by total capacity (if there are N labs of interest, this list will
-     *         contain (N)(N-1)(N-2) entries)
-     */
-    private static List<AvailableLabGroup> makeGroupsOf3Labs(final List<AvailableLab> labsOfInterest) {
-
-        final int size = labsOfInterest.size();
-        final int numGroups = size * (size - 1) * (size - 2);
-        final List<AvailableLabGroup> groups = new ArrayList<>(numGroups);
-
-        for (int i = 0; i < (size - 2); ++i) {
-            final AvailableLab lab1 = labsOfInterest.get(i);
-            for (int j = i + 1; j < (size - 1); ++j) {
-                final AvailableLab lab2 = labsOfInterest.get(j);
-                for (int k = j + 1; k < size; ++k) {
-                    final AvailableLab lab3 = labsOfInterest.get(k);
-                    final AvailableLabGroup group = new AvailableLabGroup(lab1, lab2, lab3);
-                    groups.add(group);
-                }
-            }
-        }
-
-        groups.sort(null);
-
-        return groups;
-    }
-
-    /**
-     * Scans for all courses whose lab component cannot be accommodated with three or fewer sections and makes those
-     * assignments, removing those courses from the list to be assigned.
-     *
-     * @param toBeAssigned the list of courses that need to be assigned to labs (this list is altered within this method
-     *                     - courses are removed as they are assigned)
-     * @param allLabs      the list of available classrooms
-     */
-    private static void assignLargeLabs(final List<OfferedCourse> toBeAssigned,
-                                        final Collection<AvailableLab> allLabs) {
-
-        // As before, we find the smallest number of hours needed for any remaining course, and then remove from
-        // consideration any labs that do not have at least that many hours of availability per week remaining
-
-        final int smallestContactHours = getSmallestLabContactHours(toBeAssigned);
-        final List<AvailableLab> labsOfInterest = findLabsOfInterest(allLabs, smallestContactHours);
-
-        // The list of courses whose lab component is to be assigned will be sorted in increasing order by needed
-        // capacity, so we start at the end (the largest capacity need) and work downward.  For each course, we work
-        // downward through compatible labs (from largest to smallest), and try to assemble a set of labs that can meet
-        // the need.
-
-        final int numCourses = toBeAssigned.size();
-        final int numLabs = labsOfInterest.size();
-
-        final Collection<AvailableLab> potentialLabs = new ArrayList<>(10);
-
-        for (int i = numCourses - 1; i >= 0; --i) {
-            final OfferedCourse course = toBeAssigned.get(i);
-            final int hoursNeeded = course.labContactHours;
-            int seatsNeeded = course.getNumSeatsNeeded();
-
-            // Note: As we scan downward in classroom capacity, we might end up using a large room for a very small
-            // set of students at the end.  To avoid this, we keep track of the "last" room allocated (when that room
-            // would take needed capacity down to zero), and keep scanning for smaller rooms that could also serve as
-            // the "last" room.
-
-            potentialLabs.clear();
-            AvailableLab last = null;
-            for (int j = numLabs - 1; j >= 0; --j) {
-                final AvailableLab lab = labsOfInterest.get(j);
-                if (course.isLabCompatible(lab) && lab.getHoursRemainingInWeek() >= hoursNeeded) {
-                    if (last == null) {
-                        // We are not yet scanning for the smallest "last" room)
-                        if (seatsNeeded > lab.capacity) {
-                            // This one will not be the last - track it and move on
-                            potentialLabs.add(lab);
-                            seatsNeeded -= lab.capacity;
-                        } else {
-                            // This one would work as the "last" lab - track as the current "last" lab, but don't add
-                            // yet to "potentialLabs" until we're sure it's the right "last" lab to use.
-                            last = lab;
-                        }
-                    } else if (seatsNeeded <= lab.capacity) {
-                        // This lab is smaller and will also work as the "last" lab - track it as the current "last"
-                        // lab, but keep scanning
-                        last = lab;
-                    }
-                }
-            }
-
-            // If "last" is null here, we failed to find enough available lab space, so do nothing.
-            if (Objects.nonNull(last)) {
-                potentialLabs.add(last);
-
-                // The list of potential classrooms will work - make the assignments
-                int stillNeeded = course.getNumSeatsNeeded();
-                for (final AvailableLab lab : potentialLabs) {
-
-                    final AssignedSection sect;
-
-                    if (lab.capacity > stillNeeded) {
-                        sect = new AssignedSection(course, stillNeeded);
-                        stillNeeded = 0;
-                    } else {
-                        sect = new AssignedSection(course, lab.capacity);
-                        stillNeeded -= lab.capacity;
-                    }
-
-                    lab.decreaseHoursRemaining(hoursNeeded);
-                    lab.addAssignedSection(sect);
-                }
-
-                // This course has been assigned - remove it from the "toBeAssigned" list
-                toBeAssigned.remove(i);
-            }
-        }
-    }
-
 }
