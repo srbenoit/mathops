@@ -53,10 +53,12 @@ enum ComputeSectionRoomAssignments {
         if (result) {
             // At this point, the rooms hold the list of their assignments - copy this information over to the courses
             // so we can present each course's information more easily
-
-//            for (final Room room : rooms.getRooms()) {
-            // TODO: Get "AssignedSection" objects, add to course.
-//            }
+            for (final Room room : rooms.getRooms()) {
+                for (final RoomAssignment assignment : room.getAssignments()) {
+                    final ERoomUsage usage = assignment.usage();
+                    assignment.course().addRoomAssignment(usage, assignment);
+                }
+            }
         }
 
         return result;
@@ -460,36 +462,44 @@ enum ComputeSectionRoomAssignments {
                     if (assignment.isPresent()) {
                         last = assignment.get();
                         assignmentsMade.add(last);
+                        seatsNeeded -= seatsToAssign;
+                        if (seatsNeeded <= 0) {
+                            break;
+                        }
                     }
                 }
             }
 
-            // Pass 2: the last room we allocated might not have been the smallest that could have still met class
-            // capacity needs, so start from the small end and see if we could make an alternative assignment that
-            // meets needs more efficiently.
+            if (seatsNeeded <= 0) {
 
-            if (Objects.nonNull(last)) {
+                // Pass 2: the last room we allocated might not have been the smallest that could have still met class
+                // capacity needs, so start from the small end and see if we could make an alternative assignment that
+                // meets needs more efficiently.
 
-                // The list of potential classrooms will work - make the assignments
-                int stillNeeded = course.getNumSeatsNeeded();
-                for (final RoomAssignment assignments : assignmentsMade) {
+                if (Objects.nonNull(last)) {
 
-                    final AssignedSection sect;
+                    // The list of potential classrooms will work - make the assignments
+                    final int numSeatsInLast = last.numSeats();
 
-                    if (assignments.capacity > stillNeeded) {
-                        sect = new AssignedSection(course, stillNeeded);
-                        stillNeeded = 0;
-                    } else {
-                        sect = new AssignedSection(course, assignments.capacity);
-                        stillNeeded -= assignments.capacity;
+                    for (int j = 0; j < numClassrooms; ++j) {
+                        final Room room = roomsOfInterest.get(j);
+                        if (room.getCapacity() < numSeatsInLast) {
+                            continue;
+                        }
+
+                        final Optional<RoomAssignment> assignment = room.addAssignment(hoursNeeded * 2, type, course,
+                                numSeatsInLast, usage);
+
+                        if (assignment.isPresent()) {
+                            // Alternate assignment worked - replace the earlier "last" assignment
+                            last.room().removeAssignment(last);
+                            break;
+                        }
                     }
 
-                    assignments.decreaseHoursRemaining(hoursNeeded);
-                    assignments.addAssignedSection(sect);
+                    // This course has been assigned - remove it from the "toBeAssigned" list
+                    toBeAssigned.remove(i);
                 }
-
-                // This course has been assigned - remove it from the "toBeAssigned" list
-                toBeAssigned.remove(i);
             }
         }
     }

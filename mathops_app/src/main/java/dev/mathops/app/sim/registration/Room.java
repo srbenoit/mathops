@@ -99,16 +99,6 @@ final class Room implements Comparable<Room> {
     }
 
     /**
-     * Gets the number of hours per day the room is available.
-     *
-     * @return the number of hours per day
-     */
-    int getHoursPerDay() {
-
-        return this.hoursPerDay;
-    }
-
-    /**
      * Gets a copy of this room's list of room assignments.
      *
      * @return the list of assignments
@@ -252,7 +242,8 @@ final class Room implements Comparable<Room> {
         } else if (numGroups == 5) {
             ra = addFiveGroupsOf2(newId, course, numSeats, usage);
         } else {
-            Log.warning("ERROR: A class using groups of 2 with " + num25MinBlocks + " is not yet supported");
+            final String numBlocksStr = Integer.toString(num25MinBlocks);
+            Log.warning("ERROR: A class using groups of 2 with ", numBlocksStr, " is not yet supported");
         }
 
         return ra;

@@ -40,6 +40,7 @@ enum ComputePopulationSize {
 
             final String popStr = Integer.toString(pop);
             Log.info("Attempting to modeled a population of ", popStr, " students.");
+
             final Map<StudentClassPreferences, Integer> counts = population.getCounts();
             for (final Map.Entry<StudentClassPreferences, Integer> entry : counts.entrySet()) {
                 final Integer count = entry.getValue();
@@ -68,9 +69,9 @@ enum ComputePopulationSize {
 
                     final Set<ERoomUsage> usages = course.getUsages();
                     for (final ERoomUsage usage : usages) {
-                        final List<AssignedSection> sections = course.getRoomAssignments(usage);
-                        if (sections != null) {
-                            final int numSections = sections.size();
+                        final List<RoomAssignment> assignments = course.getRoomAssignments(usage);
+                        if (assignments != null) {
+                            final int numSections = assignments.size();
                             total += numSections;
                         }
                     }

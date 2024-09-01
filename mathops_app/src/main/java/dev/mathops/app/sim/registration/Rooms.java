@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * A container for a collection of rooms that can try to find assignments for specific classes from its set of rooms.
  */
-final class Rooms {
+final class Rooms implements Comparable<Rooms> {
 
     /** The list of rooms (immutable). */
     private final List<Room> rooms;
@@ -28,13 +28,23 @@ final class Rooms {
     }
 
     /**
-     * Gets the list of rooms.
+     * Gets a copy of the list of rooms.
      *
      * @return the list of rooms
      */
     List<Room> getRooms() {
 
         return new ArrayList<>(this.rooms);
+    }
+
+    /**
+     * Gets the list of rooms.
+     *
+     * @return the list of rooms
+     */
+    private List<Room> innerGetRooms() {
+
+        return this.rooms;
     }
 
     /**
@@ -80,12 +90,52 @@ final class Rooms {
     }
 
     /**
-     * Attempts to find a room that can handle a course.
+     * Computes a hash code for the object.
      *
-     * @param course the course
-     * @return true if the course was assigned; false if not
+     * @return the hash code
      */
-    public boolean canBeAssigned(final Course course) {
+    public int hashCode() {
 
+        return this.rooms.hashCode();
+    }
+
+    /**
+     * Tests whether this object is equal to another.  Equality of this class is tested only on equality of the unique
+     * course ID.
+     *
+     * @param obj the other object
+     * @return true if this object is equal
+     */
+    public boolean equals(final Object obj) {
+
+        final boolean equal;
+
+        if (obj == this) {
+            equal = true;
+        } else if (obj instanceof final Rooms other) {
+            final List<Room> otherRooms = other.innerGetRooms();
+            equal = this.rooms.equals(otherRooms);
+        } else {
+            equal = false;
+        }
+
+        return equal;
+    }
+
+    /**
+     * Compares this object to another for order.  Ordering is based on total capacity.
+     *
+     * @param o the object to be compared
+     * @return the value 0 if this object's capacity equals the other object's capacity a value less than 0 if this
+     *         object's capacity is less than that of the other; and a value greater than 0 if this object's capacity is
+     *         greater than that of the other
+     */
+    @Override
+    public int compareTo(final Rooms o) {
+
+        final int thisCapacity = totalCapacity();
+        final int oCapacity = o.totalCapacity();
+
+        return Integer.compare(thisCapacity, oCapacity);
     }
 }
