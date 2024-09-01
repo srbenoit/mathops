@@ -43,14 +43,14 @@ final class StudentPopulation {
                 newTarget += LARGE_STEP;
             }
         }
-        if (total < targetPopulationSize) {
+        if (total > targetPopulationSize) {
             double newTarget = (double) targetPopulationSize - SMALL_STEP;
-            while (total < targetPopulationSize) {
+            while (total > targetPopulationSize) {
                 total = scaleDistribution(dist, newTarget);
                 newTarget -= SMALL_STEP;
             }
         }
-        if (total > targetPopulationSize) {
+        if (total < targetPopulationSize) {
             double newTarget = (double) targetPopulationSize + TINY_STEP;
             while (total < targetPopulationSize) {
                 total = scaleDistribution(dist, newTarget);
@@ -58,7 +58,7 @@ final class StudentPopulation {
             }
         }
 
-        if (total != targetPopulationSize) {
+        if (total > targetPopulationSize) {
 
             int largest = 0;
             StudentClassPreferences largestKey = null;
@@ -70,15 +70,9 @@ final class StudentPopulation {
                 }
             }
 
-            if (total < targetPopulationSize) {
-                largest += (targetPopulationSize - total);
-                final Integer largestObj = Integer.valueOf(largest);
-                this.counts.put(largestKey, largestObj);
-            } else if (total > targetPopulationSize) {
-                largest -= (total - targetPopulationSize);
-                final Integer largestObj = Integer.valueOf(largest);
-                this.counts.put(largestKey, largestObj);
-            }
+            largest -= (total - targetPopulationSize);
+            final Integer largestObj = Integer.valueOf(largest);
+            this.counts.put(largestKey, largestObj);
         }
     }
 

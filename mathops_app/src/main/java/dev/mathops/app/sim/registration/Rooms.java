@@ -3,6 +3,7 @@ package dev.mathops.app.sim.registration;
 import dev.mathops.commons.builder.HtmlBuilder;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -32,11 +33,11 @@ final class Rooms implements Comparable<Rooms> {
     /**
      * Gets a copy of the list of rooms.
      *
-     * @return the list of rooms
+     * @param list the list of rooms
      */
-    List<Room> getRooms() {
+    void getRooms(final Collection<? super Room> list) {
 
-        return new ArrayList<>(this.rooms);
+        list.addAll(this.rooms);
     }
 
     /**

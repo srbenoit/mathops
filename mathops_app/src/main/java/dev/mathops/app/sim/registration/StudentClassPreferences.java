@@ -11,7 +11,7 @@ import java.util.random.RandomGenerator;
 final class StudentClassPreferences implements Comparable<StudentClassPreferences> {
 
     /** A unique key for this set of preferences. */
-    final String key;
+    private final String key;
 
     /** The minimum number of credits the student wants. */
     final int minCredits;
@@ -40,6 +40,16 @@ final class StudentClassPreferences implements Comparable<StudentClassPreference
     }
 
     /**
+     * Gets the key.
+     *
+     * @return the key
+     */
+    private String getKey() {
+
+        return this.key;
+    }
+
+    /**
      * Sets the preference value for a course.
      *
      * @param course     the course ID
@@ -54,18 +64,18 @@ final class StudentClassPreferences implements Comparable<StudentClassPreference
         this.preferences.put(course, prefObj);
     }
 
-    /**
-     * Gets the preference value for a course.
-     *
-     * @param course the course ID
-     * @return the preference value (0 if the course was not found)
-     */
-    double getPreference(final Course course) {
-
-        final Double prefObj = this.preferences.get(course);
-
-        return prefObj == null ? 0.0 : prefObj.doubleValue();
-    }
+//    /**
+//     * Gets the preference value for a course.
+//     *
+//     * @param course the course ID
+//     * @return the preference value (0 if the course was not found)
+//     */
+//    double getPreference(final Course course) {
+//
+//        final Double prefObj = this.preferences.get(course);
+//
+//        return prefObj == null ? 0.0 : prefObj.doubleValue();
+//    }
 
     /**
      * Randomly selects a course with probability proportional to the course's preference value.
@@ -129,7 +139,8 @@ final class StudentClassPreferences implements Comparable<StudentClassPreference
         if (obj == this) {
             equal = true;
         } else if (obj instanceof final StudentClassPreferences p) {
-            equal = this.key.equals(p.key);
+            final String pKey = p.getKey();
+            equal = this.key.equals(pKey);
         } else {
             equal = false;
         }
@@ -148,6 +159,7 @@ final class StudentClassPreferences implements Comparable<StudentClassPreference
     @Override
     public int compareTo(final StudentClassPreferences o) {
 
-        return this.key.compareTo(o.key);
+        final String oKey = o.getKey();
+        return this.key.compareTo(oKey);
     }
 }

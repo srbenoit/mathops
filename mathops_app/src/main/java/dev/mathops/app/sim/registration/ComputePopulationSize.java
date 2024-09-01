@@ -1,7 +1,5 @@
 package dev.mathops.app.sim.registration;
 
-import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 
 import java.util.ArrayList;
@@ -9,7 +7,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 import java.util.random.RandomGenerator;
 
 /**
@@ -17,6 +14,9 @@ import java.util.random.RandomGenerator;
  */
 enum ComputePopulationSize {
     ;
+
+    /** The number of attempts to make per population size. */
+    private static final int ATTEMPTS_PER_POP_SIZE = 100;
 
     /**
      * Calculates the largest population size that can be accommodated for a given set of course offerings, a given set
@@ -29,103 +29,36 @@ enum ComputePopulationSize {
      * @return the maximum population size
      */
     static int compute(final Collection<Course> courses, final StudentDistribution studentDistribution,
-                       final Rooms rooms) {
+                       final Collection<Room> rooms) {
 
         int pop = 0;
 
         boolean solutionFound;
 
-        final HtmlBuilder builder = new HtmlBuilder(50);
+//        final HtmlBuilder builder = new HtmlBuilder(50);
+
+        int numSuccess;
 
         do {
             ++pop;
 
-            final StudentPopulation population = new StudentPopulation(studentDistribution, pop);
+            numSuccess = 0;
+            for (int attempt = 0; attempt < ATTEMPTS_PER_POP_SIZE; ++attempt) {
 
-            final String popStr = Integer.toString(pop);
-            Log.info("Attempting to modeled a population of ", popStr, " students.");
+                final StudentPopulation population = new StudentPopulation(studentDistribution, pop);
+                final List<EnrollingStudent> students = simulateRegistrations(courses, population);
 
-            final Map<StudentClassPreferences, Integer> counts = population.getCounts();
-            for (final Map.Entry<StudentClassPreferences, Integer> entry : counts.entrySet()) {
-                final Integer count = entry.getValue();
-                final String name = entry.getKey().key;
+                solutionFound = ComputeSectionRoomAssignments.canCompute(courses, rooms);
 
-                Log.info("    ", count, " students with ", name, " preferences");
-            }
-
-            final List<EnrollingStudent> students = simulateRegistrations(courses, population);
-            Log.info("Registration process has been simulated:");
-            for (final Course course : courses) {
-                final int count = course.getNumSeatsNeeded();
-                if (count > 0) {
-                    final String countStr = Integer.toString(count);
-                    Log.info("    ", course.courseId, " requires ", countStr, " seats");
+                if (solutionFound) {
+                    ++numSuccess;
                 }
             }
 
-            solutionFound = ComputeSectionRoomAssignments.canCompute(courses, rooms);
+            final float percentage = (float) numSuccess * 100.0f / (float) ATTEMPTS_PER_POP_SIZE;
+            Log.info("When population size is ", pop, ", a schedule could be found ", percentage, "% of the time");
 
-            if (solutionFound) {
-                Log.info("Success!");
-
-                for (final Room room : rooms.getRooms()) {
-                    final String roomId = room.getId();
-                    Log.fine("Room: ", roomId);
-                    for (final RoomAssignment assignment : room.getAssignments()) {
-                        Log.fine("    ", assignment);
-                    }
-                    final int[][] block = room.getTimeBlockGrid();
-                    final int[] free = room.getBlocksFree();
-
-                    final int numDays = block.length;
-                    for (int i = 0; i < numDays; ++i) {
-                        builder.reset();
-                        builder.add("    Day ");
-                        builder.add(i + 1);
-                        builder.add(": ");
-                        for (final int id : block[i]) {
-                            if (id == 0) {
-                                builder.add('.');
-                            } else {
-                                builder.add((char)('A' + id));
-                            }
-                        }
-                        builder.add(" with ");
-                        builder.add(free[i]);
-                        builder.add(" blocks free");
-                        Log.fine(builder.toString());
-                    }
-
-                    Log.fine(CoreConstants.EMPTY);
-                }
-
-                for (final Course course : courses) {
-                    int total = 0;
-
-                    final Set<ERoomUsage> usages = course.getUsages();
-                    for (final ERoomUsage usage : usages) {
-                        final List<RoomAssignment> assignments = course.getRoomAssignments(usage);
-                        if (assignments != null) {
-                            final int numSections = assignments.size();
-                            total += numSections;
-                        }
-                    }
-
-                    if (total > 0) {
-                        final String numSectionsStr = Integer.toString(total);
-                        final int numUsages = usages.size();
-
-                        if (numUsages == 1) {
-                            Log.info("    ", course.courseId, " has  ", numSectionsStr, " total sections of 1 type");
-                        } else {
-                            final String numUsagesStr = Integer.toString(numUsages);
-                            Log.info("    ", course.courseId, " has  ", numSectionsStr, " total sections of ",
-                                    numUsagesStr, " types");
-                        }
-                    }
-                }
-            }
-        } while (solutionFound);
+        } while (numSuccess > 0);
 
         --pop;
 

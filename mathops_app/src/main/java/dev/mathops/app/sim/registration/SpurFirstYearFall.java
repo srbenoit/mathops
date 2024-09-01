@@ -54,7 +54,7 @@ final class SpurFirstYearFall {
         final Room classroom1 = new Room("Classroom 1", 40, HOURS_PER_DAY);
         final Room classroom2 = new Room("Classroom 2", 40, HOURS_PER_DAY);
         final Room lab1 = new Room("Lab 1", 26, HOURS_PER_DAY);
-        final Rooms rooms = new Rooms(classroom1, classroom2, lab1);
+        final List<Room> rooms = List.of(classroom1, classroom2, lab1);
 
         // Set up the offered course list
 

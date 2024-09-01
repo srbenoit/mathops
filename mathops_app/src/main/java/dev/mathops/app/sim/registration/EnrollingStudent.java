@@ -20,10 +20,10 @@ class EnrollingStudent {
     final int id;
 
     /** The student's class preferences. */
-    final StudentClassPreferences preferences;
+    private final StudentClassPreferences preferences;
 
     /** The list of courses for which the student has registered. */
-    final List<Course> courses;
+    private final List<Course> courses;
 
     /**
      * Constructs a new {@code EnrollingStudent}.

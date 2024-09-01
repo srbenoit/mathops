@@ -168,11 +168,11 @@ final class Course implements Comparable<Course> {
      * @param rooms the rooms
      * @return true if all rooms in the group are "compatible" with this course
      */
-    boolean areRoomsCompatible(final ERoomUsage usage, final Rooms rooms) {
+    boolean areRoomsCompatible(final ERoomUsage usage, final Iterable<Room> rooms) {
 
         boolean ok = true;
 
-        for (final Room room : rooms.getRooms()) {
+        for (final Room room : rooms) {
             if (!isRoomCompatible(usage, room)) {
                 ok = false;
                 break;
@@ -206,18 +206,18 @@ final class Course implements Comparable<Course> {
         list.add(assignment);
     }
 
-    /**
-     * Gets a copy of the list of room assignments for a specified usage in this course.
-     *
-     * @param usage the room usage
-     * @return the room assignments
-     */
-    List<RoomAssignment> getRoomAssignments(final ERoomUsage usage) {
-
-        final List<RoomAssignment> list = this.roomAssignments.get(usage);
-
-        return list == null ? null : new ArrayList<>(list);
-    }
+//    /**
+//     * Gets a copy of the list of room assignments for a specified usage in this course.
+//     *
+//     * @param usage the room usage
+//     * @return the room assignments
+//     */
+//    List<RoomAssignment> getRoomAssignments(final ERoomUsage usage) {
+//
+//        final List<RoomAssignment> list = this.roomAssignments.get(usage);
+//
+//        return list == null ? null : new ArrayList<>(list);
+//    }
 
     /**
      * Computes a hash code for the object.

@@ -83,7 +83,7 @@ final class Room implements Comparable<Room> {
      *
      * @return the room ID
      */
-    String getId() {
+    private String getId() {
 
         return this.id;
     }
@@ -237,7 +237,7 @@ final class Room implements Comparable<Room> {
             dayIndex = this.blocksFree[1] > this.blocksFree[3] ? 1 : 3;
         } else if (this.blocksFree[0] >= num25MinBlocks || this.blocksFree[2] >= num25MinBlocks
                    || this.blocksFree[4] >= num25MinBlocks) {
-            int maxMW = Math.max(this.blocksFree[0], this.blocksFree[2]);
+            final int maxMW = Math.max(this.blocksFree[0], this.blocksFree[2]);
             final int maxMWF = Math.max(maxMW, this.blocksFree[4]);
             dayIndex = this.blocksFree[0] == maxMWF ? 0 : (this.blocksFree[2] == maxMWF ? 2 : 4);
         } else {
