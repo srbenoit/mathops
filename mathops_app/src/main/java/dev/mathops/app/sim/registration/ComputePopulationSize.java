@@ -1,5 +1,7 @@
 package dev.mathops.app.sim.registration;
 
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 
 import java.util.ArrayList;
@@ -33,6 +35,8 @@ enum ComputePopulationSize {
 
         boolean solutionFound;
 
+        final HtmlBuilder builder = new HtmlBuilder(50);
+
         do {
             ++pop;
 
@@ -63,6 +67,37 @@ enum ComputePopulationSize {
 
             if (solutionFound) {
                 Log.info("Success!");
+
+                for (final Room room : rooms.getRooms()) {
+                    final String roomId = room.getId();
+                    Log.fine("Room: ", roomId);
+                    for (final RoomAssignment assignment : room.getAssignments()) {
+                        Log.fine("    ", assignment);
+                    }
+                    final int[][] block = room.getTimeBlockGrid();
+                    final int[] free = room.getBlocksFree();
+
+                    final int numDays = block.length;
+                    for (int i = 0; i < numDays; ++i) {
+                        builder.reset();
+                        builder.add("    Day ");
+                        builder.add(i + 1);
+                        builder.add(": ");
+                        for (final int id : block[i]) {
+                            if (id == 0) {
+                                builder.add('.');
+                            } else {
+                                builder.add((char)('A' + id));
+                            }
+                        }
+                        builder.add(" with ");
+                        builder.add(free[i]);
+                        builder.add(" blocks free");
+                        Log.fine(builder.toString());
+                    }
+
+                    Log.fine(CoreConstants.EMPTY);
+                }
 
                 for (final Course course : courses) {
                     int total = 0;

@@ -1,8 +1,8 @@
 package dev.mathops.app.sim.registration;
 
+import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 
-import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -109,6 +109,33 @@ final class Room implements Comparable<Room> {
     }
 
     /**
+     * Gets a copy of the time block grid for this room.  The first index in the returned array selects a day (from 0 to
+     * 4), and the second index selects a 25-minute block within that day.
+     *
+     * @return the time block grid
+     */
+    int[][] getTimeBlockGrid() {
+
+        final int count = this.timeBlockGrid.length;
+        final int[][] copy = new int[count][];
+        for (int i = 0; i < count; ++i) {
+            copy[i] = this.timeBlockGrid[i].clone();
+        }
+
+        return copy;
+    }
+
+    /**
+     * Gets a copy of the array of counts of free blocks available in each day.
+     *
+     * @return an array whose entries are the number of free blocks in each day
+     */
+    int[] getBlocksFree() {
+
+        return this.blocksFree.clone();
+    }
+
+    /**
      * Removes an assignment from this room (this is only used to remove the most recently added assignment).
      *
      * @param assignment the assignment to remove
@@ -116,13 +143,14 @@ final class Room implements Comparable<Room> {
     void removeAssignment(final RoomAssignment assignment) {
 
         if (this.assignments.remove(assignment)) {
-            final int id = assignment.id();
+            final int idToRemove = assignment.id();
+
             for (int i = 0; i < this.timeBlockGrid.length; ++i) {
                 final int[] col = this.timeBlockGrid[i];
                 for (int j = 0; j < col.length; ++j) {
-                    if (col[j] == id) {
+                    if (col[j] == idToRemove) {
                         col[j] = 0;
-                        this.blocksFree[i]++;
+                        ++this.blocksFree[i];
                     }
                 }
             }
@@ -157,8 +185,6 @@ final class Room implements Comparable<Room> {
      */
     Optional<RoomAssignment> addAssignment(final int num25MinBlocks, final EAssignmentType type, final Course course,
                                            final int numSeats, final ERoomUsage usage) {
-
-        // See if we can add the ra without rearranging.
 
         final int newId = this.assignments.size() + 1;
 
@@ -202,12 +228,27 @@ final class Room implements Comparable<Room> {
     private RoomAssignment addContiguousAssignment(final int num25MinBlocks, final int newId, final Course course,
                                                    final int numSeats, final ERoomUsage usage) {
 
-        final int dayIndex = findDayWithContiguousBlocks(num25MinBlocks);
+        final int dayIndex;
+
+        // There is a preference order for contiguous blocks...
+
+        if (this.blocksFree[1] >= num25MinBlocks || this.blocksFree[3] >= num25MinBlocks) {
+            // We can assign to a Tuesday or Thursday - choose that with the smaller number of hours
+            dayIndex = this.blocksFree[1] > this.blocksFree[3] ? 1 : 3;
+        } else if (this.blocksFree[0] >= num25MinBlocks || this.blocksFree[2] >= num25MinBlocks
+                   || this.blocksFree[4] >= num25MinBlocks) {
+            int maxMW = Math.max(this.blocksFree[0], this.blocksFree[2]);
+            final int maxMWF = Math.max(maxMW, this.blocksFree[4]);
+            dayIndex = this.blocksFree[0] == maxMWF ? 0 : (this.blocksFree[2] == maxMWF ? 2 : 4);
+        } else {
+            dayIndex = -1;
+        }
 
         RoomAssignment ra = null;
 
         if (dayIndex >= 0) {
-            ra = addAssignedBlock(dayIndex, num25MinBlocks, newId, course, numSeats, usage, EAssignmentType.CONTIGUOUS);
+            ra = addAssignedBlock(dayIndex, num25MinBlocks, num25MinBlocks, newId, course, numSeats, usage,
+                    EAssignmentType.CONTIGUOUS);
         }
 
         return ra;
@@ -275,28 +316,32 @@ final class Room implements Comparable<Room> {
         final boolean wedOk = this.blocksFree[2] >= 2;
         final boolean friOk = this.blocksFree[4] >= 2;
 
-        if (this.blocksFree[0] >= minFreeMWF && monOk) {
-            ra = addAssignedBlock(0, 2, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
-        } else if (this.blocksFree[2] >= minFreeMWF && wedOk) {
-            ra = addAssignedBlock(2, 2, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
+        if (this.blocksFree[0] > minFreeMWF && monOk) {
+            ra = addAssignedBlock(0, 2, 2, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
+        } else if (this.blocksFree[2] > minFreeMWF && wedOk) {
+            ra = addAssignedBlock(2, 2, 2, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
+        } else if (this.blocksFree[4] > minFreeMWF && friOk) {
+            ra = addAssignedBlock(4, 2, 2, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
         } else {
             // Mon/Wed/Fri all have the same number of blocks free - prefer Monday, all else being equal
 
             if (monOk) {
-                ra = addAssignedBlock(0, 2, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
+                ra = addAssignedBlock(0, 2, 2, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
             } else {
+                // Not enough space on Monday, Wednesday, or Friday
+
                 final int minFreeTR = Math.min(this.blocksFree[1], this.blocksFree[3]);
                 final boolean tueOk = this.blocksFree[1] >= 2;
                 final boolean thrOk = this.blocksFree[3] >= 2;
 
-                if (this.blocksFree[1] >= minFreeTR && tueOk) {
-                    ra = addAssignedBlock(1, 2, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
-                } else if (this.blocksFree[3] >= minFreeTR && thrOk) {
-                    ra = addAssignedBlock(3, 2, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
+                if (this.blocksFree[1] > minFreeTR && tueOk) {
+                    ra = addAssignedBlock(1, 2, 2, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
+                } else if (this.blocksFree[3] > minFreeTR && thrOk) {
+                    ra = addAssignedBlock(3, 2, 2, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
                 } else {
                     // Tue/Thur have the same number of days free - prefer Tuesday, all else being equal
                     if (tueOk) {
-                        ra = addAssignedBlock(1, 2, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
+                        ra = addAssignedBlock(1, 2, 2, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
                     }
                 }
 
@@ -339,26 +384,26 @@ final class Room implements Comparable<Room> {
 
         if (monHasLess && monOk && wedHasLess && wedOk) {
             markAssignedBlock(0, 2, newId);
-            ra = addAssignedBlock(2, 2, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
+            ra = addAssignedBlock(2, 2, 4, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
         } else if (monHasLess && monOk && friHasLess && friOk) {
             markAssignedBlock(0, 2, newId);
-            ra = addAssignedBlock(4, 2, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
+            ra = addAssignedBlock(4, 2, 4, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
         } else if (wedHasLess && wedOk && friHasLess && friOk) {
             markAssignedBlock(2, 2, newId);
-            ra = addAssignedBlock(4, 2, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
+            ra = addAssignedBlock(4, 2, 4, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
         } else {
             // Mon/Wed/Fri all have the same number of hours free
 
             if (monOk && wedOk) {
                 markAssignedBlock(0, 2, newId);
-                ra = addAssignedBlock(2, 2, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
+                ra = addAssignedBlock(2, 2, 4, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
             } else {
                 final boolean tueOk = this.blocksFree[1] >= 2;
                 final boolean thrOk = this.blocksFree[3] >= 2;
 
                 if (tueOk && thrOk) {
                     markAssignedBlock(1, 2, newId);
-                    ra = addAssignedBlock(3, 2, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
+                    ra = addAssignedBlock(3, 2, 4, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
                 }
 
                 // TODO: Otherwise, try to rebuild schedule
@@ -394,7 +439,7 @@ final class Room implements Comparable<Room> {
         if (monOk && wedOk && friOk) {
             markAssignedBlock(0, 2, newId);
             markAssignedBlock(2, 2, newId);
-            ra = addAssignedBlock(4, 2, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
+            ra = addAssignedBlock(4, 2, 6, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
         }
 
         // TODO: Otherwise, try to rebuild schedule
@@ -437,27 +482,27 @@ final class Room implements Comparable<Room> {
             markAssignedBlock(0, 2, newId);
             markAssignedBlock(2, 2, newId);
             markAssignedBlock(3, 2, newId);
-            ra = addAssignedBlock(4, 2, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
+            ra = addAssignedBlock(4, 2, 8, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
         } else if (this.blocksFree[3] == minFreeAll && monOk && tueOk && wedOk && friOk) {
             markAssignedBlock(0, 2, newId);
             markAssignedBlock(1, 2, newId);
             markAssignedBlock(2, 2, newId);
-            ra = addAssignedBlock(4, 2, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
+            ra = addAssignedBlock(4, 2, 8, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
         } else if (this.blocksFree[4] == minFreeAll && monOk && tueOk && wedOk && thrOk) {
             markAssignedBlock(0, 2, newId);
             markAssignedBlock(1, 2, newId);
             markAssignedBlock(2, 2, newId);
-            ra = addAssignedBlock(3, 2, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
+            ra = addAssignedBlock(3, 2, 8, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
         } else if (this.blocksFree[2] == minFreeAll && monOk && tueOk && thrOk && friOk) {
             markAssignedBlock(0, 2, newId);
             markAssignedBlock(1, 2, newId);
             markAssignedBlock(3, 2, newId);
-            ra = addAssignedBlock(4, 2, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
+            ra = addAssignedBlock(4, 2, 8, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
         } else if (this.blocksFree[0] == minFreeAll && tueOk && wedOk && thrOk && friOk) {
             markAssignedBlock(1, 2, newId);
             markAssignedBlock(2, 2, newId);
             markAssignedBlock(3, 2, newId);
-            ra = addAssignedBlock(4, 2, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
+            ra = addAssignedBlock(4, 2, 8, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
         }
 
         // TODO: Otherwise, rebuild the schedule
@@ -493,7 +538,7 @@ final class Room implements Comparable<Room> {
             markAssignedBlock(1, 2, newId);
             markAssignedBlock(2, 2, newId);
             markAssignedBlock(3, 2, newId);
-            ra = addAssignedBlock(4, 2, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
+            ra = addAssignedBlock(4, 2, 10, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
         }
 
         // TODO: Otherwise, rebuild the schedule
@@ -555,9 +600,9 @@ final class Room implements Comparable<Room> {
         final boolean thrOk = this.blocksFree[3] >= 2;
 
         if (this.blocksFree[1] >= minFreeTR && tueOk) {
-            ra = addAssignedBlock(1, 3, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
+            ra = addAssignedBlock(1, 3, 3, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
         } else if (thrOk) {
-            ra = addAssignedBlock(3, 3, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
+            ra = addAssignedBlock(3, 3, 3, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
         } else {
             final int minFreeMW = Math.min(this.blocksFree[0], this.blocksFree[2]);
             final int minFreeMWF = Math.min(minFreeMW, this.blocksFree[4]);
@@ -567,17 +612,17 @@ final class Room implements Comparable<Room> {
             final boolean friOk = this.blocksFree[4] >= 3;
 
             if (this.blocksFree[0] >= minFreeMWF && monOk) {
-                ra = addAssignedBlock(0, 3, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
+                ra = addAssignedBlock(0, 3, 3, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
             } else if (this.blocksFree[2] >= minFreeMWF && wedOk) {
-                ra = addAssignedBlock(2, 3, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
+                ra = addAssignedBlock(2, 3, 3, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
             } else if (this.blocksFree[4] >= minFreeMWF && friOk) {
-                ra = addAssignedBlock(4, 3, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
+                ra = addAssignedBlock(4, 3, 3, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
             } else if (monOk) {
-                ra = addAssignedBlock(0, 3, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
+                ra = addAssignedBlock(0, 3, 3, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
             } else if (wedOk) {
-                ra = addAssignedBlock(2, 3, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
+                ra = addAssignedBlock(2, 3, 3, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
             } else if (friOk) {
-                ra = addAssignedBlock(4, 3, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
+                ra = addAssignedBlock(4, 3, 3, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
             }
 
             // TODO: Otherwise, try to rebuild the schedule
@@ -609,7 +654,7 @@ final class Room implements Comparable<Room> {
 
         if (tueOk && thrOk) {
             markAssignedBlock(1, 3, newId);
-            ra = addAssignedBlock(3, 3, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
+            ra = addAssignedBlock(3, 3, 6, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
         } else {
             final int minFreeMW = Math.min(this.blocksFree[0], this.blocksFree[2]);
             final int minFreeMWF = Math.min(minFreeMW, this.blocksFree[4]);
@@ -618,15 +663,17 @@ final class Room implements Comparable<Room> {
             final boolean wedOk = this.blocksFree[2] >= 4;
             final boolean friOk = this.blocksFree[4] >= 4;
 
+            // NOTE: We consume 4 blocks per day since we're on M/W/F, which wants hour-long allocations
+
             if (this.blocksFree[0] == minFreeMWF && wedOk && friOk) {
                 markAssignedBlock(2, 4, newId);
-                ra = addAssignedBlock(4, 4, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
+                ra = addAssignedBlock(4, 4, 6, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
             } else if (this.blocksFree[2] == minFreeMWF && monOk && friOk) {
                 markAssignedBlock(0, 4, newId);
-                ra = addAssignedBlock(4, 4, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
+                ra = addAssignedBlock(4, 4, 6, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
             } else if (this.blocksFree[4] == minFreeMWF && monOk && wedOk) {
                 markAssignedBlock(0, 4, newId);
-                ra = addAssignedBlock(2, 4, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
+                ra = addAssignedBlock(2, 4, 6, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
             }
 
             // TODO: Otherwise, try to rebuild schedule
@@ -659,10 +706,12 @@ final class Room implements Comparable<Room> {
         final boolean wedOk = this.blocksFree[2] >= 4;
         final boolean friOk = this.blocksFree[4] >= 4;
 
+        // NOTE: We consume 4 blocks per day since we're on M/W/F, which wants hour-long allocations
+
         if (monOk && wedOk && friOk) {
             markAssignedBlock(0, 4, newId);
             markAssignedBlock(2, 4, newId);
-            ra = addAssignedBlock(4, 4, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
+            ra = addAssignedBlock(4, 4, 12, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
         }
 
         // TODO: Otherwise, try to rebuild schedule
@@ -671,55 +720,27 @@ final class Room implements Comparable<Room> {
     }
 
     /**
-     * Searches for a day index for which there are at least some number of blocks in a contiguous run.
-     *
-     * @param num25MinBlocks the number of blocks to find
-     * @return the day index; -1 if there are no days with the required capacity
-     */
-    private int findDayWithContiguousBlocks(final int num25MinBlocks) {
-
-        final int dayIndex;
-
-        // There is a preference order for contiguous blocks...
-
-        if (this.blocksFree[3] >= num25MinBlocks) { // Thursday
-            dayIndex = 3;
-        } else if (this.blocksFree[1] >= num25MinBlocks) { // Tuesday
-            dayIndex = 1;
-        } else if (this.blocksFree[4] >= num25MinBlocks) { // Friday
-            dayIndex = 4;
-        } else if (this.blocksFree[2] >= num25MinBlocks) { // Wednesday
-            dayIndex = 2;
-        } else if (this.blocksFree[0] >= num25MinBlocks) { // Monday
-            dayIndex = 0;
-        } else {
-            dayIndex = -1;
-        }
-
-        return dayIndex;
-    }
-
-    /**
      * Adds an assigned block to a day's schedule.  It is assumed that the day has already been verified to have
      * sufficient capacity for the assignment
      *
-     * @param dayIndex       the day index (from 0 to NUM_WEEKDAYS - 1)
-     * @param num25MinBlocks the number of 25-minute blocks to consume within the indicated day
-     * @param assignmentId   the assignment ID with which to populate those blocks
-     * @param course         the course being assigned
-     * @param numSeats       the number of seats
-     * @param usage          the room usage
-     * @param type           the assignment type
+     * @param dayIndex         the day index (from 0 to NUM_WEEKDAYS - 1)
+     * @param num25MinBlocks   the number of 25-minute blocks to consume within the indicated day
+     * @param total25MinBlocks the total number of 25-minute blocks over the whole assignment
+     * @param assignmentId     the assignment ID with which to populate those blocks
+     * @param course           the course being assigned
+     * @param numSeats         the number of seats
+     * @param usage            the room usage
+     * @param type             the assignment type
      * @return the new assignment object
      */
-    private RoomAssignment addAssignedBlock(final int dayIndex, final int num25MinBlocks, final int assignmentId,
-                                            final Course course, final int numSeats, final ERoomUsage usage,
-                                            final EAssignmentType type) {
+    private RoomAssignment addAssignedBlock(final int dayIndex, final int num25MinBlocks, final int total25MinBlocks,
+                                            final int assignmentId, final Course course, final int numSeats,
+                                            final ERoomUsage usage, final EAssignmentType type) {
 
         markAssignedBlock(dayIndex, num25MinBlocks, assignmentId);
 
         final RoomAssignment assignment = new RoomAssignment(assignmentId, this, course, numSeats, usage,
-                num25MinBlocks, type);
+                total25MinBlocks, type);
         this.assignments.add(assignment);
 
         return assignment;
@@ -745,9 +766,10 @@ final class Room implements Comparable<Room> {
                 break;
             }
         }
+
         final int remain = len - start;
 
-        if (remain <= num25MinBlocks) {
+        if (remain >= num25MinBlocks) {
             for (int i = 0; i < num25MinBlocks; ++i) {
                 array[start + i] = assignmentId;
             }
@@ -757,28 +779,30 @@ final class Room implements Comparable<Room> {
         }
     }
 
-    /**
-     * Gets the block schedule for a single weekday.  The returned array is a copy - modification of that array will not
-     * affect the contents of this class.
-     *
-     * @param theWeekday the weekday
-     * @return an array where each entry represents a 25-minute block of time, and the value is either 0 if the block is
-     *         not occupied, or the ID of the assignment that occupies the room at that time
-     */
-    int[] getBlockSchedule(final DayOfWeek theWeekday) {
-
-        final int index = theWeekday.getValue() - 1;
-
-        final int[] result;
-
-        if (index < 0 || index >= this.timeBlockGrid.length) {
-            result = EMPTY_BLOCK_SCHEDULE;
-        } else {
-            result = this.timeBlockGrid[index].clone();
-        }
-
-        return result;
-    }
+//    /**
+//     * Gets the block schedule for a single weekday.  The returned array is a copy - modification of that array
+//     will not
+//     * affect the contents of this class.
+//     *
+//     * @param theWeekday the weekday
+//     * @return an array where each entry represents a 25-minute block of time, and the value is either 0 if the
+//     block is
+//     *         not occupied, or the ID of the assignment that occupies the room at that time
+//     */
+//    int[] getBlockSchedule(final DayOfWeek theWeekday) {
+//
+//        final int index = theWeekday.getValue() - 1;
+//
+//        final int[] result;
+//
+//        if (index < 0 || index >= this.timeBlockGrid.length) {
+//            result = EMPTY_BLOCK_SCHEDULE;
+//        } else {
+//            result = this.timeBlockGrid[index].clone();
+//        }
+//
+//        return result;
+//    }
 
     /**
      * Gets the total number of hours free.
@@ -840,5 +864,32 @@ final class Room implements Comparable<Room> {
         final int cap = o.getCapacity();
 
         return Integer.compare(this.capacity, cap);
+    }
+
+    /**
+     * Generates a string representation of the list of rooms.
+     *
+     * @return the string representation
+     */
+    public String toString() {
+
+        final HtmlBuilder builder = new HtmlBuilder(100);
+
+        builder.add(this.id);
+        builder.add(" (cap=");
+        builder.add(this.capacity);
+        builder.add(", hours/day=");
+        builder.add(this.hoursPerDay);
+        builder.add(", free=");
+        builder.add(this.blocksFree[0]);
+
+        final int len = this.blocksFree.length;
+        for (int i = 1; i < len; ++i) {
+            builder.add('/');
+            builder.add(this.blocksFree[i]);
+        }
+        builder.add(')');
+
+        return builder.toString();
     }
 }

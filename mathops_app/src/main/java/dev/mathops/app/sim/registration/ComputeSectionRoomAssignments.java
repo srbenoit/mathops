@@ -28,13 +28,14 @@ enum ComputeSectionRoomAssignments {
         for (final Course course : courses) {
             course.clearRoomAssignments();
         }
-
         rooms.reset();
 
         boolean result = true;
 
         // Consider each possible usage, in turn.
         for (final ERoomUsage usage : ERoomUsage.values()) {
+
+            Log.info("Attempting to assign ", usage, " sections...");
 
             // Build a list of courses that have yet to be assigned; we will delete items from this list as they are
             // assigned.  This list will be sorted based on the number of seats needed (small to large)
@@ -44,6 +45,11 @@ enum ComputeSectionRoomAssignments {
             final int numUnassigned = toBeAssigned.size();
 
             if (numUnassigned > 0) {
+                Log.warning("Unable to find sufficient ", usage, " space for the following courses:");
+                for (final Course course : toBeAssigned) {
+                    Log.warning("    ", course.courseId + " (needs " + course.getNumSeatsNeeded() + " seats)");
+                }
+
                 // NOTE: this leaves the room data in an incomplete state, but on a failure here, the data is discarded
                 result = false;
                 break;
@@ -93,8 +99,7 @@ enum ComputeSectionRoomAssignments {
 
         final int numToBeAssigned = toBeAssigned.size();
         final String numToBeAssignedStr = Integer.toString(numToBeAssigned);
-        final String usageName = usage.name();
-        Log.info("There are ", numToBeAssignedStr, " courses that need to be assigned a ", usageName);
+        Log.info(numToBeAssignedStr, " course need to be assigned ", usage, " space");
 
         return toBeAssigned;
     }
@@ -169,37 +174,40 @@ enum ComputeSectionRoomAssignments {
 
                 if (course.areRoomsCompatible(usage, group)) {
                     final int hoursNeeded = course.getContactHours(usage);
-                    final int seatsNeeded = course.getNumSeatsNeeded();
+                    int seatsNeeded = course.getNumSeatsNeeded();
 
                     if (hoursNeeded <= hoursAvail && seatsNeeded <= seatsAvail) {
+                        // This group could potentially handle this course
 
                         assignmentsMade.clear();
-                        boolean fail = false;
 
                         for (final Room room : rooms) {
-                            final int roomCap = room.getCapacity();
-                            final int seatsToAssign = Math.min(seatsNeeded, roomCap);
-                            final EAssignmentType type = course.getAssignmentType(usage);
+                            if (course.isRoomCompatible(usage, room)) {
+                                final int roomCap = room.getCapacity();
+                                final int seatsToAssign = Math.min(seatsNeeded, roomCap);
+                                final EAssignmentType type = course.getAssignmentType(usage);
 
-                            final Optional<RoomAssignment> assignment = room.addAssignment(hoursNeeded * 2, type,
-                                    course, seatsToAssign, usage);
+                                final Optional<RoomAssignment> assignment = room.addAssignment(hoursNeeded * 2, type,
+                                        course, seatsToAssign, usage);
 
-                            if (assignment.isPresent()) {
-                                assignmentsMade.add(assignment.get());
-                            } else {
-                                fail = true;
-                                break;
+                                if (assignment.isPresent()) {
+                                    assignmentsMade.add(assignment.get());
+                                    seatsNeeded -= seatsToAssign;
+                                    if (seatsNeeded <= 0) {
+                                        break;
+                                    }
+                                }
                             }
                         }
 
-                        if (fail) {
-                            // At least one room could not accommodate the course (based on the needed distribution of
-                            // blocks of time), so roll back all assignments for this group
+                        if (seatsNeeded > 0) {
+                            // There is not enough capacity in this group to accommodate the course - undo our
+                            // assignments and try the next group
                             for (final RoomAssignment assign : assignmentsMade) {
                                 assign.room().removeAssignment(assign);
                             }
                         } else {
-                            // This course has been assigned successfully
+                            // This course has been assigned successfully!
                             iterator.remove();
                         }
                     }
@@ -227,6 +235,7 @@ enum ComputeSectionRoomAssignments {
         // no more work.  Otherwise, we need to split high-enrollment courses into multiple sections.
 
         if (!toBeAssigned.isEmpty()) {
+            Log.info("  --- Could not assign as single-section, trying 2 sections");
 
             // Classroom Pass 2: Generate all combinations of 2 rooms, and sort that list by total capacity.  Then
             // repeat the above assignment process for these groups.
@@ -237,6 +246,7 @@ enum ComputeSectionRoomAssignments {
             // finished, do no more work.
 
             if (!toBeAssigned.isEmpty()) {
+                Log.info("  --- Could not assign as 2 sections, trying 3 sections");
 
                 // Classroom Pass 3: Generate all combinations of 3 rooms, and sort that list by total capacity.  Then
                 // repeat the above assignment process for these groups.
@@ -244,6 +254,7 @@ enum ComputeSectionRoomAssignments {
                 assign3SectionCourses(toBeAssigned, usage, rooms);
 
                 if (!toBeAssigned.isEmpty()) {
+                    Log.info("  --- Could not assign as 3 sections, trying many sections");
 
                     // Classroom Pass 4: all that remain at this point are courses too large to split into 3 or fewer
                     // sections.  We change our strategy here to grab the course with the greatest size, and start
@@ -311,16 +322,10 @@ enum ComputeSectionRoomAssignments {
         final int smallestContactHours = getSmallestContactHours(usage, toBeAssigned);
         final List<Room> roomsOfInterest = findRoomsOfInterest(rooms, smallestContactHours);
 
-        // Make sure there are at least 2 classrooms that could accommodate courses - if not, we're done!
+        // Generate a set of all groups of 2 classrooms, then assign as many courses to those groups as possible
 
-        final int numOfInterest = roomsOfInterest.size();
-        if (numOfInterest > 1) {
-
-            // Generate a set of all groups of 2 classrooms, then assign as many courses to those groups as possible
-
-            final List<Rooms> groups = makeGroupsOf2(roomsOfInterest);
-            assignSectionsToGroups(toBeAssigned, usage, groups);
-        }
+        final List<Rooms> groups = makeGroupsOf2(roomsOfInterest);
+        assignSectionsToGroups(toBeAssigned, usage, groups);
     }
 
     /**
@@ -328,7 +333,7 @@ enum ComputeSectionRoomAssignments {
      *
      * @param roomsOfInterest the list of classrooms of interest
      * @return the list of groups of 2 classrooms, sorted by total capacity (if there are N classrooms of interest, this
-     *         list will contain (N)(N-1) entries)
+     *         list will contain (N+1)(N)/2 entries)
      */
     private static List<Rooms> makeGroupsOf2(final List<Room> roomsOfInterest) {
 
@@ -336,9 +341,11 @@ enum ComputeSectionRoomAssignments {
         final int numGroups = size * (size - 1);
         final List<Rooms> groups = new ArrayList<>(numGroups);
 
-        for (int i = 0; i < (size - 1); ++i) {
+        // Note, we include pairings with the same room in each slot, like "room 1 and room 1".
+
+        for (int i = 0; i < size; ++i) {
             final Room room1 = roomsOfInterest.get(i);
-            for (int j = i + 1; j < size; ++j) {
+            for (int j = i; j < size; ++j) {
                 final Room room2 = roomsOfInterest.get(j);
                 final Rooms group = new Rooms(room1, room2);
                 groups.add(group);
@@ -385,7 +392,7 @@ enum ComputeSectionRoomAssignments {
      *
      * @param roomsOfInterest the list of classrooms of interest
      * @return the list of groups of 3 classrooms, sorted by total capacity (if there are N classrooms of interest, this
-     *         list will contain (N)(N-1)(N-2) entries)
+     *         list will contain (N+1)(N)(N-1)/2 entries)
      */
     private static List<Rooms> makeGroupsOf3(final List<Room> roomsOfInterest) {
 
@@ -393,11 +400,13 @@ enum ComputeSectionRoomAssignments {
         final int numGroups = size * (size - 1) * (size - 2);
         final List<Rooms> groups = new ArrayList<>(numGroups);
 
-        for (int i = 0; i < (size - 2); ++i) {
+        // Note, we include triples with the same room in each slot, like "room 1 and room 1 and room 1".
+
+        for (int i = 0; i < size; ++i) {
             final Room room1 = roomsOfInterest.get(i);
-            for (int j = i + 1; j < (size - 1); ++j) {
+            for (int j = i; j < size; ++j) {
                 final Room room2 = roomsOfInterest.get(j);
-                for (int k = j + 1; k < size; ++k) {
+                for (int k = j; k < size; ++k) {
                     final Room room3 = roomsOfInterest.get(k);
                     final Rooms group = new Rooms(room1, room2, room3);
                     groups.add(group);
@@ -432,7 +441,10 @@ enum ComputeSectionRoomAssignments {
         // classrooms (from largest to smallest), and try to assemble a set of classrooms that can meet the need.
 
         final int numCourses = toBeAssigned.size();
-        final int numClassrooms = roomsOfInterest.size();
+        final int numRooms = roomsOfInterest.size();
+
+        Log.info("  *** Smallest number of contact hours = " + smallestContactHours);
+        Log.info("  *** There are " + numCourses + " courses to assign and " + numRooms + " rooms of interest");
 
         // We track assignments made for each course so that, if we cannot ultimately assign the course, we can remove
         // its partial list of assignments from classrooms
@@ -440,16 +452,20 @@ enum ComputeSectionRoomAssignments {
 
         for (int i = numCourses - 1; i >= 0; --i) {
             final Course course = toBeAssigned.get(i);
+
             final int hoursNeeded = course.getContactHours(usage);
             int seatsNeeded = course.getNumSeatsNeeded();
             final EAssignmentType type = course.getAssignmentType(usage);
+
+            Log.info("  *** ", course.courseId + " needs " + hoursNeeded + " contact hours and " + seatsNeeded
+                               + " seats");
 
             // Pass 1: scan from the largest room down to the smallest, assigning as possible, until we have met the
             // required capacity.
 
             assignmentsMade.clear();
             RoomAssignment last = null;
-            for (int j = numClassrooms - 1; j >= 0; --j) {
+            for (int j = numRooms - 1; j >= 0; --j) {
                 final Room room = roomsOfInterest.get(j);
 
                 if (course.isRoomCompatible(usage, room)) {
@@ -466,6 +482,7 @@ enum ComputeSectionRoomAssignments {
                         if (seatsNeeded <= 0) {
                             break;
                         }
+                        ++j; // Try this room again!
                     }
                 }
             }
@@ -481,24 +498,34 @@ enum ComputeSectionRoomAssignments {
                     // The list of potential classrooms will work - make the assignments
                     final int numSeatsInLast = last.numSeats();
 
-                    for (int j = 0; j < numClassrooms; ++j) {
+                    for (int j = 0; j < numRooms; ++j) {
                         final Room room = roomsOfInterest.get(j);
+                        if (room == last.room()) {
+                            break;
+                        }
                         if (room.getCapacity() < numSeatsInLast) {
                             continue;
                         }
+                        if (course.isRoomCompatible(usage, room)) {
+                            final Optional<RoomAssignment> assignment = room.addAssignment(hoursNeeded * 2, type,
+                                    course,
+                                    numSeatsInLast, usage);
 
-                        final Optional<RoomAssignment> assignment = room.addAssignment(hoursNeeded * 2, type, course,
-                                numSeatsInLast, usage);
-
-                        if (assignment.isPresent()) {
-                            // Alternate assignment worked - replace the earlier "last" assignment
-                            last.room().removeAssignment(last);
-                            break;
+                            if (assignment.isPresent()) {
+                                // Alternate assignment worked - replace the earlier "last" assignment
+                                last.room().removeAssignment(last);
+                                break;
+                            }
                         }
                     }
 
                     // This course has been assigned - remove it from the "toBeAssigned" list
                     toBeAssigned.remove(i);
+                }
+            } else {
+                // A failed attempt, so we need to roll back assignments that were made
+                for (final RoomAssignment toRemove : assignmentsMade) {
+                    toRemove.room().removeAssignment(toRemove);
                 }
             }
         }

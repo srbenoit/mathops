@@ -1,5 +1,7 @@
 package dev.mathops.app.sim.registration;
 
+import dev.mathops.commons.builder.HtmlBuilder;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -137,5 +139,28 @@ final class Rooms implements Comparable<Rooms> {
         final int oCapacity = o.totalCapacity();
 
         return Integer.compare(thisCapacity, oCapacity);
+    }
+
+    /**
+     * Generates a string representation of the list of rooms.
+     *
+     * @return the string representation
+     */
+    public String toString() {
+
+        final HtmlBuilder builder = new HtmlBuilder(100);
+
+        final int count = this.rooms.size();
+        builder.add("Room group {");
+        final Room first = this.rooms.getFirst();
+        builder.add(first);
+        for (int i = 1; i < count; ++i) {
+            builder.add(", ");
+            final Room next = this.rooms.get(i);
+            builder.add(next);
+        }
+        builder.add("}");
+
+        return builder.toString();
     }
 }
