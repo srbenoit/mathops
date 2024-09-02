@@ -43,11 +43,6 @@ enum ComputeSectionRoomAssignments {
             final int numUnassigned = toBeAssigned.size();
 
             if (numUnassigned > 0) {
-//                Log.warning("Unable to find sufficient ", usage, " space for the following courses:");
-//                for (final Course course : toBeAssigned) {
-//                    Log.warning("    ", course.courseId + " (needs " + course.getNumSeatsNeeded() + " seats)");
-//                }
-
                 // NOTE: this leaves the room data in an incomplete state, but on a failure here, the data is discarded
                 result = false;
                 break;
@@ -63,6 +58,8 @@ enum ComputeSectionRoomAssignments {
                     assignment.course().addRoomAssignment(usage, assignment);
                 }
             }
+
+            // Now try to arrange sections to minimize student overlap
         }
 
         return result;
