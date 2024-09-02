@@ -1,6 +1,5 @@
 package dev.mathops.app.sim.registration;
 
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -22,10 +21,8 @@ public enum ComputeSectionSchedule {
      *
      * @param courses  the list of courses offered
      * @param students the list of students, each with a list of courses
-     * @return the maximum population size
      */
-    static int compute(final Collection<Course> courses, final List<EnrollingStudent> students) {
-
+    static void compute(final List<Course> courses, final List<EnrollingStudent> students) {
 
     }
 }

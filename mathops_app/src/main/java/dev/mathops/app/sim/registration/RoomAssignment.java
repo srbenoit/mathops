@@ -7,6 +7,7 @@ import dev.mathops.commons.builder.HtmlBuilder;
  */
 record RoomAssignment(int id, Room room, Course course, int numSeats, ERoomUsage usage, int num25MinBlocks,
                       EAssignmentType type) {
+    
 
     public String toString() {
 

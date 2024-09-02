@@ -14,7 +14,7 @@ import java.util.List;
  * Many students in a simulation could share the same class preferences, so we manage those preferences as a separate
  * object.
  */
-class EnrollingStudent {
+final class EnrollingStudent {
 
     /** The unique student ID. */
     final int id;
@@ -40,4 +40,14 @@ class EnrollingStudent {
         this.courses = new ArrayList<>(theCourses);
     }
 
+    /**
+     * Tests whether the student is enrolled in a course.
+     *
+     * @param course the course
+     * @return true if the student is enrolled
+     */
+    boolean hasCourse(final Course course) {
+
+        return this.courses.contains(course);
+    }
 }
