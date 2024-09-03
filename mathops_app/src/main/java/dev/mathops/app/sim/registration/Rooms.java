@@ -76,20 +76,10 @@ final class Rooms implements Comparable<Rooms> {
         int total = 0;
 
         for (final Room room : this.rooms) {
-            total += room.getTotalHoursFree();
+            total += room.getTotalBlocksFree();
         }
 
         return total;
-    }
-
-    /**
-     * Clears the lists of assigned sections for each room.
-     */
-    void reset() {
-
-        for (final Room room : this.rooms) {
-            room.clearAssignments();
-        }
     }
 
     /**

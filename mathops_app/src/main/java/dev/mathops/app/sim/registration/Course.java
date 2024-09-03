@@ -1,6 +1,5 @@
 package dev.mathops.app.sim.registration;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -35,12 +34,6 @@ final class Course implements Comparable<Course> {
     private int numSeatsNeeded = 0;
 
     /**
-     * The list of sections assigned for this course (with a section for each required room usage for each instance of
-     * the course offered).
-     */
-    private final Map<ERoomUsage, List<RoomAssignment>> roomAssignments;
-
-    /**
      * Constructs an {@code Course} that has a lab component.
      *
      * @param theCourseId   the course ID
@@ -56,7 +49,6 @@ final class Course implements Comparable<Course> {
         this.contactHoursByRoomType = new EnumMap<>(ERoomUsage.class);
         this.assignmentTypeByRoomType = new EnumMap<>(ERoomUsage.class);
         this.compatibleRoomsByRoomType = new EnumMap<>(ERoomUsage.class);
-        this.roomAssignments = new EnumMap<>(ERoomUsage.class);
     }
 
     /**
@@ -81,8 +73,6 @@ final class Course implements Comparable<Course> {
 
         final List<Room> roomsList = Arrays.asList(rooms);
         this.compatibleRoomsByRoomType.put(usage, roomsList);
-
-        this.roomAssignments.computeIfAbsent(usage, key -> new ArrayList<>(10));
     }
 
     /**
@@ -181,43 +171,6 @@ final class Course implements Comparable<Course> {
 
         return ok;
     }
-
-    /**
-     * Clears lists of room assignments.
-     */
-    void clearRoomAssignments() {
-
-        for (final List<RoomAssignment> list : this.roomAssignments.values()) {
-            list.clear();
-        }
-    }
-
-    /**
-     * Adds a room assignment for this course.  For each instance of the course to be taught, there should be a room
-     * assignment for each required room usage.
-     *
-     * @param usage      the room usage
-     * @param assignment the room assignment
-     */
-    void addRoomAssignment(final ERoomUsage usage, final RoomAssignment assignment) {
-
-        final List<RoomAssignment> list = this.roomAssignments.computeIfAbsent(usage, key -> new ArrayList<>(10));
-
-        list.add(assignment);
-    }
-
-//    /**
-//     * Gets a copy of the list of room assignments for a specified usage in this course.
-//     *
-//     * @param usage the room usage
-//     * @return the room assignments
-//     */
-//    List<RoomAssignment> getRoomAssignments(final ERoomUsage usage) {
-//
-//        final List<RoomAssignment> list = this.roomAssignments.get(usage);
-//
-//        return list == null ? null : new ArrayList<>(list);
-//    }
 
     /**
      * Computes a hash code for the object.

@@ -29,7 +29,7 @@ enum ComputePopulationSize {
      * @return the maximum population size
      */
     static int compute(final Collection<Course> courses, final StudentDistribution studentDistribution,
-                       final Collection<Room> rooms) {
+                       final List<Room> rooms) {
 
         int pop = 0;
 

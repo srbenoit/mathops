@@ -1,24 +1,22 @@
 package dev.mathops.app.sim.registration;
 
 /**
- * Types of room assignment.
+ * Types of assignment of a section to a room.
  */
-public enum EAssignmentType {
+enum EAssignmentType {
 
     /** The assignment needs to be a set of contiguous blocks on a single weekday. */
     CONTIGUOUS,
 
-    /**
-     * The assignment prefers groups of 2 blocks each, split across multiple days as needed.
-     */
-    GROUPS_OF_2,
+    /** The assignment prefers to be scheduled in 50-minute blocks, split across multiple days as needed. */
+    BLOCKS_OF_50,
 
-    /** The assignment prefers groups of 3 blocks each, split across multiple days as needed. */
-    GROUPS_OF_3,
+    /** The assignment prefers to be scheduled in 75-minute blocks, split across multiple days as needed. */
+    BLOCKS_OF_75,
 
     /**
-     * The assignment prefers either groups of 2 blocks each or groups of 3 blocks each, split across multiple days as
-     * needed.
+     * The assignment prefers to be scheduled in either 50-minute blocks or 75-minute blocks, split across multiple days
+     * as needed.
      */
-    GROUPS_OF_2_OR_3
+    BLOCKS_OF_50_OR_75
 }

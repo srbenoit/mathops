@@ -4,20 +4,13 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 /**
- * A model of a room in which classes or labs can be scheduled.
+ * A room in which sections can be scheduled.
  */
 final class Room implements Comparable<Room> {
-
-    /** The number of weekdays. */
-    private static final int NUM_WEEKDAYS = 5;
-
-    /** A zero-length array to return if an invalid weekday is requested. */
-    private static final int[] EMPTY_BLOCK_SCHEDULE = new int[0];
 
     /** The unique room ID. */
     private final String id;
@@ -25,36 +18,27 @@ final class Room implements Comparable<Room> {
     /** The seating capacity. */
     private final int capacity;
 
-    /** The number of hours per day the room is available. */
-    private final int hoursPerDay;
+    /** The number of 50-minute blocks each Monday, Wednesday, and Friday the room is available. */
+    private final int blocksPerDayMWF;
 
-    /**
-     * The list of "assignments" currently active, including the number of hours per week, and whether it needs to be
-     * contiguous.
-     */
-    private final List<RoomAssignment> assignments;
+    /** The number of 75-minute blocks each Tuesday and Thursday the room is available. */
+    private final int blocksPerDayTR;
 
-    /**
-     * A grid of 25-minute blocks available to schedule classes or labs.  A "1 contact hour" block would consume two of
-     * these (adjacent).  An "N contact hour contiguous" block would consume 2N of these (contiguous). An "N contact
-     * hour" block will consume 2N of these, but they could be arranged in pairs or threes over multiple days.  Each
-     * entry in this grid is the "assignment number" that is allocated to those blocks.  This class is free to move the
-     * blocks associated with an "assignment number" around to try to accommodate requests for new assignments, but can
-     * (on request) provide the current set of blocks occupied by any assignment.
-     */
-    private final int[][] timeBlockGrid;
+    /** The list of all sections that will use the room Monday, Wednesday, or Friday. */
+    private final List<SectionMWF> sectionsMWF;
 
-    /** The number of blocks free in each column of {@code timeBlockGrid}. */
-    private final int[] blocksFree;
+    /** The list of all sections that will use the room Tuesday or Thursday. */
+    private final List<SectionTR> sectionsTR;
 
     /**
      * Constructs a new {@code Room}.
      *
-     * @param theId          the unique room ID
-     * @param theCapacity    the seating capacity
-     * @param theHoursPerDay the number of hours per day the room is available
+     * @param theId           the unique room ID
+     * @param theCapacity     the seating capacity
+     * @param theBlocksPerMWF the number of 50-minute blocks each Monday, Wednesday, and Friday the room is available
+     * @param theBlocksPerTR  the number of 75-minute blocks each Tuesday and Thursday the room is available
      */
-    Room(final String theId, final int theCapacity, final int theHoursPerDay) {
+    Room(final String theId, final int theCapacity, final int theBlocksPerMWF, final int theBlocksPerTR) {
 
         if (theId == null || theId.isBlank()) {
             throw new IllegalArgumentException("Room ID may not be null or blank");
@@ -62,20 +46,20 @@ final class Room implements Comparable<Room> {
         if (theCapacity < 1) {
             throw new IllegalArgumentException("Room capacity may not be less than 1");
         }
-        if (theHoursPerDay < 1) {
-            throw new IllegalArgumentException("Number of hours per day may not be less than 1");
+        if (theBlocksPerMWF < 0 || theBlocksPerTR < 0) {
+            throw new IllegalArgumentException("Number of blocks of availability may not be negative");
+        }
+        if (theBlocksPerMWF == 0 && theBlocksPerTR == 0) {
+            throw new IllegalArgumentException("Number of blocks of availability may not be zero");
         }
 
         this.id = theId;
         this.capacity = theCapacity;
-        this.hoursPerDay = theHoursPerDay;
+        this.blocksPerDayMWF = theBlocksPerMWF;
+        this.blocksPerDayTR = theBlocksPerTR;
 
-        this.assignments = new ArrayList<>(100);
-
-        final int blocksPerDay = theHoursPerDay * 2;
-        this.timeBlockGrid = new int[NUM_WEEKDAYS][blocksPerDay];
-        this.blocksFree = new int[NUM_WEEKDAYS];
-        Arrays.fill(this.blocksFree, blocksPerDay);
+        this.sectionsMWF = new ArrayList<>(theBlocksPerMWF);
+        this.sectionsTR = new ArrayList<>(theBlocksPerTR);
     }
 
     /**
@@ -99,722 +83,708 @@ final class Room implements Comparable<Room> {
     }
 
     /**
-     * Gets a copy of this room's list of room assignments.
+     * Gets a copy of the sections scheduled to meet in this room on Monday, Wednesday, and/or Friday.
      *
-     * @return the list of assignments
+     * @return the Monday/Wednesday/Friday sections
      */
-    List<RoomAssignment> getAssignments() {
+    List<SectionMWF> getSectionsMWF() {
 
-        return new ArrayList<>(this.assignments);
+        return new ArrayList<>(this.sectionsMWF);
     }
 
     /**
-     * Gets a copy of the time block grid for this room.  The first index in the returned array selects a day (from 0 to
-     * 4), and the second index selects a 25-minute block within that day.
+     * Gets the number of free blocks available on Monday.
      *
-     * @return the time block grid
+     * @return the number of free blocks on Monday
      */
-    int[][] getTimeBlockGrid() {
+    int getFreeBlocksM() {
 
-        final int count = this.timeBlockGrid.length;
-        final int[][] copy = new int[count][];
-        for (int i = 0; i < count; ++i) {
-            copy[i] = this.timeBlockGrid[i].clone();
-        }
+        int free = this.blocksPerDayMWF;
 
-        return copy;
-    }
-
-    /**
-     * Gets a copy of the array of counts of free blocks available in each day.
-     *
-     * @return an array whose entries are the number of free blocks in each day
-     */
-    int[] getBlocksFree() {
-
-        return this.blocksFree.clone();
-    }
-
-    /**
-     * Removes an assignment from this room (this is only used to remove the most recently added assignment).
-     *
-     * @param assignment the assignment to remove
-     */
-    void removeAssignment(final RoomAssignment assignment) {
-
-        if (this.assignments.remove(assignment)) {
-            final int idToRemove = assignment.id();
-
-            for (int i = 0; i < this.timeBlockGrid.length; ++i) {
-                final int[] col = this.timeBlockGrid[i];
-                for (int j = 0; j < col.length; ++j) {
-                    if (col[j] == idToRemove) {
-                        col[j] = 0;
-                        ++this.blocksFree[i];
-                    }
-                }
+        for (final SectionMWF sect : this.sectionsMWF) {
+            final EMeetingDaysMWF meeting = sect.meetingDays();
+            if (meeting.includesMonday()) {
+                --free;
             }
         }
+
+        return free;
     }
 
     /**
-     * Removes all assignments and resets the time schedule.
+     * Gets the number of free blocks available on Tuesday.
+     *
+     * @return the number of free blocks on Tuesday
      */
-    void clearAssignments() {
+    int getFreeBlocksT() {
 
-        this.assignments.clear();
-        for (int i = 0; i < NUM_WEEKDAYS; ++i) {
-            Arrays.fill(this.timeBlockGrid[i], 0);
+        int free = this.blocksPerDayTR;
+
+        for (final SectionTR sect : this.sectionsTR) {
+            final EMeetingDaysTR meeting = sect.meetingDays();
+            if (meeting.includesTuesday()) {
+                --free;
+            }
         }
 
-        final int blocksPerDay = this.hoursPerDay * 2;
-        Arrays.fill(this.blocksFree, blocksPerDay);
+        return free;
     }
 
     /**
-     * Attempts to add a room assignment.  This process might attempt move existing assignments around to make space for
-     * the requested assignment.
+     * Gets the number of free blocks available on Wednesday.
      *
-     * @param num25MinBlocks the number of 25-minute blocks needed
-     * @param type           the assignment type
-     * @param course         the course being assigned
-     * @param numSeats       the number of seats
-     * @param usage          the room usage
+     * @return the number of free blocks on Wednesday
+     */
+    int getFreeBlocksW() {
+
+        int free = this.blocksPerDayMWF;
+
+        for (final SectionMWF sect : this.sectionsMWF) {
+            final EMeetingDaysMWF meeting = sect.meetingDays();
+            if (meeting.includesWednesday()) {
+                --free;
+            }
+        }
+
+        return free;
+    }
+
+    /**
+     * Gets the number of free blocks available on Thursday.
+     *
+     * @return the number of free blocks on Thursday
+     */
+    int getFreeBlocksR() {
+
+        int free = this.blocksPerDayTR;
+
+        for (final SectionTR sect : this.sectionsTR) {
+            final EMeetingDaysTR meeting = sect.meetingDays();
+            if (meeting.includesThursday()) {
+                --free;
+            }
+        }
+
+        return free;
+    }
+
+    /**
+     * Gets the number of free blocks available on Friday.
+     *
+     * @return the number of free blocks on Friday
+     */
+    int getFreeBlocksF() {
+
+        int free = this.blocksPerDayMWF;
+
+        for (final SectionMWF sect : this.sectionsMWF) {
+            final EMeetingDaysMWF meeting = sect.meetingDays();
+            if (meeting.includesFriday()) {
+                --free;
+            }
+        }
+
+        return free;
+    }
+
+    /**
+     * Gets the total number of free blocks.
+     *
+     * @return the total blocks free
+     */
+    int getTotalBlocksFree() {
+
+        return getFreeBlocksM() + getFreeBlocksT() + getFreeBlocksW() + getFreeBlocksR() + getFreeBlocksF();
+    }
+
+    /**
+     * Gets a copy of the sections scheduled to meet in this room on Tuesday and/or Thursday.
+     *
+     * @return the Tuesday/Thursday sections
+     */
+    List<SectionTR> getSectionsTR() {
+
+        return new ArrayList<>(this.sectionsTR);
+    }
+
+    /**
+     * Removes a section that meets Monday, Wednesday, and/or Friday from this room.
+     *
+     * @param section the section to remove
+     */
+    void removeSection(final SectionMWF section) {
+
+        this.sectionsMWF.remove(section);
+    }
+
+    /**
+     * Removes a section that meets Tuesday and/or Thursday from this room.
+     *
+     * @param section the section to remove
+     */
+    void removeSection(final SectionTR section) {
+
+        this.sectionsTR.remove(section);
+    }
+
+    /**
+     * Removes all sections.
+     */
+    void clearSections() {
+
+        this.sectionsMWF.clear();
+        this.sectionsTR.clear();
+    }
+
+    /**
+     * Attempts to add a section that will meet Monday, Wednesday, and/or Friday.
+     *
+     * @param numBlockPerWeek the number of 50-minute blocks needed per week
+     * @param type            the assignment type
+     * @param course          the course being assigned
+     * @param numSeats        the number of seats
+     * @param usage           the room usage
      * @return an object with the room assignment if it was made, or without if there was insufficient available time to
      *         make the assignment (the assignment ID will be unique within the room)
      */
-    Optional<RoomAssignment> addAssignment(final int num25MinBlocks, final EAssignmentType type, final Course course,
+    Optional<SectionMWF> addSectionMWF(final int numBlockPerWeek, final EAssignmentType type, final Course course,
+                                       final int numSeats, final ERoomUsage usage) {
+
+        final int sectId = this.sectionsMWF.size() + this.sectionsTR.size() + 1;
+
+        SectionMWF sect = null;
+
+        if (type == EAssignmentType.BLOCKS_OF_50 || type == EAssignmentType.BLOCKS_OF_50_OR_75) {
+            sect = addNormalSectionMWF(numBlockPerWeek, sectId, course, numSeats, usage);
+        } else if (type == EAssignmentType.CONTIGUOUS) {
+            sect = addContiguousSectionMWF(numBlockPerWeek, sectId, course, numSeats, usage);
+        } else {
+            Log.warning("Scheduling a course that wants 75-minute blocks for Mon-Wed-Fri is not supported");
+        }
+
+        return sect == null ? Optional.empty() : Optional.of(sect);
+    }
+
+    /**
+     * Attempts to add a contiguous assignment on a Monday, Wednesday, or Friday (the day with the most free hours is
+     * selected).
+     *
+     * @param numBlocks the number of 50-minute blocks needed
+     * @param sectId    the assignment ID to use
+     * @return the section if it was created; {@code null} if the section would exceed room available hours
+     */
+    private SectionMWF addContiguousSectionMWF(final int numBlocks, final int sectId, final Course course,
+                                               final int numSeats, final ERoomUsage usage) {
+
+        final int blocksFreeM = getFreeBlocksM();
+        final int blocksFreeW = getFreeBlocksW();
+        final int blocksFreeF = getFreeBlocksF();
+
+        final int maxMW = Math.max(blocksFreeM, blocksFreeW);
+        final int maxMWF = Math.max(maxMW, blocksFreeF);
+
+        SectionMWF sect = null;
+
+        if (blocksFreeM == maxMWF) {
+            if (blocksFreeM >= numBlocks) {
+                sect = createSectionMWF(EMeetingDaysMWF.M, numBlocks, sectId, course, numSeats, usage);
+            }
+        } else if (blocksFreeW == maxMWF) {
+            if (blocksFreeW >= numBlocks) {
+                sect = createSectionMWF(EMeetingDaysMWF.W, numBlocks, sectId, course, numSeats, usage);
+            }
+        } else if (blocksFreeF >= numBlocks) {
+            sect = createSectionMWF(EMeetingDaysMWF.F, numBlocks, sectId, course, numSeats, usage);
+        }
+
+        return sect;
+    }
+
+    /**
+     * Attempts to add an assignment that is broken into 50-minute blocks spread over different days.
+     *
+     * @param numBlockPerWeek the number of 50-minute blocks needed per week
+     * @param sectId          the assignment ID to use
+     * @param course          the course being assigned
+     * @param numSeats        the number of seats
+     * @param usage           the room usage
+     * @return the section if it was created; {@code null} if the section would exceed room available hours
+     */
+    private SectionMWF addNormalSectionMWF(final int numBlockPerWeek, final int sectId, final Course course,
                                            final int numSeats, final ERoomUsage usage) {
 
-        final int newId = this.assignments.size() + 1;
+        SectionMWF sect = null;
 
-        RoomAssignment ra;
-
-        if (type == EAssignmentType.CONTIGUOUS) {
-            ra = addContiguousAssignment(num25MinBlocks, newId, course, numSeats, usage);
-        } else if (type == EAssignmentType.GROUPS_OF_2) {
-            ra = addGroupsOf2Assignment(num25MinBlocks, newId, course, numSeats, usage);
-        } else if (type == EAssignmentType.GROUPS_OF_3) {
-            ra = addGroupsOf3Assignment(num25MinBlocks, newId, course, numSeats, usage);
+        if (numBlockPerWeek == 1) {
+            // A 1-day a week course can be considered "contiguous" and we already have logic to do that
+            sect = addContiguousSectionMWF(1, sectId, course, numSeats, usage);
+        } else if (numBlockPerWeek == 2) {
+            sect = addNormalSectionTwoDayMWF(sectId, course, numSeats, usage);
+        } else if (numBlockPerWeek == 3) {
+            sect = addNormalSectionThreeDayMWF(sectId, course, numSeats, usage);
         } else {
-            final int minFreeMW = Math.min(this.blocksFree[0], this.blocksFree[2]);
-            final int minFreeMWF = Math.min(minFreeMW, this.blocksFree[4]);
-            final int minFreeTR = Math.min(this.blocksFree[1], this.blocksFree[3]);
-
-            if (minFreeMWF > minFreeTR) {
-                ra = addGroupsOf2Assignment(num25MinBlocks, newId, course, numSeats, usage);
-                if (ra == null) {
-                    ra = addGroupsOf3Assignment(num25MinBlocks, newId, course, numSeats, usage);
-                }
-            } else {
-                ra = addGroupsOf3Assignment(num25MinBlocks, newId, course, numSeats, usage);
-                if (ra == null) {
-                    ra = addGroupsOf2Assignment(num25MinBlocks, newId, course, numSeats, usage);
-                }
-            }
+            final String numBlocksStr = Integer.toString(numBlockPerWeek);
+            Log.warning("ERROR: Classes needing ", numBlocksStr, " 50-minute blocks a week not yet supported");
         }
 
-        return ra == null ? Optional.empty() : Optional.of(ra);
+        return sect;
     }
 
     /**
-     * Attempts to add a contiguous assignment.
+     * Attempts to add a section that will meet two days a week, for one hour.
      *
-     * @param num25MinBlocks the number of 25-minute blocks needed
-     * @param newId          the assignment ID to use
-     * @return an object with the room assignment if it was made, or without if there was insufficient available time to
-     *         make the assignment (the assignment ID will be unique within the room)
-     */
-    private RoomAssignment addContiguousAssignment(final int num25MinBlocks, final int newId, final Course course,
-                                                   final int numSeats, final ERoomUsage usage) {
-
-        final int dayIndex;
-
-        // There is a preference order for contiguous blocks...
-
-        if (this.blocksFree[1] >= num25MinBlocks || this.blocksFree[3] >= num25MinBlocks) {
-            // We can assign to a Tuesday or Thursday - choose that with the smaller number of hours
-            dayIndex = this.blocksFree[1] > this.blocksFree[3] ? 1 : 3;
-        } else if (this.blocksFree[0] >= num25MinBlocks || this.blocksFree[2] >= num25MinBlocks
-                   || this.blocksFree[4] >= num25MinBlocks) {
-            final int maxMW = Math.max(this.blocksFree[0], this.blocksFree[2]);
-            final int maxMWF = Math.max(maxMW, this.blocksFree[4]);
-            dayIndex = this.blocksFree[0] == maxMWF ? 0 : (this.blocksFree[2] == maxMWF ? 2 : 4);
-        } else {
-            dayIndex = -1;
-        }
-
-        RoomAssignment ra = null;
-
-        if (dayIndex >= 0) {
-            ra = addAssignedBlock(dayIndex, num25MinBlocks, num25MinBlocks, newId, course, numSeats, usage,
-                    EAssignmentType.CONTIGUOUS);
-        }
-
-        return ra;
-    }
-
-    /**
-     * Attempts to add an assignment that is broken into groups of 2 25-minute blocks spread over different days.
-     *
-     * @param num25MinBlocks the number of 25-minute blocks needed
-     * @param newId          the assignment ID to use
-     * @param course         the course being assigned
-     * @param numSeats       the number of seats
-     * @param usage          the room usage
-     * @return an object with the room assignment if it was made, or without if there was insufficient available time to
-     *         make the assignment (the assignment ID will be unique within the room)
-     */
-    private RoomAssignment addGroupsOf2Assignment(final int num25MinBlocks, final int newId, final Course course,
-                                                  final int numSeats, final ERoomUsage usage) {
-
-        RoomAssignment ra = null;
-
-        final int numGroups = (num25MinBlocks + 1) / 2;
-
-        if (numGroups == 1) {
-            ra = addOneGroupOf2(newId, course, numSeats, usage);
-        } else if (numGroups == 2) {
-            ra = addTwoGroupsOf2(newId, course, numSeats, usage);
-        } else if (numGroups == 3) {
-            ra = addThreeGroupsOf2(newId, course, numSeats, usage);
-        } else if (numGroups == 4) {
-            ra = addFourGroupsOf2(newId, course, numSeats, usage);
-        } else if (numGroups == 5) {
-            ra = addFiveGroupsOf2(newId, course, numSeats, usage);
-        } else {
-            final String numBlocksStr = Integer.toString(num25MinBlocks);
-            Log.warning("ERROR: A class using groups of 2 with ", numBlocksStr, " is not yet supported");
-        }
-
-        return ra;
-    }
-
-    /**
-     * Adds a course that occupies a single group of 2 25-minute blocks on a single day.
-     *
-     * <p>
-     * This method will search for a day of the week that has more free blocks than any other, and attempt to assign the
-     * class there.  It will prefer a Mon/Wed/Fri date (since Tue/Thr are probably going to be used for contiguous or
-     * blocks of 3), but will assign to Tue/Thr if needed.
-     *
-     * @param newId    the new assignment ID
+     * @param sectId   the assignment ID to use
      * @param course   the course being assigned
      * @param numSeats the number of seats
      * @param usage    the room usage
-     * @return the room assignment if successful; {@code null} if not
+     * @return the section if it was created; {@code null} if the section would exceed room available hours
      */
-    private RoomAssignment addOneGroupOf2(final int newId, final Course course, final int numSeats,
-                                          final ERoomUsage usage) {
+    private SectionMWF addNormalSectionTwoDayMWF(final int sectId, final Course course, final int numSeats,
+                                                 final ERoomUsage usage) {
 
-        RoomAssignment ra = null;
+        final int blocksFreeM = getFreeBlocksM();
+        final int blocksFreeW = getFreeBlocksW();
+        final int blocksFreeF = getFreeBlocksF();
 
-        final int minFreeMW = Math.min(this.blocksFree[0], this.blocksFree[2]);
-        final int minFreeMWF = Math.min(minFreeMW, this.blocksFree[4]);
+        final int minMW = Math.min(blocksFreeM, blocksFreeW);
+        final int minMWF = Math.min(minMW, blocksFreeF);
 
-        final boolean monOk = this.blocksFree[0] >= 2;
-        final boolean wedOk = this.blocksFree[2] >= 2;
-        final boolean friOk = this.blocksFree[4] >= 2;
+        SectionMWF sect = null;
 
-        if (this.blocksFree[0] > minFreeMWF && monOk) {
-            ra = addAssignedBlock(0, 2, 2, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
-        } else if (this.blocksFree[2] > minFreeMWF && wedOk) {
-            ra = addAssignedBlock(2, 2, 2, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
-        } else if (this.blocksFree[4] > minFreeMWF && friOk) {
-            ra = addAssignedBlock(4, 2, 2, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
+        if (blocksFreeM == minMWF) {
+            if (blocksFreeW > 0 && blocksFreeF > 0) {
+                sect = createSectionMWF(EMeetingDaysMWF.WF, 1, sectId, course, numSeats, usage);
+            }
+        } else if (blocksFreeW == minMWF) {
+            if (blocksFreeM > 0 && blocksFreeF > 0) {
+                sect = createSectionMWF(EMeetingDaysMWF.MF, 1, sectId, course, numSeats, usage);
+            }
         } else {
-            // Mon/Wed/Fri all have the same number of blocks free - prefer Monday, all else being equal
+            if (blocksFreeM > 0 && blocksFreeW > 0) {
+                sect = createSectionMWF(EMeetingDaysMWF.MW, 1, sectId, course, numSeats, usage);
+            }
+        }
 
-            if (monOk) {
-                ra = addAssignedBlock(0, 2, 2, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
+        return sect;
+    }
+
+    /**
+     * Attempts to add a section that will meet three days a week, for one hour.
+     *
+     * @param sectId   the assignment ID to use
+     * @param course   the course being assigned
+     * @param numSeats the number of seats
+     * @param usage    the room usage
+     * @return the section if it was created; {@code null} if the section would exceed room available hours
+     */
+    private SectionMWF addNormalSectionThreeDayMWF(final int sectId, final Course course, final int numSeats,
+                                                   final ERoomUsage usage) {
+
+        final int blocksFreeM = getFreeBlocksM();
+        final int blocksFreeW = getFreeBlocksW();
+        final int blocksFreeF = getFreeBlocksF();
+
+        SectionMWF sect = null;
+
+        if (blocksFreeM > 0 && blocksFreeW > 0 && blocksFreeF > 0) {
+            sect = createSectionMWF(EMeetingDaysMWF.MWF, 1, sectId, course, numSeats, usage);
+        }
+
+        return sect;
+    }
+
+    /**
+     * If possible, creates a section that will meet Monday, Wednesday, and/or Friday and adds it to this room's
+     * schedule.  If doing so would exceed the number of blocks for which the room is available; this operation will
+     * fail.
+     *
+     * @param meetingDays  the days on which the section will meet
+     * @param blocksPerDay the number of 50-minute blocks needed per day
+     * @param sectId       the section ID to use for the new section
+     * @param course       the course
+     * @param numSeats     the number of seats needed
+     * @param usage        the usage
+     * @return the section if it was created; {@code null} if the section would exceed room available hours
+     */
+    private SectionMWF createSectionMWF(final EMeetingDaysMWF meetingDays, final int blocksPerDay, final int sectId,
+                                        final Course course, final int numSeats, final ERoomUsage usage) {
+
+        boolean ok = true;
+
+        if (meetingDays.includesMonday()) {
+            if (getFreeBlocksM() < blocksPerDay) {
+                ok = false;
+            }
+        }
+        if (meetingDays.includesWednesday()) {
+            if (getFreeBlocksW() < blocksPerDay) {
+                ok = false;
+            }
+        }
+        if (meetingDays.includesFriday()) {
+            if (getFreeBlocksF() < blocksPerDay) {
+                ok = false;
+            }
+        }
+
+        SectionMWF sect = null;
+
+        if (ok) {
+            final SectionMWF temp = new SectionMWF(sectId, meetingDays, this, course, numSeats, usage, blocksPerDay);
+
+            this.sectionsMWF.add(temp);
+            if (canPackSectionsMWF()) {
+                sect = temp;
             } else {
-                // Not enough space on Monday, Wednesday, or Friday
+                this.sectionsMWF.remove(temp);
+            }
+        }
 
-                final int minFreeTR = Math.min(this.blocksFree[1], this.blocksFree[3]);
-                final boolean tueOk = this.blocksFree[1] >= 2;
-                final boolean thrOk = this.blocksFree[3] >= 2;
+        return sect;
+    }
 
-                if (this.blocksFree[1] > minFreeTR && tueOk) {
-                    ra = addAssignedBlock(1, 2, 2, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
-                } else if (this.blocksFree[3] > minFreeTR && thrOk) {
-                    ra = addAssignedBlock(3, 2, 2, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
-                } else {
-                    // Tue/Thur have the same number of days free - prefer Tuesday, all else being equal
-                    if (tueOk) {
-                        ra = addAssignedBlock(1, 2, 2, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
+    /**
+     * Attempts to pack the MWF sections so they all fit within the allowed hours of the day.
+     *
+     * @return true if the packing succeeded; false if not
+     */
+    private boolean canPackSectionsMWF() {
+
+        for (final SectionMWF sect : this.sectionsMWF) {
+            sect.clearBlockIndex();
+        }
+
+        // Pack all sections that meet all three days into the first indexes
+        int currentIndex = 0;
+        for (final SectionMWF sect : this.sectionsMWF) {
+            if (sect.meetingDays() == EMeetingDaysMWF.MWF) {
+                sect.setBlockIndex(currentIndex);
+                currentIndex += sect.blocksPerDay();
+            }
+        }
+
+        int maxM = currentIndex;
+        int maxW = currentIndex;
+        int maxF = currentIndex;
+
+        // Now pack all the "MW" sections, and slot in as many "F" sections as we can fit.
+        {
+            for (final SectionMWF sect : this.sectionsMWF) {
+                if (sect.meetingDays() == EMeetingDaysMWF.MW) {
+                    sect.setBlockIndex(currentIndex);
+                    currentIndex += sect.blocksPerDay();
+                    maxM = currentIndex;
+                    maxW = currentIndex;
+                }
+            }
+            int freeFHours = currentIndex - maxF;
+            if (freeFHours > 0) {
+                for (final SectionMWF sect : this.sectionsMWF) {
+                    if (sect.meetingDays() == EMeetingDaysMWF.F) {
+                        final int blocks = sect.blocksPerDay();
+                        if (blocks <= freeFHours) {
+                            sect.setBlockIndex(maxF);
+                            maxF += blocks;
+                            freeFHours -= blocks;
+                            if (freeFHours == 0) {
+                                break;
+                            }
+                        }
                     }
                 }
-
-                // TODO: Otherwise, try to rebuild the schedule
             }
         }
 
-        return ra;
-    }
+        // Move "maxF" up to match the rest of the row (may leave a gap, but nothing will fit in that gap)
+        maxF = currentIndex;
 
-    /**
-     * Adds a course that occupies two groups of 2 25-minute blocks on separate days.
-     *
-     * <p>
-     * This method will look for two days in M/W/F that have fewer than the other, and if found, assign this class
-     * there.  Otherwise, assign to any two M/W/F days with space, and if there are none, assign to T/R if they have
-     * space (the intent is to keep Tue/Thr for contiguous blocks and those that come in groups of 3, if possible.
-     *
-     * @param newId    the new assignment ID
-     * @param course   the course being assigned
-     * @param numSeats the number of seats
-     * @param usage    the room usage
-     * @return the room assignment if successful; {@code null} if not
-     */
-    private RoomAssignment addTwoGroupsOf2(final int newId, final Course course, final int numSeats,
-                                           final ERoomUsage usage) {
-
-        RoomAssignment ra = null;
-
-        final boolean monOk = this.blocksFree[0] >= 2;
-        final boolean wedOk = this.blocksFree[2] >= 2;
-        final boolean friOk = this.blocksFree[4] >= 2;
-
-        final int minFreeMW = Math.min(this.blocksFree[0], this.blocksFree[2]);
-        final int minFreeMWF = Math.min(minFreeMW, this.blocksFree[4]);
-
-        final boolean monHasLess = this.blocksFree[0] > minFreeMWF;
-        final boolean wedHasLess = this.blocksFree[2] > minFreeMWF;
-        final boolean friHasLess = this.blocksFree[4] > minFreeMWF;
-
-        if (monHasLess && monOk && wedHasLess && wedOk) {
-            markAssignedBlock(0, 2, newId);
-            ra = addAssignedBlock(2, 2, 4, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
-        } else if (monHasLess && monOk && friHasLess && friOk) {
-            markAssignedBlock(0, 2, newId);
-            ra = addAssignedBlock(4, 2, 4, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
-        } else if (wedHasLess && wedOk && friHasLess && friOk) {
-            markAssignedBlock(2, 2, newId);
-            ra = addAssignedBlock(4, 2, 4, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
-        } else {
-            // Mon/Wed/Fri all have the same number of hours free
-
-            if (monOk && wedOk) {
-                markAssignedBlock(0, 2, newId);
-                ra = addAssignedBlock(2, 2, 4, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
-            } else {
-                final boolean tueOk = this.blocksFree[1] >= 2;
-                final boolean thrOk = this.blocksFree[3] >= 2;
-
-                if (tueOk && thrOk) {
-                    markAssignedBlock(1, 2, newId);
-                    ra = addAssignedBlock(3, 2, 4, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
+        // Next, pack all the "MF" sections, and slot in as many "W" sections as we can fit.
+        {
+            for (final SectionMWF sect : this.sectionsMWF) {
+                if (sect.meetingDays() == EMeetingDaysMWF.MF) {
+                    sect.setBlockIndex(currentIndex);
+                    currentIndex += sect.blocksPerDay();
+                    maxM = currentIndex;
+                    maxF = currentIndex;
                 }
-
-                // TODO: Otherwise, try to rebuild schedule
+            }
+            int freeWHours = currentIndex - maxW;
+            if (freeWHours > 0) {
+                for (final SectionMWF sect : this.sectionsMWF) {
+                    if (sect.meetingDays() == EMeetingDaysMWF.W) {
+                        final int blocks = sect.blocksPerDay();
+                        if (blocks <= freeWHours) {
+                            sect.setBlockIndex(maxW);
+                            maxW += blocks;
+                            freeWHours -= blocks;
+                            if (freeWHours == 0) {
+                                break;
+                            }
+                        }
+                    }
+                }
             }
         }
 
-        return ra;
-    }
+        // Move "maxW" up to match the rest of the row (may leave a gap, but nothing will fit in that gap)
+        maxW = currentIndex;
 
-    /**
-     * Adds a course that occupies three groups of 2 25-minute blocks on separate days.
-     *
-     * <p>
-     * This method will check whether M/W/F all have space, and assign the class there if possible.
-     *
-     * @param newId    the new assignment ID
-     * @param course   the course being assigned
-     * @param numSeats the number of seats
-     * @param usage    the room usage
-     * @return the room assignment if successful; {@code null} if not
-     */
-    private RoomAssignment addThreeGroupsOf2(final int newId, final Course course, final int numSeats,
-                                             final ERoomUsage usage) {
-
-        RoomAssignment ra = null;
-
-        // Try to assign to M/W/F
-
-        final boolean monOk = this.blocksFree[0] >= 2;
-        final boolean wedOk = this.blocksFree[2] >= 2;
-        final boolean friOk = this.blocksFree[4] >= 2;
-
-        if (monOk && wedOk && friOk) {
-            markAssignedBlock(0, 2, newId);
-            markAssignedBlock(2, 2, newId);
-            ra = addAssignedBlock(4, 2, 6, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
+        // pack all the "WF" sections, and slot in as many "M" sections as we can fit.
+        {
+            for (final SectionMWF sect : this.sectionsMWF) {
+                if (sect.meetingDays() == EMeetingDaysMWF.WF) {
+                    sect.setBlockIndex(currentIndex);
+                    currentIndex += sect.blocksPerDay();
+                    maxW = currentIndex;
+                    maxF = currentIndex;
+                }
+            }
+            int freeMHours = currentIndex - maxM;
+            if (freeMHours > 0) {
+                for (final SectionMWF sect : this.sectionsMWF) {
+                    if (sect.meetingDays() == EMeetingDaysMWF.M) {
+                        final int blocks = sect.blocksPerDay();
+                        if (blocks <= freeMHours) {
+                            sect.setBlockIndex(maxM);
+                            maxM += blocks;
+                            freeMHours -= blocks;
+                            if (freeMHours == 0) {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
         }
 
-        // TODO: Otherwise, try to rebuild schedule
+        // NOTE: We do not move "maxM" up since we're going to be adding one-day sections, and we could add a Monday
+        // section here.
 
-        return ra;
-    }
+        // TODO: A future enhancement might check whether we had unused hours in Wednesday or Friday as we did the
+        //  2-day assignments, and if that day's one-day assignments end up too large, we could shift that set of
+        //  2-day courses to the top of the stack (rather than leaving Monday on top as we have here), and shift that
+        //  day's 1-day indexes down to "Tetris" into the gap.
 
-    /**
-     * Adds a course that occupies four groups of 2 25-minute blocks on separate days.
-     *
-     * <p>
-     * This method will check for one day with fewer free blocks than the others, and try to assign the class to the
-     * remaining days.
-     *
-     * @param newId    the new assignment ID
-     * @param course   the course being assigned
-     * @param numSeats the number of seats
-     * @param usage    the room usage
-     * @return the room assignment if successful; {@code null} if not
-     */
-    private RoomAssignment addFourGroupsOf2(final int newId, final Course course, final int numSeats,
-                                            final ERoomUsage usage) {
-
-        RoomAssignment ra = null;
-
-        // Try to assign to all but the most full day
-        final int minFreeMT = Math.min(this.blocksFree[0], this.blocksFree[1]);
-        final int minFreeWR = Math.min(this.blocksFree[2], this.blocksFree[3]);
-        final int minFreeMTWR = Math.min(minFreeMT, minFreeWR);
-        final int minFreeAll = Math.min(this.blocksFree[4], minFreeMTWR);
-
-        final boolean monOk = this.blocksFree[0] >= 2;
-        final boolean tueOk = this.blocksFree[1] >= 2;
-        final boolean wedOk = this.blocksFree[2] >= 2;
-        final boolean thrOk = this.blocksFree[3] >= 2;
-        final boolean friOk = this.blocksFree[4] >= 2;
-
-        // Try MWRF first, then MTWF, then MTWR, then MTRF, then TWRF
-        if (this.blocksFree[1] == minFreeAll && monOk && wedOk && thrOk && friOk) {
-            markAssignedBlock(0, 2, newId);
-            markAssignedBlock(2, 2, newId);
-            markAssignedBlock(3, 2, newId);
-            ra = addAssignedBlock(4, 2, 8, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
-        } else if (this.blocksFree[3] == minFreeAll && monOk && tueOk && wedOk && friOk) {
-            markAssignedBlock(0, 2, newId);
-            markAssignedBlock(1, 2, newId);
-            markAssignedBlock(2, 2, newId);
-            ra = addAssignedBlock(4, 2, 8, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
-        } else if (this.blocksFree[4] == minFreeAll && monOk && tueOk && wedOk && thrOk) {
-            markAssignedBlock(0, 2, newId);
-            markAssignedBlock(1, 2, newId);
-            markAssignedBlock(2, 2, newId);
-            ra = addAssignedBlock(3, 2, 8, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
-        } else if (this.blocksFree[2] == minFreeAll && monOk && tueOk && thrOk && friOk) {
-            markAssignedBlock(0, 2, newId);
-            markAssignedBlock(1, 2, newId);
-            markAssignedBlock(3, 2, newId);
-            ra = addAssignedBlock(4, 2, 8, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
-        } else if (this.blocksFree[0] == minFreeAll && tueOk && wedOk && thrOk && friOk) {
-            markAssignedBlock(1, 2, newId);
-            markAssignedBlock(2, 2, newId);
-            markAssignedBlock(3, 2, newId);
-            ra = addAssignedBlock(4, 2, 8, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
+        // Add the 1-day sections
+        for (final SectionMWF sect : this.sectionsMWF) {
+            if (sect.getBlocksIndex() == -1) {
+                if (sect.meetingDays() == EMeetingDaysMWF.M) {
+                    sect.setBlockIndex(maxM);
+                    maxM += sect.blocksPerDay();
+                } else if (sect.meetingDays() == EMeetingDaysMWF.W) {
+                    sect.setBlockIndex(maxW);
+                    maxW += sect.blocksPerDay();
+                } else if (sect.meetingDays() == EMeetingDaysMWF.F) {
+                    sect.setBlockIndex(maxF);
+                    maxF += sect.blocksPerDay();
+                }
+            }
         }
 
-        // TODO: Otherwise, rebuild the schedule
-
-        return ra;
+        return maxM <= this.blocksPerDayMWF && maxW <= this.blocksPerDayMWF && maxF <= this.blocksPerDayMWF;
     }
 
     /**
-     * Adds a course that occupies five groups of 2 25-minute blocks on separate days.
+     * Attempts to add a section that will meet Tuesday and/or Thursday.
      *
-     * <p>
-     * This method simply checks that all 5 days can hold the assignment, and assigns the class if so.
-     *
-     * @param newId    the new assignment ID
-     * @param course   the course being assigned
-     * @param numSeats the number of seats
-     * @param usage    the room usage
-     * @return the room assignment if successful; {@code null} if not
-     */
-    private RoomAssignment addFiveGroupsOf2(final int newId, final Course course, final int numSeats,
-                                            final ERoomUsage usage) {
-
-        RoomAssignment ra = null;
-
-        final boolean monOk = this.blocksFree[0] >= 2;
-        final boolean tueOk = this.blocksFree[1] >= 2;
-        final boolean wedOk = this.blocksFree[2] >= 2;
-        final boolean thrOk = this.blocksFree[3] >= 2;
-        final boolean friOk = this.blocksFree[4] >= 2;
-
-        if (monOk && tueOk && wedOk && thrOk && friOk) {
-            markAssignedBlock(0, 2, newId);
-            markAssignedBlock(1, 2, newId);
-            markAssignedBlock(2, 2, newId);
-            markAssignedBlock(3, 2, newId);
-            ra = addAssignedBlock(4, 2, 10, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_2);
-        }
-
-        // TODO: Otherwise, rebuild the schedule
-
-        return ra;
-    }
-
-    /**
-     * Attempts to add an assignment that is broken into groups of 3 25-minute blocks spread over different days.
-     *
-     * @param num25MinBlocks the number of 25-minute blocks needed
-     * @param newId          the assignment ID to use
-     * @param course         the course being assigned
-     * @param numSeats       the number of seats
-     * @param usage          the room usage
+     * @param numBlockPerWeek the number of 75-minute blocks needed per week
+     * @param type            the assignment type
+     * @param course          the course being assigned
+     * @param numSeats        the number of seats
+     * @param usage           the room usage
      * @return an object with the room assignment if it was made, or without if there was insufficient available time to
      *         make the assignment (the assignment ID will be unique within the room)
      */
-    private RoomAssignment addGroupsOf3Assignment(final int num25MinBlocks, final int newId, final Course course,
-                                                  final int numSeats, final ERoomUsage usage) {
+    Optional<SectionTR> addSectionTR(final int numBlockPerWeek, final EAssignmentType type, final Course course,
+                                     final int numSeats, final ERoomUsage usage) {
 
-        RoomAssignment ra = null;
+        final int sectId = this.sectionsTR.size() + this.sectionsTR.size() + 1;
 
-        final int numGroups = (num25MinBlocks + 2) / 3;
+        final SectionTR sect;
 
-        if (numGroups == 1) {
-            ra = addOneGroupOf3(newId, course, numSeats, usage);
-        } else if (numGroups == 2) {
-            ra = addTwoGroupsOf3(newId, course, numSeats, usage);
-        } else if (numGroups == 3) {
-            ra = addThreeGroupsOf3(newId, course, numSeats, usage);
+        if (type == EAssignmentType.BLOCKS_OF_75 || type == EAssignmentType.BLOCKS_OF_50_OR_75) {
+            sect = addNormalSectionTR(numBlockPerWeek, sectId, course, numSeats, usage);
+        } else if (type == EAssignmentType.CONTIGUOUS) {
+            sect = addContiguousSectionTR(numBlockPerWeek, sectId, course, numSeats, usage);
         } else {
-            Log.warning("ERROR: A class using groups of 3 with " + num25MinBlocks + " is not yet supported");
+            // Course wants blocks of 50, but we can make that work within 75-minute blocks
+            if (numBlockPerWeek == 1) {
+                sect = addContiguousSectionTR(1, sectId, course, numSeats, usage);
+            } else if (numBlockPerWeek == 2) {
+                sect = addNormalSectionTR(2, sectId, course, numSeats, usage);
+            } else {
+                Log.warning("Scheduling a course that wants more than 2 50-minute blocks for Tue/Thr is not supported");
+                sect = null;
+            }
         }
 
-        return ra;
+        return sect == null ? Optional.empty() : Optional.of(sect);
     }
 
     /**
-     * Adds a course that occupies a single group of 3 25-minute blocks on a single day.
+     * Attempts to add a contiguous assignment on a Tuesday or Thursday (the day with the most free hours is selected).
      *
-     * <p>
-     * This method will search for a day of the week that has more free blocks than any other, and attempt to assign the
-     * class there.  It will prefer a Tue/Thr date, but will assign to Mon/Wed/Fri if needed.
+     * @param numBlocks the number of 75-minute blocks needed
+     * @param sectId    the assignment ID to use
+     * @return the section if it was created; {@code null} if the section would exceed room available hours
+     */
+    private SectionTR addContiguousSectionTR(final int numBlocks, final int sectId, final Course course,
+                                             final int numSeats, final ERoomUsage usage) {
+
+        final int blocksFreeT = getFreeBlocksT();
+        final int blocksFreeR = getFreeBlocksR();
+
+        final int maxTR = Math.max(blocksFreeT, blocksFreeR);
+
+        SectionTR sect = null;
+
+        if (blocksFreeT == maxTR) {
+            if (blocksFreeT >= numBlocks) {
+                sect = createSectionTR(EMeetingDaysTR.T, numBlocks, sectId, course, numSeats, usage);
+            }
+        } else if (blocksFreeR >= numBlocks) {
+            sect = createSectionTR(EMeetingDaysTR.R, numBlocks, sectId, course, numSeats, usage);
+        }
+
+        return sect;
+    }
+
+    /**
+     * Attempts to add an assignment that is broken into 75-minute blocks spread over different days.
      *
-     * @param newId    the new assignment ID
+     * @param numBlockPerWeek the number of 75-minute blocks needed per week
+     * @param sectId          the assignment ID to use
+     * @param course          the course being assigned
+     * @param numSeats        the number of seats
+     * @param usage           the room usage
+     * @return the section if it was created; {@code null} if the section would exceed room available hours
+     */
+    private SectionTR addNormalSectionTR(final int numBlockPerWeek, final int sectId, final Course course,
+                                         final int numSeats, final ERoomUsage usage) {
+
+        SectionTR sect = null;
+
+        if (numBlockPerWeek == 1) {
+            // A 1-day a week course can be considered "contiguous" and we already have logic to do that
+            sect = addContiguousSectionTR(1, sectId, course, numSeats, usage);
+        } else if (numBlockPerWeek == 2) {
+            sect = addNormalSectionTwoDayTR(sectId, course, numSeats, usage);
+        } else {
+            final String numBlocksStr = Integer.toString(numBlockPerWeek);
+            Log.warning("ERROR: Classes needing ", numBlocksStr, " 75-minute blocks a week not yet supported");
+        }
+
+        return sect;
+    }
+
+    /**
+     * Attempts to add a section that will meet three days a week, for one hour.
+     *
+     * @param sectId   the assignment ID to use
      * @param course   the course being assigned
      * @param numSeats the number of seats
      * @param usage    the room usage
-     * @return the room assignment if successful; {@code null} if not
+     * @return the section if it was created; {@code null} if the section would exceed room available hours
      */
-    private RoomAssignment addOneGroupOf3(final int newId, final Course course, final int numSeats,
-                                          final ERoomUsage usage) {
+    private SectionTR addNormalSectionTwoDayTR(final int sectId, final Course course, final int numSeats,
+                                               final ERoomUsage usage) {
 
-        RoomAssignment ra = null;
+        final int blocksFreeT = getFreeBlocksT();
+        final int blocksFreeR = getFreeBlocksR();
 
-        final int minFreeTR = Math.min(this.blocksFree[1], this.blocksFree[3]);
-        final boolean tueOk = this.blocksFree[1] >= 2;
-        final boolean thrOk = this.blocksFree[3] >= 2;
+        SectionTR sect = null;
 
-        if (this.blocksFree[1] >= minFreeTR && tueOk) {
-            ra = addAssignedBlock(1, 3, 3, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
-        } else if (thrOk) {
-            ra = addAssignedBlock(3, 3, 3, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
+        if (blocksFreeT > 0 && blocksFreeR > 0) {
+            sect = createSectionTR(EMeetingDaysTR.TR, 1, sectId, course, numSeats, usage);
+        }
+
+        return sect;
+    }
+
+    /**
+     * If possible, creates a section that will meet Tuesday and/or Thursday and adds it to this room's schedule.  If
+     * doing so would exceed the number of blocks for which the room is available; this operation will fail.
+     *
+     * @param meetingDays  the days on which the section will meet
+     * @param blocksPerDay the number of 50-minute blocks needed per day
+     * @param sectId       the section ID to use for the new section
+     * @param course       the course
+     * @param numSeats     the number of seats needed
+     * @param usage        the usage
+     * @return the section if it was created; {@code null} if the section would exceed room available hours
+     */
+    private SectionTR createSectionTR(final EMeetingDaysTR meetingDays, final int blocksPerDay, final int sectId,
+                                      final Course course, final int numSeats, final ERoomUsage usage) {
+
+        boolean ok = true;
+
+        if (meetingDays.includesTuesday()) {
+            if (getFreeBlocksT() < blocksPerDay) {
+                ok = false;
+            }
+        }
+        if (meetingDays.includesThursday()) {
+            if (getFreeBlocksR() < blocksPerDay) {
+                ok = false;
+            }
+        }
+
+        final SectionTR sect;
+
+        if (ok) {
+            final SectionTR temp = new SectionTR(sectId, meetingDays, this, course, numSeats, usage, blocksPerDay);
+
+            this.sectionsTR.add(temp);
+            if (canPackSectionsTR()) {
+                sect = temp;
+            } else {
+                this.sectionsTR.remove(temp);
+                sect = null;
+            }
         } else {
-            final int minFreeMW = Math.min(this.blocksFree[0], this.blocksFree[2]);
-            final int minFreeMWF = Math.min(minFreeMW, this.blocksFree[4]);
-
-            final boolean monOk = this.blocksFree[0] >= 3;
-            final boolean wedOk = this.blocksFree[2] >= 3;
-            final boolean friOk = this.blocksFree[4] >= 3;
-
-            if (this.blocksFree[0] >= minFreeMWF && monOk) {
-                ra = addAssignedBlock(0, 3, 3, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
-            } else if (this.blocksFree[2] >= minFreeMWF && wedOk) {
-                ra = addAssignedBlock(2, 3, 3, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
-            } else if (this.blocksFree[4] >= minFreeMWF && friOk) {
-                ra = addAssignedBlock(4, 3, 3, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
-            } else if (monOk) {
-                ra = addAssignedBlock(0, 3, 3, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
-            } else if (wedOk) {
-                ra = addAssignedBlock(2, 3, 3, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
-            } else if (friOk) {
-                ra = addAssignedBlock(4, 3, 3, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
-            }
-
-            // TODO: Otherwise, try to rebuild the schedule
+            sect = null;
         }
 
-        return ra;
+        return sect;
     }
 
     /**
-     * Adds a course that occupies two groups of 3 25-minute blocks on separate days.
+     * Attempts to pack the TR sections so they all fit within the allowed hours of the day.
      *
-     * <p>
-     * This method will check whether Tue/Tur can hold the course, and assign it there if so.  If not, it will look for
-     * space in Mon/Wed/Fri, but it will allocate blocks of 4 rather than 3 to keep the schedule aligned.
-     *
-     * @param newId    the new assignment ID
-     * @param course   the course being assigned
-     * @param numSeats the number of seats
-     * @param usage    the room usage
-     * @return the room assignment if successful; {@code null} if not
+     * @return true if the packing succeeded; false if not
      */
-    private RoomAssignment addTwoGroupsOf3(final int newId, final Course course, final int numSeats,
-                                           final ERoomUsage usage) {
+    private boolean canPackSectionsTR() {
 
-        RoomAssignment ra = null;
-
-        final boolean tueOk = this.blocksFree[1] >= 3;
-        final boolean thrOk = this.blocksFree[3] >= 3;
-
-        if (tueOk && thrOk) {
-            markAssignedBlock(1, 3, newId);
-            ra = addAssignedBlock(3, 3, 6, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
-        } else {
-            final int minFreeMW = Math.min(this.blocksFree[0], this.blocksFree[2]);
-            final int minFreeMWF = Math.min(minFreeMW, this.blocksFree[4]);
-
-            final boolean monOk = this.blocksFree[0] >= 4;
-            final boolean wedOk = this.blocksFree[2] >= 4;
-            final boolean friOk = this.blocksFree[4] >= 4;
-
-            // NOTE: We consume 4 blocks per day since we're on M/W/F, which wants hour-long allocations
-
-            if (this.blocksFree[0] == minFreeMWF && wedOk && friOk) {
-                markAssignedBlock(2, 4, newId);
-                ra = addAssignedBlock(4, 4, 6, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
-            } else if (this.blocksFree[2] == minFreeMWF && monOk && friOk) {
-                markAssignedBlock(0, 4, newId);
-                ra = addAssignedBlock(4, 4, 6, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
-            } else if (this.blocksFree[4] == minFreeMWF && monOk && wedOk) {
-                markAssignedBlock(0, 4, newId);
-                ra = addAssignedBlock(2, 4, 6, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
-            }
-
-            // TODO: Otherwise, try to rebuild schedule
+        for (final SectionTR sect : this.sectionsTR) {
+            sect.clearBlockIndex();
         }
 
-        return ra;
-    }
-
-    /**
-     * Adds a course that occupies three groups of 2 25-minute blocks on separate days.
-     *
-     * <p>
-     * This method will check whether M/W/F all have space, and assign the class there if possible, but it will allocate
-     * blocks of 4 rather than 3 to keep the schedule aligned.
-     *
-     * @param newId    the new assignment ID
-     * @param course   the course being assigned
-     * @param numSeats the number of seats
-     * @param usage    the room usage
-     * @return the room assignment if successful; {@code null} if not
-     */
-    private RoomAssignment addThreeGroupsOf3(final int newId, final Course course, final int numSeats,
-                                             final ERoomUsage usage) {
-
-        RoomAssignment ra = null;
-
-        // Try to assign to M/W/F
-
-        final boolean monOk = this.blocksFree[0] >= 4;
-        final boolean wedOk = this.blocksFree[2] >= 4;
-        final boolean friOk = this.blocksFree[4] >= 4;
-
-        // NOTE: We consume 4 blocks per day since we're on M/W/F, which wants hour-long allocations
-
-        if (monOk && wedOk && friOk) {
-            markAssignedBlock(0, 4, newId);
-            markAssignedBlock(2, 4, newId);
-            ra = addAssignedBlock(4, 4, 12, newId, course, numSeats, usage, EAssignmentType.GROUPS_OF_3);
-        }
-
-        // TODO: Otherwise, try to rebuild schedule
-
-        return ra;
-    }
-
-    /**
-     * Adds an assigned block to a day's schedule.  It is assumed that the day has already been verified to have
-     * sufficient capacity for the assignment
-     *
-     * @param dayIndex         the day index (from 0 to NUM_WEEKDAYS - 1)
-     * @param num25MinBlocks   the number of 25-minute blocks to consume within the indicated day
-     * @param total25MinBlocks the total number of 25-minute blocks over the whole assignment
-     * @param assignmentId     the assignment ID with which to populate those blocks
-     * @param course           the course being assigned
-     * @param numSeats         the number of seats
-     * @param usage            the room usage
-     * @param type             the assignment type
-     * @return the new assignment object
-     */
-    private RoomAssignment addAssignedBlock(final int dayIndex, final int num25MinBlocks, final int total25MinBlocks,
-                                            final int assignmentId, final Course course, final int numSeats,
-                                            final ERoomUsage usage, final EAssignmentType type) {
-
-        markAssignedBlock(dayIndex, num25MinBlocks, assignmentId);
-
-        final RoomAssignment assignment = new RoomAssignment(assignmentId, this, course, numSeats, usage,
-                total25MinBlocks, type);
-        this.assignments.add(assignment);
-
-        return assignment;
-    }
-
-    /**
-     * Marks a range of time blocks on a specified day with a given assignment ID, and reduces the number of free blocks
-     * on that day by that number of blocks.
-     *
-     * @param dayIndex       the day index (from 0 to NUM_WEEKDAYS - 1)
-     * @param num25MinBlocks the number of 25-minute blocks to consume within the indicated day
-     * @param assignmentId   the assignment ID with which to populate those blocks
-     */
-    private void markAssignedBlock(final int dayIndex, final int num25MinBlocks, final int assignmentId) {
-
-        final int[] array = this.timeBlockGrid[dayIndex];
-        final int len = array.length;
-
-        int start = -1;
-        for (int i = 0; i < len; ++i) {
-            if (array[i] == 0) {
-                start = i;
-                break;
+        // Pack all sections that meet both days into the first indexes
+        int currentIndex = 0;
+        for (final SectionTR sect : this.sectionsTR) {
+            if (sect.meetingDays() == EMeetingDaysTR.TR) {
+                sect.setBlockIndex(currentIndex);
+                currentIndex += sect.blocksPerDay();
             }
         }
 
-        final int remain = len - start;
+        int maxT = currentIndex;
+        int maxR = currentIndex;
 
-        if (remain >= num25MinBlocks) {
-            for (int i = 0; i < num25MinBlocks; ++i) {
-                array[start + i] = assignmentId;
+        // Add the 1-day sections
+        for (final SectionTR sect : this.sectionsTR) {
+            if (sect.getBlocksIndex() == -1) {
+                if (sect.meetingDays() == EMeetingDaysTR.T) {
+                    sect.setBlockIndex(maxT);
+                    maxT += sect.blocksPerDay();
+                } else if (sect.meetingDays() == EMeetingDaysTR.R) {
+                    sect.setBlockIndex(maxR);
+                    maxR += sect.blocksPerDay();
+                }
             }
-            this.blocksFree[dayIndex] -= num25MinBlocks;
-        } else {
-            Log.warning("ERROR: Unable to assign block - insufficient capacity in day");
         }
-    }
 
-//    /**
-//     * Gets the block schedule for a single weekday.  The returned array is a copy - modification of that array
-//     will not
-//     * affect the contents of this class.
-//     *
-//     * @param theWeekday the weekday
-//     * @return an array where each entry represents a 25-minute block of time, and the value is either 0 if the
-//     block is
-//     *         not occupied, or the ID of the assignment that occupies the room at that time
-//     */
-//    int[] getBlockSchedule(final DayOfWeek theWeekday) {
-//
-//        final int index = theWeekday.getValue() - 1;
-//
-//        final int[] result;
-//
-//        if (index < 0 || index >= this.timeBlockGrid.length) {
-//            result = EMPTY_BLOCK_SCHEDULE;
-//        } else {
-//            result = this.timeBlockGrid[index].clone();
-//        }
-//
-//        return result;
-//    }
-
-    /**
-     * Gets the total number of hours free.
-     *
-     * @return the total number of hours free
-     */
-    int getTotalHoursFree() {
-
-        final int totalBlocks = this.blocksFree[0] + this.blocksFree[1] + this.blocksFree[2] + this.blocksFree[3]
-                                + this.blocksFree[4];
-
-        return totalBlocks / 2;
+        return maxT <= this.blocksPerDayTR && maxR <= this.blocksPerDayTR;
     }
 
     /**
@@ -878,16 +848,10 @@ final class Room implements Comparable<Room> {
         builder.add(this.id);
         builder.add(" (cap=");
         builder.add(this.capacity);
-        builder.add(", hours/day=");
-        builder.add(this.hoursPerDay);
-        builder.add(", free=");
-        builder.add(this.blocksFree[0]);
-
-        final int len = this.blocksFree.length;
-        for (int i = 1; i < len; ++i) {
-            builder.add('/');
-            builder.add(this.blocksFree[i]);
-        }
+        builder.add(", blocks/day MWF=");
+        builder.add(this.blocksPerDayMWF);
+        builder.add(", blocks/day TR=");
+        builder.add(this.blocksPerDayTR);
         builder.add(')');
 
         return builder.toString();

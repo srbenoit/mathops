@@ -33,8 +33,11 @@ final class SpurFirstYearSpring {
     /** A number of credits. */
     private static final int CRED4 = 4;
 
-    /** A number of hours the facility is open per day. */
-    private static final int HOURS_PER_DAY = 9;
+    /** A number of blocks the facility is open per day on MWF. */
+    private static final int BLOCKS_PER_DAY_MWF = 9;
+
+    /** A number of blocks the facility is open per day on TR. */
+    private static final int BLOCKS_PER_DAY_TR = 6;
 
     /**
      * Constructs a new {@code SpurFirstYearSpring}.
@@ -51,12 +54,13 @@ final class SpurFirstYearSpring {
 
         // Set up the available classrooms and labs
 
-        final Room classroom1 = new Room("Classroom 1", 40, HOURS_PER_DAY);
-        final Room classroom2 = new Room("Classroom 2", 40, HOURS_PER_DAY);
+        final Room classroom1 = new Room("Classroom 1", 40, BLOCKS_PER_DAY_MWF, BLOCKS_PER_DAY_TR);
+        final Room classroom2 = new Room("Classroom 2", 40, BLOCKS_PER_DAY_MWF, BLOCKS_PER_DAY_TR);
+
 //        final Room classroom3 = new Room("Classroom 3", 40, HOURS_PER_DAY);
         final Room[] classrooms = {classroom1, classroom2};
 
-        final Room lab1 = new Room("Lab 1", 26, HOURS_PER_DAY);
+        final Room lab1 = new Room("Lab 1", 26, BLOCKS_PER_DAY_MWF, BLOCKS_PER_DAY_TR);
         final Room[] labs = {lab1};
 
         final List<Room> rooms = List.of(classroom1, classroom2, lab1);
@@ -64,39 +68,39 @@ final class SpurFirstYearSpring {
         // Set up the offered course list
 
         final Course SEMINAR = new Course("SEMINAR", CRED1, true);
-        SEMINAR.addRoomType(ERoomUsage.CLASSROOM, 1, EAssignmentType.GROUPS_OF_2, classrooms);
+        SEMINAR.addRoomType(ERoomUsage.CLASSROOM, 1, EAssignmentType.BLOCKS_OF_50, classrooms);
 
         final Course CO150 = new Course("CO 150", CRED3, false);
-        CO150.addRoomType(ERoomUsage.CLASSROOM, 3, EAssignmentType.GROUPS_OF_2_OR_3, classrooms);
+        CO150.addRoomType(ERoomUsage.CLASSROOM, 3, EAssignmentType.BLOCKS_OF_50_OR_75, classrooms);
 
         final Course SOC220 = new Course("SOC 220", CRED3, false);
-        SOC220.addRoomType(ERoomUsage.CLASSROOM, 3, EAssignmentType.GROUPS_OF_2_OR_3, classrooms);
+        SOC220.addRoomType(ERoomUsage.CLASSROOM, 3, EAssignmentType.BLOCKS_OF_50_OR_75, classrooms);
 
         final Course LIFE103 = new Course("LIFE 103", CRED3, false);
-        LIFE103.addRoomType(ERoomUsage.CLASSROOM, 3, EAssignmentType.GROUPS_OF_2_OR_3, classrooms);
+        LIFE103.addRoomType(ERoomUsage.CLASSROOM, 3, EAssignmentType.BLOCKS_OF_50_OR_75, classrooms);
         LIFE103.addRoomType(ERoomUsage.LAB, 3, EAssignmentType.CONTIGUOUS, labs);
 
         final Course CHEM111 = new Course("CHEM 111/112", CRED3, false);
-        CHEM111.addRoomType(ERoomUsage.CLASSROOM, 3, EAssignmentType.GROUPS_OF_2_OR_3, classrooms);
+        CHEM111.addRoomType(ERoomUsage.CLASSROOM, 3, EAssignmentType.BLOCKS_OF_50_OR_75, classrooms);
         CHEM111.addRoomType(ERoomUsage.LAB, 3, EAssignmentType.CONTIGUOUS, labs);
 
         final Course MIP101 = new Course("MIP 101", CRED3, false);
-        MIP101.addRoomType(ERoomUsage.CLASSROOM, 3, EAssignmentType.GROUPS_OF_2_OR_3, classrooms);
+        MIP101.addRoomType(ERoomUsage.CLASSROOM, 3, EAssignmentType.BLOCKS_OF_50_OR_75, classrooms);
 
         final Course IDEA210 = new Course("IDEA 210", CRED3, false);
-        MIP101.addRoomType(ERoomUsage.CLASSROOM, 3, EAssignmentType.GROUPS_OF_2_OR_3, classrooms);
+        MIP101.addRoomType(ERoomUsage.CLASSROOM, 3, EAssignmentType.BLOCKS_OF_50_OR_75, classrooms);
 
         final Course CS201 = new Course("CS 201", CRED3, false);
-        MIP101.addRoomType(ERoomUsage.CLASSROOM, 3, EAssignmentType.GROUPS_OF_2_OR_3, classrooms);
+        MIP101.addRoomType(ERoomUsage.CLASSROOM, 3, EAssignmentType.BLOCKS_OF_50_OR_75, classrooms);
 
         final Course HISTORY = new Course("HISTORY", CRED3, false);
-        MIP101.addRoomType(ERoomUsage.CLASSROOM, 3, EAssignmentType.GROUPS_OF_2_OR_3, classrooms);
+        MIP101.addRoomType(ERoomUsage.CLASSROOM, 3, EAssignmentType.BLOCKS_OF_50_OR_75, classrooms);
 
         final Course IU173 = new Course("IU 173", CRED3, false);
-        MIP101.addRoomType(ERoomUsage.CLASSROOM, 3, EAssignmentType.GROUPS_OF_2_OR_3, classrooms);
+        MIP101.addRoomType(ERoomUsage.CLASSROOM, 3, EAssignmentType.BLOCKS_OF_50_OR_75, classrooms);
 
         final Course IU174 = new Course("IU 174", CRED3, false);
-        MIP101.addRoomType(ERoomUsage.CLASSROOM, 3, EAssignmentType.GROUPS_OF_2_OR_3, classrooms);
+        MIP101.addRoomType(ERoomUsage.CLASSROOM, 3, EAssignmentType.BLOCKS_OF_50_OR_75, classrooms);
 
         final List<Course> immutableCourses = Arrays.asList(SEMINAR, CO150, SOC220, LIFE103, CHEM111, MIP101, IDEA210,
                 CS201, HISTORY, IU173, IU174);
