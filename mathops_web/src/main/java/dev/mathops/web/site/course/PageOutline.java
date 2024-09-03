@@ -2043,6 +2043,10 @@ enum PageOutline {
                 htm.eDiv(); // indent2
                 htm.addln("</form>");
                 htm.eDiv();
+
+                if (dueDate != null) {
+                    emitReviewExamExtensions(cache, courseStatus, dueDate, unitNum, htm);
+                }
             } else if (reviewAvail) {
                 htm.addln(" <input type='hidden' name='mode' value='course'/>");
                 htm.addln(" <input type='hidden' name='course' value='", course.course, "'/>");
