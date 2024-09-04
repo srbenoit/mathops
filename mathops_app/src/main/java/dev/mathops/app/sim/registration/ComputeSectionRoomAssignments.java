@@ -178,11 +178,18 @@ enum ComputeSectionRoomAssignments {
                 result = section.get();
             }
         } else if (type == EAssignmentType.BLOCKS_OF_75) {
-            final Optional<SectionTR> section = room.addSectionTR(hoursNeeded, EAssignmentType.BLOCKS_OF_75, course,
-                    seatsToAssign, usage);
-
-            if (section.isPresent()) {
-                result = section.get();
+            if (hoursNeeded == 1) {
+                final Optional<SectionTR> section = room.addSectionTR(1, EAssignmentType.BLOCKS_OF_75, course,
+                        seatsToAssign, usage);
+                if (section.isPresent()) {
+                    result = section.get();
+                }
+            } else if (hoursNeeded == 2 || hoursNeeded == 3) {
+                final Optional<SectionTR> section = room.addSectionTR(2, EAssignmentType.BLOCKS_OF_75, course,
+                        seatsToAssign, usage);
+                if (section.isPresent()) {
+                    result = section.get();
+                }
             }
         } else if (type == EAssignmentType.BLOCKS_OF_50_OR_75) {
             final Optional<SectionMWF> sectionMWF = room.addSectionMWF(hoursNeeded, EAssignmentType.BLOCKS_OF_50,
@@ -191,11 +198,18 @@ enum ComputeSectionRoomAssignments {
             if (sectionMWF.isPresent()) {
                 result = sectionMWF.get();
             } else {
-                final Optional<SectionTR> sectionTR = room.addSectionTR(hoursNeeded, EAssignmentType.BLOCKS_OF_75,
-                        course, seatsToAssign, usage);
-
-                if (sectionTR.isPresent()) {
-                    result = sectionTR.get();
+                if (hoursNeeded == 1) {
+                    final Optional<SectionTR> section = room.addSectionTR(1, EAssignmentType.BLOCKS_OF_75, course,
+                            seatsToAssign, usage);
+                    if (section.isPresent()) {
+                        result = section.get();
+                    }
+                } else if (hoursNeeded == 2 || hoursNeeded == 3) {
+                    final Optional<SectionTR> section = room.addSectionTR(2, EAssignmentType.BLOCKS_OF_75, course,
+                            seatsToAssign, usage);
+                    if (section.isPresent()) {
+                        result = section.get();
+                    }
                 }
             }
         } else if (type == EAssignmentType.CONTIGUOUS) {
