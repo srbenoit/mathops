@@ -1,9 +1,9 @@
-package dev.mathops.app.sim.registration;
+package dev.mathops.app.sim.schedule;
 
 /**
  * Possible days on which a Monday/Wednesday/Friday section will meet.
  */
-enum EMeetingDaysMWF {
+public enum EMeetingDaysMWF {
 
     /** The section will meet Monday, Wednesday, and Friday. */
     MWF,
@@ -31,7 +31,7 @@ enum EMeetingDaysMWF {
      *
      * @return true of the set of days includes Monday
      */
-    boolean includesMonday() {
+    public boolean includesMonday() {
 
         return this == MWF || this == MW || this == MF || this == M;
     }
@@ -41,7 +41,7 @@ enum EMeetingDaysMWF {
      *
      * @return true of the set of days includes Wednesday
      */
-    boolean includesWednesday() {
+    public boolean includesWednesday() {
 
         return this == MWF || this == MW || this == WF || this == W;
     }
@@ -51,7 +51,7 @@ enum EMeetingDaysMWF {
      *
      * @return true of the set of days includes Friday
      */
-    boolean includesFriday() {
+    public boolean includesFriday() {
 
         return this == MWF || this == MF || this == WF || this == F;
     }

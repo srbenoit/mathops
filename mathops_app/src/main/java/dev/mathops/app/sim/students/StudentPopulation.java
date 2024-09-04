@@ -1,4 +1,4 @@
-package dev.mathops.app.sim.registration;
+package dev.mathops.app.sim.students;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * A student population, with a set number of students with each defined set of class preferences.
  */
-final class StudentPopulation {
+public final class StudentPopulation {
 
     /** A step size. */
     private static final double LARGE_STEP = 0.25;
@@ -26,7 +26,7 @@ final class StudentPopulation {
      * @param distribution         the population distribution
      * @param targetPopulationSize the target population size
      */
-    StudentPopulation(final StudentDistribution distribution, final int targetPopulationSize) {
+    public StudentPopulation(final StudentDistribution distribution, final int targetPopulationSize) {
 
         distribution.normalize();
         final Map<StudentClassPreferences, Double> dist = distribution.getDistribution();
@@ -105,7 +105,7 @@ final class StudentPopulation {
      *
      * @return the population map
      */
-    Map<StudentClassPreferences, Integer> getCounts() {
+    public Map<StudentClassPreferences, Integer> getCounts() {
 
         return new HashMap<>(this.counts);
     }

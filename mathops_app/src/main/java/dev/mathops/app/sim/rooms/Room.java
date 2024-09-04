@@ -1,5 +1,11 @@
-package dev.mathops.app.sim.registration;
+package dev.mathops.app.sim.rooms;
 
+import dev.mathops.app.sim.courses.Course;
+import dev.mathops.app.sim.schedule.EAssignmentType;
+import dev.mathops.app.sim.schedule.EMeetingDaysMWF;
+import dev.mathops.app.sim.schedule.EMeetingDaysTR;
+import dev.mathops.app.sim.schedule.SectionMWF;
+import dev.mathops.app.sim.schedule.SectionTR;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 
@@ -10,7 +16,7 @@ import java.util.Optional;
 /**
  * A room in which sections can be scheduled.
  */
-final class Room implements Comparable<Room> {
+public final class Room implements Comparable<Room> {
 
     /** The unique room ID. */
     private final String id;
@@ -67,7 +73,7 @@ final class Room implements Comparable<Room> {
      *
      * @return the room ID
      */
-    String getId() {
+    public String getId() {
 
         return this.id;
     }

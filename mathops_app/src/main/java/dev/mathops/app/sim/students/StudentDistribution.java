@@ -1,4 +1,4 @@
-package dev.mathops.app.sim.registration;
+package dev.mathops.app.sim.students;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,7 +8,7 @@ import java.util.Map;
  * of preferences is stored.  This can then generate a student population of a specified size, assigning preferences to
  * each student in the population.
  */
-final class StudentDistribution {
+public final class StudentDistribution {
 
     /** A small number used to determine whether normalization is needed. */
     private static final double EPSILON = 0.0001;
@@ -22,7 +22,7 @@ final class StudentDistribution {
     /**
      * Constructs a new {@code StudentDistribution}.
      */
-    StudentDistribution() {
+    public StudentDistribution() {
 
         this.distribution = new HashMap<>(10);
     }
@@ -33,7 +33,7 @@ final class StudentDistribution {
      * @param preferences the key of the class preferences for students in this group
      * @param portion     the portion of the whole population who belong to this group
      */
-    void addGroup(final StudentClassPreferences preferences, final double portion) {
+    public void addGroup(final StudentClassPreferences preferences, final double portion) {
 
         if (preferences == null) {
             throw new IllegalArgumentException("Preferences key may not be null");

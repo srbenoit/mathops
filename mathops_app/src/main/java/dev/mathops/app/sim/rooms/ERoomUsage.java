@@ -1,4 +1,4 @@
-package dev.mathops.app.sim.registration;
+package dev.mathops.app.sim.rooms;
 
 /**
  * Room usages.  A course can require multiple rooms (classroom, lab, recitation space, studio, etc.) each with its own
@@ -10,11 +10,14 @@ package dev.mathops.app.sim.registration;
  * in the same room) should be listed first, and usages with fewer restrictions (say, tutoring hours) should be listed
  * last.
  */
-enum ERoomUsage {
+public enum ERoomUsage {
 
     /** A lab space. */
     LAB,
 
     /** A classroom. */
     CLASSROOM,
+
+    /** A classroom. */
+    RECITATION
 }

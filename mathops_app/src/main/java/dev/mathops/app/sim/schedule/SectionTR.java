@@ -1,18 +1,21 @@
-package dev.mathops.app.sim.registration;
+package dev.mathops.app.sim.schedule;
 
+import dev.mathops.app.sim.courses.Course;
+import dev.mathops.app.sim.rooms.ERoomUsage;
+import dev.mathops.app.sim.rooms.Room;
 import dev.mathops.commons.builder.HtmlBuilder;
 
 /**
  * A section that will meet in a room on some combination of Monday, Wednesday, and Friday, for an integer number of
  * hours.
  */
-final class SectionMWF extends AbstractSection {
+public final class SectionTR extends AbstractSection {
 
-    /** The days the section meets (some combination of Monday, Wednesday, or Friday). */
-    private final EMeetingDaysMWF meetingDays;
+    /** The days the section meets (some combination of Tuesday and Thursday). */
+    private final EMeetingDaysTR meetingDays;
 
     /**
-     * Constructs a new {@code SectionMWF}.
+     * Constructs a new {@code SectionTR}.
      *
      * @param theId           the section iD
      * @param theMeetingDays  the days the section meets
@@ -20,10 +23,10 @@ final class SectionMWF extends AbstractSection {
      * @param theCourse       the course
      * @param theNumSeats     the number seats needed
      * @param theUsage        the usage
-     * @param theBlocksPerDay the number of 50-minute blocks the course will meet each day
+     * @param theBlocksPerDay the number of 75-minute blocks the course will meet each day
      */
-    SectionMWF(final int theId, final EMeetingDaysMWF theMeetingDays, final Room theRoom, final Course theCourse,
-               final int theNumSeats, final ERoomUsage theUsage, final int theBlocksPerDay) {
+    public SectionTR(final int theId, final EMeetingDaysTR theMeetingDays, final Room theRoom, final Course theCourse,
+                     final int theNumSeats, final ERoomUsage theUsage, final int theBlocksPerDay) {
 
         super(theId, theRoom, theCourse, theNumSeats, theUsage, theBlocksPerDay);
 
@@ -31,11 +34,11 @@ final class SectionMWF extends AbstractSection {
     }
 
     /**
-     * Gets the days the section meets (some combination of Monday, Wednesday, or Friday).
+     * Gets the days the section meets (some combination of Tuesday and Thursday).
      *
      * @return the meeting days
      */
-    EMeetingDaysMWF meetingDays() {
+    public EMeetingDaysTR meetingDays() {
 
         return this.meetingDays;
     }
@@ -60,12 +63,11 @@ final class SectionMWF extends AbstractSection {
         builder.add("Sect ");
         builder.add(id);
         builder.add(" of ", course, " (", usage, ") meets ", this.meetingDays, " in ", room, " for (");
-
         if (blocksPerDay == 1) {
-            builder.add("1) 50-min block");
+            builder.add("1) 75-min block");
         } else {
             builder.add(blocksPerDay);
-            builder.add(") 50-min blocks");
+            builder.add(") 75-min blocks");
         }
         builder.add(" with ");
         builder.add(numSeats);

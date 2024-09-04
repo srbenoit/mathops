@@ -1,8 +1,12 @@
-package dev.mathops.app.sim.registration;
+package dev.mathops.app.sim.courses;
 
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.app.sim.schedule.EAssignmentType;
+import dev.mathops.app.sim.rooms.ERoomUsage;
+import dev.mathops.app.sim.rooms.Room;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
@@ -12,16 +16,16 @@ import java.util.Set;
 /**
  * An offered course.
  */
-final class Course implements Comparable<Course> {
+public final class Course implements Comparable<Course> {
 
     /** The unique course ID. */
-    final String courseId;
+    public final String courseId;
 
     /** The number of credits. */
-    final int numCredits;
+    public final int numCredits;
 
     /** True if the class is mandatory for all students. */
-    final boolean mandatory;
+    public final boolean mandatory;
 
     /** The number of contact hours per week for each room usage. */
     private final Map<ERoomUsage, Integer> contactHoursByRoomType;
@@ -42,7 +46,7 @@ final class Course implements Comparable<Course> {
      * @param theNumCredits the number of credits
      * @param isMandatory   true if the course is mandatory for all students
      */
-    Course(final String theCourseId, final int theNumCredits, final boolean isMandatory) {
+    public Course(final String theCourseId, final int theNumCredits, final boolean isMandatory) {
 
         this.courseId = theCourseId;
         this.numCredits = theNumCredits;
@@ -61,8 +65,8 @@ final class Course implements Comparable<Course> {
      * @param assignmentType      the assignment type
      * @param rooms               the list of rooms that are compatible with this course's needs for this room type
      */
-    void addRoomType(final ERoomUsage usage, final int contactHoursPerWeek, final EAssignmentType assignmentType,
-                     final Room... rooms) {
+    public void addRoomType(final ERoomUsage usage, final int contactHoursPerWeek, final EAssignmentType assignmentType,
+                            final Room... rooms) {
 
         if (rooms == null || rooms.length == 0) {
             throw new IllegalArgumentException("List of compatible rooms must be nonempty");
@@ -78,9 +82,33 @@ final class Course implements Comparable<Course> {
     }
 
     /**
+     * Adds a room type to the course's room needs.
+     *
+     * @param usage               the room usage
+     * @param contactHoursPerWeek the number of contact hours per week the course needs this room type
+     * @param assignmentType      the assignment type
+     * @param rooms               the list of rooms that are compatible with this course's needs for this room type
+     */
+    public void addRoomType(final ERoomUsage usage, final int contactHoursPerWeek, final EAssignmentType assignmentType,
+                            final Collection<Room> rooms) {
+
+        if (rooms == null || rooms.size() == 0) {
+            throw new IllegalArgumentException("List of compatible rooms must be nonempty");
+        }
+
+        final Integer contactHours = Integer.valueOf(contactHoursPerWeek);
+        this.contactHoursByRoomType.put(usage, contactHours);
+
+        this.assignmentTypeByRoomType.put(usage, assignmentType);
+
+        final List<Room> roomsList = new ArrayList<>(rooms);
+        this.compatibleRoomsByRoomType.put(usage, roomsList);
+    }
+
+    /**
      * Resets the number of seats needed in this class to zero.
      */
-    void resetNumSeatsNeeded() {
+    public void resetNumSeatsNeeded() {
 
         this.numSeatsNeeded = 0;
     }
@@ -90,7 +118,7 @@ final class Course implements Comparable<Course> {
      *
      * @param newNumSeatsNeeded the new number of seats needed
      */
-    void setNumSeatsNeeded(final int newNumSeatsNeeded) {
+    public void setNumSeatsNeeded(final int newNumSeatsNeeded) {
 
         this.numSeatsNeeded = newNumSeatsNeeded;
     }
@@ -98,7 +126,7 @@ final class Course implements Comparable<Course> {
     /**
      * Increments the number of seats needed in a course.
      */
-    void incrementNumSeatsNeeded() {
+    public void incrementNumSeatsNeeded() {
 
         ++this.numSeatsNeeded;
     }
@@ -108,7 +136,7 @@ final class Course implements Comparable<Course> {
      *
      * @return the number of seats needed
      */
-    int getNumSeatsNeeded() {
+    public int getNumSeatsNeeded() {
 
         return this.numSeatsNeeded;
     }
@@ -118,7 +146,7 @@ final class Course implements Comparable<Course> {
      *
      * @return the set of usages (an unmodifiable view)
      */
-    Set<ERoomUsage> getUsages() {
+    public Set<ERoomUsage> getUsages() {
 
         final Set<ERoomUsage> keys = this.contactHoursByRoomType.keySet();
 
@@ -131,7 +159,7 @@ final class Course implements Comparable<Course> {
      * @param usage the usage
      * @return the number of weekly contact hours
      */
-    int getContactHours(final ERoomUsage usage) {
+    public int getContactHours(final ERoomUsage usage) {
 
         final Integer value = this.contactHoursByRoomType.get(usage);
 
@@ -144,7 +172,7 @@ final class Course implements Comparable<Course> {
      * @param usage the usage
      * @return the assignment type
      */
-    EAssignmentType getAssignmentType(final ERoomUsage usage) {
+    public EAssignmentType getAssignmentType(final ERoomUsage usage) {
 
         return this.assignmentTypeByRoomType.get(usage);
     }
@@ -156,7 +184,7 @@ final class Course implements Comparable<Course> {
      * @param room  the room
      * @return true if the room is "compatible" with this course
      */
-    boolean isRoomCompatible(final ERoomUsage usage, final Room room) {
+    public boolean isRoomCompatible(final ERoomUsage usage, final Room room) {
 
         final List<Room> compatibleRooms = this.compatibleRoomsByRoomType.get(usage);
 
@@ -170,7 +198,7 @@ final class Course implements Comparable<Course> {
      * @param rooms the rooms
      * @return true if all rooms in the group are "compatible" with this course
      */
-    boolean areRoomsCompatible(final ERoomUsage usage, final Iterable<Room> rooms) {
+    public boolean areRoomsCompatible(final ERoomUsage usage, final Iterable<Room> rooms) {
 
         boolean ok = true;
 

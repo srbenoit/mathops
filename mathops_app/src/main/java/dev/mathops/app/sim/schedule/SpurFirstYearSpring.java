@@ -1,8 +1,6 @@
-package dev.mathops.app.sim.registration;
+package dev.mathops.app.sim.schedule;
 
 import dev.mathops.app.sim.courses.Course;
-import dev.mathops.app.sim.schedule.ComputeSectionsNeeded;
-import dev.mathops.app.sim.schedule.EAssignmentType;
 import dev.mathops.app.sim.rooms.ERoomUsage;
 import dev.mathops.app.sim.rooms.Room;
 import dev.mathops.app.sim.students.StudentClassPreferences;

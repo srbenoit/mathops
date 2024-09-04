@@ -1,5 +1,8 @@
 package dev.mathops.app.sim.registration;
 
+import dev.mathops.app.sim.courses.Course;
+import dev.mathops.app.sim.students.StudentClassPreferences;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -14,7 +17,7 @@ import java.util.List;
  * Many students in a simulation could share the same class preferences, so we manage those preferences as a separate
  * object.
  */
-final class EnrollingStudent {
+public final class EnrollingStudent {
 
     /** The unique student ID. */
     final int id;

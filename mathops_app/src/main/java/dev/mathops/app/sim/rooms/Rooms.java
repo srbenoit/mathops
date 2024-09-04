@@ -1,4 +1,4 @@
-package dev.mathops.app.sim.registration;
+package dev.mathops.app.sim.rooms;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 

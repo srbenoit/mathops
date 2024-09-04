@@ -1,4 +1,8 @@
-package dev.mathops.app.sim.registration;
+package dev.mathops.app.sim.schedule;
+
+import dev.mathops.app.sim.courses.Course;
+import dev.mathops.app.sim.rooms.ERoomUsage;
+import dev.mathops.app.sim.rooms.Room;
 
 /**
  * A section that will meet in a room on some combination of weekdays.
@@ -103,7 +107,7 @@ class AbstractSection {
      *
      * @return the number of 75-minute blocks
      */
-    final int blocksPerDay() {
+    public final int blocksPerDay() {
 
         return this.blocksPerDay;
     }
@@ -111,7 +115,7 @@ class AbstractSection {
     /**
      * Clears the block index when this section starts.
      */
-    void clearBlockIndex() {
+    public void clearBlockIndex() {
 
         this.blockIndex = -1;
     }
@@ -121,7 +125,7 @@ class AbstractSection {
      *
      * @param theBlockIndex the block index
      */
-    void setBlockIndex(final int theBlockIndex) {
+    public void setBlockIndex(final int theBlockIndex) {
 
         this.blockIndex = theBlockIndex;
     }
@@ -131,7 +135,7 @@ class AbstractSection {
      *
      * @return the block index; -1 if this section has not been scheduled
      */
-    int getBlocksIndex() {
+    public int getBlocksIndex() {
 
         return this.blockIndex;
     }

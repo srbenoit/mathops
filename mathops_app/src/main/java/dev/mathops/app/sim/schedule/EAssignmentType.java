@@ -1,9 +1,9 @@
-package dev.mathops.app.sim.registration;
+package dev.mathops.app.sim.schedule;
 
 /**
  * Types of assignment of a section to a room.
  */
-enum EAssignmentType {
+public enum EAssignmentType {
 
     /** The assignment needs to be a set of contiguous blocks on a single weekday. */
     CONTIGUOUS,

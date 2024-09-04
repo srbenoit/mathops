@@ -1,4 +1,7 @@
-package dev.mathops.app.sim.registration;
+package dev.mathops.app.sim.schedule;
+
+import dev.mathops.app.sim.courses.Course;
+import dev.mathops.app.sim.registration.EnrollingStudent;
 
 import java.util.List;
 
