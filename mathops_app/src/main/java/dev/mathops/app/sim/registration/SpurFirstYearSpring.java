@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A simulation of the Spur first-year Spring semester.
@@ -169,19 +170,12 @@ final class SpurFirstYearSpring {
         distribution.addGroup(prefs4, 0.182);
 
         // SIMULATION PART 1 - DETERMINE MAXIMUM POSSIBLE POPULATION SIZE THAT DOES NOT EXCEED TOTAL CLASSROOM SPACE
-
-        final int maxPopulation = ComputePopulationSize.compute(courses, distribution, rooms);
-        Log.info("The maximum population supported was " + maxPopulation);
+//        final int maxPopulation = ComputePopulationSize.compute(courses, distribution, rooms);
+//        Log.info("The maximum population supported was " + maxPopulation);
 
         // SIMULATION PART 2 - Try to build an assignment of courses to sections across classrooms and labs
-
-//        final int hoursRemaining = ComputeSectionRoomAssignments.compute(courses, allClassrooms, allLabs);
-//
-//        if (hoursRemaining < 0) {
-//            Log.warning("Unable to allocate course sections to classrooms and labs.");
-//        } else {
-//            Log.info("Sections have been allocated to classrooms and labs.");
-//        }
+        final StudentPopulation population160 = new StudentPopulation(distribution, 160);
+        final Map<Course, Integer> seatCounts = ComputeSectionsNeeded.compute(courses, population160, rooms);
     }
 
     /**

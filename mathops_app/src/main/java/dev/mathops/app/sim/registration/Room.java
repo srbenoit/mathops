@@ -67,7 +67,7 @@ final class Room implements Comparable<Room> {
      *
      * @return the room ID
      */
-    private String getId() {
+    String getId() {
 
         return this.id;
     }

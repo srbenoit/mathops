@@ -55,18 +55,19 @@ final class SectionMWF extends AbstractSection {
         final Room room = room();
         final int numSeats = numSeats();
         final int blocksPerDay = blocksPerDay();
+        final ERoomUsage usage = usage();
 
-        builder.add("Section ");
+        builder.add("Sect ");
         builder.add(id);
-        builder.add(" of ", course, " meeting ", this.meetingDays, " in ", room, " for (");
+        builder.add(" of ", course, " (", usage, ") meets ", this.meetingDays, " in ", room, " for (");
 
         if (blocksPerDay == 1) {
-            builder.add("1) 50-minute block");
+            builder.add("1) 50-min block");
         } else {
             builder.add(blocksPerDay);
-            builder.add(") 50-minute blocks");
+            builder.add(") 50-min blocks");
         }
-        builder.add(" each day with ");
+        builder.add(" with ");
         builder.add(numSeats);
         builder.add(" seats used.");
 

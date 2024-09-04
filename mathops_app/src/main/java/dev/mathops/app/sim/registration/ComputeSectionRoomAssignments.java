@@ -225,12 +225,21 @@ enum ComputeSectionRoomAssignments {
             final int maxFreeMWF = Math.max(maxFreeMW, freeF);
 
             if (maxFreeTR >= hoursNeeded) {
-                final Optional<SectionTR> sectionTR = room.addSectionTR(hoursNeeded, EAssignmentType.CONTIGUOUS,
-                        course, seatsToAssign, usage);
+                if (hoursNeeded == 1) {
+                    final Optional<SectionTR> sectionTR = room.addSectionTR(1, EAssignmentType.CONTIGUOUS, course,
+                            seatsToAssign, usage);
+                    if (sectionTR.isPresent()) {
+                        result = sectionTR.get();
+                    }
+                } else if (hoursNeeded == 2 || hoursNeeded == 3) {
+                    final Optional<SectionTR> sectionTR = room.addSectionTR(2, EAssignmentType.CONTIGUOUS, course,
+                            seatsToAssign, usage);
+                    if (sectionTR.isPresent()) {
+                        result = sectionTR.get();
+                    }
+                }
 
-                if (sectionTR.isPresent()) {
-                    result = sectionTR.get();
-                } else {
+                if (result == null) {
                     final Optional<SectionMWF> section = room.addSectionMWF(hoursNeeded, EAssignmentType.BLOCKS_OF_50,
                             course, seatsToAssign, usage);
 
@@ -245,11 +254,18 @@ enum ComputeSectionRoomAssignments {
                 if (section.isPresent()) {
                     result = section.get();
                 } else {
-                    final Optional<SectionTR> sectionTR = room.addSectionTR(hoursNeeded, EAssignmentType.CONTIGUOUS,
-                            course, seatsToAssign, usage);
-
-                    if (sectionTR.isPresent()) {
-                        result = sectionTR.get();
+                    if (hoursNeeded == 1) {
+                        final Optional<SectionTR> sectionTR = room.addSectionTR(1, EAssignmentType.CONTIGUOUS, course,
+                                seatsToAssign, usage);
+                        if (sectionTR.isPresent()) {
+                            result = sectionTR.get();
+                        }
+                    } else if (hoursNeeded == 2 || hoursNeeded == 3) {
+                        final Optional<SectionTR> sectionTR = room.addSectionTR(2, EAssignmentType.CONTIGUOUS, course,
+                                seatsToAssign, usage);
+                        if (sectionTR.isPresent()) {
+                            result = sectionTR.get();
+                        }
                     }
                 }
             }
@@ -484,7 +500,7 @@ enum ComputeSectionRoomAssignments {
                     final int roomCap = room.getCapacity();
                     final int seatsToAssign = Math.min(roomCap, seatsNeeded);
 
-                    final AbstractSection sect = addSectionToRoom(type, room, hoursNeeded, course, seatsNeeded, usage);
+                    final AbstractSection sect = addSectionToRoom(type, room, hoursNeeded, course, seatsToAssign, usage);
 
                     if (Objects.nonNull(sect)) {
                         last = sect;
@@ -518,8 +534,8 @@ enum ComputeSectionRoomAssignments {
                             continue;
                         }
                         if (course.isRoomCompatible(usage, room)) {
-                            final AbstractSection sect = addSectionToRoom(type, room, hoursNeeded, course, seatsNeeded,
-                                    usage);
+                            final AbstractSection sect = addSectionToRoom(type, room, hoursNeeded, course,
+                                    numSeatsInLast, usage);
 
                             if (Objects.nonNull(sect)) {
                                 // Alternate assignment worked - replace the earlier "last" assignment

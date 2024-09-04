@@ -1,5 +1,7 @@
 package dev.mathops.app.sim.registration;
 
+import dev.mathops.commons.builder.HtmlBuilder;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -81,6 +83,16 @@ final class Course implements Comparable<Course> {
     void resetNumSeatsNeeded() {
 
         this.numSeatsNeeded = 0;
+    }
+
+    /**
+     * Sets the number of seats needed.
+     *
+     * @param newNumSeatsNeeded the new number of seats needed
+     */
+    void setNumSeatsNeeded(final int newNumSeatsNeeded) {
+
+        this.numSeatsNeeded = newNumSeatsNeeded;
     }
 
     /**
@@ -216,6 +228,17 @@ final class Course implements Comparable<Course> {
     public int compareTo(final Course o) {
 
         return this.courseId.compareTo(o.courseId);
+    }
+
+
+    /**
+     * Generates a string representation of the list of rooms.
+     *
+     * @return the string representation
+     */
+    public String toString() {
+
+        return this.courseId;
     }
 }
 

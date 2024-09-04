@@ -6,11 +6,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A simulation of the Spur first-year Fall semester.
  */
 final class SpurFirstYearFall {
+
+    /** Flag to control whether MATH  112 is included in Fall (if false, it is offered in Summer). */
+    private static final boolean INCLUDE_MATH = true;
 
     /** A class preferences key. */
     private static final String HEALTH_LIFE_FOOD = "HEALTH_LIFE_FOOD";
@@ -108,15 +112,20 @@ final class SpurFirstYearFall {
         final Course BZ101 = new Course("BZ 101", CRED3, false);
         BZ101.addRoomType(ERoomUsage.CLASSROOM, 3, EAssignmentType.BLOCKS_OF_50_OR_75, classrooms);
 
-        final List<Course> immutableCourses = Arrays.asList(LIFE102, MATH112, SEMINAR, CS150B, IDEA110,
-                HDFS101, AGRI116, AB111, EHRS220, POLS131, AREC222, SPCM100, BZ101);
+        final List<Course> immutableCourses = INCLUDE_MATH ?
+                Arrays.asList(LIFE102, MATH112, SEMINAR, CS150B, IDEA110, HDFS101, AGRI116, AB111, EHRS220, POLS131,
+                        AREC222, SPCM100, BZ101) :
+                Arrays.asList(LIFE102, SEMINAR, CS150B, IDEA110, HDFS101, AGRI116, AB111, EHRS220, POLS131, AREC222,
+                        SPCM100, BZ101);
         final Collection<Course> courses = new ArrayList<>(immutableCourses);
 
         // Set up the preferences for each "exploratory studies" track
 
         final StudentClassPreferences prefs1 = new StudentClassPreferences(HEALTH_LIFE_FOOD, 13, 17);
         prefs1.setPreference(SEMINAR, 1.0);
-        prefs1.setPreference(MATH112, 1.0);
+        if (INCLUDE_MATH) {
+            prefs1.setPreference(MATH112, 1.0);
+        }
         prefs1.setPreference(AGRI116, 0.3);
         prefs1.setPreference(AREC222, 0.3);
         prefs1.setPreference(POLS131, 0.1);
@@ -131,7 +140,9 @@ final class SpurFirstYearFall {
 
         final StudentClassPreferences prefs2 = new StudentClassPreferences(LAND_PLANT_ANIMAL, 13, 17);
         prefs2.setPreference(SEMINAR, 1.0);
-        prefs2.setPreference(MATH112, 1.0);
+        if (INCLUDE_MATH) {
+            prefs2.setPreference(MATH112, 1.0);
+        }
         prefs2.setPreference(AGRI116, 0.4);
         prefs2.setPreference(AREC222, 0.4);
         prefs2.setPreference(POLS131, 0.1);
@@ -146,7 +157,9 @@ final class SpurFirstYearFall {
 
         final StudentClassPreferences prefs3 = new StudentClassPreferences(SCIENCE_ENGINEERING, 13, 17);
         prefs3.setPreference(SEMINAR, 1.0);
-        prefs3.setPreference(MATH112, 1.0);
+        if (INCLUDE_MATH) {
+            prefs3.setPreference(MATH112, 1.0);
+        }
         prefs3.setPreference(AGRI116, 0.25);
         prefs3.setPreference(AREC222, 0.25);
         prefs3.setPreference(POLS131, 0.25);
@@ -161,7 +174,9 @@ final class SpurFirstYearFall {
 
         final StudentClassPreferences prefs4 = new StudentClassPreferences(ENVIRONMENTAL_RES, 13, 17);
         prefs4.setPreference(SEMINAR, 1.0);
-        prefs4.setPreference(MATH112, 1.0);
+        if (INCLUDE_MATH) {
+            prefs4.setPreference(MATH112, 1.0);
+        }
         prefs4.setPreference(AGRI116, 0.4);
         prefs4.setPreference(AREC222, 0.4);
         prefs4.setPreference(POLS131, 0.1);
@@ -183,19 +198,12 @@ final class SpurFirstYearFall {
         distribution.addGroup(prefs4, 0.182);
 
         // SIMULATION PART 1 - DETERMINE MAXIMUM POSSIBLE POPULATION SIZE THAT DOES NOT EXCEED TOTAL CLASSROOM SPACE
-
-        final int maxPopulation = ComputePopulationSize.compute(courses, distribution, rooms);
-        Log.info("The maximum population supported was " + maxPopulation);
+//        final int maxPopulation = ComputePopulationSize.compute(courses, distribution, rooms);
+//        Log.info("The maximum population supported was " + maxPopulation);
 
         // SIMULATION PART 2 - Try to build an assignment of courses to sections across classrooms and labs
-
-//        final int hoursRemaining = ComputeSectionRoomAssignments.compute(courses, allClassrooms, allLabs);
-//
-//        if (hoursRemaining < 0) {
-//            Log.warning("Unable to allocate course sections to classrooms and labs.");
-//        } else {
-//            Log.info("Sections have been allocated to classrooms and labs.");
-//        }
+        final StudentPopulation population160 = new StudentPopulation(distribution, 160);
+        final Map<Course, Integer> seatCounts = ComputeSectionsNeeded.compute(courses, population160, rooms);
     }
 
     /**
