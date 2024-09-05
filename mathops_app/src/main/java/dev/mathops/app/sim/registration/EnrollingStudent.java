@@ -71,6 +71,15 @@ public final class EnrollingStudent {
 
         return this.quality;
     }
+    /**
+     * Gets the number of credits the student has.
+     *
+     * @return the number of credits
+     */
+    int getNumCredits() {
+
+        return this.numCredits;
+    }
 
     /**
      * Generates a string representation of the object.

@@ -4,7 +4,9 @@ import dev.mathops.app.sim.registration.EnrollingStudent;
 import dev.mathops.commons.builder.HtmlBuilder;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * An offered section of a course.
@@ -22,6 +24,12 @@ public final class OfferedSection {
 
     /** The list of students enrolled in the section. */
     private final List<EnrollingStudent> enrolledStudents;
+
+    /** A list to accumulate enrollment sizes over several trials. */
+    private final List<Integer> enrollmentSizeHistory;
+
+    /** Collisions during registration (map from colliding course to number of collisions). */
+    private final Map<OfferedSection, Integer> collisions;
 
     /**
      * Constructs a new {@code OfferedSection}.
@@ -52,6 +60,75 @@ public final class OfferedSection {
         }
 
         this.enrolledStudents = new ArrayList<>(theTotalSeats);
+        this.enrollmentSizeHistory = new ArrayList<>(100);
+
+        this.collisions = new HashMap<>(10);
+    }
+
+    /**
+     * Clears the list of enrolled students.
+     */
+    public void clearEnrolledStudents() {
+
+        this.enrolledStudents.clear();
+    }
+
+    /**
+     * Captures the enrollment count in a history record.
+     */
+    public void captureEnrollment() {
+
+        final int count = this.enrolledStudents.size();
+        this.enrollmentSizeHistory.add(Integer.valueOf(count));
+    }
+
+    /**
+     * Gets the average enrollment over all captured enrollment counts.
+     *
+     * @return the average enrollment
+     */
+    public int averageEnrollment() {
+
+        final int numHistory = this.enrollmentSizeHistory.size();
+
+        // Bias the number so truncation later actually performs rounding.
+        int total = numHistory / 2;
+
+        for (final Integer count : this.enrollmentSizeHistory) {
+            total += count.intValue();
+        }
+
+        return total / numHistory;
+    }
+
+    /**
+     * Clears the collision counts from a registration cycle.
+     */
+    public void clearCollisions() {
+
+        this.collisions.clear();
+    }
+
+    /**
+     * Records a collision in which this course could not be selected due to an enrollment in another section.
+     *
+     * @param collidingSection the colliding section
+     */
+    public void recordCollision(final OfferedSection collidingSection) {
+
+        final Integer existing = this.collisions.get(collidingSection);
+        final int newCount = existing == null ? 1 : existing.intValue() + 1;
+        this.collisions.put(collidingSection, Integer.valueOf(newCount));
+    }
+
+    /**
+     * Gets a copy of the record of collisions during registration.
+     *
+     * @return the collisions record (a map from colliding course to number of collisions)
+     */
+    public Map<OfferedSection, Integer> getCollisions() {
+
+        return new HashMap<>(this.collisions);
     }
 
     /**

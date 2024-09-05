@@ -40,8 +40,8 @@ final class SpurFirstYearSpring {
         final List<Room> rooms = List.of(SpurRooms.CLASSROOM_1, SpurRooms.CLASSROOM_2, SpurRooms.LAB_1);
 
         // SIMULATION PART 1 - DETERMINE MAXIMUM POSSIBLE POPULATION SIZE THAT DOES NOT EXCEED TOTAL CLASSROOM SPACE
-        final int maxPop = ComputePopulationSize.compute(courses, SpurStudents.SPUR_SPRING_DISTRIBUTION, rooms);
-        Log.info("The maximum population supported was " + maxPop);
+//        final int maxPop = ComputePopulationSize.compute(courses, SpurStudents.SPUR_SPRING_DISTRIBUTION, rooms);
+//        Log.info("The maximum population supported was " + maxPop);
 
         // SIMULATION PART 2 - Try to build an assignment of courses to sections across classrooms and labs
         final StudentPopulation population160 = new StudentPopulation(SpurStudents.SPUR_SPRING_DISTRIBUTION, 160);

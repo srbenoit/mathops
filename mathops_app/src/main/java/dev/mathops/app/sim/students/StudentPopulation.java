@@ -101,6 +101,22 @@ public final class StudentPopulation {
     }
 
     /**
+     * Gets the total number of students in the population.
+     *
+     * @return the number of students
+     */
+    public int getSize() {
+
+        int total = 0;
+
+        for (final Integer count : this.counts.values()) {
+            total += count.intValue();
+        }
+
+        return total;
+    }
+
+    /**
      * Gets a copy of the population's map from class preferences to the number of students with those preferences.
      *
      * @return the population map
