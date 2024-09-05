@@ -1,6 +1,7 @@
 package dev.mathops.app.sim.courses;
 
 import dev.mathops.app.sim.registration.EnrollingStudent;
+import dev.mathops.commons.builder.HtmlBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,8 +11,8 @@ import java.util.List;
  */
 public final class OfferedSection {
 
-    /** The course ID. */
-    private final String courseId;
+    /** The course offering. */
+    private final OfferedCourse offeredCourse;
 
     /** The days the section meets. */
     private final List<OfferedSectionMeetingTime> meetingTimes;
@@ -25,21 +26,21 @@ public final class OfferedSection {
     /**
      * Constructs a new {@code OfferedSection}.
      *
-     * @param theCourseId     the course ID
-     * @param theTotalSeats   the total number of seats
-     * @param theMeetingTimes the list of offered times
+     * @param theOfferedCourse the offered course
+     * @param theTotalSeats    the total number of seats
+     * @param theMeetingTimes  the list of offered times
      */
-    public OfferedSection(final String theCourseId, final int theTotalSeats,
+    public OfferedSection(final OfferedCourse theOfferedCourse, final int theTotalSeats,
                           final OfferedSectionMeetingTime... theMeetingTimes) {
 
-        if (theCourseId == null) {
-            throw new IllegalArgumentException("Course may not be null");
+        if (theOfferedCourse == null) {
+            throw new IllegalArgumentException("Owning offered course may not be null");
         }
         if (theMeetingTimes == null || theMeetingTimes.length == 0) {
             throw new IllegalArgumentException("Section has no meeting times");
         }
 
-        this.courseId = theCourseId;
+        this.offeredCourse = theOfferedCourse;
         this.totalSeats = theTotalSeats;
 
         this.meetingTimes = new ArrayList<>(theMeetingTimes.length);
@@ -54,13 +55,35 @@ public final class OfferedSection {
     }
 
     /**
+     * Tests whether this section has a time conflict with another section.
+     *
+     * @param other the other section
+     * @return true of the two sections conflict
+     */
+    public boolean hasConflict(final OfferedSection other) {
+
+        boolean conflict = false;
+
+        for (final OfferedSectionMeetingTime myTime : this.meetingTimes) {
+            for (final OfferedSectionMeetingTime otherTime : other.getMeetingTimes()) {
+                if (myTime.hasConflict(otherTime)) {
+                    conflict = true;
+                    break;
+                }
+            }
+        }
+
+        return conflict;
+    }
+
+    /**
      * Gets the course.
      *
      * @return the course
      */
-    public String getCourseId() {
+    public OfferedCourse getOfferedCourse() {
 
-        return this.courseId;
+        return this.offeredCourse;
     }
 
     /**
@@ -121,5 +144,21 @@ public final class OfferedSection {
     public void addEnrolledStudent(final EnrollingStudent toAdd) {
 
         this.enrolledStudents.add(toAdd);
+    }
+
+    /**
+     * Generates a string representation of the object.
+     *
+     * @return the string representation
+     */
+    public String toString() {
+
+        final HtmlBuilder builder = new HtmlBuilder(100);
+
+        final Course course = this.offeredCourse.getCourse();
+
+        builder.add(course.courseId, " ", this.meetingTimes);
+
+        return builder.toString();
     }
 }

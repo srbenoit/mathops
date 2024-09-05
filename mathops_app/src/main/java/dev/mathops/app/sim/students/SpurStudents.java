@@ -1,6 +1,7 @@
 package dev.mathops.app.sim.students;
 
 import dev.mathops.app.sim.courses.SpurCourses;
+import dev.mathops.commons.log.Log;
 
 /**
  * The assumed distribution for the Spur first-year students in Fall.
@@ -9,13 +10,13 @@ public enum SpurStudents {
     ;
 
     /** Flag to control whether MATH 112 is included in Fall (if false, it is offered in Summer). */
-    private static final boolean INCLUDE_MATH = false;
+    private static final boolean INCLUDE_MATH = true;
 
     /** Flag to control whether EHRS 220 is included in Fall (if false, it is offered in Summer). */
-    private static final boolean INCLUDE_EHRS = false;
+    private static final boolean INCLUDE_EHRS = true;
 
     /** Flag to control whether POLS 131 is included in Fall (if false, it is offered in Summer). */
-    private static final boolean INCLUDE_POLS = false;
+    private static final boolean INCLUDE_POLS = true;
 
     /** A class preferences key. */
     private static final String HEALTH_LIFE_FOOD = "HEALTH_LIFE_FOOD";
@@ -36,6 +37,17 @@ public enum SpurStudents {
     public static final StudentDistribution SPUR_SPRING_DISTRIBUTION;
 
     static {
+        SPUR_FALL_DISTRIBUTION = makeFallDistribution();
+        SPUR_SPRING_DISTRIBUTION = makeSpringDistribution();
+    }
+
+    /**
+     * Constructs the Fall semester student preferences distribution.
+     *
+     * @return the Fall distribution
+     */
+    static StudentDistribution makeFallDistribution() {
+
         final StudentClassPreferences fallPrefs1 = new StudentClassPreferences(HEALTH_LIFE_FOOD, 13, 17);
         fallPrefs1.setPreference(SpurCourses.SEMINAR, 1.0);
         if (INCLUDE_MATH) {
@@ -120,11 +132,21 @@ public enum SpurStudents {
         fallPrefs4.setPreference(SpurCourses.IDEA110, 0.2);
         fallPrefs4.setPreference(SpurCourses.HDFS101, 0.2);
 
-        SPUR_FALL_DISTRIBUTION = new StudentDistribution();
-        SPUR_FALL_DISTRIBUTION.addGroup(fallPrefs1, 0.411);
-        SPUR_FALL_DISTRIBUTION.addGroup(fallPrefs2, 0.142);
-        SPUR_FALL_DISTRIBUTION.addGroup(fallPrefs3, 0.265);
-        SPUR_FALL_DISTRIBUTION.addGroup(fallPrefs4, 0.182);
+        final StudentDistribution distribution = new StudentDistribution();
+        distribution.addGroup(fallPrefs1, 0.411);
+        distribution.addGroup(fallPrefs2, 0.142);
+        distribution.addGroup(fallPrefs3, 0.265);
+        distribution.addGroup(fallPrefs4, 0.182);
+
+        return distribution;
+    }
+
+    /**
+     * Constructs the Spring semester student preferences distribution.
+     *
+     * @return the Spring distribution
+     */
+    static StudentDistribution makeSpringDistribution() {
 
         final StudentClassPreferences springPrefs1 = new StudentClassPreferences(HEALTH_LIFE_FOOD, 13, 17);
         springPrefs1.setPreference(SpurCourses.SEMINAR, 1.0);
@@ -178,11 +200,13 @@ public enum SpurStudents {
         springPrefs4.setPreference(SpurCourses.IU173, 0.5);
         springPrefs4.setPreference(SpurCourses.IU174, 0.5);
 
-        SPUR_SPRING_DISTRIBUTION = new StudentDistribution();
-        SPUR_SPRING_DISTRIBUTION.addGroup(springPrefs1, 0.411);
-        SPUR_SPRING_DISTRIBUTION.addGroup(springPrefs2, 0.142);
-        SPUR_SPRING_DISTRIBUTION.addGroup(springPrefs3, 0.265);
-        SPUR_SPRING_DISTRIBUTION.addGroup(springPrefs4, 0.182);
+        final StudentDistribution distribution = new StudentDistribution();
+        distribution.addGroup(springPrefs1, 0.411);
+        distribution.addGroup(springPrefs2, 0.142);
+        distribution.addGroup(springPrefs3, 0.265);
+        distribution.addGroup(springPrefs4, 0.182);
+
+        return distribution;
     }
 
 }

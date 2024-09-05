@@ -1,7 +1,6 @@
 package dev.mathops.app.sim.schedule;
 
 import dev.mathops.app.sim.courses.Course;
-import dev.mathops.app.sim.registration.EnrollingStudent;
 import dev.mathops.app.sim.rooms.Room;
 import dev.mathops.app.sim.students.StudentClassPreferences;
 import dev.mathops.app.sim.students.StudentDistribution;
@@ -52,7 +51,7 @@ enum ComputePopulationSize {
             for (int attempt = 0; attempt < ATTEMPTS_PER_POP_SIZE; ++attempt) {
 
                 final StudentPopulation population = new StudentPopulation(studentDistribution, pop);
-                final List<EnrollingStudent> students = simulateRegistrations(courses, population);
+                simulateRegistrations(courses, population);
 
                 solutionFound = ComputeSectionRoomAssignments.canCompute(courses, rooms);
 
@@ -78,12 +77,8 @@ enum ComputePopulationSize {
      *
      * @param courses    the set of offered courses
      * @param population the student population
-     * @return a list of enrolling students, each with a list of selected courses
      */
-    private static List<EnrollingStudent> simulateRegistrations(final Collection<Course> courses,
-                                                                final StudentPopulation population) {
-
-        final List<EnrollingStudent> enrollingStudents = new ArrayList<>(200);
+    private static void simulateRegistrations(final Collection<Course> courses, final StudentPopulation population) {
 
         // Generate hypothetical registrations and see how many seats are used in each course
 
@@ -96,8 +91,6 @@ enum ComputePopulationSize {
         final long seed = System.currentTimeMillis() + System.nanoTime();
         final RandomGenerator rnd = new Random(seed);
 
-        int studentId = 1;
-
         for (final Map.Entry<StudentClassPreferences, Integer> entry : counts.entrySet()) {
             final StudentClassPreferences classPreferences = entry.getKey();
             final int count = entry.getValue().intValue();
@@ -108,14 +101,8 @@ enum ComputePopulationSize {
                 for (final Course course : coursesToTake) {
                     course.incrementNumSeatsNeeded();
                 }
-
-                final EnrollingStudent student = new EnrollingStudent(studentId, classPreferences, coursesToTake);
-                enrollingStudents.add(student);
-                ++studentId;
             }
         }
-
-        return enrollingStudents;
     }
 
     /**

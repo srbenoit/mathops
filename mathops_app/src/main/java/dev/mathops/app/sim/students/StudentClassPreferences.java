@@ -13,7 +13,7 @@ import java.util.random.RandomGenerator;
 public final class StudentClassPreferences implements Comparable<StudentClassPreferences> {
 
     /** A unique key for this set of preferences. */
-    private final String key;
+    public final String key;
 
     /** The minimum number of credits the student wants. */
     public final int minCredits;
@@ -31,7 +31,7 @@ public final class StudentClassPreferences implements Comparable<StudentClassPre
      * @param theMinCredits the minimum number of credits the student wants
      * @param theMaxCredits the maximum number of credits the student wants
      */
-    public StudentClassPreferences(final String theKey, final int theMinCredits, final int theMaxCredits) {
+    StudentClassPreferences(final String theKey, final int theMinCredits, final int theMaxCredits) {
 
         if (theKey == null) {
             throw new IllegalArgumentException("Key may not be null");
@@ -59,13 +59,37 @@ public final class StudentClassPreferences implements Comparable<StudentClassPre
      * @param course     the course ID
      * @param preference the preference value
      */
-    public void setPreference(final Course course, final double preference) {
+    void setPreference(final Course course, final double preference) {
 
         final double clampUpperBound = Math.min(preference, 1.0);
         final double clampLowerBound = Math.max(clampUpperBound, 0.0);
         final Double prefObj = Double.valueOf(clampLowerBound);
 
         this.preferences.put(course, prefObj);
+    }
+
+    /**
+     * Gets the student's preference for this course.
+     *
+     * @param course the course
+     * @return the preference (normalized so all preferences sum to 1.0)
+     */
+    public double getPreference(final Course course) {
+
+        final Double pref = this.preferences.get(course);
+        final double result;
+
+        if (pref == null) {
+            result = 0.0;
+        } else {
+            double total = 0.0;
+            for (final Double value : this.preferences.values()) {
+                total += value.doubleValue();
+            }
+            result = pref.doubleValue() / total;
+        }
+
+        return result;
     }
 
     /**

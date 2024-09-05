@@ -22,7 +22,7 @@ public final class StudentDistribution {
     /**
      * Constructs a new {@code StudentDistribution}.
      */
-    public StudentDistribution() {
+    StudentDistribution() {
 
         this.distribution = new HashMap<>(10);
     }
@@ -33,7 +33,7 @@ public final class StudentDistribution {
      * @param preferences the key of the class preferences for students in this group
      * @param portion     the portion of the whole population who belong to this group
      */
-    public void addGroup(final StudentClassPreferences preferences, final double portion) {
+    void addGroup(final StudentClassPreferences preferences, final double portion) {
 
         if (preferences == null) {
             throw new IllegalArgumentException("Preferences key may not be null");
