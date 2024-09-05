@@ -1,4 +1,4 @@
-package dev.mathops.app.sim.registration;
+package dev.mathops.app.sim.courses;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,29 +8,29 @@ import java.util.List;
 
 /**
  * A course offered during a semester. Student taking a course (say, LIFE 102) may be required to add more than one
- * section (say, a class section and a lab section, or a class and a recitation section).  So each course has lists of
- * sections such that the student needs to add one section from each list.
+ * section (say, a class section and a lab section, or a class and a recitation section).  To model this, each course
+ * has one or more lists of sections where the student needs to choose one section from each list.
  */
-final class OfferedCourse {
+public final class OfferedCourse {
 
-    /** The course ID. */
-    private final String courseId;
+    /** The course. */
+    private final Course course;
 
-    /** A list of lists of sections - students must add one section from each list. */
+    /** A list of lists of sections - students must choose one section from each list. */
     private final List<List<OfferedSection>> sectionLists;
 
     /**
      * Constructs a new {@code OfferedCourse}.
      *
-     * @param theCourseId the course ID
+     * @param theCourse the course
      */
-    OfferedCourse(final String theCourseId) {
+    public OfferedCourse(final Course theCourse) {
 
-        if (theCourseId == null) {
+        if (theCourse == null) {
             throw new IllegalArgumentException("Course may not be null");
         }
 
-        this.courseId = theCourseId;
+        this.course = theCourse;
         this.sectionLists = new ArrayList<>(2);
     }
 
@@ -39,9 +39,9 @@ final class OfferedCourse {
      *
      * @return the course
      */
-    String getCourseId() {
+    public Course getCourse() {
 
-        return this.courseId;
+        return this.course;
     }
 
     /**
@@ -51,7 +51,7 @@ final class OfferedCourse {
      *
      * @param sections the list of sections
      */
-    void addSectionsList(final OfferedSection... sections) {
+    public void addSectionsList(final OfferedSection... sections) {
 
         if (sections == null || sections.length == 0) {
             throw new IllegalArgumentException("Section list may not be null or empty");
@@ -68,7 +68,7 @@ final class OfferedCourse {
      *
      * @param sections the list of sections
      */
-    void addSectionsList(final Collection<OfferedSection> sections) {
+    public void addSectionsList(final Collection<OfferedSection> sections) {
 
         if (sections == null || sections.isEmpty()) {
             throw new IllegalArgumentException("Section list may not be null or empty");
@@ -84,7 +84,7 @@ final class OfferedCourse {
      * @return the section lists (each entry in the returned list is unmodifiable, and changes to the returned list do
      *         not alter this object's contents)
      */
-    List<List<OfferedSection>> getSectionsLists() {
+    public List<List<OfferedSection>> getSectionsLists() {
 
         return new ArrayList<>(this.sectionLists);
     }

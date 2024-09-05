@@ -17,7 +17,7 @@ import java.util.random.RandomGenerator;
 /**
  * For a fixed population size, this determines the number of sections needed of each course.
  */
-enum ComputeSectionsNeeded {
+public enum ComputeSectionsNeeded {
     ;
 
     /** The number of attempts over which to average. */

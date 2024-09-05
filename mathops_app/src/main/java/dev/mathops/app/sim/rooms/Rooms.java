@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * A container for a collection of rooms that can try to find assignments for specific classes from its set of rooms.
  */
-final class Rooms implements Comparable<Rooms> {
+public final class Rooms implements Comparable<Rooms> {
 
     /** The list of rooms (immutable). */
     private final List<Room> rooms;
@@ -19,7 +19,7 @@ final class Rooms implements Comparable<Rooms> {
      *
      * @param theRooms the rooms
      */
-    Rooms(final Room... theRooms) {
+    public Rooms(final Room... theRooms) {
 
         if (theRooms == null || theRooms.length == 0) {
             this.rooms = new ArrayList<>(0);
@@ -35,7 +35,7 @@ final class Rooms implements Comparable<Rooms> {
      *
      * @param list the list of rooms
      */
-    void getRooms(final Collection<? super Room> list) {
+    public void getRooms(final Collection<? super Room> list) {
 
         list.addAll(this.rooms);
     }
@@ -55,7 +55,7 @@ final class Rooms implements Comparable<Rooms> {
      *
      * @return the total capacity
      */
-    int totalCapacity() {
+    public int totalCapacity() {
 
         int total = 0;
 
@@ -71,7 +71,7 @@ final class Rooms implements Comparable<Rooms> {
      *
      * @return the total number of hours free
      */
-    int totalHoursFree() {
+    public int totalHoursFree() {
 
         int total = 0;
 

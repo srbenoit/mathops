@@ -1,11 +1,10 @@
 package dev.mathops.app.sim.schedule;
 
 import dev.mathops.app.sim.courses.Course;
-import dev.mathops.app.sim.rooms.ERoomUsage;
+import dev.mathops.app.sim.courses.SpurCourses;
 import dev.mathops.app.sim.rooms.Room;
 import dev.mathops.app.sim.rooms.SpurRooms;
-import dev.mathops.app.sim.students.StudentClassPreferences;
-import dev.mathops.app.sim.students.StudentDistribution;
+import dev.mathops.app.sim.students.SpurStudents;
 import dev.mathops.app.sim.students.StudentPopulation;
 import dev.mathops.commons.log.Log;
 
@@ -20,42 +19,6 @@ import java.util.Map;
  */
 final class SpurFirstYearFall {
 
-    /** Flag to control whether MATH 112 is included in Fall (if false, it is offered in Summer). */
-    private static final boolean INCLUDE_MATH = false;
-
-    /** Flag to control whether EHRS 220 is included in Fall (if false, it is offered in Summer). */
-    private static final boolean INCLUDE_EHRS = false;
-
-    /** Flag to control whether POLS 131 is included in Fall (if false, it is offered in Summer). */
-    private static final boolean INCLUDE_POLS = false;
-
-    /** A class preferences key. */
-    private static final String HEALTH_LIFE_FOOD = "HEALTH_LIFE_FOOD";
-
-    /** A class preferences key. */
-    private static final String LAND_PLANT_ANIMAL = "LAND_PLANT_ANIMAL";
-
-    /** A class preferences key. */
-    private static final String SCIENCE_ENGINEERING = "SCIENCE_ENGINEERING";
-
-    /** A class preferences key. */
-    private static final String ENVIRONMENTAL_RES = "ENVIRONMENTAL_RES";
-
-    /** A number of credits. */
-    private static final int CRED1 = 1;
-
-    /** A number of credits. */
-    private static final int CRED3 = 3;
-
-    /** A number of credits. */
-    private static final int CRED4 = 4;
-
-    /** A number of blocks the facility is open per day on MWF. */
-    private static final int BLOCKS_PER_DAY_MWF = 9;
-
-    /** A number of blocks the facility is open per day on TR. */
-    private static final int BLOCKS_PER_DAY_TR = 6;
-
     /**
      * Constructs a new {@code SpurFirstYearFall}.
      */
@@ -69,159 +32,20 @@ final class SpurFirstYearFall {
      */
     private static void runSimulation() {
 
-        // Set up the available classrooms and labs
-
-        final Room[] classrooms = {SpurRooms.CLASSROOM_1, SpurRooms.CLASSROOM_2};
-        final Room[] labs = {SpurRooms.LAB_1};
-        final List<Room> rooms = List.of(SpurRooms.CLASSROOM_1, SpurRooms.CLASSROOM_2, SpurRooms.LAB_1);
-
-        // Set up the offered course list
-
-        final Course SEMINAR = new Course("SEMINAR", CRED1, true);
-        SEMINAR.addRoomType(ERoomUsage.CLASSROOM, 1, EAssignmentType.BLOCKS_OF_50, classrooms);
-
-        final Course LIFE102 = new Course("LIFE 102", CRED4, false);
-        LIFE102.addRoomType(ERoomUsage.CLASSROOM, 3, EAssignmentType.BLOCKS_OF_50_OR_75, classrooms);
-        LIFE102.addRoomType(ERoomUsage.LAB, 3, EAssignmentType.CONTIGUOUS, labs);
-
-        final Course MATH112 = new Course("MATH 112", CRED3, false);
-        MATH112.addRoomType(ERoomUsage.CLASSROOM, 3, EAssignmentType.BLOCKS_OF_50_OR_75, classrooms);
-
-        final Course CS150B = new Course("CS 150B", CRED3, false);
-        CS150B.addRoomType(ERoomUsage.CLASSROOM, 2, EAssignmentType.BLOCKS_OF_50_OR_75, classrooms);
-        CS150B.addRoomType(ERoomUsage.CLASSROOM, 2, EAssignmentType.CONTIGUOUS, classrooms);
-
-        final Course IDEA110 = new Course("IDEA 110", CRED3, false);
-        IDEA110.addRoomType(ERoomUsage.CLASSROOM, 3, EAssignmentType.BLOCKS_OF_50_OR_75, classrooms);
-
-        final Course HDFS101 = new Course("HDFS 101", CRED3, false);
-        HDFS101.addRoomType(ERoomUsage.CLASSROOM, 3, EAssignmentType.BLOCKS_OF_50_OR_75, classrooms);
-
-        final Course AGRI116 = new Course("AGRI 116", CRED3, false);
-        AGRI116.addRoomType(ERoomUsage.CLASSROOM, 3, EAssignmentType.BLOCKS_OF_50_OR_75, classrooms);
-
-        final Course AB111 = new Course("AB 111", CRED3, false);
-        AB111.addRoomType(ERoomUsage.CLASSROOM, 3, EAssignmentType.BLOCKS_OF_50_OR_75, classrooms);
-
-        final Course EHRS220 = new Course("EHRS 220", CRED3, false);
-        EHRS220.addRoomType(ERoomUsage.CLASSROOM, 3, EAssignmentType.BLOCKS_OF_50_OR_75, classrooms);
-
-        final Course POLS131 = new Course("POLS 131", CRED3, false);
-        POLS131.addRoomType(ERoomUsage.CLASSROOM, 3, EAssignmentType.BLOCKS_OF_50_OR_75, classrooms);
-
-        final Course AREC222 = new Course("AREC 222", CRED3, false);
-        AREC222.addRoomType(ERoomUsage.CLASSROOM, 3, EAssignmentType.BLOCKS_OF_50_OR_75, classrooms);
-
-        final Course SPCM100 = new Course("SPCM 100", CRED3, false);
-        SPCM100.addRoomType(ERoomUsage.CLASSROOM, 3, EAssignmentType.BLOCKS_OF_50_OR_75, classrooms);
-
-        final Course BZ101 = new Course("BZ 101", CRED3, false);
-        BZ101.addRoomType(ERoomUsage.CLASSROOM, 3, EAssignmentType.BLOCKS_OF_50_OR_75, classrooms);
-
-        final List<Course> immutableCourses = Arrays.asList(LIFE102, MATH112, SEMINAR, CS150B, IDEA110, HDFS101,
-                AGRI116, AB111, EHRS220, POLS131, AREC222, SPCM100, BZ101);
+        final List<Course> immutableCourses = Arrays.asList(SpurCourses.LIFE102, SpurCourses.MATH112,
+                SpurCourses.SEMINAR, SpurCourses.CS150B, SpurCourses.IDEA110, SpurCourses.HDFS101,
+                SpurCourses.AGRI116, SpurCourses.AB111, SpurCourses.EHRS220, SpurCourses.POLS131,
+                SpurCourses.AREC222, SpurCourses.SPCM100, SpurCourses.BZ101);
         final Collection<Course> courses = new ArrayList<>(immutableCourses);
 
-        // Set up the preferences for each "exploratory studies" track
-
-        final StudentClassPreferences prefs1 = new StudentClassPreferences(HEALTH_LIFE_FOOD, 13, 17);
-        prefs1.setPreference(SEMINAR, 1.0);
-        if (INCLUDE_MATH) {
-            prefs1.setPreference(MATH112, 1.0);
-        }
-        prefs1.setPreference(AGRI116, 0.3);
-        prefs1.setPreference(AREC222, 0.3);
-        if (INCLUDE_POLS) {
-            prefs1.setPreference(POLS131, 0.1);
-        }
-        prefs1.setPreference(AB111, 0.1);
-        prefs1.setPreference(BZ101, 0.2);
-        prefs1.setPreference(LIFE102, 0.9);
-        if (INCLUDE_EHRS) {
-            prefs1.setPreference(EHRS220, 0.1);
-        }
-        prefs1.setPreference(SPCM100, 0.25);
-        prefs1.setPreference(CS150B, 0.25);
-        prefs1.setPreference(IDEA110, 0.25);
-        prefs1.setPreference(HDFS101, 0.25);
-
-        final StudentClassPreferences prefs2 = new StudentClassPreferences(LAND_PLANT_ANIMAL, 13, 17);
-        prefs2.setPreference(SEMINAR, 1.0);
-        if (INCLUDE_MATH) {
-            prefs2.setPreference(MATH112, 1.0);
-        }
-        prefs2.setPreference(AGRI116, 0.4);
-        prefs2.setPreference(AREC222, 0.4);
-        if (INCLUDE_POLS) {
-            prefs2.setPreference(POLS131, 0.1);
-        }
-        prefs2.setPreference(AB111, 0.1);
-        prefs2.setPreference(BZ101, 0.2);
-        prefs2.setPreference(LIFE102, 0.8);
-        if (INCLUDE_EHRS) {
-            prefs2.setPreference(EHRS220, 0.1);
-        }
-        prefs2.setPreference(SPCM100, 0.25);
-        prefs2.setPreference(CS150B, 0.25);
-        prefs2.setPreference(IDEA110, 0.2);
-        prefs2.setPreference(HDFS101, 0.2);
-
-        final StudentClassPreferences prefs3 = new StudentClassPreferences(SCIENCE_ENGINEERING, 13, 17);
-        prefs3.setPreference(SEMINAR, 1.0);
-        if (INCLUDE_MATH) {
-            prefs3.setPreference(MATH112, 1.0);
-        }
-        prefs3.setPreference(AGRI116, 0.25);
-        prefs3.setPreference(AREC222, 0.25);
-        if (INCLUDE_POLS) {
-            prefs3.setPreference(POLS131, 0.25);
-        }
-        prefs3.setPreference(AB111, 0.1);
-        prefs3.setPreference(BZ101, 0.1);
-        prefs3.setPreference(LIFE102, 0.9);
-        if (INCLUDE_EHRS) {
-            prefs3.setPreference(EHRS220, 0.1);
-        }
-        prefs3.setPreference(SPCM100, 0.1);
-        prefs3.setPreference(CS150B, 0.7);
-        prefs3.setPreference(IDEA110, 0.25);
-        prefs3.setPreference(HDFS101, 0.1);
-
-        final StudentClassPreferences prefs4 = new StudentClassPreferences(ENVIRONMENTAL_RES, 13, 17);
-        prefs4.setPreference(SEMINAR, 1.0);
-        if (INCLUDE_MATH) {
-            prefs4.setPreference(MATH112, 1.0);
-        }
-        prefs4.setPreference(AGRI116, 0.4);
-        prefs4.setPreference(AREC222, 0.4);
-        if (INCLUDE_POLS) {
-            prefs4.setPreference(POLS131, 0.1);
-        }
-        prefs4.setPreference(AB111, 0.2);
-        prefs4.setPreference(BZ101, 0.1);
-        prefs4.setPreference(LIFE102, 0.7);
-        if (INCLUDE_EHRS) {
-            prefs4.setPreference(EHRS220, 0.2);
-        }
-        prefs4.setPreference(SPCM100, 0.25);
-        prefs4.setPreference(CS150B, 0.25);
-        prefs4.setPreference(IDEA110, 0.2);
-        prefs4.setPreference(HDFS101, 0.2);
-
-        // Set up the student distribution
-
-        final StudentDistribution distribution = new StudentDistribution();
-        distribution.addGroup(prefs1, 0.411);
-        distribution.addGroup(prefs2, 0.142);
-        distribution.addGroup(prefs3, 0.265);
-        distribution.addGroup(prefs4, 0.182);
+        final List<Room> rooms = List.of(SpurRooms.CLASSROOM_1, SpurRooms.CLASSROOM_2, SpurRooms.LAB_1);
 
         // SIMULATION PART 1 - DETERMINE MAXIMUM POSSIBLE POPULATION SIZE THAT DOES NOT EXCEED TOTAL CLASSROOM SPACE
-        final int maxPopulation = ComputePopulationSize.compute(courses, distribution, rooms);
-        Log.info("The maximum population supported was " + maxPopulation);
+        final int maxPop = ComputePopulationSize.compute(courses, SpurStudents.SPUR_FALL_DISTRIBUTION, rooms);
+        Log.info("The maximum population supported was " + maxPop);
 
         // SIMULATION PART 2 - Try to build an assignment of courses to sections across classrooms and labs
-        final StudentPopulation population160 = new StudentPopulation(distribution, 160);
+        final StudentPopulation population160 = new StudentPopulation(SpurStudents.SPUR_FALL_DISTRIBUTION, 160);
         final Map<Course, Integer> seatCounts = ComputeSectionsNeeded.compute(courses, population160, rooms);
     }
 

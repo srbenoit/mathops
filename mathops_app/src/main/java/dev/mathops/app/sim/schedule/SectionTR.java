@@ -1,6 +1,7 @@
 package dev.mathops.app.sim.schedule;
 
 import dev.mathops.app.sim.courses.Course;
+import dev.mathops.app.sim.courses.EMeetingDays;
 import dev.mathops.app.sim.rooms.ERoomUsage;
 import dev.mathops.app.sim.rooms.Room;
 import dev.mathops.commons.builder.HtmlBuilder;
@@ -12,7 +13,7 @@ import dev.mathops.commons.builder.HtmlBuilder;
 public final class SectionTR extends AbstractSection {
 
     /** The days the section meets (some combination of Tuesday and Thursday). */
-    private final EMeetingDaysTR meetingDays;
+    private final EMeetingDays meetingDays;
 
     /**
      * Constructs a new {@code SectionTR}.
@@ -25,7 +26,7 @@ public final class SectionTR extends AbstractSection {
      * @param theUsage        the usage
      * @param theBlocksPerDay the number of 75-minute blocks the course will meet each day
      */
-    public SectionTR(final int theId, final EMeetingDaysTR theMeetingDays, final Room theRoom, final Course theCourse,
+    public SectionTR(final int theId, final EMeetingDays theMeetingDays, final Room theRoom, final Course theCourse,
                      final int theNumSeats, final ERoomUsage theUsage, final int theBlocksPerDay) {
 
         super(theId, theRoom, theCourse, theNumSeats, theUsage, theBlocksPerDay);
@@ -38,7 +39,7 @@ public final class SectionTR extends AbstractSection {
      *
      * @return the meeting days
      */
-    public EMeetingDaysTR meetingDays() {
+    public EMeetingDays meetingDays() {
 
         return this.meetingDays;
     }

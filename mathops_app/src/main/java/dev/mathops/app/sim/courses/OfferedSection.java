@@ -1,4 +1,6 @@
-package dev.mathops.app.sim.registration;
+package dev.mathops.app.sim.courses;
+
+import dev.mathops.app.sim.registration.EnrollingStudent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,7 +8,7 @@ import java.util.List;
 /**
  * An offered section of a course.
  */
-final class OfferedSection {
+public final class OfferedSection {
 
     /** The course ID. */
     private final String courseId;
@@ -27,8 +29,8 @@ final class OfferedSection {
      * @param theTotalSeats   the total number of seats
      * @param theMeetingTimes the list of offered times
      */
-    OfferedSection(final String theCourseId, final int theTotalSeats,
-                   final OfferedSectionMeetingTime... theMeetingTimes) {
+    public OfferedSection(final String theCourseId, final int theTotalSeats,
+                          final OfferedSectionMeetingTime... theMeetingTimes) {
 
         if (theCourseId == null) {
             throw new IllegalArgumentException("Course may not be null");
@@ -56,7 +58,7 @@ final class OfferedSection {
      *
      * @return the course
      */
-    String getCourseId() {
+    public String getCourseId() {
 
         return this.courseId;
     }
@@ -66,7 +68,7 @@ final class OfferedSection {
      *
      * @return the meeting times
      */
-    List<OfferedSectionMeetingTime> getMeetingTimes() {
+    public List<OfferedSectionMeetingTime> getMeetingTimes() {
 
         return new ArrayList<>(this.meetingTimes);
     }
@@ -76,7 +78,7 @@ final class OfferedSection {
      *
      * @return the number of seats
      */
-    int getTotalSeats() {
+    public int getTotalSeats() {
 
         return this.totalSeats;
     }
@@ -86,7 +88,7 @@ final class OfferedSection {
      *
      * @return the number of students enrolled
      */
-    int getEnrollment() {
+    public int getEnrollment() {
 
         return this.enrolledStudents.size();
     }
@@ -96,7 +98,7 @@ final class OfferedSection {
      *
      * @return the number of seats remaining
      */
-    int getSeatsRemaining() {
+    public int getSeatsRemaining() {
 
         return this.totalSeats - this.enrolledStudents.size();
     }
@@ -106,7 +108,7 @@ final class OfferedSection {
      *
      * @return the list of enrolled students
      */
-    List<EnrollingStudent> getEnrolledStudents() {
+    public List<EnrollingStudent> getEnrolledStudents() {
 
         return new ArrayList<>(this.enrolledStudents);
     }
@@ -116,7 +118,7 @@ final class OfferedSection {
      *
      * @param toAdd the student to add
      */
-    void addEnrolledStudent(final EnrollingStudent toAdd) {
+    public void addEnrolledStudent(final EnrollingStudent toAdd) {
 
         this.enrolledStudents.add(toAdd);
     }

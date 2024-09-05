@@ -1,9 +1,8 @@
 package dev.mathops.app.sim.rooms;
 
 import dev.mathops.app.sim.courses.Course;
+import dev.mathops.app.sim.courses.EMeetingDays;
 import dev.mathops.app.sim.schedule.EAssignmentType;
-import dev.mathops.app.sim.schedule.EMeetingDaysMWF;
-import dev.mathops.app.sim.schedule.EMeetingDaysTR;
 import dev.mathops.app.sim.schedule.SectionMWF;
 import dev.mathops.app.sim.schedule.SectionTR;
 import dev.mathops.commons.builder.HtmlBuilder;
@@ -44,7 +43,7 @@ public final class Room implements Comparable<Room> {
      * @param theBlocksPerMWF the number of 50-minute blocks each Monday, Wednesday, and Friday the room is available
      * @param theBlocksPerTR  the number of 75-minute blocks each Tuesday and Thursday the room is available
      */
-    Room(final String theId, final int theCapacity, final int theBlocksPerMWF, final int theBlocksPerTR) {
+    public Room(final String theId, final int theCapacity, final int theBlocksPerMWF, final int theBlocksPerTR) {
 
         if (theId == null || theId.isBlank()) {
             throw new IllegalArgumentException("Room ID may not be null or blank");
@@ -83,7 +82,7 @@ public final class Room implements Comparable<Room> {
      *
      * @return the seating capacity
      */
-    int getCapacity() {
+    public int getCapacity() {
 
         return this.capacity;
     }
@@ -93,7 +92,7 @@ public final class Room implements Comparable<Room> {
      *
      * @return the Monday/Wednesday/Friday sections
      */
-    List<SectionMWF> getSectionsMWF() {
+    public List<SectionMWF> getSectionsMWF() {
 
         return new ArrayList<>(this.sectionsMWF);
     }
@@ -103,12 +102,12 @@ public final class Room implements Comparable<Room> {
      *
      * @return the number of free blocks on Monday
      */
-    int getFreeBlocksM() {
+    public int getFreeBlocksM() {
 
         int free = this.blocksPerDayMWF;
 
         for (final SectionMWF sect : this.sectionsMWF) {
-            final EMeetingDaysMWF meeting = sect.meetingDays();
+            final EMeetingDays meeting = sect.meetingDays();
             if (meeting.includesMonday()) {
                 --free;
             }
@@ -122,12 +121,12 @@ public final class Room implements Comparable<Room> {
      *
      * @return the number of free blocks on Tuesday
      */
-    int getFreeBlocksT() {
+    public int getFreeBlocksT() {
 
         int free = this.blocksPerDayTR;
 
         for (final SectionTR sect : this.sectionsTR) {
-            final EMeetingDaysTR meeting = sect.meetingDays();
+            final EMeetingDays meeting = sect.meetingDays();
             if (meeting.includesTuesday()) {
                 --free;
             }
@@ -141,12 +140,12 @@ public final class Room implements Comparable<Room> {
      *
      * @return the number of free blocks on Wednesday
      */
-    int getFreeBlocksW() {
+    public int getFreeBlocksW() {
 
         int free = this.blocksPerDayMWF;
 
         for (final SectionMWF sect : this.sectionsMWF) {
-            final EMeetingDaysMWF meeting = sect.meetingDays();
+            final EMeetingDays meeting = sect.meetingDays();
             if (meeting.includesWednesday()) {
                 --free;
             }
@@ -160,12 +159,12 @@ public final class Room implements Comparable<Room> {
      *
      * @return the number of free blocks on Thursday
      */
-    int getFreeBlocksR() {
+    public int getFreeBlocksR() {
 
         int free = this.blocksPerDayTR;
 
         for (final SectionTR sect : this.sectionsTR) {
-            final EMeetingDaysTR meeting = sect.meetingDays();
+            final EMeetingDays meeting = sect.meetingDays();
             if (meeting.includesThursday()) {
                 --free;
             }
@@ -179,12 +178,12 @@ public final class Room implements Comparable<Room> {
      *
      * @return the number of free blocks on Friday
      */
-    int getFreeBlocksF() {
+    public int getFreeBlocksF() {
 
         int free = this.blocksPerDayMWF;
 
         for (final SectionMWF sect : this.sectionsMWF) {
-            final EMeetingDaysMWF meeting = sect.meetingDays();
+            final EMeetingDays meeting = sect.meetingDays();
             if (meeting.includesFriday()) {
                 --free;
             }
@@ -208,7 +207,7 @@ public final class Room implements Comparable<Room> {
      *
      * @return the Tuesday/Thursday sections
      */
-    List<SectionTR> getSectionsTR() {
+    public List<SectionTR> getSectionsTR() {
 
         return new ArrayList<>(this.sectionsTR);
     }
@@ -218,7 +217,7 @@ public final class Room implements Comparable<Room> {
      *
      * @param section the section to remove
      */
-    void removeSection(final SectionMWF section) {
+    public void removeSection(final SectionMWF section) {
 
         this.sectionsMWF.remove(section);
     }
@@ -228,7 +227,7 @@ public final class Room implements Comparable<Room> {
      *
      * @param section the section to remove
      */
-    void removeSection(final SectionTR section) {
+    public void removeSection(final SectionTR section) {
 
         this.sectionsTR.remove(section);
     }
@@ -236,7 +235,7 @@ public final class Room implements Comparable<Room> {
     /**
      * Removes all sections.
      */
-    void clearSections() {
+    public void clearSections() {
 
         this.sectionsMWF.clear();
         this.sectionsTR.clear();
@@ -253,8 +252,8 @@ public final class Room implements Comparable<Room> {
      * @return an object with the room assignment if it was made, or without if there was insufficient available time to
      *         make the assignment (the assignment ID will be unique within the room)
      */
-    Optional<SectionMWF> addSectionMWF(final int numBlockPerWeek, final EAssignmentType type, final Course course,
-                                       final int numSeats, final ERoomUsage usage) {
+    public Optional<SectionMWF> addSectionMWF(final int numBlockPerWeek, final EAssignmentType type, final Course course,
+                                              final int numSeats, final ERoomUsage usage) {
 
         final int sectId = this.sectionsMWF.size() + this.sectionsTR.size() + 1;
 
@@ -293,14 +292,14 @@ public final class Room implements Comparable<Room> {
 
         if (blocksFreeM == maxMWF) {
             if (blocksFreeM >= numBlocks) {
-                sect = createSectionMWF(EMeetingDaysMWF.M, numBlocks, sectId, course, numSeats, usage);
+                sect = createSectionMWF(EMeetingDays.M, numBlocks, sectId, course, numSeats, usage);
             }
         } else if (blocksFreeW == maxMWF) {
             if (blocksFreeW >= numBlocks) {
-                sect = createSectionMWF(EMeetingDaysMWF.W, numBlocks, sectId, course, numSeats, usage);
+                sect = createSectionMWF(EMeetingDays.W, numBlocks, sectId, course, numSeats, usage);
             }
         } else if (blocksFreeF >= numBlocks) {
-            sect = createSectionMWF(EMeetingDaysMWF.F, numBlocks, sectId, course, numSeats, usage);
+            sect = createSectionMWF(EMeetingDays.F, numBlocks, sectId, course, numSeats, usage);
         }
 
         return sect;
@@ -359,15 +358,15 @@ public final class Room implements Comparable<Room> {
 
         if (blocksFreeM == minMWF) {
             if (blocksFreeW > 0 && blocksFreeF > 0) {
-                sect = createSectionMWF(EMeetingDaysMWF.WF, 1, sectId, course, numSeats, usage);
+                sect = createSectionMWF(EMeetingDays.WF, 1, sectId, course, numSeats, usage);
             }
         } else if (blocksFreeW == minMWF) {
             if (blocksFreeM > 0 && blocksFreeF > 0) {
-                sect = createSectionMWF(EMeetingDaysMWF.MF, 1, sectId, course, numSeats, usage);
+                sect = createSectionMWF(EMeetingDays.MF, 1, sectId, course, numSeats, usage);
             }
         } else {
             if (blocksFreeM > 0 && blocksFreeW > 0) {
-                sect = createSectionMWF(EMeetingDaysMWF.MW, 1, sectId, course, numSeats, usage);
+                sect = createSectionMWF(EMeetingDays.MW, 1, sectId, course, numSeats, usage);
             }
         }
 
@@ -393,7 +392,7 @@ public final class Room implements Comparable<Room> {
         SectionMWF sect = null;
 
         if (blocksFreeM > 0 && blocksFreeW > 0 && blocksFreeF > 0) {
-            sect = createSectionMWF(EMeetingDaysMWF.MWF, 1, sectId, course, numSeats, usage);
+            sect = createSectionMWF(EMeetingDays.MWF, 1, sectId, course, numSeats, usage);
         }
 
         return sect;
@@ -412,7 +411,7 @@ public final class Room implements Comparable<Room> {
      * @param usage        the usage
      * @return the section if it was created; {@code null} if the section would exceed room available hours
      */
-    private SectionMWF createSectionMWF(final EMeetingDaysMWF meetingDays, final int blocksPerDay, final int sectId,
+    private SectionMWF createSectionMWF(final EMeetingDays meetingDays, final int blocksPerDay, final int sectId,
                                         final Course course, final int numSeats, final ERoomUsage usage) {
 
         boolean ok = true;
@@ -463,7 +462,7 @@ public final class Room implements Comparable<Room> {
         // Pack all sections that meet all three days into the first indexes
         int currentIndex = 0;
         for (final SectionMWF sect : this.sectionsMWF) {
-            if (sect.meetingDays() == EMeetingDaysMWF.MWF) {
+            if (sect.meetingDays() == EMeetingDays.MWF) {
                 sect.setBlockIndex(currentIndex);
                 currentIndex += sect.blocksPerDay();
             }
@@ -476,7 +475,7 @@ public final class Room implements Comparable<Room> {
         // Now pack all the "MW" sections, and slot in as many "F" sections as we can fit.
         {
             for (final SectionMWF sect : this.sectionsMWF) {
-                if (sect.meetingDays() == EMeetingDaysMWF.MW) {
+                if (sect.meetingDays() == EMeetingDays.MW) {
                     sect.setBlockIndex(currentIndex);
                     currentIndex += sect.blocksPerDay();
                     maxM = currentIndex;
@@ -486,7 +485,7 @@ public final class Room implements Comparable<Room> {
             int freeFHours = currentIndex - maxF;
             if (freeFHours > 0) {
                 for (final SectionMWF sect : this.sectionsMWF) {
-                    if (sect.meetingDays() == EMeetingDaysMWF.F) {
+                    if (sect.meetingDays() == EMeetingDays.F) {
                         final int blocks = sect.blocksPerDay();
                         if (blocks <= freeFHours) {
                             sect.setBlockIndex(maxF);
@@ -507,7 +506,7 @@ public final class Room implements Comparable<Room> {
         // Next, pack all the "MF" sections, and slot in as many "W" sections as we can fit.
         {
             for (final SectionMWF sect : this.sectionsMWF) {
-                if (sect.meetingDays() == EMeetingDaysMWF.MF) {
+                if (sect.meetingDays() == EMeetingDays.MF) {
                     sect.setBlockIndex(currentIndex);
                     currentIndex += sect.blocksPerDay();
                     maxM = currentIndex;
@@ -517,7 +516,7 @@ public final class Room implements Comparable<Room> {
             int freeWHours = currentIndex - maxW;
             if (freeWHours > 0) {
                 for (final SectionMWF sect : this.sectionsMWF) {
-                    if (sect.meetingDays() == EMeetingDaysMWF.W) {
+                    if (sect.meetingDays() == EMeetingDays.W) {
                         final int blocks = sect.blocksPerDay();
                         if (blocks <= freeWHours) {
                             sect.setBlockIndex(maxW);
@@ -538,7 +537,7 @@ public final class Room implements Comparable<Room> {
         // pack all the "WF" sections, and slot in as many "M" sections as we can fit.
         {
             for (final SectionMWF sect : this.sectionsMWF) {
-                if (sect.meetingDays() == EMeetingDaysMWF.WF) {
+                if (sect.meetingDays() == EMeetingDays.WF) {
                     sect.setBlockIndex(currentIndex);
                     currentIndex += sect.blocksPerDay();
                     maxW = currentIndex;
@@ -548,7 +547,7 @@ public final class Room implements Comparable<Room> {
             int freeMHours = currentIndex - maxM;
             if (freeMHours > 0) {
                 for (final SectionMWF sect : this.sectionsMWF) {
-                    if (sect.meetingDays() == EMeetingDaysMWF.M) {
+                    if (sect.meetingDays() == EMeetingDays.M) {
                         final int blocks = sect.blocksPerDay();
                         if (blocks <= freeMHours) {
                             sect.setBlockIndex(maxM);
@@ -574,13 +573,13 @@ public final class Room implements Comparable<Room> {
         // Add the 1-day sections
         for (final SectionMWF sect : this.sectionsMWF) {
             if (sect.getBlocksIndex() == -1) {
-                if (sect.meetingDays() == EMeetingDaysMWF.M) {
+                if (sect.meetingDays() == EMeetingDays.M) {
                     sect.setBlockIndex(maxM);
                     maxM += sect.blocksPerDay();
-                } else if (sect.meetingDays() == EMeetingDaysMWF.W) {
+                } else if (sect.meetingDays() == EMeetingDays.W) {
                     sect.setBlockIndex(maxW);
                     maxW += sect.blocksPerDay();
-                } else if (sect.meetingDays() == EMeetingDaysMWF.F) {
+                } else if (sect.meetingDays() == EMeetingDays.F) {
                     sect.setBlockIndex(maxF);
                     maxF += sect.blocksPerDay();
                 }
@@ -601,8 +600,8 @@ public final class Room implements Comparable<Room> {
      * @return an object with the room assignment if it was made, or without if there was insufficient available time to
      *         make the assignment (the assignment ID will be unique within the room)
      */
-    Optional<SectionTR> addSectionTR(final int numBlockPerWeek, final EAssignmentType type, final Course course,
-                                     final int numSeats, final ERoomUsage usage) {
+    public Optional<SectionTR> addSectionTR(final int numBlockPerWeek, final EAssignmentType type, final Course course,
+                                            final int numSeats, final ERoomUsage usage) {
 
         final int sectId = this.sectionsTR.size() + this.sectionsTR.size() + 1;
 
@@ -646,10 +645,10 @@ public final class Room implements Comparable<Room> {
 
         if (blocksFreeT == maxTR) {
             if (blocksFreeT >= numBlocks) {
-                sect = createSectionTR(EMeetingDaysTR.T, numBlocks, sectId, course, numSeats, usage);
+                sect = createSectionTR(EMeetingDays.T, numBlocks, sectId, course, numSeats, usage);
             }
         } else if (blocksFreeR >= numBlocks) {
-            sect = createSectionTR(EMeetingDaysTR.R, numBlocks, sectId, course, numSeats, usage);
+            sect = createSectionTR(EMeetingDays.R, numBlocks, sectId, course, numSeats, usage);
         }
 
         return sect;
@@ -701,7 +700,7 @@ public final class Room implements Comparable<Room> {
         SectionTR sect = null;
 
         if (blocksFreeT > 0 && blocksFreeR > 0) {
-            sect = createSectionTR(EMeetingDaysTR.TR, 1, sectId, course, numSeats, usage);
+            sect = createSectionTR(EMeetingDays.TR, 1, sectId, course, numSeats, usage);
         }
 
         return sect;
@@ -719,7 +718,7 @@ public final class Room implements Comparable<Room> {
      * @param usage        the usage
      * @return the section if it was created; {@code null} if the section would exceed room available hours
      */
-    private SectionTR createSectionTR(final EMeetingDaysTR meetingDays, final int blocksPerDay, final int sectId,
+    private SectionTR createSectionTR(final EMeetingDays meetingDays, final int blocksPerDay, final int sectId,
                                       final Course course, final int numSeats, final ERoomUsage usage) {
 
         boolean ok = true;
@@ -768,7 +767,7 @@ public final class Room implements Comparable<Room> {
         // Pack all sections that meet both days into the first indexes
         int currentIndex = 0;
         for (final SectionTR sect : this.sectionsTR) {
-            if (sect.meetingDays() == EMeetingDaysTR.TR) {
+            if (sect.meetingDays() == EMeetingDays.TR) {
                 sect.setBlockIndex(currentIndex);
                 currentIndex += sect.blocksPerDay();
             }
@@ -780,10 +779,10 @@ public final class Room implements Comparable<Room> {
         // Add the 1-day sections
         for (final SectionTR sect : this.sectionsTR) {
             if (sect.getBlocksIndex() == -1) {
-                if (sect.meetingDays() == EMeetingDaysTR.T) {
+                if (sect.meetingDays() == EMeetingDays.T) {
                     sect.setBlockIndex(maxT);
                     maxT += sect.blocksPerDay();
-                } else if (sect.meetingDays() == EMeetingDaysTR.R) {
+                } else if (sect.meetingDays() == EMeetingDays.R) {
                     sect.setBlockIndex(maxR);
                     maxR += sect.blocksPerDay();
                 }

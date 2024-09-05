@@ -1,4 +1,4 @@
-package dev.mathops.app.sim.registration;
+package dev.mathops.app.sim.courses;
 
 import java.time.LocalTime;
 
@@ -11,7 +11,7 @@ import java.time.LocalTime;
  * @param theStartTime   the start time
  * @param theEndTime     the end time
  */
-record OfferedSectionMeetingTime(String label, EMeetingDays theMeetingDays, String theRoomId,
-                                 LocalTime theStartTime, LocalTime theEndTime) {
+public record OfferedSectionMeetingTime(String label, EMeetingDays theMeetingDays, String theRoomId,
+                                        LocalTime theStartTime, LocalTime theEndTime) {
 
 }

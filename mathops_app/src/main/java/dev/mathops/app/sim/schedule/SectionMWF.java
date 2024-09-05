@@ -1,6 +1,7 @@
 package dev.mathops.app.sim.schedule;
 
 import dev.mathops.app.sim.courses.Course;
+import dev.mathops.app.sim.courses.EMeetingDays;
 import dev.mathops.app.sim.rooms.ERoomUsage;
 import dev.mathops.app.sim.rooms.Room;
 import dev.mathops.commons.builder.HtmlBuilder;
@@ -12,7 +13,7 @@ import dev.mathops.commons.builder.HtmlBuilder;
 public final class SectionMWF extends AbstractSection {
 
     /** The days the section meets (some combination of Monday, Wednesday, or Friday). */
-    private final EMeetingDaysMWF meetingDays;
+    private final EMeetingDays meetingDays;
 
     /**
      * Constructs a new {@code SectionMWF}.
@@ -25,7 +26,7 @@ public final class SectionMWF extends AbstractSection {
      * @param theUsage        the usage
      * @param theBlocksPerDay the number of 50-minute blocks the course will meet each day
      */
-    public SectionMWF(final int theId, final EMeetingDaysMWF theMeetingDays, final Room theRoom, final Course theCourse,
+    public SectionMWF(final int theId, final EMeetingDays theMeetingDays, final Room theRoom, final Course theCourse,
                       final int theNumSeats, final ERoomUsage theUsage, final int theBlocksPerDay) {
 
         super(theId, theRoom, theCourse, theNumSeats, theUsage, theBlocksPerDay);
@@ -38,7 +39,7 @@ public final class SectionMWF extends AbstractSection {
      *
      * @return the meeting days
      */
-    public EMeetingDaysMWF meetingDays() {
+    public EMeetingDays meetingDays() {
 
         return this.meetingDays;
     }

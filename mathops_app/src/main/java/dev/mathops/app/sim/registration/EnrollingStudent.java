@@ -19,9 +19,6 @@ import java.util.List;
  */
 public final class EnrollingStudent {
 
-    /** The unique student ID. */
-    final int id;
-
     /** The student's class preferences. */
     private final StudentClassPreferences preferences;
 
@@ -31,14 +28,12 @@ public final class EnrollingStudent {
     /**
      * Constructs a new {@code EnrollingStudent}.
      *
-     * @param theId          the student ID
      * @param thePreferences the student's class preferences
      * @param theCourses     the list of courses for which the student is enrolling
      */
-    EnrollingStudent(final int theId, final StudentClassPreferences thePreferences,
-                     final Collection<Course> theCourses) {
+    public EnrollingStudent(final StudentClassPreferences thePreferences,
+                            final Collection<Course> theCourses) {
 
-        this.id = theId;
         this.preferences = thePreferences;
         this.courses = new ArrayList<>(theCourses);
     }

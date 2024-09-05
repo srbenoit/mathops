@@ -1,22 +1,33 @@
 package dev.mathops.app.sim.registration;
 
 import dev.mathops.app.sim.courses.Course;
-import dev.mathops.app.sim.courses.SpurFallCourses;
+import dev.mathops.app.sim.courses.EMeetingDays;
+import dev.mathops.app.sim.courses.OfferedCourse;
+import dev.mathops.app.sim.courses.OfferedSection;
+import dev.mathops.app.sim.courses.OfferedSectionMeetingTime;
+import dev.mathops.app.sim.courses.SpurCourses;
 import dev.mathops.app.sim.rooms.SpurRooms;
+import dev.mathops.app.sim.students.SpurStudents;
 import dev.mathops.app.sim.students.StudentClassPreferences;
-import dev.mathops.app.sim.students.StudentDistribution;
 import dev.mathops.app.sim.students.StudentPopulation;
 import dev.mathops.commons.log.Log;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Random;
 
 /**
  * A simulation of the Spur first-year Fall semester.
  */
 final class SpurFirstYearFall {
+
+    /** The population size. */
+    private static final int POPULATION_SIZE = 160;
 
     /** A meeting time label. */
     private static final String CLASS = "Class";
@@ -51,12 +62,12 @@ final class SpurFirstYearFall {
 
         // Set up the offered courses
 
-        final Collection<OfferedCourse> offeredCourses = new ArrayList<>(20);
+        final Map<Course, OfferedCourse> offeredCourses = new HashMap<>(20);
 
         // SEMINAR
 
-        final OfferedCourse courseSeminar = new OfferedCourse("SEMINAR");
-        offeredCourses.add(courseSeminar);
+        final OfferedCourse courseSeminar = new OfferedCourse(SpurCourses.SEMINAR);
+        offeredCourses.put(SpurCourses.SEMINAR, courseSeminar);
 
         final Collection<OfferedSection> sectionsSeminar = new ArrayList<>(4);
         sectionsSeminar.add(new OfferedSection("SEMINAR", 40,
@@ -75,8 +86,8 @@ final class SpurFirstYearFall {
 
         // LIFE 102
 
-        final OfferedCourse courseLife102 = new OfferedCourse("LIFE 102");
-        offeredCourses.add(courseLife102);
+        final OfferedCourse courseLife102 = new OfferedCourse(SpurCourses.LIFE102);
+        offeredCourses.put(SpurCourses.LIFE102, courseLife102);
 
         final Collection<OfferedSection> sectionsLife102Class = new ArrayList<>(4);
         sectionsLife102Class.add(new OfferedSection("LIFE 102", 40,
@@ -113,8 +124,8 @@ final class SpurFirstYearFall {
 
         // MATH 112
 
-        final OfferedCourse courseMath112 = new OfferedCourse("MATH 112");
-        offeredCourses.add(courseMath112);
+        final OfferedCourse courseMath112 = new OfferedCourse(SpurCourses.MATH112);
+        offeredCourses.put(SpurCourses.MATH112, courseMath112);
 
         final Collection<OfferedSection> sectionsMath112Class = new ArrayList<>(4);
         sectionsMath112Class.add(new OfferedSection("MATH 112", 40,
@@ -133,8 +144,8 @@ final class SpurFirstYearFall {
 
         // CS 150B
 
-        final OfferedCourse courseCs150b = new OfferedCourse("CS 150B");
-        offeredCourses.add(courseCs150b);
+        final OfferedCourse courseCs150b = new OfferedCourse(SpurCourses.CS150B);
+        offeredCourses.put(SpurCourses.CS150B, courseCs150b);
 
         final Collection<OfferedSection> sectionsCs150bClass = new ArrayList<>(2);
         sectionsCs150bClass.add(new OfferedSection("CS 150B", 40,
@@ -156,8 +167,8 @@ final class SpurFirstYearFall {
 
         // IDEA 110
 
-        final OfferedCourse courseIdea110 = new OfferedCourse("IDEA 110");
-        offeredCourses.add(courseIdea110);
+        final OfferedCourse courseIdea110 = new OfferedCourse(SpurCourses.IDEA110);
+        offeredCourses.put(SpurCourses.IDEA110, courseIdea110);
 
         final Collection<OfferedSection> sectionsIdea110Class = new ArrayList<>(2);
         sectionsIdea110Class.add(new OfferedSection("IDEA 110", 40,
@@ -170,8 +181,8 @@ final class SpurFirstYearFall {
 
         // HDFS 101
 
-        final OfferedCourse courseHdfs101 = new OfferedCourse("HDFS 101");
-        offeredCourses.add(courseHdfs101);
+        final OfferedCourse courseHdfs101 = new OfferedCourse(SpurCourses.HDFS101);
+        offeredCourses.put(SpurCourses.HDFS101, courseHdfs101);
 
         final Collection<OfferedSection> sectionsHdfs101Class = new ArrayList<>(2);
         sectionsHdfs101Class.add(new OfferedSection("HDFS 101", 40,
@@ -184,8 +195,8 @@ final class SpurFirstYearFall {
 
         // AGRI 116
 
-        final OfferedCourse courseAgri116 = new OfferedCourse("AGRI 116");
-        offeredCourses.add(courseAgri116);
+        final OfferedCourse courseAgri116 = new OfferedCourse(SpurCourses.AGRI116);
+        offeredCourses.put(SpurCourses.AGRI116, courseAgri116);
 
         final Collection<OfferedSection> sectionsAgri116Class = new ArrayList<>(2);
         sectionsAgri116Class.add(new OfferedSection("AGRI 116", 40,
@@ -198,8 +209,8 @@ final class SpurFirstYearFall {
 
         // AB 111
 
-        final OfferedCourse courseAb111 = new OfferedCourse("AB 111");
-        offeredCourses.add(courseAb111);
+        final OfferedCourse courseAb111 = new OfferedCourse(SpurCourses.AB111);
+        offeredCourses.put(SpurCourses.AB111, courseAb111);
 
         final Collection<OfferedSection> sectionsAb111Class = new ArrayList<>(2);
         sectionsAb111Class.add(new OfferedSection("AB 111", 40,
@@ -209,8 +220,8 @@ final class SpurFirstYearFall {
 
         // EHRS 220
 
-        final OfferedCourse courseEhrs220 = new OfferedCourse("EHRS 220");
-        offeredCourses.add(courseEhrs220);
+        final OfferedCourse courseEhrs220 = new OfferedCourse(SpurCourses.EHRS220);
+        offeredCourses.put(SpurCourses.EHRS220, courseEhrs220);
 
         final Collection<OfferedSection> sectionsEhrs220Class = new ArrayList<>(2);
         sectionsEhrs220Class.add(new OfferedSection("EHRS 220", 40,
@@ -220,8 +231,8 @@ final class SpurFirstYearFall {
 
         // POLS 131
 
-        final OfferedCourse coursePols131 = new OfferedCourse("POLS 131");
-        offeredCourses.add(coursePols131);
+        final OfferedCourse coursePols131 = new OfferedCourse(SpurCourses.POLS131);
+        offeredCourses.put(SpurCourses.POLS131, coursePols131);
 
         final Collection<OfferedSection> sectionsPols131Class = new ArrayList<>(2);
         sectionsPols131Class.add(new OfferedSection("POLS 131", 40,
@@ -231,8 +242,8 @@ final class SpurFirstYearFall {
 
         // AREC 222
 
-        final OfferedCourse courseArec222 = new OfferedCourse("AREC 222");
-        offeredCourses.add(courseArec222);
+        final OfferedCourse courseArec222 = new OfferedCourse(SpurCourses.AREC222);
+        offeredCourses.put(SpurCourses.AREC222, courseArec222);
 
         final Collection<OfferedSection> sectionsArec222Class = new ArrayList<>(2);
         sectionsArec222Class.add(new OfferedSection("AREC 222", 40,
@@ -245,8 +256,8 @@ final class SpurFirstYearFall {
 
         // SPCM 100
 
-        final OfferedCourse courseSpcm100 = new OfferedCourse("SPCM 100");
-        offeredCourses.add(courseSpcm100);
+        final OfferedCourse courseSpcm100 = new OfferedCourse(SpurCourses.SPCM100);
+        offeredCourses.put(SpurCourses.SPCM100, courseSpcm100);
 
         final Collection<OfferedSection> sectionsSpcm100Class = new ArrayList<>(2);
         sectionsSpcm100Class.add(new OfferedSection("SPCM 100", 40,
@@ -259,8 +270,8 @@ final class SpurFirstYearFall {
 
         // BZ 101
 
-        final OfferedCourse courseBz101 = new OfferedCourse("BZ 101");
-        offeredCourses.add(courseBz101);
+        final OfferedCourse courseBz101 = new OfferedCourse(SpurCourses.BZ101);
+        offeredCourses.put(SpurCourses.BZ101, courseBz101);
 
         final Collection<OfferedSection> sectionsBz101Class = new ArrayList<>(2);
         sectionsBz101Class.add(new OfferedSection("BZ 101", 40,
@@ -268,107 +279,112 @@ final class SpurFirstYearFall {
                         LocalTime.of(3, 0), LocalTime.of(3, 50))));
         courseBz101.addSectionsList(sectionsBz101Class);
 
-        // Set up the preferences for each "exploratory studies" track
+        // Generate the students who will register (160 students using the Fall preference distribution)
 
-        final StudentClassPreferences prefs1 = new StudentClassPreferences(HEALTH_LIFE_FOOD, 13, 17);
-        prefs1.setPreference(SpurFallCourses.SEMINAR, 1.0);
-        if (INCLUDE_MATH) {
-            prefs1.setPreference(SpurFallCourses.MATH112, 1.0);
-        }
-        prefs1.setPreference(SpurFallCourses.AGRI116, 0.3);
-        prefs1.setPreference(SpurFallCourses.AREC222, 0.3);
-        if (INCLUDE_POLS) {
-            prefs1.setPreference(SpurFallCourses.POLS131, 0.1);
-        }
-        prefs1.setPreference(SpurFallCourses.AB111, 0.1);
-        prefs1.setPreference(SpurFallCourses.BZ101, 0.2);
-        prefs1.setPreference(SpurFallCourses.LIFE102, 0.9);
-        if (INCLUDE_EHRS) {
-            prefs1.setPreference(SpurFallCourses.EHRS220, 0.1);
-        }
-        prefs1.setPreference(SpurFallCourses.SPCM100, 0.25);
-        prefs1.setPreference(SpurFallCourses.CS150B, 0.25);
-        prefs1.setPreference(SpurFallCourses.IDEA110, 0.25);
-        prefs1.setPreference(SpurFallCourses.HDFS101, 0.25);
+        final StudentPopulation population = new StudentPopulation(SpurStudents.SPUR_FALL_DISTRIBUTION,
+                POPULATION_SIZE);
+        final Map<StudentClassPreferences, Integer> counts = population.getCounts();
 
-        final StudentClassPreferences prefs2 = new StudentClassPreferences(LAND_PLANT_ANIMAL, 13, 17);
-        prefs2.setPreference(SpurFallCourses.SEMINAR, 1.0);
-        if (INCLUDE_MATH) {
-            prefs2.setPreference(SpurFallCourses.MATH112, 1.0);
-        }
-        prefs2.setPreference(SpurFallCourses.AGRI116, 0.4);
-        prefs2.setPreference(SpurFallCourses.AREC222, 0.4);
-        if (INCLUDE_POLS) {
-            prefs2.setPreference(SpurFallCourses.POLS131, 0.1);
-        }
-        prefs2.setPreference(SpurFallCourses.AB111, 0.1);
-        prefs2.setPreference(SpurFallCourses.BZ101, 0.2);
-        prefs2.setPreference(SpurFallCourses.LIFE102, 0.8);
-        if (INCLUDE_EHRS) {
-            prefs2.setPreference(SpurFallCourses.EHRS220, 0.1);
-        }
-        prefs2.setPreference(SpurFallCourses.SPCM100, 0.25);
-        prefs2.setPreference(SpurFallCourses.CS150B, 0.25);
-        prefs2.setPreference(SpurFallCourses.IDEA110, 0.2);
-        prefs2.setPreference(SpurFallCourses.HDFS101, 0.2);
+        // Generate a list of student preferences in random order
 
-        final StudentClassPreferences prefs3 = new StudentClassPreferences(SCIENCE_ENGINEERING, 13, 17);
-        prefs3.setPreference(SpurFallCourses.SEMINAR, 1.0);
-        if (INCLUDE_MATH) {
-            prefs3.setPreference(SpurFallCourses.MATH112, 1.0);
+        final List<StudentClassPreferences> unordered = new ArrayList<>(POPULATION_SIZE);
+        for (final Map.Entry<StudentClassPreferences, Integer> entry : counts.entrySet()) {
+            final StudentClassPreferences prefs = entry.getKey();
+            final int count = entry.getValue().intValue();
+            for (int i = 0; i < count; ++i) {
+                unordered.add(prefs);
+            }
         }
-        prefs3.setPreference(SpurFallCourses.AGRI116, 0.25);
-        prefs3.setPreference(SpurFallCourses.AREC222, 0.25);
-        if (INCLUDE_POLS) {
-            prefs3.setPreference(SpurFallCourses.POLS131, 0.25);
+        final long seed = System.currentTimeMillis() + System.nanoTime();
+        final Random rnd = new Random(seed);
+        int remaining = unordered.size();
+        final List<StudentClassPreferences> randomized = new ArrayList<>(remaining);
+        while (remaining > 0) {
+            final int index = rnd.nextInt(remaining);
+            randomized.add(unordered.get(index));
+            --remaining;
         }
-        prefs3.setPreference(SpurFallCourses.AB111, 0.1);
-        prefs3.setPreference(SpurFallCourses.BZ101, 0.1);
-        prefs3.setPreference(SpurFallCourses.LIFE102, 0.9);
-        if (INCLUDE_EHRS) {
-            prefs3.setPreference(SpurFallCourses.EHRS220, 0.1);
-        }
-        prefs3.setPreference(SpurFallCourses.SPCM100, 0.1);
-        prefs3.setPreference(SpurFallCourses.CS150B, 0.7);
-        prefs3.setPreference(SpurFallCourses.IDEA110, 0.25);
-        prefs3.setPreference(SpurFallCourses.HDFS101, 0.1);
 
-        final StudentClassPreferences prefs4 = new StudentClassPreferences(ENVIRONMENTAL_RES, 13, 17);
-        prefs4.setPreference(SpurFallCourses.SEMINAR, 1.0);
-        if (INCLUDE_MATH) {
-            prefs4.setPreference(SpurFallCourses.MATH112, 1.0);
+        // Simulate the registration process
+
+        final Collection<EnrollingStudent> students = new ArrayList<>(POPULATION_SIZE);
+        for (final StudentClassPreferences prefs : randomized) {
+            final EnrollingStudent student = registerStudent(prefs, offeredCourses, rnd);
+            students.add(student);
         }
-        prefs4.setPreference(SpurFallCourses.AGRI116, 0.4);
-        prefs4.setPreference(SpurFallCourses.AREC222, 0.4);
-        if (INCLUDE_POLS) {
-            prefs4.setPreference(SpurFallCourses.POLS131, 0.1);
+
+        // TODO: Print student schedules
+
+        for (final EnrollingStudent student : students) {
+            Log.info(student);
         }
-        prefs4.setPreference(SpurFallCourses.AB111, 0.2);
-        prefs4.setPreference(SpurFallCourses.BZ101, 0.1);
-        prefs4.setPreference(SpurFallCourses.LIFE102, 0.7);
-        if (INCLUDE_EHRS) {
-            prefs4.setPreference(SpurFallCourses.EHRS220, 0.2);
+    }
+
+    /**
+     * Simulate the registration of a single enrolling student.
+     *
+     * @param prefs          the class preferences
+     * @param offeredCourses the set of offered courses
+     * @param rnd            a random number generator
+     * @return the enrolling student record
+     */
+    private static EnrollingStudent registerStudent(final StudentClassPreferences prefs,
+                                                    final Map<Course, OfferedCourse> offeredCourses, final Random rnd) {
+
+        int totalCredits = 0;
+
+        final List<Course> registeredForCourses = new ArrayList<>(6);
+
+        // Add any courses marked as "mandatory"
+
+        for (final Map.Entry<Course, OfferedCourse> entry : offeredCourses.entrySet()) {
+            final Course course = entry.getKey();
+            if (course.mandatory) {
+                // TODO: Add these sections
+
+                registeredForCourses.add(course);
+            }
         }
-        prefs4.setPreference(SpurFallCourses.SPCM100, 0.25);
-        prefs4.setPreference(SpurFallCourses.CS150B, 0.25);
-        prefs4.setPreference(SpurFallCourses.IDEA110, 0.2);
-        prefs4.setPreference(SpurFallCourses.HDFS101, 0.2);
 
-        // Set up the student distribution
+        // Attempt to choose a course we have not already chosen until we have reached a target number of credits in
+        // the student's schedule
 
-        final StudentDistribution distribution = new StudentDistribution();
-        distribution.addGroup(prefs1, 0.411);
-        distribution.addGroup(prefs2, 0.142);
-        distribution.addGroup(prefs3, 0.265);
-        distribution.addGroup(prefs4, 0.182);
+        for (int j = 0; j < 1000; ++j) {
+            final Course selected = prefs.pick(rnd);
 
-        // SIMULATION PART 1 - DETERMINE MAXIMUM POSSIBLE POPULATION SIZE THAT DOES NOT EXCEED TOTAL CLASSROOM SPACE
-        final int maxPopulation = ComputePopulationSize.compute(courses, distribution, rooms);
-        Log.info("The maximum population supported was " + maxPopulation);
+            if (registeredForCourses.contains(selected)) {
+                continue;
+            }
 
-        // SIMULATION PART 2 - Try to build an assignment of courses to sections across classrooms and labs
-        final StudentPopulation population160 = new StudentPopulation(distribution, 160);
-        final Map<Course, Integer> seatCounts = ComputeSectionsNeeded.compute(courses, population160, rooms);
+            final OfferedCourse offered = offeredCourses.get(selected);
+            if (Objects.nonNull(offered)) {
+                final int credits = selected.numCredits;
+                if (totalCredits + credits > prefs.maxCredits) {
+                    break;
+                }
+
+                // TODO: Add these sections
+
+                registeredForCourses.add(selected);
+                totalCredits += credits;
+
+                if (totalCredits >= prefs.minCredits) {
+                    final int span = prefs.maxCredits - prefs.minCredits + 1;
+                    final int delta = totalCredits - prefs.minCredits + 1;
+                    if (rnd.nextInt(span) < delta) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        final EnrollingStudent result = new EnrollingStudent(prefs, registeredForCourses);
+
+        if (totalCredits < prefs.minCredits) {
+            Log.warning("Unable to reach minimum desired credits");
+        }
+
+        return result;
     }
 
     /**
