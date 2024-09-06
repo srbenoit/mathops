@@ -71,6 +71,7 @@ enum PageAuthoring {
                         "QualityControl.bat</a></li>")
                 .addln("<li><a href='/www/media/ItemAuthoring/Software/ExamTester.bat'>",
                         "ExamTester.bat</a></li>")
+                .addln("<li><a href='graphedit.html'>Graph Editor</a></li>")
                 .addln("</ul>");
 
         htm.sH(3).add("Documentation:").eH(3);

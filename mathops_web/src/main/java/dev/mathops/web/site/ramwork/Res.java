@@ -37,6 +37,11 @@ final class Res extends ResBundle {
     /** A resource key. */
     static final String AUTHORING_HEADING = key(index++);
 
+    // Used by PageGraphEditor
+
+    /** A resource key. */
+    static final String GRAPHEDIT_HEADING = key(index++);
+
     //
 
     /** The resources - an array of key-values pairs. */
@@ -46,6 +51,7 @@ final class Res extends ResBundle {
             {LANDING_HEADING, "Welcome to RAMwork"},
             {HOME_HEADING, "RAMwork Online Homework System"},
             {AUTHORING_HEADING, "Problem Authoring Resources"},
+            {GRAPHEDIT_HEADING, "Graph Editor"},
     };
 
     /** The singleton instance. */

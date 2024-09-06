@@ -140,8 +140,8 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
     /**
      * Construct a new {@code DocGraphXY}.
      *
-     * @param width  the width of the object
-     * @param height the height of the object
+     * @param width      the width of the object
+     * @param height     the height of the object
      * @param theAltText the alternative text for the generated image for accessibility
      */
     DocGraphXY(final int width, final int height, final String theAltText) {
@@ -418,8 +418,8 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
     /**
      * Draw the graph to an off-screen image.
      *
-     * @param forceWhite true to force background rectangle to be white if it is the first primitive in the drawing
-     *                   and it is filled
+     * @param forceWhite true to force background rectangle to be white if it is the first primitive in the drawing and
+     *                   it is filled
      * @param context    the evaluation context
      */
     @Override
@@ -505,10 +505,11 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
 
             // Do the vertical grid lines, relative to the X axis
             double per = (maxX - minX) / (double) bounds.width;
-            int prior = (int) ((minX - per) / actualXTickInterval);
+            double lowerBound = Math.floor(minX);
+            int prior = 0;
 
             for (double dx = minX; dx < maxX; dx += per) {
-                final int cur = (int) (dx / actualXTickInterval);
+                final int cur = (int) (dx - lowerBound / actualXTickInterval);
 
                 if (cur != prior) {
                     prior = cur;
@@ -528,6 +529,11 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
                     }
 
                     if (axisY == -1) {
+                        continue;
+                    }
+
+                    // If we are drawing axes, then omit the tick mark at the axis crossing.
+                    if (this.axisWidth > 0 && Math.abs(dx) < (actualXTickInterval / 10)) {
                         continue;
                     }
 
@@ -607,8 +613,10 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
                                 g2d.drawLine(bounds.x + x, bounds.y + bounds.height - axisY - this.tickSize,
                                         bounds.x + x, bounds.y + bounds.height - axisY);
                             } else {
-                                g2d.drawLine(bounds.x + x, bounds.y + bounds.height - axisY - (this.tickSize / 2),
-                                        bounds.x + x, bounds.y + bounds.height - axisY + (this.tickSize / 2));
+                                g2d.drawLine(bounds.x + x,
+                                        bounds.y + bounds.height - axisY - (this.tickSize / 2),
+                                        bounds.x + x,
+                                        bounds.y + bounds.height - axisY + (this.tickSize / 2) + 1);
                             }
                         }
 
@@ -626,10 +634,11 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
 
                 // Do the horizontal grid lines, relative to the Y axis
                 per = (maxY - minY) / (double) bounds.height;
-                prior = (int) ((minY - per) / actualYTickInterval);
+                lowerBound = Math.floor(minY);
+                prior = 0;
 
                 for (double dy = minY; dy < maxY; dy += per) {
-                    final int cur = (int) (dy / actualYTickInterval);
+                    final int cur = (int) (dy - lowerBound / actualYTickInterval);
 
                     if (cur != prior) {
                         prior = cur;
@@ -649,6 +658,11 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
                         }
 
                         if (axisX == -1) {
+                            continue;
+                        }
+
+                        // If we are drawing axes, then omit the tick mark at the axis crossing.
+                        if (this.axisWidth > 0 && Math.abs(dy) < (actualYTickInterval / 10)) {
                             continue;
                         }
 
@@ -726,8 +740,10 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
                                     g2d.drawLine(bounds.x + axisX, bounds.y + bounds.height - y,
                                             bounds.x + axisX + this.tickSize, bounds.y + bounds.height - y);
                                 } else {
-                                    g2d.drawLine(bounds.x + axisX - (this.tickSize / 2), bounds.y + bounds.height - y,
-                                            bounds.x + axisX + (this.tickSize / 2), bounds.y + bounds.height - y);
+                                    g2d.drawLine(bounds.x + axisX - (this.tickSize / 2) - 1,
+                                            bounds.y + bounds.height - y,
+                                            bounds.x + axisX + (this.tickSize / 2),
+                                            bounds.y + bounds.height - y);
                                 }
                             }
 
@@ -809,7 +825,7 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
     @Override
     public DocGraphXYInst createInstance(final EvalContext evalContext) {
 
-        final DocObjectInstStyle objStyle = new DocObjectInstStyle(getColorName(), getFontName(), (float)getFontSize(),
+        final DocObjectInstStyle objStyle = new DocObjectInstStyle(getColorName(), getFontName(), (float) getFontSize(),
                 getFontStyle());
 
         final StrokeStyle borderStyle = this.borderWidth == 0 ? null : new StrokeStyle((double) this.borderWidth,
@@ -838,7 +854,7 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
         if ((this.tickSize & 0x01) == 0x01) {
             tickPosLen = this.tickSize / 2;
             tickNegLen = tickPosLen;
-        } else  {
+        } else {
             tickPosLen = this.tickSize;
             tickNegLen = 0;
         }
@@ -847,7 +863,7 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
 
         final AxisTicksSpec xTicks = hasTicks ?
                 new AxisTicksSpec(this.tickWidth, tickPosLen, tickNegLen,
-                this.tickColorName, this.xTickInterval, (float) this.tickLabelSize, "black") : null;
+                        this.tickColorName, this.xTickInterval, (float) this.tickLabelSize, "black") : null;
 
         final AxisTicksSpec yTicks = hasTicks ?
                 new AxisTicksSpec(this.tickWidth, tickPosLen, tickNegLen,
@@ -988,27 +1004,27 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
     public int hashCode() {
 
         return primitiveContainerHashCode()
-                + Objects.hashCode(this.windowMinX)
-                + Objects.hashCode(this.windowMaxX)
-                + Objects.hashCode(this.windowMinY)
-                + Objects.hashCode(this.windowMaxY)
-                + Objects.hashCode(this.xTickInterval)
-                + Objects.hashCode(this.yTickInterval)
-                + Objects.hashCode(this.backgroundColorName)
-                + this.borderWidth
-                + Objects.hashCode(this.borderColorName)
-                + this.gridWidth
-                + Objects.hashCode(this.gridColorName)
-                + this.tickWidth
-                + Objects.hashCode(this.tickColorName)
-                + this.tickSize
-                + this.axisWidth
-                + Objects.hashCode(this.axisColorName)
-                + this.axisLabelSize
-                + this.tickLabelSize
-                + Objects.hashCode(this.xAxisLabel)
-                + Objects.hashCode(this.yAxisLabel)
-                + Objects.hashCode(getPrimitives());
+               + Objects.hashCode(this.windowMinX)
+               + Objects.hashCode(this.windowMaxX)
+               + Objects.hashCode(this.windowMinY)
+               + Objects.hashCode(this.windowMaxY)
+               + Objects.hashCode(this.xTickInterval)
+               + Objects.hashCode(this.yTickInterval)
+               + Objects.hashCode(this.backgroundColorName)
+               + this.borderWidth
+               + Objects.hashCode(this.borderColorName)
+               + this.gridWidth
+               + Objects.hashCode(this.gridColorName)
+               + this.tickWidth
+               + Objects.hashCode(this.tickColorName)
+               + this.tickSize
+               + this.axisWidth
+               + Objects.hashCode(this.axisColorName)
+               + this.axisLabelSize
+               + this.tickLabelSize
+               + Objects.hashCode(this.xAxisLabel)
+               + Objects.hashCode(this.yAxisLabel)
+               + Objects.hashCode(getPrimitives());
     }
 
     /**

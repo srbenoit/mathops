@@ -169,6 +169,8 @@ public final class RamWorkSite extends AbstractSite {
                         PageMathRefresherStudent.showPage(cache, req, resp, session);
                     } else if ("assessmentdev.html".equals(subpath)) {
                         PageAssessmentDev.showPage(req, resp);
+                    } else if ("graphedit.html".equals(subpath)) {
+                        PageGraphEditor.showPage(cache, this, req, resp);
 
                     } else if ("secure/shibboleth.html".equals(subpath)) {
                         doShibbolethLogin(cache, req, resp, session);
@@ -327,6 +329,7 @@ public final class RamWorkSite extends AbstractSite {
                 case "item-edit.html" -> PageItemEdit.processPost(req, resp, session);
                 case "rolecontrol.html" -> processRoleControls(cache, req, resp, session);
                 case "qtiitembank.html" -> PageQTIItemBank.processPost(cache, this, req, resp, session);
+                case "graphedit.html" -> PageGraphEditor.processPost(cache, this, req, resp);
                 case null, default -> {
                     Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
                     resp.sendError(HttpServletResponse.SC_NOT_FOUND);
