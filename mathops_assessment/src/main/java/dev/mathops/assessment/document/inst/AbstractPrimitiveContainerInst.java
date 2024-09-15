@@ -1,5 +1,6 @@
 package dev.mathops.assessment.document.inst;
 
+import dev.mathops.assessment.document.CoordinateSystems;
 import dev.mathops.assessment.document.EXmlStyle;
 import dev.mathops.assessment.document.StrokeStyle;
 import dev.mathops.commons.builder.HtmlBuilder;
@@ -20,6 +21,9 @@ public abstract class AbstractPrimitiveContainerInst extends AbstractDocObjectIn
     /** The height of the canvas. */
     private final int height;
 
+    /** The coordinate systems in which coordinates can be specified. */
+    private final CoordinateSystems coordinates;
+
     /** The alt text for generated images. */
     private final String altText;
 
@@ -35,19 +39,21 @@ public abstract class AbstractPrimitiveContainerInst extends AbstractDocObjectIn
      * @param theStyle       the style object ({@code null} to inherit the parent object's style)
      * @param theWidth       the width of the object
      * @param theHeight      the height of the object
+     * @param theCoordinates the coordinate systems in which coordinates can be specified
      * @param theAltText     the alternative text for accessibility of generated images
      * @param theBgColorName the background color name ({@code null} if transparent)
      * @param thePrimitives  the list of primitives
      */
     AbstractPrimitiveContainerInst(final DocObjectInstStyle theStyle, final String theBgColorName, final int theWidth,
-                                   final int theHeight, final String theAltText,
-                                   final StrokeStyle theBorder,
+                                   final int theHeight, final CoordinateSystems theCoordinates,
+                                   final String theAltText, final StrokeStyle theBorder,
                                    final List<? extends AbstractPrimitiveInst> thePrimitives) {
 
         super(theStyle, theBgColorName);
 
         this.width = theWidth;
         this.height = theHeight;
+        this.coordinates = theCoordinates;
         this.altText = theAltText;
         this.border = theBorder;
         this.primitives = new ArrayList<>(thePrimitives);
@@ -71,6 +77,16 @@ public abstract class AbstractPrimitiveContainerInst extends AbstractDocObjectIn
     public final int getHeight() {
 
         return this.height;
+    }
+
+    /**
+     * Gets the coordinate systems in which coordinates can be specified.
+     *
+     * @return the coordinate systems
+     */
+    public final CoordinateSystems getCoordinates() {
+
+        return this.coordinates;
     }
 
     /**
@@ -146,6 +162,7 @@ public abstract class AbstractPrimitiveContainerInst extends AbstractDocObjectIn
 
     /**
      * Adds style, width, height, background, and border information as part of string representation generation.
+     *
      * @param builder the {@code HtmlBuilder} to which to append
      */
     final void appendPrimitiveContainerString(final HtmlBuilder builder) {
@@ -170,9 +187,10 @@ public abstract class AbstractPrimitiveContainerInst extends AbstractDocObjectIn
     final int docPrimitiveContainerInstHashCode() {
 
         return docObjectInstHashCode() + this.width + this.height
-                + Objects.hashCode(this.altText)
-                + Objects.hashCode(this.border)
-                + Objects.hashCode(this.primitives);
+               + Objects.hashCode(this.coordinates)
+               + Objects.hashCode(this.altText)
+               + Objects.hashCode(this.border)
+               + Objects.hashCode(this.primitives);
     }
 
     /**
@@ -181,15 +199,16 @@ public abstract class AbstractPrimitiveContainerInst extends AbstractDocObjectIn
      *
      * @param obj the object to be compared to this object
      * @return {@code true} if the style settings, width, height, and children from the objects are equal; {@code false}
-     * otherwise
+     *         otherwise
      */
     final boolean checkDocPrimitiveContainerInstEquals(final AbstractPrimitiveContainerInst obj) {
 
         return checkDocObjectInstEquals(obj)
-                && this.width == obj.width
-                && this.height == obj.height
-                && Objects.equals(this.altText, obj.altText)
-                && Objects.equals(this.border, obj.border)
-                && Objects.equals(this.primitives, obj.primitives);
+               && this.width == obj.width
+               && this.height == obj.height
+               && Objects.equals(this.coordinates, obj.coordinates)
+               && Objects.equals(this.altText, obj.altText)
+               && Objects.equals(this.border, obj.border)
+               && Objects.equals(this.primitives, obj.primitives);
     }
 }

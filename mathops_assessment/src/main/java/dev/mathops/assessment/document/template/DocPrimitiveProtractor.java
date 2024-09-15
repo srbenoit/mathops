@@ -5,6 +5,7 @@ import dev.mathops.assessment.NumberOrFormula;
 import dev.mathops.assessment.document.EAngleUnits;
 import dev.mathops.assessment.document.ETextAnchor;
 import dev.mathops.assessment.document.inst.DocPrimitiveProtractorInst;
+import dev.mathops.assessment.document.inst.RectangleShapeInst;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
@@ -30,7 +31,7 @@ import java.util.Set;
 /**
  * A protractor primitive.
  */
-final class DocPrimitiveProtractor extends AbstractDocPrimitive {
+final class DocPrimitiveProtractor extends AbstractDocRectangleShape {
 
     /** The width of padding along the straight edge. */
     private static final double PADDING = 30;
@@ -44,15 +45,6 @@ final class DocPrimitiveProtractor extends AbstractDocPrimitive {
     /** Version number for serialization. */
     @Serial
     private static final long serialVersionUID = 7079994790272139622L;
-
-    /** The center point x coordinate. */
-    private NumberOrFormula centerX;
-
-    /** The center point y coordinate. */
-    private NumberOrFormula centerY;
-
-    /** The radius. */
-    private NumberOrFormula radius;
 
     /** The orientation angle, in degrees. */
     private NumberOrFormula orientation;
@@ -87,66 +79,6 @@ final class DocPrimitiveProtractor extends AbstractDocPrimitive {
 
         super(theOwner);
     }
-
-    /**
-     * Sets the center x coordinate.
-     *
-     * @param theCenterX the center x coordinate
-     */
-    void setCenterX(final NumberOrFormula theCenterX) {
-
-        this.centerX = theCenterX;
-    }
-
-//    /**
-//     * Gets the center x coordinate.
-//     *
-//     * @return the center x coordinate
-//     */
-//    public NumberOrFormula getCenterX() {
-//
-//        return this.centerX;
-//    }
-
-    /**
-     * Sets the center y coordinate.
-     *
-     * @param theCenterY the center y coordinate
-     */
-    void setCenterY(final NumberOrFormula theCenterY) {
-
-        this.centerY = theCenterY;
-    }
-
-//    /**
-//     * Gets the center y coordinate.
-//     *
-//     * @return the center y coordinate
-//     */
-//    public NumberOrFormula getCenterY() {
-//
-//        return this.centerY;
-//    }
-
-    /**
-     * Sets the radius.
-     *
-     * @param theRadius the radius
-     */
-    void setRadius(final NumberOrFormula theRadius) {
-
-        this.radius = theRadius;
-    }
-
-//    /**
-//     * Gets the radius.
-//     *
-//     * @return the radius
-//     */
-//    public NumberOrFormula getRadius() {
-//
-//        return this.radius;
-//    }
 
     /**
      * Sets the orientation angle, in degrees.
@@ -249,16 +181,10 @@ final class DocPrimitiveProtractor extends AbstractDocPrimitive {
 
         final DocPrimitiveProtractor copy = new DocPrimitiveProtractor(theOwner);
 
-        if (this.centerX != null) {
-            copy.centerX = this.centerX.deepCopy();
-        }
-
-        if (this.centerY != null) {
-            copy.centerY = this.centerY.deepCopy();
-        }
-
-        if (this.radius != null) {
-            copy.radius = this.radius.deepCopy();
+        final RectangleShapeTemplate myShape = getShape();
+        if (myShape != null) {
+            final RectangleShapeTemplate myShapeCopy = myShape.deepCopy();
+            copy.setShape(myShapeCopy);
         }
 
         if (this.orientation != null) {
@@ -293,15 +219,6 @@ final class DocPrimitiveProtractor extends AbstractDocPrimitive {
 
         if (theValue == null) {
             ok = true;
-        } else if ("cx".equals(name)) {
-            this.centerX = parseNumberOrFormula(theValue, elem, mode, "cx", "protractor primitive");
-            ok = this.centerX != null;
-        } else if ("cy".equals(name)) {
-            this.centerY = parseNumberOrFormula(theValue, elem, mode, "cy", "protractor primitive");
-            ok = this.centerY != null;
-        } else if ("r".equals(name)) {
-            this.radius = parseNumberOrFormula(theValue, elem, mode, "r", "protractor primitive");
-            ok = this.radius != null;
         } else if ("orientation".equals(name)) {
             this.orientation = parseNumberOrFormula(theValue, elem, mode, "orientation", "protractor primitive");
             ok = this.orientation != null;
@@ -364,96 +281,66 @@ final class DocPrimitiveProtractor extends AbstractDocPrimitive {
     @Override
     public void draw(final Graphics2D grx, final EvalContext context) {
 
-        Object result;
+        final Rectangle2D bounds = getBoundsRect(context);
 
-        // Evaluate formulae
-        Number cx = null;
-        if (this.centerX != null) {
-            result = this.centerX.evaluate(context);
+        if (bounds != null) {
+            Object result;
 
-            if (result instanceof final Number numResult) {
-                final double cxval = numResult.doubleValue();
-                if (Double.isFinite(cxval)) {
-                    cx = numResult;
-                }
-            }
-        }
+            double orient = 0.0;
+            if (this.orientation != null) {
+                result = this.orientation.evaluate(context);
 
-        Number cy = null;
-        if (this.centerY != null) {
-            result = this.centerY.evaluate(context);
-
-            if (result instanceof final Number numResult) {
-                final double cyval = numResult.doubleValue();
-                if (Double.isFinite(cyval)) {
-                    cy = numResult;
-                }
-            }
-        }
-
-        double r = 200.0;
-        if (this.radius != null) {
-            result = this.radius.evaluate(context);
-
-            if (result instanceof final Number numResult) {
-                final double rval = numResult.doubleValue();
-
-                if (Double.isFinite(rval) && rval > 20.0) {
-                    r = rval;
-                }
-            }
-        }
-
-        double orient = 0.0;
-        if (this.orientation != null) {
-            result = this.orientation.evaluate(context);
-
-            if (result instanceof final Number numResult) {
-                final double d = numResult.doubleValue();
-                if (d < 360.0) {
-                    if (d < 0.0) {
-                        if (d > -360.0) {
-                            orient = d + 360.0;
+                if (result instanceof final Number numResult) {
+                    final double d = numResult.doubleValue();
+                    if (d < 360.0) {
+                        if (d < 0.0) {
+                            if (d > -360.0) {
+                                orient = d + 360.0;
+                            }
+                        } else {
+                            orient = d;
                         }
-                    } else {
-                        orient = d;
                     }
                 }
             }
-        }
 
-        EAngleUnits units = EAngleUnits.DEGREES;
-        if (this.angleUnits != null) {
-            units = this.angleUnits;
-        }
-
-        int numQ = 2;
-        if (this.numQuadrants != null) {
-            final int n = this.numQuadrants.intValue();
-            if (n >= 1 && n <= 4) {
-                numQ = n;
+            EAngleUnits units = EAngleUnits.DEGREES;
+            if (this.angleUnits != null) {
+                units = this.angleUnits;
             }
-        }
 
-        Color c = Color.LIGHT_GRAY;
-        if (this.color != null) {
-            c = this.color;
-        }
+            int numQ = 2;
+            if (this.numQuadrants != null) {
+                final int n = this.numQuadrants.intValue();
+                if (n >= 1 && n <= 4) {
+                    numQ = n;
+                }
+            }
 
-        Color tc = Color.BLACK;
-        if (this.textColor != null) {
-            tc = this.textColor;
-        }
+            Color c = Color.LIGHT_GRAY;
+            if (this.color != null) {
+                c = this.color;
+            }
 
-        float a = 1.0f;
-        if (this.alpha != null) {
-            a = Math.min(1.0f, this.alpha.floatValue());
-        }
+            Color tc = Color.BLACK;
+            if (this.textColor != null) {
+                tc = this.textColor;
+            }
 
-        if (a > 0.0f) {
-            if (cx != null && cy != null) {
-                final double cxval = cx.doubleValue();
-                final double cyval = cy.doubleValue();
+            float a = 1.0f;
+            if (this.alpha != null) {
+                a = Math.min(1.0f, this.alpha.floatValue());
+            }
+
+            double x = bounds.getX();
+            double y = bounds.getY();
+            double width = bounds.getWidth();
+            double height = bounds.getHeight();
+            double r = Math.max(Math.abs(width), Math.abs(height)) * 0.5;
+
+            if (a > 0.0f) {
+                final double cxval = x + width * 0.5;
+                final double cyval = y + height * 0.5;
                 drawProtractor(grx, cxval, cyval, r, orient, units, numQ, c, tc, a);
             }
         }
@@ -507,7 +394,7 @@ final class DocPrimitiveProtractor extends AbstractDocPrimitive {
         final double southPadY = PADDING * southY;
 
         // Draw and outline the protractor shape
-        final double scl = (double)this.scale;
+        final double scl = (double) this.scale;
 
         final Path2D outline = new Path2D.Double();
         if (numQ == 1) {
@@ -679,7 +566,7 @@ final class DocPrimitiveProtractor extends AbstractDocPrimitive {
     private void drawDegreeTicks(final Graphics2D grx, final double cx, final double cy,
                                  final double r, final double orient, final int start, final int end) {
 
-        final double scl = (double)this.scale;
+        final double scl = (double) this.scale;
         final double innerRadLong = r - THICKNESS * 0.5 * scl;
         final double innerRadMed = r - THICKNESS * 0.3 * scl;
         final double innerRadShort = r - THICKNESS * 0.15 * scl;
@@ -720,7 +607,7 @@ final class DocPrimitiveProtractor extends AbstractDocPrimitive {
     private void drawRadiansTicks(final Graphics2D grx, final double cx, final double cy,
                                   final double r, final double orient, final int start, final int end) {
 
-        final double scl = (double)this.scale;
+        final double scl = (double) this.scale;
         final double innerRadLong = r - THICKNESS * 0.5 * scl;
         final double innerRadMed = r - THICKNESS * 0.3 * scl;
         final double innerRadShort = r - THICKNESS * 0.15 * scl;
@@ -865,7 +752,7 @@ final class DocPrimitiveProtractor extends AbstractDocPrimitive {
      * @param anchor   the anchor point
      */
     private static void drawText(final Graphics2D grx, final String str, final double x, final double y,
-                                 final double rotation,  final ETextAnchor anchor) {
+                                 final double rotation, final ETextAnchor anchor) {
 
         final AffineTransform origXform = grx.getTransform();
 
@@ -916,7 +803,6 @@ final class DocPrimitiveProtractor extends AbstractDocPrimitive {
         grx.setTransform(origXform);
     }
 
-
     /**
      * Draws a fraction using the current font.
      *
@@ -929,7 +815,7 @@ final class DocPrimitiveProtractor extends AbstractDocPrimitive {
      * @param anchor   the anchor point
      */
     private static void drawFraction(final Graphics2D grx, final String numer, final String denom, final double x,
-                                     final double y, final double rotation,  final ETextAnchor anchor) {
+                                     final double y, final double rotation, final ETextAnchor anchor) {
 
         final AffineTransform origXform = grx.getTransform();
 
@@ -1018,25 +904,23 @@ final class DocPrimitiveProtractor extends AbstractDocPrimitive {
     @Override
     public DocPrimitiveProtractorInst createInstance(final EvalContext evalContext) {
 
-        final Object centerXVal = this.centerX == null ? null : this.centerX.evaluate(evalContext);
-        final Object centerYVal = this.centerY == null ? null : this.centerY.evaluate(evalContext);
-        final Object radiusVal = this.radius == null ? null : this.radius.evaluate(evalContext);
-        final Object orientVal = this.orientation == null ? null : this.orientation.evaluate(evalContext);
-        final Color colorVal = this.color == null ? Color.lightGray : this.color;
-        final Color textColorVal = this.textColor == null ? Color.black : this.textColor;
+        final RectangleShapeTemplate shape = getShape();
+        DocPrimitiveProtractorInst result = null;
 
-        final DocPrimitiveProtractorInst result;
+        if (Objects.nonNull(shape)) {
+            final Object orientVal = this.orientation == null ? null : this.orientation.evaluate(evalContext);
+            final Color colorVal = this.color == null ? Color.lightGray : this.color;
+            final Color textColorVal = this.textColor == null ? Color.black : this.textColor;
 
-        if (centerXVal instanceof final Number cxNbr && centerYVal instanceof final Number cyNbr
-                && radiusVal instanceof final Number rNbr && orientVal instanceof final Number oNbr) {
+            if (orientVal instanceof final Number oNbr) {
 
-            final double alphaValue = this.alpha == null ? 1.0 : this.alpha.doubleValue();
+                final double alphaValue = this.alpha == null ? 1.0 : this.alpha.doubleValue();
 
-            result = new DocPrimitiveProtractorInst(cxNbr.doubleValue(), cyNbr.doubleValue(), rNbr.doubleValue(),
-                    oNbr.doubleValue(), this.angleUnits, this.numQuadrants.intValue(),colorVal, textColorVal,
-                    alphaValue);
-        } else {
-            result = null;
+                final RectangleShapeInst shapeInst = getShape().createInstance(evalContext);
+                result = new DocPrimitiveProtractorInst(shapeInst,
+                        oNbr.doubleValue(), this.angleUnits, this.numQuadrants.intValue(), colorVal, textColorVal,
+                        alphaValue);
+            }
         }
 
         return result;
@@ -1056,16 +940,9 @@ final class DocPrimitiveProtractor extends AbstractDocPrimitive {
 
         xml.add(ind, "<protractor");
 
-        if (this.centerX != null && this.centerX.getNumber() != null) {
-            xml.add(" cx=\"", this.centerX.getNumber(), CoreConstants.QUOTE);
-        }
-
-        if (this.centerY != null && this.centerY.getNumber() != null) {
-            xml.add(" cy=\"", this.centerY.getNumber(), CoreConstants.QUOTE);
-        }
-
-        if (this.radius != null && this.radius.getNumber() != null) {
-            xml.add(" r=\"", this.radius.getNumber(), CoreConstants.QUOTE);
+        final RectangleShapeTemplate shape = getShape();
+        if (shape != null) {
+            shape.addAttributes(xml);
         }
 
         if (this.orientation != null && this.orientation.getNumber() != null) {
@@ -1094,30 +971,14 @@ final class DocPrimitiveProtractor extends AbstractDocPrimitive {
             xml.add(" alpha=\"", this.alpha.toString(), CoreConstants.QUOTE);
         }
 
-        if ((this.centerX == null || this.centerX.getFormula() == null)
-                && (this.centerY == null || this.centerY.getFormula() == null)
-                && (this.radius == null || this.radius.getFormula() == null)
-                && (this.orientation == null || this.orientation.getFormula() == null)) {
+        if ((shape == null || shape.isConstant())
+            && (this.orientation == null || this.orientation.getFormula() == null)) {
             xml.addln("/>");
         } else {
             xml.addln(">");
 
-            if (this.centerX != null && this.centerX.getFormula() != null) {
-                xml.add(ind2, "<cx>");
-                this.centerX.getFormula().appendChildrenXml(xml);
-                xml.addln("</cx>");
-            }
-
-            if (this.centerY != null && this.centerY.getFormula() != null) {
-                xml.add(ind2, "<cy>");
-                this.centerY.getFormula().appendChildrenXml(xml);
-                xml.addln("</cy>");
-            }
-
-            if (this.radius != null && this.radius.getFormula() != null) {
-                xml.add(ind2, "<r>");
-                this.radius.getFormula().appendChildrenXml(xml);
-                xml.addln("</r>");
+            if (!(shape == null || shape.isConstant())) {
+                shape.addChildElements(xml, indent + 1);
             }
 
             if (this.orientation != null && this.orientation.getFormula() != null) {
@@ -1138,7 +999,7 @@ final class DocPrimitiveProtractor extends AbstractDocPrimitive {
     @Override
     public String toString() {
 
-        return "Line";
+        return "Protractor";
     }
 
     /**
@@ -1149,16 +1010,9 @@ final class DocPrimitiveProtractor extends AbstractDocPrimitive {
     @Override
     public void accumulateParameterNames(final Set<String> set) { // Do NOT change to "? super String"
 
-        if (this.centerX != null && this.centerX.getFormula() != null) {
-            set.addAll(this.centerX.getFormula().params.keySet());
-        }
-
-        if (this.centerY != null && this.centerY.getFormula() != null) {
-            set.addAll(this.centerY.getFormula().params.keySet());
-        }
-
-        if (this.radius != null && this.radius.getFormula() != null) {
-            set.addAll(this.radius.getFormula().params.keySet());
+        final RectangleShapeTemplate shape = getShape();
+        if (shape != null) {
+            shape.accumulateParameterNames(set);
         }
 
         if (this.orientation != null && this.orientation.getFormula() != null) {
@@ -1174,17 +1028,15 @@ final class DocPrimitiveProtractor extends AbstractDocPrimitive {
     @Override
     public int hashCode() {
 
-        return Objects.hashCode(this.centerX)
-                + Objects.hashCode(this.centerY)
-                + Objects.hashCode(this.radius)
-                + Objects.hashCode(this.orientation)
-                + Objects.hashCode(this.angleUnits)
-                + Objects.hashCode(this.numQuadrants)
-                + Objects.hashCode(this.colorName)
-                + Objects.hashCode(this.color)
-                + Objects.hashCode(this.textColorName)
-                + Objects.hashCode(this.textColor)
-                + Objects.hashCode(this.alpha);
+        return Objects.hashCode(getShape())
+               + Objects.hashCode(this.orientation)
+               + Objects.hashCode(this.angleUnits)
+               + Objects.hashCode(this.numQuadrants)
+               + Objects.hashCode(this.colorName)
+               + Objects.hashCode(this.color)
+               + Objects.hashCode(this.textColorName)
+               + Objects.hashCode(this.textColor)
+               + Objects.hashCode(this.alpha);
     }
 
     /**
@@ -1200,18 +1052,16 @@ final class DocPrimitiveProtractor extends AbstractDocPrimitive {
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final DocPrimitiveProtractor line) {
-            equal = Objects.equals(this.centerX, line.centerX)
-                    && Objects.equals(this.centerY, line.centerY)
-                    && Objects.equals(this.radius, line.radius)
-                    && Objects.equals(this.orientation, line.orientation)
-                    && Objects.equals(this.angleUnits, line.angleUnits)
-                    && Objects.equals(this.numQuadrants, line.numQuadrants)
-                    && Objects.equals(this.colorName, line.colorName)
-                    && Objects.equals(this.color, line.color)
-                    && Objects.equals(this.textColorName, line.textColorName)
-                    && Objects.equals(this.textColor, line.textColor)
-                    && Objects.equals(this.alpha, line.alpha);
+        } else if (obj instanceof final DocPrimitiveProtractor prot) {
+            equal = Objects.equals(getShape(), prot.getShape())
+                    && Objects.equals(this.orientation, prot.orientation)
+                    && Objects.equals(this.angleUnits, prot.angleUnits)
+                    && Objects.equals(this.numQuadrants, prot.numQuadrants)
+                    && Objects.equals(this.colorName, prot.colorName)
+                    && Objects.equals(this.color, prot.color)
+                    && Objects.equals(this.textColorName, prot.textColorName)
+                    && Objects.equals(this.textColor, prot.textColor)
+                    && Objects.equals(this.alpha, prot.alpha);
         } else {
             equal = false;
         }

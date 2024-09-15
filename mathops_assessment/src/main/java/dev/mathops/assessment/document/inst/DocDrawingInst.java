@@ -1,5 +1,6 @@
 package dev.mathops.assessment.document.inst;
 
+import dev.mathops.assessment.document.CoordinateSystems;
 import dev.mathops.assessment.document.EXmlStyle;
 import dev.mathops.assessment.document.StrokeStyle;
 import dev.mathops.commons.builder.HtmlBuilder;
@@ -18,15 +19,16 @@ public final class DocDrawingInst extends AbstractPrimitiveContainerInst {
      * @param theBgColorName the background color name ({@code null} if transparent)
      * @param theWidth       the width of the object
      * @param theHeight      the height of the object
+     * @param theCoordinates the coordinate systems in which coordinates can be specified
      * @param theAltText     the alternative text for accessibility of generated images
      * @param theBorder      the border specification; {@code null} if there is no border
      * @param thePrimitives  the list of primitives
      */
     public DocDrawingInst(final DocObjectInstStyle theStyle, final String theBgColorName, final int theWidth,
-                          final int theHeight, final String theAltText, final StrokeStyle theBorder,
-                          final List<? extends AbstractPrimitiveInst> thePrimitives) {
+                          final int theHeight, final CoordinateSystems theCoordinates, final String theAltText,
+                          final StrokeStyle theBorder, final List<? extends AbstractPrimitiveInst> thePrimitives) {
 
-        super(theStyle, theBgColorName, theWidth, theHeight, theAltText, theBorder, thePrimitives);
+        super(theStyle, theBgColorName, theWidth, theHeight, theCoordinates, theAltText, theBorder, thePrimitives);
     }
 
     /**

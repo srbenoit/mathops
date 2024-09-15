@@ -11,14 +11,8 @@ import java.awt.Color;
  */
 public final class DocPrimitiveProtractorInst extends AbstractPrimitiveInst {
 
-    /** The center point x coordinate. */
-    private final double centerX;
-
-    /** The center point y coordinate. */
-    private final double centerY;
-
-    /** The radius. */
-    private final double radius;
+    /** The rectangular shape. */
+    private final RectangleShapeInst shape;
 
     /** The orientation angle, in degrees */
     private final double orientation;
@@ -41,9 +35,7 @@ public final class DocPrimitiveProtractorInst extends AbstractPrimitiveInst {
     /**
      * Construct a new {@code DocPrimitiveProtractorInst}.
      *
-     * @param theCenterX      the center point x coordinate
-     * @param theCenterY      the center point y coordinate
-     * @param theRadius       the radius
+     * @param theShape        the rectangular shape
      * @param theOrientation  the orientation
      * @param theAngleUnits   the angle units to display
      * @param theNumQuadrants the number of quadrants to display
@@ -51,16 +43,13 @@ public final class DocPrimitiveProtractorInst extends AbstractPrimitiveInst {
      * @param theTextColor    the text color
      * @param theAlpha        the alpha
      */
-    public DocPrimitiveProtractorInst(final double theCenterX, final double theCenterY, final double theRadius,
-                                      final double theOrientation, final EAngleUnits theAngleUnits,
-                                      final int theNumQuadrants, final Color theColor, final Color theTextColor,
-                                      final double theAlpha) {
+    public DocPrimitiveProtractorInst(final RectangleShapeInst theShape, final double theOrientation,
+                                      final EAngleUnits theAngleUnits, final int theNumQuadrants,
+                                      final Color theColor, final Color theTextColor, final double theAlpha) {
 
         super();
 
-        this.centerX = theCenterX;
-        this.centerY = theCenterY;
-        this.radius = theRadius;
+        this.shape = theShape;
         this.orientation = theOrientation;
         this.angleUnits = theAngleUnits == null ? EAngleUnits.DEGREES : theAngleUnits;
         this.numQuadrants = theNumQuadrants;
@@ -70,33 +59,13 @@ public final class DocPrimitiveProtractorInst extends AbstractPrimitiveInst {
     }
 
     /**
-     * Gets the center point X coordinate.
+     * Gets the rectangular shape.
      *
-     * @return the center point X coordinate
+     * @return the rectangular shape
      */
-    public double getCenterX() {
+    public RectangleShapeInst getShape() {
 
-        return this.centerX;
-    }
-
-    /**
-     * Gets the center point Y coordinate.
-     *
-     * @return the center point Y coordinate
-     */
-    public double getCenterY() {
-
-        return this.centerY;
-    }
-
-    /**
-     * Gets the radius.
-     *
-     * @return the radius
-     */
-    public double getRadius() {
-
-        return this.radius;
+        return this.shape;
     }
 
     /**
@@ -162,9 +131,9 @@ public final class DocPrimitiveProtractorInst extends AbstractPrimitiveInst {
     /**
      * Write the XML representation of the object to an {@code HtmlBuilder}.
      *
-     * @param xml    the {@code HtmlBuilder} to which to write the XML
+     * @param xml      the {@code HtmlBuilder} to which to write the XML
      * @param xmlStyle the style to use when emitting XML
-     * @param indent the number of spaces to indent the printout
+     * @param indent   the number of spaces to indent the printout
      */
     public void toXml(final HtmlBuilder xml, final EXmlStyle xmlStyle, final int indent) {
 
@@ -172,8 +141,10 @@ public final class DocPrimitiveProtractorInst extends AbstractPrimitiveInst {
         if (xmlStyle == EXmlStyle.INDENTED) {
             xml.add(ind);
         }
-        xml.add("<protractor center-x='").add(this.centerX).add("' center-y='").add(this.centerY).add("' radius='")
-                .add(this.radius).add("' orientation='").add(this.orientation).add("'");
+        xml.add("<protractor");
+
+        this.shape.addAttributes(xml);
+        xml.add(" orientation='").add(this.orientation).add("'");
 
         if (this.angleUnits == EAngleUnits.DEGREES) {
             xml.add(" units='deg'");
@@ -194,11 +165,10 @@ public final class DocPrimitiveProtractorInst extends AbstractPrimitiveInst {
 
         final HtmlBuilder builder = new HtmlBuilder(200);
 
-        builder.add("<DocPrimitiveProtractorInst{center-x=").add(this.centerX).add(" center-y=").add(this.centerY)
-                .add(" radius=").add(this.radius).add(" orientation=").add(this.orientation).add(" units=");
+        builder.add("<DocPrimitiveProtractorInst{", this.shape, " orientation=").add(this.orientation).add(" units=");
         if (this.angleUnits == EAngleUnits.DEGREES) {
             builder.add("deg");
-        } else  {
+        } else {
             builder.add("rad");
         }
         builder.add(" quadrants=").add(this.numQuadrants).add("}");
@@ -214,9 +184,8 @@ public final class DocPrimitiveProtractorInst extends AbstractPrimitiveInst {
     @Override
     public int hashCode() {
 
-        return Double.hashCode(this.centerX) + Double.hashCode(this.centerY)
-                + Double.hashCode(this.radius) + Double.hashCode(this.orientation)
-                + this.angleUnits.hashCode() + this.numQuadrants;
+        return this.shape.hashCode() + Double.hashCode(this.orientation) + this.angleUnits.hashCode()
+               + this.numQuadrants;
     }
 
     /**
@@ -233,9 +202,7 @@ public final class DocPrimitiveProtractorInst extends AbstractPrimitiveInst {
         if (obj == this) {
             equal = true;
         } else if (obj instanceof final DocPrimitiveProtractorInst prot) {
-            equal = this.centerX == prot.centerX
-                    && this.centerY == prot.centerY
-                    && this.radius == prot.radius
+            equal = this.shape.equals(prot.shape)
                     && this.orientation == prot.orientation
                     && this.angleUnits == prot.angleUnits
                     && this.numQuadrants == prot.numQuadrants;

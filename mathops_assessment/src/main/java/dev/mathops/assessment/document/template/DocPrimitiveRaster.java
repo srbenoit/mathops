@@ -1,9 +1,8 @@
 package dev.mathops.assessment.document.template;
 
 import dev.mathops.assessment.EParserMode;
-import dev.mathops.assessment.NumberOrFormula;
-import dev.mathops.assessment.document.BoundingRect;
 import dev.mathops.assessment.document.inst.DocPrimitiveRasterInst;
+import dev.mathops.assessment.document.inst.RectangleShapeInst;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
@@ -15,6 +14,7 @@ import javax.imageio.ImageIO;
 import java.awt.AlphaComposite;
 import java.awt.Composite;
 import java.awt.Graphics2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.Serial;
@@ -28,23 +28,11 @@ import java.util.Set;
 /**
  * A raster image.
  */
-final class DocPrimitiveRaster extends AbstractDocPrimitive {
+final class DocPrimitiveRaster extends AbstractDocRectangleShape {
 
     /** Version number for serialization. */
     @Serial
     private static final long serialVersionUID = -5269770064156882137L;
-
-    /** The x coordinate. */
-    private NumberOrFormula xCoord;
-
-    /** The y coordinate. */
-    private NumberOrFormula yCoord;
-
-    /** The width. */
-    private NumberOrFormula width;
-
-    /** The height. */
-    private NumberOrFormula height;
 
     /** The text contents of the object. */
     private BufferedImage image;
@@ -63,86 +51,6 @@ final class DocPrimitiveRaster extends AbstractDocPrimitive {
     DocPrimitiveRaster(final AbstractDocPrimitiveContainer theOwner) {
 
         super(theOwner);
-    }
-
-    /**
-     * Sets the x coordinate.
-     *
-     * @param theXCoord the x coordinate
-     */
-    void setXCoord(final NumberOrFormula theXCoord) {
-
-        this.xCoord = theXCoord;
-    }
-
-//    /**
-//     * Gets the x coordinate.
-//     *
-//     * @return the x coordinate
-//     */
-//    public NumberOrFormula getXCoordConstant() {
-//
-//        return this.xCoord;
-//    }
-
-    /**
-     * Sets the y coordinate.
-     *
-     * @param theYCoord the y coordinate
-     */
-    void setYCoord(final NumberOrFormula theYCoord) {
-
-        this.yCoord = theYCoord;
-    }
-
-//    /**
-//     * Gets the y coordinate.
-//     *
-//     * @return the y coordinate
-//     */
-//    public NumberOrFormula getYCoord() {
-//
-//        return this.yCoord;
-//    }
-
-    /**
-     * Sets the width.
-     *
-     * @param theWidth the width
-     */
-    public void setWidth(final NumberOrFormula theWidth) {
-
-        this.width = theWidth;
-    }
-
-    /**
-     * Gets the width.
-     *
-     * @return the width
-     */
-    public NumberOrFormula getWidth() {
-
-        return this.width;
-    }
-
-    /**
-     * Sets the height.
-     *
-     * @param theHeight the height
-     */
-    public void setHeight(final NumberOrFormula theHeight) {
-
-        this.height = theHeight;
-    }
-
-    /**
-     * Gets the height.
-     *
-     * @return the height
-     */
-    public NumberOrFormula getHeight() {
-
-        return this.height;
     }
 
     /**
@@ -217,20 +125,10 @@ final class DocPrimitiveRaster extends AbstractDocPrimitive {
 
         final DocPrimitiveRaster copy = new DocPrimitiveRaster(theOwner);
 
-        if (this.xCoord != null) {
-            copy.xCoord = this.xCoord.deepCopy();
-        }
-
-        if (this.yCoord != null) {
-            copy.yCoord = this.yCoord.deepCopy();
-        }
-
-        if (this.width != null) {
-            copy.width = this.width.deepCopy();
-        }
-
-        if (this.height != null) {
-            copy.height = this.height.deepCopy();
+        final RectangleShapeTemplate myShape = getShape();
+        if (myShape != null) {
+            final RectangleShapeTemplate myShapeCopy = myShape.deepCopy();
+            copy.setShape(myShapeCopy);
         }
 
         copy.source = this.source;
@@ -259,22 +157,6 @@ final class DocPrimitiveRaster extends AbstractDocPrimitive {
             ok = true;
         } else {
             switch (name) {
-                case "x" -> {
-                    this.xCoord = parseNumberOrFormula(theValue, elem, mode, "x", "raster primitive");
-                    ok = this.xCoord != null;
-                }
-                case "y" -> {
-                    this.yCoord = parseNumberOrFormula(theValue, elem, mode, "y", "raster primitive");
-                    ok = this.yCoord != null;
-                }
-                case "width" -> {
-                    this.width = parseNumberOrFormula(theValue, elem, mode, "width", "raster primitive");
-                    ok = this.width != null;
-                }
-                case "height" -> {
-                    this.height = parseNumberOrFormula(theValue, elem, mode, "height", "raster primitive");
-                    ok = this.height != null;
-                }
                 case "src" -> {
                     try {
                         final URI uri = new URI(theValue);
@@ -311,54 +193,9 @@ final class DocPrimitiveRaster extends AbstractDocPrimitive {
     public void draw(final Graphics2D grx, final EvalContext context) {
 
         if (this.image != null) {
-            Object result;
+            final Rectangle2D bounds = getBoundsRect(context);
 
-            // Evaluate formulae
-            Long x = null;
-            if (this.xCoord != null) {
-                result = this.xCoord.evaluate(context);
-
-                if (result instanceof final Long longResult) {
-                    x = longResult;
-                } else if (result instanceof final Number numResult) {
-                    x = Long.valueOf(Math.round(numResult.doubleValue()));
-                }
-            }
-
-            Long y = null;
-            if (this.yCoord != null) {
-                result = this.yCoord.evaluate(context);
-
-                if (result instanceof final Long longResult) {
-                    y = longResult;
-                } else if (result instanceof final Number numResult) {
-                    y = Long.valueOf(Math.round(numResult.doubleValue()));
-                }
-            }
-
-            Long w = null;
-            if (this.width != null) {
-                result = this.width.evaluate(context);
-
-                if (result instanceof final Long longResult) {
-                    w = longResult;
-                } else if (result instanceof final Number numResult) {
-                    w = Long.valueOf(Math.round(numResult.doubleValue()));
-                }
-            }
-
-            Long h = null;
-            if (this.height != null) {
-                result = this.height.evaluate(context);
-
-                if (result instanceof final Long longResult) {
-                    h = longResult;
-                } else if (result instanceof final Number numResult) {
-                    h = Long.valueOf(Math.round(numResult.doubleValue()));
-                }
-            }
-
-            if (x != null && y != null && w != null && h != null) {
+            if (bounds != null) {
                 Composite origComp = null;
 
                 if (this.alpha != null) {
@@ -367,10 +204,24 @@ final class DocPrimitiveRaster extends AbstractDocPrimitive {
                             (float) this.alpha.doubleValue()));
                 }
 
-                final int x1 = Math.round(x.floatValue() * this.scale);
-                final int y1 = Math.round(y.floatValue() * this.scale);
-                final int x2 = x1 + Math.round(w.floatValue() * this.scale);
-                final int y2 = y1 + Math.round(h.floatValue() * this.scale);
+                double x = bounds.getX();
+                double y = bounds.getY();
+                double width = bounds.getWidth();
+                double height = bounds.getHeight();
+
+                if (width < 0.0) {
+                    x += width;
+                    width = -width;
+                }
+                if (height < 0.0) {
+                    y += height;
+                    height = -height;
+                }
+
+                final int x1 = Math.round((float) x * this.scale);
+                final int y1 = Math.round((float) y * this.scale);
+                final int x2 = x1 + Math.round((float) width * this.scale);
+                final int y2 = y1 + Math.round((float) height * this.scale);
 
                 grx.drawImage(this.image, x1, y1, x2, y2, 0, 0, this.image.getWidth(), this.image.getHeight(), null);
 
@@ -405,23 +256,14 @@ final class DocPrimitiveRaster extends AbstractDocPrimitive {
     @Override
     public DocPrimitiveRasterInst createInstance(final EvalContext evalContext) {
 
-        final Object xVal = this.xCoord == null ? null : this.xCoord.evaluate(evalContext);
-        final Object yVal = this.yCoord == null ? null : this.yCoord.evaluate(evalContext);
-        final Object wVal = this.width == null ? null : this.width.evaluate(evalContext);
-        final Object hVal = this.height == null ? null : this.height.evaluate(evalContext);
+        final RectangleShapeTemplate shape = getShape();
+        DocPrimitiveRasterInst result = null;
 
-        final DocPrimitiveRasterInst result;
-
-        if (xVal instanceof final Number xNbr && yVal instanceof final Number yNbr
-                && wVal instanceof final Number wNbr && hVal instanceof final Number hNbr) {
-
-            final BoundingRect bounds = new BoundingRect(xNbr.doubleValue(), yNbr.doubleValue(),
-                    wNbr.doubleValue(), hNbr.doubleValue());
+        if (Objects.nonNull(shape)) {
             final double alphaValue = this.alpha == null ? 1.0 : this.alpha.doubleValue();
 
-            result = new DocPrimitiveRasterInst(bounds, this.source.toExternalForm(), alphaValue);
-        } else {
-            result = null;
+            final RectangleShapeInst shapeInst = getShape().createInstance(evalContext);
+            result = new DocPrimitiveRasterInst(shapeInst, this.source.toExternalForm(), alphaValue);
         }
 
         return result;
@@ -441,20 +283,9 @@ final class DocPrimitiveRaster extends AbstractDocPrimitive {
 
         xml.add(ind, "<raster");
 
-        if (this.xCoord != null && this.xCoord.getNumber() != null) {
-            xml.add(" x=\"", this.xCoord.getNumber(), CoreConstants.QUOTE);
-        }
-
-        if (this.yCoord != null && this.yCoord.getNumber() != null) {
-            xml.add(" y=\"", this.yCoord.getNumber(), CoreConstants.QUOTE);
-        }
-
-        if (this.width != null && this.width.getNumber() != null) {
-            xml.add(" width=\"", this.width.getNumber(), CoreConstants.QUOTE);
-        }
-
-        if (this.height != null && this.height.getNumber() != null) {
-            xml.add(" height=\"", this.height.getNumber(), CoreConstants.QUOTE);
+        final RectangleShapeTemplate shape = getShape();
+        if (shape != null) {
+            shape.addAttributes(xml);
         }
 
         if (this.source != null) {
@@ -466,38 +297,11 @@ final class DocPrimitiveRaster extends AbstractDocPrimitive {
             xml.add(" alpha=\"", this.alpha.toString(), CoreConstants.QUOTE);
         }
 
-        if ((this.xCoord == null || this.xCoord.getFormula() == null)
-                && (this.yCoord == null || this.yCoord.getFormula() == null)
-                && (this.width == null || this.width.getFormula() == null)
-                && (this.height == null || this.height.getFormula() == null)) {
+        if (shape == null || shape.isConstant()) {
             xml.addln("/>");
         } else {
             xml.addln(">");
-
-            if (this.xCoord != null && this.xCoord.getFormula() != null) {
-                xml.add(ind2, "<x>");
-                this.xCoord.getFormula().appendChildrenXml(xml);
-                xml.addln("</x>");
-            }
-
-            if (this.yCoord != null && this.yCoord.getFormula() != null) {
-                xml.add(ind2, "<y>");
-                this.yCoord.getFormula().appendChildrenXml(xml);
-                xml.addln("</y>");
-            }
-
-            if (this.width != null && this.width.getFormula() != null) {
-                xml.add(ind2, "<width>");
-                this.width.getFormula().appendChildrenXml(xml);
-                xml.addln("</width>");
-            }
-
-            if (this.height != null && this.height.getFormula() != null) {
-                xml.add(ind2, "<height>");
-                this.height.getFormula().appendChildrenXml(xml);
-                xml.addln("</height>");
-            }
-
+            shape.addChildElements(xml, indent + 1);
             xml.addln(ind, "</raster>");
         }
     }
@@ -521,20 +325,9 @@ final class DocPrimitiveRaster extends AbstractDocPrimitive {
     @Override
     public void accumulateParameterNames(final Set<String> set) { // Do NOT change to "? super String"
 
-        if (this.xCoord != null && this.xCoord.getFormula() != null) {
-            set.addAll(this.xCoord.getFormula().params.keySet());
-        }
-
-        if (this.yCoord != null && this.yCoord.getFormula() != null) {
-            set.addAll(this.yCoord.getFormula().params.keySet());
-        }
-
-        if (this.width != null && this.width.getFormula() != null) {
-            set.addAll(this.width.getFormula().params.keySet());
-        }
-
-        if (this.height != null && this.height.getFormula() != null) {
-            set.addAll(this.height.getFormula().params.keySet());
+        final RectangleShapeTemplate shape = getShape();
+        if (shape != null) {
+            shape.accumulateParameterNames(set);
         }
     }
 
@@ -546,12 +339,9 @@ final class DocPrimitiveRaster extends AbstractDocPrimitive {
     @Override
     public int hashCode() {
 
-        return Objects.hashCode(this.xCoord)
-                + Objects.hashCode(this.yCoord)
-                + Objects.hashCode(this.width)
-                + Objects.hashCode(this.height)
-                + Objects.hashCode(this.source)
-                + Objects.hashCode(this.alpha);
+        return Objects.hashCode(getShape())
+               + Objects.hashCode(this.source)
+               + Objects.hashCode(this.alpha);
     }
 
     /**
@@ -568,11 +358,8 @@ final class DocPrimitiveRaster extends AbstractDocPrimitive {
         if (obj == this) {
             equal = true;
         } else if (obj instanceof final DocPrimitiveRaster raster) {
-            equal = Objects.equals(this.xCoord, raster.xCoord)
-                    && Objects.equals(this.yCoord, raster.yCoord)
-                    && Objects.equals(this.width, raster.width)
-                    && Objects.equals(this.height, raster.height)
-                    && Objects.equals(this.source, raster.source)
+            equal = Objects.equals(getShape(), raster.getShape())
+                    &&  Objects.equals(this.source, raster.source)
                     && Objects.equals(this.alpha, raster.alpha);
         } else {
             equal = false;

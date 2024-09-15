@@ -1,6 +1,7 @@
 package dev.mathops.assessment.document.svggen;
 
 import dev.mathops.assessment.document.BoundingRect;
+import dev.mathops.assessment.document.CoordinateSystems;
 import dev.mathops.assessment.document.EArcFillStyle;
 import dev.mathops.assessment.document.EStrokeCap;
 import dev.mathops.assessment.document.EStrokeJoin;
@@ -20,12 +21,15 @@ import dev.mathops.assessment.document.inst.DocPrimitiveRasterInst;
 import dev.mathops.assessment.document.inst.DocPrimitiveRectangleInst;
 import dev.mathops.assessment.document.inst.DocPrimitiveSpanInst;
 import dev.mathops.assessment.document.inst.DocPrimitiveTextInst;
+import dev.mathops.assessment.document.inst.RectangleShapeInst;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.parser.xml.XmlEscaper;
 
+import java.awt.geom.Rectangle2D;
+
 /**
- * Converts a subclasses of {@code AbstractPrimitiveContainerInst} into SVG.  "span" content of such a container is
- * not permitted to include inputs.  This is typically used only for math spans that are not simply numbers or variable
+ * Converts a subclasses of {@code AbstractPrimitiveContainerInst} into SVG.  "span" content of such a container is not
+ * permitted to include inputs.  This is typically used only for math spans that are not simply numbers or variable
  * names.
  */
 public enum PrimitiveContainerInstConverter {
@@ -34,7 +38,7 @@ public enum PrimitiveContainerInstConverter {
     /**
      * Given a {@code DocDrawingInst}, generates the corresponding SVG.
      *
-     * @param drawing the {@code DocDrawingInst}
+     * @param drawing      the {@code DocDrawingInst}
      * @param ambientStyle the style (font settings) of surrounding HTML, to use as a default if the drawing does not
      *                     specify its own style
      * @return the generated SVG
@@ -55,22 +59,24 @@ public enum PrimitiveContainerInstConverter {
                     "' fill='", bgColor, "'/>");
         }
 
+        final CoordinateSystems coordinates = drawing.getCoordinates();
+
         for (final AbstractPrimitiveInst primitive : drawing.getPrimitives()) {
 
             if (primitive instanceof final DocPrimitiveArcInst arc) {
-                emitArc(svg, arc);
+                emitArc(svg, arc, coordinates);
             } else if (primitive instanceof final DocPrimitiveLineInst line) {
-                emitLine(svg, line);
+                emitLine(svg, line, coordinates);
             } else if (primitive instanceof final DocPrimitiveOvalInst oval) {
-                emitOval(svg, oval);
+                emitOval(svg, oval, coordinates);
             } else if (primitive instanceof final DocPrimitivePolygonInst polygon) {
                 emitPolygon(svg, polygon);
             } else if (primitive instanceof final DocPrimitivePolylineInst polyline) {
                 emitPolyline(svg, polyline);
             } else if (primitive instanceof final DocPrimitiveRasterInst raster) {
-                emitRaster(svg, raster);
+                emitRaster(svg, raster, coordinates);
             } else if (primitive instanceof final DocPrimitiveRectangleInst rect) {
-                emitRectangle(svg, rect);
+                emitRectangle(svg, rect, coordinates);
             } else if (primitive instanceof final DocPrimitiveSpanInst span) {
                 emitSpan(svg, span);
             } else if (primitive instanceof final DocPrimitiveTextInst text) {
@@ -92,7 +98,7 @@ public enum PrimitiveContainerInstConverter {
     /**
      * Given a {@code DocGraphXYInst}, generates the corresponding SVG.
      *
-     * @param graph the {@code DocGraphXYInst}
+     * @param graph        the {@code DocGraphXYInst}
      * @param ambientStyle the style (font settings) of surrounding HTML, to use as a default if the drawing does not
      *                     specify its own style
      * @return the generated SVG
@@ -115,22 +121,24 @@ public enum PrimitiveContainerInstConverter {
 
         // TODO: Draw axes beneath primitives (which will include the function primitives)
 
+        final CoordinateSystems coordinates = graph.getCoordinates();
+
         for (final AbstractPrimitiveInst primitive : graph.getPrimitives()) {
 
             if (primitive instanceof final DocPrimitiveArcInst arc) {
-                emitArc(svg, arc);
+                emitArc(svg, arc, coordinates);
             } else if (primitive instanceof final DocPrimitiveLineInst line) {
-                emitLine(svg, line);
+                emitLine(svg, line, coordinates);
             } else if (primitive instanceof final DocPrimitiveOvalInst oval) {
-                emitOval(svg, oval);
+                emitOval(svg, oval, coordinates);
             } else if (primitive instanceof final DocPrimitivePolygonInst polygon) {
                 emitPolygon(svg, polygon);
             } else if (primitive instanceof final DocPrimitivePolylineInst polyline) {
                 emitPolyline(svg, polyline);
             } else if (primitive instanceof final DocPrimitiveRasterInst raster) {
-                emitRaster(svg, raster);
+                emitRaster(svg, raster, coordinates);
             } else if (primitive instanceof final DocPrimitiveRectangleInst rect) {
-                emitRectangle(svg, rect);
+                emitRectangle(svg, rect, coordinates);
             } else if (primitive instanceof final DocPrimitiveSpanInst span) {
                 emitSpan(svg, span);
             } else if (primitive instanceof final DocPrimitiveTextInst text) {
@@ -155,8 +163,8 @@ public enum PrimitiveContainerInstConverter {
      * Draws a border using a specified style.  The rectangle is calculated so the border will fall on the edges of the
      * drawing.
      *
-     * @param svg the {@code HtmlBuilder} to which to append
-     * @param width the drawing width, in pixels
+     * @param svg    the {@code HtmlBuilder} to which to append
+     * @param width  the drawing width, in pixels
      * @param height the drawing height, in pixels
      * @param border the border stroke style
      */
@@ -164,23 +172,23 @@ public enum PrimitiveContainerInstConverter {
 
         final double strokeWidth = border.getStrokeWidth();
         final double xy = strokeWidth * 0.5;
-        final double w = (double)width - strokeWidth;
-        final double h = (double)height - strokeWidth;
+        final double w = (double) width - strokeWidth;
+        final double h = (double) height - strokeWidth;
 
         drawRect(svg, xy, xy, w, h, border, null);
     }
 
     /**
-     * Draws a rectangle using a specified stroke style.  Coordinates and width/height define an outline on which
-     * the stroke is centered.
+     * Draws a rectangle using a specified stroke style.  Coordinates and width/height define an outline on which the
+     * stroke is centered.
      *
-     * @param svg the {@code HtmlBuilder} to which to append
-     * @param x the x coordinate of the top left corner
-     * @param y the y coordinate of the top left corner
-     * @param width the rectangle width, in pixels
+     * @param svg    the {@code HtmlBuilder} to which to append
+     * @param x      the x coordinate of the top left corner
+     * @param y      the y coordinate of the top left corner
+     * @param width  the rectangle width, in pixels
      * @param height the rectangle height, in pixels
      * @param stroke the stroke style
-     * @param fill the fill style
+     * @param fill   the fill style
      */
     private static void drawRect(final HtmlBuilder svg, final double x, final double y, final double width,
                                  final double height, final StrokeStyle stroke, final FillStyle fill) {
@@ -210,7 +218,7 @@ public enum PrimitiveContainerInstConverter {
             svg.addAttribute("stroke-width", Double.toString(strokeWidth), 0);
 
             final EStrokeCap cap = stroke.getCap();
-            if (cap== EStrokeCap.ROUND) {
+            if (cap == EStrokeCap.ROUND) {
                 svg.addAttribute("stroke-linecap", "round", 0);
             } else if (cap == EStrokeCap.SQUARE) {
                 svg.addAttribute("stroke-linecap", "square", 0);
@@ -250,8 +258,8 @@ public enum PrimitiveContainerInstConverter {
     }
 
     /**
-     * Draws an ellipse using a specified stroke style.  Coordinates and width/height define an outline on which
-     * the stroke is centered.
+     * Draws an ellipse using a specified stroke style.  Coordinates and width/height define an outline on which the
+     * stroke is centered.
      *
      * @param svg    the {@code HtmlBuilder} to which to append
      * @param x      the x coordinate of the top left corner
@@ -289,7 +297,7 @@ public enum PrimitiveContainerInstConverter {
             svg.addAttribute("stroke-width", Double.toString(strokeWidth), 0);
 
             final EStrokeCap cap = stroke.getCap();
-            if (cap== EStrokeCap.ROUND) {
+            if (cap == EStrokeCap.ROUND) {
                 svg.addAttribute("stroke-linecap", "round", 0);
             } else if (cap == EStrokeCap.SQUARE) {
                 svg.addAttribute("stroke-linecap", "square", 0);
@@ -331,15 +339,19 @@ public enum PrimitiveContainerInstConverter {
     /**
      * Emits the SVG for an erc.
      *
-     * @param svg the {@code HtmlBuilder} to which to append
-     * @param arc the arc
+     * @param svg         the {@code HtmlBuilder} to which to append
+     * @param arc         the arc
+     * @param coordinates the coordinate system
      */
-    private static void emitArc(final HtmlBuilder svg, final DocPrimitiveArcInst arc) {
+    private static void emitArc(final HtmlBuilder svg, final DocPrimitiveArcInst arc,
+                                final CoordinateSystems coordinates) {
 
-        final BoundingRect bounds = arc.getBounds();
+        final RectangleShapeInst shape = arc.getShape();
+        final Rectangle2D bounds = shape.getBoundsRect(coordinates);
 
         final double arcAngle = arc.getArcAngle();
         if (arcAngle < -360.0 || arcAngle > 360.0) {
+
             drawEllipse(svg, bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight(), arc.getStrokeStyle(),
                     arc.getFillStyle());
         } else {
@@ -441,10 +453,12 @@ public enum PrimitiveContainerInstConverter {
     /**
      * Emits the SVG for a line.
      *
-     * @param svg the {@code HtmlBuilder} to which to append
-     * @param line the line
+     * @param svg         the {@code HtmlBuilder} to which to append
+     * @param line        the line
+     * @param coordinates the coordinate system
      */
-    private static void emitLine(final HtmlBuilder svg, final DocPrimitiveLineInst line) {
+    private static void emitLine(final HtmlBuilder svg, final DocPrimitiveLineInst line,
+                                 final CoordinateSystems coordinates) {
 
         final StrokeStyle stroke = line.getStrokeStyle();
         if (stroke != null) {
@@ -453,7 +467,9 @@ public enum PrimitiveContainerInstConverter {
 
             if (strokeWidth > 0.0 && alpha > 0.0) {
 
-                final BoundingRect bounds = line.getBounds();
+                final RectangleShapeInst shape = line.getShape();
+                final Rectangle2D bounds = shape.getBoundsRect(coordinates);
+
                 final double x1 = bounds.getX();
                 final double y1 = bounds.getY();
                 final double x2 = x1 + bounds.getWidth();
@@ -504,12 +520,16 @@ public enum PrimitiveContainerInstConverter {
     /**
      * Emits the SVG for an oval.
      *
-     * @param svg the {@code HtmlBuilder} to which to append
-     * @param oval the oval
+     * @param svg         the {@code HtmlBuilder} to which to append
+     * @param oval        the oval
+     * @param coordinates the coordinate system
      */
-    private static void emitOval(final HtmlBuilder svg, final DocPrimitiveOvalInst oval) {
+    private static void emitOval(final HtmlBuilder svg, final DocPrimitiveOvalInst oval,
+                                 final CoordinateSystems coordinates) {
 
-        final BoundingRect bounds = oval.getBounds();
+        final RectangleShapeInst shape = oval.getShape();
+        final Rectangle2D bounds = shape.getBoundsRect(coordinates);
+
         final double x = bounds.getX();
         final double y = bounds.getY();
         final double w = bounds.getWidth();
@@ -524,7 +544,7 @@ public enum PrimitiveContainerInstConverter {
     /**
      * Emits the SVG for a polygon.
      *
-     * @param svg the {@code HtmlBuilder} to which to append
+     * @param svg     the {@code HtmlBuilder} to which to append
      * @param polygon the polygon
      */
     private static void emitPolygon(final HtmlBuilder svg, final DocPrimitivePolygonInst polygon) {
@@ -605,7 +625,7 @@ public enum PrimitiveContainerInstConverter {
     /**
      * Emits the SVG for a polyline.
      *
-     * @param svg the {@code HtmlBuilder} to which to append
+     * @param svg      the {@code HtmlBuilder} to which to append
      * @param polyline the polyline
      */
     private static void emitPolyline(final HtmlBuilder svg, final DocPrimitivePolylineInst polyline) {
@@ -674,12 +694,16 @@ public enum PrimitiveContainerInstConverter {
     /**
      * Emits the SVG for a raster.
      *
-     * @param svg the {@code HtmlBuilder} to which to append
-     * @param raster the raster
+     * @param svg         the {@code HtmlBuilder} to which to append
+     * @param raster      the raster
+     * @param coordinates the coordinate system
      */
-    private static void emitRaster(final HtmlBuilder svg, final DocPrimitiveRasterInst raster) {
+    private static void emitRaster(final HtmlBuilder svg, final DocPrimitiveRasterInst raster,
+                                   final CoordinateSystems coordinates) {
 
-        final BoundingRect bounds = raster.getBounds();
+        final RectangleShapeInst shape = raster.getShape();
+        final Rectangle2D bounds = shape.getBoundsRect(coordinates);
+
         final double x = bounds.getX();
         final double y = bounds.getY();
         final double w = bounds.getWidth();
@@ -692,12 +716,16 @@ public enum PrimitiveContainerInstConverter {
     /**
      * Emits the SVG for a rectangle.
      *
-     * @param svg the {@code HtmlBuilder} to which to append
-     * @param rect the rectangle
+     * @param svg         the {@code HtmlBuilder} to which to append
+     * @param rect        the rectangle
+     * @param coordinates the coordinate system
      */
-    private static void emitRectangle(final HtmlBuilder svg, final DocPrimitiveRectangleInst rect) {
+    private static void emitRectangle(final HtmlBuilder svg, final DocPrimitiveRectangleInst rect,
+                                      final CoordinateSystems coordinates) {
 
-        final BoundingRect bounds = rect.getBounds();
+        final RectangleShapeInst shape = rect.getShape();
+        final Rectangle2D bounds = shape.getBoundsRect(coordinates);
+
         final double x = bounds.getX();
         final double y = bounds.getY();
         final double w = bounds.getWidth();
@@ -709,7 +737,7 @@ public enum PrimitiveContainerInstConverter {
     /**
      * Emits the SVG for a span.
      *
-     * @param svg the {@code HtmlBuilder} to which to append
+     * @param svg  the {@code HtmlBuilder} to which to append
      * @param span the span
      */
     private static void emitSpan(final HtmlBuilder svg, final DocPrimitiveSpanInst span) {
@@ -720,7 +748,7 @@ public enum PrimitiveContainerInstConverter {
     /**
      * Emits the SVG for a text.
      *
-     * @param svg the {@code HtmlBuilder} to which to append
+     * @param svg  the {@code HtmlBuilder} to which to append
      * @param text the text
      */
     private static void emitText(final HtmlBuilder svg, final DocPrimitiveTextInst text) {
@@ -749,7 +777,7 @@ public enum PrimitiveContainerInstConverter {
             final boolean isUnderline = (fontStyle & DocObjectInstStyle.UNDERLINE) == DocObjectInstStyle.UNDERLINE;
             final boolean isOverline = (fontStyle & DocObjectInstStyle.OVERLINE) == DocObjectInstStyle.OVERLINE;
             final boolean isStrikethrough = (fontStyle & DocObjectInstStyle.STRIKETHROUGH)
-                    == DocObjectInstStyle.STRIKETHROUGH;
+                                            == DocObjectInstStyle.STRIKETHROUGH;
 
             if (isUnderline || isOverline || isStrikethrough) {
                 final HtmlBuilder decoration = new HtmlBuilder(40);
@@ -777,7 +805,7 @@ public enum PrimitiveContainerInstConverter {
     /**
      * Emits the SVG for a formula.
      *
-     * @param svg the {@code HtmlBuilder} to which to append
+     * @param svg     the {@code HtmlBuilder} to which to append
      * @param formula the formula
      */
     private static void emitFormula(final HtmlBuilder svg, final DocPrimitiveFormulaInst formula) {

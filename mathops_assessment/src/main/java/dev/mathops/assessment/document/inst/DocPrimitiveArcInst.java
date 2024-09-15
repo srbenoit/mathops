@@ -1,6 +1,5 @@
 package dev.mathops.assessment.document.inst;
 
-import dev.mathops.assessment.document.BoundingRect;
 import dev.mathops.assessment.document.EArcFillStyle;
 import dev.mathops.assessment.document.EXmlStyle;
 import dev.mathops.assessment.document.FillStyle;
@@ -15,8 +14,8 @@ import java.util.Objects;
  */
 public final class DocPrimitiveArcInst extends AbstractPrimitiveInst {
 
-    /** The bounding rectangle. */
-    private final BoundingRect bounds;
+    /** The rectangular shape. */
+    private final RectangleShapeInst shape;
 
     /** The start angle, in degrees (zero is in the +x direction). */
     private final double startAngle;
@@ -36,27 +35,27 @@ public final class DocPrimitiveArcInst extends AbstractPrimitiveInst {
     /**
      * Construct a new {@code DocPrimitiveArcInst}.
      *
-     * @param theBounds      the bounding rectangle
+     * @param theShape       the rectangular shape
      * @param theStartAngle  the start angle, in degrees
      * @param theArcAngle    the arc angle, in degrees
      * @param theStrokeStyle the stroke style
      * @param theArcFill     the fill type for the arc
      * @param theFillStyle   the fill style
      */
-    public DocPrimitiveArcInst(final BoundingRect theBounds, final double theStartAngle, final double theArcAngle,
+    public DocPrimitiveArcInst(final RectangleShapeInst theShape, final double theStartAngle, final double theArcAngle,
                                final StrokeStyle theStrokeStyle, final EArcFillStyle theArcFill,
                                final FillStyle theFillStyle) {
 
         super();
 
-        if (theBounds == null) {
-            throw new IllegalArgumentException("Bounding rectangle may not be null");
+        if (theShape == null) {
+            throw new IllegalArgumentException("Shape may not be null");
         }
         if (theArcFill == null) {
             throw new IllegalArgumentException("Arc fill type may not be null");
         }
 
-        this.bounds = theBounds;
+        this.shape = theShape;
         this.startAngle = theStartAngle;
         this.arcAngle = theArcAngle;
         this.strokeStyle = theStrokeStyle;
@@ -65,13 +64,13 @@ public final class DocPrimitiveArcInst extends AbstractPrimitiveInst {
     }
 
     /**
-     * Gets the bounding rectangle.
+     * Gets the rectangular shape.
      *
-     * @return the bounding rectangle
+     * @return the rectangular shape
      */
-    public BoundingRect getBounds() {
+    public RectangleShapeInst getShape() {
 
-        return this.bounds;
+        return this.shape;
     }
 
     /**
@@ -127,9 +126,9 @@ public final class DocPrimitiveArcInst extends AbstractPrimitiveInst {
     /**
      * Write the XML representation of the object to an {@code HtmlBuilder}.
      *
-     * @param xml    the {@code HtmlBuilder} to which to write the XML
+     * @param xml      the {@code HtmlBuilder} to which to write the XML
      * @param xmlStyle the style to use when emitting XML
-     * @param indent the number of spaces to indent the printout
+     * @param indent   the number of spaces to indent the printout
      */
     public void toXml(final HtmlBuilder xml, final EXmlStyle xmlStyle, final int indent) {
 
@@ -138,7 +137,7 @@ public final class DocPrimitiveArcInst extends AbstractPrimitiveInst {
             xml.add(ind);
         }
         xml.add("<arc");
-        this.bounds.appendXmlAttributes(xml);
+        this.shape.addAttributes(xml);
         xml.addAttribute("start-angle", Double.toString(this.startAngle), 0);
         xml.addAttribute("arc-angle", Double.toString(this.arcAngle), 0);
         if (this.strokeStyle != null) {
@@ -166,7 +165,7 @@ public final class DocPrimitiveArcInst extends AbstractPrimitiveInst {
 
         final HtmlBuilder builder = new HtmlBuilder(200);
 
-        builder.add("DocPrimitiveArcInst{", this.bounds.toString(), ",startAngle=", Double.toString(this.startAngle),
+        builder.add("DocPrimitiveArcInst{", this.shape.toString(), ",startAngle=", Double.toString(this.startAngle),
                 ",arcAngle=", Double.toString(this.arcAngle), ",arcFill=", this.arcFill);
         if (this.strokeStyle != null) {
             builder.add(",", this.strokeStyle);
@@ -187,9 +186,9 @@ public final class DocPrimitiveArcInst extends AbstractPrimitiveInst {
     @Override
     public int hashCode() {
 
-        return this.bounds.hashCode() + Double.hashCode(this.startAngle) + Double.hashCode(this.arcAngle)
-                + Objects.hashCode(this.strokeStyle) + this.arcFill.hashCode()
-                + Objects.hashCode(this.fillStyle);
+        return this.shape.hashCode() + Double.hashCode(this.startAngle) + Double.hashCode(this.arcAngle)
+               + Objects.hashCode(this.strokeStyle) + this.arcFill.hashCode()
+               + Objects.hashCode(this.fillStyle);
     }
 
     /**
@@ -206,7 +205,7 @@ public final class DocPrimitiveArcInst extends AbstractPrimitiveInst {
         if (obj == this) {
             equal = true;
         } else if (obj instanceof final DocPrimitiveArcInst arc) {
-            equal = this.bounds.equals(arc.bounds)
+            equal = this.shape.equals(arc.shape)
                     && this.startAngle == arc.startAngle
                     && this.arcAngle == arc.arcAngle
                     && Objects.equals(this.strokeStyle, arc.strokeStyle)

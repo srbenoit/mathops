@@ -1,82 +1,82 @@
 package dev.mathops.assessment.document;
 
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.builder.SimpleBuilder;
 
 /**
- * A bounding rectangle specified by four {@code Number} objects.
+ * An immutable bounding rectangle specified by four {@code Number} objects.
  */
 public final class NumberBounds {
 
-    /** The minimum x coordinate. */
-    private final Number minX;
+    /** The x coordinate at the left edge. */
+    private final Number leftX;
 
-    /** The maximum x coordinate. */
-    private final Number maxX;
+    /** The x coordinate at the right edge. */
+    private final Number rightX;
 
-    /** The minimum y coordinate. */
-    private final Number minY;
+    /** The y coordinate at the bottom edge. */
+    private final Number bottomY;
 
-    /** The maximum y coordinate. */
-    private final Number maxY;
+    /** The y coordinate at the top edge. */
+    private final Number topY;
 
     /**
      * Constructs a new {@code NumberBounds}.
      *
-     * @param theMinX the minimum x coordinate
-     * @param theMaxX the maximum x coordinate
-     * @param theMinY the minimum y coordinate
-     * @param theMaxY the maximum y coordinate
+     * @param theLeftX   the x coordinate at the left edge
+     * @param theRightX  the x coordinate at the right edge
+     * @param theBottomY the y coordinate at the bottom edge
+     * @param theTopY    the y coordinate at the top edge
      */
-    public NumberBounds(final Number theMinX, final Number theMaxX, final Number theMinY, final Number theMaxY) {
+    public NumberBounds(final Number theLeftX, final Number theRightX, final Number theBottomY, final Number theTopY) {
 
-        if (theMinX == null || theMaxX == null || theMinY == null || theMaxY == null) {
+        if (theLeftX == null || theRightX == null || theBottomY == null || theTopY == null) {
             throw new IllegalArgumentException("Bounds values may not be null");
         }
 
-        this.minX = theMinX;
-        this.maxX = theMaxX;
-        this.minY = theMinY;
-        this.maxY = theMaxY;
+        this.leftX = theLeftX;
+        this.rightX = theRightX;
+        this.bottomY = theBottomY;
+        this.topY = theTopY;
     }
 
     /**
-     * Gets the minimum x coordinate.
+     * Gets the x coordinate at the left edge.
      *
-     * @return the minimum x coordinate
+     * @return the x coordinate at the left edge
      */
-    public Number getMinX() {
+    public Number getLeftX() {
 
-        return this.minX;
+        return this.leftX;
     }
 
     /**
-     * Gets the maximum x coordinate.
+     * Gets the x coordinate at the right edge.
      *
-     * @return the maximum x coordinate
+     * @return the x coordinate at the right edge
      */
-    public Number getMaxX() {
+    public Number getRightX() {
 
-        return this.maxX;
+        return this.rightX;
     }
 
     /**
-     * Gets the minimum y coordinate.
+     * Gets the y coordinate at the bottom edge.
      *
-     * @return the minimum y coordinate
+     * @return the y coordinate at the bottom edge
      */
-    public Number getMinY() {
+    public Number getBottomY() {
 
-        return this.minY;
+        return this.bottomY;
     }
 
     /**
-     * Gets the maximum y coordinate.
+     * Gets the y coordinate at the top edge.
      *
-     * @return the maximum y coordinate
+     * @return the y coordinate at the top edge
      */
-    public Number getMaxY() {
+    public Number getTopY() {
 
-        return this.maxY;
+        return this.topY;
     }
 
     /**
@@ -87,11 +87,8 @@ public final class NumberBounds {
     @Override
     public String toString() {
 
-        final HtmlBuilder builder = new HtmlBuilder(70);
-
-        builder.add("NumberBounds:minX=", this.minX, ",maxX=", this.maxX, ",minY=", this.minY, ",maxY=", this.maxY);
-
-        return builder.toString();
+        return SimpleBuilder.concat("NumberBounds:leftX=", this.leftX, ",rightX=", this.rightX, ",bottomY=",
+                this.bottomY, ",topY=", this.topY);
     }
 
     /**
@@ -102,7 +99,7 @@ public final class NumberBounds {
     @Override
     public int hashCode() {
 
-        return this.minX.hashCode() + this.maxX.hashCode() + this.minY.hashCode() + this.maxY.hashCode();
+        return this.leftX.hashCode() + this.rightX.hashCode() + this.bottomY.hashCode() + this.topY.hashCode();
     }
 
     /**
@@ -119,10 +116,10 @@ public final class NumberBounds {
         if (obj == this) {
             equal = true;
         } else if (obj instanceof final NumberBounds bounds) {
-            equal = this.minX.equals(bounds.minX)
-                    && this.maxX.equals(bounds.maxX)
-                    && this.minY.equals(bounds.minY)
-                    && this.maxY.equals(bounds.maxY);
+            equal = this.leftX.equals(bounds.leftX)
+                    && this.rightX.equals(bounds.rightX)
+                    && this.bottomY.equals(bounds.bottomY)
+                    && this.topY.equals(bounds.topY);
         } else {
             equal = false;
         }

@@ -1,6 +1,5 @@
 package dev.mathops.assessment.document.inst;
 
-import dev.mathops.assessment.document.BoundingRect;
 import dev.mathops.assessment.document.EXmlStyle;
 import dev.mathops.assessment.document.StrokeStyle;
 import dev.mathops.commons.CoreConstants;
@@ -11,8 +10,8 @@ import dev.mathops.commons.builder.HtmlBuilder;
  */
 public final class DocPrimitiveLineInst extends AbstractPrimitiveInst {
 
-    /** The bounding rectangle - the line is drawn from (x, y) to (x + width, y + height). */
-    private final BoundingRect bounds;
+    /** The rectangular shape. */
+    private final RectangleShapeInst shape;
 
     /** The stroke style. */
     private final StrokeStyle strokeStyle;
@@ -20,25 +19,29 @@ public final class DocPrimitiveLineInst extends AbstractPrimitiveInst {
     /**
      * Construct a new {@code DocPrimitiveLineInst}.
      *
-     * @param theBounds      the bounding rectangle - the line is drawn from (x, y) to (x + width, y + height)
+     * @param theShape       the rectangular shape (the line is drawn from the
      * @param theStrokeStyle the stroke style
      */
-    public DocPrimitiveLineInst(final BoundingRect theBounds, final StrokeStyle theStrokeStyle) {
+    public DocPrimitiveLineInst(final RectangleShapeInst theShape, final StrokeStyle theStrokeStyle) {
 
         super();
 
-        this.bounds = theBounds;
+        if (theShape == null) {
+            throw new IllegalArgumentException("Shape may not be null");
+        }
+
+        this.shape = theShape;
         this.strokeStyle = theStrokeStyle;
     }
 
     /**
-     * Gets the bounding rectangle.
+     * Gets the rectangular shape.
      *
-     * @return the bounding rectangle - the line is drawn from (x, y) to (x + width, y + height)
+     * @return the rectangular shape
      */
-    public BoundingRect getBounds() {
+    public RectangleShapeInst getShape() {
 
-        return this.bounds;
+        return this.shape;
     }
 
     /**
@@ -65,7 +68,7 @@ public final class DocPrimitiveLineInst extends AbstractPrimitiveInst {
             xml.add(ind);
         }
         xml.add("<line");
-        this.bounds.appendXmlAttributes(xml);
+        this.shape.addAttributes(xml);
         this.strokeStyle.appendXmlAttributes(xml, CoreConstants.EMPTY);
 
         if (xmlStyle == EXmlStyle.INDENTED) {
@@ -85,7 +88,7 @@ public final class DocPrimitiveLineInst extends AbstractPrimitiveInst {
 
         final HtmlBuilder builder = new HtmlBuilder(200);
 
-        builder.add("DocPrimitiveLineInst{", this.bounds.toString(), ",", this.strokeStyle, "}");
+        builder.add("DocPrimitiveLineInst{", this.shape.toString(), ",", this.strokeStyle, "}");
 
         return builder.toString();
     }
@@ -98,7 +101,7 @@ public final class DocPrimitiveLineInst extends AbstractPrimitiveInst {
     @Override
     public int hashCode() {
 
-        return this.bounds.hashCode() + this.strokeStyle.hashCode();
+        return this.shape.hashCode() + this.strokeStyle.hashCode();
     }
 
     /**
@@ -115,7 +118,7 @@ public final class DocPrimitiveLineInst extends AbstractPrimitiveInst {
         if (obj == this) {
             equal = true;
         } else if (obj instanceof final DocPrimitiveLineInst line) {
-            equal = this.bounds.equals(line.bounds) && this.strokeStyle.equals(line.strokeStyle);
+            equal = this.shape.equals(line.shape) && this.strokeStyle.equals(line.strokeStyle);
         } else {
             equal = false;
         }

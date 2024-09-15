@@ -1,6 +1,5 @@
 package dev.mathops.assessment.document.inst;
 
-import dev.mathops.assessment.document.BoundingRect;
 import dev.mathops.assessment.document.EXmlStyle;
 import dev.mathops.commons.builder.HtmlBuilder;
 
@@ -9,8 +8,8 @@ import dev.mathops.commons.builder.HtmlBuilder;
  */
 public final class DocPrimitiveRasterInst extends AbstractPrimitiveInst {
 
-    /** The bounding rectangle in which to place the image. */
-    private final BoundingRect bounds;
+    /** The rectangular shape. */
+    private final RectangleShapeInst shape;
 
     /** The URL from which to load the image. */
     private final String source;
@@ -21,34 +20,34 @@ public final class DocPrimitiveRasterInst extends AbstractPrimitiveInst {
     /**
      * Construct a new {@code DocPrimitiveRaster}.
      *
-     * @param theBounds the bounding rectangle in which to place the image
+     * @param theShape  the rectangular shape
      * @param theSource the URL from which to load the image
      * @param theAlpha  the alpha
      */
-    public DocPrimitiveRasterInst(final BoundingRect theBounds, final String theSource, final double theAlpha) {
+    public DocPrimitiveRasterInst(final RectangleShapeInst theShape, final String theSource, final double theAlpha) {
 
         super();
 
-        if (theBounds == null) {
-            throw new IllegalArgumentException("Bounding rectangle may not be null");
+        if (theShape == null) {
+            throw new IllegalArgumentException("Shape may not be null");
         }
         if (theSource == null) {
             throw new IllegalArgumentException("Source URL may not be null");
         }
 
-        this.bounds = theBounds;
+        this.shape = theShape;
         this.source = theSource;
         this.alpha = theAlpha;
     }
 
     /**
-     * Gets the bounding rectangle in which to place the image.
+     * Gets the rectangular shape.
      *
-     * @return the bounding rectangle
+     * @return the rectangular shape
      */
-    public BoundingRect getBounds() {
+    public RectangleShapeInst getShape() {
 
-        return this.bounds;
+        return this.shape;
     }
 
     /**
@@ -74,9 +73,9 @@ public final class DocPrimitiveRasterInst extends AbstractPrimitiveInst {
     /**
      * Write the XML representation of the object to an {@code HtmlBuilder}.
      *
-     * @param xml    the {@code HtmlBuilder} to which to write the XML
+     * @param xml      the {@code HtmlBuilder} to which to write the XML
      * @param xmlStyle the style to use when emitting XML
-     * @param indent the number of spaces to indent the printout
+     * @param indent   the number of spaces to indent the printout
      */
     public void toXml(final HtmlBuilder xml, final EXmlStyle xmlStyle, final int indent) {
 
@@ -85,7 +84,7 @@ public final class DocPrimitiveRasterInst extends AbstractPrimitiveInst {
             xml.add(ind);
         }
         xml.add("<raster");
-        this.bounds.appendXmlAttributes(xml);
+        this.shape.addAttributes(xml);
         xml.addAttribute("source", this.source, 0);
         if (Math.abs(this.alpha - 1.0) > 0.01) {
             xml.addAttribute("alpha", Double.toString(this.alpha), 0);
@@ -108,7 +107,7 @@ public final class DocPrimitiveRasterInst extends AbstractPrimitiveInst {
 
         final HtmlBuilder builder = new HtmlBuilder(200);
 
-        builder.add("DocPrimitiveRasterInst{", this.bounds.toString(), ",source=", this.source);
+        builder.add("DocPrimitiveRasterInst{", this.shape, ",source=", this.source);
         if (Math.abs(this.alpha - 1.0) > 0.01) {
             builder.add(",alpha=", Double.toString(this.alpha));
         }
@@ -125,7 +124,7 @@ public final class DocPrimitiveRasterInst extends AbstractPrimitiveInst {
     @Override
     public int hashCode() {
 
-        return this.bounds.hashCode() + this.source.hashCode() + Double.hashCode(this.alpha);
+        return this.shape.hashCode() + this.source.hashCode() + Double.hashCode(this.alpha);
     }
 
     /**
@@ -142,7 +141,7 @@ public final class DocPrimitiveRasterInst extends AbstractPrimitiveInst {
         if (obj == this) {
             equal = true;
         } else if (obj instanceof final DocPrimitiveRasterInst raster) {
-            equal = this.bounds.equals(raster.bounds)
+            equal = this.shape.equals(raster.shape)
                     && this.source.equals(raster.source)
                     && this.alpha == raster.alpha;
         } else {

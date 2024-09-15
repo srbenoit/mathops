@@ -3,6 +3,7 @@ package dev.mathops.assessment.document.template;
 import dev.mathops.assessment.NumberOrFormula;
 import dev.mathops.assessment.document.EStrokeCap;
 import dev.mathops.assessment.document.EStrokeJoin;
+import dev.mathops.assessment.document.NumberBounds;
 import dev.mathops.assessment.document.StrokeStyle;
 import dev.mathops.assessment.document.inst.DocPrimitiveFormulaInst;
 import dev.mathops.assessment.formula.AbstractFormulaObject;
@@ -120,6 +121,23 @@ final class DocPrimitiveFormula extends AbstractDocPrimitive {
             this.windowMinY = minY;
             this.windowMaxX = maxX;
             this.windowMaxY = maxY;
+        }
+    }
+
+    /**
+     * Set the graph window.
+     *
+     * @param window the window
+     */
+    void setWindow(final NumberBounds window) {
+
+        if (window == null) {
+            Log.warning("Missing window parameter - ignoring.");
+        } else {
+            this.windowMinX = window.getLeftX();
+            this.windowMinY = window.getBottomY();
+            this.windowMaxX = window.getRightX();
+            this.windowMaxY = window.getTopY();
         }
     }
 

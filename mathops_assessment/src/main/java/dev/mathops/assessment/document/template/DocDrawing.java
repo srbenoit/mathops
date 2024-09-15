@@ -43,8 +43,8 @@ public final class DocDrawing extends AbstractDocPrimitiveContainer {
     /**
      * Construct a new {@code DocDrawing}.
      *
-     * @param width  the width of the object
-     * @param height the height of the object
+     * @param width      the width of the object
+     * @param height     the height of the object
      * @param theAltText the alternative text for the generated image for accessibility
      */
     DocDrawing(final int width, final int height, final String theAltText) {
@@ -172,8 +172,8 @@ public final class DocDrawing extends AbstractDocPrimitiveContainer {
     /**
      * Draw the graph to an offscreen image.
      *
-     * @param forceWhite true to force background rectangle to be white if it is the first primitive in the drawing
-     *                   and it is filled
+     * @param forceWhite true to force background rectangle to be white if it is the first primitive in the drawing and
+     *                   it is filled
      * @param context    the evaluation context
      */
     @Override
@@ -296,7 +296,7 @@ public final class DocDrawing extends AbstractDocPrimitiveContainer {
     @Override
     public DocDrawingInst createInstance(final EvalContext evalContext) {
 
-        final DocObjectInstStyle objStyle = new DocObjectInstStyle(getColorName(), getFontName(), (float)getFontSize(),
+        final DocObjectInstStyle objStyle = new DocObjectInstStyle(getColorName(), getFontName(), (float) getFontSize(),
                 getFontStyle());
 
         final List<AbstractDocPrimitive> primitives = getPrimitives();
@@ -309,7 +309,8 @@ public final class DocDrawing extends AbstractDocPrimitiveContainer {
         final String alt = getAltText();
         final String actualAlt = alt == null ? null : generateStringContents(evalContext, alt);
 
-        return new DocDrawingInst(objStyle, null, getWidth(), getHeight(), actualAlt, null, primitivesInstList);
+        return new DocDrawingInst(objStyle, null, getWidth(), getHeight(), getCoordinates(), actualAlt, null,
+                primitivesInstList);
     }
 
     /**

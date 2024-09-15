@@ -1,13 +1,12 @@
 package dev.mathops.assessment.document.template;
 
 import dev.mathops.assessment.EParserMode;
-import dev.mathops.assessment.NumberOrFormula;
-import dev.mathops.assessment.document.BoundingRect;
 import dev.mathops.assessment.document.EStrokeCap;
 import dev.mathops.assessment.document.EStrokeJoin;
 import dev.mathops.assessment.document.FillStyle;
 import dev.mathops.assessment.document.StrokeStyle;
 import dev.mathops.assessment.document.inst.DocPrimitiveOvalInst;
+import dev.mathops.assessment.document.inst.RectangleShapeInst;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.assessment.variable.VariableFactory;
 import dev.mathops.commons.CoreConstants;
@@ -20,7 +19,10 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.Stroke;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Rectangle2D;
 import java.io.Serial;
 import java.util.Arrays;
 import java.util.Objects;
@@ -29,23 +31,11 @@ import java.util.Set;
 /**
  * An oval primitive.
  */
-final class DocPrimitiveOval extends AbstractDocPrimitive {
+final class DocPrimitiveOval extends AbstractDocRectangleShape {
 
     /** Version number for serialization. */
     @Serial
     private static final long serialVersionUID = -3190659746792873317L;
-
-    /** The x coordinate formula. */
-    private NumberOrFormula xCoord;
-
-    /** The y coordinate formula. */
-    private NumberOrFormula yCoord;
-
-    /** The width formula. */
-    private NumberOrFormula width;
-
-    /** The height formula. */
-    private NumberOrFormula height;
 
     /** The filled flag. */
     private Boolean filled;
@@ -73,86 +63,6 @@ final class DocPrimitiveOval extends AbstractDocPrimitive {
     DocPrimitiveOval(final AbstractDocPrimitiveContainer theOwner) {
 
         super(theOwner);
-    }
-
-    /**
-     * Sets the x coordinate.
-     *
-     * @param theXCoord the x coordinate
-     */
-    void setXCoord(final NumberOrFormula theXCoord) {
-
-        this.xCoord = theXCoord;
-    }
-
-//    /**
-//     * Gets the x coordinate.
-//     *
-//     * @return the x coordinate
-//     */
-//    public NumberOrFormula getXCoord() {
-//
-//        return this.xCoord;
-//    }
-
-    /**
-     * Sets the y coordinate.
-     *
-     * @param theYCoord the y coordinate
-     */
-    void setYCoord(final NumberOrFormula theYCoord) {
-
-        this.yCoord = theYCoord;
-    }
-
-//    /**
-//     * Gets the y coordinate.
-//     *
-//     * @return the y coordinate
-//     */
-//    public NumberOrFormula getYCoord() {
-//
-//        return this.yCoord;
-//    }
-
-    /**
-     * Sets the width.
-     *
-     * @param theWidth the width
-     */
-    public void setWidth(final NumberOrFormula theWidth) {
-
-        this.width = theWidth;
-    }
-
-    /**
-     * Gets the width.
-     *
-     * @return the width
-     */
-    public NumberOrFormula getWidth() {
-
-        return this.width;
-    }
-
-    /**
-     * Sets the height.
-     *
-     * @param theHeight the height
-     */
-    public void setHeight(final NumberOrFormula theHeight) {
-
-        this.height = theHeight;
-    }
-
-    /**
-     * Gets the height.
-     *
-     * @return the height
-     */
-    public NumberOrFormula getHeight() {
-
-        return this.height;
     }
 
     /**
@@ -227,20 +137,10 @@ final class DocPrimitiveOval extends AbstractDocPrimitive {
 
         final DocPrimitiveOval copy = new DocPrimitiveOval(theOwner);
 
-        if (this.xCoord != null) {
-            copy.xCoord = this.xCoord.deepCopy();
-        }
-
-        if (this.yCoord != null) {
-            copy.yCoord = this.yCoord.deepCopy();
-        }
-
-        if (this.width != null) {
-            copy.width = this.width.deepCopy();
-        }
-
-        if (this.height != null) {
-            copy.height = this.height.deepCopy();
+        final RectangleShapeTemplate myShape = getShape();
+        if (myShape != null) {
+            final RectangleShapeTemplate myShapeCopy = myShape.deepCopy();
+            copy.setShape(myShapeCopy);
         }
 
         copy.filled = this.filled;
@@ -276,22 +176,6 @@ final class DocPrimitiveOval extends AbstractDocPrimitive {
             ok = true;
         } else {
             switch (name) {
-                case "x" -> {
-                    this.xCoord = parseNumberOrFormula(theValue, elem, mode, "x", "oval primitive");
-                    ok = this.xCoord != null;
-                }
-                case "y" -> {
-                    this.yCoord = parseNumberOrFormula(theValue, elem, mode, "y", "oval primitive");
-                    ok = this.yCoord != null;
-                }
-                case "width" -> {
-                    this.width = parseNumberOrFormula(theValue, elem, mode, "width", "oval primitive");
-                    ok = this.width != null;
-                }
-                case "height" -> {
-                    this.height = parseNumberOrFormula(theValue, elem, mode, "height", "oval primitive");
-                    ok = this.height != null;
-                }
                 case "filled" -> {
                     try {
                         this.filled = VariableFactory.parseBooleanValue(theValue);
@@ -350,101 +234,69 @@ final class DocPrimitiveOval extends AbstractDocPrimitive {
     @Override
     public void draw(final Graphics2D grx, final EvalContext context) {
 
-        Object result;
+        final Rectangle2D bounds = getBoundsRect(context);
 
-        // Evaluate formulae
-        Long x = null;
-        if (this.xCoord != null) {
-            result = this.xCoord.evaluate(context);
+        if (bounds != null) {
 
-            if (result instanceof final Long longResult) {
-                x = longResult;
-            } else if (result instanceof final Number numResult) {
-                x = Long.valueOf(Math.round(numResult.doubleValue()));
-            }
-        }
-
-        Long y = null;
-        if (this.yCoord != null) {
-            result = this.yCoord.evaluate(context);
-
-            if (result instanceof final Long longResult) {
-                y = longResult;
-            } else if (result instanceof final Number numResult) {
-                y = Long.valueOf(Math.round(numResult.doubleValue()));
-            }
-        }
-
-        Long w = null;
-        if (this.width != null) {
-            result = this.width.evaluate(context);
-
-            if (result instanceof final Long longResult) {
-                w = longResult;
-            } else if (result instanceof final Number numResult) {
-                w = Long.valueOf(Math.round(numResult.doubleValue()));
-            }
-        }
-
-        Long h = null;
-        if (this.height != null) {
-            result = this.height.evaluate(context);
-
-            if (result instanceof final Long longResult) {
-                h = longResult;
-            } else if (result instanceof final Number numResult) {
-                h = Long.valueOf(Math.round(numResult.doubleValue()));
-            }
-        }
-
-        if (this.color != null) {
-            grx.setColor(this.color);
-        } else {
-            grx.setColor(Color.BLACK);
-        }
-
-        Composite origComp = null;
-        final Stroke origStroke;
-
-        if (this.alpha != null) {
-            origComp = grx.getComposite();
-            grx.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
-                    (float) this.alpha.doubleValue()));
-        }
-
-        origStroke = grx.getStroke();
-
-        if (this.strokeWidth != null) {
-
-            if (this.dash != null) {
-                grx.setStroke(new BasicStroke((float) this.strokeWidth.doubleValue(),
-                        BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 10.0f, this.dash, 0.0f));
+            if (this.color != null) {
+                grx.setColor(this.color);
             } else {
-                grx.setStroke(new BasicStroke((float) this.strokeWidth.doubleValue()));
+                grx.setColor(Color.BLACK);
             }
-        } else if (this.dash != null) {
-            grx.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER,
-                    10.0f, this.dash, 0.0f));
-        }
 
-        if (x != null && y != null && w != null && h != null) {
+            Composite origComp = null;
+            final Stroke origStroke;
+
+            if (this.alpha != null) {
+                origComp = grx.getComposite();
+                grx.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+                        (float) this.alpha.doubleValue()));
+            }
+
+            origStroke = grx.getStroke();
+
+            if (this.strokeWidth != null) {
+
+                if (this.dash != null) {
+                    grx.setStroke(new BasicStroke((float) this.strokeWidth.doubleValue(),
+                            BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 10.0f, this.dash, 0.0f));
+                } else {
+                    grx.setStroke(new BasicStroke((float) this.strokeWidth.doubleValue()));
+                }
+            } else if (this.dash != null) {
+                grx.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER,
+                        10.0f, this.dash, 0.0f));
+            }
+
+            double x = bounds.getX();
+            double y = bounds.getY();
+            double width = bounds.getWidth();
+            double height = bounds.getHeight();
+
+            if (width < 0.0) {
+                x += width;
+                width = -width;
+            }
+            if (height < 0.0) {
+                y += height;
+                height = -height;
+            }
+
+            final Shape scaled = new Ellipse2D.Double(x * (double) this.scale, y * (double) this.scale,
+                    width * (double) this.scale, height * (double) this.scale);
 
             if (isFilled()) {
-                grx.fillOval((int) (x.floatValue() * this.scale),
-                        (int) (y.floatValue() * this.scale), (int) (w.floatValue() * this.scale),
-                        (int) (h.floatValue() * this.scale));
+                grx.fill(scaled);
             } else {
-                grx.drawOval((int) (x.floatValue() * this.scale),
-                        (int) (y.floatValue() * this.scale), (int) (w.floatValue() * this.scale),
-                        (int) (h.floatValue() * this.scale));
+                grx.draw(scaled);
             }
-        }
 
-        if (origComp != null) {
-            grx.setComposite(origComp);
-        }
+            if (origComp != null) {
+                grx.setComposite(origComp);
+            }
 
-        grx.setStroke(origStroke);
+            grx.setStroke(origStroke);
+        }
     }
 
     /**
@@ -471,19 +323,10 @@ final class DocPrimitiveOval extends AbstractDocPrimitive {
     @Override
     public DocPrimitiveOvalInst createInstance(final EvalContext evalContext) {
 
-        final Object xVal = this.xCoord == null ? null : this.xCoord.evaluate(evalContext);
-        final Object yVal = this.yCoord == null ? null : this.yCoord.evaluate(evalContext);
-        final Object wVal = this.width == null ? null : this.width.evaluate(evalContext);
-        final Object hVal = this.height == null ? null : this.height.evaluate(evalContext);
+        final RectangleShapeTemplate shape = getShape();
+        DocPrimitiveOvalInst result = null;
 
-        final DocPrimitiveOvalInst result;
-
-        if (xVal instanceof final Number xNbr && yVal instanceof final Number yNbr
-                && wVal instanceof final Number wNbr && hVal instanceof final Number hNbr) {
-
-            final BoundingRect rect = new BoundingRect(xNbr.doubleValue(), yNbr.doubleValue(),
-                    wNbr.doubleValue(), hNbr.doubleValue());
-
+        if (Objects.nonNull(shape)) {
             final double strokeW = this.strokeWidth == null ? 0.0 : this.strokeWidth.doubleValue();
             final double alphaValue = this.alpha == null ? 1.0 : this.alpha.doubleValue();
 
@@ -491,11 +334,11 @@ final class DocPrimitiveOval extends AbstractDocPrimitive {
                     this.colorName, this.dash, alphaValue, EStrokeCap.BUTT, EStrokeJoin.MITER,
                     10.0f);
 
-            final FillStyle fill = Boolean.TRUE.equals(this.filled) ? new FillStyle(this.colorName, alphaValue) : null;
+            final FillStyle fill = Boolean.TRUE.equals(this.filled) ? new FillStyle(this.colorName, alphaValue) :
+                    null;
 
-            result = new DocPrimitiveOvalInst(rect, stroke, fill);
-        } else {
-            result = null;
+            final RectangleShapeInst shapeInst = getShape().createInstance(evalContext);
+            result = new DocPrimitiveOvalInst(shapeInst, stroke, fill);
         }
 
         return result;
@@ -515,20 +358,9 @@ final class DocPrimitiveOval extends AbstractDocPrimitive {
 
         xml.add(ind, "<oval");
 
-        if (this.xCoord != null && this.xCoord.getNumber() != null) {
-            xml.add(" x=\"", this.xCoord.getNumber(), CoreConstants.QUOTE);
-        }
-
-        if (this.yCoord != null && this.yCoord.getNumber() != null) {
-            xml.add(" y=\"", this.yCoord.getNumber(), CoreConstants.QUOTE);
-        }
-
-        if (this.width != null && this.width.getNumber() != null) {
-            xml.add(" width=\"", this.width.getNumber(), CoreConstants.QUOTE);
-        }
-
-        if (this.height != null && this.height.getNumber() != null) {
-            xml.add(" height=\"", this.height.getNumber(), CoreConstants.QUOTE);
+        final RectangleShapeTemplate shape = getShape();
+        if (shape != null) {
+            shape.addAttributes(xml);
         }
 
         if (this.filled != null) {
@@ -560,38 +392,11 @@ final class DocPrimitiveOval extends AbstractDocPrimitive {
             xml.add(" stroke-width=\"", this.strokeWidth, CoreConstants.QUOTE);
         }
 
-        if ((this.xCoord == null || this.xCoord.getFormula() == null)
-                && (this.yCoord == null || this.yCoord.getFormula() == null)
-                && (this.width == null || this.width.getFormula() == null)
-                && (this.height == null || this.height.getFormula() == null)) {
+        if (shape == null || shape.isConstant()) {
             xml.addln("/>");
         } else {
             xml.addln(">");
-
-            if (this.xCoord != null && this.xCoord.getFormula() != null) {
-                xml.add(ind2, "<x>");
-                this.xCoord.getFormula().appendChildrenXml(xml);
-                xml.addln("</x>");
-            }
-
-            if (this.yCoord != null && this.yCoord.getFormula() != null) {
-                xml.add(ind2, "<y>");
-                this.yCoord.getFormula().appendChildrenXml(xml);
-                xml.addln("</y>");
-            }
-
-            if (this.width != null && this.width.getFormula() != null) {
-                xml.add(ind2, "<width>");
-                this.width.getFormula().appendChildrenXml(xml);
-                xml.addln("</width>");
-            }
-
-            if (this.height != null && this.height.getFormula() != null) {
-                xml.add(ind2, "<height>");
-                this.height.getFormula().appendChildrenXml(xml);
-                xml.addln("</height>");
-            }
-
+            shape.addChildElements(xml, indent + 1);
             xml.addln(ind, "</oval>");
         }
     }
@@ -615,20 +420,9 @@ final class DocPrimitiveOval extends AbstractDocPrimitive {
     @Override
     public void accumulateParameterNames(final Set<String> set) { // Do NOT change to "? super String"
 
-        if (this.xCoord != null && this.xCoord.getFormula() != null) {
-            set.addAll(this.xCoord.getFormula().params.keySet());
-        }
-
-        if (this.yCoord != null && this.yCoord.getFormula() != null) {
-            set.addAll(this.yCoord.getFormula().params.keySet());
-        }
-
-        if (this.width != null && this.width.getFormula() != null) {
-            set.addAll(this.width.getFormula().params.keySet());
-        }
-
-        if (this.height != null && this.height.getFormula() != null) {
-            set.addAll(this.height.getFormula().params.keySet());
+        final RectangleShapeTemplate shape = getShape();
+        if (shape != null) {
+            shape.accumulateParameterNames(set);
         }
     }
 
@@ -640,16 +434,13 @@ final class DocPrimitiveOval extends AbstractDocPrimitive {
     @Override
     public int hashCode() {
 
-        return Objects.hashCode(this.xCoord)
-                + Objects.hashCode(this.yCoord)
-                + Objects.hashCode(this.width)
-                + Objects.hashCode(this.height)
-                + Objects.hashCode(this.filled)
-                + Objects.hashCode(this.colorName)
-                + Objects.hashCode(this.color)
-                + Objects.hashCode(this.alpha)
-                + Objects.hashCode(this.strokeWidth)
-                + Objects.hashCode(this.dash);
+        return Objects.hashCode(getShape())
+               + Objects.hashCode(this.filled)
+               + Objects.hashCode(this.colorName)
+               + Objects.hashCode(this.color)
+               + Objects.hashCode(this.alpha)
+               + Objects.hashCode(this.strokeWidth)
+               + Objects.hashCode(this.dash);
     }
 
     /**
@@ -666,10 +457,7 @@ final class DocPrimitiveOval extends AbstractDocPrimitive {
         if (obj == this) {
             equal = true;
         } else if (obj instanceof final DocPrimitiveOval oval) {
-            equal = Objects.equals(this.xCoord, oval.xCoord)
-                    && Objects.equals(this.yCoord, oval.yCoord)
-                    && Objects.equals(this.width, oval.width)
-                    && Objects.equals(this.height, oval.height)
+            equal = Objects.equals(getShape(), oval.getShape())
                     && Objects.equals(this.filled, oval.filled)
                     && Objects.equals(this.colorName, oval.colorName)
                     && Objects.equals(this.color, oval.color)

@@ -4,9 +4,11 @@ import dev.mathops.assessment.Irrational;
 import dev.mathops.assessment.document.AxisSpec;
 import dev.mathops.assessment.document.AxisTicksSpec;
 import dev.mathops.assessment.document.BoundingRect;
+import dev.mathops.assessment.document.CoordinateSystems;
 import dev.mathops.assessment.document.EStrokeCap;
 import dev.mathops.assessment.document.EStrokeJoin;
 import dev.mathops.assessment.document.GridSpec;
+import dev.mathops.assessment.document.NumberBounds;
 import dev.mathops.assessment.document.StrokeStyle;
 import dev.mathops.assessment.document.inst.AbstractPrimitiveInst;
 import dev.mathops.assessment.document.inst.DocGraphXYInst;
@@ -52,18 +54,6 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
 
     /** A formatter to truncate tick mark labels. */
     private static final NumberFormat format;
-
-    /** The min x coordinate of the window that the graph shows. */
-    private Number windowMinX;
-
-    /** The max x coordinate of the window that the graph shows. */
-    private Number windowMaxX;
-
-    /** The min y coordinate of the window that the graph shows. */
-    private Number windowMinY;
-
-    /** The max y coordinate of the window that the graph shows. */
-    private Number windowMaxY;
 
     /** The interval between X tick marks and grid lines (0 to hide). */
     Number xTickInterval;
@@ -149,10 +139,14 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
         super(width, height, theAltText);
 
         // Set up a default window (-5 to 5 on both axes, like TI-83)
-        this.windowMinX = Long.valueOf(-5L);
-        this.windowMaxX = Long.valueOf(5L);
-        this.windowMinY = Long.valueOf(-5L);
-        this.windowMaxY = Long.valueOf(5L);
+        final NumberBounds window = new NumberBounds(Long.valueOf(-5L), Long.valueOf(5L), Long.valueOf(-5L),
+                Long.valueOf(5L));
+
+        // Border width for a "graph" defaults to 1, so update our coordinate system
+        final Integer widthObj = Integer.valueOf(width);
+        final Integer heightObj = Integer.valueOf(height);
+        final Integer borderObj = Integer.valueOf(1);
+        setCoordinates(new CoordinateSystems(widthObj, heightObj, borderObj, window));
     }
 
     /**
@@ -167,11 +161,8 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
         final DocGraphXY copy = new DocGraphXY(this.origWidth, this.origHeight, alt);
 
         copy.copyObjectFromContainer(this);
+        copy.setCoordinates(getCoordinates());
 
-        copy.windowMinX = this.windowMinX;
-        copy.windowMaxX = this.windowMaxX;
-        copy.windowMinY = this.windowMinY;
-        copy.windowMaxY = this.windowMaxY;
         copy.xTickInterval = this.xTickInterval;
         copy.yTickInterval = this.yTickInterval;
 
@@ -198,46 +189,6 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
         return copy;
     }
 
-//    /**
-//     * Get the left edge of the window.
-//     *
-//     * @return the minimum X value of the window
-//     */
-//    public Number getMinX() {
-//
-//        return this.windowMinX;
-//    }
-
-//    /**
-//     * Get the right edge of the window.
-//     *
-//     * @return the maximum X value of the window
-//     */
-//    public Number getMaxX() {
-//
-//        return this.windowMaxX;
-//    }
-
-//    /**
-//     * Get the top edge of the window.
-//     *
-//     * @return the minimum Y value of the window
-//     */
-//    public Number getMinY() {
-//
-//        return this.windowMinY;
-//    }
-
-//    /**
-//     * Get the bottom edge of the window.
-//     *
-//     * @return the maximum Y value of the window
-//     */
-//    public Number getMaxY() {
-//
-//        return this.windowMaxY;
-//    }
-
     /**
      * Set the graph window.
      *
@@ -251,32 +202,17 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
         if (minX == null || maxX == null || minY == null || maxY == null) {
             Log.warning("Missing window parameter - ignoring.");
         } else {
-            this.windowMinX = minX;
-            this.windowMaxX = maxX;
-            this.windowMinY = minY;
-            this.windowMaxY = maxY;
+            final NumberBounds window = new NumberBounds(minX, maxX, minY, maxY);
+
+            // Border width for a "graph" defaults to 1, so update our coordinate system
+            final int width = getWidth();
+            final int height = getHeight();
+            final Integer widthObj = Integer.valueOf(width);
+            final Integer heightObj = Integer.valueOf(height);
+            final Integer borderObj = Integer.valueOf(1);
+            setCoordinates(new CoordinateSystems(widthObj, heightObj, borderObj, window));
         }
     }
-
-//    /**
-//     * Gets the background color name.
-//     *
-//     * @return the color name
-//     */
-//    public String getBackgroundColorName() {
-//
-//        return this.backgroundColorName;
-//    }
-
-//    /**
-//     * Get the background color.
-//     *
-//     * @return the background color
-//     */
-//    public Color getBackgroundColor() {
-//
-//        return this.backgroundColor;
-//    }
 
     /**
      * Set the background color.
@@ -290,26 +226,6 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
         this.backgroundColor = color;
     }
 
-//    /**
-//     * Gets the border color name.
-//     *
-//     * @return the color name
-//     */
-//    public String getBorderColorName() {
-//
-//        return this.borderColorName;
-//    }
-
-//    /**
-//     * Get the border color.
-//     *
-//     * @return the border color
-//     */
-//    public Color getBorderColor() {
-//
-//        return this.borderColor;
-//    }
-
     /**
      * Set the border color.
      *
@@ -321,16 +237,6 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
         this.borderColorName = name;
         this.borderColor = color;
     }
-
-//    /**
-//     * Get the grid color.
-//     *
-//     * @return the grid color
-//     */
-//    public Color getGridColor() {
-//
-//        return this.gridColor;
-//    }
 
     /**
      * Set the grid color.
@@ -344,16 +250,6 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
         this.gridColor = color;
     }
 
-//    /**
-//     * Get the tick color.
-//     *
-//     * @return the tick color
-//     */
-//    public Color getTickColor() {
-//
-//        return this.tickColor;
-//    }
-
     /**
      * Set the tick color.
      *
@@ -365,16 +261,6 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
         this.tickColorName = name;
         this.tickColor = color;
     }
-
-//    /**
-//     * Get the axis color.
-//     *
-//     * @return the axis color
-//     */
-//    public Color getAxisColor() {
-//
-//        return this.axisColor;
-//    }
 
     /**
      * Set the axis color.
@@ -408,7 +294,7 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
 
         String lbl = format.format((double) mult * interval);
 
-        if (lbl.charAt(0) == '-') {
+        if ((int) lbl.charAt(0) == (int) '-') {
             lbl = "\u2212" + lbl.substring(1);
         }
 
@@ -475,11 +361,15 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
 
         g2d.setClip(bounds);
 
+        final CoordinateSystems coordinates = getCoordinates();
+        final NumberBounds graphBounds = coordinates.getGraphSpaceBounds();
+
         // Locate the X and Y axes.
-        final double minX = this.windowMinX.doubleValue();
-        final double minY = this.windowMinY.doubleValue();
-        final double maxX = this.windowMaxX.doubleValue();
-        final double maxY = this.windowMaxY.doubleValue();
+        final NumberBounds window = getCoordinates().getGraphSpaceBounds();
+        final double minX = window.getLeftX().doubleValue();
+        final double minY = window.getBottomY().doubleValue();
+        final double maxX = window.getRightX().doubleValue();
+        final double maxY = window.getTopY().doubleValue();
 
         int x = (int) ((double) bounds.width * (-minX) / (maxX - minX));
         final int axisX = ((x > 0) && (x < bounds.width)) ? x : -1;
@@ -804,7 +694,7 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
         for (final AbstractDocPrimitive primitive : getPrimitives()) {
 
             if (primitive instanceof final DocPrimitiveFormula formula) {
-                formula.setWindow(this.windowMinX, this.windowMaxX, this.windowMinY, this.windowMaxY);
+                formula.setWindow(window);
                 formula.setBounds(bounds);
             }
 
@@ -838,10 +728,11 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
             primitivesInstList.add(primitive.createInstance(evalContext));
         }
 
-        final double minX = this.windowMinX.doubleValue();
-        final double minY = this.windowMinY.doubleValue();
-        final double maxX = this.windowMaxX.doubleValue();
-        final double maxY = this.windowMaxY.doubleValue();
+        final NumberBounds window = getCoordinates().getGraphSpaceBounds();
+        final double minX = window.getLeftX().doubleValue();
+        final double minY = window.getBottomY().doubleValue();
+        final double maxX = window.getRightX().doubleValue();
+        final double maxY = window.getTopY().doubleValue();
         final BoundingRect bounds = new BoundingRect(minX, minY, maxX - minX, maxY - minY);
 
         final GridSpec grid = new GridSpec(this.gridWidth, this.gridColorName);
@@ -875,8 +766,8 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
         final String alt = getAltText();
         final String actualAlt = alt == null ? null : generateStringContents(evalContext, alt);
 
-        return new DocGraphXYInst(objStyle, this.backgroundColorName, getWidth(), getHeight(), actualAlt,
-                borderStyle, primitivesInstList, bounds, grid, xAxis, yAxis);
+        return new DocGraphXYInst(objStyle, this.backgroundColorName, getWidth(), getHeight(), getCoordinates(),
+                actualAlt, borderStyle, primitivesInstList, bounds, grid, xAxis, yAxis);
     }
 
     /**
@@ -892,8 +783,9 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
 
         printFormat(xml, 1.0f);
 
-        xml.add(" minx='", this.windowMinX, "' miny='", this.windowMinY, "' maxx='", this.windowMaxX, "' maxy='",
-                this.windowMaxY, "'");
+        final NumberBounds window = getCoordinates().getGraphSpaceBounds();
+        xml.add(" minx='", window.getLeftX(), "' miny='", window.getBottomY(), "' maxx='",
+                window.getRightX(), "' maxy='", window.getTopY(), "'");
 
         if (this.xTickInterval != null) {
             xml.add(" xtickinterval='", this.xTickInterval, "'");
@@ -1004,10 +896,6 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
     public int hashCode() {
 
         return primitiveContainerHashCode()
-               + Objects.hashCode(this.windowMinX)
-               + Objects.hashCode(this.windowMaxX)
-               + Objects.hashCode(this.windowMinY)
-               + Objects.hashCode(this.windowMaxY)
                + Objects.hashCode(this.xTickInterval)
                + Objects.hashCode(this.yTickInterval)
                + Objects.hashCode(this.backgroundColorName)
@@ -1042,10 +930,6 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
             equal = true;
         } else if (obj instanceof final DocGraphXY graph) {
             equal = primitiveContainerEquals(graph)
-                    && Objects.equals(this.windowMinX, graph.windowMinX)
-                    && Objects.equals(this.windowMaxX, graph.windowMaxX)
-                    && Objects.equals(this.windowMinY, graph.windowMinY)
-                    && Objects.equals(this.windowMaxY, graph.windowMaxY)
                     && Objects.equals(this.xTickInterval, graph.xTickInterval)
                     && Objects.equals(this.yTickInterval, graph.yTickInterval)
                     && Objects.equals(this.backgroundColorName,

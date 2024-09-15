@@ -1,6 +1,5 @@
 package dev.mathops.assessment.document.inst;
 
-import dev.mathops.assessment.document.BoundingRect;
 import dev.mathops.assessment.document.EXmlStyle;
 import dev.mathops.assessment.document.FillStyle;
 import dev.mathops.assessment.document.StrokeStyle;
@@ -14,8 +13,8 @@ import java.util.Objects;
  */
 public final class DocPrimitiveRectangleInst extends AbstractPrimitiveInst {
 
-    /** The bounding rectangle. */
-    private final BoundingRect bounds;
+    /** The rectangular shape. */
+    private final RectangleShapeInst shape;
 
     /** The stroke style, {@code null} if not stroked. */
     private final StrokeStyle strokeStyle;
@@ -26,32 +25,32 @@ public final class DocPrimitiveRectangleInst extends AbstractPrimitiveInst {
     /**
      * Construct a new {@code DocPrimitiveRectangleInst}.
      *
-     * @param theBounds      the bounding rectangle
+     * @param theShape       the rectangular shape
      * @param theStrokeStyle the stroke style; {@code null} if not stroked
      * @param theFillStyle   the fill style; {@code null} if not filled
      */
-    public DocPrimitiveRectangleInst(final BoundingRect theBounds, final StrokeStyle theStrokeStyle,
+    public DocPrimitiveRectangleInst(final RectangleShapeInst theShape, final StrokeStyle theStrokeStyle,
                                      final FillStyle theFillStyle) {
 
         super();
 
-        if (theBounds == null) {
-            throw new IllegalArgumentException("Bounding rectangle may not be null");
+        if (theShape == null) {
+            throw new IllegalArgumentException("Shape may not be null");
         }
 
-        this.bounds = theBounds;
+        this.shape = theShape;
         this.strokeStyle = theStrokeStyle;
         this.fillStyle = theFillStyle;
     }
 
     /**
-     * Gets the bounding rectangle.
+     * Gets the rectangular shape.
      *
-     * @return the bounding rectangle
+     * @return the rectangular shape
      */
-    public BoundingRect getBounds() {
+    public RectangleShapeInst getShape() {
 
-        return this.bounds;
+        return this.shape;
     }
 
     /**
@@ -77,9 +76,9 @@ public final class DocPrimitiveRectangleInst extends AbstractPrimitiveInst {
     /**
      * Write the XML representation of the object to an {@code HtmlBuilder}.
      *
-     * @param xml    the {@code HtmlBuilder} to which to write the XML
+     * @param xml      the {@code HtmlBuilder} to which to write the XML
      * @param xmlStyle the style to use when emitting XML
-     * @param indent the number of spaces to indent the printout
+     * @param indent   the number of spaces to indent the printout
      */
     public void toXml(final HtmlBuilder xml, final EXmlStyle xmlStyle, final int indent) {
 
@@ -88,7 +87,7 @@ public final class DocPrimitiveRectangleInst extends AbstractPrimitiveInst {
             xml.add(ind);
         }
         xml.add("<rectangle");
-        this.bounds.appendXmlAttributes(xml);
+        this.shape.addAttributes(xml);
         if (this.strokeStyle != null) {
             this.strokeStyle.appendXmlAttributes(xml, CoreConstants.EMPTY);
         }
@@ -113,7 +112,7 @@ public final class DocPrimitiveRectangleInst extends AbstractPrimitiveInst {
 
         final HtmlBuilder builder = new HtmlBuilder(200);
 
-        builder.add("DocPrimitiveRectangleInst{", this.bounds.toString());
+        builder.add("DocPrimitiveRectangleInst{", this.shape);
         if (this.strokeStyle != null) {
             builder.add(",", this.strokeStyle);
         }
@@ -133,8 +132,7 @@ public final class DocPrimitiveRectangleInst extends AbstractPrimitiveInst {
     @Override
     public int hashCode() {
 
-        return this.bounds.hashCode() + Objects.hashCode(this.strokeStyle)
-                + Objects.hashCode(this.fillStyle);
+        return this.shape.hashCode() + Objects.hashCode(this.strokeStyle) + Objects.hashCode(this.fillStyle);
     }
 
     /**
@@ -151,7 +149,7 @@ public final class DocPrimitiveRectangleInst extends AbstractPrimitiveInst {
         if (obj == this) {
             equal = true;
         } else if (obj instanceof final DocPrimitiveRectangleInst rect) {
-            equal = this.bounds.equals(rect.bounds)
+            equal = this.shape.equals(rect.shape)
                     && Objects.equals(this.strokeStyle, rect.strokeStyle)
                     && Objects.equals(this.fillStyle, rect.fillStyle);
         } else {

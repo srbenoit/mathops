@@ -2802,56 +2802,11 @@ public enum DocFactory {
 
         final DocPrimitiveLine p = new DocPrimitiveLine(container);
 
-        boolean valid = p.setAttr(X, e.getStringAttr(X), e, mode)
-                        && p.setAttr(Y, e.getStringAttr(Y), e, mode)
-                        && p.setAttr(WIDTH, e.getStringAttr(WIDTH), e, mode)
-                        && p.setAttr(HEIGHT, e.getStringAttr(HEIGHT), e, mode)
-                        && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
-                        && p.setAttr(STROKE_WIDTH, e.getStringAttr(STROKE_WIDTH), e, mode)
-                        && p.setAttr(DASH, e.getStringAttr(DASH), e, mode)
-                        && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
-
-        if (valid && e instanceof final NonemptyElement nonempty) {
-            for (final IElement child : nonempty.getElementChildrenAsList()) {
-                if (child instanceof final NonemptyElement formula) {
-                    final String tag = child.getTagName();
-
-                    if (X.equals(tag)) {
-                        final Formula theXCoord = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
-                        if (theXCoord == null) {
-                            e.logError("Invalid 'x' formula.");
-                            valid = false;
-                        } else {
-                            p.setXCoord(new NumberOrFormula(theXCoord));
-                        }
-                    } else if (Y.equals(tag)) {
-                        final Formula theYCoord = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
-                        if (theYCoord == null) {
-                            e.logError("Invalid 'y' formula.");
-                            valid = false;
-                        } else {
-                            p.setYCoord(new NumberOrFormula(theYCoord));
-                        }
-                    } else if (WIDTH.equals(tag)) {
-                        final Formula theWidth = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
-                        if (theWidth == null) {
-                            e.logError("Invalid 'width' formula.");
-                            valid = false;
-                        } else {
-                            p.setWidth(new NumberOrFormula(theWidth));
-                        }
-                    } else if (HEIGHT.equals(tag)) {
-                        final Formula theHeight = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
-                        if (theHeight == null) {
-                            e.logError("Invalid 'height' formula.");
-                            valid = false;
-                        } else {
-                            p.setHeight(new NumberOrFormula(theHeight));
-                        }
-                    }
-                }
-            }
-        }
+        final boolean valid = RectangleShapeTemplate.canExtract(evalContext, e, p, mode)
+                              && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
+                              && p.setAttr(STROKE_WIDTH, e.getStringAttr(STROKE_WIDTH), e, mode)
+                              && p.setAttr(DASH, e.getStringAttr(DASH), e, mode)
+                              && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
 
         if (valid) {
             container.addPrimitive(p);
@@ -2874,15 +2829,7 @@ public enum DocFactory {
 
         final DocPrimitiveArc p = new DocPrimitiveArc(container);
 
-        boolean valid = p.setAttr(X, e.getStringAttr(X), e, mode)
-                        && p.setAttr(Y, e.getStringAttr(Y), e, mode)
-                        && p.setAttr(WIDTH, e.getStringAttr(WIDTH), e, mode)
-                        && p.setAttr(HEIGHT, e.getStringAttr(HEIGHT), e, mode)
-                        && p.setAttr(CX, e.getStringAttr(CX), e, mode)
-                        && p.setAttr(CY, e.getStringAttr(CY), e, mode)
-                        && p.setAttr(R, e.getStringAttr(R), e, mode)
-                        && p.setAttr(RX, e.getStringAttr(RX), e, mode)
-                        && p.setAttr(RY, e.getStringAttr(RY), e, mode)
+        boolean valid = RectangleShapeTemplate.canExtract(evalContext, e, p, mode)
                         && p.setAttr(START_ANGLE, e.getStringAttr(START_ANGLE), e, mode)
                         && p.setAttr(ARC_ANGLE, e.getStringAttr(ARC_ANGLE), e, mode)
                         && p.setAttr(STROKE_WIDTH, e.getStringAttr(STROKE_WIDTH), e, mode)
@@ -2915,79 +2862,7 @@ public enum DocFactory {
                 if (child instanceof final NonemptyElement inner) {
                     final String tag = child.getTagName();
 
-                    if (X.equals(tag)) {
-                        final Formula theX = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
-                        if (theX == null) {
-                            e.logError("Invalid 'x' formula.");
-                            valid = false;
-                        } else {
-                            p.setXCoord(new NumberOrFormula(theX));
-                        }
-                    } else if (Y.equals(tag)) {
-                        final Formula theY = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
-                        if (theY == null) {
-                            e.logError("Invalid 'y' formula.");
-                            valid = false;
-                        } else {
-                            p.setYCoord(new NumberOrFormula(theY));
-                        }
-                    } else if (WIDTH.equals(tag)) {
-                        final Formula theWidth = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
-                        if (theWidth == null) {
-                            e.logError("Invalid 'width' formula.");
-                            valid = false;
-                        } else {
-                            p.setWidth(new NumberOrFormula(theWidth));
-                        }
-                    } else if (HEIGHT.equals(tag)) {
-                        final Formula theHeight = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
-                        if (theHeight == null) {
-                            e.logError("Invalid 'height' formula.");
-                            valid = false;
-                        } else {
-                            p.setHeight(new NumberOrFormula(theHeight));
-                        }
-                    } else if (CX.equals(tag)) {
-                        final Formula theCx = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
-                        if (theCx == null) {
-                            e.logError("Invalid 'cx' formula.");
-                            valid = false;
-                        } else {
-                            p.setCenterX(new NumberOrFormula(theCx));
-                        }
-                    } else if (CY.equals(tag)) {
-                        final Formula theCy = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
-                        if (theCy == null) {
-                            e.logError("Invalid 'cy' formula.");
-                            valid = false;
-                        } else {
-                            p.setCenterY(new NumberOrFormula(theCy));
-                        }
-                    } else if (R.equals(tag)) {
-                        final Formula theR = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
-                        if (theR == null) {
-                            e.logError("Invalid 'r' formula.");
-                            valid = false;
-                        } else {
-                            p.setRadius(new NumberOrFormula(theR));
-                        }
-                    } else if (RX.equals(tag)) {
-                        final Formula theRx = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
-                        if (theRx == null) {
-                            e.logError("Invalid 'rx' formula.");
-                            valid = false;
-                        } else {
-                            p.setXRadius(new NumberOrFormula(theRx));
-                        }
-                    } else if (RY.equals(tag)) {
-                        final Formula theRy = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
-                        if (theRy == null) {
-                            e.logError("Invalid 'ry' formula.");
-                            valid = false;
-                        } else {
-                            p.setYRadius(new NumberOrFormula(theRy));
-                        }
-                    } else if (START_ANGLE.equals(tag)) {
+                    if (START_ANGLE.equals(tag)) {
                         final Formula theStartAngle = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
                         if (theStartAngle == null) {
                             e.logError("Invalid 'start-angle' formula.");
@@ -3040,57 +2915,12 @@ public enum DocFactory {
 
         final DocPrimitiveOval p = new DocPrimitiveOval(container);
 
-        boolean valid = p.setAttr(X, e.getStringAttr(X), e, mode)
-                        && p.setAttr(Y, e.getStringAttr(Y), e, mode)
-                        && p.setAttr(WIDTH, e.getStringAttr(WIDTH), e, mode)
-                        && p.setAttr(HEIGHT, e.getStringAttr(HEIGHT), e, mode)
-                        && p.setAttr(FILLED, e.getStringAttr(FILLED), e, mode)
-                        && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
-                        && p.setAttr(STROKE_WIDTH, e.getStringAttr(STROKE_WIDTH), e, mode)
-                        && p.setAttr(DASH, e.getStringAttr(DASH), e, mode)
-                        && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
-
-        if (valid && e instanceof final NonemptyElement nonempty) {
-            for (final IElement child : nonempty.getElementChildrenAsList()) {
-                if (child instanceof final NonemptyElement formula) {
-                    final String tag = child.getTagName();
-
-                    if (X.equals(tag)) {
-                        final Formula theXCoord = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
-                        if (theXCoord == null) {
-                            e.logError("Invalid 'x' formula.");
-                            valid = false;
-                        } else {
-                            p.setXCoord(new NumberOrFormula(theXCoord));
-                        }
-                    } else if (Y.equals(tag)) {
-                        final Formula theYCoord = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
-                        if (theYCoord == null) {
-                            e.logError("Invalid 'y' formula.");
-                            valid = false;
-                        } else {
-                            p.setYCoord(new NumberOrFormula(theYCoord));
-                        }
-                    } else if (WIDTH.equals(tag)) {
-                        final Formula theWidth = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
-                        if (theWidth == null) {
-                            e.logError("Invalid 'width' formula.");
-                            valid = false;
-                        } else {
-                            p.setWidth(new NumberOrFormula(theWidth));
-                        }
-                    } else if (HEIGHT.equals(tag)) {
-                        final Formula theHeight = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
-                        if (theHeight == null) {
-                            e.logError("Invalid 'height' formula.");
-                            valid = false;
-                        } else {
-                            p.setHeight(new NumberOrFormula(theHeight));
-                        }
-                    }
-                }
-            }
-        }
+        final boolean valid = RectangleShapeTemplate.canExtract(evalContext, e, p, mode)
+                              && p.setAttr(FILLED, e.getStringAttr(FILLED), e, mode)
+                              && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
+                              && p.setAttr(STROKE_WIDTH, e.getStringAttr(STROKE_WIDTH), e, mode)
+                              && p.setAttr(DASH, e.getStringAttr(DASH), e, mode)
+                              && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
 
         if (valid) {
             container.addPrimitive(p);
@@ -3115,57 +2945,12 @@ public enum DocFactory {
 
         final DocPrimitiveRectangle p = new DocPrimitiveRectangle(container);
 
-        boolean valid = p.setAttr(X, e.getStringAttr(X), e, mode)
-                        && p.setAttr(Y, e.getStringAttr(Y), e, mode)
-                        && p.setAttr(WIDTH, e.getStringAttr(WIDTH), e, mode)
-                        && p.setAttr(HEIGHT, e.getStringAttr(HEIGHT), e, mode)
-                        && p.setAttr(FILLED, e.getStringAttr(FILLED), e, mode)
-                        && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
-                        && p.setAttr(STROKE_WIDTH, e.getStringAttr(STROKE_WIDTH), e, mode)
-                        && p.setAttr(DASH, e.getStringAttr(DASH), e, mode)
-                        && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
-
-        if (valid && e instanceof final NonemptyElement nonempty) {
-            for (final IElement child : nonempty.getElementChildrenAsList()) {
-                if (child instanceof final NonemptyElement formula) {
-                    final String tag = child.getTagName();
-
-                    if (X.equals(tag)) {
-                        final Formula theXCoord = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
-                        if (theXCoord == null) {
-                            e.logError("Invalid 'x' formula.");
-                            valid = false;
-                        } else {
-                            p.setXCoord(new NumberOrFormula(theXCoord));
-                        }
-                    } else if (Y.equals(tag)) {
-                        final Formula theYCoord = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
-                        if (theYCoord == null) {
-                            e.logError("Invalid 'y' formula.");
-                            valid = false;
-                        } else {
-                            p.setYCoord(new NumberOrFormula(theYCoord));
-                        }
-                    } else if (WIDTH.equals(tag)) {
-                        final Formula theWidth = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
-                        if (theWidth == null) {
-                            e.logError("Invalid 'width' formula.");
-                            valid = false;
-                        } else {
-                            p.setWidth(new NumberOrFormula(theWidth));
-                        }
-                    } else if (HEIGHT.equals(tag)) {
-                        final Formula theHeight = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
-                        if (theHeight == null) {
-                            e.logError("Invalid 'height' formula.");
-                            valid = false;
-                        } else {
-                            p.setHeight(new NumberOrFormula(theHeight));
-                        }
-                    }
-                }
-            }
-        }
+        final boolean valid = RectangleShapeTemplate.canExtract(evalContext, e, p, mode)
+                              && p.setAttr(FILLED, e.getStringAttr(FILLED), e, mode)
+                              && p.setAttr(COLOR, e.getStringAttr(COLOR), e, mode)
+                              && p.setAttr(STROKE_WIDTH, e.getStringAttr(STROKE_WIDTH), e, mode)
+                              && p.setAttr(DASH, e.getStringAttr(DASH), e, mode)
+                              && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
 
         if (valid) {
             container.addPrimitive(p);
@@ -3258,9 +3043,7 @@ public enum DocFactory {
 
         final DocPrimitiveProtractor p = new DocPrimitiveProtractor(container);
 
-        boolean valid = p.setAttr(CX, e.getStringAttr(CX), e, mode)
-                        && p.setAttr(CY, e.getStringAttr(CY), e, mode)
-                        && p.setAttr(R, e.getStringAttr(R), e, mode)
+        boolean valid = RectangleShapeTemplate.canExtract(evalContext, e, p, mode)
                         && p.setAttr(ORIENTATION, e.getStringAttr(ORIENTATION), e, mode)
                         && p.setAttr(UNITS, e.getStringAttr(UNITS), e, mode)
                         && p.setAttr(QUADRANTS, e.getStringAttr(QUADRANTS), e, mode)
@@ -3274,31 +3057,7 @@ public enum DocFactory {
                 if (child instanceof final NonemptyElement formula) {
                     final String tag = child.getTagName();
 
-                    if (CENTER_X.equals(tag)) {
-                        final Formula theCenterX = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
-                        if (theCenterX == null) {
-                            e.logError("Invalid 'center-x' formula in child element.");
-                            valid = false;
-                        } else {
-                            p.setCenterX(new NumberOrFormula(theCenterX));
-                        }
-                    } else if (CENTER_Y.equals(tag)) {
-                        final Formula theCenterY = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
-                        if (theCenterY == null) {
-                            e.logError("Invalid 'center-y' formula in child element.");
-                            valid = false;
-                        } else {
-                            p.setCenterY(new NumberOrFormula(theCenterY));
-                        }
-                    } else if (RADIUS.equals(tag)) {
-                        final Formula theRadius = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
-                        if (theRadius == null) {
-                            e.logError("Invalid 'radius' formula in child element.");
-                            valid = false;
-                        } else {
-                            p.setRadius(new NumberOrFormula(theRadius));
-                        }
-                    } else if (ORIENTATION.equals(tag)) {
+                    if (ORIENTATION.equals(tag)) {
                         final Formula theOrientation = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theOrientation == null) {
                             e.logError("Invalid 'orientation' formula in child element.");
@@ -3333,54 +3092,9 @@ public enum DocFactory {
 
         final DocPrimitiveRaster p = new DocPrimitiveRaster(container);
 
-        boolean valid = p.setAttr(X, e.getStringAttr(X), e, mode)
-                        && p.setAttr(Y, e.getStringAttr(Y), e, mode)
-                        && p.setAttr(WIDTH, e.getStringAttr(WIDTH), e, mode)
-                        && p.setAttr(HEIGHT, e.getStringAttr(HEIGHT), e, mode)
-                        && p.setAttr(SRC, e.getStringAttr(SRC), e, mode)
-                        && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
-
-        if (valid && e instanceof final NonemptyElement nonempty) {
-            for (final IElement child : nonempty.getElementChildrenAsList()) {
-                if (child instanceof final NonemptyElement formula) {
-                    final String tag = child.getTagName();
-
-                    if (X.equals(tag)) {
-                        final Formula theXCoord = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
-                        if (theXCoord == null) {
-                            e.logError("Invalid 'x' formula.");
-                            valid = false;
-                        } else {
-                            p.setXCoord(new NumberOrFormula(theXCoord));
-                        }
-                    } else if (Y.equals(tag)) {
-                        final Formula theYCoord = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
-                        if (theYCoord == null) {
-                            e.logError("Invalid 'y' formula.");
-                            valid = false;
-                        } else {
-                            p.setYCoord(new NumberOrFormula(theYCoord));
-                        }
-                    } else if (WIDTH.equals(tag)) {
-                        final Formula theWidth = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
-                        if (theWidth == null) {
-                            e.logError("Invalid 'width' formula.");
-                            valid = false;
-                        } else {
-                            p.setWidth(new NumberOrFormula(theWidth));
-                        }
-                    } else if (HEIGHT.equals(tag)) {
-                        final Formula theHeight = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
-                        if (theHeight == null) {
-                            e.logError("Invalid 'height' formula.");
-                            valid = false;
-                        } else {
-                            p.setHeight(new NumberOrFormula(theHeight));
-                        }
-                    }
-                }
-            }
-        }
+        final boolean valid = RectangleShapeTemplate.canExtract(evalContext, e, p, mode)
+                              && p.setAttr(SRC, e.getStringAttr(SRC), e, mode)
+                              && p.setAttr(ALPHA, e.getStringAttr(ALPHA), e, mode);
 
         if (valid) {
             container.addPrimitive(p);

@@ -1,5 +1,6 @@
 package dev.mathops.assessment.document.template;
 
+import dev.mathops.assessment.document.CoordinateSystems;
 import dev.mathops.assessment.document.ELayoutMode;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.builder.HtmlBuilder;
@@ -30,6 +31,9 @@ public abstract class AbstractDocPrimitiveContainer extends AbstractDocContainer
     /** The original height. */
     int origHeight;
 
+    /** The coordinate systems in which coordinates can be specified. */
+    private CoordinateSystems coordinates;
+
     /** The list of primitives that make up a drawing. */
     private final List<AbstractDocPrimitive> primitives;
 
@@ -42,8 +46,8 @@ public abstract class AbstractDocPrimitiveContainer extends AbstractDocContainer
     /**
      * Construct a new {@code AbstractDocPrimitiveContainer}.
      *
-     * @param width  the width of the object
-     * @param height the height of the object
+     * @param width      the width of the object
+     * @param height     the height of the object
      * @param theAltText the alternative text for the generated image for accessibility
      */
     AbstractDocPrimitiveContainer(final int width, final int height, final String theAltText) {
@@ -55,6 +59,11 @@ public abstract class AbstractDocPrimitiveContainer extends AbstractDocContainer
         setWidth(width);
         setHeight(height);
         this.primitives = new ArrayList<>(3);
+
+        final Integer widthObj = Integer.valueOf(width);
+        final Integer heightObj = Integer.valueOf(height);
+        final Integer borderObj = Integer.valueOf(0);
+        this.coordinates = new CoordinateSystems(widthObj, heightObj, borderObj);
 
         this.altText = theAltText;
     }
@@ -89,6 +98,28 @@ public abstract class AbstractDocPrimitiveContainer extends AbstractDocContainer
     public final BufferedImage getOffscreen() {
 
         return this.offscreen;
+    }
+
+    /**
+     * Sets the "coordinate systems in which coordinates can be specified.
+     *
+     * @param theCoordinates the new coordinate systems
+     */
+    public final void setCoordinates(final CoordinateSystems theCoordinates) {
+
+        if (theCoordinates != null) {
+            this.coordinates = theCoordinates;
+        }
+    }
+
+    /**
+     * Gets the "coordinate systems in which coordinates can be specified.
+     *
+     * @return the coordinate systems
+     */
+    public final CoordinateSystems getCoordinates() {
+
+        return this.coordinates;
     }
 
     /**
@@ -136,7 +167,7 @@ public abstract class AbstractDocPrimitiveContainer extends AbstractDocContainer
     final void innerCreateOffscreen(final int width, final int height) {
 
         if (this.offscreen == null || (this.offscreen.getWidth() != width)
-                || (this.offscreen.getHeight() != height)) {
+            || (this.offscreen.getHeight() != height)) {
             this.offscreen = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         }
     }
@@ -196,8 +227,8 @@ public abstract class AbstractDocPrimitiveContainer extends AbstractDocContainer
     /**
      * Appends the XML representation of all primitives.
      *
-     * @param builder    the {@code HtmlBuilder} to which to append
-     * @param indent the number of spaces to indent the printout
+     * @param builder the {@code HtmlBuilder} to which to append
+     * @param indent  the number of spaces to indent the printout
      */
     final void appendPrimitivesXml(final HtmlBuilder builder, final int indent) {
 
@@ -273,8 +304,8 @@ public abstract class AbstractDocPrimitiveContainer extends AbstractDocContainer
      */
     final int primitiveContainerHashCode() {
 
-        return innerHashCode() + this.origWidth + (this.origHeight << 8)
-                + Objects.hashCode(this.altText);
+        return innerHashCode() + this.coordinates.hashCode() + this.origWidth + (this.origHeight << 8)
+               + Objects.hashCode(this.altText);
     }
 
     /**
@@ -286,8 +317,9 @@ public abstract class AbstractDocPrimitiveContainer extends AbstractDocContainer
     final boolean primitiveContainerEquals(final AbstractDocPrimitiveContainer obj) {
 
         return innerEquals(obj)
-                && this.origWidth == obj.origWidth
-                && this.origHeight == obj.origHeight
-                && Objects.equals(this.altText, obj.altText);
+               && this.coordinates.equals(obj.getCoordinates())
+               && this.origWidth == obj.origWidth
+               && this.origHeight == obj.origHeight
+               && Objects.equals(this.altText, obj.altText);
     }
 }

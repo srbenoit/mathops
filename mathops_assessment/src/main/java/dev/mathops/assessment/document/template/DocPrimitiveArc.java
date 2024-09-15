@@ -2,7 +2,6 @@ package dev.mathops.assessment.document.template;
 
 import dev.mathops.assessment.EParserMode;
 import dev.mathops.assessment.NumberOrFormula;
-import dev.mathops.assessment.document.BoundingRect;
 import dev.mathops.assessment.document.EArcFillStyle;
 import dev.mathops.assessment.document.EArcRaysShown;
 import dev.mathops.assessment.document.ELayoutMode;
@@ -11,12 +10,12 @@ import dev.mathops.assessment.document.EStrokeJoin;
 import dev.mathops.assessment.document.FillStyle;
 import dev.mathops.assessment.document.StrokeStyle;
 import dev.mathops.assessment.document.inst.DocPrimitiveArcInst;
+import dev.mathops.assessment.document.inst.RectangleShapeInst;
 import dev.mathops.assessment.variable.AbstractVariable;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.assessment.variable.VariableFactory;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.log.Log;
 import dev.mathops.commons.parser.xml.INode;
 import dev.mathops.commons.ui.ColorNames;
 import dev.mathops.font.BundledFontManager;
@@ -71,131 +70,104 @@ import java.util.Set;
  * Finally, an arc may have arrowheads (drawn in the arc's stroke color) at one or both ends, defined by arrow-type
  * (none, start, end, or both), arrow-type (a selection of preset shapes), and arrow-size.
  */
-final class DocPrimitiveArc extends AbstractDocPrimitive {
+final class DocPrimitiveArc extends AbstractDocRectangleShape {
 
     /** Version number for serialization. */
     @Serial
     private static final long serialVersionUID = 4503475270187852064L;
 
-    /** The x coordinate. */
-    private NumberOrFormula xCoord;
-
-    /** The y coordinate. */
-    private NumberOrFormula yCoord;
-
-    /** The width. */
-    private NumberOrFormula width;
-
-    /** The height. */
-    private NumberOrFormula height;
-
-    /** The center x coordinate. */
-    private NumberOrFormula centerX;
-
-    /** The center y coordinate. */
-    private NumberOrFormula centerY;
-
-    /** The radius. */
-    private NumberOrFormula radius;
-
-    /** The x-axis radius. */
-    private NumberOrFormula xRadius;
-
-    /** The y-axis radius. */
-    private NumberOrFormula yRadius;
-
     /** The start angle. */
-    private NumberOrFormula startAngle;
+    private NumberOrFormula startAngle = null;
 
     /** The arc angle. */
-    private NumberOrFormula arcAngle;
+    private NumberOrFormula arcAngle = null;
 
     /** The stroke width. */
-    private Double strokeWidth;
+    private Double strokeWidth = null;
 
     /** The stroke color name. */
-    private String strokeColorName;
+    private String strokeColorName = null;
 
     /** The stroke color. */
-    private Color strokeColor;
+    private Color strokeColor = null;
 
     /** The stroke dash lengths (must be floats for BasicStroke class). */
-    private float[] strokeDash;
+    private float[] strokeDash = null;
 
     /** The stroke alpha. */
-    private Double strokeAlpha;
+    private Double strokeAlpha = null;
 
     /** The fill style. */
-    private EArcFillStyle fillStyle;
+    private EArcFillStyle fillStyle = null;
 
     /** The fill color name. */
-    private String fillColorName;
+    private String fillColorName = null;
 
     /** The fill color. */
-    private Color fillColor;
+    private Color fillColor = null;
 
     /** The fill alpha. */
-    private Double fillAlpha;
+    private Double fillAlpha = null;
 
     /** The rays shown. */
-    private EArcRaysShown raysShown;
+    private EArcRaysShown raysShown = null;
 
     /** The ray width. */
-    private Double rayWidth;
+    private Double rayWidth = null;
 
     /** The ray length, as a multiple of radius. */
-    private Double rayLength;
+    private Double rayLength = null;
 
     /** The ray color name. */
-    private String rayColorName;
+    private String rayColorName = null;
 
     /** The ray color. */
-    private Color rayColor;
+    private Color rayColor = null;
 
     /** The ray dash lengths (must be floats for BasicStroke class). */
-    private float[] rayDash;
+    private float[] rayDash = null;
 
     /** The ray alpha. */
-    private Double rayAlpha;
+    private Double rayAlpha = null;
 
     /** The raw label string as provided, before substituting entities and variables. */
-    private String rawLabelString;
+    private String rawLabelString = null;
 
     /** The label string. */
-    private String labelString;
+    private String labelString = null;
 
     /** The label span. */
-    private DocNonwrappingSpan labelSpan;
+    private DocNonwrappingSpan labelSpan = null;
 
     /** Flag indicating glyph should come from STIX Text. */
-    private boolean isStixText;
+    private boolean isStixText = false;
 
     /** Flag indicating glyph should come from STIX Math. */
-    private boolean isStixMath;
+    private boolean isStixMath = false;
 
     /** The label color name. */
-    private String labelColorName;
+    private String labelColorName = null;
 
     /** The label color. */
-    private Color labelColor;
+    private Color labelColor = null;
 
     /** The label alpha. */
-    private Double labelAlpha;
+    private Double labelAlpha = null;
 
     /** The label offset. */
-    private Double labelOffset;
+    private Double labelOffset = null;
 
     /** The font name. */
-    private String fontName;
+    private String fontName = null;
 
     /** The font size. */
-    private Double fontSize;
+    private Double fontSize = null;
 
     /** The font style. */
-    private Integer fontStyle;
+    private Integer fontStyle = null;
 
     /** The font. */
-    private Font font;
+    private Font font = null;
 
     /**
      * Construct a new {@code DocPrimitiveArc}.
@@ -205,116 +177,6 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
     DocPrimitiveArc(final AbstractDocPrimitiveContainer theOwner) {
 
         super(theOwner);
-    }
-
-    /**
-     * Sets the x coordinate.
-     *
-     * @param theXCoord the x coordinate
-     */
-    void setXCoord(final NumberOrFormula theXCoord) {
-
-        this.xCoord = theXCoord;
-    }
-
-    /**
-     * Sets the y coordinate.
-     *
-     * @param theYCoord the y coordinate
-     */
-    void setYCoord(final NumberOrFormula theYCoord) {
-
-        this.yCoord = theYCoord;
-    }
-
-    /**
-     * Sets the start angle.
-     *
-     * @param theWidth the start angle
-     */
-    public void setWidth(final NumberOrFormula theWidth) {
-
-        this.width = theWidth;
-    }
-
-    /**
-     * Gets the start angle.
-     *
-     * @return the start angle
-     */
-    public NumberOrFormula getWidth() {
-
-        return this.width;
-    }
-
-    /**
-     * Sets the height.
-     *
-     * @param theHeight the height
-     */
-    public void setHeight(final NumberOrFormula theHeight) {
-
-        this.height = theHeight;
-    }
-
-    /**
-     * Gets the height.
-     *
-     * @return the height
-     */
-    public NumberOrFormula getHeight() {
-
-        return this.height;
-    }
-
-    /**
-     * Sets the center x coordinate.
-     *
-     * @param theCenterX the center x coordinate
-     */
-    void setCenterX(final NumberOrFormula theCenterX) {
-
-        this.centerX = theCenterX;
-    }
-
-    /**
-     * Sets the center y coordinate.
-     *
-     * @param theCenterY the center y coordinate
-     */
-    void setCenterY(final NumberOrFormula theCenterY) {
-
-        this.centerY = theCenterY;
-    }
-
-    /**
-     * Sets the radius.
-     *
-     * @param theRadius the radius
-     */
-    void setRadius(final NumberOrFormula theRadius) {
-
-        this.radius = theRadius;
-    }
-
-    /**
-     * Sets the X radius.
-     *
-     * @param theXRadius the X radius
-     */
-    void setXRadius(final NumberOrFormula theXRadius) {
-
-        this.xRadius = theXRadius;
-    }
-
-    /**
-     * Sets the Y radius.
-     *
-     * @param theYRadius the Y radius
-     */
-    void setYRadius(final NumberOrFormula theYRadius) {
-
-        this.yRadius = theYRadius;
     }
 
     /**
@@ -389,33 +251,12 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
 
         final DocPrimitiveArc copy = new DocPrimitiveArc(theOwner);
 
-        if (this.xCoord != null) {
-            copy.xCoord = this.xCoord.deepCopy();
+        final RectangleShapeTemplate myShape = getShape();
+        if (myShape != null) {
+            final RectangleShapeTemplate myShapeCopy = myShape.deepCopy();
+            copy.setShape(myShapeCopy);
         }
-        if (this.yCoord != null) {
-            copy.yCoord = this.yCoord.deepCopy();
-        }
-        if (this.width != null) {
-            copy.width = this.width.deepCopy();
-        }
-        if (this.height != null) {
-            copy.height = this.height.deepCopy();
-        }
-        if (this.centerX != null) {
-            copy.centerX = this.centerX.deepCopy();
-        }
-        if (this.centerY != null) {
-            copy.centerY = this.centerY.deepCopy();
-        }
-        if (this.radius != null) {
-            copy.radius = this.radius.deepCopy();
-        }
-        if (this.xRadius != null) {
-            copy.xRadius = this.xRadius.deepCopy();
-        }
-        if (this.yRadius != null) {
-            copy.yRadius = this.yRadius.deepCopy();
-        }
+
         if (this.startAngle != null) {
             copy.startAngle = this.startAngle.deepCopy();
         }
@@ -487,42 +328,6 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
             ok = true;
         } else {
             switch (name) {
-                case "x" -> {
-                    this.xCoord = parseNumberOrFormula(theValue, elem, mode, name, "arc primitive");
-                    ok = this.xCoord != null;
-                }
-                case "y" -> {
-                    this.yCoord = parseNumberOrFormula(theValue, elem, mode, name, "arc primitive");
-                    ok = this.yCoord != null;
-                }
-                case "width" -> {
-                    this.width = parseNumberOrFormula(theValue, elem, mode, name, "arc primitive");
-                    ok = this.width != null;
-                }
-                case "height" -> {
-                    this.height = parseNumberOrFormula(theValue, elem, mode, name, "arc primitive");
-                    ok = this.height != null;
-                }
-                case "cx" -> {
-                    this.centerX = parseNumberOrFormula(theValue, elem, mode, name, "arc primitive");
-                    ok = this.centerX != null;
-                }
-                case "cy" -> {
-                    this.centerY = parseNumberOrFormula(theValue, elem, mode, name, "arc primitive");
-                    ok = this.centerY != null;
-                }
-                case "r" -> {
-                    this.radius = parseNumberOrFormula(theValue, elem, mode, name, "arc primitive");
-                    ok = this.radius != null;
-                }
-                case "rx" -> {
-                    this.xRadius = parseNumberOrFormula(theValue, elem, mode, name, "arc primitive");
-                    ok = this.xRadius != null;
-                }
-                case "ry" -> {
-                    this.yRadius = parseNumberOrFormula(theValue, elem, mode, name, "arc primitive");
-                    ok = this.yRadius != null;
-                }
                 case "start-angle" -> {
                     this.startAngle = parseNumberOrFormula(theValue, elem, mode, name, "arc primitive");
                     ok = this.startAngle != null;
@@ -681,30 +486,30 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
                         final char ch = this.labelString.charAt(0);
 
                         this.isStixText = ch == '\u03C0' || ch == '\u03D1' || ch == '\u03D5' || ch == '\u03D6'
-                                || ch == '\u03F0' || ch == '\u03F1' || ch == '\u03F5' || ch == '\u2034'
-                                || ch == '\u2057';
+                                          || ch == '\u03F0' || ch == '\u03F1' || ch == '\u03F5' || ch == '\u2034'
+                                          || ch == '\u2057';
 
                         this.isStixMath = ch == '\u21D0' || ch == '\u21D1' || ch == '\u21D2' || ch == '\u21D3'
-                                || ch == '\u21D4' || ch == '\u21D5' || ch == '\u2218' || ch == '\u221D'
-                                || ch == '\u2220' || ch == '\u2221' || ch == '\u2229' || ch == '\u222A'
-                                || ch == '\u2243' || ch == '\u2266' || ch == '\u2267' || ch == '\u2268'
-                                || ch == '\u2269' || ch == '\u226A' || ch == '\u226B' || ch == '\u226C'
-                                || ch == '\u226E' || ch == '\u226F' || ch == '\u2270' || ch == '\u2271'
-                                || ch == '\u2272' || ch == '\u2273' || ch == '\u2276' || ch == '\u2277'
-                                || ch == '\u227A' || ch == '\u227B' || ch == '\u227C' || ch == '\u227D'
-                                || ch == '\u227E' || ch == '\u227F' || ch == '\u2280' || ch == '\u2281'
-                                || ch == '\u22D6' || ch == '\u22D7' || ch == '\u22DA' || ch == '\u22DB'
-                                || ch == '\u22DE' || ch == '\u22DF' || ch == '\u22E0' || ch == '\u22E1'
-                                || ch == '\u22E6' || ch == '\u22E7' || ch == '\u22E8' || ch == '\u22E9'
-                                || ch == '\u22EF' || ch == '\u2322' || ch == '\u2323' || ch == '\u2329'
-                                || ch == '\u232A' || ch == '\u25B3' || ch == '\u2713' || ch == '\u27CB'
-                                || ch == '\u27CD' || ch == '\u27F8' || ch == '\u27F9' || ch == '\u27FA'
-                                || ch == '\u2A7D' || ch == '\u2A7E' || ch == '\u2A85' || ch == '\u2A86'
-                                || ch == '\u2A87' || ch == '\u2A88' || ch == '\u2A89' || ch == '\u2A8A'
-                                || ch == '\u2A8B' || ch == '\u2A8C' || ch == '\u2A95' || ch == '\u2A96'
-                                || ch == '\u2AA1' || ch == '\u2AA2' || ch == '\u2AAF' || ch == '\u2AB0'
-                                || ch == '\u2AB5' || ch == '\u2AB6' || ch == '\u2AB7' || ch == '\u2AB8'
-                                || ch == '\u2AB9' || ch == '\u2ABA' || ch == '\u2ADB';
+                                          || ch == '\u21D4' || ch == '\u21D5' || ch == '\u2218' || ch == '\u221D'
+                                          || ch == '\u2220' || ch == '\u2221' || ch == '\u2229' || ch == '\u222A'
+                                          || ch == '\u2243' || ch == '\u2266' || ch == '\u2267' || ch == '\u2268'
+                                          || ch == '\u2269' || ch == '\u226A' || ch == '\u226B' || ch == '\u226C'
+                                          || ch == '\u226E' || ch == '\u226F' || ch == '\u2270' || ch == '\u2271'
+                                          || ch == '\u2272' || ch == '\u2273' || ch == '\u2276' || ch == '\u2277'
+                                          || ch == '\u227A' || ch == '\u227B' || ch == '\u227C' || ch == '\u227D'
+                                          || ch == '\u227E' || ch == '\u227F' || ch == '\u2280' || ch == '\u2281'
+                                          || ch == '\u22D6' || ch == '\u22D7' || ch == '\u22DA' || ch == '\u22DB'
+                                          || ch == '\u22DE' || ch == '\u22DF' || ch == '\u22E0' || ch == '\u22E1'
+                                          || ch == '\u22E6' || ch == '\u22E7' || ch == '\u22E8' || ch == '\u22E9'
+                                          || ch == '\u22EF' || ch == '\u2322' || ch == '\u2323' || ch == '\u2329'
+                                          || ch == '\u232A' || ch == '\u25B3' || ch == '\u2713' || ch == '\u27CB'
+                                          || ch == '\u27CD' || ch == '\u27F8' || ch == '\u27F9' || ch == '\u27FA'
+                                          || ch == '\u2A7D' || ch == '\u2A7E' || ch == '\u2A85' || ch == '\u2A86'
+                                          || ch == '\u2A87' || ch == '\u2A88' || ch == '\u2A89' || ch == '\u2A8A'
+                                          || ch == '\u2A8B' || ch == '\u2A8C' || ch == '\u2A95' || ch == '\u2A96'
+                                          || ch == '\u2AA1' || ch == '\u2AA2' || ch == '\u2AAF' || ch == '\u2AB0'
+                                          || ch == '\u2AB5' || ch == '\u2AB6' || ch == '\u2AB7' || ch == '\u2AB8'
+                                          || ch == '\u2AB9' || ch == '\u2ABA' || ch == '\u2ADB';
                     } else {
                         this.isStixText = false;
                         this.isStixMath = false;
@@ -853,10 +658,20 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
 
         if (bounds != null && start != null && arc != null) {
 
-            final double x = bounds.getX() * (double) this.scale;
-            final double y = bounds.getY() * (double) this.scale;
-            final double w = bounds.getWidth() * (double) this.scale;
-            final double h = bounds.getHeight() * (double) this.scale;
+            double x = bounds.getX() * (double) this.scale;
+            double y = bounds.getY() * (double) this.scale;
+            double w = bounds.getWidth() * (double) this.scale;
+            double h = bounds.getHeight() * (double) this.scale;
+
+            if (w < 0.0) {
+                x += w;
+                w = -w;
+            }
+            if (h < 0.0) {
+                y += h;
+                h = -h;
+            }
+
             final double s = start.doubleValue();
             final double a = arc.doubleValue();
 
@@ -1118,126 +933,6 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
     }
 
     /**
-     * Determines the bounding rectangle from attribute settings.
-     *
-     * @param context the evaluation context
-     * @return the bounding rectangle; {@code null} if that rectangle could not be determined
-     */
-    private Rectangle2D getBoundsRect(final EvalContext context) {
-
-        Number x = null;
-        if (this.xCoord != null) {
-            final Object result = this.xCoord.evaluate(context);
-            if (result instanceof final Number numResult) {
-                x = numResult;
-            }
-        }
-
-        Number y = null;
-        if (this.yCoord != null) {
-            final Object result = this.yCoord.evaluate(context);
-            if (result instanceof final Number numResult) {
-                y = numResult;
-            }
-        }
-
-        Number w = null;
-        if (this.width != null) {
-            final Object result = this.width.evaluate(context);
-            if (result instanceof final Number numResult) {
-                w = numResult;
-            }
-        }
-
-        Number h = null;
-        if (this.height != null) {
-            final Object result = this.height.evaluate(context);
-            if (result instanceof final Number numResult) {
-                h = numResult;
-            }
-        }
-
-        Rectangle2D bounds = null;
-
-        // TODO: Allow the {cx, cy, width, height} combination or perhaps even {[x|cx], [y|cy], width, height}
-
-        if (x == null || y == null || w == null || h == null) {
-
-            Number cx = null;
-            if (this.centerX != null) {
-                final Object result = this.centerX.evaluate(context);
-                if (result instanceof final Number numResult) {
-                    cx = numResult;
-                }
-            }
-
-            Number cy = null;
-            if (this.centerY != null) {
-                final Object result = this.centerY.evaluate(context);
-                if (result instanceof final Number numResult) {
-                    cy = numResult;
-                }
-            }
-
-            if (cx == null || cy == null) {
-                Log.warning("Arc bounding rectangle is not sufficiently specified (cx=", cx, ",cy=", cy, ")");
-            } else {
-                Number r = null;
-                if (this.radius != null) {
-                    final Object result = this.radius.evaluate(context);
-                    if (result instanceof final Number numResult) {
-                        r = numResult;
-                    }
-                }
-
-                if (r == null) {
-                    Number rx = null;
-                    if (this.xRadius != null) {
-                        final Object result = this.xRadius.evaluate(context);
-                        if (result instanceof final Number numResult) {
-                            rx = numResult;
-                        }
-                    }
-
-                    Number ry = null;
-                    if (this.yRadius != null) {
-                        final Object result = this.yRadius.evaluate(context);
-                        if (result instanceof final Number numResult) {
-                            ry = numResult;
-                        }
-                    }
-
-                    if (rx == null || ry == null) {
-                        Log.warning("Arc bounding rectangle is not sufficiently specified.");
-                    } else {
-                        final double cxd = cx.doubleValue();
-                        final double cyd = cy.doubleValue();
-                        final double rxd = rx.doubleValue();
-                        final double wd = rxd * 2.0;
-                        final double ryd = ry.doubleValue();
-                        final double hd = ryd * 2.0;
-                        bounds = new Rectangle2D.Double(cxd - rxd, cyd - ryd, wd, hd);
-                    }
-                } else {
-                    final double cxd = cx.doubleValue();
-                    final double cyd = cy.doubleValue();
-                    final double rd = r.doubleValue();
-                    final double wd = rd * 2.0;
-                    bounds = new Rectangle2D.Double(cxd - rd, cyd - rd, wd, wd);
-                }
-            }
-        } else {
-            final double xd = x.doubleValue();
-            final double yd = y.doubleValue();
-            final double wd = w.doubleValue();
-            final double hd = h.doubleValue();
-            bounds = new Rectangle2D.Double(xd, yd, wd, hd);
-        }
-
-        return bounds;
-    }
-
-    /**
      * Recompute the size of the object's bounding box.
      *
      * @param context the evaluation context
@@ -1261,35 +956,28 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
     @Override
     public DocPrimitiveArcInst createInstance(final EvalContext evalContext) {
 
-        final Object xVal = this.xCoord == null ? null : this.xCoord.evaluate(evalContext);
-        final Object yVal = this.yCoord == null ? null : this.yCoord.evaluate(evalContext);
-        final Object wVal = this.width == null ? null : this.width.evaluate(evalContext);
-        final Object hVal = this.height == null ? null : this.height.evaluate(evalContext);
-        final Object start = this.startAngle == null ? null : this.startAngle.evaluate(evalContext);
-        final Object arc = this.arcAngle == null ? null : this.arcAngle.evaluate(evalContext);
+        final RectangleShapeTemplate shape = getShape();
+        DocPrimitiveArcInst result = null;
 
-        final DocPrimitiveArcInst result;
+        if (Objects.nonNull(shape)) {
+            final Object start = this.startAngle == null ? null : this.startAngle.evaluate(evalContext);
+            final Object arc = this.arcAngle == null ? null : this.arcAngle.evaluate(evalContext);
 
-        if (xVal instanceof final Number xNbr && yVal instanceof final Number yNbr
-                && wVal instanceof final Number wNbr && hVal instanceof final Number hNbr
-                && start instanceof final Number startNbr && arc instanceof final Number arcNbr) {
+            if (start instanceof final Number startNbr && arc instanceof final Number arcNbr) {
 
-            final BoundingRect rect = new BoundingRect(xNbr.doubleValue(), yNbr.doubleValue(),
-                    wNbr.doubleValue(), hNbr.doubleValue());
+                final double strokeW = this.strokeWidth == null ? 0.0 : this.strokeWidth.doubleValue();
+                final double alphaValue = this.strokeAlpha == null ? 1.0 : this.strokeAlpha.doubleValue();
 
-            final double strokeW = this.strokeWidth == null ? 0.0 : this.strokeWidth.doubleValue();
-            final double alphaValue = this.strokeAlpha == null ? 1.0 : this.strokeAlpha.doubleValue();
+                final StrokeStyle stroke = strokeW <= 0.0 ? null : new StrokeStyle(strokeW, this.strokeColorName,
+                        this.strokeDash, alphaValue, EStrokeCap.BUTT, EStrokeJoin.MITER, 10.0f);
 
-            final StrokeStyle stroke = strokeW <= 0.0 ? null : new StrokeStyle(strokeW, this.strokeColorName,
-                    this.strokeDash, alphaValue, EStrokeCap.BUTT, EStrokeJoin.MITER, 10.0f);
+                final double fillAlphaValue = this.fillAlpha == null ? 1.0 : this.fillAlpha.doubleValue();
+                final FillStyle fill = new FillStyle(this.fillColorName, fillAlphaValue);
 
-            final double fillAlphaValue = this.fillAlpha == null ? 1.0 : this.fillAlpha.doubleValue();
-            final FillStyle fill = new FillStyle(this.fillColorName, fillAlphaValue);
-
-            result = new DocPrimitiveArcInst(rect, startNbr.doubleValue(), arcNbr.doubleValue(), stroke,
-                    this.fillStyle, fill);
-        } else {
-            result = null;
+                final RectangleShapeInst shapeInst = getShape().createInstance(evalContext);
+                result = new DocPrimitiveArcInst(shapeInst, startNbr.doubleValue(), arcNbr.doubleValue(), stroke,
+                        this.fillStyle, fill);
+            }
         }
 
         return result;
@@ -1309,40 +997,9 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
 
         xml.add(ind, "<arc");
 
-        if (this.xCoord != null && this.xCoord.getNumber() != null) {
-            xml.add(" x=\"", this.xCoord.getNumber(), CoreConstants.QUOTE);
-        }
-
-        if (this.yCoord != null && this.yCoord.getNumber() != null) {
-            xml.add(" y=\"", this.yCoord.getNumber(), CoreConstants.QUOTE);
-        }
-
-        if (this.width != null && this.width.getNumber() != null) {
-            xml.add(" width=\"", this.width.getNumber(), CoreConstants.QUOTE);
-        }
-
-        if (this.height != null && this.height.getNumber() != null) {
-            xml.add(" height=\"", this.height.getNumber(), CoreConstants.QUOTE);
-        }
-
-        if (this.centerX != null && this.centerX.getNumber() != null) {
-            xml.add(" cx=\"", this.centerX.getNumber(), CoreConstants.QUOTE);
-        }
-
-        if (this.centerY != null && this.centerY.getNumber() != null) {
-            xml.add(" cy=\"", this.centerY.getNumber(), CoreConstants.QUOTE);
-        }
-
-        if (this.radius != null && this.radius.getNumber() != null) {
-            xml.add(" r=\"", this.radius.getNumber(), CoreConstants.QUOTE);
-        }
-
-        if (this.xRadius != null && this.xRadius.getNumber() != null) {
-            xml.add(" rx=\"", this.xRadius.getNumber(), CoreConstants.QUOTE);
-        }
-
-        if (this.yRadius != null && this.yRadius.getNumber() != null) {
-            xml.add(" ry=\"", this.yRadius.getNumber(), CoreConstants.QUOTE);
+        final RectangleShapeTemplate shape = getShape();
+        if (shape != null) {
+            shape.addAttributes(xml);
         }
 
         if (this.startAngle != null && this.startAngle.getNumber() != null) {
@@ -1465,74 +1122,17 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
             xml.add('"');
         }
 
-        if ((this.xCoord == null || this.xCoord.getFormula() == null)
-                && (this.yCoord == null || this.yCoord.getFormula() == null)
-                && (this.width == null || this.width.getFormula() == null)
-                && (this.height == null || this.height.getFormula() == null)
-                && (this.centerX == null || this.centerX.getFormula() == null)
-                && (this.centerY == null || this.centerY.getFormula() == null)
-                && (this.radius == null || this.radius.getFormula() == null)
-                && (this.xRadius == null || this.xRadius.getFormula() == null)
-                && (this.yRadius == null || this.yRadius.getFormula() == null)
-                && (this.startAngle == null || this.startAngle.getFormula() == null)
-                && (this.arcAngle == null || this.arcAngle.getFormula() == null)
-                && this.labelSpan == null) {
+        // If there will be no expression child elements, make this an empty element
+        if ((shape == null || shape.isConstant())
+            && (this.startAngle == null || this.startAngle.getFormula() == null)
+            && (this.arcAngle == null || this.arcAngle.getFormula() == null)
+            && this.labelSpan == null) {
             xml.addln("/>");
         } else {
             xml.addln(">");
 
-            if (this.xCoord != null && this.xCoord.getFormula() != null) {
-                xml.add(ind2, "<x>");
-                this.xCoord.getFormula().appendChildrenXml(xml);
-                xml.addln("</x>");
-            }
-
-            if (this.yCoord != null && this.yCoord.getFormula() != null) {
-                xml.add(ind2, "<y>");
-                this.yCoord.getFormula().appendChildrenXml(xml);
-                xml.addln("</y>");
-            }
-
-            if (this.width != null && this.width.getFormula() != null) {
-                xml.add(ind2, "<width>");
-                this.width.getFormula().appendChildrenXml(xml);
-                xml.addln("</width>");
-            }
-
-            if (this.height != null && this.height.getFormula() != null) {
-                xml.add(ind2, "<height>");
-                this.height.getFormula().appendChildrenXml(xml);
-                xml.addln("</height>");
-            }
-
-            if (this.centerX != null && this.centerX.getFormula() != null) {
-                xml.add(ind2, "<cx>");
-                this.centerX.getFormula().appendChildrenXml(xml);
-                xml.addln("</cx>");
-            }
-
-            if (this.centerY != null && this.centerY.getFormula() != null) {
-                xml.add(ind2, "<cy>");
-                this.centerY.getFormula().appendChildrenXml(xml);
-                xml.addln("</cy>");
-            }
-
-            if (this.radius != null && this.radius.getFormula() != null) {
-                xml.add(ind2, "<r>");
-                this.radius.getFormula().appendChildrenXml(xml);
-                xml.addln("</r>");
-            }
-
-            if (this.xRadius != null && this.xRadius.getFormula() != null) {
-                xml.add(ind2, "<rx>");
-                this.xRadius.getFormula().appendChildrenXml(xml);
-                xml.addln("</rx>");
-            }
-
-            if (this.yRadius != null && this.yRadius.getFormula() != null) {
-                xml.add(ind2, "<ry>");
-                this.yRadius.getFormula().appendChildrenXml(xml);
-                xml.addln("</ry>");
+            if (shape != null) {
+                shape.addChildElements(xml, indent + 1);
             }
 
             if (this.startAngle != null && this.startAngle.getFormula() != null) {
@@ -1575,40 +1175,9 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
     @Override
     public void accumulateParameterNames(final Set<String> set) {
 
-        if (this.xCoord != null && this.xCoord.getFormula() != null) {
-            set.addAll(this.xCoord.getFormula().params.keySet());
-        }
-
-        if (this.yCoord != null && this.yCoord.getFormula() != null) {
-            set.addAll(this.yCoord.getFormula().params.keySet());
-        }
-
-        if (this.width != null && this.width.getFormula() != null) {
-            set.addAll(this.width.getFormula().params.keySet());
-        }
-
-        if (this.height != null && this.height.getFormula() != null) {
-            set.addAll(this.height.getFormula().params.keySet());
-        }
-
-        if (this.centerX != null && this.centerX.getFormula() != null) {
-            set.addAll(this.centerX.getFormula().params.keySet());
-        }
-
-        if (this.centerY != null && this.centerY.getFormula() != null) {
-            set.addAll(this.centerY.getFormula().params.keySet());
-        }
-
-        if (this.radius != null && this.radius.getFormula() != null) {
-            set.addAll(this.radius.getFormula().params.keySet());
-        }
-
-        if (this.xRadius != null && this.xRadius.getFormula() != null) {
-            set.addAll(this.xRadius.getFormula().params.keySet());
-        }
-
-        if (this.yRadius != null && this.yRadius.getFormula() != null) {
-            set.addAll(this.yRadius.getFormula().params.keySet());
+        final RectangleShapeTemplate shape = getShape();
+        if (shape != null) {
+            shape.accumulateParameterNames(set);
         }
 
         if (this.startAngle != null && this.startAngle.getFormula() != null) {
@@ -1635,33 +1204,25 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
     @Override
     public int hashCode() {
 
-        return Objects.hashCode(this.xCoord)
-                + Objects.hashCode(this.yCoord)
-                + Objects.hashCode(this.width)
-                + Objects.hashCode(this.height)
-                + Objects.hashCode(this.centerX)
-                + Objects.hashCode(this.centerY)
-                + Objects.hashCode(this.radius)
-                + Objects.hashCode(this.xRadius)
-                + Objects.hashCode(this.yRadius)
-                + Objects.hashCode(this.startAngle)
-                + Objects.hashCode(this.arcAngle)
-                + Objects.hashCode(this.strokeWidth)
-                + Objects.hashCode(this.strokeColorName)
-                + Objects.hashCode(this.strokeColor)
-                + Objects.hashCode(this.strokeAlpha)
-                + Objects.hashCode(this.strokeDash)
-                + Objects.hashCode(this.fillStyle)
-                + Objects.hashCode(this.fillColorName)
-                + Objects.hashCode(this.fillColor)
-                + Objects.hashCode(this.fillAlpha)
-                + Objects.hashCode(this.raysShown)
-                + Objects.hashCode(this.rayWidth)
-                + Objects.hashCode(this.rayLength)
-                + Objects.hashCode(this.rayColorName)
-                + Objects.hashCode(this.rayColor)
-                + Objects.hashCode(this.rayDash)
-                + Objects.hashCode(this.rayAlpha);
+        return Objects.hashCode(getShape())
+               + Objects.hashCode(this.startAngle)
+               + Objects.hashCode(this.arcAngle)
+               + Objects.hashCode(this.strokeWidth)
+               + Objects.hashCode(this.strokeColorName)
+               + Objects.hashCode(this.strokeColor)
+               + Objects.hashCode(this.strokeAlpha)
+               + Objects.hashCode(this.strokeDash)
+               + Objects.hashCode(this.fillStyle)
+               + Objects.hashCode(this.fillColorName)
+               + Objects.hashCode(this.fillColor)
+               + Objects.hashCode(this.fillAlpha)
+               + Objects.hashCode(this.raysShown)
+               + Objects.hashCode(this.rayWidth)
+               + Objects.hashCode(this.rayLength)
+               + Objects.hashCode(this.rayColorName)
+               + Objects.hashCode(this.rayColor)
+               + Objects.hashCode(this.rayDash)
+               + Objects.hashCode(this.rayAlpha);
     }
 
     /**
@@ -1678,15 +1239,7 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
         if (obj == this) {
             equal = true;
         } else if (obj instanceof final DocPrimitiveArc arc) {
-            equal = Objects.equals(this.xCoord, arc.xCoord)
-                    && Objects.equals(this.yCoord, arc.yCoord)
-                    && Objects.equals(this.width, arc.width)
-                    && Objects.equals(this.height, arc.height)
-                    && Objects.equals(this.centerX, arc.centerX)
-                    && Objects.equals(this.centerY, arc.centerY)
-                    && Objects.equals(this.radius, arc.radius)
-                    && Objects.equals(this.xRadius, arc.xRadius)
-                    && Objects.equals(this.yRadius, arc.yRadius)
+            equal = Objects.equals(getShape(), arc.getShape())
                     && Objects.equals(this.startAngle, arc.startAngle)
                     && Objects.equals(this.arcAngle, arc.arcAngle)
                     && Objects.equals(this.strokeWidth, arc.strokeWidth)
@@ -1704,8 +1257,7 @@ final class DocPrimitiveArc extends AbstractDocPrimitive {
                     && Objects.equals(this.rayColorName, arc.rayColorName)
                     && Objects.equals(this.rayColor, arc.rayColor)
                     && Arrays.equals(this.rayDash, arc.rayDash)
-                    && Objects.equals(this.rayAlpha, arc.rayAlpha)
-            ;
+                    && Objects.equals(this.rayAlpha, arc.rayAlpha);
         } else {
             equal = false;
         }

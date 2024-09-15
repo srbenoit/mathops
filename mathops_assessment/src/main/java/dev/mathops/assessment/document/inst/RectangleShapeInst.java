@@ -1,11 +1,14 @@
 package dev.mathops.assessment.document.inst;
 
+import dev.mathops.assessment.document.CoordinateSystems;
 import dev.mathops.assessment.document.EAttribute;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 
+import java.awt.geom.Rectangle2D;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * A container for the various sets of attributes and/or expressions that can determine a rectangular shape for a
@@ -74,7 +77,7 @@ import java.util.Map;
 public final class RectangleShapeInst {
 
     /** The attributes that are present. */
-    private final Map<EAttribute, Double> attributes;
+    private final Map<EAttribute, Number> attributes;
 
     /**
      * Construct a new {@code RectangleShapeInst}.
@@ -89,7 +92,7 @@ public final class RectangleShapeInst {
      *
      * @return the attributes map.
      */
-    private Map<EAttribute, Double> getAttributes() {
+    private Map<EAttribute, Number> getAttributes() {
 
         return this.attributes;
     }
@@ -106,10 +109,10 @@ public final class RectangleShapeInst {
      * @param y2Attribute the attribute used to specify the second corner's y coordinate (HEIGHT, Y2, GHEIGHT, or GY2)
      * @param y2Value     the value of the y2 attribute
      */
-    public void setBounds(final EAttribute x1Attribute, final double x1Value,
-                          final EAttribute x2Attribute, final double x2Value,
-                          final EAttribute y1Attribute, final double y1Value,
-                          final EAttribute y2Attribute, final double y2Value) {
+    public void setBounds(final EAttribute x1Attribute, final Number x1Value,
+                          final EAttribute x2Attribute, final Number x2Value,
+                          final EAttribute y1Attribute, final Number y1Value,
+                          final EAttribute y2Attribute, final Number y2Value) {
 
         if (x1Attribute == EAttribute.X || x1Attribute == EAttribute.X1 || x1Attribute == EAttribute.GX
             || x1Attribute == EAttribute.GX1) {
@@ -135,16 +138,15 @@ public final class RectangleShapeInst {
             throw new IllegalArgumentException("Unsupported attribute to specify Y coordinate of second corner.");
         }
 
-        final Double x1Obj = Double.valueOf(x1Value);
-        final Double x2Obj = Double.valueOf(x2Value);
-        final Double y1Obj = Double.valueOf(y1Value);
-        final Double y2Obj = Double.valueOf(y2Value);
+        if (x1Value == null || x2Value == null || y1Value == null || y2Value == null) {
+            throw new IllegalArgumentException("Values may not be null");
+        }
 
         this.attributes.clear();
-        this.attributes.put(x1Attribute, x1Obj);
-        this.attributes.put(x2Attribute, x2Obj);
-        this.attributes.put(y1Attribute, y1Obj);
-        this.attributes.put(y2Attribute, y2Obj);
+        this.attributes.put(x1Attribute, x1Value);
+        this.attributes.put(x2Attribute, x2Value);
+        this.attributes.put(y1Attribute, y1Value);
+        this.attributes.put(y2Attribute, y2Value);
     }
 
     /**
@@ -157,9 +159,9 @@ public final class RectangleShapeInst {
      * @param rAttribute  the attribute used to specify the radius (R, GR, WIDTH, GWIDTH, HEIGHT, or GHEIGHT)
      * @param rValue      the value of the r attribute
      */
-    public void setCenteredCircle(final EAttribute cxAttribute, final double cxValue,
-                                  final EAttribute cyAttribute, final double cyValue,
-                                  final EAttribute rAttribute, final double rValue) {
+    public void setCenteredCircle(final EAttribute cxAttribute, final Number cxValue,
+                                  final EAttribute cyAttribute, final Number cyValue,
+                                  final EAttribute rAttribute, final Number rValue) {
 
         if (cxAttribute == EAttribute.X || cxAttribute == EAttribute.X1 || cxAttribute == EAttribute.GX
             || cxAttribute == EAttribute.GX1) {
@@ -179,14 +181,14 @@ public final class RectangleShapeInst {
             throw new IllegalArgumentException("Unsupported attribute to specify radius.");
         }
 
-        final Double cxObj = Double.valueOf(cxValue);
-        final Double cyObj = Double.valueOf(cyValue);
-        final Double rObj = Double.valueOf(rValue);
+        if (cxValue == null || cyValue == null || rValue == null) {
+            throw new IllegalArgumentException("Values may not be null");
+        }
 
         this.attributes.clear();
-        this.attributes.put(cxAttribute, cxObj);
-        this.attributes.put(cyAttribute, cyObj);
-        this.attributes.put(rAttribute, rObj);
+        this.attributes.put(cxAttribute, cxValue);
+        this.attributes.put(cyAttribute, cyValue);
+        this.attributes.put(rAttribute, rValue);
     }
 
     /**
@@ -201,10 +203,10 @@ public final class RectangleShapeInst {
      * @param ryAttribute the attribute used to specify the y-axis radius (RY, GRY, HEIGHT, or GHEIGHT)
      * @param ryValue     the value of the ry attribute
      */
-    public void setCenteredEllipse(final EAttribute cxAttribute, final double cxValue,
-                                   final EAttribute cyAttribute, final double cyValue,
-                                   final EAttribute rxAttribute, final double rxValue,
-                                   final EAttribute ryAttribute, final double ryValue) {
+    public void setCenteredEllipse(final EAttribute cxAttribute, final Number cxValue,
+                                   final EAttribute cyAttribute, final Number cyValue,
+                                   final EAttribute rxAttribute, final Number rxValue,
+                                   final EAttribute ryAttribute, final Number ryValue) {
 
         if (cxAttribute == EAttribute.X || cxAttribute == EAttribute.X1 || cxAttribute == EAttribute.GX
             || cxAttribute == EAttribute.GX1) {
@@ -230,16 +232,15 @@ public final class RectangleShapeInst {
             throw new IllegalArgumentException("Unsupported attribute to specify y-axis radius.");
         }
 
-        final Double csObj = Double.valueOf(cxValue);
-        final Double cyObj = Double.valueOf(cyValue);
-        final Double rxObj = Double.valueOf(rxValue);
-        final Double ryObj = Double.valueOf(ryValue);
+        if (cxValue == null || cyValue == null || rxValue == null || ryValue == null) {
+            throw new IllegalArgumentException("Values may not be null");
+        }
 
         this.attributes.clear();
-        this.attributes.put(cxAttribute, csObj);
-        this.attributes.put(cyAttribute, cyObj);
-        this.attributes.put(rxAttribute, rxObj);
-        this.attributes.put(ryAttribute, ryObj);
+        this.attributes.put(cxAttribute, cxValue);
+        this.attributes.put(cyAttribute, cyValue);
+        this.attributes.put(rxAttribute, rxValue);
+        this.attributes.put(ryAttribute, ryValue);
     }
 
     /**
@@ -250,12 +251,322 @@ public final class RectangleShapeInst {
      */
     public void addAttributes(final HtmlBuilder xml) {
 
-        for (final Map.Entry<EAttribute, Double> entry : this.attributes.entrySet()) {
+        for (final Map.Entry<EAttribute, Number> entry : this.attributes.entrySet()) {
             final String name = entry.getKey().label;
-            final Double value = entry.getValue();
+            final Number value = entry.getValue();
 
             xml.add(CoreConstants.SPC, name, "=\"", value, CoreConstants.QUOTE);
         }
+    }
+
+    /**
+     * Determines the bounding rectangle (in pixel space) from attribute settings.
+     *
+     * @param coordinateSystems the coordinate systems to use when resolving "graph space" coordinates
+     * @return the bounding rectangle in pixel space; {@code null} if that rectangle could not be determined
+     */
+    public Rectangle2D getBoundsRect(final CoordinateSystems coordinateSystems) {
+
+        Rectangle2D result = null;
+
+        final EAttribute x1 = findX1Attribute();
+        final EAttribute x2 = findX2Attribute();
+        final EAttribute y1 = findY1Attribute();
+        final EAttribute y2 = findY2Attribute();
+
+        if (Objects.nonNull(x1) && Objects.nonNull(x2) && Objects.nonNull(y1) && Objects.nonNull(y2)) {
+
+            // This object is specified by defining two opposite corners
+
+            final double x1Dbl = this.attributes.get(x1).doubleValue();
+            final double x2Dbl = this.attributes.get(x2).doubleValue();
+            final double y1Dbl = this.attributes.get(y1).doubleValue();
+            final double y2Dbl = this.attributes.get(y2).doubleValue();
+
+            // interpret and compute bounding rect
+            final double p1X = (x1 == EAttribute.X || x1 == EAttribute.X1) ? x1Dbl :
+                    coordinateSystems.graphXToPixelX(x1Dbl);
+
+            final double p2X = (x2 == EAttribute.WIDTH) ? p1X + x2Dbl : (x2 == EAttribute.X2) ? x2Dbl :
+                    (x2 == EAttribute.GX2) ? coordinateSystems.graphXToPixelX(x2Dbl) :
+                            p1X + coordinateSystems.graphWidthToPixelWidth(x2Dbl);
+
+            final double p1Y = (y1 == EAttribute.Y || y1 == EAttribute.Y1) ? y1Dbl :
+                    coordinateSystems.graphYToPixelY(y1Dbl);
+
+            final double p2Y = (y2 == EAttribute.HEIGHT) ? p1Y + y2Dbl : (y2 == EAttribute.Y2) ? y2Dbl :
+                    (y2 == EAttribute.GY2) ? coordinateSystems.graphYToPixelY(y2Dbl) :
+                            p1Y + coordinateSystems.graphHeightToPixelHeight(y2Dbl);
+
+            result = new Rectangle2D.Double(p1X, p1Y, p2X - p1X, p2Y - p1Y);
+        } else {
+            final EAttribute cx = findCXAttribute();
+            final EAttribute cy = findCYAttribute();
+
+            if (Objects.nonNull(cx) && Objects.nonNull(cy)) {
+
+                final double cxDbl = this.attributes.get(cx).doubleValue();
+                final double cyDbl = this.attributes.get(cy).doubleValue();
+
+                final double centerX = cx == EAttribute.CX ? cxDbl : coordinateSystems.graphXToPixelX(cxDbl);
+                final double centerY = cy == EAttribute.CY ? cyDbl : coordinateSystems.graphXToPixelX(cyDbl);
+
+                final EAttribute rx = findRXAttribute();
+                final EAttribute ry = findRYAttribute();
+
+                if (Objects.nonNull(rx) && Objects.nonNull(ry)) {
+
+                    final double rxDbl = this.attributes.get(rx).doubleValue();
+                    final double ryDbl = this.attributes.get(ry).doubleValue();
+
+                    // This object is specified by center and two radii
+
+                    final double pRx = (rx == EAttribute.RX) ? rxDbl : (rx == EAttribute.WIDTH) ? rxDbl * 0.5 :
+                            (rx == EAttribute.GRX) ? coordinateSystems.graphXToPixelX(rxDbl) :
+                                    coordinateSystems.graphWidthToPixelWidth(rxDbl);
+
+                    final double pRy = (ry == EAttribute.RY) ? ryDbl : (ry == EAttribute.HEIGHT) ? ryDbl * 0.5 :
+                            (ry == EAttribute.GRY) ? coordinateSystems.graphXToPixelX(ryDbl) :
+                                    coordinateSystems.graphHeightToPixelHeight(ryDbl);
+
+                    result = new Rectangle2D.Double(centerX - pRx, centerY - pRy, pRx * 2.0, pRy * 2.0);
+                } else {
+                    final EAttribute r = findRAttribute();
+
+                    if (Objects.nonNull(r)) {
+
+                        final double rDbl = this.attributes.get(r).doubleValue();
+
+                        // This object is specified by center and a single radius
+
+                        // Compute Rx and Ry separately since graph scale in each dimension might be different
+                        final double pRx;
+                        final double pRy;
+
+                        if (r == EAttribute.R) {
+                            pRx = rDbl;
+                            pRy = rDbl;
+                        } else if (r == EAttribute.GR) {
+                            pRx = coordinateSystems.graphWidthToPixelWidth(rDbl);
+                            pRy = coordinateSystems.graphHeightToPixelHeight(rDbl);
+                        } else if (r == EAttribute.WIDTH || r == EAttribute.HEIGHT) {
+                            pRx = rDbl * 0.5;
+                            pRy = pRx;
+                        } else {
+                            pRx = coordinateSystems.graphWidthToPixelWidth(rDbl) * 0.5;
+                            pRy = coordinateSystems.graphHeightToPixelHeight(rDbl) * 0.5;
+                        }
+
+                        result = new Rectangle2D.Double(centerX - pRx, centerY - pRy, pRx * 2.0, pRy * 2.0);
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Searches for an attribute whose value is present and that can define the "x1" corner (this can be the "X", "X1",
+     * "GX", or "GX1" attribute).
+     *
+     * @return the attribute, if one was found; null if not
+     */
+    private EAttribute findX1Attribute() {
+
+        EAttribute x1 = null;
+
+        if (this.attributes.containsKey(EAttribute.X)) {
+            x1 = EAttribute.X;
+        } else if (this.attributes.containsKey(EAttribute.X1)) {
+            x1 = EAttribute.X1;
+        } else if (this.attributes.containsKey(EAttribute.GX)) {
+            x1 = EAttribute.GX;
+        } else if (this.attributes.containsKey(EAttribute.GX1)) {
+            x1 = EAttribute.GX1;
+        }
+
+        return x1;
+    }
+
+    /**
+     * Searches for an attribute whose value is present and that can define the "x2" corner (this can be the "WIDTH",
+     * "X2", "GWIDTH", or "GX2" attribute).
+     *
+     * @return the attribute, if one was found; null if not
+     */
+    private EAttribute findX2Attribute() {
+
+        EAttribute x2 = null;
+
+        if (this.attributes.containsKey(EAttribute.WIDTH)) {
+            x2 = EAttribute.WIDTH;
+        } else if (this.attributes.containsKey(EAttribute.X2)) {
+            x2 = EAttribute.X2;
+        } else if (this.attributes.containsKey(EAttribute.GWIDTH)) {
+            x2 = EAttribute.GWIDTH;
+        } else if (this.attributes.containsKey(EAttribute.GX2)) {
+            x2 = EAttribute.GX2;
+        }
+
+        return x2;
+    }
+
+    /**
+     * Searches for an attribute whose value is present and that can define the "y1" corner (this can be the "Y", "Y1",
+     * "GY", or "GY1" attribute).
+     *
+     * @return the attribute, if one was found; null if not
+     */
+    private EAttribute findY1Attribute() {
+
+        EAttribute y1 = null;
+
+        if (this.attributes.containsKey(EAttribute.Y)) {
+            y1 = EAttribute.Y;
+        } else if (this.attributes.containsKey(EAttribute.Y1)) {
+            y1 = EAttribute.Y1;
+        } else if (this.attributes.containsKey(EAttribute.GY)) {
+            y1 = EAttribute.GY;
+        } else if (this.attributes.containsKey(EAttribute.GY1)) {
+            y1 = EAttribute.GY1;
+        }
+
+        return y1;
+    }
+
+    /**
+     * Searches for an attribute whose value is present and that can define the "y2" corner (this can be the "HEIGHT",
+     * "Y2", "GHEIGHT", or "GY2" attribute).
+     *
+     * @return the attribute, if one was found; null if not
+     */
+    private EAttribute findY2Attribute() {
+
+        EAttribute y2 = null;
+
+        if (this.attributes.containsKey(EAttribute.HEIGHT)) {
+            y2 = EAttribute.HEIGHT;
+        } else if (this.attributes.containsKey(EAttribute.Y2)) {
+            y2 = EAttribute.Y2;
+        } else if (this.attributes.containsKey(EAttribute.GHEIGHT)) {
+            y2 = EAttribute.GHEIGHT;
+        } else if (this.attributes.containsKey(EAttribute.GY2)) {
+            y2 = EAttribute.GY2;
+        }
+
+        return y2;
+    }
+
+    /**
+     * Searches for an attribute whose value is present and that can define the X coordinate of the center of the shape
+     * (this can be the "CX" or "GCX" attribute).
+     *
+     * @return the attribute, if one was found; null if not
+     */
+    private EAttribute findCXAttribute() {
+
+        EAttribute cx = null;
+
+        if (this.attributes.containsKey(EAttribute.CX)) {
+            cx = EAttribute.CX;
+        } else if (this.attributes.containsKey(EAttribute.GCX)) {
+            cx = EAttribute.GCX;
+        }
+
+        return cx;
+    }
+
+    /**
+     * Searches for an attribute whose value is present and that can define the Y coordinate of the center of the shape
+     * (this can be the "CY" or "GCY" attribute).
+     *
+     * @return the attribute, if one was found; null if not
+     */
+    private EAttribute findCYAttribute() {
+
+        EAttribute cy = null;
+
+        if (this.attributes.containsKey(EAttribute.CY)) {
+            cy = EAttribute.CY;
+        } else if (this.attributes.containsKey(EAttribute.GCY)) {
+            cy = EAttribute.GCY;
+        }
+
+        return cy;
+    }
+
+    /**
+     * Searches for an attribute whose value is present and that can define the constant radius of the shape (this can
+     * be the "R", "GR", "WIDTH", "GWIDTH", "HEIGHT", or "GHEIGHT" attribute).
+     *
+     * @return the attribute, if one was found; null if not
+     */
+    private EAttribute findRAttribute() {
+
+        EAttribute r = null;
+
+        if (this.attributes.containsKey(EAttribute.R)) {
+            r = EAttribute.R;
+        } else if (this.attributes.containsKey(EAttribute.GR)) {
+            r = EAttribute.GR;
+        } else if (this.attributes.containsKey(EAttribute.WIDTH)) {
+            r = EAttribute.WIDTH;
+        } else if (this.attributes.containsKey(EAttribute.GWIDTH)) {
+            r = EAttribute.GWIDTH;
+        } else if (this.attributes.containsKey(EAttribute.HEIGHT)) {
+            r = EAttribute.HEIGHT;
+        } else if (this.attributes.containsKey(EAttribute.GHEIGHT)) {
+            r = EAttribute.GHEIGHT;
+        }
+
+        return r;
+    }
+
+    /**
+     * Searches for an attribute whose value is present and that can define the x-axis radius of the shape (this can be
+     * the "RX", "GRX", "WIDTH", or "GWIDTH" attribute).
+     *
+     * @return the attribute, if one was found; null if not
+     */
+    private EAttribute findRXAttribute() {
+
+        EAttribute rx = null;
+
+        if (this.attributes.containsKey(EAttribute.RX)) {
+            rx = EAttribute.RX;
+        } else if (this.attributes.containsKey(EAttribute.GRX)) {
+            rx = EAttribute.GRX;
+        } else if (this.attributes.containsKey(EAttribute.WIDTH)) {
+            rx = EAttribute.WIDTH;
+        } else if (this.attributes.containsKey(EAttribute.GWIDTH)) {
+            rx = EAttribute.GWIDTH;
+        }
+
+        return rx;
+    }
+
+    /**
+     * Searches for an attribute whose value is present and that can define the y-axis radius of the shape (this can be
+     * the "RY", "GRY", "HEIGHT", or "GHEIGHT" attribute).
+     *
+     * @return the attribute, if one was found; null if not
+     */
+    private EAttribute findRYAttribute() {
+
+        EAttribute ry = null;
+
+        if (this.attributes.containsKey(EAttribute.RY)) {
+            ry = EAttribute.RY;
+        } else if (this.attributes.containsKey(EAttribute.GRY)) {
+            ry = EAttribute.GRY;
+        } else if (this.attributes.containsKey(EAttribute.HEIGHT)) {
+            ry = EAttribute.HEIGHT;
+        } else if (this.attributes.containsKey(EAttribute.GHEIGHT)) {
+            ry = EAttribute.GHEIGHT;
+        }
+
+        return ry;
     }
 
     /**
@@ -294,7 +605,7 @@ public final class RectangleShapeInst {
         if (obj == this) {
             equal = true;
         } else if (obj instanceof final RectangleShapeInst rect) {
-            final Map<EAttribute, Double> rectAttributes = rect.getAttributes();
+            final Map<EAttribute, Number> rectAttributes = rect.getAttributes();
             equal = this.attributes.equals(rectAttributes);
         } else {
             equal = false;
