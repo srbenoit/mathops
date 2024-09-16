@@ -9,7 +9,7 @@ import dev.mathops.assessment.document.EStrokeCap;
 import dev.mathops.assessment.document.EStrokeJoin;
 import dev.mathops.assessment.document.GridSpec;
 import dev.mathops.assessment.document.NumberBounds;
-import dev.mathops.assessment.document.StrokeStyle;
+import dev.mathops.assessment.document.inst.StrokeStyleInst;
 import dev.mathops.assessment.document.inst.AbstractPrimitiveInst;
 import dev.mathops.assessment.document.inst.DocGraphXYInst;
 import dev.mathops.assessment.document.inst.DocObjectInstStyle;
@@ -718,7 +718,7 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
         final DocObjectInstStyle objStyle = new DocObjectInstStyle(getColorName(), getFontName(), (float) getFontSize(),
                 getFontStyle());
 
-        final StrokeStyle borderStyle = this.borderWidth == 0 ? null : new StrokeStyle((double) this.borderWidth,
+        final StrokeStyleInst borderStyle = this.borderWidth == 0 ? null : new StrokeStyleInst((double) this.borderWidth,
                 this.borderColorName, null, 1.0, EStrokeCap.BUTT, EStrokeJoin.MITER, 10.0f);
 
         final List<AbstractDocPrimitive> primitives = getPrimitives();
@@ -737,7 +737,7 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
 
         final GridSpec grid = new GridSpec(this.gridWidth, this.gridColorName);
 
-        final StrokeStyle axisStroke = new StrokeStyle((double) this.axisWidth, this.axisColorName, null, 1.0,
+        final StrokeStyleInst axisStroke = new StrokeStyleInst((double) this.axisWidth, this.axisColorName, null, 1.0,
                 EStrokeCap.BUTT, EStrokeJoin.MITER, 10.0f);
 
         final int tickPosLen;

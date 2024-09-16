@@ -2,7 +2,6 @@ package dev.mathops.assessment.document.inst;
 
 import dev.mathops.assessment.document.EXmlStyle;
 import dev.mathops.assessment.document.FillStyle;
-import dev.mathops.assessment.document.StrokeStyle;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 
@@ -21,7 +20,7 @@ public final class DocPrimitivePolygonInst extends AbstractPrimitiveInst {
     private final double[] y;
 
     /** The stroke style; {@code null} if not stroked. */
-    private final StrokeStyle strokeStyle;
+    private final StrokeStyleInst strokeStyle;
 
     /** The fill style; {@code null} if not filled. */
     private final FillStyle fillStyle;
@@ -34,7 +33,7 @@ public final class DocPrimitivePolygonInst extends AbstractPrimitiveInst {
      * @param theStrokeStyle the stroke style
      * @param theFillStyle   the fill style
      */
-    public DocPrimitivePolygonInst(final double[] theX, final double[] theY, final StrokeStyle theStrokeStyle,
+    public DocPrimitivePolygonInst(final double[] theX, final double[] theY, final StrokeStyleInst theStrokeStyle,
                             final FillStyle theFillStyle) {
 
         super();
@@ -74,7 +73,7 @@ public final class DocPrimitivePolygonInst extends AbstractPrimitiveInst {
      *
      * @return the stroke style; {@code null} if not stroked
      */
-    public StrokeStyle getStrokeStyle() {
+    public StrokeStyleInst getStrokeStyle() {
 
         return this.strokeStyle;
     }

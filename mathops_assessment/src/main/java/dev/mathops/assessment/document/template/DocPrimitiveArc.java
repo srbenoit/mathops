@@ -8,7 +8,7 @@ import dev.mathops.assessment.document.ELayoutMode;
 import dev.mathops.assessment.document.EStrokeCap;
 import dev.mathops.assessment.document.EStrokeJoin;
 import dev.mathops.assessment.document.FillStyle;
-import dev.mathops.assessment.document.StrokeStyle;
+import dev.mathops.assessment.document.inst.StrokeStyleInst;
 import dev.mathops.assessment.document.inst.DocPrimitiveArcInst;
 import dev.mathops.assessment.document.inst.RectangleShapeInst;
 import dev.mathops.assessment.variable.AbstractVariable;
@@ -968,7 +968,7 @@ final class DocPrimitiveArc extends AbstractDocRectangleShape {
                 final double strokeW = this.strokeWidth == null ? 0.0 : this.strokeWidth.doubleValue();
                 final double alphaValue = this.strokeAlpha == null ? 1.0 : this.strokeAlpha.doubleValue();
 
-                final StrokeStyle stroke = strokeW <= 0.0 ? null : new StrokeStyle(strokeW, this.strokeColorName,
+                final StrokeStyleInst stroke = strokeW <= 0.0 ? null : new StrokeStyleInst(strokeW, this.strokeColorName,
                         this.strokeDash, alphaValue, EStrokeCap.BUTT, EStrokeJoin.MITER, 10.0f);
 
                 final double fillAlphaValue = this.fillAlpha == null ? 1.0 : this.fillAlpha.doubleValue();

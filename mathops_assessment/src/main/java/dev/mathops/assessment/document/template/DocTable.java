@@ -7,7 +7,7 @@ import dev.mathops.assessment.document.EStrokeJoin;
 import dev.mathops.assessment.document.ETableSizing;
 import dev.mathops.assessment.document.EVAlign;
 import dev.mathops.assessment.document.Padding;
-import dev.mathops.assessment.document.StrokeStyle;
+import dev.mathops.assessment.document.inst.StrokeStyleInst;
 import dev.mathops.assessment.document.inst.DocNonwrappingSpanInst;
 import dev.mathops.assessment.document.inst.DocObjectInstStyle;
 import dev.mathops.assessment.document.inst.DocTableInst;
@@ -655,15 +655,15 @@ public final class DocTable extends AbstractDocContainer {
                 : new Padding((double) this.cellInsets.left, (double) this.cellInsets.top,
                 (double) this.cellInsets.right, (double) this.cellInsets.bottom);
 
-        final StrokeStyle border = this.boxWidth == 0 ? null :
-                new StrokeStyle((double) this.boxWidth, "black", null, 1.0, EStrokeCap.BUTT, EStrokeJoin.MITER, 10.0f);
+        final StrokeStyleInst border = this.boxWidth == 0 ? null :
+                new StrokeStyleInst((double) this.boxWidth, "black", null, 1.0, EStrokeCap.BUTT, EStrokeJoin.MITER, 10.0f);
 
-        final StrokeStyle hlines = this.hLineWidth == 0 ? null :
-                new StrokeStyle((double) this.hLineWidth, "black", null, 1.0, EStrokeCap.BUTT, EStrokeJoin.MITER,
+        final StrokeStyleInst hlines = this.hLineWidth == 0 ? null :
+                new StrokeStyleInst((double) this.hLineWidth, "black", null, 1.0, EStrokeCap.BUTT, EStrokeJoin.MITER,
                         10.0f);
 
-        final StrokeStyle vlines = this.vLineWidth == 0 ? null :
-                new StrokeStyle((double) this.vLineWidth, "black", null, 1.0, EStrokeCap.BUTT, EStrokeJoin.MITER,
+        final StrokeStyleInst vlines = this.vLineWidth == 0 ? null :
+                new StrokeStyleInst((double) this.vLineWidth, "black", null, 1.0, EStrokeCap.BUTT, EStrokeJoin.MITER,
                         10.0f);
 
         return new DocTableInst(objStyle, this.backgroundColorName, cells, colSizing, ETableSizing.NONUNIFORM, just,

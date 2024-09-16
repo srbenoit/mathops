@@ -3,7 +3,6 @@ package dev.mathops.assessment.document.inst;
 import dev.mathops.assessment.document.EArcFillStyle;
 import dev.mathops.assessment.document.EXmlStyle;
 import dev.mathops.assessment.document.FillStyle;
-import dev.mathops.assessment.document.StrokeStyle;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 
@@ -24,7 +23,7 @@ public final class DocPrimitiveArcInst extends AbstractPrimitiveInst {
     private final double arcAngle;
 
     /** The arc stroke style; {@code null} if not stroked. */
-    private final StrokeStyle strokeStyle;
+    private final StrokeStyleInst strokeStyle;
 
     /** The fill style. */
     private final EArcFillStyle arcFill;
@@ -43,7 +42,7 @@ public final class DocPrimitiveArcInst extends AbstractPrimitiveInst {
      * @param theFillStyle   the fill style
      */
     public DocPrimitiveArcInst(final RectangleShapeInst theShape, final double theStartAngle, final double theArcAngle,
-                               final StrokeStyle theStrokeStyle, final EArcFillStyle theArcFill,
+                               final StrokeStyleInst theStrokeStyle, final EArcFillStyle theArcFill,
                                final FillStyle theFillStyle) {
 
         super();
@@ -98,7 +97,7 @@ public final class DocPrimitiveArcInst extends AbstractPrimitiveInst {
      *
      * @return the stroke style; {@code null} if not stroked
      */
-    public StrokeStyle getStrokeStyle() {
+    public StrokeStyleInst getStrokeStyle() {
 
         return this.strokeStyle;
     }

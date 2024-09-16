@@ -1,12 +1,11 @@
 package dev.mathops.assessment.document.svggen;
 
-import dev.mathops.assessment.document.BoundingRect;
 import dev.mathops.assessment.document.CoordinateSystems;
 import dev.mathops.assessment.document.EArcFillStyle;
 import dev.mathops.assessment.document.EStrokeCap;
 import dev.mathops.assessment.document.EStrokeJoin;
 import dev.mathops.assessment.document.FillStyle;
-import dev.mathops.assessment.document.StrokeStyle;
+import dev.mathops.assessment.document.inst.StrokeStyleInst;
 import dev.mathops.assessment.document.inst.AbstractPrimitiveInst;
 import dev.mathops.assessment.document.inst.DocDrawingInst;
 import dev.mathops.assessment.document.inst.DocGraphXYInst;
@@ -85,7 +84,7 @@ public enum PrimitiveContainerInstConverter {
         }
 
         // If there is a border, draw it on top of all primitives
-        final StrokeStyle border = drawing.getBorder();
+        final StrokeStyleInst border = drawing.getBorder();
         if (border != null) {
             drawBorder(svg, width, height, border);
         }
@@ -149,7 +148,7 @@ public enum PrimitiveContainerInstConverter {
         }
 
         // If there is a border, draw it on top of all primitives
-        final StrokeStyle border = graph.getBorder();
+        final StrokeStyleInst border = graph.getBorder();
         if (border != null) {
             drawBorder(svg, width, height, border);
         }
@@ -168,7 +167,7 @@ public enum PrimitiveContainerInstConverter {
      * @param height the drawing height, in pixels
      * @param border the border stroke style
      */
-    private static void drawBorder(final HtmlBuilder svg, final int width, final int height, final StrokeStyle border) {
+    private static void drawBorder(final HtmlBuilder svg, final int width, final int height, final StrokeStyleInst border) {
 
         final double strokeWidth = border.getStrokeWidth();
         final double xy = strokeWidth * 0.5;
@@ -191,7 +190,7 @@ public enum PrimitiveContainerInstConverter {
      * @param fill   the fill style
      */
     private static void drawRect(final HtmlBuilder svg, final double x, final double y, final double width,
-                                 final double height, final StrokeStyle stroke, final FillStyle fill) {
+                                 final double height, final StrokeStyleInst stroke, final FillStyle fill) {
 
         final double strokeWidth = stroke.getStrokeWidth();
         final double alpha = stroke.getAlpha();
@@ -270,7 +269,7 @@ public enum PrimitiveContainerInstConverter {
      * @param fill   the fill style
      */
     private static void drawEllipse(final HtmlBuilder svg, final double x, final double y, final double width,
-                                    final double height, final StrokeStyle stroke, final FillStyle fill) {
+                                    final double height, final StrokeStyleInst stroke, final FillStyle fill) {
 
         final double strokeWidth = stroke.getStrokeWidth();
         final double alpha = stroke.getAlpha();
@@ -400,7 +399,7 @@ public enum PrimitiveContainerInstConverter {
                 }
             }
 
-            final StrokeStyle stroke = arc.getStrokeStyle();
+            final StrokeStyleInst stroke = arc.getStrokeStyle();
             if (stroke != null) {
                 final double strokeWidth = stroke.getStrokeWidth();
                 final double alpha = stroke.getAlpha();
@@ -460,7 +459,7 @@ public enum PrimitiveContainerInstConverter {
     private static void emitLine(final HtmlBuilder svg, final DocPrimitiveLineInst line,
                                  final CoordinateSystems coordinates) {
 
-        final StrokeStyle stroke = line.getStrokeStyle();
+        final StrokeStyleInst stroke = line.getStrokeStyle();
         if (stroke != null) {
             final double strokeWidth = stroke.getStrokeWidth();
             final double alpha = stroke.getAlpha();
@@ -535,7 +534,7 @@ public enum PrimitiveContainerInstConverter {
         final double w = bounds.getWidth();
         final double h = bounds.getHeight();
 
-        final StrokeStyle stroke = oval.getStrokeStyle();
+        final StrokeStyleInst stroke = oval.getStrokeStyle();
         final FillStyle fill = oval.getFillStyle();
 
         drawEllipse(svg, x, y, w, h, stroke, fill);
@@ -553,7 +552,7 @@ public enum PrimitiveContainerInstConverter {
         final double[] y = polygon.getY();
         final int count = x.length;
 
-        final StrokeStyle stroke = polygon.getStrokeStyle();
+        final StrokeStyleInst stroke = polygon.getStrokeStyle();
         final FillStyle fill = polygon.getFillStyle();
 
         svg.add("<polygon points='", Double.toString(x[0]), ",", Double.toString(y[0]));
@@ -634,7 +633,7 @@ public enum PrimitiveContainerInstConverter {
         final double[] y = polyline.getY();
         final int count = x.length;
 
-        final StrokeStyle stroke = polyline.getStrokeStyle();
+        final StrokeStyleInst stroke = polyline.getStrokeStyle();
 
         svg.add("<polygon points='", Double.toString(x[0]), ",", Double.toString(y[0]));
         for (int i = 1; i < count; ++i) {
