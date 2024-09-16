@@ -4,7 +4,7 @@ import dev.mathops.assessment.NumberOrFormula;
 import dev.mathops.assessment.document.EStrokeCap;
 import dev.mathops.assessment.document.EStrokeJoin;
 import dev.mathops.assessment.document.NumberBounds;
-import dev.mathops.assessment.document.StrokeStyle;
+import dev.mathops.assessment.document.inst.StrokeStyleInst;
 import dev.mathops.assessment.document.inst.DocPrimitiveFormulaInst;
 import dev.mathops.assessment.formula.AbstractFormulaObject;
 import dev.mathops.assessment.formula.Formula;
@@ -410,7 +410,7 @@ final class DocPrimitiveFormula extends AbstractDocPrimitive {
                 simpleFormula = new Formula(simplified);
             }
 
-            final StrokeStyle stroke = new StrokeStyle(1.0, this.formulaColorName, null, 1.0, EStrokeCap.BUTT,
+            final StrokeStyleInst stroke = new StrokeStyleInst(1.0, this.formulaColorName, null, 1.0, EStrokeCap.BUTT,
                     EStrokeJoin.MITER, 10.0f);
 
             result = new DocPrimitiveFormulaInst(simpleFormula, this.domainVarName, stroke, minNbr.doubleValue(),

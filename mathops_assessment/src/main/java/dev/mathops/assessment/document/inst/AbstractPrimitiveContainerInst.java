@@ -2,7 +2,6 @@ package dev.mathops.assessment.document.inst;
 
 import dev.mathops.assessment.document.CoordinateSystems;
 import dev.mathops.assessment.document.EXmlStyle;
-import dev.mathops.assessment.document.StrokeStyle;
 import dev.mathops.commons.builder.HtmlBuilder;
 
 import java.util.ArrayList;
@@ -28,7 +27,7 @@ public abstract class AbstractPrimitiveContainerInst extends AbstractDocObjectIn
     private final String altText;
 
     /** The border for the graph ({@code null} if there is no border). */
-    private final StrokeStyle border;
+    private final StrokeStyleInst border;
 
     /** The list of primitives that make up a drawing. */
     private final List<AbstractPrimitiveInst> primitives;
@@ -46,7 +45,7 @@ public abstract class AbstractPrimitiveContainerInst extends AbstractDocObjectIn
      */
     AbstractPrimitiveContainerInst(final DocObjectInstStyle theStyle, final String theBgColorName, final int theWidth,
                                    final int theHeight, final CoordinateSystems theCoordinates,
-                                   final String theAltText, final StrokeStyle theBorder,
+                                   final String theAltText, final StrokeStyleInst theBorder,
                                    final List<? extends AbstractPrimitiveInst> thePrimitives) {
 
         super(theStyle, theBgColorName);
@@ -104,7 +103,7 @@ public abstract class AbstractPrimitiveContainerInst extends AbstractDocObjectIn
      *
      * @return the border specification; {@code null} if there is no border
      */
-    public final StrokeStyle getBorder() {
+    public final StrokeStyleInst getBorder() {
 
         return this.border;
     }

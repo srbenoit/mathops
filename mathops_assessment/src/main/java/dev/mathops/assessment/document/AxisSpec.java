@@ -1,5 +1,6 @@
 package dev.mathops.assessment.document;
 
+import dev.mathops.assessment.document.inst.StrokeStyleInst;
 import dev.mathops.commons.builder.HtmlBuilder;
 
 import java.util.Objects;
@@ -10,7 +11,7 @@ import java.util.Objects;
 public final class AxisSpec {
 
     /** The axis color name. */
-    private final StrokeStyle axisStyle;
+    private final StrokeStyleInst axisStyle;
 
     /** The axis label; {@code null} if no label. */
     private final String label;
@@ -33,7 +34,7 @@ public final class AxisSpec {
      * @param theLabelColor the label color name; {@code null} to use axis color
      * @param theTicks      the optional ticks
      */
-    public AxisSpec(final StrokeStyle theAxisStyle, final String theLabel,
+    public AxisSpec(final StrokeStyleInst theAxisStyle, final String theLabel,
                     final float theLabelSize, final String theLabelColor, final AxisTicksSpec theTicks) {
 
         if (theAxisStyle == null) {
@@ -52,7 +53,7 @@ public final class AxisSpec {
      *
      * @return the axis style
      */
-    public StrokeStyle getAxisStyle() {
+    public StrokeStyleInst getAxisStyle() {
 
         return this.axisStyle;
     }

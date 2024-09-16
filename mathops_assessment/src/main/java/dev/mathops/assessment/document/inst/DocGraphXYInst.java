@@ -5,7 +5,6 @@ import dev.mathops.assessment.document.BoundingRect;
 import dev.mathops.assessment.document.CoordinateSystems;
 import dev.mathops.assessment.document.EXmlStyle;
 import dev.mathops.assessment.document.GridSpec;
-import dev.mathops.assessment.document.StrokeStyle;
 import dev.mathops.commons.builder.HtmlBuilder;
 
 import java.util.List;
@@ -46,7 +45,7 @@ public final class DocGraphXYInst extends AbstractPrimitiveContainerInst {
      */
     public DocGraphXYInst(final DocObjectInstStyle theStyle, final String theBgColorName, final int theWidth,
                           final int theHeight, final CoordinateSystems theCoordinates, final String theAltText,
-                          final StrokeStyle theBorder, final List<? extends AbstractPrimitiveInst> thePrimitives,
+                          final StrokeStyleInst theBorder, final List<? extends AbstractPrimitiveInst> thePrimitives,
                           final BoundingRect theWindow, final GridSpec theGrid, final AxisSpec theXAxis,
                           final AxisSpec theYAxis) {
 

@@ -1,13 +1,15 @@
-package dev.mathops.assessment.document;
+package dev.mathops.assessment.document.inst;
 
+import dev.mathops.assessment.document.EStrokeCap;
+import dev.mathops.assessment.document.EStrokeJoin;
 import dev.mathops.commons.builder.HtmlBuilder;
 
 import java.util.Arrays;
 
 /**
- * A specification of a stroke style.
+ * A stroke style.
  */
-public final class StrokeStyle {
+public final class StrokeStyleInst {
 
     /** An empty dash pattern. */
     private static final float[] NO_DASH = new float[0];
@@ -34,7 +36,7 @@ public final class StrokeStyle {
     private final float miterLimit;
 
     /**
-     * Constructs a new {@code StrokeStyle}.
+     * Constructs a new {@code StrokeStyleInst}.
      *
      * @param theStrokeWidth     the stroke width, in pixels
      * @param theStrokeColorName the stroke color name
@@ -44,9 +46,9 @@ public final class StrokeStyle {
      * @param theJoin            the label color name; {@code null} to use axis color
      * @param theMiterLimit      the optional ticks
      */
-    public StrokeStyle(final double theStrokeWidth, final String theStrokeColorName, final float[] theDash,
-                       final double theAlpha, final EStrokeCap theCap, final EStrokeJoin theJoin,
-                       final float theMiterLimit) {
+    public StrokeStyleInst(final double theStrokeWidth, final String theStrokeColorName, final float[] theDash,
+                           final double theAlpha, final EStrokeCap theCap, final EStrokeJoin theJoin,
+                           final float theMiterLimit) {
 
         if (theStrokeColorName == null) {
             throw new IllegalArgumentException("Stroke color name may not be null");
@@ -126,6 +128,7 @@ public final class StrokeStyle {
 
         return this.join;
     }
+
     /**
      * Gets the miter limit for the miter join style.
      *
@@ -179,7 +182,8 @@ public final class StrokeStyle {
 
         final HtmlBuilder builder = new HtmlBuilder(70);
 
-        builder.add("StrokeStyle:strokewidth=", Double.toString(this.strokeWidth), ",strokecolor=", this.strokeColorName);
+        builder.add("StrokeStyle:strokewidth=", Double.toString(this.strokeWidth), ",strokecolor=",
+                this.strokeColorName);
         final int dashLen = this.dash.length;
         if (dashLen > 0) {
             final HtmlBuilder pattern = new HtmlBuilder(40);
@@ -214,8 +218,8 @@ public final class StrokeStyle {
     public int hashCode() {
 
         return Double.hashCode(this.strokeWidth) + this.strokeColorName.hashCode() + Arrays.hashCode(this.dash)
-                + Double.hashCode(this.alpha) + this.cap.hashCode() + this.join.hashCode()
-                + Float.hashCode(this.miterLimit);
+               + Double.hashCode(this.alpha) + this.cap.hashCode() + this.join.hashCode()
+               + Float.hashCode(this.miterLimit);
     }
 
     /**
@@ -234,7 +238,7 @@ public final class StrokeStyle {
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final StrokeStyle spec) {
+        } else if (obj instanceof final StrokeStyleInst spec) {
             equal = this.strokeWidth == spec.strokeWidth
                     && this.strokeColorName.equals(spec.strokeColorName)
                     && Arrays.equals(this.dash, spec.dash)

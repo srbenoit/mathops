@@ -1,7 +1,6 @@
 package dev.mathops.assessment.document.inst;
 
 import dev.mathops.assessment.document.EXmlStyle;
-import dev.mathops.assessment.document.StrokeStyle;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 
@@ -14,7 +13,7 @@ public final class DocPrimitiveLineInst extends AbstractPrimitiveInst {
     private final RectangleShapeInst shape;
 
     /** The stroke style. */
-    private final StrokeStyle strokeStyle;
+    private final StrokeStyleInst strokeStyle;
 
     /**
      * Construct a new {@code DocPrimitiveLineInst}.
@@ -22,7 +21,7 @@ public final class DocPrimitiveLineInst extends AbstractPrimitiveInst {
      * @param theShape       the rectangular shape (the line is drawn from the
      * @param theStrokeStyle the stroke style
      */
-    public DocPrimitiveLineInst(final RectangleShapeInst theShape, final StrokeStyle theStrokeStyle) {
+    public DocPrimitiveLineInst(final RectangleShapeInst theShape, final StrokeStyleInst theStrokeStyle) {
 
         super();
 
@@ -49,7 +48,7 @@ public final class DocPrimitiveLineInst extends AbstractPrimitiveInst {
      *
      * @return the stroke style
      */
-    public StrokeStyle getStrokeStyle() {
+    public StrokeStyleInst getStrokeStyle() {
 
         return this.strokeStyle;
     }

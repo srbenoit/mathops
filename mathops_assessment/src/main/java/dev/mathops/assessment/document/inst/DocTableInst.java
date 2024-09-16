@@ -4,7 +4,6 @@ import dev.mathops.assessment.document.EJustification;
 import dev.mathops.assessment.document.ETableSizing;
 import dev.mathops.assessment.document.EXmlStyle;
 import dev.mathops.assessment.document.Padding;
-import dev.mathops.assessment.document.StrokeStyle;
 import dev.mathops.commons.builder.HtmlBuilder;
 
 import java.util.Arrays;
@@ -41,13 +40,13 @@ public final class DocTableInst extends AbstractDocObjectInst {
     private final Padding cellPadding;
 
     /** A border to surround the table; {@code null} if no border. */
-    public final StrokeStyle border;
+    public final StrokeStyleInst border;
 
     /** The style for horizontal lines between rows; {@code null} if no lines between rows. */
-    private final StrokeStyle hLines;
+    private final StrokeStyleInst hLines;
 
     /** The style for vertical lines between columns; {@code null} if no lines between columns. */
-    private final StrokeStyle vLines;
+    private final StrokeStyleInst vLines;
 
     /**
      * Construct a new {@code DocTableInst} object.
@@ -66,8 +65,8 @@ public final class DocTableInst extends AbstractDocObjectInst {
     public DocTableInst(final DocObjectInstStyle theStyle, final String theBgColorName,
                         final DocNonwrappingSpanInst[][] theCells, final ETableSizing theColumnSizing,
                         final ETableSizing theRowSizing, final EJustification theJustification,
-                        final Padding theCellPadding, final StrokeStyle theBorder, final StrokeStyle theHLines,
-                        final StrokeStyle theVLines) {
+                        final Padding theCellPadding, final StrokeStyleInst theBorder, final StrokeStyleInst theHLines,
+                        final StrokeStyleInst theVLines) {
 
         super(theStyle, theBgColorName);
 
@@ -176,7 +175,7 @@ public final class DocTableInst extends AbstractDocObjectInst {
      *
      * @return the border style; {@code null} if no border
      */
-    public StrokeStyle getBorder() {
+    public StrokeStyleInst getBorder() {
 
         return this.border;
     }
@@ -186,7 +185,7 @@ public final class DocTableInst extends AbstractDocObjectInst {
      *
      * @return the horizontal line style; {@code null} if no lines between rows
      */
-    public StrokeStyle getHLines() {
+    public StrokeStyleInst getHLines() {
 
         return this.hLines;
     }
@@ -196,7 +195,7 @@ public final class DocTableInst extends AbstractDocObjectInst {
      *
      * @return the vertical line style; {@code null} if no lines between columns
      */
-    public StrokeStyle getVLines() {
+    public StrokeStyleInst getVLines() {
 
         return this.vLines;
     }

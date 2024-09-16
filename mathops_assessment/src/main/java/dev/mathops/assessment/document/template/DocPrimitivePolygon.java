@@ -4,7 +4,7 @@ import dev.mathops.assessment.EParserMode;
 import dev.mathops.assessment.document.EStrokeCap;
 import dev.mathops.assessment.document.EStrokeJoin;
 import dev.mathops.assessment.document.FillStyle;
-import dev.mathops.assessment.document.StrokeStyle;
+import dev.mathops.assessment.document.inst.StrokeStyleInst;
 import dev.mathops.assessment.document.inst.DocPrimitivePolygonInst;
 import dev.mathops.assessment.formula.Formula;
 import dev.mathops.assessment.formula.FormulaFactory;
@@ -576,8 +576,8 @@ final class DocPrimitivePolygon extends AbstractDocPrimitive {
         final double strokeW = this.strokeWidth == null ? 0.0 : this.strokeWidth.doubleValue();
         final double alphaValue = this.alpha == null ? 1.0 : this.alpha.doubleValue();
 
-        final StrokeStyle stroke = strokeW <= 0.0 || alphaValue <= 0.0 ? null
-                : new StrokeStyle(strokeW, this.colorName, this.dash, alphaValue, EStrokeCap.BUTT,
+        final StrokeStyleInst stroke = strokeW <= 0.0 || alphaValue <= 0.0 ? null
+                : new StrokeStyleInst(strokeW, this.colorName, this.dash, alphaValue, EStrokeCap.BUTT,
                                   EStrokeJoin.MITER, 10.0f);
 
         final FillStyle fill = Boolean.TRUE.equals(this.filled) ? new FillStyle(this.colorName, alphaValue) : null;

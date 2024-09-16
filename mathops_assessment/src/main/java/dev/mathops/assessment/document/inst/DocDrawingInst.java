@@ -2,7 +2,6 @@ package dev.mathops.assessment.document.inst;
 
 import dev.mathops.assessment.document.CoordinateSystems;
 import dev.mathops.assessment.document.EXmlStyle;
-import dev.mathops.assessment.document.StrokeStyle;
 import dev.mathops.commons.builder.HtmlBuilder;
 
 import java.util.List;
@@ -26,7 +25,7 @@ public final class DocDrawingInst extends AbstractPrimitiveContainerInst {
      */
     public DocDrawingInst(final DocObjectInstStyle theStyle, final String theBgColorName, final int theWidth,
                           final int theHeight, final CoordinateSystems theCoordinates, final String theAltText,
-                          final StrokeStyle theBorder, final List<? extends AbstractPrimitiveInst> thePrimitives) {
+                          final StrokeStyleInst theBorder, final List<? extends AbstractPrimitiveInst> thePrimitives) {
 
         super(theStyle, theBgColorName, theWidth, theHeight, theCoordinates, theAltText, theBorder, thePrimitives);
     }

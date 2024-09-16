@@ -1,7 +1,6 @@
 package dev.mathops.assessment.document.inst;
 
 import dev.mathops.assessment.document.EXmlStyle;
-import dev.mathops.assessment.document.StrokeStyle;
 import dev.mathops.assessment.formula.Formula;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
@@ -18,7 +17,7 @@ public final class DocPrimitiveFormulaInst extends AbstractPrimitiveInst {
     private final String domainVarName;
 
     /** The stroke style. */
-    private final StrokeStyle strokeStyle;
+    private final StrokeStyleInst strokeStyle;
 
     /** The minimum domain variable value from which to draw the function. */
     private final double domainMin;
@@ -36,7 +35,7 @@ public final class DocPrimitiveFormulaInst extends AbstractPrimitiveInst {
      * @param theDomainMax     the maximum domain variable value from which to draw the function
      */
     public DocPrimitiveFormulaInst(final Formula theFormula, final String theDomainVarName,
-                                   final StrokeStyle theStrokeStyle, final double theDomainMin,
+                                   final StrokeStyleInst theStrokeStyle, final double theDomainMin,
                                    final double theDomainMax) {
 
         super();
@@ -83,7 +82,7 @@ public final class DocPrimitiveFormulaInst extends AbstractPrimitiveInst {
      *
      * @return the stroke style
      */
-    public StrokeStyle getStrokeStyle() {
+    public StrokeStyleInst getStrokeStyle() {
 
         return this.strokeStyle;
     }

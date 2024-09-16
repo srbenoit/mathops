@@ -1,7 +1,6 @@
 package dev.mathops.assessment.document.inst;
 
 import dev.mathops.assessment.document.EXmlStyle;
-import dev.mathops.assessment.document.StrokeStyle;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 
@@ -20,7 +19,7 @@ public final class DocPrimitivePolylineInst extends AbstractPrimitiveInst {
     private final double[] y;
 
     /** The stroke style; {@code null} if not stroked. */
-    private final StrokeStyle strokeStyle;
+    private final StrokeStyleInst strokeStyle;
 
     /**
      * Construct a new {@code DocPrimitivePolylineInst}.
@@ -29,7 +28,7 @@ public final class DocPrimitivePolylineInst extends AbstractPrimitiveInst {
      * @param theY           the array of y coordinates (must be same length as {@code x})
      * @param theStrokeStyle the stroke style
      */
-    DocPrimitivePolylineInst(final double[] theX, final double[] theY, final StrokeStyle theStrokeStyle) {
+    DocPrimitivePolylineInst(final double[] theX, final double[] theY, final StrokeStyleInst theStrokeStyle) {
 
         super();
 
@@ -67,7 +66,7 @@ public final class DocPrimitivePolylineInst extends AbstractPrimitiveInst {
      *
      * @return the stroke style; {@code null} if not stroked
      */
-    public StrokeStyle getStrokeStyle() {
+    public StrokeStyleInst getStrokeStyle() {
 
         return this.strokeStyle;
     }
