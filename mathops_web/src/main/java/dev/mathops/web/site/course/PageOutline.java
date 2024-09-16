@@ -2153,8 +2153,7 @@ enum PageOutline {
 
                     if ("Y".equals(courseStatus.getPacingStructure().requireUnitExams)
                         && nextUnit <= courseStatus.getMaxUnit()) {
-                        final RawCusection nextSecUnit =
-                                courseStatus.getCourseSectionUnit(nextUnit);
+                        final RawCusection nextSecUnit = courseStatus.getCourseSectionUnit(nextUnit);
 
                         if (nextSecUnit != null) {
                             final String type = courseStatus.getCourseUnit(nextUnit).unitType;
@@ -2431,8 +2430,8 @@ enum PageOutline {
         }
 
         final boolean isPassing = courseStatus.isPassing(unitNum);
-        if (!isPassing) {
-            if (deadline != null && pastDeadline) {
+        if (!isPassing && deadline != null) {
+            if (pastDeadline) {
                 htm.sP("indent").add("<strong class='redred'>");
                 htm.addln(" The deadline to pass the Final Exam was ",
                         TemporalUtils.FMT_WMDY.format(deadline), "</strong>.");
@@ -2488,7 +2487,7 @@ enum PageOutline {
                     }
                     htm.addln("</span></strong>").eP();
                 }
-            } else if (deadline != null && label != null) {
+            } else if (label != null) {
 
                 final RawCsection csection = courseStatus.getCourseSection();
                 final int minToPass;
@@ -2539,6 +2538,8 @@ enum PageOutline {
                     htm.eP();
                 }
             }
+
+            emitFinalExamExtensions(cache, courseStatus, deadline, htm);
         }
 
         final String range = courseStatus.getProctoredRange(unitNum);
@@ -2555,6 +2556,107 @@ enum PageOutline {
 
         if ("course".equals(mode)) {
             examStatus(courseStatus, unitNum, label, unitAvail, htm);
+        }
+    }
+
+    /**
+     * Checks whether the student is eligible for automatic extensions on a Final Exam, and emits buttons to request
+     * those.
+     *
+     * @param cache        the data cache
+     * @param courseStatus the course status object
+     * @param dueDate      the current review exam due date
+     * @param htm          the {@code HtmlBuilder} to which to append
+     * @throws SQLException if there is an error accessing the database
+     */
+    private static void emitFinalExamExtensions(final Cache cache, final StudentCourseStatus courseStatus,
+                                                final LocalDate dueDate, final HtmlBuilder htm)
+            throws SQLException {
+
+        final RawStterm stterm = courseStatus.getStudentTerm();
+        final RawStcourse stcourse = courseStatus.getStudentCourse();
+
+        final RawStudent stu = courseStatus.getStudent();
+        final String course = courseStatus.getCourse().course;
+
+        if (stcourse != null && stcourse.paceOrder != null && stterm != null && stterm.pace != null
+            && stterm.paceTrack != null) {
+
+            final int index = stcourse.paceOrder.intValue();
+            final int paceInt = stterm.pace.intValue();
+
+            try {
+                final int accommodationExtensionDays = MilestoneLogic.daysAvailableLegacyAccommodationExtension(
+                        cache, stu.stuId, stterm.paceTrack, paceInt, index, 5, "FE");
+
+                if (accommodationExtensionDays == 0) {
+                    htm.sP("indent");
+                    htm.add("Your SDC accommodation extension has already been applied to this due date.");
+                    htm.eP();
+                } else if (accommodationExtensionDays > 0) {
+                    // If the due date is in the past or near future, show SDC accommodation
+                    final LocalDate today = LocalDate.now();
+                    final LocalDate soon = today.plusDays(4L);
+                    if (dueDate.isBefore(soon)) {
+                        final String daysStr = Integer.toString(accommodationExtensionDays);
+
+                        htm.addln("<form method='POST' action='request_accom_extension.html'>");
+
+                        htm.sP("indent").add("You have an extension of ", daysStr,
+                                " days available based on your SDC accommodation.").br();
+                        htm.addln(" <input type='hidden' name='course' value='", course, "'/>");
+                        htm.addln(" <input type='hidden' name='stu' value='", stu.stuId, "'/>");
+                        htm.addln(" <input type='hidden' name='track' value='", stterm.paceTrack, "'/>");
+                        htm.addln(" <input type='hidden' name='pace' value='", stterm.pace, "'/>");
+                        htm.addln(" <input type='hidden' name='index' value='", index, "'/>");
+                        htm.addln(" <input type='hidden' name='unit' value='5'/>");
+                        htm.addln(" <input type='hidden' name='type' value='FE'/>");
+
+                        htm.addln(" &nbsp; <button class='smallbtn' type='submit'>",
+                                "Apply my accommodation extension</button>");
+                        htm.eP();
+                        htm.addln("</form>");
+                    }
+                }
+            } catch (final IllegalArgumentException ex) {
+                Log.warning(ex);
+            }
+
+            try {
+                final int freeExtensionDays = MilestoneLogic.daysAvailableLegacyFreeExtension(cache, stu.stuId,
+                        stterm.paceTrack, paceInt, index, 5, "FE");
+
+                if (freeExtensionDays == 0) {
+                    htm.sP("indent");
+                    htm.add("Your free extension has already been applied to this due date.");
+                    htm.eP();
+                } else if (freeExtensionDays > 0) {
+                    // If the due date is in the past or near future, show SDC accommodation
+                    final LocalDate today = LocalDate.now();
+                    final LocalDate soon = today.plusDays(2L);
+
+                    if (dueDate.isBefore(soon)) {
+                        final String daysStr = Integer.toString(freeExtensionDays);
+                        htm.addln("<form method='POST' action='request_free_extension.html'>");
+                        htm.sP("indent");
+                        htm.add("All students are allowed a ", daysStr,
+                                "-day free extension to account for unexpected situations that may arise.").br();
+
+                        htm.addln(" <input type='hidden' name='course' value='", course, "'/>");
+                        htm.addln(" <input type='hidden' name='stu' value='", stu.stuId, "'/>");
+                        htm.addln(" <input type='hidden' name='track' value='", stterm.paceTrack, "'/>");
+                        htm.addln(" <input type='hidden' name='pace' value='", stterm.pace, "'/>");
+                        htm.addln(" <input type='hidden' name='index' value='", index, "'/>");
+                        htm.addln(" <input type='hidden' name='unit' value='5'/>");
+                        htm.addln(" <input type='hidden' name='type' value='FE'/>");
+                        htm.addln(" &nbsp; <button class='smallbtn' type='submit'>Apply my free extension</button>");
+                        htm.eP();
+                        htm.addln("</form>");
+                    }
+                }
+            } catch (final IllegalArgumentException ex) {
+                Log.warning(ex);
+            }
         }
     }
 
