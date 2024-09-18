@@ -73,8 +73,8 @@ public final class EPFScanWorker extends SwingWorker<Integer, ScannerStatus> imp
 
         final Map<String, List<String>> incCourseSections = new HashMap<>(10);
 
-//        final String[] sections = {"001", "401", "801", "809"};
-         final String[] sections = {"002"};
+        final String[] sections = {"001", "401", "801", "809"};
+//         final String[] sections = {"002"};
 
         final List<String> sect117 = Arrays.asList(sections);
         final List<String> sect118 = Arrays.asList(sections);

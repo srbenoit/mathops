@@ -875,8 +875,7 @@ public enum EPF {
                     incCourseSections.put(RawRecordConstants.M125, sect125);
                     incCourseSections.put(RawRecordConstants.M126, sect126);
 
-                    final Map<Integer, List<String>> result =
-                            calculate(cache, incCourseSections);
+                    final Map<Integer, List<String>> result = calculate(cache, incCourseSections);
 
                     for (final Map.Entry<Integer, List<String>> entry : result.entrySet()) {
                         Log.info(entry.getKey(), ": ", Integer.toString(entry.getValue().size()), " students");

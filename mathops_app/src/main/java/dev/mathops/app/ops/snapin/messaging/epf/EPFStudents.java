@@ -86,8 +86,7 @@ final class EPFStudents {
     void calculate(final Map<String, ? extends List<String>> incCourseSections,
                    final Map<String, ? super MessageToSend> epf) {
 
-        // In terms of progress, the first 1% will be loading data, then next 99 will be scanning
-        // students.
+        // In terms of progress, the first 1% will be loading data, then next 99 will be scanning students.
 
         this.canceled.set(false);
         try {
@@ -123,8 +122,7 @@ final class EPFStudents {
                     }
 
                     ++onStudent;
-                    final String descr =
-                            "Processing student " + onStudent + " out of " + numStudents;
+                    final String descr = "Processing student " + onStudent + " out of " + numStudents;
                     fireProgress(descr, completed, totalSteps);
 
                     final String studentId = e.getKey();
@@ -315,11 +313,10 @@ final class EPFStudents {
                     if (stu == null) {
                         Log.warning("ERROR: No student record for ", stuId);
                     } else {
-                        final List<RawStexam> exams =
-                                RawStexamLogic.queryByStudent(this.cache, stuId, false);
+                        final List<RawStexam> exams = RawStexamLogic.queryByStudent(this.cache, stuId, false);
 
-                        final List<RawSthomework> homeworks =
-                                RawSthomeworkLogic.queryByStudent(this.cache, stuId, false);
+                        final List<RawSthomework> homeworks = RawSthomeworkLogic.queryByStudent(this.cache, stuId,
+                                false);
 
                         final List<RawStmsg> messages = RawStmsgLogic.queryByStudent(this.cache, stuId);
                         final List<RawSpecialStus> specials = RawSpecialStusLogic.queryByStudent(this.cache, stuId);
