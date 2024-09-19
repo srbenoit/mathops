@@ -122,7 +122,9 @@ enum ComputeSectionRoomAssignments {
                         for (final Room room : iterationRooms) {
                             if (course.isRoomCompatible(usage, room)) {
                                 final int roomCap = room.getCapacity();
-                                final int seatsToAssign = Math.min(seatsNeeded, roomCap);
+                                final int maxSeats = Math.min(roomCap, course.enrollmentCap);
+
+                                final int seatsToAssign = Math.min(seatsNeeded, maxSeats);
                                 final EAssignmentType type = course.getAssignmentType(usage);
 
                                 final AbstractSection sect = addSectionToRoom(type, room, hoursNeeded, course,
@@ -338,7 +340,7 @@ enum ComputeSectionRoomAssignments {
                                                    final Iterable<Room> rooms) {
 
         for (final Room room : rooms) {
-            final int seats = room.getCapacity();
+            final int roomCap = room.getCapacity();
 
             final Iterator<Course> iterator = toBeAssigned.iterator();
             while (iterator.hasNext()) {
@@ -346,7 +348,9 @@ enum ComputeSectionRoomAssignments {
 
                 if (course.isRoomCompatible(usage, room)) {
                     final int seatsNeeded = course.getNumSeatsNeeded();
-                    if (seatsNeeded <= seats) {
+                    final int maxSeats = Math.min(roomCap, course.enrollmentCap);
+
+                    if (seatsNeeded <= maxSeats) {
                         final int hours = course.getContactHours(usage);
                         final EAssignmentType type = course.getAssignmentType(usage);
                         final AbstractSection sect = addSectionToRoom(type, room, hours, course, seatsNeeded, usage);

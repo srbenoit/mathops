@@ -34,7 +34,7 @@ final class SpurFirstYearFall {
 
         final List<Course> immutableCourses = Arrays.asList(SpurCourses.LIFE102, SpurCourses.MATH112,
                 SpurCourses.SEMINAR, SpurCourses.CS150B, SpurCourses.IDEA110, SpurCourses.HDFS101,
-                SpurCourses.AGRI116, SpurCourses.AB111, SpurCourses.EHRS220, SpurCourses.POLS131,
+                SpurCourses.AGRI116, SpurCourses.AB111, SpurCourses.ERHS220, SpurCourses.POLS131,
                 SpurCourses.AREC222, SpurCourses.SPCM100, SpurCourses.BZ101);
         final Collection<Course> courses = new ArrayList<>(immutableCourses);
 

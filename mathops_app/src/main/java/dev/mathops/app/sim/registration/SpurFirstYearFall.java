@@ -226,8 +226,8 @@ final class SpurFirstYearFall {
 
         // EHRS 220
 
-        final OfferedCourse courseEhrs220 = new OfferedCourse(SpurCourses.EHRS220);
-        offeredCourses.put(SpurCourses.EHRS220, courseEhrs220);
+        final OfferedCourse courseEhrs220 = new OfferedCourse(SpurCourses.ERHS220);
+        offeredCourses.put(SpurCourses.ERHS220, courseEhrs220);
 
         final Collection<OfferedSection> sectionsEhrs220Class = new ArrayList<>(2);
         sectionsEhrs220Class.add(new OfferedSection(courseEhrs220, CLASSROOM_SIZE,

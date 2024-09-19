@@ -24,6 +24,9 @@ public final class Course implements Comparable<Course> {
     /** The number of credits. */
     public final int numCredits;
 
+    /** The enrollment cap. */
+    public final int enrollmentCap;
+
     /** True if the class is mandatory for all students. */
     public final boolean mandatory;
 
@@ -42,14 +45,17 @@ public final class Course implements Comparable<Course> {
     /**
      * Constructs an {@code Course} that has a lab component.
      *
-     * @param theCourseId   the course ID
-     * @param theNumCredits the number of credits
-     * @param isMandatory   true if the course is mandatory for all students
+     * @param theCourseId      the course ID
+     * @param theNumCredits    the number of credits
+     * @param theEnrollmentCap the enrollment cap
+     * @param isMandatory      true if the course is mandatory for all students
      */
-    public Course(final String theCourseId, final int theNumCredits, final boolean isMandatory) {
+    public Course(final String theCourseId, final int theNumCredits, final int theEnrollmentCap,
+                  final boolean isMandatory) {
 
         this.courseId = theCourseId;
         this.numCredits = theNumCredits;
+        this.enrollmentCap = theEnrollmentCap;
         this.mandatory = isMandatory;
 
         this.contactHoursByRoomType = new EnumMap<>(ERoomUsage.class);
@@ -89,10 +95,10 @@ public final class Course implements Comparable<Course> {
      * @param assignmentType      the assignment type
      * @param rooms               the list of rooms that are compatible with this course's needs for this room type
      */
-    public void addRoomType(final ERoomUsage usage, final int contactHoursPerWeek, final EAssignmentType assignmentType,
-                            final Collection<Room> rooms) {
+    void addRoomType(final ERoomUsage usage, final int contactHoursPerWeek, final EAssignmentType assignmentType,
+                     final Collection<Room> rooms) {
 
-        if (rooms == null || rooms.size() == 0) {
+        if (rooms == null || rooms.isEmpty()) {
             throw new IllegalArgumentException("List of compatible rooms must be nonempty");
         }
 
@@ -257,7 +263,6 @@ public final class Course implements Comparable<Course> {
 
         return this.courseId.compareTo(o.courseId);
     }
-
 
     /**
      * Generates a string representation of the list of rooms.

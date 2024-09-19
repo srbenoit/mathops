@@ -1,7 +1,6 @@
 package dev.mathops.app.sim.students;
 
 import dev.mathops.app.sim.courses.SpurCourses;
-import dev.mathops.commons.log.Log;
 
 /**
  * The assumed distribution for the Spur first-year students in Fall.
@@ -13,7 +12,7 @@ public enum SpurStudents {
     private static final boolean INCLUDE_MATH = true;
 
     /** Flag to control whether EHRS 220 is included in Fall (if false, it is offered in Summer). */
-    private static final boolean INCLUDE_EHRS = true;
+    private static final boolean INCLUDE_ERHS = true;
 
     /** Flag to control whether POLS 131 is included in Fall (if false, it is offered in Summer). */
     private static final boolean INCLUDE_POLS = true;
@@ -61,8 +60,8 @@ public enum SpurStudents {
         fallPrefs1.setPreference(SpurCourses.AB111, 0.1);
         fallPrefs1.setPreference(SpurCourses.BZ101, 0.2);
         fallPrefs1.setPreference(SpurCourses.LIFE102, 0.9);
-        if (INCLUDE_EHRS) {
-            fallPrefs1.setPreference(SpurCourses.EHRS220, 0.1);
+        if (INCLUDE_ERHS) {
+            fallPrefs1.setPreference(SpurCourses.ERHS220, 0.1);
         }
         fallPrefs1.setPreference(SpurCourses.SPCM100, 0.25);
         fallPrefs1.setPreference(SpurCourses.CS150B, 0.25);
@@ -82,8 +81,8 @@ public enum SpurStudents {
         fallPrefs2.setPreference(SpurCourses.AB111, 0.1);
         fallPrefs2.setPreference(SpurCourses.BZ101, 0.2);
         fallPrefs2.setPreference(SpurCourses.LIFE102, 0.8);
-        if (INCLUDE_EHRS) {
-            fallPrefs2.setPreference(SpurCourses.EHRS220, 0.1);
+        if (INCLUDE_ERHS) {
+            fallPrefs2.setPreference(SpurCourses.ERHS220, 0.1);
         }
         fallPrefs2.setPreference(SpurCourses.SPCM100, 0.25);
         fallPrefs2.setPreference(SpurCourses.CS150B, 0.25);
@@ -103,8 +102,8 @@ public enum SpurStudents {
         fallPrefs3.setPreference(SpurCourses.AB111, 0.1);
         fallPrefs3.setPreference(SpurCourses.BZ101, 0.1);
         fallPrefs3.setPreference(SpurCourses.LIFE102, 0.9);
-        if (INCLUDE_EHRS) {
-            fallPrefs3.setPreference(SpurCourses.EHRS220, 0.1);
+        if (INCLUDE_ERHS) {
+            fallPrefs3.setPreference(SpurCourses.ERHS220, 0.1);
         }
         fallPrefs3.setPreference(SpurCourses.SPCM100, 0.1);
         fallPrefs3.setPreference(SpurCourses.CS150B, 0.7);
@@ -124,8 +123,8 @@ public enum SpurStudents {
         fallPrefs4.setPreference(SpurCourses.AB111, 0.2);
         fallPrefs4.setPreference(SpurCourses.BZ101, 0.1);
         fallPrefs4.setPreference(SpurCourses.LIFE102, 0.7);
-        if (INCLUDE_EHRS) {
-            fallPrefs4.setPreference(SpurCourses.EHRS220, 0.2);
+        if (INCLUDE_ERHS) {
+            fallPrefs4.setPreference(SpurCourses.ERHS220, 0.2);
         }
         fallPrefs4.setPreference(SpurCourses.SPCM100, 0.25);
         fallPrefs4.setPreference(SpurCourses.CS150B, 0.25);

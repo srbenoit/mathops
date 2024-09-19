@@ -5,6 +5,7 @@ import dev.mathops.app.sim.rooms.Room;
 import dev.mathops.app.sim.students.StudentClassPreferences;
 import dev.mathops.app.sim.students.StudentDistribution;
 import dev.mathops.app.sim.students.StudentPopulation;
+import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 
 import java.util.ArrayList;
@@ -36,11 +37,9 @@ enum ComputePopulationSize {
     static int compute(final Collection<Course> courses, final StudentDistribution studentDistribution,
                        final List<Room> rooms) {
 
-        int pop = 159;
+        int pop = 79;
 
         boolean solutionFound;
-
-//        final HtmlBuilder builder = new HtmlBuilder(50);
 
         int numSuccess;
 
