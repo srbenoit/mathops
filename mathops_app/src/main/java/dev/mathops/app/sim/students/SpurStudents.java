@@ -17,6 +17,9 @@ public enum SpurStudents {
     /** Flag to control whether POLS 131 is included in Fall (if false, it is offered in Summer). */
     private static final boolean INCLUDE_POLS = true;
 
+    /** Flag to control whether CO 150 is included in Fall (if false, it is offered in Spring). */
+    private static final boolean INCLUDE_FA_CO150 = true;
+
     /** A class preferences key. */
     private static final String HEALTH_LIFE_FOOD = "HEALTH_LIFE_FOOD";
 
@@ -67,6 +70,9 @@ public enum SpurStudents {
         fallPrefs1.setPreference(SpurCourses.CS150B, 0.25);
         fallPrefs1.setPreference(SpurCourses.IDEA110, 0.25);
         fallPrefs1.setPreference(SpurCourses.HDFS101, 0.25);
+        if (INCLUDE_FA_CO150) {
+            fallPrefs1.setPreference(SpurCourses.CO150, 1.0);
+        }
 
         final StudentClassPreferences fallPrefs2 = new StudentClassPreferences(LAND_PLANT_ANIMAL, 13, 17);
         fallPrefs2.setPreference(SpurCourses.SEMINAR, 1.0);
@@ -88,6 +94,9 @@ public enum SpurStudents {
         fallPrefs2.setPreference(SpurCourses.CS150B, 0.25);
         fallPrefs2.setPreference(SpurCourses.IDEA110, 0.2);
         fallPrefs2.setPreference(SpurCourses.HDFS101, 0.2);
+        if (INCLUDE_FA_CO150) {
+            fallPrefs2.setPreference(SpurCourses.CO150, 1.0);
+        }
 
         final StudentClassPreferences fallPrefs3 = new StudentClassPreferences(SCIENCE_ENGINEERING, 13, 17);
         fallPrefs3.setPreference(SpurCourses.SEMINAR, 1.0);
@@ -109,6 +118,9 @@ public enum SpurStudents {
         fallPrefs3.setPreference(SpurCourses.CS150B, 0.7);
         fallPrefs3.setPreference(SpurCourses.IDEA110, 0.25);
         fallPrefs3.setPreference(SpurCourses.HDFS101, 0.1);
+        if (INCLUDE_FA_CO150) {
+            fallPrefs3.setPreference(SpurCourses.CO150, 1.0);
+        }
 
         final StudentClassPreferences fallPrefs4 = new StudentClassPreferences(ENVIRONMENTAL_RES, 13, 17);
         fallPrefs4.setPreference(SpurCourses.SEMINAR, 1.0);
@@ -130,6 +142,9 @@ public enum SpurStudents {
         fallPrefs4.setPreference(SpurCourses.CS150B, 0.25);
         fallPrefs4.setPreference(SpurCourses.IDEA110, 0.2);
         fallPrefs4.setPreference(SpurCourses.HDFS101, 0.2);
+        if (INCLUDE_FA_CO150) {
+            fallPrefs4.setPreference(SpurCourses.CO150, 1.0);
+        }
 
         final StudentDistribution distribution = new StudentDistribution();
         distribution.addGroup(fallPrefs1, 0.411);
@@ -149,7 +164,9 @@ public enum SpurStudents {
 
         final StudentClassPreferences springPrefs1 = new StudentClassPreferences(HEALTH_LIFE_FOOD, 13, 17);
         springPrefs1.setPreference(SpurCourses.SEMINAR, 1.0);
-        springPrefs1.setPreference(SpurCourses.CO150, 1.0);
+        if (!INCLUDE_FA_CO150) {
+            springPrefs1.setPreference(SpurCourses.CO150, 1.0);
+        }
         springPrefs1.setPreference(SpurCourses.SOC220, 0.4);
         springPrefs1.setPreference(SpurCourses.LIFE103, 0.55);
         springPrefs1.setPreference(SpurCourses.CHEM111, 0.9);
@@ -162,7 +179,9 @@ public enum SpurStudents {
 
         final StudentClassPreferences springPrefs2 = new StudentClassPreferences(LAND_PLANT_ANIMAL, 13, 17);
         springPrefs2.setPreference(SpurCourses.SEMINAR, 1.0);
-        springPrefs2.setPreference(SpurCourses.CO150, 1.0);
+        if (!INCLUDE_FA_CO150) {
+            springPrefs2.setPreference(SpurCourses.CO150, 1.0);
+        }
         springPrefs2.setPreference(SpurCourses.SOC220, 0.2);
         springPrefs2.setPreference(SpurCourses.LIFE103, 0.55);
         springPrefs2.setPreference(SpurCourses.CHEM111, 0.9);
@@ -175,7 +194,9 @@ public enum SpurStudents {
 
         final StudentClassPreferences springPrefs3 = new StudentClassPreferences(SCIENCE_ENGINEERING, 13, 17);
         springPrefs3.setPreference(SpurCourses.SEMINAR, 1.0);
-        springPrefs3.setPreference(SpurCourses.CO150, 1.0);
+        if (!INCLUDE_FA_CO150) {
+            springPrefs3.setPreference(SpurCourses.CO150, 1.0);
+        }
         springPrefs3.setPreference(SpurCourses.SOC220, 0.25);
         springPrefs3.setPreference(SpurCourses.LIFE103, 0.5);
         springPrefs3.setPreference(SpurCourses.CHEM111, 0.9);
@@ -188,7 +209,9 @@ public enum SpurStudents {
 
         final StudentClassPreferences springPrefs4 = new StudentClassPreferences(ENVIRONMENTAL_RES, 13, 17);
         springPrefs4.setPreference(SpurCourses.SEMINAR, 1.0);
-        springPrefs4.setPreference(SpurCourses.CO150, 1.0);
+        if (!INCLUDE_FA_CO150) {
+            springPrefs4.setPreference(SpurCourses.CO150, 1.0);
+        }
         springPrefs4.setPreference(SpurCourses.SOC220, 0.4);
         springPrefs4.setPreference(SpurCourses.LIFE103, 0.5);
         springPrefs4.setPreference(SpurCourses.CHEM111, 0.9);

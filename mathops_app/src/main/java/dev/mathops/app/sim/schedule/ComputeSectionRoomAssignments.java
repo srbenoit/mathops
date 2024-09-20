@@ -7,8 +7,10 @@ import dev.mathops.app.sim.rooms.Rooms;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -24,16 +26,16 @@ enum ComputeSectionRoomAssignments {
      *
      * @param courses the list of courses offered (with the number of seats needed populated)
      * @param rooms   the set of available rooms
-     * @return true if a set of section assignments was found that provides room space for all courses; false if not
+     * @return the sections for each course if a set of section assignments was found that provides room space for all
+     *         courses; an empty map if not
      */
-    static boolean canCompute(final Collection<Course> courses, final List<Room> rooms) {
+    static Map<Course, List<AbstractSection>> compute(final Collection<Course> courses, final List<Room> rooms) {
 
         for (final Room room : rooms) {
             room.clearSections();
         }
 
-        boolean result = true;
-
+        boolean success = true;
         // Consider each possible usage, in turn.
         for (final ERoomUsage usage : ERoomUsage.values()) {
 
@@ -46,8 +48,27 @@ enum ComputeSectionRoomAssignments {
 
             if (numUnassigned > 0) {
                 // NOTE: this leaves the room data in an incomplete state, but on a failure here, the data is discarded
-                result = false;
+                success = false;
                 break;
+            }
+        }
+
+        final int numCourses = courses.size();
+        final Map<Course, List<AbstractSection>> result = new HashMap<>(numCourses);
+
+        if (success) {
+            // Copy room section data to courses if successful
+            for (final Room room : rooms) {
+                for (final SectionMWF sect : room.getSectionsMWF()) {
+                    final Course course = sect.course();
+                    final List<AbstractSection> list = result.computeIfAbsent(course, x -> new ArrayList<>(10));
+                    list.add(sect);
+                }
+                for (final SectionTR sect : room.getSectionsTR()) {
+                    final Course course = sect.course();
+                    final List<AbstractSection> list = result.computeIfAbsent(course, x -> new ArrayList<>(10));
+                    list.add(sect);
+                }
             }
         }
 
@@ -509,7 +530,8 @@ enum ComputeSectionRoomAssignments {
                     final int roomCap = room.getCapacity();
                     final int seatsToAssign = Math.min(roomCap, seatsNeeded);
 
-                    final AbstractSection sect = addSectionToRoom(type, room, hoursNeeded, course, seatsToAssign, usage);
+                    final AbstractSection sect = addSectionToRoom(type, room, hoursNeeded, course, seatsToAssign,
+                            usage);
 
                     if (Objects.nonNull(sect)) {
                         last = sect;

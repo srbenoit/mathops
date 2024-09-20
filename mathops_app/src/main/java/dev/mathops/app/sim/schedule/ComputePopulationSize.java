@@ -1,6 +1,7 @@
 package dev.mathops.app.sim.schedule;
 
 import dev.mathops.app.sim.courses.Course;
+import dev.mathops.app.sim.rooms.ERoomUsage;
 import dev.mathops.app.sim.rooms.Room;
 import dev.mathops.app.sim.students.StudentClassPreferences;
 import dev.mathops.app.sim.students.StudentDistribution;
@@ -8,10 +9,14 @@ import dev.mathops.app.sim.students.StudentPopulation;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 import java.util.random.RandomGenerator;
 
@@ -22,7 +27,7 @@ enum ComputePopulationSize {
     ;
 
     /** The number of attempts to make per population size. */
-    private static final int ATTEMPTS_PER_POP_SIZE = 100;
+    private static final int ATTEMPTS_PER_POP_SIZE = 200;
 
     /**
      * Calculates the largest population size that can be accommodated for a given set of course offerings, a given set
@@ -32,41 +37,171 @@ enum ComputePopulationSize {
      * @param courses             the list of courses offered
      * @param studentDistribution the student distribution
      * @param rooms               the set of available rooms
-     * @return the maximum population size
+     * @param minPopulation       the minimum population to simulate
+     * @param maxPopulation       the maximum population to simulate
+     * @return the content of a CSV file with a report
      */
-    static int compute(final Collection<Course> courses, final StudentDistribution studentDistribution,
-                       final List<Room> rooms) {
+    static String compute(final List<Course> courses, final StudentDistribution studentDistribution,
+                          final List<Room> rooms, final int minPopulation, final int maxPopulation) {
 
-        int pop = 79;
+        final int numCourses = courses.size();
+        final int numPopulations = maxPopulation - minPopulation + 1;
 
-        boolean solutionFound;
+        // Data tracking (for each population size, and then for each course) - this will generate CSV file.
 
-        int numSuccess;
+        final int[] populations = new int[numPopulations];
 
-        do {
-            ++pop;
+        final float[] percentSuccessful = new float[numPopulations];
+        final float[] totalClassSections = new float[numPopulations];
+        final float[] totalLabSections = new float[numPopulations];
+        final float[] totalRecitationSections = new float[numPopulations];
 
-            numSuccess = 0;
+        final float[][] averageClassSections = new float[numCourses][numPopulations];
+        final float[][] averageLabSections = new float[numCourses][numPopulations];
+        final float[][] averageRecitationSections = new float[numCourses][numPopulations];
+
+        final int[] classSectionCount = new int[numCourses];
+        final int[] labSectionCount = new int[numCourses];
+        final int[] recitationSectionCount = new int[numCourses];
+
+        for (int pop = minPopulation; pop <= maxPopulation; ++pop) {
+            final int arrayIndex = pop - minPopulation;
+            populations[arrayIndex] = pop;
+
+            Arrays.fill(classSectionCount, 0);
+            Arrays.fill(labSectionCount, 0);
+            Arrays.fill(recitationSectionCount, 0);
+
+            int numSuccess = 0;
             for (int attempt = 0; attempt < ATTEMPTS_PER_POP_SIZE; ++attempt) {
 
                 final StudentPopulation population = new StudentPopulation(studentDistribution, pop);
                 simulateRegistrations(courses, population);
 
-                solutionFound = ComputeSectionRoomAssignments.canCompute(courses, rooms);
+                final Map<Course, List<AbstractSection>> result = ComputeSectionRoomAssignments.compute(courses, rooms);
 
-                if (solutionFound) {
+                if (!result.isEmpty()) {
+                    for (int i = 0; i < numCourses; ++i) {
+                        final Course course = courses.get(i);
+                        final List<AbstractSection> list = result.get(course);
+
+                        if (Objects.nonNull(list)) {
+                            for (final AbstractSection sect : list) {
+                                final ERoomUsage usage = sect.usage();
+                                if (usage == ERoomUsage.CLASSROOM) {
+                                    ++classSectionCount[i];
+                                } else if (usage == ERoomUsage.LAB) {
+                                    ++labSectionCount[i];
+                                } else if (usage == ERoomUsage.RECITATION) {
+                                    ++recitationSectionCount[i];
+                                }
+                            }
+                        }
+                    }
+
                     ++numSuccess;
                 }
             }
 
-            final float percentage = (float) numSuccess * 100.0f / (float) ATTEMPTS_PER_POP_SIZE;
-            Log.info("When population size is ", pop, ", a schedule could be found ", percentage, "% of the time");
+            percentSuccessful[arrayIndex] = (float) numSuccess * 100.0f / (float) ATTEMPTS_PER_POP_SIZE;
 
-        } while (numSuccess > 0);
+            final String popStr = Integer.toString(pop);
+            final String percentageStr = Float.toString(percentSuccessful[arrayIndex]);
+            Log.info("When population size is ", popStr, ", a schedule could be found ", percentageStr,
+                    "% of the time");
 
-        --pop;
+            for (int i = 0; i < numCourses; ++i) {
+                averageClassSections[i][arrayIndex] = (float) classSectionCount[i] / (float) numSuccess;
+                averageLabSections[i][arrayIndex] = (float) labSectionCount[i] / (float) numSuccess;
+                averageRecitationSections[i][arrayIndex] = (float) recitationSectionCount[i] / (float) numSuccess;
 
-        return pop;
+                totalClassSections[arrayIndex] += averageClassSections[i][arrayIndex];
+                totalLabSections[arrayIndex] += averageLabSections[i][arrayIndex];
+                totalRecitationSections[arrayIndex] += averageRecitationSections[i][arrayIndex];
+            }
+        }
+
+        final HtmlBuilder csv = new HtmlBuilder(1000);
+        final NumberFormat floatFormat = new DecimalFormat("0.00");
+
+        csv.addln("SPUR Fall Hypothetical Population Model");
+        csv.addln("(", ATTEMPTS_PER_POP_SIZE, " simulated registration cycles per population)");
+        csv.addln();
+
+        csv.addln("\"Each registration cycle allows N students to register,\"");
+        csv.addln("\"selecting courses randomly with probability based on their\"");
+        csv.addln("\"individual profiles, and then determines total sections of\"");
+        csv.addln("\"each course needed, and tries to assign them to rooms.\"");
+        csv.addln("\"A 'successful' cycle is one in which there was enough room\"");
+        csv.addln("\"capacity for all sections requested by all students.\"");
+        csv.addln();
+
+        csv.add("Population:");
+        for (int arrayIndex = 0; arrayIndex < numPopulations; ++arrayIndex) {
+            csv.add(",", populations[arrayIndex]);
+        }
+        csv.addln();
+
+        csv.add("Percentage successful outcomes:");
+        for (int arrayIndex = 0; arrayIndex < numPopulations; ++arrayIndex) {
+            csv.add(",", percentSuccessful[arrayIndex]);
+        }
+        csv.addln();
+
+        for (int i = 0; i < numCourses; ++i) {
+            final Course course = courses.get(i);
+
+            float totalClass = 0.0f;
+            float totalLab = 0.0f;
+            float totalRecitation = 0.0f;
+            for (int arrayIndex = 0; arrayIndex < numPopulations; ++arrayIndex) {
+                totalClass += averageClassSections[i][arrayIndex];
+                totalLab += averageLabSections[i][arrayIndex];
+                totalRecitation += averageRecitationSections[i][arrayIndex];
+            }
+            if (totalClass > 0.01f) {
+                csv.add("Average ", course.courseId, " Class sections:");
+                for (int arrayIndex = 0; arrayIndex < numPopulations; ++arrayIndex) {
+                    csv.add(",", floatFormat.format(averageClassSections[i][arrayIndex]));
+                }
+                csv.addln();
+            }
+            if (totalLab > 0.01f) {
+                csv.add("Average ", course.courseId, " Lab sections:");
+                for (int arrayIndex = 0; arrayIndex < numPopulations; ++arrayIndex) {
+                    csv.add(",", floatFormat.format(averageLabSections[i][arrayIndex]));
+                }
+                csv.addln();
+            }
+            if (totalRecitation > 0.01f) {
+                csv.add("Average ", course.courseId, " Recitation sections:");
+                for (int arrayIndex = 0; arrayIndex < numPopulations; ++arrayIndex) {
+                    csv.add(",", floatFormat.format(averageRecitationSections[i][arrayIndex]));
+                }
+                csv.addln();
+            }
+        }
+        csv.addln();
+
+        csv.add("Total Class sections:");
+        for (int arrayIndex = 0; arrayIndex < numPopulations; ++arrayIndex) {
+            csv.add(",", floatFormat.format(totalClassSections[arrayIndex]));
+        }
+        csv.addln();
+
+        csv.add("Total Lab sections:");
+        for (int arrayIndex = 0; arrayIndex < numPopulations; ++arrayIndex) {
+            csv.add(",", floatFormat.format(totalLabSections[arrayIndex]));
+        }
+        csv.addln();
+
+        csv.add("Total Recitation sections:");
+        for (int arrayIndex = 0; arrayIndex < numPopulations; ++arrayIndex) {
+            csv.add(",", floatFormat.format(totalRecitationSections[arrayIndex]));
+        }
+        csv.addln();
+
+        return csv.toString();
     }
 
     /**

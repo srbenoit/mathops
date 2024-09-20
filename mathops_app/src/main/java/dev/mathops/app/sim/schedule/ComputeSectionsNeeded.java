@@ -74,7 +74,7 @@ public enum ComputeSectionsNeeded {
             Log.info("    ", course.courseId, ": ", updated);
         }
 
-        if (ComputeSectionRoomAssignments.canCompute(courses, rooms)) {
+        if (!ComputeSectionRoomAssignments.compute(courses, rooms).isEmpty()) {
             Log.info("Rooms have been assigned:");
 
             for (final Room room : rooms) {
