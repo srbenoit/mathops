@@ -46,8 +46,8 @@ public enum Page {
      * @param allowIndex     {@code true} to allow search engines to index the page
      * @param includeScripts {@code true} to include scripts to resize header/footer
      */
-    public static void startPage(final HtmlBuilder htm, final String title,
-                                 final boolean allowIndex, final boolean includeScripts) {
+    public static void startPage(final HtmlBuilder htm, final String title, final boolean allowIndex,
+                                 final boolean includeScripts) {
 
         htm.addln("<!DOCTYPE html>").addln("<html>").addln("<head>");
 
@@ -55,15 +55,15 @@ public enum Page {
             htm.addln(" <meta name=\"robots\" content=\"noindex\">");
         }
 
-        htm.addln("<script async src='https://www.googletagmanager.com/gtag/js?id=G-JTNEG80W4C'></script>")
-                .addln("<script>")
-                .addln("window.dataLayer = window.dataLayer || [];")
-                .addln("function gtag(){dataLayer.push(arguments);}")
-                .addln("gtag('js', new Date());")
-                .addln("gtag('config', 'G-JTNEG80W4C');")
-                .addln("</script>")
+//        htm.addln("<script async src='https://www.googletagmanager.com/gtag/js?id=G-JTNEG80W4C'></script>")
+//                .addln("<script>")
+//                .addln("window.dataLayer = window.dataLayer || [];")
+//                .addln("function gtag(){dataLayer.push(arguments);}")
+//                .addln("gtag('js', new Date());")
+//                .addln("gtag('config', 'G-JTNEG80W4C');")
+//                .addln("</script>");
 
-                .addln(" <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'/>")
+        htm.addln(" <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'/>")
                 .addln(" <meta http-equiv='Content-Type' content='text/html;charset=utf-8'/>")
                 .addln(" <meta name='viewport' content='width=device-width, initial-scale=1'>")
                 .addln(" <link rel='stylesheet' href='basestyle.css' type='text/css'>")
@@ -368,7 +368,7 @@ public enum Page {
      *
      * @param htm         the {@code HtmlBuilder} to which to append
      * @param minimizeUrl to allow minimizing, the URL to which the minimize button should link; null to prevent
-     *                   minimizing
+     *                    minimizing
      */
     private static void emitMaxHeader(final HtmlBuilder htm, final String minimizeUrl) {
 
