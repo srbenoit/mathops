@@ -1,6 +1,7 @@
-package dev.mathops.app.sim;
+package dev.mathops.app.sim.swing;
 
-import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatLightLaf;
+import dev.mathops.app.sim.SpurSimulationData;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
@@ -10,18 +11,27 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
 
 /**
  * A simulation application to model registrations and enrollment on the Spur (or any) campus.
  */
-public final class SpurSimulation implements Runnable, ActionListener {
+public final class SpurSimulation extends WindowAdapter implements Runnable, ActionListener {
+
+    /** An accent color. */
+    public static final Color ACCENT_COLOR = new Color(0, 140, 200);
 
     /** An action command. */
     private static final String MANAGE_CLASSROOM_PROFILES_CMD = "A";
@@ -37,6 +47,12 @@ public final class SpurSimulation implements Runnable, ActionListener {
 
     /** An action command. */
     private static final String RUN_SIM_CMD = "GO";
+
+    /** The simulation data object. */
+    private final SpurSimulationData data;
+
+    /** The frame. */
+    private JFrame frame;
 
     /** A dropdown from which to choose a profile for classroom/lab space setup. */
     private JComboBox<String> classroomAndLabProfiles;
@@ -56,12 +72,17 @@ public final class SpurSimulation implements Runnable, ActionListener {
     /** A progress status display. */
     private JLabel progressStatus;
 
+    /** A dialog to manage classroom spaces. */
+    private ClassroomDialog classroomDialog = null;
+
     /**
      * Private constructor to prevent instantiation.
+     *
+     * @param dataDir the directory in which configuration data is stored
      */
-    private SpurSimulation() {
+    private SpurSimulation(final File dataDir) {
 
-        // TODO: Load configuration settings from XML files.
+        this.data = new SpurSimulationData(dataDir);
     }
 
     /**
@@ -69,13 +90,13 @@ public final class SpurSimulation implements Runnable, ActionListener {
      */
     public void run() {
 
-        final JFrame frame = new JFrame("Spur Registration and Class Schedule Simulation");
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        this.frame = new JFrame("Spur Registration and Class Schedule Simulation");
+        this.frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         final JPanel content = new JPanel(new StackedBorderLayout(10, 10));
         content.setPreferredSize(new Dimension(1024, 768));
         content.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        frame.setContentPane(content);
+        this.frame.setContentPane(content);
 
         final JPanel north = new JPanel(new StackedBorderLayout(10, 10));
         content.add(north, StackedBorderLayout.NORTH);
@@ -162,8 +183,10 @@ public final class SpurSimulation implements Runnable, ActionListener {
         display.setBorder(BorderFactory.createLoweredBevelBorder());
         content.add(display, StackedBorderLayout.CENTER);
 
-        UIUtilities.packAndCenter(frame);
-        frame.setVisible(true);
+        this.frame.addWindowListener(this);
+
+        UIUtilities.packAndCenter(this.frame);
+        this.frame.setVisible(true);
     }
 
     /**
@@ -179,7 +202,16 @@ public final class SpurSimulation implements Runnable, ActionListener {
         if (RUN_SIM_CMD.equals(cmd)) {
 
         } else if (MANAGE_CLASSROOM_PROFILES_CMD.equals(cmd)) {
-
+            if (this.classroomDialog == null) {
+                this.classroomDialog = new ClassroomDialog(this.data);
+                final Dimension size = this.frame.getSize();
+                final Point pos = this.frame.getLocation();
+                final Dimension dlgSize = this.classroomDialog.getSize();
+                final int x = pos.x + (size.width - dlgSize.width) / 2;
+                final int y = pos.y + (size.height - dlgSize.height) / 2;
+                this.classroomDialog.setLocation(x, y);
+            }
+            this.classroomDialog.show();
         } else if (MANAGE_COURSE_PROFILES_CMD.equals(cmd)) {
 
         } else if (MANAGE_STUDENT_PROFILES_CMD.equals(cmd)) {
@@ -190,14 +222,33 @@ public final class SpurSimulation implements Runnable, ActionListener {
     }
 
     /**
+     * Invoked when a window has been closed.
+     */
+    public void windowClosed(final WindowEvent e) {
+
+        if (this.classroomDialog != null) {
+            this.classroomDialog.close();
+            this.classroomDialog = null;
+        }
+    }
+
+    /**
      * Main method to run the application.
      *
      * @param args command-line arguments
      */
     public static void main(final String... args) {
 
-        FlatDarkLaf.setup();
-        SwingUtilities.invokeLater(new SpurSimulation());
+        FlatLightLaf.setup();
+
+        final File dataDir = new File("/opt/sim");
+
+        if (dataDir.exists() || dataDir.mkdirs()) {
+            SwingUtilities.invokeLater(new SpurSimulation(dataDir));
+        } else {
+            JOptionPane.showMessageDialog(null, "Unable to create data directory", "Spur Simulation",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 }
 

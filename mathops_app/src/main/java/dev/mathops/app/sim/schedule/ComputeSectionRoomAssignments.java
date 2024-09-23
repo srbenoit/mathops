@@ -142,7 +142,7 @@ enum ComputeSectionRoomAssignments {
 
                         for (final Room room : iterationRooms) {
                             if (course.isRoomCompatible(usage, room)) {
-                                final int roomCap = room.getCapacity();
+                                final int roomCap = room.getCampusRoom().getCapacity();
                                 final int maxSeats = Math.min(roomCap, course.enrollmentCap);
 
                                 final int seatsToAssign = Math.min(seatsNeeded, maxSeats);
@@ -361,7 +361,7 @@ enum ComputeSectionRoomAssignments {
                                                    final Iterable<Room> rooms) {
 
         for (final Room room : rooms) {
-            final int roomCap = room.getCapacity();
+            final int roomCap = room.getCampusRoom().getCapacity();
 
             final Iterator<Course> iterator = toBeAssigned.iterator();
             while (iterator.hasNext()) {
@@ -519,7 +519,7 @@ enum ComputeSectionRoomAssignments {
                 final Room room = rooms.get(j);
 
                 if (course.isRoomCompatible(usage, room)) {
-                    final int roomCap = room.getCapacity();
+                    final int roomCap = room.getCampusRoom().getCapacity();
                     final int maxSeats = Math.min(roomCap, course.enrollmentCap);
                     final int seatsToAssign = Math.min(seatsNeeded, maxSeats);
 
@@ -554,7 +554,7 @@ enum ComputeSectionRoomAssignments {
                         if (room == last.room()) {
                             break;
                         }
-                        if (room.getCapacity() < numSeatsInLast) {
+                        if (room.getCampusRoom().getCapacity() < numSeatsInLast) {
                             continue;
                         }
                         if (course.isRoomCompatible(usage, room)) {

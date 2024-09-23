@@ -17,11 +17,8 @@ import java.util.Optional;
  */
 public final class Room implements Comparable<Room> {
 
-    /** The unique room ID. */
-    private final String id;
-
-    /** The seating capacity. */
-    private final int capacity;
+    /** The campus room. */
+    private final CampusRoom campusRoom;
 
     /** The number of 50-minute blocks each Monday, Wednesday, and Friday the room is available. */
     private final int blocksPerDayMWF;
@@ -38,18 +35,15 @@ public final class Room implements Comparable<Room> {
     /**
      * Constructs a new {@code Room}.
      *
-     * @param theId           the unique room ID
-     * @param theCapacity     the seating capacity
+     * @param theCampusRoom   the campus room
      * @param theBlocksPerMWF the number of 50-minute blocks each Monday, Wednesday, and Friday the room is available
      * @param theBlocksPerTR  the number of 75-minute blocks each Tuesday and Thursday the room is available
      */
-    public Room(final String theId, final int theCapacity, final int theBlocksPerMWF, final int theBlocksPerTR) {
+    public Room(final CampusRoom theCampusRoom, final int theBlocksPerMWF,
+                final int theBlocksPerTR) {
 
-        if (theId == null || theId.isBlank()) {
-            throw new IllegalArgumentException("Room ID may not be null or blank");
-        }
-        if (theCapacity < 1) {
-            throw new IllegalArgumentException("Room capacity may not be less than 1");
+        if (theCampusRoom == null) {
+            throw new IllegalArgumentException("Campus room may not be null or blank");
         }
         if (theBlocksPerMWF < 0 || theBlocksPerTR < 0) {
             throw new IllegalArgumentException("Number of blocks of availability may not be negative");
@@ -58,8 +52,7 @@ public final class Room implements Comparable<Room> {
             throw new IllegalArgumentException("Number of blocks of availability may not be zero");
         }
 
-        this.id = theId;
-        this.capacity = theCapacity;
+        this.campusRoom = theCampusRoom;
         this.blocksPerDayMWF = theBlocksPerMWF;
         this.blocksPerDayTR = theBlocksPerTR;
 
@@ -68,23 +61,13 @@ public final class Room implements Comparable<Room> {
     }
 
     /**
-     * Gets the unique room ID.
+     * Gets the campus room.
      *
-     * @return the room ID
+     * @return the campus room
      */
-    public String getId() {
+    public CampusRoom getCampusRoom() {
 
-        return this.id;
-    }
-
-    /**
-     * Gets the seating capacity.
-     *
-     * @return the seating capacity
-     */
-    public int getCapacity() {
-
-        return this.capacity;
+        return this.campusRoom;
     }
 
     /**
@@ -252,7 +235,8 @@ public final class Room implements Comparable<Room> {
      * @return an object with the room assignment if it was made, or without if there was insufficient available time to
      *         make the assignment (the assignment ID will be unique within the room)
      */
-    public Optional<SectionMWF> addSectionMWF(final int numBlockPerWeek, final EAssignmentType type, final Course course,
+    public Optional<SectionMWF> addSectionMWF(final int numBlockPerWeek, final EAssignmentType type,
+                                              final Course course,
                                               final int numSeats, final ERoomUsage usage) {
 
         final int sectId = this.sectionsMWF.size() + this.sectionsTR.size() + 1;
@@ -605,7 +589,7 @@ public final class Room implements Comparable<Room> {
 
         final int sectId = this.sectionsTR.size() + this.sectionsTR.size() + 1;
 
-        final SectionTR sect;
+        SectionTR sect = null;
 
         if (type == EAssignmentType.BLOCKS_OF_75 || type == EAssignmentType.BLOCKS_OF_50_OR_75) {
             sect = addNormalSectionTR(numBlockPerWeek, sectId, course, numSeats, usage);
@@ -618,8 +602,7 @@ public final class Room implements Comparable<Room> {
             } else if (numBlockPerWeek == 2) {
                 sect = addNormalSectionTR(2, sectId, course, numSeats, usage);
             } else {
-                Log.warning("Scheduling a course that wants more than 2 50-minute blocks for Tue/Thr is not supported");
-                sect = null;
+                Log.warning("Scheduling a course that wants more than 2 50-minute blocks for Tue-Thr is not supported");
             }
         }
 
@@ -734,7 +717,7 @@ public final class Room implements Comparable<Room> {
             }
         }
 
-        final SectionTR sect;
+        SectionTR sect = null;
 
         if (ok) {
             final SectionTR temp = new SectionTR(sectId, meetingDays, this, course, numSeats, usage, blocksPerDay);
@@ -744,10 +727,7 @@ public final class Room implements Comparable<Room> {
                 sect = temp;
             } else {
                 this.sectionsTR.remove(temp);
-                sect = null;
             }
-        } else {
-            sect = null;
         }
 
         return sect;
@@ -799,7 +779,7 @@ public final class Room implements Comparable<Room> {
      */
     public int hashCode() {
 
-        return this.id.hashCode();
+        return this.campusRoom.hashCode();
     }
 
     /**
@@ -816,8 +796,8 @@ public final class Room implements Comparable<Room> {
         if (obj == this) {
             equal = true;
         } else if (obj instanceof final Room room) {
-            final String objId = room.getId();
-            equal = this.id.equals(objId);
+            final CampusRoom objRoom = room.getCampusRoom();
+            equal = this.campusRoom.equals(objRoom);
         } else {
             equal = false;
         }
@@ -836,9 +816,9 @@ public final class Room implements Comparable<Room> {
     @Override
     public int compareTo(final Room o) {
 
-        final int cap = o.getCapacity();
+        final CampusRoom oCampusRoom = o.getCampusRoom();
 
-        return Integer.compare(this.capacity, cap);
+        return this.campusRoom.compareTo(oCampusRoom);
     }
 
     /**
@@ -850,10 +830,8 @@ public final class Room implements Comparable<Room> {
 
         final HtmlBuilder builder = new HtmlBuilder(100);
 
-        builder.add(this.id);
-        builder.add(" (cap=");
-        builder.add(this.capacity);
-        builder.add(", blocks/day MWF=");
+        builder.add(this.campusRoom);
+        builder.add(" (blocks/day MWF=");
         builder.add(this.blocksPerDayMWF);
         builder.add(", blocks/day TR=");
         builder.add(this.blocksPerDayTR);

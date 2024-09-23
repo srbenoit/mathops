@@ -40,13 +40,13 @@ final class SpurFirstYearSpring {
     private static final String RECITATION = "Recitation";
 
     /** A classroom ID. */
-    private static final String CLASSROOM_1 = SpurRooms.CLASSROOM_1.getId();
+    private static final String CLASSROOM_1 = SpurRooms.CAMPUS_ROOM_1.getId();
 
     /** A classroom ID. */
-    private static final String CLASSROOM_2 = SpurRooms.CLASSROOM_2.getId();
+    private static final String CLASSROOM_2 = SpurRooms.CAMPUS_ROOM_2.getId();
 
     /** A classroom ID. */
-    private static final String LAB_1 = SpurRooms.LAB_1.getId();
+    private static final String LAB_1 = SpurRooms.CAMPUS_LAB_1.getId();
 
     /**
      * Constructs a new {@code SpurFirstYearSpring}.

@@ -60,7 +60,7 @@ public final class Rooms implements Comparable<Rooms> {
         int total = 0;
 
         for (final Room room : this.rooms) {
-            total += room.getCapacity();
+            total += room.getCampusRoom().getCapacity();
         }
 
         return total;
