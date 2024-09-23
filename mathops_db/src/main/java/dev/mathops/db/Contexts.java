@@ -99,6 +99,9 @@ public enum Contexts {
     public static final String REPORTING_PATH = "/reporting";
 
     /** A common path. */
+    public static final String SCHEDULING_PATH = "/scheduling";
+
+    /** A common path. */
     public static final String CHECKIN_PATH = "checkin";
 
     /** A common path. */

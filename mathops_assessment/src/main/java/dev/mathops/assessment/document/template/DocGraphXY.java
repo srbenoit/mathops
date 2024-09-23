@@ -362,10 +362,9 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
         g2d.setClip(bounds);
 
         final CoordinateSystems coordinates = getCoordinates();
-        final NumberBounds graphBounds = coordinates.getGraphSpaceBounds();
 
         // Locate the X and Y axes.
-        final NumberBounds window = getCoordinates().getGraphSpaceBounds();
+        final NumberBounds window = coordinates.getGraphSpaceBounds();
         final double minX = window.getLeftX().doubleValue();
         final double minY = window.getBottomY().doubleValue();
         final double maxX = window.getRightX().doubleValue();
@@ -376,296 +375,28 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
         int y = (int) ((double) bounds.height * (-minY) / (maxY - minY));
         final int axisY = ((y > 0) && (y < bounds.height)) ? y : -1;
 
-        double actualXTickInterval = 0.0;
-        if (this.xTickInterval != null) {
-            actualXTickInterval = this.xTickInterval.doubleValue();
-        }
-
         // Draw the grid and tick marks if configured
-        if (actualXTickInterval != 0.0 && (this.gridWidth > 0 || this.tickWidth > 0)) {
-
-            if (this.tickLabelSize > 0) {
-                Font theFont = getFont();
-                theFont = theFont.deriveFont(theFont.getStyle() & (BOLD | ITALIC),
-                        (float) this.tickLabelSize * getScale());
-                g2d.setFont(theFont);
-            }
-
-            final FontMetrics fm = g2d.getFontMetrics();
-
-            // Do the vertical grid lines, relative to the X axis
-            double per = (maxX - minX) / (double) bounds.width;
-            double lowerBound = Math.floor(minX);
-            int prior = 0;
-
-            for (double dx = minX; dx < maxX; dx += per) {
-                final int cur = (int) (dx - lowerBound / actualXTickInterval);
-
-                if (cur != prior) {
-                    prior = cur;
-
-                    // Draw a vertical grid line at 'dx'
-                    x = (int) ((double) bounds.width * (dx - minX) / (maxX - minX));
-                    x -= this.gridWidth / 2;
-                    g2d.setColor(this.gridColor);
-
-                    for (int i = 0; i < this.gridWidth; i++) {
-
-                        if (x > 0 && x < bounds.width) {
-                            g2d.drawLine(bounds.x + x, bounds.y, bounds.x + x, bounds.y + bounds.height);
-                        }
-
-                        ++x;
-                    }
-
-                    if (axisY == -1) {
-                        continue;
-                    }
-
-                    // If we are drawing axes, then omit the tick mark at the axis crossing.
-                    if (this.axisWidth > 0 && Math.abs(dx) < (actualXTickInterval / 10)) {
-                        continue;
-                    }
-
-                    // Draw a vertical tick at 'dx'
-                    g2d.setColor(this.tickColor);
-                    x = (int) ((double) bounds.width * (dx - minX) / (maxX - minX));
-
-                    // Draw tick mark label if configured
-                    if (this.tickLabelSize > 0) {
-                        if (this.xTickInterval instanceof final Irrational irr) {
-                            final double factorValue = irr.getFactorValue();
-
-                            // Fractions of factor value as tick labels
-                            final double scale = dx / factorValue;
-                            final int top = (int) Math.round(scale * (double) irr.denominator);
-                            final BigInteger bigTop = new BigInteger(Integer.toString(top));
-                            final BigInteger bigBot = new BigInteger(Long.toString(irr.denominator));
-                            final int gcd = bigTop.gcd(bigBot).intValue();
-                            final int reducedTop = top / gcd;
-                            final int reducedBot = (int) (irr.denominator / (long) gcd);
-
-                            final String upper;
-                            if (reducedTop == 1) {
-                                upper = irr.getFactorString();
-                            } else if (reducedTop == -1) {
-                                upper = "\u2212" + irr.getFactorString();
-                            } else if (reducedTop > 0) {
-                                upper = reducedTop + irr.getFactorString();
-                            } else {
-                                // Negative value: print using the proper minus sign
-                                upper = "\u2212" + Math.abs(reducedTop) + irr.getFactorString();
-                            }
-
-                            if (reducedBot == 1) {
-                                final int upperWidth = fm.stringWidth(upper);
-                                final int topY = bounds.y + bounds.height - axisY + fm.getHeight();
-                                final int leftx = bounds.x + x;
-
-                                g2d.drawString(upper, leftx - (upperWidth / 2) + 1, topY);
-                            } else {
-                                final String lower = Integer.toString(reducedBot);
-
-                                final int upperWidth = fm.stringWidth(upper);
-                                final int lowerWidth = fm.stringWidth(lower);
-                                final int maxWidth = Math.max(upperWidth, lowerWidth);
-                                final int topY = bounds.y + bounds.height - axisY + fm.getHeight();
-                                final int midY = topY + fm.getHeight();
-                                final int leftx = bounds.x + x;
-                                final int lineY = topY + 2;
-
-                                g2d.drawString(upper, leftx - (upperWidth / 2) + 1, topY);
-                                g2d.drawString(lower, leftx - (lowerWidth / 2) + 1, midY);
-                                g2d.drawLine(leftx - (maxWidth / 2) + 1, lineY, leftx + (maxWidth / 2) + 1, lineY);
-                            }
-                        } else {
-                            // Decimal tick labels
-                            final String lbl = tickLabel(dx, actualXTickInterval);
-
-                            if ((this.tickSize % 2) == 0) {
-                                g2d.drawString(lbl, bounds.x + x - (fm.stringWidth(lbl) / 2) + 1,
-                                        bounds.y + bounds.height - axisY + fm.getHeight());
-                            } else {
-                                g2d.drawString(lbl, bounds.x + x - (fm.stringWidth(lbl) / 2) + 1,
-                                        bounds.y + bounds.height - axisY + fm.getHeight() + (this.tickSize / 2));
-                            }
-                        }
-                    }
-
-                    // Draw the tick mark
-                    x -= this.tickWidth / 2;
-
-                    for (int i = 0; i < this.tickWidth; i++) {
-
-                        if (x > 0 && x < bounds.width) {
-
-                            if ((this.tickSize % 2) == 0) {
-                                g2d.drawLine(bounds.x + x, bounds.y + bounds.height - axisY - this.tickSize,
-                                        bounds.x + x, bounds.y + bounds.height - axisY);
-                            } else {
-                                g2d.drawLine(bounds.x + x,
-                                        bounds.y + bounds.height - axisY - (this.tickSize / 2),
-                                        bounds.x + x,
-                                        bounds.y + bounds.height - axisY + (this.tickSize / 2) + 1);
-                            }
-                        }
-
-                        ++x;
-                    }
-                }
-            }
-
-            double actualYTickInterval = 0.0;
-            if (this.yTickInterval != null) {
-                actualYTickInterval = this.yTickInterval.doubleValue();
-            }
-
-            if (actualYTickInterval != 0.0 && (this.gridWidth > 0 || this.tickWidth > 0)) {
-
-                // Do the horizontal grid lines, relative to the Y axis
-                per = (maxY - minY) / (double) bounds.height;
-                lowerBound = Math.floor(minY);
-                prior = 0;
-
-                for (double dy = minY; dy < maxY; dy += per) {
-                    final int cur = (int) (dy - lowerBound / actualYTickInterval);
-
-                    if (cur != prior) {
-                        prior = cur;
-
-                        // Draw a horizontal grid line at 'dy'
-                        y = (int) ((double) bounds.height * (dy - minY) / (maxY - minY));
-                        y -= this.gridWidth / 2;
-                        g2d.setColor(this.gridColor);
-
-                        for (int i = 0; i < this.gridWidth; i++) {
-                            if (y > 0 && y < bounds.height) {
-                                g2d.drawLine(bounds.x, bounds.y + bounds.height - y, bounds.x + bounds.width,
-                                        bounds.y + bounds.height - y);
-                            }
-
-                            ++y;
-                        }
-
-                        if (axisX == -1) {
-                            continue;
-                        }
-
-                        // If we are drawing axes, then omit the tick mark at the axis crossing.
-                        if (this.axisWidth > 0 && Math.abs(dy) < (actualYTickInterval / 10)) {
-                            continue;
-                        }
-
-                        // Draw a horizontal tick at 'dy'
-                        g2d.setColor(this.tickColor);
-                        y = (int) ((double) bounds.height * (dy - minY) / (maxY - minY));
-
-                        // Draw tick mark label if configured
-                        if (this.tickLabelSize > 0) {
-                            if (this.yTickInterval instanceof final Irrational irr) {
-                                final double factorValue = irr.getFactorValue();
-
-                                // Fractions of factor value as tick labels
-                                final double scale = dy / factorValue;
-                                final int top = (int) Math.round(scale * (double) irr.denominator);
-                                final BigInteger bigTop = new BigInteger(Integer.toString(top));
-                                final BigInteger bigBot = new BigInteger(Long.toString(irr.denominator));
-                                final int gcd = bigTop.gcd(bigBot).intValue();
-                                final int reducedTop = top / gcd;
-                                final int reducedBot = (int) (irr.denominator / (long) gcd);
-
-                                final String upper;
-                                if (reducedTop == 1) {
-                                    upper = irr.getFactorString();
-                                } else if (reducedTop == -1) {
-                                    upper = "\u2212" + irr.getFactorString();
-                                } else if (reducedTop > 0) {
-                                    upper = reducedTop + irr.getFactorString();
-                                } else {
-                                    // Negative value: print using the proper minus sign
-                                    upper = "\u2212" + Math.abs(reducedTop) + irr.getFactorString();
-                                }
-
-                                if (reducedBot == 1) {
-                                    final int upperWidth = fm.stringWidth(upper);
-                                    final int topY = bounds.y + bounds.height - y + fm.getAscent() / 2 - 1;
-                                    final int leftx = bounds.x + axisX - upperWidth - 2;
-
-                                    g2d.drawString(upper, leftx - (upperWidth / 2) + 1, topY);
-                                } else {
-                                    final String lower = Integer.toString(reducedBot);
-
-                                    final int upperWidth = fm.stringWidth(upper);
-                                    final int lowerWidth = fm.stringWidth(lower);
-                                    final int maxWidth = Math.max(upperWidth, lowerWidth);
-                                    final int midY = bounds.y + bounds.height - y - 1;
-                                    final int topY = midY - 2;
-                                    final int botY = midY + fm.getAscent();
-                                    final int leftx = bounds.x + axisX - maxWidth - 2;
-
-                                    g2d.drawString(upper, leftx - (upperWidth / 2) + 1, topY);
-                                    g2d.drawString(lower, leftx - (lowerWidth / 2) + 1, botY);
-                                    g2d.drawLine(leftx - (maxWidth / 2) + 1, midY, leftx + (maxWidth / 2) + 1, midY);
-                                }
-                            } else {
-                                // Decimal labels
-                                final String lbl = tickLabel(dy, actualYTickInterval);
-
-                                if ((this.tickSize % 2) == 0) {
-                                    g2d.drawString(lbl, bounds.x + axisX - fm.stringWidth(lbl) - 2,
-                                            bounds.y + bounds.height - y + (fm.getHeight() / 2) - 1);
-                                } else {
-                                    g2d.drawString(lbl,
-                                            bounds.x + axisX - fm.stringWidth(lbl) - 2 - (this.tickSize / 2),
-                                            bounds.y + bounds.height - y + (fm.getHeight() / 2) - 1);
-                                }
-                            }
-                        }
-
-                        y -= this.tickWidth / 2;
-
-                        for (int i = 0; i < this.tickWidth; i++) {
-                            if (y > 0 && y < bounds.height) {
-                                if ((this.tickSize % 2) == 0) {
-                                    g2d.drawLine(bounds.x + axisX, bounds.y + bounds.height - y,
-                                            bounds.x + axisX + this.tickSize, bounds.y + bounds.height - y);
-                                } else {
-                                    g2d.drawLine(bounds.x + axisX - (this.tickSize / 2) - 1,
-                                            bounds.y + bounds.height - y,
-                                            bounds.x + axisX + (this.tickSize / 2),
-                                            bounds.y + bounds.height - y);
-                                }
-                            }
-
-                            ++y;
-                        }
-                    }
-                }
-            }
-        }
+        drawXGridLinesAndTickMarks(g2d, bounds);
+        drawYGridLinesAndTickMarks(g2d, bounds);
 
         // Draw the axes if configured, and if visible
         g2d.setColor(this.axisColor);
         x = axisX - (this.axisWidth / 2);
 
         for (int i = 0; i < this.axisWidth; i++) {
-
             if (x > 0 && x < bounds.width) {
                 g2d.drawLine(bounds.x + x, bounds.y, bounds.x + x, bounds.y + bounds.height);
             }
-
             ++x;
         }
 
         y = axisY - (this.axisWidth / 2);
 
         for (int i = 0; i < this.axisWidth; i++) {
-
             if (y > 0 && y < bounds.height) {
                 g2d.drawLine(bounds.x, bounds.y + bounds.height - y, bounds.x + bounds.width,
                         bounds.y + bounds.height - y);
             }
-
             ++y;
         }
 
@@ -703,6 +434,316 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
     }
 
     /**
+     * Draws vertical grid lines and tick marks (with labels) along the x-axis.
+     *
+     * @param g2d    the {@code Graphics2D} to which to draw
+     * @param bounds the bounding rectangle (adjusted for borders)
+     */
+    private void drawXGridLinesAndTickMarks(final Graphics2D g2d,
+                                            final Rectangle bounds) {
+
+        double actualXTickInterval = 0.0;
+        if (this.xTickInterval != null) {
+            actualXTickInterval = this.xTickInterval.doubleValue();
+        }
+
+        final NumberBounds window = getCoordinates().getGraphSpaceBounds();
+        final double minX = window.getLeftX().doubleValue();
+        final double minY = window.getBottomY().doubleValue();
+        final double maxX = window.getRightX().doubleValue();
+        final double maxY = window.getTopY().doubleValue();
+
+        final int axisYOffset = (int) ((double) bounds.height * (-minY) / (maxY - minY));
+        final int axisY = ((axisYOffset > 0) && (axisYOffset < bounds.height)) ? bounds.y + axisYOffset : -1;
+
+        if (actualXTickInterval != 0.0 && (this.gridWidth > 0 || this.tickWidth > 0)) {
+
+            if (this.tickLabelSize > 0) {
+                Font theFont = getFont();
+                theFont = theFont.deriveFont(theFont.getStyle() & (BOLD | ITALIC),
+                        (float) this.tickLabelSize * getScale());
+                g2d.setFont(theFont);
+            }
+
+            final FontMetrics fm = g2d.getFontMetrics();
+
+            // Do the vertical grid lines, relative to the X axis
+            final double perPixelX = (maxX - minX) / (double) bounds.width;
+            int priorXStep = (int) (minX / actualXTickInterval);
+
+            // "dx" steps through the graph-space coordinates for each pixel location
+            for (double dx = minX; dx < maxX; dx += perPixelX) {
+                final int curXStep = (int) (dx / actualXTickInterval);
+
+                if (curXStep != priorXStep) {
+                    priorXStep = curXStep;
+
+                    final int stepX = bounds.x + (int) Math.round((double) bounds.width * (dx - minX) / (maxX - minX));
+
+                    // Draw a vertical grid line at 'dx'
+                    int gridX = stepX - this.gridWidth / 2;
+                    g2d.setColor(this.gridColor);
+
+                    for (int i = 0; i < this.gridWidth; i++) {
+                        if (gridX > bounds.x && gridX < (bounds.x + bounds.width)) {
+                            g2d.drawLine(gridX, bounds.y, gridX, bounds.y + bounds.height);
+                        }
+                        ++gridX;
+                    }
+
+                    if (axisY == -1) {
+                        continue;
+                    }
+
+                    // If we are drawing axes, then omit the tick mark at the axis crossing.
+                    if (this.axisWidth > 0 && Math.abs(dx) < (actualXTickInterval / 10)) {
+                        continue;
+                    }
+
+                    // Draw a vertical tick at 'dx'
+                    g2d.setColor(this.tickColor);
+                    int tickX = stepX;
+
+                    // Draw tick mark label if configured
+                    if (this.tickLabelSize > 0 && (Math.abs(dx - minX) > perPixelX)
+                        && (Math.abs(dx - maxX) > perPixelX)) {
+                        if (this.xTickInterval instanceof final Irrational irr) {
+                            final double factorValue = irr.getFactorValue();
+
+                            // Fractions of factor value as tick labels
+                            final double scale = dx / factorValue;
+                            final int top = (int) Math.round(scale * (double) irr.denominator);
+                            final BigInteger bigTop = new BigInteger(Integer.toString(top));
+                            final BigInteger bigBot = new BigInteger(Long.toString(irr.denominator));
+                            final int gcd = bigTop.gcd(bigBot).intValue();
+                            final int reducedTop = top / gcd;
+                            final int reducedBot = (int) (irr.denominator / (long) gcd);
+
+                            final String upper;
+                            if (reducedTop == 1) {
+                                upper = irr.getFactorString();
+                            } else if (reducedTop == -1) {
+                                upper = "\u2212" + irr.getFactorString();
+                            } else if (reducedTop > 0) {
+                                upper = reducedTop + irr.getFactorString();
+                            } else {
+                                // Negative value: print using the proper minus sign
+                                upper = "\u2212" + Math.abs(reducedTop) + irr.getFactorString();
+                            }
+
+                            if (reducedBot == 1) {
+                                final int upperWidth = fm.stringWidth(upper);
+                                final int topY = bounds.y + bounds.height - axisY + fm.getHeight();
+                                final int leftx = bounds.x + tickX;
+
+                                g2d.drawString(upper, leftx - (upperWidth / 2) + 1, topY);
+                            } else {
+                                final String lower = Integer.toString(reducedBot);
+
+                                final int upperWidth = fm.stringWidth(upper);
+                                final int lowerWidth = fm.stringWidth(lower);
+                                final int maxWidth = Math.max(upperWidth, lowerWidth);
+                                final int topY = bounds.y + bounds.height - axisY + fm.getHeight();
+                                final int midY = topY + fm.getHeight();
+                                final int leftx = bounds.x + tickX;
+                                final int lineY = topY + 2;
+
+                                g2d.drawString(upper, leftx - (upperWidth / 2) + 1, topY);
+                                g2d.drawString(lower, leftx - (lowerWidth / 2) + 1, midY);
+                                g2d.drawLine(leftx - (maxWidth / 2) + 1, lineY, leftx + (maxWidth / 2) + 1, lineY);
+                            }
+                        } else {
+                            // Decimal tick labels
+                            final String lbl = tickLabel(dx, actualXTickInterval);
+
+                            if ((this.tickSize % 2) == 0) {
+                                g2d.drawString(lbl, bounds.x + tickX - (fm.stringWidth(lbl) / 2) + 1,
+                                        bounds.y + bounds.height - axisY + fm.getHeight());
+                            } else {
+                                g2d.drawString(lbl, bounds.x + tickX - (fm.stringWidth(lbl) / 2) + 1,
+                                        bounds.y + bounds.height - axisY + fm.getHeight() + (this.tickSize / 2));
+                            }
+                        }
+                    }
+
+                    // Draw the tick mark
+                    tickX -= this.tickWidth / 2;
+
+                    for (int i = 0; i < this.tickWidth; i++) {
+
+                        if (tickX > bounds.x && tickX < (bounds.x + bounds.width)) {
+
+                            if ((this.tickSize % 2) == 0) {
+                                g2d.drawLine(tickX, bounds.y + bounds.height - axisY - this.tickSize,
+                                        tickX, bounds.y + bounds.height - axisY);
+                            } else {
+                                g2d.drawLine(tickX, bounds.y + bounds.height - axisY - (this.tickSize / 2),
+                                        tickX, bounds.y + bounds.height - axisY + (this.tickSize / 2) + 1);
+                            }
+                        }
+
+                        ++tickX;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Draws horizontal grid lines and tick marks (with labels) along the y-axis.
+     *
+     * @param g2d    the {@code Graphics2D} to which to draw
+     * @param bounds the bounding rectangle (adjusted for borders)
+     */
+    private void drawYGridLinesAndTickMarks(final Graphics2D g2d, final Rectangle bounds) {
+
+        double actualYTickInterval = 0.0;
+        if (this.yTickInterval != null) {
+            actualYTickInterval = this.yTickInterval.doubleValue();
+        }
+
+        final NumberBounds window = getCoordinates().getGraphSpaceBounds();
+        final double minX = window.getLeftX().doubleValue();
+        final double minY = window.getBottomY().doubleValue();
+        final double maxX = window.getRightX().doubleValue();
+        final double maxY = window.getTopY().doubleValue();
+
+        final int axisXOffset = (int) ((double) bounds.width * (-minX) / (maxX - minX));
+        final int axisX = ((axisXOffset > 0) && (axisXOffset < bounds.width)) ? bounds.x + axisXOffset : -1;
+
+        if (actualYTickInterval != 0.0 && (this.gridWidth > 0 || this.tickWidth > 0)) {
+
+            if (this.tickLabelSize > 0) {
+                Font theFont = getFont();
+                theFont = theFont.deriveFont(theFont.getStyle() & (BOLD | ITALIC),
+                        (float) this.tickLabelSize * getScale());
+                g2d.setFont(theFont);
+            }
+
+            final FontMetrics fm = g2d.getFontMetrics();
+
+            // Do the horizontal grid lines, relative to the Y axis
+            final double perPixelY = (maxY - minY) / (double) bounds.height;
+            int priorYStep = (int) (minY / actualYTickInterval);
+
+            for (double dy = minY; dy < maxY; dy += perPixelY) {
+                final int curYStep = (int) (dy / actualYTickInterval);
+
+                if (curYStep != priorYStep && dy > minY) {
+                    priorYStep = curYStep;
+
+                    final int stepY = bounds.y + bounds.height
+                                      - (int) Math.round((double) bounds.height * (dy - minY) / (maxY - minY));
+
+                    // Draw a horizontal grid line at 'dy'
+                    int gridY = stepY - this.gridWidth / 2;
+                    g2d.setColor(this.gridColor);
+
+                    for (int i = 0; i < this.gridWidth; i++) {
+                        if (gridY > bounds.y && gridY < (bounds.y + bounds.height)) {
+                            g2d.drawLine(bounds.x, gridY, bounds.x + bounds.width, gridY);
+                        }
+
+                        ++gridY;
+                    }
+
+                    if (axisX == -1) {
+                        continue;
+                    }
+
+                    // If we are drawing axes, then omit the tick mark at the axis crossing.
+                    if (this.axisWidth > 0 && Math.abs(dy) < (actualYTickInterval / 10)) {
+                        continue;
+                    }
+
+                    // Draw a horizontal tick at 'dy'
+                    g2d.setColor(this.tickColor);
+                    int tickY = stepY;
+
+                    // Draw tick mark label if configured
+                    if (this.tickLabelSize > 0 && (Math.abs(dy - minY) > perPixelY)
+                        && (Math.abs(dy - maxY) > perPixelY)) {
+
+                        if (this.yTickInterval instanceof final Irrational irr) {
+                            final double factorValue = irr.getFactorValue();
+
+                            // Fractions of factor value as tick labels
+                            final double scale = dy / factorValue;
+                            final int top = (int) Math.round(scale * (double) irr.denominator);
+                            final BigInteger bigTop = new BigInteger(Integer.toString(top));
+                            final BigInteger bigBot = new BigInteger(Long.toString(irr.denominator));
+                            final int gcd = bigTop.gcd(bigBot).intValue();
+                            final int reducedTop = top / gcd;
+                            final int reducedBot = (int) (irr.denominator / (long) gcd);
+
+                            final String upper;
+                            if (reducedTop == 1) {
+                                upper = irr.getFactorString();
+                            } else if (reducedTop == -1) {
+                                upper = "\u2212" + irr.getFactorString();
+                            } else if (reducedTop > 0) {
+                                upper = reducedTop + irr.getFactorString();
+                            } else {
+                                // Negative value: print using the proper minus sign
+                                upper = "\u2212" + Math.abs(reducedTop) + irr.getFactorString();
+                            }
+
+                            if (reducedBot == 1) {
+                                final int upperWidth = fm.stringWidth(upper);
+                                final int topY = tickY + fm.getAscent() / 2 - 1;
+                                final int leftx = bounds.x + axisX - upperWidth - 2;
+
+                                g2d.drawString(upper, leftx - (upperWidth / 2) + 1, topY);
+                            } else {
+                                final String lower = Integer.toString(reducedBot);
+
+                                final int upperWidth = fm.stringWidth(upper);
+                                final int lowerWidth = fm.stringWidth(lower);
+                                final int maxWidth = Math.max(upperWidth, lowerWidth);
+                                final int midY = tickY - 1;
+                                final int topY = midY - 2;
+                                final int botY = midY + fm.getAscent();
+                                final int leftx = bounds.x + axisX - maxWidth - 2;
+
+                                g2d.drawString(upper, leftx - (upperWidth / 2) + 1, topY);
+                                g2d.drawString(lower, leftx - (lowerWidth / 2) + 1, botY);
+                                g2d.drawLine(leftx - (maxWidth / 2) + 1, midY, leftx + (maxWidth / 2) + 1, midY);
+                            }
+                        } else {
+                            // Decimal labels
+                            final String lbl = tickLabel(dy, actualYTickInterval);
+
+                            if ((this.tickSize % 2) == 0) {
+                                g2d.drawString(lbl, bounds.x + axisX - fm.stringWidth(lbl) - 2,
+                                        tickY + (fm.getAscent() / 2) - 2);
+                            } else {
+                                g2d.drawString(lbl,
+                                        bounds.x + axisX - fm.stringWidth(lbl) - 2 - (this.tickSize / 2),
+                                        tickY + (fm.getAscent() / 2) - 2);
+                            }
+                        }
+                    }
+
+                    tickY -= this.tickWidth / 2;
+
+                    for (int i = 0; i < this.tickWidth; i++) {
+                        if (tickY > bounds.y && tickY < (bounds.y + bounds.height)) {
+                            if ((this.tickSize % 2) == 0) {
+                                g2d.drawLine(bounds.x + axisX, tickY, bounds.x + axisX + this.tickSize, tickY);
+                            } else {
+                                g2d.drawLine(bounds.x + axisX - (this.tickSize / 2) - 1, tickY,
+                                        bounds.x + axisX + (this.tickSize / 2), tickY);
+                            }
+                        }
+
+                        ++tickY;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Generates an instance of this document object based on a realized evaluation context.
      *
      * <p>
@@ -718,8 +759,9 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
         final DocObjectInstStyle objStyle = new DocObjectInstStyle(getColorName(), getFontName(), (float) getFontSize(),
                 getFontStyle());
 
-        final StrokeStyleInst borderStyle = this.borderWidth == 0 ? null : new StrokeStyleInst((double) this.borderWidth,
-                this.borderColorName, null, 1.0, EStrokeCap.BUTT, EStrokeJoin.MITER, 10.0f);
+        final StrokeStyleInst borderStyle = this.borderWidth == 0 ? null :
+                new StrokeStyleInst((double) this.borderWidth,
+                        this.borderColorName, null, 1.0, EStrokeCap.BUTT, EStrokeJoin.MITER, 10.0f);
 
         final List<AbstractDocPrimitive> primitives = getPrimitives();
         final List<AbstractPrimitiveInst> primitivesInstList = new ArrayList<>(primitives.size());

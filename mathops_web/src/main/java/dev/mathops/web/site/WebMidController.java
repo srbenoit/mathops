@@ -38,6 +38,7 @@ import dev.mathops.web.site.ramwork.RamWorkSite;
 import dev.mathops.web.site.reporting.ReportingSite;
 import dev.mathops.web.site.root.EmptyRootSite;
 import dev.mathops.web.site.root.PrecalcRootSite;
+import dev.mathops.web.site.scheduling.SchedulingSite;
 import dev.mathops.web.site.testing.TestingCenterSite;
 import dev.mathops.web.site.tutorial.elm.ElmTutorialSite;
 import dev.mathops.web.site.tutorial.precalc.PrecalcTutorialSite;
@@ -170,6 +171,7 @@ public final class WebMidController implements IMidController {
             add(map, Contexts.TESTING_HOST, Contexts.TESTING_CENTER_PATH, TestingCenterSite.class);
             add(map, Contexts.TESTING_HOST, Contexts.RAMWORK_PATH, RamWorkSite.class);
             add(map, Contexts.TESTING_HOST, Contexts.REPORTING_PATH, ReportingSite.class);
+            add(map, Contexts.TESTING_HOST, Contexts.SCHEDULING_PATH, SchedulingSite.class);
             add(map, Contexts.TESTING_HOST, Contexts.TXN_PATH, Site.class);
             add(map, Contexts.TESTING_HOST, Contexts.WEBSVC_PATH, WebServiceSite.class);
         }
@@ -239,7 +241,7 @@ public final class WebMidController implements IMidController {
         final SortedMap<String, AbstractSite> map = this.sites.computeIfAbsent(host, s -> new TreeMap<>());
         final String path = site.siteProfile.path;
 
-        // Log.info("Registering site for host '", host, "' path '", path, "'");
+//        Log.info("Registering site for host '", host, "' path '", path, "'");
 
         map.put(path, site);
     }
@@ -271,7 +273,7 @@ public final class WebMidController implements IMidController {
 
         final String reqPath = req.getServletPath();
 
-        // Log.info(req.getMethod() + " request for ", reqHost, reqPath);
+//         Log.info(req.getMethod() + " request for ", reqHost, reqPath);
 
         final AbstractSite site = findSite(reqHost, reqPath);
 
@@ -283,7 +285,7 @@ public final class WebMidController implements IMidController {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             }
         } else {
-            // Log.info(site.getClass().getSimpleName() + " handling " + req.getMethod());
+            Log.info(site.getClass().getSimpleName() + " handling " + req.getMethod());
 
             final DbContext ctx = site.getPrimaryDbContext();
 
@@ -333,7 +335,7 @@ public final class WebMidController implements IMidController {
                         final long elapsed = System.currentTimeMillis() - start;
                         this.timer.recordAccess(siteProfile, subpath, elapsed);
                     } else if (Contexts.TESTING_HOST.equals(reqHost) || Contexts.ONLINE_HOST.equals(reqHost)
-                            && reqPath.startsWith(Contexts.TESTING_CENTER_PATH)) {
+                                                                        && reqPath.startsWith(Contexts.TESTING_CENTER_PATH)) {
 
                         if (!subpath.isEmpty() && (int) subpath.charAt(0) == SLASH) {
                             subpath = subpath.substring(1);
@@ -462,7 +464,7 @@ public final class WebMidController implements IMidController {
         AbstractSite site = null;
         int len = 0;
 
-        // Log.info("Finding site for host '", host, "' path '", path, "'");
+//        Log.info("Finding site for host '", host, "' path '", path, "'");
 
         final SortedMap<String, AbstractSite> siteList = this.sites.get(host);
 
@@ -476,9 +478,8 @@ public final class WebMidController implements IMidController {
                 final int testPathLen = testPath.length();
 
                 if (testPathLen > len) {
-
                     if ((pathLen > testPathLen && path.startsWith(testPath)
-                            && (int) path.charAt(testPathLen) == SLASH) || path.equals(testPath)) {
+                         && (int) path.charAt(testPathLen) == SLASH) || path.equals(testPath)) {
                         site = test;
                         len = testPathLen;
                     }
