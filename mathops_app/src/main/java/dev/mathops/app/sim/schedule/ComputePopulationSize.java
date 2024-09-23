@@ -21,7 +21,7 @@ import java.util.Random;
 import java.util.random.RandomGenerator;
 
 /**
- * Determines the maximum population size that can be accommodated in a set of available classrooms and labs
+ * Determines the maximum population size that can be accommodated in a set of available classrooms and labs.
  */
 enum ComputePopulationSize {
     ;
@@ -56,13 +56,21 @@ enum ComputePopulationSize {
         final float[] totalLabSections = new float[numPopulations];
         final float[] totalRecitationSections = new float[numPopulations];
 
+        final int[] classSectionCount = new int[numCourses];
+        final int[] labSectionCount = new int[numCourses];
+        final int[] recitationSectionCount = new int[numCourses];
+
         final float[][] averageClassSections = new float[numCourses][numPopulations];
         final float[][] averageLabSections = new float[numCourses][numPopulations];
         final float[][] averageRecitationSections = new float[numCourses][numPopulations];
 
-        final int[] classSectionCount = new int[numCourses];
-        final int[] labSectionCount = new int[numCourses];
-        final int[] recitationSectionCount = new int[numCourses];
+        final int[] classEnrollmentCount = new int[numCourses];
+        final int[] labEnrollmentCount = new int[numCourses];
+        final int[] recitationEnrollmentCount = new int[numCourses];
+
+        final float[][] averageClassEnrollment = new float[numCourses][numPopulations];
+        final float[][] averageLabEnrollment = new float[numCourses][numPopulations];
+        final float[][] averageRecitationEnrollment = new float[numCourses][numPopulations];
 
         for (int pop = minPopulation; pop <= maxPopulation; ++pop) {
             final int arrayIndex = pop - minPopulation;
@@ -71,6 +79,9 @@ enum ComputePopulationSize {
             Arrays.fill(classSectionCount, 0);
             Arrays.fill(labSectionCount, 0);
             Arrays.fill(recitationSectionCount, 0);
+            Arrays.fill(classEnrollmentCount, 0);
+            Arrays.fill(labEnrollmentCount, 0);
+            Arrays.fill(recitationEnrollmentCount, 0);
 
             int numSuccess = 0;
             for (int attempt = 0; attempt < ATTEMPTS_PER_POP_SIZE; ++attempt) {
@@ -87,13 +98,17 @@ enum ComputePopulationSize {
 
                         if (Objects.nonNull(list)) {
                             for (final AbstractSection sect : list) {
+
                                 final ERoomUsage usage = sect.usage();
                                 if (usage == ERoomUsage.CLASSROOM) {
                                     ++classSectionCount[i];
+                                    classEnrollmentCount[i] += sect.numSeats();
                                 } else if (usage == ERoomUsage.LAB) {
                                     ++labSectionCount[i];
+                                    labEnrollmentCount[i] += sect.numSeats();
                                 } else if (usage == ERoomUsage.RECITATION) {
                                     ++recitationSectionCount[i];
+                                    recitationEnrollmentCount[i] += sect.numSeats();
                                 }
                             }
                         }
@@ -110,14 +125,21 @@ enum ComputePopulationSize {
             Log.info("When population size is ", popStr, ", a schedule could be found ", percentageStr,
                     "% of the time");
 
-            for (int i = 0; i < numCourses; ++i) {
-                averageClassSections[i][arrayIndex] = (float) classSectionCount[i] / (float) numSuccess;
-                averageLabSections[i][arrayIndex] = (float) labSectionCount[i] / (float) numSuccess;
-                averageRecitationSections[i][arrayIndex] = (float) recitationSectionCount[i] / (float) numSuccess;
+            if (numSuccess > 0) {
+                for (int i = 0; i < numCourses; ++i) {
+                    averageClassSections[i][arrayIndex] = (float) classSectionCount[i] / (float) numSuccess;
+                    averageLabSections[i][arrayIndex] = (float) labSectionCount[i] / (float) numSuccess;
+                    averageRecitationSections[i][arrayIndex] = (float) recitationSectionCount[i] / (float) numSuccess;
 
-                totalClassSections[arrayIndex] += averageClassSections[i][arrayIndex];
-                totalLabSections[arrayIndex] += averageLabSections[i][arrayIndex];
-                totalRecitationSections[arrayIndex] += averageRecitationSections[i][arrayIndex];
+                    averageClassEnrollment[i][arrayIndex] = (float) classEnrollmentCount[i] / (float) numSuccess;
+                    averageLabEnrollment[i][arrayIndex] = (float) labEnrollmentCount[i] / (float) numSuccess;
+                    averageRecitationEnrollment[i][arrayIndex] =
+                            (float) recitationEnrollmentCount[i] / (float) numSuccess;
+
+                    totalClassSections[arrayIndex] += averageClassSections[i][arrayIndex];
+                    totalLabSections[arrayIndex] += averageLabSections[i][arrayIndex];
+                    totalRecitationSections[arrayIndex] += averageRecitationSections[i][arrayIndex];
+                }
             }
         }
 
@@ -198,6 +220,42 @@ enum ComputePopulationSize {
         csv.add("Total Recitation sections:");
         for (int arrayIndex = 0; arrayIndex < numPopulations; ++arrayIndex) {
             csv.add(",", floatFormat.format(totalRecitationSections[arrayIndex]));
+        }
+        csv.addln();
+        csv.addln();
+
+        for (int i = 0; i < numCourses; ++i) {
+            final Course course = courses.get(i);
+
+            float totalClass = 0.0f;
+            float totalLab = 0.0f;
+            float totalRecitation = 0.0f;
+            for (int arrayIndex = 0; arrayIndex < numPopulations; ++arrayIndex) {
+                totalClass += averageClassEnrollment[i][arrayIndex];
+                totalLab += averageLabEnrollment[i][arrayIndex];
+                totalRecitation += averageRecitationEnrollment[i][arrayIndex];
+            }
+            if (totalClass > 0.01f) {
+                csv.add("Average ", course.courseId, " Class enrollment:");
+                for (int arrayIndex = 0; arrayIndex < numPopulations; ++arrayIndex) {
+                    csv.add(",", floatFormat.format(averageClassEnrollment[i][arrayIndex]));
+                }
+                csv.addln();
+            }
+            if (totalLab > 0.01f) {
+                csv.add("Average ", course.courseId, " Lab enrollment:");
+                for (int arrayIndex = 0; arrayIndex < numPopulations; ++arrayIndex) {
+                    csv.add(",", floatFormat.format(averageLabEnrollment[i][arrayIndex]));
+                }
+                csv.addln();
+            }
+            if (totalRecitation > 0.01f) {
+                csv.add("Average ", course.courseId, " Recitation enrollment:");
+                for (int arrayIndex = 0; arrayIndex < numPopulations; ++arrayIndex) {
+                    csv.add(",", floatFormat.format(averageRecitationEnrollment[i][arrayIndex]));
+                }
+                csv.addln();
+            }
         }
         csv.addln();
 

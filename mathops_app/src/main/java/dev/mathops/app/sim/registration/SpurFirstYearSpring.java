@@ -22,7 +22,7 @@ import java.util.Map;
 final class SpurFirstYearSpring {
 
     /** The population size. */
-    private static final int POPULATION_SIZE = 145;
+    private static final int POPULATION_SIZE = 120;
 
     /** The size of a general classroom. */
     private static final int CLASSROOM_SIZE = 40;
@@ -80,13 +80,15 @@ final class SpurFirstYearSpring {
         sectionsSeminar.add(new OfferedSection(courseSeminar, CLASSROOM_SIZE,
                 new OfferedSectionMeetingTime(CLASS, EMeetingDays.T, CLASSROOM_2,
                         LocalTime.of(8, 30), LocalTime.of(9, 20))));
-        sectionsSeminar.add(new OfferedSection(courseSeminar, CLASSROOM_SIZE,
-                new OfferedSectionMeetingTime(CLASS, EMeetingDays.R, CLASSROOM_2,
-                        LocalTime.of(8, 30), LocalTime.of(9, 20))));
-        if (POPULATION_SIZE > 160) {
+        if (POPULATION_SIZE > 120) {
             sectionsSeminar.add(new OfferedSection(courseSeminar, CLASSROOM_SIZE,
-                    new OfferedSectionMeetingTime(CLASS, EMeetingDays.F, CLASSROOM_2,
-                            LocalTime.of(16, 0), LocalTime.of(16, 50))));
+                    new OfferedSectionMeetingTime(CLASS, EMeetingDays.R, CLASSROOM_2,
+                            LocalTime.of(8, 30), LocalTime.of(9, 20))));
+            if (POPULATION_SIZE > 160) {
+                sectionsSeminar.add(new OfferedSection(courseSeminar, CLASSROOM_SIZE,
+                        new OfferedSectionMeetingTime(CLASS, EMeetingDays.F, CLASSROOM_2,
+                                LocalTime.of(16, 0), LocalTime.of(16, 50))));
+            }
         }
         courseSeminar.addSectionsList(sectionsSeminar);
 
@@ -102,9 +104,6 @@ final class SpurFirstYearSpring {
         sectionsLife103Class.add(new OfferedSection(courseLife103, CLASSROOM_SIZE,
                 new OfferedSectionMeetingTime(CLASS, EMeetingDays.MWF, CLASSROOM_2,
                         LocalTime.of(10, 0), LocalTime.of(10, 50))));
-        sectionsLife103Class.add(new OfferedSection(courseLife103, CLASSROOM_SIZE,
-                new OfferedSectionMeetingTime(CLASS, EMeetingDays.MWF, CLASSROOM_2,
-                        LocalTime.of(14, 0), LocalTime.of(14, 50))));
         courseLife103.addSectionsList(sectionsLife103Class);
 
         final Collection<OfferedSection> sectionsLife103Lab = new ArrayList<>(4);
@@ -117,9 +116,11 @@ final class SpurFirstYearSpring {
         sectionsLife103Lab.add(new OfferedSection(courseLife103, LAB_SIZE,
                 new OfferedSectionMeetingTime(LAB, EMeetingDays.F, LAB_1,
                         LocalTime.of(11, 0), LocalTime.of(13, 45))));
-        sectionsLife103Lab.add(new OfferedSection(courseLife103, LAB_SIZE,
-                new OfferedSectionMeetingTime(LAB, EMeetingDays.R, LAB_1,
-                        LocalTime.of(14, 0), LocalTime.of(16, 45))));
+        if (POPULATION_SIZE > 120) {
+            sectionsLife103Lab.add(new OfferedSection(courseLife103, LAB_SIZE,
+                    new OfferedSectionMeetingTime(LAB, EMeetingDays.R, LAB_1,
+                            LocalTime.of(14, 0), LocalTime.of(16, 45))));
+        }
         courseLife103.addSectionsList(sectionsLife103Lab);
 
         // CHEM 111
@@ -164,30 +165,7 @@ final class SpurFirstYearSpring {
         sectionsChem111Lab.add(new OfferedSection(courseChem111, LAB_SIZE,
                 new OfferedSectionMeetingTime(LAB, EMeetingDays.T, LAB_1,
                         LocalTime.of(14, 0), LocalTime.of(16, 45))));
-        sectionsChem111Lab.add(new OfferedSection(courseChem111, LAB_SIZE,
-                new OfferedSectionMeetingTime(LAB, EMeetingDays.F, LAB_1,
-                        LocalTime.of(14, 0), LocalTime.of(16, 45))));
         courseChem111.addSectionsList(sectionsChem111Lab);
-
-        // CO 150
-
-        final OfferedCourse courseCo150 = new OfferedCourse(SpurCourses.CO150);
-        offeredCourses.put(SpurCourses.CO150, courseCo150);
-
-        final Collection<OfferedSection> sectionsCo150Class = new ArrayList<>(2);
-        sectionsCo150Class.add(new OfferedSection(courseCo150, CLASSROOM_SIZE,
-                new OfferedSectionMeetingTime(CLASS, EMeetingDays.MWF, CLASSROOM_1,
-                        LocalTime.of(9, 0), LocalTime.of(9, 50))));
-        sectionsCo150Class.add(new OfferedSection(courseCo150, CLASSROOM_SIZE,
-                new OfferedSectionMeetingTime(CLASS, EMeetingDays.MWF, CLASSROOM_1,
-                        LocalTime.of(11, 0), LocalTime.of(11, 50))));
-        sectionsCo150Class.add(new OfferedSection(courseCo150, CLASSROOM_SIZE,
-                new OfferedSectionMeetingTime(CLASS, EMeetingDays.MWF, CLASSROOM_1,
-                        LocalTime.of(15, 0), LocalTime.of(15, 50))));
-        sectionsCo150Class.add(new OfferedSection(courseCo150, CLASSROOM_SIZE,
-                new OfferedSectionMeetingTime(CLASS, EMeetingDays.MWF, CLASSROOM_1,
-                        LocalTime.of(16, 0), LocalTime.of(16, 50))));
-        courseCo150.addSectionsList(sectionsCo150Class);
 
         // SOC 220
 
@@ -260,6 +238,9 @@ final class SpurFirstYearSpring {
         sectionsIu173Class.add(new OfferedSection(courseIu173, CLASSROOM_SIZE,
                 new OfferedSectionMeetingTime(CLASS, EMeetingDays.TR, CLASSROOM_1,
                         LocalTime.of(15, 30), LocalTime.of(16, 45))));
+        sectionsIu173Class.add(new OfferedSection(courseIu173, CLASSROOM_SIZE,
+                new OfferedSectionMeetingTime(CLASS, EMeetingDays.MWF, CLASSROOM_2,
+                        LocalTime.of(14, 0), LocalTime.of(14, 50))));
         courseIu173.addSectionsList(sectionsIu173Class);
 
         // IU 174
@@ -274,6 +255,9 @@ final class SpurFirstYearSpring {
         sectionsIu174Class.add(new OfferedSection(courseIu174, CLASSROOM_SIZE,
                 new OfferedSectionMeetingTime(CLASS, EMeetingDays.TR, CLASSROOM_1,
                         LocalTime.of(14, 0), LocalTime.of(15, 15))));
+        sectionsIu174Class.add(new OfferedSection(courseIu174, CLASSROOM_SIZE,
+                new OfferedSectionMeetingTime(CLASS, EMeetingDays.MWF, CLASSROOM_1,
+                        LocalTime.of(9, 0), LocalTime.of(9, 50))));
         courseIu174.addSectionsList(sectionsIu174Class);
 
         // MIP 101

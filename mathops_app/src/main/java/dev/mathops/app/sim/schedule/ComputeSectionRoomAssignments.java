@@ -444,16 +444,8 @@ enum ComputeSectionRoomAssignments {
     private static void assign3SectionCourses(final Iterable<Course> toBeAssigned, final ERoomUsage usage,
                                               final List<Room> rooms) {
 
-        // Make sure there are at least 3 classrooms that could accommodate courses - if not, we're done!
-
-        final int numOfInterest = rooms.size();
-        if (numOfInterest > 2) {
-
-            // Generate a set of all groups of 3 classrooms, then assign as many courses to those groups as possible
-
-            final List<Rooms> groups = makeGroupsOf3(rooms);
-            assignSectionsToGroups(toBeAssigned, usage, groups);
-        }
+        final List<Rooms> groups = makeGroupsOf3(rooms);
+        assignSectionsToGroups(toBeAssigned, usage, groups);
     }
 
     /**
@@ -528,7 +520,8 @@ enum ComputeSectionRoomAssignments {
 
                 if (course.isRoomCompatible(usage, room)) {
                     final int roomCap = room.getCapacity();
-                    final int seatsToAssign = Math.min(roomCap, seatsNeeded);
+                    final int maxSeats = Math.min(roomCap, course.enrollmentCap);
+                    final int seatsToAssign = Math.min(seatsNeeded, maxSeats);
 
                     final AbstractSection sect = addSectionToRoom(type, room, hoursNeeded, course, seatsToAssign,
                             usage);

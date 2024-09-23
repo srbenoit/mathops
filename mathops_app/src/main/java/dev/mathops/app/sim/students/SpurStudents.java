@@ -9,16 +9,16 @@ public enum SpurStudents {
     ;
 
     /** Flag to control whether MATH 112 is included in Fall (if false, it is offered in Summer). */
-    private static final boolean INCLUDE_MATH = true;
+    private static final boolean INCLUDE_MATH = false;
 
-    /** Flag to control whether EHRS 220 is included in Fall (if false, it is offered in Summer). */
+    /** Flag to control whether ERHS 220 is included in Fall. */
     private static final boolean INCLUDE_ERHS = true;
 
-    /** Flag to control whether POLS 131 is included in Fall (if false, it is offered in Summer). */
+    /** Flag to control whether POLS 131 is included in Fall. */
     private static final boolean INCLUDE_POLS = true;
 
     /** Flag to control whether CO 150 is included in Fall (if false, it is offered in Spring). */
-    private static final boolean INCLUDE_FA_CO150 = true;
+    public static final boolean INCLUDE_FA_CO150 = true;
 
     /** A class preferences key. */
     private static final String HEALTH_LIFE_FOOD = "HEALTH_LIFE_FOOD";
