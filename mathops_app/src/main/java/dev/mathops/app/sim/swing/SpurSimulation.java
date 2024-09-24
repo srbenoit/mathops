@@ -15,6 +15,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -240,6 +241,8 @@ public final class SpurSimulation extends WindowAdapter implements Runnable, Act
     public static void main(final String... args) {
 
         FlatLightLaf.setup();
+
+        UIManager.put("Button.defaultButtonFollowsFocus", Boolean.TRUE);
 
         final File dataDir = new File("/opt/sim");
 

@@ -1,6 +1,7 @@
 package dev.mathops.app.sim.rooms;
 
-import javax.swing.table.AbstractTableModel;
+import dev.mathops.app.sim.swing.ButtonColumnTableModel;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,10 +9,10 @@ import java.util.List;
 /**
  * A table model for the table of all rooms defined on campus.
  */
-public final class CampusRoomsTableModel extends AbstractTableModel {
+public final class CampusRoomsTableModel extends ButtonColumnTableModel {
 
     /** The column names. */
-    private final String[] columnNames = {"Room Name", "Maximum Capacity"};
+    private final String[] columnNames = {"Room Name", "Maximum Capacity", " "};
 
     /** The data directory. */
     private final File dataDir;
@@ -81,7 +82,10 @@ public final class CampusRoomsTableModel extends AbstractTableModel {
         if (columnIndex == 0) {
             result = room.getId();
         } else if (columnIndex == 1) {
-            result = Integer.valueOf(room.getCapacity());
+            final int cap = room.getCapacity();
+            result = Integer.toString(cap);
+        } else if (columnIndex == 2) {
+            result = "Delete";
         }
 
         return result;
@@ -95,19 +99,7 @@ public final class CampusRoomsTableModel extends AbstractTableModel {
      */
     public Class<?> getColumnClass(final int columnIndex) {
 
-        return columnIndex == 1 ? Integer.class : String.class;
-    }
-
-    /**
-     * Tests whether a cell is editable.
-     *
-     * @param rowIndex    the row being queried
-     * @param columnIndex the column being queried
-     * @return true if editable
-     */
-    public boolean isCellEditable(final int rowIndex, final int columnIndex) {
-
-        return false;
+        return getValueAt(0, columnIndex).getClass();
     }
 
     /**
@@ -132,6 +124,18 @@ public final class CampusRoomsTableModel extends AbstractTableModel {
     }
 
     /**
+     * Tests whether a cell is editable.
+     *
+     * @param rowIndex    the row being queried
+     * @param columnIndex the column being queried
+     * @return true if the cell is editable
+     */
+    public boolean isCellEditable(final int rowIndex, final int columnIndex) {
+
+        return columnIndex == 2;
+    }
+
+    /**
      * Adds a room.
      *
      * @param room the room to add
@@ -146,18 +150,14 @@ public final class CampusRoomsTableModel extends AbstractTableModel {
     }
 
     /**
-     * Removes a room.
+     * Removes a row.
      *
-     * @param room the room to remove
+     * @param rowIndex the row to remove
      */
-    public void remove(final CampusRoom room) {
+    public void removeRow(final int rowIndex) {
 
-        final int rowIndex = this.allCampusRooms.indexOf(room);
-
-        if (rowIndex >= 0) {
-            this.allCampusRooms.remove(rowIndex);
-            CampusRoomJson.store(this.dataDir, this.allCampusRooms);
-            fireTableRowsDeleted(rowIndex, rowIndex);
-        }
+        this.allCampusRooms.remove(rowIndex);
+        CampusRoomJson.store(this.dataDir, this.allCampusRooms);
+        fireTableRowsDeleted(rowIndex, rowIndex);
     }
 }
