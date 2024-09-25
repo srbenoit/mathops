@@ -32,7 +32,7 @@ public final class CampusRoomsTableModel extends ButtonColumnTableModel {
         this.dataDir = theDataDir;
         this.allCampusRooms = new ArrayList<>(10);
 
-        CampusRoomJson.load(theDataDir, this.allCampusRooms);
+        CampusRoomsJson.load(theDataDir, this.allCampusRooms);
     }
 
     /**
@@ -145,7 +145,7 @@ public final class CampusRoomsTableModel extends ButtonColumnTableModel {
         final int rowIndex = this.allCampusRooms.size();
 
         this.allCampusRooms.add(room);
-        CampusRoomJson.store(this.dataDir, this.allCampusRooms);
+        CampusRoomsJson.store(this.dataDir, this.allCampusRooms);
         fireTableRowsInserted(rowIndex, rowIndex);
     }
 
@@ -157,7 +157,7 @@ public final class CampusRoomsTableModel extends ButtonColumnTableModel {
     public void removeRow(final int rowIndex) {
 
         this.allCampusRooms.remove(rowIndex);
-        CampusRoomJson.store(this.dataDir, this.allCampusRooms);
+        CampusRoomsJson.store(this.dataDir, this.allCampusRooms);
         fireTableRowsDeleted(rowIndex, rowIndex);
     }
 }

@@ -17,9 +17,6 @@ import java.util.List;
 /**
  * A utility to load and store campus room data in JSON format.
  *
- * <p>
- * Room data is stored in a JSON data file with the following format:
- *
  * <pre>
  * [
  *     {"id":"classroom1", "capacity":40},
@@ -27,7 +24,7 @@ import java.util.List;
  * ]
  * </pre>
  */
-public enum CampusRoomJson {
+public enum CampusRoomsJson {
     ;
 
     /** The filename of the file that stores campus room data. */
@@ -62,7 +59,8 @@ public enum CampusRoomJson {
                                 } else if (cap == null) {
                                     Log.warning("Object in ", path, " did not have 'capacity' attribute.");
                                 } else {
-                                    final CampusRoom room = new CampusRoom(id, cap.intValue());
+                                    final int capValue = cap.intValue();
+                                    final CampusRoom room = new CampusRoom(id, capValue);
                                     target.add(room);
                                 }
                             } else {
@@ -106,7 +104,7 @@ public enum CampusRoomJson {
      * @param source the list of campus rooms
      * @return the JSON
      */
-    private static HtmlBuilder buildJson(List<CampusRoom> source) {
+    private static HtmlBuilder buildJson(final List<CampusRoom> source) {
 
         final HtmlBuilder builder = new HtmlBuilder(100);
 

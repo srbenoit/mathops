@@ -28,7 +28,7 @@ public final class SemesterSchedule {
      * The type of schedule each day provides (this is the "campus schedule", but individual classrooms or labs could
      * override this).
      */
-    private final Map<DayOfWeek, EDailyScheduleType> dailyScheduleTypes;
+    private final Map<DayOfWeek, EDailyScheduleType> scheduleTypes;
 
     /**
      * Constructs a new {@code SemesterSchedule}.
@@ -47,7 +47,7 @@ public final class SemesterSchedule {
 
         this.startTimes = new EnumMap<>(DayOfWeek.class);
         this.endTimes = new EnumMap<>(DayOfWeek.class);
-        this.dailyScheduleTypes = new EnumMap<>(DayOfWeek.class);
+        this.scheduleTypes = new EnumMap<>(DayOfWeek.class);
     }
 
     /**
@@ -97,7 +97,7 @@ public final class SemesterSchedule {
 
             this.startTimes.put(day, startTime);
             this.endTimes.put(day, endTime);
-            this.dailyScheduleTypes.put(day, scheduleType);
+            this.scheduleTypes.put(day, scheduleType);
         } else {
             throw new IllegalArgumentException("End time must be after start time");
         }
@@ -116,6 +116,39 @@ public final class SemesterSchedule {
 
         this.startTimes.remove(day);
         this.endTimes.remove(day);
-        this.dailyScheduleTypes.remove(day);
+        this.scheduleTypes.remove(day);
+    }
+
+    /**
+     * Gets the start time for a specified day.
+     *
+     * @param day the day of week
+     * @return the start time; null if there is none defined for the given day of week
+     */
+    public LocalTime getStartTime(final DayOfWeek day) {
+
+        return this.startTimes.get(day);
+    }
+
+    /**
+     * Gets the end time for a specified day.
+     *
+     * @param day the day of week
+     * @return the end time; null if there is none defined for the given day of week
+     */
+    public LocalTime getEndTime(final DayOfWeek day) {
+
+        return this.endTimes.get(day);
+    }
+
+    /**
+     * Gets the schedule type for a specified day.
+     *
+     * @param day the day of week
+     * @return the schedule type; null if there is none defined for the given day of week
+     */
+    public EDailyScheduleType getScheduleType(final DayOfWeek day) {
+
+        return this.scheduleTypes.get(day);
     }
 }
