@@ -22,7 +22,7 @@ import java.awt.event.ActionListener;
 /**
  * A dialog to add a new campus room.
  */
-final class ClassroomDialogAddCampusRoom extends JFrame implements ActionListener, DocumentListener {
+final class CampusDialogAddCampusRoom extends JFrame implements ActionListener, DocumentListener {
 
     /** An action command. */
     private static final String CMD_CREATE_ROOM = "CREATE_ROOM";
@@ -48,7 +48,7 @@ final class ClassroomDialogAddCampusRoom extends JFrame implements ActionListene
     /**
      * Constructs a new {@code ClassroomDialogAddCampusRoom}.
      */
-    ClassroomDialogAddCampusRoom(final CampusRoomsTableModel theTableModel) {
+    CampusDialogAddCampusRoom(final CampusRoomsTableModel theTableModel) {
 
         super("Add a Campus Room");
 

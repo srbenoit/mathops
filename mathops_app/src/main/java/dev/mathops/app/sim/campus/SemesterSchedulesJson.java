@@ -14,7 +14,9 @@ import java.nio.charset.StandardCharsets;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.Collection;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A utility to load and store semester schedule data in JSON format.
@@ -62,15 +64,18 @@ public enum SemesterSchedulesJson {
                         for (final Object obj : array) {
                             if (obj instanceof final JSONObject jsonObj) {
                                 final String id = jsonObj.getStringProperty("id");
-                                final Number cap = jsonObj.getNumberProperty("capacity");
+                                final Number weeks = jsonObj.getNumberProperty("weeksOfClass");
 
                                 if (id == null) {
                                     Log.warning("Object in ", path, " did not have 'id' attribute.");
-                                } else if (cap == null) {
-                                    Log.warning("Object in ", path, " did not have 'capacity' attribute.");
+                                } else if (weeks == null) {
+                                    Log.warning("Object in ", path, " did not have 'weeksOfClass' attribute.");
                                 } else {
-                                    final SemesterSchedule schedule = new SemesterSchedule(id, cap.intValue());
-                                    target.add(schedule);
+                                    final SemesterSchedule schedule = new SemesterSchedule(id, weeks.intValue());
+
+                                    if (isDailyDataValid(jsonObj, schedule)) {
+                                        target.add(schedule);
+                                    }
                                 }
                             } else {
                                 Log.warning("Array element within ", path, " was not a JSON object.");
@@ -84,6 +89,95 @@ public enum SemesterSchedulesJson {
                 }
             }
         }
+    }
+
+    /**
+     * Examines the "daily" configuration data in a JSON object to ensure it is valid.  If the data is valid, it is
+     * stored in a supploed schedule object.
+     *
+     * @param jsonObj  the JSON object to examine
+     * @param schedule the schedule to which to add daily configuration data if valid
+     * @return true if data was valid
+     */
+    private static boolean isDailyDataValid(final JSONObject jsonObj, final SemesterSchedule schedule) {
+
+        final Object startTimes = jsonObj.getProperty("startTimes");
+        final Object endTimes = jsonObj.getProperty("endTimes");
+        final Object scheduleTypes = jsonObj.getProperty("scheduleTypes");
+
+        boolean valid = false;
+
+        if (startTimes instanceof final Object[] startTimesArray
+            && endTimes instanceof final Object[] endTimesArray
+            && scheduleTypes instanceof final Object[] scheduleTypesArray) {
+
+            final int count = startTimesArray.length;
+
+            if (count == endTimesArray.length && count == scheduleTypesArray.length) {
+
+                final Map<DayOfWeek, LocalTime> parsedStartTimes = new EnumMap<>(DayOfWeek.class);
+                final Map<DayOfWeek, LocalTime> parsedEndTimes = new EnumMap<>(DayOfWeek.class);
+                final Map<DayOfWeek, EDailyScheduleType> parsedScheduleTypes = new EnumMap<>(DayOfWeek.class);
+
+                valid = true;
+                for (int i = 0; i < count; ++i) {
+
+                    if (startTimesArray[i] instanceof final JSONObject startTimeObj
+                        && endTimesArray[i] instanceof final JSONObject endTimeObj
+                        && scheduleTypesArray[i] instanceof final JSONObject scheduleTypeObj) {
+
+                        final String startDayStr = startTimeObj.getStringProperty("day");
+                        final String endDayStr = endTimeObj.getStringProperty("day");
+                        final String scheduleDayStr = scheduleTypeObj.getStringProperty("day");
+
+                        final String startTimeStr = startTimeObj.getStringProperty("time");
+                        final String endTimeStr = endTimeObj.getStringProperty("time");
+                        final String scheduleTypeStr = scheduleTypeObj.getStringProperty("type");
+
+                        try {
+                            final DayOfWeek startDay = DayOfWeek.valueOf(startDayStr);
+                            final LocalTime startTime = LocalTime.parse(startTimeStr);
+                            parsedStartTimes.put(startDay, startTime);
+
+                            final DayOfWeek endDay = DayOfWeek.valueOf(endDayStr);
+                            final LocalTime endTime = LocalTime.parse(endTimeStr);
+                            parsedEndTimes.put(endDay, endTime);
+
+                            final DayOfWeek scheduleDay = DayOfWeek.valueOf(scheduleDayStr);
+                            final EDailyScheduleType scheduleType = EDailyScheduleType.valueOf(scheduleTypeStr);
+                            parsedScheduleTypes.put(scheduleDay, scheduleType);
+
+                        } catch (final IllegalArgumentException ex) {
+                            Log.warning("Invalid entry in startTimes, endTimes, or scheduleType array.");
+                            valid = false;
+                            break;
+                        }
+                    } else {
+                        Log.warning("Entry in startTimes, endTimes, or scheduleType array is not JSON Object.");
+                        valid = false;
+                        break;
+                    }
+                }
+
+                if (valid) {
+                    for (final DayOfWeek day : DayOfWeek.values()) {
+                        final LocalTime start = parsedStartTimes.get(day);
+                        final LocalTime end = parsedEndTimes.get(day);
+                        final EDailyScheduleType type = parsedScheduleTypes.get(day);
+
+                        if (start != null && end != null && type != null) {
+                            schedule.addDayOfWeek(day, start, end, type);
+                        }
+                    }
+                }
+            } else {
+                Log.warning("StartTimes, endTimes, and scheduleTypes arrays in schedule JSON object not same length.");
+            }
+        } else {
+            Log.warning("Did not find startTimes, endTimes, and scheduleTypes array in schedule JSON object.");
+        }
+
+        return valid;
     }
 
     /**

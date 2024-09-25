@@ -33,7 +33,7 @@ import java.awt.event.ActionListener;
  * When courses are defined, they will indicate the set of campus rooms that are "compatible" with the course, or with
  * some portion of the course (a class section, a lab section, a recitation section, etc.).
  */
-final class ClassroomDialogCampusRoomsTable extends JPanel implements ActionListener, SpurSimulationDataListener {
+final class CampusDialogCampusRoomsTable extends JPanel implements ActionListener, SpurSimulationDataListener {
 
     /** An action command. */
     private static final String CMD_ADD_ROOM = "ADD_ROOM";
@@ -42,12 +42,12 @@ final class ClassroomDialogCampusRoomsTable extends JPanel implements ActionList
     private final SpurSimulationData data;
 
     /** A dialog to use when adding a new campus room. */
-    private ClassroomDialogAddCampusRoom addRoomDialog = null;
+    private CampusDialogAddCampusRoom addRoomDialog = null;
 
     /**
      * Constructs a new {@code ClassroomDialogCampusRoomsTable}.
      */
-    ClassroomDialogCampusRoomsTable(final SpurSimulationData theData) {
+    CampusDialogCampusRoomsTable(final SpurSimulationData theData) {
 
         super(new StackedBorderLayout(3, 3));
 
@@ -147,7 +147,7 @@ final class ClassroomDialogCampusRoomsTable extends JPanel implements ActionList
         if (CMD_ADD_ROOM.equals(cmd)) {
             if (this.addRoomDialog == null) {
                 final CampusRoomsTableModel tableModel = this.data.getCampusRoomsTableModel();
-                this.addRoomDialog = new ClassroomDialogAddCampusRoom(tableModel);
+                this.addRoomDialog = new CampusDialogAddCampusRoom(tableModel);
             } else {
                 this.addRoomDialog.reset();
             }

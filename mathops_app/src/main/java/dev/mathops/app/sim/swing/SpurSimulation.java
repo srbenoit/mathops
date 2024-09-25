@@ -74,7 +74,7 @@ public final class SpurSimulation extends WindowAdapter implements Runnable, Act
     private JLabel progressStatus;
 
     /** A dialog to manage classroom spaces. */
-    private ClassroomDialog classroomDialog = null;
+    private CampusDialog classroomDialog = null;
 
     /**
      * Private constructor to prevent instantiation.
@@ -204,7 +204,7 @@ public final class SpurSimulation extends WindowAdapter implements Runnable, Act
 
         } else if (MANAGE_CLASSROOM_PROFILES_CMD.equals(cmd)) {
             if (this.classroomDialog == null) {
-                this.classroomDialog = new ClassroomDialog(this.data);
+                this.classroomDialog = new CampusDialog(this.data);
                 final Dimension size = this.frame.getSize();
                 final Point pos = this.frame.getLocation();
                 final Dimension dlgSize = this.classroomDialog.getSize();

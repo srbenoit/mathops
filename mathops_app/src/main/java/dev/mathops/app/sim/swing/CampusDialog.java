@@ -20,18 +20,18 @@ import java.awt.event.WindowEvent;
  * compatibility.  A profile then select some subset of these rooms for inclusion in the simulation, and sets the
  * weekdays and times of day each is available, and which days operate on "50-minute blocks" vs. "75-minute blocks".
  */
-final class ClassroomDialog extends WindowAdapter {
+final class CampusDialog extends WindowAdapter {
 
     /** The frame. */
     private final JFrame frame;
 
     /** The table to display campus rooms. */
-    private final ClassroomDialogCampusRoomsTable roomsTable;
+    private final CampusDialogCampusRoomsTable roomsTable;
 
     /**
      * Constructs a new {@code ClassroomDialog}.
      */
-    ClassroomDialog(final SpurSimulationData theData) {
+    CampusDialog(final SpurSimulationData theData) {
 
         super();
 
@@ -46,7 +46,7 @@ final class ClassroomDialog extends WindowAdapter {
         // Show a scrollable table of all the classrooms on campus, with options to add/delete/update
         final JLabel lbl1 = new JLabel("Campus classrooms and labs:");
         content.add(lbl1, StackedBorderLayout.NORTH);
-        this.roomsTable = new ClassroomDialogCampusRoomsTable(theData);
+        this.roomsTable = new CampusDialogCampusRoomsTable(theData);
         content.add(this.roomsTable, StackedBorderLayout.NORTH);
 
         // Show a list of named classroom profiles that select a suite of available rooms, weekdays and hours of
