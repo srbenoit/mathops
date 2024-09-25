@@ -1,4 +1,4 @@
-package dev.mathops.app.sim.rooms;
+package dev.mathops.app.sim.campus;
 
 /**
  * Room usages.  A course can require multiple rooms (classroom, lab, recitation space, studio, etc.) each with its own

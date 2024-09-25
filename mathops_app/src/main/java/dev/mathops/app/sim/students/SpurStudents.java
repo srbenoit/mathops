@@ -18,7 +18,7 @@ public enum SpurStudents {
     private static final boolean INCLUDE_POLS = true;
 
     /** Flag to control whether CO 150 is included in Fall (if false, it is offered in Spring). */
-    public static final boolean INCLUDE_FA_CO150 = true;
+    public static final boolean INCLUDE_FA_CO150 = false;
 
     /** A class preferences key. */
     private static final String HEALTH_LIFE_FOOD = "HEALTH_LIFE_FOOD";

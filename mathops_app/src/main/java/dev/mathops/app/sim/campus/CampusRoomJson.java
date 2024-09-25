@@ -1,4 +1,4 @@
-package dev.mathops.app.sim.rooms;
+package dev.mathops.app.sim.campus;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.file.FileLoader;

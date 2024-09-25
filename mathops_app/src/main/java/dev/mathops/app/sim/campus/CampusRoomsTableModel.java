@@ -1,4 +1,4 @@
-package dev.mathops.app.sim.rooms;
+package dev.mathops.app.sim.campus;
 
 import dev.mathops.app.sim.swing.ButtonColumnTableModel;
 
@@ -85,7 +85,7 @@ public final class CampusRoomsTableModel extends ButtonColumnTableModel {
             final int cap = room.getCapacity();
             result = Integer.toString(cap);
         } else if (columnIndex == 2) {
-            result = "Delete";
+            result = "Delete " + room.getId();
         }
 
         return result;

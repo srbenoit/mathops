@@ -2,7 +2,7 @@ package dev.mathops.app.sim.swing;
 
 import dev.mathops.app.sim.SpurSimulationData;
 import dev.mathops.app.sim.SpurSimulationDataListener;
-import dev.mathops.app.sim.rooms.CampusRoomsTableModel;
+import dev.mathops.app.sim.campus.CampusRoomsTableModel;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 
 import javax.swing.AbstractAction;

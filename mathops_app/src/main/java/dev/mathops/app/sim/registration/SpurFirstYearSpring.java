@@ -6,7 +6,7 @@ import dev.mathops.app.sim.courses.OfferedCourse;
 import dev.mathops.app.sim.courses.OfferedSection;
 import dev.mathops.app.sim.courses.OfferedSectionMeetingTime;
 import dev.mathops.app.sim.courses.SpurCourses;
-import dev.mathops.app.sim.rooms.SpurRooms;
+import dev.mathops.app.sim.campus.SpurRooms;
 import dev.mathops.app.sim.students.SpurStudents;
 import dev.mathops.app.sim.students.StudentPopulation;
 

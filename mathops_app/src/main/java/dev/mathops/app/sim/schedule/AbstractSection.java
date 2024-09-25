@@ -1,8 +1,8 @@
 package dev.mathops.app.sim.schedule;
 
 import dev.mathops.app.sim.courses.Course;
-import dev.mathops.app.sim.rooms.ERoomUsage;
-import dev.mathops.app.sim.rooms.Room;
+import dev.mathops.app.sim.campus.ERoomUsage;
+import dev.mathops.app.sim.campus.Room;
 
 /**
  * A section that will meet in a room on some combination of weekdays.

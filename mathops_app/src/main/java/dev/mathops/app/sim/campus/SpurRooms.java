@@ -1,4 +1,4 @@
-package dev.mathops.app.sim.rooms;
+package dev.mathops.app.sim.campus;
 
 import java.util.Collection;
 import java.util.List;

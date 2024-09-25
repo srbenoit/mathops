@@ -1,7 +1,7 @@
 package dev.mathops.app.sim.swing;
 
-import dev.mathops.app.sim.rooms.CampusRoom;
-import dev.mathops.app.sim.rooms.CampusRoomsTableModel;
+import dev.mathops.app.sim.campus.CampusRoom;
+import dev.mathops.app.sim.campus.CampusRoomsTableModel;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.UIUtilities;

@@ -1,7 +1,7 @@
 package dev.mathops.app.sim;
 
-import dev.mathops.app.sim.rooms.CampusRoom;
-import dev.mathops.app.sim.rooms.CampusRoomsTableModel;
+import dev.mathops.app.sim.campus.CampusRoom;
+import dev.mathops.app.sim.campus.CampusRoomsTableModel;
 
 import java.io.File;
 import java.util.ArrayList;

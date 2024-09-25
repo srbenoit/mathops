@@ -1,4 +1,4 @@
-package dev.mathops.app.sim.rooms;
+package dev.mathops.app.sim.campus;
 
 import dev.mathops.app.sim.courses.Course;
 import dev.mathops.app.sim.courses.EMeetingDays;

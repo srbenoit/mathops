@@ -1,8 +1,8 @@
 package dev.mathops.app.sim.courses;
 
 import dev.mathops.app.sim.schedule.EAssignmentType;
-import dev.mathops.app.sim.rooms.ERoomUsage;
-import dev.mathops.app.sim.rooms.Room;
+import dev.mathops.app.sim.campus.ERoomUsage;
+import dev.mathops.app.sim.campus.Room;
 
 import java.util.ArrayList;
 import java.util.Arrays;
