@@ -213,25 +213,27 @@ enum PageOutline {
                         final String typeStr = "RE".equals(type) ? "Review Exam" :
                                 ("FE".equals(type) ? "Final Exam" : "Exam");
 
-                        if (days > 100) {
-                            final int granted = days % 100;
-                            final String grantedStr = Integer.toString(granted);
-                            final int available = days / 100;
-                            final String availableStr = Integer.toString(available);
-                            msg = SimpleBuilder.concat("You had an extension of ", availableStr,
-                                    " days available for the Unit ", unit, " ", typeStr,
-                                    " based on your accommodation, but there were only ", grantedStr,
-                                    " days before the end of the term, so we moved your deadline to the end of the ",
-                                    "term.  If you cannot finish the course by the end of the term, please stop in to ",
-                                    "the Precalculus Center (Weber 137) or send an email to ",
-                                    "precalc_math@colostate.edu to discuss your situation.");
-                        } else if (days > 0 || days == -1) {
-                            msg = SimpleBuilder.concat("Your accommodation extension on the Unit ", unit, " ", typeStr,
-                                    " has been applied.");
-                        } else if (days == 0) {
+                        if (days == 0) {
                             msg = """
                                     We were unable to apply your accommodation extension.
                                     Please send an email to precalc_math@colostate.edu to let us know of this issue.""";
+                        } else {
+                            if (days > 100) {
+                                final int granted = days % 100;
+                                final String grantedStr = Integer.toString(granted);
+                                final int available = days / 100;
+                                final String availableStr = Integer.toString(available);
+                                msg = SimpleBuilder.concat("You had an extension of ", availableStr,
+                                        " days available for the Unit ", unit, " ", typeStr,
+                                        " based on your accommodation, but there were only ", grantedStr,
+                                        " days before the end of the term, so we moved your deadline to the end of the ",
+                                        "term.  If you cannot finish the course by the end of the term, please stop in to ",
+                                        "the Precalculus Center (Weber 137) or send an email to ",
+                                        "precalc_math@colostate.edu to discuss your situation.");
+                            } else if (days > 0 || days == -1) {
+                                msg = SimpleBuilder.concat("Your accommodation extension on the Unit ", unit, " ", typeStr,
+                                        " has been applied.");
+                            }
                         }
                     } catch (final NumberFormatException ex) {
                         Log.warning("Attempt to apply accommodation extension for ", stu, " with invalid parameters.");

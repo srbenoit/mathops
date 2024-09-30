@@ -47,6 +47,9 @@ public enum MilestoneLogic {
     /** A fixed local time used for synthetic milestone appeals records. */
     private static final LocalTime NOON = LocalTime.of(12, 0);
 
+    /** The default number of attempts for an "F1" milestone update. */
+    private static final Integer DEFAULT_ATTEMPTS = Integer.valueOf(1);
+
     /**
      * Determines the currently effective legacy milestone dates for a student in a specified course index within a
      * given pace and pace track.
@@ -962,11 +965,21 @@ public enum MilestoneLogic {
                     Log.warning("Failed to insert MILESTONE_APPEAL record for requested extension");
                 }
 
-                if (!buildStmilestone(cache, termKey, stuId, paceTrack, msNbr, msType, shortExtension)) {
+                if (!buildStmilestone(cache, termKey, stuId, paceTrack, msNbr, msType, shortExtension, null)) {
                     Log.warning("Failed to update STMILESTONE with new deadline");
                 }
             }
             added += 100 * days;
+
+            if ("FE".equals(msType)) {
+                // Final exam has been adjusted but there were not enough days to get the full extension, so set the
+                // "F1" deadline to match the "FE" deadline (should be the last day of the term)
+
+                if (!buildStmilestone(cache, termKey, stuId, paceTrack, msNbr, "F1", shortExtension,
+                        DEFAULT_ATTEMPTS)) {
+                    Log.warning("Failed to update STMILESTONE with new F1 deadline");
+                }
+            }
         } else {
             added = days;
 
@@ -978,8 +991,18 @@ public enum MilestoneLogic {
                 Log.warning("Failed to insert MILESTONE_APPEAL record for requested extension");
             }
 
-            if (!buildStmilestone(cache, termKey, stuId, paceTrack, msNbr, msType, newDeadline)) {
+            if (!buildStmilestone(cache, termKey, stuId, paceTrack, msNbr, msType, newDeadline, null)) {
                 Log.warning("Failed to update STMILESTONE with new deadline");
+            }
+
+            if ("FE".equals(msType)) {
+                // Final exam has been adjusted - find the next available day for the F1 deadline
+                final LocalDate f1Extension = TermCalendarLogic.nextOpenDay(cache, newDeadline, 1);
+                final LocalDate actualF1 = f1Extension == null ? newDeadline : f1Extension;
+
+                if (!buildStmilestone(cache, termKey, stuId, paceTrack, msNbr, "F1", actualF1, DEFAULT_ATTEMPTS)) {
+                    Log.warning("Failed to update STMILESTONE with new F1 deadline");
+                }
             }
         }
 
@@ -1001,7 +1024,7 @@ public enum MilestoneLogic {
      */
     private static boolean buildStmilestone(final Cache cache, final TermKey termKey, final String stuId,
                                             final String paceTrack, final Integer msNbr, final String msType,
-                                            final LocalDate newDeadline)
+                                            final LocalDate newDeadline, final Integer attempts)
             throws SQLException {
 
         final List<RawStmilestone> all = RawStmilestoneLogic.getStudentMilestones(cache, termKey, paceTrack, stuId);
@@ -1015,7 +1038,8 @@ public enum MilestoneLogic {
 
         final boolean result;
         if (existing == null) {
-            final RawStmilestone add = new RawStmilestone(termKey, stuId, paceTrack, msNbr, msType, newDeadline, null);
+            final RawStmilestone add = new RawStmilestone(termKey, stuId, paceTrack, msNbr, msType, newDeadline,
+                    attempts);
             result = RawStmilestoneLogic.INSTANCE.insert(cache, add);
         } else {
             existing.msDate = newDeadline;

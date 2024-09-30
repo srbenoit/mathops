@@ -622,15 +622,17 @@ public final class DlgAddLegacyMilestoneAppeal extends JFrame implements ActionL
                 this.milestoneTypeDropdown.setSelectedIndex(1);
             } else if ("F1".equals(theMilestone.msType)) {
                 this.milestoneTypeDropdown.setSelectedIndex(2);
+                this.attemptsAllowedField.setText("1");
             } else {
                 this.milestoneTypeDropdown.setSelectedIndex(-1);
             }
             this.priorDatePicker.setCurrentDate(theMilestone.msDate);
         }
 
-        this.attemptsAllowedField.setEnabled("F1".equals(milestone.msType));
+        final boolean isF1 = "F1".equals(milestone.msType);
+        this.attemptsAllowedField.setEnabled(isF1);
+        this.attemptsAllowedField.setText(isF1 ? "1" : CoreConstants.EMPTY);
 
-        this.attemptsAllowedField.setText(CoreConstants.EMPTY);
         this.circumstancesField.setText(CoreConstants.EMPTY);
         this.commentField.setText(CoreConstants.EMPTY);
 
@@ -734,15 +736,24 @@ public final class DlgAddLegacyMilestoneAppeal extends JFrame implements ActionL
             msType = RawMilestone.FINAL_EXAM;
         } else if (msIndex == 2) {
             msType = RawMilestone.FINAL_LAST_TRY;
+
+            try {
+                final String attemptsText = this.attemptsAllowedField.getText();
+                if (attemptsText == null || attemptsText.isBlank()) {
+                    error = "Number of attempts is required.";
+                } else if (Integer.parseInt(attemptsText) < 1) {
+                    error = "Invalid number of attempts.";
+                }
+            } catch (final NumberFormatException ex) {
+                error = "Invalid number of attempts.";
+            }
         }
 
         if (this.priorDatePicker.getCurrentDate() == null) {
             error = "Original deadline date may not be null.";
-        } else if (this.interviewerField.getText() == null
-                   || this.interviewerField.getText().isBlank()) {
+        } else if (this.interviewerField.getText() == null || this.interviewerField.getText().isBlank()) {
             error = "Interviewer may not be blank.";
-        } else if (this.circumstancesField.getText() == null
-                   || this.circumstancesField.getText().isBlank()) {
+        } else if (this.circumstancesField.getText() == null || this.circumstancesField.getText().isBlank()) {
             error = "Circumstances field may not be blank.";
         }
 
@@ -882,12 +893,12 @@ public final class DlgAddLegacyMilestoneAppeal extends JFrame implements ActionL
             final String paceTrack = this.paceTrackField.getText();
 
             final String courseText = this.courseField.getText();
-            final Integer courseInt = Integer.valueOf(courseText);
+            final int courseInt = Integer.parseInt(courseText);
 
             final String unitText = this.unitField.getText();
-            final Integer unitInt = Integer.valueOf(unitText);
+            final int unitInt = Integer.parseInt(unitText);
 
-            final int number = paceInt.intValue() * 100 + courseInt.intValue() * 10 + unitInt.intValue();
+            final int number = paceInt.intValue() * 100 + (int) courseInt * 10 + (int) unitInt;
             final Integer msNbr = Integer.valueOf(number);
 
             final String msType;
