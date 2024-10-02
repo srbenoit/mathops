@@ -1,7 +1,7 @@
 package dev.mathops.app.sim.schedule;
 
 import dev.mathops.app.sim.courses.Course;
-import dev.mathops.app.sim.campus.Room;
+import dev.mathops.app.sim.rooms.RoomSchedule;
 import dev.mathops.app.sim.students.StudentClassPreferences;
 import dev.mathops.app.sim.students.StudentPopulation;
 import dev.mathops.commons.log.Log;
@@ -38,7 +38,7 @@ enum ComputeSectionLayoutQuality {
      * @param population the student population
      */
     static void compute(final Collection<Course> courses, final StudentPopulation population,
-                        final List<Room> rooms) {
+                        final List<RoomSchedule> rooms) {
 
         // Generate a randomly ordered list of student preferences
 

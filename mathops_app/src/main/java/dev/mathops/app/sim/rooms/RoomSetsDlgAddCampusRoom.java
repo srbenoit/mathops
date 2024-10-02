@@ -1,7 +1,5 @@
-package dev.mathops.app.sim.swing;
+package dev.mathops.app.sim.rooms;
 
-import dev.mathops.app.sim.campus.CampusRoom;
-import dev.mathops.app.sim.campus.CampusRoomsTableModel;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.UIUtilities;
@@ -22,7 +20,7 @@ import java.awt.event.ActionListener;
 /**
  * A dialog to add a new campus room.
  */
-final class CampusDialogAddCampusRoom extends JFrame implements ActionListener, DocumentListener {
+final class RoomSetsDlgAddCampusRoom extends JFrame implements ActionListener, DocumentListener {
 
     /** An action command. */
     private static final String CMD_CREATE_ROOM = "CREATE_ROOM";
@@ -31,7 +29,7 @@ final class CampusDialogAddCampusRoom extends JFrame implements ActionListener, 
     private static final String CMD_CANCEL = "CANCEL";
 
     /** The table model to which to add a room when created. */
-    private final CampusRoomsTableModel tableModel;
+    private final RoomSetTableModel tableModel;
 
     /** The field with the room name. */
     private final JTextField nameField;
@@ -46,9 +44,9 @@ final class CampusDialogAddCampusRoom extends JFrame implements ActionListener, 
     private final JButton createRoomBtn;
 
     /**
-     * Constructs a new {@code ClassroomDialogAddCampusRoom}.
+     * Constructs a new {@code RoomSetsDlgAddCampusRoom}.
      */
-    CampusDialogAddCampusRoom(final CampusRoomsTableModel theTableModel) {
+    RoomSetsDlgAddCampusRoom(final RoomSetTableModel theTableModel) {
 
         super("Add a Campus Room");
 
@@ -135,7 +133,7 @@ final class CampusDialogAddCampusRoom extends JFrame implements ActionListener, 
                         final String trimmed = cap.trim();
                         final int capacity = Integer.parseInt(trimmed);
                         if (capacity > 0) {
-                            final CampusRoom newRoom = new CampusRoom(name, capacity);
+                            final Room newRoom = new Room(name, capacity);
                             this.tableModel.add(newRoom);
                         }
                     } catch (final NumberFormatException ex) {

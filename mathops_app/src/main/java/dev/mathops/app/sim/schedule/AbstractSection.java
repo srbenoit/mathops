@@ -1,8 +1,8 @@
 package dev.mathops.app.sim.schedule;
 
 import dev.mathops.app.sim.courses.Course;
-import dev.mathops.app.sim.campus.ERoomUsage;
-import dev.mathops.app.sim.campus.Room;
+import dev.mathops.app.sim.rooms.ERoomUsage;
+import dev.mathops.app.sim.rooms.RoomSchedule;
 
 /**
  * A section that will meet in a room on some combination of weekdays.
@@ -13,7 +13,7 @@ class AbstractSection {
     private final int id;
 
     /** The room in which the section will meet. */
-    private final Room room;
+    private final RoomSchedule room;
 
     /** The course. */
     private final Course course;
@@ -40,7 +40,7 @@ class AbstractSection {
      * @param theUsage        the usage
      * @param theBlocksPerDay the number of blocks the course will meet each day
      */
-    AbstractSection(final int theId, final Room theRoom, final Course theCourse, final int theNumSeats,
+    AbstractSection(final int theId, final RoomSchedule theRoom, final Course theCourse, final int theNumSeats,
                     final ERoomUsage theUsage, final int theBlocksPerDay) {
 
         this.id = theId;
@@ -67,7 +67,7 @@ class AbstractSection {
      * <p>
      * Return the room
      */
-    final Room room() {
+    final RoomSchedule room() {
 
         return this.room;
     }

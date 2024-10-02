@@ -2,8 +2,8 @@ package dev.mathops.app.sim.schedule;
 
 import dev.mathops.app.sim.courses.Course;
 import dev.mathops.app.sim.courses.EMeetingDays;
-import dev.mathops.app.sim.campus.ERoomUsage;
-import dev.mathops.app.sim.campus.Room;
+import dev.mathops.app.sim.rooms.ERoomUsage;
+import dev.mathops.app.sim.rooms.RoomSchedule;
 import dev.mathops.commons.builder.HtmlBuilder;
 
 /**
@@ -26,7 +26,7 @@ public final class SectionTR extends AbstractSection {
      * @param theUsage        the usage
      * @param theBlocksPerDay the number of 75-minute blocks the course will meet each day
      */
-    public SectionTR(final int theId, final EMeetingDays theMeetingDays, final Room theRoom, final Course theCourse,
+    public SectionTR(final int theId, final EMeetingDays theMeetingDays, final RoomSchedule theRoom, final Course theCourse,
                      final int theNumSeats, final ERoomUsage theUsage, final int theBlocksPerDay) {
 
         super(theId, theRoom, theCourse, theNumSeats, theUsage, theBlocksPerDay);
@@ -56,7 +56,7 @@ public final class SectionTR extends AbstractSection {
 
         final int id = id();
         final Course course = course();
-        final Room room = room();
+        final RoomSchedule room = room();
         final int numSeats = numSeats();
         final int blocksPerDay = blocksPerDay();
         final ERoomUsage usage = usage();

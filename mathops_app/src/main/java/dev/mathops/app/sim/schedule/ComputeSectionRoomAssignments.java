@@ -1,9 +1,9 @@
 package dev.mathops.app.sim.schedule;
 
 import dev.mathops.app.sim.courses.Course;
-import dev.mathops.app.sim.campus.ERoomUsage;
-import dev.mathops.app.sim.campus.Room;
-import dev.mathops.app.sim.campus.Rooms;
+import dev.mathops.app.sim.rooms.ERoomUsage;
+import dev.mathops.app.sim.rooms.RoomSchedule;
+import dev.mathops.app.sim.rooms.RoomScheduleSet;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,9 +29,9 @@ enum ComputeSectionRoomAssignments {
      * @return the sections for each course if a set of section assignments was found that provides room space for all
      *         courses; an empty map if not
      */
-    static Map<Course, List<AbstractSection>> compute(final Collection<Course> courses, final List<Room> rooms) {
+    static Map<Course, List<AbstractSection>> compute(final Collection<Course> courses, final List<RoomSchedule> rooms) {
 
-        for (final Room room : rooms) {
+        for (final RoomSchedule room : rooms) {
             room.clearSections();
         }
 
@@ -58,7 +58,7 @@ enum ComputeSectionRoomAssignments {
 
         if (success) {
             // Copy room section data to courses if successful
-            for (final Room room : rooms) {
+            for (final RoomSchedule room : rooms) {
                 for (final SectionMWF sect : room.getSectionsMWF()) {
                     final Course course = sect.course();
                     final List<AbstractSection> list = result.computeIfAbsent(course, x -> new ArrayList<>(10));
@@ -116,12 +116,12 @@ enum ComputeSectionRoomAssignments {
      *                     to schedule in a single room
      */
     private static void assignSectionsToGroups(final Iterable<Course> toBeAssigned, final ERoomUsage usage,
-                                               final Iterable<Rooms> groups) {
+                                               final Iterable<RoomScheduleSet> groups) {
 
         final Collection<AbstractSection> assignmentsMade = new ArrayList<>(10);
-        final Collection<Room> iterationRooms = new ArrayList<>(5);
+        final Collection<RoomSchedule> iterationRooms = new ArrayList<>(5);
 
-        for (final Rooms group : groups) {
+        for (final RoomScheduleSet group : groups) {
             final int seatsAvail = group.totalCapacity();
             final int hoursAvail = group.totalHoursFree();
             iterationRooms.clear();
@@ -140,7 +140,7 @@ enum ComputeSectionRoomAssignments {
 
                         assignmentsMade.clear();
 
-                        for (final Room room : iterationRooms) {
+                        for (final RoomSchedule room : iterationRooms) {
                             if (course.isRoomCompatible(usage, room)) {
                                 final int roomCap = room.getCampusRoom().getCapacity();
                                 final int maxSeats = Math.min(roomCap, course.enrollmentCap);
@@ -192,7 +192,7 @@ enum ComputeSectionRoomAssignments {
      * @param usage         the usage
      * @return the new number of seats needed
      */
-    private static AbstractSection addSectionToRoom(final EAssignmentType type, final Room room, final int hoursNeeded,
+    private static AbstractSection addSectionToRoom(final EAssignmentType type, final RoomSchedule room, final int hoursNeeded,
                                                     final Course course, final int seatsToAssign,
                                                     final ERoomUsage usage) {
 
@@ -311,7 +311,7 @@ enum ComputeSectionRoomAssignments {
      * @param rooms        the set of rooms
      */
     private static void assignRooms(final List<Course> toBeAssigned, final ERoomUsage usage,
-                                    final List<Room> rooms) {
+                                    final List<RoomSchedule> rooms) {
 
         // Classroom Pass 1: take the smallest classroom and assign it to all courses that will fit; then move to the
         // next smallest classroom, and so on, for all classrooms
@@ -358,9 +358,9 @@ enum ComputeSectionRoomAssignments {
      * @param rooms        the set of rooms
      */
     private static void assignSingleSectionCourses(final Iterable<Course> toBeAssigned, final ERoomUsage usage,
-                                                   final Iterable<Room> rooms) {
+                                                   final Iterable<RoomSchedule> rooms) {
 
-        for (final Room room : rooms) {
+        for (final RoomSchedule room : rooms) {
             final int roomCap = room.getCampusRoom().getCapacity();
 
             final Iterator<Course> iterator = toBeAssigned.iterator();
@@ -395,11 +395,11 @@ enum ComputeSectionRoomAssignments {
      * @param rooms        the set of rooms
      */
     private static void assign2SectionCourses(final Iterable<Course> toBeAssigned, final ERoomUsage usage,
-                                              final List<Room> rooms) {
+                                              final List<RoomSchedule> rooms) {
 
         // Generate a set of all groups of 2 classrooms, then assign as many courses to those groups as possible
 
-        final List<Rooms> groups = makeGroupsOf2(rooms);
+        final List<RoomScheduleSet> groups = makeGroupsOf2(rooms);
         assignSectionsToGroups(toBeAssigned, usage, groups);
     }
 
@@ -410,19 +410,19 @@ enum ComputeSectionRoomAssignments {
      * @return the list of groups of 2 classrooms, sorted by total capacity (if there are N classrooms of interest, this
      *         list will contain (N+1)(N)/2 entries)
      */
-    private static List<Rooms> makeGroupsOf2(final List<Room> rooms) {
+    private static List<RoomScheduleSet> makeGroupsOf2(final List<RoomSchedule> rooms) {
 
         final int size = rooms.size();
         final int numGroups = size * (size - 1);
-        final List<Rooms> groups = new ArrayList<>(numGroups);
+        final List<RoomScheduleSet> groups = new ArrayList<>(numGroups);
 
         // Note, we include pairings with the same room in each slot, like "room 1 and room 1".
 
         for (int i = 0; i < size; ++i) {
-            final Room room1 = rooms.get(i);
+            final RoomSchedule room1 = rooms.get(i);
             for (int j = i; j < size; ++j) {
-                final Room room2 = rooms.get(j);
-                final Rooms group = new Rooms(room1, room2);
+                final RoomSchedule room2 = rooms.get(j);
+                final RoomScheduleSet group = new RoomScheduleSet(room1, room2);
                 groups.add(group);
             }
         }
@@ -442,9 +442,9 @@ enum ComputeSectionRoomAssignments {
      * @param rooms        the set of rooms
      */
     private static void assign3SectionCourses(final Iterable<Course> toBeAssigned, final ERoomUsage usage,
-                                              final List<Room> rooms) {
+                                              final List<RoomSchedule> rooms) {
 
-        final List<Rooms> groups = makeGroupsOf3(rooms);
+        final List<RoomScheduleSet> groups = makeGroupsOf3(rooms);
         assignSectionsToGroups(toBeAssigned, usage, groups);
     }
 
@@ -455,21 +455,21 @@ enum ComputeSectionRoomAssignments {
      * @return the list of groups of 3 classrooms, sorted by total capacity (if there are N classrooms of interest, this
      *         list will contain (N+1)(N)(N-1)/2 entries)
      */
-    private static List<Rooms> makeGroupsOf3(final List<Room> roomsOfInterest) {
+    private static List<RoomScheduleSet> makeGroupsOf3(final List<RoomSchedule> roomsOfInterest) {
 
         final int size = roomsOfInterest.size();
         final int numGroups = size * (size - 1) * (size - 2);
-        final List<Rooms> groups = new ArrayList<>(numGroups);
+        final List<RoomScheduleSet> groups = new ArrayList<>(numGroups);
 
         // Note, we include triples with the same room in each slot, like "room 1 and room 1 and room 1".
 
         for (int i = 0; i < size; ++i) {
-            final Room room1 = roomsOfInterest.get(i);
+            final RoomSchedule room1 = roomsOfInterest.get(i);
             for (int j = i; j < size; ++j) {
-                final Room room2 = roomsOfInterest.get(j);
+                final RoomSchedule room2 = roomsOfInterest.get(j);
                 for (int k = j; k < size; ++k) {
-                    final Room room3 = roomsOfInterest.get(k);
-                    final Rooms group = new Rooms(room1, room2, room3);
+                    final RoomSchedule room3 = roomsOfInterest.get(k);
+                    final RoomScheduleSet group = new RoomScheduleSet(room1, room2, room3);
                     groups.add(group);
                 }
             }
@@ -490,7 +490,7 @@ enum ComputeSectionRoomAssignments {
      * @param rooms        the set of rooms
      */
     private static void assignLargeCourses(final List<Course> toBeAssigned, final ERoomUsage usage,
-                                           final List<Room> rooms) {
+                                           final List<RoomSchedule> rooms) {
 
         // The list of courses to be assigned will be sorted in increasing order by needed capacity, so we start at the
         // end (the largest capacity need) and work downward.  For each course, we work downward through compatible
@@ -516,7 +516,7 @@ enum ComputeSectionRoomAssignments {
             assignmentsMade.clear();
             AbstractSection last = null;
             for (int j = numRooms - 1; j >= 0; --j) {
-                final Room room = rooms.get(j);
+                final RoomSchedule room = rooms.get(j);
 
                 if (course.isRoomCompatible(usage, room)) {
                     final int roomCap = room.getCampusRoom().getCapacity();
@@ -550,7 +550,7 @@ enum ComputeSectionRoomAssignments {
                     final int numSeatsInLast = last.numSeats();
 
                     for (int j = 0; j < numRooms; ++j) {
-                        final Room room = rooms.get(j);
+                        final RoomSchedule room = rooms.get(j);
                         if (room == last.room()) {
                             break;
                         }

@@ -1,4 +1,4 @@
-package dev.mathops.app.sim.swing;
+package dev.mathops.app.sim.rooms;
 
 import dev.mathops.app.sim.SpurSimulationData;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
@@ -16,22 +16,24 @@ import java.awt.event.WindowEvent;
  * A dialog to manage profiles that define available classrooms and labs.
  *
  * <p>
- * The configuration includes a set of classrooms available at the campus (immutable) for which each class can indicate
+ * A configuration includes a set of classrooms available at the campus (immutable) for which each class can indicate
  * compatibility.  A profile then select some subset of these rooms for inclusion in the simulation, and sets the
  * weekdays and times of day each is available, and which days operate on "50-minute blocks" vs. "75-minute blocks".
  */
-final class CampusDialog extends WindowAdapter {
+public final class RoomSetsDlg extends WindowAdapter {
 
     /** The frame. */
     private final JFrame frame;
 
     /** The table to display campus rooms. */
-    private final CampusDialogCampusRoomsTable roomsTable;
+    private final RoomSetsDlgCampusRoomsTable roomsTable;
 
     /**
-     * Constructs a new {@code ClassroomDialog}.
+     * Constructs a new {@code CampusRoomsDialog}.
+     *
+     * @param theData the simulation data
      */
-    CampusDialog(final SpurSimulationData theData) {
+    public RoomSetsDlg(final SpurSimulationData theData) {
 
         super();
 
@@ -46,7 +48,7 @@ final class CampusDialog extends WindowAdapter {
         // Show a scrollable table of all the classrooms on campus, with options to add/delete/update
         final JLabel lbl1 = new JLabel("Campus classrooms and labs:");
         content.add(lbl1, StackedBorderLayout.NORTH);
-        this.roomsTable = new CampusDialogCampusRoomsTable(theData);
+        this.roomsTable = new RoomSetsDlgCampusRoomsTable(theData);
         content.add(this.roomsTable, StackedBorderLayout.NORTH);
 
         // Show a list of named classroom profiles that select a suite of available rooms, weekdays and hours of
@@ -60,7 +62,7 @@ final class CampusDialog extends WindowAdapter {
      *
      * @return the frame size
      */
-    Dimension getSize() {
+    public Dimension getSize() {
 
         return this.frame.getSize();
     }
@@ -78,7 +80,7 @@ final class CampusDialog extends WindowAdapter {
     /**
      * Makes the frame visible and brings it to the front.
      */
-    void show() {
+    public void show() {
 
         this.frame.setVisible(true);
         this.frame.toFront();
@@ -90,7 +92,7 @@ final class CampusDialog extends WindowAdapter {
      * @param x the new frame location x coordinate
      * @param y the new frame location y coordinate
      */
-    void setLocation(final int x, final int y) {
+    public void setLocation(final int x, final int y) {
 
         this.frame.setLocation(x, y);
     }
@@ -98,7 +100,7 @@ final class CampusDialog extends WindowAdapter {
     /**
      * Closes the dialog.
      */
-    void close() {
+    public void close() {
 
         this.roomsTable.close();
         this.frame.setVisible(false);

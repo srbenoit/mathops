@@ -1,8 +1,8 @@
 package dev.mathops.app.sim.courses;
 
 import dev.mathops.app.sim.schedule.EAssignmentType;
-import dev.mathops.app.sim.campus.ERoomUsage;
-import dev.mathops.app.sim.campus.Room;
+import dev.mathops.app.sim.rooms.ERoomUsage;
+import dev.mathops.app.sim.rooms.RoomSchedule;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,7 +37,7 @@ public final class Course implements Comparable<Course> {
     private final Map<ERoomUsage, EAssignmentType> assignmentTypeByRoomType;
 
     /** The list of rooms that are compatible with a course's needs for each room usage. */
-    private final Map<ERoomUsage, List<Room>> compatibleRoomsByRoomType;
+    private final Map<ERoomUsage, List<RoomSchedule>> compatibleRoomsByRoomType;
 
     /** The total number of seats needed to accommodate a certain student population. */
     private int numSeatsNeeded = 0;
@@ -72,7 +72,7 @@ public final class Course implements Comparable<Course> {
      * @param rooms               the list of rooms that are compatible with this course's needs for this room type
      */
     public void addRoomType(final ERoomUsage usage, final int contactHoursPerWeek, final EAssignmentType assignmentType,
-                            final Room... rooms) {
+                            final RoomSchedule... rooms) {
 
         if (rooms == null || rooms.length == 0) {
             throw new IllegalArgumentException("List of compatible rooms must be nonempty");
@@ -83,7 +83,7 @@ public final class Course implements Comparable<Course> {
 
         this.assignmentTypeByRoomType.put(usage, assignmentType);
 
-        final List<Room> roomsList = Arrays.asList(rooms);
+        final List<RoomSchedule> roomsList = Arrays.asList(rooms);
         this.compatibleRoomsByRoomType.put(usage, roomsList);
     }
 
@@ -96,7 +96,7 @@ public final class Course implements Comparable<Course> {
      * @param rooms               the list of rooms that are compatible with this course's needs for this room type
      */
     void addRoomType(final ERoomUsage usage, final int contactHoursPerWeek, final EAssignmentType assignmentType,
-                     final Collection<Room> rooms) {
+                     final Collection<RoomSchedule> rooms) {
 
         if (rooms == null || rooms.isEmpty()) {
             throw new IllegalArgumentException("List of compatible rooms must be nonempty");
@@ -107,7 +107,7 @@ public final class Course implements Comparable<Course> {
 
         this.assignmentTypeByRoomType.put(usage, assignmentType);
 
-        final List<Room> roomsList = new ArrayList<>(rooms);
+        final List<RoomSchedule> roomsList = new ArrayList<>(rooms);
         this.compatibleRoomsByRoomType.put(usage, roomsList);
     }
 
@@ -190,9 +190,9 @@ public final class Course implements Comparable<Course> {
      * @param room  the room
      * @return true if the room is "compatible" with this course
      */
-    public boolean isRoomCompatible(final ERoomUsage usage, final Room room) {
+    public boolean isRoomCompatible(final ERoomUsage usage, final RoomSchedule room) {
 
-        final List<Room> compatibleRooms = this.compatibleRoomsByRoomType.get(usage);
+        final List<RoomSchedule> compatibleRooms = this.compatibleRoomsByRoomType.get(usage);
 
         return compatibleRooms != null && compatibleRooms.contains(room);
     }
@@ -204,11 +204,11 @@ public final class Course implements Comparable<Course> {
      * @param rooms the rooms
      * @return true if all rooms in the group are "compatible" with this course
      */
-    public boolean areRoomsCompatible(final ERoomUsage usage, final Iterable<Room> rooms) {
+    public boolean areRoomsCompatible(final ERoomUsage usage, final Iterable<RoomSchedule> rooms) {
 
         boolean ok = true;
 
-        for (final Room room : rooms) {
+        for (final RoomSchedule room : rooms) {
             if (!isRoomCompatible(usage, room)) {
                 ok = false;
                 break;

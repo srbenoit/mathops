@@ -1,7 +1,7 @@
 package dev.mathops.app.sim;
 
-import dev.mathops.app.sim.campus.CampusRoom;
-import dev.mathops.app.sim.campus.CampusRoomsTableModel;
+import dev.mathops.app.sim.rooms.RoomSet;
+import dev.mathops.app.sim.rooms.RoomSetsListModel;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -15,19 +15,19 @@ public final class SpurSimulationData {
     /** Listeners to be notified when data changes. */
     private final List<SpurSimulationDataListener> listeners;
 
-    /** The table model for the list of defined campus rooms. */
-    private final CampusRoomsTableModel campusRoomsTableModel;
+    /** The list model for the list of room sets. */
+    private final RoomSetsListModel roomSetListModel;
 
     /**
      * Constructs a new {@code SpurSimulationData}.
      *
      * @param dataDir the directory in which configuration data is stored
      */
-    public SpurSimulationData(final File dataDir) {
+    SpurSimulationData(final File dataDir) {
 
         this.listeners = new ArrayList<>(5);
 
-        this.campusRoomsTableModel = new CampusRoomsTableModel(dataDir);
+        this.roomSetListModel = new RoomSetsListModel(dataDir);
     }
 
     /**
@@ -61,23 +61,23 @@ public final class SpurSimulationData {
     }
 
     /**
-     * Adds a campus room.  This should be called on the AWT event thread since it notifies listeners.
+     * Adds a room set.  This should be called on the AWT event thread since it notifies listeners.
      *
-     * @param room the room to add
+     * @param roomSet the room set to add
      */
-    public void addCampusRoom(final CampusRoom room) {
+    public void addRoomSet(final RoomSet roomSet) {
 
-        this.campusRoomsTableModel.add(room);
+        this.roomSetListModel.addElement(roomSet);
         fireUpdate();
     }
 
     /**
-     * Gets the data model for the table of campus rooms.
+     * Gets the list model for the list of defined room sets.
      *
-     * @return the table model
+     * @return the list model
      */
-    public CampusRoomsTableModel getCampusRoomsTableModel() {
+    public RoomSetsListModel getRoomSetListModel() {
 
-        return this.campusRoomsTableModel;
+        return this.roomSetListModel;
     }
 }

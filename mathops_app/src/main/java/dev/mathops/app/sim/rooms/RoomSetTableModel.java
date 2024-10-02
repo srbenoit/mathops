@@ -1,38 +1,40 @@
-package dev.mathops.app.sim.campus;
+package dev.mathops.app.sim.rooms;
 
 import dev.mathops.app.sim.swing.ButtonColumnTableModel;
 
-import java.io.File;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A table model for the table of all rooms defined on campus.
+ * A table model for the table of all rooms defined in a campus room configuration.
  */
-public final class CampusRoomsTableModel extends ButtonColumnTableModel {
+public final class RoomSetTableModel extends ButtonColumnTableModel {
+
+    /** Version for serialization. */
+    @Serial
+    private static final long serialVersionUID = -3293960540719923842L;
 
     /** The column names. */
     private final String[] columnNames = {"Room Name", "Maximum Capacity", " "};
 
-    /** The data directory. */
-    private final File dataDir;
+    /** The owning list to be notified when data changes. */
+    private final RoomSetsListModel owningList;
 
-    /** The list of campus rooms. */
-    private final List<CampusRoom> allCampusRooms;
+    /** The list of rooms. */
+    private final List<Room> rooms;
 
     /**
-     * Constructs a new {@code CampusRoomsTableModel}, attempting to populate the model from a data file.
+     * Constructs a new {@code CampusRoomSetTableModel}.
      *
-     * @param theDataDir the data directory
+     * @param theOwningList the owning list to be notified when data changes
      */
-    public CampusRoomsTableModel(final File theDataDir) {
+    RoomSetTableModel(final RoomSetsListModel theOwningList) {
 
         super();
 
-        this.dataDir = theDataDir;
-        this.allCampusRooms = new ArrayList<>(10);
-
-        CampusRoomsJson.load(theDataDir, this.allCampusRooms);
+        this.owningList = theOwningList;
+        this.rooms = new ArrayList<>(10);
     }
 
     /**
@@ -52,7 +54,18 @@ public final class CampusRoomsTableModel extends ButtonColumnTableModel {
      */
     public int getRowCount() {
 
-        return this.allCampusRooms.size();
+        return this.rooms.size();
+    }
+
+    /**
+     * Gets the {@code CampusRoom} at a specified index.
+     *
+     * @param index the index of the row to retrieve (0 for the first row)
+     * @return the row
+     */
+    public Room getRow(final int index) {
+
+        return this.rooms.get(index);
     }
 
     /**
@@ -75,7 +88,7 @@ public final class CampusRoomsTableModel extends ButtonColumnTableModel {
      */
     public Object getValueAt(final int rowIndex, final int columnIndex) {
 
-        final CampusRoom room = this.allCampusRooms.get(rowIndex);
+        final Room room = this.rooms.get(rowIndex);
 
         Object result = null;
 
@@ -108,12 +121,11 @@ public final class CampusRoomsTableModel extends ButtonColumnTableModel {
      * @param name the name
      * @return the campus room in the table with that name; null if none
      */
-    public CampusRoom getByName(final String name) {
+    Room getByName(final String name) {
 
-        CampusRoom result = null;
+        Room result = null;
 
-        for (final CampusRoom test : this.allCampusRooms) {
-
+        for (final Room test : this.rooms) {
             if (test.getId().equals(name)) {
                 result = test;
                 break;
@@ -140,12 +152,12 @@ public final class CampusRoomsTableModel extends ButtonColumnTableModel {
      *
      * @param room the room to add
      */
-    public void add(final CampusRoom room) {
+    void add(final Room room) {
 
-        final int rowIndex = this.allCampusRooms.size();
+        final int rowIndex = this.rooms.size();
 
-        this.allCampusRooms.add(room);
-        CampusRoomsJson.store(this.dataDir, this.allCampusRooms);
+        this.rooms.add(room);
+        this.owningList.dataChanged();
         fireTableRowsInserted(rowIndex, rowIndex);
     }
 
@@ -156,8 +168,8 @@ public final class CampusRoomsTableModel extends ButtonColumnTableModel {
      */
     public void removeRow(final int rowIndex) {
 
-        this.allCampusRooms.remove(rowIndex);
-        CampusRoomsJson.store(this.dataDir, this.allCampusRooms);
+        this.rooms.remove(rowIndex);
+        this.owningList.dataChanged();
         fireTableRowsDeleted(rowIndex, rowIndex);
     }
 }

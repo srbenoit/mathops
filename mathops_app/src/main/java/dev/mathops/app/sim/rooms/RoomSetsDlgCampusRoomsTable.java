@@ -1,8 +1,10 @@
-package dev.mathops.app.sim.swing;
+package dev.mathops.app.sim.rooms;
 
+import dev.mathops.app.sim.SpurSimulation;
 import dev.mathops.app.sim.SpurSimulationData;
 import dev.mathops.app.sim.SpurSimulationDataListener;
-import dev.mathops.app.sim.campus.CampusRoomsTableModel;
+import dev.mathops.app.sim.swing.ButtonColumn;
+import dev.mathops.app.sim.swing.ButtonColumnTableModel;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 
 import javax.swing.AbstractAction;
@@ -33,7 +35,7 @@ import java.awt.event.ActionListener;
  * When courses are defined, they will indicate the set of campus rooms that are "compatible" with the course, or with
  * some portion of the course (a class section, a lab section, a recitation section, etc.).
  */
-final class CampusDialogCampusRoomsTable extends JPanel implements ActionListener, SpurSimulationDataListener {
+final class RoomSetsDlgCampusRoomsTable extends JPanel implements ActionListener, SpurSimulationDataListener {
 
     /** An action command. */
     private static final String CMD_ADD_ROOM = "ADD_ROOM";
@@ -42,12 +44,12 @@ final class CampusDialogCampusRoomsTable extends JPanel implements ActionListene
     private final SpurSimulationData data;
 
     /** A dialog to use when adding a new campus room. */
-    private CampusDialogAddCampusRoom addRoomDialog = null;
+    private RoomSetsDlgAddCampusRoom addRoomDialog = null;
 
     /**
      * Constructs a new {@code ClassroomDialogCampusRoomsTable}.
      */
-    CampusDialogCampusRoomsTable(final SpurSimulationData theData) {
+    RoomSetsDlgCampusRoomsTable(final SpurSimulationData theData) {
 
         super(new StackedBorderLayout(3, 3));
 
@@ -146,8 +148,8 @@ final class CampusDialogCampusRoomsTable extends JPanel implements ActionListene
 
         if (CMD_ADD_ROOM.equals(cmd)) {
             if (this.addRoomDialog == null) {
-                final CampusRoomsTableModel tableModel = this.data.getCampusRoomsTableModel();
-                this.addRoomDialog = new CampusDialogAddCampusRoom(tableModel);
+                final RoomSetTableModel tableModel = this.data.getCampusRoomsTableModel();
+                this.addRoomDialog = new RoomSetsDlgAddCampusRoom(tableModel);
             } else {
                 this.addRoomDialog.reset();
             }

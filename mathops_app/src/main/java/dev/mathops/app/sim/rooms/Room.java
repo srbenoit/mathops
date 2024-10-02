@@ -1,11 +1,11 @@
-package dev.mathops.app.sim.campus;
+package dev.mathops.app.sim.rooms;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 
 /**
- * A room in which sections can be scheduled.
+ * An immutable model of a room in which sections can be scheduled.
  */
-public final class CampusRoom implements Comparable<CampusRoom> {
+public final class Room implements Comparable<Room> {
 
     /** The unique room ID. */
     private final String id;
@@ -14,12 +14,12 @@ public final class CampusRoom implements Comparable<CampusRoom> {
     private final int capacity;
 
     /**
-     * Constructs a new {@code CampusRoom}.
+     * Constructs a new {@code Room}.
      *
      * @param theId       the unique room ID
      * @param theCapacity the seating capacity
      */
-    public CampusRoom(final String theId, final int theCapacity) {
+    public Room(final String theId, final int theCapacity) {
 
         if (theId == null || theId.isBlank()) {
             throw new IllegalArgumentException("Room ID may not be null or blank");
@@ -75,7 +75,7 @@ public final class CampusRoom implements Comparable<CampusRoom> {
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final CampusRoom room) {
+        } else if (obj instanceof final Room room) {
             final String objId = room.getId();
             equal = this.id.equals(objId);
         } else {
@@ -94,7 +94,7 @@ public final class CampusRoom implements Comparable<CampusRoom> {
      *         greater than that of the other
      */
     @Override
-    public int compareTo(final CampusRoom o) {
+    public int compareTo(final Room o) {
 
         final int cap = o.getCapacity();
 

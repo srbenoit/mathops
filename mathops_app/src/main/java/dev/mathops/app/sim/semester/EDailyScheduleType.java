@@ -1,4 +1,4 @@
-package dev.mathops.app.sim.campus;
+package dev.mathops.app.sim.semester;
 
 /**
  * Daily schedule types.  For a semester schedule configuration, each day of the week would adopt one of these schedule

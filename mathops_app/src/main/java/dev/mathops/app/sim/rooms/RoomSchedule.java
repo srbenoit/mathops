@@ -1,4 +1,4 @@
-package dev.mathops.app.sim.campus;
+package dev.mathops.app.sim.rooms;
 
 import dev.mathops.app.sim.courses.Course;
 import dev.mathops.app.sim.courses.EMeetingDays;
@@ -15,10 +15,10 @@ import java.util.Optional;
 /**
  * A room in which sections can be scheduled.
  */
-public final class Room implements Comparable<Room> {
+public final class RoomSchedule implements Comparable<RoomSchedule> {
 
     /** The campus room. */
-    private final CampusRoom campusRoom;
+    private final Room campusRoom;
 
     /** The number of 50-minute blocks each Monday, Wednesday, and Friday the room is available. */
     private final int blocksPerDayMWF;
@@ -39,8 +39,8 @@ public final class Room implements Comparable<Room> {
      * @param theBlocksPerMWF the number of 50-minute blocks each Monday, Wednesday, and Friday the room is available
      * @param theBlocksPerTR  the number of 75-minute blocks each Tuesday and Thursday the room is available
      */
-    public Room(final CampusRoom theCampusRoom, final int theBlocksPerMWF,
-                final int theBlocksPerTR) {
+    public RoomSchedule(final Room theCampusRoom, final int theBlocksPerMWF,
+                        final int theBlocksPerTR) {
 
         if (theCampusRoom == null) {
             throw new IllegalArgumentException("Campus room may not be null or blank");
@@ -65,7 +65,7 @@ public final class Room implements Comparable<Room> {
      *
      * @return the campus room
      */
-    public CampusRoom getCampusRoom() {
+    public Room getCampusRoom() {
 
         return this.campusRoom;
     }
@@ -795,8 +795,8 @@ public final class Room implements Comparable<Room> {
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final Room room) {
-            final CampusRoom objRoom = room.getCampusRoom();
+        } else if (obj instanceof final RoomSchedule room) {
+            final Room objRoom = room.getCampusRoom();
             equal = this.campusRoom.equals(objRoom);
         } else {
             equal = false;
@@ -814,9 +814,9 @@ public final class Room implements Comparable<Room> {
      *         greater than that of the other
      */
     @Override
-    public int compareTo(final Room o) {
+    public int compareTo(final RoomSchedule o) {
 
-        final CampusRoom oCampusRoom = o.getCampusRoom();
+        final Room oCampusRoom = o.getCampusRoom();
 
         return this.campusRoom.compareTo(oCampusRoom);
     }

@@ -2,8 +2,8 @@ package dev.mathops.app.sim.schedule;
 
 import dev.mathops.app.sim.courses.Course;
 import dev.mathops.app.sim.courses.SpurCourses;
-import dev.mathops.app.sim.campus.Room;
-import dev.mathops.app.sim.campus.SpurRooms;
+import dev.mathops.app.sim.rooms.RoomSchedule;
+import dev.mathops.app.sim.rooms.SpurRooms;
 import dev.mathops.app.sim.students.SpurStudents;
 import dev.mathops.app.sim.students.StudentPopulation;
 import dev.mathops.commons.log.Log;
@@ -41,7 +41,7 @@ final class SpurFirstYearFall {
                 SpurCourses.AREC222, SpurCourses.SPCM100, SpurCourses.BZ101, SpurCourses.CO150);
         final List<Course> courses = new ArrayList<>(immutableCourses);
 
-        final List<Room> rooms = List.of(SpurRooms.CLASSROOM_1, SpurRooms.CLASSROOM_2, SpurRooms.LAB_1);
+        final List<RoomSchedule> rooms = List.of(SpurRooms.CLASSROOM_1, SpurRooms.CLASSROOM_2, SpurRooms.LAB_1);
 
         // SIMULATION PART 1 - DETERMINE MAXIMUM POSSIBLE POPULATION SIZE THAT DOES NOT EXCEED TOTAL CLASSROOM SPACE
         final String csv = ComputePopulationSize.compute(courses, SpurStudents.SPUR_FALL_DISTRIBUTION, rooms, 80, 160);

@@ -1,8 +1,8 @@
 package dev.mathops.app.sim.schedule;
 
 import dev.mathops.app.sim.courses.Course;
-import dev.mathops.app.sim.campus.ERoomUsage;
-import dev.mathops.app.sim.campus.Room;
+import dev.mathops.app.sim.rooms.ERoomUsage;
+import dev.mathops.app.sim.rooms.RoomSchedule;
 import dev.mathops.app.sim.students.StudentClassPreferences;
 import dev.mathops.app.sim.students.StudentDistribution;
 import dev.mathops.app.sim.students.StudentPopulation;
@@ -42,7 +42,7 @@ enum ComputePopulationSize {
      * @return the content of a CSV file with a report
      */
     static String compute(final List<Course> courses, final StudentDistribution studentDistribution,
-                          final List<Room> rooms, final int minPopulation, final int maxPopulation) {
+                          final List<RoomSchedule> rooms, final int minPopulation, final int maxPopulation) {
 
         final int numCourses = courses.size();
         final int numPopulations = maxPopulation - minPopulation + 1;

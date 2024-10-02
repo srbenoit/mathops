@@ -1,7 +1,7 @@
-package dev.mathops.app.sim.swing;
+package dev.mathops.app.sim;
 
 import com.formdev.flatlaf.FlatLightLaf;
-import dev.mathops.app.sim.SpurSimulationData;
+import dev.mathops.app.sim.rooms.RoomSetsDlg;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
@@ -38,13 +38,16 @@ public final class SpurSimulation extends WindowAdapter implements Runnable, Act
     private static final String MANAGE_CLASSROOM_PROFILES_CMD = "A";
 
     /** An action command. */
-    private static final String MANAGE_COURSE_PROFILES_CMD = "B";
+    private static final String MANAGE_SEMESTER_PROFILES_CMD = "B";
 
     /** An action command. */
-    private static final String MANAGE_STUDENT_PROFILES_CMD = "C";
+    private static final String MANAGE_COURSE_PROFILES_CMD = "C";
 
     /** An action command. */
-    private static final String MANAGE_SCORING_PROFILES_CMD = "D";
+    private static final String MANAGE_STUDENT_PROFILES_CMD = "D";
+
+    /** An action command. */
+    private static final String MANAGE_SCORING_PROFILES_CMD = "E";
 
     /** An action command. */
     private static final String RUN_SIM_CMD = "GO";
@@ -57,6 +60,9 @@ public final class SpurSimulation extends WindowAdapter implements Runnable, Act
 
     /** A dropdown from which to choose a profile for classroom/lab space setup. */
     private JComboBox<String> classroomAndLabProfiles;
+
+    /** A dropdown from which to choose a profile for semester schedule. */
+    private JComboBox<String> semesterScheduleProfiles;
 
     /** A dropdown from which to choose a profile for class offerings. */
     private JComboBox<String> classOfferingProfiles;
@@ -74,7 +80,7 @@ public final class SpurSimulation extends WindowAdapter implements Runnable, Act
     private JLabel progressStatus;
 
     /** A dialog to manage classroom spaces. */
-    private CampusDialog classroomDialog = null;
+    private RoomSetsDlg classroomDialog = null;
 
     /**
      * Private constructor to prevent instantiation.
@@ -106,16 +112,21 @@ public final class SpurSimulation extends WindowAdapter implements Runnable, Act
         northwest.setBorder(BorderFactory.createEtchedBorder());
         north.add(northwest, StackedBorderLayout.WEST);
 
-        final JLabel[] nwLabels = new JLabel[4];
-        nwLabels[0] = new JLabel("Classroom and lab space configuration:");
-        nwLabels[1] = new JLabel("Course offerings configuration:");
-        nwLabels[2] = new JLabel("Student population settings:");
-        nwLabels[3] = new JLabel("Quality scoring configuration:");
+        final JLabel[] nwLabels = new JLabel[5];
+        nwLabels[0] = new JLabel("Classroom space configuration:");
+        nwLabels[1] = new JLabel("Semester schedule configuration:");
+        nwLabels[2] = new JLabel("Course offerings configuration:");
+        nwLabels[3] = new JLabel("Student population settings:");
+        nwLabels[4] = new JLabel("Quality scoring configuration:");
         UIUtilities.makeLabelsSameSizeRightAligned(nwLabels);
 
         final JButton manageClassroom = new JButton("Manage...");
         manageClassroom.setActionCommand(MANAGE_CLASSROOM_PROFILES_CMD);
         manageClassroom.addActionListener(this);
+
+        final JButton manageSemester = new JButton("Manage...");
+        manageSemester.setActionCommand(MANAGE_SEMESTER_PROFILES_CMD);
+        manageSemester.addActionListener(this);
 
         final JButton manageCourses = new JButton("Manage...");
         manageCourses.setActionCommand(MANAGE_COURSE_PROFILES_CMD);
@@ -140,29 +151,38 @@ public final class SpurSimulation extends WindowAdapter implements Runnable, Act
         flow1.add(manageClassroom);
         northwest.add(flow1, StackedBorderLayout.NORTH);
 
-        this.classOfferingProfiles = new JComboBox<>();
-        this.classOfferingProfiles.setPreferredSize(newPref);
+        this.semesterScheduleProfiles = new JComboBox<>();
+        this.semesterScheduleProfiles.setPreferredSize(newPref);
+
         final JPanel flow2 = new JPanel(new FlowLayout(FlowLayout.LEADING, 10, 5));
         flow2.add(nwLabels[1]);
-        flow2.add(this.classOfferingProfiles);
-        flow2.add(manageCourses);
+        flow2.add(this.semesterScheduleProfiles);
+        flow2.add(manageSemester);
         northwest.add(flow2, StackedBorderLayout.NORTH);
+
+        this.classOfferingProfiles = new JComboBox<>();
+        this.classOfferingProfiles.setPreferredSize(newPref);
+        final JPanel flow3 = new JPanel(new FlowLayout(FlowLayout.LEADING, 10, 5));
+        flow3.add(nwLabels[2]);
+        flow3.add(this.classOfferingProfiles);
+        flow3.add(manageCourses);
+        northwest.add(flow3, StackedBorderLayout.NORTH);
 
         this.studentPopulationProfiles = new JComboBox<>();
         this.studentPopulationProfiles.setPreferredSize(newPref);
-        final JPanel flow3 = new JPanel(new FlowLayout(FlowLayout.LEADING, 10, 5));
-        flow3.add(nwLabels[2]);
-        flow3.add(this.studentPopulationProfiles);
-        flow3.add(manageStudents);
-        northwest.add(flow3, StackedBorderLayout.NORTH);
+        final JPanel flow4 = new JPanel(new FlowLayout(FlowLayout.LEADING, 10, 5));
+        flow4.add(nwLabels[3]);
+        flow4.add(this.studentPopulationProfiles);
+        flow4.add(manageStudents);
+        northwest.add(flow4, StackedBorderLayout.NORTH);
 
         this.qualityScoringProfile = new JComboBox<>();
         this.qualityScoringProfile.setPreferredSize(newPref);
-        final JPanel flow4 = new JPanel(new FlowLayout(FlowLayout.LEADING, 10, 5));
-        flow4.add(nwLabels[3]);
-        flow4.add(this.qualityScoringProfile);
-        flow4.add(manageScoring);
-        northwest.add(flow4, StackedBorderLayout.NORTH);
+        final JPanel flow5 = new JPanel(new FlowLayout(FlowLayout.LEADING, 10, 5));
+        flow5.add(nwLabels[4]);
+        flow5.add(this.qualityScoringProfile);
+        flow5.add(manageScoring);
+        northwest.add(flow5, StackedBorderLayout.NORTH);
 
         final JPanel northcenter = new JPanel(new StackedBorderLayout());
         northcenter.setBorder(BorderFactory.createEtchedBorder());
@@ -171,9 +191,9 @@ public final class SpurSimulation extends WindowAdapter implements Runnable, Act
         final JButton runSim = new JButton("Run Simulation...");
         runSim.setActionCommand(RUN_SIM_CMD);
         runSim.addActionListener(this);
-        final JPanel flow5 = new JPanel(new FlowLayout(FlowLayout.LEADING, 10, 5));
-        flow5.add(runSim);
-        northcenter.add(flow5, StackedBorderLayout.NORTH);
+        final JPanel flow6 = new JPanel(new FlowLayout(FlowLayout.LEADING, 10, 5));
+        flow6.add(runSim);
+        northcenter.add(flow6, StackedBorderLayout.NORTH);
 
         this.progressStatus = new JLabel(CoreConstants.SPC);
         content.add(this.progressStatus, StackedBorderLayout.SOUTH);
@@ -204,7 +224,7 @@ public final class SpurSimulation extends WindowAdapter implements Runnable, Act
 
         } else if (MANAGE_CLASSROOM_PROFILES_CMD.equals(cmd)) {
             if (this.classroomDialog == null) {
-                this.classroomDialog = new CampusDialog(this.data);
+                this.classroomDialog = new RoomSetsDlg(this.data);
                 final Dimension size = this.frame.getSize();
                 final Point pos = this.frame.getLocation();
                 final Dimension dlgSize = this.classroomDialog.getSize();
@@ -213,6 +233,8 @@ public final class SpurSimulation extends WindowAdapter implements Runnable, Act
                 this.classroomDialog.setLocation(x, y);
             }
             this.classroomDialog.show();
+        } else if (MANAGE_SEMESTER_PROFILES_CMD.equals(cmd)) {
+
         } else if (MANAGE_COURSE_PROFILES_CMD.equals(cmd)) {
 
         } else if (MANAGE_STUDENT_PROFILES_CMD.equals(cmd)) {

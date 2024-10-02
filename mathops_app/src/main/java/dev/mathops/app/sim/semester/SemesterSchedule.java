@@ -1,4 +1,4 @@
-package dev.mathops.app.sim.campus;
+package dev.mathops.app.sim.semester;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;

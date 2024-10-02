@@ -285,7 +285,7 @@ public final class WebMidController implements IMidController {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             }
         } else {
-            Log.info(site.getClass().getSimpleName() + " handling " + req.getMethod());
+//            Log.info(site.getClass().getSimpleName() + " handling " + req.getMethod());
 
             final DbContext ctx = site.getPrimaryDbContext();
 

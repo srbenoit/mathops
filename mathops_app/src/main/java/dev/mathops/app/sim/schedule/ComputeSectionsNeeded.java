@@ -1,7 +1,7 @@
 package dev.mathops.app.sim.schedule;
 
 import dev.mathops.app.sim.courses.Course;
-import dev.mathops.app.sim.campus.Room;
+import dev.mathops.app.sim.rooms.RoomSchedule;
 import dev.mathops.app.sim.students.StudentClassPreferences;
 import dev.mathops.app.sim.students.StudentPopulation;
 import dev.mathops.commons.log.Log;
@@ -36,7 +36,7 @@ public enum ComputeSectionsNeeded {
      * @return a map from each course to the number of sections needed
      */
     static Map<Course, Integer> compute(final Collection<Course> courses, final StudentPopulation population,
-                                        final List<Room> rooms) {
+                                        final List<RoomSchedule> rooms) {
 
         final int numCourses = courses.size();
 
@@ -77,7 +77,7 @@ public enum ComputeSectionsNeeded {
         if (!ComputeSectionRoomAssignments.compute(courses, rooms).isEmpty()) {
             Log.info("Rooms have been assigned:");
 
-            for (final Room room : rooms) {
+            for (final RoomSchedule room : rooms) {
                 Log.info("Room: ", room);
                 for (final SectionMWF sect : room.getSectionsMWF()) {
                     Log.info("        ", sect);

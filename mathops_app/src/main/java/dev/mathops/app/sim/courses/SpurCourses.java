@@ -1,8 +1,8 @@
 package dev.mathops.app.sim.courses;
 
-import dev.mathops.app.sim.campus.SpurRooms;
+import dev.mathops.app.sim.rooms.SpurRooms;
 import dev.mathops.app.sim.schedule.EAssignmentType;
-import dev.mathops.app.sim.campus.ERoomUsage;
+import dev.mathops.app.sim.rooms.ERoomUsage;
 
 /**
  * A container for the courses to be offered at Spur in Fall.

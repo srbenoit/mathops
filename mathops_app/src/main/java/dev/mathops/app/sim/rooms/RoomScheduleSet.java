@@ -1,4 +1,4 @@
-package dev.mathops.app.sim.campus;
+package dev.mathops.app.sim.rooms;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 
@@ -9,22 +9,22 @@ import java.util.List;
 /**
  * A container for a collection of rooms that can try to find assignments for specific classes from its set of rooms.
  */
-public final class Rooms implements Comparable<Rooms> {
+public final class RoomScheduleSet implements Comparable<RoomScheduleSet> {
 
     /** The list of rooms (immutable). */
-    private final List<Room> rooms;
+    private final List<RoomSchedule> rooms;
 
     /**
      * Constructs a new {@code Rooms}.
      *
      * @param theRooms the rooms
      */
-    public Rooms(final Room... theRooms) {
+    public RoomScheduleSet(final RoomSchedule... theRooms) {
 
         if (theRooms == null || theRooms.length == 0) {
             this.rooms = new ArrayList<>(0);
         } else {
-            final List<Room> unmodifiable = List.of(theRooms);
+            final List<RoomSchedule> unmodifiable = List.of(theRooms);
             this.rooms = new ArrayList<>(unmodifiable);
             this.rooms.sort(null);
         }
@@ -35,7 +35,7 @@ public final class Rooms implements Comparable<Rooms> {
      *
      * @param list the list of rooms
      */
-    public void getRooms(final Collection<? super Room> list) {
+    public void getRooms(final Collection<? super RoomSchedule> list) {
 
         list.addAll(this.rooms);
     }
@@ -45,7 +45,7 @@ public final class Rooms implements Comparable<Rooms> {
      *
      * @return the list of rooms
      */
-    private List<Room> innerGetRooms() {
+    private List<RoomSchedule> innerGetRooms() {
 
         return this.rooms;
     }
@@ -59,7 +59,7 @@ public final class Rooms implements Comparable<Rooms> {
 
         int total = 0;
 
-        for (final Room room : this.rooms) {
+        for (final RoomSchedule room : this.rooms) {
             total += room.getCampusRoom().getCapacity();
         }
 
@@ -75,7 +75,7 @@ public final class Rooms implements Comparable<Rooms> {
 
         int total = 0;
 
-        for (final Room room : this.rooms) {
+        for (final RoomSchedule room : this.rooms) {
             total += room.getTotalBlocksFree();
         }
 
@@ -105,8 +105,8 @@ public final class Rooms implements Comparable<Rooms> {
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final Rooms other) {
-            final List<Room> otherRooms = other.innerGetRooms();
+        } else if (obj instanceof final RoomScheduleSet other) {
+            final List<RoomSchedule> otherRooms = other.innerGetRooms();
             equal = this.rooms.equals(otherRooms);
         } else {
             equal = false;
@@ -124,7 +124,7 @@ public final class Rooms implements Comparable<Rooms> {
      *         greater than that of the other
      */
     @Override
-    public int compareTo(final Rooms o) {
+    public int compareTo(final RoomScheduleSet o) {
 
         final int thisCapacity = totalCapacity();
         final int oCapacity = o.totalCapacity();
@@ -143,11 +143,11 @@ public final class Rooms implements Comparable<Rooms> {
 
         final int count = this.rooms.size();
         builder.add("Room group {");
-        final Room first = this.rooms.getFirst();
+        final RoomSchedule first = this.rooms.getFirst();
         builder.add(first);
         for (int i = 1; i < count; ++i) {
             builder.add(", ");
-            final Room next = this.rooms.get(i);
+            final RoomSchedule next = this.rooms.get(i);
             builder.add(next);
         }
         builder.add("}");
