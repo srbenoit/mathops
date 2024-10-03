@@ -2,17 +2,17 @@ package dev.mathops.app.sim.rooms;
 
 import dev.mathops.app.sim.SpurSimulation;
 import dev.mathops.app.sim.SpurSimulationData;
-import dev.mathops.app.sim.SpurSimulationDataListener;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -20,64 +20,74 @@ import java.awt.event.ActionListener;
  * A panel within the room sets dialog that displays the list of all room sets that have been defined.  A simulation run
  * will select one of these room sets.  Each set has a unique name (which the table displays).  Selecting a set name
  * populates the room set panel with the rooms in that set.
+ *
+ * <p>
+ * This panel also has buttons for the user to add a new set or delete an existing set.
  */
-final class RoomSetsDlgRoomSetsList extends JPanel implements ActionListener, SpurSimulationDataListener {
+final class RoomSetsDlgRoomSetsList extends JPanel implements ActionListener, ListSelectionListener {
 
     /** An action command. */
     private static final String CMD_ADD_ROOM_SET = "ADD_ROOM_SET";
 
-    /** The simulation configuration data. */
-    private final SpurSimulationData data;
+    /** An action command. */
+    private static final String CMD_DELETE_ROOM_SET = "DELETE_ROOM_SET";
+
+    /** The containing dialog. */
+    private final RoomSetsDlg container;
+
+    /** The list model. */
+    private final RoomSetsListModel listModel;
+
+    /** The list control. */
+    private final JList<RoomSet> list;
+
+    /** The button to delete a room set - enabled only when a room set is selected. */
+    private final JButton deleteRoomSet;
 
     /**
      * Constructs a new {@code RoomSetsDlgRoomSetsList}.
      */
-    RoomSetsDlgRoomSetsList(final SpurSimulationData theData) {
+    RoomSetsDlgRoomSetsList(final RoomSetsDlg theContainer, final SpurSimulationData theData) {
 
-        super(new StackedBorderLayout(3, 3));
+        super(new StackedBorderLayout(0, 0));
+
+        this.container = theContainer;
 
         setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(SpurSimulation.ACCENT_COLOR),
                 BorderFactory.createEmptyBorder(3, 3, 3, 3)));
 
-        this.data = theData;
-
-        final RoomSetsListModel listModel = theData.getRoomSetListModel();
-        final JList<RoomSet> list = new JList<>(listModel);
+        this.listModel = theData.getRoomSetListModel();
+        this.list = new JList<>(this.listModel);
 
         final JScrollPane scroll = new JScrollPane();
-        scroll.setPreferredSize(list.getPreferredSize());
-        scroll.setViewportView(list);
+        scroll.setPreferredSize(new Dimension(180, 150));
+        scroll.setViewportView(this.list);
 
         final JPanel center = new JPanel(new StackedBorderLayout());
         center.setBorder(BorderFactory.createEtchedBorder());
-        center.setBackground(list.getBackground());
+        center.setBackground(this.list.getBackground());
         center.add(scroll, StackedBorderLayout.WEST);
 
         add(center, StackedBorderLayout.CENTER);
 
-        final JButton addRoom = new JButton("Add Room Set...");
-        addRoom.setActionCommand(CMD_ADD_ROOM_SET);
-        addRoom.addActionListener(this);
+        final JPanel south = new JPanel(new StackedBorderLayout(7, 7));
+        south.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
+        add(south, StackedBorderLayout.SOUTH);
 
-        final JPanel buttonBar1 = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 7));
-        buttonBar1.add(addRoom);
-        add(buttonBar1, StackedBorderLayout.SOUTH);
+        final JButton addRoomSet = new JButton("Add Room Set...");
+        addRoomSet.setActionCommand(CMD_ADD_ROOM_SET);
 
-        theData.addListener(this);
-        updateSimulationData();
-    }
+        this.deleteRoomSet = new JButton("Delete Room Set...");
+        this.deleteRoomSet.setActionCommand(CMD_DELETE_ROOM_SET);
+        this.deleteRoomSet.setEnabled(false);
 
-    /**
-     * Closes this table and any open dialogs (called when its containing window closes).
-     */
-    void close() {
+        south.add(this.deleteRoomSet, StackedBorderLayout.SOUTH);
+        south.add(addRoomSet, StackedBorderLayout.SOUTH);
 
-        if (this.addRoomDialog != null) {
-            this.addRoomDialog.setVisible(false);
-            this.addRoomDialog.dispose();
-            this.addRoomDialog = null;
-        }
+        this.list.addListSelectionListener(this);
+        addRoomSet.addActionListener(this);
+        this.deleteRoomSet.addActionListener(this);
     }
 
     /**
@@ -91,30 +101,42 @@ final class RoomSetsDlgRoomSetsList extends JPanel implements ActionListener, Sp
         final String cmd = e.getActionCommand();
 
         if (CMD_ADD_ROOM_SET.equals(cmd)) {
-            if (this.addRoomDialog == null) {
-                final RoomSetTableModel tableModel = this.data.getCampusRoomsTableModel();
-                this.addRoomDialog = new RoomSetsDlgAddCampusRoom(tableModel);
-            } else {
-                this.addRoomDialog.reset();
+
+            final String newName = JOptionPane.showInputDialog(this, "New room set name:", "Add Room Set",
+                    JOptionPane.QUESTION_MESSAGE);
+
+            if (newName != null) {
+                if (this.listModel.hasName(newName)) {
+                    JOptionPane.showMessageDialog(this, "There is already a room set with that name.",
+                            "Add Room Set", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    final RoomSet set = new RoomSet(newName, this.listModel);
+                    this.listModel.canAddElement(set);
+                }
             }
-
-            final Point location = getLocationOnScreen();
-            final Dimension size = getSize();
-            final Dimension dialogSize = this.addRoomDialog.getSize();
-
-            final int x = location.x + (size.width - dialogSize.width) / 2;
-            final int y = location.y + (size.height - dialogSize.height) / 2;
-            this.addRoomDialog.setLocation(x, y);
-
-            this.addRoomDialog.setVisible(true);
-            this.addRoomDialog.toFront();
+        } else if (CMD_DELETE_ROOM_SET.equals(cmd)) {
+            final int index = this.list.getSelectedIndex();
+            this.listModel.removeElement(index);
         }
     }
 
     /**
-     * Called (on the AWT thread) when the simulation data is updated.
+     * Called when the list selection changes.
+     *
+     * @param e the event that characterizes the change.
      */
-    public void updateSimulationData() {
+    @Override
+    public void valueChanged(final ListSelectionEvent e) {
 
+        final int index = this.list.getSelectedIndex();
+
+        this.deleteRoomSet.setEnabled(index >= 0);
+
+        if (index >= 0) {
+            final RoomSet selectedSet = this.listModel.getElementAt(index);
+            this.container.picked(selectedSet);
+        } else {
+            this.container.picked(null);
+        }
     }
 }

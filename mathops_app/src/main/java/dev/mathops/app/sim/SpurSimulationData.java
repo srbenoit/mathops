@@ -67,8 +67,9 @@ public final class SpurSimulationData {
      */
     public void addRoomSet(final RoomSet roomSet) {
 
-        this.roomSetListModel.addElement(roomSet);
-        fireUpdate();
+        if (this.roomSetListModel.canAddElement(roomSet)) {
+            fireUpdate();
+        }
     }
 
     /**

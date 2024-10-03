@@ -1,8 +1,6 @@
 package dev.mathops.app.sim.rooms;
 
 import dev.mathops.app.sim.SpurSimulation;
-import dev.mathops.app.sim.SpurSimulationData;
-import dev.mathops.app.sim.SpurSimulationDataListener;
 import dev.mathops.app.sim.swing.ButtonColumn;
 import dev.mathops.app.sim.swing.ButtonColumnTableModel;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
@@ -19,7 +17,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableModel;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Point;
@@ -35,29 +32,31 @@ import java.awt.event.ActionListener;
  * When courses are defined, they will indicate the set of campus rooms that are "compatible" with the course, or with
  * some portion of the course (a class section, a lab section, a recitation section, etc.).
  */
-final class RoomSetsDlgCampusRoomsTable extends JPanel implements ActionListener, SpurSimulationDataListener {
+final class RoomSetsDlgCampusRoomsTable extends JPanel implements ActionListener {
 
     /** An action command. */
     private static final String CMD_ADD_ROOM = "ADD_ROOM";
 
-    /** The simulation configuration data. */
-    private final SpurSimulationData data;
+    /** The table model. */
+    private final RoomSetTableModel model;
 
     /** A dialog to use when adding a new campus room. */
     private RoomSetsDlgAddCampusRoom addRoomDialog = null;
 
     /**
      * Constructs a new {@code ClassroomDialogCampusRoomsTable}.
+     *
+     * @param theModel the table model
      */
-    RoomSetsDlgCampusRoomsTable(final SpurSimulationData theData) {
+    RoomSetsDlgCampusRoomsTable(final RoomSetTableModel theModel) {
 
         super(new StackedBorderLayout(3, 3));
+
+        this.model = theModel;
 
         setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(SpurSimulation.ACCENT_COLOR),
                 BorderFactory.createEmptyBorder(3, 3, 3, 3)));
-
-        this.data = theData;
 
         final JButton addRoom = new JButton("Add Room...");
         addRoom.setActionCommand(CMD_ADD_ROOM);
@@ -77,8 +76,7 @@ final class RoomSetsDlgCampusRoomsTable extends JPanel implements ActionListener
         column3.setHeaderValue(" ");
         columnModel.addColumn(column3);
 
-        final TableModel tableModel = this.data.getCampusRoomsTableModel();
-        final JTable table = new JTable(tableModel, columnModel);
+        final JTable table = new JTable(theModel, columnModel);
         table.setShowHorizontalLines(true);
 
         Action delete = new AbstractAction() {
@@ -115,13 +113,9 @@ final class RoomSetsDlgCampusRoomsTable extends JPanel implements ActionListener
 
         add(center, StackedBorderLayout.CENTER);
 
-        final JPanel buttonBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 7));
+        final JPanel buttonBar = new JPanel(new FlowLayout(FlowLayout.LEADING, 10, 7));
         buttonBar.add(addRoom);
         add(buttonBar, StackedBorderLayout.SOUTH);
-
-        setPreferredSize(new Dimension(700, 300));
-        theData.addListener(this);
-        updateSimulationData();
     }
 
     /**
@@ -148,8 +142,7 @@ final class RoomSetsDlgCampusRoomsTable extends JPanel implements ActionListener
 
         if (CMD_ADD_ROOM.equals(cmd)) {
             if (this.addRoomDialog == null) {
-                final RoomSetTableModel tableModel = this.data.getCampusRoomsTableModel();
-                this.addRoomDialog = new RoomSetsDlgAddCampusRoom(tableModel);
+                this.addRoomDialog = new RoomSetsDlgAddCampusRoom(this.model);
             } else {
                 this.addRoomDialog.reset();
             }
@@ -165,12 +158,5 @@ final class RoomSetsDlgCampusRoomsTable extends JPanel implements ActionListener
             this.addRoomDialog.setVisible(true);
             this.addRoomDialog.toFront();
         }
-    }
-
-    /**
-     * Called (on the AWT thread) when the simulation data is updated.
-     */
-    public void updateSimulationData() {
-
     }
 }

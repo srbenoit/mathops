@@ -58,7 +58,9 @@ enum RoomSetJson {
                             if (obj instanceof final JSONObject jsonObj) {
                                 final RoomSet config = parseConfig(jsonObj, path, target);
                                 if (config != null) {
-                                    target.addElement(config);
+                                    if (!target.canAddElement(config)) {
+                                        Log.warning("Duplicate room set name in ", path, ".");
+                                    }
                                 }
                             } else {
                                 Log.warning("Array element within ", path, " was not a JSON object.");
@@ -196,6 +198,7 @@ enum RoomSetJson {
                 builder.add(cap);
                 builder.addln(j < numRooms - 1 ? "}," : "}");
             }
+            builder.addln("        ]");
 
             builder.addln(i < numConfigs - 1 ? "    }," : "    }");
         }

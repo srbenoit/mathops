@@ -25,8 +25,17 @@ public final class RoomSetsDlg extends WindowAdapter {
     /** The frame. */
     private final JFrame frame;
 
-    /** The table to display campus rooms. */
-    private final RoomSetsDlgCampusRoomsTable roomsTable;
+    /** The list of defined room sets. */
+    private final RoomSetsDlgRoomSetsList setsList;
+
+    /** The center panel to which we can add a {@code RoomSetsDlgCampusRoomsTable} when a set is selected. */
+    private final JPanel center;
+
+    /** The room set currently being displayed in the table view. */
+    private RoomSet displayedSet;
+
+    /** The displayed table. */
+    private RoomSetsDlgCampusRoomsTable displayedTable;
 
     /**
      * Constructs a new {@code CampusRoomsDialog}.
@@ -48,8 +57,14 @@ public final class RoomSetsDlg extends WindowAdapter {
         // Show a scrollable table of all the classrooms on campus, with options to add/delete/update
         final JLabel lbl1 = new JLabel("Campus classrooms and labs:");
         content.add(lbl1, StackedBorderLayout.NORTH);
-        this.roomsTable = new RoomSetsDlgCampusRoomsTable(theData);
-        content.add(this.roomsTable, StackedBorderLayout.NORTH);
+
+        this.center = new JPanel(new StackedBorderLayout());
+
+        this.center.setPreferredSize(new Dimension(400, 200));
+        content.add(this.center, StackedBorderLayout.CENTER);
+
+        this.setsList = new RoomSetsDlgRoomSetsList(this, theData);
+        content.add(this.setsList, StackedBorderLayout.WEST);
 
         // Show a list of named classroom profiles that select a suite of available rooms, weekdays and hours of
         // operation, and block schedule types for each weekday, with options to add/delete/update.
@@ -102,7 +117,12 @@ public final class RoomSetsDlg extends WindowAdapter {
      */
     public void close() {
 
-        this.roomsTable.close();
+        if (this.displayedTable != null) {
+            this.displayedTable.close();
+            this.displayedTable = null;
+            this.displayedSet = null;
+        }
+
         this.frame.setVisible(false);
         this.frame.dispose();
     }
@@ -112,7 +132,46 @@ public final class RoomSetsDlg extends WindowAdapter {
      */
     public void windowClosed(final WindowEvent e) {
 
-        this.roomsTable.close();
+        if (this.displayedTable != null) {
+            this.displayedTable.close();
+            this.displayedTable = null;
+            this.displayedSet = null;
+        }
+
         this.frame.dispose();
+    }
+
+    /**
+     * Called when the selected room set changes.
+     *
+     * @param set the selected set (null if none is selected)
+     */
+    void picked(final RoomSet set) {
+
+        if (set == null) {
+            if (this.displayedSet != null) {
+                this.center.remove(this.displayedTable);
+                this.displayedTable = null;
+                this.displayedSet = null;
+
+                this.center.invalidate();
+                this.center.revalidate();
+                this.center.repaint();
+            }
+        } else if (this.displayedSet != set) {
+            if (this.displayedTable != null) {
+                this.center.remove(this.displayedTable);
+            }
+
+            final RoomSetTableModel model = set.getTableModel();
+
+            this.displayedSet = set;
+            this.displayedTable = new RoomSetsDlgCampusRoomsTable(model);
+            this.center.add(this.displayedTable, StackedBorderLayout.CENTER);
+
+            this.center.invalidate();
+            this.center.revalidate();
+            this.center.repaint();
+        }
     }
 }

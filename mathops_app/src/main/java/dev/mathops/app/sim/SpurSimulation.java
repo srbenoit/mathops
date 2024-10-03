@@ -1,7 +1,9 @@
 package dev.mathops.app.sim;
 
 import com.formdev.flatlaf.FlatLightLaf;
+import dev.mathops.app.sim.rooms.RoomSet;
 import dev.mathops.app.sim.rooms.RoomSetsDlg;
+import dev.mathops.app.sim.rooms.RoomSetsListModel;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
@@ -58,8 +60,8 @@ public final class SpurSimulation extends WindowAdapter implements Runnable, Act
     /** The frame. */
     private JFrame frame;
 
-    /** A dropdown from which to choose a profile for classroom/lab space setup. */
-    private JComboBox<String> classroomAndLabProfiles;
+    /** A dropdown from which to choose a room set to use for a simulation. */
+    private JComboBox<RoomSet> roomSetChooser;
 
     /** A dropdown from which to choose a profile for semester schedule. */
     private JComboBox<String> semesterScheduleProfiles;
@@ -140,14 +142,15 @@ public final class SpurSimulation extends WindowAdapter implements Runnable, Act
         manageScoring.setActionCommand(MANAGE_SCORING_PROFILES_CMD);
         manageScoring.addActionListener(this);
 
-        this.classroomAndLabProfiles = new JComboBox<>();
-        final Dimension pref = this.classroomAndLabProfiles.getPreferredSize();
+        final RoomSetsListModel roomSetListModel = this.data.getRoomSetListModel();
+        this.roomSetChooser = new JComboBox<>(roomSetListModel);
+        final Dimension pref = this.roomSetChooser.getPreferredSize();
         final Dimension newPref = new Dimension(350, pref.height);
-        this.classroomAndLabProfiles.setPreferredSize(newPref);
+        this.roomSetChooser.setPreferredSize(newPref);
 
         final JPanel flow1 = new JPanel(new FlowLayout(FlowLayout.LEADING, 10, 5));
         flow1.add(nwLabels[0]);
-        flow1.add(this.classroomAndLabProfiles);
+        flow1.add(this.roomSetChooser);
         flow1.add(manageClassroom);
         northwest.add(flow1, StackedBorderLayout.NORTH);
 
