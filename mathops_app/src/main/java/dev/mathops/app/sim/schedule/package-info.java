@@ -1,36 +1,17 @@
 /**
- * A registration simulation designed to determine, for a given set of classrooms and offered courses, and a specified
- * set of student preferences for courses, how many students can be accommodated.
+ * Classes to manage semester schedules, including the number of weeks in a semester, the days of week and hours each
+ * day campus is available, and the type of daily blocking to use.
  *
  * <p>
- * A registration simulation begins with a variable-size population of students, grouped by preferences regarding
- * classes they want to take (for example, 10% of students have preference set 1, 8% have preference set 2, etc.), and a
- * list of offered classes.  It first performs a registration cycle to determine the number of seats of each course that
- * should be offered to meet projected demand.
+ * Each 1-credit unit requires 800 contact minutes (counting final exam week).  This requires 50 minutes per week for a
+ * 16-week term, 70 per week for a 12-week term, 90 per week for a 9-week term, 100 per week for an 8-week term, 135 per
+ * week for a 6-week term, 160 per week for a 5-week term, and 200 per week for a 4-week term (the shortest we
+ * contemplate). Most courses are 3-credits, so daily schedules should be designed to accommodate 3-credit courses.
  *
  * <p>
- * The simulation next considers the set of classrooms and hour blocks available, and the number of classroom blocks
- * each class (or its lab) needed.  It determines possible section sizes and classroom assignments and tries to optimize
- * classroom capacity usage and minimize needed sections.  During this phase, the size of the population is increased
- * until classroom capacity is exceeded, giving an absolute upper bound on student population.  A "realistic" student
- * population size is then selected as some percentage of this absolute bound.
- *
- * <p>
- * Finally, it simulates the registration process some number of times to get lists of student schedules. Then for each
- * set of schedules, and each possible ordering of hour blocks within days, it computes the "best" time for instructors
- * to hold office hours (when the instructor is not teaching, and the maximum number of students in their courses are
- * on-campus but not in class, and a "desirability" score based on (1) how many days a week students need to travel to
- * campus, (2) how many hours they need to spend on campus each day to take classes, (3) how many days a week
- * instructors need to travel to campus, (4) how many hours instructors need to spend on campus each day, and (5) how
- * many instructors are needed.
- *
- * <p>
- * At the end of the process, the simulation emits the number of sections of each course needed, room assignments, and
- * the two or three "best" schedule layouts (those with the highest desirability scores).
- *
- * <p>
- * Each semester, the group preference matrices can be updated to refine estimations of demand, and could even include
- * statistical parameters like mean and standard deviation to support stochastic modeling of student registration
- * choices.
+ * In a 16-week semester, a 3-credit course (needing 150 minutes per week of contact) could meet for three days at 50
+ * minutes per day or two days at 75 minutes per day, so we might choose to have Monday, Wednesday, and Friday operate
+ * on 1-hour blocks with 10-minute passing time, and Tuesday, Thursday, and Saturday/Sunday, if they are included,
+ * operate with 75-minute periods with 15-minute passing time.
  */
 package dev.mathops.app.sim.schedule;
