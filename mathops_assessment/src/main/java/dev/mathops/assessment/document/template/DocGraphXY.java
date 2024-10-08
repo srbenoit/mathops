@@ -439,8 +439,7 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
      * @param g2d    the {@code Graphics2D} to which to draw
      * @param bounds the bounding rectangle (adjusted for borders)
      */
-    private void drawXGridLinesAndTickMarks(final Graphics2D g2d,
-                                            final Rectangle bounds) {
+    private void drawXGridLinesAndTickMarks(final Graphics2D g2d, final Rectangle bounds) {
 
         double actualXTickInterval = 0.0;
         if (this.xTickInterval != null) {
@@ -473,7 +472,7 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
 
             // "dx" steps through the graph-space coordinates for each pixel location
             for (double dx = minX; dx < maxX; dx += perPixelX) {
-                final int curXStep = (int) (dx / actualXTickInterval);
+                final int curXStep = (int) Math.floor(dx / actualXTickInterval);
 
                 if (curXStep != priorXStep) {
                     priorXStep = curXStep;
@@ -627,7 +626,7 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
             int priorYStep = (int) (minY / actualYTickInterval);
 
             for (double dy = minY; dy < maxY; dy += perPixelY) {
-                final int curYStep = (int) (dy / actualYTickInterval);
+                final int curYStep = (int) Math.floor(dy / actualYTickInterval);
 
                 if (curYStep != priorYStep && dy > minY) {
                     priorYStep = curYStep;
