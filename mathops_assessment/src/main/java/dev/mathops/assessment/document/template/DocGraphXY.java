@@ -9,10 +9,10 @@ import dev.mathops.assessment.document.EStrokeCap;
 import dev.mathops.assessment.document.EStrokeJoin;
 import dev.mathops.assessment.document.GridSpec;
 import dev.mathops.assessment.document.NumberBounds;
-import dev.mathops.assessment.document.inst.StrokeStyleInst;
 import dev.mathops.assessment.document.inst.AbstractPrimitiveInst;
 import dev.mathops.assessment.document.inst.DocGraphXYInst;
 import dev.mathops.assessment.document.inst.DocObjectInstStyle;
+import dev.mathops.assessment.document.inst.StrokeStyleInst;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
@@ -468,7 +468,7 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
 
             // Do the vertical grid lines, relative to the X axis
             final double perPixelX = (maxX - minX) / (double) bounds.width;
-            int priorXStep = (int) (minX / actualXTickInterval);
+            int priorXStep = (int) Math.floor(minX / actualXTickInterval);
 
             // "dx" steps through the graph-space coordinates for each pixel location
             for (double dx = minX; dx < maxX; dx += perPixelX) {
@@ -623,12 +623,12 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
 
             // Do the horizontal grid lines, relative to the Y axis
             final double perPixelY = (maxY - minY) / (double) bounds.height;
-            int priorYStep = (int) (minY / actualYTickInterval);
+            int priorYStep = (int) Math.floor(minY / actualYTickInterval);
 
             for (double dy = minY; dy < maxY; dy += perPixelY) {
                 final int curYStep = (int) Math.floor(dy / actualYTickInterval);
 
-                if (curYStep != priorYStep && dy > minY) {
+                if (curYStep != priorYStep) {
                     priorYStep = curYStep;
 
                     final int stepY = bounds.y + bounds.height
