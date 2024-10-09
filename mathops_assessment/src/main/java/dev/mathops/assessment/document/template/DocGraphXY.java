@@ -472,10 +472,16 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
 
             // "dx" steps through the graph-space coordinates for each pixel location
             for (double dx = minX; dx < maxX; dx += perPixelX) {
+
                 final int curXStep = (int) Math.floor(dx / actualXTickInterval);
 
                 if (curXStep != priorXStep) {
                     priorXStep = curXStep;
+
+                    // If we are drawing axes, then omit the grid lines and tick marks at the axis crossing.
+                    if (this.axisWidth > 0 && Math.abs(dx) < (actualXTickInterval / 10)) {
+                        continue;
+                    }
 
                     final int stepX = bounds.x + (int) Math.round((double) bounds.width * (dx - minX) / (maxX - minX));
 
@@ -491,11 +497,6 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
                     }
 
                     if (axisY == -1) {
-                        continue;
-                    }
-
-                    // If we are drawing axes, then omit the tick mark at the axis crossing.
-                    if (this.axisWidth > 0 && Math.abs(dx) < (actualXTickInterval / 10)) {
                         continue;
                     }
 
@@ -631,6 +632,11 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
                 if (curYStep != priorYStep) {
                     priorYStep = curYStep;
 
+                    // If we are drawing axes, then omit the grid line and tick mark at the axis crossing.
+                    if (this.axisWidth > 0 && Math.abs(dy) < (actualYTickInterval / 10)) {
+                        continue;
+                    }
+
                     final int stepY = bounds.y + bounds.height
                                       - (int) Math.round((double) bounds.height * (dy - minY) / (maxY - minY));
 
@@ -647,11 +653,6 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
                     }
 
                     if (axisX == -1) {
-                        continue;
-                    }
-
-                    // If we are drawing axes, then omit the tick mark at the axis crossing.
-                    if (this.axisWidth > 0 && Math.abs(dy) < (actualYTickInterval / 10)) {
                         continue;
                     }
 
