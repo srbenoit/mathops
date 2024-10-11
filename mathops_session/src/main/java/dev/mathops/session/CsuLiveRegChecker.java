@@ -57,7 +57,7 @@ public final class CsuLiveRegChecker {
      */
     public static void checkLiveReg(final Cache cache, final String stuId) throws SQLException {
 
-        Log.warning("Checking live registrations for student ", stuId, "...");
+        Log.info("Checking live registrations for student ", stuId, "...");
 
         if (!stuId.isEmpty() && (int) stuId.charAt(0) == '8' && !"888888888".equals(stuId)) {
 
@@ -69,7 +69,7 @@ public final class CsuLiveRegChecker {
             if (active != null && activeStr != null) {
 
                 if (AbstractLogicModule.isBannerDown()) {
-                    Log.warning("Banner currently down...");
+                    Log.warning("Banner is currently down - skipping live query...");
                     return;
                 }
 
@@ -77,7 +77,7 @@ public final class CsuLiveRegChecker {
 
                 // The above will indicate Banner is down if the query fails, so abort here if so.
                 if (AbstractLogicModule.isBannerDown()) {
-                    Log.warning("Banner currently down...");
+                    Log.warning("Detected that Banner is currently down...");
                     return;
                 }
 

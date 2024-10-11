@@ -48,7 +48,7 @@ public final class AuditBannerTestScores {
     private static final String DIAGNOSE_STU = null;
 
     /** Date before which scores have already been audited. */
-    private static final LocalDate START_DATE = LocalDate.of(2024, Month.AUGUST, 8);
+    private static final LocalDate START_DATE = LocalDate.of(2024, Month.OCTOBER, 10);
 
     /** A commonly used string. */
     private static final String ERROR = "ERROR: ";
@@ -174,7 +174,7 @@ public final class AuditBannerTestScores {
         }
 
         // Gather the set of student IDs to check
-        final Set<String> studentIds = gatherStudntIds(placementAttempts, challengeAttempts, exams);
+        final Set<String> studentIds = gatherStudentIds(placementAttempts, challengeAttempts, exams);
         report.add("There are " + studentIds.size() + " students to check.");
 
         final Collection<RawStmpe> placements = new ArrayList<>(10);
@@ -239,32 +239,32 @@ public final class AuditBannerTestScores {
                                     elmUnit3ReviewPassed.add(e);
                                 }
                             } else if (Integer.valueOf(4).equals(e.unit) && "U".equals(e.examType)
-                                    && ("Y".equals(e.passed) || "P".equals(e.passed))) {
+                                       && ("Y".equals(e.passed) || "P".equals(e.passed))) {
                                 elmUnit4ExamPassed.add(e);
                             }
                         } else if (RawRecordConstants.M1170.equals(e.course)) {
                             if (Integer.valueOf(4).equals(e.unit) && "U".equals(e.examType)
-                                    && ("Y".equals(e.passed) || "P".equals(e.passed))) {
+                                && ("Y".equals(e.passed) || "P".equals(e.passed))) {
                                 pt117Unit4ExamPassed.add(e);
                             }
                         } else if (RawRecordConstants.M1180.equals(e.course)) {
                             if (Integer.valueOf(4).equals(e.unit) && "U".equals(e.examType)
-                                    && ("Y".equals(e.passed) || "P".equals(e.passed))) {
+                                && ("Y".equals(e.passed) || "P".equals(e.passed))) {
                                 pt118Unit4ExamPassed.add(e);
                             }
                         } else if (RawRecordConstants.M1240.equals(e.course)) {
                             if (Integer.valueOf(4).equals(e.unit) && "U".equals(e.examType)
-                                    && ("Y".equals(e.passed) || "P".equals(e.passed))) {
+                                && ("Y".equals(e.passed) || "P".equals(e.passed))) {
                                 pt124Unit4ExamPassed.add(e);
                             }
                         } else if (RawRecordConstants.M1250.equals(e.course)) {
                             if (Integer.valueOf(4).equals(e.unit) && "U".equals(e.examType)
-                                    && ("Y".equals(e.passed) || "P".equals(e.passed))) {
+                                && ("Y".equals(e.passed) || "P".equals(e.passed))) {
                                 pt125Unit4ExamPassed.add(e);
                             }
                         } else if (RawRecordConstants.M1260.equals(e.course)
-                                && Integer.valueOf(4).equals(e.unit) && "U".equals(e.examType)
-                                && ("Y".equals(e.passed) || "P".equals(e.passed))) {
+                                   && Integer.valueOf(4).equals(e.unit) && "U".equals(e.examType)
+                                   && ("Y".equals(e.passed) || "P".equals(e.passed))) {
                             pt126Unit4ExamPassed.add(e);
                         }
                     }
@@ -391,7 +391,7 @@ public final class AuditBannerTestScores {
                             spc = false;
                         }
                         report.add(ERROR + stuId + " does not have 'MC00' score for placement attempt on "
-                                + TemporalUtils.FMT_MDY_AT_HM_A.format(fin));
+                                   + TemporalUtils.FMT_MDY_AT_HM_A.format(fin));
                     }
                     if (need17) {
                         if (spc) {
@@ -399,7 +399,7 @@ public final class AuditBannerTestScores {
                             spc = false;
                         }
                         report.add(ERROR + stuId + " does not have 'MC17' score for placement attempt on "
-                                + TemporalUtils.FMT_MDY_AT_HM_A.format(fin));
+                                   + TemporalUtils.FMT_MDY_AT_HM_A.format(fin));
                     }
                     if (need18) {
                         if (spc) {
@@ -407,7 +407,7 @@ public final class AuditBannerTestScores {
                             spc = false;
                         }
                         report.add(ERROR + stuId + " does not have 'MC18' score for placement attempt on "
-                                + TemporalUtils.FMT_MDY_AT_HM_A.format(fin));
+                                   + TemporalUtils.FMT_MDY_AT_HM_A.format(fin));
                     }
                     if (need24) {
                         if (spc) {
@@ -415,7 +415,7 @@ public final class AuditBannerTestScores {
                             spc = false;
                         }
                         report.add(ERROR + stuId + " does not have 'MC24' score for placement attempt on "
-                                + TemporalUtils.FMT_MDY_AT_HM_A.format(fin));
+                                   + TemporalUtils.FMT_MDY_AT_HM_A.format(fin));
                     }
                     if (need25) {
                         if (spc) {
@@ -423,7 +423,7 @@ public final class AuditBannerTestScores {
                             spc = false;
                         }
                         report.add(ERROR + stuId + " does not have 'MC25' score for placement attempt on "
-                                + TemporalUtils.FMT_MDY_AT_HM_A.format(fin));
+                                   + TemporalUtils.FMT_MDY_AT_HM_A.format(fin));
                     }
                     if (need26) {
                         if (spc) {
@@ -431,7 +431,7 @@ public final class AuditBannerTestScores {
                             spc = false;
                         }
                         report.add(ERROR + stuId + " does not have 'MC26' score for placement attempt on "
-                                + TemporalUtils.FMT_MDY_AT_HM_A.format(fin));
+                                   + TemporalUtils.FMT_MDY_AT_HM_A.format(fin));
                     }
                 }
             }
@@ -462,7 +462,7 @@ public final class AuditBannerTestScores {
                     for (int i = 0; i < numSortest; ++i) {
                         final RawMpscorequeue row = sortest.get(i);
                         if (testCode.equals(row.testCode) && row.testDate.toLocalDate().equals(challenge.examDt)
-                                && "2".equals(row.testScore)) {
+                            && "2".equals(row.testScore)) {
                             sortest.remove(i);
                             --i;
                             --numSortest;
@@ -477,7 +477,7 @@ public final class AuditBannerTestScores {
                             spc = false;
                         }
                         report.add(ERROR + stuId + " does not have '" + testCode + "' score for challenge attempt on "
-                                + TemporalUtils.FMT_MDY.format(challenge.examDt));
+                                   + TemporalUtils.FMT_MDY.format(challenge.examDt));
                     }
                 }
             }
@@ -489,7 +489,7 @@ public final class AuditBannerTestScores {
                 for (int i = 0; i < numSortest; ++i) {
                     final RawMpscorequeue row = sortest.get(i);
                     if ("MC00".equals(row.testCode) && row.testDate.toLocalDate().equals(e3.examDt)
-                            && "4".equals(row.testScore)) {
+                        && "4".equals(row.testScore)) {
                         sortest.remove(i);
                         --i;
                         --numSortest;
@@ -504,7 +504,7 @@ public final class AuditBannerTestScores {
                         spc = false;
                     }
                     report.add(ERROR + stuId + " does not have 'MC00' score 4 for ELM Review exam 3 on "
-                            + TemporalUtils.FMT_MDY_AT_HM_A.format(e3.getFinishDateTime()));
+                               + TemporalUtils.FMT_MDY_AT_HM_A.format(e3.getFinishDateTime()));
                 }
             }
 
@@ -515,7 +515,7 @@ public final class AuditBannerTestScores {
                 for (int i = 0; i < numSortest; ++i) {
                     final RawMpscorequeue row = sortest.get(i);
                     if ("MC00".equals(row.testCode) && row.testDate.toLocalDate().equals(e4.examDt)
-                            && "2".equals(row.testScore)) {
+                        && "2".equals(row.testScore)) {
                         sortest.remove(i);
                         --i;
                         --numSortest;
@@ -530,7 +530,7 @@ public final class AuditBannerTestScores {
                         spc = false;
                     }
                     report.add(ERROR + stuId + " does not have 'MC00' score 2 for ELM Exam on "
-                            + TemporalUtils.FMT_MDY_AT_HM_A.format(e4.getFinishDateTime()));
+                               + TemporalUtils.FMT_MDY_AT_HM_A.format(e4.getFinishDateTime()));
                 }
             }
 
@@ -541,7 +541,7 @@ public final class AuditBannerTestScores {
                 for (int i = 0; i < numSortest; ++i) {
                     final RawMpscorequeue row = sortest.get(i);
                     if ("MC17".equals(row.testCode) && row.testDate.toLocalDate().equals(p17.examDt)
-                            && "1".equals(row.testScore)) {
+                        && "1".equals(row.testScore)) {
                         sortest.remove(i);
                         --i;
                         --numSortest;
@@ -556,7 +556,7 @@ public final class AuditBannerTestScores {
                         spc = false;
                     }
                     report.add(ERROR + stuId + " does not have 'MC17' score 1 for Precalc Tutorial Exam on "
-                            + TemporalUtils.FMT_MDY_AT_HM_A.format(p17.getFinishDateTime()));
+                               + TemporalUtils.FMT_MDY_AT_HM_A.format(p17.getFinishDateTime()));
                 }
             }
 
@@ -567,7 +567,7 @@ public final class AuditBannerTestScores {
                 for (int i = 0; i < numSortest; ++i) {
                     final RawMpscorequeue row = sortest.get(i);
                     if ("MC18".equals(row.testCode) && row.testDate.toLocalDate().equals(p18.examDt)
-                            && "1".equals(row.testScore)) {
+                        && "1".equals(row.testScore)) {
                         sortest.remove(i);
                         --i;
                         --numSortest;
@@ -582,7 +582,7 @@ public final class AuditBannerTestScores {
                         spc = false;
                     }
                     report.add(ERROR + stuId + " does not have 'MC18' score 1 for Precalc Tutorial Exam on "
-                            + TemporalUtils.FMT_MDY_AT_HM_A.format(p18.getFinishDateTime()));
+                               + TemporalUtils.FMT_MDY_AT_HM_A.format(p18.getFinishDateTime()));
                 }
             }
 
@@ -593,7 +593,7 @@ public final class AuditBannerTestScores {
                 for (int i = 0; i < numSortest; ++i) {
                     final RawMpscorequeue row = sortest.get(i);
                     if ("MC24".equals(row.testCode) && row.testDate.toLocalDate().equals(p24.examDt)
-                            && "1".equals(row.testScore)) {
+                        && "1".equals(row.testScore)) {
                         sortest.remove(i);
                         --i;
                         --numSortest;
@@ -608,7 +608,7 @@ public final class AuditBannerTestScores {
                         spc = false;
                     }
                     report.add(ERROR + stuId + " does not have 'MC24' score 1 for Precalc Tutorial Exam on "
-                            + TemporalUtils.FMT_MDY_AT_HM_A.format(p24.getFinishDateTime()));
+                               + TemporalUtils.FMT_MDY_AT_HM_A.format(p24.getFinishDateTime()));
                 }
             }
 
@@ -619,7 +619,7 @@ public final class AuditBannerTestScores {
                 for (int i = 0; i < numSortest; ++i) {
                     final RawMpscorequeue row = sortest.get(i);
                     if ("MC25".equals(row.testCode) && row.testDate.toLocalDate().equals(p25.examDt)
-                            && "1".equals(row.testScore)) {
+                        && "1".equals(row.testScore)) {
                         sortest.remove(i);
                         --i;
                         --numSortest;
@@ -634,7 +634,7 @@ public final class AuditBannerTestScores {
                         spc = false;
                     }
                     report.add(ERROR + stuId + " does not have 'MC25' score 1 for Precalc Tutorial Exam on "
-                            + TemporalUtils.FMT_MDY_AT_HM_A.format(p25.getFinishDateTime()));
+                               + TemporalUtils.FMT_MDY_AT_HM_A.format(p25.getFinishDateTime()));
                 }
             }
 
@@ -645,7 +645,7 @@ public final class AuditBannerTestScores {
                 for (int i = 0; i < numSortest; ++i) {
                     final RawMpscorequeue row = sortest.get(i);
                     if ("MC26".equals(row.testCode) && row.testDate.toLocalDate().equals(p26.examDt)
-                            && "1".equals(row.testScore)) {
+                        && "1".equals(row.testScore)) {
                         sortest.remove(i);
                         --i;
                         --numSortest;
@@ -660,7 +660,7 @@ public final class AuditBannerTestScores {
                         spc = false;
                     }
                     report.add(ERROR + stuId + " does not have 'MC26' score 1 for Precalc Tutorial Exam on "
-                            + TemporalUtils.FMT_MDY_AT_HM_A.format(p26.getFinishDateTime()));
+                               + TemporalUtils.FMT_MDY_AT_HM_A.format(p26.getFinishDateTime()));
                 }
             }
 
@@ -672,23 +672,23 @@ public final class AuditBannerTestScores {
                     spc = false;
                 }
                 report.add(ERROR + stuId + " has extra SORTEST record: '" + row.testCode + "', score = "
-                        + row.testScore + " on " + TemporalUtils.FMT_MDY_AT_HM_A.format(row.testDate));
+                           + row.testScore + " on " + TemporalUtils.FMT_MDY_AT_HM_A.format(row.testDate));
             }
         }
     }
 
     /**
-     * Gathers the set of unique student IDs represented by collections of placement attempts, challenge attempts,
-     * and exam records.
+     * Gathers the set of unique student IDs represented by collections of placement attempts, challenge attempts, and
+     * exam records.
      *
      * @param placementAttempts the placement attempts
      * @param challengeAttempts the challenge attempts
-     * @param exams the exam records
+     * @param exams             the exam records
      * @return the set of student IDs
      */
-    private static Set<String> gatherStudntIds(final Iterable<? extends List<RawStmpe>> placementAttempts,
-                                               final Iterable<? extends List<RawStchallenge>> challengeAttempts,
-                                               final Iterable<? extends List<RawStexam>> exams) {
+    private static Set<String> gatherStudentIds(final Iterable<? extends List<RawStmpe>> placementAttempts,
+                                                final Iterable<? extends List<RawStchallenge>> challengeAttempts,
+                                                final Iterable<? extends List<RawStexam>> exams) {
 
         final Set<String> studentIds = new TreeSet<>();
 
@@ -709,6 +709,9 @@ public final class AuditBannerTestScores {
                 studentIds.add(exam.stuId);
             }
         }
+
+        studentIds.remove("888888888");
+        studentIds.remove("823251213");
 
         return studentIds;
     }

@@ -36,7 +36,7 @@ enum LiveRegCache {
 
         List<LiveReg> result = new ArrayList<>(0);
 
-        Log.info("Querying live registrations for ", studentId);
+//        Log.info("Querying live registrations for ", studentId);
         final long before = System.currentTimeMillis();
 
         final TermRec active = cache.getSystemData().getActiveTerm();

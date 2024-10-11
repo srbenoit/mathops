@@ -129,7 +129,7 @@ public final class ImplLiveStudent extends AbstractImpl<LiveStudent> implements 
         builder.add("    stu.graddate                    GRAD_DATE,");
         builder.add("    p.spbpers_birth_date            BIRTHDATE,");
         builder.add("    p.spbpers_sex                   GENDER,");
-        builder.add("    e.proper_name_address           EMAIL,");
+        builder.add("    e.proper_name_email             EMAIL,");
         builder.add("    e.state                         ADDR_STATE,");
         builder.add("    adv.email                       ADVISOR_EMAIL_ADDRESS,");
         builder.add("    stu.campus                      STUDENT_CAMPUS");
@@ -191,14 +191,12 @@ public final class ImplLiveStudent extends AbstractImpl<LiveStudent> implements 
         builder.add("                and tsr1.sortest_tesc_code = tsr.sortest_tesc_code)");
         builder.add("           and tsr.sortest_tesc_code = 'S12'");
         builder.add("          ) satr on satr.pidm = i.spriden_pidm ");
-        builder.add(" left join weid_dir_person_00 e");
-        builder.add("           on  e.int_ref_id_aries = i.spriden_pidm");
-        builder.add("           and e.account_type = 'P'");
-        builder.add(" left join (select a.sgradvr_pidm pidm, ea.proper_name_address email");
+        builder.add(" left join csuban.midp_directory e");
+        builder.add("        on  e.pidm = i.spriden_pidm");
+        builder.add(" left join (select a.sgradvr_pidm pidm, ea.proper_name_email email");
         builder.add("       from sgradvr a ");
-        builder.add("       left join weid_dir_person_00 ea on");
-        builder.add("                 ea.int_ref_id_aries = a.sgradvr_advr_pidm");
-        builder.add("             and ea.account_type = 'P'");
+        builder.add("       left join csuban.midp_directory ea on");
+        builder.add("                 ea.pidm = a.sgradvr_advr_pidm");
         builder.add("       where a.sgradvr_advr_code = 'MAJR'");
         builder.add("         and a.sgradvr_prim_ind = 'Y'");
         builder.add("         and a.sgradvr_term_code_eff =");
@@ -281,17 +279,18 @@ public final class ImplLiveStudent extends AbstractImpl<LiveStudent> implements 
                 mi = mi.substring(0, 1);
             }
 
-            return new LiveStudent(//
+            return new LiveStudent(
                     getString(rs, "CSUID"),
-                    pidm, //
+                    pidm,
                     getString(rs, "LAST_NAME"),
                     getString(rs, "FIRST_NAME"),
                     getString(rs, "PREF_FIRST"),
-                    mi, getString(rs, "COLL_CODE"),
+                    mi,
+                    getString(rs, "COLL_CODE"),
                     getString(rs, "DEPT_CODE"),
                     getString(rs, "PROG_CODE"),
                     getString(rs, "MAJOR_CODE"),
-                    null, //
+                    null,
                     getString(rs, "HS_CODE"),
                     getString(rs, "HS_GPA"),
                     getInteger(rs, "HS_CLASS_RANK"),
