@@ -127,16 +127,14 @@ public final class ShibbolethLoginProcessor implements ILoginProcessor {
             if (attempt.role == ERole.BOOKSTORE) {
                 // Artificial student record, so we don't have to add bookstore staff members to the student table
                 student = RawStudentLogic.makeFakeStudent(csuId, CoreConstants.EMPTY, "Bookstore Staff");
+            } else if (liveRefreshes == ELiveRefreshes.ALL) {
+                CsuLiveRegChecker.checkLiveReg(cache, csuId);
+                student = RawStudentLogic.query(cache, csuId, true);
             } else {
-                if (liveRefreshes == ELiveRefreshes.ALL) {
+                student = RawStudentLogic.query(cache, csuId, false);
+                if (student == null && liveRefreshes == ELiveRefreshes.IF_MISSING) {
                     CsuLiveRegChecker.checkLiveReg(cache, csuId);
                     student = RawStudentLogic.query(cache, csuId, true);
-                } else {
-                    student = RawStudentLogic.query(cache, csuId, false);
-                    if (student == null && liveRefreshes == ELiveRefreshes.IF_MISSING) {
-                        CsuLiveRegChecker.checkLiveReg(cache, csuId);
-                        student = RawStudentLogic.query(cache, csuId, true);
-                    }
                 }
             }
         }
