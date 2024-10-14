@@ -1,4 +1,4 @@
-package dev.mathops.dbjobs.report.analytics.longitudinal;
+package dev.mathops.dbjobs.report.analytics.irdata;
 
 /**
  * A container for the data about a single course registration.

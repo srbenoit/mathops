@@ -1,4 +1,4 @@
-package dev.mathops.dbjobs.report.analytics.longitudinal;
+package dev.mathops.dbjobs.report.analytics.irdata;
 
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;

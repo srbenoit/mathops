@@ -57,11 +57,9 @@ final class OdsDataDictionary {
         }
 
         final HtmlBuilder htm = new HtmlBuilder(1000);
-        htm.addln("<pre>");
         for (final String rep : report) {
             htm.addln(rep);
         }
-        htm.addln("</pre>");
 
         return htm.toString();
     }
@@ -96,21 +94,21 @@ final class OdsDataDictionary {
             throws SQLException {
 
         String curTable = CoreConstants.EMPTY;
-        final Collection<String> tableNames = new ArrayList<>(100);
+//        final Collection<String> tableNames = new ArrayList<>(100);
 
         try (final Statement stmt = conn.createStatement()) {
-            final String sql2 = "SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE, DATA_LENGTH, COLUMN_DESCRIPTION "
+            final String sql2 = "SELECT OWNER, TABLE_NAME, COLUMN_NAME, DATA_TYPE, DATA_LENGTH, COLUMN_DESCRIPTION "
                     + "FROM CSU_BI_META.CSU_REPORTING_DATA_FIELDS "
-                    + "WHERE OWNER='CSUBAN' ORDER BY TABLE_NAME, COLUMN_SEQ_NUM";
+                    + "ORDER BY OWNER, TABLE_NAME, COLUMN_SEQ_NUM";
 
             try (final ResultSet rs = stmt.executeQuery(sql2)) {
                 while (rs.next()) {
-
                     final String tableName = rs.getString("TABLE_NAME");
                     if (!tableName.equals(curTable)) {
-                        report.add("TABLE: " + tableName);
+                        final String owner = rs.getString("OWNER");
+                        report.add(SimpleBuilder.concat("TABLE: ", owner, ".", tableName));
                         curTable = tableName;
-                        tableNames.add(tableName);
+//                        tableNames.add(tableName);
                     }
 
                     final String colName = rs.getString("COLUMN_NAME");
@@ -127,20 +125,6 @@ final class OdsDataDictionary {
                     if (descr != null && !descr.isBlank()) {
                         report.add(SimpleBuilder.concat("      ", descr));
                     }
-                }
-            }
-
-            for (final String tableName : tableNames) {
-
-                final String sql3 = "SELECT COUNT(*) FROM CSUBAN." + tableName;
-
-                try (final ResultSet rs = stmt.executeQuery(sql3)) {
-                    if (rs.next()) {
-                        final int count = rs.getInt(1);
-                        report.add("TABLE: " + tableName + " has " + count + " records");
-                    }
-                } catch (final SQLException ex) {
-                    Log.warning(sql3, ex);
                 }
             }
         }

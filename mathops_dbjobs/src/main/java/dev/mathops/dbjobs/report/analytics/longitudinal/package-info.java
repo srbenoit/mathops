@@ -1,4 +1,4 @@
 /**
- * Longitudinal analytics based on data pull from IRPE.
+ * Longitudinal analytics.
  */
 package dev.mathops.dbjobs.report.analytics.longitudinal;
