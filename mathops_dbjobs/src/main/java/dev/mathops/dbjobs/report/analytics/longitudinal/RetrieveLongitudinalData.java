@@ -26,9 +26,6 @@ import java.util.List;
  */
 public final class RetrieveLongitudinalData {
 
-    /** The database profile through which to access the database. */
-    private final DbProfile dbProfile;
-
     /** The database context. */
     private final DbContext odsCtx;
 
@@ -39,8 +36,9 @@ public final class RetrieveLongitudinalData {
 
         final ContextMap map = ContextMap.getDefaultInstance();
 
-        this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
-        this.odsCtx = this.dbProfile.getDbContext(ESchemaUse.ODS);
+        final DbProfile dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
+
+        this.odsCtx = dbProfile.getDbContext(ESchemaUse.ODS);
     }
 
     /**
@@ -55,9 +53,7 @@ public final class RetrieveLongitudinalData {
 
         final Collection<String> report = new ArrayList<>(10);
 
-        if (this.dbProfile == null) {
-            report.add("Unable to create batch profile.");
-        } else if (this.odsCtx == null) {
+        if (this.odsCtx == null) {
             report.add("Unable to create ODS database context.");
         } else {
             final DbConnection odsConn = this.odsCtx.checkOutConnection();
@@ -75,15 +71,19 @@ public final class RetrieveLongitudinalData {
                     if (comma) {
                         fileData.addln(",");
                     }
-                    fileData.add(rec.toJson());
+                    final String json = rec.toJson();
+                    fileData.add(json);
                     comma = true;
                 }
                 fileData.addln();
                 fileData.addln("]");
 
-                report.add("Writing output file to " + target.getAbsolutePath());
+                final String absolutePath = target.getAbsolutePath();
+                report.add("Writing output file to " + absolutePath);
+
                 try (final FileWriter fw = new FileWriter(target)) {
-                    fw.write(fileData.toString());
+                    final String dataString = fileData.toString();
+                    fw.write(dataString);
                 } catch (final IOException ex) {
                     Log.warning(ex);
                     report.add("Failed to write target JSON file.");
@@ -124,6 +124,7 @@ public final class RetrieveLongitudinalData {
 
         final List<StudentCourseRecord> result = new ArrayList<>(10000);
 
+        int numAp = 0;
         int numTransfer = 0;
         int numLocal = 0;
         int numPassed = 0;
@@ -271,7 +272,8 @@ public final class RetrieveLongitudinalData {
                     " TRANSFER_COURSE_INSTITUTION",
                     " FROM ODSMGR.STUDENT_COURSE",
                     " WHERE ACADEMIC_PERIOD >= ", startStr, " AND ACADEMIC_PERIOD <= ", endStr,
-                    " AND MULTI_SOURCE = 'CSU'",
+                    " AND MULTI_SOURCE = 'CSU' AND COURSE_LEVEL = 'UG'",
+                    " AND REGISTRATION_STATUS <> 'XF'",
                     " AND (TRANSFER_COURSE_IND = 'Y' OR REGISTER_CENSUS_DATE1_IND = 'Y')");
 //                    " AND COURSE_IDENTIFICATION = 'MATH160'");
 
@@ -283,9 +285,9 @@ public final class RetrieveLongitudinalData {
                     final String section = rs.getString("COURSE_SECTION_NUMBER");
                     final boolean transfer = "Y".equals(rs.getString("TRANSFER_COURSE_IND"));
                     final String regStatus = rs.getString("REGISTRATION_STATUS");
-                    final boolean withdrawn = "Y".equals(rs.getString("WITHDRAWN_IND"));
-                    final boolean passed = "Y".equals(rs.getString("COURSE_PASSED_IND"));
-                    final boolean failed = "Y".equals(rs.getString("COURSE_FAILED_IND"));
+                    boolean withdrawn = "Y".equals(rs.getString("WITHDRAWN_IND"));
+                    boolean passed = "Y".equals(rs.getString("COURSE_PASSED_IND"));
+                    boolean failed = "Y".equals(rs.getString("COURSE_FAILED_IND"));
                     final String grade = rs.getString("FINAL_GRADE");
                     final String inst = rs.getString("TRANSFER_COURSE_INSTITUTION");
 
@@ -341,17 +343,21 @@ public final class RetrieveLongitudinalData {
                             gradeValue = Double.valueOf(0.0);
                         } else if ("S".equals(grade) || "TS".equals(grade) || "XS".equals(grade)) {
                             gradeValue = Double.valueOf(2.5);
-                        } else if (!"W".equals(grade)) {
-                            Log.warning("Unrecognized grade: ", grade);
+                        } else if ("W".equals(grade)) {
+                            withdrawn = true;
+                        } else {
+                            Log.warning("Unrecognized grade: ", grade, " in ", course);
                         }
                     }
 
                     final boolean isApIbClep = inst != null && inst.startsWith("X9");
+                    boolean valid = true;
 
-                    if (transfer) {
+                    if (isApIbClep) {
+                        ++numAp;
+                    } else if (transfer) {
                         ++numTransfer;
                     } else {
-                        ++numLocal;
                         if (passed) {
                             ++numPassed;
                         }
@@ -361,28 +367,48 @@ public final class RetrieveLongitudinalData {
                         if (withdrawn) {
                             ++numWithdrawn;
                         }
+
+                        if (passed || failed || withdrawn) {
+                            ++numLocal;
+                        } else {
+
+                            // This is the case with "U" grades and grades that were "repeat-delete" removed.  Let's try
+                            // to classify a bit based on the grade
+
+                            if (gradeValue != null) {
+                                ++numLocal;
+                                final double actualGrade = gradeValue.doubleValue();
+                                if (actualGrade < 1.0) {
+                                    failed = true;
+                                    ++numFailed;
+                                } else {
+                                    passed = true;
+                                    ++numFailed;
+                                }
+                            } else {
+                                valid = false;
+                                report.add("Strange Registration (ignoring):");
+                                report.add("    studentId:" + studentId);
+                                report.add("    academicPeriod:" + academicPeriod);
+                                report.add("    courseIdentification:" + course);
+                                report.add("    section:" + section);
+                                report.add("    transferCourseInd:" + transfer);
+                                report.add("    registrationStatus:" + regStatus);
+                                report.add("    withdrawnInd:" + withdrawn);
+                                report.add("    coursePassedInd:" + passed);
+                                report.add("    coursedFailedInd:" + failed);
+                                report.add("    finalGrade:" + grade);
+                                report.add("    gradeValue:" + gradeValue);
+                                report.add("    inst:" + inst);
+                            }
+                        }
                     }
 
-//                    if (transfer) {
-//                        report.add("Registration:");
-////                        report.add("    studentId:" + studentId);
-////                        report.add("    academicPeriod:" + academicPeriod);
-////                        report.add("    courseIdentification:" + course);
-////                        report.add("    section:" + section);
-////                        report.add("    transferCourseInd:" + transfer);
-////                        report.add("    registrationStatus:" + regStatus);
-////                        report.add("    withdrawnInd:" + withdrawn);
-////                        report.add("    coursePassedInd:" + passed);
-////                        report.add("    coursedFailedInd:" + failed);
-////                        report.add("    finalGrade:" + grade);
-////                        report.add("    gradeValue:" + gradeValue);
-//                        report.add("    inst:" + inst);
-//                        report.add("    desc:" + desc);
-//                    }
-
-                    final StudentCourseRecord rec = new StudentCourseRecord(studentId, academicPeriod, course,
-                            section, transfer, isApIbClep, regStatus, withdrawn, passed, failed, grade, gradeValue);
-                    result.add(rec);
+                    if (valid) {
+                        final StudentCourseRecord rec = new StudentCourseRecord(studentId, academicPeriod, course,
+                                section, transfer, isApIbClep, regStatus, withdrawn, passed, failed, grade, gradeValue);
+                        result.add(rec);
+                    }
                 }
             }
 
@@ -392,7 +418,7 @@ public final class RetrieveLongitudinalData {
             final float failedPct = 100.0f * (float) numFailed / (float) numLocal;
 
             report.add("Found " + total + " student course records");
-            report.add("    " + numLocal + " local and " + numTransfer + " transfer");
+            report.add("    " + numLocal + " local, " + numTransfer + " transfer, and " + numAp + " AP/IP/CLEP");
             report.add("    " + withdrawPct + "% of local courses withdrawn");
             report.add("    " + passedPct + "% of local courses passed");
             report.add("    " + failedPct + "% of local courses failed");
@@ -410,9 +436,13 @@ public final class RetrieveLongitudinalData {
 
         final RetrieveLongitudinalData job = new RetrieveLongitudinalData();
 
-        final File target = new File("C:\\opt\\zircon\\data\\longitudinal2.json");
+        final File dir = new File("C:\\opt\\zircon\\data");
 
-        Log.fine(job.execute(201400, 202499, target));
+        if (dir.exists() || dir.mkdirs()) {
+            final File target = new File(dir, "longitudinal_new.json");
+
+            final String report = job.execute(201000, 202480, target);
+            Log.fine(report);
+        }
     }
-
 }

@@ -44,20 +44,27 @@ public final class Analysis {
         report.add("Processing");
 
         final List<String> sections = List.of("001", "002", "003", "004", "005", "006", "007", "008", "009", "010",
-                "011", "012", "013", "014", "015", "016", "017", "018", "019", "020");
+                "011", "012", "013", "014", "015", "016", "017", "018", "019", "020", "102", "103", "104", "105",
+                "106", "107", "108", "109");
 
         final Map<String, List<StudentCourseRecord>> studentCourseRecords = load(source, report);
+//
+//        final SequenceSuccess sequenceSuccess = new SequenceSuccess(this.targetDir);
 
-        final SequenceSuccess sequenceSuccess = new SequenceSuccess(this.targetDir);
+//        sequenceSuccess.generateReport(201400, studentCourseRecords, "MATH160", sections, "MATH161", sections, report);
+//        sequenceSuccess.generateReport(201400, studentCourseRecords, "MATH161", sections, "MATH261", sections, report);
+//        sequenceSuccess.generateReport(201400, studentCourseRecords, "MATH261", sections, "MATH340", sections, report);
 
-        sequenceSuccess.generateReport(studentCourseRecords, "MATH160", sections, "MATH161", sections, report);
-        sequenceSuccess.generateReport(studentCourseRecords, "MATH161", sections, "MATH261", sections, report);
-        sequenceSuccess.generateReport(studentCourseRecords, "MATH261", sections, "MATH340", sections, report);
-
-        sequenceSuccess.generateReport(studentCourseRecords, "MATH160", sections, "PH141", sections, report);
-        sequenceSuccess.generateReport(studentCourseRecords, "MATH160", sections, "CIVE260", sections, report);
-        sequenceSuccess.generateReport(studentCourseRecords, "MATH161", sections, "ECE202", sections, report);
-        sequenceSuccess.generateReport(studentCourseRecords, "MATH161", sections, "ECE204", sections, report);
+//        sequenceSuccess.generateReport(201400, studentCourseRecords, "MATH160", sections, "PH141", sections, report);
+//        sequenceSuccess.generateReport(201400, studentCourseRecords, "MATH160", sections, "CIVE202", sections, report);
+//        sequenceSuccess.generateReport(201400, studentCourseRecords, "MATH160", sections, "CIVE260", sections, report);
+//        sequenceSuccess.generateReport(201400, studentCourseRecords, "MATH160", sections, "CIVE261", sections, report);
+//        sequenceSuccess.generateReport(201400, studentCourseRecords, "MATH160", sections, "MECH237", sections, report);
+//
+//        sequenceSuccess.generateReport(201400, studentCourseRecords, "MATH161", sections, "ECE202", sections, report);
+//        sequenceSuccess.generateReport(201400, studentCourseRecords, "MATH161", sections, "ECE204", sections, report);
+//        sequenceSuccess.generateReport(201400, studentCourseRecords, "MATH161", sections, "ECE340", sections, report);
+//        sequenceSuccess.generateReport(201400, studentCourseRecords, "MATH161", sections, "MECH262", sections, report);
 
         report.addln();
         report.addln("Job completed");
@@ -80,35 +87,35 @@ public final class Analysis {
         if (data != null) {
             try {
                 final Object parsed = JSONParser.parseJSON(data);
-
-                if (parsed instanceof final Object[] array) {
-                    final String arrayLenStr = Integer.toString(array.length);
-                    report.addln("    Loaded ", arrayLenStr, " records from JSON file");
-                    result = new HashMap<>(100000);
-
-                    try {
-                        for (final Object obj : array) {
-                            if (obj instanceof final JSONObject json) {
-                                final StudentCourseRecord rec = StudentCourseRecord.parse(json);
-                                final String stuId = rec.studentId();
-
-                                final List<StudentCourseRecord> list = result.computeIfAbsent(stuId,
-                                        s -> new ArrayList<>(50));
-                                list.add(rec);
-                            } else {
-                                report.addln("    Row in JSON file is not JSON object.");
-                            }
-                        }
-
-                        final int numStudents = result.size();
-                        final String numStudentsStr = Integer.toString(numStudents);
-                        report.addln("    Loaded data for ", numStudentsStr, " students");
-                    } catch (final IllegalArgumentException ex) {
-                        report.addln("    Unable to interpret a record in the JSON file.");
-                    }
-                } else {
-                    report.addln("    Unable to interpret JSON file.");
-                }
+//
+//                if (parsed instanceof final Object[] array) {
+//                    final String arrayLenStr = Integer.toString(array.length);
+//                    report.addln("    Loaded ", arrayLenStr, " records from JSON file");
+//                    result = new HashMap<>(100000);
+//
+//                    try {
+//                        for (final Object obj : array) {
+//                            if (obj instanceof final JSONObject json) {
+//                                final StudentCourseRecord rec = StudentCourseRecord.parse(json);
+//                                final String stuId = rec.studentId();
+//
+//                                final List<StudentCourseRecord> list = result.computeIfAbsent(stuId,
+//                                        s -> new ArrayList<>(50));
+//                                list.add(rec);
+//                            } else {
+//                                report.addln("    Row in JSON file is not JSON object.");
+//                            }
+//                        }
+//
+//                        final int numStudents = result.size();
+//                        final String numStudentsStr = Integer.toString(numStudents);
+//                        report.addln("    Loaded data for ", numStudentsStr, " students");
+//                    } catch (final IllegalArgumentException ex) {
+//                        report.addln("    Unable to interpret a record in the JSON file.");
+//                    }
+//                } else {
+//                    report.addln("    Unable to interpret JSON file.");
+//                }
             } catch (final ParsingException ex) {
                 report.addln("    Unable to load JSON file.");
                 Log.warning("Failed to parse", ex);

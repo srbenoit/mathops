@@ -185,21 +185,24 @@ final class SequenceSuccess {
     /**
      * Analysis of success in a second course based on how student completed a first course.
      *
-     * @param records              the set of student course records
-     * @param firstCourse          the course ID of the first course in the sequence
-     * @param firstCourseSections  the list of sections of interest in the first course
-     * @param secondCourse         the course ID of the second course in the sequence
-     * @param secondCourseSections the list of sections of interest in the second course
-     * @param report               the report
+     * @param earliestSecondCourseTerm the earliest term for which to look for the second course
+     * @param records                  the set of student course records
+     * @param firstCourse              the course ID of the first course in the sequence
+     * @param firstCourseSections      the list of sections of interest in the first course
+     * @param secondCourse             the course ID of the second course in the sequence
+     * @param secondCourseSections     the list of sections of interest in the second course
+     * @param report                   the report
      */
-    void generateReport(final Map<String, List<StudentCourseRecord>> records, final String firstCourse,
+    void generateReport(final int earliestSecondCourseTerm,
+                        final Map<String, List<StudentCourseRecord>> records, final String firstCourse,
                         final Collection<String> firstCourseSections, final String secondCourse,
                         final Collection<String> secondCourseSections, final HtmlBuilder report) {
 
         report.addln();
         report.addln("Analysis of outcomes in ", secondCourse, " with respect to ", firstCourse);
 
-        gatherData(records, firstCourse, firstCourseSections, secondCourse, secondCourseSections);
+        gatherData(earliestSecondCourseTerm, records, firstCourse, firstCourseSections, secondCourse,
+                secondCourseSections);
 
         final String numWithSecondStr = Integer.toString(this.numWithSecond);
         final String numWithFirstPriorStr = Integer.toString(this.numWithFirstPrior);
@@ -333,15 +336,16 @@ final class SequenceSuccess {
     /**
      * Gathers data.
      *
-     * @param records              the list of all student course records
-     * @param firstCourse          the course ID of the first course in the sequence
-     * @param firstCourseSections  the list of sections of interest in the first course
-     * @param secondCourse         the course ID of the second course in the sequence
-     * @param secondCourseSections the list of sections of interest in the second course
+     * @param earliestSecondCourseTerm the earliest term for which to look for the second course
+     * @param records                  the list of all student course records
+     * @param firstCourse              the course ID of the first course in the sequence
+     * @param firstCourseSections      the list of sections of interest in the first course
+     * @param secondCourse             the course ID of the second course in the sequence
+     * @param secondCourseSections     the list of sections of interest in the second course
      */
-    private void gatherData(final Map<String, List<StudentCourseRecord>> records, final String firstCourse,
-                            final Collection<String> firstCourseSections, final String secondCourse,
-                            final Collection<String> secondCourseSections) {
+    private void gatherData(final int earliestSecondCourseTerm, final Map<String, List<StudentCourseRecord>> records,
+                            final String firstCourse, final Collection<String> firstCourseSections,
+                            final String secondCourse, final Collection<String> secondCourseSections) {
 
         this.terms.clear();
         this.localAPrior.clear();
@@ -367,7 +371,8 @@ final class SequenceSuccess {
         for (final Map.Entry<String, List<StudentCourseRecord>> entry : records.entrySet()) {
             final List<StudentCourseRecord> list = entry.getValue();
 
-            final StudentCourseRecord earliestSecond = findEarliestSecond(list, secondCourse, secondCourseSections);
+            final StudentCourseRecord earliestSecond = findEarliestSecond(earliestSecondCourseTerm, list,
+                    secondCourse, secondCourseSections);
 
             if (earliestSecond != null) {
                 ++this.numWithSecond;
@@ -467,29 +472,34 @@ final class SequenceSuccess {
      * Scans a list of student course records and finds the earliest occurrence of the second course in the sequence (if
      * it was one of the sections of interest).
      *
-     * @param list                 the list of student course records to scan
-     * @param secondCourse         the second course
-     * @param secondCourseSections the list of sections of interest
+     * @param earliestSecondCourseTerm the earliest term for which to look for the second course
+     * @param list                     the list of student course records to scan
+     * @param secondCourse             the second course
+     * @param secondCourseSections     the list of sections of interest
      * @return the earliest matching record of the second course found; null if none was found
      */
-    private static StudentCourseRecord findEarliestSecond(final Iterable<StudentCourseRecord> list,
+    private static StudentCourseRecord findEarliestSecond(final int earliestSecondCourseTerm,
+                                                          final Iterable<StudentCourseRecord> list,
                                                           final String secondCourse,
                                                           final Collection<String> secondCourseSections) {
 
         StudentCourseRecord earliestSecond = null;
 
         for (final StudentCourseRecord rec : list) {
-            final String course = rec.course();
-            final String sect = rec.section();
+            final int term = rec.academicPeriod();
 
-            if (secondCourse.equals(course) && !rec.transfer() && secondCourseSections.contains(sect)) {
-                if (earliestSecond == null) {
-                    earliestSecond = rec;
-                } else {
-                    final int existing = earliestSecond.academicPeriod();
-                    final int term = rec.academicPeriod();
-                    if (term < existing) {
+            if (term <= earliestSecondCourseTerm) {
+                final String course = rec.course();
+                final String sect = rec.section();
+
+                if (secondCourse.equals(course) && !rec.transfer() && secondCourseSections.contains(sect)) {
+                    if (earliestSecond == null) {
                         earliestSecond = rec;
+                    } else {
+                        final int existing = earliestSecond.academicPeriod();
+                        if (term < existing) {
+                            earliestSecond = rec;
+                        }
                     }
                 }
             }
@@ -521,11 +531,16 @@ final class SequenceSuccess {
         for (final StudentCourseRecord rec : list) {
             final String course = rec.course();
             final int term = rec.academicPeriod();
+            final String sect = rec.section();
 
             if (firstCourse.equals(course) && !rec.failed()) {
                 // Allow transfer and AP/IB/CLEP records to be in the same term as the second course.  For local
                 // courses, they need to occur in a prior term.
-                if (term < secondTerm || (term == secondTerm && (rec.transfer() || rec.apIbClep()))) {
+                if (rec.transfer() || rec.apIbClep()) {
+                    if (term <= secondTerm && firstCourseSections.contains(sect)) {
+                        latestFirst = chooseLatest(latestFirst, rec);
+                    }
+                } else if (term < secondTerm && firstCourseSections.contains(sect)) {
                     latestFirst = chooseLatest(latestFirst, rec);
                 }
             }
