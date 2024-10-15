@@ -377,33 +377,35 @@ final class SequenceSuccess {
             if (earliestSecond != null) {
                 ++this.numWithSecond;
 
-                final int secondTerm = earliestSecond.academicPeriod();
-                final Integer key = Integer.valueOf(secondTerm);
-
-                if (this.terms.add(key)) {
-                    this.localAPrior.put(key, new ArrayList<>(INIT_SIZE));
-                    this.localBPrior.put(key, new ArrayList<>(INIT_SIZE));
-                    this.localCDPrior.put(key, new ArrayList<>(INIT_SIZE));
-                    this.transferAPrior.put(key, new ArrayList<>(INIT_SIZE));
-                    this.transferBPrior.put(key, new ArrayList<>(INIT_SIZE));
-                    this.transferCDPrior.put(key, new ArrayList<>(INIT_SIZE));
-                    this.apPrior.put(key, new ArrayList<>(INIT_SIZE));
-
-                    this.localAAny.put(key, new ArrayList<>(INIT_SIZE));
-                    this.localBAny.put(key, new ArrayList<>(INIT_SIZE));
-                    this.localCDAny.put(key, new ArrayList<>(INIT_SIZE));
-                    this.transferAAny.put(key, new ArrayList<>(INIT_SIZE));
-                    this.transferBAny.put(key, new ArrayList<>(INIT_SIZE));
-                    this.transferCDAny.put(key, new ArrayList<>(INIT_SIZE));
-                    this.apAny.put(key, new ArrayList<>(INIT_SIZE));
-                }
-
                 final StudentCourseRecord latestFirst = findLatestFirstBeforeSecond(earliestSecond, list,
                         firstCourse, firstCourseSections);
 
                 if (latestFirst != null) {
+                    final int secondTerm = earliestSecond.academicPeriod();
+                    final Integer key = Integer.valueOf(secondTerm);
+
+                    if (this.terms.add(key)) {
+                        this.localAPrior.put(key, new ArrayList<>(INIT_SIZE));
+                        this.localBPrior.put(key, new ArrayList<>(INIT_SIZE));
+                        this.localCDPrior.put(key, new ArrayList<>(INIT_SIZE));
+                        this.transferAPrior.put(key, new ArrayList<>(INIT_SIZE));
+                        this.transferBPrior.put(key, new ArrayList<>(INIT_SIZE));
+                        this.transferCDPrior.put(key, new ArrayList<>(INIT_SIZE));
+                        this.apPrior.put(key, new ArrayList<>(INIT_SIZE));
+
+                        this.localAAny.put(key, new ArrayList<>(INIT_SIZE));
+                        this.localBAny.put(key, new ArrayList<>(INIT_SIZE));
+                        this.localCDAny.put(key, new ArrayList<>(INIT_SIZE));
+                        this.transferAAny.put(key, new ArrayList<>(INIT_SIZE));
+                        this.transferBAny.put(key, new ArrayList<>(INIT_SIZE));
+                        this.transferCDAny.put(key, new ArrayList<>(INIT_SIZE));
+                        this.apAny.put(key, new ArrayList<>(INIT_SIZE));
+                    }
+
                     ++this.numWithFirstAny;
-                    if (isPriorTerm(latestFirst, earliestSecond)) {
+
+                    final boolean inPriorTerm = isPriorTerm(latestFirst, earliestSecond);
+                    if (inPriorTerm) {
                         ++this.numWithFirstPrior;
 
                         final Map<Integer, List<StudentCourseRecord>> targetPrior = selectTargetMapPrior(latestFirst);
@@ -411,18 +413,24 @@ final class SequenceSuccess {
                         if (targetPrior == null) {
                             Log.warning("Unable to identify target prior-term map for ", latestFirst);
                         } else {
+                            if ("MATH161".equals(earliestSecond.course())
+                                && earliestSecond.academicPeriod() == 202290
+                                && latestFirst.academicPeriod() == 202210) {
+                                Log.fine("FA22: ", earliestSecond, "/", latestFirst);
+                            }
+
                             final List<StudentCourseRecord> targetList = targetPrior.get(key);
                             targetList.add(earliestSecond);
                         }
-                    } else {
-                        final Map<Integer, List<StudentCourseRecord>> targetAny = selectTargetMapAny(latestFirst);
+                    }
 
-                        if (targetAny == null) {
-                            Log.warning("Unable to identify target any-term map for ", latestFirst);
-                        } else {
-                            final List<StudentCourseRecord> targetList = targetAny.get(key);
-                            targetList.add(earliestSecond);
-                        }
+                    final Map<Integer, List<StudentCourseRecord>> targetAny = selectTargetMapAny(latestFirst);
+
+                    if (targetAny == null) {
+                        Log.warning("Unable to identify target any-term map for ", latestFirst);
+                    } else {
+                        final List<StudentCourseRecord> targetList = targetAny.get(key);
+                        targetList.add(earliestSecond);
                     }
                 }
             }
@@ -444,14 +452,14 @@ final class SequenceSuccess {
         final int secondTerm = second.academicPeriod();
 
         final int firstYear = firstTerm / 100;
-        final int secondYear = firstTerm / 100;
+        final int secondYear = secondTerm / 100;
 
         if (firstTerm == secondTerm) {
             // We treat the same term as "prior" since AP or transfer credit could get booked then.
             isPrior = true;
         } else if (firstYear - secondYear <= 1) {
             final int firstPart = firstTerm % 100;
-            final int secondPart = firstTerm % 100;
+            final int secondPart = secondTerm % 100;
 
             if (secondPart == SPRING_TERM) {
                 // Second course was taken in Spring, prior term is the Fall term of the prior year
@@ -488,7 +496,7 @@ final class SequenceSuccess {
         for (final StudentCourseRecord rec : list) {
             final int term = rec.academicPeriod();
 
-            if (term <= earliestSecondCourseTerm) {
+            if (term >= earliestSecondCourseTerm) {
                 final String course = rec.course();
                 final String sect = rec.section();
 
@@ -533,15 +541,21 @@ final class SequenceSuccess {
             final int term = rec.academicPeriod();
             final String sect = rec.section();
 
-            if (firstCourse.equals(course) && !rec.failed()) {
-                // Allow transfer and AP/IB/CLEP records to be in the same term as the second course.  For local
-                // courses, they need to occur in a prior term.
-                if (rec.transfer() || rec.apIbClep()) {
-                    if (term <= secondTerm && firstCourseSections.contains(sect)) {
+            if (firstCourse.equals(course)) {
+                if (rec.apIbClep()) {
+                    if (term <= secondTerm) {
                         latestFirst = chooseLatest(latestFirst, rec);
                     }
-                } else if (term < secondTerm && firstCourseSections.contains(sect)) {
-                    latestFirst = chooseLatest(latestFirst, rec);
+                } else if (rec.transfer()) {
+                    if (rec.gradeValue() != null && term <= secondTerm) {
+                        latestFirst = chooseLatest(latestFirst, rec);
+                    }
+                } else if (rec.gradeValue() != null && term < secondTerm && firstCourseSections.contains(sect)) {
+                    final double gradeNumeric = rec.gradeValue().doubleValue();
+                    if (gradeNumeric > 0.9) {
+                        // Local course, not failed
+                        latestFirst = chooseLatest(latestFirst, rec);
+                    }
                 }
             }
         }
