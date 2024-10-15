@@ -12,7 +12,6 @@ import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
@@ -102,47 +101,9 @@ final class SequenceSuccess {
     /** The ordered set of terms represented. */
     private final Collection<Integer> terms;
 
-    /** Map from term to the list of second-course rows for students who passed first course locally with an A. */
-    private final Map<Integer, List<StudentCourseRecord>> localAPrior;
+    private final ClassifiedData priorTerm;
 
-    /** Map from term to the list of second-course rows for students who passed first course locally with a B. */
-    private final Map<Integer, List<StudentCourseRecord>> localBPrior;
-
-    /** Map from term to the list of second-course rows for students who passed first course locally with a C or D. */
-    private final Map<Integer, List<StudentCourseRecord>> localCDPrior;
-
-    /** Map from term to the list of second-course rows for students who transferred first course with an A. */
-    private final Map<Integer, List<StudentCourseRecord>> transferAPrior;
-
-    /** Map from term to the list of second-course rows for students who transferred first course with a B. */
-    private final Map<Integer, List<StudentCourseRecord>> transferBPrior;
-
-    /** Map from term to the list of second-course rows for students who transferred first course with a C or D. */
-    private final Map<Integer, List<StudentCourseRecord>> transferCDPrior;
-
-    /** Map from term to the list of second-course rows for students who passed first course via AP/IB/CLEP. */
-    private final Map<Integer, List<StudentCourseRecord>> apPrior;
-
-    /** Map from term to the list of second-course rows for students who passed first course locally with an A. */
-    private final Map<Integer, List<StudentCourseRecord>> localAAny;
-
-    /** Map from term to the list of second-course rows for students who passed first course locally with a B. */
-    private final Map<Integer, List<StudentCourseRecord>> localBAny;
-
-    /** Map from term to the list of second-course rows for students who passed first course locally with a C or D. */
-    private final Map<Integer, List<StudentCourseRecord>> localCDAny;
-
-    /** Map from term to the list of second-course rows for students who transferred first course with an A. */
-    private final Map<Integer, List<StudentCourseRecord>> transferAAny;
-
-    /** Map from term to the list of second-course rows for students who transferred first course with a B. */
-    private final Map<Integer, List<StudentCourseRecord>> transferBAny;
-
-    /** Map from term to the list of second-course rows for students who transferred first course with a C or D. */
-    private final Map<Integer, List<StudentCourseRecord>> transferCDAny;
-
-    /** Map from term to the list of second-course rows for students who passed first course via AP/IB/CLEP. */
-    private final Map<Integer, List<StudentCourseRecord>> apAny;
+    private final ClassifiedData allEarlierTerms;
 
     /** The number of students found who took the second course locally. */
     private int numWithSecond = 0;
@@ -164,22 +125,8 @@ final class SequenceSuccess {
         this.targetDir = theTargetDir;
 
         this.terms = new TreeSet<>();
-
-        this.localAPrior = new HashMap<>(20);
-        this.localBPrior = new HashMap<>(20);
-        this.localCDPrior = new HashMap<>(20);
-        this.transferAPrior = new HashMap<>(20);
-        this.transferBPrior = new HashMap<>(20);
-        this.transferCDPrior = new HashMap<>(20);
-        this.apPrior = new HashMap<>(20);
-
-        this.localAAny = new HashMap<>(20);
-        this.localBAny = new HashMap<>(20);
-        this.localCDAny = new HashMap<>(20);
-        this.transferAAny = new HashMap<>(20);
-        this.transferBAny = new HashMap<>(20);
-        this.transferCDAny = new HashMap<>(20);
-        this.apAny = new HashMap<>(20);
+        this.priorTerm = new ClassifiedData();
+        this.allEarlierTerms = new ClassifiedData();
     }
 
     /**
@@ -226,99 +173,47 @@ final class SequenceSuccess {
         csv.addln("Subset with ", firstCourse, " in any earlier term:,", numWithFirstAnyStr);
         csv.addln();
 
-        // Reports for individual terms
+        csv.addln("Reports for individual terms [students with credit in ", firstCourse, " in the prior term]");
+        csv.addln();
 
         csv.addln("Fall Semesters,,", header2);
-        csv.addln(CSV_HEADER);
-
-        for (final Integer key : this.terms) {
-            final int value = key.intValue();
-            final int code = value % 100;
-            if (code == FALL_TERM) {
-                addSingleTermRow(report, csv, key, firstCourse, secondCourse);
-            }
-        }
-        csv.addln();
-
+        generateOneYearRows(FALL_TERM, report, csv, firstCourse, secondCourse, this.priorTerm);
         csv.addln("Spring Semesters,,", header2);
-        csv.addln(CSV_HEADER);
-
-        for (final Integer key : this.terms) {
-            final int value = key.intValue();
-            final int code = value % 100;
-            if (code == SPRING_TERM) {
-                addSingleTermRow(report, csv, key, firstCourse, secondCourse);
-            }
-        }
-        csv.addln();
-
+        generateOneYearRows(SPRING_TERM, report, csv, firstCourse, secondCourse, this.priorTerm);
         csv.addln("Summer Semesters,,", header2);
-        csv.addln(CSV_HEADER);
+        generateOneYearRows(SUMMER_TERM, report, csv, firstCourse, secondCourse, this.priorTerm);
 
-        for (final Integer key : this.terms) {
-            final int value = key.intValue();
-            final int code = value % 100;
-            if (code == SUMMER_TERM) {
-                addSingleTermRow(report, csv, key, firstCourse, secondCourse);
-            }
-        }
+        csv.addln("Reports based on average over last three terms [students with credit in ", firstCourse,
+                " in the prior term]");
         csv.addln();
 
-        // Reports based on average over last three terms
-
-        Integer fa1 = null;
-        Integer fa2 = null;
         csv.addln("Fall Semesters,,", header2);
-        csv.addln(CSV_HEADER);
-
-        for (final Integer key : this.terms) {
-            final int value = key.intValue();
-            final int code = value % 100;
-            if (code == FALL_TERM) {
-                if (fa1 != null) {
-                    addThreeTermRow(report, csv, fa1, fa2, key, firstCourse, secondCourse);
-                }
-                fa1 = fa2;
-                fa2 = key;
-            }
-        }
-        csv.addln();
-
-        Integer sp1 = null;
-        Integer sp2 = null;
+        generateThreeYearRows(FALL_TERM, report, csv, firstCourse, secondCourse, this.priorTerm);
         csv.addln("Spring Semesters,,", header2);
-        csv.addln(CSV_HEADER);
-
-        for (final Integer key : this.terms) {
-            final int value = key.intValue();
-            final int code = value % 100;
-            if (code == SPRING_TERM) {
-                if (sp1 != null) {
-                    addThreeTermRow(report, csv, sp1, sp2, key, firstCourse, secondCourse);
-                }
-                sp1 = sp2;
-                sp2 = key;
-            }
-        }
-        csv.addln();
-
-        Integer sm1 = null;
-        Integer sm2 = null;
+        generateThreeYearRows(SPRING_TERM, report, csv, firstCourse, secondCourse, this.priorTerm);
         csv.addln("Summer Semesters,,", header2);
-        csv.addln(CSV_HEADER);
+        generateThreeYearRows(SUMMER_TERM, report, csv, firstCourse, secondCourse, this.priorTerm);
 
-        for (final Integer key : this.terms) {
-            final int value = key.intValue();
-            final int code = value % 100;
-            if (code == SUMMER_TERM) {
-                if (sm1 != null) {
-                    addThreeTermRow(report, csv, sm1, sm2, key, firstCourse, secondCourse);
-                }
-                sm1 = sm2;
-                sm2 = key;
-            }
-        }
+        csv.addln("Reports for individual terms [students with credit in ", firstCourse, " in the any earlier term]");
         csv.addln();
+
+        csv.addln("Fall Semesters,,", header2);
+        generateOneYearRows(FALL_TERM, report, csv, firstCourse, secondCourse, this.allEarlierTerms);
+        csv.addln("Spring Semesters,,", header2);
+        generateOneYearRows(SPRING_TERM, report, csv, firstCourse, secondCourse, this.allEarlierTerms);
+        csv.addln("Summer Semesters,,", header2);
+        generateOneYearRows(SUMMER_TERM, report, csv, firstCourse, secondCourse, this.allEarlierTerms);
+
+        csv.addln("Reports based on average over last three terms [students with credit in ", firstCourse,
+                " in any earlier term]");
+        csv.addln();
+
+        csv.addln("Fall Semesters,,", header2);
+        generateThreeYearRows(FALL_TERM, report, csv, firstCourse, secondCourse, this.allEarlierTerms);
+        csv.addln("Spring Semesters,,", header2);
+        generateThreeYearRows(SPRING_TERM, report, csv, firstCourse, secondCourse, this.allEarlierTerms);
+        csv.addln("Summer Semesters,,", header2);
+        generateThreeYearRows(SUMMER_TERM, report, csv, firstCourse, secondCourse, this.allEarlierTerms);
 
         final String filename = SimpleBuilder.concat("Sequence_", firstCourse, "_", secondCourse, ".csv");
         final String csvString = csv.toString();
@@ -331,6 +226,65 @@ final class SequenceSuccess {
         }
 
         report.addln();
+    }
+
+    /**
+     * Generates one-year data rows for a term, first/second course combination, and list of classified data.
+     *
+     * @param termCode     the term code
+     * @param report       the report builder to which to write
+     * @param csv          the CSV file builder to which to write
+     * @param firstCourse  the first course code
+     * @param secondCourse the second course code
+     * @param classified   the classified data
+     */
+    private void generateOneYearRows(final int termCode, final HtmlBuilder report, final HtmlBuilder csv,
+                                     final String firstCourse, final String secondCourse,
+                                     final ClassifiedData classified) {
+
+        csv.addln(CSV_HEADER);
+
+        for (final Integer key : this.terms) {
+            final int value = key.intValue();
+            final int code = value % 100;
+            if (code == termCode) {
+                addOneYearRow(report, csv, key, firstCourse, secondCourse, classified);
+            }
+        }
+
+        csv.addln();
+    }
+
+    /**
+     * Generates three-year-average data rows for a term, first/second course combination, and list of classified data.
+     *
+     * @param termCode     the term code
+     * @param report       the report builder to which to write
+     * @param csv          the CSV file builder to which to write
+     * @param firstCourse  the first course code
+     * @param secondCourse the second course code
+     * @param classified   the classified data
+     */
+    private void generateThreeYearRows(final int termCode, final HtmlBuilder report, final HtmlBuilder csv,
+                                       final String firstCourse, final String secondCourse,
+                                       final ClassifiedData classified) {
+
+        csv.addln(CSV_HEADER);
+
+        Integer key1 = null;
+        Integer key2 = null;
+        for (final Integer key : this.terms) {
+            final int value = key.intValue();
+            final int code = value % 100;
+            if (code == termCode) {
+                if (key1 != null) {
+                    addThreeYearRow(report, csv, key1, key2, key, firstCourse, secondCourse, classified);
+                }
+                key1 = key2;
+                key2 = key;
+            }
+        }
+        csv.addln();
     }
 
     /**
@@ -348,20 +302,8 @@ final class SequenceSuccess {
                             final String secondCourse, final Collection<String> secondCourseSections) {
 
         this.terms.clear();
-        this.localAPrior.clear();
-        this.localBPrior.clear();
-        this.localCDPrior.clear();
-        this.transferAPrior.clear();
-        this.transferBPrior.clear();
-        this.transferCDPrior.clear();
-        this.apPrior.clear();
-        this.localAAny.clear();
-        this.localBAny.clear();
-        this.localCDAny.clear();
-        this.transferAAny.clear();
-        this.transferBAny.clear();
-        this.transferCDAny.clear();
-        this.apAny.clear();
+        this.priorTerm.clear();
+        this.allEarlierTerms.clear();
 
         this.numWithSecond = 0;
         this.numWithFirstPrior = 0;
@@ -385,21 +327,8 @@ final class SequenceSuccess {
                     final Integer key = Integer.valueOf(secondTerm);
 
                     if (this.terms.add(key)) {
-                        this.localAPrior.put(key, new ArrayList<>(INIT_SIZE));
-                        this.localBPrior.put(key, new ArrayList<>(INIT_SIZE));
-                        this.localCDPrior.put(key, new ArrayList<>(INIT_SIZE));
-                        this.transferAPrior.put(key, new ArrayList<>(INIT_SIZE));
-                        this.transferBPrior.put(key, new ArrayList<>(INIT_SIZE));
-                        this.transferCDPrior.put(key, new ArrayList<>(INIT_SIZE));
-                        this.apPrior.put(key, new ArrayList<>(INIT_SIZE));
-
-                        this.localAAny.put(key, new ArrayList<>(INIT_SIZE));
-                        this.localBAny.put(key, new ArrayList<>(INIT_SIZE));
-                        this.localCDAny.put(key, new ArrayList<>(INIT_SIZE));
-                        this.transferAAny.put(key, new ArrayList<>(INIT_SIZE));
-                        this.transferBAny.put(key, new ArrayList<>(INIT_SIZE));
-                        this.transferCDAny.put(key, new ArrayList<>(INIT_SIZE));
-                        this.apAny.put(key, new ArrayList<>(INIT_SIZE));
+                        this.priorTerm.createKey(key);
+                        this.allEarlierTerms.createKey(key);
                     }
 
                     ++this.numWithFirstAny;
@@ -408,23 +337,19 @@ final class SequenceSuccess {
                     if (inPriorTerm) {
                         ++this.numWithFirstPrior;
 
-                        final Map<Integer, List<StudentCourseRecord>> targetPrior = selectTargetMapPrior(latestFirst);
+                        final Map<Integer, List<StudentCourseRecord>> targetPrior = selectTargetMap(latestFirst,
+                                this.priorTerm);
 
                         if (targetPrior == null) {
                             Log.warning("Unable to identify target prior-term map for ", latestFirst);
                         } else {
-                            if ("MATH161".equals(earliestSecond.course())
-                                && earliestSecond.academicPeriod() == 202290
-                                && latestFirst.academicPeriod() == 202210) {
-                                Log.fine("FA22: ", earliestSecond, "/", latestFirst);
-                            }
-
                             final List<StudentCourseRecord> targetList = targetPrior.get(key);
                             targetList.add(earliestSecond);
                         }
                     }
 
-                    final Map<Integer, List<StudentCourseRecord>> targetAny = selectTargetMapAny(latestFirst);
+                    final Map<Integer, List<StudentCourseRecord>> targetAny = selectTargetMap(latestFirst,
+                            this.allEarlierTerms);
 
                     if (targetAny == null) {
                         Log.warning("Unable to identify target any-term map for ", latestFirst);
@@ -649,14 +574,16 @@ final class SequenceSuccess {
      * AP/IB/CLEP).
      *
      * @param precedingFirst the student course record for the
+     * @param classified     the classified data
      * @return the target map
      */
-    private Map<Integer, List<StudentCourseRecord>> selectTargetMapPrior(final StudentCourseRecord precedingFirst) {
+    private Map<Integer, List<StudentCourseRecord>> selectTargetMap(final StudentCourseRecord precedingFirst,
+                                                                    final ClassifiedData classified) {
 
         Map<Integer, List<StudentCourseRecord>> target = null;
 
         if (precedingFirst.apIbClep()) {
-            target = this.apPrior;
+            target = classified.ap();
         } else if (precedingFirst.transfer()) {
 
             final Double gv = precedingFirst.gradeValue();
@@ -664,11 +591,11 @@ final class SequenceSuccess {
                 final double gvValue = gv.doubleValue();
 
                 if (gvValue > A_THRESHOLD) {
-                    target = this.transferAPrior;
+                    target = classified.transferA();
                 } else if (gvValue > B_THRESHOLD) {
-                    target = this.transferBPrior;
+                    target = classified.transferB();
                 } else {
-                    target = this.transferCDPrior;
+                    target = classified.transferCD();
                 }
             }
         } else {
@@ -678,58 +605,11 @@ final class SequenceSuccess {
                 final double gvValue = gv.doubleValue();
 
                 if (gvValue > A_THRESHOLD) {
-                    target = this.localAPrior;
+                    target = classified.localA();
                 } else if (gvValue > B_THRESHOLD) {
-                    target = this.localBPrior;
+                    target = classified.localB();
                 } else {
-                    target = this.localCDPrior;
-                }
-            }
-        }
-
-        return target;
-    }
-
-    /**
-     * Given the outcome from the preceding course, selects a map to which to add result data.  The target is chosen
-     * based on the grade earned in the first course and how it was completed (taken locally, transferred, or via
-     * AP/IB/CLEP).
-     *
-     * @param precedingFirst the student course record for the
-     * @return the target map
-     */
-    private Map<Integer, List<StudentCourseRecord>> selectTargetMapAny(final StudentCourseRecord precedingFirst) {
-
-        Map<Integer, List<StudentCourseRecord>> target = null;
-
-        if (precedingFirst.apIbClep()) {
-            target = this.apAny;
-        } else if (precedingFirst.transfer()) {
-
-            final Double gv = precedingFirst.gradeValue();
-            if (gv != null) {
-                final double gvValue = gv.doubleValue();
-
-                if (gvValue > A_THRESHOLD) {
-                    target = this.transferAAny;
-                } else if (gvValue > B_THRESHOLD) {
-                    target = this.transferBAny;
-                } else {
-                    target = this.transferCDAny;
-                }
-            }
-        } else {
-            final Double gv = precedingFirst.gradeValue();
-
-            if (gv != null) {
-                final double gvValue = gv.doubleValue();
-
-                if (gvValue > A_THRESHOLD) {
-                    target = this.localAAny;
-                } else if (gvValue > B_THRESHOLD) {
-                    target = this.localBAny;
-                } else {
-                    target = this.localCDAny;
+                    target = classified.localCD();
                 }
             }
         }
@@ -746,41 +626,43 @@ final class SequenceSuccess {
      * @param key          the term key
      * @param firstCourse  the first course
      * @param secondCourse the second course
+     * @param classified   the classified data
      */
-    private void addSingleTermRow(final HtmlBuilder report, final HtmlBuilder csv, final Integer key,
-                                  final String firstCourse, final String secondCourse) {
+    private void addOneYearRow(final HtmlBuilder report, final HtmlBuilder csv, final Integer key,
+                               final String firstCourse, final String secondCourse,
+                               final ClassifiedData classified) {
 
-        final List<StudentCourseRecord> localAList = this.localAPrior.get(key);
+        final List<StudentCourseRecord> localAList = classified.localA().get(key);
         final int localACount = localAList.size();
         final String localACountStr = Integer.toString(localACount);
 
-        final List<StudentCourseRecord> localBList = this.localBPrior.get(key);
+        final List<StudentCourseRecord> localBList = classified.localB().get(key);
         final int localBCount = localBList.size();
         final String localBCountStr = Integer.toString(localBCount);
 
-        final List<StudentCourseRecord> localCList = this.localCDPrior.get(key);
+        final List<StudentCourseRecord> localCList = classified.localCD().get(key);
         final int localCCount = localCList.size();
         final String localCCountStr = Integer.toString(localCCount);
 
         final int localCount = localACount + localBCount + localCCount;
         final String localCountStr = Integer.toString(localCount);
 
-        final List<StudentCourseRecord> transferAList = this.transferAPrior.get(key);
+        final List<StudentCourseRecord> transferAList = classified.transferA().get(key);
         final int transferACount = transferAList.size();
         final String transferACountStr = Integer.toString(transferACount);
 
-        final List<StudentCourseRecord> transferBList = this.transferBPrior.get(key);
+        final List<StudentCourseRecord> transferBList = classified.transferB().get(key);
         final int transferBCount = transferBList.size();
         final String transferBCountStr = Integer.toString(transferBCount);
 
-        final List<StudentCourseRecord> transferCList = this.transferCDPrior.get(key);
+        final List<StudentCourseRecord> transferCList = classified.transferCD().get(key);
         final int transferCCount = transferCList.size();
         final String transferCCountStr = Integer.toString(transferCCount);
 
         final int transferCount = transferACount + transferBCount + transferCCount;
         final String transferCountStr = Integer.toString(transferCount);
 
-        final List<StudentCourseRecord> apList = this.apPrior.get(key);
+        final List<StudentCourseRecord> apList = classified.ap().get(key);
         final int apCount = apList.size();
         final String apCountStr = Integer.toString(apCount);
 
@@ -1009,29 +891,30 @@ final class SequenceSuccess {
      * @param key3         the third term key
      * @param firstCourse  the first course
      * @param secondCourse the second course
+     * @param classified   the classified data
      */
-    private void addThreeTermRow(final HtmlBuilder report, final HtmlBuilder csv, final Integer key1,
+    private void addThreeYearRow(final HtmlBuilder report, final HtmlBuilder csv, final Integer key1,
                                  final Integer key2, final Integer key3, final String firstCourse,
-                                 final String secondCourse) {
+                                 final String secondCourse, final ClassifiedData classified) {
 
         final List<StudentCourseRecord> localAList = new ArrayList<>(100);
-        localAList.addAll(this.localAPrior.get(key1));
-        localAList.addAll(this.localAPrior.get(key2));
-        localAList.addAll(this.localAPrior.get(key3));
+        localAList.addAll(classified.localA().get(key1));
+        localAList.addAll(classified.localA().get(key2));
+        localAList.addAll(classified.localA().get(key3));
         final int localACount = localAList.size();
         final String localACountStr = Integer.toString(localACount);
 
         final List<StudentCourseRecord> localBList = new ArrayList<>(100);
-        localBList.addAll(this.localBPrior.get(key1));
-        localBList.addAll(this.localBPrior.get(key2));
-        localBList.addAll(this.localBPrior.get(key3));
+        localBList.addAll(classified.localB().get(key1));
+        localBList.addAll(classified.localB().get(key2));
+        localBList.addAll(classified.localB().get(key3));
         final int localBCount = localBList.size();
         final String localBCountStr = Integer.toString(localBCount);
 
         final List<StudentCourseRecord> localCList = new ArrayList<>(100);
-        localCList.addAll(this.localCDPrior.get(key1));
-        localCList.addAll(this.localCDPrior.get(key2));
-        localCList.addAll(this.localCDPrior.get(key3));
+        localCList.addAll(classified.localCD().get(key1));
+        localCList.addAll(classified.localCD().get(key2));
+        localCList.addAll(classified.localCD().get(key3));
         final int localCCount = localCList.size();
         final String localCCountStr = Integer.toString(localCCount);
 
@@ -1039,23 +922,23 @@ final class SequenceSuccess {
         final String localCountStr = Integer.toString(localCount);
 
         final List<StudentCourseRecord> transferAList = new ArrayList<>(100);
-        transferAList.addAll(this.transferAPrior.get(key1));
-        transferAList.addAll(this.transferAPrior.get(key2));
-        transferAList.addAll(this.transferAPrior.get(key3));
+        transferAList.addAll(classified.transferA().get(key1));
+        transferAList.addAll(classified.transferA().get(key2));
+        transferAList.addAll(classified.transferA().get(key3));
         final int transferACount = transferAList.size();
         final String transferACountStr = Integer.toString(transferACount);
 
         final List<StudentCourseRecord> transferBList = new ArrayList<>(100);
-        transferBList.addAll(this.transferBPrior.get(key1));
-        transferBList.addAll(this.transferBPrior.get(key2));
-        transferBList.addAll(this.transferBPrior.get(key3));
+        transferBList.addAll(classified.transferB().get(key1));
+        transferBList.addAll(classified.transferB().get(key2));
+        transferBList.addAll(classified.transferB().get(key3));
         final int transferBCount = transferBList.size();
         final String transferBCountStr = Integer.toString(transferBCount);
 
         final List<StudentCourseRecord> transferCList = new ArrayList<>(100);
-        transferCList.addAll(this.transferCDPrior.get(key1));
-        transferCList.addAll(this.transferCDPrior.get(key2));
-        transferCList.addAll(this.transferCDPrior.get(key3));
+        transferCList.addAll(classified.transferCD().get(key1));
+        transferCList.addAll(classified.transferCD().get(key2));
+        transferCList.addAll(classified.transferCD().get(key3));
         final int transferCCount = transferCList.size();
         final String transferCCountStr = Integer.toString(transferCCount);
 
@@ -1063,9 +946,9 @@ final class SequenceSuccess {
         final String transferCountStr = Integer.toString(transferCount);
 
         final List<StudentCourseRecord> apList = new ArrayList<>(100);
-        apList.addAll(this.apPrior.get(key1));
-        apList.addAll(this.apPrior.get(key2));
-        apList.addAll(this.apPrior.get(key3));
+        apList.addAll(classified.ap().get(key1));
+        apList.addAll(classified.ap().get(key2));
+        apList.addAll(classified.ap().get(key3));
         final int apCount = apList.size();
         final String apCountStr = Integer.toString(apCount);
 
