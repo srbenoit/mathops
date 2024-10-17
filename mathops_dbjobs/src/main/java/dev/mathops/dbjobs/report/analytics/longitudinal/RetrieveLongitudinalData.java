@@ -3,6 +3,7 @@ package dev.mathops.dbjobs.report.analytics.longitudinal;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.commons.parser.json.JSONObject;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
 import dev.mathops.db.old.DbContext;
@@ -18,7 +19,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * This class retrieves data from the ODS and stores it in a local file so we can load and process it without having to
@@ -26,7 +29,10 @@ import java.util.List;
  */
 public final class RetrieveLongitudinalData {
 
-    /** The database context. */
+    /** The Banner context. */
+    private final DbContext liveCtx;
+
+    /** The ODS context. */
     private final DbContext odsCtx;
 
     /**
@@ -38,20 +44,22 @@ public final class RetrieveLongitudinalData {
 
         final DbProfile dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
 
+        this.liveCtx = dbProfile.getDbContext(ESchemaUse.LIVE);
         this.odsCtx = dbProfile.getDbContext(ESchemaUse.ODS);
     }
 
     /**
-     * Executes the job.
+     * Gathers student course data.
      *
      * @param startAcademicPeriod the starting academic period
      * @param endAcademicPeriod   the ending academic period
      * @param target              the file to which to write results
      * @return a report
      */
-    public String execute(final int startAcademicPeriod, final int endAcademicPeriod, final File target) {
+    private String gatherStudentCourseData(final int startAcademicPeriod, final int endAcademicPeriod,
+                                           final File target) {
 
-        final Collection<String> report = new ArrayList<>(10);
+        final Collection<String> report = new ArrayList<>(1000);
 
         if (this.odsCtx == null) {
             report.add("Unable to create ODS database context.");
@@ -59,7 +67,7 @@ public final class RetrieveLongitudinalData {
             final DbConnection odsConn = this.odsCtx.checkOutConnection();
 
             try {
-                report.add("Processing");
+                report.add("Gathering student course data.");
 
                 final List<StudentCourseRecord> studentCourseRecords = collectStudentCourses(odsConn,
                         startAcademicPeriod, endAcademicPeriod, report);
@@ -79,17 +87,17 @@ public final class RetrieveLongitudinalData {
                 fileData.addln("]");
 
                 final String absolutePath = target.getAbsolutePath();
-                report.add("Writing output file to " + absolutePath);
+                report.add("Writing student course data file to " + absolutePath);
 
                 try (final FileWriter fw = new FileWriter(target)) {
                     final String dataString = fileData.toString();
                     fw.write(dataString);
                 } catch (final IOException ex) {
                     Log.warning(ex);
-                    report.add("Failed to write target JSON file.");
+                    report.add("Failed to write student course JSON file.");
                 }
 
-                report.add("Job completed");
+                report.add("Student course data gathered.");
             } catch (final SQLException ex) {
                 Log.warning(ex);
                 report.add("Failed to query ODS.");
@@ -107,7 +115,7 @@ public final class RetrieveLongitudinalData {
     }
 
     /**
-     * Queries transfer records from the ODS for the Spring semester.
+     * Queries student course records from the ODS.
      *
      * @param conn                the database connection
      * @param startAcademicPeriod the starting academic period
@@ -428,6 +436,133 @@ public final class RetrieveLongitudinalData {
     }
 
     /**
+     * Gathers student data.
+     *
+     * @param studentIds the set of student IDs of interest
+     * @param target     the file to which to write results
+     * @return a report
+     */
+    private String gatherStudentData(final Set<String> studentIds, final File target) {
+
+        final Collection<String> report = new ArrayList<>(1000);
+
+        if (this.odsCtx == null) {
+            report.add("Unable to create ODS database context.");
+        } else {
+            final DbConnection odsConn = this.odsCtx.checkOutConnection();
+
+            try {
+                final DbConnection bannerConn = this.liveCtx.checkOutConnection();
+
+                try {
+                    report.add("Gathering student data.");
+
+                    final List<StudentRecord> studentRecords = collectStudents(odsConn, bannerConn, studentIds, report);
+
+                    final HtmlBuilder fileData = new HtmlBuilder(100000);
+                    fileData.addln("[");
+                    boolean comma = false;
+                    for (final StudentRecord rec : studentRecords) {
+                        if (comma) {
+                            fileData.addln(",");
+                        }
+                        final String json = rec.toJson();
+                        fileData.add(json);
+                        comma = true;
+                    }
+                    fileData.addln();
+                    fileData.addln("]");
+
+                    final String absolutePath = target.getAbsolutePath();
+                    report.add("Writing student data file to " + absolutePath);
+
+                    try (final FileWriter fw = new FileWriter(target)) {
+                        final String dataString = fileData.toString();
+                        fw.write(dataString);
+                    } catch (final IOException ex) {
+                        Log.warning(ex);
+                        report.add("Failed to write student JSON file.");
+                    }
+
+                    report.add("Student data gathered.");
+                } catch (final SQLException ex) {
+                    Log.warning(ex);
+                    report.add("Failed to query ODS/Banner.");
+                } finally {
+                    this.odsCtx.checkInConnection(odsConn);
+                }
+            } finally {
+                this.odsCtx.checkInConnection(odsConn);
+            }
+        }
+
+        final HtmlBuilder htm = new HtmlBuilder(1000);
+        for (final String rep : report) {
+            htm.addln(rep);
+        }
+
+        return htm.toString();
+    }
+
+    /**
+     * Queries student records from the ODS.
+     *
+     * @param odsConn    the ODS database connection
+     * @param bannerConn the BANNER database connection
+     * @param studentIds the set of student IDs of interest
+     * @param report     a list to which to add report lines
+     * @return a list of student records
+     * @throws SQLException if there is an error performing the query
+     */
+    private static List<StudentRecord> collectStudents(final DbConnection odsConn, final DbConnection bannerConn,
+                                                       final Set<String> studentIds,
+                                                       final Collection<? super String> report)
+            throws SQLException {
+
+        final int count = studentIds.size();
+        final List<TempStudentRecord> tempRecords = new ArrayList<>(count);
+
+        try (final Statement stmt = odsConn.createStatement()) {
+
+            final String sql = SimpleBuilder.concat(
+                    "SELECT CSU_ID, PIDM, GENDER, HISPANIC_LATINO_ETHNICITY_IND, AMERICAN_INDIAN_RACE_IND, ",
+                    "ASIAN_RACE_IND, BLACK_RACE_IND, HAWAIIAN_RACE_IND, WHITE_RACE_IND, MULTI_RACE_IND ",
+                    "FROM CSUBAN.CSUG_GP_DEMO WHERE MULTI_SOURCE = 'CSU'");
+
+            try (final ResultSet rs = stmt.executeQuery(sql)) {
+                while (rs.next()) {
+                    final String csuId = rs.getString("CSU_ID");
+
+                    if (studentIds.contains(csuId)) {
+                        final int pidm = rs.getInt("PIDM");
+                        final String gender = rs.getString("GENDER");
+                        final boolean hispanicLatino = "Y".equals(rs.getString("HISPANIC_LATINO_ETHNICITY_IND"));
+                        final boolean americanIndian = "Y".equals(rs.getString("AMERICAN_INDIAN_RACE_IND"));
+                        final boolean asian = "Y".equals(rs.getString("ASIAN_RACE_IND"));
+                        final boolean black = "Y".equals(rs.getString("BLACK_RACE_IND"));
+                        final boolean hawaiian = "Y".equals(rs.getString("HAWAIIAN_RACE_IND"));
+                        final boolean white = "Y".equals(rs.getString("WHITE_RACE_IND"));
+                        final boolean multi = "Y".equals(rs.getString("MULTI_RACE_IND"));
+
+                        final TempStudentRecord tempRec = new TempStudentRecord(csuId, pidm, gender, hispanicLatino,
+                                americanIndian, asian, black, hawaiian, white, multi);
+                        tempRecords.add(tempRec);
+                    }
+                }
+            }
+        }
+
+        final List<StudentRecord> result = new ArrayList<>(count);
+
+        try (final Statement stmt = bannerConn.createStatement()) {
+
+            // TODO: Query BANNER for fields like program/major and complete the student record
+        }
+
+        return result;
+    }
+
+    /**
      * Main method to execute the batch job.
      *
      * @param args command-line arguments.
@@ -439,10 +574,39 @@ public final class RetrieveLongitudinalData {
         final File dir = new File("C:\\opt\\zircon\\data");
 
         if (dir.exists() || dir.mkdirs()) {
-            final File target = new File(dir, "longitudinal_new.json");
 
-            final String report = job.execute(201000, 202480, target);
-            Log.fine(report);
+            final Set<String> studentIds = new HashSet<>(100000);
+            studentIds.add("823251213");
+
+//            final File studentCourseFile = new File(dir, "student_course.json");
+//            final String studentCourseReport = job.gatherStudentCourseData(201000, 202480, studentCourseFile);
+//            Log.fine(studentCourseReport);
+
+            final File studentFile = new File(dir, "student.json");
+            final String studentReport = job.gatherStudentData(studentIds, studentFile);
+            Log.fine(studentReport);
         }
     }
+
+    /**
+     * A container for partial student data from ODS, until we get complete data from Banner.
+     *
+     * @param studentId                   the student ID
+     * @param pidm                        the PIDM
+     * @param gender                      the gender (M, F, U, or null)
+     * @param hispanicLatino              Indicates if this person has an ethnicity of Hispanic or Latino.
+     * @param americanIndianAlaskanNative Indicates if this person has a race of American Indian or Alaskan Native.
+     * @param asian                       Indicates if this person has a race of Asian.
+     * @param blackAfricanAmerican        Indicates if this person has a race of Black or African American.
+     * @param hawaiianPacificIslander     Indicates if this person has a race of Native Hawaiian and Other Pacific
+     *                                    Islander.
+     * @param white                       Indicates if this person has a race of White.
+     * @param multiRace                   Indicates if this person has more than one race (used for reporting
+     *                                    purposes).
+     */
+    record TempStudentRecord(String studentId, int pidm, String gender, boolean hispanicLatino,
+                             boolean americanIndianAlaskanNative, boolean asian, boolean blackAfricanAmerican,
+                             boolean hawaiianPacificIslander, boolean white, boolean multiRace) {
+    }
 }
+

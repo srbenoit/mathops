@@ -61,51 +61,81 @@ public final class Analysis {
 
         final SequenceSuccess sequenceSuccess = new SequenceSuccess(this.targetDir);
 
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MATH161", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MATH261", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "MATH340", sections, report);
-
         sequenceSuccess.generateReport(201400, records, "MATH160", sections, "BIOM200", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "CS220", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "BZ348", sections, report);
         sequenceSuccess.generateReport(201400, records, "MATH160", sections, "CIVE202", sections, report);
         sequenceSuccess.generateReport(201400, records, "MATH160", sections, "CIVE260", sections, report);
         sequenceSuccess.generateReport(201400, records, "MATH160", sections, "CIVE261", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "CS220", sections, report);
         sequenceSuccess.generateReport(201400, records, "MATH160", sections, "DSCI369", sections, report);
         sequenceSuccess.generateReport(201400, records, "MATH160", sections, "ECE103", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "ENGR102", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "GEOL446", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MATH151", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MATH152", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MATH158", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MATH271", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MATH348", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "BZ348", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MATH161", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MATH230", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MATH235", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MATH261", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MATH301", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MATH317", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MATH331", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MATH360", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MATH366", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MATH369", sections, report);
         sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MECH105", sections, report);
         sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MECH237", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MECH262", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MECH408", sections, report);
         sequenceSuccess.generateReport(201400, records, "MATH160", sections, "PH141", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "PH142", sections, report);
         sequenceSuccess.generateReport(201400, records, "MATH160", sections, "STAT315", sections, report);
-
         sequenceSuccess.generateReport(201400, records, "MATH161", sections, "ECE202", sections, report);
         sequenceSuccess.generateReport(201400, records, "MATH161", sections, "ECE204", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "ECE340", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "CONE201", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "GEOL440", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "GEOL442", sections, report);
         sequenceSuccess.generateReport(201400, records, "MATH161", sections, "GEOL452", sections, report);
+
+        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "CBE210", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "ECE303", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "ENGR337", sections, report);
         sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MATH230", sections, report);
         sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MATH235", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MATH261", sections, report);
         sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MATH301", sections, report);
         sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MATH317", sections, report);
         sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MATH331", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MATH340", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MATH345", sections, report);
         sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MATH360", sections, report);
         sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MATH366", sections, report);
         sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MATH369", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MATH463", sections, report);
         sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MATH469", sections, report);
         sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MECH262", sections, report);
         sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MECH408", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MECH337", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MECH421", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MECH428", sections, report);
         sequenceSuccess.generateReport(201400, records, "MATH161", sections, "PH142", sections, report);
         sequenceSuccess.generateReport(201400, records, "MATH161", sections, "PH245", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "PH314", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "PH327", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "PH353", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "PH361", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "STAT420", sections, report);
+
+        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "CBE210", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "CHEM474", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "DSCI320", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "ECE303", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "ENGR337", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "MATH340", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "MATH345", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "MATH450", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "MATH470", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "MATH474", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "MECH337", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "MECH421", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "MECH428", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "PH314", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "PH327", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "PH353", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "PH361", sections, report);
+        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "STAT420", sections, report);
 
         report.addln();
         report.addln("Job completed");
@@ -174,7 +204,7 @@ public final class Analysis {
     public static void main(final String... args) {
 
         final File dir = new File("C:\\opt\\zircon\\data");
-        final File source = new File(dir, "longitudinal.json");
+        final File source = new File(dir, "student_course.json");
 
         final Analysis job = new Analysis(dir);
 

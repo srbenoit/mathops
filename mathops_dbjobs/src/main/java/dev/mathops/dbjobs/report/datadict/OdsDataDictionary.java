@@ -1,4 +1,4 @@
-package dev.mathops.dbjobs.report.ods;
+package dev.mathops.dbjobs.report.datadict;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
@@ -11,6 +11,9 @@ import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -139,6 +142,18 @@ final class OdsDataDictionary {
 
         final OdsDataDictionary job = new OdsDataDictionary();
 
-        Log.fine(job.execute());
+        final File dir = new File("C:\\opt\\zircon\\data");
+
+        if (dir.exists() || dir.mkdirs()) {
+            final File dataDictFile = new File(dir, "ods_data_dict.txt");
+            final String fileData = job.execute();
+
+            try (final FileWriter fw = new FileWriter(dataDictFile)) {
+                final String dataString = fileData.toString();
+                fw.write(dataString);
+            } catch (final IOException ex) {
+                Log.warning("Failed to write data dictionary JSON file.", ex);
+            }
+        }
     }
 }

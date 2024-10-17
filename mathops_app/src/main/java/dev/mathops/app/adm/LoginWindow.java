@@ -269,8 +269,8 @@ final class LoginWindow extends JFrame implements ActionListener {
         loginBtn.setActionCommand(LOGIN_CMD);
         loginBtn.addActionListener(this);
 
-        final String cancenButtonTxt = Res.get(Res.LOGIN_CANCEL_BTN);
-        final JButton cancelBtn = new JButton(cancenButtonTxt);
+        final String cancelButtonTxt = Res.get(Res.LOGIN_CANCEL_BTN);
+        final JButton cancelBtn = new JButton(cancelButtonTxt);
         cancelBtn.setFont(Skin.BUTTON_13_FONT);
         cancelBtn.setActionCommand(CANCEL_CMD);
         cancelBtn.addActionListener(this);
