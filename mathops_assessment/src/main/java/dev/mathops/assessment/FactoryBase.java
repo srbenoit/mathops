@@ -45,8 +45,11 @@ public enum FactoryBase {
         File file = new File(baseDir, "instruction");
 
         // If we were provided the instruction directory already, use it.
-        if (!file.exists() && (baseDir.getAbsolutePath().endsWith("/instruction")
-                || baseDir.getAbsolutePath().endsWith("\\instruction"))) {
+        if (!file.exists()
+            && (baseDir.getAbsolutePath().endsWith("/instruction")
+                || baseDir.getAbsolutePath().endsWith("\\instruction")
+                || baseDir.getAbsolutePath().endsWith("/Assessment Bank")
+                || baseDir.getAbsolutePath().endsWith("\\Assessment Bank"))) {
             file = baseDir;
         }
 

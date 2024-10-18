@@ -87,7 +87,7 @@ public final class ExamPrinterApp extends ClientBase {
     /** The presented exam the student is to take. */
     private ExamObj exam;
 
-    /** The instruction directory. */
+    /** The directory that contains the 'math' directory. */
     private File instructionDir;
 
     /** The exam XML file. */
@@ -180,7 +180,7 @@ public final class ExamPrinterApp extends ClientBase {
         }
 
         jfc.setFileFilter(new DirectoryFilter());
-        jfc.setDialogTitle(Res.get(Res.FIND_INSTR_PARENT));
+        jfc.setDialogTitle(Res.get(Res.FIND_MATH_PARENT));
         jfc.setAcceptAllFileFilterUsed(false);
         jfc.setMultiSelectionEnabled(false);
         jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -190,13 +190,13 @@ public final class ExamPrinterApp extends ClientBase {
         if (jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
             File baseDir = jfc.getSelectedFile();
 
-            // User may select the instruction folder inadvertently - if so, go up one.
-            if ("instruction".equalsIgnoreCase(baseDir.getName())) {
+            // User may select the math folder inadvertently - if so, go up one.
+            if ("math".equalsIgnoreCase(baseDir.getName())) {
                 baseDir = baseDir.getParentFile();
             }
 
             // Now select an exam:
-            this.instructionDir = new File(baseDir, "instruction");
+            this.instructionDir = baseDir;
             file = new File(this.instructionDir, "math");
             jfc.setCurrentDirectory(file);
             jfc.setFileFilter(new XmlFileFilter());
@@ -246,8 +246,7 @@ public final class ExamPrinterApp extends ClientBase {
                 if (this.exam.ref != null) {
                     final String root = this.exam.refRoot;
 
-                    final InstructionalCache cache =
-                            InstructionalCache.getInstance(this.instructionDir);
+                    final InstructionalCache cache = InstructionalCache.getInstance(this.instructionDir);
 
                     // Now we must add the exam's problems, so it can be realized.
                     final int numSect = this.exam.getNumSections();
@@ -262,7 +261,7 @@ public final class ExamPrinterApp extends ClientBase {
 
                             for (int i = 0; i < num; i++) {
                                 AbstractProblemTemplate prob = eprob.getProblem(i);
-                                String actualRef = prob.id.startsWith(root) ? prob.id : (root + "." + prob.id);
+                                final String actualRef = prob.id.startsWith(root) ? prob.id : (root + "." + prob.id);
                                 prob = cache.retrieveProblem(actualRef);
 
                                 if (prob != null) {
@@ -344,8 +343,7 @@ public final class ExamPrinterApp extends ClientBase {
 
                     if (this.exam.ref != null) {
 
-                        final InstructionalCache cache =
-                                InstructionalCache.getInstance(this.instructionDir);
+                        final InstructionalCache cache = InstructionalCache.getInstance(this.instructionDir);
 
                         // Now we must add the exam's problems, so it can be realized.
                         final int numSect = this.exam.getNumSections();

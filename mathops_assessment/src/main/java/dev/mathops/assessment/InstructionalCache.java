@@ -33,7 +33,7 @@ import java.util.Map;
 public final class InstructionalCache implements InstructionalCacheInt {
 
     /** The singleton instance. */
-    private static InstructionalCache instance;
+    private static InstructionalCache instance = null;
 
     /** Object on which to synchronize member variable access. */
     private final Object synch;
@@ -82,6 +82,8 @@ public final class InstructionalCache implements InstructionalCacheInt {
      */
     public static InstructionalCache getInstance(final File instruction) {
 
+        Log.info("Instructional cache reading from ", instruction.getAbsolutePath());
+
         return new InstructionalCache(instruction);
     }
 
@@ -109,7 +111,10 @@ public final class InstructionalCache implements InstructionalCacheInt {
                     }
                 }
 
-                file = new File(file, "instruction");
+                final File mathFile = new File(file, "math");
+                if (!(mathFile.exists())) {
+                    file = new File(file, "instruction");
+                }
                 Log.info("Instructional cache reading from ", file.getAbsolutePath());
 
                 instance = new InstructionalCache(file);

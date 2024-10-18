@@ -25,7 +25,7 @@ final class Res extends ResBundle {
     static final String WHAT_TO_DO = key(index++);
 
     /** A resource key. */
-    static final String FIND_INSTR_PARENT = key(index++);
+    static final String FIND_MATH_PARENT = key(index++);
 
     /** A resource key. */
     static final String SELECT_EXAM = key(index++);
@@ -146,7 +146,7 @@ final class Res extends ResBundle {
             {SEND_TO_PRINTER, "Send to Printer"},
             {GENERATE_LATEX, "Generate LaTeX"},
             {WHAT_TO_DO, "What would you like to do:"},
-            {FIND_INSTR_PARENT, "Find the folder containing 'instruction'"},
+            {FIND_MATH_PARENT, "Find the folder containing 'math'"},
             {SELECT_EXAM, "Select an Exam"},
             {PRINTING, "Printing Exam..."},
             {GENERATING_LATEX, "Generating LaTeX..."},
