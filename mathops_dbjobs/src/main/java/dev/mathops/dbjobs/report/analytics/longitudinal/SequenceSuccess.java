@@ -141,7 +141,7 @@ final class SequenceSuccess {
      * @param report                   the report
      */
     void generateReport(final int earliestSecondCourseTerm,
-                        final Map<String, List<StudentCourseRecord>> records, final String firstCourse,
+                        final Map<String, List<EnrollmentRecord>> records, final String firstCourse,
                         final Collection<String> firstCourseSections, final String secondCourse,
                         final Collection<String> secondCourseSections, final HtmlBuilder report) {
 
@@ -297,7 +297,7 @@ final class SequenceSuccess {
      * @param secondCourse             the course ID of the second course in the sequence
      * @param secondCourseSections     the list of sections of interest in the second course
      */
-    private void gatherData(final int earliestSecondCourseTerm, final Map<String, List<StudentCourseRecord>> records,
+    private void gatherData(final int earliestSecondCourseTerm, final Map<String, List<EnrollmentRecord>> records,
                             final String firstCourse, final Collection<String> firstCourseSections,
                             final String secondCourse, final Collection<String> secondCourseSections) {
 
@@ -310,16 +310,16 @@ final class SequenceSuccess {
         this.numWithFirstAny = 0;
 
         // Find all students who took the second course locally (one of the sections of interest)
-        for (final Map.Entry<String, List<StudentCourseRecord>> entry : records.entrySet()) {
-            final List<StudentCourseRecord> list = entry.getValue();
+        for (final Map.Entry<String, List<EnrollmentRecord>> entry : records.entrySet()) {
+            final List<EnrollmentRecord> list = entry.getValue();
 
-            final StudentCourseRecord earliestSecond = findEarliestSecond(earliestSecondCourseTerm, list,
+            final EnrollmentRecord earliestSecond = findEarliestSecond(earliestSecondCourseTerm, list,
                     secondCourse, secondCourseSections);
 
             if (earliestSecond != null) {
                 ++this.numWithSecond;
 
-                final StudentCourseRecord latestFirst = findLatestFirstBeforeSecond(earliestSecond, list,
+                final EnrollmentRecord latestFirst = findLatestFirstBeforeSecond(earliestSecond, list,
                         firstCourse, firstCourseSections);
 
                 if (latestFirst != null) {
@@ -337,24 +337,24 @@ final class SequenceSuccess {
                     if (inPriorTerm) {
                         ++this.numWithFirstPrior;
 
-                        final Map<Integer, List<StudentCourseRecord>> targetPrior = selectTargetMap(latestFirst,
+                        final Map<Integer, List<EnrollmentRecord>> targetPrior = selectTargetMap(latestFirst,
                                 this.priorTerm);
 
                         if (targetPrior == null) {
                             Log.warning("Unable to identify target prior-term map for ", latestFirst);
                         } else {
-                            final List<StudentCourseRecord> targetList = targetPrior.get(key);
+                            final List<EnrollmentRecord> targetList = targetPrior.get(key);
                             targetList.add(earliestSecond);
                         }
                     }
 
-                    final Map<Integer, List<StudentCourseRecord>> targetAny = selectTargetMap(latestFirst,
+                    final Map<Integer, List<EnrollmentRecord>> targetAny = selectTargetMap(latestFirst,
                             this.allEarlierTerms);
 
                     if (targetAny == null) {
                         Log.warning("Unable to identify target any-term map for ", latestFirst);
                     } else {
-                        final List<StudentCourseRecord> targetList = targetAny.get(key);
+                        final List<EnrollmentRecord> targetList = targetAny.get(key);
                         targetList.add(earliestSecond);
                     }
                 }
@@ -369,7 +369,7 @@ final class SequenceSuccess {
      * @param second the second course
      * @return true if the first course was taken in the prior term to the second course
      */
-    private static boolean isPriorTerm(final StudentCourseRecord first, final StudentCourseRecord second) {
+    private static boolean isPriorTerm(final EnrollmentRecord first, final EnrollmentRecord second) {
 
         boolean isPrior = false;
 
@@ -411,21 +411,21 @@ final class SequenceSuccess {
      * @param secondCourseSections     the list of sections of interest
      * @return the earliest matching record of the second course found; null if none was found
      */
-    private static StudentCourseRecord findEarliestSecond(final int earliestSecondCourseTerm,
-                                                          final Iterable<StudentCourseRecord> list,
-                                                          final String secondCourse,
-                                                          final Collection<String> secondCourseSections) {
+    private static EnrollmentRecord findEarliestSecond(final int earliestSecondCourseTerm,
+                                                       final Iterable<EnrollmentRecord> list,
+                                                       final String secondCourse,
+                                                       final Collection<String> secondCourseSections) {
 
-        StudentCourseRecord earliestSecond = null;
+        EnrollmentRecord earliestSecond = null;
 
-        for (final StudentCourseRecord rec : list) {
+        for (final EnrollmentRecord rec : list) {
             final int term = rec.academicPeriod();
 
             if (term >= earliestSecondCourseTerm) {
                 final String course = rec.course();
                 final String sect = rec.section();
 
-                if (secondCourse.equals(course) && !rec.transfer() && secondCourseSections.contains(sect)) {
+                if (secondCourse.equals(course) && !rec.isTransfer() && secondCourseSections.contains(sect)) {
                     if (earliestSecond == null) {
                         earliestSecond = rec;
                     } else {
@@ -450,28 +450,28 @@ final class SequenceSuccess {
      * @param firstCourseSections the list of sections of interest
      * @return the latest course record if one was found; null if not
      */
-    private StudentCourseRecord findLatestFirstBeforeSecond(final StudentCourseRecord earliestSecond,
-                                                            final Iterable<StudentCourseRecord> list,
-                                                            final String firstCourse,
-                                                            final Collection<String> firstCourseSections) {
+    private EnrollmentRecord findLatestFirstBeforeSecond(final EnrollmentRecord earliestSecond,
+                                                         final Iterable<EnrollmentRecord> list,
+                                                         final String firstCourse,
+                                                         final Collection<String> firstCourseSections) {
 
         // Identify the year and term when the second course was taken
         final int secondTerm = earliestSecond.academicPeriod();
 
-        StudentCourseRecord latestFirst = null;
+        EnrollmentRecord latestFirst = null;
 
         // Scan the list for the first course, tracking the latest found.
-        for (final StudentCourseRecord rec : list) {
+        for (final EnrollmentRecord rec : list) {
             final String course = rec.course();
             final int term = rec.academicPeriod();
             final String sect = rec.section();
 
             if (firstCourse.equals(course)) {
-                if (rec.apIbClep()) {
+                if (rec.isApIbClep()) {
                     if (term <= secondTerm) {
                         latestFirst = chooseLatest(latestFirst, rec);
                     }
-                } else if (rec.transfer()) {
+                } else if (rec.isTransfer()) {
                     if (rec.gradeValue() != null && term <= secondTerm) {
                         latestFirst = chooseLatest(latestFirst, rec);
                     }
@@ -497,9 +497,9 @@ final class SequenceSuccess {
      * @param test2 the second record
      * @return the latest record
      */
-    private static StudentCourseRecord chooseLatest(final StudentCourseRecord test1, final StudentCourseRecord test2) {
+    private static EnrollmentRecord chooseLatest(final EnrollmentRecord test1, final EnrollmentRecord test2) {
 
-        final StudentCourseRecord result;
+        final EnrollmentRecord result;
 
         if (test1 == null) {
             result = test2;
@@ -516,8 +516,8 @@ final class SequenceSuccess {
             } else {
                 // The two records occur in the same term.
 
-                final boolean ap1 = test1.apIbClep();
-                final boolean ap2 = test2.apIbClep();
+                final boolean ap1 = test1.isApIbClep();
+                final boolean ap2 = test2.isApIbClep();
 
                 if (ap1) {
                     if (ap2) {
@@ -541,8 +541,8 @@ final class SequenceSuccess {
                     result = test2;
                 } else {
                     // Neither is AP/IB/CLEP
-                    final boolean transfer1 = test1.transfer();
-                    final boolean transfer2 = test2.transfer();
+                    final boolean transfer1 = test1.isTransfer();
+                    final boolean transfer2 = test2.isTransfer();
 
                     if (transfer1 && !transfer2) {
                         result = test2;
@@ -577,14 +577,14 @@ final class SequenceSuccess {
      * @param classified     the classified data
      * @return the target map
      */
-    private Map<Integer, List<StudentCourseRecord>> selectTargetMap(final StudentCourseRecord precedingFirst,
-                                                                    final ClassifiedData classified) {
+    private Map<Integer, List<EnrollmentRecord>> selectTargetMap(final EnrollmentRecord precedingFirst,
+                                                                 final ClassifiedData classified) {
 
-        Map<Integer, List<StudentCourseRecord>> target = null;
+        Map<Integer, List<EnrollmentRecord>> target = null;
 
-        if (precedingFirst.apIbClep()) {
+        if (precedingFirst.isApIbClep()) {
             target = classified.ap();
-        } else if (precedingFirst.transfer()) {
+        } else if (precedingFirst.isTransfer()) {
 
             final Double gv = precedingFirst.gradeValue();
             if (gv != null) {
@@ -632,37 +632,37 @@ final class SequenceSuccess {
                                final String firstCourse, final String secondCourse,
                                final ClassifiedData classified) {
 
-        final List<StudentCourseRecord> localAList = classified.localA().get(key);
+        final List<EnrollmentRecord> localAList = classified.localA().get(key);
         final int localACount = localAList.size();
         final String localACountStr = Integer.toString(localACount);
 
-        final List<StudentCourseRecord> localBList = classified.localB().get(key);
+        final List<EnrollmentRecord> localBList = classified.localB().get(key);
         final int localBCount = localBList.size();
         final String localBCountStr = Integer.toString(localBCount);
 
-        final List<StudentCourseRecord> localCList = classified.localCD().get(key);
+        final List<EnrollmentRecord> localCList = classified.localCD().get(key);
         final int localCCount = localCList.size();
         final String localCCountStr = Integer.toString(localCCount);
 
         final int localCount = localACount + localBCount + localCCount;
         final String localCountStr = Integer.toString(localCount);
 
-        final List<StudentCourseRecord> transferAList = classified.transferA().get(key);
+        final List<EnrollmentRecord> transferAList = classified.transferA().get(key);
         final int transferACount = transferAList.size();
         final String transferACountStr = Integer.toString(transferACount);
 
-        final List<StudentCourseRecord> transferBList = classified.transferB().get(key);
+        final List<EnrollmentRecord> transferBList = classified.transferB().get(key);
         final int transferBCount = transferBList.size();
         final String transferBCountStr = Integer.toString(transferBCount);
 
-        final List<StudentCourseRecord> transferCList = classified.transferCD().get(key);
+        final List<EnrollmentRecord> transferCList = classified.transferCD().get(key);
         final int transferCCount = transferCList.size();
         final String transferCCountStr = Integer.toString(transferCCount);
 
         final int transferCount = transferACount + transferBCount + transferCCount;
         final String transferCountStr = Integer.toString(transferCount);
 
-        final List<StudentCourseRecord> apList = classified.ap().get(key);
+        final List<EnrollmentRecord> apList = classified.ap().get(key);
         final int apCount = apList.size();
         final String apCountStr = Integer.toString(apCount);
 
@@ -696,77 +696,77 @@ final class SequenceSuccess {
         double apGrade = 0.0;
 
         if (localAList != null) {
-            for (final StudentCourseRecord rec : localAList) {
+            for (final EnrollmentRecord rec : localAList) {
                 if (rec.gradeValue() != null) {
                     localAGrade += rec.gradeValue().doubleValue();
                     localTotalGrade += rec.gradeValue().doubleValue();
                 }
-                if (rec.passed()) {
+                if (rec.isPassed()) {
                     ++localAPass;
                 }
             }
         }
         if (localBList != null) {
-            for (final StudentCourseRecord rec : localBList) {
+            for (final EnrollmentRecord rec : localBList) {
                 if (rec.gradeValue() != null) {
                     localBGrade += rec.gradeValue().doubleValue();
                     localTotalGrade += rec.gradeValue().doubleValue();
                 }
-                if (rec.passed()) {
+                if (rec.isPassed()) {
                     ++localBPass;
                 }
             }
         }
         if (localCList != null) {
-            for (final StudentCourseRecord rec : localCList) {
+            for (final EnrollmentRecord rec : localCList) {
                 if (rec.gradeValue() != null) {
                     localCGrade += rec.gradeValue().doubleValue();
                     localTotalGrade += rec.gradeValue().doubleValue();
                 }
-                if (rec.passed()) {
+                if (rec.isPassed()) {
                     ++localCPass;
                 }
             }
         }
         if (transferAList != null) {
-            for (final StudentCourseRecord rec : transferAList) {
+            for (final EnrollmentRecord rec : transferAList) {
                 if (rec.gradeValue() != null) {
                     transferAGrade += rec.gradeValue().doubleValue();
                     transferTotalGrade += rec.gradeValue().doubleValue();
                 }
-                if (rec.passed()) {
+                if (rec.isPassed()) {
                     ++transferAPass;
                 }
             }
         }
         if (transferBList != null) {
-            for (final StudentCourseRecord rec : transferBList) {
+            for (final EnrollmentRecord rec : transferBList) {
                 if (rec.gradeValue() != null) {
                     transferBGrade += rec.gradeValue().doubleValue();
                     transferTotalGrade += rec.gradeValue().doubleValue();
                 }
-                if (rec.passed()) {
+                if (rec.isPassed()) {
                     ++transferBPass;
                 }
             }
         }
         if (transferCList != null) {
-            for (final StudentCourseRecord rec : transferCList) {
+            for (final EnrollmentRecord rec : transferCList) {
                 if (rec.gradeValue() != null) {
                     transferCGrade += rec.gradeValue().doubleValue();
                     transferTotalGrade += rec.gradeValue().doubleValue();
                 }
-                if (rec.passed()) {
+                if (rec.isPassed()) {
                     ++transferCPass;
                 }
             }
         }
         if (apList != null) {
-            for (final StudentCourseRecord rec : apList) {
+            for (final EnrollmentRecord rec : apList) {
                 if (rec.gradeValue() != null) {
                     apGrade += rec.gradeValue().doubleValue();
                 }
-                if (rec.passed()) {
+                if (rec.isPassed()) {
                     ++apPass;
                 }
             }
@@ -897,21 +897,21 @@ final class SequenceSuccess {
                                  final Integer key2, final Integer key3, final String firstCourse,
                                  final String secondCourse, final ClassifiedData classified) {
 
-        final List<StudentCourseRecord> localAList = new ArrayList<>(100);
+        final List<EnrollmentRecord> localAList = new ArrayList<>(100);
         localAList.addAll(classified.localA().get(key1));
         localAList.addAll(classified.localA().get(key2));
         localAList.addAll(classified.localA().get(key3));
         final int localACount = localAList.size();
         final String localACountStr = Integer.toString(localACount);
 
-        final List<StudentCourseRecord> localBList = new ArrayList<>(100);
+        final List<EnrollmentRecord> localBList = new ArrayList<>(100);
         localBList.addAll(classified.localB().get(key1));
         localBList.addAll(classified.localB().get(key2));
         localBList.addAll(classified.localB().get(key3));
         final int localBCount = localBList.size();
         final String localBCountStr = Integer.toString(localBCount);
 
-        final List<StudentCourseRecord> localCList = new ArrayList<>(100);
+        final List<EnrollmentRecord> localCList = new ArrayList<>(100);
         localCList.addAll(classified.localCD().get(key1));
         localCList.addAll(classified.localCD().get(key2));
         localCList.addAll(classified.localCD().get(key3));
@@ -921,21 +921,21 @@ final class SequenceSuccess {
         final int localCount = localACount + localBCount + localCCount;
         final String localCountStr = Integer.toString(localCount);
 
-        final List<StudentCourseRecord> transferAList = new ArrayList<>(100);
+        final List<EnrollmentRecord> transferAList = new ArrayList<>(100);
         transferAList.addAll(classified.transferA().get(key1));
         transferAList.addAll(classified.transferA().get(key2));
         transferAList.addAll(classified.transferA().get(key3));
         final int transferACount = transferAList.size();
         final String transferACountStr = Integer.toString(transferACount);
 
-        final List<StudentCourseRecord> transferBList = new ArrayList<>(100);
+        final List<dev.mathops.dbjobs.report.analytics.longitudinal.EnrollmentRecord> transferBList = new ArrayList<>(100);
         transferBList.addAll(classified.transferB().get(key1));
         transferBList.addAll(classified.transferB().get(key2));
         transferBList.addAll(classified.transferB().get(key3));
         final int transferBCount = transferBList.size();
         final String transferBCountStr = Integer.toString(transferBCount);
 
-        final List<StudentCourseRecord> transferCList = new ArrayList<>(100);
+        final List<EnrollmentRecord> transferCList = new ArrayList<>(100);
         transferCList.addAll(classified.transferCD().get(key1));
         transferCList.addAll(classified.transferCD().get(key2));
         transferCList.addAll(classified.transferCD().get(key3));
@@ -945,7 +945,7 @@ final class SequenceSuccess {
         final int transferCount = transferACount + transferBCount + transferCCount;
         final String transferCountStr = Integer.toString(transferCount);
 
-        final List<StudentCourseRecord> apList = new ArrayList<>(100);
+        final List<EnrollmentRecord> apList = new ArrayList<>(100);
         apList.addAll(classified.ap().get(key1));
         apList.addAll(classified.ap().get(key2));
         apList.addAll(classified.ap().get(key3));
@@ -982,77 +982,77 @@ final class SequenceSuccess {
         double apGrade = 0.0;
 
         if (localAList != null) {
-            for (final StudentCourseRecord rec : localAList) {
+            for (final EnrollmentRecord rec : localAList) {
                 if (rec.gradeValue() != null) {
                     localAGrade += rec.gradeValue().doubleValue();
                     localTotalGrade += rec.gradeValue().doubleValue();
                 }
-                if (rec.passed()) {
+                if (rec.isPassed()) {
                     ++localAPass;
                 }
             }
         }
         if (localBList != null) {
-            for (final StudentCourseRecord rec : localBList) {
+            for (final EnrollmentRecord rec : localBList) {
                 if (rec.gradeValue() != null) {
                     localBGrade += rec.gradeValue().doubleValue();
                     localTotalGrade += rec.gradeValue().doubleValue();
                 }
-                if (rec.passed()) {
+                if (rec.isPassed()) {
                     ++localBPass;
                 }
             }
         }
         if (localCList != null) {
-            for (final StudentCourseRecord rec : localCList) {
+            for (final EnrollmentRecord rec : localCList) {
                 if (rec.gradeValue() != null) {
                     localCGrade += rec.gradeValue().doubleValue();
                     localTotalGrade += rec.gradeValue().doubleValue();
                 }
-                if (rec.passed()) {
+                if (rec.isPassed()) {
                     ++localCPass;
                 }
             }
         }
         if (transferAList != null) {
-            for (final StudentCourseRecord rec : transferAList) {
+            for (final EnrollmentRecord rec : transferAList) {
                 if (rec.gradeValue() != null) {
                     transferAGrade += rec.gradeValue().doubleValue();
                     transferTotalGrade += rec.gradeValue().doubleValue();
                 }
-                if (rec.passed()) {
+                if (rec.isPassed()) {
                     ++transferAPass;
                 }
             }
         }
         if (transferBList != null) {
-            for (final StudentCourseRecord rec : transferBList) {
+            for (final EnrollmentRecord rec : transferBList) {
                 if (rec.gradeValue() != null) {
                     transferBGrade += rec.gradeValue().doubleValue();
                     transferTotalGrade += rec.gradeValue().doubleValue();
                 }
-                if (rec.passed()) {
+                if (rec.isPassed()) {
                     ++transferBPass;
                 }
             }
         }
         if (transferCList != null) {
-            for (final StudentCourseRecord rec : transferCList) {
+            for (final EnrollmentRecord rec : transferCList) {
                 if (rec.gradeValue() != null) {
                     transferCGrade += rec.gradeValue().doubleValue();
                     transferTotalGrade += rec.gradeValue().doubleValue();
                 }
-                if (rec.passed()) {
+                if (rec.isPassed()) {
                     ++transferCPass;
                 }
             }
         }
         if (apList != null) {
-            for (final StudentCourseRecord rec : apList) {
+            for (final EnrollmentRecord rec : apList) {
                 if (rec.gradeValue() != null) {
                     apGrade += rec.gradeValue().doubleValue();
                 }
-                if (rec.passed()) {
+                if (rec.isPassed()) {
                     ++apPass;
                 }
             }

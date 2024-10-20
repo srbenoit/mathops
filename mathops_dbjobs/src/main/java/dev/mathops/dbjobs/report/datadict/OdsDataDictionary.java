@@ -14,6 +14,7 @@ import dev.mathops.db.old.cfg.ESchemaUse;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -96,37 +97,33 @@ final class OdsDataDictionary {
     private static void queryOdsFields(final DbConnection conn, final Collection<? super String> report)
             throws SQLException {
 
-        String curTable = CoreConstants.EMPTY;
-//        final Collection<String> tableNames = new ArrayList<>(100);
+        report.add("Querying ODS database metadata...");
+        report.add(CoreConstants.EMPTY);
 
-        try (final Statement stmt = conn.createStatement()) {
-            final String sql2 = "SELECT OWNER, TABLE_NAME, COLUMN_NAME, DATA_TYPE, DATA_LENGTH, COLUMN_DESCRIPTION "
-                    + "FROM CSU_BI_META.CSU_REPORTING_DATA_FIELDS "
-                    + "ORDER BY OWNER, TABLE_NAME, COLUMN_SEQ_NUM";
+        final DatabaseMetaData metadata = conn.getConnection().getMetaData();
 
-            try (final ResultSet rs = stmt.executeQuery(sql2)) {
-                while (rs.next()) {
-                    final String tableName = rs.getString("TABLE_NAME");
-                    if (!tableName.equals(curTable)) {
-                        final String owner = rs.getString("OWNER");
-                        report.add(SimpleBuilder.concat("TABLE: ", owner, ".", tableName));
-                        curTable = tableName;
-//                        tableNames.add(tableName);
-                    }
+        try (final ResultSet tables = metadata.getTables(null, null, null, null)) {
+            while (tables.next()) {
+                final String schema = tables.getString("TABLE_SCHEM");
+                final String name = tables.getString("TABLE_NAME");
 
-                    final String colName = rs.getString("COLUMN_NAME");
-                    final String type = rs.getString("DATA_TYPE");
-                    final String length = rs.getString("DATA_LENGTH");
-                    final String descr = rs.getString("COLUMN_DESCRIPTION");
+                if (name.indexOf('/') > 0) {
+                    Log.warning("Skipping table: ", name);
+                    continue;
+                }
 
-                    if (length == null || length.isBlank()) {
-                        report.add(SimpleBuilder.concat("    ", colName, " [", type, "]"));
-                    } else {
-                        report.add(SimpleBuilder.concat("    ", colName, " [", type, "(", length, ")]"));
-                    }
+                report.add(SimpleBuilder.concat("SCHEMA.TABLE: '", schema, ".", name, "'"));
 
-                    if (descr != null && !descr.isBlank()) {
-                        report.add(SimpleBuilder.concat("      ", descr));
+                try (final ResultSet columns = metadata.getColumns(null, schema, name, null)) {
+                    while (columns.next()) {
+                        final String colname = columns.getString("COLUMN_NAME");
+                        final String coltype = columns.getString("TYPE_NAME");
+                        final String size = columns.getString("COLUMN_SIZE");
+                        if (size == null) {
+                            report.add(SimpleBuilder.concat("    ", colname, " (", coltype, ")"));
+                        } else {
+                            report.add(SimpleBuilder.concat("    ", colname, " (", coltype, "[", size, "])"));
+                        }
                     }
                 }
             }

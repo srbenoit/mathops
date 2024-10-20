@@ -1,15 +1,10 @@
 package dev.mathops.dbjobs.report.analytics.longitudinal;
 
 import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.ParsingException;
-import dev.mathops.commons.parser.json.JSONObject;
-import dev.mathops.commons.parser.json.JSONParser;
+import dev.mathops.dbjobs.report.analytics.longitudinal.datacollection.FetchEnrollmentData;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,10 +29,10 @@ public final class Analysis {
     /**
      * Executes the job.
      *
-     * @param source the file with source data
+     * @param enrollments the file with enrollments data
      * @return the report
      */
-    public String execute(final File source) {
+    public String execute(final File enrollments) {
 
         final HtmlBuilder report = new HtmlBuilder(10000);
 
@@ -57,7 +52,7 @@ public final class Analysis {
                 "121", "122", "123", "124", "125", "126", "127", "128", "129", "130",
                 "131", "132", "133", "134", "135", "136", "137", "138", "139", "140");
 
-        final Map<String, List<StudentCourseRecord>> records = load(source, report);
+        final Map<String, List<EnrollmentRecord>> records = FetchEnrollmentData.load(enrollments);
 
         final SequenceSuccess sequenceSuccess = new SequenceSuccess(this.targetDir);
 
@@ -144,59 +139,6 @@ public final class Analysis {
     }
 
     /**
-     * Queries transfer records from the ODS for the Spring semester.
-     *
-     * @param source the file with source data
-     * @param report a list to which to add report lines
-     * @return a map from student ID to the list of student course records for that student
-     */
-    private static Map<String, List<StudentCourseRecord>> load(final File source, final HtmlBuilder report) {
-
-        Map<String, List<StudentCourseRecord>> result = null;
-
-        final String data = FileLoader.loadFileAsString(source, true);
-        if (data != null) {
-            try {
-                final Object parsed = JSONParser.parseJSON(data);
-
-                if (parsed instanceof final Object[] array) {
-                    final String arrayLenStr = Integer.toString(array.length);
-                    report.addln("    Loaded ", arrayLenStr, " records from JSON file");
-                    result = new HashMap<>(100000);
-
-                    try {
-                        for (final Object obj : array) {
-                            if (obj instanceof final JSONObject json) {
-                                final StudentCourseRecord rec = StudentCourseRecord.parse(json);
-                                final String stuId = rec.studentId();
-
-                                final List<StudentCourseRecord> list = result.computeIfAbsent(stuId,
-                                        s -> new ArrayList<>(50));
-                                list.add(rec);
-                            } else {
-                                report.addln("    Row in JSON file is not JSON object.");
-                            }
-                        }
-
-                        final int numStudents = result.size();
-                        final String numStudentsStr = Integer.toString(numStudents);
-                        report.addln("    Loaded data for ", numStudentsStr, " students");
-                    } catch (final IllegalArgumentException ex) {
-                        report.addln("    Unable to interpret a record in the JSON file.");
-                    }
-                } else {
-                    report.addln("    Unable to interpret JSON file.");
-                }
-            } catch (final ParsingException ex) {
-                report.addln("    Unable to load JSON file.");
-                Log.warning("Failed to parse", ex);
-            }
-        }
-
-        return result;
-    }
-
-    /**
      * Main method to execute the batch job.
      *
      * @param args command-line arguments.
@@ -204,11 +146,11 @@ public final class Analysis {
     public static void main(final String... args) {
 
         final File dir = new File("C:\\opt\\zircon\\data");
-        final File source = new File(dir, "student_course.json");
+        final File enrollments = new File(dir, "enrollments.json");
 
         final Analysis job = new Analysis(dir);
 
-        Log.fine(job.execute(source));
+        Log.fine(job.execute(enrollments));
     }
 
 }
