@@ -10,7 +10,7 @@ import dev.mathops.commons.parser.json.JSONObject;
  * @param gender    the gender
  * @param ethnicity flags indicating student's ethnicity
  */
-public record StudentRecord(String studentId, String gender, int ethnicity) {
+public record StudentRec(String studentId, String gender, int ethnicity) {
 
     /** Flag whose presence indicates student has Hispanic/Latino ethnicity. */
     public static final int HISPANIC_LATINO = 0x0001;
@@ -110,7 +110,7 @@ public record StudentRecord(String studentId, String gender, int ethnicity) {
      * @return the parsed record
      * @throws IllegalArgumentException if the object could not be interpreted
      */
-    static StudentRecord parse(final JSONObject json) {
+    static StudentRec parse(final JSONObject json) {
 
         final String id = json.getStringProperty("i");
         final String gender = json.getStringProperty("g");
@@ -119,7 +119,7 @@ public record StudentRecord(String studentId, String gender, int ethnicity) {
         final double ethnicityDbl = ethnicity == null ? 0.0 : ethnicity.doubleValue();
         final int ethnicityInt = (int) Math.round(ethnicityDbl);
 
-        return new StudentRecord(id, gender, ethnicityInt);
+        return new StudentRec(id, gender, ethnicityInt);
 
     }
 

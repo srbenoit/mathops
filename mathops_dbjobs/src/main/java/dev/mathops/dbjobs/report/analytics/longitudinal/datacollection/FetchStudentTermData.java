@@ -2,9 +2,13 @@ package dev.mathops.dbjobs.report.analytics.longitudinal.datacollection;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.builder.SimpleBuilder;
+import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
+import dev.mathops.commons.parser.ParsingException;
+import dev.mathops.commons.parser.json.JSONObject;
+import dev.mathops.commons.parser.json.JSONParser;
 import dev.mathops.db.DbConnection;
-import dev.mathops.dbjobs.report.analytics.longitudinal.StudentTermRecord;
+import dev.mathops.dbjobs.report.analytics.longitudinal.StudentTermRec;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -13,6 +17,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +25,7 @@ import java.util.Map;
  * This class retrieves data from the ODS and stores it in a local file so we can load and process it without having to
  * do a lengthy ODS query each time.
  */
-enum FetchStudentTermData {
+public enum FetchStudentTermData {
     ;
 
     /**
@@ -39,13 +44,13 @@ enum FetchStudentTermData {
 
         Log.fine("Gathering student term data.");
 
-        final List<StudentTermRecord> studentTermRecords = collectStudentTerms(odsConn, startAcademicPeriod,
+        final List<StudentTermRec> studentTermRecords = collectStudentTerms(odsConn, startAcademicPeriod,
                 endAcademicPeriod, map);
 
         final HtmlBuilder fileData = new HtmlBuilder(100000);
         fileData.addln("[");
         boolean comma = false;
-        for (final StudentTermRecord rec : studentTermRecords) {
+        for (final StudentTermRec rec : studentTermRecords) {
             if (comma) {
                 fileData.addln(",");
             }
@@ -79,16 +84,16 @@ enum FetchStudentTermData {
      * @return a list of student term records
      * @throws SQLException if there is an error performing the query
      */
-    private static List<StudentTermRecord> collectStudentTerms(final DbConnection odsConn,
-                                                               final int startAcademicPeriod,
-                                                               final int endAcademicPeriod,
-                                                               final Map<String, ? extends List<Integer>> map)
+    private static List<StudentTermRec> collectStudentTerms(final DbConnection odsConn,
+                                                            final int startAcademicPeriod,
+                                                            final int endAcademicPeriod,
+                                                            final Map<String, ? extends List<Integer>> map)
             throws SQLException {
 
         final String startStr = Integer.toString(startAcademicPeriod);
         final String endStr = Integer.toString(endAcademicPeriod);
 
-        final List<StudentTermRecord> result = new ArrayList<>(10000);
+        final List<StudentTermRec> result = new ArrayList<>(10000);
 
         // TABLE: 'CSUBAN.CSUS_ENROLL_TERM_SUMMARY_AH'
         //        PIDM (NUMBER[0])
@@ -178,7 +183,7 @@ enum FetchStudentTermData {
                             final String program = rs.getString("PROGRAM_OF_STUDY");
                             final String level = rs.getString("STUDENT_LEVEL");
 
-                            final StudentTermRecord rec = new StudentTermRecord(studentId, term,
+                            final StudentTermRec rec = new StudentTermRec(studentId, term,
                                     college, department, major, program, level);
                             result.add(rec);
                         }
@@ -188,6 +193,58 @@ enum FetchStudentTermData {
                 return result;
             }
         }
+    }
+
+    /**
+     * Loads the file of student term records and stores the results in a map.
+     *
+     * @param source the file with source data
+     * @return a map from student ID to the list of all student term records for that student
+     */
+    public static Map<String, List<StudentTermRec>> load(final File source) {
+
+        Map<String, List<StudentTermRec>> result = null;
+
+        final String data = FileLoader.loadFileAsString(source, true);
+
+        if (data != null) {
+            try {
+                final Object parsed = JSONParser.parseJSON(data);
+
+                if (parsed instanceof final Object[] array) {
+                    final String arrayLenStr = Integer.toString(array.length);
+                    Log.fine("    Loaded ", arrayLenStr, " student term records from JSON file");
+                    result = new HashMap<>(100000);
+
+                    try {
+                        for (final Object obj : array) {
+                            if (obj instanceof final JSONObject json) {
+                                final StudentTermRec rec = StudentTermRec.parse(json);
+                                final String stuId = rec.studentId();
+
+                                final List<StudentTermRec> list = result.computeIfAbsent(stuId,
+                                        s -> new ArrayList<>(10));
+                                list.add(rec);
+                            } else {
+                                Log.warning("    Row in student term JSON file is not JSON object.");
+                            }
+                        }
+
+                        final int numStudents = result.size();
+                        final String numStudentsStr = Integer.toString(numStudents);
+                        Log.fine("    Loaded student term data for ", numStudentsStr, " students");
+                    } catch (final IllegalArgumentException ex) {
+                        Log.warning("    Unable to interpret a student term record in the JSON file.", ex);
+                    }
+                } else {
+                    Log.warning("    Unable to interpret student term JSON file.");
+                }
+            } catch (final ParsingException ex) {
+                Log.warning("    Unable to load student term JSON file.", ex);
+            }
+        }
+
+        return result;
     }
 }
 

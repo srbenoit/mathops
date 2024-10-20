@@ -14,8 +14,8 @@ import dev.mathops.commons.parser.json.JSONObject;
  * @param program        the student's program of study
  * @param level          the student's level
  */
-public record StudentTermRecord(String studentId, int academicPeriod, String college, String department, String major,
-                         String program, String level) {
+public record StudentTermRec(String studentId, int academicPeriod, String college, String department, String major,
+                             String program, String level) {
 
     /**
      * Attempts to parse a {@code StudentTermRecord} from a JSON object.
@@ -24,7 +24,7 @@ public record StudentTermRecord(String studentId, int academicPeriod, String col
      * @return the parsed record
      * @throws IllegalArgumentException if the object could not be interpreted
      */
-    static StudentTermRecord parse(final JSONObject json) {
+    public static StudentTermRec parse(final JSONObject json) {
 
         final String id = json.getStringProperty("i");
         final Double pe = json.getNumberProperty("p");
@@ -36,7 +36,7 @@ public record StudentTermRecord(String studentId, int academicPeriod, String col
 
         final int peInt = pe == null ? 0 : pe.intValue();
 
-        return new StudentTermRecord(id, peInt, co, de, ma, pr, lv);
+        return new StudentTermRec(id, peInt, co, de, ma, pr, lv);
     }
 
     /**

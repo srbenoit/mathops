@@ -8,7 +8,7 @@ import dev.mathops.commons.parser.ParsingException;
 import dev.mathops.commons.parser.json.JSONObject;
 import dev.mathops.commons.parser.json.JSONParser;
 import dev.mathops.db.DbConnection;
-import dev.mathops.dbjobs.report.analytics.longitudinal.EnrollmentRecord;
+import dev.mathops.dbjobs.report.analytics.longitudinal.EnrollmentRec;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -43,14 +43,14 @@ public enum FetchEnrollmentData {
 
         Log.fine("Gathering enrollment data.");
 
-        final List<EnrollmentRecord> enrollmentRecords = collectEnrollments(odsConn, startAcademicPeriod,
+        final List<EnrollmentRec> enrollmentRecords = collectEnrollments(odsConn, startAcademicPeriod,
                 endAcademicPeriod, map);
 
         Log.fine("Building enrollment dat file.");
         final HtmlBuilder fileData = new HtmlBuilder(100000);
         fileData.addln("[");
         boolean comma = false;
-        for (final EnrollmentRecord rec : enrollmentRecords) {
+        for (final EnrollmentRec rec : enrollmentRecords) {
             if (comma) {
                 fileData.addln(",");
             }
@@ -84,16 +84,16 @@ public enum FetchEnrollmentData {
      * @return a list of student course records
      * @throws SQLException if there is an error performing the query
      */
-    private static List<EnrollmentRecord> collectEnrollments(final DbConnection odsConn,
-                                                             final int startAcademicPeriod,
-                                                             final int endAcademicPeriod,
-                                                             final Map<? super String, List<Integer>> map)
+    private static List<EnrollmentRec> collectEnrollments(final DbConnection odsConn,
+                                                          final int startAcademicPeriod,
+                                                          final int endAcademicPeriod,
+                                                          final Map<? super String, List<Integer>> map)
             throws SQLException {
 
         final String startStr = Integer.toString(startAcademicPeriod);
         final String endStr = Integer.toString(endAcademicPeriod);
 
-        final List<EnrollmentRecord> result = new ArrayList<>(10000);
+        final List<EnrollmentRec> result = new ArrayList<>(10000);
 
         int numAp = 0;
         int numTransfer = 0;
@@ -394,15 +394,15 @@ public enum FetchEnrollmentData {
                     }
 
                     if (valid) {
-                        final int flags = (transfer ? EnrollmentRecord.TRANSFER : 0)
-                                          + (isApIbClep ? EnrollmentRecord.AP_IB_CLEP : 0)
-                                          + (attempted ? EnrollmentRecord.ATTEMPTED : 0)
-                                          + (withdrawn ? EnrollmentRecord.WITHDRAWN : 0)
-                                          + (passed ? EnrollmentRecord.PASSED : 0)
-                                          + (failed ? EnrollmentRecord.FAILED : 0)
-                                          + (gradable ? EnrollmentRecord.GRADABLE : 0);
+                        final int flags = (transfer ? EnrollmentRec.TRANSFER : 0)
+                                          + (isApIbClep ? EnrollmentRec.AP_IB_CLEP : 0)
+                                          + (attempted ? EnrollmentRec.ATTEMPTED : 0)
+                                          + (withdrawn ? EnrollmentRec.WITHDRAWN : 0)
+                                          + (passed ? EnrollmentRec.PASSED : 0)
+                                          + (failed ? EnrollmentRec.FAILED : 0)
+                                          + (gradable ? EnrollmentRec.GRADABLE : 0);
 
-                        final EnrollmentRecord rec = new EnrollmentRecord(studentId, academicPeriod, course, section,
+                        final EnrollmentRec rec = new EnrollmentRec(studentId, academicPeriod, course, section,
                                 flags, grade, gradeValue);
                         result.add(rec);
 
@@ -438,9 +438,9 @@ public enum FetchEnrollmentData {
      * @param source the file with source data
      * @return a map from student ID to the list of all enrollments for that student
      */
-    public static Map<String, List<EnrollmentRecord>> load(final File source) {
+    public static Map<String, List<EnrollmentRec>> load(final File source) {
 
-        Map<String, List<EnrollmentRecord>> result = null;
+        Map<String, List<EnrollmentRec>> result = null;
 
         final String data = FileLoader.loadFileAsString(source, true);
 
@@ -450,34 +450,34 @@ public enum FetchEnrollmentData {
 
                 if (parsed instanceof final Object[] array) {
                     final String arrayLenStr = Integer.toString(array.length);
-                    Log.fine("    Loaded ", arrayLenStr, " records from JSON file");
+                    Log.fine("    Loaded ", arrayLenStr, " enrollment records from JSON file");
                     result = new HashMap<>(100000);
 
                     try {
                         for (final Object obj : array) {
                             if (obj instanceof final JSONObject json) {
-                                final EnrollmentRecord rec = EnrollmentRecord.parse(json);
+                                final EnrollmentRec rec = EnrollmentRec.parse(json);
                                 final String stuId = rec.studentId();
 
-                                final List<EnrollmentRecord> list = result.computeIfAbsent(stuId,
+                                final List<EnrollmentRec> list = result.computeIfAbsent(stuId,
                                         s -> new ArrayList<>(50));
                                 list.add(rec);
                             } else {
-                                Log.warning("    Row in JSON file is not JSON object.");
+                                Log.warning("    Row in enrollment JSON file is not JSON object.");
                             }
                         }
 
                         final int numStudents = result.size();
                         final String numStudentsStr = Integer.toString(numStudents);
-                        Log.fine("    Loaded data for ", numStudentsStr, " students");
+                        Log.fine("    Loaded enrollment data for ", numStudentsStr, " students");
                     } catch (final IllegalArgumentException ex) {
-                        Log.warning("    Unable to interpret a record in the JSON file.", ex);
+                        Log.warning("    Unable to interpret an enrollment record in the JSON file.", ex);
                     }
                 } else {
-                    Log.warning("    Unable to interpret JSON file.");
+                    Log.warning("    Unable to interpret enrollment JSON file.");
                 }
             } catch (final ParsingException ex) {
-                Log.warning("    Unable to load JSON file.", ex);
+                Log.warning("    Unable to load enrollment JSON file.", ex);
             }
         }
 

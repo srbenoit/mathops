@@ -4,8 +4,7 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.DbConnection;
-import dev.mathops.dbjobs.report.analytics.longitudinal.EnrollmentRecord;
-import dev.mathops.dbjobs.report.analytics.longitudinal.StudentRecord;
+import dev.mathops.dbjobs.report.analytics.longitudinal.StudentRec;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -37,12 +36,12 @@ enum FetchStudentData {
 
         Log.fine("Gathering student data.");
 
-        final List<StudentRecord> studentRecords = collectStudents(odsConn, studentIds);
+        final List<StudentRec> studentRecords = collectStudents(odsConn, studentIds);
 
         final HtmlBuilder fileData = new HtmlBuilder(100000);
         fileData.addln("[");
         boolean comma = false;
-        for (final StudentRecord rec : studentRecords) {
+        for (final StudentRec rec : studentRecords) {
             if (comma) {
                 fileData.addln(",");
             }
@@ -74,11 +73,11 @@ enum FetchStudentData {
      * @return a list of student records
      * @throws SQLException if there is an error performing the query
      */
-    private static List<StudentRecord> collectStudents(final DbConnection odsConn, final Set<String> studentIds)
+    private static List<StudentRec> collectStudents(final DbConnection odsConn, final Set<String> studentIds)
             throws SQLException {
 
         final int count = studentIds.size();
-        final List<StudentRecord> result = new ArrayList<>(count);
+        final List<StudentRec> result = new ArrayList<>(count);
 
         // TABLE: 'CSUBAN.CSUG_GP_DEMO'
         //     *  CSU_ID (VARCHAR2[63])
@@ -148,15 +147,15 @@ enum FetchStudentData {
                         final boolean white = "Y".equals(rs.getString("WHITE_RACE_IND"));
                         final boolean multi = "Y".equals(rs.getString("MULTI_RACE_IND"));
 
-                        final int ethnicity = (hispanic ? StudentRecord.HISPANIC_LATINO : 0)
-                                              + (amerIndian ? StudentRecord.AMERICAN_INDIAN : 0)
-                                              + (asian ? StudentRecord.ASIAN : 0)
-                                              + (black ? StudentRecord.BLACK : 0)
-                                              + (hawaiian ? StudentRecord.HAWAIIAN : 0)
-                                              + (white ? StudentRecord.WHITE : 0)
-                                              + (multi ? StudentRecord.MULTI : 0);
+                        final int ethnicity = (hispanic ? StudentRec.HISPANIC_LATINO : 0)
+                                              + (amerIndian ? StudentRec.AMERICAN_INDIAN : 0)
+                                              + (asian ? StudentRec.ASIAN : 0)
+                                              + (black ? StudentRec.BLACK : 0)
+                                              + (hawaiian ? StudentRec.HAWAIIAN : 0)
+                                              + (white ? StudentRec.WHITE : 0)
+                                              + (multi ? StudentRec.MULTI : 0);
 
-                        final StudentRecord rec = new StudentRecord(csuId, gender, ethnicity);
+                        final StudentRec rec = new StudentRec(csuId, gender, ethnicity);
                         result.add(rec);
                     }
                 }

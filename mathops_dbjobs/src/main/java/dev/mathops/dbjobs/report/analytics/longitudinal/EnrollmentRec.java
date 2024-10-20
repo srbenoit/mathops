@@ -14,8 +14,8 @@ import dev.mathops.commons.parser.json.JSONObject;
  * @param grade          the student's final grade (null if no grade earned)
  * @param gradeValue     the numerical grade value on a 4.0 point scale (null if no grade earned)
  */
-public record EnrollmentRecord(String studentId, int academicPeriod, String course, String section,
-                               int flags, String grade, Double gradeValue) {
+public record EnrollmentRec(String studentId, int academicPeriod, String course, String section,
+                            int flags, String grade, Double gradeValue) {
 
     /** Flag whose presence indicates this is transfer credit. */
     public static final int TRANSFER = 0x0001;
@@ -114,7 +114,7 @@ public record EnrollmentRecord(String studentId, int academicPeriod, String cour
      * @return the parsed record
      * @throws IllegalArgumentException if the object could not be interpreted
      */
-    public static EnrollmentRecord parse(final JSONObject json) {
+    public static EnrollmentRec parse(final JSONObject json) {
 
         final String id = json.getStringProperty("i");
         final Double pe = json.getNumberProperty("p");
@@ -130,7 +130,7 @@ public record EnrollmentRecord(String studentId, int academicPeriod, String cour
         final double flDbl = fl == null ? 0.0 : fl.doubleValue();
         final int flInt = (int) Math.round(flDbl);
 
-        return new EnrollmentRecord(id, peInt, co, se, flInt, gr, gv);
+        return new EnrollmentRec(id, peInt, co, se, flInt, gr, gv);
     }
 
     /**

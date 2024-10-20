@@ -16,25 +16,25 @@ public final class ClassifiedData {
     private static final int INIT_SIZE = 20;
 
     /** Map from term to the list of second-course rows for students who passed first course locally with an A. */
-    private final Map<Integer, List<EnrollmentRecord>> localA;
+    private final Map<Integer, List<EnrollmentRec>> localA;
 
     /** Map from term to the list of second-course rows for students who passed first course locally with a B. */
-    private final Map<Integer, List<EnrollmentRecord>> localB;
+    private final Map<Integer, List<EnrollmentRec>> localB;
 
     /** Map from term to the list of second-course rows for students who passed first course locally with a C or D. */
-    private final Map<Integer, List<EnrollmentRecord>> localCD;
+    private final Map<Integer, List<EnrollmentRec>> localCD;
 
     /** Map from term to the list of second-course rows for students who transferred first course with an A. */
-    private final Map<Integer, List<EnrollmentRecord>> transferA;
+    private final Map<Integer, List<EnrollmentRec>> transferA;
 
     /** Map from term to the list of second-course rows for students who transferred first course with a B. */
-    private final Map<Integer, List<EnrollmentRecord>> transferB;
+    private final Map<Integer, List<EnrollmentRec>> transferB;
 
     /** Map from term to the list of second-course rows for students who transferred first course with a C or D. */
-    private final Map<Integer, List<EnrollmentRecord>> transferCD;
+    private final Map<Integer, List<EnrollmentRec>> transferCD;
 
     /** Map from term to the list of second-course rows for students who passed first course via AP/IB/CLEP. */
-    private final Map<Integer, List<EnrollmentRecord>> ap;
+    private final Map<Integer, List<EnrollmentRec>> ap;
 
     /**
      * Constructs a new {@code ClassifiedData}.
@@ -82,43 +82,43 @@ public final class ClassifiedData {
 
 
     /** Map from term to the list of second-course rows for students who passed first course locally with an A. */
-    Map<Integer, List<EnrollmentRecord>> localA() {
+    Map<Integer, List<EnrollmentRec>> localA() {
 
         return this.localA;
     }
 
     /** Map from term to the list of second-course rows for students who passed first course locally with a B. */
-    Map<Integer, List<EnrollmentRecord>> localB() {
+    Map<Integer, List<EnrollmentRec>> localB() {
 
         return this.localB;
     }
 
     /** Map from term to the list of second-course rows for students who passed first course locally with a C or D. */
-    Map<Integer, List<EnrollmentRecord>> localCD() {
+    Map<Integer, List<EnrollmentRec>> localCD() {
 
         return this.localCD;
     }
 
     /** Map from term to the list of second-course rows for students who transferred first course with an A. */
-    Map<Integer, List<EnrollmentRecord>> transferA() {
+    Map<Integer, List<EnrollmentRec>> transferA() {
 
         return this.transferA;
     }
 
     /** Map from term to the list of second-course rows for students who transferred first course with a B. */
-    Map<Integer, List<EnrollmentRecord>> transferB() {
+    Map<Integer, List<EnrollmentRec>> transferB() {
 
         return this.transferB;
     }
 
     /** Map from term to the list of second-course rows for students who transferred first course with a C or D. */
-    Map<Integer, List<EnrollmentRecord>> transferCD() {
+    Map<Integer, List<EnrollmentRec>> transferCD() {
 
         return this.transferCD;
     }
 
     /** Map from term to the list of second-course rows for students who passed first course via AP/IB/CLEP. */
-    Map<Integer, List<EnrollmentRecord>> ap() {
+    Map<Integer, List<EnrollmentRec>> ap() {
 
         return this.ap;
     }

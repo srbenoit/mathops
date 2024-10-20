@@ -1,8 +1,8 @@
 package dev.mathops.dbjobs.report.analytics.longitudinal;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.dbjobs.report.analytics.longitudinal.datacollection.FetchEnrollmentData;
+import dev.mathops.dbjobs.report.analytics.longitudinal.datacollection.FetchStudentTermData;
 
 import java.io.File;
 import java.util.List;
@@ -29,14 +29,15 @@ public final class Analysis {
     /**
      * Executes the job.
      *
-     * @param enrollments the file with enrollments data
-     * @return the report
+     * @param enrollmentsFile  the file with enrollments data
+     * @param studentTermsFile the file with student term data
      */
-    public String execute(final File enrollments) {
+    public void execute(final File enrollmentsFile, final File studentTermsFile) {
 
-        final HtmlBuilder report = new HtmlBuilder(10000);
+        Log.fine("Performing analysis");
 
-        report.add("Processing");
+        final Map<String, List<EnrollmentRec>> enrollments = FetchEnrollmentData.load(enrollmentsFile);
+        final Map<String, List<StudentTermRec>> studentTerms = FetchStudentTermData.load(studentTermsFile);
 
         final List<String> sections = List.of(
                 "001", "002", "003", "004", "005", "006", "007", "008", "009", "010",
@@ -52,90 +53,104 @@ public final class Analysis {
                 "121", "122", "123", "124", "125", "126", "127", "128", "129", "130",
                 "131", "132", "133", "134", "135", "136", "137", "138", "139", "140");
 
-        final Map<String, List<EnrollmentRecord>> records = FetchEnrollmentData.load(enrollments);
+        final CourseFacts facts = new CourseFacts(this.targetDir);
+        facts.generateReport(201400, 202480, "MATH101", enrollments, studentTerms, sections);
+        facts.generateReport(201400, 202480, "MATH105", enrollments, studentTerms, sections);
+        facts.generateReport(201400, 202480, "MATH116", enrollments, studentTerms, sections);
+        facts.generateReport(201400, 202480, "MATH117", enrollments, studentTerms, sections);
+        facts.generateReport(201400, 202480, "MATH118", enrollments, studentTerms, sections);
+        facts.generateReport(201400, 202480, "MATH120", enrollments, studentTerms, sections);
+        facts.generateReport(201400, 202480, "MATH124", enrollments, studentTerms, sections);
+        facts.generateReport(201400, 202480, "MATH125", enrollments, studentTerms, sections);
+        facts.generateReport(201400, 202480, "MATH126", enrollments, studentTerms, sections);
+        facts.generateReport(201400, 202480, "MATH127", enrollments, studentTerms, sections);
+        facts.generateReport(201400, 202480, "MATH141", enrollments, studentTerms, sections);
+        facts.generateReport(201400, 202480, "MATH155", enrollments, studentTerms, sections);
+        facts.generateReport(201400, 202480, "MATH160", enrollments, studentTerms, sections);
+        facts.generateReport(201400, 202480, "MATH161", enrollments, studentTerms, sections);
+        facts.generateReport(201400, 202480, "MATH255", enrollments, studentTerms, sections);
+        facts.generateReport(201400, 202480, "MATH261", enrollments, studentTerms, sections);
+        facts.generateReport(201400, 202480, "MATH340", enrollments, studentTerms, sections);
 
         final SequenceSuccess sequenceSuccess = new SequenceSuccess(this.targetDir);
 
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "BIOM200", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "BZ348", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "CIVE202", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "CIVE260", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "CIVE261", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "CS220", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "DSCI369", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "ECE103", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MATH161", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MATH230", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MATH235", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MATH261", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MATH301", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MATH317", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MATH331", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MATH360", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MATH366", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MATH369", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MECH105", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MECH237", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MECH262", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "MECH408", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "PH141", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "PH142", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH160", sections, "STAT315", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "ECE202", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "ECE204", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "GEOL452", sections, report);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH160", sections, "BIOM200", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH160", sections, "BZ348", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH160", sections, "CIVE202", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH160", sections, "CIVE260", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH160", sections, "CIVE261", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH160", sections, "CS220", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH160", sections, "DSCI369", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH160", sections, "ECE103", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH160", sections, "MATH161", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH160", sections, "MATH230", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH160", sections, "MATH235", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH160", sections, "MATH261", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH160", sections, "MATH301", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH160", sections, "MATH317", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH160", sections, "MATH331", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH160", sections, "MATH360", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH160", sections, "MATH366", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH160", sections, "MATH369", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH160", sections, "MECH105", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH160", sections, "MECH237", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH160", sections, "MECH262", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH160", sections, "MECH408", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH160", sections, "PH141", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH160", sections, "PH142", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH160", sections, "STAT315", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH161", sections, "ECE202", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH161", sections, "ECE204", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH161", sections, "GEOL452", sections);
 
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "CBE210", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "ECE303", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "ENGR337", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MATH230", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MATH235", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MATH261", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MATH301", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MATH317", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MATH331", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MATH340", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MATH345", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MATH360", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MATH366", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MATH369", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MATH469", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MECH262", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MECH408", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MECH337", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MECH421", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "MECH428", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "PH142", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "PH245", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "PH314", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "PH327", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "PH353", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "PH361", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH161", sections, "STAT420", sections, report);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH161", sections, "CBE210", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH161", sections, "ECE303", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH161", sections, "ENGR337", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH161", sections, "MATH230", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH161", sections, "MATH235", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH161", sections, "MATH261", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH161", sections, "MATH301", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH161", sections, "MATH317", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH161", sections, "MATH331", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH161", sections, "MATH340", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH161", sections, "MATH345", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH161", sections, "MATH360", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH161", sections, "MATH366", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH161", sections, "MATH369", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH161", sections, "MATH469", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH161", sections, "MECH262", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH161", sections, "MECH408", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH161", sections, "MECH337", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH161", sections, "MECH421", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH161", sections, "MECH428", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH161", sections, "PH142", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH161", sections, "PH245", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH161", sections, "PH314", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH161", sections, "PH327", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH161", sections, "PH353", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH161", sections, "PH361", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH161", sections, "STAT420", sections);
 
-        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "CBE210", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "CHEM474", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "DSCI320", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "ECE303", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "ENGR337", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "MATH340", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "MATH345", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "MATH450", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "MATH470", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "MATH474", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "MECH337", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "MECH421", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "MECH428", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "PH314", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "PH327", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "PH353", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "PH361", sections, report);
-        sequenceSuccess.generateReport(201400, records, "MATH261", sections, "STAT420", sections, report);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH261", sections, "CBE210", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH261", sections, "CHEM474", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH261", sections, "DSCI320", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH261", sections, "ECE303", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH261", sections, "ENGR337", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH261", sections, "MATH340", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH261", sections, "MATH345", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH261", sections, "MATH450", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH261", sections, "MATH470", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH261", sections, "MATH474", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH261", sections, "MECH337", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH261", sections, "MECH421", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH261", sections, "MECH428", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH261", sections, "PH314", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH261", sections, "PH327", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH261", sections, "PH353", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH261", sections, "PH361", sections);
+        sequenceSuccess.generateReport(201400, enrollments, "MATH261", sections, "STAT420", sections);
 
-        report.addln();
-        report.addln("Job completed");
-
-        return report.toString();
+        Log.fine("Analysis completed");
     }
 
     /**
@@ -146,11 +161,12 @@ public final class Analysis {
     public static void main(final String... args) {
 
         final File dir = new File("C:\\opt\\zircon\\data");
-        final File enrollments = new File(dir, "enrollments.json");
+        final File enrollmentsFile = new File(dir, "enrollments.json");
+        final File studentTermsFile = new File(dir, "student_terms.json");
 
         final Analysis job = new Analysis(dir);
 
-        Log.fine(job.execute(enrollments));
+        job.execute(enrollmentsFile, studentTermsFile);
     }
 
 }
