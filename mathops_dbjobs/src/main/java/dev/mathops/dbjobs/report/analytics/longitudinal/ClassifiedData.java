@@ -1,5 +1,7 @@
 package dev.mathops.dbjobs.report.analytics.longitudinal;
 
+import dev.mathops.dbjobs.report.analytics.longitudinal.data.EnrollmentRec;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

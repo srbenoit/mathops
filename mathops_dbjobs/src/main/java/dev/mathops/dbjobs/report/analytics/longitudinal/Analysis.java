@@ -1,6 +1,8 @@
 package dev.mathops.dbjobs.report.analytics.longitudinal;
 
 import dev.mathops.commons.log.Log;
+import dev.mathops.dbjobs.report.analytics.longitudinal.data.EnrollmentRec;
+import dev.mathops.dbjobs.report.analytics.longitudinal.data.StudentTermRec;
 import dev.mathops.dbjobs.report.analytics.longitudinal.datacollection.FetchEnrollmentData;
 import dev.mathops.dbjobs.report.analytics.longitudinal.datacollection.FetchStudentTermData;
 
@@ -98,11 +100,17 @@ public final class Analysis {
         summary.generateReport(201400, 202480, "MATH127", enrollments, studentTerms, sections, onlineSections);
         summary.generateReport(201400, 202480, "MATH141", enrollments, studentTerms, sections, onlineSections);
         summary.generateReport(201400, 202480, "MATH155", enrollments, studentTerms, sections, onlineSections);
+        summary.generateReport(201400, 202480, "MATH157", enrollments, studentTerms, sections, onlineSections);
+        summary.generateReport(201400, 202480, "MATH159", enrollments, studentTerms, sections, onlineSections);
         summary.generateReport(201400, 202480, "MATH160", enrollments, studentTerms, sections, onlineSections);
         summary.generateReport(201400, 202480, "MATH161", enrollments, studentTerms, sections, onlineSections);
         summary.generateReport(201400, 202480, "MATH255", enrollments, studentTerms, sections, onlineSections);
         summary.generateReport(201400, 202480, "MATH261", enrollments, studentTerms, sections, onlineSections);
         summary.generateReport(201400, 202480, "MATH340", enrollments, studentTerms, sections, onlineSections);
+        summary.generateReport(201400, 202480, "FIN200", enrollments, studentTerms, sections, onlineSections);
+        summary.generateReport(201400, 202480, "STAT100", enrollments, studentTerms, sections, onlineSections);
+        summary.generateReport(201400, 202480, "STAT201", enrollments, studentTerms, sections, onlineSections);
+        summary.generateReport(201400, 202480, "STAT204", enrollments, studentTerms, sections, onlineSections);
 
         final SequenceSuccess sequenceSuccess = new SequenceSuccess(this.targetDir);
 

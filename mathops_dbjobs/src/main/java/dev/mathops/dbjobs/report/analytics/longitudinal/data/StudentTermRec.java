@@ -1,4 +1,4 @@
-package dev.mathops.dbjobs.report.analytics.longitudinal;
+package dev.mathops.dbjobs.report.analytics.longitudinal.data;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.parser.json.JSONObject;

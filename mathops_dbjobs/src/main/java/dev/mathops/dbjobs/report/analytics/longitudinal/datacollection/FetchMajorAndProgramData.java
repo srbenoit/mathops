@@ -8,7 +8,7 @@ import dev.mathops.commons.parser.ParsingException;
 import dev.mathops.commons.parser.json.JSONObject;
 import dev.mathops.commons.parser.json.JSONParser;
 import dev.mathops.db.DbConnection;
-import dev.mathops.dbjobs.report.analytics.longitudinal.data.StudentTermRec;
+import dev.mathops.dbjobs.report.analytics.longitudinal.data.MajorProgramRec;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -17,40 +17,36 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This class retrieves data from the ODS and stores it in a local file so we can load and process it without having to
  * do a lengthy ODS query each time.
  */
-public enum FetchStudentTermData {
+public enum FetchMajorAndProgramData {
     ;
 
     /**
-     * Gathers student term data.
+     * Gathers major/program data.
      *
      * @param odsConn             the connection to the ODS
      * @param startAcademicPeriod the starting academic period
      * @param endAcademicPeriod   the ending academic period
      * @param target              the file to which to write results
-     * @param map                 a map from student ID to a list of academic periods in which they were enrolled
      * @throws SQLException if there is an error accessing the database
      */
-    static void gatherStudentTermData(final DbConnection odsConn, final int startAcademicPeriod,
-                                      final int endAcademicPeriod, final File target,
-                                      final Map<String, ? extends List<Integer>> map) throws SQLException {
+    static void gatherMajorAndProgramData(final DbConnection odsConn, final int startAcademicPeriod,
+                                          final int endAcademicPeriod, final File target) throws SQLException {
 
-        Log.fine("Gathering student term data.");
+        Log.fine("Gathering major and program data.");
 
-        final List<StudentTermRec> studentTermRecords = collectStudentTerms(odsConn, startAcademicPeriod,
-                endAcademicPeriod, map);
+        final List<MajorProgramRec> majorProgramRecs = collectMajorsAndPrograms(odsConn, startAcademicPeriod,
+                endAcademicPeriod);
 
         final HtmlBuilder fileData = new HtmlBuilder(100000);
         fileData.addln("[");
         boolean comma = false;
-        for (final StudentTermRec rec : studentTermRecords) {
+        for (final MajorProgramRec rec : majorProgramRecs) {
             if (comma) {
                 fileData.addln(",");
             }
@@ -62,38 +58,36 @@ public enum FetchStudentTermData {
         fileData.addln("]");
 
         final String absolutePath = target.getAbsolutePath();
-        Log.fine("Writing student term data file to ", absolutePath);
+        Log.fine("Writing major and program data file to ", absolutePath);
 
         try (final FileWriter fw = new FileWriter(target)) {
             final String dataString = fileData.toString();
             fw.write(dataString);
         } catch (final IOException ex) {
-            Log.warning("Failed to write student term JSON file.", ex);
+            Log.warning("Failed to write major and program JSON file.", ex);
         }
 
-        Log.fine("Student term data gathered.");
+        Log.fine("Major and program data gathered.");
     }
 
     /**
-     * Queries student term records from the ODS.
+     * Queries major/program records from the ODS.
      *
      * @param odsConn             the database connection
      * @param startAcademicPeriod the starting academic period
      * @param endAcademicPeriod   the ending academic period
-     * @param map                 a map from student ID to a list of academic periods in which they were enrolled
-     * @return a list of student term records
+     * @return a list of major/program records
      * @throws SQLException if there is an error performing the query
      */
-    private static List<StudentTermRec> collectStudentTerms(final DbConnection odsConn,
-                                                            final int startAcademicPeriod,
-                                                            final int endAcademicPeriod,
-                                                            final Map<String, ? extends List<Integer>> map)
+    private static List<MajorProgramRec> collectMajorsAndPrograms(final DbConnection odsConn,
+                                                                  final int startAcademicPeriod,
+                                                                  final int endAcademicPeriod)
             throws SQLException {
 
         final String startStr = Integer.toString(startAcademicPeriod);
         final String endStr = Integer.toString(endAcademicPeriod);
 
-        final List<StudentTermRec> result = new ArrayList<>(10000);
+        final List<MajorProgramRec> result = new ArrayList<>(10000);
 
         // TABLE: 'CSUBAN.CSUS_ENROLL_TERM_SUMMARY_AH'
         //        PIDM (NUMBER[0])
@@ -157,39 +151,20 @@ public enum FetchStudentTermData {
         try (final Statement stmt = odsConn.createStatement()) {
 
             final String sql = SimpleBuilder.concat(
-                    "SELECT CSU_ID,",
-                    "       TERM,",
-                    "       PRIMARY_COLLEGE,",
-                    "       PRIMARY_DEPARTMENT,",
-                    "       PRIMARY_MAJOR,",
-                    "       PROGRAM_OF_STUDY,",
-                    "       STUDENT_LEVEL ",
+                    "SELECT DISTINCT PRIMARY_MAJOR, PRIMARY_MAJOR_DESC, PROGRAM_OF_STUDY, PROGRAM_OF_STUDY_DESC ",
                     "FROM CSUBAN.CSUS_ENROLL_TERM_SUMMARY_AH ",
-                    "WHERE to_number(TERM) >= ", startStr, " AND to_number(TERM) <= ", endStr,
+                    "WHERE TERM >= ", startStr, " AND TERM <= ", endStr,
                     " AND MULTI_SOURCE = 'CSU'");
 
             try (final ResultSet rs = stmt.executeQuery(sql)) {
                 while (rs.next()) {
-                    final String studentId = rs.getString("CSU_ID");
-                    final List<Integer> terms = map.get(studentId);
-                    if (terms != null) {
-                        final int term = rs.getInt("TERM");
-                        final Integer termKey = Integer.valueOf(term);
+                    final String major = rs.getString("PRIMARY_MAJOR");
+                    final String majorDesc = rs.getString("PRIMARY_MAJOR_DESC");
+                    final String program = rs.getString("PROGRAM_OF_STUDY");
+                    final String programDesc = rs.getString("PROGRAM_OF_STUDY_DESC");
 
-                        if (terms.contains(termKey)) {
-                            final String college = rs.getString("PRIMARY_COLLEGE");
-                            final String department = rs.getString("PRIMARY_DEPARTMENT");
-                            final String major = rs.getString("PRIMARY_MAJOR");
-                            final String program = rs.getString("PROGRAM_OF_STUDY");
-                            final String level = rs.getString("STUDENT_LEVEL");
-
-                            final StudentTermRec rec = new StudentTermRec(studentId, term, college, department, major,
-                                    program, level);
-                            result.add(rec);
-
-                            terms.remove(termKey);
-                        }
-                    }
+                    final MajorProgramRec rec = new MajorProgramRec(major, majorDesc, program, programDesc);
+                    result.add(rec);
                 }
             }
         }
@@ -198,14 +173,14 @@ public enum FetchStudentTermData {
     }
 
     /**
-     * Loads the file of student term records and stores the results in a map.
+     * Loads the file of major/program records and stores the results in a list.
      *
      * @param source the file with source data
-     * @return a map from student ID to the list of all student term records for that student
+     * @return a list of all major/program records found
      */
-    public static Map<String, List<StudentTermRec>> load(final File source) {
+    public static List<MajorProgramRec> load(final File source) {
 
-        Map<String, List<StudentTermRec>> result = null;
+        List<MajorProgramRec> result = null;
 
         final String data = FileLoader.loadFileAsString(source, true);
 
@@ -215,34 +190,30 @@ public enum FetchStudentTermData {
 
                 if (parsed instanceof final Object[] array) {
                     final String arrayLenStr = Integer.toString(array.length);
-                    Log.fine("    Loaded ", arrayLenStr, " student term records from JSON file");
-                    result = new HashMap<>(100000);
+                    Log.fine("    Loaded ", arrayLenStr, " major/program records from JSON file");
+                    result = new ArrayList<>(500);
 
                     try {
                         for (final Object obj : array) {
                             if (obj instanceof final JSONObject json) {
-                                final StudentTermRec rec = StudentTermRec.parse(json);
-                                final String stuId = rec.studentId();
-
-                                final List<StudentTermRec> list = result.computeIfAbsent(stuId,
-                                        s -> new ArrayList<>(10));
-                                list.add(rec);
+                                final MajorProgramRec rec = MajorProgramRec.parse(json);
+                                result.add(rec);
                             } else {
-                                Log.warning("    Row in student term JSON file is not JSON object.");
+                                Log.warning("    Row in major/program JSON file is not JSON object.");
                             }
                         }
 
                         final int numStudents = result.size();
                         final String numStudentsStr = Integer.toString(numStudents);
-                        Log.fine("    Loaded student term data for ", numStudentsStr, " students");
+                        Log.fine("    Loaded data for ", numStudentsStr, " majors/programs");
                     } catch (final IllegalArgumentException ex) {
-                        Log.warning("    Unable to interpret a student term record in the JSON file.", ex);
+                        Log.warning("    Unable to interpret a major/program record in the JSON file.", ex);
                     }
                 } else {
-                    Log.warning("    Unable to interpret student term JSON file.");
+                    Log.warning("    Unable to interpret major/program JSON file.");
                 }
             } catch (final ParsingException ex) {
-                Log.warning("    Unable to load student term JSON file.", ex);
+                Log.warning("    Unable to load major/program JSON file.", ex);
             }
         }
 

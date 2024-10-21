@@ -1,4 +1,4 @@
-package dev.mathops.dbjobs.report.analytics.longitudinal;
+package dev.mathops.dbjobs.report.analytics.longitudinal.data;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.parser.json.JSONObject;
@@ -43,7 +43,7 @@ public record EnrollmentRec(String studentId, int academicPeriod, String course,
      *
      * @return true if transfer credit
      */
-    boolean isTransfer() {
+    public boolean isTransfer() {
 
         return (this.flags & TRANSFER) == TRANSFER;
     }
@@ -53,7 +53,7 @@ public record EnrollmentRec(String studentId, int academicPeriod, String course,
      *
      * @return true if AP/IB/CLEP
      */
-    boolean isApIbClep() {
+    public boolean isApIbClep() {
 
         return (this.flags & AP_IB_CLEP) == AP_IB_CLEP;
     }
@@ -73,7 +73,7 @@ public record EnrollmentRec(String studentId, int academicPeriod, String course,
      *
      * @return true if course was withdrawn
      */
-    boolean isWithdraw() {
+    public boolean isWithdraw() {
 
         return (this.flags & WITHDRAWN) == WITHDRAWN;
     }
@@ -83,7 +83,7 @@ public record EnrollmentRec(String studentId, int academicPeriod, String course,
      *
      * @return true if course was passed
      */
-    boolean isPassed() {
+    public boolean isPassed() {
 
         return (this.flags & PASSED) == PASSED;
     }
@@ -102,7 +102,7 @@ public record EnrollmentRec(String studentId, int academicPeriod, String course,
      *
      * @return true if the course section is gradable
      */
-    boolean isGradable() {
+    public boolean isGradable() {
 
         return (this.flags & GRADABLE) == GRADABLE;
     }

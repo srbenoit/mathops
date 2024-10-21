@@ -4,7 +4,7 @@ import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.DbConnection;
-import dev.mathops.dbjobs.report.analytics.longitudinal.StudentRec;
+import dev.mathops.dbjobs.report.analytics.longitudinal.data.StudentRec;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -73,7 +74,7 @@ enum FetchStudentData {
      * @return a list of student records
      * @throws SQLException if there is an error performing the query
      */
-    private static List<StudentRec> collectStudents(final DbConnection odsConn, final Set<String> studentIds)
+    private static List<StudentRec> collectStudents(final DbConnection odsConn, final Collection<String> studentIds)
             throws SQLException {
 
         final int count = studentIds.size();
@@ -134,8 +135,8 @@ enum FetchStudentData {
 
             try (final ResultSet rs = stmt.executeQuery(sql)) {
                 while (rs.next()) {
-
                     final String csuId = rs.getString("CSU_ID");
+
                     if (studentIds.contains(csuId)) {
                         final String gender = rs.getString("GENDER");
 
@@ -157,8 +158,15 @@ enum FetchStudentData {
 
                         final StudentRec rec = new StudentRec(csuId, gender, ethnicity);
                         result.add(rec);
+
+                        studentIds.remove(csuId);
                     }
                 }
+            }
+
+            // Dump a list of students for whom we got no data...
+            for (final String csuId : studentIds) {
+                Log.info("Missing student data for ", csuId);
             }
         }
 

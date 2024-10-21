@@ -31,6 +31,9 @@ public enum RetrieveLongitudinalData {
 
         final File dir = new File("C:\\opt\\zircon\\data");
 
+        final int start = 201000; // 201000
+        final int end = 202480; // 202480 - Excludes FALL 2024
+
         if (dir.exists() || dir.mkdirs()) {
 
             final ContextMap contextMap = ContextMap.getDefaultInstance();
@@ -43,15 +46,18 @@ public enum RetrieveLongitudinalData {
                 final DbConnection odsConn = odsCtx.checkOutConnection();
 
                 try {
+                    final File majorsProgramsFile = new File(dir, "majors_programs.json");
+                    FetchMajorAndProgramData.gatherMajorAndProgramData(odsConn, start, end, majorsProgramsFile);
+
+                    final File registrationStatusFile = new File(dir, "registration_statuses.json");
+                    FetchRegistrationStatusData.gatherMajorAndProgramData(odsConn, start, end, registrationStatusFile);
+
                     // A map from student ID to the list of academic period values in which the student was enrolled.
                     final Map<String, List<Integer>> map = new HashMap<>(100000);
 
                     // Gather all student enrollments in the period of interest (this should include several years
                     // prior to the reporting start date since we look back to see how students cleared prerequisites
                     // for courses in the reporting period.
-
-                    final int start = 201000; // 201000
-                    final int end = 202480; // 202480 - Excludes FALL 2024
 
                     final File enrollmentsFile = new File(dir, "enrollments.json");
                     FetchEnrollmentData.gatherEnrollmentData(odsConn, start, end, enrollmentsFile, map);

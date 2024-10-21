@@ -4,6 +4,8 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.dbjobs.report.analytics.longitudinal.data.EnrollmentRec;
+import dev.mathops.dbjobs.report.analytics.longitudinal.data.StudentTermRec;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -240,11 +242,6 @@ final class CourseSummary {
                     }
                 }
 
-                Log.fine("Section sizes for ", term);
-                for (final Map.Entry<String, Integer> sectEntry : sectionsMap.entrySet()) {
-                    Log.fine("    ", sectEntry.getKey(), ": ", sectEntry.getValue());
-                }
-
                 final double percentWithdraw = performance.getPercentWithdrawal();
                 final double percentCompleting = performance.getPercentCompleting();
 
@@ -344,9 +341,12 @@ final class CourseSummary {
 
                     final List<StudentTermRec> termRecs = studentTerms.get(studentId);
 
+                    // NOTE: student term records won't exist for terms in which there is only transfer or AP/IB/CLEP
+
                     if (termRecs == null) {
-                        if (rec.gradeValue() != null) {
-                            Log.warning("Student ", studentId, " has grade but has no Student Term records");
+                        if (rec.gradeValue() != null && !(rec.isTransfer() || rec.isApIbClep())) {
+                            Log.warning("Student ", studentId, " has grade ", rec.gradeValue(),
+                                    " but has no Student Term records");
                         }
                         major = "(no data)";
                     } else {
@@ -359,9 +359,9 @@ final class CourseSummary {
                         }
 
                         if (found == null) {
-                            if (rec.gradeValue() != null) {
-                                Log.warning("Student ", studentId, " has grade but has no Student Term record for ",
-                                        term);
+                            if (rec.gradeValue() != null && !(rec.isTransfer() || rec.isApIbClep())) {
+                                Log.warning("Student ", studentId, " has grade ", rec.gradeValue(),
+                                        " but has no Student Term record for ", term);
                             }
                             major = "(no data)";
                         } else {

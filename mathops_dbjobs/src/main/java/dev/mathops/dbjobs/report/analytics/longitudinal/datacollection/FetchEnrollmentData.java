@@ -8,7 +8,7 @@ import dev.mathops.commons.parser.ParsingException;
 import dev.mathops.commons.parser.json.JSONObject;
 import dev.mathops.commons.parser.json.JSONParser;
 import dev.mathops.db.DbConnection;
-import dev.mathops.dbjobs.report.analytics.longitudinal.EnrollmentRec;
+import dev.mathops.dbjobs.report.analytics.longitudinal.data.EnrollmentRec;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -80,7 +80,8 @@ public enum FetchEnrollmentData {
      * @param odsConn             the database connection
      * @param startAcademicPeriod the starting academic period
      * @param endAcademicPeriod   the ending academic period
-     * @param map                 a map from student ID to a list of academic periods in which they were enrolled
+     * @param map                 a map from student ID to a list of academic periods in which they were enrolled or had
+     *                            transfer or AP/IB?CLEP credit recorded
      * @return a list of student course records
      * @throws SQLException if there is an error performing the query
      */
@@ -244,6 +245,7 @@ public enum FetchEnrollmentData {
                     "       GRADABLE_IND,",
                     "       FINAL_GRADE,",
                     "       TRANSFER_COURSE_INSTITUTION,",
+                    "       REGISTRATION_STATUS,",
                     "       WITHDRAWN_IND,",
                     "       COURSE_ATTEMPTED_IND,",
                     "       COURSE_PASSED_IND,",
@@ -252,7 +254,8 @@ public enum FetchEnrollmentData {
                     "WHERE MULTI_SOURCE = 'CSU' AND COURSE_LEVEL = 'UG'",
                     " AND to_number(ACADEMIC_PERIOD) >= ", startStr,
                     " AND to_number(ACADEMIC_PERIOD) <= ", endStr,
-                    " AND (REGISTRATION_STATUS IS NULL OR REGISTRATION_STATUS <> 'XF')");
+                    " AND (REGISTRATION_STATUS IS NULL OR REGISTRATION_STATUS NOT IN (",
+                    " 'XF','UW','UN','ZD','DD','ZD','DW','NG','XU','UC','UX','XD','CN','AU'))");
 
             try (final ResultSet rs = stmt.executeQuery(sql)) {
                 while (rs.next()) {
@@ -266,6 +269,7 @@ public enum FetchEnrollmentData {
                     final boolean gradable = "Y".equals(gradableStr);
                     final String grade = rs.getString("FINAL_GRADE");
                     final String inst = rs.getString("TRANSFER_COURSE_INSTITUTION");
+                    final String regStatus = rs.getString("REGISTRATION_STATUS");
                     final String withdrawnStr = rs.getString("WITHDRAWN_IND");
                     boolean withdrawn = "Y".equals(withdrawnStr);
                     final String attemptedStr = rs.getString("COURSE_ATTEMPTED_IND");
@@ -380,6 +384,7 @@ public enum FetchEnrollmentData {
                                 Log.fine("    academicPeriod:", academicPeriod);
                                 Log.fine("    courseIdentification:", course);
                                 Log.fine("    section:", section);
+                                Log.fine("    registrationStatus:", regStatus);
                                 Log.fine("    transferCourseInd:", transfer);
                                 Log.fine("    attemptedInd:", attempted);
                                 Log.fine("    withdrawnInd:", withdrawn);
