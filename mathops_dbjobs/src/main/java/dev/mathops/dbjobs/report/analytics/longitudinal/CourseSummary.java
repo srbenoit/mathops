@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +19,7 @@ import java.util.TreeMap;
 /**
  * A utility class to gather facts about a single course.
  */
-final class CourseFacts {
+final class CourseSummary {
 
     /** A decimal formatter. */
     private final DecimalFormat format;
@@ -33,7 +32,7 @@ final class CourseFacts {
      *
      * @param theTargetDir the directory in which to write CSV files
      */
-    CourseFacts(final File theTargetDir) {
+    CourseSummary(final File theTargetDir) {
 
         this.format = new DecimalFormat("0.00");
         this.targetDir = theTargetDir;
@@ -42,17 +41,23 @@ final class CourseFacts {
     /**
      * Analysis of success in a second course based on how student completed a first course.
      *
-     * @param startTerm    the starting term
-     * @param endTerm      the ending term
-     * @param course       the course ID
-     * @param enrollments  the set of enrollment records
-     * @param studentTerms the set of student term records
-     * @param sections     the list of sections of interest
+     * @param startTerm      the starting term
+     * @param endTerm        the ending term
+     * @param course         the course ID
+     * @param enrollments    the set of enrollment records
+     * @param studentTerms   the set of student term records
+     * @param campusSections the list of sections of interest
+     * @param onlineSections the list of online sections of interest
      */
     void generateReport(final int startTerm, final int endTerm, final String course,
                         final Map<String, ? extends List<EnrollmentRec>> enrollments,
                         final Map<String, ? extends List<StudentTermRec>> studentTerms,
-                        final Collection<String> sections) {
+                        final String[][] campusSections, final String[][] onlineSections) {
+
+        final Map<Integer, List<EnrollmentRec>> campusEnrollments = gatherEnrollments(course, startTerm, endTerm,
+                enrollments, campusSections);
+        final Map<Integer, List<EnrollmentRec>> onlineEnrollments = gatherEnrollments(course, startTerm, endTerm,
+                enrollments, onlineSections);
 
         final HtmlBuilder csv = new HtmlBuilder(10000);
 
@@ -60,22 +65,27 @@ final class CourseFacts {
         csv.addln("(Percentages for letter grades are relative to those given a grade and not to total enrollments)");
         csv.addln();
 
-        final Map<Integer, List<EnrollmentRec>> applicableEnrollments = gatherEnrollments(course, startTerm, endTerm,
-                enrollments, sections);
-
         // Block 1: Summary of enrollments by term and overall success rates
 
-        emitCourseSummaryBlock(applicableEnrollments, 90, "Fall", csv);
-        emitCourseSummaryBlock(applicableEnrollments, 10, "Spring", csv);
-        emitCourseSummaryBlock(applicableEnrollments, 60, "Summer", csv);
+        emitCourseSummaryBlock(campusEnrollments, campusSections, 90, "Fall", csv);
+        emitCourseSummaryBlock(campusEnrollments, campusSections, 10, "Spring", csv);
+        emitCourseSummaryBlock(campusEnrollments, campusSections, 60, "Summer", csv);
+
+        emitCourseSummaryBlock(onlineEnrollments, onlineSections, 90, "Fall (Online)", csv);
+        emitCourseSummaryBlock(onlineEnrollments, onlineSections, 10, "Spring (Online)", csv);
+        emitCourseSummaryBlock(onlineEnrollments, onlineSections, 60, "Summer (Online)", csv);
 
         // Block 2: TODO: Do the same, but disaggregated by population, once we have population data
 
         // Block 3: Majors
 
-        emitMajorsSummaryBlock(applicableEnrollments, studentTerms, 90, "Fall", csv);
-        emitMajorsSummaryBlock(applicableEnrollments, studentTerms, 10, "Spring", csv);
-        emitMajorsSummaryBlock(applicableEnrollments, studentTerms, 60, "Summer", csv);
+        emitMajorsSummaryBlock(campusEnrollments, studentTerms, 90, "Fall", csv);
+        emitMajorsSummaryBlock(campusEnrollments, studentTerms, 10, "Spring", csv);
+        emitMajorsSummaryBlock(campusEnrollments, studentTerms, 60, "Summer", csv);
+
+        emitMajorsSummaryBlock(onlineEnrollments, studentTerms, 90, "Fall (Online)", csv);
+        emitMajorsSummaryBlock(onlineEnrollments, studentTerms, 10, "Spring (Online)", csv);
+        emitMajorsSummaryBlock(onlineEnrollments, studentTerms, 60, "Summer (Online)", csv);
 
         // Write the CSV file
 
@@ -103,7 +113,7 @@ final class CourseFacts {
      */
     private static Map<Integer, List<EnrollmentRec>> gatherEnrollments(
             final String course, final int startTerm, final int endTerm, final Map<String, ?
-            extends List<EnrollmentRec>> records, final Collection<String> sections) {
+            extends List<EnrollmentRec>> records, final String[][] sections) {
 
         // Use a map with automatically sorted keys.
         final Map<Integer, List<EnrollmentRec>> result = new TreeMap<>();
@@ -114,7 +124,7 @@ final class CourseFacts {
                 final String recSect = rec.section();
 
                 if (course.equals(recCourse) && !(rec.isTransfer() || rec.isApIbClep()) && rec.isGradable()
-                    && sections.contains(recSect)) {
+                    && containsSection(sections, recSect)) {
                     final int term = rec.academicPeriod();
 
                     if (term >= startTerm && term <= endTerm) {
@@ -132,25 +142,77 @@ final class CourseFacts {
     }
 
     /**
+     * Tests whether a section number appears in a sections array.
+     *
+     * @param sections an array of arrays of section numbers
+     * @param section  the section number for which to search
+     * @return true if the section number was found
+     */
+    private static boolean containsSection(final String[][] sections, final String section) {
+
+        boolean found = false;
+
+        outer:
+        for (final String[] inner : sections) {
+            for (final String test : inner) {
+                if (test.equals(section)) {
+                    found = true;
+                    break outer;
+                }
+            }
+        }
+
+        return found;
+    }
+
+    /**
+     * Given a set of section numbers of interest (organized into rows, where all section numbers in a row are
+     * considered as part of the same section), this method returns the first section number (called the "canonical"
+     * section number) of the row in which the specified section number appears.
+     *
+     * @param sections an array of arrays of section numbers
+     * @param section  the section number for which to search
+     * @return the canonical section number
+     */
+    private static String canonicalSection(final String[][] sections, final String section) {
+
+        String canonical = null;
+
+        outer:
+        for (final String[] inner : sections) {
+            for (final String test : inner) {
+                if (test.equals(section)) {
+                    canonical = inner[0];
+                    break outer;
+                }
+            }
+        }
+
+        return canonical;
+    }
+
+    /**
      * Emits a block of rows in the CSV file with summary data for the course in a specific type of term (Fall, Spring,
      * Summer).
      *
      * @param applicableEnrollments the list of enrollments
+     * @param sections              the list of sections of interest
      * @param termCode              the term code (10 for Spring, 60 for Summer, 90 for Fall)
      * @param termLabel             the term label
      * @param csv                   the CSV file contents to which to append
      */
     private void emitCourseSummaryBlock(final Map<Integer, List<EnrollmentRec>> applicableEnrollments,
-                                        final int termCode, final String termLabel, final HtmlBuilder csv) {
+                                        final String[][] sections, final int termCode, final String termLabel,
+                                        final HtmlBuilder csv) {
 
         csv.addln("Summary statistics for ", termLabel, " terms:");
         csv.addln();
 
-        csv.addln("Year,# Sections,Avg Sect Size,Max Sect Size,# Enrollments,# Withdraws,% Withdraws,",
+        csv.addln("Year,Sections,Avg. Section Size,Max. Section Size,Total Enrollment,# Withdraws,% Withdraws,",
                 "# Given Grade,% Given Grade,% A,% B,% C,% D,% U/F,Avg. GPA,DFW of all enrolled,",
                 "DFW of those given grade");
 
-        final Map<String, Integer> sections = new HashMap<>(20);
+        final Map<String, Integer> sectionsMap = new HashMap<>(20);
         final PopulationPerformance performance = new PopulationPerformance("ALL");
 
         for (final Map.Entry<Integer, List<EnrollmentRec>> entry : applicableEnrollments.entrySet()) {
@@ -160,25 +222,26 @@ final class CourseFacts {
             final int code = termValue % 100;
             if (code == termCode) {
                 performance.clear();
-                sections.clear();
+                sectionsMap.clear();
 
                 final List<EnrollmentRec> enrollments = entry.getValue();
                 for (final EnrollmentRec rec : enrollments) {
                     performance.recordEnrollment(rec);
 
                     final String sect = rec.section();
+                    final String canonical = canonicalSection(sections, sect);
 
-                    final Integer existing = sections.get(sect);
+                    final Integer existing = sectionsMap.get(canonical);
                     if (existing == null) {
-                        sections.put(sect, Integer.valueOf(1));
+                        sectionsMap.put(canonical, Integer.valueOf(1));
                     } else {
                         final int i = existing.intValue();
-                        sections.put(sect, Integer.valueOf(i + 1));
+                        sectionsMap.put(canonical, Integer.valueOf(i + 1));
                     }
                 }
 
                 Log.fine("Section sizes for ", term);
-                for (final Map.Entry<String, Integer> sectEntry : sections.entrySet()) {
+                for (final Map.Entry<String, Integer> sectEntry : sectionsMap.entrySet()) {
                     Log.fine("    ", sectEntry.getKey(), ": ", sectEntry.getValue());
                 }
 
@@ -196,7 +259,7 @@ final class CourseFacts {
 
                 final int totalEnrollments = performance.getTotalEnrollments();
 
-                final int numSections = sections.size();
+                final int numSections = sectionsMap.size();
                 final String numSectionsStr = Integer.toString(numSections);
 
                 final double avgSectSize = (double) totalEnrollments / (double) numSections;
@@ -207,7 +270,7 @@ final class CourseFacts {
                 String maxSectSizeStr = "-";
                 if (numSections > 0) {
                     int maxSect = Integer.MIN_VALUE;
-                    for (final Integer size : sections.values()) {
+                    for (final Integer size : sectionsMap.values()) {
                         final int sizeInt = size.intValue();
                         maxSect = Math.max(maxSect, sizeInt);
                     }
@@ -262,7 +325,7 @@ final class CourseFacts {
         csv.addln("Summary statistics for ", termLabel, " terms:");
         csv.addln();
 
-        csv.addln("Year,Major,# Enrollments,# Withdraws,% Withdraws,# Given Grade,% Given Grade,% A,% B,% C,% D,",
+        csv.addln("Year,Major,Total Enrollment,# Withdraws,% Withdraws,# Given Grade,% Given Grade,% A,% B,% C,% D,",
                 "% U/F,Avg. GPA,DFW of all enrolled,DFW of those given grade");
 
         final Map<String, PopulationPerformance> majorPerformance = new TreeMap<>();

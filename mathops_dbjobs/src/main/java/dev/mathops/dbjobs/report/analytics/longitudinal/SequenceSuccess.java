@@ -92,8 +92,8 @@ final class SequenceSuccess {
      */
     void generateReport(final int earliestSecondCourseTerm,
                         final Map<String, List<EnrollmentRec>> records, final String firstCourse,
-                        final Collection<String> firstCourseSections, final String secondCourse,
-                        final Collection<String> secondCourseSections) {
+                        final String[][] firstCourseSections, final String secondCourse,
+                        final String[][] secondCourseSections) {
 
         Log.fine("");
         Log.fine("Analysis of outcomes in ", secondCourse, " with respect to ", firstCourse);
@@ -244,8 +244,8 @@ final class SequenceSuccess {
      * @param secondCourseSections     the list of sections of interest in the second course
      */
     private void gatherData(final int earliestSecondCourseTerm, final Map<String, List<EnrollmentRec>> records,
-                            final String firstCourse, final Collection<String> firstCourseSections,
-                            final String secondCourse, final Collection<String> secondCourseSections) {
+                            final String firstCourse, final String[][] firstCourseSections,
+                            final String secondCourse, final String[][] secondCourseSections) {
 
         this.terms.clear();
         this.priorTerm.clear();
@@ -309,6 +309,29 @@ final class SequenceSuccess {
     }
 
     /**
+     * Tests whether a section number appears in a sections array.
+     *
+     * @param sections an array of arrays of section numbers
+     * @param section  the section number for which to search
+     * @return true if the section number was found
+     */
+    private static boolean containsSection(final String[][] sections, final String section) {
+
+        boolean found = false;
+
+        for (final String[] inner : sections) {
+            for (final String test : inner) {
+                if (test.equals(section)) {
+                    found = true;
+                    break;
+                }
+            }
+        }
+
+        return found;
+    }
+
+    /**
      * Tests whether the first course was taken in a "prior" term to the second course.
      *
      * @param first  the first course
@@ -360,7 +383,7 @@ final class SequenceSuccess {
     private static EnrollmentRec findEarliestSecond(final int earliestSecondCourseTerm,
                                                     final Iterable<EnrollmentRec> list,
                                                     final String secondCourse,
-                                                    final Collection<String> secondCourseSections) {
+                                                    final String[][] secondCourseSections) {
 
         EnrollmentRec earliestSecond = null;
 
@@ -371,7 +394,7 @@ final class SequenceSuccess {
                 final String course = rec.course();
                 final String sect = rec.section();
 
-                if (secondCourse.equals(course) && !rec.isTransfer() && secondCourseSections.contains(sect)) {
+                if (secondCourse.equals(course) && !rec.isTransfer() && containsSection(secondCourseSections, sect)) {
                     if (earliestSecond == null) {
                         earliestSecond = rec;
                     } else {
@@ -399,7 +422,7 @@ final class SequenceSuccess {
     private EnrollmentRec findLatestFirstBeforeSecond(final EnrollmentRec earliestSecond,
                                                       final Iterable<EnrollmentRec> list,
                                                       final String firstCourse,
-                                                      final Collection<String> firstCourseSections) {
+                                                      final String[][] firstCourseSections) {
 
         // Identify the year and term when the second course was taken
         final int secondTerm = earliestSecond.academicPeriod();
@@ -421,7 +444,8 @@ final class SequenceSuccess {
                     if (rec.gradeValue() != null && term <= secondTerm) {
                         latestFirst = chooseLatest(latestFirst, rec);
                     }
-                } else if (rec.gradeValue() != null && term < secondTerm && firstCourseSections.contains(sect)) {
+                } else if (rec.gradeValue() != null && term < secondTerm
+                           && containsSection(firstCourseSections, sect)) {
                     final double gradeNumeric = rec.gradeValue().doubleValue();
                     if (gradeNumeric > 0.9) {
                         // Local course, not failed

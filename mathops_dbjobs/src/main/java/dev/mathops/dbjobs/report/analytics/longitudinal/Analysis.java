@@ -39,38 +39,70 @@ public final class Analysis {
         final Map<String, List<EnrollmentRec>> enrollments = FetchEnrollmentData.load(enrollmentsFile);
         final Map<String, List<StudentTermRec>> studentTerms = FetchStudentTermData.load(studentTermsFile);
 
-        final List<String> sections = List.of(
-                "001", "002", "003", "004", "005", "006", "007", "008", "009", "010",
-                "011", "012", "013", "014", "015", "016", "017", "018", "019", "020",
-                "021", "022", "023", "024", "025", "026", "027", "028", "029", "030",
-                "031", "032", "033", "034", "035", "036", "037", "038", "039", "040",
-                "01", "02", "03", "04", "05", "06", "07", "08", "09",
-                "11", "12", "13", "14", "15", "16", "17", "18", "19", "20",
-                "21", "22", "23", "24", "25", "26", "27", "28", "29", "30",
-                "31", "32", "33", "34", "35", "36", "37", "38", "39", "40",
-                "101", "102", "103", "104", "105", "106", "107", "108", "109", "110",
-                "111", "112", "113", "114", "115", "116", "117", "118", "119", "120",
-                "121", "122", "123", "124", "125", "126", "127", "128", "129", "130",
-                "131", "132", "133", "134", "135", "136", "137", "138", "139", "140");
+        final String[][] sections = {
+                {"1", "01", "001", "101"},
+                {"2", "02", "002", "102"},
+                {"3", "03", "003", "103"},
+                {"4", "04", "004", "104"},
+                {"5", "05", "005", "105"},
+                {"6", "06", "006", "106"},
+                {"7", "07", "007", "107"},
+                {"8", "08", "008", "108"},
+                {"9", "09", "009", "109"},
+                {"10", "010", "110"},
+                {"11", "011", "111"},
+                {"12", "012", "112"},
+                {"13", "013", "113"},
+                {"14", "014", "114"},
+                {"15", "015", "115"},
+                {"16", "016", "116"},
+                {"17", "017", "117"},
+                {"18", "018", "118"},
+                {"19", "019", "119"},
+                {"20", "020", "120"},
+                {"21", "021", "121"},
+                {"22", "022", "122"},
+                {"23", "023", "123"},
+                {"24", "024", "124"},
+                {"25", "025", "125"},
+                {"26", "026", "126"},
+                {"27", "027", "127"},
+                {"28", "028", "128"},
+                {"29", "029", "129"},
+                {"30", "030", "130"},
+                {"31", "031", "131"},
+                {"32", "032", "132"},
+                {"33", "033", "133"},
+                {"34", "034", "134"},
+                {"35", "035", "135"},
+                {"36", "036", "136"},
+                {"37", "037", "137"},
+                {"38", "038", "138"},
+                {"39", "039", "139"},
+                {"40", "040", "140"}};
 
-        final CourseFacts facts = new CourseFacts(this.targetDir);
-        facts.generateReport(201400, 202480, "MATH101", enrollments, studentTerms, sections);
-        facts.generateReport(201400, 202480, "MATH105", enrollments, studentTerms, sections);
-        facts.generateReport(201400, 202480, "MATH116", enrollments, studentTerms, sections);
-        facts.generateReport(201400, 202480, "MATH117", enrollments, studentTerms, sections);
-        facts.generateReport(201400, 202480, "MATH118", enrollments, studentTerms, sections);
-        facts.generateReport(201400, 202480, "MATH120", enrollments, studentTerms, sections);
-        facts.generateReport(201400, 202480, "MATH124", enrollments, studentTerms, sections);
-        facts.generateReport(201400, 202480, "MATH125", enrollments, studentTerms, sections);
-        facts.generateReport(201400, 202480, "MATH126", enrollments, studentTerms, sections);
-        facts.generateReport(201400, 202480, "MATH127", enrollments, studentTerms, sections);
-        facts.generateReport(201400, 202480, "MATH141", enrollments, studentTerms, sections);
-        facts.generateReport(201400, 202480, "MATH155", enrollments, studentTerms, sections);
-        facts.generateReport(201400, 202480, "MATH160", enrollments, studentTerms, sections);
-        facts.generateReport(201400, 202480, "MATH161", enrollments, studentTerms, sections);
-        facts.generateReport(201400, 202480, "MATH255", enrollments, studentTerms, sections);
-        facts.generateReport(201400, 202480, "MATH261", enrollments, studentTerms, sections);
-        facts.generateReport(201400, 202480, "MATH340", enrollments, studentTerms, sections);
+        final String[][] onlineSections = {
+                {"401"},
+                {"801", "809"}};
+
+        final CourseSummary summary = new CourseSummary(this.targetDir);
+        summary.generateReport(201400, 202480, "MATH101", enrollments, studentTerms, sections, onlineSections);
+        summary.generateReport(201400, 202480, "MATH105", enrollments, studentTerms, sections, onlineSections);
+        summary.generateReport(201400, 202480, "MATH116", enrollments, studentTerms, sections, onlineSections);
+        summary.generateReport(201400, 202480, "MATH117", enrollments, studentTerms, sections, onlineSections);
+        summary.generateReport(201400, 202480, "MATH118", enrollments, studentTerms, sections, onlineSections);
+        summary.generateReport(201400, 202480, "MATH120", enrollments, studentTerms, sections, onlineSections);
+        summary.generateReport(201400, 202480, "MATH124", enrollments, studentTerms, sections, onlineSections);
+        summary.generateReport(201400, 202480, "MATH125", enrollments, studentTerms, sections, onlineSections);
+        summary.generateReport(201400, 202480, "MATH126", enrollments, studentTerms, sections, onlineSections);
+        summary.generateReport(201400, 202480, "MATH127", enrollments, studentTerms, sections, onlineSections);
+        summary.generateReport(201400, 202480, "MATH141", enrollments, studentTerms, sections, onlineSections);
+        summary.generateReport(201400, 202480, "MATH155", enrollments, studentTerms, sections, onlineSections);
+        summary.generateReport(201400, 202480, "MATH160", enrollments, studentTerms, sections, onlineSections);
+        summary.generateReport(201400, 202480, "MATH161", enrollments, studentTerms, sections, onlineSections);
+        summary.generateReport(201400, 202480, "MATH255", enrollments, studentTerms, sections, onlineSections);
+        summary.generateReport(201400, 202480, "MATH261", enrollments, studentTerms, sections, onlineSections);
+        summary.generateReport(201400, 202480, "MATH340", enrollments, studentTerms, sections, onlineSections);
 
         final SequenceSuccess sequenceSuccess = new SequenceSuccess(this.targetDir);
 
