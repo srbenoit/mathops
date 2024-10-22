@@ -141,7 +141,7 @@ public enum FetchStudentTermData {
         //        STUDENT_CLASS_DESC (VARCHAR2[255])
         //        STUDENT_LEVEL (VARCHAR2[63])
         //        STUDENT_LEVEL_DESC (VARCHAR2[255])
-        //        STUDENT_TYPE (VARCHAR2[63])
+        //     *  STUDENT_TYPE (VARCHAR2[63])
         //        STUDENT_TYPE_DESC (VARCHAR2[255])
         //        TERM_DEGREE (VARCHAR2[63])
         //        TERM_DEGREE_DESC (VARCHAR2[255])
@@ -163,7 +163,8 @@ public enum FetchStudentTermData {
                     "       PRIMARY_DEPARTMENT,",
                     "       PRIMARY_MAJOR,",
                     "       PROGRAM_OF_STUDY,",
-                    "       STUDENT_LEVEL ",
+                    "       STUDENT_LEVEL,",
+                    "       STUDENT_TYPE ",
                     "FROM CSUBAN.CSUS_ENROLL_TERM_SUMMARY_AH ",
                     "WHERE to_number(TERM) >= ", startStr, " AND to_number(TERM) <= ", endStr,
                     " AND MULTI_SOURCE = 'CSU'");
@@ -182,9 +183,10 @@ public enum FetchStudentTermData {
                             final String major = rs.getString("PRIMARY_MAJOR");
                             final String program = rs.getString("PROGRAM_OF_STUDY");
                             final String level = rs.getString("STUDENT_LEVEL");
+                            final String type = rs.getString("STUDENT_TYPE");
 
                             final StudentTermRec rec = new StudentTermRec(studentId, term, college, department, major,
-                                    program, level);
+                                    program, level, type);
                             result.add(rec);
 
                             terms.remove(termKey);

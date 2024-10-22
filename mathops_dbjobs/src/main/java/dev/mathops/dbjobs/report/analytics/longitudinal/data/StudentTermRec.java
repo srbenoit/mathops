@@ -13,9 +13,10 @@ import dev.mathops.commons.parser.json.JSONObject;
  * @param major          the student's primary major
  * @param program        the student's program of study
  * @param level          the student's level
+ * @param studentType    the student type
  */
 public record StudentTermRec(String studentId, int academicPeriod, String college, String department, String major,
-                             String program, String level) {
+                             String program, String level, String studentType) {
 
     /**
      * Attempts to parse a {@code StudentTermRecord} from a JSON object.
@@ -26,17 +27,18 @@ public record StudentTermRec(String studentId, int academicPeriod, String colleg
      */
     public static StudentTermRec parse(final JSONObject json) {
 
-        final String id = json.getStringProperty("i");
-        final Double pe = json.getNumberProperty("p");
-        final String co = json.getStringProperty("c");
-        final String de = json.getStringProperty("d");
-        final String ma = json.getStringProperty("m");
-        final String pr = json.getStringProperty("r");
-        final String lv = json.getStringProperty("v");
+        final String i = json.getStringProperty("i");
+        final Double p = json.getNumberProperty("p");
+        final String c = json.getStringProperty("c");
+        final String d = json.getStringProperty("d");
+        final String m = json.getStringProperty("m");
+        final String r = json.getStringProperty("r");
+        final String v = json.getStringProperty("v");
+        final String t = json.getStringProperty("t");
 
-        final int peInt = pe == null ? 0 : pe.intValue();
+        final int peInt = p == null ? 0 : p.intValue();
 
-        return new StudentTermRec(id, peInt, co, de, ma, pr, lv);
+        return new StudentTermRec(i, peInt, c, d, m, r, v, t);
     }
 
     /**
@@ -54,7 +56,8 @@ public record StudentTermRec(String studentId, int academicPeriod, String colleg
                 "\"d\":\"", department(), "\",",
                 "\"m\":\"", major(), "\",",
                 "\"r\":\"", program(), "\",",
-                "\"v\":\"", level(), "\"}");
+                "\"v\":\"", level(), "\",",
+                "\"t\":\"", studentType(), "\"}");
 
         return builder.toString();
     }

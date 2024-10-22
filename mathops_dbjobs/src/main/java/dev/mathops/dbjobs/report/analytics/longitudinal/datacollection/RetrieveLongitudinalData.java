@@ -32,7 +32,7 @@ public enum RetrieveLongitudinalData {
         final File dir = new File("C:\\opt\\zircon\\data");
 
         final int start = 201000; // 201000
-        final int end = 202480; // 202480 - Excludes FALL 2024
+        final int end = 202480;   // 202480 - Excludes FALL 2024
 
         if (dir.exists() || dir.mkdirs()) {
 

@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,13 +82,8 @@ final class CourseSummary {
 
         // Block 3: Majors
 
-        emitMajorsSummaryBlock(campusEnrollments, studentTerms, 90, "Fall", csv);
-        emitMajorsSummaryBlock(campusEnrollments, studentTerms, 10, "Spring", csv);
-        emitMajorsSummaryBlock(campusEnrollments, studentTerms, 60, "Summer", csv);
-
-        emitMajorsSummaryBlock(onlineEnrollments, studentTerms, 90, "Fall (Online)", csv);
-        emitMajorsSummaryBlock(onlineEnrollments, studentTerms, 10, "Spring (Online)", csv);
-        emitMajorsSummaryBlock(onlineEnrollments, studentTerms, 60, "Summer (Online)", csv);
+        emitMajorsSummaryBlock(campusEnrollments, studentTerms, "On-campus", csv);
+        emitMajorsSummaryBlock(onlineEnrollments, studentTerms, "Online", csv);
 
         // Write the CSV file
 
@@ -311,157 +307,119 @@ final class CourseSummary {
      *
      * @param applicableEnrollments the list of enrollments, organized by term
      * @param studentTerms          the set of student term records for each student
-     * @param termCode              the term code (10 for Spring, 60 for Summer, 90 for Fall)
-     * @param termLabel             the term label
+     * @param label                 the  label ("on-campus" or "online")
      * @param csv                   the CSV file contents to which to append
      */
     private void emitMajorsSummaryBlock(final Map<Integer, List<EnrollmentRec>> applicableEnrollments,
                                         final Map<String, ? extends List<StudentTermRec>> studentTerms,
-                                        final int termCode, final String termLabel, final HtmlBuilder csv) {
+                                        final String label, final HtmlBuilder csv) {
 
-        csv.addln("Summary statistics for ", termLabel, " terms:");
+        // Gather a list of all years represented
+        final List<Integer> years = new ArrayList<>(15);
+        for (final Integer term : applicableEnrollments.keySet()) {
+            final int termValue = term.intValue();
+            final int year = termValue / 100;
+            final Integer yearObj = Integer.valueOf(year);
+            if (!years.contains(yearObj)) {
+                years.add(yearObj);
+            }
+        }
+        years.sort(null);
+
+        csv.addln("Student Distribution by Major (", label, "):");
         csv.addln();
 
         csv.addln("Year,Major,Total Enrollment,# Withdraws,% Withdraws,# Given Grade,% Given Grade,% A,% B,% C,% D,",
                 "% U/F,Avg. GPA,DFW of all enrolled,DFW of those given grade");
 
+        final Collection<EnrollmentRec> enrollmentsInYear = new ArrayList<>(1000);
         final Map<String, PopulationPerformance> majorPerformance = new TreeMap<>();
 
-        for (final Map.Entry<Integer, List<EnrollmentRec>> entry : applicableEnrollments.entrySet()) {
-            final Integer term = entry.getKey();
-            final int termValue = term.intValue();
+        for (final Integer year : years) {
+            final int yearValue = year.intValue();
 
-            final int code = termValue % 100;
-            if (code == termCode) {
-                final List<EnrollmentRec> enrollments = entry.getValue();
+            enrollmentsInYear.clear();
+            majorPerformance.clear();
 
-                for (final EnrollmentRec rec : enrollments) {
-                    final String studentId = rec.studentId();
-                    String major;
+            for (final Map.Entry<Integer, List<EnrollmentRec>> entry : applicableEnrollments.entrySet()) {
+                final Integer term = entry.getKey();
+                final int termValue = term.intValue();
+                if (yearValue == termValue / 100) {
+                    enrollmentsInYear.addAll(entry.getValue());
+                }
+            }
 
-                    final List<StudentTermRec> termRecs = studentTerms.get(studentId);
+            for (final EnrollmentRec rec : enrollmentsInYear) {
+                final int recPeriod = rec.academicPeriod();
+                final String studentId = rec.studentId();
+                String major;
 
-                    // NOTE: student term records won't exist for terms in which there is only transfer or AP/IB/CLEP
+                final List<StudentTermRec> termRecs = studentTerms.get(studentId);
 
-                    if (termRecs == null) {
-                        if (rec.gradeValue() != null && !(rec.isTransfer() || rec.isApIbClep())) {
-                            Log.warning("Student ", studentId, " has grade ", rec.gradeValue(),
-                                    " but has no Student Term records");
+                // NOTE: student term records won't exist for terms in which there is only transfer or AP/IB/CLEP
+
+                if (termRecs == null) {
+                    major = "(no data)";
+                } else {
+                    StudentTermRec found = null;
+                    for (final StudentTermRec termRec : termRecs) {
+                        if (termRec.academicPeriod() == recPeriod) {
+                            found = termRec;
+                            break;
                         }
+                    }
+
+                    if (found == null) {
                         major = "(no data)";
                     } else {
-                        StudentTermRec found = null;
-                        for (final StudentTermRec termRec : termRecs) {
-                            if (termRec.academicPeriod() == termValue) {
-                                found = termRec;
-                                break;
-                            }
-                        }
-
-                        if (found == null) {
-                            if (rec.gradeValue() != null && !(rec.isTransfer() || rec.isApIbClep())) {
-                                Log.warning("Student ", studentId, " has grade ", rec.gradeValue(),
-                                        " but has no Student Term record for ", term);
-                            }
-                            major = "(no data)";
-                        } else {
-                            major = found.major();
-                            if (major == null) {
-                                major = "(none)";
-                            }
+                        major = found.major();
+                        if (major == null) {
+                            major = "(none)";
                         }
                     }
-
-                    final String finalMajor = major;
-                    final PopulationPerformance performance = majorPerformance.computeIfAbsent(finalMajor,
-                            x -> new PopulationPerformance(finalMajor));
-                    performance.recordEnrollment(rec);
                 }
 
-                final List<PopulationPerformance> sorted = new ArrayList<>(majorPerformance.values());
-                sorted.sort(null);
+                final String finalMajor = major;
+                final PopulationPerformance performance = majorPerformance.computeIfAbsent(finalMajor,
+                        x -> new PopulationPerformance(finalMajor));
+                performance.recordEnrollment(rec);
+            }
 
-                int total = 0;
-                for (final PopulationPerformance performance : sorted) {
-                    total += performance.totalEnrollments;
-                }
-                final int threshold = total / 40;
-                final PopulationPerformance other = new PopulationPerformance("(others)");
+            final List<PopulationPerformance> sorted = new ArrayList<>(majorPerformance.values());
+            sorted.sort(null);
 
-                boolean first = true;
-                for (final PopulationPerformance performance : sorted) {
-                    final int totalEnrollments = performance.getTotalEnrollments();
-                    if (totalEnrollments > threshold) {
+            int total = 0;
+            for (final PopulationPerformance performance : sorted) {
+                total += performance.totalEnrollments;
+            }
 
-                        final double percentWithdraw = performance.getPercentWithdrawal();
-                        final double percentCompleting = performance.getPercentCompleting();
+            final int threshold = (int) Math.ceil((double) total / 50.0);
+            final PopulationPerformance other = new PopulationPerformance("(others)");
 
-                        final double percentA = performance.getPercentA();
-                        final double percentB = performance.getPercentB();
-                        final double percentC = performance.getPercentC();
-                        final double percentD = performance.getPercentD();
-                        final double percentF = performance.getPercentF();
+            boolean first = true;
+            for (final PopulationPerformance performance : sorted) {
+                final int totalEnrollments = performance.getTotalEnrollments();
+                if (totalEnrollments > threshold) {
 
-                        final double dfw = performance.getDfw();
-                        final double dfwWithGrade = performance.getDfwWithGrade();
+                    final double percentWithdraw = performance.getPercentWithdrawal();
+                    final double percentCompleting = performance.getPercentCompleting();
 
-                        final String totalEnrollmentsStr = Integer.toString(totalEnrollments);
+                    final double percentA = performance.getPercentA();
+                    final double percentB = performance.getPercentB();
+                    final double percentC = performance.getPercentC();
+                    final double percentD = performance.getPercentD();
+                    final double percentF = performance.getPercentF();
 
-                        final int numW = performance.getNumW();
-                        final String numWStr = Integer.toString(numW);
-                        final String pctWStr = this.format.format(percentWithdraw);
+                    final double dfw = performance.getDfw();
+                    final double dfwWithGrade = performance.getDfwWithGrade();
 
-                        final int numWithGrade = performance.getNumWithGrade();
-                        final String numWithGradeStr = Integer.toString(numWithGrade);
-                        final String pctWithGradeStr = this.format.format(percentCompleting);
+                    final String totalEnrollmentsStr = Integer.toString(totalEnrollments);
 
-                        final String pctAStr = this.format.format(percentA);
-                        final String pctBStr = this.format.format(percentB);
-                        final String pctCStr = this.format.format(percentC);
-                        final String pctDStr = this.format.format(percentD);
-                        final String pctFStr = this.format.format(percentF);
-
-                        final double avgGpa = performance.getAverageGpa();
-                        final String avgGpaStr = this.format.format(avgGpa);
-
-                        final String dfwStr = this.format.format(dfw);
-                        final String dfwWithGradeStr = this.format.format(dfwWithGrade);
-
-                        final String yearStr = first ? Integer.toString(termValue / 100) : CoreConstants.EMPTY;
-                        final String major = performance.getMajor();
-
-                        csv.addln(yearStr, ",", major, ",", totalEnrollmentsStr, ",", numWStr, ",",
-                                pctWStr, ",", numWithGradeStr, ",", pctWithGradeStr, ",", pctAStr, ",", pctBStr, ",",
-                                pctCStr, ",", pctDStr, ",", pctFStr, ",", avgGpaStr, ",", dfwStr, ",", dfwWithGradeStr);
-
-                        first = false;
-                    } else {
-                        other.accumulate(performance);
-                    }
-                }
-
-                final int otherEnrollments = other.getTotalEnrollments();
-
-                if (otherEnrollments > 0) {
-                    final double percentWithdraw = other.getPercentWithdrawal();
-                    final double percentCompleting = other.getPercentCompleting();
-
-                    final double percentA = other.getPercentA();
-                    final double percentB = other.getPercentB();
-                    final double percentC = other.getPercentC();
-                    final double percentD = other.getPercentD();
-                    final double percentF = other.getPercentF();
-
-                    final double dfw = other.getDfw();
-                    final double dfwWithGrade = other.getDfwWithGrade();
-
-                    final String otherEnrollmentsStr = Integer.toString(otherEnrollments);
-
-                    final int numW = other.getNumW();
+                    final int numW = performance.getNumW();
                     final String numWStr = Integer.toString(numW);
                     final String pctWStr = this.format.format(percentWithdraw);
 
-                    final int numWithGrade = other.getNumWithGrade();
+                    final int numWithGrade = performance.getNumWithGrade();
                     final String numWithGradeStr = Integer.toString(numWithGrade);
                     final String pctWithGradeStr = this.format.format(percentCompleting);
 
@@ -471,23 +429,71 @@ final class CourseSummary {
                     final String pctDStr = this.format.format(percentD);
                     final String pctFStr = this.format.format(percentF);
 
-                    final double avgGpa = other.getAverageGpa();
+                    final double avgGpa = performance.getAverageGpa();
                     final String avgGpaStr = this.format.format(avgGpa);
 
                     final String dfwStr = this.format.format(dfw);
                     final String dfwWithGradeStr = this.format.format(dfwWithGrade);
 
-                    final String yearStr = first ? Integer.toString(termValue / 100) : CoreConstants.EMPTY;
-                    final String major = other.getMajor();
+                    final String yearStr = first ? Integer.toString(yearValue) : CoreConstants.EMPTY;
+                    final String major = performance.getMajor();
 
-                    csv.addln(yearStr, ",", major, ",", otherEnrollmentsStr, ",", numWStr, ",",
+                    csv.addln(yearStr, ",", major, ",", totalEnrollmentsStr, ",", numWStr, ",",
                             pctWStr, ",", numWithGradeStr, ",", pctWithGradeStr, ",", pctAStr, ",", pctBStr, ",",
                             pctCStr, ",", pctDStr, ",", pctFStr, ",", avgGpaStr, ",", dfwStr, ",", dfwWithGradeStr);
 
                     first = false;
+                } else {
+                    other.accumulate(performance);
                 }
             }
+
+            final int otherEnrollments = other.getTotalEnrollments();
+
+            if (otherEnrollments > 0) {
+                final double percentWithdraw = other.getPercentWithdrawal();
+                final double percentCompleting = other.getPercentCompleting();
+
+                final double percentA = other.getPercentA();
+                final double percentB = other.getPercentB();
+                final double percentC = other.getPercentC();
+                final double percentD = other.getPercentD();
+                final double percentF = other.getPercentF();
+
+                final double dfw = other.getDfw();
+                final double dfwWithGrade = other.getDfwWithGrade();
+
+                final String otherEnrollmentsStr = Integer.toString(otherEnrollments);
+
+                final int numW = other.getNumW();
+                final String numWStr = Integer.toString(numW);
+                final String pctWStr = this.format.format(percentWithdraw);
+
+                final int numWithGrade = other.getNumWithGrade();
+                final String numWithGradeStr = Integer.toString(numWithGrade);
+                final String pctWithGradeStr = this.format.format(percentCompleting);
+
+                final String pctAStr = this.format.format(percentA);
+                final String pctBStr = this.format.format(percentB);
+                final String pctCStr = this.format.format(percentC);
+                final String pctDStr = this.format.format(percentD);
+                final String pctFStr = this.format.format(percentF);
+
+                final double avgGpa = other.getAverageGpa();
+                final String avgGpaStr = this.format.format(avgGpa);
+
+                final String dfwStr = this.format.format(dfw);
+                final String dfwWithGradeStr = this.format.format(dfwWithGrade);
+
+                final String yearStr = first ? Integer.toString(yearValue) : CoreConstants.EMPTY;
+                final String major = other.getMajor();
+
+                csv.addln(yearStr, ",", major, ",", otherEnrollmentsStr, ",", numWStr, ",",
+                        pctWStr, ",", numWithGradeStr, ",", pctWithGradeStr, ",", pctAStr, ",", pctBStr, ",",
+                        pctCStr, ",", pctDStr, ",", pctFStr, ",", avgGpaStr, ",", dfwStr, ",", dfwWithGradeStr);
+            }
         }
+
         csv.addln();
     }
 }
