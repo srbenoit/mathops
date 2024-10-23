@@ -319,12 +319,11 @@ enum PageOutline {
 
                         logic.gatherData();
 
-                        final String typeStr = "RE".equals(type) ? "Review Exam" :
+                        final String typeStr = "RE".equals(type) ? ("Unit " + unit + " Review Exam") :
                                 ("FE".equals(type) ? "Final Exam" : "Exam");
 
                         if (days > 0 || days == -1) {
-                            msg = SimpleBuilder.concat("Your free extension on the Unit ", unit, " ", typeStr,
-                                    " has been applied.");
+                            msg = SimpleBuilder.concat("Your free extension on the ", typeStr, " has been applied.");
                         } else if (days == 0) {
                             msg = """
                                     We were unable to apply your free extension.

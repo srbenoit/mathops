@@ -1,6 +1,5 @@
 package dev.mathops.dbjobs.report.analytics.longitudinal;
 
-import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
