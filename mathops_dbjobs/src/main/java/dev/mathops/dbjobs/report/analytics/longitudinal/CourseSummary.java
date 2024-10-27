@@ -341,7 +341,7 @@ final class CourseSummary {
         csv.addln("On-Campus and Online Enrollment Trends for ", termLabel, " terms:");
         csv.addln();
 
-        csv.addln("Year,On-Campus Enrollment,Online Enrollment");
+        csv.addln("Year,On-Campus,Online");
 
         for (final Integer year : years) {
             final int yearValue = year.intValue();
