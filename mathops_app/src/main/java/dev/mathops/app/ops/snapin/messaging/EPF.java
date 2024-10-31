@@ -862,7 +862,8 @@ public enum EPF {
 
                     final Map<String, List<String>> incCourseSections = new HashMap<>(10);
 
-                    final String[] sections = {"001", "401", "801", "809"};
+//                    final String[] sections = {"001", "401", "801", "809"};
+                    final String[] sections = {"002"};
                     final List<String> sect117 = Arrays.asList(sections);
                     final List<String> sect118 = Arrays.asList(sections);
                     final List<String> sect124 = Arrays.asList(sections);
@@ -881,9 +882,12 @@ public enum EPF {
                         Log.info(entry.getKey(), ": ", Integer.toString(entry.getValue().size()), " students");
                     }
 
-                    final List<String> late = studentsNDaysLate(result, 14);
+                    final List<String> late = studentsNDaysLate(result, 10);
                     Log.info("There are ", Integer.toString(late.size()),
-                            " students who are 14 days or more late, or have not yet started");
+                            " students who are 10 days or more late, or have not yet started");
+                    for (final String id : late) {
+                        Log.fine(id);
+                    }
 
                 } catch (final SQLException ex) {
                     Log.warning(ex);

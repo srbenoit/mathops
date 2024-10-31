@@ -23,9 +23,14 @@ import java.util.TreeSet;
 final class SequenceSuccess {
 
     /** A commonly-used string. */
-    private static final String CSV_HEADER = SimpleBuilder.concat(
-            "Year,Term,N,Pass %,Avg. Grade,N,Pass %,Avg. Grade,N,Pass %,Avg. Grade,N,Pass %,Avg. Grade,N,Pass %,",
-            "Avg. Grade,N,Pass %,Avg. Grade,N,Pass %,Avg. Grade,N,Pass %,Avg. Grade,N,Pass %,Avg. Grade");
+    private static final String CSV_HEADER1 = SimpleBuilder.concat(
+            ",N,Pass %,Avg. Grade,N,Pass %,Avg. Grade,N,Pass %,Avg. Grade,N,Pass %,Avg. Grade,N,Pass %,Avg. Grade,",
+            "N,Pass %,Avg. Grade,N,Pass %,Avg. Grade,N,Pass %,Avg. Grade,N,Pass %,Avg. Grade");
+
+    /** A commonly-used string. */
+    private static final String CSV_HEADER2 = SimpleBuilder.concat(
+            "Year,,CSU (A),CSU (A),,CSU (B),CSU (B),,CSU (C/D),CSU (C/D),,CSU,CSU,,Transfer (A),Transfer (A),,",
+            "Transfer (B),Transfer (B),,Transfer (C/D),Transfer (C/D),,Transfer,Transfer,,AP/IB/CLEP,AP/IB/CLEP");
 
     /** The last 2 digits for a Spring term. */
     private static final int SPRING_TERM = 10;
@@ -82,25 +87,38 @@ final class SequenceSuccess {
     }
 
     /**
+     * Given a starting term and a term code, finds the year before the first year to present.
+     *
+     * @param startTerm the start term
+     * @param termCode  the term code
+     * @return the year before the first year to include
+     */
+    private static int getYearBeforeStartYear(final int startTerm, final int termCode) {
+
+        final int startTermCode = startTerm % 100;
+        return (termCode > startTermCode) ? (startTerm / 100) - 1 : (startTerm / 100);
+    }
+
+    /**
      * Analysis of success in a second course based on how student completed a first course.
      *
-     * @param earliestSecondCourseTerm the earliest term for which to look for the second course
-     * @param records                  the set of student course records
-     * @param firstCourse              the course ID of the first course in the sequence
-     * @param firstCourseSections      the list of sections of interest in the first course
-     * @param secondCourse             the course ID of the second course in the sequence
-     * @param secondCourseSections     the list of sections of interest in the second course
+     * @param startTerm            the starting term
+     * @param endTerm              the ending term
+     * @param records              the set of student course records
+     * @param firstCourse          the course ID of the first course in the sequence
+     * @param firstCourseSections  the list of sections of interest in the first course
+     * @param secondCourse         the course ID of the second course in the sequence
+     * @param secondCourseSections the list of sections of interest in the second course
      */
-    void generateReport(final int earliestSecondCourseTerm,
-                        final Map<String, List<EnrollmentRec>> records, final String firstCourse,
-                        final String[][] firstCourseSections, final String secondCourse,
-                        final String[][] secondCourseSections) {
+    void generate(final int startTerm, final int endTerm,
+                  final Map<String, List<EnrollmentRec>> records, final String firstCourse,
+                  final String[][] firstCourseSections, final String secondCourse,
+                  final String[][] secondCourseSections) {
 
         Log.fine("");
         Log.fine("Analysis of outcomes in ", secondCourse, " with respect to ", firstCourse);
 
-        gatherData(earliestSecondCourseTerm, records, firstCourse, firstCourseSections, secondCourse,
-                secondCourseSections);
+        gatherData(startTerm, records, firstCourse, firstCourseSections, secondCourse, secondCourseSections);
 
         final String numWithSecondStr = Integer.toString(this.numWithSecond);
         final String numWithFirstPriorStr = Integer.toString(this.numWithFirstPrior);
@@ -112,59 +130,35 @@ final class SequenceSuccess {
 
         final HtmlBuilder csv = new HtmlBuilder(10000);
 
-        final String header2 = SimpleBuilder.concat(firstCourse, " at CSU (A),,,", firstCourse, " at CSU (B),,,",
-                firstCourse, " at CSU (C/D),,,", firstCourse, " at CSU (ALL),,,", firstCourse, " transfer (A),,,",
-                firstCourse, " transfer (B),,,", firstCourse, " transfer (C/D),,,", firstCourse, " transfer (ALL),,,",
-                firstCourse, " via AP/IB/CLEP");
+        final String blockHeading = SimpleBuilder.concat(",", firstCourse, " at CSU (A),,,",
+                firstCourse, " at CSU (B),,,", firstCourse, " at CSU (C/D),,,", firstCourse, " at CSU (ALL),,,",
+                firstCourse, " transfer (A),,,", firstCourse, " transfer (B),,,", firstCourse, " transfer (C/D),,,",
+                firstCourse, " transfer (ALL),,,", firstCourse, " via AP/IB/CLEP");
 
-        csv.addln("Pass rates in:,", secondCourse);
-        csv.addln("As function of:,", firstCourse);
-        csv.addln("Total students with ", secondCourse, ":,", numWithSecondStr);
-        csv.addln("Subset with ", firstCourse, " in prior term:,", numWithFirstPriorStr);
-        csv.addln("Subset with ", firstCourse, " in any earlier term:,", numWithFirstAnyStr);
+        csv.addln("Pass rates in:,,,,,,,,,,,", secondCourse);
+        csv.addln("As function of:,,,,,,,,,,,", firstCourse);
+        csv.addln("Total students with ", secondCourse, ":,,,,,,,,,,,", numWithSecondStr);
+        csv.addln("Subset with ", firstCourse, " in prior term:,,,,,,,,,,,", numWithFirstPriorStr);
+        csv.addln("Subset with ", firstCourse, " in any earlier term:,,,,,,,,,,,", numWithFirstAnyStr);
         csv.addln();
 
-        csv.addln("Reports for individual terms [students with credit in ", firstCourse, " in the prior term]");
+        csv.addln("Reports for individual years [students with credit in ", firstCourse, " in the prior term]");
         csv.addln();
-
-        csv.addln("Fall Semesters,,", header2);
-        generateOneYearRows(FALL_TERM, csv, firstCourse, secondCourse, this.priorTerm);
-        csv.addln("Spring Semesters,,", header2);
-        generateOneYearRows(SPRING_TERM, csv, firstCourse, secondCourse, this.priorTerm);
-        csv.addln("Summer Semesters,,", header2);
-        generateOneYearRows(SUMMER_TERM, csv, firstCourse, secondCourse, this.priorTerm);
+        generateOneYearRows(startTerm, endTerm, blockHeading, csv, firstCourse, secondCourse, this.priorTerm);
 
         csv.addln("Reports based on average over last three terms [students with credit in ", firstCourse,
                 " in the prior term]");
         csv.addln();
+        generateThreeYearRows(startTerm, endTerm, blockHeading, csv, firstCourse, secondCourse, this.priorTerm);
 
-        csv.addln("Fall Semesters,,", header2);
-        generateThreeYearRows(FALL_TERM, csv, firstCourse, secondCourse, this.priorTerm);
-        csv.addln("Spring Semesters,,", header2);
-        generateThreeYearRows(SPRING_TERM, csv, firstCourse, secondCourse, this.priorTerm);
-        csv.addln("Summer Semesters,,", header2);
-        generateThreeYearRows(SUMMER_TERM, csv, firstCourse, secondCourse, this.priorTerm);
-
-        csv.addln("Reports for individual terms [students with credit in ", firstCourse, " in the any earlier term]");
+        csv.addln("Reports for individual years [students with credit in ", firstCourse, " in the any earlier term]");
         csv.addln();
-
-        csv.addln("Fall Semesters,,", header2);
-        generateOneYearRows(FALL_TERM, csv, firstCourse, secondCourse, this.allEarlierTerms);
-        csv.addln("Spring Semesters,,", header2);
-        generateOneYearRows(SPRING_TERM, csv, firstCourse, secondCourse, this.allEarlierTerms);
-        csv.addln("Summer Semesters,,", header2);
-        generateOneYearRows(SUMMER_TERM, csv, firstCourse, secondCourse, this.allEarlierTerms);
+        generateOneYearRows(startTerm, endTerm, blockHeading, csv, firstCourse, secondCourse, this.allEarlierTerms);
 
         csv.addln("Reports based on average over last three terms [students with credit in ", firstCourse,
                 " in any earlier term]");
         csv.addln();
-
-        csv.addln("Fall Semesters,,", header2);
-        generateThreeYearRows(FALL_TERM, csv, firstCourse, secondCourse, this.allEarlierTerms);
-        csv.addln("Spring Semesters,,", header2);
-        generateThreeYearRows(SPRING_TERM, csv, firstCourse, secondCourse, this.allEarlierTerms);
-        csv.addln("Summer Semesters,,", header2);
-        generateThreeYearRows(SUMMER_TERM, csv, firstCourse, secondCourse, this.allEarlierTerms);
+        generateThreeYearRows(startTerm, endTerm, blockHeading, csv, firstCourse, secondCourse, this.allEarlierTerms);
 
         final String filename = SimpleBuilder.concat("Sequence_", firstCourse, "_", secondCourse, ".csv");
         final String csvString = csv.toString();
@@ -180,24 +174,49 @@ final class SequenceSuccess {
     /**
      * Generates one-year data rows for a term, first/second course combination, and list of classified data.
      *
-     * @param termCode     the term code
+     * @param startTerm    the starting term
+     * @param blockHeading the heading to emit if there are rows to present
      * @param csv          the CSV file builder to which to write
      * @param firstCourse  the first course code
      * @param secondCourse the second course code
      * @param classified   the classified data
      */
-    private void generateOneYearRows(final int termCode, final HtmlBuilder csv,
-                                     final String firstCourse, final String secondCourse,
+    private void generateOneYearRows(final int startTerm, final int endTerm, final String blockHeading,
+                                     final HtmlBuilder csv, final String firstCourse, final String secondCourse,
                                      final ClassifiedData classified) {
 
-        csv.addln(CSV_HEADER);
+        final int startYear = startTerm / 100;
+        final int endYear = endTerm / 100;
 
-        for (final Integer key : this.terms) {
-            final int value = key.intValue();
-            final int code = value % 100;
-            if (code == termCode) {
-                addOneYearRow(csv, key, firstCourse, secondCourse, classified);
+        boolean needsHeader = true;
+        final List<Integer> keys = new ArrayList<>(3);
+
+        for (int year = startYear; year <= endYear; ++year) {
+
+            // Gather the keys for the current year.
+            for (final Integer key : this.terms) {
+                final int value = key.intValue();
+                final int keyYear = value / 100;
+                if (keyYear == year) {
+                    keys.add(key);
+                }
             }
+
+            if (needsHeader) {
+                csv.addln(blockHeading);
+                csv.addln(CSV_HEADER1);
+                csv.addln(CSV_HEADER2);
+                needsHeader = false;
+            }
+
+            final String yearLabel = Integer.toString(year);
+            if (keys.isEmpty()) {
+                csv.addln(yearLabel);
+            } else {
+                addYearRow(csv, yearLabel, keys, firstCourse, secondCourse, classified);
+            }
+
+            keys.clear();
         }
 
         csv.addln();
@@ -206,31 +225,53 @@ final class SequenceSuccess {
     /**
      * Generates three-year-average data rows for a term, first/second course combination, and list of classified data.
      *
-     * @param termCode     the term code
+     * @param startTerm    the starting term
+     * @param endTerm      the ending term
+     * @param blockHeading the heading to emit if there are rows to present
      * @param csv          the CSV file builder to which to write
      * @param firstCourse  the first course code
      * @param secondCourse the second course code
      * @param classified   the classified data
      */
-    private void generateThreeYearRows(final int termCode, final HtmlBuilder csv,
-                                       final String firstCourse, final String secondCourse,
+    private void generateThreeYearRows(final int startTerm, final int endTerm, final String blockHeading,
+                                       final HtmlBuilder csv, final String firstCourse, final String secondCourse,
                                        final ClassifiedData classified) {
 
-        csv.addln(CSV_HEADER);
+        final int startYear = startTerm / 100;
+        final int endYear = endTerm / 100;
 
-        Integer key1 = null;
-        Integer key2 = null;
-        for (final Integer key : this.terms) {
-            final int value = key.intValue();
-            final int code = value % 100;
-            if (code == termCode) {
-                if (key1 != null) {
-                    addThreeYearRow(csv, key1, key2, key, firstCourse, secondCourse, classified);
+        boolean needsHeader = true;
+        final List<Integer> keys = new ArrayList<>(9);
+
+        for (int year3 = startYear + 2; year3 <= endYear; ++year3) {
+            final int year1 = year3 - 2;
+            final int year2 = year3 - 1;
+
+            for (final Integer key : this.terms) {
+                final int value = key.intValue();
+                final int keyYear = value / 100;
+                if (keyYear == year1 || keyYear == year2 || keyYear == year3) {
+                    keys.add(key);
                 }
-                key1 = key2;
-                key2 = key;
             }
+
+            if (needsHeader) {
+                csv.addln(blockHeading);
+                csv.addln(CSV_HEADER1);
+                csv.addln(CSV_HEADER2);
+                needsHeader = false;
+            }
+
+            final String yearLabel = year1 + "-" + year3;
+            if (keys.isEmpty()) {
+                csv.addln(yearLabel);
+            } else {
+                addYearRow(csv, yearLabel, keys, firstCourse, secondCourse, classified);
+            }
+
+            keys.clear();
         }
+
         csv.addln();
     }
 
@@ -592,47 +633,22 @@ final class SequenceSuccess {
      * Adds a single row to the CSV file.  Each row represents performance in a single term.
      *
      * @param csv          the CSV
-     * @param key          the term key
+     * @param yearLabel    the year label
+     * @param keys         the keys associated with the year
      * @param firstCourse  the first course
      * @param secondCourse the second course
      * @param classified   the classified data
      */
-    private void addOneYearRow(final HtmlBuilder csv, final Integer key, final String firstCourse,
-                               final String secondCourse, final ClassifiedData classified) {
+    private void addYearRow(final HtmlBuilder csv, final String yearLabel, final List<Integer> keys,
+                            final String firstCourse, final String secondCourse, final ClassifiedData classified) {
 
-        final List<EnrollmentRec> localAList = classified.localA().get(key);
-        final int localACount = localAList.size();
-        final String localACountStr = Integer.toString(localACount);
-
-        final List<EnrollmentRec> localBList = classified.localB().get(key);
-        final int localBCount = localBList.size();
-        final String localBCountStr = Integer.toString(localBCount);
-
-        final List<EnrollmentRec> localCList = classified.localCD().get(key);
-        final int localCCount = localCList.size();
-        final String localCCountStr = Integer.toString(localCCount);
-
-        final int localCount = localACount + localBCount + localCCount;
-        final String localCountStr = Integer.toString(localCount);
-
-        final List<EnrollmentRec> transferAList = classified.transferA().get(key);
-        final int transferACount = transferAList.size();
-        final String transferACountStr = Integer.toString(transferACount);
-
-        final List<EnrollmentRec> transferBList = classified.transferB().get(key);
-        final int transferBCount = transferBList.size();
-        final String transferBCountStr = Integer.toString(transferBCount);
-
-        final List<EnrollmentRec> transferCList = classified.transferCD().get(key);
-        final int transferCCount = transferCList.size();
-        final String transferCCountStr = Integer.toString(transferCCount);
-
-        final int transferCount = transferACount + transferBCount + transferCCount;
-        final String transferCountStr = Integer.toString(transferCount);
-
-        final List<EnrollmentRec> apList = classified.ap().get(key);
-        final int apCount = apList.size();
-        final String apCountStr = Integer.toString(apCount);
+        int localACount = 0;
+        int localBCount = 0;
+        int localCCount = 0;
+        int transferACount = 0;
+        int transferBCount = 0;
+        int transferCCount = 0;
+        int apCount = 0;
 
         int localAPass = 0;
         int localBPass = 0;
@@ -652,82 +668,124 @@ final class SequenceSuccess {
         double transferTotalGrade = 0.0;
         double apGrade = 0.0;
 
-        if (localAList != null) {
-            for (final EnrollmentRec rec : localAList) {
-                if (rec.gradeValue() != null) {
-                    localAGrade += rec.gradeValue().doubleValue();
-                    localTotalGrade += rec.gradeValue().doubleValue();
+        for (final Integer key : keys) {
+            final List<EnrollmentRec> localAList = classified.localA().get(key);
+            if (localAList != null) {
+                localACount += localAList.size();
+
+                for (final EnrollmentRec rec : localAList) {
+                    if (rec.gradeValue() != null) {
+                        localAGrade += rec.gradeValue().doubleValue();
+                        localTotalGrade += rec.gradeValue().doubleValue();
+                    }
+                    if (rec.isPassed()) {
+                        ++localAPass;
+                    }
                 }
-                if (rec.isPassed()) {
-                    ++localAPass;
+            }
+
+            final List<EnrollmentRec> localBList = classified.localB().get(key);
+            if (localBList != null) {
+                localBCount += localBList.size();
+
+                for (final EnrollmentRec rec : localBList) {
+                    if (rec.gradeValue() != null) {
+                        localBGrade += rec.gradeValue().doubleValue();
+                        localTotalGrade += rec.gradeValue().doubleValue();
+                    }
+                    if (rec.isPassed()) {
+                        ++localBPass;
+                    }
+                }
+            }
+
+            final List<EnrollmentRec> localCList = classified.localCD().get(key);
+            if (localCList != null) {
+                localCCount += localCList.size();
+
+                for (final EnrollmentRec rec : localCList) {
+                    if (rec.gradeValue() != null) {
+                        localCGrade += rec.gradeValue().doubleValue();
+                        localTotalGrade += rec.gradeValue().doubleValue();
+                    }
+                    if (rec.isPassed()) {
+                        ++localCPass;
+                    }
+                }
+            }
+
+            final List<EnrollmentRec> transferAList = classified.transferA().get(key);
+            if (transferAList != null) {
+                transferACount += transferAList.size();
+
+                for (final EnrollmentRec rec : transferAList) {
+                    if (rec.gradeValue() != null) {
+                        transferAGrade += rec.gradeValue().doubleValue();
+                        transferTotalGrade += rec.gradeValue().doubleValue();
+                    }
+                    if (rec.isPassed()) {
+                        ++transferAPass;
+                    }
+                }
+            }
+
+            final List<EnrollmentRec> transferBList = classified.transferB().get(key);
+            if (transferBList != null) {
+                transferBCount += transferBList.size();
+
+                for (final EnrollmentRec rec : transferBList) {
+                    if (rec.gradeValue() != null) {
+                        transferBGrade += rec.gradeValue().doubleValue();
+                        transferTotalGrade += rec.gradeValue().doubleValue();
+                    }
+                    if (rec.isPassed()) {
+                        ++transferBPass;
+                    }
+                }
+            }
+
+            final List<EnrollmentRec> transferCList = classified.transferCD().get(key);
+            if (transferCList != null) {
+                transferCCount += transferCList.size();
+
+                for (final EnrollmentRec rec : transferCList) {
+                    if (rec.gradeValue() != null) {
+                        transferCGrade += rec.gradeValue().doubleValue();
+                        transferTotalGrade += rec.gradeValue().doubleValue();
+                    }
+                    if (rec.isPassed()) {
+                        ++transferCPass;
+                    }
+                }
+            }
+
+            final List<EnrollmentRec> apList = classified.ap().get(key);
+            if (apList != null) {
+                apCount += apList.size();
+
+                for (final EnrollmentRec rec : apList) {
+                    if (rec.gradeValue() != null) {
+                        apGrade += rec.gradeValue().doubleValue();
+                    }
+                    if (rec.isPassed()) {
+                        ++apPass;
+                    }
                 }
             }
         }
-        if (localBList != null) {
-            for (final EnrollmentRec rec : localBList) {
-                if (rec.gradeValue() != null) {
-                    localBGrade += rec.gradeValue().doubleValue();
-                    localTotalGrade += rec.gradeValue().doubleValue();
-                }
-                if (rec.isPassed()) {
-                    ++localBPass;
-                }
-            }
-        }
-        if (localCList != null) {
-            for (final EnrollmentRec rec : localCList) {
-                if (rec.gradeValue() != null) {
-                    localCGrade += rec.gradeValue().doubleValue();
-                    localTotalGrade += rec.gradeValue().doubleValue();
-                }
-                if (rec.isPassed()) {
-                    ++localCPass;
-                }
-            }
-        }
-        if (transferAList != null) {
-            for (final EnrollmentRec rec : transferAList) {
-                if (rec.gradeValue() != null) {
-                    transferAGrade += rec.gradeValue().doubleValue();
-                    transferTotalGrade += rec.gradeValue().doubleValue();
-                }
-                if (rec.isPassed()) {
-                    ++transferAPass;
-                }
-            }
-        }
-        if (transferBList != null) {
-            for (final EnrollmentRec rec : transferBList) {
-                if (rec.gradeValue() != null) {
-                    transferBGrade += rec.gradeValue().doubleValue();
-                    transferTotalGrade += rec.gradeValue().doubleValue();
-                }
-                if (rec.isPassed()) {
-                    ++transferBPass;
-                }
-            }
-        }
-        if (transferCList != null) {
-            for (final EnrollmentRec rec : transferCList) {
-                if (rec.gradeValue() != null) {
-                    transferCGrade += rec.gradeValue().doubleValue();
-                    transferTotalGrade += rec.gradeValue().doubleValue();
-                }
-                if (rec.isPassed()) {
-                    ++transferCPass;
-                }
-            }
-        }
-        if (apList != null) {
-            for (final EnrollmentRec rec : apList) {
-                if (rec.gradeValue() != null) {
-                    apGrade += rec.gradeValue().doubleValue();
-                }
-                if (rec.isPassed()) {
-                    ++apPass;
-                }
-            }
-        }
+
+        final int localCount = localACount + localBCount + localCCount;
+        final int transferCount = transferACount + transferBCount + transferCCount;
+
+        final String localACountStr = Integer.toString(localACount);
+        final String localBCountStr = Integer.toString(localBCount);
+        final String localCCountStr = Integer.toString(localCCount);
+        final String localCountStr = Integer.toString(localCount);
+        final String transferACountStr = Integer.toString(transferACount);
+        final String transferBCountStr = Integer.toString(transferBCount);
+        final String transferCCountStr = Integer.toString(transferCCount);
+        final String transferCountStr = Integer.toString(transferCount);
+        final String apCountStr = Integer.toString(apCount);
 
         if (localAPass > 0) {
             localAGrade = localAGrade / (double) localAPass;
@@ -764,302 +822,39 @@ final class SequenceSuccess {
         }
 
         final double passRateWithLocalA = 100.0 * (double) localAPass / (double) localACount;
-        final String passRateWithLocalAStr = fmt(passRateWithLocalA);
+        final String passRateWithLocalAStr = localACount == 0 ? CoreConstants.EMPTY : fmt(passRateWithLocalA);
         final double passRateWithLocalB = 100.0 * (double) localBPass / (double) localBCount;
-        final String passRateWithLocalBStr = fmt(passRateWithLocalB);
+        final String passRateWithLocalBStr = localBCount == 0 ? CoreConstants.EMPTY : fmt(passRateWithLocalB);
         final double passRateWithLocalC = 100.0 * (double) localCPass / (double) localCCount;
-        final String passRateWithLocalCStr = fmt(passRateWithLocalC);
+        final String passRateWithLocalCStr = localCCount == 0 ? CoreConstants.EMPTY : fmt(passRateWithLocalC);
         final double passRateWithLocal = 100.0 * (double) (localPass) / (double) localCount;
-        final String passRateWithLocalStr = fmt(passRateWithLocal);
+        final String passRateWithLocalStr = localCount == 0 ? CoreConstants.EMPTY : fmt(passRateWithLocal);
 
         final double passRateWithTransferA = 100.0 * (double) transferAPass / (double) transferACount;
-        final String passRateWithTransferAStr = fmt(passRateWithTransferA);
+        final String passRateWithTransferAStr = transferACount == 0 ? CoreConstants.EMPTY : fmt(passRateWithTransferA);
         final double passRateWithTransferB = 100.0 * (double) transferBPass / (double) transferBCount;
-        final String passRateWithTransferBStr = fmt(passRateWithTransferB);
+        final String passRateWithTransferBStr = transferBCount == 0 ? CoreConstants.EMPTY : fmt(passRateWithTransferB);
         final double passRateWithTransferC = 100.0 * (double) transferCPass / (double) transferCCount;
-        final String passRateWithTransferCStr = fmt(passRateWithTransferC);
+        final String passRateWithTransferCStr = transferCCount == 0 ? CoreConstants.EMPTY : fmt(passRateWithTransferC);
         final double passRateWithTransfer = 100.0 * (double) (transferPass) / (double) transferCount;
-        final String passRateWithTransferStr = fmt(passRateWithTransfer);
+        final String passRateWithTransferStr = transferCount == 0 ? CoreConstants.EMPTY : fmt(passRateWithTransfer);
 
         final double passRateWithAp = 100.0 * (double) apPass / (double) apCount;
-        final String passRateWithApStr = fmt(passRateWithAp);
+        final String passRateWithApStr = apCount == 0 ? CoreConstants.EMPTY : fmt(passRateWithAp);
 
-        final String localAGradeStr = fmt(localAGrade);
-        final String localBGradeStr = fmt(localBGrade);
-        final String localCGradeStr = fmt(localCGrade);
-        final String localTotalGradeStr = fmt(localTotalGrade);
+        final String localAGradeStr = localACount == 0 ? CoreConstants.EMPTY : fmt(localAGrade);
+        final String localBGradeStr = localBCount == 0 ? CoreConstants.EMPTY : fmt(localBGrade);
+        final String localCGradeStr = localCCount == 0 ? CoreConstants.EMPTY : fmt(localCGrade);
+        final String localTotalGradeStr = localCount == 0 ? CoreConstants.EMPTY : fmt(localTotalGrade);
 
-        final String transferAGradeStr = fmt(transferAGrade);
-        final String transferBGradeStr = fmt(transferBGrade);
-        final String transferCGradeStr = fmt(transferCGrade);
-        final String transferTotalGradeStr = fmt(transferTotalGrade);
+        final String transferAGradeStr = transferACount == 0 ? CoreConstants.EMPTY : fmt(transferAGrade);
+        final String transferBGradeStr = transferBCount == 0 ? CoreConstants.EMPTY : fmt(transferBGrade);
+        final String transferCGradeStr = transferCCount == 0 ? CoreConstants.EMPTY : fmt(transferCGrade);
+        final String transferTotalGradeStr = transferCount == 0 ? CoreConstants.EMPTY : fmt(transferTotalGrade);
 
-        final String apGradeStr = fmt(apGrade);
+        final String apGradeStr = apCount == 0 ? CoreConstants.EMPTY : fmt(apGrade);
 
-        final int keyValue = key.intValue();
-        final String year = Integer.toString(keyValue / 100);
-
-        final int termValue = keyValue % 100;
-        final String term = termValue == SPRING_TERM ? "Spring" : (termValue == FALL_TERM ? "Fall" :
-                (termValue == SUMMER_TERM ? "Summer" : Integer.toString(termValue)));
-
-        csv.addln(year, ",", term,
-                ",", localACountStr, ",", passRateWithLocalAStr, ",", localAGradeStr,
-                ",", localBCountStr, ",", passRateWithLocalBStr, ",", localBGradeStr,
-                ",", localCCountStr, ",", passRateWithLocalCStr, ",", localCGradeStr,
-                ",", localCountStr, ",", passRateWithLocalStr, ",", localTotalGradeStr,
-                ",", transferACountStr, ",", passRateWithTransferAStr, ",", transferAGradeStr,
-                ",", transferBCountStr, ",", passRateWithTransferBStr, ",", transferBGradeStr,
-                ",", transferCCountStr, ",", passRateWithTransferCStr, ",", transferCGradeStr,
-                ",", transferCountStr, ",", passRateWithTransferStr, ",", transferTotalGradeStr,
-                ",", apCountStr, ",", passRateWithApStr, ",", apGradeStr);
-    }
-
-    /**
-     * Adds a single row to the CSV file.  Each row represents performance averaged over a term in three consecutive
-     * years.
-     *
-     * @param csv          the CSV
-     * @param key1         the first term key
-     * @param key2         the second term key
-     * @param key3         the third term key
-     * @param firstCourse  the first course
-     * @param secondCourse the second course
-     * @param classified   the classified data
-     */
-    private void addThreeYearRow(final HtmlBuilder csv, final Integer key1, final Integer key2, final Integer key3,
-                                 final String firstCourse, final String secondCourse, final ClassifiedData classified) {
-
-        final List<EnrollmentRec> localAList = new ArrayList<>(100);
-        localAList.addAll(classified.localA().get(key1));
-        localAList.addAll(classified.localA().get(key2));
-        localAList.addAll(classified.localA().get(key3));
-        final int localACount = localAList.size();
-        final String localACountStr = Integer.toString(localACount);
-
-        final List<EnrollmentRec> localBList = new ArrayList<>(100);
-        localBList.addAll(classified.localB().get(key1));
-        localBList.addAll(classified.localB().get(key2));
-        localBList.addAll(classified.localB().get(key3));
-        final int localBCount = localBList.size();
-        final String localBCountStr = Integer.toString(localBCount);
-
-        final List<EnrollmentRec> localCList = new ArrayList<>(100);
-        localCList.addAll(classified.localCD().get(key1));
-        localCList.addAll(classified.localCD().get(key2));
-        localCList.addAll(classified.localCD().get(key3));
-        final int localCCount = localCList.size();
-        final String localCCountStr = Integer.toString(localCCount);
-
-        final int localCount = localACount + localBCount + localCCount;
-        final String localCountStr = Integer.toString(localCount);
-
-        final List<EnrollmentRec> transferAList = new ArrayList<>(100);
-        transferAList.addAll(classified.transferA().get(key1));
-        transferAList.addAll(classified.transferA().get(key2));
-        transferAList.addAll(classified.transferA().get(key3));
-        final int transferACount = transferAList.size();
-        final String transferACountStr = Integer.toString(transferACount);
-
-        final List<EnrollmentRec> transferBList = new ArrayList<>(100);
-        transferBList.addAll(classified.transferB().get(key1));
-        transferBList.addAll(classified.transferB().get(key2));
-        transferBList.addAll(classified.transferB().get(key3));
-        final int transferBCount = transferBList.size();
-        final String transferBCountStr = Integer.toString(transferBCount);
-
-        final List<EnrollmentRec> transferCList = new ArrayList<>(100);
-        transferCList.addAll(classified.transferCD().get(key1));
-        transferCList.addAll(classified.transferCD().get(key2));
-        transferCList.addAll(classified.transferCD().get(key3));
-        final int transferCCount = transferCList.size();
-        final String transferCCountStr = Integer.toString(transferCCount);
-
-        final int transferCount = transferACount + transferBCount + transferCCount;
-        final String transferCountStr = Integer.toString(transferCount);
-
-        final List<EnrollmentRec> apList = new ArrayList<>(100);
-        apList.addAll(classified.ap().get(key1));
-        apList.addAll(classified.ap().get(key2));
-        apList.addAll(classified.ap().get(key3));
-        final int apCount = apList.size();
-        final String apCountStr = Integer.toString(apCount);
-
-        int localAPass = 0;
-        int localBPass = 0;
-        int localCPass = 0;
-        int transferAPass = 0;
-        int transferBPass = 0;
-        int transferCPass = 0;
-        int apPass = 0;
-
-        double localAGrade = 0.0;
-        double localBGrade = 0.0;
-        double localCGrade = 0.0;
-        double localTotalGrade = 0.0;
-        double transferAGrade = 0.0;
-        double transferBGrade = 0.0;
-        double transferCGrade = 0.0;
-        double transferTotalGrade = 0.0;
-        double apGrade = 0.0;
-
-        if (localAList != null) {
-            for (final EnrollmentRec rec : localAList) {
-                if (rec.gradeValue() != null) {
-                    localAGrade += rec.gradeValue().doubleValue();
-                    localTotalGrade += rec.gradeValue().doubleValue();
-                }
-                if (rec.isPassed()) {
-                    ++localAPass;
-                }
-            }
-        }
-        if (localBList != null) {
-            for (final EnrollmentRec rec : localBList) {
-                if (rec.gradeValue() != null) {
-                    localBGrade += rec.gradeValue().doubleValue();
-                    localTotalGrade += rec.gradeValue().doubleValue();
-                }
-                if (rec.isPassed()) {
-                    ++localBPass;
-                }
-            }
-        }
-        if (localCList != null) {
-            for (final EnrollmentRec rec : localCList) {
-                if (rec.gradeValue() != null) {
-                    localCGrade += rec.gradeValue().doubleValue();
-                    localTotalGrade += rec.gradeValue().doubleValue();
-                }
-                if (rec.isPassed()) {
-                    ++localCPass;
-                }
-            }
-        }
-        if (transferAList != null) {
-            for (final EnrollmentRec rec : transferAList) {
-                if (rec.gradeValue() != null) {
-                    transferAGrade += rec.gradeValue().doubleValue();
-                    transferTotalGrade += rec.gradeValue().doubleValue();
-                }
-                if (rec.isPassed()) {
-                    ++transferAPass;
-                }
-            }
-        }
-        if (transferBList != null) {
-            for (final EnrollmentRec rec : transferBList) {
-                if (rec.gradeValue() != null) {
-                    transferBGrade += rec.gradeValue().doubleValue();
-                    transferTotalGrade += rec.gradeValue().doubleValue();
-                }
-                if (rec.isPassed()) {
-                    ++transferBPass;
-                }
-            }
-        }
-        if (transferCList != null) {
-            for (final EnrollmentRec rec : transferCList) {
-                if (rec.gradeValue() != null) {
-                    transferCGrade += rec.gradeValue().doubleValue();
-                    transferTotalGrade += rec.gradeValue().doubleValue();
-                }
-                if (rec.isPassed()) {
-                    ++transferCPass;
-                }
-            }
-        }
-        if (apList != null) {
-            for (final EnrollmentRec rec : apList) {
-                if (rec.gradeValue() != null) {
-                    apGrade += rec.gradeValue().doubleValue();
-                }
-                if (rec.isPassed()) {
-                    ++apPass;
-                }
-            }
-        }
-
-        if (localAPass > 0) {
-            localAGrade = localAGrade / (double) localAPass;
-        }
-        if (localBPass > 0) {
-            localBGrade = localBGrade / (double) localBPass;
-        }
-        if (localCPass > 0) {
-            localCGrade = localCGrade / (double) localCPass;
-        }
-
-        if (transferAPass > 0) {
-            transferAGrade = transferAGrade / (double) transferAPass;
-        }
-        if (transferBPass > 0) {
-            transferBGrade = transferBGrade / (double) transferBPass;
-        }
-        if (transferCPass > 0) {
-            transferCGrade = transferCGrade / (double) transferCPass;
-        }
-
-        if (apPass > 0) {
-            apGrade = apGrade / (double) apPass;
-        }
-
-        final int localPass = localAPass + localBPass + localCPass;
-        if (localPass > 0) {
-            localTotalGrade = localTotalGrade / (double) (localPass);
-        }
-
-        final int transferPass = transferAPass + transferBPass + transferCPass;
-        if (transferPass > 0) {
-            transferTotalGrade = transferTotalGrade / (double) (transferPass);
-        }
-
-        final double passRateWithLocalA = 100.0 * (double) localAPass / (double) localACount;
-        final String passRateWithLocalAStr = fmt(passRateWithLocalA);
-        final double passRateWithLocalB = 100.0 * (double) localBPass / (double) localBCount;
-        final String passRateWithLocalBStr = fmt(passRateWithLocalB);
-        final double passRateWithLocalC = 100.0 * (double) localCPass / (double) localCCount;
-        final String passRateWithLocalCStr = fmt(passRateWithLocalC);
-        final double passRateWithLocal = 100.0 * (double) (localPass) / (double) localCount;
-        final String passRateWithLocalStr = fmt(passRateWithLocal);
-
-        final double passRateWithTransferA = 100.0 * (double) transferAPass / (double) transferACount;
-        final String passRateWithTransferAStr = fmt(passRateWithTransferA);
-        final double passRateWithTransferB = 100.0 * (double) transferBPass / (double) transferBCount;
-        final String passRateWithTransferBStr = fmt(passRateWithTransferB);
-        final double passRateWithTransferC = 100.0 * (double) transferCPass / (double) transferCCount;
-        final String passRateWithTransferCStr = fmt(passRateWithTransferC);
-        final double passRateWithTransfer = 100.0 * (double) (transferPass) / (double) transferCount;
-        final String passRateWithTransferStr = fmt(passRateWithTransfer);
-
-        final double passRateWithAp = 100.0 * (double) apPass / (double) apCount;
-        final String passRateWithApStr = fmt(passRateWithAp);
-
-        final String localAGradeStr = fmt(localAGrade);
-        final String localBGradeStr = fmt(localBGrade);
-        final String localCGradeStr = fmt(localCGrade);
-        final String localTotalGradeStr = fmt(localTotalGrade);
-
-        final String transferAGradeStr = fmt(transferAGrade);
-        final String transferBGradeStr = fmt(transferBGrade);
-        final String transferCGradeStr = fmt(transferCGrade);
-        final String transferTotalGradeStr = fmt(transferTotalGrade);
-
-        final String apGradeStr = fmt(apGrade);
-
-        final int key1Value = key1.intValue();
-        final int year1 = key1Value / 100;
-        final int key3Value = key3.intValue();
-        final int year3 = key3Value / 100;
-        final String year1Str = Integer.toString(year1);
-        final String year3Str = Integer.toString(year3);
-        final String years = SimpleBuilder.concat(year1Str, "-", year3Str);
-
-        final int termValue = key1Value % 100;
-        final String term = termValue == SPRING_TERM ? "Spring" : (termValue == FALL_TERM ? "Fall" :
-                (termValue == SUMMER_TERM ? "Summer" : Integer.toString(termValue)));
-
-        csv.addln(years, ",", term,
+        csv.addln(yearLabel,
                 ",", localACountStr, ",", passRateWithLocalAStr, ",", localAGradeStr,
                 ",", localBCountStr, ",", passRateWithLocalBStr, ",", localBGradeStr,
                 ",", localCCountStr, ",", passRateWithLocalCStr, ",", localCGradeStr,

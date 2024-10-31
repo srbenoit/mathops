@@ -12,10 +12,12 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * A utility class to gather facts about a single course.
@@ -49,11 +51,13 @@ final class CourseSummary {
      * @param studentTerms   the set of student term records
      * @param campusSections the list of sections of interest
      * @param onlineSections the list of online sections of interest
+     * @param majors         data on all major codes
      */
-    void generateReport(final int startTerm, final int endTerm, final String course,
-                        final Map<String, ? extends List<EnrollmentRec>> enrollments,
-                        final Map<String, ? extends List<StudentTermRec>> studentTerms,
-                        final String[][] campusSections, final String[][] onlineSections) {
+    void generate(final int startTerm, final int endTerm, final String course,
+                  final Map<String, ? extends List<EnrollmentRec>> enrollments,
+                  final Map<String, ? extends List<StudentTermRec>> studentTerms,
+                  final String[][] campusSections, final String[][] onlineSections,
+                  final Map<String, String> majors) {
 
         final Map<Integer, List<EnrollmentRec>> campusEnrollments = gatherEnrollments(course, startTerm, endTerm,
                 enrollments, campusSections);
@@ -68,25 +72,27 @@ final class CourseSummary {
 
         // Block 1: Summary of enrollments by term and overall success rates
 
-        emitCourseSummaryBlock(campusEnrollments, campusSections, 90, "Fall", csv);
-        emitCourseSummaryBlock(campusEnrollments, campusSections, 10, "Spring", csv);
-        emitCourseSummaryBlock(campusEnrollments, campusSections, 60, "Summer", csv);
+        emitCourseSummaryBlock(startTerm, campusEnrollments, campusSections, 90, "Fall", csv);
+        emitCourseSummaryBlock(startTerm, campusEnrollments, campusSections, 10, "Spring", csv);
+        emitCourseSummaryBlock(startTerm, campusEnrollments, campusSections, 60, "Summer", csv);
 
-        emitCourseSummaryBlock(onlineEnrollments, onlineSections, 90, "Fall (Online)", csv);
-        emitCourseSummaryBlock(onlineEnrollments, onlineSections, 10, "Spring (Online)", csv);
-        emitCourseSummaryBlock(onlineEnrollments, onlineSections, 60, "Summer (Online)", csv);
+        emitCourseSummaryBlock(startTerm, onlineEnrollments, onlineSections, 90, "Fall (Online)", csv);
+        emitCourseSummaryBlock(startTerm, onlineEnrollments, onlineSections, 10, "Spring (Online)", csv);
+        emitCourseSummaryBlock(startTerm, onlineEnrollments, onlineSections, 60, "Summer (Online)", csv);
 
         // Block 2: TODO: Do the same, but disaggregated by population, once we have population data
 
         // Block 3: Enrollments in on-campus vs. online
-        emitOnCampusVsOnline(campusEnrollments, onlineEnrollments, 90, "Fall", csv);
-        emitOnCampusVsOnline(campusEnrollments, onlineEnrollments, 10, "Spring", csv);
-        emitOnCampusVsOnline(campusEnrollments, onlineEnrollments, 60, "Summer", csv);
+        emitEnrollments(startTerm, endTerm, campusEnrollments, onlineEnrollments, 90, "Fall", csv);
+        emitEnrollments(startTerm, endTerm, campusEnrollments, onlineEnrollments, 10, "Spring", csv);
+        emitEnrollments(startTerm, endTerm, campusEnrollments, onlineEnrollments, 60, "Summer", csv);
 
         // Block 4: Majors
 
-        emitMajorsSummaryBlock(campusEnrollments, studentTerms, "On-campus", csv);
-        emitMajorsSummaryBlock(onlineEnrollments, studentTerms, "Online", csv);
+        final Collection<String> majorCodes = new TreeSet<>();
+        emitMajorsSummaryBlock(campusEnrollments, studentTerms, "On-campus", majorCodes, csv);
+        emitMajorsSummaryBlock(onlineEnrollments, studentTerms, "Online", majorCodes, csv);
+        emitMajorNames(majorCodes, majors, csv);
 
         // Write the CSV file
 
@@ -113,8 +119,8 @@ final class CourseSummary {
      * @return a map from term code to the list of applicable enrollments from that term
      */
     private static Map<Integer, List<EnrollmentRec>> gatherEnrollments(
-            final String course, final int startTerm, final int endTerm, final Map<String, ?
-            extends List<EnrollmentRec>> records, final String[][] sections) {
+            final String course, final int startTerm, final int endTerm,
+            final Map<String, ? extends List<EnrollmentRec>> records, final String[][] sections) {
 
         // Use a map with automatically sorted keys.
         final Map<Integer, List<EnrollmentRec>> result = new TreeMap<>();
@@ -193,28 +199,45 @@ final class CourseSummary {
     }
 
     /**
+     * Given a starting term and a term code, finds the year before the first year to present.
+     *
+     * @param startTerm the start term
+     * @param termCode  the term code
+     * @return the year before the first year to include
+     */
+    private static int getYearBeforeStartYear(final int startTerm, final int termCode) {
+
+        final int startTermCode = startTerm % 100;
+        return (termCode > startTermCode) ? (startTerm / 100) - 1 : (startTerm / 100);
+    }
+
+    /**
      * Emits a block of rows in the CSV file with summary data for the course in a specific type of term (Fall, Spring,
      * Summer).
      *
+     * @param startTerm             the starting term
      * @param applicableEnrollments the list of enrollments
      * @param sections              the list of sections of interest
      * @param termCode              the term code (10 for Spring, 60 for Summer, 90 for Fall)
      * @param termLabel             the term label
      * @param csv                   the CSV file contents to which to append
      */
-    private void emitCourseSummaryBlock(final Map<Integer, List<EnrollmentRec>> applicableEnrollments,
+    private void emitCourseSummaryBlock(final int startTerm,
+                                        final Map<Integer, List<EnrollmentRec>> applicableEnrollments,
                                         final String[][] sections, final int termCode, final String termLabel,
                                         final HtmlBuilder csv) {
 
         csv.addln("Summary statistics for ", termLabel, " terms:");
         csv.addln();
 
-        csv.addln("Year,Sections,Avg. Section Size,Max. Section Size,Total Enrollment,# Withdraws,% Withdraws,",
-                "# Given Grade,% Given Grade,% A,% B,% C,% D,% U/F,Avg. GPA,DFW of all enrolled,",
-                "DFW of those given grade");
+        csv.addln("Year,# of Sections,Avg. Section Size,Max. Section Size,Total Enrollment,# Withdraws,% Withdraws,",
+                "# Given Grade,% Given Grade,% A,% B,% C,% D,% U/F,Avg. GPA,\"Success Rate, All Enrolled\",",
+                "\"Success Rate, Non-withdraw\",\"DFW, All Enrolled\",\"DF, Non-withdraw\"");
 
         final Map<String, Integer> sectionsMap = new HashMap<>(20);
         final PopulationPerformance performance = new PopulationPerformance("ALL");
+
+        int lastYear = getYearBeforeStartYear(startTerm, termCode);
 
         for (final Map.Entry<Integer, List<EnrollmentRec>> entry : applicableEnrollments.entrySet()) {
             final Integer term = entry.getKey();
@@ -251,7 +274,9 @@ final class CourseSummary {
                 final double percentF = performance.getPercentF();
 
                 final double dfw = performance.getDfw();
-                final double dfwWithGrade = performance.getDfwWithGrade();
+                final double dfNonWithdraw = performance.getDfwWithGrade();
+                final double success = 100.0 - dfw;
+                final double successNonWithdraw = 100.0 - dfNonWithdraw;
 
                 final int totalEnrollments = performance.getTotalEnrollments();
 
@@ -261,7 +286,8 @@ final class CourseSummary {
                 final double avgSectSize = (double) totalEnrollments / (double) numSections;
                 final String avgSectSizeStr = this.format.format(avgSectSize);
 
-                final String yearStr = Integer.toString(termValue / 100);
+                final int yearInt = termValue / 100;
+                final String yearStr = Integer.toString(yearInt);
 
                 String maxSectSizeStr = "-";
                 if (numSections > 0) {
@@ -292,13 +318,22 @@ final class CourseSummary {
                 final double avgGpa = performance.getAverageGpa();
                 final String avgGpaStr = this.format.format(avgGpa);
 
+                final String successStr = this.format.format(success);
+                final String successNonWithdrawStr = this.format.format(successNonWithdraw);
                 final String dfwStr = this.format.format(dfw);
-                final String dfwWithGradeStr = this.format.format(dfwWithGrade);
+                final String dfNonWithdrawStr = this.format.format(dfNonWithdraw);
+
+                while (yearInt > (lastYear + 1)) {
+                    ++lastYear;
+                    final String emptyYearStr = Integer.toString(lastYear);
+                    csv.addln(emptyYearStr);
+                }
 
                 csv.addln(yearStr, ",", numSectionsStr, ",", avgSectSizeStr, ",", maxSectSizeStr, ",",
                         totalEnrollmentsStr, ",", numWStr, ",", pctWStr, ",", numWithGradeStr, ",",
                         pctWithGradeStr, ",", pctAStr, ",", pctBStr, ",", pctCStr, ",", pctDStr, ",", pctFStr, ",",
-                        avgGpaStr, ",", dfwStr, ",", dfwWithGradeStr);
+                        avgGpaStr, ",", successStr, ",", successNonWithdrawStr, ",", dfwStr, ",", dfNonWithdrawStr);
+                lastYear = yearInt;
             }
         }
         csv.addln();
@@ -308,35 +343,23 @@ final class CourseSummary {
      * Emits a block of rows in the CSV file with data that compares enrollments in on-campus sections vs. online
      * sections by term, then by year
      *
+     * @param startTerm         the starting term
+     * @param endTerm           the ending term
      * @param campusEnrollments the list of on-campus enrollments, organized by term
      * @param onlineEnrollments the list of online enrollments, organized by term
      * @param termCode          the  term code
      * @param termLabel         the term label
      * @param csv               the CSV file contents to which to append
      */
-    private void emitOnCampusVsOnline(final Map<Integer, List<EnrollmentRec>> campusEnrollments,
-                                      final Map<Integer, List<EnrollmentRec>> onlineEnrollments,
-                                      final int termCode, final String termLabel, final HtmlBuilder csv) {
+    private void emitEnrollments(final int startTerm, final int endTerm,
+                                 final Map<Integer, List<EnrollmentRec>> campusEnrollments,
+                                 final Map<Integer, List<EnrollmentRec>> onlineEnrollments,
+                                 final int termCode, final String termLabel, final HtmlBuilder csv) {
 
-        // Gather a list of all years represented
-        final List<Integer> years = new ArrayList<>(15);
-        for (final Integer term : campusEnrollments.keySet()) {
-            final int termValue = term.intValue();
-            final int year = termValue / 100;
-            final Integer yearObj = Integer.valueOf(year);
-            if (!years.contains(yearObj)) {
-                years.add(yearObj);
-            }
-        }
-        for (final Integer term : campusEnrollments.keySet()) {
-            final int termValue = term.intValue();
-            final int year = termValue / 100;
-            final Integer yearObj = Integer.valueOf(year);
-            if (!years.contains(yearObj)) {
-                years.add(yearObj);
-            }
-        }
-        years.sort(null);
+        final List<Integer> years = getYearsRepresented(startTerm, endTerm, termCode, campusEnrollments,
+                onlineEnrollments);
+
+        int lastYear = getYearBeforeStartYear(startTerm, termCode);
 
         csv.addln("On-Campus and Online Enrollment Trends for ", termLabel, " terms:");
         csv.addln();
@@ -369,9 +392,65 @@ final class CourseSummary {
             final String onCampusCountStr = Integer.toString(onCampusCount);
             final String onlineCountStr = Integer.toString(onlineCount);
 
+            final int yearInt = year.intValue();
+            while (yearInt > (lastYear + 1)) {
+                ++lastYear;
+                final String emptyYearStr = Integer.toString(lastYear);
+                csv.addln(emptyYearStr);
+            }
+
             csv.addln(year, ",", onCampusCountStr, ",", onlineCountStr);
+            lastYear = yearInt;
         }
         csv.addln();
+    }
+
+    /**
+     * Gets the list of years for which there is enrollment data.
+     *
+     * @param startTerm         the starting term
+     * @param endTerm           the ending term
+     * @param termCode          the term of interest
+     * @param campusEnrollments the list of on-campus enrollments
+     * @param onlineEnrollments the list of online enrollments
+     * @return the list if years, in ascending order
+     */
+    private static List<Integer> getYearsRepresented(final int startTerm, final int endTerm, final int termCode,
+                                                     final Map<Integer, List<EnrollmentRec>> campusEnrollments,
+                                                     final Map<Integer, List<EnrollmentRec>> onlineEnrollments) {
+
+        final List<Integer> years = new ArrayList<>(15);
+
+        for (final Integer term : campusEnrollments.keySet()) {
+            final int termValue = term.intValue();
+            final int code = termValue % 100;
+
+            if (termCode == code && termValue >= startTerm && termValue <= endTerm) {
+                final int year = termValue / 100;
+
+                final Integer yearObj = Integer.valueOf(year);
+                if (!years.contains(yearObj)) {
+                    years.add(yearObj);
+                }
+            }
+        }
+
+        for (final Integer term : onlineEnrollments.keySet()) {
+            final int termValue = term.intValue();
+            final int code = termValue % 100;
+
+            if (termCode == code && termValue >= startTerm && termValue <= endTerm) {
+                final int year = termValue / 100;
+                final Integer yearObj = Integer.valueOf(year);
+                if (!years.contains(yearObj)) {
+                    years.add(yearObj);
+                }
+            }
+        }
+
+        years.sort(null);
+
+        return years;
     }
 
     /**
@@ -381,17 +460,20 @@ final class CourseSummary {
      * @param applicableEnrollments the list of enrollments, organized by term
      * @param studentTerms          the set of student term records for each student
      * @param label                 the  label ("on-campus" or "online")
+     * @param majorCodes            a set to which to add all major codes emitted
      * @param csv                   the CSV file contents to which to append
      */
-    private void emitMajorsSummaryBlock(final Map<Integer, List<EnrollmentRec>> applicableEnrollments,
+    private void emitMajorsSummaryBlock(final Map<Integer, ? extends List<EnrollmentRec>> applicableEnrollments,
                                         final Map<String, ? extends List<StudentTermRec>> studentTerms,
-                                        final String label, final HtmlBuilder csv) {
+                                        final String label, final Collection<? super String> majorCodes,
+                                        final HtmlBuilder csv) {
 
         csv.addln("Student Distribution by Major (", label, " - averaged over all years):");
         csv.addln();
 
         csv.addln("Major,Total Enrollment,# Withdraws,% Withdraws,# Given Grade,% Given Grade,% A,% B,% C,% D,",
-                "% U/F,Avg. GPA,DFW of all enrolled,DFW of those given grade");
+                "% U/F,Avg. GPA,\"Success Rate, All Enrolled\",\"Success Rate, Non-withdraw\",\"DFW, All Enrolled\",",
+                "\"DF, Non-withdraw\"");
 
         final Map<String, PopulationPerformance> majorPerformance = new TreeMap<>();
 
@@ -436,7 +518,6 @@ final class CourseSummary {
         final int threshold = (int) Math.ceil((double) total / 50.0);
         final PopulationPerformance other = new PopulationPerformance("(others)");
 
-        boolean first = true;
         for (final PopulationPerformance performance : sorted) {
             final int totalEnrollments = performance.getTotalEnrollments();
             if (totalEnrollments > threshold) {
@@ -451,7 +532,9 @@ final class CourseSummary {
                 final double percentF = performance.getPercentF();
 
                 final double dfw = performance.getDfw();
-                final double dfwWithGrade = performance.getDfwWithGrade();
+                final double dfNonWithdraw = performance.getDfwWithGrade();
+                final double success = 100.0 - dfw;
+                final double successNonWithdraw = 100.0 - dfNonWithdraw;
 
                 final String totalEnrollmentsStr = Integer.toString(totalEnrollments);
 
@@ -472,16 +555,18 @@ final class CourseSummary {
                 final double avgGpa = performance.getAverageGpa();
                 final String avgGpaStr = this.format.format(avgGpa);
 
+                final String successStr = this.format.format(success);
+                final String successNonWithdrawStr = this.format.format(successNonWithdraw);
                 final String dfwStr = this.format.format(dfw);
-                final String dfwWithGradeStr = this.format.format(dfwWithGrade);
+                final String dfNonWithdrawStr = this.format.format(dfNonWithdraw);
 
                 final String major = performance.getMajor();
 
-                csv.addln(major, ",", totalEnrollmentsStr, ",", numWStr, ",",
-                        pctWStr, ",", numWithGradeStr, ",", pctWithGradeStr, ",", pctAStr, ",", pctBStr, ",",
-                        pctCStr, ",", pctDStr, ",", pctFStr, ",", avgGpaStr, ",", dfwStr, ",", dfwWithGradeStr);
+                majorCodes.add(major);
 
-                first = false;
+                csv.addln(major, ",", totalEnrollmentsStr, ",", numWStr, ",", pctWStr, ",", numWithGradeStr, ",",
+                        pctWithGradeStr, ",", pctAStr, ",", pctBStr, ",", pctCStr, ",", pctDStr, ",", pctFStr, ",",
+                        avgGpaStr, ",", successStr, ",", successNonWithdrawStr, ",", dfwStr, ",", dfNonWithdrawStr);
             } else {
                 other.accumulate(performance);
             }
@@ -500,7 +585,9 @@ final class CourseSummary {
             final double percentF = other.getPercentF();
 
             final double dfw = other.getDfw();
-            final double dfwWithGrade = other.getDfwWithGrade();
+            final double dfNonWithdraw = other.getDfwWithGrade();
+            final double success = 100.0 - dfw;
+            final double successNonWithdraw = 100.0 - dfNonWithdraw;
 
             final String otherEnrollmentsStr = Integer.toString(otherEnrollments);
 
@@ -521,12 +608,40 @@ final class CourseSummary {
             final double avgGpa = other.getAverageGpa();
             final String avgGpaStr = this.format.format(avgGpa);
 
+            final String successStr = this.format.format(success);
+            final String successNonWithdrawStr = this.format.format(successNonWithdraw);
             final String dfwStr = this.format.format(dfw);
-            final String dfwWithGradeStr = this.format.format(dfwWithGrade);
+            final String dfNonWithdrawStr = this.format.format(dfNonWithdraw);
 
-            csv.addln("(others),", otherEnrollmentsStr, ",", numWStr, ",",
-                    pctWStr, ",", numWithGradeStr, ",", pctWithGradeStr, ",", pctAStr, ",", pctBStr, ",",
-                    pctCStr, ",", pctDStr, ",", pctFStr, ",", avgGpaStr, ",", dfwStr, ",", dfwWithGradeStr);
+            csv.addln("(others),", otherEnrollmentsStr, ",", numWStr, ",", pctWStr, ",", numWithGradeStr, ",",
+                    pctWithGradeStr, ",", pctAStr, ",", pctBStr, ",", pctCStr, ",", pctDStr, ",", pctFStr, ",",
+                    avgGpaStr, ",", successStr, ",", successNonWithdrawStr, ",", dfwStr, ",", dfNonWithdrawStr);
+        }
+
+        csv.addln();
+    }
+
+    /**
+     * Scans enrollments for the complete srt of majors represented, then emits a list of major codes and their
+     * descriptions, sorted on major code.
+     *
+     * @param majorCodes the sorted set of names of major codes to emit
+     * @param majors     a map from major code to major name
+     * @param csv        the CSV file contents to which to append
+     */
+    private static void emitMajorNames(final Iterable<String> majorCodes,
+                                       final Map<String, String> majors, final HtmlBuilder csv) {
+
+        csv.addln("Names of majors represented:");
+        csv.addln();
+
+        csv.addln("Major,Description");
+
+        for (final String majorCode : majorCodes) {
+            final String desc = majors.get(majorCode);
+            if (desc != null) {
+                csv.addln(majorCode, ",\"", desc, "\"");
+            }
         }
 
         csv.addln();
