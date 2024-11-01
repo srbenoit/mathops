@@ -16,8 +16,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * This class retrieves data from the ODS and stores it in a local file so we can load and process it without having to
- * do a lengthy ODS query each time.
+ * This class retrieves longitudinal data for students who participated in a course that is part of a math sequence.
  */
 public enum RetrieveLongitudinalData {
     ;
