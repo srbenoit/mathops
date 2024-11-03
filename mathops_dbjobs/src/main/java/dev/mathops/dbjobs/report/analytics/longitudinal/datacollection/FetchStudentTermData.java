@@ -17,6 +17,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,17 +36,17 @@ public enum FetchStudentTermData {
      * @param startAcademicPeriod the starting academic period
      * @param endAcademicPeriod   the ending academic period
      * @param target              the file to which to write results
-     * @param map                 a map from student ID to a list of academic periods in which they were enrolled
+     * @param studentIds          the collection of student IDs whose term records to gather
      * @throws SQLException if there is an error accessing the database
      */
     static void gatherStudentTermData(final DbConnection odsConn, final int startAcademicPeriod,
                                       final int endAcademicPeriod, final File target,
-                                      final Map<String, ? extends List<Integer>> map) throws SQLException {
+                                      final Collection<String> studentIds) throws SQLException {
 
         Log.fine("Gathering student term data.");
 
         final List<StudentTermRec> studentTermRecords = collectStudentTerms(odsConn, startAcademicPeriod,
-                endAcademicPeriod, map);
+                endAcademicPeriod, studentIds);
 
         final HtmlBuilder fileData = new HtmlBuilder(100000);
         fileData.addln("[");
@@ -80,14 +81,14 @@ public enum FetchStudentTermData {
      * @param odsConn             the database connection
      * @param startAcademicPeriod the starting academic period
      * @param endAcademicPeriod   the ending academic period
-     * @param map                 a map from student ID to a list of academic periods in which they were enrolled
+     * @param studentIds          a collection of student IDs for which to query
      * @return a list of student term records
      * @throws SQLException if there is an error performing the query
      */
     private static List<StudentTermRec> collectStudentTerms(final DbConnection odsConn,
                                                             final int startAcademicPeriod,
                                                             final int endAcademicPeriod,
-                                                            final Map<String, ? extends List<Integer>> map)
+                                                            final Collection<String> studentIds)
             throws SQLException {
 
         final String startStr = Integer.toString(startAcademicPeriod);
@@ -108,7 +109,7 @@ public enum FetchStudentTermData {
         //        ANTICIPATED_GRAD_ACAD_YR (VARCHAR2[63])
         //        ANTICIPATED_GRAD_ACAD_YR_DESC (VARCHAR2[255])
         //        ANTICIPATED_GRAD_DATE (DATE[7])
-        //        ANTICIPATED_GRAD_TERM (VARCHAR2[63])
+        //     *  ANTICIPATED_GRAD_TERM (VARCHAR2[63])
         //        CONTINUOUS_REG (VARCHAR2[1])
         //        CREDITS_CE (NUMBER[0])
         //        CREDITS_RI (NUMBER[0])
@@ -139,7 +140,7 @@ public enum FetchStudentTermData {
         //        RESIDENCY_INDICATOR (VARCHAR2[1])
         //        STUDENT_CLASS (VARCHAR2[63])
         //        STUDENT_CLASS_DESC (VARCHAR2[255])
-        //        STUDENT_LEVEL (VARCHAR2[63])
+        // (UG)   STUDENT_LEVEL (VARCHAR2[63])
         //        STUDENT_LEVEL_DESC (VARCHAR2[255])
         //     *  STUDENT_TYPE (VARCHAR2[63])
         //        STUDENT_TYPE_DESC (VARCHAR2[255])
@@ -163,34 +164,27 @@ public enum FetchStudentTermData {
                     "       PRIMARY_DEPARTMENT,",
                     "       PRIMARY_MAJOR,",
                     "       PROGRAM_OF_STUDY,",
-                    "       STUDENT_LEVEL,",
-                    "       STUDENT_TYPE ",
+                    "       STUDENT_TYPE,",
+                    "       ANTICIPATED_GRAD_TERM ",
                     "FROM CSUBAN.CSUS_ENROLL_TERM_SUMMARY_AH ",
                     "WHERE to_number(TERM) >= ", startStr, " AND to_number(TERM) <= ", endStr,
-                    " AND MULTI_SOURCE = 'CSU'");
+                    " AND STUDENT_LEVEL = 'UG' AND MULTI_SOURCE = 'CSU'");
 
             try (final ResultSet rs = stmt.executeQuery(sql)) {
                 while (rs.next()) {
                     final String studentId = rs.getString("CSU_ID");
-                    final List<Integer> terms = map.get(studentId);
-                    if (terms != null) {
+                    if (studentIds.contains(studentId)) {
                         final int term = rs.getInt("TERM");
-                        final Integer termKey = Integer.valueOf(term);
+                        final String college = rs.getString("PRIMARY_COLLEGE");
+                        final String department = rs.getString("PRIMARY_DEPARTMENT");
+                        final String major = rs.getString("PRIMARY_MAJOR");
+                        final String program = rs.getString("PROGRAM_OF_STUDY");
+                        final String type = rs.getString("STUDENT_TYPE");
+                        final int gradTerm = rs.getInt("ANTICIPATED_GRAD_TERM");
 
-                        if (terms.contains(termKey)) {
-                            final String college = rs.getString("PRIMARY_COLLEGE");
-                            final String department = rs.getString("PRIMARY_DEPARTMENT");
-                            final String major = rs.getString("PRIMARY_MAJOR");
-                            final String program = rs.getString("PROGRAM_OF_STUDY");
-                            final String level = rs.getString("STUDENT_LEVEL");
-                            final String type = rs.getString("STUDENT_TYPE");
-
-                            final StudentTermRec rec = new StudentTermRec(studentId, term, college, department, major,
-                                    program, level, type);
-                            result.add(rec);
-
-                            terms.remove(termKey);
-                        }
+                        final StudentTermRec rec = new StudentTermRec(studentId, term, college, department, major,
+                                program, type, gradTerm);
+                        result.add(rec);
                     }
                 }
             }

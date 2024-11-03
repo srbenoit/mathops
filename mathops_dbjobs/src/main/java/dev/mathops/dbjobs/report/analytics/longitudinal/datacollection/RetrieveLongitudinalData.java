@@ -64,14 +64,14 @@ public enum RetrieveLongitudinalData {
                     // For all terms in which a student was enrolled, we want to know the student's college, department,
                     // major, and program code
 
+                    final Set<String> studentIdSet = map.keySet();
                     final File studentTermsFile = new File(dir, "student_terms.json");
-                    FetchStudentTermData.gatherStudentTermData(odsConn, start, end, studentTermsFile, map);
+                    FetchStudentTermData.gatherStudentTermData(odsConn, start, end, studentTermsFile, studentIdSet);
 
                     // Finally, we want student demographic information like gender and ethnicity (and cohort data
                     // when we can get it)
 
                     final File studentFile = new File(dir, "students.json");
-                    final Set<String> studentIdSet = map.keySet();
                     FetchStudentData.gatherStudentData(odsConn, studentIdSet, studentFile);
 
                 } catch (final SQLException ex) {

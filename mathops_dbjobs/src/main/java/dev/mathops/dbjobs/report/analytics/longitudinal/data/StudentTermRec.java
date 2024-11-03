@@ -12,11 +12,11 @@ import dev.mathops.commons.parser.json.JSONObject;
  * @param department     the student's primary department
  * @param major          the student's primary major
  * @param program        the student's program of study
- * @param level          the student's level
  * @param studentType    the student type
+ * @param gradTerm       the student's estimated graduation term
  */
 public record StudentTermRec(String studentId, int academicPeriod, String college, String department, String major,
-                             String program, String level, String studentType) {
+                             String program, String studentType, int gradTerm) implements Comparable<StudentTermRec> {
 
     /**
      * Attempts to parse a {@code StudentTermRecord} from a JSON object.
@@ -33,12 +33,13 @@ public record StudentTermRec(String studentId, int academicPeriod, String colleg
         final String d = json.getStringProperty("d");
         final String m = json.getStringProperty("m");
         final String r = json.getStringProperty("r");
-        final String v = json.getStringProperty("v");
         final String t = json.getStringProperty("t");
+        final Double g = json.getNumberProperty("gr");
 
-        final int peInt = p == null ? 0 : p.intValue();
+        final int pInt = p == null ? 0 : p.intValue();
+        final int gInt = g == null ? 0 : g.intValue();
 
-        return new StudentTermRec(i, peInt, c, d, m, r, v, t);
+        return new StudentTermRec(i, pInt, c, d, m, r, t, gInt);
     }
 
     /**
@@ -56,10 +57,25 @@ public record StudentTermRec(String studentId, int academicPeriod, String colleg
                 "\"d\":\"", department(), "\",",
                 "\"m\":\"", major(), "\",",
                 "\"r\":\"", program(), "\",",
-                "\"v\":\"", level(), "\",",
-                "\"t\":\"", studentType(), "\"}");
+                "\"t\":\"", studentType(), "\",",
+                "\"gr\":", gradTerm(), "\"}");
 
         return builder.toString();
+    }
+
+    /**
+     * Compares terms for order, based on academic period.
+     *
+     * @param o the object to be compared
+     * @return zero if academic period are equal; a value less than 0 if this object's academic period is earlier than
+     *         that in {@code o} and a value greater than 0 otherwise
+     */
+    @Override
+    public int compareTo(final StudentTermRec o) {
+
+        final int other = o.academicPeriod();
+
+        return Integer.compare(this.academicPeriod, other);
     }
 }
 

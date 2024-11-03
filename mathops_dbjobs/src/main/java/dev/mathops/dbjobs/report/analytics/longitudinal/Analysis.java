@@ -7,7 +7,8 @@ import dev.mathops.dbjobs.report.analytics.longitudinal.data.StudentTermRec;
 import dev.mathops.dbjobs.report.analytics.longitudinal.datacollection.FetchEnrollmentData;
 import dev.mathops.dbjobs.report.analytics.longitudinal.datacollection.FetchMajorAndProgramData;
 import dev.mathops.dbjobs.report.analytics.longitudinal.datacollection.FetchStudentTermData;
-import dev.mathops.dbjobs.report.analytics.longitudinal.sequence.AssembleSequenceData;
+import dev.mathops.dbjobs.report.analytics.longitudinal.program.AssembleProgramData;
+import dev.mathops.dbjobs.report.analytics.longitudinal.program.ProgramFlows;
 
 import java.io.File;
 import java.util.HashMap;
@@ -312,8 +313,11 @@ public final class Analysis {
 //        seqSuccess.generate(START_TERM, END_TERM, enrollments, "MATH340", allSects, "MECH417", allSects); // N=415
 //        seqSuccess.generate(START_TERM, END_TERM, enrollments, "MATH340", allSects, "PH451", allSects); // N=200
 
+        final Map<String, List<String>> studentsByTerminalCourse = AssembleProgramData.classifyStudents(enrollments,
+                stuTerms);
 
-        AssembleSequenceData.classifyStudents(enrollments, stuTerms);
+        final ProgramFlows flows = new ProgramFlows(this.targetDir);
+        flows.generate(studentsByTerminalCourse, enrollments, stuTerms);
 
         Log.fine("Analysis completed");
     }
