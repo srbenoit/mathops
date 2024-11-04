@@ -130,7 +130,13 @@ final class CourseSummary {
                 final String recCourse = rec.course();
                 final String recSect = rec.section();
 
-                if (course.equals(recCourse) && !(rec.isTransfer() || rec.isApIbClep()) && rec.isGradable()
+                final boolean courseMatch = course.equals(recCourse)
+                                            || ("MATH157".equals(course) && "MATH180A3".equals(recCourse))
+                                            || ("MATH159".equals(course) && "MATH180A4".equals(recCourse))
+                                            || ("MATH156".equals(course) && "MATH180A5".equals(recCourse))
+                                            || ("MATH116".equals(course) && "MATH181A1".equals(recCourse));
+
+                if (courseMatch && !(rec.isTransfer() || rec.isApIbClep()) && rec.isGradable()
                     && containsSection(sections, recSect)) {
                     final int term = rec.academicPeriod();
 

@@ -34,7 +34,7 @@ public record StudentTermRec(String studentId, int academicPeriod, String colleg
         final String m = json.getStringProperty("m");
         final String r = json.getStringProperty("r");
         final String t = json.getStringProperty("t");
-        final Double g = json.getNumberProperty("gr");
+        final Double g = json.getNumberProperty("g");
 
         final int pInt = p == null ? 0 : p.intValue();
         final int gInt = g == null ? 0 : g.intValue();
@@ -51,14 +51,15 @@ public record StudentTermRec(String studentId, int academicPeriod, String colleg
 
         final HtmlBuilder builder = new HtmlBuilder(100);
 
-        builder.add("{\"i\":\"", studentId(), "\",",
+        builder.add("{",
+                "\"i\":\"", studentId(), "\",",
                 "\"p\":", academicPeriod(), ",",
                 "\"c\":\"", college(), "\",",
                 "\"d\":\"", department(), "\",",
                 "\"m\":\"", major(), "\",",
                 "\"r\":\"", program(), "\",",
                 "\"t\":\"", studentType(), "\",",
-                "\"gr\":", gradTerm(), "\"}");
+                "\"g\":", gradTerm(), "}");
 
         return builder.toString();
     }

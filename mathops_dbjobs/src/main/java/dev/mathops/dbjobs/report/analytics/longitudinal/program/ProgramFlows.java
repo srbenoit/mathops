@@ -8,11 +8,13 @@ import dev.mathops.dbjobs.report.analytics.longitudinal.data.StudentTermRec;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.SequencedCollection;
 
 /**
  * A utility class to analyze flows of students through programs.
@@ -20,73 +22,79 @@ import java.util.Objects;
 public final class ProgramFlows {
 
     /** A commonly used string array. */
-    private static final String[][] M_124 = new String[][]{{"MATH124"}};
+    private static final List<String> MODS = Arrays.asList("MATH117", "MATH118", "MATH124", "MATH125", "MATH126");
+
+    /** A key to indicate the 1-credit courses. */
+    private static final String MATHMODS = "MATHMODS";
 
     /** A commonly used string array. */
-    private static final String[][] M_125 = new String[][]{{"MATH125"}};
+    private static final String[][] M_124 = {{"MATH124"}};
 
     /** A commonly used string array. */
-    private static final String[][] M_124_125 = new String[][]{{"MATH124", "MATH125"}};
+    private static final String[][] M_125 = {{"MATH125"}};
 
     /** A commonly used string array. */
-    private static final String[][] M_124_126 = new String[][]{{"MATH124", "MATH126"}};
+    private static final String[][] M_124_125 = {{"MATH124", "MATH125"}};
 
     /** A commonly used string array. */
-    private static final String[][] M_141 = new String[][]{{"MATH141"}};
+    private static final String[][] M_124_126 = {{"MATH124", "MATH126"}};
 
     /** A commonly used string array. */
-    private static final String[][] M_124_141 = new String[][]{{"MATH124", "MATH141"}};
+    private static final String[][] M_141 = {{"MATH141"}};
 
     /** A commonly used string array. */
-    private static final String[][] M_141_OR_155_OR_160 = new String[][]{{"MATH141"}, {"MATH155"}, {"MATH160"}};
+    private static final String[][] M_124_141 = {{"MATH124", "MATH141"}};
 
     /** A commonly used string array. */
-    private static final String[][] M_155 = new String[][]{{"MATH155"}};
+    private static final String[][] M_141_OR_155_OR_160 = {{"MATH141"}, {"MATH155"}, {"MATH160"}};
 
     /** A commonly used string array. */
-    private static final String[][] M_126_155 = new String[][]{{"MATH126", "MATH155"}};
+    private static final String[][] M_155 = {{"MATH155"}};
 
     /** A commonly used string array. */
-    private static final String[][] M_155_OR_160 = new String[][]{{"MATH155"}, {"MATH160"}};
+    private static final String[][] M_126_155 = {{"MATH126", "MATH155"}};
 
     /** A commonly used string array. */
-    private static final String[][] M_156_OR_160 = new String[][]{{"MATH156"}, {"MATH160"}};
+    private static final String[][] M_155_OR_160 = {{"MATH155"}, {"MATH160"}};
 
     /** A commonly used string array. */
-    private static final String[][] M_160 = new String[][]{{"MATH160"}};
+    private static final String[][] M_156_OR_160 = {{"MATH156"}, {"MATH160"}};
 
     /** A commonly used string array. */
-    private static final String[][] M_161 = new String[][]{{"MATH161"}};
+    private static final String[][] M_160 = {{"MATH160"}};
 
     /** A commonly used string array. */
-    private static final String[][] M_161_OR_271 = new String[][]{{"MATH161"}, {"MATH271"}};
+    private static final String[][] M_161 = {{"MATH161"}};
 
     /** A commonly used string array. */
-    private static final String[][] M_255 = new String[][]{{"MATH255"}};
+    private static final String[][] M_161_OR_271 = {{"MATH161"}, {"MATH271"}};
 
     /** A commonly used string array. */
-    private static final String[][] M_161_OR_255 = new String[][]{{"MATH161"}, {"MATH255"}};
+    private static final String[][] M_255 = {{"MATH255"}};
 
     /** A commonly used string array. */
-    private static final String[][] M_256 = new String[][]{{"MATH256"}};
+    private static final String[][] M_161_OR_255 = {{"MATH161"}, {"MATH255"}};
 
     /** A commonly used string array. */
-    private static final String[][] M_161_OR_256 = new String[][]{{"MATH161"}, {"MATH256"}};
+    private static final String[][] M_256 = {{"MATH256"}};
 
     /** A commonly used string array. */
-    private static final String[][] M_256_OR_261 = new String[][]{{"MATH256"}, {"MATH261"}};
+    private static final String[][] M_161_OR_256 = {{"MATH161"}, {"MATH256"}};
 
     /** A commonly used string array. */
-    private static final String[][] M_261 = new String[][]{{"MATH261"}};
+    private static final String[][] M_256_OR_261 = {{"MATH256"}, {"MATH261"}};
 
     /** A commonly used string array. */
-    private static final String[][] M_261_OR_271 = new String[][]{{"MATH261"}, {"MATH271"}};
+    private static final String[][] M_261 = {{"MATH261"}};
 
     /** A commonly used string array. */
-    private static final String[][] M_261_OR_272 = new String[][]{{"MATH261"}, {"MATH272"}};
+    private static final String[][] M_261_OR_271 = {{"MATH261"}, {"MATH271"}};
 
     /** A commonly used string array. */
-    private static final String[][] M_340 = new String[][]{{"MATH340"}};
+    private static final String[][] M_261_OR_272 = {{"MATH261"}, {"MATH272"}};
+
+    /** A commonly used string array. */
+    private static final String[][] M_340 = {{"MATH340"}};
 
     /** A decimal formatter. */
     private final DecimalFormat format;
@@ -223,7 +231,7 @@ public final class ProgramFlows {
      * @param courses      the lists of required terminal courses (each row is an option, all courses in a row need to
      *                     be completed)
      */
-    private void generateTerminal(final String label, final List<String> studentIds,
+    private void generateTerminal(final String label, final Iterable<String> studentIds,
                                   final Map<String, ? extends List<EnrollmentRec>> enrollments,
                                   final Map<String, ? extends List<StudentTermRec>> studentTerms,
                                   final String[][] courses) {
@@ -232,7 +240,6 @@ public final class ProgramFlows {
         final List<String> semesterNames = new ArrayList<>(20);
         final Map<String, Integer> transitions = new HashMap<>(100);
 
-        final Map<String, Integer> flows = new HashMap<>(100);
         final String startNode = SimpleBuilder.concat("Needs ", label);
 
         for (final String studentId : studentIds) {
@@ -259,10 +266,8 @@ public final class ProgramFlows {
             }
 
             // There will be a collection of nodes: a start node like "Needs MATH 340", intermediate nodes like
-            // "MATH 117, Semester 3" and two terminal nodes: "Completed" or "Did Not Complete".  We need to classify
+            // "MATH 160, Semester 3" and two terminal nodes: "Completed" or "Did Not Complete".  We need to classify
             // students into nodes and gather counts for numbers that transitioned between nodes.
-            final int firstTerm = studentStudentTerms.getFirst().academicPeriod();
-            final int lastTerm = studentStudentTerms.getLast().academicPeriod();
             computeSemesterNames(studentStudentTerms, semesterNames);
 
             String node = startNode;
@@ -277,18 +282,22 @@ public final class ProgramFlows {
 
                 final String mathEnrollment = getMathEnrollment(termEnrollments);
                 if (Objects.nonNull(mathEnrollment)) {
-                    final StudentTermRec studentTerm = studentStudentTerms.get(i);
                     final String semesterName = semesterNames.get(i);
 
                     final String newNode = mathEnrollment + "." + semesterName;
                     final String transition = node + "~" + newNode;
-                    final Integer current = transitions.get(transition);
-                    if (current == null) {
-                        transitions.put(transition, Integer.valueOf(1));
-                    } else {
-                        transitions.put(transition, Integer.valueOf(current.intValue() + 1));
-                    }
+                    incrementTransitionCount(transitions, transition);
+
+                    node = newNode;
                 }
+            }
+
+            if (didComplete(studentEnrollments, courses)) {
+                final String transition = node + "~Completed";
+                incrementTransitionCount(transitions, transition);
+            } else {
+                final String transition = node + "~Did Not Complete";
+                incrementTransitionCount(transitions, transition);
             }
 
             enrollmentsBySemester.clear();
@@ -297,6 +306,79 @@ public final class ProgramFlows {
         Log.info("Flows: ", label);
 
         // Print out the flows
+        for (final Map.Entry<String, Integer> entry : transitions.entrySet()) {
+            Log.info("    ", entry.getValue(), " did ", entry.getKey());
+        }
+    }
+
+    /**
+     * Increments the counter for a transition, initializing the counter if it has not yet been initialized.
+     *
+     * @param transitions a map from transition name to its current count
+     * @param transition  the transition name whose count to increment
+     */
+    private static void incrementTransitionCount(final Map<String, Integer> transitions, final String transition) {
+
+        final Integer current = transitions.get(transition);
+
+        if (current == null) {
+            transitions.put(transition, Integer.valueOf(1));
+        } else {
+            transitions.put(transition, Integer.valueOf(current.intValue() + 1));
+        }
+    }
+
+    /**
+     * Tests whether a student completed required courses for a program.
+     *
+     * @param studentEnrollments the students complete enrollment record
+     * @param courses            the lists of required terminal courses (each row is an option, all courses in a row
+     *                           need to be completed)
+     * @return true if the student completed at least one required set of courses; false if not
+     */
+    private static boolean didComplete(final List<EnrollmentRec> studentEnrollments, final String[][] courses) {
+
+        boolean completed = false;
+
+        for (int row = 0; row < courses.length; ++row) {
+            boolean doneAll = true;
+            for (final String course : courses[row]) {
+                if (!didCompleteCourse(studentEnrollments, course)) {
+                    doneAll = false;
+                    break;
+                }
+            }
+
+            if (doneAll) {
+                completed = true;
+                break;
+            }
+        }
+
+        return completed;
+    }
+
+    /**
+     * Tests whether a student completed a single course.
+     *
+     * @param studentEnrollments the students complete enrollment record
+     * @param course             the  course
+     * @return true if the student completed the course; false if not
+     */
+    private static boolean didCompleteCourse(final List<EnrollmentRec> studentEnrollments, final String course) {
+
+        boolean completed = false;
+
+        for (final EnrollmentRec rec : studentEnrollments) {
+            if (rec.course().equals(course)) {
+                if (rec.isPassed() || rec.isTransfer() || rec.isApIbClep()) {
+                    completed = true;
+                    break;
+                }
+            }
+        }
+
+        return completed;
     }
 
     /**
@@ -306,8 +388,8 @@ public final class ProgramFlows {
      * @param studentTerms  the list of student terms
      * @param semesterNames a list to populate with semester names
      */
-    private static void computeSemesterNames(final List<StudentTermRec> studentTerms,
-                                             final List<? super String> semesterNames) {
+    private static void computeSemesterNames(final SequencedCollection<StudentTermRec> studentTerms,
+                                             final Collection<? super String> semesterNames) {
 
         // Academic year 2023 is Fall 2023, Spring 2024, Summer 2024
 
@@ -329,25 +411,57 @@ public final class ProgramFlows {
     }
 
     /**
-     * Tests whether the student has a math enrollment in a list of enrollments.
+     * Gets a string representation of a students enrollments in a single semester
      *
      * @param termEnrollments the enrollments
      * @return the name of the math enrollment; null if none
      */
-    private static String getMathEnrollment(final List<EnrollmentRec> termEnrollments) {
+    private static String getMathEnrollment(final Iterable<EnrollmentRec> termEnrollments) {
 
-        String name;
-
-        int count = 0;
+        boolean searchingForMods = true;
+        final List<String> courses = new ArrayList<>(10);
         for (final EnrollmentRec rec : termEnrollments) {
-            if (rec.course().startsWith("MATH")) {
-                ++count;
-                name = rec.course();
+            if (rec.isTransfer() || rec.isApIbClep()) {
+                continue;
+            }
+
+            final String course = rec.course();
+            if (course.startsWith("MATH")) {
+                if (MODS.contains(course)) {
+                    if (searchingForMods) {
+                        courses.add(MATHMODS);
+                        searchingForMods = false;
+                    }
+                } else if ("MATH180A3".equals(course)) {
+                    courses.add("MATH157");
+                } else if ("MATH180A4".equals(course)) {
+                    courses.add("MATH159");
+                } else if ("MATH180A5".equals(course)) {
+                    courses.add("MATH156");
+                } else if ("MATH181A1".equals(course)) {
+                    courses.add("MATH116");
+                } else {
+                    courses.add(course);
+                }
             }
         }
 
-        if (count > 1) {
-            // name holds the last one found, but there were more than 1, might be "MATH 117 + MATH 118"
+        String name = null;
+
+        final int count = courses.size();
+        if (count == 1) {
+            name = courses.getFirst();
+        } else if (count > 1) {
+            courses.sort(null);
+            final String first = courses.getFirst();
+
+            final StringBuilder builder = new StringBuilder(100);
+            builder.append(first);
+            for (int i = 1; i < count; ++i) {
+                builder.append(",");
+                builder.append(courses.get(i));
+            }
+            name = builder.toString();
         }
 
         return name;
