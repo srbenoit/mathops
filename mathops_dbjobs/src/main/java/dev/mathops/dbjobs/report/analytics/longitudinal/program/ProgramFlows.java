@@ -255,7 +255,7 @@ public final class ProgramFlows {
             for (final StudentTermRec studentTerm : studentStudentTerms) {
                 final int period = studentTerm.academicPeriod();
 
-                final List<EnrollmentRec> termEnrollments = new ArrayList(4);
+                final List<EnrollmentRec> termEnrollments = new ArrayList<>(4);
                 enrollmentsBySemester.add(termEnrollments);
 
                 for (final EnrollmentRec rec : studentEnrollments) {
