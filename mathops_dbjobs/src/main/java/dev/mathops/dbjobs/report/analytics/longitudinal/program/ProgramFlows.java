@@ -1,20 +1,23 @@
 package dev.mathops.dbjobs.report.analytics.longitudinal.program;
 
+import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.dbjobs.report.analytics.longitudinal.data.EnrollmentRec;
 import dev.mathops.dbjobs.report.analytics.longitudinal.data.StudentTermRec;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.SequencedCollection;
+import java.util.TreeMap;
 
 /**
  * A utility class to analyze flows of students through programs.
@@ -22,10 +25,16 @@ import java.util.SequencedCollection;
 public final class ProgramFlows {
 
     /** A commonly used string array. */
-    private static final List<String> MODS = Arrays.asList("MATH117", "MATH118", "MATH124", "MATH125", "MATH126");
+    private static final List<String> MODS = Arrays.asList("MATH116", "MATH117", "MATH118", "MATH124", "MATH125",
+            "MATH126", "MATH181A1");
+
+    /** A commonly used string array. */
+    private static final List<String> NONMODS = Arrays.asList("MATH101", "MATH105", "MATH120", "MATH127", "MATH141",
+            "MATH155", "MATH156", "MATH157", "MATH159", "MATH160", "MATH161", "MATH255", "MATH256", "MATH261",
+            "MATH340", "STAT100");
 
     /** A key to indicate the 1-credit courses. */
-    private static final String MATHMODS = "MATHMODS";
+    private static final String MATHMODS = "MODS";
 
     /** A commonly used string array. */
     private static final String[][] M_124 = {{"MATH124"}};
@@ -141,32 +150,32 @@ public final class ProgramFlows {
                     generateTerminal("MATH 124", studentIds, enrollments, studentTerms, M_125);
                     break;
                 case AssembleProgramData.M_124_125:
-                    generateTerminal("MATH 124 and MATH 125", studentIds, enrollments, studentTerms, M_124_125);
+                    generateTerminal("MATH 124 and 125", studentIds, enrollments, studentTerms, M_124_125);
                     break;
                 case AssembleProgramData.M_124_126:
-                    generateTerminal("MATH 124 and MATH 126", studentIds, enrollments, studentTerms, M_124_126);
+                    generateTerminal("MATH 124 and 126", studentIds, enrollments, studentTerms, M_124_126);
                     break;
                 case AssembleProgramData.M_141:
                     generateTerminal("MATH 141", studentIds, enrollments, studentTerms, M_141);
                     break;
                 case AssembleProgramData.M_124_141:
-                    generateTerminal("MATH 124 and MATH 141", studentIds, enrollments, studentTerms, M_124_141);
+                    generateTerminal("MATH 124 and 141", studentIds, enrollments, studentTerms, M_124_141);
                     break;
                 case AssembleProgramData.M_141_OR_155_OR_160:
-                    generateTerminal("MATH 141 or MATH 155 or MATH 160", studentIds, enrollments, studentTerms,
+                    generateTerminal("MATH 141 or 155 or 160", studentIds, enrollments, studentTerms,
                             M_141_OR_155_OR_160);
                     break;
                 case AssembleProgramData.M_155:
                     generateTerminal("MATH 155", studentIds, enrollments, studentTerms, M_155);
                     break;
                 case AssembleProgramData.M_126_155:
-                    generateTerminal("MATH 126 and MATH 155", studentIds, enrollments, studentTerms, M_126_155);
+                    generateTerminal("MATH 126 and 155", studentIds, enrollments, studentTerms, M_126_155);
                     break;
                 case AssembleProgramData.M_155_OR_160:
-                    generateTerminal("MATH 155 or MATH 160", studentIds, enrollments, studentTerms, M_155_OR_160);
+                    generateTerminal("MATH 155 or 160", studentIds, enrollments, studentTerms, M_155_OR_160);
                     break;
                 case AssembleProgramData.M_156_OR_160:
-                    generateTerminal("MATH 156 or MATH 160", studentIds, enrollments, studentTerms, M_156_OR_160);
+                    generateTerminal("MATH 156 or 160", studentIds, enrollments, studentTerms, M_156_OR_160);
                     break;
                 case AssembleProgramData.M_160:
                     generateTerminal("MATH 160", studentIds, enrollments, studentTerms, M_160);
@@ -175,31 +184,31 @@ public final class ProgramFlows {
                     generateTerminal("MATH 161", studentIds, enrollments, studentTerms, M_161);
                     break;
                 case AssembleProgramData.M_161_OR_271:
-                    generateTerminal("MATH 161 or MATH 271", studentIds, enrollments, studentTerms, M_161_OR_271);
+                    generateTerminal("MATH 161 or 271", studentIds, enrollments, studentTerms, M_161_OR_271);
                     break;
                 case AssembleProgramData.M_255:
                     generateTerminal("MATH 255", studentIds, enrollments, studentTerms, M_255);
                     break;
                 case AssembleProgramData.M_161_OR_255:
-                    generateTerminal("MATH 161 or MATH 255", studentIds, enrollments, studentTerms, M_161_OR_255);
+                    generateTerminal("MATH 161 or 255", studentIds, enrollments, studentTerms, M_161_OR_255);
                     break;
                 case AssembleProgramData.M_256:
                     generateTerminal("MATH 256", studentIds, enrollments, studentTerms, M_256);
                     break;
                 case AssembleProgramData.M_161_OR_256:
-                    generateTerminal("MATH 161 or MATH 256", studentIds, enrollments, studentTerms, M_161_OR_256);
+                    generateTerminal("MATH 161 or 256", studentIds, enrollments, studentTerms, M_161_OR_256);
                     break;
                 case AssembleProgramData.M_256_OR_261:
-                    generateTerminal("MATH 256 or MATH 261", studentIds, enrollments, studentTerms, M_256_OR_261);
+                    generateTerminal("MATH 256 or 261", studentIds, enrollments, studentTerms, M_256_OR_261);
                     break;
                 case AssembleProgramData.M_261:
                     generateTerminal("MATH 261", studentIds, enrollments, studentTerms, M_261);
                     break;
                 case AssembleProgramData.M_261_OR_271:
-                    generateTerminal("MATH 261 or MATH 271", studentIds, enrollments, studentTerms, M_261_OR_271);
+                    generateTerminal("MATH 261 or  271", studentIds, enrollments, studentTerms, M_261_OR_271);
                     break;
                 case AssembleProgramData.M_261_OR_272:
-                    generateTerminal("MATH 261 or MATH 272", studentIds, enrollments, studentTerms, M_261_OR_272);
+                    generateTerminal("MATH 261 or 272", studentIds, enrollments, studentTerms, M_261_OR_272);
                     break;
                 case AssembleProgramData.M_340:
                     generateTerminal("MATH 340", studentIds, enrollments, studentTerms, M_340);
@@ -237,12 +246,14 @@ public final class ProgramFlows {
                                   final String[][] courses) {
 
         final List<List<EnrollmentRec>> enrollmentsBySemester = new ArrayList<>(20);
-        final List<String> semesterNames = new ArrayList<>(20);
-        final Map<String, Integer> transitions = new HashMap<>(100);
+        final Map<List<String>, Integer> pathCounts = new TreeMap<>();
 
+        final List<String> path = new ArrayList<>(10);
         final String startNode = SimpleBuilder.concat("Needs ", label);
+        final List<String> allMathEnrollments = new ArrayList<>(10);
 
         for (final String studentId : studentIds) {
+
             final List<StudentTermRec> studentStudentTerms = studentTerms.get(studentId);
             if (studentStudentTerms == null || studentStudentTerms.isEmpty()) {
                 continue;
@@ -265,14 +276,13 @@ public final class ProgramFlows {
                 }
             }
 
-            // There will be a collection of nodes: a start node like "Needs MATH 340", intermediate nodes like
-            // "MATH 160, Semester 3" and two terminal nodes: "Completed" or "Did Not Complete".  We need to classify
-            // students into nodes and gather counts for numbers that transitioned between nodes.
-            computeSemesterNames(studentStudentTerms, semesterNames);
+            path.add(startNode);
 
-            String node = startNode;
+            allMathEnrollments.clear();
 
             final int count = studentStudentTerms.size();
+            boolean foundEnrollment = false;
+
             for (int i = 0; i < count; ++i) {
                 final List<EnrollmentRec> termEnrollments = enrollmentsBySemester.get(i);
 
@@ -280,51 +290,64 @@ public final class ProgramFlows {
                     continue;
                 }
 
-                final String mathEnrollment = getMathEnrollment(termEnrollments);
-                if (Objects.nonNull(mathEnrollment)) {
-                    final String semesterName = semesterNames.get(i);
+                final List<String> mathEnrollments = getMathEnrollment(termEnrollments);
+                if (!mathEnrollments.isEmpty()) {
+                    foundEnrollment = true;
 
-                    final String newNode = mathEnrollment + "." + semesterName;
-                    final String transition = node + "~" + newNode;
-                    incrementTransitionCount(transitions, transition);
+                    final String newNode = getMathEnrollmentString(mathEnrollments, allMathEnrollments);
+                    path.add(newNode);
 
-                    node = newNode;
+                    allMathEnrollments.addAll(mathEnrollments);
                 }
             }
 
-            if (didComplete(studentEnrollments, courses)) {
-                final String transition = node + "~Completed";
-                incrementTransitionCount(transitions, transition);
-            } else {
-                final String transition = node + "~Did Not Complete";
-                incrementTransitionCount(transitions, transition);
+            if (foundEnrollment) {
+                if (didComplete(studentEnrollments, courses)) {
+                    path.add("Completed");
+                } else {
+                    path.add("Did Not Complete");
+                }
+
+                incrementPathCount(pathCounts, path);
             }
 
             enrollmentsBySemester.clear();
+            path.clear();
         }
 
-        Log.info("Flows: ", label);
+        final HtmlBuilder builder = new HtmlBuilder(1000);
 
-        // Print out the flows
-        for (final Map.Entry<String, Integer> entry : transitions.entrySet()) {
-            Log.info("    ", entry.getValue(), " did ", entry.getKey());
+        for (final Map.Entry<List<String>, Integer> entry : pathCounts.entrySet()) {
+            final List<String> key = entry.getKey();
+            final Integer value = entry.getValue();
+            builder.addln("[", value, "] ", key);
+        }
+
+        final String fileData = builder.toString();
+
+        final String filename = label + " Program Flows.txt";
+        final File file = new File(this.targetDir, filename);
+        try (final FileWriter writer = new FileWriter(file, StandardCharsets.UTF_8)) {
+            writer.write(fileData);
+        } catch (final IOException ex) {
+            Log.warning("Failed to write file", ex);
         }
     }
 
     /**
-     * Increments the counter for a transition, initializing the counter if it has not yet been initialized.
+     * Increments the counter for a oath, initializing the counter if it has not yet been initialized.
      *
-     * @param transitions a map from transition name to its current count
-     * @param transition  the transition name whose count to increment
+     * @param counts a map from transition name to its current count
+     * @param path   the oath whose count to increment
      */
-    private static void incrementTransitionCount(final Map<String, Integer> transitions, final String transition) {
+    private static void incrementPathCount(final Map<List<String>, Integer> counts, final List<String> path) {
 
-        final Integer current = transitions.get(transition);
+        final Integer current = counts.get(path);
 
         if (current == null) {
-            transitions.put(transition, Integer.valueOf(1));
+            counts.put(path, Integer.valueOf(1));
         } else {
-            transitions.put(transition, Integer.valueOf(current.intValue() + 1));
+            counts.put(path, Integer.valueOf(current.intValue() + 1));
         }
     }
 
@@ -382,41 +405,12 @@ public final class ProgramFlows {
     }
 
     /**
-     * Given a list of student terms, generates a corresponding list of the names of these terms, like "Fall 1", or
-     * "Spring 3".
-     *
-     * @param studentTerms  the list of student terms
-     * @param semesterNames a list to populate with semester names
-     */
-    private static void computeSemesterNames(final SequencedCollection<StudentTermRec> studentTerms,
-                                             final Collection<? super String> semesterNames) {
-
-        // Academic year 2023 is Fall 2023, Spring 2024, Summer 2024
-
-        final int startPeriod = studentTerms.getFirst().academicPeriod();
-        final int startYear = startPeriod / 100;
-        final int startTerm = startPeriod % 100;
-        final int startAcademicYear = startTerm == 90 ? startYear : (startYear + 1);
-
-        for (final StudentTermRec rec : studentTerms) {
-            final int period = rec.academicPeriod();
-            final int year = period / 100;
-            final int term = period % 100;
-            final int academicYear = term == 90 ? year : (year + 1);
-
-            final int yearIndex = academicYear - startAcademicYear + 1;
-            final String name = (term < 30) ? "SP " + yearIndex : (term < 75) ? "SM " + yearIndex : "FA " + yearIndex;
-            semesterNames.add(name);
-        }
-    }
-
-    /**
-     * Gets a string representation of a students enrollments in a single semester
+     * Gets a string representation of a students enrollments in a single semester.
      *
      * @param termEnrollments the enrollments
-     * @return the name of the math enrollment; null if none
+     * @return the list of math enrollments (coursed IDs)
      */
-    private static String getMathEnrollment(final Iterable<EnrollmentRec> termEnrollments) {
+    private static List<String> getMathEnrollment(final Iterable<EnrollmentRec> termEnrollments) {
 
         boolean searchingForMods = true;
         final List<String> courses = new ArrayList<>(10);
@@ -427,43 +421,80 @@ public final class ProgramFlows {
 
             final String course = rec.course();
             if (course.startsWith("MATH")) {
+                String toAdd = null;
+
                 if (MODS.contains(course)) {
                     if (searchingForMods) {
-                        courses.add(MATHMODS);
+                        toAdd = MATHMODS;
                         searchingForMods = false;
                     }
                 } else if ("MATH180A3".equals(course)) {
-                    courses.add("MATH157");
+                    toAdd = "MATH157";
                 } else if ("MATH180A4".equals(course)) {
-                    courses.add("MATH159");
+                    toAdd = "MATH159";
                 } else if ("MATH180A5".equals(course)) {
-                    courses.add("MATH156");
-                } else if ("MATH181A1".equals(course)) {
-                    courses.add("MATH116");
-                } else {
-                    courses.add(course);
+                    toAdd = "MATH156";
+                } else if (NONMODS.contains(course)) {
+                    toAdd = course;
+                }
+
+                if (toAdd != null && !courses.contains(toAdd)) {
+                    courses.add(toAdd);
                 }
             }
         }
 
-        String name = null;
+        courses.sort(null);
 
-        final int count = courses.size();
-        if (count == 1) {
-            name = courses.getFirst();
-        } else if (count > 1) {
-            courses.sort(null);
-            final String first = courses.getFirst();
+        return courses;
+    }
 
-            final StringBuilder builder = new StringBuilder(100);
-            builder.append(first);
-            for (int i = 1; i < count; ++i) {
-                builder.append(",");
-                builder.append(courses.get(i));
+    /**
+     * Gets the string representation of a list of enrollments.
+     *
+     * @param courses            the list of math enrollments
+     * @param allMathEnrollments the list of all enrollments from prior terms (used to append a "repeat-count" to course
+     *                           IDs)
+     * @return the string representation
+     */
+    private String getMathEnrollmentString(final Iterable<String> courses,
+                                           final List<String> allMathEnrollments) {
+
+        final HtmlBuilder builder = new HtmlBuilder(100);
+        boolean comma = false;
+        for (final String course : courses) {
+            if (comma) {
+                builder.add(",");
             }
-            name = builder.toString();
+            builder.add(course);
+            final int count = count(course, allMathEnrollments);
+            if (count > 0) {
+                builder.add(".", Integer.toString(count + 1));
+            }
+
+            comma = true;
         }
 
-        return name;
+        return builder.toString();
+    }
+
+    /**
+     * Counts the number of times a student has previously taken a course.
+     *
+     * @param course      the course
+     * @param pastCourses the list of all previously taken courses
+     * @return the number of times {@code course} appears in {@code pastCourses}
+     */
+    private static int count(final String course, final List<String> pastCourses) {
+
+        int count = 0;
+
+        for (final String test : pastCourses) {
+            if (test.equals(course)) {
+                ++count;
+            }
+        }
+
+        return count;
     }
 }

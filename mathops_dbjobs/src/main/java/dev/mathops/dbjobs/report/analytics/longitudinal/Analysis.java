@@ -151,33 +151,33 @@ public final class Analysis {
                 {"401"},
                 {"801", "809"}};
 
-        final CourseSummary summary = new CourseSummary(this.targetDir);
-        summary.generate(START_TERM, END_TERM, "MATH101", enrollments, stuTerms, sects, onlineSects, majors);
-        summary.generate(START_TERM, END_TERM, "MATH105", enrollments, stuTerms, sects, onlineSects, majors);
-        summary.generate(START_TERM, END_TERM, "MATH116", enrollments, stuTerms, sects, onlineSects, majors);
-        summary.generate(START_TERM, END_TERM, "MATH117", enrollments, stuTerms, sects, onlineSects, majors);
-        summary.generate(START_TERM, END_TERM, "MATH118", enrollments, stuTerms, sects, onlineSects, majors);
-        summary.generate(START_TERM, END_TERM, "MATH120", enrollments, stuTerms, sects, onlineSects, majors);
-        summary.generate(START_TERM, END_TERM, "MATH124", enrollments, stuTerms, sects, onlineSects, majors);
-        summary.generate(START_TERM, END_TERM, "MATH125", enrollments, stuTerms, sects, onlineSects, majors);
-        summary.generate(START_TERM, END_TERM, "MATH126", enrollments, stuTerms, sects, onlineSects, majors);
-        summary.generate(START_TERM, END_TERM, "MATH127", enrollments, stuTerms, sects, onlineSects, majors);
-        summary.generate(START_TERM, END_TERM, "MATH141", enrollments, stuTerms, sects, onlineSects, majors);
-        summary.generate(START_TERM, END_TERM, "MATH155", enrollments, stuTerms, sects, onlineSects, majors);
-        summary.generate(START_TERM, END_TERM, "MATH156", enrollments, stuTerms, sects, onlineSects, majors);
-        summary.generate(START_TERM, END_TERM, "MATH157", enrollments, stuTerms, sects, onlineSects, majors);
-        summary.generate(START_TERM, END_TERM, "MATH159", enrollments, stuTerms, sects, onlineSects, majors);
-        summary.generate(START_TERM, END_TERM, "MATH160", enrollments, stuTerms, sects, onlineSects, majors);
-        summary.generate(START_TERM, END_TERM, "MATH161", enrollments, stuTerms, sects, onlineSects, majors);
-        summary.generate(START_TERM, END_TERM, "MATH255", enrollments, stuTerms, sects, onlineSects, majors);
-        summary.generate(START_TERM, END_TERM, "MATH256", enrollments, stuTerms, sects, onlineSects, majors);
-        summary.generate(START_TERM, END_TERM, "MATH261", enrollments, stuTerms, sects, onlineSects, majors);
-        summary.generate(START_TERM, END_TERM, "MATH340", enrollments, stuTerms, sects, onlineSects, majors);
-        summary.generate(START_TERM, END_TERM, "STAT100", enrollments, stuTerms, sects, onlineSects, majors);
+//        final CourseSummary summary = new CourseSummary(this.targetDir);
+//        summary.generate(START_TERM, END_TERM, "MATH101", enrollments, stuTerms, sects, onlineSects, majors);
+//        summary.generate(START_TERM, END_TERM, "MATH105", enrollments, stuTerms, sects, onlineSects, majors);
+//        summary.generate(START_TERM, END_TERM, "MATH116", enrollments, stuTerms, sects, onlineSects, majors);
+//        summary.generate(START_TERM, END_TERM, "MATH117", enrollments, stuTerms, sects, onlineSects, majors);
+//        summary.generate(START_TERM, END_TERM, "MATH118", enrollments, stuTerms, sects, onlineSects, majors);
+//        summary.generate(START_TERM, END_TERM, "MATH120", enrollments, stuTerms, sects, onlineSects, majors);
+//        summary.generate(START_TERM, END_TERM, "MATH124", enrollments, stuTerms, sects, onlineSects, majors);
+//        summary.generate(START_TERM, END_TERM, "MATH125", enrollments, stuTerms, sects, onlineSects, majors);
+//        summary.generate(START_TERM, END_TERM, "MATH126", enrollments, stuTerms, sects, onlineSects, majors);
+//        summary.generate(START_TERM, END_TERM, "MATH127", enrollments, stuTerms, sects, onlineSects, majors);
+//        summary.generate(START_TERM, END_TERM, "MATH141", enrollments, stuTerms, sects, onlineSects, majors);
+//        summary.generate(START_TERM, END_TERM, "MATH155", enrollments, stuTerms, sects, onlineSects, majors);
+//        summary.generate(START_TERM, END_TERM, "MATH156", enrollments, stuTerms, sects, onlineSects, majors);
+//        summary.generate(START_TERM, END_TERM, "MATH157", enrollments, stuTerms, sects, onlineSects, majors);
+//        summary.generate(START_TERM, END_TERM, "MATH159", enrollments, stuTerms, sects, onlineSects, majors);
+//        summary.generate(START_TERM, END_TERM, "MATH160", enrollments, stuTerms, sects, onlineSects, majors);
+//        summary.generate(START_TERM, END_TERM, "MATH161", enrollments, stuTerms, sects, onlineSects, majors);
+//        summary.generate(START_TERM, END_TERM, "MATH255", enrollments, stuTerms, sects, onlineSects, majors);
+//        summary.generate(START_TERM, END_TERM, "MATH256", enrollments, stuTerms, sects, onlineSects, majors);
+//        summary.generate(START_TERM, END_TERM, "MATH261", enrollments, stuTerms, sects, onlineSects, majors);
+//        summary.generate(START_TERM, END_TERM, "MATH340", enrollments, stuTerms, sects, onlineSects, majors);
+//        summary.generate(START_TERM, END_TERM, "STAT100", enrollments, stuTerms, sects, onlineSects, majors);
+
+        // Looking for pairings with N >= 200 (N >= 50 for recent courses like MATH 120/127)
 
 //        final SequenceSuccess seqSuccess = new SequenceSuccess(this.targetDir);
-//
-//        // Looking for pairings with N >= 200 (N >= 50 for recent courses like MATH 120/127)
 //
 //        seqSuccess.generate(START_TERM, END_TERM, enrollments, "MATH117", allSects, "AREC202", allSects); // N=2917
 //        seqSuccess.generate(START_TERM, END_TERM, enrollments, "MATH117", allSects, "CHEM107", allSects); // N=5035

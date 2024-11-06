@@ -436,7 +436,13 @@ final class SequenceSuccess {
                 final String course = rec.course();
                 final String sect = rec.section();
 
-                if (secondCourse.equals(course) && !rec.isTransfer() && containsSection(secondCourseSections, sect)) {
+                final boolean courseMatch = secondCourse.equals(course)
+                                            || ("MATH157".equals(secondCourse) && "MATH180A3".equals(course))
+                                            || ("MATH159".equals(secondCourse) && "MATH180A4".equals(course))
+                                            || ("MATH156".equals(secondCourse) && "MATH180A5".equals(course))
+                                            || ("MATH116".equals(secondCourse) && "MATH181A1".equals(course));
+
+                if (courseMatch && !rec.isTransfer() && containsSection(secondCourseSections, sect)) {
                     if (earliestSecond == null) {
                         earliestSecond = rec;
                     } else {
@@ -477,7 +483,13 @@ final class SequenceSuccess {
             final int term = rec.academicPeriod();
             final String sect = rec.section();
 
-            if (firstCourse.equals(course)) {
+            final boolean courseMatch = firstCourse.equals(course)
+                                        || ("MATH157".equals(firstCourse) && "MATH180A3".equals(course))
+                                        || ("MATH159".equals(firstCourse) && "MATH180A4".equals(course))
+                                        || ("MATH156".equals(firstCourse) && "MATH180A5".equals(course))
+                                        || ("MATH116".equals(firstCourse) && "MATH181A1".equals(course));
+
+            if (courseMatch) {
                 if (rec.isApIbClep()) {
                     if (term <= secondTerm) {
                         latestFirst = chooseLatest(latestFirst, rec);
