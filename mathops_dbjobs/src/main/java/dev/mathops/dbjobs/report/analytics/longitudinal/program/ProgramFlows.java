@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.SequencedCollection;
 import java.util.TreeMap;
 
 /**
@@ -33,8 +32,11 @@ public final class ProgramFlows {
             "MATH155", "MATH156", "MATH157", "MATH159", "MATH160", "MATH161", "MATH255", "MATH256", "MATH261",
             "MATH340", "STAT100");
 
+    /** A commonly used integer. */
+    private static final Integer ONE = Integer.valueOf(1);
+
     /** A key to indicate the 1-credit courses. */
-    private static final String MATHMODS = "MODS";
+    private static final String MATHMODS = "(MODS)";
 
     /** A commonly used string array. */
     private static final String[][] M_124 = {{"MATH124"}};
@@ -246,9 +248,9 @@ public final class ProgramFlows {
                                   final String[][] courses) {
 
         final List<List<EnrollmentRec>> enrollmentsBySemester = new ArrayList<>(20);
-        final Map<List<String>, Integer> pathCounts = new TreeMap<>();
+        final Map<String, Path> paths = new TreeMap<>();
 
-        final List<String> path = new ArrayList<>(10);
+        final List<String> pathCourses = new ArrayList<>(10);
         final String startNode = SimpleBuilder.concat("Needs ", label);
         final List<String> allMathEnrollments = new ArrayList<>(10);
 
@@ -276,7 +278,7 @@ public final class ProgramFlows {
                 }
             }
 
-            path.add(startNode);
+            pathCourses.add(startNode);
 
             allMathEnrollments.clear();
 
@@ -295,32 +297,85 @@ public final class ProgramFlows {
                     foundEnrollment = true;
 
                     final String newNode = getMathEnrollmentString(mathEnrollments, allMathEnrollments);
-                    path.add(newNode);
+                    pathCourses.add(newNode);
 
                     allMathEnrollments.addAll(mathEnrollments);
                 }
             }
 
             if (foundEnrollment) {
-                if (didComplete(studentEnrollments, courses)) {
-                    path.add("Completed");
-                } else {
-                    path.add("Did Not Complete");
-                }
+                final Path path = new Path(pathCourses);
+                final String key = path.getKey();
+                final Path existing = paths.get(key);
+                final boolean completed = isFinished(studentEnrollments, courses);
 
-                incrementPathCount(pathCounts, path);
+                if (existing == null) {
+                    path.incrementCount(completed);
+
+                    // Ensure parentage paths exist
+                    Path current = path;
+                    String parentKey = current.makeParentKey();
+
+                    while (paths.get(parentKey) == null) {
+                        final Path parent = current.makeParentPath();
+                        final String actualParentKey = parent.getKey();
+                        if (!parentKey.equals(actualParentKey)) {
+                            final String currentKey = current.getKey();
+                            Log.warning("Computed and actual parent keys differ: '", parentKey, "'/'", actualParentKey,
+                                    "', child is '", currentKey, "'");
+                        }
+                        paths.put(parentKey, parent);
+                        current = parent;
+                        parentKey = parent.makeParentKey();
+                    }
+
+                    paths.put(key, path);
+                } else {
+                    existing.incrementCount(completed);
+                }
             }
 
             enrollmentsBySemester.clear();
-            path.clear();
+            pathCourses.clear();
+        }
+
+        // Organize paths by parent/child relationship
+
+        final Collection<Path> pathsValues = paths.values();
+        final List<Path> allPaths = new ArrayList<>(pathsValues);
+        allPaths.sort(null);
+
+        final int totalPaths = allPaths.size();
+
+        final Collection<Path> toplevel = new ArrayList<>(10);
+        for (int i = totalPaths - 1; i >= 0; --i) {
+            final Path path = allPaths.get(i);
+            if (path.size() <= 2) {
+                toplevel.add(path);
+                allPaths.remove(i);
+            }
+        }
+
+        int overallTotal = 0;
+        for (final Path path : toplevel) {
+            path.collectChildPaths(allPaths);
+            overallTotal += path.getTotalCount();
+        }
+
+        for (final Path path : allPaths) {
+            final String pathKey = path.getKey();
+            Log.warning("A path was found with no parent: ", pathKey);
         }
 
         final HtmlBuilder builder = new HtmlBuilder(1000);
+        final String overallTotalStr = Integer.toString(overallTotal);
+        builder.addln(overallTotalStr, " students analyzed whose program needs ", label);
+        builder.addln();
 
-        for (final Map.Entry<List<String>, Integer> entry : pathCounts.entrySet()) {
-            final List<String> key = entry.getKey();
-            final Integer value = entry.getValue();
-            builder.addln("[", value, "] ", key);
+        for (final Path top : toplevel) {
+            if (top.size() > 1) {
+                emitPath(builder, top, 0);
+            }
         }
 
         final String fileData = builder.toString();
@@ -335,38 +390,56 @@ public final class ProgramFlows {
     }
 
     /**
-     * Increments the counter for a oath, initializing the counter if it has not yet been initialized.
+     * Emits a line for a path to an {@code HtmlBuilder}.
      *
-     * @param counts a map from transition name to its current count
-     * @param path   the oath whose count to increment
+     * @param builder the {@code HtmlBuilder} to which to append
+     * @param path    the path
+     * @param indent  the indentation level that shows parent/child relationships
      */
-    private static void incrementPathCount(final Map<List<String>, Integer> counts, final List<String> path) {
+    private static void emitPath(final HtmlBuilder builder, final Path path, final int indent) {
 
-        final Integer current = counts.get(path);
+        builder.indent(indent * 2);
 
-        if (current == null) {
-            counts.put(path, Integer.valueOf(1));
-        } else {
-            counts.put(path, Integer.valueOf(current.intValue() + 1));
+        final String entryKey = path.getKey();
+
+        final int completed = path.getNumCompleted();
+        final String completedStr = Integer.toString(completed);
+
+        final int didNotComplete = path.getNumDidNotComplete();
+        final String didNotCompleteStr = Integer.toString(didNotComplete);
+
+        final int count = completed + didNotComplete;
+        final String countStr = Integer.toString(count);
+
+        final int total = path.getTotalCount();
+        final String totalStr = Integer.toString(total);
+
+        builder.addln("[", countStr, "/", totalStr, "] ", entryKey, " (", completedStr, " FINISHED, ",
+                didNotCompleteStr, " EXITED)");
+
+        final int numChildren = path.getNumChildren();
+        for (int i = 0; i < numChildren; ++i) {
+            final Path child = path.getChild(i);
+            emitPath(builder, child, indent + 1);
         }
     }
 
     /**
-     * Tests whether a student completed required courses for a program.
+     * Tests whether a student finished required courses for a program.
      *
      * @param studentEnrollments the students complete enrollment record
      * @param courses            the lists of required terminal courses (each row is an option, all courses in a row
      *                           need to be completed)
-     * @return true if the student completed at least one required set of courses; false if not
+     * @return true if the student completed at least one required list of courses; false if not
      */
-    private static boolean didComplete(final List<EnrollmentRec> studentEnrollments, final String[][] courses) {
+    private static boolean isFinished(final Iterable<EnrollmentRec> studentEnrollments, final String[][] courses) {
 
         boolean completed = false;
 
-        for (int row = 0; row < courses.length; ++row) {
+        for (final String[] courseArray : courses) {
             boolean doneAll = true;
-            for (final String course : courses[row]) {
-                if (!didCompleteCourse(studentEnrollments, course)) {
+            for (final String course : courseArray) {
+                if (!isCourseFinished(studentEnrollments, course)) {
                     doneAll = false;
                     break;
                 }
@@ -388,7 +461,7 @@ public final class ProgramFlows {
      * @param course             the  course
      * @return true if the student completed the course; false if not
      */
-    private static boolean didCompleteCourse(final List<EnrollmentRec> studentEnrollments, final String course) {
+    private static boolean isCourseFinished(final Iterable<EnrollmentRec> studentEnrollments, final String course) {
 
         boolean completed = false;
 
@@ -457,8 +530,8 @@ public final class ProgramFlows {
      *                           IDs)
      * @return the string representation
      */
-    private String getMathEnrollmentString(final Iterable<String> courses,
-                                           final List<String> allMathEnrollments) {
+    private static String getMathEnrollmentString(final Iterable<String> courses,
+                                                  final List<String> allMathEnrollments) {
 
         final HtmlBuilder builder = new HtmlBuilder(100);
         boolean comma = false;
@@ -469,7 +542,8 @@ public final class ProgramFlows {
             builder.add(course);
             final int count = count(course, allMathEnrollments);
             if (count > 0) {
-                builder.add(".", Integer.toString(count + 1));
+                final String countStr = Integer.toString(count + 1);
+                builder.add(".", countStr);
             }
 
             comma = true;
