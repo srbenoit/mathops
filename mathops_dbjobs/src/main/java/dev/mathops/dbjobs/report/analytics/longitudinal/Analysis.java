@@ -7,8 +7,7 @@ import dev.mathops.dbjobs.report.analytics.longitudinal.data.StudentTermRec;
 import dev.mathops.dbjobs.report.analytics.longitudinal.datacollection.FetchEnrollmentData;
 import dev.mathops.dbjobs.report.analytics.longitudinal.datacollection.FetchMajorAndProgramData;
 import dev.mathops.dbjobs.report.analytics.longitudinal.datacollection.FetchStudentTermData;
-import dev.mathops.dbjobs.report.analytics.longitudinal.program.AssembleProgramData;
-import dev.mathops.dbjobs.report.analytics.longitudinal.program.ProgramFlows;
+import dev.mathops.dbjobs.report.analytics.longitudinal.major.MajorStatistics;
 
 import java.io.File;
 import java.util.HashMap;
@@ -313,11 +312,23 @@ public final class Analysis {
 //        seqSuccess.generate(START_TERM, END_TERM, enrollments, "MATH340", allSects, "MECH417", allSects); // N=415
 //        seqSuccess.generate(START_TERM, END_TERM, enrollments, "MATH340", allSects, "PH451", allSects); // N=200
 
-        final Map<String, List<String>> studentsByTerminalCourse = AssembleProgramData.classifyStudents(enrollments,
-                stuTerms);
+        // Analysis by math required in program (not yet useful)
 
-        final ProgramFlows flows = new ProgramFlows(this.targetDir);
-        flows.generate(studentsByTerminalCourse, enrollments, stuTerms);
+//        final Map<String, List<String>> studentsByTerminalCourse = AssembleProgramData.classifyStudents(enrollments,
+//                stuTerms);
+//
+//        final ProgramFlows flows = new ProgramFlows(this.targetDir);
+//        flows.generate(studentsByTerminalCourse, enrollments, stuTerms);
+
+        // Analysis by major/program
+
+        final File majorsDir = new File(this.targetDir, "majors");
+        if (majorsDir.exists() || majorsDir.mkdirs()) {
+            final MajorStatistics majorStats = new MajorStatistics(majorsDir);
+            majorStats.generate(enrollments, stuTerms);
+        } else {
+            Log.warning("Unable to create directory for Majors analysis");
+        }
 
         Log.fine("Analysis completed");
     }

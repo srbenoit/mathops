@@ -228,6 +228,11 @@ public enum FetchStudentTermData {
                             }
                         }
 
+                        // Sort student terms in each list
+                        for (final Map.Entry<String, List<StudentTermRec>> entry : result.entrySet()) {
+                            entry.getValue().sort(null);
+                        }
+
                         final int numStudents = result.size();
                         final String numStudentsStr = Integer.toString(numStudents);
                         Log.fine("    Loaded student term data for ", numStudentsStr, " students");

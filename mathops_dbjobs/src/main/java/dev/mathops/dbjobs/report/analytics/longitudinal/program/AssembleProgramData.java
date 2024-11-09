@@ -148,7 +148,7 @@ public enum AssembleProgramData {
     }
 
     /**
-     * Identifies the student's major at the time they first enrolled in a Math course.
+     * Identifies the student's program at the time they first enrolled in a Math course.
      *
      * @param stuEnrollments the list of student enrollments
      * @param stuTerms       the list of student term records

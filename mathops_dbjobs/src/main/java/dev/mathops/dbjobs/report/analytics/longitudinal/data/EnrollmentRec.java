@@ -108,6 +108,24 @@ public record EnrollmentRec(String studentId, int academicPeriod, String course,
     }
 
     /**
+     * Tests whether this enrollment attempt is a "DFW'
+     *
+     * @return true if the course section is gradable
+     */
+    public boolean isDfw() {
+
+        final boolean dfw;
+
+        if (isTransfer() || isApIbClep()) {
+            dfw = false;
+        } else {
+            dfw = isWithdraw() || this.gradeValue == null || this.gradeValue.doubleValue() < 1.5;
+        }
+
+        return dfw;
+    }
+
+    /**
      * Attempts to parse a {@code EnrollmentRecord} from a JSON object.
      *
      * @param json the JSON object

@@ -14,8 +14,10 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -136,9 +138,13 @@ public final class ProgramFlows {
                          final Map<String, ? extends List<EnrollmentRec>> enrollments,
                          final Map<String, ? extends List<StudentTermRec>> studentTerms) {
 
+        final Set<String> allStudentIds = new HashSet<>(100000);
+
         for (final Map.Entry<String, List<String>> entry : studentsByTerminalCourse.entrySet()) {
             final String key = entry.getKey();
             final List<String> studentIds = entry.getValue();
+
+            allStudentIds.addAll(studentIds);
 
             final int count = studentIds.size();
             final String countStr = Integer.toString(count);
@@ -230,6 +236,9 @@ public final class ProgramFlows {
                     break;
             }
         }
+
+        final Iterable<String> allStudentIdsList = new ArrayList<>(allStudentIds);
+        generateTerminal("Overall", allStudentIdsList, enrollments, studentTerms, null);
     }
 
     /**
@@ -253,6 +262,11 @@ public final class ProgramFlows {
         final List<String> pathCourses = new ArrayList<>(10);
         final String startNode = SimpleBuilder.concat("Needs ", label);
         final List<String> allMathEnrollments = new ArrayList<>(10);
+
+        final Map<Integer, Integer> totalCreditsHistogram = new TreeMap<>();
+        final Map<Integer, Integer> failedCreditsHistogram = new TreeMap<>();
+        final Map<Integer, Integer> totalSemestersHistogram = new TreeMap<>();
+        final Set<Integer> termsWithMath = new HashSet<>();
 
         for (final String studentId : studentIds) {
 
@@ -304,10 +318,98 @@ public final class ProgramFlows {
             }
 
             if (foundEnrollment) {
+                // This student took MATH...
+                termsWithMath.clear();
+                int mathCredits = 0;
+                int failedCredits = 0;
+
+                for (final EnrollmentRec enrollment : studentEnrollments) {
+                    if (enrollment.isApIbClep() || enrollment.isTransfer()) {
+                        continue;
+                    }
+                    termsWithMath.add(Integer.valueOf(enrollment.academicPeriod()));
+
+                    final String course = enrollment.course();
+                    final int courseCredits;
+
+                    if (enrollment.course().startsWith("MATH")) {
+                        if ("MATH 117".equals(course)
+                            || "MATH118".equals(course)
+                            || "MATH124".equals(course)
+                            || "MATH125".equals(course)
+                            || "MATH126".equals(course)
+                            || "MATH116".equals(course) || "MATH181A1".equals(course)
+                            || "MATH151".equals(course)
+                            || "MATH152".equals(course)
+                            || "MATH158".equals(course)
+                            || "MATH192".equals(course)
+                            || "MATH384".equals(course)) {
+                            courseCredits = 1;
+                        } else if ("MATH229".equals(course)
+                                   || "MATH269".equals(course)
+                                   || "MATH235".equals(course)) {
+                            courseCredits = 2;
+                        } else if ("MATH127".equals(course)
+                                   || "MATH155".equals(course)
+                                   || "MATH156".equals(course) || "MATH180A5".equals(course)
+                                   || "MATH160".equals(course)
+                                   || "MATH161".equals(course)
+                                   || "MATH255".equals(course)
+                                   || "MATH256".equals(course)
+                                   || "MATH261".equals(course)
+                                   || "MATH271".equals(course)
+                                   || "MATH272".equals(course)
+                                   || "MATH340".equals(course)
+                                   || "MATH345".equals(course)
+                                   || "MATH348".equals(course)
+                                   || "MATH271".equals(course)) {
+                            courseCredits = 4;
+                        } else {
+                            courseCredits = 3;
+                        }
+
+                        mathCredits += courseCredits;
+                        if (enrollment.isPassed()) {
+                            failedCredits += courseCredits;
+                        }
+                    }
+                }
+
+                // Update histogram tracking number of terms in which math was taken
+                final int numTermsWithMath = termsWithMath.size();
+                final Integer numTermsValue = Integer.valueOf(numTermsWithMath);
+                final Integer existingNumTermsCount = totalSemestersHistogram.get(numTermsValue);
+                if (existingNumTermsCount == null) {
+                    totalSemestersHistogram.put(numTermsValue, ONE);
+                } else {
+                    final Integer newValue = Integer.valueOf(existingNumTermsCount.intValue() + 1);
+                    totalSemestersHistogram.put(numTermsValue, newValue);
+                }
+
+                // Update histogram tracking number of MATH credits
+                final Integer numCreditsValue = Integer.valueOf(mathCredits);
+                final Integer existingNumCreditsCount = totalCreditsHistogram.get(numCreditsValue);
+                if (existingNumCreditsCount == null) {
+                    totalCreditsHistogram.put(numCreditsValue, ONE);
+                } else {
+                    final Integer newValue = Integer.valueOf(existingNumCreditsCount.intValue() + 1);
+                    totalCreditsHistogram.put(numCreditsValue, newValue);
+                }
+
+                // Update histogram tracking number of failed MATH credits
+                final Integer numFailedValue = Integer.valueOf(failedCredits);
+                final Integer existingNumFailedCount = failedCreditsHistogram.get(numFailedValue);
+                if (existingNumFailedCount == null) {
+                    failedCreditsHistogram.put(numFailedValue, ONE);
+                } else {
+                    final Integer newValue = Integer.valueOf(existingNumFailedCount.intValue() + 1);
+                    failedCreditsHistogram.put(numFailedValue, newValue);
+                }
+
                 final Path path = new Path(pathCourses);
                 final String key = path.getKey();
                 final Path existing = paths.get(key);
-                final boolean completed = isFinished(studentEnrollments, courses);
+                final boolean completed = courses == null ? false : isFinished(studentEnrollments, courses);
 
                 if (existing == null) {
                     path.incrementCount(completed);
@@ -346,6 +448,15 @@ public final class ProgramFlows {
         allPaths.sort(null);
 
         final int totalPaths = allPaths.size();
+        int totalCompleted = 0;
+        int totalNotCompleted = 0;
+
+        for (final Path path : allPaths) {
+            totalCompleted += path.getNumCompleted();
+            totalNotCompleted += path.getNumDidNotComplete();
+        }
+
+        final int overallTotal = totalCompleted + totalNotCompleted;
 
         final Collection<Path> toplevel = new ArrayList<>(10);
         for (int i = totalPaths - 1; i >= 0; --i) {
@@ -356,10 +467,8 @@ public final class ProgramFlows {
             }
         }
 
-        int overallTotal = 0;
         for (final Path path : toplevel) {
             path.collectChildPaths(allPaths);
-            overallTotal += path.getTotalCount();
         }
 
         for (final Path path : allPaths) {
@@ -372,9 +481,39 @@ public final class ProgramFlows {
         builder.addln(overallTotalStr, " students analyzed whose program needs ", label);
         builder.addln();
 
-        for (final Path top : toplevel) {
-            if (top.size() > 1) {
-                emitPath(builder, top, 0);
+        // Emit statistics
+
+        final String totalCompletedStr = Integer.toString(totalCompleted);
+        final String totalNotCompletedStr = Integer.toString(totalNotCompleted);
+        builder.addln(totalCompletedStr, " completed initial requirements; ", totalNotCompletedStr, " did not");
+        builder.addln();
+
+        builder.addln("Counts of students based on number of semesters in which MATH was taken:");
+        for (final Map.Entry<Integer, Integer> entry : totalSemestersHistogram.entrySet()) {
+            builder.addln("    ", entry.getKey(), " semesters of MATH: ", entry.getValue(), " students");
+        }
+        builder.addln();
+
+        builder.addln("Counts of students based on number of credits of MATH taken:");
+        for (final Map.Entry<Integer, Integer> entry : totalCreditsHistogram.entrySet()) {
+            builder.addln("    ", entry.getKey(), " credits of MATH taken: ", entry.getValue(), " students");
+        }
+        builder.addln();
+
+        builder.addln("Counts of students based on number of credits of MATH failed:");
+        for (final Map.Entry<Integer, Integer> entry : failedCreditsHistogram.entrySet()) {
+            builder.addln("    ", entry.getKey(), " credits of MATH failed: ", entry.getValue(), " students");
+        }
+        builder.addln();
+
+        // TODO: Input and output majors for Sankey diagram
+
+        // Emit paths
+        if (courses != null) {
+            for (final Path top : toplevel) {
+                if (top.size() > 1) {
+                    emitPath(builder, top, 0);
+                }
             }
         }
 
