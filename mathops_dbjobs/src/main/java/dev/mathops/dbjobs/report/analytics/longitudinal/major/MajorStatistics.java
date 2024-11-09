@@ -29,7 +29,7 @@ public final class MajorStatistics {
 
     /** The list of MATH courses for which to report statistics. */
     private static final List<String> FOUNDATIONAL = Arrays.asList("MATH101", "MATH105", "MATH116", "MATH117",
-            "MATH118", "MATH120", "MATH124", "MATh125", "MATH126", "MATH127", "MATH141", "MATH155", "MATH156",
+            "MATH118", "MATH120", "MATH124", "MATH125", "MATH126", "MATH127", "MATH141", "MATH155", "MATH156",
             "MATH157", "MATH159", "MATH160", "MATH161", "MATH255", "MATH261", "MATH340");
 
     /** A commonly used string array. */
@@ -622,6 +622,21 @@ public final class MajorStatistics {
         }
         builder.addln();
 
+        for (final Map.Entry<String, Integer> entry : attemptsByCourse.entrySet()) {
+            final String course = entry.getKey();
+            final Integer count = entry.getValue();
+            final Integer dfw = dfwCountsByCourse.get(course);
+
+            if (dfw == null) {
+                builder.addln(course, ",", count, ",", dfw, ",0.00%");
+            } else {
+                final double failPercent = dfw.doubleValue() / count.doubleValue() * 100.0;
+                final String failStr = this.format.format(failPercent);
+                builder.addln(course, ",", count, ",", dfw, ",", failStr, "%");
+            }
+        }
+        builder.addln();
+
         builder.addln("Last DFW foundational MATH course for students who did not complete program requirements:");
         for (final Map.Entry<String, Integer> entry : lastMathFailedIfNotFinished.entrySet()) {
             final String course = entry.getKey();
@@ -632,6 +647,17 @@ public final class MajorStatistics {
             builder.addln("    ", course, " appeared ", count, " times (for ", failStr,
                     "% of students who did not complete requirements)");
         }
+        builder.addln();
+
+        for (final Map.Entry<String, Integer> entry : lastMathFailedIfNotFinished.entrySet()) {
+            final String course = entry.getKey();
+            final Integer count = entry.getValue();
+
+            final double failPercent = count.doubleValue() / (double) totalUnfinished * 100.0;
+            final String failStr = this.format.format(failPercent);
+            builder.addln(course, ",", count, ",", failStr, "%");
+        }
+        builder.addln();
 
         final String fileData = builder.toString();
 
