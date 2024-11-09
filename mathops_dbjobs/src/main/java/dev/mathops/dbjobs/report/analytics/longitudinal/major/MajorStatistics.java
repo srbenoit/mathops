@@ -375,8 +375,8 @@ public final class MajorStatistics {
                 "ANTH-DD-BA");
         generateMajor("Anthropology", programANTH, M3_AUCC, 1, 3, allEnrollments, allStudentTerms);
 
-        final List<String> programART = Arrays.asList("ARTI-BA, ARTI-AREZ-BA,", "ARTI-ARTZ-BA", "ARTI-IVSZ-BA",
-                "ARTI-STDZ-BA", "ARTM-BFA", "ARTM-AREZ-BF", "ARTM-DRAZ-BF", "ARTM-ELAZ-BF,", "ARTM-FIBZ-BF",
+        final List<String> programART = Arrays.asList("ARTI-BA", "ARTI-AREZ-BA", "ARTI-ARTZ-BA", "ARTI-IVSZ-BA",
+                "ARTI-STDZ-BA", "ARTM-BFA", "ARTM-AREZ-BF", "ARTM-DRAZ-BF", "ARTM-ELAZ-BF", "ARTM-FIBZ-BF",
                 "ARTM-GRDZ-BF", "ARTM-METZ-BF", "ARTM-PHIZ-BF", "ARTM-PNTZ-BF", "ARTM-POTZ-BF", "ARTM-PRTZ-BF",
                 "ARTM-SCLZ-BF");
         generateMajor("Art", programART, M3_AUCC, 1, 3, allEnrollments, allStudentTerms);
