@@ -63,6 +63,9 @@ public final class MajorStatistics {
     private static final String[][] M_156_OR_160 = {{"MATH156"}, {"MATH160"}};
 
     /** A commonly used string array. */
+    private static final String[][] M_161 = {{"MATH161"}};
+
+    /** A commonly used string array. */
     private static final String[][] M_161_OR_271 = {{"MATH161"}, {"MATH271"}};
 
     /** A commonly used string array. */
@@ -223,14 +226,15 @@ public final class MajorStatistics {
         generateMajor("Mathematics (Computational Mathematics Concentration)", programsMATHCPMZ,
                 M_161_OR_256, 4, 16, allEnrollments, allStudentTerms);
 
+        final List<String> programsGEOLGEOZ = List.of("GEOL-BS", "GEOL-GEOZ-BS");
+        generateMajor("Geology (Geology Concentration)", programsGEOLGEOZ, M_161, 2, 8, allEnrollments, allStudentTerms);
+
         // Programs that require a Calculus course (MATH 141, MATH 155, MATH 156, MATH 160)
 
         final List<String> programsCPSC = Arrays.asList("CPSC-BS", "CPSC-CPSZ-BS", "CPSC-CSYZ-BS", "CPSC-DCSZ-BS",
                 "CPSC-DNSZ-BS", "CPSC-HCCZ-BS", "CPSC-NSCZ-BS", "CPSC-SEGZ-BS");
         generateMajor("Computer Science (except Artificial Intelligence and Machine Learning Concentration)",
                 programsCPSC, M_156_OR_160, 2, 8, allEnrollments, allStudentTerms);
-
-        // Programs that require a Calculus course (MATH 141, MATH 155, MATH 156, MATH 160)
 
         final List<String> programsBIOMAPHZ = List.of("BIOM-APHZ-BS");
         generateMajor("Biomedical Sciences (Anatomy and Physiology Concentration)",
@@ -262,6 +266,10 @@ public final class MajorStatistics {
         generateMajor("Forest and Rangeland Stewardship (Forest Biology Concentration)", programsFRRSFRBZ, M_155, 1, 4,
                 allEnrollments, allStudentTerms);
 
+        final List<String> programsFRRSRFMZ = List.of("FRRS-BS", "FRRS-RFMZ-BS", "FRRS-FRFZ-BS", "FRRS-FMGZ-BS");
+        generateMajor("Forest and Rangeland Stewardship (except Forest Biology Concentration)",
+                programsFRRSRFMZ, M_141, 1, 4, allEnrollments, allStudentTerms);
+
         final List<String> programsNEROBCNZ = List.of("NERO-BS", "NERO-BCNZ-BS");
         generateMajor("Neuroscience (Behavioral and Cognitive Neuroscience Concentration)", programsNEROBCNZ, M_155, 1,
                 4, allEnrollments, allStudentTerms);
@@ -275,10 +283,6 @@ public final class MajorStatistics {
 
         final List<String> programsCTMG = List.of("CTMG-BS");
         generateMajor("Construction Management", programsCTMG, M_141, 1, 3, allEnrollments, allStudentTerms);
-
-        final List<String> programsFRRS = Arrays.asList("FRRS-BS", "FRRS-FMGZ-BS", "FRRS-FRFZ-BS", "FRRS-RFMZ-BS");
-        generateMajor("Forest and Rangeland Stewardship (except Forest Biology and Rangeland Conservation and "
-                      + "Management Concentrations)", programsFRRS, M_155, 1, 4, allEnrollments, allStudentTerms);
 
         final List<String> programsAGBU = Arrays.asList("AGBU-BS", "AGBU-DD-BS", "AGBU-AECZ-BS");
         generateMajor("Agricultural Business (general and Agricultural Economics Concentration)", programsAGBU,
