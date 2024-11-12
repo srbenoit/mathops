@@ -167,9 +167,8 @@ public final class MajorStatistics {
         generateMajor("Geology (Geophysics and Hydrogeology Concentrations)", programsGEOL340, M_340, 4, 16,
                 allEnrollments, allStudentTerms);
 
-        final List<String> programsMATH = Arrays.asList("MATH-BS", "MATH-ALSZ-BS", "MATH-AMTZ-BS", "MATH-GNMZ-BS",
-                "MATH-STAZ-BS");
-        generateMajor("Mathematics (except Math Education and Computational Mathematics Concentration)", programsMATH,
+        final List<String> programsMATH = Arrays.asList("MATH-BS", "MATH-ALSZ-BS", "MATH-AMTZ-BS");
+        generateMajor("Mathematics (Actuarial and Applied Math Concentration)", programsMATH,
                 M_340, 4, 16, allEnrollments, allStudentTerms);
 
         final List<String> programsPHYS = Arrays.asList("PHYS-BS", "PHYS-APPZ-BS", "PHYS-PHYZ-BS");
@@ -180,8 +179,9 @@ public final class MajorStatistics {
         final List<String> programsSTAT = List.of("STAT-BS");
         generateMajor("Statistics", programsSTAT, M_256_OR_261, 2, 8, allEnrollments, allStudentTerms);
 
-        final List<String> programsMATHED = List.of("MATH-MTEZ-BS");
-        generateMajor("Mathematics (Math Education Concentration)", programsMATHED, M_261, 3, 12, allEnrollments,
+        final List<String> programsMATHED = List.of("MATH-GNMZ-BS", "MATH-MTEZ-BS");
+        generateMajor("Mathematics (General Math and Math Education Concentration)", programsMATHED, M_261, 3, 12,
+                allEnrollments,
                 allStudentTerms);
 
         final List<String> programsNSCIPHEZ = List.of("NSCI-PHEZ-BS");
@@ -227,7 +227,8 @@ public final class MajorStatistics {
                 M_161_OR_256, 4, 16, allEnrollments, allStudentTerms);
 
         final List<String> programsGEOLGEOZ = List.of("GEOL-BS", "GEOL-GEOZ-BS");
-        generateMajor("Geology (Geology Concentration)", programsGEOLGEOZ, M_161, 2, 8, allEnrollments, allStudentTerms);
+        generateMajor("Geology (Geology Concentration)", programsGEOLGEOZ, M_161, 2, 8, allEnrollments,
+                allStudentTerms);
 
         // Programs that require a Calculus course (MATH 141, MATH 155, MATH 156, MATH 160)
 
@@ -329,8 +330,9 @@ public final class MajorStatistics {
         final List<String> programIARD = Arrays.asList("IARD-BS", "IARD-IADZ-BS", "IARD-IPRZ-BS");
         generateMajor("Interior Architecture and Design", programIARD, M_124, 1, 3, allEnrollments, allStudentTerms);
 
-        final List<String> programLSBM = Arrays.asList("LSBM-BS");
-        generateMajor("Livestock Business Management", programLSBM, M_124, 1, 3, allEnrollments, allStudentTerms);
+        // Omit this one - 15 majors over 10 years
+        // final List<String> programLSBM = Arrays.asList("LSBM-BS");
+        // generateMajor("Livestock Business Management", programLSBM, M_124, 1, 3, allEnrollments, allStudentTerms);
 
         final List<String> programNRTM = Arrays.asList("NRTM-GLTZ-BS", "NRTM-NRTZ-BS");
         generateMajor("Natural Resource Tourism", programNRTM, M_124, 1, 3, allEnrollments, allStudentTerms);
@@ -763,8 +765,14 @@ public final class MajorStatistics {
         boolean completed = false;
 
         for (final EnrollmentRec rec : studentEnrollments) {
-            if (rec.course().equals(course)) {
+            final String recCourse = rec.course();
+            if (recCourse.equals(course)) {
                 if (rec.isPassed() || rec.isTransfer() || rec.isApIbClep()) {
+                    completed = true;
+                    break;
+                }
+
+                if ("MATH340".equals(course) && "MATH345".equals(recCourse) && rec.isPassed()) {
                     completed = true;
                     break;
                 }
@@ -903,6 +911,8 @@ public final class MajorStatistics {
                     course = "MATH156";
                 } else if ("MATH181A1".equals(course)) {
                     course = "MATH116";
+                } else if ("MATH345".equals(course)) {
+                    course = "MATH340";
                 }
 
                 if (FOUNDATIONAL.contains(course)) {
@@ -944,6 +954,8 @@ public final class MajorStatistics {
                     course = "MATH156";
                 } else if ("MATH181A1".equals(course)) {
                     course = "MATH116";
+                } else if ("MATH345".equals(course)) {
+                    course = "MATH340";
                 }
 
                 if (FOUNDATIONAL.contains(course)) {
@@ -990,6 +1002,8 @@ public final class MajorStatistics {
                     course = "MATH156";
                 } else if ("MATH181A1".equals(course)) {
                     course = "MATH116";
+                } else if ("MATH345".equals(course)) {
+                    course = "MATH340";
                 }
 
                 if (FOUNDATIONAL.contains(course)) {
@@ -1020,6 +1034,8 @@ public final class MajorStatistics {
                         course = "MATH156";
                     } else if ("MATH181A1".equals(course)) {
                         course = "MATH116";
+                    } else if ("MATH345".equals(course)) {
+                        course = "MATH340";
                     }
 
                     if (FOUNDATIONAL.contains(course)) {
