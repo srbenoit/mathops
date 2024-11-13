@@ -341,8 +341,12 @@ public final class MajorStatistics {
                 "PSYC-GPSZ-BS", "PSYC-IOPZ-BS", "PSYC-MBBZ-BS");
         generateMajor("Psychology", programPSYC, M_124, 1, 3, allEnrollments, allStudentTerms);
 
-        final List<String> programSOCR = Arrays.asList("SOCR-BS", "SOCR-PBTZ-BS", "SOCR-SAMZ-BS", "SOCR-SESZ-BS");
-        generateMajor("Soil and Crop Sciences", programSOCR, M_124, 1, 3, allEnrollments, allStudentTerms);
+        final List<String> programSOCR = Arrays.asList("SOCR-BS", "SOCR-SAMZ-BS", "SOCR-SESZ-BS");
+        generateMajor("Soil and Crop Sciences (general)", programSOCR, M_124_125, 1, 3, allEnrollments, allStudentTerms);
+
+        final List<String> programSOCRPBTZ = List.of("SOCR-PBTZ-BS");
+        generateMajor("Soil and Crop Sciences (Plant Biotechnology Concentration)", programSOCRPBTZ, M_124_125, 2, 4,
+                allEnrollments, allStudentTerms);
 
         // Programs allowing 3 credits from a pick-list
 
