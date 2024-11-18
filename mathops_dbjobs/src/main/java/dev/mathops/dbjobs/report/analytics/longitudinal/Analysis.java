@@ -150,7 +150,14 @@ public final class Analysis {
                 {"401"},
                 {"801", "809"}};
 
-//        final CourseSummary summary = new CourseSummary(this.targetDir);
+        final String[][] specialSects = {
+                {"003"},
+                {"004"},
+                {"005"},
+                {"006"},
+                {"007"}};
+
+        final CourseSummary summary = new CourseSummary(this.targetDir);
 //        summary.generate(START_TERM, END_TERM, "MATH101", enrollments, stuTerms, sects, onlineSects, majors);
 //        summary.generate(START_TERM, END_TERM, "MATH105", enrollments, stuTerms, sects, onlineSects, majors);
 //        summary.generate(START_TERM, END_TERM, "MATH116", enrollments, stuTerms, sects, onlineSects, majors);
@@ -159,7 +166,9 @@ public final class Analysis {
 //        summary.generate(START_TERM, END_TERM, "MATH120", enrollments, stuTerms, sects, onlineSects, majors);
 //        summary.generate(START_TERM, END_TERM, "MATH124", enrollments, stuTerms, sects, onlineSects, majors);
 //        summary.generate(START_TERM, END_TERM, "MATH125", enrollments, stuTerms, sects, onlineSects, majors);
+        summary.generate(START_TERM, END_TERM, "MATH125", enrollments, stuTerms, specialSects, onlineSects, majors);
 //        summary.generate(START_TERM, END_TERM, "MATH126", enrollments, stuTerms, sects, onlineSects, majors);
+        summary.generate(START_TERM, END_TERM, "MATH126", enrollments, stuTerms, specialSects, onlineSects, majors);
 //        summary.generate(START_TERM, END_TERM, "MATH127", enrollments, stuTerms, sects, onlineSects, majors);
 //        summary.generate(START_TERM, END_TERM, "MATH141", enrollments, stuTerms, sects, onlineSects, majors);
 //        summary.generate(START_TERM, END_TERM, "MATH155", enrollments, stuTerms, sects, onlineSects, majors);

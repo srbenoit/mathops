@@ -73,7 +73,7 @@ final class ScanWorker extends SwingWorker<String, ProgressUpdate> {
         final String numExamsStr = Integer.toString(numExams);
         final String numHomeworksStr = Integer.toString(numHomeworks);
         report.add("&bull; Found ", numProblemsStr, " problems, ", numExamsStr, " exams, and ", numHomeworksStr, " " +
-                "homeworks.").br().addln();
+                                                                                                                 "homeworks.").br().addln();
 
         try {
             final float pct1 = 100.0f * (float) numProblems / (float) total;
@@ -87,19 +87,19 @@ final class ScanWorker extends SwingWorker<String, ProgressUpdate> {
                 scanProblems(report, dirLen, problemFiles, pct1);
             }
 
-            if (!isCancelled()) {
-                report.sH(3).add("Scanning Exams").eH(3);
-                final String reportText = report.toString();
-                publish(new ProgressUpdate(pct1, "Scanning Exams...", reportText));
-                scanExams(report, examFiles, pct1, pct2);
-            }
-
-            if (!isCancelled()) {
-                report.sH(3).add("Scanning Homeworks").eH(3);
-                final String reportText = report.toString();
-                publish(new ProgressUpdate(pct2, "Scanning Homework...", reportText));
-                scanHomeworks(report, homeworkFiles, pct2);
-            }
+//            if (!isCancelled()) {
+//                report.sH(3).add("Scanning Exams").eH(3);
+//                final String reportText = report.toString();
+//                publish(new ProgressUpdate(pct1, "Scanning Exams...", reportText));
+//                scanExams(report, examFiles, pct1, pct2);
+//            }
+//
+//            if (!isCancelled()) {
+//                report.sH(3).add("Scanning Homeworks").eH(3);
+//                final String reportText = report.toString();
+//                publish(new ProgressUpdate(pct2, "Scanning Homework...", reportText));
+//                scanHomeworks(report, homeworkFiles, pct2);
+//            }
         } catch (final RuntimeException ex) {
             Log.warning(ex);
         }
@@ -128,8 +128,11 @@ final class ScanWorker extends SwingWorker<String, ProgressUpdate> {
             if (isCancelled()) {
                 break;
             }
+
+            Log.info("Scanning ", file.getAbsolutePath());
             scanProblem(report, dirLen, file);
             pct += step;
+
             publish(new ProgressUpdate(pct, "Scanning Problems...", report.toString()));
         }
     }
@@ -138,7 +141,7 @@ final class ScanWorker extends SwingWorker<String, ProgressUpdate> {
      * Scans a single problem.
      *
      * @param report      the report being constructed
-     * @param dirLen       the length of the directory path being scanned
+     * @param dirLen      the length of the directory path being scanned
      * @param problemFile the problem file to scan
      */
     private void scanProblem(final HtmlBuilder report, final int dirLen, final File problemFile) {
@@ -163,11 +166,13 @@ final class ScanWorker extends SwingWorker<String, ProgressUpdate> {
                         report.add("&nbsp; &bull; ").sSpan(null, "style='color:blue;'").add(err).eSpan().br().addln();
                     }
                 }
-//                final long start = System.currentTimeMillis();
+
+                final long start = System.currentTimeMillis();
                 QualityControlChecks.problemQualityChecks(report, problemFile, prob);
-//                final long end = System.currentTimeMillis();
-//                final long duration = end - start;
-//                Log.info("Tests on ", prob.ref, " took " + duration + " ms.");
+                final long end = System.currentTimeMillis();
+                final long duration = end - start;
+                Log.info("Tests on ", prob.id, " took " + duration + " ms.");
+
             } catch (final ParsingException ex) {
                 report.sSpan(null, "style='color:red;'").add("ERROR: Exception while parsing file: ", ex.getMessage())
                         .eSpan().br().addln();
@@ -337,20 +342,20 @@ final class ScanWorker extends SwingWorker<String, ProgressUpdate> {
         final File[] list = dir.listFiles();
 
         final boolean isProblem = path.contains("/problems/")
-                || path.endsWith("/problems")
-                || path.contains("\\problems\\")
-                || path.endsWith("\\problems");
+                                  || path.endsWith("/problems")
+                                  || path.contains("\\problems\\")
+                                  || path.endsWith("\\problems");
         final boolean isExam = path.contains("/exams/")
-                || path.endsWith("/exams")
-                || path.contains("\\exams\\")
-                || path.endsWith("\\exams");
+                               || path.endsWith("/exams")
+                               || path.contains("\\exams\\")
+                               || path.endsWith("\\exams");
         final boolean isHomework = path.contains("/homework/")
-                || path.endsWith("/homework")
-                || path.contains("\\homework\\")
-                || path.endsWith("\\homework")
-                || path.contains("/assignments/")
-                || path.endsWith("/assignments")
-                || path.contains("\\assignments\\");
+                                   || path.endsWith("/homework")
+                                   || path.contains("\\homework\\")
+                                   || path.endsWith("\\homework")
+                                   || path.contains("/assignments/")
+                                   || path.endsWith("/assignments")
+                                   || path.contains("\\assignments\\");
 
         if (list != null) {
             for (final File file : list) {

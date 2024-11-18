@@ -62,6 +62,9 @@ final class MainWindow extends JFrame implements ActionListener {
     /** The current scan worker. */
     private ScanWorker worker;
 
+    /** Refresh report only once per second. */
+    private long nextRefresh = 0;
+
     /**
      * Constructs a new {@code MainWindow}.
      *
@@ -147,7 +150,19 @@ final class MainWindow extends JFrame implements ActionListener {
 
         this.progress.setValue(Math.round(10.0f * update.percentDone));
         this.progress.setString(update.onStep);
-        this.report.setText(update.report);
+
+        if (update.report.length() > 300_000) {
+            this.report.setText(update.report);
+            if (this.worker != null) {
+                this.worker.cancel(false);
+            }
+        } else {
+            final long now = System.currentTimeMillis();
+            if (now > this.nextRefresh) {
+                this.report.setText(update.report);
+                this.nextRefresh = now + 1000L;
+            }
+        }
     }
 
     /**
