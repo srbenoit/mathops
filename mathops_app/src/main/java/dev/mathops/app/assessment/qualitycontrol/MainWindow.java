@@ -151,17 +151,10 @@ final class MainWindow extends JFrame implements ActionListener {
         this.progress.setValue(Math.round(10.0f * update.percentDone));
         this.progress.setString(update.onStep);
 
-        if (update.report.length() > 300_000) {
+        final long now = System.currentTimeMillis();
+        if (now > this.nextRefresh) {
             this.report.setText(update.report);
-            if (this.worker != null) {
-                this.worker.cancel(false);
-            }
-        } else {
-            final long now = System.currentTimeMillis();
-            if (now > this.nextRefresh) {
-                this.report.setText(update.report);
-                this.nextRefresh = now + 1000L;
-            }
+            this.nextRefresh = now + 500L;
         }
     }
 
