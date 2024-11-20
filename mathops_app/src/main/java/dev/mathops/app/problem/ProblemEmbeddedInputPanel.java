@@ -78,7 +78,15 @@ public final class ProblemEmbeddedInputPanel extends AbstractProblemPanelBase im
 
         buildUI(theProblem.evalContext);
 
-        theProblem.question.addInputChangeListener(this);
+        this.problem.question.addInputChangeListener(this);
+    }
+
+    /**
+     * Called when the panel is to be destroyed.
+     */
+    public void dispose() {
+
+        this.problem.question.removeInputChangeListener(this);
     }
 
     /**

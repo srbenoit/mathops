@@ -488,9 +488,9 @@ public abstract class AbstractProblemTemplate extends AbstractXmlObject implemen
     final int innerHashCode() {
 
         return Objects.hashCode(this.id)
-                + Objects.hashCode(this.evalContext)
-                + Objects.hashCode(this.question)
-                + Objects.hashCode(this.solution);
+               + Objects.hashCode(this.evalContext)
+               + Objects.hashCode(this.question)
+               + Objects.hashCode(this.solution);
     }
 
     /**
@@ -502,9 +502,9 @@ public abstract class AbstractProblemTemplate extends AbstractXmlObject implemen
     final boolean innerEquals(final AbstractProblemTemplate other) {
 
         return Objects.equals(this.id, other.id)
-                && Objects.equals(this.evalContext, other.evalContext)
-                && Objects.equals(this.question, other.question)
-                && Objects.equals(this.solution, other.solution);
+               && Objects.equals(this.evalContext, other.evalContext)
+               && Objects.equals(this.question, other.question)
+               && Objects.equals(this.solution, other.solution);
     }
 
     /**

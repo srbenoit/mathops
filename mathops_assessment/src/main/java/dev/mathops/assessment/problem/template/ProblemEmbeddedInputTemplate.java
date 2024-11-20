@@ -132,8 +132,6 @@ public final class ProblemEmbeddedInputTemplate extends AbstractProblemTemplate 
     public void clearAnswer() {
 
         this.question.clearInputs();
-
-        // The following causes ProblemListeners to be notified.
         super.clearAnswer();
     }
 

@@ -157,13 +157,14 @@ public abstract class AbstractDocInput extends AbstractDocContainer {
      * @param listener the listener to add
      */
     final void addInputChangeListener(final InputChangeListener listener) {
-        synchronized (this) {
 
+        synchronized (this) {
             if (this.listeners == null) {
                 this.listeners = new ArrayList<>(1);
             }
-
-            this.listeners.add(listener);
+            if (!this.listeners.contains(listener)) {
+                this.listeners.add(listener);
+            }
         }
     }
 
@@ -173,12 +174,11 @@ public abstract class AbstractDocInput extends AbstractDocContainer {
      * @param listener the listener to remove
      */
     final void removeInputChangeListener(final InputChangeListener listener) {
-        synchronized (this) {
 
+        synchronized (this) {
             if (this.listeners != null) {
                 this.listeners.remove(listener);
             }
-
         }
     }
 
@@ -186,8 +186,8 @@ public abstract class AbstractDocInput extends AbstractDocContainer {
      * Notify all registered listeners that the value has changed.
      */
     final void notifyChangeListeners() {
-        synchronized (this) {
 
+        synchronized (this) {
             if (this.listeners != null) {
                 for (final InputChangeListener listener : this.listeners) {
                     listener.inputChanged(this);
@@ -454,9 +454,9 @@ public abstract class AbstractDocInput extends AbstractDocContainer {
     final int inputInnerHashCode() {
 
         return innerHashCode() + Objects.hashCode(this.enabledFormula)
-                + Objects.hashCode(this.enabledVarName)
-                + Objects.hashCode(this.enabledVarValue)
-                + Objects.hashCode(this.name);
+               + Objects.hashCode(this.enabledVarName)
+               + Objects.hashCode(this.enabledVarValue)
+               + Objects.hashCode(this.name);
     }
 
     /**
@@ -468,9 +468,9 @@ public abstract class AbstractDocInput extends AbstractDocContainer {
     final boolean inputInnerEquals(final AbstractDocInput obj) {
 
         return innerEquals(obj)
-                && Objects.equals(this.enabledFormula, obj.enabledFormula)
-                && Objects.equals(this.enabledVarName, obj.enabledVarName)
-                && Objects.equals(this.enabledVarValue, obj.enabledVarValue)
-                && this.name.equals(obj.name);
+               && Objects.equals(this.enabledFormula, obj.enabledFormula)
+               && Objects.equals(this.enabledVarName, obj.enabledVarName)
+               && Objects.equals(this.enabledVarValue, obj.enabledVarValue)
+               && this.name.equals(obj.name);
     }
 }

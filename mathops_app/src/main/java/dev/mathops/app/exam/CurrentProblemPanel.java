@@ -484,6 +484,11 @@ public final class CurrentProblemPanel extends JPanel implements ComponentListen
                 this.scrollPane = null;
             } else if (this.panel != null) {
                 remove(this.panel);
+
+                if (this.panel instanceof final ProblemEmbeddedInputPanel embeddedInputPanel) {
+                    embeddedInputPanel.dispose();
+                }
+
                 this.panel = null;
             }
 
@@ -563,7 +568,9 @@ public final class CurrentProblemPanel extends JPanel implements ComponentListen
             add(this.scrollPane, BorderLayout.CENTER);
 
             if (this.panel instanceof AbstractProblemPanelBase) {
-                ((AbstractProblemPanelBase) this.panel).addAnswerListener(this.answerListener);
+                if (this.answerListener != null) {
+                    ((AbstractProblemPanelBase) this.panel).addAnswerListener(this.answerListener);
+                }
                 this.panel.requestFocusInWindow();
             }
 

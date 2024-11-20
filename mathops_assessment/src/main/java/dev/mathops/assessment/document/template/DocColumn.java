@@ -172,7 +172,7 @@ public final class DocColumn extends AbstractDocContainer {
     @Override
     public DocColumnInst createInstance(final EvalContext evalContext) {
 
-        final DocObjectInstStyle objStyle = new DocObjectInstStyle(getColorName(), getFontName(), (float)getFontSize(),
+        final DocObjectInstStyle objStyle = new DocObjectInstStyle(getColorName(), getFontName(), (float) getFontSize(),
                 getFontStyle());
 
         final List<AbstractDocObjectTemplate> templateChildren = getChildren();

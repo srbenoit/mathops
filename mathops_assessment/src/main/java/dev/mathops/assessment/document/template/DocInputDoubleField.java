@@ -188,7 +188,7 @@ public final class DocInputDoubleField extends AbstractDocInputField {
                 doLayout(getEvalContext(), ELayoutMode.INLINE_MATH);
             }
 
-            notifyChangeListeners();
+             notifyChangeListeners();
         }
 
         return ok;
