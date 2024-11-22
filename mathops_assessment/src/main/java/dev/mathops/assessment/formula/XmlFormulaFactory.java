@@ -668,6 +668,10 @@ public enum XmlFormulaFactory {
         final TestOper result = new TestOper();
         extractChildren(evalContext, element, result, mode);
 
+        if (result.numChildren() != 3) {
+            element.logError("'test' element should have exactly three children");
+        }
+
         return result;
     }
 
