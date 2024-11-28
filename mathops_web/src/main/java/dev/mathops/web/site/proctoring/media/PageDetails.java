@@ -15,13 +15,17 @@ import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Generates a detailed view of one proctoring session, allowing review.
@@ -52,7 +56,7 @@ enum PageDetails {
         htm.sDiv(null, "style='padding-left:16px; padding-right:16px;'");
 
         if (role.canActAs(ERole.ADMINISTRATOR) || role.canActAs(ERole.PROCTOR)
-                || role.canActAs(ERole.OFFICE_STAFF) || role.canActAs(ERole.DIRECTOR)) {
+            || role.canActAs(ERole.OFFICE_STAFF) || role.canActAs(ERole.DIRECTOR)) {
 
             htm.sH(2).add(Res.get(Res.HOME_HEADING)).eH(2);
 
@@ -131,6 +135,9 @@ enum PageDetails {
         emitTags(sessionDir, htm);
         emitReviews(stuid, psid, session, sessionDir, htm);
         emitReviewForm(stuid, psid, session, htm);
+        emitStudentNotes(stuid, psid, session, sessionDir, htm);
+
+        htm.addln("<a name='bottom'/>");
     }
 
     /**
@@ -284,6 +291,8 @@ enum PageDetails {
 
         htm.sDiv("indent");
         htm.add("<button class='btnsmall' onclick='playboth()'>Play</button> &nbsp; ",
+                "<button class='btnsmall' onclick='playboth2()'>Play x2</button> &nbsp; ",
+                "<button class='btnsmall' onclick='playboth4()'>Play x4</button> &nbsp; ",
                 "<button class='btnsmall' onclick='stopboth()'>Stop</button> &nbsp; ",
                 "<input type='range' min='1' max='1000' value='0' id='playback-slider' ",
                 "oninput='playbackSliderUpdate()'/>");
@@ -292,7 +301,21 @@ enum PageDetails {
         htm.addln("<script>");
         htm.addln("function playboth() {");
         htm.addln("  document.getElementById('webcam-vid').play();");
+        htm.addln("  document.getElementById('webcam-vid').playbackRate = 1.0;");
         htm.addln("  document.getElementById('screen-vid').play();");
+        htm.addln("  document.getElementById('screen-vid').playbackRate = 1.0;");
+        htm.addln("}");
+        htm.addln("function playboth2() {");
+        htm.addln("  document.getElementById('webcam-vid').play();");
+        htm.addln("  document.getElementById('webcam-vid').playbackRate = 2.0;");
+        htm.addln("  document.getElementById('screen-vid').play();");
+        htm.addln("  document.getElementById('screen-vid').playbackRate = 2.0;");
+        htm.addln("}");
+        htm.addln("function playboth4() {");
+        htm.addln("  document.getElementById('webcam-vid').play();");
+        htm.addln("  document.getElementById('webcam-vid').playbackRate = 4.0;");
+        htm.addln("  document.getElementById('screen-vid').play();");
+        htm.addln("  document.getElementById('screen-vid').playbackRate = 4.0;");
         htm.addln("}");
         htm.addln("function stopboth() {");
         htm.addln("  document.getElementById('webcam-vid').pause();");
@@ -398,21 +421,19 @@ enum PageDetails {
         htm.sP().add("<strong>Reviews</strong>").eP();
 
         for (int i = 1; i < 100; ++i) {
-
             final File elevFile = new File(sessionDir, "elevated" + i + ".json");
-
             final File reviewFile = new File(sessionDir, "review" + i + ".json");
 
             if (elevFile.exists()) {
                 final Object elevated = loadJson(elevFile);
-                Log.info(elevated.getClass().getName());
+//                Log.info(elevated.getClass().getName());
                 if (elevated instanceof JSONObject) {
                     emitSingleReview(elevFile, (JSONObject) elevated, true, htm);
                     emitProcessForm(i, stuid, psid, session, htm);
                 }
             } else if (reviewFile.exists()) {
                 final Object review = loadJson(reviewFile);
-                Log.info(review.getClass().getName());
+//                Log.info(review.getClass().getName());
                 if (review instanceof JSONObject) {
                     emitSingleReview(reviewFile, (JSONObject) review, false, htm);
                 }
@@ -439,22 +460,24 @@ enum PageDetails {
             htm.add("<strong class='elevated'>");
         }
 
+        final String srcPath = srcFile.getAbsolutePath();
+
         final String date = obj.getStringProperty("date");
         if (date == null) {
-            Log.warning("No date in ", srcFile.getAbsolutePath());
+            Log.warning("No date in ", srcPath);
             htm.add("[No date]: &nbsp; ");
         } else {
             try {
-                htm.add(TemporalUtils.FMT_MDY_HMS.format(LocalDateTime.parse(date)), ": &nbsp; ");
+                htm.add(TemporalUtils.FMT_MDY.format(LocalDateTime.parse(date)), ": &nbsp; ");
             } catch (final DateTimeParseException ex) {
-                Log.warning("Bad date in ", srcFile.getAbsolutePath(), ex);
+                Log.warning("Bad date in ", srcPath, ex);
                 htm.add(date);
             }
         }
 
         final String reviewer = obj.getStringProperty("reviewer");
         if (reviewer == null) {
-            Log.warning("No reviewer in ", srcFile.getAbsolutePath());
+            Log.warning("No reviewer in ", srcPath);
             htm.add("(No reviewer) &nbsp; ");
         } else {
             htm.add("(", reviewer, ") &nbsp; ");
@@ -462,14 +485,32 @@ enum PageDetails {
 
         final String notes = obj.getStringProperty("notes");
         if (notes == null) {
-            Log.warning("No notes in ", srcFile.getAbsolutePath());
+            Log.warning("No notes in ", srcPath);
             htm.add("<i>No notes.</i>");
         } else {
             htm.add("<i>", notes, "</i>");
         }
-
         if (elevated) {
             htm.add("</strong>");
+        }
+
+        if (elevated) {
+            htm.br().add("<span class='elevated'>");
+        }
+        // Reviewers can set tags to capture common problems.  Flags are a stored as a comma-separated list of
+        // strings describing the problem.  The set of defined flags could change over time, so we simply display
+        // them here
+        final String tags = obj.getStringProperty("tags");
+        if (tags != null) {
+            htm.add("Tags:");
+            final String[] parts = tags.split(",");
+            for (final String part : parts) {
+                htm.add(" [", part, "]");
+            }
+        }
+
+        if (elevated) {
+            htm.add("</span>");
         }
 
         String proc = obj.getStringProperty("processor");
@@ -558,8 +599,8 @@ enum PageDetails {
 
         htm.hr();
 
-        htm.sH(4).add("Add New Review").eH(4);
         htm.sDiv("indent");
+        htm.sH(4).add("Add New Review").eH(4);
 
         htm.addln("<form method='POST' action='details.html'>");
         htm.addln("  <input type='hidden' id='stu' name='stu' value='", stuid, "'/>");
@@ -573,6 +614,91 @@ enum PageDetails {
         htm.addln("<input type='submit'/>");
         htm.addln("</form>");
         htm.eDiv(); // indent
+    }
+
+    /**
+     * Emits a block displaying all comments added by reviewers so far, with the option to add new comments.
+     *
+     * @param stuid      the student ID
+     * @param psid       the proctoring session ID
+     * @param session    the login session
+     * @param sessionDir the session directory
+     * @param htm        the {@code HtmlBuilder} to which to append
+     */
+    private static void emitStudentNotes(final String stuid, final String psid, final ImmutableSessionInfo session,
+                                         final File sessionDir, final HtmlBuilder htm) {
+        htm.hr();
+
+        htm.sH(4).add("Student Notes").eH(4);
+        htm.sP().add("These notes are visible under all sessions for this student.  Use these notes to document ",
+                "patterns over time or communications with the student.");
+
+        final File notesFile = new File(sessionDir.getParentFile(), "notes.json");
+        final String me = session.getEffectiveScreenName();
+
+        if (notesFile.exists()) {
+            final Object notesObject = loadJson(notesFile);
+
+            if (notesObject instanceof final Object[] notesArray && notesArray.length > 0) {
+                htm.addln("<dl class='indent' style='color:#229;'>");
+                for (final Object note : notesArray) {
+                    if (note instanceof final JSONObject jsonNote) {
+                        final String dateStr = jsonNote.getStringProperty("date");
+                        final String authorStr = jsonNote.getStringProperty("author");
+                        final String notesStr = jsonNote.getStringProperty("notes");
+
+                        if (dateStr == null || authorStr == null || notesStr == null) {
+                            continue;
+                        }
+
+                        String formattedDate;
+                        try {
+                            final LocalDateTime parsedDate = LocalDateTime.parse(dateStr);
+                            formattedDate = TemporalUtils.FMT_MDY.format(parsedDate);
+                        } catch (final DateTimeParseException ex) {
+                            formattedDate = dateStr;
+                        }
+
+                        if (me.equals(authorStr)) {
+                            htm.add("<dt>", formattedDate, " (", authorStr, ")");
+
+                            htm.addln("<form style='display:inline;font-size:smaller;' method='POST' ",
+                                    "action='deletestudentnote.html'>");
+                            htm.addln("  <input type='hidden' id='stu' name='stu' value='", stuid, "'/>");
+                            htm.addln("  <input type='hidden' id='date' name='date' value='", dateStr, "'/>");
+                            htm.addln("  <input type='hidden' id='psid' name='psid' value='", psid, "'/>");
+                            htm.addln("  <input type='hidden' 'id='who' name='who' value='", me, "'/>");
+                            htm.addln("  <input type='submit' value='Delete'/>");
+                            htm.addln("</form>");
+
+                            htm.addln("</dt>");
+                        } else {
+                            htm.addln("<dt>", formattedDate, " (", authorStr, ")</dt>");
+                        }
+                        htm.addln("<dd>", notesStr, "</dd>");
+                    }
+                }
+                htm.addln("</dl>");
+            }
+        } else {
+            htm.sP("indent", "style='color:#229;'");
+            htm.addln("(There are no notes on file for this student...)");
+            htm.eP();
+        }
+
+        htm.sDiv("indent");
+        htm.sP().add("<strong>Add a Note:</strong>").eP();
+
+        htm.addln("<form method='POST' action='studentnote.html'>");
+        htm.addln("  <input type='hidden' id='stu' name='stu' value='", stuid, "'/>");
+        htm.addln("  <input type='hidden' id='psid' name='psid' value='", psid, "'/>");
+        htm.addln("  <input type='hidden' id='date' name='date' value='", LocalDateTime.now().toString(), "'/>");
+
+        htm.addln("  Author: <input type='text' 'id='who' name='who' value='", me, "'/>").br();
+        htm.addln("  <textarea id='note' name='note' rows='3' cols='60' style='margin-top:2px'></textarea>").br();
+        htm.addln("  <input type='submit'/>");
+        htm.addln("</form>");
+        htm.eDiv();
     }
 
     /**
@@ -620,7 +746,7 @@ enum PageDetails {
         final String notes = req.getParameter("notes");
 
         if (AbstractSite.isFileParamInvalid(stu) || AbstractSite.isFileParamInvalid(psid)
-                || AbstractSite.isParamInvalid(date)) {
+            || AbstractSite.isParamInvalid(date)) {
             Log.warning("Invalid POST parameters - possible attack");
             Log.warning("  stu=", stu);
             Log.warning("  psid=", psid);
@@ -661,7 +787,7 @@ enum PageDetails {
         // See what number we are on...
         int index = 1;
         while (new File(dir, "review" + index + ".json").exists()
-                || new File(dir, "elevated" + index + ".json").exists()) {
+               || new File(dir, "elevated" + index + ".json").exists()) {
             ++index;
         }
 
@@ -691,7 +817,7 @@ enum PageDetails {
         // See what number we are on...
         int index = 1;
         while (new File(dir, "review" + index + ".json").exists()
-                || new File(dir, "elevated" + index + ".json").exists()) {
+               || new File(dir, "elevated" + index + ".json").exists()) {
             ++index;
         }
 
@@ -728,7 +854,7 @@ enum PageDetails {
         final String notes = req.getParameter("notes");
 
         if (AbstractSite.isFileParamInvalid(index) || AbstractSite.isFileParamInvalid(stu)
-                || AbstractSite.isFileParamInvalid(psid) || AbstractSite.isParamInvalid(date)) {
+            || AbstractSite.isFileParamInvalid(psid) || AbstractSite.isParamInvalid(date)) {
             Log.warning("Invalid POST parameters - possible attack");
             Log.warning("  index=", index);
             Log.warning("  stu=", stu);
@@ -737,7 +863,7 @@ enum PageDetails {
 
             resp.sendRedirect("home.html");
         } else if (stu == null || psid == null || date == null) {
-            Log.warning("POST from process form with missing parameters");
+            Log.warning("POST from elevate form with missing parameters");
 
             resp.sendRedirect("home.html");
         } else {
@@ -789,4 +915,177 @@ enum PageDetails {
             resp.sendRedirect("details.html?stu=" + stu + "&psid=" + psid);
         }
     }
+
+    /**
+     * Processes a POST to "studentnote.html" that adds a new student note.
+     *
+     * @param site the owning site
+     * @param req  the request
+     * @param resp the response
+     * @throws IOException if there is an error writing the response
+     */
+    static void processStudentNote(final ProctoringMediaSite site, final ServletRequest req,
+                                   final HttpServletResponse resp) throws IOException {
+
+        final String stu = req.getParameter("stu");
+        final String psid = req.getParameter("psid");
+        final String date = req.getParameter("date");
+        final String who = req.getParameter("who");
+        final String note = req.getParameter("note");
+
+        if (AbstractSite.isFileParamInvalid(stu) || AbstractSite.isParamInvalid(psid)
+            || AbstractSite.isParamInvalid(date)) {
+            Log.warning("Invalid POST parameters - possible attack");
+            Log.warning("  stu=", stu);
+            Log.warning("  psid=", psid);
+            Log.warning("  date=", date);
+            Log.warning("  who=", who);
+            resp.sendRedirect("home.html");
+        } else if (stu == null || psid == null || date == null || who == null || note == null) {
+            Log.warning("POST from add form form with missing parameters");
+            resp.sendRedirect("home.html");
+        } else {
+            final File studentDir = new File(site.dataDir, stu);
+
+            if (studentDir.exists()) {
+                final JSONObject newNoteJson = new JSONObject();
+                newNoteJson.setProperty("date", date);
+                newNoteJson.setProperty("author", who);
+                newNoteJson.setProperty("notes", note);
+
+                final File file = new File(studentDir, "notes.json");
+
+                if (file.exists()) {
+                    final Object existing = loadJson(file);
+                    if (existing instanceof final Object[] existingNotes) {
+
+                        final HtmlBuilder builder = new HtmlBuilder(1000);
+                        builder.addln("[");
+                        for (final Object o : existingNotes) {
+                            if (o instanceof JSONObject oldNoteJson) {
+                                builder.addln(oldNoteJson.toJSONCompact(), ",");
+                            }
+                        }
+                        builder.addln(newNoteJson.toJSONCompact());
+                        builder.addln("]");
+
+                        try (final Writer writer = new FileWriter(file, StandardCharsets.UTF_8)) {
+                            writer.write(builder.toString());
+                        } catch (final IOException ex) {
+                            Log.warning("Failed to create student notes file in ", studentDir.getAbsolutePath(), ex);
+                        }
+                    } else {
+                        Log.warning("POST, but can't parse file: ", file.getAbsolutePath());
+                    }
+                } else {
+                    // Create a new "notes.json" with a single note...
+                    final HtmlBuilder builder = new HtmlBuilder(100 + note.length());
+                    builder.addln("[");
+                    builder.addln(newNoteJson.toJSONCompact());
+                    builder.addln("]");
+
+                    try (final Writer writer = new FileWriter(file, StandardCharsets.UTF_8)) {
+                        writer.write(builder.toString());
+                    } catch (final IOException ex) {
+                        Log.warning("Failed to create student notes file in ", studentDir.getAbsolutePath(), ex);
+                    }
+                }
+
+            } else {
+                Log.warning("POST, but can't find student dir: ", studentDir.getAbsolutePath());
+            }
+
+            resp.sendRedirect("details.html?stu=" + stu + "&psid=" + psid + "#bottom");
+        }
+    }
+
+    /**
+     * Processes a POST to "deletestudentnote.html" that deletes an existing student note.
+     *
+     * @param site the owning site
+     * @param req  the request
+     * @param resp the response
+     * @throws IOException if there is an error writing the response
+     */
+    static void processDeleteStudentNote(final ProctoringMediaSite site, final ServletRequest req,
+                                         final HttpServletResponse resp) throws IOException {
+
+        final String stu = req.getParameter("stu");
+        final String psid = req.getParameter("psid");
+        final String date = req.getParameter("date");
+        final String who = req.getParameter("who");
+
+        if (AbstractSite.isFileParamInvalid(stu) || AbstractSite.isFileParamInvalid(psid)
+            || AbstractSite.isParamInvalid(date)) {
+            Log.warning("Invalid POST parameters - possible attack");
+            Log.warning("  stu=", stu);
+            Log.warning("  psid=", psid);
+            Log.warning("  date=", date);
+            Log.warning("  who=", who);
+            resp.sendRedirect("home.html");
+        } else if (stu == null || psid == null || date == null || who == null) {
+            Log.warning("POST from delete note form with missing parameters");
+            resp.sendRedirect("home.html");
+        } else {
+            final File studentDir = new File(site.dataDir, stu);
+
+            if (studentDir.exists()) {
+                final File file = new File(studentDir, "notes.json");
+
+                if (file.exists()) {
+                    final Object existing = loadJson(file);
+                    if (existing instanceof final Object[] existingNotes) {
+                        final List<JSONObject> retained = new ArrayList<>(existingNotes.length);
+
+                        boolean found = false;
+                        for (final Object o : existingNotes) {
+                            if (o instanceof JSONObject oldNoteJson) {
+                                if (oldNoteJson.getStringProperty("date").equals(date)
+                                    && oldNoteJson.getStringProperty("author").equals(who)) {
+                                    found = true;
+                                    continue;
+                                }
+                                retained.add(oldNoteJson);
+                            }
+                        }
+
+                        if (found) {
+                            final int count = retained.size();
+
+                            final HtmlBuilder builder = new HtmlBuilder(1000);
+                            builder.addln("[");
+                            for (int i = 0; i < count; ++i) {
+                                final JSONObject noteJson = retained.get(i);
+                                if ( i == count -1) {
+                                    builder.addln(noteJson.toJSONCompact());
+                                } else {
+                                    builder.addln(noteJson.toJSONCompact(), ",");
+                                }
+                            }
+                            builder.addln("]");
+
+                            try (final Writer writer = new FileWriter(file, StandardCharsets.UTF_8)) {
+                                writer.write(builder.toString());
+                            } catch (final IOException ex) {
+                                Log.warning("Failed to create student notes file in ", studentDir.getAbsolutePath(),
+                                        ex);
+                            }
+                        } else {
+                            Log.warning("POST, but could not find note to delete: ", file.getAbsolutePath());
+                        }
+                    } else {
+                        Log.warning("POST, but can't parse file: ", file.getAbsolutePath());
+                    }
+                } else {
+                    Log.warning("POST, but can't find notes file: ", file.getAbsolutePath());
+                }
+
+            } else {
+                Log.warning("POST, but can't find student dir: ", studentDir.getAbsolutePath());
+            }
+
+            resp.sendRedirect("details.html?stu=" + stu + "&psid=" + psid + "#bottom");
+        }
+    }
+
 }

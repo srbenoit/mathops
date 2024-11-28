@@ -7,6 +7,7 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.commons.parser.ParsingException;
 import dev.mathops.commons.parser.json.JSONObject;
 import dev.mathops.commons.parser.json.JSONParser;
+import dev.mathops.commons.parser.xml.XmlEscaper;
 import dev.mathops.db.Cache;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -16,6 +17,7 @@ import dev.mathops.web.websocket.proctor.MPSEndpoint;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -23,6 +25,7 @@ import java.sql.SQLException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -58,7 +61,7 @@ enum PageHome {
         htm.sDiv(null, "style='padding-left:16px; padding-right:16px;'");
 
         if (role.canActAs(ERole.ADMINISTRATOR) || role.canActAs(ERole.OFFICE_STAFF)
-                || role.canActAs(ERole.DIRECTOR) || role.canActAs(ERole.PROCTOR)) {
+            || role.canActAs(ERole.DIRECTOR) || role.canActAs(ERole.PROCTOR)) {
             htm.sH(2).add(Res.get(Res.HOME_HEADING)).eH(2);
             emitFiles(gatherFiles(site.dataDir), htm);
         } else {
@@ -82,6 +85,8 @@ enum PageHome {
         // Assemble a list of students and sessions and then sort by student name
         final Map<StudentRec, List<SessionRec>> map = new TreeMap<>();
 
+        final HtmlBuilder notesBuilder = new HtmlBuilder(300);
+
         final File[] stuDirs = dataDir.listFiles();
         if (stuDirs != null) {
             for (final File stuDir : stuDirs) {
@@ -91,29 +96,65 @@ enum PageHome {
                 }
 
                 final File meta = new File(stuDir, "meta.json");
-                final String str = FileLoader.loadFileAsString(meta, false);
+                final String metaStr = FileLoader.loadFileAsString(meta, false);
+
                 StudentRec stuRec;
 
-                if (str == null) {
-                    stuRec = new StudentRec(stuDir.getName(), "* ERROR", "No metadata");
+                if (metaStr == null) {
+                    stuRec = new StudentRec(stuDir.getName(), "* ERROR", "No metadata", null);
                 } else {
-                    try {
-                        // Log.info(str);
+                    final File notes = new File(stuDir, "notes.json");
+                    final String notesStr = FileLoader.loadFileAsString(notes, false);
+                    String studentNotes = null;
 
-                        final Object parsed = JSONParser.parseJSON(str);
+                    if (notesStr != null) {
+                        try {
+                            final Object parsed = JSONParser.parseJSON(notesStr);
+                            if (parsed instanceof final Object[] notesArray) {
+                                notesBuilder.reset();
+                                for (final Object o : notesArray) {
+                                    if (o instanceof final JSONObject json) {
+                                        final String date = json.getStringProperty("date");
+                                        final String author = json.getStringProperty("author");
+                                        final String text = json.getStringProperty("notes");
+
+                                        if (date != null && author != null && text != null) {
+
+                                            String formattedDate;
+                                            try {
+                                                final LocalDateTime parsedDate = LocalDateTime.parse(date);
+                                                formattedDate = TemporalUtils.FMT_MDY.format(parsedDate);
+                                            } catch (final DateTimeParseException ex) {
+                                                formattedDate = date;
+                                            }
+
+                                            notesBuilder.addln(formattedDate, " (", author, "): ", text);
+                                        }
+                                    }
+                                }
+
+                                studentNotes = notesBuilder.toString();
+                            }
+                        } catch (final ParsingException ex) {
+                            Log.warning(ex);
+                        }
+                    }
+
+                    try {
+                        final Object parsed = JSONParser.parseJSON(metaStr);
                         if (parsed instanceof final JSONObject obj) {
                             stuRec = new StudentRec(stuDir.getName(), obj.getStringProperty("last"),
-                                    obj.getStringProperty("first"));
+                                    obj.getStringProperty("first"), studentNotes);
                         } else {
                             stuRec = new StudentRec(stuDir.getName(), "* ERROR",
-                                    "Bad metadata - " + parsed.getClass().getName());
+                                    "Bad metadata - " + parsed.getClass().getName(), studentNotes);
                         }
 
                     } catch (final ParsingException ex) {
                         Log.warning(ex);
-                        stuRec = new StudentRec(stuDir.getName(), "* ERROR", "Bad metadata - " + ex.getMessage());
+                        stuRec = new StudentRec(stuDir.getName(), "* ERROR", "Bad metadata - " + ex.getMessage(),
+                                studentNotes);
                     }
-
                 }
 
                 map.put(stuRec, scanSessions(stuRec, stuDir));
@@ -144,7 +185,7 @@ enum PageHome {
             for (final File sessionDir : sessionDirs) {
                 final String id = sessionDir.getName();
 
-                if ("meta.json".equals(id)) {
+                if ("meta.json".equals(id) || "notes.json".equals(id)) {
                     continue;
                 }
 
@@ -226,26 +267,26 @@ enum PageHome {
                 htm.addln("<details>");
                 htm.add("<summary>", TemporalUtils.FMT_MDY.format(entry.getKey()));
                 if (numElevated + numWithoutReviews > 0) {
-                    htm.add(" (");
+                    htm.add(" (<span style='font-size:smaller;'>");
                     if (numElevated > 0) {
-                        htm.add("<strong class='elevated'>").add(numElevated).add(" elevated</strong> ");
-                        if (numWithoutReviews > 0 && numReviewed > 0) {
-                            htm.add(", ");
+                        htm.add("<strong class='elevated'>").add(numElevated).add(" elevated</strong>");
+                        if (numWithoutReviews > 0 || numReviewed > 0) {
+                            htm.add(", &nbsp; ");
                         }
                     }
                     if (numWithoutReviews > 0) {
                         htm.add("<strong class='needsreview'>")
                                 .add(numWithoutReviews).add(numWithoutReviews == 1 ? " needs" : " need")
-                                .add(" review</strong> ");
+                                .add(" review</strong>");
                         if (numReviewed > 0) {
-                            htm.add(", ");
+                            htm.add(", &nbsp; ");
                         }
                     }
                     if (numReviewed > 0) {
-                        htm.add("<strong class='reviewed'>").add(numReviewed).add(" reviewed</strong> ");
+                        htm.add("<strong class='reviewed'>").add(numReviewed).add(" reviewed</strong>");
                     }
 
-                    htm.add(")");
+                    htm.add("</span>)");
                 }
                 htm.addln("</summary>");
                 htm.sDiv("indent");
@@ -257,18 +298,18 @@ enum PageHome {
                     htm.add(TemporalUtils.FMT_HMS_A.format(rec.whenStarted.toLocalTime()));
 
                     if (rec.elevated) {
-                        htm.add(" (<strong class='elevated'>elevated</strong>)");
+                        htm.add(" (<strong class='elevated' style='font-size:smaller;'>elevated</strong>)");
                     } else if (rec.reviewed) {
-                        htm.add(" (<strong class='reviewed'>reviewed</strong>)");
+                        htm.add(" (<strong class='reviewed' style='font-size:smaller;'>reviewed</strong>)");
                     } else {
-                        htm.add(" (<strong class='needsreview'>needs review</strong>)");
+                        htm.add(" (<strong class='needsreview' style='font-size:smaller;'>needs review</strong>)");
                     }
 
                     htm.add("</summary>");
                     htm.sDiv("indent");
 
                     htm.addln("<a class='ulink' href='details.html?stu=" + rec.stuRec.studentId + "&psid="
-                            + rec.sessionId + "'>", rec.stuRec.toString(), "</a>").br();
+                              + rec.sessionId + "'>", rec.stuRec.toString(), "</a>").br();
 
                     htm.eDiv(); // indent
                     htm.addln("</details>");
@@ -306,14 +347,16 @@ enum PageHome {
                     }
                 }
 
+                final StudentRec studentRec = entry.getKey();
+
                 htm.addln("<details>");
-                htm.addln("<summary>", entry.getKey().toString());
+                htm.addln("<summary>", studentRec.toString(), " &nbsp;");
                 if (numElevated + numWithoutReviews > 0) {
-                    htm.add(" (");
+                    htm.add(" (<span style='font-size:smaller;'>");
                     if (numElevated > 0) {
                         htm.add("<strong class='elevated'>").add(numElevated).add(" elevated</strong>");
                         if (numWithoutReviews > 0 || numReviewed > 0) {
-                            htm.add(", ");
+                            htm.add(", &nbsp; ");
                         }
                     }
                     if (numWithoutReviews > 0) {
@@ -321,13 +364,19 @@ enum PageHome {
                                 .add(numWithoutReviews).add(numWithoutReviews == 1 ? " needs" : " need")
                                 .add(" review</strong>");
                         if (numReviewed > 0) {
-                            htm.add(", ");
+                            htm.add(", &nbsp; ");
                         }
                     }
                     if (numReviewed > 0) {
-                        htm.add("<strong class='revierwed'>").add(numReviewed).add(" reviewed</strong>");
+                        htm.add("<strong class='reviewed'>").add(numReviewed).add(" reviewed</strong>");
                     }
-                    htm.add(")");
+                    htm.add("</span>)");
+                }
+
+                if (studentRec.notes != null) {
+                    final String cleaned = XmlEscaper.escape(studentRec.notes);
+                    htm.add(" <a href='notes.html?stu=", studentRec.studentId, "'><button title='", cleaned,
+                            "'>Notes</button></a>");
                 }
                 htm.add("</summary>");
 
@@ -340,18 +389,18 @@ enum PageHome {
                     htm.add(TemporalUtils.FMT_MDY_AT_HMS_A.format(rec.whenStarted));
 
                     if (rec.elevated) {
-                        htm.add(" (<strong class='elevated'>elevated</strong>)");
+                        htm.add(" (<strong class='elevated' style='font-size:smaller;'>elevated</strong>)");
                     } else if (rec.reviewed) {
-                        htm.add(" (<strong class='reviewed'>reviewed</strong>)");
+                        htm.add(" (<strong class='reviewed' style='font-size:smaller;'>reviewed</strong>)");
                     } else {
-                        htm.add(" (<strong class='needsreview'>needs review</strong>)");
+                        htm.add(" (<strong class='needsreview' style='font-size:smaller;'>needs review</strong>)");
                     }
 
                     htm.add("</summary>");
                     htm.sDiv("indent");
 
                     htm.addln("<a class='ulink' href='details.html?stu=" + rec.stuRec.studentId + "&psid="
-                            + rec.sessionId + "'>", rec.stuRec.toString(), "</a>").br();
+                              + rec.sessionId + "'>", rec.stuRec.toString(), "</a>").br();
 
                     htm.eDiv(); // indent
                     htm.addln("</details>");
@@ -422,18 +471,24 @@ enum PageHome {
         /** The first name. */
         final String firstName;
 
+        /** Notes associated with the student. */
+        final String notes;
+
         /**
          * Constructs a new {@code StudentRec}.
          *
          * @param theStudentId the student ID
          * @param theLastName  the first name
          * @param theFirstName the last name
+         * @param theNotes     the notes associated with the student
          */
-        StudentRec(final String theStudentId, final String theLastName, final String theFirstName) {
+        StudentRec(final String theStudentId, final String theLastName, final String theFirstName,
+                   final String theNotes) {
 
             this.studentId = theStudentId;
             this.lastName = theLastName;
             this.firstName = theFirstName;
+            this.notes = theNotes;
         }
 
         /**

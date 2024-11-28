@@ -162,6 +162,8 @@ public final class ProctoringMediaSite extends AbstractSite {
                             PageHome.showPage(cache, this, req, resp, session);
                         } else if ("details.html".equals(subpath)) {
                             PageDetails.showPage(cache, this, req, resp, session);
+                        } else if ("notes.html".equals(subpath)) {
+                            PageNotes.showPage(cache, this, req, resp, session);
                         } else if ("secure/shibboleth.html".equals(subpath)) {
                             doShibbolethLogin(cache, req, resp, session);
                         } else {
@@ -238,6 +240,10 @@ public final class ProctoringMediaSite extends AbstractSite {
                 case "upload.html" -> processUpload(cache, req, resp);
                 case "details.html" -> PageDetails.processPost(this, req, resp);
                 case "elevated.html" -> PageDetails.processElevated(this, req, resp);
+                case "studentnote.html" -> PageDetails.processStudentNote(this, req, resp);
+                case "deletestudentnote.html" -> PageDetails.processDeleteStudentNote(this, req, resp);
+                case "notesadd.html" -> PageNotes.processAddNote(this, req, resp);
+                case "notesdelete.html" -> PageNotes.processDeleteNote(this, req, resp);
                 case null, default -> {
                     Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
                     resp.sendError(HttpServletResponse.SC_NOT_FOUND);
