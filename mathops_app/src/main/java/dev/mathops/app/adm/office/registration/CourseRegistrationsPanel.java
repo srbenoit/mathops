@@ -35,12 +35,6 @@ public final class CourseRegistrationsPanel extends AdmPanelBase {
     /** The data cache. */
     private final Cache cache;
 
-    /** The course history table. */
-    private final JTableCourseHistory historyTable;
-
-    /** Scroll pane for the history table. */
-    private final JScrollPane historyScroll;
-
     /** The current course table. */
     private final JTableCurrentCourses currentTable;
 
@@ -74,23 +68,6 @@ public final class CourseRegistrationsPanel extends AdmPanelBase {
 
         this.cache = theCache;
 
-        // Left side: history of past registrations
-
-        final JPanel historyBlock = makeOffWhitePanel(new BorderLayout(5, 5));
-        historyBlock.setBackground(Skin.LIGHTEST);
-
-        historyBlock.add(makeHeader("History", false), BorderLayout.NORTH);
-
-        this.historyTable = new JTableCourseHistory();
-        this.historyTable.setFillsViewportHeight(true);
-        this.historyScroll = new JScrollPane(this.historyTable);
-        historyBlock.add(this.historyScroll, BorderLayout.CENTER);
-
-        final Dimension histPref = this.historyTable.getPreferredSize();
-        this.historyScroll.setPreferredSize(new Dimension(histPref.width, histPref.height + 30));
-
-        // Center: current registrations
-
         final JPanel splitTop = makeOffWhitePanel(new BorderLayout(5, 5));
         splitTop.setBackground(Skin.LIGHTEST);
 
@@ -116,10 +93,6 @@ public final class CourseRegistrationsPanel extends AdmPanelBase {
         this.coursesSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, splitTop, splitBottom);
         add(this.coursesSplit, StackedBorderLayout.CENTER);
 
-        //
-        //
-        //
-
         final Dimension curPref = this.currentTable.getPreferredSize();
         this.currentScroll.setPreferredSize(new Dimension(curPref.width, curPref.height + 30));
 
@@ -143,7 +116,6 @@ public final class CourseRegistrationsPanel extends AdmPanelBase {
         if (data != null) {
             populateDisplay(data);
 
-            this.historyScroll.setPreferredSize(this.historyTable.getPreferredScrollSize(this.historyScroll, 3));
             this.currentScroll.setPreferredSize(this.currentTable.getPreferredScrollSize(this.currentScroll, 3));
             this.droppedScroll.setPreferredSize(this.currentTable.getPreferredScrollSize(this.droppedScroll, 3));
         }
@@ -154,7 +126,6 @@ public final class CourseRegistrationsPanel extends AdmPanelBase {
      */
     public void clearDisplay() {
 
-        this.historyTable.clear();
         this.currentTable.clear();
 
         this.currentHeader.setText("Current Courses");
@@ -192,10 +163,10 @@ public final class CourseRegistrationsPanel extends AdmPanelBase {
             for (final RawStcourse reg : regs) {
                 if (active.equals(reg.termKey)) {
                     if ("D".equals(reg.openStatus)
-                            || "G".equals(reg.openStatus)) {
+                        || "G".equals(reg.openStatus)) {
                         dropped.add(reg);
                     } else if ("N".equals(reg.openStatus)
-                            && "N".equals(reg.completed)) {
+                               && "N".equals(reg.completed)) {
                         dropped.add(reg);
                     } else {
                         currentTerm.add(reg);
@@ -211,9 +182,6 @@ public final class CourseRegistrationsPanel extends AdmPanelBase {
 
             this.currentTable.clear();
             this.currentTable.addData(currentTerm, 2);
-
-            this.historyTable.clear();
-            this.historyTable.addData(priorTerms, 2);
 
             this.droppedTable.clear();
             this.droppedTable.addData(dropped, 2);

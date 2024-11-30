@@ -10,6 +10,7 @@ import dev.mathops.app.adm.office.placement.PlacementTransferPanel;
 import dev.mathops.app.adm.office.registration.CourseActivityPanel;
 import dev.mathops.app.adm.office.registration.CourseDeadlinesPanel;
 import dev.mathops.app.adm.office.registration.CourseExamsPanel;
+import dev.mathops.app.adm.office.registration.CourseHistoryPanel;
 import dev.mathops.app.adm.office.registration.CourseRegistrationsPanel;
 import dev.mathops.app.adm.office.student.StuAppealsPanel;
 import dev.mathops.app.adm.office.student.StuDisciplinePanel;
@@ -123,6 +124,9 @@ final class CardStudentDetail extends AdmPanelBase implements ActionListener {
 
     /** The "Course" panel. */
     private final CourseRegistrationsPanel courseRegistrationsPanel;
+
+    /** The "History" panel. */
+    private final CourseHistoryPanel courseHistoryPanel;
 
     /** The "Deadlines" panel. */
     private final CourseDeadlinesPanel courseDeadlinesPanel;
@@ -286,6 +290,9 @@ final class CardStudentDetail extends AdmPanelBase implements ActionListener {
         this.courseRegistrationsPanel = new CourseRegistrationsPanel(theCache);
         this.courseRegistrationTabs.addTab("Courses", this.courseRegistrationsPanel);
 
+        this.courseHistoryPanel = new CourseHistoryPanel(theCache);
+        this.courseRegistrationTabs.addTab("History", this.courseHistoryPanel);
+
         this.courseDeadlinesPanel = new CourseDeadlinesPanel(theCache, theUserData);
         this.courseRegistrationTabs.addTab("Deadlines", this.courseDeadlinesPanel);
 
@@ -312,6 +319,7 @@ final class CardStudentDetail extends AdmPanelBase implements ActionListener {
         this.studentSummaryPanel.clearDisplay();
         this.stuInfoPanel.clearDisplay();
         this.courseRegistrationsPanel.clearDisplay();
+        this.courseHistoryPanel.clearDisplay();
         this.courseDeadlinesPanel.clearDisplay();
         this.courseActivityPanel.clearDisplay();
         this.stuDisciplinePanel.clearDisplay();
@@ -334,6 +342,7 @@ final class CardStudentDetail extends AdmPanelBase implements ActionListener {
         this.studentSummaryPanel.setSelectedStudent(theData);
         this.stuInfoPanel.setSelectedStudent(theData);
         this.courseRegistrationsPanel.setSelectedStudent(theData);
+        this.courseHistoryPanel.setSelectedStudent(theData);
         this.courseDeadlinesPanel.setSelectedStudent(theData);
         this.courseActivityPanel.setSelectedStudent(cache, theData);
         if (Objects.nonNull(this.stuDisciplinePanel)) {
