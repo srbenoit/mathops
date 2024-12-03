@@ -36,15 +36,18 @@ public final class S501ArchiveData extends SwingWorker<Boolean, StepStatus> {
     private final JProgressBar progress;
 
     /** The panel to update with status. */
-    private final StepPanel panel;
+    private final StepExecutable panel;
 
     /**
      * Constructs a new {@code S501ArchiveData}.
      *
+     * @param theOwner           the step list that will hold the step
+     * @param status             the status display
      * @param theProductionCache the data cache for the production database
      * @param theArchiveCache    the data cache for the archive database
      */
-    public S501ArchiveData(final Cache theProductionCache, final Cache theArchiveCache) {
+    S501ArchiveData(final StepList theOwner, final StepDisplay status, final Cache theProductionCache,
+                    final Cache theArchiveCache) {
 
         this.productionCache = theProductionCache;
         this.archiveCache = theArchiveCache;
@@ -56,7 +59,8 @@ public final class S501ArchiveData extends SwingWorker<Boolean, StepStatus> {
 
         myStatus.add(this.progress, StackedBorderLayout.CENTER);
 
-        this.panel = new StepPanel(501, "Copy production data into the archive database", myStatus, this);
+        this.panel = new StepExecutable(theOwner, 501, "Copy production data into the archive database", null, status,
+                this);
     }
 
     /**
@@ -64,7 +68,7 @@ public final class S501ArchiveData extends SwingWorker<Boolean, StepStatus> {
      *
      * @return the step panel
      */
-    public StepPanel getPanel() {
+    public StepExecutable getPanel() {
 
         return this.panel;
     }

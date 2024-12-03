@@ -115,14 +115,16 @@ final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStatus> {
     private final JProgressBar progress;
 
     /** The panel to update with status. */
-    private final StepPanel panel;
+    private final StepExecutable panel;
 
     /**
      * Constructs a new {@code S500CreateArchiveTables}.  This should be called on the AWT event dispatch thread.
      *
+     * @param theOwner        the step list that will hold the step
+     * @param status          the status display
      * @param theArchiveCache the data cache for the archive database
      */
-    S500CreateArchiveTables(final Cache theArchiveCache) {
+    S500CreateArchiveTables(final StepList theOwner, final StepDisplay status, final Cache theArchiveCache) {
 
         super();
 
@@ -135,7 +137,8 @@ final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStatus> {
 
         myStatus.add(this.progress, StackedBorderLayout.CENTER);
 
-        this.panel = new StepPanel(500, "Create tables in the term archive database", myStatus, this);
+        this.panel = new StepExecutable(theOwner, 500, "Create tables in the term archive database", null, status,
+                this);
     }
 
     /**
@@ -143,7 +146,7 @@ final class S500CreateArchiveTables extends SwingWorker<Boolean, StepStatus> {
      *
      * @return the step panel
      */
-    public StepPanel getPanel() {
+    public StepExecutable getPanel() {
 
         return this.panel;
     }

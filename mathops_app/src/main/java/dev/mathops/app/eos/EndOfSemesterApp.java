@@ -1,17 +1,16 @@
 package dev.mathops.app.eos;
 
 import com.formdev.flatlaf.FlatLightLaf;
+import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 
-import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
-import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.Toolkit;
 
 /**
@@ -33,38 +32,47 @@ final class EndOfSemesterApp implements Runnable {
     @Override
     public void run() {
 
+        final Class<?> cls = getClass();
+        final Image expandImg = FileLoader.loadFileAsImage(cls, "expand.png", true);
+        final Image collapseImg = FileLoader.loadFileAsImage(cls, "collapse.png", true);
+
         final JFrame frame = new JFrame("End-of-Semester Processing");
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
         final Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-        final int w = screen.width * 2 / 3;
-        final int h = screen.height * 2 / 3;
+        final int w = screen.width * 3 / 4;
+        final int h = screen.height * 3 / 4;
 
-        final JPanel content = new JPanel(new BorderLayout());
+        final JPanel content = new JPanel(new StackedBorderLayout());
         content.setPreferredSize(new Dimension(w, h));
         frame.setContentPane(content);
 
-        final JPanel taskList = new JPanel(new StackedBorderLayout());
-        final JScrollPane taskListScroll = new JScrollPane(taskList);
-        content.add(taskListScroll, BorderLayout.CENTER);
+        final StepList stepList = new StepList(expandImg, collapseImg);
+        final JScrollPane stepListScroll = new JScrollPane(stepList);
+        content.add(stepListScroll, StackedBorderLayout.CENTER);
 
-        final JEditorPane report = new JEditorPane();
-        report.setPreferredSize(new Dimension(w / 2, h - 20));
-        report.setEditable(false);
-        report.setBackground(Color.WHITE);
-        report.setContentType("text/html");
-        report.setText("<H2>Report</H2>");
+        final StepDisplay status = new StepDisplay(h - 20, w / 2);
+        content.add(status, StackedBorderLayout.EAST);
 
-        final JScrollPane reportScroll = new JScrollPane(report);
-        content.add(reportScroll, BorderLayout.LINE_END);
+        final String section1Heading = "Phase 1: Review and Prepare";
 
-        final S500CreateArchiveTables step500 = new S500CreateArchiveTables(null);
-        final StepPanel panel500 = step500.getPanel();
-        taskList.add(panel500, StackedBorderLayout.NORTH);
+        final S100CheckForNonReturnedResources step100 = new S100CheckForNonReturnedResources(stepList, status);
+        final StepExecutable panel100 = step100.getPanel();
+        stepList.addStep(section1Heading, panel100);
 
-        final S501ArchiveData step501 = new S501ArchiveData(null, null);
-        final StepPanel panel501 = step501.getPanel();
-        taskList.add(panel501, StackedBorderLayout.NORTH);
+        final S101EditNextTermDataFiles step101 = new S101EditNextTermDataFiles(stepList, status);
+        final StepManual panel101 = step101.getPanel();
+        stepList.addStep(section1Heading, panel101);
+
+        final String section5Heading = "Phase 5: Some other stuff...";
+
+        final S500CreateArchiveTables step500 = new S500CreateArchiveTables(stepList, status, null);
+        final StepExecutable panel500 = step500.getPanel();
+        stepList.addStep(section5Heading, panel500);
+
+        final S501ArchiveData step501 = new S501ArchiveData(stepList, status, null, null);
+        final StepExecutable panel501 = step501.getPanel();
+        stepList.addStep(section5Heading, panel501);
 
         frame.pack();
         final Dimension size = frame.getSize();
