@@ -2,93 +2,95 @@ package dev.mathops.app.eos;
 
 import dev.mathops.commons.CoreConstants;
 
-import javax.swing.JPanel;
 import javax.swing.SwingWorker;
-import java.awt.BorderLayout;
 import java.util.List;
 
 /**
  * STEP 100: Check for non-returned resources, email students.
  */
-final class S100CheckForNonReturnedResources extends SwingWorker<Boolean, StepStatus> {
+final class S100CheckForNonReturnedResources extends StepExecutable {
 
-    /** The panel to update with status. */
-    private final StepExecutable panel;
+    private static final String[] MESSAGE = {
+            "Queries the [stresource] table for records with NULL return date,",
+            "indicating resources that are still checked out.",
+            CoreConstants.SPC,
+            "Email any students with late resources and ask them to return them",
+            "immediately to avoid getting charged a replacement fee."};
 
     /**
      * Constructs a new {@code S100CheckForNonReturnedResources}.  This should be called on the AWT event dispatch
      * thread.
      *
-     * @param theOwner the step list that will hold the step
-     * @param status   the status display
+     * @param theOwner      the step list that will hold the step
+     * @param statusDisplay the status display
      */
-    S100CheckForNonReturnedResources(final StepList theOwner, final StepDisplay status) {
+    S100CheckForNonReturnedResources(final StepList theOwner, final StepDisplay statusDisplay) {
 
-        super();
+        super(theOwner, 100, "Check for non-returned resources", MESSAGE, statusDisplay);
 
-        final String[] message = {
-                "Queries the [stresource] table for records with NULL return date,",
-                "indicating resources that are still checked out.",
-                CoreConstants.SPC,
-                "Email any students with late resources and ask them to return them",
-                "immediately to avoid getting charged a replacement fee."};
-
-        this.panel = new StepExecutable(theOwner, 100, "Check for non-returned resources", message, status, this);
+        setWorker(new S100Worker(this));
     }
 
     /**
-     * Gets the step panel.
-     *
-     * @return the step panel
+     * A worker that manages updates during the execution of the step.
      */
-    public StepExecutable getPanel() {
+    static class S100Worker extends SwingWorker<Boolean, StepStatus> {
 
-        return this.panel;
-    }
+        /** The owning step. */
+        private final S100CheckForNonReturnedResources owner;
 
-    /**
-     * Called on the AWT event dispatch thread after "doInBackground" has completed.
-     */
-    public void done() {
+        /**
+         * Constructs a new {@code S100Worker}.
+         */
+        S100Worker(final S100CheckForNonReturnedResources theOwner) {
 
-        this.panel.setFinished(true);
-    }
-
-    /**
-     * Called on the AWT event dispatch thread asynchronously with data from "publish".
-     *
-     * @param chunks the chunks being processed
-     */
-    @Override
-    protected void process(final List<StepStatus> chunks) {
-
-        if (!chunks.isEmpty()) {
-            final StepStatus last = chunks.getLast();
-
-            final String task = last.currentTask();
-            final int percent = last.percentComplete();
+            this.owner = theOwner;
         }
-    }
 
-    /**
-     * Fires a "publish" action to send status to the UI.
-     *
-     * @param percentage the percentage complete
-     * @param task       the current task
-     */
-    private void firePublish(final int percentage, final String task) {
+        /**
+         * Called on the AWT event dispatch thread after "doInBackground" has completed.
+         */
+        public void done() {
 
-        publish(new StepStatus(percentage, task));
-    }
+            this.owner.setFinished(true);
+        }
 
-    /**
-     * Executes table construction logic on a worker thread.
-     *
-     * @return TRUE if successful; FALSE if not
-     */
-    @Override
-    protected Boolean doInBackground() {
+        /**
+         * Called on the AWT event dispatch thread asynchronously with data from "publish".
+         *
+         * @param chunks the chunks being processed
+         */
+        @Override
+        protected void process(final List<StepStatus> chunks) {
 
-        return Boolean.TRUE;
+            if (!chunks.isEmpty()) {
+                final StepStatus last = chunks.getLast();
+
+                final String task = last.currentTask();
+                final int percent = last.percentComplete();
+            }
+        }
+
+        /**
+         * Fires a "publish" action to send status to the UI.
+         *
+         * @param percentage the percentage complete
+         * @param task       the current task
+         */
+        private void firePublish(final int percentage, final String task) {
+
+            publish(new StepStatus(percentage, task));
+        }
+
+        /**
+         * Executes table construction logic on a worker thread.
+         *
+         * @return TRUE if successful; FALSE if not
+         */
+        @Override
+        protected final Boolean doInBackground() {
+
+            return Boolean.TRUE;
+        }
     }
 }

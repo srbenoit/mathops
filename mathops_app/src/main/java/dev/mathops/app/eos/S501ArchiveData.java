@@ -21,7 +21,7 @@ import java.util.List;
  * <p>
  * Logic to copy all data that is to be archived from the production database to the term archive database.
  */
-public final class S501ArchiveData extends SwingWorker<Boolean, StepStatus> {
+final class S501ArchiveData extends StepExecutable {
 
     /** TRUE to simply print what actions would be taken, FALSE to actually take actions. */
     private static final boolean DEBUG = true;
@@ -35,9 +35,6 @@ public final class S501ArchiveData extends SwingWorker<Boolean, StepStatus> {
     /** The panel to update with status. */
     private final JProgressBar progress;
 
-    /** The panel to update with status. */
-    private final StepExecutable panel;
-
     /**
      * Constructs a new {@code S501ArchiveData}.
      *
@@ -49,6 +46,8 @@ public final class S501ArchiveData extends SwingWorker<Boolean, StepStatus> {
     S501ArchiveData(final StepList theOwner, final StepDisplay status, final Cache theProductionCache,
                     final Cache theArchiveCache) {
 
+        super(theOwner, 501, "Copy production data into the archive database", null, status);
+
         this.productionCache = theProductionCache;
         this.archiveCache = theArchiveCache;
 
@@ -58,149 +57,156 @@ public final class S501ArchiveData extends SwingWorker<Boolean, StepStatus> {
         this.progress.setString(CoreConstants.EMPTY);
 
         myStatus.add(this.progress, StackedBorderLayout.CENTER);
-
-        this.panel = new StepExecutable(theOwner, 501, "Copy production data into the archive database", null, status,
-                this);
     }
 
     /**
-     * Gets the step panel.
-     *
-     * @return the step panel
+     * A worker that manages updates during the execution of the step.
      */
-    public StepExecutable getPanel() {
+    static class S501Worker extends SwingWorker<Boolean, StepStatus> {
 
-        return this.panel;
-    }
+        /** TRUE to simply print what actions would be taken, FALSE to actually take actions. */
+        private static final boolean DEBUG = true;
 
-    /**
-     * Called on the AWT event dispatch thread after "doInBackground" has completed.
-     */
-    public void done() {
+        /** The owning step. */
+        private final S501ArchiveData owner;
 
-        this.progress.setString("Finished");
-        this.progress.setValue(100);
-        this.panel.setFinished(true);
-    }
+        /**
+         * Constructs a new {@code S501Worker}.
+         */
+        S501Worker(final S501ArchiveData theOwner) {
 
-    /**
-     * Called on the AWT event dispatch thread asynchronously with data from "publish".
-     *
-     * @param chunks the chunks being processed
-     */
-    @Override
-    protected void process(final List<StepStatus> chunks) {
-
-        if (!chunks.isEmpty()) {
-            final StepStatus last = chunks.getLast();
-
-            final String task = last.currentTask();
-            final int percent = last.percentComplete();
-
-            this.progress.setString(task);
-            this.progress.setValue(percent);
+            this.owner = theOwner;
         }
-    }
 
-    /**
-     * Fires a "publish" action to send status to the UI.
-     *
-     * @param percentage the percentage complete
-     * @param task       the current task
-     */
-    private void firePublish(final int percentage, final String task) {
+        /**
+         * Called on the AWT event dispatch thread after "doInBackground" has completed.
+         */
+        public void done() {
 
-        publish(new StepStatus(percentage, task));
-    }
+            this.owner.progress.setString("Finished");
+            this.owner.progress.setValue(100);
+            this.owner.setFinished(true);
+        }
 
-    /**
-     * Executes table construction logic on a worker thread.
-     *
-     * @return TRUE if successful; FALSE if not
-     */
-    @Override
-    protected Boolean doInBackground() {
+        /**
+         * Called on the AWT event dispatch thread asynchronously with data from "publish".
+         *
+         * @param chunks the chunks being processed
+         */
+        @Override
+        protected void process(final List<StepStatus> chunks) {
 
-        Boolean result = Boolean.TRUE;
+            if (!chunks.isEmpty()) {
+                final StepStatus last = chunks.getLast();
 
-        firePublish(0, "Checking identities of source and target database...");
+                final String task = last.currentTask();
+                final int percent = last.percentComplete();
 
-        if (areDatabasesCorrect()) {
-            try {
-                final TermRec activeTerm = this.productionCache.getSystemData().getActiveTerm();
+                this.owner.progress.setString(task);
+                this.owner.progress.setValue(percent);
+            }
+        }
 
-                if (activeTerm == null) {
-                    firePublish(0, "NO ACTIVE TERM FOUND");
+        /**
+         * Fires a "publish" action to send status to the UI.
+         *
+         * @param percentage the percentage complete
+         * @param task       the current task
+         */
+        private void firePublish(final int percentage, final String task) {
+
+            publish(new StepStatus(percentage, task));
+        }
+
+        /**
+         * Executes table construction logic on a worker thread.
+         *
+         * @return TRUE if successful; FALSE if not
+         */
+        @Override
+        protected Boolean doInBackground() {
+
+            Boolean result = Boolean.TRUE;
+
+            firePublish(0, "Checking identities of source and target database...");
+
+            if (areDatabasesCorrect()) {
+                try {
+                    final TermRec activeTerm = this.owner.productionCache.getSystemData().getActiveTerm();
+
+                    if (activeTerm == null) {
+                        firePublish(0, "NO ACTIVE TERM FOUND");
+                        result = Boolean.FALSE;
+                    } else {
+                        final TermKey activeKey = activeTerm.term;
+                        firePublish(1, "The active term is " + activeKey.longString);
+
+                        archiveAdminHold(activeKey);
+                    }
+                } catch (final SQLException ex) {
+                    Log.warning(ex);
+                    firePublish(0, "FAILED TO QUERY ACTIVE TERM");
                     result = Boolean.FALSE;
-                } else {
-                    final TermKey activeKey = activeTerm.term;
-                    firePublish(1, "The active term is " + activeKey.longString);
-
-                    archiveAdminHold(activeKey);
                 }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                firePublish(0, "FAILED TO QUERY ACTIVE TERM");
+            } else {
                 result = Boolean.FALSE;
             }
-        } else {
-            result = Boolean.FALSE;
+
+            return result;
         }
 
-        return result;
-    }
+        /**
+         * Verifies that the "production" connection is a database that has a "which_db" table that contains "PROD" in
+         * its 'desc' field for its single record, and that the "archive" connection is a database without a "which_db"
+         * table. This operation also verifies that the connections to both databases are working.
+         *
+         * <p>
+         * Note that this operation is performed even if DEBUG is true, since it alters no data.
+         *
+         * @return true if databases are verified; false if not
+         */
+        private boolean areDatabasesCorrect() {
 
-    /**
-     * Verifies that the "production" connection is a database that has a "which_db" table that contains "PROD" in its
-     * 'desc' field for its single record, and that the "archive" connection is a database without a "which_db" table.
-     * This operation also verifies that the connections to both databases are working.
-     *
-     * <p>
-     * Note that this operation is performed even if DEBUG is true, since it alters no data.
-     *
-     * @return true if databases are verified; false if not
-     */
-    private boolean areDatabasesCorrect() {
+            boolean ok = true;
 
-        boolean ok = true;
-
-        try {
-            final RawWhichDb which = this.productionCache.getSystemData().getWhichDb();
-            if (which == null) {
-                Log.warning("No 'which_db' record found in production database");
-                ok = false;
-            } else if (!"PROD".equals(which.descr)) {
-                Log.warning("'which_db' record production database has '", which.descr, "' rather than 'PROD'.");
-                ok = false;
-            }
-        } catch (final SQLException ex) {
-            Log.warning("Failed to query 'which_db' table in PROD");
-            ok = false;
-        }
-
-        if (ok) {
             try {
-                final RawWhichDb which = this.archiveCache.getSystemData().getWhichDb();
-                Log.warning("A 'which_db' record was found in archive database - there should be none.");
-                ok = false;
+                final RawWhichDb which = this.owner.productionCache.getSystemData().getWhichDb();
+                if (which == null) {
+                    Log.warning("No 'which_db' record found in production database");
+                    ok = false;
+                } else if (!"PROD".equals(which.descr)) {
+                    Log.warning("'which_db' record production database has '", which.descr, "' rather than 'PROD'.");
+                    ok = false;
+                }
             } catch (final SQLException ex) {
-                // No action - this is the expected behavior
+                Log.warning("Failed to query 'which_db' table in PROD");
+                ok = false;
             }
+
+            if (ok) {
+                try {
+                    final RawWhichDb which = this.owner.archiveCache.getSystemData().getWhichDb();
+                    Log.warning("A 'which_db' record was found in archive database - there should be none.");
+                    ok = false;
+                } catch (final SQLException ex) {
+                    // No action - this is the expected behavior
+                }
+            }
+
+            return ok;
         }
 
-        return ok;
-    }
+        /**
+         * Archives data from the "admin_hold" table.
+         *
+         * @param activeTerm the active term key
+         */
+        private void archiveAdminHold(final TermKey activeTerm) {
 
-    /**
-     * Archives data from the "admin_hold" table.
-     *
-     * @param activeTerm the active term key
-     */
-    private void archiveAdminHold(final TermKey activeTerm) {
-
-        final String sql = "SELECT * FROM admin_hold"
-                           + " WHERE create_dt >= (SELECT start_dt FROM term WHERE active='Y'"
-                           + "   AND (hold_id IN ('06','30') OR hold_id MATCHES '4?'";
+            final String sql = "SELECT * FROM admin_hold"
+                               + " WHERE create_dt >= (SELECT start_dt FROM term WHERE active='Y'"
+                               + "   AND (hold_id IN ('06','30') OR hold_id MATCHES '4?'";
+        }
     }
 }
 

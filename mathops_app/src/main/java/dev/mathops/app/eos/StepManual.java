@@ -7,12 +7,12 @@ import java.awt.event.ActionEvent;
  * The base class for panels that represent manual steps.  The user can enter notes and mark the step as complete, but
  * there is no automated processing.
  */
-public final class StepManual extends AbstractStep {
+public class StepManual extends AbstractStep {
 
     /**
      * Constructs a new {@code StepManual}.
      *
-     * @param theOwner the step list that will hold the step
+     * @param theOwner        the step list that will hold the step
      * @param stepNumber      the step number
      * @param stepDescription the step description
      * @param stepDetails     the step details text
