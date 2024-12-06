@@ -96,34 +96,50 @@ public final class Section extends JPanel implements ActionListener {
 
         if (EXPAND_COLLAPSE_CMD.equals(cmd)) {
             if (this.expanded) {
-                remove(this.contents);
-                this.expandCollapse.setText("+");
-                this.expanded = false;
-
-                if (this.expandIcon == null) {
-                    this.expandCollapse.setText("+");
-                    this.expandCollapse.setIcon(null);
-                } else {
-                    this.expandCollapse.setText(null);
-                    this.expandCollapse.setIcon(this.expandIcon);
-                }
+                collapse();
             } else {
-                add(this.contents, StackedBorderLayout.NORTH);
-                this.expandCollapse.setText("-");
-                this.expanded = true;
-
-                if (this.collapseIcon == null) {
-                    this.expandCollapse.setText("-");
-                    this.expandCollapse.setIcon(null);
-                } else {
-                    this.expandCollapse.setText(null);
-                    this.expandCollapse.setIcon(this.collapseIcon);
-                }
+                expand();
             }
 
             invalidate();
             revalidate();
             repaint();
+        }
+    }
+
+    /**
+     * Collapses the section.
+     */
+    void collapse() {
+
+        remove(this.contents);
+        this.expandCollapse.setText("+");
+        this.expanded = false;
+
+        if (this.expandIcon == null) {
+            this.expandCollapse.setText("+");
+            this.expandCollapse.setIcon(null);
+        } else {
+            this.expandCollapse.setText(null);
+            this.expandCollapse.setIcon(this.expandIcon);
+        }
+    }
+
+    /**
+     * Expands the section.
+     */
+    void expand() {
+
+        add(this.contents, StackedBorderLayout.NORTH);
+        this.expandCollapse.setText("-");
+        this.expanded = true;
+
+        if (this.collapseIcon == null) {
+            this.expandCollapse.setText("-");
+            this.expandCollapse.setIcon(null);
+        } else {
+            this.expandCollapse.setText(null);
+            this.expandCollapse.setIcon(this.collapseIcon);
         }
     }
 }

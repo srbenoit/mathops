@@ -1,6 +1,5 @@
 package dev.mathops.app.eos;
 
-import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 
 import javax.swing.JPanel;
@@ -12,7 +11,7 @@ import java.util.Map;
  * A panel that displays headers and lists of steps, where headers can be expanded and collapsed.  Steps can be selected
  * but only one may be selected at a time.
  */
-final class StepList extends JPanel {
+public final class StepList extends JPanel {
 
     /** The icon image for "expand" buttons. */
     private final Image expandImg;
@@ -76,5 +75,18 @@ final class StepList extends JPanel {
         }
 
         this.selected = step;
+    }
+
+    /**
+     * Collapses a section.
+     *
+     * @param heading the section heading
+     */
+    void collapseSection(final String heading) {
+
+        final Section sect = this.sectionPanels.get(heading);
+        if (sect != null) {
+            sect.collapse();
+        }
     }
 }

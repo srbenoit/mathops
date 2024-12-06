@@ -1,6 +1,17 @@
 package dev.mathops.app.eos;
 
 import com.formdev.flatlaf.FlatLightLaf;
+import dev.mathops.app.eos.s1.S100CheckForNonReturnedResources;
+import dev.mathops.app.eos.s1.S101EditNextTermDataFiles;
+import dev.mathops.app.eos.s1.S102IdentifyIncompletes;
+import dev.mathops.app.eos.s1.S103RegistrationUpdate;
+import dev.mathops.app.eos.s1.S104UploadQueuedPlacementScores;
+import dev.mathops.app.eos.s1.S105ApplyForfeits;
+import dev.mathops.app.eos.s1.S106CheckStudentsBelow54;
+import dev.mathops.app.eos.s1.S107ProcessIncompletes;
+import dev.mathops.app.eos.s1.S108GradeSnapshot;
+import dev.mathops.app.eos.s1.S109UpdateProctorUWindows;
+import dev.mathops.app.eos.s1.S110CreateCanvasShells;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
@@ -30,6 +41,15 @@ final class EndOfSemesterApp implements Runnable, ActionListener {
 
     /** Loads the state of the process from a file. */
     private static final String LOAD_CMD = "LOAD";
+
+    /** The section 1 heading. */
+    private static final String SECTION01 = "Phase 1: Review and Prepare";
+
+    /** The section 2 heading. */
+    private static final String SECTION02 = "Phase 2: Move Placement and Tutorials to DEV";
+
+    /** The section 5 heading. */
+    private static final String SECTION05 = "Phase 5: Some other stuff...";
 
     /** The list of steps. */
     private final List<AbstractStep> steps;
@@ -70,25 +90,68 @@ final class EndOfSemesterApp implements Runnable, ActionListener {
         final StepDisplay status = new StepDisplay(h - 20, w / 2);
         content.add(status, StackedBorderLayout.EAST);
 
-        final String section1Heading = "Phase 1: Review and Prepare";
-
         final S100CheckForNonReturnedResources step100 = new S100CheckForNonReturnedResources(stepList, status);
         this.steps.add(step100);
-        stepList.addStep(section1Heading, step100);
+        stepList.addStep(SECTION01, step100);
 
         final S101EditNextTermDataFiles step101 = new S101EditNextTermDataFiles(stepList, status);
         this.steps.add(step101);
-        stepList.addStep(section1Heading, step101);
+        stepList.addStep(SECTION01, step101);
 
-        final String section5Heading = "Phase 5: Some other stuff...";
+        final S102IdentifyIncompletes step102 = new S102IdentifyIncompletes(stepList, status);
+        this.steps.add(step102);
+        stepList.addStep(SECTION01, step102);
+
+        final S103RegistrationUpdate step103 = new S103RegistrationUpdate(stepList, status);
+        this.steps.add(step103);
+        stepList.addStep(SECTION01, step103);
+
+        final S104UploadQueuedPlacementScores step104 = new S104UploadQueuedPlacementScores(stepList, status);
+        this.steps.add(step104);
+        stepList.addStep(SECTION01, step104);
+
+        final S105ApplyForfeits step105 = new S105ApplyForfeits(stepList, status);
+        this.steps.add(step105);
+        stepList.addStep(SECTION01, step105);
+
+        final S106CheckStudentsBelow54 step106 = new S106CheckStudentsBelow54(stepList, status);
+        this.steps.add(step106);
+        stepList.addStep(SECTION01, step106);
+
+        final S107ProcessIncompletes step107 = new S107ProcessIncompletes(stepList, status);
+        this.steps.add(step107);
+        stepList.addStep(SECTION01, step107);
+
+        final S108GradeSnapshot step108 = new S108GradeSnapshot(stepList, status);
+        this.steps.add(step108);
+        stepList.addStep(SECTION01, step108);
+
+        final S109UpdateProctorUWindows step109 = new S109UpdateProctorUWindows(stepList, status);
+        this.steps.add(step109);
+        stepList.addStep(SECTION01, step109);
+
+        final S110CreateCanvasShells step110 = new S110CreateCanvasShells(stepList, status);
+        this.steps.add(step110);
+        stepList.addStep(SECTION01, step110);
+
+        //
+
+        //
+        //
+
+        //
 
         final S500CreateArchiveTables step500 = new S500CreateArchiveTables(stepList, status, null);
         this.steps.add(step500);
-        stepList.addStep(section5Heading, step500);
+        stepList.addStep(SECTION05, step500);
 
         final S501ArchiveData step501 = new S501ArchiveData(stepList, status, null, null);
         this.steps.add(step501);
-        stepList.addStep(section5Heading, step501);
+        stepList.addStep(SECTION05, step501);
+
+        //
+        stepList.collapseSection(SECTION02);
+        stepList.collapseSection(SECTION05);
 
         final JButton saveBtn = new JButton("Save progress...");
         saveBtn.setActionCommand(SAVE_CMD);

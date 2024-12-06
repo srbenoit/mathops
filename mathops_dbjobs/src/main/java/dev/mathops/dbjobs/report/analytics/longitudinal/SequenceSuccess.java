@@ -393,7 +393,7 @@ final class SequenceSuccess {
         if (firstTerm == secondTerm) {
             // We treat the same term as "prior" since AP or transfer credit could get booked then.
             isPrior = true;
-        } else if (firstYear - secondYear <= 1) {
+        } else if (secondYear - firstYear <= 1) {
             final int firstPart = firstTerm % 100;
             final int secondPart = secondTerm % 100;
 

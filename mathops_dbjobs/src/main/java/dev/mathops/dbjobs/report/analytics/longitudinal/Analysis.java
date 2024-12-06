@@ -166,9 +166,9 @@ public final class Analysis {
 //        summary.generate(START_TERM, END_TERM, "MATH120", enrollments, stuTerms, sects, onlineSects, majors);
 //        summary.generate(START_TERM, END_TERM, "MATH124", enrollments, stuTerms, sects, onlineSects, majors);
 //        summary.generate(START_TERM, END_TERM, "MATH125", enrollments, stuTerms, sects, onlineSects, majors);
-        summary.generate(START_TERM, END_TERM, "MATH125", enrollments, stuTerms, specialSects, onlineSects, majors);
+//        summary.generate(START_TERM, END_TERM, "MATH125", enrollments, stuTerms, specialSects, onlineSects, majors);
 //        summary.generate(START_TERM, END_TERM, "MATH126", enrollments, stuTerms, sects, onlineSects, majors);
-        summary.generate(START_TERM, END_TERM, "MATH126", enrollments, stuTerms, specialSects, onlineSects, majors);
+//        summary.generate(START_TERM, END_TERM, "MATH126", enrollments, stuTerms, specialSects, onlineSects, majors);
 //        summary.generate(START_TERM, END_TERM, "MATH127", enrollments, stuTerms, sects, onlineSects, majors);
 //        summary.generate(START_TERM, END_TERM, "MATH141", enrollments, stuTerms, sects, onlineSects, majors);
 //        summary.generate(START_TERM, END_TERM, "MATH155", enrollments, stuTerms, sects, onlineSects, majors);
@@ -185,8 +185,8 @@ public final class Analysis {
 
         // Looking for pairings with N >= 200 (N >= 50 for recent courses like MATH 120/127)
 
-//        final SequenceSuccess seqSuccess = new SequenceSuccess(this.targetDir);
-//
+        final SequenceSuccess seqSuccess = new SequenceSuccess(this.targetDir);
+
 //        seqSuccess.generate(START_TERM, END_TERM, enrollments, "MATH117", allSects, "AREC202", allSects); // N=2917
 //        seqSuccess.generate(START_TERM, END_TERM, enrollments, "MATH117", allSects, "CHEM107", allSects); // N=5035
 //        seqSuccess.generate(START_TERM, END_TERM, enrollments, "MATH117", allSects, "ECON202", allSects); // N=9291
@@ -304,7 +304,7 @@ public final class Analysis {
 //        seqSuccess.generate(START_TERM, END_TERM, enrollments, "MATH261", allSects, "CBE210", allSects); // N=781
 //        seqSuccess.generate(START_TERM, END_TERM, enrollments, "MATH261", allSects, "ECE303", allSects); // N=833
 //        seqSuccess.generate(START_TERM, END_TERM, enrollments, "MATH261", allSects, "MATH340", allSects); // N=5684
-//        seqSuccess.generate(START_TERM, END_TERM, enrollments, "MATH261", allSects, "MECH337", allSects); // N=2054
+        seqSuccess.generate(START_TERM, END_TERM, enrollments, "MATH261", allSects, "MECH337", allSects); // N=2054
 //        seqSuccess.generate(START_TERM, END_TERM, enrollments, "MATH261", allSects, "PH314", allSects); // N=295
 //        seqSuccess.generate(START_TERM, END_TERM, enrollments, "MATH261", allSects, "STAT420", allSects); // N=392
 //
@@ -331,13 +331,13 @@ public final class Analysis {
 
         // Analysis by major/program
 
-        final File majorsDir = new File(this.targetDir, "majors");
-        if (majorsDir.exists() || majorsDir.mkdirs()) {
-            final MajorStatistics majorStats = new MajorStatistics(majorsDir);
-            majorStats.generate(enrollments, stuTerms);
-        } else {
-            Log.warning("Unable to create directory for Majors analysis");
-        }
+//        final File majorsDir = new File(this.targetDir, "majors");
+//        if (majorsDir.exists() || majorsDir.mkdirs()) {
+//            final MajorStatistics majorStats = new MajorStatistics(majorsDir);
+//            majorStats.generate(enrollments, stuTerms);
+//        } else {
+//            Log.warning("Unable to create directory for Majors analysis");
+//        }
 
         Log.fine("Analysis completed");
     }

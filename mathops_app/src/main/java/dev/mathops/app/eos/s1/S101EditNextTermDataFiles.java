@@ -1,11 +1,14 @@
-package dev.mathops.app.eos;
+package dev.mathops.app.eos.s1;
 
+import dev.mathops.app.eos.StepDisplay;
+import dev.mathops.app.eos.StepList;
+import dev.mathops.app.eos.StepManual;
 import dev.mathops.commons.CoreConstants;
 
 /**
  * STEP 101: Edit data in "NEXT_TERM" files to be automatically imported during rollover.
  */
-final class S101EditNextTermDataFiles extends StepManual {
+public final class S101EditNextTermDataFiles extends StepManual {
 
     private static final String[] MESSAGE = {
             "Manually edit data files in the 'NEXT_data' directory with data",
@@ -19,7 +22,7 @@ final class S101EditNextTermDataFiles extends StepManual {
      * @param theOwner      the step list that will hold the step
      * @param statusDisplay the status display
      */
-    S101EditNextTermDataFiles(final StepList theOwner, final StepDisplay statusDisplay) {
+    public S101EditNextTermDataFiles(final StepList theOwner, final StepDisplay statusDisplay) {
 
         super(theOwner, 101, "Edit 'NEXT_TERM' data files.", MESSAGE, statusDisplay);
     }

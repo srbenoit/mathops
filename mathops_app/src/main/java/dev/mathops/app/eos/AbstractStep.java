@@ -125,7 +125,7 @@ abstract class AbstractStep extends JPanel implements ActionListener, MouseListe
      *
      * @param isFinished true if "finished" should be checked; false if unchecked
      */
-    final void setFinished(final boolean isFinished) {
+    public final void setFinished(final boolean isFinished) {
 
         this.finished.setSelected(isFinished);
     }

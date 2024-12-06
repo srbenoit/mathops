@@ -1,48 +1,50 @@
-package dev.mathops.app.eos;
+package dev.mathops.app.eos.s1;
 
-import dev.mathops.commons.CoreConstants;
+import dev.mathops.app.eos.StepDisplay;
+import dev.mathops.app.eos.StepExecutable;
+import dev.mathops.app.eos.StepList;
+import dev.mathops.app.eos.StepStatus;
 
 import javax.swing.SwingWorker;
 import java.util.List;
 
 /**
- * STEP 100: Check for non-returned resources, email students.
+ * STEP 103: Perform a registration update
  */
-final class S100CheckForNonReturnedResources extends StepExecutable {
+public final class S103RegistrationUpdate extends StepExecutable {
 
     private static final String[] MESSAGE = {
-            "Queries the [stresource] table for records with NULL return date,",
-            "indicating resources that are still checked out.",
-            CoreConstants.SPC,
-            "Email any students with late resources and ask them to return them",
-            "immediately to avoid getting charged a replacement fee."};
+            "Execute batch jobs to:",
+            "  - Import applicants from the ODS",
+            "  - Import transfer credit from the ODS",
+            "  - Import student registrations from the ODS",
+            "  - Check the STTERM table",};
 
     /**
-     * Constructs a new {@code S100CheckForNonReturnedResources}.  This should be called on the AWT event dispatch
-     * thread.
+     * Constructs a new {@code S103RegistrationUpdate}.  This should be called on the AWT event dispatch thread.
      *
      * @param theOwner      the step list that will hold the step
      * @param statusDisplay the status display
      */
-    S100CheckForNonReturnedResources(final StepList theOwner, final StepDisplay statusDisplay) {
+    public S103RegistrationUpdate(final StepList theOwner, final StepDisplay statusDisplay) {
 
-        super(theOwner, 100, "Check for non-returned resources", MESSAGE, statusDisplay);
+        super(theOwner, 103, "Registration Update.", MESSAGE, statusDisplay);
 
-        setWorker(new S100Worker(this));
+        setWorker(new S103Worker(this));
     }
 
     /**
      * A worker that manages updates during the execution of the step.
      */
-    static class S100Worker extends SwingWorker<Boolean, StepStatus> {
+    static class S103Worker extends SwingWorker<Boolean, StepStatus> {
 
         /** The owning step. */
-        private final S100CheckForNonReturnedResources owner;
+        private final S103RegistrationUpdate owner;
 
         /**
-         * Constructs a new {@code S100Worker}.
+         * Constructs a new {@code S103Worker}.
          */
-        S100Worker(final S100CheckForNonReturnedResources theOwner) {
+        S103Worker(final S103RegistrationUpdate theOwner) {
 
             this.owner = theOwner;
         }

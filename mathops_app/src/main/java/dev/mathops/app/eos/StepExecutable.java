@@ -30,7 +30,7 @@ public class StepExecutable extends AbstractStep {
      * @param stepDetails     the step details text
      * @param statusDisplay   the content of the status display for this panel
      */
-    StepExecutable(final StepList theOwner, final int stepNumber, final String stepDescription,
+    protected StepExecutable(final StepList theOwner, final int stepNumber, final String stepDescription,
                    final String[] stepDetails, final StepDisplay statusDisplay) {
 
         super(theOwner, stepNumber, stepDescription, stepDetails, statusDisplay);

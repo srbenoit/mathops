@@ -17,7 +17,7 @@ import java.awt.Font;
 /**
  * A panel that includes step output and user notes.
  */
-final class StepDisplay extends JPanel implements DocumentListener {
+public final class StepDisplay extends JPanel implements DocumentListener {
 
     /** The report pane. */
     private final JTextArea reportPane;
