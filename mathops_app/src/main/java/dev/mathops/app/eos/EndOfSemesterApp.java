@@ -12,8 +12,15 @@ import dev.mathops.app.eos.s1.S107ProcessIncompletes;
 import dev.mathops.app.eos.s1.S108GradeSnapshot;
 import dev.mathops.app.eos.s1.S109UpdateProctorUWindows;
 import dev.mathops.app.eos.s1.S110CreateCanvasShells;
+import dev.mathops.app.eos.s2.S201PlaceSitesInMaintenanceMode;
+import dev.mathops.app.eos.s2.S202ExecuteBatchJobs;
+import dev.mathops.app.eos.s2.S203BoundProductionDatabaseAndExport;
+import dev.mathops.app.eos.s2.S204EditDatabaseExportForDEV;
+import dev.mathops.app.eos.s2.S205DropDEVDatabaseAndImport;
+import dev.mathops.app.eos.s2.S206PointWebSitesAtDEV;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
+import dev.mathops.commons.parser.json.JSONObject;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 
 import javax.swing.JButton;
@@ -136,6 +143,30 @@ final class EndOfSemesterApp implements Runnable, ActionListener {
 
         //
 
+        final S201PlaceSitesInMaintenanceMode step201 = new S201PlaceSitesInMaintenanceMode(stepList, status);
+        this.steps.add(step201);
+        stepList.addStep(SECTION02, step201);
+
+        final S202ExecuteBatchJobs step202 = new S202ExecuteBatchJobs(stepList, status);
+        this.steps.add(step202);
+        stepList.addStep(SECTION02, step202);
+
+        final S203BoundProductionDatabaseAndExport step203 = new S203BoundProductionDatabaseAndExport(stepList, status);
+        this.steps.add(step203);
+        stepList.addStep(SECTION02, step203);
+
+        final S204EditDatabaseExportForDEV step204 = new S204EditDatabaseExportForDEV(stepList, status);
+        this.steps.add(step204);
+        stepList.addStep(SECTION02, step204);
+
+        final S205DropDEVDatabaseAndImport step205 = new S205DropDEVDatabaseAndImport(stepList, status);
+        this.steps.add(step205);
+        stepList.addStep(SECTION02, step205);
+
+        final S206PointWebSitesAtDEV step206 = new S206PointWebSitesAtDEV(stepList, status);
+        this.steps.add(step206);
+        stepList.addStep(SECTION02, step206);
+
         //
         //
 
@@ -186,6 +217,29 @@ final class EndOfSemesterApp implements Runnable, ActionListener {
             Log.info("Save");
 
             // For each step, we create a JSON object with the step number, finished status, report, and notes.
+
+            final JSONObject json = new JSONObject();
+
+            final int count = this.steps.size();
+            final JSONObject[] stepObjects = new JSONObject[count];
+
+            for (int i = 0; i < count; ++i) {
+                final JSONObject stepObj = new JSONObject();
+                stepObjects[i] = stepObj;
+
+                final AbstractStep step = this.steps.get(i);
+                stepObj.setProperty("number", Integer.valueOf(step.stepNumber));
+                stepObj.setProperty("finished", Boolean.valueOf(step.isFinished()));
+                final String results = step.results;
+                if (results != null && !results.isBlank()) {
+                    stepObj.setProperty("results", results);
+                }
+                final String notes = step.notes;
+                if (notes != null && !notes.isBlank()) {
+                    stepObj.setProperty("notes", notes);
+                }
+            }
+            json.setProperty("steps", stepObjects);
 
         } else if (LOAD_CMD.equals(cmd)) {
             Log.info("Load");

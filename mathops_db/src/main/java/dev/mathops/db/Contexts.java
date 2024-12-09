@@ -81,6 +81,9 @@ public enum Contexts {
     public static final String VIDEO_PATH = "/video";
 
     /** A common path. */
+    public static final String CFM_PATH = "/cfm";
+
+    /** A common path. */
     public static final String ADMINSYS_PATH = "/adminsys";
 
     /** A common path. */

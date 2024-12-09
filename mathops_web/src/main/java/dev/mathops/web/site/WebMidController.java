@@ -17,6 +17,7 @@ import dev.mathops.session.SessionManager;
 import dev.mathops.web.front.IMidController;
 import dev.mathops.web.site.admin.AdminRootSite;
 import dev.mathops.web.site.admin.AdminSite;
+import dev.mathops.web.site.cfm.CfmSite;
 import dev.mathops.web.site.course.CourseSite;
 import dev.mathops.web.site.help.HelpSite;
 import dev.mathops.web.site.html.challengeexam.ChallengeExamSessionStore;
@@ -163,6 +164,7 @@ public final class WebMidController implements IMidController {
             add(map, Contexts.COURSE_HOST, Contexts.CSU_MATH_COURSE_MGR_PATH, CanvasCourseSite.class);
             add(map, Contexts.COURSE_HOST, Contexts.MPS_PATH, ProctoringSite.class);
             add(map, Contexts.COURSE_HOST, Contexts.VIDEO_PATH, VideoSite.class);
+            add(map, Contexts.COURSE_HOST, Contexts.CFM_PATH, CfmSite.class);
         }
 
         if (webHosts.contains(Contexts.TESTING_HOST)) {

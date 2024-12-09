@@ -1,4 +1,4 @@
-package dev.mathops.app.eos.s1;
+package dev.mathops.app.eos.s2;
 
 import dev.mathops.app.eos.StepDisplay;
 import dev.mathops.app.eos.StepExecutable;
@@ -8,42 +8,45 @@ import dev.mathops.app.eos.StepStatus;
 import javax.swing.SwingWorker;
 import java.util.List;
 
-/**
- * STEP 104: Upload queued placement scores, audit placement records
- */
-public final class S104UploadQueuedPlacementScores extends StepExecutable {
+/** STEP 202. */
+public final class S202ExecuteBatchJobs extends StepExecutable {
 
     private static final String[] MESSAGE = {
-            "Upload any placement scores that were queued due to Banner outage,",
-            "run an audit of placement test scores in Banner, and then edit the",
-            "Java code that audits test scores to indicate the date of last audit."};
+            "Execute ordinary batch jobs to update production data:",
+            "  - Import applicants from the ODS",
+            "  - Import new students from the ODS",
+            "  - Import transfer credit from the ODS",
+            "  - Import student registrations from Banner",
+            "  - Check the STTERM table",
+            "  - Send queued placement test scores",
+            "  - Audit placement test scores in Banner",
+            "Edit the Java code that audits test scores to indicate the date of last audit"};
 
     /**
-     * Constructs a new {@code S104UploadQueuedPlacementScores}.  This should be called on the AWT event dispatch
-     * thread.
+     * Constructs a new {@code S202ExecuteBatchJobs}.  This should be called on the AWT event dispatch thread.
      *
      * @param theOwner      the step list that will hold the step
      * @param statusDisplay the status display
      */
-    public S104UploadQueuedPlacementScores(final StepList theOwner, final StepDisplay statusDisplay) {
+    public S202ExecuteBatchJobs(final StepList theOwner, final StepDisplay statusDisplay) {
 
-        super(theOwner, 104, "Upload queued placement scores and audit.", MESSAGE, statusDisplay);
+        super(theOwner, 202, "Execute batch jobs.", MESSAGE, statusDisplay);
 
-        setWorker(new S104Worker(this));
+        setWorker(new S202Worker(this));
     }
 
     /**
      * A worker that manages updates during the execution of the step.
      */
-    static class S104Worker extends SwingWorker<Boolean, StepStatus> {
+    static class S202Worker extends SwingWorker<Boolean, StepStatus> {
 
         /** The owning step. */
-        private final S104UploadQueuedPlacementScores owner;
+        private final S202ExecuteBatchJobs owner;
 
         /**
          * Constructs a new {@code S104Worker}.
          */
-        S104Worker(final S104UploadQueuedPlacementScores theOwner) {
+        S202Worker(final S202ExecuteBatchJobs theOwner) {
 
             this.owner = theOwner;
         }

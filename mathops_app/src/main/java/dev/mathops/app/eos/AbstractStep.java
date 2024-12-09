@@ -37,6 +37,9 @@ abstract class AbstractStep extends JPanel implements ActionListener, MouseListe
     /** The display. */
     private final StepDisplay display;
 
+    /** The step number. */
+    final int stepNumber;
+
     /** The step details text. */
     final String title;
 
@@ -62,16 +65,17 @@ abstract class AbstractStep extends JPanel implements ActionListener, MouseListe
      * Constructs a new {@code AbstractStep}.
      *
      * @param theOwner        the owning step list
-     * @param stepNumber      the step number
+     * @param theStepNumber   the step number
      * @param stepDescription the step description
      * @param stepDetails     the step details text
      * @param statusDisplay   the content of the status display for this panel
      */
-    AbstractStep(final StepList theOwner, final int stepNumber, final String stepDescription,
+    AbstractStep(final StepList theOwner, final int theStepNumber, final String stepDescription,
                  final String[] stepDetails, final StepDisplay statusDisplay) {
 
         super(new StackedBorderLayout());
 
+        this.stepNumber = theStepNumber;
         this.normalColor = getBackground();
         this.selectedColor = this.normalColor.brighter();
 
@@ -79,12 +83,12 @@ abstract class AbstractStep extends JPanel implements ActionListener, MouseListe
         this.display = statusDisplay;
 
         this.detailsMessage = stepDetails == null ? null : stepDetails.clone();
-        this.title = "Step " + stepNumber + ": " + stepDescription;
+        this.title = "Step " + theStepNumber + ": " + stepDescription;
 
         final Border etched = BorderFactory.createEtchedBorder();
         setBorder(etched);
 
-        final String numberString = Integer.toString(stepNumber);
+        final String numberString = Integer.toString(theStepNumber);
         final Font font = new Font(Font.SANS_SERIF, Font.PLAIN, 13);
         final Color blue = ColorNames.getColor("blue2");
 
@@ -128,6 +132,16 @@ abstract class AbstractStep extends JPanel implements ActionListener, MouseListe
     public final void setFinished(final boolean isFinished) {
 
         this.finished.setSelected(isFinished);
+    }
+
+    /**
+     * Tests whether the step has been finished.
+     *
+     * @return true if "finished" is checked; false if unchecked
+     */
+    public boolean isFinished() {
+
+        return this.finished.isSelected();
     }
 
     /**
