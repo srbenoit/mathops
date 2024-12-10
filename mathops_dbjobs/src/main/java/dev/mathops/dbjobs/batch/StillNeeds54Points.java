@@ -335,7 +335,7 @@ final class StillNeeds54Points {
 
         // See when student first passed each review exam, accumulate best scores on units/finals
 
-        final List<RawStexam> exams = RawStexamLogic.getExams(cache, reg.stuId, reg.course, true, "U", "R", "F");
+        final List<RawStexam> passedExams = RawStexamLogic.getExams(cache, reg.stuId, reg.course, true, "U", "R", "F");
 
         LocalDate whenPassedRE1 = null;
         LocalDate whenPassedRE2 = null;
@@ -348,7 +348,7 @@ final class StillNeeds54Points {
         int scoreUE4 = 0;
         int scoreFIN = 0;
 
-        for (final RawStexam test : exams) {
+        for (final RawStexam test : passedExams) {
             switch (test.examType) {
                 case "R" -> {
                     final int unit = test.unit == null ? -1 : test.unit.intValue();
@@ -365,7 +365,7 @@ final class StillNeeds54Points {
                         if (whenPassedRE3 == null || test.examDt.isBefore(whenPassedRE3)) {
                             whenPassedRE3 = test.examDt;
                         }
-                    } else if ((unit == 4) && (whenPassedRE4 == null || test.examDt.isBefore(whenPassedRE4))) {
+                    } else if (unit == 4 && (whenPassedRE4 == null || test.examDt.isBefore(whenPassedRE4))) {
                         whenPassedRE4 = test.examDt;
                     }
                 }
@@ -399,7 +399,22 @@ final class StillNeeds54Points {
             }
         }
 
-        if (whenPassedFIN != null) {
+        if (whenPassedFIN == null) {
+            final List<RawStexam> allFinals = RawStexamLogic.getExams(cache, reg.stuId, reg.course, false, "F");
+            int bestFIN = 0;
+
+            for (final RawStexam test : allFinals) {
+                if (test.examScore != null) {
+                    final int score = test.examScore.intValue();
+                    bestFIN = Math.max(bestFIN, score);
+                }
+            }
+
+            if (bestFIN >= 15) {
+                Log.info(reg.stuId, " did not pass ", reg.course, " but had ", Integer.toString(bestFIN),
+                        " on the final exam.");
+            }
+        } else {
             final List<RawMilestone> allMilestones = systemData.getMilestones(active.term, stterm.pace,
                     stterm.paceTrack);
 
