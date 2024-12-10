@@ -2,7 +2,6 @@ package dev.mathops.web.site.cfm;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.Cache;
-import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
@@ -14,9 +13,9 @@ import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 /**
- * Generates a page with a simulation for the Spur campus academic program.
+ * Generates a page with information about the Center.
  */
-enum PageCfmIndex {
+enum PageInformation {
     ;
 
     /**
@@ -24,33 +23,25 @@ enum PageCfmIndex {
      *
      * @param cache the data cache
      * @param site  the owning site
-     * @param type  the site type
      * @param req   the request
      * @param resp  the response
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void showPage(final Cache cache, final CfmSite site, final ESiteType type, final ServletRequest req,
+    static void showPage(final Cache cache, final CfmSite site, final ServletRequest req,
                          final HttpServletResponse resp) throws IOException, SQLException {
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
-        Page.startOrdinaryPage(htm, "The Center for Foundational Mathematics", null, true, 0, null, false, false);
+        Page.startOrdinaryPage(htm, "The Center for Foundational Mathematics - Information", null, true, 0, null, false,
+                false);
 
-        htm.sDiv("center");
-        htm.sDiv(null, "style='display:inline-block; width:420px;'");
+        PageUtilities.emitSubpageTitle(htm, "Information", "info.svg");
 
-        htm.sP("center").add("<img src='/www/images/cfm/logo_transparent_256.png' alt=''/>").eP();
+        htm.sDiv("inset");
 
-        htm.sH(1);
-        htm.sSpan(null, "style='font-family:prox-regular;'");
-        htm.sP("center", "style='font-size:31pt; margin:1px;'").addln("THE CENTER FOR").eP();
-        htm.sP("center", "style='font-size:33pt; margin:1px;'").addln("FOUNDATIONAL").eP();
-        htm.sP("center", "style='font-size:37pt; margin:1px;'").addln("MATHEMATICS").eP();
-        htm.eSpan();
-        htm.eH(1);
+        htm.sP().add("... TODO ...").eP();
 
-        htm.eDiv(); // fixed width
-        htm.eDiv(); // centered
+        htm.eDiv(); // inset
 
         PageUtilities.emitNavigationBar(htm);
 

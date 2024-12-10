@@ -83,7 +83,10 @@ public final class CfmSite extends AbstractSite {
             case "favicon.ico" -> serveImage(subpath, req, resp);
 
             case CoreConstants.EMPTY, "index.html" -> PageCfmIndex.showPage(cache, this, type, req, resp);
-            case "analytics.html" -> PageAnalytics.showPage(cache, this, type, req, resp);
+            case "info.html" -> PageInformation.showPage(cache, this, req, resp);
+            case "contact.html" -> PageContact.showPage(cache, this, req, resp);
+            case "analytics.html" -> PageAnalytics.showPage(cache, this, req, resp);
+            case "strategy.html" -> PageStrategy.showPage(cache, this, req, resp);
 
             case null, default -> {
                 resp.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
