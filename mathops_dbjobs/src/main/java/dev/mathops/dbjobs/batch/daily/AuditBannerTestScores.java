@@ -48,7 +48,7 @@ public final class AuditBannerTestScores {
     private static final String DIAGNOSE_STU = null;
 
     /** Date before which scores have already been audited. */
-    private static final LocalDate START_DATE = LocalDate.of(2024, Month.DECEMBER, 10);
+    private static final LocalDate START_DATE = LocalDate.of(2024, Month.DECEMBER, 11);
 
     /** A commonly used string. */
     private static final String ERROR = "ERROR: ";

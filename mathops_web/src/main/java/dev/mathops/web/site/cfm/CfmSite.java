@@ -22,7 +22,7 @@ import java.sql.SQLException;
 public final class CfmSite extends AbstractSite {
 
     /** An empty byte array. */
-    private static final byte[] ZERO_LEN_BYTE_ARR = new byte[0];
+    static final byte[] ZERO_LEN_BYTE_ARR = new byte[0];
 
     /**
      * Constructs a new {@code CfmSite}.
