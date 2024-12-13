@@ -985,7 +985,7 @@ enum SelfAssess {
                 "without completing the Math Placement Tool.");
         htm.div("vgap");
         emitDiv(htm, "Please note: <em style='color:red'><b>MATH 101</b>, <b>MATH 105</b>, <b>STAT 100</b>, ",
-                "<b>STAT 201</b>, and <b>STAT 204</b> do not satisfy the prerequisites for <b>MATH 117</b>.");
+                "<b>STAT 201</b>, and <b>STAT 204</b> do not satisfy the prerequisites for <b>MATH 117</b>.</em>");
         htm.eDiv(); // advice
 
         htm.eDiv(); // id=saR4NNY

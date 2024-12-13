@@ -203,7 +203,7 @@ enum PagePlacement {
                 .add("The Math Placement process identifies the mathematics course(s) ",
                         "that best match your mathematical preparation with your academic goals. We want ",
                         "to support you in being successful in this placement process.")
-                .eP()//
+                .eP()
                 .div("vgap0");
 
         htm.sP().add("The process has three steps...").eP();
