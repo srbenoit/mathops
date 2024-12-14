@@ -26,6 +26,12 @@ final class Res extends ResBundle {
     /** A resource key. */
     static final String DB_CONN_REG_ORA_FAIL = key(index++);
 
+    /** A resource key. */
+    static final String DB_CONN_REG_PG = key(index++);
+
+    /** A resource key. */
+    static final String DB_CONN_REG_PG_FAIL = key(index++);
+
     // Used by DbContext
 
     /** A resource key. */
@@ -49,6 +55,8 @@ final class Res extends ResBundle {
             {DB_CONN_REG_IFX_FAIL, "Failed to register Informix JDBC driver"},
             {DB_CONN_REG_ORA, "Registering Oracle JDBC driver"},
             {DB_CONN_REG_ORA_FAIL, "Failed to register Oracle JDBC driver"},
+            {DB_CONN_REG_PG, "Registering PostgreSQL JDBC driver"},
+            {DB_CONN_REG_PG_FAIL, "Failed to register PostgreSQL JDBC driver"},
 
             {DB_CTX_NULL_SCHEMA, "Null schema provided"},
             {DB_CTX_NULL_DRIVER, "Null driver configuration provided"},

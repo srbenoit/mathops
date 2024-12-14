@@ -31,6 +31,7 @@ dependencies {
 
     implementation("com.oracle.database.jdbc:ojdbc11:23.4.0.24.05")
     implementation("com.formdev:flatlaf:3.4")
+    implementation("org.postgresql:postgresql:42.7.4")
 
     testImplementation(platform("org.junit:junit-bom:5.11.0-M1"))
     testImplementation(platform("org.junit:junit-bom:5.11.0-M1"))

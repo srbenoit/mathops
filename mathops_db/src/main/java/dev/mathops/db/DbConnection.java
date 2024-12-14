@@ -86,6 +86,15 @@ public final class DbConnection {
                     Log.warning(msg2, ex);
                 }
 
+                try {
+                    final String msg = Res.get(Res.DB_CONN_REG_PG);
+                    Log.info(msg);
+                    Class.forName("org.postgresql.Driver");
+                } catch (final ClassNotFoundException ex) {
+                    final String msg2 = Res.get(Res.DB_CONN_REG_PG_FAIL);
+                    Log.warning(msg2, ex);
+                }
+
                 unregistered = false;
             }
         }
