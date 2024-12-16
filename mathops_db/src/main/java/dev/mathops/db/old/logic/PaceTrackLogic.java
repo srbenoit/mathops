@@ -16,7 +16,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.SequencedCollection;
 import java.util.TreeSet;
@@ -179,10 +178,10 @@ public enum PaceTrackLogic {
                     }
                 }
             } else if (pace == 2) {
-                // If a student in 2 courses has MATH 117, they are track A; otherwise track B
+                // If a student in 2 courses has MATH 125, they are track A; otherwise track B
                 track = "B";
                 for (final RawStcourse test : registrations) {
-                    if (RawRecordConstants.M117.equals(test.course) && isCountedTowardPace(test)) {
+                    if (RawRecordConstants.M125.equals(test.course) && isCountedTowardPace(test)) {
                         track = "A";
                         break;
                     }
@@ -192,35 +191,44 @@ public enum PaceTrackLogic {
             // In Fall/Spring, 002 is a "late-start" section: track C (only 1 or 2 course pace)
             track = "C";
         } else if ("003".equals(sect)) {
-            // An in-person section: either 116 + 117 + 118 with Will Bromley, or NEW 125 + NEW 126 with Alissa Romero
-            // For students without NEW 125 in their list, this will map to track D
-            // For students with NEW 125 in their list, this will map to track F
-            track = "D";
+            // An in-person section, one of the following:
+            //   116 + 117 or 116 + 117 + 118 (Track D)
+            //   125 or 125 + 126 (track F)
+            //   126 (track H)
+            boolean has125 = false;
+            boolean has126 = false;
             for (final RawStcourse test : registrations) {
-                if ((RawRecordConstants.MATH125.equals(test.course)
-                     || RawRecordConstants.MATH126.equals(test.course))
+                if (isCountedTowardPace(test)) {
+                    if (RawRecordConstants.M125.equals(test.course)) {
+                        has125 = true;
+                    } else if (RawRecordConstants.M126.equals(test.course)) {
+                        has126 = true;
+                    }
+                }
+            }
+            if (has126) {
+                track = has125 ? "F" : "H";
+            } else if (has125) {
+                track = "F";
+            } else {
+                track = "D";
+            }
+        } else if ("004".equals(sect)) {
+            // An in-person MATH 125 section (track F)
+            track = "F";
+        } else if ("005".equals(sect)) {
+            // An in-person section, one of the following:
+            //   116 + 117 or 116 + 117 + 118 (Track E)
+            //   125 or 125 + 126 (track F)
+            track = "E";
+            for (final RawStcourse test : registrations) {
+                if ((RawRecordConstants.M125.equals(test.course) || RawRecordConstants.M126.equals(test.course))
                     && isCountedTowardPace(test)) {
                     track = "F";
-                    break;
                 }
             }
-        } else if ("004".equals(sect) || "005".equals(sect)) {
-            // An in-person section: either 116 + 117 with Patrick Orchard, or NEW 125 with Parker Montfort
-            // For students without NEW 125 in their list, this will map to track E
-            // For students with NEW 125 in their list, this will map to track G
-            track = "E";
-            for (final RawStcourse test : registrations) {
-                if (RawRecordConstants.MATH125.equals(test.course)
-                    && isCountedTowardPace(test)) {
-                    track = "G";
-                    break;
-                }
-            }
-        } else if ("006".equals(sect) || "008".equals(sect)) {
-            // An in-person section: either 116 + 117 with Patrick Orchard, track is E
-            track = "E";
-        } else if ("007".equals(sect)) {
-            // An in-person section: either 116 + 117 with Will Bromley, track is D (changed to E on request)
+        } else if ("006".equals(sect)) {
+            // An in-person MATH 117 / 118 section (track E)
             track = "E";
         }
 

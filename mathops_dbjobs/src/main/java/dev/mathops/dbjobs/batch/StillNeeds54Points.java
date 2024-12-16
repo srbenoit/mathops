@@ -36,11 +36,11 @@ import java.util.Map;
  */
 final class StillNeeds54Points {
 
-    /** The date after the drop date for section 1. */
-    private static final LocalDate DAY_AFTER_DROP_SECT_1 = LocalDate.of(2024, 1, 22);
+    /** The date after the drop date for section 1 (day before census). */
+    private static final LocalDate DAY_AFTER_DROP_SECT_1 = LocalDate.of(2025, 2, 4);
 
-    /** The date after the drop date for section 2. */
-    private static final LocalDate DAY_AFTER_DROP_SECT_2 = LocalDate.of(2024, 3, 27);
+    /** The date after the drop date for section 2 (Wednesday of week 10). */
+    private static final LocalDate DAY_AFTER_DROP_SECT_2 = LocalDate.of(2025, 4, 2);
 
     /** The database profile through which to access the database. */
     private final DbProfile dbProfile;
