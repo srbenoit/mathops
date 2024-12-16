@@ -3,6 +3,7 @@ package dev.mathops.app.database.dbimport;
 import com.formdev.flatlaf.FlatLightLaf;
 import dev.mathops.commons.EPath;
 import dev.mathops.commons.PathList;
+import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.db.DbConnection;
@@ -17,11 +18,22 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import java.io.File;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.sql.Types;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -130,16 +142,145 @@ public final class DbImport implements Runnable {
 
             final String schemaName = schema == EDbUse.PROD ? "legacy"
                     : (schema == EDbUse.DEV ? "legacy_dev" : "legacy_test");
+            final String tablespaceName = schema == EDbUse.PROD ? "legacy_tbl"
+                    : (schema == EDbUse.DEV ? "legacy_dvl" : "test");
 
             if (isSchemaEmpty(conn, schemaName)) {
                 Log.info("Schema is empty - proceeding with import");
-
-                // TODO:
+                performImport(conn, schemaName, tablespaceName);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             final String[] msg = {"Unable to connect to PostgreSQL database:", ex.getMessage()};
             JOptionPane.showMessageDialog(null, msg, "Import Database", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    /**
+     * Performs the import.
+     *
+     * @param conn           the database connection
+     * @param schemaName     the schema name
+     * @param tablespaceName the tablespace name
+     */
+    private void performImport(final Connection conn, final String schemaName, final String tablespaceName) {
+
+        boolean ok = true;
+
+        for (final TableDefinition table : this.data.tables) {
+            final String createSql = table.makeCreateSql(schemaName, tablespaceName);
+            Log.fine(createSql);
+
+            try (final Statement statement = conn.createStatement()) {
+                statement.executeUpdate(createSql);
+            } catch (final SQLException ex) {
+                Log.warning(ex);
+                final String[] msg = {"Unable to create '" + table.tableName + "' table", ex.getMessage()};
+                JOptionPane.showMessageDialog(null, msg, "Import Database", JOptionPane.ERROR_MESSAGE);
+                ok = false;
+                break;
+            }
+        }
+
+        if (ok) {
+            for (final Map.Entry<String, String> entry : this.data.synonyms.entrySet()) {
+                final String viewName = entry.getKey();
+                final String tableName = entry.getValue();
+
+                final String createSql = SimpleBuilder.concat("CREATE VIEW ", schemaName, ".", viewName,
+                        " AS SELECT * FROM ", schemaName, ".", tableName, ";");
+                Log.fine(createSql);
+
+                try (final Statement statement = conn.createStatement()) {
+                    statement.executeUpdate(createSql);
+                } catch (final SQLException ex) {
+                    Log.warning(ex);
+                    final String[] msg = {"Unable to create '" + viewName + "' view", ex.getMessage()};
+                    JOptionPane.showMessageDialog(null, msg, "Import Database", JOptionPane.ERROR_MESSAGE);
+                    ok = false;
+                    break;
+                }
+            }
+        }
+
+        if (ok) {
+            for (final IndexDefinition index : this.data.indexes) {
+                final String createSql = index.makeCreateSql(schemaName);
+                Log.fine(createSql);
+
+                try (final Statement statement = conn.createStatement()) {
+                    statement.executeUpdate(createSql);
+                } catch (final SQLException ex) {
+                    Log.warning(ex);
+                    final String[] msg = {"Unable to create '" + index.tableName + "' index", ex.getMessage()};
+                    JOptionPane.showMessageDialog(null, msg, "Import Database", JOptionPane.ERROR_MESSAGE);
+                    ok = false;
+                    break;
+                }
+            }
+        }
+
+        if (ok) {
+            for (final UniqueIndexDefinition index : this.data.uniqueIndexes) {
+                final String createSql = index.makeCreateSql(schemaName);
+                Log.fine(createSql);
+
+                try (final Statement statement = conn.createStatement()) {
+                    statement.executeUpdate(createSql);
+                } catch (final SQLException ex) {
+                    Log.warning(ex);
+                    final String[] msg = {"Unable to create '" + index.tableName + "' unique index", ex.getMessage()};
+                    JOptionPane.showMessageDialog(null, msg, "Import Database", JOptionPane.ERROR_MESSAGE);
+                    ok = false;
+                    break;
+                }
+            }
+        }
+
+        if (ok) {
+            for (final TableDefinition table : this.data.tables) {
+                final String insertSql = table.makeInsertPreparedStatementSql(schemaName);
+                Log.fine(insertSql);
+
+                try (final PreparedStatement statement = conn.prepareStatement(insertSql)) {
+
+                    final int numRows = table.data.size();
+                    for (int i = 0; i < numRows; ++i) {
+                        final Object[] values = table.data.get(i);
+                        final FieldDefinition field = table.fields.get(i);
+
+                        for (final Object value : values) {
+                            if (value == null) {
+                                statement.setNull(i + 1, field.type);
+                            } else if (value instanceof final Integer integerValue) {
+                                final int primitive = integerValue.intValue();
+                                statement.setInt(i + 1, primitive);
+                            } else if (value instanceof final Long longValue) {
+                                final long primitive = longValue.longValue();
+                                statement.setLong(i + 1, primitive);
+                            } else if (value instanceof final Double doubleValue) {
+                                final double primitive = doubleValue.doubleValue();
+                                statement.setDouble(i + 1, primitive);
+                            } else if (value instanceof final LocalDate dateValue) {
+                                final Date sqlDate = Date.valueOf(dateValue);
+                                statement.setDate(i + 1, sqlDate);
+                            } else if (value instanceof final LocalDateTime dateTimeValue) {
+                                final Timestamp sqlTimestamp = Timestamp.valueOf(dateTimeValue);
+                                statement.setTimestamp(i + 1, sqlTimestamp);
+                            } else if (value instanceof final String stringValue) {
+                                statement.setString(i + 1, stringValue);
+                            }
+                        }
+
+                        statement.executeUpdate();
+                    }
+                } catch (final SQLException ex) {
+                    Log.warning(ex);
+                    final String[] msg = {"Unable to insert record into " + table.tableName, ex.getMessage()};
+                    JOptionPane.showMessageDialog(null, msg, "Import Database", JOptionPane.ERROR_MESSAGE);
+                    break;
+                }
+            }
         }
     }
 
