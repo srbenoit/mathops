@@ -77,10 +77,10 @@ import java.util.TreeMap;
  * In fact, running the batch twice is healthy to ensure it reports 0 rows needing to be transferred
  * on the second run.
  */
-final class TransferPlacementDevtoProd {
+final class TransferPlacementDevToProd {
 
-    // SM24: Switch to DEV happened on August 5 at 7:05 AM
-    private static final LocalDateTime CUTOVER_DATETIME = LocalDateTime.of(2024, 8, 5, 7, 5);
+    // The date/time Placement was switched over to DEV
+    private static final LocalDateTime CUTOVER_DATETIME = LocalDateTime.of(2024, 12, 11, 8, 29);
 
     /** Debug flag - true to print but do no actual transfer of data; false to transfer data. */
     private static final boolean DEBUG = true;
@@ -114,7 +114,7 @@ final class TransferPlacementDevtoProd {
      *
      * @param theSince the date/time PROD was coped to DEV at the start of the process
      */
-    private TransferPlacementDevtoProd(final LocalDateTime theSince) {
+    private TransferPlacementDevToProd(final LocalDateTime theSince) {
 
         final ContextMap map = ContextMap.getDefaultInstance();
 
@@ -2016,7 +2016,7 @@ final class TransferPlacementDevtoProd {
      */
     public static void main(final String... args) {
 
-        final TransferPlacementDevtoProd job = new TransferPlacementDevtoProd(CUTOVER_DATETIME);
+        final TransferPlacementDevToProd job = new TransferPlacementDevToProd(CUTOVER_DATETIME);
 
         Log.fine(job.execute());
     }

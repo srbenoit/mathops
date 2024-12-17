@@ -24,15 +24,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.sql.Types;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -142,12 +137,10 @@ public final class DbImport implements Runnable {
 
             final String schemaName = schema == EDbUse.PROD ? "legacy"
                     : (schema == EDbUse.DEV ? "legacy_dev" : "legacy_test");
-            final String tablespaceName = schema == EDbUse.PROD ? "legacy_tbl"
-                    : (schema == EDbUse.DEV ? "legacy_dvl" : "test");
 
             if (isSchemaEmpty(conn, schemaName)) {
                 Log.info("Schema is empty - proceeding with import");
-                performImport(conn, schemaName, tablespaceName);
+                performImport(conn, schemaName);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
@@ -159,16 +152,15 @@ public final class DbImport implements Runnable {
     /**
      * Performs the import.
      *
-     * @param conn           the database connection
-     * @param schemaName     the schema name
-     * @param tablespaceName the tablespace name
+     * @param conn       the database connection
+     * @param schemaName the schema name
      */
-    private void performImport(final Connection conn, final String schemaName, final String tablespaceName) {
+    private void performImport(final Connection conn, final String schemaName) {
 
         boolean ok = true;
 
         for (final TableDefinition table : this.data.tables) {
-            final String createSql = table.makeCreateSql(schemaName, tablespaceName);
+            final String createSql = table.makeCreateSql(schemaName);
             Log.fine(createSql);
 
             try (final Statement statement = conn.createStatement()) {
@@ -249,27 +241,38 @@ public final class DbImport implements Runnable {
                         final Object[] values = table.data.get(i);
                         final FieldDefinition field = table.fields.get(i);
 
+                        int index = 1;
                         for (final Object value : values) {
-                            if (value == null) {
-                                statement.setNull(i + 1, field.type);
-                            } else if (value instanceof final Integer integerValue) {
-                                final int primitive = integerValue.intValue();
-                                statement.setInt(i + 1, primitive);
-                            } else if (value instanceof final Long longValue) {
-                                final long primitive = longValue.longValue();
-                                statement.setLong(i + 1, primitive);
-                            } else if (value instanceof final Double doubleValue) {
-                                final double primitive = doubleValue.doubleValue();
-                                statement.setDouble(i + 1, primitive);
-                            } else if (value instanceof final LocalDate dateValue) {
-                                final Date sqlDate = Date.valueOf(dateValue);
-                                statement.setDate(i + 1, sqlDate);
-                            } else if (value instanceof final LocalDateTime dateTimeValue) {
-                                final Timestamp sqlTimestamp = Timestamp.valueOf(dateTimeValue);
-                                statement.setTimestamp(i + 1, sqlTimestamp);
-                            } else if (value instanceof final String stringValue) {
-                                statement.setString(i + 1, stringValue);
+                            switch (value) {
+                                case null -> statement.setNull(index, field.type);
+                                case final Integer integerValue -> {
+                                    final int primitive = integerValue.intValue();
+                                    statement.setInt(index, primitive);
+                                }
+                                case final Long longValue -> {
+                                    final long primitive = longValue.longValue();
+                                    statement.setLong(index, primitive);
+                                }
+                                case final Double doubleValue -> {
+                                    final double primitive = doubleValue.doubleValue();
+                                    statement.setDouble(index, primitive);
+                                }
+                                case final LocalDate dateValue -> {
+                                    final Date sqlDate = Date.valueOf(dateValue);
+                                    statement.setDate(index, sqlDate);
+                                }
+                                case final LocalDateTime dateTimeValue -> {
+                                    final Timestamp sqlTimestamp = Timestamp.valueOf(dateTimeValue);
+                                    statement.setTimestamp(index, sqlTimestamp);
+                                }
+                                case final String stringValue -> statement.setString(index, stringValue);
+                                default -> {
+                                    final String valueClassName = value.getClass().getName();
+                                    Log.warning("Unexpected object type: ", valueClassName);
+                                }
                             }
+
+                            ++index;
                         }
 
                         statement.executeUpdate();

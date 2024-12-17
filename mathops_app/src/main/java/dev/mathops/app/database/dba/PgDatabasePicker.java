@@ -1,9 +1,9 @@
-package dev.mathops.app.database.dbimport;
+package dev.mathops.app.database.dba;
 
+import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.old.cfg.DbConfig;
-import dev.mathops.db.old.cfg.EDbUse;
 import dev.mathops.db.old.cfg.LoginConfig;
 import dev.mathops.db.old.cfg.ServerConfig;
 
@@ -13,12 +13,15 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -46,14 +49,8 @@ final class PgDatabasePicker extends JFrame implements ActionListener {
     /** An action command. */
     private static final String CANCEL_CMD = "CANCEL";
 
-    /** An action command. */
-    private static final String[] PROD_DEV_TEST = {"Production", "Development", "Test"};
-
     /** The list of servers. */
     private final List<ServerConfig> servers;
-
-    /** The {@code DbImport} process to invoke when the user makes a selection. */
-    private final DbImport callback;
 
     /** The server picker. */
     private final JComboBox<ServerConfig> serverPicker;
@@ -70,24 +67,22 @@ final class PgDatabasePicker extends JFrame implements ActionListener {
     /** The login picker. */
     private final JComboBox<String> loginPicker;
 
-    /** The PROD/DEV/TEST picker. */
-    private final JComboBox<String> schemaPicker;
-
     /** The "OK" button. */
     private final JButton okButton;
+
+    /** The "Cancel" button. */
+    private final JButton cancelButton;
 
     /**
      * Constructs a new {@code PgDatabasePicker}.  This should be called on the AWT event thread.
      *
-     * @param theServers  the list of servers
-     * @param theCallback the {@code DbImport} process to invoke when the user makes a selection
+     * @param theServers the list of servers
      */
-    PgDatabasePicker(final List<ServerConfig> theServers, final DbImport theCallback) {
+    PgDatabasePicker(final List<ServerConfig> theServers) {
 
         super("Select PostgreSQL Database");
 
         this.servers = theServers;
-        this.callback = theCallback;
 
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setResizable(false);
@@ -97,7 +92,7 @@ final class PgDatabasePicker extends JFrame implements ActionListener {
         content.setBorder(emptyBorder);
         setContentPane(content);
 
-        final JLabel title = new JLabel("Choose a PostgreSQL database into which to import:   ");
+        final JLabel title = new JLabel("Choose a PostgreSQL database to administer:   ");
         final Border padding = BorderFactory.createEmptyBorder(0, 0, 6, 0);
         title.setBorder(padding);
         final Font font = title.getFont();
@@ -106,21 +101,17 @@ final class PgDatabasePicker extends JFrame implements ActionListener {
         title.setFont(larger);
         content.add(title, StackedBorderLayout.NORTH);
 
-        final JLabel[] labels = {new JLabel("Server:"), new JLabel("Database:"), new JLabel("Login:"),
-                new JLabel("Schema:")};
+        final JLabel[] labels = {new JLabel("Server:"), new JLabel("Database:"), new JLabel("Login:")};
         UIUtilities.makeLabelsSameSizeRightAligned(labels);
 
         final ServerConfig[] serverArray = theServers.toArray(ZERO_LEN_SERVER_CONFIG_ARRAY);
         this.serverPicker = new JComboBox<>(serverArray);
-        this.serverPicker.setActionCommand(SERVER_CMD);
 
         this.databaseModel = new DefaultComboBoxModel<>();
         this.databasePicker = new JComboBox<>(this.databaseModel);
-        this.databasePicker.setActionCommand(DB_CMD);
 
         this.loginModel = new DefaultComboBoxModel<>();
         this.loginPicker = new JComboBox<>(this.loginModel);
-        this.loginPicker.setActionCommand(LOGIN_CMD);
 
         final JPanel row1 = new JPanel(new FlowLayout(FlowLayout.LEADING, 6, 6));
         row1.add(labels[0]);
@@ -137,29 +128,32 @@ final class PgDatabasePicker extends JFrame implements ActionListener {
         row3.add(this.loginPicker);
         content.add(row3, StackedBorderLayout.NORTH);
 
-        this.schemaPicker = new JComboBox<>(PROD_DEV_TEST);
-        this.schemaPicker.setSelectedIndex(1);
-
-        final JPanel row4 = new JPanel(new FlowLayout(FlowLayout.LEADING, 6, 6));
-        row4.add(labels[3]);
-        row4.add(this.schemaPicker);
-        content.add(row4, StackedBorderLayout.NORTH);
-
         this.okButton = new JButton("Ok");
-        this.okButton.setActionCommand(OK_CMD);
-        final JButton cancelButton = new JButton("Cancel");
-        cancelButton.setActionCommand(CANCEL_CMD);
+        this.cancelButton = new JButton("Cancel");
 
         final JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         buttons.add(this.okButton);
-        buttons.add(cancelButton);
+        buttons.add(this.cancelButton);
         content.add(buttons, StackedBorderLayout.NORTH);
+    }
+
+    /**
+     * Initializes the picker.  This is separated from the constructor because it leaks references to this object which
+     * is not completely constructed during the constructor.
+     */
+    void init() {
+
+        this.serverPicker.setActionCommand(SERVER_CMD);
+        this.databasePicker.setActionCommand(DB_CMD);
+        this.loginPicker.setActionCommand(LOGIN_CMD);
+        this.okButton.setActionCommand(OK_CMD);
+        this.cancelButton.setActionCommand(CANCEL_CMD);
 
         this.serverPicker.addActionListener(this);
         this.databasePicker.addActionListener(this);
         this.loginPicker.addActionListener(this);
         this.okButton.addActionListener(this);
-        cancelButton.addActionListener(this);
+        this.cancelButton.addActionListener(this);
 
         if (this.servers.size() == 1) {
             final ServerConfig first = this.servers.getFirst();
@@ -189,10 +183,18 @@ final class PgDatabasePicker extends JFrame implements ActionListener {
                 final DbConfig db = server.getDatabases().get(dbIndex);
                 final LoginConfig login = db.getLogins().get(loginIndex);
 
-                final int whichSchema = this.schemaPicker.getSelectedIndex();
-                final EDbUse use = whichSchema == 0 ? EDbUse.PROD : (whichSchema == 1 ? EDbUse.DEV : EDbUse.TEST);
+                try (final Connection conn = login.openConnection()) {
+                    Log.info("Connected to PostgreSQL.");
+                    final MainWindow main = new MainWindow(conn);
+                    main.init();
+                    UIUtilities.packAndCenter(main);
+                    main.setVisible(true);
+                } catch (final SQLException ex) {
+                    Log.warning(ex);
+                    final String[] msg = {"Unable to connect to PostgreSQL database:", ex.getMessage()};
+                    JOptionPane.showMessageDialog(null, msg, "Import Database", JOptionPane.ERROR_MESSAGE);
+                }
 
-                this.callback.databaseSelected(login, use);
                 setVisible(false);
                 dispose();
             } else {

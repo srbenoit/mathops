@@ -95,7 +95,7 @@ final class IndexDefinition {
                 builder.add(",", name);
             }
         }
-        builder.addln(") TABLESPACE legacy_idx;");
+        builder.addln(") TABLESPACE primary_ts;");
 
         return builder.toString();
     }

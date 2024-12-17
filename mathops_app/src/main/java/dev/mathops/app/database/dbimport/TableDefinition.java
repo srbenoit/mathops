@@ -2,13 +2,8 @@ package dev.mathops.app.database.dbimport;
 
 import dev.mathops.commons.builder.HtmlBuilder;
 
-import java.sql.Types;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * A table definition, as interpreted from the SQL file of an export.
@@ -28,7 +23,7 @@ final class TableDefinition {
     final List<FieldDefinition> fields;
 
     /** The length of the longest field name. */
-    int maxFieldNameLen;
+    private int maxFieldNameLen = 0;
 
     /** The table data (one entry for each row). */
     final List<Object[]> data;
@@ -68,8 +63,7 @@ final class TableDefinition {
      * @param lineNumber the line number in the unload file, for error reporting
      * @throws IllegalArgumentException if the row line could not be interpreted
      */
-    void addRow(final String rowLine, final int delimiter, final int lineNumber)
-            throws IllegalArgumentException {
+    void addRow(final String rowLine, final int delimiter, final int lineNumber) throws IllegalArgumentException {
 
         final int numFields = this.fields.size();
         final Object[] values = new Object[numFields];
@@ -78,8 +72,7 @@ final class TableDefinition {
         int fieldStart = 0;
         int onField = 0;
 
-        int pos = 0;
-        for (pos = 0; pos < lineLen; ++pos) {
+        for (int pos = 0; pos < lineLen; ++pos) {
             if ((int) rowLine.charAt(pos) == delimiter) {
                 if (onField == numFields) {
                     throw new IllegalArgumentException("Table has " + numFields + " field definitions, but line "
@@ -109,28 +102,36 @@ final class TableDefinition {
     /**
      * Generates an SQL statement to create the table.
      *
-     * @param schemaName     the schema name
-     * @param tablespaceName the tablespace name
+     * @param schemaName the schema name
      * @return the SQL statement
      */
-    String makeCreateSql(final String schemaName, final String tablespaceName) {
+    String makeCreateSql(final String schemaName) {
 
         final HtmlBuilder builder = new HtmlBuilder(100);
 
-        builder.addln("CREATE TABLE ", schemaName, ".", this.tableName, " (");
         final int numFields = this.fields.size();
-        if (numFields > 0) {
+        final List<FieldDefinition> actualFields = new ArrayList<>(numFields);
+        for (final FieldDefinition def : this.fields) {
+            if ("desc".equals(def.fieldName)) {
+                continue;
+            }
+            actualFields.add(def);
+        }
+        final int numActual = actualFields.size();
+
+        builder.addln("CREATE TABLE ", schemaName, ".", this.tableName, " (");
+        if (numActual > 0) {
             builder.add("  ");
-            final FieldDefinition first = this.fields.getFirst();
+            final FieldDefinition first = actualFields.getFirst();
             first.appendCreateSql(builder, this.maxFieldNameLen);
 
-            for (int i = 1; i < numFields; ++i) {
+            for (int i = 1; i < numActual; ++i) {
                 builder.addln(",").add("  ");
-                final FieldDefinition field = this.fields.get(i);
+                final FieldDefinition field = actualFields.get(i);
                 field.appendCreateSql(builder, this.maxFieldNameLen);
             }
         }
-        builder.addln().addln(") TABLESPACE ", tablespaceName, ";");
+        builder.addln().addln(") TABLESPACE primary_ts;");
 
         return builder.toString();
     }
@@ -145,24 +146,31 @@ final class TableDefinition {
 
         final HtmlBuilder builder = new HtmlBuilder(100);
 
-        builder.addln("INSERT INTO ", schemaName, ".", this.tableName);
+        builder.addln("INSERT INTO ", schemaName, ".", this.tableName, " (");
 
-        final int numFields = this.fields.size();
-        if (numFields > 0) {
-            final FieldDefinition first = this.fields.getFirst();
-            builder.add("  (", first.fieldName);
-
-            for (int i = 1; i < numFields; ++i) {
-                final FieldDefinition field = this.fields.get(i);
-                builder.add(",", field.fieldName);
+        boolean comma1 = false;
+        for (final FieldDefinition field : this.fields) {
+            if ("desc".equals(field.fieldName)) {
+                continue;
             }
+            if (comma1) {
+                builder.add(",");
+            }
+            builder.add(field.fieldName);
+            comma1 = true;
         }
         builder.addln(")").add("  VALUES (");
-        if (numFields > 0) {
-            builder.add("?");
-            for (int i = 1; i < numFields; ++i) {
-                builder.add(",?");
+
+        boolean comma2 = false;
+        for (final FieldDefinition field : this.fields) {
+            if ("desc".equals(field.fieldName)) {
+                continue;
             }
+            if (comma2) {
+                builder.add(",");
+            }
+            builder.add("?");
+            comma2 = true;
         }
         builder.addln(");");
 
