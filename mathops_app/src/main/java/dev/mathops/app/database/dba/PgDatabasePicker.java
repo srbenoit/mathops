@@ -183,17 +183,10 @@ final class PgDatabasePicker extends JFrame implements ActionListener {
                 final DbConfig db = server.getDatabases().get(dbIndex);
                 final LoginConfig login = db.getLogins().get(loginIndex);
 
-                try (final Connection conn = login.openConnection()) {
-                    Log.info("Connected to PostgreSQL.");
-                    final MainWindow main = new MainWindow(conn);
-                    main.init();
-                    UIUtilities.packAndCenter(main);
-                    main.setVisible(true);
-                } catch (final SQLException ex) {
-                    Log.warning(ex);
-                    final String[] msg = {"Unable to connect to PostgreSQL database:", ex.getMessage()};
-                    JOptionPane.showMessageDialog(null, msg, "Import Database", JOptionPane.ERROR_MESSAGE);
-                }
+                final MainWindow main = new MainWindow(login);
+                main.init();
+                UIUtilities.packAndCenter(main);
+                main.setVisible(true);
 
                 setVisible(false);
                 dispose();
