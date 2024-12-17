@@ -5,6 +5,7 @@ import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.old.cfg.LoginConfig;
 
 import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.sql.Connection;
 import java.sql.SQLException;
 import javax.swing.BorderFactory;
@@ -41,7 +42,14 @@ final class MainWindow extends JFrame {
         this.content = new JPanel(new StackedBorderLayout());
         final Border padding = BorderFactory.createEmptyBorder(1, 2, 1, 2);
         this.content.setBorder(padding);
-        this.content.setPreferredSize(new Dimension(1024, 768));
+
+        final Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+        final int minWidth = Math.max(1024, screen.width / 3);
+        final int w = Math.min(screen.width, minWidth);
+        final int minHeight = Math.max(768, screen.height / 2);
+        final int h = Math.min(screen.height, minHeight);
+        setPreferredSize(new Dimension(w, h));
+
         setContentPane(this.content);
     }
 
@@ -72,5 +80,44 @@ final class MainWindow extends JFrame {
                 JOptionPane.showMessageDialog(null, msg, "Import Database", JOptionPane.ERROR_MESSAGE);
             }
         }
+    }
+
+    /**
+     * Clears the display when no display-worthy item is selected in the tree view.
+     */
+    void clearDisplay() {
+
+    }
+
+    /**
+     * Called when a schema is selected in the tree view.
+     *
+     * @param schemaName the schema name
+     */
+    void schemaSelected(final String schemaName) {
+
+        Log.info("Selected schema ", schemaName);
+    }
+
+    /**
+     * Called when a table is selected in the tree view.
+     *
+     * @param schemaName the schema name
+     * @param tableName  the table name
+     */
+    void tableSelected(final String schemaName, final String tableName) {
+
+        Log.info("Selected table: ", tableName, " in schema ", schemaName);
+    }
+
+    /**
+     * Called when a view is selected in the tree view.
+     *
+     * @param schemaName the schema name
+     * @param viewName   the view name
+     */
+    void viewSelected(final String schemaName, final String viewName) {
+
+        Log.info("Selected view: ", viewName, " in schema ", schemaName);
     }
 }

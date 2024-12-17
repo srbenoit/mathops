@@ -5,6 +5,7 @@ import dev.mathops.commons.ui.layout.StackedBorderLayout;
 
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
@@ -12,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,10 +23,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
+import javax.swing.border.Border;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -37,9 +41,6 @@ final class ObjectTreePanel extends JPanel implements ActionListener, TreeSelect
 
     /** The owning {@code MainWindow}. */
     private final MainWindow owner;
-
-    /** The tree model. */
-    private final DefaultTreeModel treeModel;
 
     /** The node that holds schemas. */
     private final DefaultMutableTreeNode schemas;
@@ -59,8 +60,15 @@ final class ObjectTreePanel extends JPanel implements ActionListener, TreeSelect
 
         super(new StackedBorderLayout());
 
-        setBorder(BorderFactory.createEtchedBorder());
-        setPreferredSize(new Dimension(240, 768));
+        final Border etchedBorder = BorderFactory.createEtchedBorder();
+        setBorder(etchedBorder);
+
+        final Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+        final int minWidth = Math.max(250, screen.width / 12);
+        final int w = Math.min(screen.width, minWidth);
+        final int minHeight = Math.max(700, screen.height / 2);
+        final int h = Math.min(screen.height, minHeight);
+        setPreferredSize(new Dimension(w, h));
 
         this.owner = theOwner;
 
@@ -69,9 +77,9 @@ final class ObjectTreePanel extends JPanel implements ActionListener, TreeSelect
 
         root.add(this.schemas);
 
-        this.treeModel = new DefaultTreeModel(root);
+        final DefaultTreeModel treeModel = new DefaultTreeModel(root);
 
-        this.tree = new JTree(this.treeModel);
+        this.tree = new JTree(treeModel);
         this.tree.setRootVisible(false);
         this.tree.setShowsRootHandles(true);
         this.tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
@@ -166,8 +174,8 @@ final class ObjectTreePanel extends JPanel implements ActionListener, TreeSelect
      * @return a map from schema name to the list of tables found within that schema
      * @throws SQLException if there is an error querying the list of tables
      */
-    private Map<String, List<String>> queryTables(final Statement statement, final List<String> schemaNames)
-            throws SQLException {
+    private static Map<String, List<String>> queryTables(final Statement statement,
+                                                         final Collection<String> schemaNames) throws SQLException {
 
         final int numSchemas = schemaNames.size();
         final Map<String, List<String>> tableMap = new HashMap<>(numSchemas);
@@ -199,7 +207,7 @@ final class ObjectTreePanel extends JPanel implements ActionListener, TreeSelect
      * @return a map from schema name to the list of views found within that schema
      * @throws SQLException if there is an error querying the list of views
      */
-    private Map<String, List<String>> queryViews(final Statement statement, final List<String> schemaNames)
+    private static Map<String, List<String>> queryViews(final Statement statement, final Collection<String> schemaNames)
             throws SQLException {
 
         final int numSchemas = schemaNames.size();
@@ -308,7 +316,7 @@ final class ObjectTreePanel extends JPanel implements ActionListener, TreeSelect
      * @param tableNames the list of tables currently in the schema
      * @param tablesNode the tables node with the old list of tables (to be updated)
      */
-    private void populateTables(final List<String> tableNames, final DefaultMutableTreeNode tablesNode) {
+    private static void populateTables(final Iterable<String> tableNames, final MutableTreeNode tablesNode) {
 
         final int numExistingTables = tablesNode.getChildCount();
         final Map<String, DefaultMutableTreeNode> existingTableNodes = new HashMap<>(numExistingTables);
@@ -354,7 +362,7 @@ final class ObjectTreePanel extends JPanel implements ActionListener, TreeSelect
      * @param viewNames the list of views currently in the schema
      * @param viewNode  the views node with the old list of tables (to be updated)
      */
-    private void populateViews(final List<String> viewNames, final DefaultMutableTreeNode viewNode) {
+    private static void populateViews(final Iterable<String> viewNames, final MutableTreeNode viewNode) {
 
         final int numExistingViews = viewNode.getChildCount();
         final Map<String, DefaultMutableTreeNode> existingViewNodes = new HashMap<>(numExistingViews);
@@ -414,7 +422,29 @@ final class ObjectTreePanel extends JPanel implements ActionListener, TreeSelect
     public void valueChanged(final TreeSelectionEvent e) {
 
         final TreePath selection = this.tree.getSelectionPath();
+        if (selection == null) {
+            this.owner.clearDisplay();
+        } else {
+            final Object[] path = selection.getPath();
 
-        Log.info("Selection is ", selection);
+            if (path.length == 3) {
+                final String schemaName = path[2].toString();
+                this.owner.schemaSelected(schemaName);
+            } else if (path.length == 5) {
+                final String schemaName = path[2].toString();
+                final String which = path[3].toString();
+                final String name = path[4].toString();
+
+                if ("Tables".equals(which)) {
+                    this.owner.tableSelected(schemaName, name);
+                } else if ("Views".equals(which)) {
+                    this.owner.viewSelected(schemaName, name);
+                } else {
+                    this.owner.clearDisplay();
+                }
+            } else {
+                this.owner.clearDisplay();
+            }
+        }
     }
 }
