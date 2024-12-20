@@ -26,6 +26,18 @@ final class MainWindow extends JFrame {
     /** The object tree panel. */
     private ObjectTreePanel objectTree = null;
 
+    /** The panel currently being displayed. */
+    private JPanel currentPanel;
+
+    /** The schema panel. */
+    private SchemaPanel schemaPanel;
+
+    /** The table panel. */
+    private TablePanel tablePanel;
+
+    /** The view panel. */
+    private ViewPanel viewPanel;
+
     /**
      * Constructs a new {@code MainWindow}.
      *
@@ -51,6 +63,10 @@ final class MainWindow extends JFrame {
         setPreferredSize(new Dimension(w, h));
 
         setContentPane(this.content);
+
+        this.schemaPanel = new SchemaPanel();
+        this.tablePanel = new TablePanel();
+        this.viewPanel = new ViewPanel();
     }
 
     /**
@@ -87,6 +103,10 @@ final class MainWindow extends JFrame {
      */
     void clearDisplay() {
 
+        if (this.currentPanel != null) {
+            this.content.remove(this.currentPanel);
+            this.currentPanel = null;
+        }
     }
 
     /**
@@ -97,6 +117,15 @@ final class MainWindow extends JFrame {
     void schemaSelected(final String schemaName) {
 
         Log.info("Selected schema ", schemaName);
+
+        clearDisplay();
+
+        this.schemaPanel.setSchema(schemaName);
+        this.content.add(this.schemaPanel, StackedBorderLayout.CENTER);
+        this.currentPanel = this.schemaPanel;
+        this.content.invalidate();
+        this.content.revalidate();
+        this.content.repaint();
     }
 
     /**
@@ -108,6 +137,15 @@ final class MainWindow extends JFrame {
     void tableSelected(final String schemaName, final String tableName) {
 
         Log.info("Selected table: ", tableName, " in schema ", schemaName);
+
+        clearDisplay();
+
+        this.tablePanel.setTable(schemaName, tableName);
+        this.content.add(this.tablePanel, StackedBorderLayout.CENTER);
+        this.currentPanel = this.tablePanel;
+        this.content.invalidate();
+        this.content.revalidate();
+        this.content.repaint();
     }
 
     /**
@@ -119,5 +157,14 @@ final class MainWindow extends JFrame {
     void viewSelected(final String schemaName, final String viewName) {
 
         Log.info("Selected view: ", viewName, " in schema ", schemaName);
+
+        clearDisplay();
+
+        this.viewPanel.setView(schemaName, viewName);
+        this.content.add(this.viewPanel, StackedBorderLayout.CENTER);
+        this.currentPanel = this.viewPanel;
+        this.content.invalidate();
+        this.content.revalidate();
+        this.content.repaint();
     }
 }

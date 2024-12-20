@@ -1,5 +1,6 @@
 package dev.mathops.app.database.dba;
 
+import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.db.DbConnection;
@@ -59,7 +60,10 @@ public final class DatabaseAdmin implements Runnable {
      */
     public static void main(final String... args) {
 
-        FlatLightLaf.setup();
+//        FlatLightLaf.setup();
+        FlatDarkLaf.setup();
+
         SwingUtilities.invokeLater(new DatabaseAdmin());
     }
 }
+
