@@ -33,9 +33,9 @@ final class SpurFirstYearSpring {
      */
     private static void runSimulation() {
 
-        final List<Course> immutableCourses = Arrays.asList(SpurCourses.SEMINAR, SpurCourses.CO150,
-                SpurCourses.SOC220, SpurCourses.LIFE103, SpurCourses.CHEM111, SpurCourses.MIP101, SpurCourses.IDEA210,
-                SpurCourses.CS201, SpurCourses.HISTORY, SpurCourses.IU173, SpurCourses.IU174);
+        final List<Course> immutableCourses = Arrays.asList(SpurCourses.MATH160, SpurCourses.IU174, SpurCourses.SOC220,
+                SpurCourses.LIFE103, SpurCourses.CHEM111, SpurCourses.IDEA210, SpurCourses.CS201, SpurCourses.HIST15X,
+                SpurCourses.AMST101, SpurCourses.ETST253, SpurCourses.ETST240, SpurCourses.KEY192A);
         final List<Course> courses = new ArrayList<>(immutableCourses);
 
         final List<RoomSchedule> rooms = List.of(SpurRooms.CLASSROOM_1, SpurRooms.CLASSROOM_2, SpurRooms.LAB_1);
