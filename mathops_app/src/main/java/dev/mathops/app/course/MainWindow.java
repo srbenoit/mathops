@@ -19,11 +19,20 @@ public final class MainWindow extends JFrame {
     /** The course directory. */
     private final File courseDir;
 
+    /** The content pane. */
+    private final JPanel content;
+
     /** The status bar. */
     private final StatusBarPanel statusBar;
 
     /** The topics list panel */
     private final TopicListsPanel topicsList;
+
+    /** The topic panel. */
+    private final TopicPanel topic;
+
+    /** The currently-displaying topic panel. */
+    private TopicPanel displaying;
 
     /**
      * Constructs a new {@code MainWindow}.
@@ -42,25 +51,85 @@ public final class MainWindow extends JFrame {
 
         final Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
         final Dimension size = new Dimension(screen.width / 2, screen.height * 2 / 3);
-        final JPanel content = new JPanel(new StackedBorderLayout());
-        content.setPreferredSize(size);
-        setContentPane(content);
+        this.content = new JPanel(new StackedBorderLayout());
+        this.content.setPreferredSize(size);
+        setContentPane(this.content);
 
         final Color bg = getBackground();
         final int level = bg.getRed() + bg.getGreen() + bg.getBlue();
         final Color lineColor = level < 384 ? bg.brighter() : bg.darker();
 
         final Border topLine = BorderFactory.createMatteBorder(1, 0, 0, 0, lineColor);
-        content.setBorder(topLine);
+        this.content.setBorder(topLine);
 
         // Status bar along the bottom to display status information and messages
         this.statusBar = new StatusBarPanel(size);
-        content.add(this.statusBar, StackedBorderLayout.SOUTH);
+        this.content.add(this.statusBar, StackedBorderLayout.SOUTH);
 
         // The left-side will have two lists - the upper is the top-level directories (few), the lower is the topic
         // modules within the selected top-level directory.  Selecting a topic module will populate the main area.
         this.topicsList = new TopicListsPanel(theCourseDir, size);
-        this.topicsList.init();
-        content.add(this.topicsList, StackedBorderLayout.WEST);
+        this.content.add(this.topicsList, StackedBorderLayout.WEST);
+
+        this.topic = new TopicPanel(size, lineColor);
+    }
+
+    /**
+     * Initializes the window.  Called after the constructor since this method leaks 'this' and the object is not fully
+     * constructed within the constructor.
+     */
+    public void init() {
+
+        this.topicsList.init(this);
+    }
+
+    /**
+     * Called by the topic list panel when the selected subject and/or topic module changes.
+     *
+     * @param subject     the selected subject ({@code null} if none selected)
+     * @param topicModule the selected topic module ({@code null} if none selected)
+     */
+    void setSelection(final String subject, final String topicModule) {
+
+        File target = null;
+
+        if (subject == null || topicModule == null) {
+            if (this.displaying != null) {
+                this.content.remove(this.displaying);
+                this.content.invalidate();
+                this.content.revalidate();
+                this.content.repaint();
+                this.displaying = null;
+            }
+        } else {
+            final File subjectDir = new File(this.courseDir, subject);
+            if (subjectDir.exists() && subjectDir.isDirectory()) {
+                final File moduleDir = new File(subjectDir, topicModule);
+                if (moduleDir.exists() && moduleDir.isDirectory()) {
+                    target = moduleDir;
+                    if (this.displaying == null) {
+                        this.content.add(this.topic, StackedBorderLayout.CENTER);
+                        this.content.invalidate();
+                        this.content.revalidate();
+                        this.content.repaint();
+                        this.displaying = this.topic;
+                    }
+                } else if (this.displaying != null) {
+                    this.content.remove(this.displaying);
+                    this.content.invalidate();
+                    this.content.revalidate();
+                    this.content.repaint();
+                    this.displaying = null;
+                }
+            } else if (this.displaying != null) {
+                this.content.remove(this.displaying);
+                this.content.invalidate();
+                this.content.revalidate();
+                this.content.repaint();
+                this.displaying = null;
+            }
+        }
+
+        this.topic.refresh(target);
     }
 }

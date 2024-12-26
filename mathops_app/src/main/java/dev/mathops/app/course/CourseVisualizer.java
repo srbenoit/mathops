@@ -78,6 +78,8 @@ public final class CourseVisualizer implements Runnable {
 
         if (this.courseDir != null) {
             final MainWindow window = new MainWindow(this.courseDir);
+            window.init();
+
             UIUtilities.packAndCenter(window);
             window.setVisible(true);
         }
