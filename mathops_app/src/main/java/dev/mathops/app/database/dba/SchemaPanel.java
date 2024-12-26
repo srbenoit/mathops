@@ -8,6 +8,11 @@ import java.awt.FlowLayout;
 
 /**
  * The panel that should be displayed when a schema is selected in the tree view.
+ *
+ * <p>
+ * This panel should have controls to back up the schema, to delete all schema tables, and to restore a backup.
+ * Destructive operations like deleting all tables and restoring a backup should require that the user type a string
+ * into a text box to ensure those actions are not initiated accidentally.
  */
 final class SchemaPanel extends PanelBase {
 

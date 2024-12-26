@@ -244,7 +244,11 @@ public final class RoomSchedule implements Comparable<RoomSchedule> {
         SectionMWF sect = null;
 
         if (type == EAssignmentType.BLOCKS_OF_50 || type == EAssignmentType.BLOCKS_OF_50_OR_75) {
-            sect = addNormalSectionMWF(numBlockPerWeek, sectId, course, numSeats, usage);
+            if (numBlockPerWeek == 4) {
+                sect = addNormalSectionMWF(numBlockPerWeek, sectId, course, numSeats, usage);
+            } else {
+                sect = addNormalSectionMWF(numBlockPerWeek, sectId, course, numSeats, usage);
+            }
         } else if (type == EAssignmentType.CONTIGUOUS) {
             sect = addContiguousSectionMWF(numBlockPerWeek, sectId, course, numSeats, usage);
         } else {
@@ -370,12 +374,13 @@ public final class RoomSchedule implements Comparable<RoomSchedule> {
                                                    final ERoomUsage usage) {
 
         final int blocksFreeM = getFreeBlocksM();
+        final int blocksFreeT = getFreeBlocksT();
         final int blocksFreeW = getFreeBlocksW();
         final int blocksFreeF = getFreeBlocksF();
 
         SectionMWF sect = null;
 
-        if (blocksFreeM > 0 && blocksFreeW > 0 && blocksFreeF > 0) {
+        if (blocksFreeM > 0 && blocksFreeT > 0 && blocksFreeW > 0 && blocksFreeF > 0) {
             sect = createSectionMWF(EMeetingDays.MWF, 1, sectId, course, numSeats, usage);
         }
 
@@ -402,6 +407,61 @@ public final class RoomSchedule implements Comparable<RoomSchedule> {
 
         if (meetingDays.includesMonday()) {
             if (getFreeBlocksM() < blocksPerDay) {
+                ok = false;
+            }
+        }
+        if (meetingDays.includesWednesday()) {
+            if (getFreeBlocksW() < blocksPerDay) {
+                ok = false;
+            }
+        }
+        if (meetingDays.includesFriday()) {
+            if (getFreeBlocksF() < blocksPerDay) {
+                ok = false;
+            }
+        }
+
+        SectionMWF sect = null;
+
+        if (ok) {
+            final SectionMWF temp = new SectionMWF(sectId, meetingDays, this, course, numSeats, usage, blocksPerDay);
+
+            this.sectionsMWF.add(temp);
+            if (canPackSectionsMWF()) {
+                sect = temp;
+            } else {
+                this.sectionsMWF.remove(temp);
+            }
+        }
+
+        return sect;
+    }
+
+    /**
+     * If possible, creates a section that will meet Monday, Tuesday, Wednesday, and Friday and adds it to this room's
+     * schedule.  If doing so would exceed the number of blocks for which the room is available; this operation will
+     * fail.
+     *
+     * @param meetingDays  the days on which the section will meet
+     * @param blocksPerDay the number of 50-minute blocks needed per day
+     * @param sectId       the section ID to use for the new section
+     * @param course       the course
+     * @param numSeats     the number of seats needed
+     * @param usage        the usage
+     * @return the section if it was created; {@code null} if the section would exceed room available hours
+     */
+    private SectionMWF createSectionMTWF(final EMeetingDays meetingDays, final int blocksPerDay, final int sectId,
+                                         final Course course, final int numSeats, final ERoomUsage usage) {
+
+        boolean ok = true;
+
+        if (meetingDays.includesMonday()) {
+            if (getFreeBlocksM() < blocksPerDay) {
+                ok = false;
+            }
+        }
+        if (meetingDays.includesTuesday()) {
+            if (getFreeBlocksT() < blocksPerDay) {
                 ok = false;
             }
         }

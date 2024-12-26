@@ -170,7 +170,7 @@ public final class OfferedSection {
      */
     public List<OfferedSectionMeetingTime> getMeetingTimes() {
 
-        return new ArrayList<>(this.meetingTimes);
+        return this.meetingTimes;
     }
 
     /**

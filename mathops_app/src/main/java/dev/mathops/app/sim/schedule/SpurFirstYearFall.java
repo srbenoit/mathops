@@ -35,10 +35,12 @@ final class SpurFirstYearFall {
      */
     private static void runSimulation() {
 
-        final List<Course> immutableCourses = Arrays.asList(SpurCourses.LIFE102, SpurCourses.MATH112,
-                SpurCourses.SEMINAR, SpurCourses.CS150B, SpurCourses.IDEA110, SpurCourses.HDFS101,
-                SpurCourses.AGRI116, SpurCourses.AB111, SpurCourses.ERHS220, SpurCourses.POLS131,
-                SpurCourses.AREC222, SpurCourses.SPCM100, SpurCourses.BZ101, SpurCourses.CO150);
+        final List<Course> immutableCourses = Arrays.asList(SpurCourses.CO150, SpurCourses.PRECALC, SpurCourses.KEY175,
+                SpurCourses.LIFE102, SpurCourses.AB111, SpurCourses.ERHS220, SpurCourses.CS150B, SpurCourses.SPCM100,
+                SpurCourses.IDEA110, SpurCourses.ECON202, SpurCourses.HDFS101, SpurCourses.ART100,
+                SpurCourses.MATH160, SpurCourses.IU174, SpurCourses.SOC220, SpurCourses.LIFE103, SpurCourses.CHEM111,
+                SpurCourses.IDEA210, SpurCourses.CS201, SpurCourses.HIST15X, SpurCourses.AMST101, SpurCourses.ETST253,
+                SpurCourses.KEY192A, SpurCourses.ETST240);
         final List<Course> courses = new ArrayList<>(immutableCourses);
 
         final List<RoomSchedule> rooms = List.of(SpurRooms.CLASSROOM_1, SpurRooms.CLASSROOM_2, SpurRooms.LAB_1);
@@ -49,9 +51,11 @@ final class SpurFirstYearFall {
         final File home = new File(userHome);
         final File target = new File(home, "FirstYearFallPopulationSim.csv");
         Log.info("Writing CSV file to ", target.getAbsolutePath());
-        try (final FileWriter writer = new FileWriter(target, StandardCharsets.UTF_8)) {
+        try (
+                final FileWriter writer = new FileWriter(target, StandardCharsets.UTF_8)) {
             writer.write(csv);
-        } catch (final IOException ex) {
+        } catch (
+                final IOException ex) {
             Log.warning("Failed to write file", ex);
         }
 

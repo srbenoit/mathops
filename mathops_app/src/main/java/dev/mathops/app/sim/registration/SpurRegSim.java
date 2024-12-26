@@ -21,18 +21,22 @@ import java.util.Random;
 /**
  * A base class for Spur registration simulations.
  */
-class SpurRegistrationSim {
+enum SpurRegSim {
+    ;
+
+    /** Number of times to simulate registration. */
+    private static final int NUM_TRIALS = 1000;
 
     /**
-     * Constructs a new {@code SpurRegistrationSimBase}.
+     * Simulates registration.
+     *
+     * @param offeredCourses the map of offered courses
+     * @param population     the student population
+     * @param printResult    true to print the resulting schedule
+     * @return the average quality score
      */
-    SpurRegistrationSim() {
-
-        // No action
-    }
-
-    static void simulateRegistrations(final Map<Course, OfferedCourse> offeredCourses,
-                                      final StudentPopulation population) {
+    static double simulateRegistrations(final Map<Course, OfferedCourse> offeredCourses,
+                                        final StudentPopulation population, final boolean printResult) {
 
         final int popSize = population.getSize();
 
@@ -55,7 +59,7 @@ class SpurRegistrationSim {
         // Run 100 trial registration processes, and track average results...
 
         double totalQuality = 0.0;
-        for (int trial = 0; trial < 100; ++trial) {
+        for (int trial = 0; trial < NUM_TRIALS; ++trial) {
             // Generate a randomly ordered list of student preferences
             unordered.clear();
             for (final Map.Entry<StudentClassPreferences, Integer> entry : counts.entrySet()) {
@@ -98,33 +102,35 @@ class SpurRegistrationSim {
             }
         }
 
-        final double avgQuality = totalQuality / 100.0;
-        final String qualityString = Double.toString(avgQuality);
-        Log.info("*** Average quality score = ", qualityString);
+        if (printResult) {
+            Log.fine(CoreConstants.CRLF);
+            for (final OfferedCourse offeredCourse : offeredCourses.values()) {
+                final Course course = offeredCourse.getCourse();
+                Log.fine(course.courseId, ": ");
+                for (final List<OfferedSection> sections : offeredCourse.getSectionsLists()) {
+                    for (final OfferedSection section : sections) {
 
-        Log.fine(CoreConstants.CRLF);
-        for (final OfferedCourse offeredCourse : offeredCourses.values()) {
-            final Course course = offeredCourse.getCourse();
-            Log.fine(course.courseId, ": ");
-            for (final List<OfferedSection> sections : offeredCourse.getSectionsLists()) {
-                for (final OfferedSection section : sections) {
+                        final int enrolled = section.averageEnrollment();
+                        final String enrolledStr = Integer.toString(enrolled);
 
-                    final int enrolled = section.averageEnrollment();
-                    final String enrolledStr = Integer.toString(enrolled);
+                        final int capacity = section.getTotalSeats();
+                        final String capacityStr = Integer.toString(capacity);
 
-                    final int capacity = section.getTotalSeats();
-                    final String capacityStr = Integer.toString(capacity);
+                        Log.fine("    ", enrolledStr, "/", capacityStr, " ", section);
 
-                    Log.fine("    ", enrolledStr, "/", capacityStr, " ", section);
-
-                    for (final Map.Entry<OfferedSection, Integer> entry : section.getCollisions().entrySet()) {
-                        if (entry.getValue().intValue() > 400000) {
-                            Log.fine("        ", entry.getValue(), " collisions with ", entry.getKey());
+                        for (final Map.Entry<OfferedSection, Integer> entry : section.getCollisions().entrySet()) {
+                            if (entry.getValue().intValue() > 10000) {
+                                Log.fine("        ", entry.getValue(), " collisions with ", entry.getKey());
+                            }
                         }
                     }
                 }
             }
         }
+
+        final double avgQuality = totalQuality / (double) NUM_TRIALS;
+
+        return avgQuality;
     }
 
     /**
@@ -358,6 +364,130 @@ class SpurRegistrationSim {
     }
 
     /**
+     * Finds the permutation of three classes that gives the highest quality score.
+     *
+     * @param count          a string to emit to logs to help track progress
+     * @param offeredCourses the map from course to offered course information
+     * @param population     the student population
+     * @param course1        the first course to permute
+     * @param course2        the second course to permute
+     * @param course3        the third course to permute
+     */
+    static void findBest(final int count, final Map<Course, OfferedCourse> offeredCourses,
+                         final StudentPopulation population,
+                         final Course course1, final Course course2, final Course course3) {
+
+        final String countStr = Integer.toString(count);
+        Log.fine("Permutation ", countStr);
+
+        final double score1 = simulateRegistrations(offeredCourses, population, false);
+        final String score1Str = Double.toString(score1);
+        Log.fine("   score 1 = ", score1Str);
+
+        swap(offeredCourses, course1, course2);
+
+        final double score2 = simulateRegistrations(offeredCourses, population, false);
+        final String score2Str = Double.toString(score2);
+        Log.fine("   score 2 = ", score2Str);
+
+        swap(offeredCourses, course1, course3);
+
+        final double score3 = simulateRegistrations(offeredCourses, population, false);
+        final String score3Str = Double.toString(score3);
+        Log.fine("   score 3 = ", score3Str);
+
+        swap(offeredCourses, course1, course2);
+
+        final double score4 = simulateRegistrations(offeredCourses, population, false);
+        final String score4Str = Double.toString(score4);
+        Log.fine("   score 4 = ", score4Str);
+
+        swap(offeredCourses, course1, course3);
+
+        final double score5 = simulateRegistrations(offeredCourses, population, false);
+        final String score5Str = Double.toString(score5);
+        Log.fine("   score 5 = ", score5Str);
+
+        swap(offeredCourses, course1, course2);
+
+        final double score6 = simulateRegistrations(offeredCourses, population, false);
+        final String score6Str = Double.toString(score6);
+        Log.fine("   score 6 = ", score6Str);
+
+        double max = score1;
+        int whichIsMax = 1;
+        if (score2 > max) {
+            max = score2;
+            whichIsMax = 2;
+        }
+        if (score3 > max) {
+            max = score3;
+            whichIsMax = 3;
+        }
+        if (score4 > max) {
+            max = score4;
+            whichIsMax = 4;
+        }
+        if (score5 > max) {
+            max = score5;
+            whichIsMax = 5;
+        }
+        if (score6 > max) {
+            max = score6;
+            whichIsMax = 6;
+        }
+        final String maxStr = Double.toString(max);
+        Log.fine("   *** BEST = ", maxStr);
+
+        // Put the course offerings into the "best" configuration
+        if (whichIsMax == 1) {
+            swap(offeredCourses, course1, course3);
+        } else if (whichIsMax == 2) {
+            swap(offeredCourses, course1, course3);
+            swap(offeredCourses, course1, course2);
+        } else if (whichIsMax == 3) {
+            swap(offeredCourses, course2, course3);
+        } else if (whichIsMax == 4) {
+            swap(offeredCourses, course2, course3);
+            swap(offeredCourses, course1, course2);
+        } else if (whichIsMax == 5) {
+            swap(offeredCourses, course1, course2);
+        }
+    }
+
+    /**
+     * Swaps the section times for two courses
+     *
+     * @param offeredCourses a map from course ID offered course data
+     * @param course1        the first course
+     * @param course2        the second course
+     */
+    static void swap(final Map<Course, OfferedCourse> offeredCourses, final Course course1,
+                     final Course course2) {
+
+        final OfferedCourse offeredCourse1 = offeredCourses.get(course1);
+        final OfferedCourse offeredCourse2 = offeredCourses.get(course2);
+
+        final List<List<OfferedSection>> list1 = offeredCourse1.getSectionsLists();
+        final List<List<OfferedSection>> list2 = offeredCourse2.getSectionsLists();
+
+        final List<OfferedSection> inner1 = list1.getFirst();
+        final List<OfferedSection> inner2 = list2.getFirst();
+
+        final OfferedSection section1 = inner1.getFirst();
+        final OfferedSection section2 = inner2.getFirst();
+
+        final List<OfferedSectionMeetingTime> times1 = section1.getMeetingTimes();
+        final List<OfferedSectionMeetingTime> times2 = section2.getMeetingTimes();
+        final Collection<OfferedSectionMeetingTime> temp = new ArrayList<>(10);
+        temp.addAll(times1);
+        times1.clear();
+        times1.addAll(times2);
+        times2.clear();
+        times2.addAll(temp);
+    }
+
+    /**
      * Compute a quality score for a potential schedule.
      *
      * @param potential the potential schedule
@@ -448,11 +578,11 @@ class SpurRegistrationSim {
         // Factor 2 is based on the number of days a week the student does NOT need to be on campus
         final int daysPerWeekStayHome = (startM == null ? 1 : 0) + (startT == null ? 1 : 0)
                                         + (startW == null ? 1 : 0) + (startR == null ? 1 : 0)
-                                        + (startF == null ? 1 : 0);;
+                                        + (startF == null ? 1 : 0);
 
         final double factor2 = 1.0 + daysPerWeekStayHome;
 
-        // Factor 3 is the number of hours a day the student is NOT on campus
+        // Factor 3 is the number of minutes a day the student is NOT on campus
         double factor3 = 1.0;
 
         if (startM != null && endM != null) {
@@ -489,6 +619,9 @@ class SpurRegistrationSim {
             final int totalFree = minutesFreeStart + minutesFreeEnd;
             factor3 += (double) totalFree;
         }
+
+//        Log.fine("  Factor 1 = " + (float) factor1 + ", factor 2 = " + (float) factor2 + ", factor 3 = "
+//                 + (float) factor3);
 
         return factor1 * factor2 * factor3;
     }
