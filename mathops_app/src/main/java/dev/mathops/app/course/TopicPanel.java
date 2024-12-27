@@ -15,14 +15,17 @@ final class TopicPanel extends JPanel {
     /** A panel to present the topic module metadata. */
     private final TopicMetadataPanel metadataPanel;
 
-    /** The lessons panel for the topic. */
-    private final LessonsListPanel topicLessonsPanel;
-
     /** The handouts panel for the topic. */
     private final HandoutsListPanel topicHandoutsPanel;
 
+    /** The start lessons panel for the topic. */
+    private final LessonsListPanel startLessonsPanel;
+
     /** The standards panel for the topic. */
     private final StandardsPanel standardsPanel;
+
+    /** The end lessons panel for the topic. */
+    private final LessonsListPanel endLessonsPanel;
 
     /**
      * Constructs a new {@code TopicPanel}.
@@ -32,23 +35,28 @@ final class TopicPanel extends JPanel {
      */
     TopicPanel(final Dimension ownerSize, final Color lineColor) {
 
-        super(new StackedBorderLayout());
+        super(new StackedBorderLayout(1, 1));
+        setBackground(lineColor);
 
         final Dimension mySize = new Dimension(ownerSize.width - 244, ownerSize.height - 26);
         setPreferredSize(mySize);
 
         this.metadataPanel = new TopicMetadataPanel(lineColor);
         this.metadataPanel.init();
-        this.topicLessonsPanel = new LessonsListPanel("Module-Level Lessons:", lineColor);
         this.topicHandoutsPanel = new HandoutsListPanel("Module-Level Handouts:", lineColor);
+        this.startLessonsPanel = new LessonsListPanel("Introductory Lessons:", lineColor);
         this.standardsPanel = new StandardsPanel(lineColor);
+        this.endLessonsPanel = new LessonsListPanel("Concluding Lessons:", lineColor);
 
-        final JPanel topRow = new JPanel(new StackedBorderLayout());
-        add(topRow, StackedBorderLayout.NORTH);
+        final JPanel topRow = new JPanel(new StackedBorderLayout(1, 1));
+        topRow.setBackground(lineColor);
         topRow.add(this.metadataPanel, StackedBorderLayout.WEST);
-        topRow.add(this.topicLessonsPanel, StackedBorderLayout.WEST);
-        topRow.add(this.topicHandoutsPanel, StackedBorderLayout.WEST);
+        topRow.add(this.topicHandoutsPanel, StackedBorderLayout.CENTER);
+        add(topRow, StackedBorderLayout.NORTH);
+
+        add(this.startLessonsPanel, StackedBorderLayout.NORTH);
         add(this.standardsPanel, StackedBorderLayout.CENTER);
+        add(this.endLessonsPanel, StackedBorderLayout.SOUTH);
     }
 
     /**
@@ -58,9 +66,14 @@ final class TopicPanel extends JPanel {
      */
     void refresh(final File topicModuleDir) {
 
+        final File lessonsDir = new File(topicModuleDir, "01_lessons");
+        final File startDir = new File(lessonsDir, "01_start");
+        final File endDir = new File(lessonsDir, "99_end");
+
         this.metadataPanel.refresh(topicModuleDir);
-        this.topicLessonsPanel.refresh(topicModuleDir);
         this.topicHandoutsPanel.refresh(topicModuleDir);
+        this.startLessonsPanel.refresh(startDir);
         this.standardsPanel.refresh(topicModuleDir);
+        this.endLessonsPanel.refresh(endDir);
     }
 }

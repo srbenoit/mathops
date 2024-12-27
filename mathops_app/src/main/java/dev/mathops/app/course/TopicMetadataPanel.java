@@ -68,9 +68,6 @@ final class TopicMetadataPanel extends JPanel implements ActionListener {
 
         super(new StackedBorderLayout());
 
-        final Border border = BorderFactory.createMatteBorder(0, 0, 0, 1, lineColor);
-        setBorder(border);
-
         final Border etched = BorderFactory.createEtchedBorder();
 
         this.titleLbl = new JLabel();

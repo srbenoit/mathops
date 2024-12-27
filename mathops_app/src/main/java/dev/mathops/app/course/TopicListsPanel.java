@@ -59,7 +59,7 @@ final class TopicListsPanel extends JPanel implements ActionListener, ListSelect
      * @param theCourseDir the course directory
      * @param ownerSize    the preferred size of the panel that will contain this panel
      */
-    TopicListsPanel(final File theCourseDir, final Dimension ownerSize) {
+    TopicListsPanel(final File theCourseDir, final Dimension ownerSize, final Color lineColor) {
 
         super(new StackedBorderLayout());
 
@@ -68,16 +68,10 @@ final class TopicListsPanel extends JPanel implements ActionListener, ListSelect
         final Dimension mySize = new Dimension(240, ownerSize.height - 26);
         setPreferredSize(mySize);
 
-        final Color bg = getBackground();
-        final int level = bg.getRed() + bg.getGreen() + bg.getBlue();
-        final Color lineColor = level < 384 ? bg.brighter() : bg.darker();
-
         final Border padding = BorderFactory.createEmptyBorder(6, 6, 6, 6);
         final Border padTop = BorderFactory.createEmptyBorder(6, 0, 0, 0);
-        final Border rightLine = BorderFactory.createMatteBorder(0, 0, 0, 1, lineColor);
 
-        final Border border = BorderFactory.createCompoundBorder(rightLine, padding);
-        setBorder(border);
+        setBorder(padding);
 
         final JLabel heading1 = new JLabel("Subject Directories:");
         final Font font = heading1.getFont();

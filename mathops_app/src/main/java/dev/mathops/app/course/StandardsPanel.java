@@ -1,5 +1,6 @@
 package dev.mathops.app.course;
 
+import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 
 import javax.swing.BorderFactory;
@@ -8,6 +9,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.border.Border;
 import java.awt.Color;
 import java.io.File;
+import java.util.Arrays;
 
 /**
  * A panel that will present a tabbed pane with a tab for the Skills Review and one tab per standard.  Each tab will
@@ -15,23 +17,39 @@ import java.io.File;
  */
 final class StandardsPanel extends JPanel {
 
+    /** The maximum number of standards we can display. */
+    private static final int MAX_STANDARDS = 30;
+
+    /** The line color. */
+    private final Color lineColor;
+
     /** The tabbed pane. */
     private final JTabbedPane tabs;
+
+    /** The displayed Skills Review panel. */
+    private SkillsReviewPanel skillsReview;
+
+    /** The displayed set of standards. */
+    private final StandardPanel[] standards;
 
     /**
      * Constructs a new {@code StandardsPanel}.
      *
-     * @param lineColor the color for line borders
+     * @param theLineColor the color for line borders
      */
-    StandardsPanel(final Color lineColor) {
+    StandardsPanel(final Color theLineColor) {
 
         super(new StackedBorderLayout());
 
-        final Border border = BorderFactory.createMatteBorder(1, 0, 0, 0, lineColor);
+        this.lineColor = theLineColor;
+
+        final Border border = BorderFactory.createMatteBorder(1, 0, 0, 0, theLineColor);
         setBorder(border);
 
         this.tabs = new JTabbedPane();
         add(this.tabs, StackedBorderLayout.CENTER);
+
+        this.standards = new StandardPanel[MAX_STANDARDS];
     }
 
     /**
@@ -40,6 +58,10 @@ final class StandardsPanel extends JPanel {
     private void clear() {
 
         this.tabs.removeAll();
+
+        this.skillsReview = null;
+        Arrays.fill(this.standards, null);
+
         invalidate();
         revalidate();
         repaint();
@@ -58,22 +80,20 @@ final class StandardsPanel extends JPanel {
         if (dir != null) {
             final File skillsReviewDir = new File(dir, "10_skills_review");
             if (skillsReviewDir.exists()) {
-                // TODO: Make this a real panel and store it somewhere
-                final JPanel panel = new JPanel();
-                this.tabs.addTab("Skills Review", panel);
+                this.skillsReview = new SkillsReviewPanel(this.lineColor);
+                this.tabs.addTab("Skills Review", this.skillsReview);
             }
 
-            for (int i = 1; i < 30; ++i) {
+            for (int i = 1; i < MAX_STANDARDS; ++i) {
                 final String stdStr = Integer.toString(i);
 
                 final String dirName = (10 + i) + "_standard_" + stdStr;
                 final File standardDir = new File(dir, dirName);
 
                 if (standardDir.exists()) {
-                    // TODO: Make this a real panel and store it somewhere
-                    final String title = "Standard " + stdStr;
-                    final JPanel panel = new JPanel();
-                    this.tabs.addTab(title, panel);
+                    final String title = SimpleBuilder.concat("Standard ", stdStr);
+                    this.standards[i] = new StandardPanel(this.lineColor);
+                    this.tabs.addTab(title, this.standards[i]);
                 }
             }
         }
