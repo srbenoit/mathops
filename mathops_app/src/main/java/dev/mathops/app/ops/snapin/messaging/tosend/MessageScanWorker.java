@@ -1,6 +1,7 @@
 package dev.mathops.app.ops.snapin.messaging.tosend;
 
 import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.IProgressListener;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawrecord.RawMilestone;
@@ -9,7 +10,6 @@ import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.app.ops.snapin.messaging.EPF;
 import dev.mathops.app.ops.snapin.messaging.EmailsNeeded;
-import dev.mathops.app.ops.snapin.messaging.IProgressListener;
 import dev.mathops.app.ops.snapin.messaging.MessagingFull;
 import dev.mathops.app.ops.snapin.messaging.ScannerStatus;
 

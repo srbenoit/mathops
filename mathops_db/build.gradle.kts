@@ -18,6 +18,7 @@ repositories {
 dependencies {
     implementation("com.ibm.informix:jdbc:4.50.10")
     implementation("com.oracle.database.jdbc:ojdbc11:23.4.0.24.05")
+    implementation("com.formdev:flatlaf:3.4")
     implementation(files("lib/mathops_commons.jar"))
     implementation(files("lib/mathops_persistence.jar"))
 

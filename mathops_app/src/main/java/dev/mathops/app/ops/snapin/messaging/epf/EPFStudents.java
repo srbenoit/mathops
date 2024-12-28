@@ -1,5 +1,6 @@
 package dev.mathops.app.ops.snapin.messaging.epf;
 
+import dev.mathops.commons.IProgressListener;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.logic.PaceTrackLogic;
@@ -24,7 +25,6 @@ import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.app.ops.snapin.messaging.EMsg;
 import dev.mathops.app.ops.snapin.messaging.EPF;
 import dev.mathops.app.ops.snapin.messaging.EffectiveMilestones;
-import dev.mathops.app.ops.snapin.messaging.IProgressListener;
 import dev.mathops.app.ops.snapin.messaging.MessagingContext;
 import dev.mathops.app.ops.snapin.messaging.MessagingCourseStatus;
 import dev.mathops.app.ops.snapin.messaging.tosend.MessageToSend;

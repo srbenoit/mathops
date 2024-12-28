@@ -1,6 +1,6 @@
 package dev.mathops.db.oldadmin;
 
-import dev.mathops.commons.ui.ChangeUI;
+import com.formdev.flatlaf.FlatLightLaf;
 import dev.mathops.db.DbConnection;
 
 import javax.swing.SwingUtilities;
@@ -43,7 +43,7 @@ public final class JAdmin implements Runnable {
      */
     public static void main(final String... args) {
 
-        ChangeUI.changeUI();
+        FlatLightLaf.setup();
         DbConnection.registerDrivers();
 
         String username = null;

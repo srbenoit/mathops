@@ -1,5 +1,6 @@
 package dev.mathops.app.checkout;
 
+import com.formdev.flatlaf.FlatLightLaf;
 import dev.mathops.app.FrameToFront;
 import dev.mathops.app.PopupPanel;
 import dev.mathops.app.TempFileCleaner;
@@ -8,7 +9,6 @@ import dev.mathops.app.checkin.LoginDialog;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.ui.ChangeUI;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
@@ -583,7 +583,7 @@ final class CheckOutApp extends KeyAdapter implements Runnable, ActionListener {
      */
     public static void main(final String... args) {
 
-        ChangeUI.changeUI();
+        FlatLightLaf.setup();
 
         boolean fullScreen = true;
         String centerId = "1";

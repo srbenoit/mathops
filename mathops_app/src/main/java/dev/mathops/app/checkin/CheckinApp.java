@@ -1,5 +1,6 @@
 package dev.mathops.app.checkin;
 
+import com.formdev.flatlaf.FlatLightLaf;
 import dev.mathops.app.FrameToFront;
 import dev.mathops.app.PopupPanel;
 import dev.mathops.app.TempFileCleaner;
@@ -937,8 +938,7 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
      */
     public static void main(final String... args) {
 
-        ChangeUI.changeUI();
-
+        FlatLightLaf.setup();
         String centerId = "1";
 
         boolean fullScreen = true;

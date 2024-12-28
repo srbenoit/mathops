@@ -1,5 +1,6 @@
 package dev.mathops.app.teststation;
 
+import com.formdev.flatlaf.FlatLightLaf;
 import dev.mathops.app.ClientBase;
 import dev.mathops.app.FrameToFront;
 import dev.mathops.app.TempFileCleaner;
@@ -16,7 +17,6 @@ import dev.mathops.assessment.exam.ExamSession;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.ui.ChangeUI;
 import dev.mathops.commons.ui.ColorNames;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.old.rawrecord.RawClientPc;
@@ -1958,7 +1958,7 @@ public final class TestStationApp extends ClientBase implements Runnable, ExamCo
      */
     public static void main(final String... args) {
 
-        ChangeUI.changeUI();
+        FlatLightLaf.setup();
 
         boolean fullScreen = true;
         boolean useDev = false;
