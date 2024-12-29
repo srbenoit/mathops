@@ -155,7 +155,8 @@ public final class GeneratedPane extends JPanel implements AnswerListener, Input
         if (numErrors > 0) {
             for (int i = 0; i < numErrors; ++i) {
                 final LogEntry entry = writer.getListMessage(i);
-                this.owner.logToConsole(entry.message);
+                final String message = entry.getMessage();
+                this.owner.logToConsole(message);
             }
         }
         writer.stopList();

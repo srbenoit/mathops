@@ -469,8 +469,9 @@ public class ClientBase {
         if (count > 0) {
             final HtmlBuilder allError = new HtmlBuilder(count * 100);
             for (int i = 0; i < count; i++) {
-                final LogEntry msg = writer.getListMessage(i);
-                allError.addln(msg.message);
+                final LogEntry entry = writer.getListMessage(i);
+                final String message = entry.getMessage();
+                allError.addln(message);
             }
 
             final String errorStr = allError.toString();

@@ -1,6 +1,8 @@
 package dev.mathops.app.teststation;
 
 import dev.mathops.commons.log.Log;
+import dev.mathops.commons.log.LogEntry;
+import dev.mathops.commons.log.LogWriter;
 import dev.mathops.text.builder.HtmlBuilder;
 
 import javax.swing.BorderFactory;
@@ -11,6 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -21,7 +24,7 @@ import java.io.Serial;
 /**
  * A dialog that displays the log in a scrolling window.
  */
-class LogViewPanel extends JInternalFrame implements ActionListener {
+final class LogViewPanel extends JInternalFrame implements ActionListener {
 
     /** Version number for serialization. */
     @Serial
@@ -57,7 +60,8 @@ class LogViewPanel extends JInternalFrame implements ActionListener {
     public void actionPerformed(final ActionEvent e) {
 
         if (!SwingUtilities.isEventDispatchThread()) {
-            Log.warning(Res.get(Res.NOT_AWT_THREAD));
+            final String msg = Res.get(Res.NOT_AWT_THREAD);
+            Log.warning(msg);
         }
 
         setVisible(false);
@@ -108,7 +112,8 @@ class LogViewPanelGuiBuilder implements Runnable {
     public void run() {
 
         if (!SwingUtilities.isEventDispatchThread()) {
-            Log.warning(Res.get(Res.NOT_AWT_THREAD));
+            final String msg = Res.get(Res.NOT_AWT_THREAD);
+            Log.warning(msg);
         }
 
         final JPanel content = new JPanel(new BorderLayout());
@@ -118,18 +123,23 @@ class LogViewPanelGuiBuilder implements Runnable {
         this.panel.setContentPane(content);
 
         final JPanel center = new JPanel(new BorderLayout());
-        center.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        final Border padding = BorderFactory.createEmptyBorder(15, 15, 15, 15);
+        center.setBorder(padding);
         center.setLayout(new BorderLayout(10, 10));
         content.add(center, BorderLayout.CENTER);
 
-        final int count = Log.getWriter().getNumInList();
+        final LogWriter writer = Log.getWriter();
+        final int count = writer.getNumInList();
         final HtmlBuilder builder = new HtmlBuilder(100 * count);
         for (int i = 0; i < count; ++i) {
-            builder.addln(Log.getWriter().getListMessage(i).message);
+            final LogEntry entry = writer.getListMessage(i);
+            final String message = entry.getMessage();
+            builder.addln(message);
         }
 
         // Build the log text area
-        this.text = new JTextArea(builder.toString());
+        final String str = builder.toString();
+        this.text = new JTextArea(str);
         final JScrollPane scroll = new JScrollPane(this.text);
         center.add(scroll, BorderLayout.CENTER);
 
@@ -138,7 +148,7 @@ class LogViewPanelGuiBuilder implements Runnable {
         final JButton btn = new JButton("OK");
         btn.addActionListener(this.panel);
         south.add(btn);
-        center.add(south, BorderLayout.SOUTH);
+        center.add(south, BorderLayout.PAGE_END);
 
         this.panel.getRootPane().setDefaultButton(btn);
 
