@@ -20,7 +20,8 @@ dependencies {
     implementation(project(":mathops_dbjobs"))
     implementation(project(":mathops_assessment"))
     implementation(project(":mathops_session"))
-    implementation(files("lib/mathops_commons.jar"))
+    implementation(files("../../mathops_commons/out/libs/mathops_commons.jar"))
+    implementation(files("../../mathops_text/out/libs/mathops_text.jar"))
 
     implementation("com.oracle.database.jdbc:ojdbc11:23.4.0.24.05")
     compileOnly("jakarta.servlet:jakarta.servlet-api:6.1.0")

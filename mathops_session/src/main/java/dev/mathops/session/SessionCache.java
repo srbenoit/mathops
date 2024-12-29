@@ -1,9 +1,9 @@
 package dev.mathops.session;
 
-import dev.mathops.commons.EPath;
-import dev.mathops.commons.PathList;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.file.FileLoader;
+import dev.mathops.commons.installation.EPath;
+import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.session.login.LocalLoginProcessor;
@@ -247,8 +247,8 @@ public class SessionCache {
     }
 
     /**
-     * Attempts to set the user under which an active login session will henceforth act. Only login sessions
-     * acting under certain roles can set their effective users to users with certain roles:
+     * Attempts to set the user under which an active login session will henceforth act. Only login sessions acting
+     * under certain roles can set their effective users to users with certain roles:
      *
      * <ul>
      * <li>SUPERUSER can set any effective user or role.

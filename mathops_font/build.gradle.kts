@@ -16,7 +16,8 @@ repositories {
 }
 
 dependencies {
-    implementation(files("lib/mathops_commons.jar"))
+    implementation(files("../../mathops_commons/out/libs/mathops_commons.jar"))
+    implementation(files("../../mathops_text/out/libs/mathops_text.jar"))
 
     testImplementation(platform("org.junit:junit-bom:5.11.0-M1"))
     testImplementation("org.junit.jupiter:junit-jupiter")

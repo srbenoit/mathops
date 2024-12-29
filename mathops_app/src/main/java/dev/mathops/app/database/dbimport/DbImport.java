@@ -1,8 +1,8 @@
 package dev.mathops.app.database.dbimport;
 
 import com.formdev.flatlaf.FlatLightLaf;
-import dev.mathops.commons.EPath;
-import dev.mathops.commons.PathList;
+import dev.mathops.commons.installation.EPath;
+import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.UIUtilities;

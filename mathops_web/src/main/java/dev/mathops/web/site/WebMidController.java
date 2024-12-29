@@ -1,7 +1,7 @@
 package dev.mathops.web.site;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.PathList;
+import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.installation.Installation;
 import dev.mathops.commons.log.Log;

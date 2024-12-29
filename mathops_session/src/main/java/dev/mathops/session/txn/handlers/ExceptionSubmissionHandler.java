@@ -1,7 +1,7 @@
 package dev.mathops.session.txn.handlers;
 
-import dev.mathops.commons.EPath;
-import dev.mathops.commons.PathList;
+import dev.mathops.commons.installation.EPath;
+import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;

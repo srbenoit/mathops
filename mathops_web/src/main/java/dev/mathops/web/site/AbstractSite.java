@@ -1,8 +1,8 @@
 package dev.mathops.web.site;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.EPath;
-import dev.mathops.commons.PathList;
+import dev.mathops.commons.installation.EPath;
+import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
@@ -95,7 +95,7 @@ public abstract class AbstractSite {
 
         this.siteProfile = theSiteProfile;
 
-        final File baseDir = PathList.getInstance().baseDir;
+        final File baseDir = PathList.getInstance().getBaseDir();
 
         this.vttDir = new File("/opt/public/www");
         this.imgDir = new File("/opt/public/www/images");

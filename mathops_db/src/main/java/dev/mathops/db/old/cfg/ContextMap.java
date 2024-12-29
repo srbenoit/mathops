@@ -1,7 +1,7 @@
 package dev.mathops.db.old.cfg;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.PathList;
+import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.parser.ParsingException;
@@ -255,7 +255,7 @@ public final class ContextMap {
      */
     public static ContextMap getDefaultInstance() {
 
-        final File dbDir = new File(PathList.getInstance().baseDir, "db");
+        final File dbDir = new File(PathList.getInstance().getBaseDir(), "db");
 
         synchronized (CoreConstants.INSTANCE_SYNCH) {
             ContextMap theMap = INSTANCES.get(dbDir);

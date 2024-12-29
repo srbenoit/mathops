@@ -1,8 +1,8 @@
 package dev.mathops.app.assessment.qualitycontrol;
 
 import com.formdev.flatlaf.FlatLightLaf;
-import dev.mathops.commons.EPath;
-import dev.mathops.commons.PathList;
+import dev.mathops.commons.installation.EPath;
+import dev.mathops.commons.installation.PathList;
 
 import javax.swing.JFileChooser;
 import java.awt.EventQueue;

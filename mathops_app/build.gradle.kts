@@ -22,8 +22,9 @@ dependencies {
     implementation(project(":mathops_font"))
     implementation(project(":mathops_assessment"))
     implementation(project(":mathops_session"))
-    implementation(files("lib/jwabbit.jar"))
-    implementation(files("lib/mathops_commons.jar"))
+    implementation(files("../../mathops_commons/out/libs/mathops_commons.jar"))
+    implementation(files("../../mathops_text/out/libs/mathops_text.jar"))
+    implementation(files("../../JWabbit/out/libs/jwabbit_jar/jwabbit.jar"))
     implementation(files("lib/mathops_persistence.jar"))
 
     implementation("org.openjfx:javafx:23-ea+20")

@@ -1,8 +1,8 @@
 package dev.mathops.web.site.admin.genadmin.serveradmin;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.EPath;
-import dev.mathops.commons.PathList;
+import dev.mathops.commons.installation.EPath;
+import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.parser.xml.XmlEscaper;

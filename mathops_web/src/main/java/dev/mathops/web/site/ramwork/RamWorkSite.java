@@ -1,8 +1,8 @@
 package dev.mathops.web.site.ramwork;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.EPath;
-import dev.mathops.commons.PathList;
+import dev.mathops.commons.installation.EPath;
+import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;

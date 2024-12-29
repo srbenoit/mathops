@@ -17,7 +17,8 @@ repositories {
 
 dependencies {
     implementation(project(":mathops_db"))
-    implementation(files("lib/mathops_commons.jar"))
+    implementation(files("../../mathops_commons/out/libs/mathops_commons.jar"))
+    implementation(files("../../mathops_text/out/libs/mathops_text.jar"))
 
     implementation("com.ibm.informix:jdbc:4.50.10")
     implementation("com.oracle.database.jdbc:ojdbc11:23.4.0.24.05")
