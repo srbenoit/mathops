@@ -1,10 +1,10 @@
 package dev.mathops.dbjobs.report.analytics.longitudinal;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.dbjobs.report.analytics.longitudinal.data.EnrollmentRec;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import java.io.File;
 import java.io.FileWriter;

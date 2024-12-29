@@ -1,19 +1,15 @@
 package dev.mathops.web.site.cfm;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.Cache;
+import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import oracle.net.ns.Communication;
 
-import javax.print.attribute.standard.Media;
-import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.util.function.Consumer;
 
 /**
  * Generates a page with analytics.

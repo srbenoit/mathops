@@ -30,9 +30,9 @@ import dev.mathops.assessment.variable.VariableRandomSimpleAngle;
 import dev.mathops.assessment.variable.VariableReal;
 import dev.mathops.assessment.variable.VariableSpan;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.xml.XmlEscaper;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.xml.XmlEscaper;
 
 import java.io.File;
 import java.io.PrintStream;
@@ -302,7 +302,7 @@ public final class ProblemEmbeddedInputTemplate extends AbstractProblemTemplate 
 
         if (this.correctness != null) {
             pstream.println("<tr><td valign='top'><b>Correctness formula:</b></td><td>");
-            pstream.println(this.correctness.toString());
+            pstream.println(this.correctness);
             pstream.println("</td></tr>");
         }
     }

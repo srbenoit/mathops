@@ -339,7 +339,7 @@ final class TopBarPanel extends JPanel implements Runnable, ComponentListener {
             this.titleFontBaseSize = 20.0f;
         }
 
-        spec.fontSize = (double) this.titleFontBaseSize;
+        spec.fontSize = this.titleFontBaseSize;
 
         prop = skin.getProperty("top-bar-title-style");
         spec.fontStyle = Font.PLAIN;
@@ -426,7 +426,7 @@ final class TopBarPanel extends JPanel implements Runnable, ComponentListener {
             this.usernameFontBaseSize = 20.0f;
         }
 
-        spec.fontSize = (double) this.usernameFontBaseSize;
+        spec.fontSize = this.usernameFontBaseSize;
 
         prop = skin.getProperty("top-bar-username-style");
         spec.fontStyle = Font.PLAIN;
@@ -521,7 +521,7 @@ final class TopBarPanel extends JPanel implements Runnable, ComponentListener {
             this.clockFontBaseSize = 20.0f;
         }
 
-        spec.fontSize = (double) this.clockFontBaseSize;
+        spec.fontSize = this.clockFontBaseSize;
 
         prop = skin.getProperty("top-bar-clock-style");
         spec.fontStyle = Font.PLAIN;
@@ -616,7 +616,7 @@ final class TopBarPanel extends JPanel implements Runnable, ComponentListener {
             this.timerFontBaseSize = 20.0f;
         }
 
-        spec.fontSize = (double) this.timerFontBaseSize;
+        spec.fontSize = this.timerFontBaseSize;
 
         prop = skin.getProperty("top-bar-timer-style");
         spec.fontStyle = Font.PLAIN;
@@ -717,7 +717,7 @@ final class TopBarPanel extends JPanel implements Runnable, ComponentListener {
             this.sectionFontBaseSize = 20.0f;
         }
 
-        spec.fontSize = (double) this.sectionFontBaseSize;
+        spec.fontSize = this.sectionFontBaseSize;
 
         prop = skin.getProperty("top-bar-section-style");
         spec.fontStyle = Font.PLAIN;

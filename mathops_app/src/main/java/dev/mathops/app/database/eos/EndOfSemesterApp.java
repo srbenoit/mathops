@@ -20,8 +20,8 @@ import dev.mathops.app.database.eos.s2.S205DropDEVDatabaseAndImport;
 import dev.mathops.app.database.eos.s2.S206PointWebSitesAtDEV;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.json.JSONObject;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
+import dev.mathops.text.parser.json.JSONObject;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;

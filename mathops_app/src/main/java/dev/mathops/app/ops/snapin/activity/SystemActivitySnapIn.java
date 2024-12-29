@@ -151,7 +151,7 @@ public final class SystemActivitySnapIn extends AbstractSnapIn {
             final int colWidth = numColumns * 3 + (numColumns - 1);
             int x = cx - colWidth / 2;
             while (x < cx + colWidth / 2) {
-                final int height = h + (int) ((double) ((h << 1) / 3) * StrictMath.sin((double) x));
+                final int height = h + (int) ((double) ((h << 1) / 3) * StrictMath.sin(x));
                 g.fillRect(x, cy + h - height, 3, height);
                 x += 4;
             }

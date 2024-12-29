@@ -1,11 +1,11 @@
 package dev.mathops.db.old.schema.csubanner;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
 import dev.mathops.db.old.ifaces.ILiveTransferCredit;
 import dev.mathops.db.old.rec.LiveTransferCredit;
 import dev.mathops.db.old.schema.AbstractImpl;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

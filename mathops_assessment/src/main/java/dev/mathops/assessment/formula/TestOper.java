@@ -7,7 +7,7 @@ import dev.mathops.assessment.formula.edit.AbstractFEObject;
 import dev.mathops.assessment.formula.edit.FETest;
 import dev.mathops.assessment.formula.edit.IEditableFormulaObject;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 /**
  * A test operation that evaluates a boolean condition, and depending on the result, returns the evaluated value of one

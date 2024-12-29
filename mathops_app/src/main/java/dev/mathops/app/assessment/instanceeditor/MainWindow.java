@@ -1,8 +1,8 @@
 package dev.mathops.app.assessment.instanceeditor;
 
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;

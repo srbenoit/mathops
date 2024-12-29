@@ -1,14 +1,14 @@
 package dev.mathops.app.webstart;
 
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.HexEncoder;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.HexEncoder;
-import dev.mathops.commons.parser.ParsingException;
-import dev.mathops.commons.parser.xml.IElement;
-import dev.mathops.commons.parser.xml.INode;
-import dev.mathops.commons.parser.xml.NonemptyElement;
-import dev.mathops.commons.parser.xml.XmlContent;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.ParsingException;
+import dev.mathops.text.parser.xml.IElement;
+import dev.mathops.text.parser.xml.INode;
+import dev.mathops.text.parser.xml.NonemptyElement;
+import dev.mathops.text.parser.xml.XmlContent;
 
 import java.io.File;
 import java.io.IOException;

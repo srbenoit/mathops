@@ -1,10 +1,10 @@
 package dev.mathops.db.old.rec;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.enums.EGradeMode;
 import dev.mathops.db.enums.EOfferingTermName;
 import dev.mathops.db.type.CatalogCourseNumber;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.util.EnumSet;
 import java.util.Locale;

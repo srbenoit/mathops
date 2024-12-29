@@ -1,6 +1,6 @@
 package dev.mathops.session.txn.messages;
 
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 /**
  * A reply to a testing station info request.

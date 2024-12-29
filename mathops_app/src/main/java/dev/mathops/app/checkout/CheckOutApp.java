@@ -7,7 +7,6 @@ import dev.mathops.app.TempFileCleaner;
 import dev.mathops.app.checkin.FieldPanel;
 import dev.mathops.app.checkin.LoginDialog;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
@@ -22,6 +21,7 @@ import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawStvisitLogic;
 import dev.mathops.db.old.rawrecord.RawClientPc;
 import dev.mathops.db.old.rawrecord.RawPendingExam;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;

@@ -2,7 +2,7 @@ package dev.mathops.assessment.formula;
 
 import dev.mathops.assessment.NumberParser;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 /**
  * An immutable vector of double values.

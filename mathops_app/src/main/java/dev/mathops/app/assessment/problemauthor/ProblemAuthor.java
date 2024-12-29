@@ -33,13 +33,13 @@ final class ProblemAuthor implements Runnable {
 
             final File currentDir = FileSystems.getDefault().getPath("").toFile();
             if (currentDir.exists()) {
-                pathList.init(currentDir);
+                PathList.init(currentDir);
 
                 if (pathList.get(EPath.SOURCE_1_PATH) == null) {
                     final String homePath = System.getProperty("java.home");
                     final File homeDir = new File(homePath);
                     if (homeDir.exists()) {
-                        pathList.init(homeDir);
+                        PathList.init(homeDir);
                     }
                 }
             }

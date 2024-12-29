@@ -1,8 +1,7 @@
 package dev.mathops.app.sim.courses;
 
 import dev.mathops.commons.TemporalUtils;
-import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.builder.SimpleBuilder;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import java.time.LocalTime;
 

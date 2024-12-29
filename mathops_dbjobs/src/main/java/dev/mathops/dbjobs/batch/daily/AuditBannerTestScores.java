@@ -2,8 +2,6 @@ package dev.mathops.dbjobs.batch.daily;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
-import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
@@ -23,6 +21,8 @@ import dev.mathops.db.old.rawrecord.RawStchallenge;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmpe;
 import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import java.sql.SQLException;
 import java.time.LocalDate;

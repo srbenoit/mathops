@@ -1,6 +1,5 @@
 package dev.mathops.db.old.schema.csubanner;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
@@ -9,6 +8,7 @@ import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.ifaces.ILiveStudent;
 import dev.mathops.db.old.rec.LiveStudent;
 import dev.mathops.db.old.schema.AbstractImpl;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

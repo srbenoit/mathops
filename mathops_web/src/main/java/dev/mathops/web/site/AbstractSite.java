@@ -554,7 +554,7 @@ public abstract class AbstractSite {
             final String[] components = param.split(CoreConstants.SLASH);
             for (final String component : components) {
                 for (final char ch : component.toCharArray()) {
-                    if (VALID_FILE_PARAM_CHARS.indexOf((int) ch) == -1) {
+                    if (VALID_FILE_PARAM_CHARS.indexOf(ch) == -1) {
                         invalid = true;
                         break;
                     }

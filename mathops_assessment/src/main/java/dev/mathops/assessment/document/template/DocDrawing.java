@@ -6,8 +6,8 @@ import dev.mathops.assessment.document.inst.DocDrawingInst;
 import dev.mathops.assessment.document.inst.DocObjectInstStyle;
 import dev.mathops.assessment.formula.Formula;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.parser.xml.XmlEscaper;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.xml.XmlEscaper;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -51,8 +51,8 @@ public final class DocDrawing extends AbstractDocPrimitiveContainer {
 
         super(width, height, theAltText);
 
-        this.widthConstant = Long.valueOf((long) width);
-        this.heightConstant = Long.valueOf((long) height);
+        this.widthConstant = Long.valueOf(width);
+        this.heightConstant = Long.valueOf(height);
     }
 
 //    /**

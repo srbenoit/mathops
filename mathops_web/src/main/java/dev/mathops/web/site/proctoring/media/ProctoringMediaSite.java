@@ -3,13 +3,9 @@ package dev.mathops.web.site.proctoring.media;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.installation.EPath;
 import dev.mathops.commons.installation.PathList;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
-import dev.mathops.commons.parser.ParsingException;
-import dev.mathops.commons.parser.json.JSONObject;
-import dev.mathops.commons.parser.json.JSONParser;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.logic.ELiveRefreshes;
@@ -20,6 +16,10 @@ import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.ParsingException;
+import dev.mathops.text.parser.json.JSONObject;
+import dev.mathops.text.parser.json.JSONParser;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
@@ -737,8 +737,8 @@ public final class ProctoringMediaSite extends AbstractSite {
                 final String[] split = sub.split(CoreConstants.DASH);
                 if (split.length == 2) {
                     try {
-                        start = (long) Integer.parseInt(split[0]);
-                        end = (long) Integer.parseInt(split[1]);
+                        start = Integer.parseInt(split[0]);
+                        end = Integer.parseInt(split[1]);
                         ranged = true;
                     } catch (final NumberFormatException ex) {
                         Log.warning(ex);

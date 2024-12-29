@@ -10,9 +10,9 @@ import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.assessment.variable.VariableInputInteger;
 import dev.mathops.assessment.variable.VariableInputString;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.xml.XmlEscaper;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.xml.XmlEscaper;
 
 import java.awt.Color;
 import java.awt.FontMetrics;

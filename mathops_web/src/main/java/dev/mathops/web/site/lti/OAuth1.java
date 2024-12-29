@@ -1,10 +1,10 @@
 package dev.mathops.web.site.lti;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.Base64;
 
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.Base64;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;

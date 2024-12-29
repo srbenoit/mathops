@@ -605,7 +605,7 @@ final class LendCard extends AdmPanelBase implements ActionListener, FocusListen
 
             if (whyNotEligible == null) {
                 final LocalDate today = LocalDate.now();
-                final LocalDate due = today.plusDays((long) this.days);
+                final LocalDate due = today.plusDays(this.days);
 
                 final LocalTime now = LocalTime.now();
                 final int start = now.getHour() * 60 + now.getMinute();

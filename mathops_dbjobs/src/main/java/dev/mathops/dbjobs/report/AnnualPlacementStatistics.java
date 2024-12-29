@@ -2,7 +2,6 @@ package dev.mathops.dbjobs.report;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
@@ -16,6 +15,7 @@ import dev.mathops.db.old.rawlogic.RawStmpeLogic;
 import dev.mathops.db.old.rawrecord.RawMpeCredit;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStmpe;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.sql.SQLException;
 import java.time.DayOfWeek;
@@ -87,7 +87,7 @@ public enum AnnualPlacementStatistics {
 
         // Go backwards YEARS_TO_SCAN years, and then align on a Sunday for the start date, so we
         // can collect placement attempts per week
-        LocalDate start = today.minusDays((long) (YEARS_TO_SCAN * 365));
+        LocalDate start = today.minusDays(YEARS_TO_SCAN * 365);
         while (start.getDayOfWeek() != DayOfWeek.SUNDAY) {
             start = start.minusDays(1L);
         }

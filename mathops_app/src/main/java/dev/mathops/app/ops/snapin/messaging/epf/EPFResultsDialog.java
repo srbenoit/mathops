@@ -1,8 +1,8 @@
 package dev.mathops.app.ops.snapin.messaging.epf;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.app.ops.snapin.messaging.tosend.MessageToSend;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import javax.swing.BorderFactory;
 import javax.swing.JDialog;

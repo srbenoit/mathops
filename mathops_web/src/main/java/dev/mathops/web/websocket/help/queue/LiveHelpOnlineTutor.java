@@ -1,6 +1,6 @@
 package dev.mathops.web.websocket.help.queue;
 
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.websocket.help.StudentKey;
 
 /**

@@ -3,8 +3,8 @@ package dev.mathops.assessment.htmlgen;
 import dev.mathops.assessment.InstructionalCache;
 import dev.mathops.assessment.exam.ExamObj;
 import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.io.File;
 import java.io.FileWriter;

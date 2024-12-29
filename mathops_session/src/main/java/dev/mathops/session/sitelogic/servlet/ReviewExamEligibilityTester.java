@@ -1,7 +1,6 @@
 package dev.mathops.session.sitelogic.servlet;
 
 import dev.mathops.commons.TemporalUtils;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
@@ -20,6 +19,7 @@ import dev.mathops.db.old.rec.AssignmentRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.LiveSessionInfo;
 import dev.mathops.session.txn.messages.AvailableExam;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.sql.SQLException;
 import java.time.LocalDate;

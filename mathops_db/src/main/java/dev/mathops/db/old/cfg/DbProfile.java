@@ -1,11 +1,11 @@
 package dev.mathops.db.old.cfg;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.ParsingException;
-import dev.mathops.commons.parser.xml.EmptyElement;
-import dev.mathops.commons.parser.xml.INode;
-import dev.mathops.commons.parser.xml.NonemptyElement;
 import dev.mathops.db.old.DbContext;
+import dev.mathops.text.parser.ParsingException;
+import dev.mathops.text.parser.xml.EmptyElement;
+import dev.mathops.text.parser.xml.INode;
+import dev.mathops.text.parser.xml.NonemptyElement;
 
 import java.util.EnumMap;
 import java.util.Map;

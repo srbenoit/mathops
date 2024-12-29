@@ -2,7 +2,7 @@ package dev.mathops.assessment.document.inst;
 
 import dev.mathops.assessment.document.EFieldStyle;
 import dev.mathops.assessment.document.EXmlStyle;
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 /**
  * An instance of an input that supports the entry of a String value. The input control allows definition of all

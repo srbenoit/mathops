@@ -4,7 +4,7 @@ import dev.mathops.commons.installation.EPath;
 import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.ParsingException;
+import dev.mathops.text.parser.ParsingException;
 import dev.mathops.web.websocket.help.StudentKey;
 
 import java.io.File;

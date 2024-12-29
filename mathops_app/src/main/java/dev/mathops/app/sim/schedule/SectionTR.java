@@ -4,7 +4,7 @@ import dev.mathops.app.sim.courses.Course;
 import dev.mathops.app.sim.courses.EMeetingDays;
 import dev.mathops.app.sim.rooms.ERoomUsage;
 import dev.mathops.app.sim.rooms.RoomSchedule;
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 /**
  * A section that will meet in a room on some combination of Monday, Wednesday, and Friday, for an integer number of

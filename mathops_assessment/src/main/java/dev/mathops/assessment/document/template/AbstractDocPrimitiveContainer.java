@@ -3,7 +3,7 @@ package dev.mathops.assessment.document.template;
 import dev.mathops.assessment.document.CoordinateSystems;
 import dev.mathops.assessment.document.ELayoutMode;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import javax.imageio.ImageIO;
 import java.awt.Graphics;

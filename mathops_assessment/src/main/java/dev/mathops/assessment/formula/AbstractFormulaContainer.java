@@ -1,7 +1,7 @@
 package dev.mathops.assessment.formula;
 
 import dev.mathops.assessment.document.template.AbstractDocSpanBase;
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.util.ArrayList;
 import java.util.List;

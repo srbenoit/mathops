@@ -1,11 +1,11 @@
 package dev.mathops.web.site.admin.genadmin.reports;
 
 import dev.mathops.commons.TemporalUtils;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.session.ImmutableSessionInfo;
+import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.admin.AdminSite;

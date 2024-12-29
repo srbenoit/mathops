@@ -3,11 +3,11 @@ package dev.mathops.web.site.html.item;
 import dev.mathops.assessment.InstructionalCache;
 import dev.mathops.assessment.htmlgen.ProblemConverter;
 import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.Cache;
 import dev.mathops.session.ImmutableSessionInfo;
+import dev.mathops.text.builder.HtmlBuilder;
 import jakarta.servlet.ServletRequest;
 
 import java.sql.SQLException;
@@ -21,7 +21,7 @@ import java.time.ZonedDateTime;
 public final class ItemSession {
 
     /** The timeout duration (2 hours), in milliseconds. */
-    private static final long TIMEOUT = (long) (2 * 60 * 60 * 1000);
+    private static final long TIMEOUT = 2 * 60 * 60 * 1000;
 
 
     /** The ID of the student doing the homework. */

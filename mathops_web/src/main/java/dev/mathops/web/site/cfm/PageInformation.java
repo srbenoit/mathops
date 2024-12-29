@@ -1,9 +1,8 @@
 package dev.mathops.web.site.cfm;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.Cache;
+import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
-import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

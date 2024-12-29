@@ -3,11 +3,11 @@ package dev.mathops.app.course;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.ParsingException;
-import dev.mathops.commons.parser.json.JSONObject;
-import dev.mathops.commons.parser.json.JSONParser;
 import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
+import dev.mathops.text.parser.ParsingException;
+import dev.mathops.text.parser.json.JSONObject;
+import dev.mathops.text.parser.json.JSONParser;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;

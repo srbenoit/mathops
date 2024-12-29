@@ -1,8 +1,8 @@
 package dev.mathops.app.checkin;
 
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import java.util.List;
 

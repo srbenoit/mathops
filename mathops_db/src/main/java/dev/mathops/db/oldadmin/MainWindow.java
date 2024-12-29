@@ -1,6 +1,5 @@
 package dev.mathops.db.oldadmin;
 
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.db.Cache;
@@ -9,6 +8,7 @@ import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.cfg.LoginConfig;
 import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import javax.swing.JFrame;
 import java.awt.Cursor;

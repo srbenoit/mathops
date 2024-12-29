@@ -5,7 +5,7 @@ import dev.mathops.assessment.document.BoundingRect;
 import dev.mathops.assessment.document.CoordinateSystems;
 import dev.mathops.assessment.document.EXmlStyle;
 import dev.mathops.assessment.document.GridSpec;
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.util.List;
 import java.util.Objects;

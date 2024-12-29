@@ -1,6 +1,7 @@
 package dev.mathops.db.old.rec;
 
-import dev.mathops.commons.builder.HtmlBuilder;
+
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.time.LocalDate;
 import java.util.Objects;

@@ -1,8 +1,8 @@
 package dev.mathops.db.old.logic.mathplan.data;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.rawrecord.RawCourse;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.io.Serial;
 import java.io.Serializable;

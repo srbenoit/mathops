@@ -1,7 +1,7 @@
 package dev.mathops.app.course;
 
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;

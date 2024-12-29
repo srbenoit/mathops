@@ -1,12 +1,12 @@
 package dev.mathops.app.ops.snapin.messaging.factory;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.app.ops.snapin.messaging.EMilestone;
 import dev.mathops.app.ops.snapin.messaging.EMsg;
 import dev.mathops.app.ops.snapin.messaging.MessagingContext;
 import dev.mathops.app.ops.snapin.messaging.MessagingCourseStatus;
 import dev.mathops.app.ops.snapin.messaging.MsgUtils;
 import dev.mathops.app.ops.snapin.messaging.tosend.MessageToSend;
+import dev.mathops.text.builder.HtmlBuilder;
 
 /**
  * A factory class that can generate messages to students who have passed the Final Exam but do not yet have 54 points.

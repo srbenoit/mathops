@@ -1,8 +1,8 @@
 package dev.mathops.db.old.cfg;
 
-import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.parser.ParsingException;
-import dev.mathops.commons.parser.xml.EmptyElement;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.ParsingException;
+import dev.mathops.text.parser.xml.EmptyElement;
 
 import java.sql.Connection;
 import java.sql.SQLException;

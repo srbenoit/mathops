@@ -1,7 +1,7 @@
 package dev.mathops.web.site;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.Cache;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.sql.SQLException;
 

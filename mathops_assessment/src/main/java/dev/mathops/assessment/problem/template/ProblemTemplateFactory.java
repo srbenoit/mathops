@@ -22,14 +22,14 @@ import dev.mathops.assessment.variable.VariableInputReal;
 import dev.mathops.assessment.variable.VariableRandomChoice;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.CharSpan;
-import dev.mathops.commons.parser.ICharSpan;
-import dev.mathops.commons.parser.xml.CData;
-import dev.mathops.commons.parser.xml.IElement;
-import dev.mathops.commons.parser.xml.INode;
-import dev.mathops.commons.parser.xml.NonemptyElement;
-import dev.mathops.commons.parser.xml.XmlContent;
-import dev.mathops.commons.parser.xml.XmlContentError;
+import dev.mathops.text.parser.CharSpan;
+import dev.mathops.text.parser.ICharSpan;
+import dev.mathops.text.parser.xml.CData;
+import dev.mathops.text.parser.xml.IElement;
+import dev.mathops.text.parser.xml.INode;
+import dev.mathops.text.parser.xml.NonemptyElement;
+import dev.mathops.text.parser.xml.XmlContent;
+import dev.mathops.text.parser.xml.XmlContentError;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -1524,7 +1524,7 @@ public enum ProblemTemplateFactory {
                     final int tagValueLen = tagValue.length();
                     for (int i = 0; i < tagValueLen; ++i) {
                         final char ch = tagValue.charAt(i);
-                        if (validCharacters.indexOf((int) ch) == -1) {
+                        if (validCharacters.indexOf(ch) == -1) {
                             elem.logError("Invalid character in reference: " + tagValue
                                     + "\n(valid are [a-z] [A-Z] [0-9] [spc] . _ - + = : ~)");
                             tagValue = null;

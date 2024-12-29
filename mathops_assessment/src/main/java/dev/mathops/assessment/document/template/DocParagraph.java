@@ -9,8 +9,8 @@ import dev.mathops.assessment.document.inst.DocObjectInstStyle;
 import dev.mathops.assessment.document.inst.DocParagraphInst;
 import dev.mathops.assessment.formula.Formula;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.font.BundledFontManager;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.awt.Font;
 import java.awt.FontMetrics;

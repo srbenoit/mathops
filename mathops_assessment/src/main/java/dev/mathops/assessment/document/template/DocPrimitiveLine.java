@@ -8,9 +8,9 @@ import dev.mathops.assessment.document.inst.DocPrimitiveLineInst;
 import dev.mathops.assessment.document.inst.RectangleShapeInst;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.parser.xml.INode;
 import dev.mathops.commons.ui.ColorNames;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.xml.INode;
 
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;

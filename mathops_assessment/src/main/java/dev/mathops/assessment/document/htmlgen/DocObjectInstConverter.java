@@ -28,8 +28,8 @@ import dev.mathops.assessment.document.inst.DocVSpaceInst;
 import dev.mathops.assessment.document.inst.DocWhitespaceInst;
 import dev.mathops.assessment.document.svggen.PrimitiveContainerInstConverter;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.util.Deque;
 

@@ -1,8 +1,8 @@
 package dev.mathops.app.webstart;
 
+import dev.mathops.commons.HexEncoder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.HexEncoder;
-import dev.mathops.commons.parser.xml.IElement;
+import dev.mathops.text.parser.xml.IElement;
 
 import java.time.format.DateTimeParseException;
 import java.util.Arrays;

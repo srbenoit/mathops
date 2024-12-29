@@ -1,10 +1,10 @@
 package dev.mathops.web.site.admin.genadmin.logic;
 
 import dev.mathops.commons.TemporalUtils;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.logic.TermCalendarLogic;
 import dev.mathops.session.ImmutableSessionInfo;
+import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.admin.AdminSite;

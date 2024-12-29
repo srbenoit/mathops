@@ -1,8 +1,8 @@
 package dev.mathops.app.ops.snapin.messaging.tosend;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;

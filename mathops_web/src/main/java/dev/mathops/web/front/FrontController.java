@@ -351,7 +351,7 @@ public final class FrontController extends HttpServlet {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             } else {
                 final String filename = file.getName().toLowerCase(Locale.ROOT);
-                final int lastDot = filename.lastIndexOf((int) DOT);
+                final int lastDot = filename.lastIndexOf(DOT);
                 EMimeType mime = EMimeType.TEXTPLAIN;
                 if (lastDot != -1) {
                     final String ext = filename.substring(lastDot + 1);

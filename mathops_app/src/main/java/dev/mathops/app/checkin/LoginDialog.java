@@ -1,8 +1,8 @@
 package dev.mathops.app.checkin;
 
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.font.BundledFontManager;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;

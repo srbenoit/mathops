@@ -9,7 +9,7 @@ import dev.mathops.assessment.formula.edit.IEditableFormulaObject;
 import dev.mathops.assessment.variable.AbstractVariable;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.awt.Insets;
 import java.util.ArrayList;
@@ -113,7 +113,7 @@ public final class Formula extends AbstractFormulaContainer {
             final DocSimpleSpan value = ((ConstSpanValue) base).value;
 
             final Set<String> set = new HashSet<>(10);
-            ((AbstractDocObjectTemplate) value).accumulateParameterNames(set);
+            value.accumulateParameterNames(set);
             if (!set.isEmpty()) {
                 // Span inside a formula referenced some parameters via DocParameterReference
                 // objects - make "fake" VariableRef objects to track this, if the variable is

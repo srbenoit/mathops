@@ -3,7 +3,7 @@ package dev.mathops.assessment.document.inst;
 import dev.mathops.assessment.document.CoordinateSystems;
 import dev.mathops.assessment.document.EAttribute;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.awt.geom.Rectangle2D;
 import java.util.EnumMap;

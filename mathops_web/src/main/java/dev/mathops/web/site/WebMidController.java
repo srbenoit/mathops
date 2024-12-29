@@ -2,7 +2,6 @@ package dev.mathops.web.site;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.installation.PathList;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.installation.Installation;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
@@ -14,6 +13,7 @@ import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.SessionManager;
+import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.front.IMidController;
 import dev.mathops.web.site.admin.AdminRootSite;
 import dev.mathops.web.site.admin.AdminSite;
@@ -74,10 +74,10 @@ public final class WebMidController implements IMidController {
     private static final String INFO = Res.get(Res.INFO);
 
     /** Purge interval, in milliseconds (10 minutes). */
-    private static final long PURGE_INTERVAL = (long) (10 * 60000);
+    private static final long PURGE_INTERVAL = 10 * 60000;
 
     /** A commonly used character. */
-    private static final int SLASH = (int) '/';
+    private static final int SLASH = '/';
 
     /** Map from host to map from site to its implementation. */
     private final Map<String, SortedMap<String, AbstractSite>> sites;

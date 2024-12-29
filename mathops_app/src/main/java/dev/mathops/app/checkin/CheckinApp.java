@@ -5,8 +5,6 @@ import dev.mathops.app.FrameToFront;
 import dev.mathops.app.PopupPanel;
 import dev.mathops.app.TempFileCleaner;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
@@ -22,6 +20,8 @@ import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.old.rawrecord.RawClientPc;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -634,8 +634,8 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
                     final int testX = test.iconX.intValue();
                     final int clientY = client.iconY.intValue();
                     final int testY = test.iconY.intValue();
-                    final double dx = (double)(clientX - testX);
-                    final double dy = (double)(clientY - testY);
+                    final double dx = clientX - testX;
+                    final double dy = clientY - testY;
 
                     final double distSq = dx * dx + dy *dy;
                     final double dist = Math.sqrt(distSq);
@@ -672,7 +672,7 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
 
         // If min > THRESHOLD, just use THRESHOLD
         if (min > (double) THRESHOLD) {
-            min = (double) THRESHOLD;
+            min = THRESHOLD;
         }
 
         // Now, any systems whose minimum distance is at least [min] are potential seat assignments

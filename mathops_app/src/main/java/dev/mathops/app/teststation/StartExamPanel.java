@@ -145,7 +145,7 @@ final class StartExamPanelGuiBuilder implements Runnable {
     private final JDesktopPane deskPane;
 
     /** The panel whose GUI is to be built. */
-    private StartExamPanel panel;
+    private final StartExamPanel panel;
 
     /** The background color of the underlying window. */
     private final Color baseColor;

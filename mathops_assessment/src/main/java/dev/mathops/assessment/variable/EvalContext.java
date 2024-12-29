@@ -9,8 +9,8 @@ import dev.mathops.assessment.formula.ErrorValue;
 import dev.mathops.assessment.formula.Formula;
 import dev.mathops.assessment.formula.IntegerVectorValue;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -770,8 +770,8 @@ public final class EvalContext extends AbstractXmlObject {
             for (int loop = 0; loop < 100; ++loop) {
                 final int degrees = this.rand.nextInt(iRange) + min;
                 final int denom = lookupDenom(degrees);
-                if (denom <= maxDenom && checkExcludes((long) degrees, pRAngle)) {
-                    pRAngle.setValue(Long.valueOf((long) degrees));
+                if (denom <= maxDenom && checkExcludes(degrees, pRAngle)) {
+                    pRAngle.setValue(Long.valueOf(degrees));
                     break;
                 }
             }
@@ -850,7 +850,7 @@ public final class EvalContext extends AbstractXmlObject {
         final List<Long> permuted = new ArrayList<>(numEntries);
 
         for (int i = 0; i < numEntries; ++i) {
-            ordered.add(Long.valueOf((long) (min + i)));
+            ordered.add(Long.valueOf(min + i));
         }
 
         while (!ordered.isEmpty()) {

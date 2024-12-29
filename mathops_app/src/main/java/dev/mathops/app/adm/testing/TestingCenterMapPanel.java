@@ -163,8 +163,8 @@ final class TestingCenterMapPanel extends JPanel {
 
         final int cx = w / 2;
         final int cy = h / 2;
-        final int x = (int) (cx - Math.round(sclf * 340.0f));
-        final int y = (int) (cy - Math.round(sclf * 290.0f));
+        final int x = cx - Math.round(sclf * 340.0f);
+        final int y = cy - Math.round(sclf * 290.0f);
 
         final Path2D path = new Path2D.Float();
         final Rectangle2D rect = new Rectangle2D.Float();
@@ -173,8 +173,8 @@ final class TestingCenterMapPanel extends JPanel {
 
         // Draw the quiet testing room outline
 
-        path.moveTo((double) x - scld * 150.0, (double) y);
-        path.lineTo((double) x - scld * 70.0, (double) y);
+        path.moveTo((double) x - scld * 150.0, y);
+        path.lineTo((double) x - scld * 70.0, y);
         path.lineTo((double) x - scld * 70.0, (double) y + scld * 100.0);
         path.lineTo((double) x - scld * 150.0, (double) y + scld * 100.0);
         path.closePath();
@@ -187,17 +187,17 @@ final class TestingCenterMapPanel extends JPanel {
 
         // Draw the main room outline
 
-        path.moveTo((double) x + scld * 28.0, (double) y);
-        path.lineTo((double) x + scld * 312.0, (double) y);
+        path.moveTo((double) x + scld * 28.0, y);
+        path.lineTo((double) x + scld * 312.0, y);
         path.lineTo((double) x + scld * 312.0, (double) y + scld * 4.0);
         path.lineTo((double) x + scld * 336.0, (double) y + scld * 4.0);
-        path.lineTo((double) x + scld * 336.0, (double) y);
-        path.lineTo((double) x + scld * 642.0, (double) y);
+        path.lineTo((double) x + scld * 336.0, y);
+        path.lineTo((double) x + scld * 642.0, y);
         path.lineTo((double) x + scld * 642.0, (double) y + scld * 528.0);
         path.lineTo((double) x + scld * 222.0, (double) y + scld * 528.0);
         path.lineTo((double) x + scld * 222.0, (double) y + scld * 612.0);
-        path.lineTo((double) x, (double) y + scld * 612.0);
-        path.lineTo((double) x, (double) y + scld * 28.0);
+        path.lineTo(x, (double) y + scld * 612.0);
+        path.lineTo(x, (double) y + scld * 28.0);
         path.lineTo((double) x + scld * 28.0, (double) y + scld * 28.0);
         path.closePath();
 
@@ -214,14 +214,14 @@ final class TestingCenterMapPanel extends JPanel {
         g2d.draw(rect);
 
         // Draw doors
-        rect.setRect((double) x - scld * 115.0, (double) y, scld * 40.0, scld * 3.0);
+        rect.setRect((double) x - scld * 115.0, y, scld * 40.0, scld * 3.0);
         g2d.fill(rect);
 
         rect.setRect((double) x + scld * 470.0, (double) y + scld * 526.0, scld * 40.0, scld * 5.0);
         g2d.fill(rect);
         rect.setRect((double) x + scld * 220.0, (double) y + scld * 538.0, scld * 5.0, scld * 40.0);
         g2d.fill(rect);
-        rect.setRect((double) x + scld * 340.0, (double) y, scld * 40.0, scld * 3.0);
+        rect.setRect((double) x + scld * 340.0, y, scld * 40.0, scld * 3.0);
         g2d.fill(rect);
 
         // Draw tables (first is in quiet testing)

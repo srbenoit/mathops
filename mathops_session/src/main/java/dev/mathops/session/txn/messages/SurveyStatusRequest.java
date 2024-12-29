@@ -1,8 +1,8 @@
 package dev.mathops.session.txn.messages;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.session.txn.handlers.AbstractHandlerBase;
 import dev.mathops.session.txn.handlers.SurveyStatusHandler;
+import dev.mathops.text.builder.HtmlBuilder;
 
 /**
  * A request for the list of survey questions associated with a version of an exam, and the student's current set of

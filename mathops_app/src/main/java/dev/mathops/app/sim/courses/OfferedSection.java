@@ -1,7 +1,7 @@
 package dev.mathops.app.sim.courses;
 
 import dev.mathops.app.sim.registration.EnrollingStudent;
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.util.ArrayList;
 import java.util.HashMap;

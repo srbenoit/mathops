@@ -1,9 +1,9 @@
 package dev.mathops.dbjobs.report.usage;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -316,10 +316,10 @@ final class PrecalcCourseAnalysis {
                             }
 
                             final LocalDateTime startTime = LocalDateTime.of(year, month, day, start / 60, start % 60)
-                                    .plusDays((long) startDayDelta);
+                                    .plusDays(startDayDelta);
 
                             final LocalDateTime finishTime = LocalDateTime.of(year, month, day, finish / 60,
-                                    finish % 60).plusDays((long) finishDayDelta);
+                                    finish % 60).plusDays(finishDayDelta);
 
                             if (startTime.isAfter(finishTime)) {
                                 Log.warning(serial, " bad range: ", examDt, " / ", split[5], " - ", split[6]);
@@ -401,10 +401,10 @@ final class PrecalcCourseAnalysis {
                             }
 
                             final LocalDateTime startTime = LocalDateTime.of(year, month, day, start / 60, start % 60)
-                                    .plusDays((long) startDayDelta);
+                                    .plusDays(startDayDelta);
 
                             final LocalDateTime finishTime = LocalDateTime.of(year, month, day, finish / 60,
-                                    finish % 60).plusDays((long) finishDayDelta);
+                                    finish % 60).plusDays(finishDayDelta);
 
                             if (startTime.isAfter(finishTime)) {
                                 Log.warning(serial, " bad range: ", examDt, " / ", split[5], " - ", split[6]);

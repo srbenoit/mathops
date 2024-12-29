@@ -7,8 +7,8 @@ import dev.mathops.assessment.document.inst.AbstractPrimitiveInst;
 import dev.mathops.assessment.formula.Formula;
 import dev.mathops.assessment.formula.FormulaFactory;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.parser.xml.INode;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.xml.INode;
 
 import java.awt.Graphics2D;
 import java.io.Serial;

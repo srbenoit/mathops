@@ -5,9 +5,9 @@ import dev.mathops.assessment.formula.AbstractFormulaObject;
 import dev.mathops.assessment.formula.EFunction;
 import dev.mathops.assessment.formula.EUnaryOp;
 import dev.mathops.assessment.formula.Formula;
-import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -374,7 +374,7 @@ public final class FEFormula extends AbstractFEObject {
         if ((int) ch >= 0x20 && (int) ch < 0x7F) {
             Log.info("Formula container processing '", chStr, "'");
         } else {
-            final String chHex = Integer.toHexString((int) ch);
+            final String chHex = Integer.toHexString(ch);
             Log.info("Formula container processing '\\u", chHex, "'");
         }
 

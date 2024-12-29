@@ -5,8 +5,8 @@ import dev.mathops.assessment.Realizable;
 import dev.mathops.assessment.formula.ErrorValue;
 import dev.mathops.assessment.formula.Formula;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.io.PrintStream;
 import java.util.Objects;
@@ -197,7 +197,7 @@ public final class ProblemAcceptNumberTemplate extends AbstractXmlObject impleme
 
             if (this.varianceConstant != null) {
                 ps.print(" +/- ");
-                ps.print(this.varianceConstant.toString());
+                ps.print(this.varianceConstant);
             } else if (this.varianceFormula != null) {
                 ps.print(" +/- ");
                 this.varianceFormula.print(ps);

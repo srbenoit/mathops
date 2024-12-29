@@ -1,11 +1,11 @@
 package dev.mathops.db.old.rawlogic;
 
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rawrecord.RawStterm;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

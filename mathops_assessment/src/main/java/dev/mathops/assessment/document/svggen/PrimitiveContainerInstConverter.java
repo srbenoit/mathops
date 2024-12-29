@@ -21,8 +21,8 @@ import dev.mathops.assessment.document.inst.DocPrimitiveRectangleInst;
 import dev.mathops.assessment.document.inst.DocPrimitiveSpanInst;
 import dev.mathops.assessment.document.inst.DocPrimitiveTextInst;
 import dev.mathops.assessment.document.inst.RectangleShapeInst;
-import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.parser.xml.XmlEscaper;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.xml.XmlEscaper;
 
 import java.awt.geom.Rectangle2D;
 

@@ -5,12 +5,12 @@ import dev.mathops.assessment.exam.ExamFactory;
 import dev.mathops.assessment.exam.ExamObj;
 import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
 import dev.mathops.assessment.problem.template.ProblemTemplateFactory;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.ParsingException;
-import dev.mathops.commons.parser.xml.XmlContent;
-import dev.mathops.commons.parser.xml.XmlContentError;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.ParsingException;
+import dev.mathops.text.parser.xml.XmlContent;
+import dev.mathops.text.parser.xml.XmlContentError;
 
 import javax.swing.SwingWorker;
 import java.io.File;

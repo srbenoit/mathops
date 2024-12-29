@@ -20,15 +20,15 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.installation.EPath;
 import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.ParsingException;
-import dev.mathops.commons.parser.xml.XmlContent;
-import dev.mathops.commons.parser.xml.XmlFileFilter;
 import dev.mathops.commons.ui.ColorNames;
 import dev.mathops.session.SessionCache;
 import dev.mathops.session.txn.messages.AbstractMessageBase;
 import dev.mathops.session.txn.messages.GetExamReply;
 import dev.mathops.session.txn.messages.MessageFactory;
 import dev.mathops.session.txn.messages.UpdateExamRequest;
+import dev.mathops.text.parser.ParsingException;
+import dev.mathops.text.parser.xml.XmlContent;
+import dev.mathops.text.parser.xml.XmlFileFilter;
 
 import javax.swing.JDesktopPane;
 import javax.swing.JFileChooser;

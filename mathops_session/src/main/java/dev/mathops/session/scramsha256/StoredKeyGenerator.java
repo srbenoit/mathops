@@ -1,8 +1,8 @@
 package dev.mathops.session.scramsha256;
 
+import dev.mathops.commons.HexEncoder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.Base64;
-import dev.mathops.commons.parser.HexEncoder;
+import dev.mathops.text.parser.Base64;
 
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;

@@ -1,8 +1,8 @@
 package dev.mathops.session.txn.messages;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.session.txn.handlers.AbstractHandlerBase;
 import dev.mathops.session.txn.handlers.TestingStationInfoHandler;
+import dev.mathops.text.builder.HtmlBuilder;
 
 /**
  * A request for verification that this machine is a valid testing station, and to get the testing center name and

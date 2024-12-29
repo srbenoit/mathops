@@ -1,12 +1,12 @@
 package dev.mathops.web.site.tutorial.precalc;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawrecord.RawExam;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
+import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 
@@ -112,7 +112,7 @@ enum PageInstructionsPrecalcPu {
                 htm.sTd().add("75 minutes<br/>(Adjusted to 2 hours, 30 minutes by accommodation)").eTd();
             } else if (factor > 2.49 && factor < 2.51) {
                 htm.sTd().add("75 minutes<br/>", "(Adjusted to 3 hours, 8 minutes by accommodation)").eTd();
-            } else if (factor > 2.99 && (double) factor < 3.01) {
+            } else if (factor > 2.99 && factor < 3.01) {
                 htm.sTd().add("75 minutes<br/>", "(Adjusted to 5 hours by accommodation)").eTd();
             } else {
                 final long minutes = Math.round(75.0 * factor);

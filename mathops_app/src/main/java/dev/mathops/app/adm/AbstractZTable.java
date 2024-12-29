@@ -312,7 +312,7 @@ public abstract class AbstractZTable<T> extends JPanel implements ActionListener
     public final void actionPerformed(final ActionEvent e) {
 
         final String cmd = e.getActionCommand();
-        final int sep = cmd.lastIndexOf((int) '_');
+        final int sep = cmd.lastIndexOf('_');
         if (sep == -1) {
             Log.warning("Unrecognized action command: ", cmd);
         } else if (this.listener != null) {

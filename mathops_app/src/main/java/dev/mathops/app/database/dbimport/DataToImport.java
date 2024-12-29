@@ -17,10 +17,10 @@ import java.util.Map;
 class DataToImport {
 
     /** The default delimiter. */
-    private static final int DEFAULT_DELIMITER = (int) '|';
+    private static final int DEFAULT_DELIMITER = '|';
 
     /** Character used to escape delimiters (and itself) in strings. */
-    private static final int ESCAPE_CHAR = (int) '\\';
+    private static final int ESCAPE_CHAR = '\\';
 
     /** The delimiter for unload files. */
     private final int delimiter;
@@ -107,7 +107,7 @@ class DataToImport {
 
             if (line.startsWith("{ DATABASE ")) {
                 final String sub = line.substring(11).trim();
-                final int nameEnd = sub.indexOf((int) CoreConstants.SPC_CHAR);
+                final int nameEnd = sub.indexOf(CoreConstants.SPC_CHAR);
                 if (nameEnd == -1) {
                     final String lineStr = makeLineNumberText(index, sqlFileName);
                     throw new IllegalArgumentException("Unable to interpret database name" + lineStr);
@@ -167,7 +167,7 @@ class DataToImport {
 
         final String tableLine = lines[lineIndex];
         final String sub = tableLine.substring(8);
-        final int nameEnd = sub.indexOf((int) CoreConstants.SPC_CHAR);
+        final int nameEnd = sub.indexOf(CoreConstants.SPC_CHAR);
         if (nameEnd == -1) {
             final String lineStr = makeLineNumberText(lineIndex, sqlFileName);
             throw new IllegalArgumentException("Unable to interpret table nam " + lineStr);
@@ -275,7 +275,7 @@ class DataToImport {
         TableDefinition tableDef = null;
 
         final String unloadSub = line.substring(21);
-        final int unloadNameEnd = unloadSub.indexOf((int) CoreConstants.SPC_CHAR);
+        final int unloadNameEnd = unloadSub.indexOf(CoreConstants.SPC_CHAR);
         if (unloadNameEnd == -1) {
             throw new IllegalArgumentException("Unable to interpret unload file name from [" + line + "].");
         }
@@ -285,7 +285,7 @@ class DataToImport {
             throw new IllegalArgumentException("Unable to find number of rows from [" + line + "].");
         }
         final String numRowsSub = unloadSub.substring(next + 18);
-        final int numRowsEnd = numRowsSub.indexOf((int) CoreConstants.SPC_CHAR);
+        final int numRowsEnd = numRowsSub.indexOf(CoreConstants.SPC_CHAR);
         if (numRowsEnd == -1) {
             throw new IllegalArgumentException("Unable to find end of number of rows from [" + line + "].");
         }

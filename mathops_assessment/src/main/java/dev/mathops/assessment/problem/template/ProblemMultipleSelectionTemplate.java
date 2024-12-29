@@ -25,8 +25,8 @@ import dev.mathops.assessment.variable.VariableRandomSimpleAngle;
 import dev.mathops.assessment.variable.VariableReal;
 import dev.mathops.assessment.variable.VariableSpan;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -477,7 +477,7 @@ public final class ProblemMultipleSelectionTemplate extends AbstractProblemMulti
                 list.clear();
 
                 for (int i = 0; i < choicesLen; ++i) {
-                    list.add(Long.valueOf((long) i));
+                    list.add(Long.valueOf(i));
                 }
 
                 // If any choices have hard-coded position, place them
@@ -485,7 +485,7 @@ public final class ProblemMultipleSelectionTemplate extends AbstractProblemMulti
                     final ProblemChoiceTemplate choice = choices.get(i);
 
                     if (choice.pos > 0 && choice.pos <= this.choiceOrder.length) {
-                        list.remove(Long.valueOf((long) i));
+                        list.remove(Long.valueOf(i));
                         this.choiceOrder[choice.pos - 1] = i;
                     }
                 }
@@ -844,7 +844,7 @@ public final class ProblemMultipleSelectionTemplate extends AbstractProblemMulti
             final String[] choices = paramMap.get("CHOICE_" + choice.choiceId);
 
             if (choices != null && choices.length == 1) {
-                selected.add(Long.valueOf((long) choice.choiceId));
+                selected.add(Long.valueOf(choice.choiceId));
             }
         }
 

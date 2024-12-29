@@ -1,8 +1,8 @@
 package dev.mathops.session.txn.messages;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.session.txn.handlers.AbstractHandlerBase;
 import dev.mathops.session.txn.handlers.GetPastExamHandler;
+import dev.mathops.text.builder.HtmlBuilder;
 
 /**
  * A network message to request an exam that a student has taken in the past.

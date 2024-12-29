@@ -1,6 +1,7 @@
 package dev.mathops.web.site.ramwork;
 
 import dev.mathops.assessment.EParserMode;
+import dev.mathops.assessment.HtmlImage;
 import dev.mathops.assessment.document.template.AbstractDocObjectTemplate;
 import dev.mathops.assessment.document.template.AbstractDocPrimitiveContainer;
 import dev.mathops.assessment.document.template.DocColumn;
@@ -9,14 +10,13 @@ import dev.mathops.assessment.document.template.DocParagraph;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.assessment.variable.VariableReal;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.builder.SimpleBuilder;
-import dev.mathops.commons.parser.ParsingException;
-import dev.mathops.commons.parser.xml.IElement;
-import dev.mathops.commons.parser.xml.NonemptyElement;
-import dev.mathops.commons.parser.xml.XmlContent;
-import dev.mathops.commons.ui.HtmlImage;
 import dev.mathops.db.Cache;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.builder.SimpleBuilder;
+import dev.mathops.text.parser.ParsingException;
+import dev.mathops.text.parser.xml.IElement;
+import dev.mathops.text.parser.xml.NonemptyElement;
+import dev.mathops.text.parser.xml.XmlContent;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 import jakarta.servlet.ServletRequest;
@@ -184,7 +184,7 @@ enum PageGraphEditor {
         htm.eP();
 
         htm.sP();
-        htm.addln("<button onClick='insertNumberLine();'>Number Line Example</button>");;
+        htm.addln("<button onClick='insertNumberLine();'>Number Line Example</button>");
         htm.eP();
 
         htm.addln("<form action='graphedit.html' method='POST'>");

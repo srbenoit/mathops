@@ -230,8 +230,8 @@ public final class RamWorkSite extends AbstractSite {
             final String[] split = sub.split(CoreConstants.DASH);
             if (split.length == 2) {
                 try {
-                    start = (long) Integer.parseInt(split[0]);
-                    end = (long) Integer.parseInt(split[1]);
+                    start = Integer.parseInt(split[0]);
+                    end = Integer.parseInt(split[1]);
 
                     ranged = true;
                 } catch (final NumberFormatException ex) {

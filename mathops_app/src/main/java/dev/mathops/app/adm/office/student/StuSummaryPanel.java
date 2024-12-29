@@ -6,7 +6,6 @@ import dev.mathops.app.adm.StudentData;
 import dev.mathops.app.adm.office.ECourseStepStatus;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
@@ -23,6 +22,7 @@ import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;

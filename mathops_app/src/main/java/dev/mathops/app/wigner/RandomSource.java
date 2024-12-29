@@ -133,7 +133,7 @@ public final class RandomSource implements HttpHandler {
             }
 
             final int responseLen = response.length();
-            exchange.sendResponseHeaders(200, (long) responseLen);
+            exchange.sendResponseHeaders(200, responseLen);
             final byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
 
             try (final OutputStream os = exchange.getResponseBody()) {

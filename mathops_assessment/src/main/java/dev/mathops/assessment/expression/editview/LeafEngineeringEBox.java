@@ -1,7 +1,7 @@
 package dev.mathops.assessment.expression.editview;
 
 import dev.mathops.assessment.expression.editmodel.ExprLeafEngineeringE;
-import dev.mathops.commons.builder.SimpleBuilder;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import java.awt.Color;
 import java.awt.Font;

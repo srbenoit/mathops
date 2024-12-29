@@ -2,7 +2,6 @@ package dev.mathops.web.websocket.proctor;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
@@ -36,6 +35,7 @@ import dev.mathops.session.sitelogic.servlet.FinalExamAvailability;
 import dev.mathops.session.sitelogic.servlet.FinalExamEligibilityTester;
 import dev.mathops.session.sitelogic.servlet.UnitExamAvailability;
 import dev.mathops.session.sitelogic.servlet.UnitExamEligibilityTester;
+import dev.mathops.text.builder.HtmlBuilder;
 import oracle.jdbc.proxy.annotation.OnError;
 
 import jakarta.websocket.OnClose;
@@ -147,7 +147,7 @@ public final class MPSEndpoint {
     private static final String LOG_PREFIX = "MPS WebSocket endpoint: ";
 
     /** Timeout after no activity when session is terminated. */
-    public static final long SESSION_TIMEOUT_MS = (long) (1000 * 60 * 180);
+    public static final long SESSION_TIMEOUT_MS = 1000 * 60 * 180;
 
     /** WebSocket session associated with connection. */
     private Session session;

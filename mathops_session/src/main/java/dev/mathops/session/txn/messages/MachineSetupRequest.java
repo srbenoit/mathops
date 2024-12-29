@@ -1,9 +1,9 @@
 package dev.mathops.session.txn.messages;
 
-import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.parser.xml.XmlEscaper;
 import dev.mathops.session.txn.handlers.AbstractHandlerBase;
 import dev.mathops.session.txn.handlers.MachineSetupHandler;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.xml.XmlEscaper;
 
 import java.util.Map;
 import java.util.TreeMap;

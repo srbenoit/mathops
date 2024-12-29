@@ -1,6 +1,5 @@
 package dev.mathops.db.old.logic;
 
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
@@ -15,6 +14,7 @@ import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import java.sql.SQLException;
 import java.time.LocalDate;

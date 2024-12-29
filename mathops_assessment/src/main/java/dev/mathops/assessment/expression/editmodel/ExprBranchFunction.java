@@ -2,7 +2,7 @@ package dev.mathops.assessment.expression.editmodel;
 
 import dev.mathops.assessment.formula.EFunction;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -5,9 +5,9 @@ import dev.mathops.assessment.document.inst.DocObjectInstStyle;
 import dev.mathops.assessment.document.inst.DocTextInst;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.ui.ColorNames;
 import dev.mathops.font.BundledFontManager;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -129,9 +129,9 @@ public final class DocText extends AbstractDocObjectTemplate {
         Font font = getFont();
 
         if (this.isStixText) {
-            font = bfm.getFont("STIX Two Text Regular", (double) font.getSize(), font.getStyle());
+            font = bfm.getFont("STIX Two Text Regular", font.getSize(), font.getStyle());
         } else if (this.isStixMath) {
-            font = bfm.getFont("STIX Two Math Regular", (double) font.getSize(), font.getStyle());
+            font = bfm.getFont("STIX Two Math Regular", font.getSize(), font.getStyle());
         } else if (mathMode != ELayoutMode.TEXT) {
             if (CoreConstants.DASH.equals(this.text)) {
                 txt = "\u2013";
@@ -141,10 +141,10 @@ public final class DocText extends AbstractDocObjectTemplate {
                 txt = "\u2033";
             } else if ("'''".equals(this.text)) {
                 txt = "\u2034";
-                font = bfm.getFont("STIX Two Text Regular", (double) font.getSize(), font.getStyle());
+                font = bfm.getFont("STIX Two Text Regular", font.getSize(), font.getStyle());
             } else if ("''''".equals(this.text)) {
                 txt = "\u2057";
-                font = bfm.getFont("STIX Two Text Regular", (double) font.getSize(), font.getStyle());
+                font = bfm.getFont("STIX Two Text Regular", font.getSize(), font.getStyle());
             } else if (txt.length() == 1) {
                 final char ch = txt.charAt(0);
 
@@ -231,9 +231,9 @@ public final class DocText extends AbstractDocObjectTemplate {
         }
 
         if (this.isStixText) {
-            font = bfm.getFont("STIX Two Text Regular", (double) font.getSize(), font.getStyle());
+            font = bfm.getFont("STIX Two Text Regular", font.getSize(), font.getStyle());
         } else if (this.isStixMath) {
-            font = bfm.getFont("STIX Two Math Regular", (double) font.getSize(), font.getStyle());
+            font = bfm.getFont("STIX Two Math Regular", font.getSize(), font.getStyle());
         } else if (mathMode != ELayoutMode.TEXT) {
             if (CoreConstants.DASH.equals(this.text)) {
                 txt = "\u2013";
@@ -243,10 +243,10 @@ public final class DocText extends AbstractDocObjectTemplate {
                 txt = "\u2033";
             } else if ("'''".equals(this.text)) {
                 txt = "\u2034";
-                font = bfm.getFont("STIX Two Text Regular", (double) font.getSize(), font.getStyle());
+                font = bfm.getFont("STIX Two Text Regular", font.getSize(), font.getStyle());
             } else if ("''''".equals(this.text)) {
                 txt = "\u2057";
-                font = bfm.getFont("STIX Two Text Regular", (double) font.getSize(), font.getStyle());
+                font = bfm.getFont("STIX Two Text Regular", font.getSize(), font.getStyle());
             }
         }
 

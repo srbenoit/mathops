@@ -4,7 +4,7 @@ import dev.mathops.assessment.document.EArcFillStyle;
 import dev.mathops.assessment.document.EXmlStyle;
 import dev.mathops.assessment.document.FillStyle;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.util.Objects;
 

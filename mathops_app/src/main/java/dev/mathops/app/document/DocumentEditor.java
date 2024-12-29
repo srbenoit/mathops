@@ -7,11 +7,11 @@ import dev.mathops.assessment.document.template.DocColumnPanel;
 import dev.mathops.assessment.document.template.DocFactory;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.parser.ParsingException;
-import dev.mathops.commons.parser.xml.IElement;
-import dev.mathops.commons.parser.xml.NonemptyElement;
-import dev.mathops.commons.parser.xml.XmlContent;
 import dev.mathops.commons.ui.UIUtilities;
+import dev.mathops.text.parser.ParsingException;
+import dev.mathops.text.parser.xml.IElement;
+import dev.mathops.text.parser.xml.NonemptyElement;
+import dev.mathops.text.parser.xml.XmlContent;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;

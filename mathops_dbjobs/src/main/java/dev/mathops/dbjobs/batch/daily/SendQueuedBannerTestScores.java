@@ -1,6 +1,5 @@
 package dev.mathops.dbjobs.batch.daily;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
@@ -12,6 +11,7 @@ import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.rawlogic.AbstractLogicModule;
 import dev.mathops.db.old.rawlogic.RawMpscorequeueLogic;
 import dev.mathops.db.old.rawrecord.RawMpscorequeue;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.sql.SQLException;
 import java.util.ArrayList;

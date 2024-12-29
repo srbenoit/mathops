@@ -3,7 +3,6 @@ package dev.mathops.app.adm.office.placement;
 import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.commons.ui.layout.AlignedFlowLayout;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
@@ -14,6 +13,7 @@ import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
 import dev.mathops.db.old.logic.mathplan.MathPlanPlacementStatus;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -241,7 +241,7 @@ public class PlacementMathPlanPanel extends AdmPanelBase {
                     if (foundId == null) {
                         this.checkMathPlanStatus.setText("NOT STARTED");
                         this.checkMathPlanMessage.setText(SimpleBuilder.concat(
-                                "Create my Personalized Mathematics Plan\r\n", //
+                                "Create my Personalized Mathematics Plan\r\n",
                                 "All majors at CSU include at least one quantitative reasoning ",
                                 "course (for a total of three credits) to graduate. Create your ",
                                 "Personalized Mathematics Plan to view the math or statistics ",

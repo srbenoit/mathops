@@ -2,8 +2,8 @@ package dev.mathops.app.checkin;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.font.BundledFontManager;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import javax.swing.JPanel;
 import java.awt.Color;
@@ -266,7 +266,7 @@ public final class BottomPanel extends JPanel {
                 pts = height * 3 / 5;
                 Font messageFont = null;
                 while (pts >= 10) {
-                    messageFont = bfm.getFont(BundledFontManager.SERIF, (double) pts, Font.BOLD);
+                    messageFont = bfm.getFont(BundledFontManager.SERIF, pts, Font.BOLD);
                     final FontMetrics fm = grx.getFontMetrics(messageFont);
                     final int textWidth = fm.stringWidth(test);
 

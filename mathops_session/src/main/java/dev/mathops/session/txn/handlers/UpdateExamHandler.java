@@ -21,7 +21,6 @@ import dev.mathops.assessment.variable.VariableInteger;
 import dev.mathops.assessment.variable.VariableReal;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
 import dev.mathops.db.Cache;
@@ -86,6 +85,7 @@ import dev.mathops.session.sitelogic.servlet.StudentCourseStatus;
 import dev.mathops.session.txn.messages.AbstractRequestBase;
 import dev.mathops.session.txn.messages.UpdateExamReply;
 import dev.mathops.session.txn.messages.UpdateExamRequest;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -865,11 +865,11 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
         final int sat = student.satScore == null ? 0 : student.satScore.intValue();
 
         final VariableInteger param1 = new VariableInteger("student-ACT-math");
-        param1.setValue(Long.valueOf((long) act));
+        param1.setValue(Long.valueOf(act));
         params.addVariable(param1);
 
         final VariableInteger param2 = new VariableInteger("student-SAT-math");
-        param2.setValue(Long.valueOf((long) sat));
+        param2.setValue(Long.valueOf(sat));
         params.addVariable(param2);
 
         final List<RawStsurveyqa> answers = RawStsurveyqaLogic.queryLatestByStudentProfile(cache, student.stuId,
@@ -922,23 +922,23 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
         }
 
         final VariableInteger param3 = new VariableInteger("hours-preparing");
-        param3.setValue(Long.valueOf((long) prep));
+        param3.setValue(Long.valueOf(prep));
         params.addVariable(param3);
 
         final VariableInteger param4 = new VariableInteger("time-since-last-math");
-        param4.setValue(Long.valueOf((long) since));
+        param4.setValue(Long.valueOf(since));
         params.addVariable(param4);
 
         final VariableInteger param5 = new VariableInteger("highest-math-taken");
-        param5.setValue(Long.valueOf((long) taken));
+        param5.setValue(Long.valueOf(taken));
         params.addVariable(param5);
 
         final VariableInteger param6 = new VariableInteger("resources-used-preparing");
-        param6.setValue(Long.valueOf((long) resources));
+        param6.setValue(Long.valueOf(resources));
         params.addVariable(param6);
 
         final VariableInteger param7 = new VariableInteger("typical-math-grade");
-        param7.setValue(Long.valueOf((long) typical));
+        param7.setValue(Long.valueOf(typical));
         params.addVariable(param7);
     }
 

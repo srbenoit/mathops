@@ -1,8 +1,8 @@
 package dev.mathops.session.txn.messages;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.session.txn.handlers.AbstractHandlerBase;
 import dev.mathops.session.txn.handlers.ExamStartResultHandler;
+import dev.mathops.text.builder.HtmlBuilder;
 
 /**
  * A network message to indicate that the launch of an exam failed.
@@ -44,7 +44,7 @@ public final class ExamStartResultRequest extends AbstractRequestBase {
 
         super();
 
-        this.result = Long.valueOf((long) theResult);
+        this.result = Long.valueOf(theResult);
         this.examVersion = theExamVersion;
         this.serialNumber = theSerialNumber;
     }

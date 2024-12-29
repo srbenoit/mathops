@@ -306,7 +306,7 @@ public final class GlyphViewer implements ActionListener, ViewerInt {
      */
     private void rebuildFont() {
 
-        final Font font = this.mgr.getFont(this.name, (double) this.size, Font.PLAIN);
+        final Font font = this.mgr.getFont(this.name, this.size, Font.PLAIN);
 
         this.panel.setTheFont(font);
 

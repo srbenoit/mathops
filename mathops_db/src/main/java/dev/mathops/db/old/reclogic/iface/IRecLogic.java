@@ -1,11 +1,11 @@
 package dev.mathops.db.old.reclogic.iface;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.cfg.DbConfig;
 import dev.mathops.db.EDbProduct;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.rec.RecBase;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.sql.Date;
 import java.sql.ResultSet;

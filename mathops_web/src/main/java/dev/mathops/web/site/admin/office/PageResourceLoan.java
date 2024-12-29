@@ -1,7 +1,6 @@
 package dev.mathops.web.site.admin.office;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawlogic.RawResourceLogic;
@@ -12,6 +11,7 @@ import dev.mathops.db.old.rawrecord.RawResource;
 import dev.mathops.db.old.rawrecord.RawStresource;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
+import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.admin.AdminSite;
@@ -137,7 +137,7 @@ enum PageResourceLoan {
                             final int start = now.getHour() * 60 + now.getMinute();
 
                             final LocalDate due = today.plusDays(
-                                    (long) (daysAllowed == null ? 1 : daysAllowed.intValue()));
+                                    daysAllowed == null ? 1 : daysAllowed.intValue());
 
                             final RawStresource loan = new RawStresource(stu.stuId, res.resourceId,
                                     today, Integer.valueOf(start), due, null, null, Integer.valueOf(0),

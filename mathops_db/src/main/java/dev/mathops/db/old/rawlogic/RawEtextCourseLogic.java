@@ -1,8 +1,8 @@
 package dev.mathops.db.old.rawlogic;
 
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawrecord.RawEtextCourse;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -118,7 +118,7 @@ public final class RawEtextCourseLogic extends AbstractRawLogic<RawEtextCourse> 
      */
     public static List<RawEtextCourse> queryByEtext(final Cache cache, final String etextId) throws SQLException {
 
-        return executeQuery(cache, SimpleBuilder.concat(//
+        return executeQuery(cache, SimpleBuilder.concat(
                 "SELECT * FROM etext_course WHERE etext_id=", sqlStringValue(etextId)));
     }
 

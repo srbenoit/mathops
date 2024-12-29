@@ -401,7 +401,6 @@ public enum AssembleProgramData {
         } else if ("STAT-BS".equals(program)
                    || "STAT-MSTZ-BS".equals(program)) {
             terminal = M_256_OR_261;
-            ;
         } else if ("MATH-MTEZ-BS".equals(program)
                    || "NSCI-PHEZ-BS".equals(program)
                    || "STAT-GSTZ-BS".equals(program)) {

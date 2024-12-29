@@ -202,12 +202,12 @@ class ProblemListPanel extends JPanel implements MouseListener {
         this.rightFontBaseSize = 15.0f;
         this.wrongFontBaseSize = 15.0f;
 
-        this.sectionFont = theBfm.getFont(BundledFontManager.SANS, (double) this.sectionFontBaseSize, Font.PLAIN);
-        this.questionFont = theBfm.getFont(BundledFontManager.SERIF, (double) this.questionFontBaseSize, Font.PLAIN);
-        this.arrowFont = theBfm.getFont("ESSTIXOne", (double) this.arrowFontBaseSize, Font.PLAIN);
-        this.checkmarkFont = theBfm.getFont("ESSTIXTwo", (double) this.checkmarkFontBaseSize, Font.PLAIN);
-        this.rightFont = theBfm.getFont("Martin_Vogels_Symbole", (double) this.rightFontBaseSize, Font.PLAIN);
-        this.wrongFont = theBfm.getFont("Martin_Vogels_Symbole", (double) this.wrongFontBaseSize, Font.PLAIN);
+        this.sectionFont = theBfm.getFont(BundledFontManager.SANS, this.sectionFontBaseSize, Font.PLAIN);
+        this.questionFont = theBfm.getFont(BundledFontManager.SERIF, this.questionFontBaseSize, Font.PLAIN);
+        this.arrowFont = theBfm.getFont("ESSTIXOne", this.arrowFontBaseSize, Font.PLAIN);
+        this.checkmarkFont = theBfm.getFont("ESSTIXTwo", this.checkmarkFontBaseSize, Font.PLAIN);
+        this.rightFont = theBfm.getFont("Martin_Vogels_Symbole", this.rightFontBaseSize, Font.PLAIN);
+        this.wrongFont = theBfm.getFont("Martin_Vogels_Symbole", this.wrongFontBaseSize, Font.PLAIN);
 
         this.arrowString = "\u003c";
         this.checkString = "\u0023 ";

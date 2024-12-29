@@ -1,12 +1,12 @@
 package dev.mathops.session;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.installation.EPath;
 import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.session.login.LocalLoginProcessor;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.io.File;
 import java.time.Instant;
@@ -37,7 +37,7 @@ public class SessionCache {
     private static final String ADMIN_USER_ID = "111223333";
 
     /** The Shibboleth timeout duration (5 hours). */
-    private static final long SHIBBOLETH_TIMEOUT = (long) (5 * 60 * 60 * 1000);
+    private static final long SHIBBOLETH_TIMEOUT = 5 * 60 * 60 * 1000;
 
     /** A typical number of sessions. */
     private static final int TYP_NUM_SESSIONS = 50;

@@ -1,6 +1,5 @@
 package dev.mathops.app.ops.snapin.messaging.factory;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStudent;
@@ -10,6 +9,7 @@ import dev.mathops.app.ops.snapin.messaging.MessagingContext;
 import dev.mathops.app.ops.snapin.messaging.MessagingCourseStatus;
 import dev.mathops.app.ops.snapin.messaging.MsgUtils;
 import dev.mathops.app.ops.snapin.messaging.tosend.MessageToSend;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.time.LocalTime;
 

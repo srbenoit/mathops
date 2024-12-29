@@ -2,9 +2,9 @@ package dev.mathops.app.catalog;
 
 import dev.mathops.commons.ESuccessFailure;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.xml.XmlEscaper;
 import dev.mathops.db.old.rec.CatalogCourseRec;
 import dev.mathops.db.type.CatalogCourseNumber;
+import dev.mathops.text.parser.xml.XmlEscaper;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;

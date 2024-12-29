@@ -1,6 +1,5 @@
 package dev.mathops.session;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.SystemData;
@@ -18,6 +17,7 @@ import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.rec.LiveReg;
 import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.sql.SQLException;
 import java.time.LocalDate;

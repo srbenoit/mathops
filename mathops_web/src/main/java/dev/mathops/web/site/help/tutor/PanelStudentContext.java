@@ -1,6 +1,6 @@
 package dev.mathops.web.site.help.tutor;
 
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 /**
  * Generates the content of the "Student Context" panel.

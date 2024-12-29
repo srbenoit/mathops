@@ -294,7 +294,7 @@ final class StartExamDialog extends JDialog implements ActionListener {
 
             if (timelimit > 0) {
                 final LocalDateTime now = LocalDateTime.now();
-                final LocalDateTime end = now.plusMinutes((long) (timelimit + 2));
+                final LocalDateTime end = now.plusMinutes(timelimit + 2);
 
                 final JPanel timerPane = new JPanel(new BorderLayout());
                 timerPane.setBackground(Skin.WHITE);

@@ -3,7 +3,7 @@ package dev.mathops.assessment.problem.inst;
 import dev.mathops.assessment.document.inst.DocColumnInst;
 import dev.mathops.assessment.problem.ECalculatorType;
 import dev.mathops.assessment.problem.EProblemType;
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.util.List;
 

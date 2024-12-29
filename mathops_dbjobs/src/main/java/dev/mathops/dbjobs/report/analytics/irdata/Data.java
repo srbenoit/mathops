@@ -1,7 +1,7 @@
 package dev.mathops.dbjobs.report.analytics.irdata;
 
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -21,7 +21,7 @@ import java.util.TreeMap;
 final class Data {
 
     /** A line delimiter character. */
-    private static final int QUOTE = (int) '"';
+    private static final int QUOTE = '"';
 
     /** The expected number of fields in each line. */
     private static final int EXPECTED_FIELD_COUNT = 45;
@@ -30,10 +30,10 @@ final class Data {
     private static final int EXPECTED_NUM_STUDENTS = 60000;
 
     /** A character used to indicate "TRUE" in a flag field. */
-    private static final int FLAG_TRUE_CHAR = (int) '1';
+    private static final int FLAG_TRUE_CHAR = '1';
 
     /** A character used to indicate "FALSE" in a flag field. */
-    private static final int FLAG_FALSE_CHAR = (int) '0';
+    private static final int FLAG_FALSE_CHAR = '0';
 
     /** A container for fields as they are parsed from the data file. */
     private final List<String> fields;
@@ -329,7 +329,7 @@ final class Data {
 
         final String flagString = this.fields.get(fieldIndex);
         if (flagString.length() == 1) {
-            final int flagChar = (int) flagString.charAt(0);
+            final int flagChar = flagString.charAt(0);
             if (flagChar == FLAG_TRUE_CHAR) {
                 result = true;
             } else {
@@ -391,7 +391,7 @@ final class Data {
         final String toParse = this.fields.get(fieldIndex);
         if (!toParse.isBlank()) {
             if (toParse.length() == 1) {
-                final int flagChar = (int) toParse.charAt(0);
+                final int flagChar = toParse.charAt(0);
                 if (flagChar == FLAG_TRUE_CHAR) {
                     result = Boolean.TRUE;
                 } else if (flagChar == FLAG_FALSE_CHAR) {

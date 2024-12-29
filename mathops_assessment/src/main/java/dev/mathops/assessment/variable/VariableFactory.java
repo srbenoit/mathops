@@ -12,12 +12,12 @@ import dev.mathops.assessment.formula.FormulaFactory;
 import dev.mathops.assessment.formula.IntegerVectorValue;
 import dev.mathops.assessment.formula.XmlFormulaFactory;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.parser.xml.CData;
-import dev.mathops.commons.parser.xml.Comment;
-import dev.mathops.commons.parser.xml.EmptyElement;
-import dev.mathops.commons.parser.xml.IElement;
-import dev.mathops.commons.parser.xml.INode;
-import dev.mathops.commons.parser.xml.NonemptyElement;
+import dev.mathops.text.parser.xml.CData;
+import dev.mathops.text.parser.xml.Comment;
+import dev.mathops.text.parser.xml.EmptyElement;
+import dev.mathops.text.parser.xml.IElement;
+import dev.mathops.text.parser.xml.INode;
+import dev.mathops.text.parser.xml.NonemptyElement;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -115,10 +115,10 @@ public enum VariableFactory {
     private static final String GENERATED_STRING = "generated-string";
 
     /** A commonly used character. */
-    private static final int L_BRACE = (int) '{';
+    private static final int L_BRACE = '{';
 
     /** A commonly used character. */
-    private static final int R_BRACE = (int) '}';
+    private static final int R_BRACE = '}';
 
     /** Characters that are interpreted as TRUE in input strings, the first is used in output. */
     private static final String TRUE_CHARS = "YyTt1!";
@@ -1157,7 +1157,7 @@ public enum VariableFactory {
             elem.logError("Missing 'name' attribute on <var> element");
         } else if (typeStr == null) {
             elem.logError("Missing 'type' attribute on <var> element");
-        } else if (varName.indexOf(L_BRACE) != -1 || varName.indexOf((int) R_BRACE) != -1) {
+        } else if (varName.indexOf(L_BRACE) != -1 || varName.indexOf(R_BRACE) != -1) {
             elem.logError("Variable names may not contain '{' or '}'");
         } else {
             if (elem.getElementChildrenAsList().isEmpty() && !VariableSpan.TYPE_TAG.contentEquals(typeStr)) {
@@ -2965,8 +2965,8 @@ public enum VariableFactory {
 
         if (len == 1) {
             final char chr = str.charAt(0);
-            if (TRUE_CHARS.indexOf((int) chr) == -1) {
-                if (FALSE_CHARS.indexOf((int) chr) == -1) {
+            if (TRUE_CHARS.indexOf(chr) == -1) {
+                if (FALSE_CHARS.indexOf(chr) == -1) {
                     throw new IllegalArgumentException("Invalid boolean format '" + str + "'");
                 }
                 result = Boolean.FALSE;

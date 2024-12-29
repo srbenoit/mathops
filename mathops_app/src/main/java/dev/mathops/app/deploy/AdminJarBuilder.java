@@ -1,11 +1,11 @@
 package dev.mathops.app.deploy;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.installation.Installation;
 import dev.mathops.commons.installation.Installations;
 import dev.mathops.commons.log.Log;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.io.BufferedOutputStream;
 import java.io.File;

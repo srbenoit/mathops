@@ -2,7 +2,6 @@ package dev.mathops.app.ops;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.ParsingException;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
@@ -16,6 +15,7 @@ import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.cfg.LoginConfig;
 import dev.mathops.db.old.cfg.SchemaConfig;
 import dev.mathops.db.old.cfg.ServerConfig;
+import dev.mathops.text.parser.ParsingException;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;

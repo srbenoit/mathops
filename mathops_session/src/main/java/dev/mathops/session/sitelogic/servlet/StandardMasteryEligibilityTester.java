@@ -1,6 +1,5 @@
 package dev.mathops.session.sitelogic.servlet;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.logic.ResolvedStandardMilestones;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
@@ -9,6 +8,7 @@ import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.rec.StudentUnitMasteryRec;
 import dev.mathops.db.old.reclogic.StudentUnitMasteryLogic;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.sql.SQLException;
 import java.time.ZonedDateTime;

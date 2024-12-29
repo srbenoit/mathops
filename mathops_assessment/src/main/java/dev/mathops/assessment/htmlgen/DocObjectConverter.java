@@ -1,5 +1,6 @@
 package dev.mathops.assessment.htmlgen;
 
+import dev.mathops.assessment.HtmlImage;
 import dev.mathops.assessment.NumberOrFormula;
 import dev.mathops.assessment.document.EFieldStyle;
 import dev.mathops.assessment.document.ELayoutMode;
@@ -36,11 +37,10 @@ import dev.mathops.assessment.formula.Formula;
 import dev.mathops.assessment.variable.AbstractVariable;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.ColorNames;
-import dev.mathops.commons.ui.HtmlImage;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import java.awt.Color;
 import java.awt.Insets;
@@ -1061,7 +1061,7 @@ enum DocObjectConverter {
 
         for (int i = 0; i < len; ++i) {
 
-            final int cur = (int) chars[i];
+            final int cur = chars[i];
 
             if (cur == (int) '<') {
                 htm.add("&lt;");
@@ -1095,7 +1095,7 @@ enum DocObjectConverter {
                 } else {
                     htm.add("&apos;");
                 }
-            } else if (cur == (int) (int) '&') {
+            } else if (cur == (int) '&') {
                 htm.add("&amp;");
             } else if (fontName == null || fontName.contains("Times") || fontName.contains("Arial")) {
 
@@ -1672,7 +1672,7 @@ enum DocObjectConverter {
                 } else if (cur == (int) '\u007a') {
                     htm.add("<span class='sr-only'> approximately equal to </span><span class='no-sr'>&asymp;</span>");
                 } else {
-                    final String hex = Integer.toHexString((int) cur);
+                    final String hex = Integer.toHexString(cur);
                     Log.warning("Unmatched character from ESSTIXFour: 0x", hex, " in ", txt);
                     htm.add((char) cur);
                 }
@@ -1685,7 +1685,7 @@ enum DocObjectConverter {
                 } else if (cur == (int) '\u004f') {
                     htm.add("<span class='sr-only'> divided by </span><span class='no-sr'>&div;</span>");
                 } else {
-                    final String hex = Integer.toHexString((int) cur);
+                    final String hex = Integer.toHexString(cur);
                     Log.warning("Unmatched character from ESSTIXFive: 0x", hex, " in ", txt);
                     htm.add((char) cur);
                 }
@@ -1698,7 +1698,7 @@ enum DocObjectConverter {
                     htm.add("<span class='sr-only'> integral of </span>",
                             "<span class='no-sr' style='position:relative; top:.2em;'>&int;</span>");
                 } else {
-                    final String hex = Integer.toHexString((int) cur);
+                    final String hex = Integer.toHexString(cur);
                     Log.warning("Unmatched character from ESSTIXSix: 0x", hex, " in ", txt);
                     htm.add((char) cur);
                 }
@@ -1721,7 +1721,7 @@ enum DocObjectConverter {
                 } else if (cur == (int) '\u0044') {
                     htm.add("<span class='sr-only'> right angle bracket </span><span class='no-sr'>&rang;</span>");
                 } else {
-                    final String hex = Integer.toHexString((int) cur);
+                    final String hex = Integer.toHexString(cur);
                     Log.warning("Unmatched character from ESSTIXSeven: 0x", hex, " in ", txt);
                     htm.add((char) cur);
                 }
@@ -1740,7 +1740,7 @@ enum DocObjectConverter {
                 } else if (cur == (int) '\u0072') {
                     htm.add("<span class='sr-only'> rho </span><span class='no-sr'><b>&rho;</b></span>");
                 } else {
-                    final String hex = Integer.toHexString((int) cur);
+                    final String hex = Integer.toHexString(cur);
                     Log.warning("Unmatched character from ESSTIXNine: 0x", hex, " in ", txt);
                     htm.add((char) cur);
                 }
@@ -1769,7 +1769,7 @@ enum DocObjectConverter {
                 } else if (cur == (int) '\u0075') {
                     htm.add("<span class='sr-only'> omega </span><span class='no-sr'><b>&omega;</b></span>");
                 } else {
-                    final String hex = Integer.toHexString((int) cur);
+                    final String hex = Integer.toHexString(cur);
                     Log.warning("Unmatched character from ESSTIXEleven: 0x", hex, " in ", txt);
                     htm.add((char) cur);
                 }
@@ -1786,12 +1786,12 @@ enum DocObjectConverter {
                 } else if (cur == (int) '\u0078') {
                     htm.add("<span class='sr-only'> script X </span><span class='no-sr'>&xscr;</span>");
                 } else {
-                    final String hex = Integer.toHexString((int) cur);
+                    final String hex = Integer.toHexString(cur);
                     Log.warning("Unmatched character from ESSTIXThirteen: 0x", hex, " in ", txt);
                     htm.add((char) cur);
                 }
             } else {
-                final String hex = Integer.toHexString((int) cur);
+                final String hex = Integer.toHexString(cur);
                 Log.warning("Unmatched character from ", fontName, ": 0x", hex, " in ", txt);
                 htm.add((char) cur);
             }

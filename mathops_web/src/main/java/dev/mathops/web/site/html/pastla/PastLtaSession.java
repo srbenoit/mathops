@@ -12,15 +12,15 @@ import dev.mathops.assessment.problem.template.ProblemMultipleChoiceTemplate;
 import dev.mathops.assessment.problem.template.ProblemMultipleSelectionTemplate;
 import dev.mathops.assessment.problem.template.ProblemNumericTemplate;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.xml.XmlEscaper;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.txn.messages.GetExamReply;
 import dev.mathops.session.txn.messages.GetReviewExamReply;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.xml.XmlEscaper;
 import dev.mathops.web.site.html.HtmlSessionBase;
 import jakarta.servlet.ServletRequest;
 

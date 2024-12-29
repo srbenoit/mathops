@@ -15,7 +15,7 @@ import java.util.Map;
 public final class LiveHelpSessionManager {
 
     /** Inactivity duration that deletes a "sleeping" session. */
-    private static final long DELETE_TIME_OUT = (long) (30 * 60 * 1000);
+    private static final long DELETE_TIME_OUT = 30 * 60 * 1000;
 
     /** The single instance, lazily created. */
     private static LiveHelpSessionManager instance;

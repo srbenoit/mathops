@@ -1,6 +1,6 @@
 package dev.mathops.session.txn.messages;
 
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 /**
  * A network message that confirms receipt of a StartExamFailedRequest message.

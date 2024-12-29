@@ -9,7 +9,6 @@ import dev.mathops.app.checkin.DataExamStatus;
 import dev.mathops.app.checkin.DataNonCourseExams;
 import dev.mathops.app.checkin.LogicCheckIn;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.logic.SystemData;
@@ -18,6 +17,7 @@ import dev.mathops.db.old.logic.ChallengeExamLogic;
 import dev.mathops.db.old.rawrecord.RawExam;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStexam;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;

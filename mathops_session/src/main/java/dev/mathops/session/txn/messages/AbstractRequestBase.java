@@ -1,7 +1,7 @@
 package dev.mathops.session.txn.messages;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.session.txn.handlers.AbstractHandlerBase;
+import dev.mathops.text.builder.HtmlBuilder;
 
 /**
  * The base class for all request messages.

@@ -1,6 +1,6 @@
 package dev.mathops.assessment.document;
 
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 /**
  * A specification of a fill style.

@@ -8,10 +8,10 @@ import dev.mathops.assessment.document.inst.AbstractDocObjectInst;
 import dev.mathops.assessment.variable.AbstractVariable;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.ColorNames;
 import dev.mathops.font.BundledFontManager;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -100,7 +100,7 @@ public abstract class AbstractDocObjectTemplate implements Serializable {
         defaultFormat.fontSize = DEFAULT_BASE_FONT_SIZE;
         defaultFormat.fontStyle = Integer.valueOf(PLAIN);
 
-        Font font = bfm.getFont(BundledFontManager.SERIF, (double) DEFAULT_BASE_FONT_SIZE, PLAIN);
+        Font font = bfm.getFont(BundledFontManager.SERIF, DEFAULT_BASE_FONT_SIZE, PLAIN);
         if (font == null) {
             font = new Font("Dialog", Font.PLAIN, (int) DEFAULT_BASE_FONT_SIZE);
         }
@@ -508,7 +508,7 @@ public abstract class AbstractDocObjectTemplate implements Serializable {
 
             // Now convert the settings into a realized font.
             final BundledFontManager bfm = BundledFontManager.getInstance();
-            font = bfm.getFont(fName, (double) fSize, fStyle);
+            font = bfm.getFont(fName, fSize, fStyle);
 
             if (font == null) {
                 // Font manager can't do it, so make a substitute

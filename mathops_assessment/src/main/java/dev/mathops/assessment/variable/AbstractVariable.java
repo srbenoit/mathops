@@ -6,7 +6,7 @@ import dev.mathops.assessment.Irrational;
 import dev.mathops.assessment.document.template.AbstractDocObjectTemplate;
 import dev.mathops.assessment.document.template.DocSimpleSpan;
 import dev.mathops.assessment.formula.IntegerVectorValue;
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.io.PrintStream;
 import java.text.DecimalFormat;

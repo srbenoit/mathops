@@ -4,7 +4,7 @@ import dev.mathops.assessment.document.EJustification;
 import dev.mathops.assessment.document.ETableSizing;
 import dev.mathops.assessment.document.EXmlStyle;
 import dev.mathops.assessment.document.Padding;
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.util.Arrays;
 import java.util.Objects;

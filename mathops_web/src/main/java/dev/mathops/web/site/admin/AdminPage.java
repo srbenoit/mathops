@@ -1,9 +1,9 @@
 package dev.mathops.web.site.admin;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.rawrecord.RawWhichDb;
 import dev.mathops.session.ImmutableSessionInfo;
+import dev.mathops.text.builder.HtmlBuilder;
 
 /**
  * A base class for pages in the administrative system site.

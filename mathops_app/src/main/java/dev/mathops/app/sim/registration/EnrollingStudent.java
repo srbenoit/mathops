@@ -3,7 +3,7 @@ package dev.mathops.app.sim.registration;
 import dev.mathops.app.sim.courses.Course;
 import dev.mathops.app.sim.courses.OfferedSection;
 import dev.mathops.app.sim.students.StudentClassPreferences;
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.util.ArrayList;
 import java.util.Collection;

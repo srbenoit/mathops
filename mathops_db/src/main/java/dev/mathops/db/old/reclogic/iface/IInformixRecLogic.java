@@ -1,11 +1,11 @@
 package dev.mathops.db.old.reclogic.iface;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.old.rec.RecBase;
 import dev.mathops.db.old.reclogic.query.DateTimeCriteria;
 import dev.mathops.db.old.reclogic.query.IntegerCriteria;
 import dev.mathops.db.old.reclogic.query.StringCriteria;
 import dev.mathops.db.old.reclogic.query.DateCriteria;
+import dev.mathops.text.builder.HtmlBuilder;
 
 /**
  * An interface implemented by record logic implementations that access Informix.

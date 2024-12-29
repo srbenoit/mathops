@@ -1,7 +1,5 @@
 package dev.mathops.db.old.svc.term;
 
-import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.Cache;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.EDbProduct;
@@ -13,6 +11,8 @@ import dev.mathops.db.old.reclogic.query.DateCriteria;
 import dev.mathops.db.old.reclogic.query.EStringComparison;
 import dev.mathops.db.old.reclogic.query.IntegerCriteria;
 import dev.mathops.db.old.reclogic.query.StringCriteria;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

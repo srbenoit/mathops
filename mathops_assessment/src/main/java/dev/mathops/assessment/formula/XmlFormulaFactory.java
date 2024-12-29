@@ -5,12 +5,12 @@ import dev.mathops.assessment.NumberParser;
 import dev.mathops.assessment.document.template.DocFactory;
 import dev.mathops.assessment.document.template.DocSimpleSpan;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.commons.parser.ParsingException;
-import dev.mathops.commons.parser.xml.CData;
-import dev.mathops.commons.parser.xml.EmptyElement;
-import dev.mathops.commons.parser.xml.IElement;
-import dev.mathops.commons.parser.xml.INode;
-import dev.mathops.commons.parser.xml.NonemptyElement;
+import dev.mathops.text.parser.ParsingException;
+import dev.mathops.text.parser.xml.CData;
+import dev.mathops.text.parser.xml.EmptyElement;
+import dev.mathops.text.parser.xml.IElement;
+import dev.mathops.text.parser.xml.INode;
+import dev.mathops.text.parser.xml.NonemptyElement;
 
 import java.util.List;
 import java.util.Locale;

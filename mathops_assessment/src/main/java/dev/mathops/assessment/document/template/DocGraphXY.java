@@ -14,10 +14,10 @@ import dev.mathops.assessment.document.inst.DocGraphXYInst;
 import dev.mathops.assessment.document.inst.DocObjectInstStyle;
 import dev.mathops.assessment.document.inst.StrokeStyleInst;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.xml.XmlEscaper;
 import dev.mathops.commons.ui.ColorNames;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.xml.XmlEscaper;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -760,7 +760,7 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
                 getFontStyle());
 
         final StrokeStyleInst borderStyle = this.borderWidth == 0 ? null :
-                new StrokeStyleInst((double) this.borderWidth,
+                new StrokeStyleInst(this.borderWidth,
                         this.borderColorName, null, 1.0, EStrokeCap.BUTT, EStrokeJoin.MITER, 10.0f);
 
         final List<AbstractDocPrimitive> primitives = getPrimitives();
@@ -779,7 +779,7 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
 
         final GridSpec grid = new GridSpec(this.gridWidth, this.gridColorName);
 
-        final StrokeStyleInst axisStroke = new StrokeStyleInst((double) this.axisWidth, this.axisColorName, null, 1.0,
+        final StrokeStyleInst axisStroke = new StrokeStyleInst(this.axisWidth, this.axisColorName, null, 1.0,
                 EStrokeCap.BUTT, EStrokeJoin.MITER, 10.0f);
 
         final int tickPosLen;

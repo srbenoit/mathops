@@ -1,10 +1,10 @@
 package dev.mathops.app.ops.snapin.messaging;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStmsg;
 import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;

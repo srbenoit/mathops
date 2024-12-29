@@ -1,7 +1,6 @@
 package dev.mathops.dbjobs.batch.daily;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.enums.EDisciplineActionType;
@@ -36,6 +35,7 @@ import dev.mathops.db.old.schema.AbstractImpl;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.dbjobs.report.SpecialOpenReport;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

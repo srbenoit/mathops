@@ -1,9 +1,9 @@
 package dev.mathops.db.type;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.enums.ETermName;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import java.io.NotSerializableException;
 import java.io.Serial;
@@ -346,7 +346,7 @@ public final class TermKey implements Serializable, Comparable<TermKey> {
             throw new IllegalArgumentException(s);
         }
 
-        final int comma = longTermString.indexOf((int) CoreConstants.COMMA_CHAR);
+        final int comma = longTermString.indexOf(CoreConstants.COMMA_CHAR);
         if (comma == -1) {
             final String msg = Res.fmt(Res.BAD_LONG_TERM, longTermString);
             throw new IllegalArgumentException(msg);

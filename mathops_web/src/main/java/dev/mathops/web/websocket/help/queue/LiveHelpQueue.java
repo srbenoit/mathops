@@ -1,14 +1,14 @@
 package dev.mathops.web.websocket.help.queue;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.ParsingException;
-import dev.mathops.commons.parser.xml.EmptyElement;
-import dev.mathops.commons.parser.xml.IElement;
-import dev.mathops.commons.parser.xml.INode;
-import dev.mathops.commons.parser.xml.NonemptyElement;
-import dev.mathops.commons.parser.xml.XmlContent;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.ParsingException;
+import dev.mathops.text.parser.xml.EmptyElement;
+import dev.mathops.text.parser.xml.IElement;
+import dev.mathops.text.parser.xml.INode;
+import dev.mathops.text.parser.xml.NonemptyElement;
+import dev.mathops.text.parser.xml.XmlContent;
 import dev.mathops.web.websocket.help.StudentKey;
 
 import java.util.ArrayList;
@@ -45,10 +45,10 @@ public final class LiveHelpQueue {
 
     /** Timeout (in ms) before an active request is moved to CANCELED status - 15 seconds. */
     // private static final long ACTIVE_TIMEOUT_MS = 15 * 1000;
-    private static final long ACTIVE_TIMEOUT_MS = (long) (1500 * 1000);
+    private static final long ACTIVE_TIMEOUT_MS = 1500 * 1000;
 
     /** Timeout (in ms) before a canceled request is deleted - 5 minutes. */
-    private static final long CANCELED_TIMEOUT_MS = (long) (5 * 60 * 1000);
+    private static final long CANCELED_TIMEOUT_MS = 5 * 60 * 1000;
 
     /** Hours the live help system is operational. */
     final LiveHelpHours hours;
@@ -66,7 +66,7 @@ public final class LiveHelpQueue {
     private final List<LiveHelpOnlineAdministrator> administrators;
 
     /** The average wait time - a rolling average of the last 10 waits, initialized to 5 min. */
-    private long avgWaitTime = (long) (5 * 60 * 1000);
+    private long avgWaitTime = 5 * 60 * 1000;
 
     /**
      * Constructs a new {@code LiveHelpQueue}.

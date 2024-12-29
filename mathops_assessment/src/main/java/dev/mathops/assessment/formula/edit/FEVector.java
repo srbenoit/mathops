@@ -10,8 +10,8 @@ import dev.mathops.assessment.formula.ErrorValue;
 import dev.mathops.assessment.formula.IntegerFormulaVector;
 import dev.mathops.assessment.formula.RealFormulaVector;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.awt.Font;
 import java.awt.Graphics2D;

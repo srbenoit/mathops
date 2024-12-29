@@ -1,8 +1,8 @@
 package dev.mathops.session.txn.messages;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.session.txn.handlers.AbstractHandlerBase;
 import dev.mathops.session.txn.handlers.GetExamHandler;
+import dev.mathops.text.builder.HtmlBuilder;
 
 /**
  * A network message to request that a new exam be realized and stored on a user's account as being in progress.

@@ -1,9 +1,9 @@
 package dev.mathops.db.old.cfg;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.parser.ParsingException;
-import dev.mathops.commons.parser.xml.EmptyElement;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.ParsingException;
+import dev.mathops.text.parser.xml.EmptyElement;
 
 /**
  * Represents a particular database schema, with which is associated a factory class that can generate implementations
@@ -45,7 +45,7 @@ public final class SchemaConfig {
         final String tagName = theElem.getTagName();
         if (ELEM_TAG.equals(tagName)) {
             this.id = theElem.getRequiredStringAttr(ID_ATTR);
-            if (this.id.indexOf((int) CoreConstants.COMMA_CHAR) >= 0) {
+            if (this.id.indexOf(CoreConstants.COMMA_CHAR) >= 0) {
                 final int start = theElem.getStart();
                 final int end = theElem.getEnd();
                 final String msg = Res.fmt(Res.SCH_BAD_ID, this.id);

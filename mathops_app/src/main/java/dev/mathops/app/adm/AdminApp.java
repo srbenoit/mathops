@@ -3,9 +3,9 @@ package dev.mathops.app.adm;
 import com.formdev.flatlaf.FlatLightLaf;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LoggingSubsystem;
-import dev.mathops.commons.parser.ParsingException;
 import dev.mathops.db.DbConnection;
 import dev.mathops.db.old.cfg.ContextMap;
+import dev.mathops.text.parser.ParsingException;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;

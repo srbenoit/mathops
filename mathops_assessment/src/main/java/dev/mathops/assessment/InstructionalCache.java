@@ -12,9 +12,9 @@ import dev.mathops.commons.installation.EPath;
 import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.ParsingException;
-import dev.mathops.commons.parser.xml.XmlContent;
 import dev.mathops.db.Contexts;
+import dev.mathops.text.parser.ParsingException;
+import dev.mathops.text.parser.xml.XmlContent;
 
 import java.io.File;
 import java.text.DecimalFormat;

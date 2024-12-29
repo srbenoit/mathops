@@ -1,6 +1,5 @@
 package dev.mathops.web.site.reporting;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.enums.ERole;
@@ -9,6 +8,7 @@ import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.rec.ReportPermsRec;
 import dev.mathops.db.old.reclogic.ReportPermsLogic;
 import dev.mathops.session.ImmutableSessionInfo;
+import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 import jakarta.servlet.ServletRequest;

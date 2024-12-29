@@ -13,7 +13,6 @@ import dev.mathops.assessment.exam.ExamProblem;
 import dev.mathops.assessment.exam.ExamSection;
 import dev.mathops.assessment.exam.ExamSession;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.ColorNames;
 import dev.mathops.db.Contexts;
@@ -33,6 +32,7 @@ import dev.mathops.session.txn.messages.SurveySubmitReply;
 import dev.mathops.session.txn.messages.SurveySubmitRequest;
 import dev.mathops.session.txn.messages.UpdateExamReply;
 import dev.mathops.session.txn.messages.UpdateExamRequest;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;

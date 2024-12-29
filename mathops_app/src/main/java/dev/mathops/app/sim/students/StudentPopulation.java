@@ -34,7 +34,7 @@ public final class StudentPopulation {
         final int numEntries = dist.size();
         this.counts = new HashMap<>(numEntries);
 
-        int total = scaleDistribution(dist, (double) targetPopulationSize);
+        int total = scaleDistribution(dist, targetPopulationSize);
 
         if (total < targetPopulationSize) {
             double newTarget = (double) targetPopulationSize + LARGE_STEP;

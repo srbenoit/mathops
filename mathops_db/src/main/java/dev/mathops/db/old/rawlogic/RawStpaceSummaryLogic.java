@@ -1,9 +1,9 @@
 package dev.mathops.db.old.rawlogic;
 
-import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawrecord.RawStpaceSummary;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

@@ -558,10 +558,7 @@ public final class StudentData {
             for (final RawSpecialStus test : all) {
                 for (final String cat : categories) {
                     if (test.stuType.equals(cat)) {
-                        isMember = true;
-                        if (test.startDt != null && test.startDt.isAfter(today)) {
-                            isMember = false;
-                        }
+                        isMember = test.startDt == null || !test.startDt.isAfter(today);
                         if (test.endDt != null && test.endDt.isBefore(today)) {
                             isMember = false;
                         }

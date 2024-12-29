@@ -4,12 +4,12 @@ import dev.mathops.assessment.exam.ExamObj;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.installation.EPath;
 import dev.mathops.commons.installation.PathList;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.txn.messages.AbstractMessageBase;
 import dev.mathops.session.txn.messages.GetExamReply;
 import dev.mathops.session.txn.messages.MessageFactory;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -115,7 +115,7 @@ public final class ExamWriter {
         }
 
         final int serial = exam.serialNumber.intValue();
-        final File path = makeExamPath(term.term.shortString, studentId, (long) serial);
+        final File path = makeExamPath(term.term.shortString, studentId, serial);
 
         if (path.exists()) {
             Log.warning("Path [", path.getAbsolutePath(),

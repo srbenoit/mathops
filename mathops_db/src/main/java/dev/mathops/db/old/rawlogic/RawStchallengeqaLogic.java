@@ -1,9 +1,9 @@
 package dev.mathops.db.old.rawlogic;
 
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawrecord.RawStchallenge;
 import dev.mathops.db.old.rawrecord.RawStchallengeqa;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -58,7 +58,7 @@ public final class RawStchallengeqaLogic extends AbstractRawLogic<RawStchallenge
             throw new SQLException("Null value in primary key or required field.");
         }
 
-        final String sql = SimpleBuilder.concat( //
+        final String sql = SimpleBuilder.concat(
                 "INSERT INTO stchallengeqa (stu_id,course,version,exam_dt,finish_time,",
                 "question_nbr,stu_answer,ans_correct) VALUES (",
                 sqlStringValue(record.stuId), ",",

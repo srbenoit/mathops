@@ -110,7 +110,7 @@ final class Field {
             if (cursor.y == this.y && cursor.x >= this.x) {
                 final int cursorPos = cursor.x - this.x;
 
-                if (cursorPos < this.maxLen && (this.validChars == null || this.validChars.indexOf((int) ch) != -1)) {
+                if (cursorPos < this.maxLen && (this.validChars == null || this.validChars.indexOf(ch) != -1)) {
                     this.characters[cursorPos] = ch;
                     this.console.setCursor(cursor.x + 1, cursor.y);
                     draw();

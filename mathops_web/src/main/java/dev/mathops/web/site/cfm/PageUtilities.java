@@ -1,6 +1,6 @@
 package dev.mathops.web.site.cfm;
 
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 /**
  * Utilities that generate content common to multiple pages.

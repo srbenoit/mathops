@@ -250,7 +250,7 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable {
             int pts = 10;
 
             while (pts < 100) {
-                this.headerFont = bfm.getFont(BundledFontManager.SANS, (double) pts, Font.BOLD);
+                this.headerFont = bfm.getFont(BundledFontManager.SANS, pts, Font.BOLD);
 
                 final FontMetrics fm = g2d.getFontMetrics(this.headerFont);
 
@@ -480,7 +480,7 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable {
         Font font = null;
 
         while (pts < 100) {
-            font = bfm.getFont(BundledFontManager.SANS, (double) pts, Font.BOLD);
+            font = bfm.getFont(BundledFontManager.SANS, pts, Font.BOLD);
 
             final FontMetrics fm = grx.getFontMetrics(font);
 

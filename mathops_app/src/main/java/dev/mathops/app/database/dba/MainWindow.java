@@ -30,13 +30,13 @@ final class MainWindow extends JFrame {
     private JPanel currentPanel;
 
     /** The schema panel. */
-    private SchemaPanel schemaPanel;
+    private final SchemaPanel schemaPanel;
 
     /** The table panel. */
-    private TablePanel tablePanel;
+    private final TablePanel tablePanel;
 
     /** The view panel. */
-    private ViewPanel viewPanel;
+    private final ViewPanel viewPanel;
 
     /**
      * Constructs a new {@code MainWindow}.

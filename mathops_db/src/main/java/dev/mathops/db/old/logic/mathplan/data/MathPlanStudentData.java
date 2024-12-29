@@ -1,6 +1,5 @@
 package dev.mathops.db.old.logic.mathplan.data;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
 import dev.mathops.db.type.TermKey;
@@ -20,6 +19,7 @@ import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.rec.LiveCsuCredit;
 import dev.mathops.db.old.rec.LiveTransferCredit;
 import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -39,7 +39,7 @@ import java.util.Set;
 public final class MathPlanStudentData {
 
     /** Retain data for 60 seconds (adjust as needed). */
-    private static final long RETENTION_MS = (long) (60 * 1000);
+    private static final long RETENTION_MS = 60 * 1000;
 
     /** SAT cut score for "remedial" student classification. */
     private static final int CDHE_SAT_CUT_SCORE = 500;

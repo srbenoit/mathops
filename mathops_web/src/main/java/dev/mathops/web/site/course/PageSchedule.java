@@ -2,7 +2,6 @@ package dev.mathops.web.site.course;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
@@ -28,6 +27,7 @@ import dev.mathops.session.sitelogic.data.SiteDataCfgCourse;
 import dev.mathops.session.sitelogic.data.SiteDataCourse;
 import dev.mathops.session.sitelogic.data.SiteDataMilestone;
 import dev.mathops.session.sitelogic.data.SiteDataRegistration;
+import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 
@@ -1021,7 +1021,7 @@ enum PageSchedule {
                     if (lastTriesTaken == 1) {
                         htm.addln("one attempt,");
                     } else {
-                        htm.addln(Long.valueOf((long) lastTriesTaken), " attempts,");
+                        htm.addln(Long.valueOf(lastTriesTaken), " attempts,");
                     }
                     htm.addln(" and have ", Integer.valueOf(lastTriesAllowed - lastTriesTaken), " remaining.");
                 } else {

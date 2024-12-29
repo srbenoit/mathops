@@ -1,7 +1,7 @@
 package dev.mathops.assessment.document.inst;
 
 import dev.mathops.assessment.document.EXmlStyle;
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 /**
  * An item of text in a paragraph.

@@ -10,7 +10,7 @@ import dev.mathops.app.ops.snapin.canvas.model.Course;
 import dev.mathops.app.ops.snapin.canvas.model.CourseTerm;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.json.JSONObject;
+import dev.mathops.text.parser.json.JSONObject;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;

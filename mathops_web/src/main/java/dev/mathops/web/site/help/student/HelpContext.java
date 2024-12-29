@@ -1,8 +1,8 @@
 package dev.mathops.web.site.help.student;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 
+import dev.mathops.text.builder.HtmlBuilder;
 import jakarta.servlet.ServletRequest;
 
 /**

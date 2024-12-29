@@ -236,7 +236,7 @@ public final class BackgroundPane extends JDesktopPane implements MouseListener,
 
                     while (pts < 400) {
                         this.nameFont =
-                                bfm.getFont(BundledFontManager.SERIF, (double) pts, Font.BOLD | Font.ITALIC);
+                                bfm.getFont(BundledFontManager.SERIF, pts, Font.BOLD | Font.ITALIC);
 
                         maxHeightDescent(g2d, this.nameFont, this.centerName, heightDesc);
                         final FontMetrics fm = g.getFontMetrics(this.nameFont);
@@ -273,7 +273,7 @@ public final class BackgroundPane extends JDesktopPane implements MouseListener,
                     pts = 10;
 
                     while (pts < 1000) {
-                        this.numberFont = bfm.getFont("Martin_Vogels_Symbole", (double) pts, Font.BOLD);
+                        this.numberFont = bfm.getFont("Martin_Vogels_Symbole", pts, Font.BOLD);
 
                         maxHeightDescent(g2d, this.numberFont, this.stationNumber, heightDesc);
                         final FontMetrics fm = g.getFontMetrics(this.numberFont);
@@ -310,7 +310,7 @@ public final class BackgroundPane extends JDesktopPane implements MouseListener,
                     pts = 10;
 
                     while (pts < 400) {
-                        this.statusFont = bfm.getFont("SANS", (double) pts, Font.PLAIN);
+                        this.statusFont = bfm.getFont("SANS", pts, Font.PLAIN);
 
                         maxHeightDescent(g2d, this.statusFont, this.status, heightDesc);
                         final FontMetrics fm = g.getFontMetrics(this.statusFont);

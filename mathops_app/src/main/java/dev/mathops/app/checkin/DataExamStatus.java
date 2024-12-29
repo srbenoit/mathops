@@ -1,6 +1,6 @@
 package dev.mathops.app.checkin;
 
-import dev.mathops.commons.builder.SimpleBuilder;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import java.util.ArrayList;
 import java.util.List;

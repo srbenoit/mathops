@@ -11,8 +11,8 @@ import dev.mathops.assessment.formula.Formula;
 import dev.mathops.assessment.variable.AbstractVariable;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -340,14 +340,14 @@ final class DocPrimitiveFormula extends AbstractDocPrimitive {
 
                         if (!started) {
                             // FIXME:
-                            path.moveTo((double) x, (double) y);
+                            path.moveTo(x, y);
                             pathPending = false;
 //                            grx.drawLine(x, y, x, y);
                             started = true;
                         } else // Detect wild swings like asymptotes, avoid drawing
                             if (Math.abs(y - prior) < 500) { // The units on these numbers are "pixels"
                                 // FIXME:
-                                path.lineTo((double) x, (double) y);
+                                path.lineTo(x, y);
                                 pathPending = true;
 //                                grx.drawLine(x - 1, prior, x, y);
                             } else {

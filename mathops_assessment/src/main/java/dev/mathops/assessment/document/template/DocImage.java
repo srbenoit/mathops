@@ -7,9 +7,9 @@ import dev.mathops.assessment.document.inst.DocImageInst;
 import dev.mathops.assessment.document.inst.DocObjectInstStyle;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.ColorNames;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import javax.imageio.ImageIO;
 import java.awt.Color;
@@ -371,7 +371,7 @@ public final class DocImage extends AbstractDocObjectTemplate implements ImageOb
         final String alt = getAltText();
         final String actualAlt = alt == null ? null : generateStringContents(evalContext, alt);
 
-        return new DocImageInst(objStyle, null, this.source.toExternalForm(), (double) getWidth(), (double) getHeight(),
+        return new DocImageInst(objStyle, null, this.source.toExternalForm(), getWidth(), getHeight(),
                 EPrimaryBaseline.TYPOGRAPHIC, actualAlt);
     }
 

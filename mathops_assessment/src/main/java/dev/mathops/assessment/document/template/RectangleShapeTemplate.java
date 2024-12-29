@@ -9,9 +9,9 @@ import dev.mathops.assessment.formula.Formula;
 import dev.mathops.assessment.formula.XmlFormulaFactory;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.parser.xml.IElement;
-import dev.mathops.commons.parser.xml.NonemptyElement;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.xml.IElement;
+import dev.mathops.text.parser.xml.NonemptyElement;
 
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;

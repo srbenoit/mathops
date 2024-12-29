@@ -28,7 +28,7 @@ public final class ButtonColumn extends AbstractCellEditor implements TableCellR
 
     private final JTable table;
     private final Action action;
-    private int mnemonic = 0;
+    private final int mnemonic = 0;
     private final Border originalBorder;
     private Border focusBorder;
 

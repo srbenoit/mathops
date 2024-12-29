@@ -1,8 +1,8 @@
 package dev.mathops.session.txn.messages;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.session.txn.handlers.AbstractHandlerBase;
 import dev.mathops.session.txn.handlers.TestingStationStatusHandler;
+import dev.mathops.text.builder.HtmlBuilder;
 
 /**
  * A request for the current status of a testing station.

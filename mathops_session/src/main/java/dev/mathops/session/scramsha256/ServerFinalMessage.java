@@ -1,7 +1,7 @@
 package dev.mathops.session.scramsha256;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.parser.HexEncoder;
+import dev.mathops.commons.HexEncoder;
 
 import java.nio.charset.StandardCharsets;
 

@@ -1,8 +1,6 @@
 package dev.mathops.dbjobs.report.analytics;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
@@ -23,6 +21,8 @@ import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.db.old.rawrecord.RawStmpe;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.dbjobs.batch.IdentifyEngineering;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import java.io.File;
 import java.io.FileWriter;

@@ -1,8 +1,8 @@
 package dev.mathops.web.site.admin.testing;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.Cache;
 import dev.mathops.session.ImmutableSessionInfo;
+import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.admin.AdminSite;
 
 import jakarta.servlet.ServletRequest;

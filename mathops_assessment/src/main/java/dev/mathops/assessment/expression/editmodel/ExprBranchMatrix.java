@@ -1,7 +1,7 @@
 package dev.mathops.assessment.expression.editmodel;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 /**
  * An expression object that represents a matrix with subexpressions for each entry.

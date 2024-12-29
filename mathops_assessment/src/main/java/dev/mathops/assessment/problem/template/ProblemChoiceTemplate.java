@@ -10,8 +10,8 @@ import dev.mathops.assessment.formula.ErrorValue;
 import dev.mathops.assessment.formula.Formula;
 import dev.mathops.assessment.problem.inst.ProblemChoiceInst;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.io.PrintStream;
 import java.util.Objects;

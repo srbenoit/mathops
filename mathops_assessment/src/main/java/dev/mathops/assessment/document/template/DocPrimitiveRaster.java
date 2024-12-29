@@ -5,10 +5,10 @@ import dev.mathops.assessment.document.inst.DocPrimitiveRasterInst;
 import dev.mathops.assessment.document.inst.RectangleShapeInst;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.xml.INode;
-import dev.mathops.commons.parser.xml.XmlEscaper;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.xml.INode;
+import dev.mathops.text.parser.xml.XmlEscaper;
 
 import javax.imageio.ImageIO;
 import java.awt.AlphaComposite;

@@ -1,12 +1,12 @@
 package dev.mathops.web.site.lti;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.logic.ChallengeExamLogic;
 import dev.mathops.db.old.logic.ChallengeExamStatus;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.html.challengeexam.ChallengeExamSessionStore;

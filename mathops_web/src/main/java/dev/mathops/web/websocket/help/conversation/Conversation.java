@@ -1,10 +1,10 @@
 package dev.mathops.web.websocket.help.conversation;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.parser.ParsingException;
-import dev.mathops.commons.parser.json.JSONObject;
-import dev.mathops.commons.parser.json.JSONParser;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.ParsingException;
+import dev.mathops.text.parser.json.JSONObject;
+import dev.mathops.text.parser.json.JSONParser;
 import dev.mathops.web.websocket.help.HelpManager;
 import dev.mathops.web.websocket.help.StudentKey;
 

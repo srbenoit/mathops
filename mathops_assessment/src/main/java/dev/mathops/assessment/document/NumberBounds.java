@@ -1,6 +1,6 @@
 package dev.mathops.assessment.document;
 
-import dev.mathops.commons.builder.SimpleBuilder;
+import dev.mathops.text.builder.SimpleBuilder;
 
 /**
  * An immutable bounding rectangle specified by four {@code Number} objects.

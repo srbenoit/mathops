@@ -1,8 +1,8 @@
 package dev.mathops.app.checkin;
 
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.old.rawrecord.RawClientPc;
 import dev.mathops.db.old.rawrecord.RawExam;
+import dev.mathops.text.builder.SimpleBuilder;
 
 /**
  * A data class to store the selected exam's course, unit, and ID, and the reserved seat.  The former are populated

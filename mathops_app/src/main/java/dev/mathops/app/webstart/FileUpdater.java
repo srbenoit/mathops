@@ -1,6 +1,6 @@
 package dev.mathops.app.webstart;
 
-import dev.mathops.commons.parser.HexEncoder;
+import dev.mathops.commons.HexEncoder;
 
 import java.io.File;
 import java.io.FileInputStream;

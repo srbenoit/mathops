@@ -8,9 +8,9 @@ import dev.mathops.assessment.document.inst.DocPrimitiveProtractorInst;
 import dev.mathops.assessment.document.inst.RectangleShapeInst;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.parser.xml.INode;
 import dev.mathops.commons.ui.ColorNames;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.xml.INode;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -394,7 +394,7 @@ final class DocPrimitiveProtractor extends AbstractDocRectangleShape {
         final double southPadY = PADDING * southY;
 
         // Draw and outline the protractor shape
-        final double scl = (double) this.scale;
+        final double scl = this.scale;
 
         final Path2D outline = new Path2D.Double();
         if (numQ == 1) {
@@ -566,7 +566,7 @@ final class DocPrimitiveProtractor extends AbstractDocRectangleShape {
     private void drawDegreeTicks(final Graphics2D grx, final double cx, final double cy,
                                  final double r, final double orient, final int start, final int end) {
 
-        final double scl = (double) this.scale;
+        final double scl = this.scale;
         final double innerRadLong = r - THICKNESS * 0.5 * scl;
         final double innerRadMed = r - THICKNESS * 0.3 * scl;
         final double innerRadShort = r - THICKNESS * 0.15 * scl;
@@ -607,7 +607,7 @@ final class DocPrimitiveProtractor extends AbstractDocRectangleShape {
     private void drawRadiansTicks(final Graphics2D grx, final double cx, final double cy,
                                   final double r, final double orient, final int start, final int end) {
 
-        final double scl = (double) this.scale;
+        final double scl = this.scale;
         final double innerRadLong = r - THICKNESS * 0.5 * scl;
         final double innerRadMed = r - THICKNESS * 0.3 * scl;
         final double innerRadShort = r - THICKNESS * 0.15 * scl;

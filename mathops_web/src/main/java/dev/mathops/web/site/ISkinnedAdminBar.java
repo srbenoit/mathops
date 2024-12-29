@@ -1,7 +1,7 @@
 package dev.mathops.web.site;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.session.ImmutableSessionInfo;
+import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.help.HelpSite;
 
 /**

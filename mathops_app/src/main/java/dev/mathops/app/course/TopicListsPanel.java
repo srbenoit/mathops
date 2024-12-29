@@ -27,7 +27,7 @@ final class TopicListsPanel extends JPanel implements ActionListener, ListSelect
     private static final String REFRESH_CMD = "REFRESH";
 
     /** A character used in subject and module directory names. */
-    private static final int UNDERSCORE = (int) '_';
+    private static final int UNDERSCORE = '_';
 
     /** The course directory. */
     private final File courseDir;

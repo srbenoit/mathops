@@ -1,8 +1,8 @@
 package dev.mathops.session;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.enums.ERole;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -18,7 +18,7 @@ public final class LiveSessionInfo {
     static final String XML_TAG = "live-session";
 
     /** The timeout duration (2 hours), in milliseconds. */
-    private static final long TIMEOUT = (long) (2 * 60 * 60 * 1000);
+    private static final long TIMEOUT = 2 * 60 * 60 * 1000;
 
     /** Object on which to synchronize tag creation. */
     private static final Object SYNCH = new Object();
@@ -409,7 +409,7 @@ public final class LiveSessionInfo {
         this.established = theEstablished;
         this.lastActivity = theLastActivity;
         this.timeout = theTimeout;
-        this.timeOffset = (long) theTimeOffset.intValue();
+        this.timeOffset = theTimeOffset.intValue();
 
         this.actAsUserId = theActAsUser;
         this.actAsFirstName = theActAsFirstName;

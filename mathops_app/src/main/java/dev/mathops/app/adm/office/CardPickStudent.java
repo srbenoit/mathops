@@ -5,8 +5,6 @@ import dev.mathops.app.adm.UserData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.type.TermKey;
@@ -14,6 +12,8 @@ import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -338,7 +338,7 @@ final class CardPickStudent extends AdmPanelBase implements ActionListener, Mous
 
         final String trimmed = name.trim();
 
-        final int comma = trimmed.indexOf((int) CoreConstants.COMMA_CHAR);
+        final int comma = trimmed.indexOf(CoreConstants.COMMA_CHAR);
         if (comma == -1) {
             // No comma - assume last name only
             if (!queryByLastName(trimmed)) {

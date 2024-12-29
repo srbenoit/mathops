@@ -3,7 +3,7 @@ package dev.mathops.assessment.formula.edit;
 import dev.mathops.assessment.EType;
 import dev.mathops.assessment.formula.ErrorValue;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.awt.Font;
 import java.awt.Graphics2D;

@@ -6,8 +6,8 @@ import dev.mathops.app.sim.rooms.RoomSchedule;
 import dev.mathops.app.sim.students.StudentClassPreferences;
 import dev.mathops.app.sim.students.StudentDistribution;
 import dev.mathops.app.sim.students.StudentPopulation;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;

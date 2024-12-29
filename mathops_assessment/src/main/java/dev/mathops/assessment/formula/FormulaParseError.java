@@ -1,8 +1,7 @@
 package dev.mathops.assessment.formula;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
-
+import dev.mathops.text.builder.HtmlBuilder;
 /**
  * A log record that indicates an error in parsing. It includes the range in the source data where the parse error
  * occurred.

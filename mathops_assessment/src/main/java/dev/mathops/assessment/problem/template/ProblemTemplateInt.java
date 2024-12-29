@@ -1,7 +1,7 @@
 package dev.mathops.assessment.problem.template;
 
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.io.File;
 import java.io.PrintStream;

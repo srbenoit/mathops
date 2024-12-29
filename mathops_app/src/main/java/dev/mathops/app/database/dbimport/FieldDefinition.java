@@ -1,7 +1,7 @@
 package dev.mathops.app.database.dbimport;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.math.BigInteger;
 import java.sql.Types;
@@ -40,7 +40,7 @@ final class FieldDefinition {
      */
     FieldDefinition(final String sql, final int lineIndex, final String filename) throws IllegalArgumentException {
 
-        final int nameEnd = sql.indexOf((int) CoreConstants.SPC_CHAR);
+        final int nameEnd = sql.indexOf(CoreConstants.SPC_CHAR);
 
         if (nameEnd < 1) {
             final String lineStr = DataToImport.makeLineNumberText(lineIndex, filename);
@@ -50,7 +50,7 @@ final class FieldDefinition {
         this.fieldName = sql.substring(0, nameEnd);
 
         final String afterName = sql.substring(nameEnd + 1).trim();
-        final int typeEnd = afterName.indexOf((int) CoreConstants.SPC_CHAR);
+        final int typeEnd = afterName.indexOf(CoreConstants.SPC_CHAR);
 
         String typeStr;
         if (typeEnd == -1) {
@@ -99,7 +99,7 @@ final class FieldDefinition {
         } else if (typeStr.startsWith("decimal(") && typeStr.endsWith(")")) {
             this.type = Types.DECIMAL;
             final int typeLen = typeStr.length();
-            final int separator = typeStr.indexOf((int) CoreConstants.COMMA_CHAR);
+            final int separator = typeStr.indexOf(CoreConstants.COMMA_CHAR);
 
             if (separator > 8 && separator < typeLen - 2) {
                 final String lengthStr = typeStr.substring(8, separator);

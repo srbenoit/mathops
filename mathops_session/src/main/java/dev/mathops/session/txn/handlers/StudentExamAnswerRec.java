@@ -1,6 +1,6 @@
 package dev.mathops.session.txn.handlers;
 
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 /**
  * A record of a single answer on an exam question.

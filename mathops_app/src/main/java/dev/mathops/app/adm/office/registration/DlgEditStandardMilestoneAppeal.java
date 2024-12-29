@@ -9,7 +9,6 @@ import dev.mathops.app.adm.UserData;
 import dev.mathops.app.adm.office.student.IAppealsListener;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
@@ -26,6 +25,7 @@ import dev.mathops.db.old.rec.StandardMilestoneRec;
 import dev.mathops.db.old.rec.StudentStandardMilestoneRec;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.db.type.TermKey;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -958,7 +958,7 @@ public final class DlgEditStandardMilestoneAppeal extends JFrame implements Acti
      */
     private String[] doInsertAppeal() {
 
-        String error[] = null;
+        String[] error = null;
 
         try {
             final String stuId = this.studentIdField.getText();

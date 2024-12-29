@@ -1,6 +1,6 @@
 package dev.mathops.app.sim.rooms;
 
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 /**
  * An immutable model of a room in which sections can be scheduled.

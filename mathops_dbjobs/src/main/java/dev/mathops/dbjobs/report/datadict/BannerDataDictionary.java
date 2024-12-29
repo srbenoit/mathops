@@ -1,8 +1,6 @@
 package dev.mathops.dbjobs.report.datadict;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
@@ -10,6 +8,8 @@ import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -17,10 +17,8 @@ import java.io.IOException;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * A class that queries and prints the Banner data dictionary.
@@ -147,7 +145,7 @@ final class BannerDataDictionary {
             final String fileData = job.execute();
 
             try (final FileWriter fw = new FileWriter(dataDictFile)) {
-                final String dataString = fileData.toString();
+                final String dataString = fileData;
                 fw.write(dataString);
             } catch (final IOException ex) {
                 Log.warning("Failed to write data dictionary JSON file.", ex);

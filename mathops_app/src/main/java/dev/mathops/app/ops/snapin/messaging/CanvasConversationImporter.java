@@ -2,7 +2,6 @@ package dev.mathops.app.ops.snapin.messaging;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.json.JSONObject;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawStmsgLogic;
 import dev.mathops.db.old.rawlogic.RawSttermLogic;
@@ -13,6 +12,7 @@ import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.app.canvas.ApiResult;
 import dev.mathops.app.canvas.CanvasApi;
+import dev.mathops.text.parser.json.JSONObject;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;

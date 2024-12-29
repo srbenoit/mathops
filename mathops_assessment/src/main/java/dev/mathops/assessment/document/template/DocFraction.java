@@ -7,8 +7,8 @@ import dev.mathops.assessment.document.inst.DocFractionInst;
 import dev.mathops.assessment.document.inst.DocNonwrappingSpanInst;
 import dev.mathops.assessment.document.inst.DocObjectInstStyle;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.ui.ColorNames;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.awt.Graphics;
 import java.io.File;

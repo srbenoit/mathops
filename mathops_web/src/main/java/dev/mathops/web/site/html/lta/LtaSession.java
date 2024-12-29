@@ -15,10 +15,7 @@ import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.assessment.variable.VariableBoolean;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
-import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.xml.XmlEscaper;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.cfg.WebSiteProfile;
@@ -38,6 +35,9 @@ import dev.mathops.session.sitelogic.servlet.LtaEligibilityTester;
 import dev.mathops.session.txn.handlers.AbstractHandlerBase;
 import dev.mathops.session.txn.messages.GetExamReply;
 import dev.mathops.session.txn.messages.GetReviewExamReply;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.builder.SimpleBuilder;
+import dev.mathops.text.parser.xml.XmlEscaper;
 import dev.mathops.web.site.html.HtmlSessionBase;
 import jakarta.servlet.ServletRequest;
 
@@ -69,7 +69,7 @@ import java.util.Set;
 public final class LtaSession extends HtmlSessionBase {
 
     /** The timeout duration (2 hours), in milliseconds. */
-    private static final long TIMEOUT = (long) (2 * 60 * 60 * 1000);
+    private static final long TIMEOUT = 2 * 60 * 60 * 1000;
 
     /** The background color for header/footer. */
     private static final String HEADER_BG_COLOR = "#EFEFF2";
@@ -84,7 +84,7 @@ public final class LtaSession extends HtmlSessionBase {
     private ELtaState state;
 
     /** The currently active section. */
-    private int currentSection;
+    private final int currentSection;
 
     /** The currently active item. */
     private int currentItem;
@@ -99,7 +99,7 @@ public final class LtaSession extends HtmlSessionBase {
     private boolean started;
 
     /** The achieved score. */
-    private Integer score;
+    private final Integer score;
 
     /** An error encountered while grading the exam, null if none. */
     private String gradingError;
@@ -1195,7 +1195,7 @@ public final class LtaSession extends HtmlSessionBase {
         final int totalScore = buildAnswerList(answers);
         final ExamSection sect0 = getExam().getSection(0);
         if (sect0 != null) {
-            sect0.score = Long.valueOf((long) totalScore);
+            sect0.score = Long.valueOf(totalScore);
         }
 
         sthw.hwScore = Integer.valueOf(totalScore);

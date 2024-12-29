@@ -1,8 +1,8 @@
 package dev.mathops.db.old.rawrecord;
 
 import dev.mathops.commons.TemporalUtils;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.type.TermKey;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

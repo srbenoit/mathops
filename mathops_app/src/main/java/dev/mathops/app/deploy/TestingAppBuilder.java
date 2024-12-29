@@ -1,12 +1,12 @@
 package dev.mathops.app.deploy;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.commons.HexEncoder;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.installation.Installation;
 import dev.mathops.commons.installation.Installations;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.HexEncoder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -34,6 +34,12 @@ final class TestingAppBuilder {
     /** Directory where project is stored. */
     private final File projectDir;
 
+    /** Directory where commons project is stored. */
+    private final File commonsDir;
+
+    /** Directory where text project is stored. */
+    private final File textDir;
+
     /** The target directory to which to copy generated files. */
     private final File targetDir;
 
@@ -49,6 +55,8 @@ final class TestingAppBuilder {
         final File dev = new File(userDir, "dev");
         final File idea = new File(dev, "IDEA");
         this.projectDir = new File(idea, "mathops");
+        this.commonsDir = new File(idea, "mathops_commons");
+        this.textDir = new File(idea, "mathops_text");
 
         this.targetDir = new File("/opt/public/www/apps/testing");
         if (!this.targetDir.exists()) {
@@ -74,7 +82,15 @@ final class TestingAppBuilder {
                 final File jars = new File(this.projectDir, "jars");
 
                 final File bls8Jar = new File(jars, "bls8.jar");
-                final File commonsJar = new File(jars, "mathops_commons.jar");
+
+                final File commonsOut = new File(this.commonsDir, "out");
+                final File commonsOutLibs = new File(commonsOut, "libs");
+                final File commonsJar = new File(commonsOutLibs, "mathops_commons.jar");
+
+                final File textOut = new File(this.textDir, "out");
+                final File textOutLibs = new File(textOut, "libs");
+                final File textJar = new File(textOutLibs, "mathops_text.jar");
+
                 final File jwabbitJar = new File(jars, "jwabbit.jar");
                 final File appXml = new File(jars, "app.xml");
 
@@ -85,16 +101,17 @@ final class TestingAppBuilder {
                 final File updaterXml = new File(jars, "updater.xml");
 
                 createXmlDescriptor(sha256, appXml, "testing", "dev.mathops.app.teststation.TestStationApp", bls8Jar,
-                        commonsJar, jwabbitJar);
-                createXmlDescriptor(sha256, launchXml, "launch", "dev.mathops.app.webstart.Launch", commonsJar,
+                        commonsJar, textJar, jwabbitJar);
+                createXmlDescriptor(sha256, launchXml, "launch", "dev.mathops.app.webstart.Launch", commonsJar, textJar,
                         launchJar);
                 createXmlDescriptor(sha256, updaterXml, "updater", "dev.mathops.app.webstart.Updater", commonsJar,
-                        updaterJar);
+                        textJar, updaterJar);
 
                 // Copy all to /opt/public/app/testing
 
                 copyFile(bls8Jar, this.targetDir);
                 copyFile(commonsJar, this.targetDir);
+                copyFile(textJar, this.targetDir);
                 copyFile(jwabbitJar, this.targetDir);
                 copyFile(appXml, this.targetDir);
 
@@ -106,13 +123,15 @@ final class TestingAppBuilder {
                 }
 
                 copyFile(commonsJar, targetLaunch);
+                copyFile(textJar, targetLaunch);
                 copyFile(launchJar, targetLaunch);
                 copyFile(launchXml, targetLaunch);
                 copyFile(updaterJar, targetLaunch);
                 copyFile(updaterXml, targetLaunch);
 
                 final String targetPath = this.targetDir.getAbsolutePath();
-                Log.finest(Res.fmt(Res.FILE_CREATED, "Testing application files", targetPath), CoreConstants.CRLF);
+                final String message = Res.fmt(Res.FILE_CREATED, "Testing application files", targetPath);
+                Log.finest(message, CoreConstants.CRLF);
             }
         } catch (final NoSuchAlgorithmException ex) {
             Log.warning(ex);
@@ -484,6 +503,7 @@ final class TestingAppBuilder {
         Installations.setMyInstallation(installation);
 
         new TestingAppBuilder().build();
-        Log.finest(Res.get(Res.FINISHED), CoreConstants.CRLF);
+        final String msg = Res.get(Res.FINISHED);
+        Log.finest(msg, CoreConstants.CRLF);
     }
 }

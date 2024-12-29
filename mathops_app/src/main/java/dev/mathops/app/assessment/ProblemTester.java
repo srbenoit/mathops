@@ -19,13 +19,13 @@ import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.installation.EPath;
 import dev.mathops.commons.installation.PathList;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.ParsingException;
-import dev.mathops.commons.parser.xml.XmlContent;
-import dev.mathops.commons.parser.xml.XmlContentError;
 import dev.mathops.commons.ui.ColorNames;
 import dev.mathops.font.BundledFontManager;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.ParsingException;
+import dev.mathops.text.parser.xml.XmlContent;
+import dev.mathops.text.parser.xml.XmlContentError;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;

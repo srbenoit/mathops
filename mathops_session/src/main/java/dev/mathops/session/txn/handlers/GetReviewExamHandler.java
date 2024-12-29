@@ -11,7 +11,6 @@ import dev.mathops.assessment.exam.ExamProblem;
 import dev.mathops.assessment.exam.ExamSection;
 import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
 import dev.mathops.db.logic.StudentData;
@@ -31,6 +30,7 @@ import dev.mathops.session.txn.messages.AvailableExam;
 import dev.mathops.session.txn.messages.GetExamReply;
 import dev.mathops.session.txn.messages.GetReviewExamReply;
 import dev.mathops.session.txn.messages.GetReviewExamRequest;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.awt.Font;
 import java.sql.SQLException;

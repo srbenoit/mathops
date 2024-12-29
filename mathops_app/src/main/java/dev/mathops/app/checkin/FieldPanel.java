@@ -1,7 +1,7 @@
 package dev.mathops.app.checkin;
 
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.font.BundledFontManager;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -214,7 +214,7 @@ public final class FieldPanel extends JPanel {
                     pts = 10;
 
                     while (pts < 200) {
-                        this.messageFont = bfm.getFont(BundledFontManager.SERIF, (double) pts, Font.BOLD);
+                        this.messageFont = bfm.getFont(BundledFontManager.SERIF, pts, Font.BOLD);
                         final FontMetrics fm = grx.getFontMetrics(this.messageFont);
 
                         if ((double) fm.stringWidth(test) >= ((double) width * 0.8)

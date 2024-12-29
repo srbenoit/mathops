@@ -3,7 +3,6 @@ package dev.mathops.app.database.dbimport;
 import com.formdev.flatlaf.FlatLightLaf;
 import dev.mathops.commons.installation.EPath;
 import dev.mathops.commons.installation.PathList;
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.db.DbConnection;
@@ -12,6 +11,7 @@ import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.EDbUse;
 import dev.mathops.db.old.cfg.LoginConfig;
 import dev.mathops.db.old.cfg.ServerConfig;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;

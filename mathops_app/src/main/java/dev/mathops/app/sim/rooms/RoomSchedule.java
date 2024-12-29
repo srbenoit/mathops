@@ -5,8 +5,8 @@ import dev.mathops.app.sim.courses.EMeetingDays;
 import dev.mathops.app.sim.schedule.EAssignmentType;
 import dev.mathops.app.sim.schedule.SectionMWF;
 import dev.mathops.app.sim.schedule.SectionTR;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.util.ArrayList;
 import java.util.List;

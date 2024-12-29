@@ -1,7 +1,7 @@
 package dev.mathops.assessment.formula;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.util.Collection;
 

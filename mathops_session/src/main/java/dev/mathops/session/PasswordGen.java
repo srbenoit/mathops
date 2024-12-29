@@ -1,7 +1,7 @@
 package dev.mathops.session;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;

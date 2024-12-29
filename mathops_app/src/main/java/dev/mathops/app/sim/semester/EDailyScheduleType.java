@@ -12,5 +12,5 @@ public enum EDailyScheduleType {
     CLASS_50_PASSING_10,
 
     /** Classes meet 75 minutes with 15-minute passing time between classes. */
-    CLASS_75_PASSING_15;
+    CLASS_75_PASSING_15
 }

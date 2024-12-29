@@ -27,10 +27,8 @@ import dev.mathops.assessment.variable.VariableBoolean;
 import dev.mathops.assessment.variable.VariableReal;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
-import dev.mathops.commons.parser.xml.XmlEscaper;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
@@ -64,6 +62,8 @@ import dev.mathops.session.txn.handlers.StudentExamAnswerRec;
 import dev.mathops.session.txn.handlers.StudentExamRec;
 import dev.mathops.session.txn.messages.AvailableExam;
 import dev.mathops.session.txn.messages.GetExamReply;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.xml.XmlEscaper;
 import dev.mathops.web.site.html.HtmlSessionBase;
 
 import jakarta.servlet.ServletRequest;
@@ -82,7 +82,7 @@ import java.util.Map;
 public final class ChallengeExamSession extends HtmlSessionBase {
 
     /** The purge time duration (5 hours), in milliseconds. */
-    private static final long PURGE_TIMEOUT = (long) (5 * 60 * 60 * 1000);
+    private static final long PURGE_TIMEOUT = 5 * 60 * 60 * 1000;
 
     /** The achieved score. */
     private Integer score;

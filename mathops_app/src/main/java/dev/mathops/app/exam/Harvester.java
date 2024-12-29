@@ -5,12 +5,12 @@ import dev.mathops.assessment.exam.ExamProblem;
 import dev.mathops.assessment.exam.ExamSection;
 import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.session.ExamWriter;
 import dev.mathops.session.txn.messages.AbstractMessageBase;
 import dev.mathops.session.txn.messages.GetExamReply;
 import dev.mathops.session.txn.messages.MessageFactory;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;

@@ -1,7 +1,6 @@
 package dev.mathops.web.site.admin.office;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawCalcsLogic;
@@ -9,6 +8,7 @@ import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCalcs;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
+import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.admin.AdminSite;
@@ -128,7 +128,7 @@ enum PageTestingIssueCalc {
                                 time.getHour() * 3600 + time.getMinute() * 60 + time.getSecond();
 
                         final RawCalcs issued = new RawCalcs(stuId, cleanCalc, "0",
-                                Long.valueOf((long) serial), LocalDate.now());
+                                Long.valueOf(serial), LocalDate.now());
 
                         if (RawCalcsLogic.INSTANCE.insert(cache, issued)) {
                             emitStudentIdField(htm, stuId, true, false);

@@ -2,7 +2,6 @@ package dev.mathops.db.oldadmin;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.logic.CourseLogic;
@@ -17,6 +16,7 @@ import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.rec.RecBase;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.db.type.TermKey;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import java.awt.event.KeyEvent;
 import java.sql.SQLException;

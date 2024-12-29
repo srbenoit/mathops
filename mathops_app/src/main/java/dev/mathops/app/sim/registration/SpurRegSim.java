@@ -589,35 +589,35 @@ enum SpurRegSim {
             final int minutesFreeStart = (startM.getHour() * 60 + startM.getMinute()) - (60 * 8);
             final int minutesFreeEnd = (60 * 17) - (endM.getHour() * 60 + endM.getMinute());
             final int totalFree = minutesFreeStart + minutesFreeEnd;
-            factor3 += (double) totalFree;
+            factor3 += totalFree;
         }
 
         if (startT != null && endT != null) {
             final int minutesFreeStart = (startT.getHour() * 60 + startT.getMinute()) - (60 * 8);
             final int minutesFreeEnd = (60 * 17) - (endT.getHour() * 60 + endT.getMinute());
             final int totalFree = minutesFreeStart + minutesFreeEnd;
-            factor3 += (double) totalFree;
+            factor3 += totalFree;
         }
 
         if (startW != null && endW != null) {
             final int minutesFreeStart = (startW.getHour() * 60 + startW.getMinute()) - (60 * 8);
             final int minutesFreeEnd = (60 * 17) - (endW.getHour() * 60 + endW.getMinute());
             final int totalFree = minutesFreeStart + minutesFreeEnd;
-            factor3 += (double) totalFree;
+            factor3 += totalFree;
         }
 
         if (startR != null && endR != null) {
             final int minutesFreeStart = (startR.getHour() * 60 + startR.getMinute()) - (60 * 8);
             final int minutesFreeEnd = (60 * 17) - (endR.getHour() * 60 + endR.getMinute());
             final int totalFree = minutesFreeStart + minutesFreeEnd;
-            factor3 += (double) totalFree;
+            factor3 += totalFree;
         }
 
         if (startF != null && endF != null) {
             final int minutesFreeStart = (startF.getHour() * 60 + startF.getMinute()) - (60 * 8);
             final int minutesFreeEnd = (60 * 17) - (endF.getHour() * 60 + endF.getMinute());
             final int totalFree = minutesFreeStart + minutesFreeEnd;
-            factor3 += (double) totalFree;
+            factor3 += totalFree;
         }
 
 //        Log.fine("  Factor 1 = " + (float) factor1 + ", factor 2 = " + (float) factor2 + ", factor 3 = "

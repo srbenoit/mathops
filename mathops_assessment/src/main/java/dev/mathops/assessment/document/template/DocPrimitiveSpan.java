@@ -9,11 +9,11 @@ import dev.mathops.assessment.document.inst.DocPrimitiveSpanInst;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.assessment.variable.VariableFactory;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.parser.xml.INode;
 import dev.mathops.commons.ui.ColorNames;
 import dev.mathops.font.BundledFontManager;
 import dev.mathops.font.FontSpec;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.xml.INode;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -499,8 +499,8 @@ final class DocPrimitiveSpan extends AbstractDocPrimitive {
                     }
                 }
 
-                this.span.setX((int) Math.round(actualX));
-                this.span.setY((int) Math.round(actualY));
+                this.span.setX(Math.round(actualX));
+                this.span.setY(Math.round(actualY));
                 this.span.paintComponent(grx, ELayoutMode.TEXT);
             }
 

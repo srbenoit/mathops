@@ -1,8 +1,8 @@
 package dev.mathops.session.scramsha256;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.unicode.UnicodeCharacter;
-import dev.mathops.commons.unicode.UnicodeCharacterSet;
+import dev.mathops.text.unicode.UnicodeCharacter;
+import dev.mathops.text.unicode.UnicodeCharacterSet;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;

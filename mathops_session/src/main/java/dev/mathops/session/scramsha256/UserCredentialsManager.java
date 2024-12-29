@@ -1,10 +1,8 @@
 package dev.mathops.session.scramsha256;
 
 import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.HexEncoder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.Base64;
-import dev.mathops.commons.parser.HexEncoder;
-import dev.mathops.commons.parser.ParsingException;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
@@ -14,6 +12,8 @@ import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.rawlogic.RawLoginsLogic;
 import dev.mathops.db.old.rawrecord.RawLogins;
+import dev.mathops.text.parser.Base64;
+import dev.mathops.text.parser.ParsingException;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;

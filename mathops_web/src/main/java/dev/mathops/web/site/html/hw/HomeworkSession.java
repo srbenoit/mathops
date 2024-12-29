@@ -9,9 +9,7 @@ import dev.mathops.assessment.htmlgen.ProblemConverter;
 import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.TemporalUtils;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.xml.XmlEscaper;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.cfg.WebSiteProfile;
@@ -32,6 +30,8 @@ import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.servlet.HomeworkEligibilityTester;
 import dev.mathops.session.txn.handlers.AbstractHandlerBase;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.xml.XmlEscaper;
 import dev.mathops.web.site.html.HtmlSessionBase;
 
 import jakarta.servlet.ServletRequest;
@@ -54,7 +54,7 @@ import java.util.Map;
 public final class HomeworkSession extends HtmlSessionBase {
 
     /** The timeout duration (2 hours), in milliseconds. */
-    private static final long TIMEOUT = (long) (2 * 60 * 60 * 1000);
+    private static final long TIMEOUT = 2 * 60 * 60 * 1000;
 
     /** The state of the assignment. */
     private EHomeworkState state;
@@ -941,7 +941,7 @@ public final class HomeworkSession extends HtmlSessionBase {
 
             // Store the score
             if ((sect.score == null) || (sect.score.intValue() < score)) {
-                sect.score = Long.valueOf((long) score);
+                sect.score = Long.valueOf(score);
             }
 
             // Determine the per-section move-on score, by dividing the assignment

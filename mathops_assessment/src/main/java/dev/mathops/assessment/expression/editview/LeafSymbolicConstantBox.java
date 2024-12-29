@@ -2,7 +2,7 @@ package dev.mathops.assessment.expression.editview;
 
 import dev.mathops.assessment.expression.editmodel.ESymbolicConstant;
 import dev.mathops.assessment.expression.editmodel.ExprLeafSymbolicConstant;
-import dev.mathops.commons.builder.SimpleBuilder;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import java.awt.Color;
 import java.awt.Font;

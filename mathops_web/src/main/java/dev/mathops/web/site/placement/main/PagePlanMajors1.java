@@ -1,7 +1,6 @@
 package dev.mathops.web.site.placement.main;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.old.cfg.DbProfile;
@@ -13,6 +12,7 @@ import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
 import dev.mathops.db.old.logic.mathplan.data.Major;
 import dev.mathops.db.old.logic.mathplan.data.MajorMathRequirement;
 import dev.mathops.db.old.logic.mathplan.data.MathPlanStudentData;
+import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;

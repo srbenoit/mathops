@@ -122,7 +122,7 @@ public class ExpressionEditor extends KeyAdapter implements Runnable, ActionList
     @Override
     public void keyTyped(final KeyEvent e) {
 
-        final int character = (int) e.getKeyChar();
+        final int character = e.getKeyChar();
         Log.info("Key typed: " + character);
 
         boolean repaint = false;

@@ -1,9 +1,9 @@
 package dev.mathops.session.txn.messages;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.session.txn.handlers.AbstractHandlerBase;
 import dev.mathops.session.txn.handlers.UpdateExamHandler;
+import dev.mathops.text.builder.HtmlBuilder;
 
 /**
  * A network message to submit an update to an in-progress exam, or to submit a completed exam for grading.

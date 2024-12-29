@@ -28,10 +28,8 @@ import dev.mathops.assessment.variable.VariableInteger;
 import dev.mathops.assessment.variable.VariableReal;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
-import dev.mathops.commons.parser.xml.XmlEscaper;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
@@ -71,6 +69,8 @@ import dev.mathops.session.txn.handlers.StudentExamRec;
 import dev.mathops.session.txn.handlers.StudentSurveyAnswer;
 import dev.mathops.session.txn.messages.AvailableExam;
 import dev.mathops.session.txn.messages.GetExamReply;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.xml.XmlEscaper;
 import dev.mathops.web.site.html.HtmlSessionBase;
 
 import jakarta.servlet.ServletRequest;
@@ -92,7 +92,7 @@ import java.util.Map;
 public final class PlacementExamSession extends HtmlSessionBase {
 
     /** The purge time duration (5 hours), in milliseconds. */
-    private static final long PURGE_TIMEOUT = (long) (5 * 60 * 60 * 1000);
+    private static final long PURGE_TIMEOUT = 5 * 60 * 60 * 1000;
 
     /** True if the session is proctored. */
     public final boolean proctored;
@@ -158,7 +158,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
         this.currentSect = -1;
         this.currentItem = -1;
         this.started = false;
-        this.timeout = (long) 0L;
+        this.timeout = 0L;
         this.purgeTime = System.currentTimeMillis() + PURGE_TIMEOUT;
 
         this.profileResponses = new String[15];
@@ -450,7 +450,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
 
                                         secs = (int) ((double) secs * stu.timelimitFactor.doubleValue());
 
-                                        reply.presentedExam.allowedSeconds = Long.valueOf((long) secs);
+                                        reply.presentedExam.allowedSeconds = Long.valueOf(secs);
                                     }
                                 }
 
@@ -559,7 +559,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
                     Log.info("Applying time limit factor : ", stu.timelimitFactor);
 
                     secs = (int) ((double) secs * stu.timelimitFactor.doubleValue());
-                    theExam.allowedSeconds = Long.valueOf((long) secs);
+                    theExam.allowedSeconds = Long.valueOf(secs);
 
                     Log.info("After time limit update: ", theExam.allowedSeconds);
                 }
@@ -2018,11 +2018,11 @@ public final class PlacementExamSession extends HtmlSessionBase {
         final int sat = getStudent().satScore == null ? 0 : getStudent().satScore.intValue();
 
         final VariableInteger param1 = new VariableInteger("student-ACT-math");
-        param1.setValue(Long.valueOf((long) act));
+        param1.setValue(Long.valueOf(act));
         params.addVariable(param1);
 
         final VariableInteger param2 = new VariableInteger("student-SAT-math");
-        param2.setValue(Long.valueOf((long) sat));
+        param2.setValue(Long.valueOf(sat));
         params.addVariable(param2);
 
         // Get answers to placement exam survey, which are used for validation
@@ -2072,23 +2072,23 @@ public final class PlacementExamSession extends HtmlSessionBase {
         }
 
         final VariableInteger param3 = new VariableInteger("hours-preparing");
-        param3.setValue(Long.valueOf((long) prep));
+        param3.setValue(Long.valueOf(prep));
         params.addVariable(param3);
 
         final VariableInteger param4 = new VariableInteger("time-since-last-math");
-        param4.setValue(Long.valueOf((long) since));
+        param4.setValue(Long.valueOf(since));
         params.addVariable(param4);
 
         final VariableInteger param5 = new VariableInteger("highest-math-taken");
-        param5.setValue(Long.valueOf((long) taken));
+        param5.setValue(Long.valueOf(taken));
         params.addVariable(param5);
 
         final VariableInteger param6 = new VariableInteger("resources-used-preparing");
-        param6.setValue(Long.valueOf((long) resources));
+        param6.setValue(Long.valueOf(resources));
         params.addVariable(param6);
 
         final VariableInteger param7 = new VariableInteger("typical-math-grade");
-        param7.setValue(Long.valueOf((long) typical));
+        param7.setValue(Long.valueOf(typical));
         params.addVariable(param7);
 
         return true;

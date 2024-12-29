@@ -1,7 +1,6 @@
 package dev.mathops.session.txn.handlers;
 
 import dev.mathops.commons.TemporalUtils;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
 import dev.mathops.db.Cache;
@@ -11,6 +10,7 @@ import dev.mathops.db.old.rawrecord.RawStsurveyqa;
 import dev.mathops.session.txn.messages.AbstractRequestBase;
 import dev.mathops.session.txn.messages.SurveySubmitReply;
 import dev.mathops.session.txn.messages.SurveySubmitRequest;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;

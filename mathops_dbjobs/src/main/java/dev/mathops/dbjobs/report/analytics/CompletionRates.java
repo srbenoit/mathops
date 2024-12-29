@@ -394,121 +394,121 @@ final class CompletionRates implements Runnable {
         if (m117118.getN() > 0) {
             Log.fine("  MATH 117+118 (n=" + m117118.getN() + ")");
             Log.fine("    Success in course 1: ",
-                    this.pctFmt.format((double) m117118.getFirstCourseSuccess()));
+                    this.pctFmt.format(m117118.getFirstCourseSuccess()));
             Log.fine("    Success in course 2: ",
-                    this.pctFmt.format((double) m117118.getSecondCourseSuccess()));
+                    this.pctFmt.format(m117118.getSecondCourseSuccess()));
             Log.fine("    Success in course 2 (if started): ",
-                    this.pctFmt.format((double) m117118.getSecondCourseSuccessIfTried()));
+                    this.pctFmt.format(m117118.getSecondCourseSuccessIfTried()));
             Log.fine("    Expectation value for credits passed: ",
-                    this.expFmt.format((double) m117118.getExpectedCreditsPassed()));
+                    this.expFmt.format(m117118.getExpectedCreditsPassed()));
         }
 
         if (m117124.getN() > 0) {
             Log.fine("  MATH 117+124 (n=" + m117124.getN() + ")");
             Log.fine("    Success in course 1: ",
-                    this.pctFmt.format((double) m117124.getFirstCourseSuccess()));
+                    this.pctFmt.format(m117124.getFirstCourseSuccess()));
             Log.fine("    Success in course 2: ",
-                    this.pctFmt.format((double) m117124.getSecondCourseSuccess()));
+                    this.pctFmt.format(m117124.getSecondCourseSuccess()));
             Log.fine("    Success in course 2 (if started): ",
-                    this.pctFmt.format((double) m117124.getSecondCourseSuccessIfTried()));
+                    this.pctFmt.format(m117124.getSecondCourseSuccessIfTried()));
             Log.fine("    Expectation value for credits passed: ",
-                    this.expFmt.format((double) m117124.getExpectedCreditsPassed()));
+                    this.expFmt.format(m117124.getExpectedCreditsPassed()));
         }
 
         if (m117125.getN() > 0) {
             Log.fine("  MATH 117+125 (n=" + m117125.getN() + ")");
             Log.fine("    Success in course 1: ",
-                    this.pctFmt.format((double) m117125.getFirstCourseSuccess()));
+                    this.pctFmt.format(m117125.getFirstCourseSuccess()));
             Log.fine("    Success in course 2: ",
-                    this.pctFmt.format((double) m117125.getSecondCourseSuccess()));
+                    this.pctFmt.format(m117125.getSecondCourseSuccess()));
             Log.fine("    Success in course 2 (if started): ",
-                    this.pctFmt.format((double) m117125.getSecondCourseSuccessIfTried()));
+                    this.pctFmt.format(m117125.getSecondCourseSuccessIfTried()));
             Log.fine("    Expectation value for credits passed: ",
-                    this.expFmt.format((double) m117125.getExpectedCreditsPassed()));
+                    this.expFmt.format(m117125.getExpectedCreditsPassed()));
         }
 
         if (m117126.getN() > 0) {
             Log.fine("  MATH 117+126 (n=" + m117126.getN() + ")");
             Log.fine("    Success in course 1: ",
-                    this.pctFmt.format((double) m117126.getFirstCourseSuccess()));
+                    this.pctFmt.format(m117126.getFirstCourseSuccess()));
             Log.fine("    Success in course 2: ",
-                    this.pctFmt.format((double) m117126.getSecondCourseSuccess()));
+                    this.pctFmt.format(m117126.getSecondCourseSuccess()));
             Log.fine("    Success in course 2 (if started): ",
-                    this.pctFmt.format((double) m117126.getSecondCourseSuccessIfTried()));
+                    this.pctFmt.format(m117126.getSecondCourseSuccessIfTried()));
             Log.fine("    Expectation value for credits passed: ",
-                    this.expFmt.format((double) m117126.getExpectedCreditsPassed()));
+                    this.expFmt.format(m117126.getExpectedCreditsPassed()));
         }
 
         if (m118124.getN() > 0) {
             Log.fine("  MATH 118+124 (n=" + m118124.getN() + ")");
             Log.fine("    Success in course 1: ",
-                    this.pctFmt.format((double) m118124.getFirstCourseSuccess()));
+                    this.pctFmt.format(m118124.getFirstCourseSuccess()));
             Log.fine("    Success in course 2: ",
-                    this.pctFmt.format((double) m118124.getSecondCourseSuccess()));
+                    this.pctFmt.format(m118124.getSecondCourseSuccess()));
             Log.fine("    Success in course 2 (if started): ",
-                    this.pctFmt.format((double) m118124.getSecondCourseSuccessIfTried()));
+                    this.pctFmt.format(m118124.getSecondCourseSuccessIfTried()));
             Log.fine("    Expectation value for credits passed: ",
-                    this.expFmt.format((double) m118124.getExpectedCreditsPassed()));
+                    this.expFmt.format(m118124.getExpectedCreditsPassed()));
         }
 
         if (m118125.getN() > 0) {
             Log.fine("  MATH 118+125 (n=" + m118125.getN() + ")");
             Log.fine("    Success in course 1: ",
-                    this.pctFmt.format((double) m118125.getFirstCourseSuccess()));
+                    this.pctFmt.format(m118125.getFirstCourseSuccess()));
             Log.fine("    Success in course 2: ",
-                    this.pctFmt.format((double) m118125.getSecondCourseSuccess()));
+                    this.pctFmt.format(m118125.getSecondCourseSuccess()));
             Log.fine("    Success in course 2 (if started): ",
-                    this.pctFmt.format((double) m118125.getSecondCourseSuccessIfTried()));
+                    this.pctFmt.format(m118125.getSecondCourseSuccessIfTried()));
             Log.fine("    Expectation value for credits passed: ",
-                    this.expFmt.format((double) m118125.getExpectedCreditsPassed()));
+                    this.expFmt.format(m118125.getExpectedCreditsPassed()));
         }
 
         if (m118126.getN() > 0) {
             Log.fine("  MATH 118+126 (n=" + m118126.getN() + ")");
             Log.fine("    Success in course 1: ",
-                    this.pctFmt.format((double) m118126.getFirstCourseSuccess()));
+                    this.pctFmt.format(m118126.getFirstCourseSuccess()));
             Log.fine("    Success in course 2: ",
-                    this.pctFmt.format((double) m118126.getSecondCourseSuccess()));
+                    this.pctFmt.format(m118126.getSecondCourseSuccess()));
             Log.fine("    Success in course 2 (if started): ",
-                    this.pctFmt.format((double) m118126.getSecondCourseSuccessIfTried()));
+                    this.pctFmt.format(m118126.getSecondCourseSuccessIfTried()));
             Log.fine("    Expectation value for credits passed: ",
-                    this.expFmt.format((double) m118126.getExpectedCreditsPassed()));
+                    this.expFmt.format(m118126.getExpectedCreditsPassed()));
         }
 
         if (m124125.getN() > 0) {
             Log.fine("  MATH 124+125 (n=" + m124125.getN() + ")");
             Log.fine("    Success in course 1: ",
-                    this.pctFmt.format((double) m124125.getFirstCourseSuccess()));
+                    this.pctFmt.format(m124125.getFirstCourseSuccess()));
             Log.fine("    Success in course 2: ",
-                    this.pctFmt.format((double) m124125.getSecondCourseSuccess()));
+                    this.pctFmt.format(m124125.getSecondCourseSuccess()));
             Log.fine("    Success in course 2 (if started): ",
-                    this.pctFmt.format((double) m124125.getSecondCourseSuccessIfTried()));
+                    this.pctFmt.format(m124125.getSecondCourseSuccessIfTried()));
             Log.fine("    Expectation value for credits passed: ",
-                    this.expFmt.format((double) m124125.getExpectedCreditsPassed()));
+                    this.expFmt.format(m124125.getExpectedCreditsPassed()));
         }
 
         if (m124126.getN() > 0) {
             Log.fine("  MATH 124+126 (n=" + m124126.getN() + ")");
             Log.fine("    Success in course 1: ",
-                    this.pctFmt.format((double) m124126.getFirstCourseSuccess()));
+                    this.pctFmt.format(m124126.getFirstCourseSuccess()));
             Log.fine("    Success in course 2: ",
-                    this.pctFmt.format((double) m124126.getSecondCourseSuccess()));
+                    this.pctFmt.format(m124126.getSecondCourseSuccess()));
             Log.fine("    Success in course 2 (if started): ",
-                    this.pctFmt.format((double) m124126.getSecondCourseSuccessIfTried()));
+                    this.pctFmt.format(m124126.getSecondCourseSuccessIfTried()));
             Log.fine("    Expectation value for credits passed: ",
-                    this.expFmt.format((double) m124126.getExpectedCreditsPassed()));
+                    this.expFmt.format(m124126.getExpectedCreditsPassed()));
         }
 
         if (m125126.getN() > 0) {
             Log.fine("  MATH 125+126 (n=" + m125126.getN() + ")");
             Log.fine("    Success in course 1: ",
-                    this.pctFmt.format((double) m125126.getFirstCourseSuccess()));
+                    this.pctFmt.format(m125126.getFirstCourseSuccess()));
             Log.fine("    Success in course 2: ",
-                    this.pctFmt.format((double) m125126.getSecondCourseSuccess()));
+                    this.pctFmt.format(m125126.getSecondCourseSuccess()));
             Log.fine("    Success in course 2 (if started): ",
-                    this.pctFmt.format((double) m125126.getSecondCourseSuccessIfTried()));
+                    this.pctFmt.format(m125126.getSecondCourseSuccessIfTried()));
             Log.fine("    Expectation value for credits passed: ",
-                    this.expFmt.format((double) m125126.getExpectedCreditsPassed()));
+                    this.expFmt.format(m125126.getExpectedCreditsPassed()));
         }
     }
 
@@ -577,161 +577,161 @@ final class CompletionRates implements Runnable {
         if (m117118124.getN() > 0) {
             Log.fine("  MATH 117+118+124 (n=" + m117118124.getN() + ")");
             Log.fine("    Success in course 1: ",
-                    this.pctFmt.format((double) m117118124.getFirstCourseSuccess()));
+                    this.pctFmt.format(m117118124.getFirstCourseSuccess()));
             Log.fine("    Success in course 2: ",
-                    this.pctFmt.format((double) m117118124.getSecondCourseSuccess()));
+                    this.pctFmt.format(m117118124.getSecondCourseSuccess()));
             Log.fine("    Success in course 2 (if started): ",
-                    this.pctFmt.format((double) m117118124.getSecondCourseSuccessIfTried()));
+                    this.pctFmt.format(m117118124.getSecondCourseSuccessIfTried()));
             Log.fine("    Success in course 3: ",
-                    this.pctFmt.format((double) m117118124.getThirdCourseSuccess()));
+                    this.pctFmt.format(m117118124.getThirdCourseSuccess()));
             Log.fine("    Success in course 3 (if started): ",
-                    this.pctFmt.format((double) m117118124.getThirdCourseSuccessIfTried()));
+                    this.pctFmt.format(m117118124.getThirdCourseSuccessIfTried()));
             Log.fine("    Expectation value for credits passed: ",
-                    this.expFmt.format((double) m117118124.getExpectedCreditsPassed()));
+                    this.expFmt.format(m117118124.getExpectedCreditsPassed()));
         }
 
         if (m117118125.getN() > 0) {
             Log.fine("  MATH 117+118+125 (n=" + m117118125.getN() + ")");
             Log.fine("    Success in course 1: ",
-                    this.pctFmt.format((double) m117118125.getFirstCourseSuccess()));
+                    this.pctFmt.format(m117118125.getFirstCourseSuccess()));
             Log.fine("    Success in course 2: ",
-                    this.pctFmt.format((double) m117118125.getSecondCourseSuccess()));
+                    this.pctFmt.format(m117118125.getSecondCourseSuccess()));
             Log.fine("    Success in course 2 (if started): ",
-                    this.pctFmt.format((double) m117118125.getSecondCourseSuccessIfTried()));
+                    this.pctFmt.format(m117118125.getSecondCourseSuccessIfTried()));
             Log.fine("    Success in course 3: ",
-                    this.pctFmt.format((double) m117118125.getThirdCourseSuccess()));
+                    this.pctFmt.format(m117118125.getThirdCourseSuccess()));
             Log.fine("    Success in course 3 (if started): ",
-                    this.pctFmt.format((double) m117118125.getThirdCourseSuccessIfTried()));
+                    this.pctFmt.format(m117118125.getThirdCourseSuccessIfTried()));
             Log.fine("    Expectation value for credits passed: ",
-                    this.expFmt.format((double) m117118125.getExpectedCreditsPassed()));
+                    this.expFmt.format(m117118125.getExpectedCreditsPassed()));
         }
 
         if (m117118126.getN() > 0) {
             Log.fine("  MATH 117+118+126 (n=" + m117118126.getN() + ")");
             Log.fine("    Success in course 1: ",
-                    this.pctFmt.format((double) m117118126.getFirstCourseSuccess()));
+                    this.pctFmt.format(m117118126.getFirstCourseSuccess()));
             Log.fine("    Success in course 2: ",
-                    this.pctFmt.format((double) m117118126.getSecondCourseSuccess()));
+                    this.pctFmt.format(m117118126.getSecondCourseSuccess()));
             Log.fine("    Success in course 2 (if started): ",
-                    this.pctFmt.format((double) m117118126.getSecondCourseSuccessIfTried()));
+                    this.pctFmt.format(m117118126.getSecondCourseSuccessIfTried()));
             Log.fine("    Success in course 3: ",
-                    this.pctFmt.format((double) m117118126.getThirdCourseSuccess()));
+                    this.pctFmt.format(m117118126.getThirdCourseSuccess()));
             Log.fine("    Success in course 3 (if started): ",
-                    this.pctFmt.format((double) m117118126.getThirdCourseSuccessIfTried()));
+                    this.pctFmt.format(m117118126.getThirdCourseSuccessIfTried()));
             Log.fine("    Expectation value for credits passed: ",
-                    this.expFmt.format((double) m117118126.getExpectedCreditsPassed()));
+                    this.expFmt.format(m117118126.getExpectedCreditsPassed()));
         }
 
         if (m117124125.getN() > 0) {
             Log.fine("  MATH 117+124+125 (n=" + m117124125.getN() + ")");
             Log.fine("    Success in course 1: ",
-                    this.pctFmt.format((double) m117124125.getFirstCourseSuccess()));
+                    this.pctFmt.format(m117124125.getFirstCourseSuccess()));
             Log.fine("    Success in course 2: ",
-                    this.pctFmt.format((double) m117124125.getSecondCourseSuccess()));
+                    this.pctFmt.format(m117124125.getSecondCourseSuccess()));
             Log.fine("    Success in course 2 (if started): ",
-                    this.pctFmt.format((double) m117124125.getSecondCourseSuccessIfTried()));
+                    this.pctFmt.format(m117124125.getSecondCourseSuccessIfTried()));
             Log.fine("   Success in course 3: ",
-                    this.pctFmt.format((double) m117124125.getThirdCourseSuccess()));
+                    this.pctFmt.format(m117124125.getThirdCourseSuccess()));
             Log.fine("    Success in course 3 (if started): ",
-                    this.pctFmt.format((double) m117124125.getThirdCourseSuccessIfTried()));
+                    this.pctFmt.format(m117124125.getThirdCourseSuccessIfTried()));
             Log.fine("    Expectation value for credits passed: ",
-                    this.expFmt.format((double) m117124125.getExpectedCreditsPassed()));
+                    this.expFmt.format(m117124125.getExpectedCreditsPassed()));
         }
 
         if (m117124126.getN() > 0) {
             Log.fine("  MATH 117+124+126 (n=" + m117124126.getN() + ")");
             Log.fine("    Success in course 1: ",
-                    this.pctFmt.format((double) m117124126.getFirstCourseSuccess()));
+                    this.pctFmt.format(m117124126.getFirstCourseSuccess()));
             Log.fine("    Success in course 2: ",
-                    this.pctFmt.format((double) m117124126.getSecondCourseSuccess()));
+                    this.pctFmt.format(m117124126.getSecondCourseSuccess()));
             Log.fine("    Success in course 2 (if started): ",
-                    this.pctFmt.format((double) m117124126.getSecondCourseSuccessIfTried()));
+                    this.pctFmt.format(m117124126.getSecondCourseSuccessIfTried()));
             Log.fine("    Success in course 3: ",
-                    this.pctFmt.format((double) m117124126.getThirdCourseSuccess()));
+                    this.pctFmt.format(m117124126.getThirdCourseSuccess()));
             Log.fine("    Success in course 3 (if started): ",
-                    this.pctFmt.format((double) m117124126.getThirdCourseSuccessIfTried()));
+                    this.pctFmt.format(m117124126.getThirdCourseSuccessIfTried()));
             Log.fine("    Expectation value for credits passed: ",
-                    this.expFmt.format((double) m117124126.getExpectedCreditsPassed()));
+                    this.expFmt.format(m117124126.getExpectedCreditsPassed()));
         }
 
         if (m117125126.getN() > 0) {
             Log.fine("  MATH 117+125+125 (n=" + m117125126.getN() + ")");
             Log.fine("    Success in course 1: ",
-                    this.pctFmt.format((double) m117125126.getFirstCourseSuccess()));
+                    this.pctFmt.format(m117125126.getFirstCourseSuccess()));
             Log.fine("    Success in course 2: ",
-                    this.pctFmt.format((double) m117125126.getSecondCourseSuccess()));
+                    this.pctFmt.format(m117125126.getSecondCourseSuccess()));
             Log.fine("    Success in course 2 (if started): ",
-                    this.pctFmt.format((double) m117125126.getSecondCourseSuccessIfTried()));
+                    this.pctFmt.format(m117125126.getSecondCourseSuccessIfTried()));
             Log.fine("    Success in course 3: ",
-                    this.pctFmt.format((double) m117125126.getThirdCourseSuccess()));
+                    this.pctFmt.format(m117125126.getThirdCourseSuccess()));
             Log.fine("    Success in course 3 (if started): ",
-                    this.pctFmt.format((double) m117125126.getThirdCourseSuccessIfTried()));
+                    this.pctFmt.format(m117125126.getThirdCourseSuccessIfTried()));
             Log.fine("    Expectation value for credits passed: ",
-                    this.expFmt.format((double) m117125126.getExpectedCreditsPassed()));
+                    this.expFmt.format(m117125126.getExpectedCreditsPassed()));
         }
 
         if (m118124125.getN() > 0) {
             Log.fine("  MATH 118+124+125 (n=" + m118124125.getN() + ")");
             Log.fine("    Success in course 1: ",
-                    this.pctFmt.format((double) m118124125.getFirstCourseSuccess()));
+                    this.pctFmt.format(m118124125.getFirstCourseSuccess()));
             Log.fine("    Success in course 2: ",
-                    this.pctFmt.format((double) m118124125.getSecondCourseSuccess()));
+                    this.pctFmt.format(m118124125.getSecondCourseSuccess()));
             Log.fine("    Success in course 2 (if started): ",
-                    this.pctFmt.format((double) m118124125.getSecondCourseSuccessIfTried()));
+                    this.pctFmt.format(m118124125.getSecondCourseSuccessIfTried()));
             Log.fine("    Success in course 3: ",
-                    this.pctFmt.format((double) m118124125.getThirdCourseSuccess()));
+                    this.pctFmt.format(m118124125.getThirdCourseSuccess()));
             Log.fine("    Success in course 3 (if started): ",
-                    this.pctFmt.format((double) m118124125.getThirdCourseSuccessIfTried()));
+                    this.pctFmt.format(m118124125.getThirdCourseSuccessIfTried()));
             Log.fine("    Expectation value for credits passed: ",
-                    this.expFmt.format((double) m118124125.getExpectedCreditsPassed()));
+                    this.expFmt.format(m118124125.getExpectedCreditsPassed()));
         }
 
         if (m118124126.getN() > 0) {
             Log.fine("  MATH 118+124+126 (n=" + m118124126.getN() + ")");
             Log.fine("    Success in course 1: ",
-                    this.pctFmt.format((double) m118124126.getFirstCourseSuccess()));
+                    this.pctFmt.format(m118124126.getFirstCourseSuccess()));
             Log.fine("    Success in course 2: ",
-                    this.pctFmt.format((double) m118124126.getSecondCourseSuccess()));
+                    this.pctFmt.format(m118124126.getSecondCourseSuccess()));
             Log.fine("    Success in course 2 (if started): ",
-                    this.pctFmt.format((double) m118124126.getSecondCourseSuccessIfTried()));
+                    this.pctFmt.format(m118124126.getSecondCourseSuccessIfTried()));
             Log.fine("    Success in course 3: ",
-                    this.pctFmt.format((double) m118124126.getThirdCourseSuccess()));
+                    this.pctFmt.format(m118124126.getThirdCourseSuccess()));
             Log.fine("    Success in course 3 (if started): ",
-                    this.pctFmt.format((double) m118124126.getThirdCourseSuccessIfTried()));
+                    this.pctFmt.format(m118124126.getThirdCourseSuccessIfTried()));
             Log.fine("    Expectation value for credits passed: ",
-                    this.expFmt.format((double) m118124126.getExpectedCreditsPassed()));
+                    this.expFmt.format(m118124126.getExpectedCreditsPassed()));
         }
 
         if (m118125126.getN() > 0) {
             Log.fine("  MATH 118+125+126 (n=" + m118125126.getN() + ")");
             Log.fine("    Success in course 1: ",
-                    this.pctFmt.format((double) m118125126.getFirstCourseSuccess()));
+                    this.pctFmt.format(m118125126.getFirstCourseSuccess()));
             Log.fine("    Success in course 2: ",
-                    this.pctFmt.format((double) m118125126.getSecondCourseSuccess()));
+                    this.pctFmt.format(m118125126.getSecondCourseSuccess()));
             Log.fine("    Success in course 2 (if started): ",
-                    this.pctFmt.format((double) m118125126.getSecondCourseSuccessIfTried()));
+                    this.pctFmt.format(m118125126.getSecondCourseSuccessIfTried()));
             Log.fine("    Success in course 3: ",
-                    this.pctFmt.format((double) m118125126.getThirdCourseSuccess()));
+                    this.pctFmt.format(m118125126.getThirdCourseSuccess()));
             Log.fine("    Success in course 3 (if started): ",
-                    this.pctFmt.format((double) m118125126.getThirdCourseSuccessIfTried()));
+                    this.pctFmt.format(m118125126.getThirdCourseSuccessIfTried()));
             Log.fine("    Expectation value for credits passed: ",
-                    this.expFmt.format((double) m118125126.getExpectedCreditsPassed()));
+                    this.expFmt.format(m118125126.getExpectedCreditsPassed()));
         }
 
         if (m124125126.getN() > 0) {
             Log.fine("  MATH 124+125+126 (n=" + m124125126.getN() + ")");
             Log.fine("    Success in course 1: ",
-                    this.pctFmt.format((double) m124125126.getFirstCourseSuccess()));
+                    this.pctFmt.format(m124125126.getFirstCourseSuccess()));
             Log.fine("    Success in course 2: ",
-                    this.pctFmt.format((double) m124125126.getSecondCourseSuccess()));
+                    this.pctFmt.format(m124125126.getSecondCourseSuccess()));
             Log.fine("    Success in course 2 (if started): ",
-                    this.pctFmt.format((double) m124125126.getSecondCourseSuccessIfTried()));
+                    this.pctFmt.format(m124125126.getSecondCourseSuccessIfTried()));
             Log.fine("    Success in course 3: ",
-                    this.pctFmt.format((double) m124125126.getThirdCourseSuccess()));
+                    this.pctFmt.format(m124125126.getThirdCourseSuccess()));
             Log.fine("    Success in course 3 (if started): ",
-                    this.pctFmt.format((double) m124125126.getThirdCourseSuccessIfTried()));
+                    this.pctFmt.format(m124125126.getThirdCourseSuccessIfTried()));
             Log.fine("    Expectation value for credits passed: ",
-                    this.expFmt.format((double) m124125126.getExpectedCreditsPassed()));
+                    this.expFmt.format(m124125126.getExpectedCreditsPassed()));
         }
     }
 
@@ -774,101 +774,101 @@ final class CompletionRates implements Runnable {
         if (allBut126.getN() > 0) {
             Log.fine("  MATH 117+118+124+125 (n=" + allBut126.getN() + ")");
             Log.fine("    Success in course 1: ",
-                    this.pctFmt.format((double) allBut126.getFirstCourseSuccess()));
+                    this.pctFmt.format(allBut126.getFirstCourseSuccess()));
             Log.fine("    Success in course 2: ",
-                    this.pctFmt.format((double) allBut126.getSecondCourseSuccess()));
+                    this.pctFmt.format(allBut126.getSecondCourseSuccess()));
             Log.fine("    Success in course 2 (if started): ",
-                    this.pctFmt.format((double) allBut126.getSecondCourseSuccessIfTried()));
+                    this.pctFmt.format(allBut126.getSecondCourseSuccessIfTried()));
             Log.fine("    Success in course 3: ",
-                    this.pctFmt.format((double) allBut126.getThirdCourseSuccess()));
+                    this.pctFmt.format(allBut126.getThirdCourseSuccess()));
             Log.fine("    Success in course 3 (if started): ",
-                    this.pctFmt.format((double) allBut126.getThirdCourseSuccessIfTried()));
+                    this.pctFmt.format(allBut126.getThirdCourseSuccessIfTried()));
             Log.fine("    Success in course 4: ",
-                    this.pctFmt.format((double) allBut126.getFourthCourseSuccess()));
+                    this.pctFmt.format(allBut126.getFourthCourseSuccess()));
             Log.fine("    Success in course 4 (if started): ",
-                    this.pctFmt.format((double) allBut126.getFourthCourseSuccessIfTried()));
+                    this.pctFmt.format(allBut126.getFourthCourseSuccessIfTried()));
             Log.fine("    Expectation value for credits passed: ",
-                    this.expFmt.format((double) allBut126.getExpectedCreditsPassed()));
+                    this.expFmt.format(allBut126.getExpectedCreditsPassed()));
         }
 
         if (allBut125.getN() > 0) {
             Log.fine("  MATH 117+118+124+126 (n=" + allBut125.getN() + ")");
             Log.fine("    Success in course 1: ",
-                    this.pctFmt.format((double) allBut125.getFirstCourseSuccess()));
+                    this.pctFmt.format(allBut125.getFirstCourseSuccess()));
             Log.fine("    Success in course 2: ",
-                    this.pctFmt.format((double) allBut125.getSecondCourseSuccess()));
+                    this.pctFmt.format(allBut125.getSecondCourseSuccess()));
             Log.fine("    Success in course 2 (if started): ",
-                    this.pctFmt.format((double) allBut125.getSecondCourseSuccessIfTried()));
+                    this.pctFmt.format(allBut125.getSecondCourseSuccessIfTried()));
             Log.fine("    Success in course 3: ",
-                    this.pctFmt.format((double) allBut125.getThirdCourseSuccess()));
+                    this.pctFmt.format(allBut125.getThirdCourseSuccess()));
             Log.fine("    Success in course 3 (if started): ",
-                    this.pctFmt.format((double) allBut125.getThirdCourseSuccessIfTried()));
+                    this.pctFmt.format(allBut125.getThirdCourseSuccessIfTried()));
             Log.fine("    Success in course 4: ",
-                    this.pctFmt.format((double) allBut125.getFourthCourseSuccess()));
+                    this.pctFmt.format(allBut125.getFourthCourseSuccess()));
             Log.fine("    Success in course 4 (if started): ",
-                    this.pctFmt.format((double) allBut125.getFourthCourseSuccessIfTried()));
+                    this.pctFmt.format(allBut125.getFourthCourseSuccessIfTried()));
             Log.fine("    Expectation value for credits passed: ",
-                    this.expFmt.format((double) allBut125.getExpectedCreditsPassed()));
+                    this.expFmt.format(allBut125.getExpectedCreditsPassed()));
         }
 
         if (allBut124.getN() > 0) {
             Log.fine("  MATH 117+118+125+126 (n=" + allBut124.getN() + ")");
             Log.fine("    Success in course 1: ",
-                    this.pctFmt.format((double) allBut124.getFirstCourseSuccess()));
+                    this.pctFmt.format(allBut124.getFirstCourseSuccess()));
             Log.fine("    Success in course 2: ",
-                    this.pctFmt.format((double) allBut124.getSecondCourseSuccess()));
+                    this.pctFmt.format(allBut124.getSecondCourseSuccess()));
             Log.fine("    Success in course 2 (if started): ",
-                    this.pctFmt.format((double) allBut124.getSecondCourseSuccessIfTried()));
+                    this.pctFmt.format(allBut124.getSecondCourseSuccessIfTried()));
             Log.fine("    Success in course 3: ",
-                    this.pctFmt.format((double) allBut124.getThirdCourseSuccess()));
+                    this.pctFmt.format(allBut124.getThirdCourseSuccess()));
             Log.fine("    Success in course 3 (if started): ",
-                    this.pctFmt.format((double) allBut124.getThirdCourseSuccessIfTried()));
+                    this.pctFmt.format(allBut124.getThirdCourseSuccessIfTried()));
             Log.fine("    Success in course 4: ",
-                    this.pctFmt.format((double) allBut124.getFourthCourseSuccess()));
+                    this.pctFmt.format(allBut124.getFourthCourseSuccess()));
             Log.fine("    Success in course 4 (if started): ",
-                    this.pctFmt.format((double) allBut124.getFourthCourseSuccessIfTried()));
+                    this.pctFmt.format(allBut124.getFourthCourseSuccessIfTried()));
             Log.fine("    Expectation value for credits passed: ",
-                    this.expFmt.format((double) allBut124.getExpectedCreditsPassed()));
+                    this.expFmt.format(allBut124.getExpectedCreditsPassed()));
         }
 
         if (allBut118.getN() > 0) {
             Log.fine("  MATH 117+124+125+126 (n=" + allBut118.getN() + ")");
             Log.fine("    Success in course 1: ",
-                    this.pctFmt.format((double) allBut118.getFirstCourseSuccess()));
+                    this.pctFmt.format(allBut118.getFirstCourseSuccess()));
             Log.fine("    Success in course 2: ",
-                    this.pctFmt.format((double) allBut118.getSecondCourseSuccess()));
+                    this.pctFmt.format(allBut118.getSecondCourseSuccess()));
             Log.fine("    Success in course 2 (if started): ",
-                    this.pctFmt.format((double) allBut118.getSecondCourseSuccessIfTried()));
+                    this.pctFmt.format(allBut118.getSecondCourseSuccessIfTried()));
             Log.fine("    Success in course 3: ",
-                    this.pctFmt.format((double) allBut118.getThirdCourseSuccess()));
+                    this.pctFmt.format(allBut118.getThirdCourseSuccess()));
             Log.fine("    Success in course 3 (if started): ",
-                    this.pctFmt.format((double) allBut118.getThirdCourseSuccessIfTried()));
+                    this.pctFmt.format(allBut118.getThirdCourseSuccessIfTried()));
             Log.fine("    Success in course 4: ",
-                    this.pctFmt.format((double) allBut118.getFourthCourseSuccess()));
+                    this.pctFmt.format(allBut118.getFourthCourseSuccess()));
             Log.fine("    Success in course 4 (if started): ",
-                    this.pctFmt.format((double) allBut118.getFourthCourseSuccessIfTried()));
+                    this.pctFmt.format(allBut118.getFourthCourseSuccessIfTried()));
             Log.fine("    Expectation value for credits passed: ",
-                    this.expFmt.format((double) allBut118.getExpectedCreditsPassed()));
+                    this.expFmt.format(allBut118.getExpectedCreditsPassed()));
         }
 
         if (allBut117.getN() > 0) {
             Log.fine("  MATH 118+124+125+126 (n=" + allBut117.getN() + ")");
             Log.fine("    Success in course 1: ",
-                    this.pctFmt.format((double) allBut117.getFirstCourseSuccess()));
+                    this.pctFmt.format(allBut117.getFirstCourseSuccess()));
             Log.fine("    Success in course 2: ",
-                    this.pctFmt.format((double) allBut117.getSecondCourseSuccess()));
+                    this.pctFmt.format(allBut117.getSecondCourseSuccess()));
             Log.fine("    Success in course 2 (if started): ",
-                    this.pctFmt.format((double) allBut117.getSecondCourseSuccessIfTried()));
+                    this.pctFmt.format(allBut117.getSecondCourseSuccessIfTried()));
             Log.fine("    Success in course 3: ",
-                    this.pctFmt.format((double) allBut117.getThirdCourseSuccess()));
+                    this.pctFmt.format(allBut117.getThirdCourseSuccess()));
             Log.fine("    Success in course 3 (if started): ",
-                    this.pctFmt.format((double) allBut117.getThirdCourseSuccessIfTried()));
+                    this.pctFmt.format(allBut117.getThirdCourseSuccessIfTried()));
             Log.fine("    Success in course 4: ",
-                    this.pctFmt.format((double) allBut117.getFourthCourseSuccess()));
+                    this.pctFmt.format(allBut117.getFourthCourseSuccess()));
             Log.fine("    Success in course 4 (if started): ",
-                    this.pctFmt.format((double) allBut117.getFourthCourseSuccessIfTried()));
+                    this.pctFmt.format(allBut117.getFourthCourseSuccessIfTried()));
             Log.fine("    Expectation value for credits passed: ",
-                    this.expFmt.format((double) allBut117.getExpectedCreditsPassed()));
+                    this.expFmt.format(allBut117.getExpectedCreditsPassed()));
         }
     }
 
@@ -897,25 +897,25 @@ final class CompletionRates implements Runnable {
         if (results.getN() > 0) {
             Log.fine("  MATH 117+118+124+125+126 (n=" + results.getN() + ")");
             Log.fine("    Success in course 1: ",
-                    this.pctFmt.format((double) results.getFirstCourseSuccess()));
+                    this.pctFmt.format(results.getFirstCourseSuccess()));
             Log.fine("    Success in course 2: ",
-                    this.pctFmt.format((double) results.getSecondCourseSuccess()));
+                    this.pctFmt.format(results.getSecondCourseSuccess()));
             Log.fine("    Success in course 2 (if started): ",
-                    this.pctFmt.format((double) results.getSecondCourseSuccessIfTried()));
+                    this.pctFmt.format(results.getSecondCourseSuccessIfTried()));
             Log.fine("    Success in course 3: ",
-                    this.pctFmt.format((double) results.getThirdCourseSuccess()));
+                    this.pctFmt.format(results.getThirdCourseSuccess()));
             Log.fine("    Success in course 3 (if started): ",
-                    this.pctFmt.format((double) results.getThirdCourseSuccessIfTried()));
+                    this.pctFmt.format(results.getThirdCourseSuccessIfTried()));
             Log.fine("    Success in course 4: ",
-                    this.pctFmt.format((double) results.getFourthCourseSuccess()));
+                    this.pctFmt.format(results.getFourthCourseSuccess()));
             Log.fine("    Success in course 4 (if started): ",
-                    this.pctFmt.format((double) results.getFourthCourseSuccessIfTried()));
+                    this.pctFmt.format(results.getFourthCourseSuccessIfTried()));
             Log.fine("    Success in course 5: ",
-                    this.pctFmt.format((double) results.getFifthCourseSuccess()));
+                    this.pctFmt.format(results.getFifthCourseSuccess()));
             Log.fine("    Success in course 5 (if started): ",
-                    this.pctFmt.format((double) results.getFifthCourseSuccessIfTried()));
+                    this.pctFmt.format(results.getFifthCourseSuccessIfTried()));
             Log.fine("    Expectation value for credits passed: ",
-                    this.expFmt.format((double) results.getExpectedCreditsPassed()));
+                    this.expFmt.format(results.getExpectedCreditsPassed()));
         }
     }
 

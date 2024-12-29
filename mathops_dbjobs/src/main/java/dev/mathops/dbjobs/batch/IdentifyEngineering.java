@@ -1,6 +1,5 @@
 package dev.mathops.dbjobs.batch;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
@@ -15,6 +14,7 @@ import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawrecord.RawApplicant;
 import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.db.type.TermKey;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.sql.SQLException;
 import java.time.LocalDate;

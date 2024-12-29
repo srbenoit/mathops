@@ -1,7 +1,6 @@
 package dev.mathops.app.checkin;
 
 import dev.mathops.commons.TemporalUtils;
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
@@ -27,6 +26,7 @@ import dev.mathops.db.old.rec.StandardMilestoneRec;
 import dev.mathops.db.old.rec.StudentStandardMilestoneRec;
 import dev.mathops.db.old.reclogic.StudentStandardMilestoneLogic;
 import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import java.sql.SQLException;
 import java.time.LocalDate;

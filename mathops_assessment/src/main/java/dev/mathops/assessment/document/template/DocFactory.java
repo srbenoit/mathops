@@ -12,18 +12,18 @@ import dev.mathops.assessment.variable.AbstractVariable;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.assessment.variable.VariableInputReal;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.parser.ParsingException;
-import dev.mathops.commons.parser.xml.AbstractAttributedElementBase;
-import dev.mathops.commons.parser.xml.CData;
-import dev.mathops.commons.parser.xml.Comment;
-import dev.mathops.commons.parser.xml.EmptyElement;
-import dev.mathops.commons.parser.xml.IElement;
-import dev.mathops.commons.parser.xml.INode;
-import dev.mathops.commons.parser.xml.NonemptyElement;
-import dev.mathops.commons.parser.xml.XmlContent;
 import dev.mathops.commons.ui.ColorNames;
 import dev.mathops.font.BundledFontManager;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.ParsingException;
+import dev.mathops.text.parser.xml.AbstractAttributedElementBase;
+import dev.mathops.text.parser.xml.CData;
+import dev.mathops.text.parser.xml.Comment;
+import dev.mathops.text.parser.xml.EmptyElement;
+import dev.mathops.text.parser.xml.IElement;
+import dev.mathops.text.parser.xml.INode;
+import dev.mathops.text.parser.xml.NonemptyElement;
+import dev.mathops.text.parser.xml.XmlContent;
 
 import java.awt.Color;
 import java.awt.Insets;
@@ -1987,7 +1987,7 @@ public enum DocFactory {
 
             final String cellMarginsStr = elem.getStringAttr(CELL_MARGINS);
             if (cellMarginsStr != null) {
-                if (cellMarginsStr.indexOf((int) CoreConstants.COMMA_CHAR) == -1) {
+                if (cellMarginsStr.indexOf(CoreConstants.COMMA_CHAR) == -1) {
                     try {
                         final int size = Integer.parseInt(cellMarginsStr);
                         table.cellInsets = new Insets(size, size, size, size);
@@ -3547,7 +3547,7 @@ public enum DocFactory {
 
         final int len = content.length();
         for (end = 0; end < len; ++end) {
-            final int currentChar = (int) content.charAt(end);
+            final int currentChar = content.charAt(end);
 
             if (isXmlWhitespace(currentChar)) {
 
@@ -3672,7 +3672,7 @@ public enum DocFactory {
         // text are merged into DocText objects
         final int len = content.length();
         for (end = 0; end < len; ++end) {
-            final int currentChar = (int) content.charAt(end);
+            final int currentChar = content.charAt(end);
 
             if (currentChar == '{') {
 
@@ -4982,7 +4982,7 @@ public enum DocFactory {
 
                 try {
                     final int val = Long.valueOf(value).intValue();
-                    final DocInputCheckbox checkboxInput = new DocInputCheckbox(name, (long) val);
+                    final DocInputCheckbox checkboxInput = new DocInputCheckbox(name, val);
                     input = checkboxInput;
                     input.setEnabledFormula(enabledF);
 
@@ -5163,9 +5163,9 @@ public enum DocFactory {
             if ((int) ch == '&') {
 
                 if (len > i + 3) {
-                    final int ch1 = (int) value.charAt(i + 1);
-                    final int ch2 = (int) value.charAt(i + 2);
-                    final int ch3 = (int) value.charAt(i + 3);
+                    final int ch1 = value.charAt(i + 1);
+                    final int ch2 = value.charAt(i + 2);
+                    final int ch3 = value.charAt(i + 3);
 
                     if (ch1 == 'g' && ch2 == 't' && ch3 == ';') {
                         htm.add('>');
@@ -5174,13 +5174,13 @@ public enum DocFactory {
                         htm.add('<');
                         i += 3;
                     } else if (len > i + 4) {
-                        final int ch4 = (int) value.charAt(i + 4);
+                        final int ch4 = value.charAt(i + 4);
 
                         if (ch1 == 'a' && ch2 == 'm' && ch3 == 'p' && ch4 == ';') {
                             htm.add('&');
                             i += 4;
                         } else if (len > i + 5) {
-                            final int ch5 = (int) value.charAt(i + 5);
+                            final int ch5 = value.charAt(i + 5);
 
                             if (ch1 == 'a' && ch2 == 'p' && ch3 == 'o' && ch4 == 's' && ch5 == ';') {
                                 htm.add('\'');

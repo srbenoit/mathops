@@ -54,7 +54,7 @@ public final class SemesterCalendarPane extends JPanel implements MouseListener 
     private ISemesterCalendarPaneListener listener = null;
 
     /** A rectangle and associated date for mouse click processing. */
-    private List<DateRect> dateRects;
+    private final List<DateRect> dateRects;
 
     /**
      * Constructs a new {@code SemesterCalendarPane}.

@@ -1,8 +1,8 @@
 package dev.mathops.app.webstart;
 
+import dev.mathops.commons.HexEncoder;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.HexEncoder;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;

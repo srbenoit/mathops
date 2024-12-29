@@ -1,6 +1,5 @@
 package dev.mathops.db.logic;
 
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
@@ -56,6 +55,7 @@ import dev.mathops.db.old.reclogic.StandardMilestoneLogic;
 import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.db.type.TermKey;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import java.sql.SQLException;
 import java.time.LocalDate;

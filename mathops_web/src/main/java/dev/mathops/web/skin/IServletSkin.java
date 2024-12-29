@@ -1,6 +1,6 @@
 package dev.mathops.web.skin;
 
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 /**
  * The interface for a servlet skin.

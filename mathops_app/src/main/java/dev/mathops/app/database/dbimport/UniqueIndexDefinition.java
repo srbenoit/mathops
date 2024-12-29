@@ -1,6 +1,6 @@
 package dev.mathops.app.database.dbimport;
 
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.util.ArrayList;
 import java.util.List;

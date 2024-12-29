@@ -1,12 +1,12 @@
 package dev.mathops.web.websocket.help.forums;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
 import dev.mathops.session.SessionResult;
+import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.websocket.help.HelpManager;
 import oracle.jdbc.proxy.annotation.OnError;
 

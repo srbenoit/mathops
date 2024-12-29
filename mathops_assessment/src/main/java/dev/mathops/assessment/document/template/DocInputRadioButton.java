@@ -7,9 +7,9 @@ import dev.mathops.assessment.formula.Formula;
 import dev.mathops.assessment.variable.AbstractVariable;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.assessment.variable.VariableInputInteger;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.font.BundledFontManager;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.awt.Color;
 import java.awt.FontMetrics;
@@ -142,12 +142,12 @@ public final class DocInputRadioButton extends AbstractDocInput {
 
                 // If value is not changing, do nothing.
                 if (param instanceof VariableInputInteger && (param.getValue() instanceof Long)
-                        && (param.getValue().equals(Long.valueOf((long) this.value)))) {
+                        && (param.getValue().equals(Long.valueOf(this.value)))) {
 
                     return;
                 }
 
-                storeValue(Long.valueOf((long) this.value));
+                storeValue(Long.valueOf(this.value));
                 doLayout(getEvalContext(), ELayoutMode.TEXT);
                 notifyChangeListeners();
             }
@@ -340,7 +340,7 @@ public final class DocInputRadioButton extends AbstractDocInput {
                 getFontStyle());
 
         return new DocInputRadioButtonInst(objStyle, null, getName(), getEnabledVarName(), getEnabledVarValue(),
-                (long) this.value);
+                this.value);
     }
 
     /**

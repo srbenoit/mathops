@@ -1,7 +1,7 @@
 package dev.mathops.assessment.document;
 
 import dev.mathops.assessment.document.inst.StrokeStyleInst;
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.util.Objects;
 

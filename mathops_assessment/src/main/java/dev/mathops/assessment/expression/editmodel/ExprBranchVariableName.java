@@ -1,6 +1,6 @@
 package dev.mathops.assessment.expression.editmodel;
 
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 /**
  * An expression object that represents a variable name, with optional accent and/or subscript.

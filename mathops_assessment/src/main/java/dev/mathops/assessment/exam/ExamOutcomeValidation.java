@@ -5,7 +5,7 @@ import dev.mathops.assessment.Realizable;
 import dev.mathops.assessment.formula.Formula;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.util.Objects;
 

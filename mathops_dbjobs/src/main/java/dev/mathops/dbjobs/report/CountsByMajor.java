@@ -2,7 +2,6 @@ package dev.mathops.dbjobs.report;
 
 
 import dev.mathops.commons.EqualityTests;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
@@ -16,6 +15,7 @@ import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -149,7 +149,7 @@ final class CountsByMajor implements Runnable {
         for (final Integer value : this.counts.values()) {
             total += value.intValue();
         }
-        final double totalDouble = (double)total;
+        final double totalDouble = total;
 
         report.addln("Count of students enrolled in 1-credit Precalculus courses by program:").addln();
 

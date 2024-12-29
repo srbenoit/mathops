@@ -1,13 +1,13 @@
 package dev.mathops.web.websocket.help.livehelp;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.ParsingException;
-import dev.mathops.commons.parser.json.JSONObject;
-import dev.mathops.commons.parser.json.JSONParser;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
 import dev.mathops.session.SessionResult;
+import dev.mathops.text.parser.ParsingException;
+import dev.mathops.text.parser.json.JSONObject;
+import dev.mathops.text.parser.json.JSONParser;
 import dev.mathops.web.websocket.help.StudentKey;
 import oracle.jdbc.proxy.annotation.OnError;
 

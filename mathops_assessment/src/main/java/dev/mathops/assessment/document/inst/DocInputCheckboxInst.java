@@ -1,7 +1,7 @@
 package dev.mathops.assessment.document.inst;
 
 import dev.mathops.assessment.document.EXmlStyle;
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 /**
  * An instance of an input that supports a boolean choice. The choice will be presented to the student as a checkbox,

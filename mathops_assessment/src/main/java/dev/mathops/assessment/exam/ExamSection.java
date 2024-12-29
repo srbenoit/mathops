@@ -5,8 +5,8 @@ import dev.mathops.assessment.Randomizer;
 import dev.mathops.assessment.Realizable;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -278,7 +278,7 @@ public final class ExamSection extends AbstractXmlObject implements Realizable {
                 final List<Long> list = new ArrayList<>(size);
 
                 for (int i = 0; i < size; i++) {
-                    list.add(Long.valueOf((long) i));
+                    list.add(Long.valueOf(i));
                 }
 
                 // Now randomly order that list into problemOrder.

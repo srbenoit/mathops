@@ -141,7 +141,7 @@ final class BottomBarPanel extends JPanel implements ActionListener, IExamSessio
             this.buttonFontBaseSize = 20.0f;
         }
 
-        spec.fontSize = (double) this.buttonFontBaseSize;
+        spec.fontSize = this.buttonFontBaseSize;
 
         prop = skin.getProperty("bottom-bar-button-style");
         spec.fontStyle = Font.PLAIN;

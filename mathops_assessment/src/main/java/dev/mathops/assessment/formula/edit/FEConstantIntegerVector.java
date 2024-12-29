@@ -6,8 +6,8 @@ import dev.mathops.assessment.formula.EBinaryOp;
 import dev.mathops.assessment.formula.EUnaryOp;
 import dev.mathops.assessment.formula.IntegerVectorValue;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.awt.Font;
 import java.awt.Graphics2D;

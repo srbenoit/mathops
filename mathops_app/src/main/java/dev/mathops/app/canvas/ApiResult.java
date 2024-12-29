@@ -1,6 +1,6 @@
 package dev.mathops.app.canvas;
 
-import dev.mathops.commons.parser.json.JSONObject;
+import dev.mathops.text.parser.json.JSONObject;
 
 import java.util.List;
 

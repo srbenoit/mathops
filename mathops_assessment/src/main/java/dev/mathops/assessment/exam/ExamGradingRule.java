@@ -3,7 +3,7 @@ package dev.mathops.assessment.exam;
 import dev.mathops.assessment.AbstractXmlObject;
 import dev.mathops.assessment.Realizable;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.util.ArrayList;
 import java.util.Iterator;

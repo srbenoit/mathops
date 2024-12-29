@@ -1,7 +1,6 @@
 package dev.mathops.dbjobs.report;
 
 import dev.mathops.commons.TemporalUtils;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
@@ -13,6 +12,7 @@ import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawrecord.RawStcourse;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.io.File;
 import java.io.FileWriter;

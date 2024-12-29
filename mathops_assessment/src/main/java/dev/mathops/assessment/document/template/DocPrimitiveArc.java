@@ -15,11 +15,11 @@ import dev.mathops.assessment.variable.AbstractVariable;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.assessment.variable.VariableFactory;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.parser.xml.INode;
 import dev.mathops.commons.ui.ColorNames;
 import dev.mathops.font.BundledFontManager;
 import dev.mathops.font.FontSpec;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.xml.INode;
 
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
@@ -846,7 +846,7 @@ final class DocPrimitiveArc extends AbstractDocRectangleShape {
                 if (this.fontSize != null) {
                     spec.fontSize = this.fontSize.doubleValue() * (double) this.scale;
                 } else {
-                    spec.fontSize = (double) this.owner.getFontSize();
+                    spec.fontSize = this.owner.getFontSize();
                 }
 
                 if (this.fontStyle != null) {
@@ -872,9 +872,9 @@ final class DocPrimitiveArc extends AbstractDocRectangleShape {
                     final int style = this.font.getStyle();
                     final int size = this.font.getSize();
                     if (this.isStixText) {
-                        this.font = bfm.getFont("STIX Two Text Regular", (double) size, style);
+                        this.font = bfm.getFont("STIX Two Text Regular", size, style);
                     } else if (this.isStixMath) {
-                        this.font = bfm.getFont("STIX Two Math Regular", (double) size, style);
+                        this.font = bfm.getFont("STIX Two Math Regular", size, style);
                     }
 
                     grx.setFont(Objects.requireNonNullElseGet(this.font, this.owner::getFont));

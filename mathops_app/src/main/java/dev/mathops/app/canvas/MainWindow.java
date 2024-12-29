@@ -1,11 +1,11 @@
 package dev.mathops.app.canvas;
 
 import dev.mathops.app.canvas.calls.ApiV1Sections;
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.app.canvas.calls.ApiV1Courses;
 import dev.mathops.app.canvas.data.UserInfo;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;

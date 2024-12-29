@@ -1,8 +1,8 @@
 package dev.mathops.db.old.svc.term;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rec.RecBase;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.time.LocalDate;
 import java.util.Objects;

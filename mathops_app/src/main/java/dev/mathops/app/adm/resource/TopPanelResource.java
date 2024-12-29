@@ -224,7 +224,7 @@ public final class TopPanelResource extends JPanel implements ActionListener {
     /**
      * Sets the focus when this panel is activated.
      */
-    public final void focus() {
+    public void focus() {
 
         if (LEND_CMD.equals(this.showing)) {
             if (this.loanCard != null) {

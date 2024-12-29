@@ -2,8 +2,8 @@ package dev.mathops.assessment.document.inst;
 
 import dev.mathops.assessment.document.EPrimaryBaseline;
 import dev.mathops.assessment.document.EXmlStyle;
-import dev.mathops.commons.builder.HtmlBuilder;
-import dev.mathops.commons.parser.xml.XmlEscaper;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.xml.XmlEscaper;
 
 import java.util.Objects;
 

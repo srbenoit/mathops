@@ -9,7 +9,6 @@ import dev.mathops.app.adm.UserData;
 import dev.mathops.app.adm.office.student.IAppealsListener;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
@@ -23,6 +22,7 @@ import dev.mathops.db.old.rawrecord.RawMilestoneAppeal;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.db.type.TermKey;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -898,7 +898,7 @@ public final class DlgAddLegacyMilestoneAppeal extends JFrame implements ActionL
             final String unitText = this.unitField.getText();
             final int unitInt = Integer.parseInt(unitText);
 
-            final int number = paceInt.intValue() * 100 + (int) courseInt * 10 + (int) unitInt;
+            final int number = paceInt.intValue() * 100 + courseInt * 10 + unitInt;
             final Integer msNbr = Integer.valueOf(number);
 
             final String msType;

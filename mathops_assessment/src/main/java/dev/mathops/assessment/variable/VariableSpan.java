@@ -2,7 +2,7 @@ package dev.mathops.assessment.variable;
 
 import dev.mathops.assessment.EType;
 import dev.mathops.assessment.document.template.DocSimpleSpan;
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.io.PrintStream;
 

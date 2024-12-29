@@ -1,7 +1,6 @@
 package dev.mathops.app.database.eos;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.SimpleBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
@@ -84,6 +83,7 @@ import dev.mathops.db.old.rec.StudentCourseMasteryRec;
 import dev.mathops.db.old.rec.StudentStandardMilestoneRec;
 import dev.mathops.db.old.rec.StudentUnitMasteryRec;
 import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.text.builder.SimpleBuilder;
 
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;

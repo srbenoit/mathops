@@ -1,6 +1,6 @@
 package dev.mathops.dbjobs.report.analytics.longitudinal.data;
 
-import dev.mathops.commons.parser.json.JSONObject;
+import dev.mathops.text.parser.json.JSONObject;
 
 /**
  * A container for the data about a single registration status.

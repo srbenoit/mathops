@@ -13,8 +13,8 @@ import dev.mathops.assessment.document.inst.DocObjectInstStyle;
 import dev.mathops.assessment.document.inst.DocTableInst;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.ui.ColorNames;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -652,18 +652,18 @@ public final class DocTable extends AbstractDocContainer {
         }
 
         final Padding padding = this.cellInsets == null ? new Padding(0.0, 0.0, 0.0, 0.0)
-                : new Padding((double) this.cellInsets.left, (double) this.cellInsets.top,
-                (double) this.cellInsets.right, (double) this.cellInsets.bottom);
+                : new Padding(this.cellInsets.left, this.cellInsets.top,
+                this.cellInsets.right, this.cellInsets.bottom);
 
         final StrokeStyleInst border = this.boxWidth == 0 ? null :
-                new StrokeStyleInst((double) this.boxWidth, "black", null, 1.0, EStrokeCap.BUTT, EStrokeJoin.MITER, 10.0f);
+                new StrokeStyleInst(this.boxWidth, "black", null, 1.0, EStrokeCap.BUTT, EStrokeJoin.MITER, 10.0f);
 
         final StrokeStyleInst hlines = this.hLineWidth == 0 ? null :
-                new StrokeStyleInst((double) this.hLineWidth, "black", null, 1.0, EStrokeCap.BUTT, EStrokeJoin.MITER,
+                new StrokeStyleInst(this.hLineWidth, "black", null, 1.0, EStrokeCap.BUTT, EStrokeJoin.MITER,
                         10.0f);
 
         final StrokeStyleInst vlines = this.vLineWidth == 0 ? null :
-                new StrokeStyleInst((double) this.vLineWidth, "black", null, 1.0, EStrokeCap.BUTT, EStrokeJoin.MITER,
+                new StrokeStyleInst(this.vLineWidth, "black", null, 1.0, EStrokeCap.BUTT, EStrokeJoin.MITER,
                         10.0f);
 
         return new DocTableInst(objStyle, this.backgroundColorName, cells, colSizing, ETableSizing.NONUNIFORM, just,

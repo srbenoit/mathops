@@ -2,7 +2,7 @@ package dev.mathops.assessment.formula;
 
 import dev.mathops.assessment.EType;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.io.PrintStream;
 

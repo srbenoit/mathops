@@ -3,8 +3,8 @@ package dev.mathops.assessment.formula.edit;
 import dev.mathops.assessment.EType;
 import dev.mathops.assessment.NumberOrFormula;
 import dev.mathops.assessment.formula.Formula;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;

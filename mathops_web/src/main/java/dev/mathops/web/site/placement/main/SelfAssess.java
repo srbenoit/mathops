@@ -1,6 +1,6 @@
 package dev.mathops.web.site.placement.main;
 
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 /**
  * Handles the "self-assess" (Do I Need Math Placement?) interactive flowchart that is part of the main Math Placement

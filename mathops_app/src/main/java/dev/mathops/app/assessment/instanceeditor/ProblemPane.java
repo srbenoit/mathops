@@ -14,8 +14,8 @@ import dev.mathops.assessment.problem.template.ProblemEmbeddedInputTemplate;
 import dev.mathops.assessment.problem.template.ProblemMultipleSelectionTemplate;
 import dev.mathops.assessment.problem.template.ProblemNumericTemplate;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;

@@ -1,13 +1,11 @@
 package dev.mathops.session.scramsha256;
 
 import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.HexEncoder;
 import dev.mathops.commons.log.Log;
-import dev.mathops.commons.parser.HexEncoder;
 import dev.mathops.db.Cache;
 
 import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -21,10 +19,10 @@ import java.util.Random;
 public final class ScramServerStub {
 
     /** Timeout on client-first requests. */
-    private static final long REQUEST_TIMEOUT = (long) (1000 * 60);
+    private static final long REQUEST_TIMEOUT = 1000 * 60;
 
     /** Timeout on token (milliseconds). */
-    private static final long TOKEN_TIMEOUT = (long) (1000 * 60 * 5); // 5 minutes
+    private static final long TOKEN_TIMEOUT = 1000 * 60 * 5; // 5 minutes
 
     /** The user credentials manager. */
     private final UserCredentialsManager credManager;

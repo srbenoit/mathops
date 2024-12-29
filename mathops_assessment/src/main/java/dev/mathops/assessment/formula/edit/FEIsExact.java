@@ -5,8 +5,8 @@ import dev.mathops.assessment.formula.AbstractFormulaObject;
 import dev.mathops.assessment.formula.EFunction;
 import dev.mathops.assessment.formula.EUnaryOp;
 import dev.mathops.assessment.formula.IsExactOper;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.awt.Font;
 import java.awt.Graphics2D;

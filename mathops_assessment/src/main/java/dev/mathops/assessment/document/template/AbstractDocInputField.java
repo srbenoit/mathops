@@ -5,9 +5,9 @@ import dev.mathops.assessment.document.ELayoutMode;
 import dev.mathops.assessment.formula.Formula;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.font.BundledFontManager;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.awt.FontMetrics;
 import java.awt.event.InputEvent;

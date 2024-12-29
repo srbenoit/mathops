@@ -2,7 +2,6 @@ package dev.mathops.web.site.html;
 
 import dev.mathops.assessment.exam.ExamObj;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.cfg.ContextMap;
@@ -12,6 +11,7 @@ import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.session.ExamWriter;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.io.File;
 import java.io.FileWriter;

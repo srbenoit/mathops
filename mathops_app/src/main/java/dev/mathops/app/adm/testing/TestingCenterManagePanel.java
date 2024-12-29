@@ -820,8 +820,8 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
 
         // Draw the quiet testing room outline
 
-        path.moveTo((double) x - dscl * 150.0, (double) y);
-        path.lineTo((double) x - dscl * 70.0, (double) y);
+        path.moveTo((double) x - dscl * 150.0, y);
+        path.lineTo((double) x - dscl * 70.0, y);
         path.lineTo((double) x - dscl * 70.0, (double) y + dscl * 100.0);
         path.lineTo((double) x - dscl * 150.0, (double) y + dscl * 100.0);
         path.closePath();
@@ -834,17 +834,17 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
 
         // Draw the main room outline
 
-        path.moveTo((double) x + dscl * 28.0, (double) y);
-        path.lineTo((double) x + dscl * 312.0, (double) y);
+        path.moveTo((double) x + dscl * 28.0, y);
+        path.lineTo((double) x + dscl * 312.0, y);
         path.lineTo((double) x + dscl * 312.0, (double) y + dscl * 4.0);
         path.lineTo((double) x + dscl * 336.0, (double) y + dscl * 4.0);
-        path.lineTo((double) x + dscl * 336.0, (double) y);
-        path.lineTo((double) x + dscl * 642.0, (double) y);
+        path.lineTo((double) x + dscl * 336.0, y);
+        path.lineTo((double) x + dscl * 642.0, y);
         path.lineTo((double) x + dscl * 642.0, (double) y + dscl * 528.0);
         path.lineTo((double) x + dscl * 222.0, (double) y + dscl * 528.0);
         path.lineTo((double) x + dscl * 222.0, (double) y + dscl * 612.0);
-        path.lineTo((double) x, (double) y + dscl * 612.0);
-        path.lineTo((double) x, (double) y + dscl * 28.0);
+        path.lineTo(x, (double) y + dscl * 612.0);
+        path.lineTo(x, (double) y + dscl * 28.0);
         path.lineTo((double) x + dscl * 28.0, (double) y + dscl * 28.0);
         path.closePath();
 
@@ -861,14 +861,14 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
         g2d.draw(rect);
 
         // Draw doors
-        rect.setRect((double) x - dscl * 115.0, (double) y, dscl * 40.0, dscl * 3.0);
+        rect.setRect((double) x - dscl * 115.0, y, dscl * 40.0, dscl * 3.0);
         g2d.fill(rect);
 
         rect.setRect((double) x + dscl * 470.0, (double) y + dscl * 526.0, dscl * 40.0, dscl * 5.0);
         g2d.fill(rect);
         rect.setRect((double) x + dscl * 220.0, (double) y + dscl * 538.0, dscl * 5.0, dscl * 40.0);
         g2d.fill(rect);
-        rect.setRect((double) x + dscl * 340.0, (double) y, dscl * 40.0, dscl * 3.0);
+        rect.setRect((double) x + dscl * 340.0, y, dscl * 40.0, dscl * 3.0);
         g2d.fill(rect);
 
         // Draw outlined regions to indicate zones that can be turned on or off at will.
@@ -1162,8 +1162,8 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
         int yy = (int)Math.round((double) y + dscl * 225.0);
 
         g2d.setStroke(thick);
-        path.moveTo((double) xx + (double) btnSize.width / 2.0, (double) (yy + btnSize.height));
-        path.curveTo((double) (xx + btnSize.width / 2), (double) yy + (double) btnSize.height + 10.0,
+        path.moveTo((double) xx + (double) btnSize.width / 2.0, yy + btnSize.height);
+        path.curveTo(xx + btnSize.width / 2, (double) yy + (double) btnSize.height + 10.0,
                 (double) xx + (double) btnSize.width / 2.0 + dscl * 16.0 - 10.0, (double) yy + (double) btnSize.height + 15.0,
                 (double) xx + (double) btnSize.width / 2.0 + dscl * 16.0, (double) yy + (double) btnSize.height + 15.0);
         path.lineTo((double) x + dscl * 17.0, (double) yy + (double) btnSize.height + 15.0);
@@ -1176,7 +1176,7 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
         yy = y - 6;
 
         g2d.setStroke(thick);
-        path.moveTo((double) xx + (double) btnSize.width / 2.0, (double) (yy + btnSize.height));
+        path.moveTo((double) xx + (double) btnSize.width / 2.0, yy + btnSize.height);
         path.lineTo((double) xx + (double) btnSize.width / 2.0, (double) y + dscl * 42.0);
         g2d.draw(path);
         g2d.setStroke(origStroke);
@@ -1187,7 +1187,7 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
         yy = y - 6;
 
         g2d.setStroke(thick);
-        path.moveTo((double) xx + (double) btnSize.width / 2.0, (double) (yy + btnSize.height));
+        path.moveTo((double) xx + (double) btnSize.width / 2.0, yy + btnSize.height);
         path.lineTo((double) xx + (double) btnSize.width / 2.0, (double) y + dscl * 42.0);
         g2d.draw(path);
         g2d.setStroke(origStroke);
@@ -1198,7 +1198,7 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
         yy = y - 6;
 
         g2d.setStroke(thick);
-        path.moveTo((double) xx + (double) btnSize.width / 2.0, (double) (yy + btnSize.height));
+        path.moveTo((double) xx + (double) btnSize.width / 2.0, yy + btnSize.height);
         path.lineTo((double) xx + (double) btnSize.width / 2.0, (double) y + dscl * 31.0);
         g2d.draw(path);
         g2d.setStroke(origStroke);
@@ -1209,7 +1209,7 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
         yy = y - 6;
 
         g2d.setStroke(thick);
-        path.moveTo((double) xx + (double) btnSize.width / 2.0, (double) (yy + btnSize.height));
+        path.moveTo((double) xx + (double) btnSize.width / 2.0, yy + btnSize.height);
         path.lineTo((double) xx + (double) btnSize.width / 2.0, (double) y + dscl * 42.0);
         g2d.draw(path);
         g2d.setStroke(origStroke);
@@ -1220,7 +1220,7 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
         yy = y - 6;
 
         g2d.setStroke(thick);
-        path.moveTo((double) xx + (double) btnSize.width / 2.0, (double) (yy + btnSize.height));
+        path.moveTo((double) xx + (double) btnSize.width / 2.0, yy + btnSize.height);
         path.lineTo((double) xx + (double) btnSize.width / 2.0, (double) y + dscl * 42.0);
         g2d.draw(path);
         g2d.setStroke(origStroke);
@@ -1231,7 +1231,7 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
         yy = y - 6;
 
         g2d.setStroke(thick);
-        path.moveTo((double) xx + (double) btnSize.width / 2.0, (double) (yy + btnSize.height));
+        path.moveTo((double) xx + (double) btnSize.width / 2.0, yy + btnSize.height);
         path.lineTo((double) xx + (double) btnSize.width / 2.0, (double) y + dscl * 42.0);
         g2d.draw(path);
         g2d.setStroke(origStroke);
@@ -1242,7 +1242,7 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
         yy = (int)Math.round((double) y + dscl * 225.0);
 
         g2d.setStroke(thick);
-        path.moveTo((double) xx + (double) btnSize.width / 2.0, (double) (yy + btnSize.height));
+        path.moveTo((double) xx + (double) btnSize.width / 2.0, yy + btnSize.height);
         path.curveTo((double) xx + (double) btnSize.width / 2.0, (double) yy + (double) btnSize.height + 10.0,
                 (double) xx + (double) btnSize.width / 2.0 - dscl * 16.0 + 10.0, (double) yy + (double) btnSize.height + 15.0,
                 (double) xx + (double) btnSize.width / 2.0 - dscl * 16.0, (double) yy + (double) btnSize.height + 15.0);
@@ -1267,8 +1267,8 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
         yy = (int)Math.round((double) y + dscl * 596.0);
 
         g2d.setStroke(thick);
-        path.moveTo((double) xx + (double) btnSize.width + 6.0, (double) yy);
-        path.lineTo((double) x + dscl * 80.0, (double) yy);
+        path.moveTo((double) xx + (double) btnSize.width + 6.0, yy);
+        path.lineTo((double) x + dscl * 80.0, yy);
         g2d.draw(path);
         g2d.setStroke(origStroke);
 

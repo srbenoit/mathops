@@ -1,7 +1,7 @@
 package dev.mathops.font;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.ui.UIUtilities;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -103,7 +103,7 @@ final class BundledFontViewer extends JFrame {
 
         for (final int size : SIZES) {
             final JTextArea area = new JTextArea();
-            final Font fnt = mgr.getFont(name, (double) size, Font.PLAIN);
+            final Font fnt = mgr.getFont(name, size, Font.PLAIN);
             area.setFont(fnt);
 
             // Determine the font glyphs and set that in each text area.

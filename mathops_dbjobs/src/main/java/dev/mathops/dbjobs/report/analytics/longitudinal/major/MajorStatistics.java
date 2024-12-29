@@ -1,9 +1,9 @@
 package dev.mathops.dbjobs.report.analytics.longitudinal.major;
 
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.dbjobs.report.analytics.longitudinal.data.EnrollmentRec;
 import dev.mathops.dbjobs.report.analytics.longitudinal.data.StudentTermRec;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import java.io.File;
 import java.io.FileWriter;

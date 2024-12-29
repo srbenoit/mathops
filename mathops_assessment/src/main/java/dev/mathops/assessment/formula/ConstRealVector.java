@@ -4,7 +4,7 @@ import dev.mathops.assessment.EType;
 import dev.mathops.assessment.formula.edit.FEConstantRealVector;
 import dev.mathops.assessment.formula.edit.IEditableFormulaObject;
 import dev.mathops.assessment.variable.EvalContext;
-import dev.mathops.commons.builder.HtmlBuilder;
+import dev.mathops.text.builder.HtmlBuilder;
 
 /**
  * A constant real vector in a formula.

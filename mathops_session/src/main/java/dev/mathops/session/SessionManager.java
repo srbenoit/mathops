@@ -1,15 +1,9 @@
 package dev.mathops.session;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
-import dev.mathops.commons.parser.ParsingException;
-import dev.mathops.commons.parser.xml.EmptyElement;
-import dev.mathops.commons.parser.xml.IElement;
-import dev.mathops.commons.parser.xml.INode;
-import dev.mathops.commons.parser.xml.XmlContent;
 import dev.mathops.db.Cache;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.logic.ELiveRefreshes;
@@ -21,6 +15,12 @@ import dev.mathops.session.login.LocalLoginProcessor;
 import dev.mathops.session.login.LoginResult;
 import dev.mathops.session.login.ShibbolethLoginProcessor;
 import dev.mathops.session.login.TestStudentLoginProcessor;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.ParsingException;
+import dev.mathops.text.parser.xml.EmptyElement;
+import dev.mathops.text.parser.xml.IElement;
+import dev.mathops.text.parser.xml.INode;
+import dev.mathops.text.parser.xml.XmlContent;
 
 import java.io.File;
 import java.io.FileWriter;

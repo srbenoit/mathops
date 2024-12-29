@@ -30,10 +30,8 @@ import dev.mathops.assessment.variable.VariableBoolean;
 import dev.mathops.assessment.variable.VariableReal;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
-import dev.mathops.commons.builder.HtmlBuilder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
-import dev.mathops.commons.parser.xml.XmlEscaper;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
@@ -78,6 +76,8 @@ import dev.mathops.session.txn.handlers.StudentExamAnswerRec;
 import dev.mathops.session.txn.handlers.StudentExamRec;
 import dev.mathops.session.txn.messages.AvailableExam;
 import dev.mathops.session.txn.messages.GetExamReply;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.xml.XmlEscaper;
 import dev.mathops.web.site.html.HtmlSessionBase;
 import dev.mathops.web.site.tutorial.precalc.EEligibility;
 import dev.mathops.web.site.tutorial.precalc.PrecalcExamEligibility;
@@ -667,7 +667,7 @@ public final class UnitExamSession extends HtmlSessionBase {
             Log.info("Testing for time limit update: ", theExam.allowedSeconds);
 
             if (theExam.allowedSeconds != null) {
-                double secs = (double) theExam.allowedSeconds.intValue();
+                double secs = theExam.allowedSeconds.intValue();
 
                 if (stu.timelimitFactor != null) {
                     Log.info("Applying time limit factor : ", stu.timelimitFactor);

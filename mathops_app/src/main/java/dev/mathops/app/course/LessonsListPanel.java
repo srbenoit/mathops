@@ -18,7 +18,7 @@ import java.io.File;
 final class LessonsListPanel extends JPanel {
 
     /** A character used in subject and module directory names. */
-    private static final int UNDERSCORE = (int) '_';
+    private static final int UNDERSCORE = '_';
 
     /** A panel to hold the list of lessons. */
     private final JPanel lessonList;
