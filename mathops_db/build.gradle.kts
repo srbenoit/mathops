@@ -21,7 +21,7 @@ dependencies {
     implementation("com.formdev:flatlaf:3.4")
     implementation(files("../../mathops_commons/out/libs/mathops_commons.jar"))
     implementation(files("../../mathops_text/out/libs/mathops_text.jar"))
-    implementation(files("lib/mathops_persistence.jar"))
+    implementation(files("../../mathops_persistence/out/libs/mathops_persistence.jar"))
 
     testImplementation(platform("org.junit:junit-bom:5.11.0-M1"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.11.0-M1")
