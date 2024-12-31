@@ -12,7 +12,7 @@ import java.awt.FlowLayout;
 import java.io.File;
 
 /**
- * A panel to show a summary of the types of files found in a "handouts" directory.
+ * A panel to show a summary of the types of files found in a "60_handouts" directory.
  */
 final class HandoutsListPanel extends JPanel {
 
@@ -56,7 +56,7 @@ final class HandoutsListPanel extends JPanel {
         if (dir == null) {
             clear(CoreConstants.SPC);
         } else {
-            final File lessonsDir = new File(dir, "02_handouts");
+            final File lessonsDir = new File(dir, "60_handouts");
 
             if (lessonsDir.exists()) {
                 // TODO:

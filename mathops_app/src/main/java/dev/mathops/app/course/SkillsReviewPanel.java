@@ -15,8 +15,8 @@ final class SkillsReviewPanel extends JPanel {
     /** The handouts panel for the Skills Review. */
     private final HandoutsListPanel topicHandoutsPanel;
 
-    /** The lessons panel for the Skills Review. */
-    private final LessonsListPanel lessonsPanel;
+    /** The start lessons panel for the topic. */
+    private final LessonsListPanel startLessonsPanel;
 
     /**
      * Constructs a new {@code StandardPanel}.
@@ -32,10 +32,10 @@ final class SkillsReviewPanel extends JPanel {
         setBorder(border);
 
         this.topicHandoutsPanel = new HandoutsListPanel("Skills Review Handouts:", lineColor);
-        this.lessonsPanel = new LessonsListPanel("Lessons:", lineColor);
+        this.startLessonsPanel = new LessonsListPanel("Introductory Lessons:", 1, "intro", lineColor);
 
         add(this.topicHandoutsPanel, StackedBorderLayout.NORTH);
-        add(this.lessonsPanel, StackedBorderLayout.NORTH);
+        add(this.startLessonsPanel, StackedBorderLayout.NORTH);
 
         // TODO: Examples
 

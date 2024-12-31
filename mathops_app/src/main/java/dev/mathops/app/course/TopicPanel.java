@@ -44,9 +44,9 @@ final class TopicPanel extends JPanel {
         this.metadataPanel = new TopicMetadataPanel(lineColor);
         this.metadataPanel.init();
         this.topicHandoutsPanel = new HandoutsListPanel("Module-Level Handouts:", lineColor);
-        this.startLessonsPanel = new LessonsListPanel("Introductory Lessons:", lineColor);
+        this.startLessonsPanel = new LessonsListPanel("Introductory Lessons:", 1, "intro", lineColor);
         this.standardsPanel = new StandardsPanel(lineColor);
-        this.endLessonsPanel = new LessonsListPanel("Concluding Lessons:", lineColor);
+        this.endLessonsPanel = new LessonsListPanel("Concluding Lessons:", 91, "conclusion", lineColor);
 
         final JPanel topRow = new JPanel(new StackedBorderLayout(1, 1));
         topRow.setBackground(lineColor);
@@ -66,14 +66,10 @@ final class TopicPanel extends JPanel {
      */
     void refresh(final File topicModuleDir) {
 
-        final File lessonsDir = new File(topicModuleDir, "01_lessons");
-        final File startDir = new File(lessonsDir, "01_start");
-        final File endDir = new File(lessonsDir, "99_end");
-
         this.metadataPanel.refresh(topicModuleDir);
         this.topicHandoutsPanel.refresh(topicModuleDir);
-        this.startLessonsPanel.refresh(startDir);
+        this.startLessonsPanel.refresh(topicModuleDir);
         this.standardsPanel.refresh(topicModuleDir);
-        this.endLessonsPanel.refresh(endDir);
+        this.endLessonsPanel.refresh(topicModuleDir);
     }
 }
