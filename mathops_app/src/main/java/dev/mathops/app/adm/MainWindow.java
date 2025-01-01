@@ -1,6 +1,7 @@
 package dev.mathops.app.adm;
 
 import dev.mathops.app.adm.forms.TopPanelForms;
+import dev.mathops.app.adm.instructor.TopPanelInstructor;
 import dev.mathops.app.adm.management.TopPanelManagement;
 import dev.mathops.app.adm.resource.TopPanelResource;
 import dev.mathops.app.adm.office.TopPanelOffice;
@@ -51,8 +52,11 @@ public final class MainWindow extends JFrame implements WindowListener, ChangeLi
     /** The tabbed pane. */
     private JTabbedPane tabs = null;
 
-    /** The admin pane. */
-    private TopPanelOffice studentPane = null;
+    /** The office pane. */
+    private TopPanelOffice officePane = null;
+
+    /** The instructor pane. */
+    private TopPanelInstructor instructorPane = null;
 
     /** The resource pane. */
     private TopPanelResource resourcePane = null;
@@ -92,12 +96,12 @@ public final class MainWindow extends JFrame implements WindowListener, ChangeLi
         this.renderingHint = theRenderingHint;
 
         if ("math".equals(theUsername)
-                || "pattison".equals(theUsername)
-                || "bromley".equals(theUsername)
-                || "orchard".equals(theUsername)
-                || "fadir".equals(theUsername)
-                || "spdir".equals(theUsername)
-                || "smdir".equals(theUsername)) {
+            || "pattison".equals(theUsername)
+            || "bromley".equals(theUsername)
+            || "orchard".equals(theUsername)
+            || "fadir".equals(theUsername)
+            || "spdir".equals(theUsername)
+            || "smdir".equals(theUsername)) {
             this.serverSiteUrl = "https://testing.math.colostate.edu/websvc/";
         } else {
             Log.warning("User not authorized to control testing stations remotely.");
@@ -130,10 +134,17 @@ public final class MainWindow extends JFrame implements WindowListener, ChangeLi
         this.tabs.addChangeListener(this);
         this.tabs.setBackground(Skin.WHITE);
         content.add(this.tabs, BorderLayout.CENTER);
+
         if (this.fixed.getClearanceLevel("STU_MENU") != null) {
-            this.studentPane = new TopPanelOffice(this.ifxCache, this.liveContext, this.fixed);
+            this.officePane = new TopPanelOffice(this.ifxCache, this.liveContext, this.fixed);
             final String tabTitle = Res.get(Res.OFFICE_TAB);
-            this.tabs.addTab(tabTitle, this.studentPane);
+            this.tabs.addTab(tabTitle, this.officePane);
+        }
+
+        if (this.fixed.getClearanceLevel("STU_MENU") != null) {
+            this.instructorPane = new TopPanelInstructor(this.ifxCache, this.fixed);
+            final String tabTitle = Res.get(Res.INSTRUCTOR_TAB);
+            this.tabs.addTab(tabTitle, this.instructorPane);
         }
 
         if (this.fixed.getClearanceLevel("RES_MENU") != null) {
@@ -177,8 +188,8 @@ public final class MainWindow extends JFrame implements WindowListener, ChangeLi
 
         if ("video".equals(this.fixed.username) && this.resourcePane != null) {
             this.resourcePane.focus();
-        } else if (this.studentPane != null) {
-            this.studentPane.focus();
+        } else if (this.officePane != null) {
+            this.officePane.focus();
         }
     }
 
@@ -192,8 +203,8 @@ public final class MainWindow extends JFrame implements WindowListener, ChangeLi
 
         final Component comp = this.tabs.getSelectedComponent();
 
-        if (comp == this.studentPane) {
-            this.studentPane.focus();
+        if (comp == this.officePane) {
+            this.officePane.focus();
         } else if (comp == this.resourcePane) {
             this.resourcePane.focus();
         } else if (comp == this.testingPane) {
@@ -226,9 +237,9 @@ public final class MainWindow extends JFrame implements WindowListener, ChangeLi
 
         final String title = Res.get(Res.TITLE);
         if (JOptionPane.showConfirmDialog(this, "Close the application?", title, JOptionPane.YES_NO_OPTION)
-                == JOptionPane.YES_OPTION) {
+            == JOptionPane.YES_OPTION) {
 
-            this.studentPane.clearDisplay();
+            this.officePane.clearDisplay();
             this.resourcePane.clearDisplay();
             this.testingPane.clearDisplay();
             this.managementPane.clearDisplay();

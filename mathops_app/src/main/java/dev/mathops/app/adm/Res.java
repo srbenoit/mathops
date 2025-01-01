@@ -58,6 +58,9 @@ final class Res extends ResBundle {
     static final String OFFICE_TAB = key(index++);
 
     /** A resource key. */
+    static final String INSTRUCTOR_TAB = key(index++);
+
+    /** A resource key. */
     static final String RESOURCE_TAB = key(index++);
 
     /** A resource key. */
@@ -89,6 +92,7 @@ final class Res extends ResBundle {
             {LOGIN_BAD_LOGIN_ERR, "Invalid login."},
 
             {OFFICE_TAB, "  Office  "},
+            {INSTRUCTOR_TAB, "  Instructor  "},
             {RESOURCE_TAB, "  Resource Desk  "},
             {TESTING_TAB, "  Testing Center  "},
             {FORMS_TAB, "  Forms  "},
