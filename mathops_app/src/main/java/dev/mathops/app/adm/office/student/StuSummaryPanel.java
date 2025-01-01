@@ -9,6 +9,8 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
+import dev.mathops.db.old.logic.CourseLogic;
+import dev.mathops.db.old.logic.CourseStatus;
 import dev.mathops.db.old.logic.PlacementLogic;
 import dev.mathops.db.old.logic.PlacementStatus;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
@@ -81,7 +83,7 @@ public final class StuSummaryPanel extends AdmPanelBase {
     /**
      * Constructs a new {@code StudentSummaryPanel}.
      *
-     * @param theCache         the data cache
+     * @param theCache the data cache
      */
     public StuSummaryPanel(final Cache theCache) {
 
@@ -177,7 +179,7 @@ public final class StuSummaryPanel extends AdmPanelBase {
     /**
      * Creates the block that displays placement result.
      *
-     * @param blockTitle       the block title label
+     * @param blockTitle the block title label
      * @return the placement results block panel
      */
     private JPanel makePlacementBlock(final JLabel blockTitle) {
@@ -381,7 +383,7 @@ public final class StuSummaryPanel extends AdmPanelBase {
     /**
      * Populates all displayed fields for a selected student.
      *
-     * @param data             the student data
+     * @param data the student data
      */
     private void populateDisplay(final StudentData data) {
 
@@ -398,7 +400,7 @@ public final class StuSummaryPanel extends AdmPanelBase {
     /**
      * Populates the "Placement" portion of the display.
      *
-     * @param data             the student data
+     * @param data the student data
      */
     private void populatePlacement(final StudentData data) {
 
@@ -528,7 +530,7 @@ public final class StuSummaryPanel extends AdmPanelBase {
     /**
      * Populates the "Courses" portion of the display.
      *
-     * @param data             the student data
+     * @param data the student data
      */
     private void populateCourses(final StudentData data) {
 
@@ -593,7 +595,7 @@ public final class StuSummaryPanel extends AdmPanelBase {
     /**
      * Populates the "Holds" portion of the display.
      *
-     * @param data             the student data
+     * @param data the student data
      */
     private void populateHolds(final StudentData data) {
 
@@ -632,7 +634,7 @@ public final class StuSummaryPanel extends AdmPanelBase {
     /**
      * Populates the "Accommodations" portion of the display.
      *
-     * @param data             the student data
+     * @param data the student data
      */
     private void populateAccommodations(final StudentData data) {
 
@@ -689,17 +691,17 @@ public final class StuSummaryPanel extends AdmPanelBase {
     /**
      * Creates a panel to display current status in a single course.
      *
-     * @param reg              the course registration
-     * @param data             the student data
+     * @param reg  the course registration
+     * @param data the student data
      * @return the panel
      */
-    private static JPanel makeCourseRow(final RawStcourse reg, final StudentData data) {
+    private JPanel makeCourseRow(final RawStcourse reg, final StudentData data) {
 
         // See of the final exam has been passed
         boolean finalPassed = false;
         for (final RawStexam exam : data.studentExams) {
             if (exam.course.equals(reg.course) && exam.unit.intValue() == 5 && "F".equals(exam.examType)
-                    && "Y".equals(exam.passed)) {
+                && "Y".equals(exam.passed)) {
                 finalPassed = true;
                 break;
             }
@@ -738,7 +740,7 @@ public final class StuSummaryPanel extends AdmPanelBase {
                     }
                     for (final RawStmilestone sms : data.studentMilestones) {
                         if ((sms.paceTrack.equals(track) && "F1".equals(sms.msType) && sms.msNbr.intValue() == msNbr)
-                                && finalDueDate.isBefore(sms.msDate)) {
+                            && finalDueDate.isBefore(sms.msDate)) {
                             finalDueDate = sms.msDate;
                             // Don't break - if there are multiple matching rows (which are sorted by deadline date),
                             // we want to take the latest one
@@ -822,10 +824,10 @@ public final class StuSummaryPanel extends AdmPanelBase {
         row.add(head, BorderLayout.PAGE_START);
 
         final boolean isPrecalc = RawRecordConstants.M117.equals(reg.course)
-                || RawRecordConstants.M118.equals(reg.course)
-                || RawRecordConstants.M124.equals(reg.course)
-                || RawRecordConstants.M125.equals(reg.course)
-                || RawRecordConstants.M126.equals(reg.course);
+                                  || RawRecordConstants.M118.equals(reg.course)
+                                  || RawRecordConstants.M124.equals(reg.course)
+                                  || RawRecordConstants.M125.equals(reg.course)
+                                  || RawRecordConstants.M126.equals(reg.course);
 
         if (isPrecalc) {
             final JPanel grid = new JPanel(new GridBagLayout());
@@ -888,13 +890,14 @@ public final class StuSummaryPanel extends AdmPanelBase {
             constraints.gridx = 24;
             grid.add(makeStepLabel("Unit 4", 3), constraints);
             constraints.gridx = 25;
-            grid.add(makeStepLabel("Final", 0), constraints);
+            grid.add(makeStepLabel("Final", 3), constraints);
+            constraints.gridx = 26;
+            grid.add(makeStepLabel("Total Score", 0), constraints);
 
             constraints.gridy = 1;
 
             constraints.gridx = 0;
-            grid.add(makeStepStatus(getExamStatus(data, reg, 0, RawStexam.REVIEW_EXAM), 3),
-                    constraints);
+            grid.add(makeStepStatus(getExamStatus(data, reg, 0, RawStexam.REVIEW_EXAM), 3), constraints);
             constraints.gridx = 1;
             grid.add(makeStepStatus(getHomeworkStatus(data, reg, 1, 1), 1), constraints);
             constraints.gridx = 2;
@@ -904,11 +907,9 @@ public final class StuSummaryPanel extends AdmPanelBase {
             constraints.gridx = 4;
             grid.add(makeStepStatus(getHomeworkStatus(data, reg, 1, 4), 1), constraints);
             constraints.gridx = 5;
-            grid.add(makeStepStatus(getExamStatus(data, reg, 1, RawStexam.REVIEW_EXAM), 1),
-                    constraints);
+            grid.add(makeStepStatus(getExamStatus(data, reg, 1, RawStexam.REVIEW_EXAM), 1), constraints);
             constraints.gridx = 6;
-            grid.add(makeStepStatus(getExamStatus(data, reg, 1, RawStexam.UNIT_EXAM), 3),
-                    constraints);
+            grid.add(makeStepStatus(getExamStatus(data, reg, 1, RawStexam.UNIT_EXAM), 3), constraints);
             constraints.gridx = 7;
             grid.add(makeStepStatus(getHomeworkStatus(data, reg, 2, 1), 1), constraints);
             constraints.gridx = 8;
@@ -918,11 +919,9 @@ public final class StuSummaryPanel extends AdmPanelBase {
             constraints.gridx = 10;
             grid.add(makeStepStatus(getHomeworkStatus(data, reg, 2, 4), 1), constraints);
             constraints.gridx = 11;
-            grid.add(makeStepStatus(getExamStatus(data, reg, 2, RawStexam.REVIEW_EXAM), 1),
-                    constraints);
+            grid.add(makeStepStatus(getExamStatus(data, reg, 2, RawStexam.REVIEW_EXAM), 1), constraints);
             constraints.gridx = 12;
-            grid.add(makeStepStatus(getExamStatus(data, reg, 2, RawStexam.UNIT_EXAM), 3),
-                    constraints);
+            grid.add(makeStepStatus(getExamStatus(data, reg, 2, RawStexam.UNIT_EXAM), 3), constraints);
             constraints.gridx = 13;
             grid.add(makeStepStatus(getHomeworkStatus(data, reg, 3, 1), 1), constraints);
             constraints.gridx = 14;
@@ -932,11 +931,9 @@ public final class StuSummaryPanel extends AdmPanelBase {
             constraints.gridx = 16;
             grid.add(makeStepStatus(getHomeworkStatus(data, reg, 3, 4), 1), constraints);
             constraints.gridx = 17;
-            grid.add(makeStepStatus(getExamStatus(data, reg, 3, RawStexam.REVIEW_EXAM), 1),
-                    constraints);
+            grid.add(makeStepStatus(getExamStatus(data, reg, 3, RawStexam.REVIEW_EXAM), 1), constraints);
             constraints.gridx = 18;
-            grid.add(makeStepStatus(getExamStatus(data, reg, 3, RawStexam.UNIT_EXAM), 3),
-                    constraints);
+            grid.add(makeStepStatus(getExamStatus(data, reg, 3, RawStexam.UNIT_EXAM), 3), constraints);
             constraints.gridx = 19;
             grid.add(makeStepStatus(getHomeworkStatus(data, reg, 4, 1), 1), constraints);
             constraints.gridx = 20;
@@ -946,14 +943,26 @@ public final class StuSummaryPanel extends AdmPanelBase {
             constraints.gridx = 22;
             grid.add(makeStepStatus(getHomeworkStatus(data, reg, 4, 4), 1), constraints);
             constraints.gridx = 23;
-            grid.add(makeStepStatus(getExamStatus(data, reg, 4, RawStexam.REVIEW_EXAM), 1),
-                    constraints);
+            grid.add(makeStepStatus(getExamStatus(data, reg, 4, RawStexam.REVIEW_EXAM), 1), constraints);
             constraints.gridx = 24;
-            grid.add(makeStepStatus(getExamStatus(data, reg, 4, RawStexam.UNIT_EXAM), 3),
-                    constraints);
+            grid.add(makeStepStatus(getExamStatus(data, reg, 4, RawStexam.UNIT_EXAM), 3), constraints);
             constraints.gridx = 25;
-            grid.add(makeStepStatus(getExamStatus(data, reg, 5, RawStexam.FINAL_EXAM), 0),
-                    constraints);
+            grid.add(makeStepStatus(getExamStatus(data, reg, 5, RawStexam.FINAL_EXAM), 3), constraints);
+
+            int totalPoints;
+
+            constraints.gridx = 26;
+            try {
+                final CourseStatus status = CourseLogic.computeStatus(this.cache, reg);
+                final CourseStatus.LegacyCourseStatus legacyStatus = status.legacyStatus;
+                totalPoints = legacyStatus.totalScore;
+            } catch (final SQLException ex) {
+                Log.warning(ex);
+                totalPoints = 0;
+            }
+
+            final StepStatus totalStatus = new StepStatus(ECourseStepStatus.TOTAL_SCORE, totalPoints);
+            grid.add(makeStepStatus(totalStatus, 1), constraints);
 
             row.add(grid, BorderLayout.CENTER);
         } else if (RawRecordConstants.M100T.equals(reg.course)) {
@@ -1003,15 +1012,15 @@ public final class StuSummaryPanel extends AdmPanelBase {
     /**
      * Creates a label for a single step within the course status bar.
      *
-     * @param txt              the label text
-     * @param borderRight      the width of border to add on the right
+     * @param txt         the label text
+     * @param borderRight the width of border to add on the right
      * @return the label
      */
     private static JLabel makeStepLabel(final String txt, final int borderRight) {
 
         final JLabel lbl = new JLabel(txt);
 
-        if ("Final".equals(txt) || txt.startsWith("Unit")) {
+        if ("Final".equals(txt) || txt.startsWith("Unit") || txt.startsWith("Total")) {
             lbl.setFont(Skin.BOLD_12_FONT);
             lbl.setOpaque(true);
             lbl.setBackground(Skin.LIGHT);
@@ -1157,8 +1166,8 @@ public final class StuSummaryPanel extends AdmPanelBase {
     /**
      * Creates a panel that shows the status of a step.
      *
-     * @param status           the status
-     * @param borderRight      the width of border to add on the right
+     * @param status      the status
+     * @param borderRight the width of border to add on the right
      * @return the panel
      */
     private static JPanel makeStepStatus(final StepStatus status, final int borderRight) {
@@ -1217,6 +1226,13 @@ public final class StuSummaryPanel extends AdmPanelBase {
                     lbl = new JLabel("\u2611");
                 }
                 lbl.setForeground(new Color(0, 128, 0));
+                break;
+
+            case TOTAL_SCORE:
+                panel.setBackground(Skin.WHITE);
+                final String scoreStr = Integer.toString(status.score);
+                lbl = new JLabel(scoreStr);
+                lbl.setForeground(Color.BLACK);
                 break;
 
             default:

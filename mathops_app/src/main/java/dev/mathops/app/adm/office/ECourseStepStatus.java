@@ -22,4 +22,7 @@ public enum ECourseStepStatus {
 
     /** Passed late. */
     PASSED_LATE,
+
+    /** Total score. */
+    TOTAL_SCORE,
 }
