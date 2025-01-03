@@ -768,7 +768,7 @@ public enum FormulaFactory {
 
         try {
             final XmlContent content = new XmlContent(spanSource, false, false);
-            final IElement top = content.getToplevel();
+            final IElement top = content.getTopLevel();
             if (top instanceof final NonemptyElement nonempty) {
 
                 final DocSimpleSpan span = DocFactory.parseSpan(evalContext, nonempty, mode);

@@ -87,7 +87,7 @@ public final class FEConstantSpan extends AbstractFEObject {
         try {
             final String wrapped = "<X>" + this.text + "</X>";
             final XmlContent content = new XmlContent(wrapped, false, false);
-            final IElement elem = content.getToplevel();
+            final IElement elem = content.getTopLevel();
             final EvalContext ctx = new EvalContext();
             if (elem instanceof final NonemptyElement nonempty) {
                 this.value = DocFactory.parseSpan(ctx, nonempty, EParserMode.NORMAL);

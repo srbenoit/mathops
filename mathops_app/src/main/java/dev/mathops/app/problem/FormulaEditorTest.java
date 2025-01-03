@@ -66,7 +66,7 @@ public final class FormulaEditorTest implements Runnable, IFormulaEditorListener
 
         try {
             final XmlContent xmlContent = new XmlContent(xml, false, false);
-            final IElement top = xmlContent.getToplevel();
+            final IElement top = xmlContent.getTopLevel();
             if (top instanceof final NonemptyElement nonempty) {
                 final Formula extracted = XmlFormulaFactory.extractFormula(ctx, nonempty, EParserMode.NORMAL);
 

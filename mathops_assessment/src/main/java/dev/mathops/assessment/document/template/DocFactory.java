@@ -3217,7 +3217,7 @@ public enum DocFactory {
             final String xml = "<A>" + value + "</A>";
             try {
                 final XmlContent content = new XmlContent(xml, false, false);
-                final IElement top = content.getToplevel();
+                final IElement top = content.getTopLevel();
                 if (top instanceof final NonemptyElement nonempty) {
                     final DocSimpleSpan innerSpan = parseSpan(evalContext, nonempty, mode);
                     if (innerSpan == null) {

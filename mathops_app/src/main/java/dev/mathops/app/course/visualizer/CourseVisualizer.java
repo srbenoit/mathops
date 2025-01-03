@@ -1,4 +1,4 @@
-package dev.mathops.app.course;
+package dev.mathops.app.course.visualizer;
 
 import com.formdev.flatlaf.FlatLightLaf;
 import dev.mathops.commons.log.Log;

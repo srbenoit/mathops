@@ -1,4 +1,4 @@
-package dev.mathops.app.course;
+package dev.mathops.app.course.visualizer;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.file.FileLoader;

@@ -88,7 +88,7 @@ final class AppDescriptor {
         } else {
             try {
                 final XmlContent content = new XmlContent(raw, false, false);
-                final IElement top = content.getToplevel();
+                final IElement top = content.getTopLevel();
 
                 final String tagName = top.getTagName();
                 if ("app".equals(tagName)) {
@@ -124,7 +124,7 @@ final class AppDescriptor {
 
                 try {
                     final XmlContent content = new XmlContent(preStr, false, false);
-                    final IElement top = content.getToplevel();
+                    final IElement top = content.getTopLevel();
 
                     final String tagName = top.getTagName();
                     if ("app".equals(tagName)) {

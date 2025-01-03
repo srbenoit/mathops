@@ -1,4 +1,4 @@
-package dev.mathops.app.course;
+package dev.mathops.app.course.visualizer;
 
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.text.builder.SimpleBuilder;

@@ -782,7 +782,7 @@ public final class VariableEditorPanel extends JPanel
                 final String newText = "<a>" + spanText + "</a>";
                 try {
                     final XmlContent spanXmlContent = new XmlContent(newText, false, false);
-                    final IElement top = spanXmlContent.getToplevel();
+                    final IElement top = spanXmlContent.getTopLevel();
                     if (!(top instanceof final NonemptyElement nonempty) || (DocFactory
                             .parseSpan(this.evalContext, nonempty, EParserMode.NORMAL) == null)) {
                         this.spanValue.setBackground(this.changedInvalidColor);
@@ -1345,7 +1345,7 @@ public final class VariableEditorPanel extends JPanel
                     final String newText = "<a>" + spanText + "</a>";
                     try {
                         final XmlContent spanXmlContent = new XmlContent(newText, false, false);
-                        final IElement top = spanXmlContent.getToplevel();
+                        final IElement top = spanXmlContent.getTopLevel();
                         if (top instanceof final NonemptyElement nonempty) {
                             final DocSimpleSpan newValue =
                                     DocFactory.parseSpan(this.evalContext, nonempty, EParserMode.NORMAL);
@@ -1785,7 +1785,7 @@ public final class VariableEditorPanel extends JPanel
 
         try {
             final XmlContent spanXmlContent = new XmlContent(newText, false, false);
-            final IElement top = spanXmlContent.getToplevel();
+            final IElement top = spanXmlContent.getTopLevel();
             if (top instanceof final NonemptyElement nonempty) {
                 final DocSimpleSpan newSpan =
                         DocFactory.parseSpan(this.evalContext, nonempty, EParserMode.NORMAL);

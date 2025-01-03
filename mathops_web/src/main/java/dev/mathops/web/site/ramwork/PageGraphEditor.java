@@ -74,7 +74,7 @@ enum PageGraphEditor {
 
             try {
                 final XmlContent content = new XmlContent(wrapped, false, false);
-                final IElement top = content.getToplevel();
+                final IElement top = content.getTopLevel();
 
                 if (top instanceof final NonemptyElement nonempty) {
                     final EvalContext evalContext = new EvalContext();

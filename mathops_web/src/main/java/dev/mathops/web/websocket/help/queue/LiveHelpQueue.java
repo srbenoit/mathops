@@ -657,7 +657,7 @@ public final class LiveHelpQueue {
 
         final XmlContent xml = new XmlContent(ser, true, false);
 
-        final IElement top = xml.getToplevel();
+        final IElement top = xml.getTopLevel();
         if (top == null) {
             throw new ParsingException(0, 0, "Expected 'help-queue' top-level element");
         } else if (!"help-queue".equals(top.getTagName())) {

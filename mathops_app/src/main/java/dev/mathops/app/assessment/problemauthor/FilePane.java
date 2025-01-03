@@ -427,7 +427,7 @@ final class FilePane extends JPanel implements ActionListener {
             allErrors.addAll(mainErrors);
         }
 
-        final IElement top = content.getToplevel();
+        final IElement top = content.getTopLevel();
         accumulateErrors(top, allErrors);
 
         return allErrors;

@@ -1,4 +1,4 @@
-package dev.mathops.app.course;
+package dev.mathops.app.course.visualizer;
 
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 
@@ -8,9 +8,9 @@ import javax.swing.border.Border;
 import java.awt.Color;
 
 /**
- * A panel that will present the content of the Skills Review.
+ * A panel that will present the content of a standard.
  */
-final class SkillsReviewPanel extends JPanel {
+final class StandardPanel extends JPanel {
 
     /** The handouts panel for the Skills Review. */
     private final HandoutsListPanel topicHandoutsPanel;
@@ -23,7 +23,7 @@ final class SkillsReviewPanel extends JPanel {
      *
      * @param lineColor the color for line borders
      */
-    SkillsReviewPanel(final Color lineColor) {
+    StandardPanel(final Color lineColor) {
 
         super(new StackedBorderLayout(1, 1));
         setBackground(lineColor);
@@ -31,7 +31,7 @@ final class SkillsReviewPanel extends JPanel {
         final Border border = BorderFactory.createMatteBorder(1, 0, 0, 0, lineColor);
         setBorder(border);
 
-        this.topicHandoutsPanel = new HandoutsListPanel("Skills Review Handouts:", lineColor);
+        this.topicHandoutsPanel = new HandoutsListPanel("Standard Handouts:", lineColor);
         this.startLessonsPanel = new LessonsListPanel("Introductory Lessons:", 1, "intro", lineColor);
 
         add(this.topicHandoutsPanel, StackedBorderLayout.NORTH);
@@ -42,5 +42,9 @@ final class SkillsReviewPanel extends JPanel {
         // TODO: Items
 
         // TODO: Assessments
+
+        // TODO: Objectives
+
+        // TODO: Supplemental Explorations and Applications
     }
 }

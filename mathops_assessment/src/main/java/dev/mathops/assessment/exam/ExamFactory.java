@@ -172,7 +172,7 @@ public enum ExamFactory {
 
         ExamObj exam = null;
 
-        final IElement top = content.getToplevel();
+        final IElement top = content.getTopLevel();
 
         if (!"exam".equals(top.getTagName())) {
             content.logError(top, "Failed to find top-level <exam> element.");

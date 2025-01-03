@@ -265,7 +265,7 @@ public enum ProblemTemplateFactory {
 
         AbstractProblemTemplate problem = null;
 
-        final IElement top = content.getToplevel();
+        final IElement top = content.getTopLevel();
 
         if (top instanceof final NonemptyElement nonempty) {
             final String tagName = top.getTagName();
