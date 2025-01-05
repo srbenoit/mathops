@@ -5,6 +5,7 @@ import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -528,7 +529,8 @@ class DataToImport {
         for (final TableDefinition table : this.tables) {
             final File file = new File(exportDir, table.unloadFile);
 
-            final String[] lines = FileLoader.loadFileAsLines(file, false);
+            // Informix default is ISO8859.
+            final String[] lines = FileLoader.loadFileAsLines(file, StandardCharsets.ISO_8859_1, false);
             if (lines == null) {
                 throw new IllegalArgumentException("Unable to load '" + table.unloadFile + "'");
             }

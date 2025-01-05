@@ -253,38 +253,6 @@ public final class DbImport implements Runnable {
             }
         }
 
-        if (ok) {
-            for (final IndexDefinition index : this.data.indexes) {
-                final String createSql = index.makeCreateSql(schemaName);
-
-                try (final Statement statement = conn.createStatement()) {
-                    statement.executeUpdate(createSql);
-                } catch (final SQLException ex) {
-                    Log.warning(ex);
-                    final String[] msg = {"Unable to create '" + index.tableName + "' index", ex.getMessage()};
-                    JOptionPane.showMessageDialog(null, msg, "Import Database", JOptionPane.ERROR_MESSAGE);
-                    ok = false;
-                    break;
-                }
-            }
-        }
-
-        if (ok) {
-            for (final UniqueIndexDefinition index : this.data.uniqueIndexes) {
-                final String createSql = index.makeCreateSql(schemaName);
-
-                try (final Statement statement = conn.createStatement()) {
-                    statement.executeUpdate(createSql);
-                } catch (final SQLException ex) {
-                    Log.warning(ex);
-                    final String[] msg = {"Unable to create '" + index.tableName + "' unique index", ex.getMessage()};
-                    JOptionPane.showMessageDialog(null, msg, "Import Database", JOptionPane.ERROR_MESSAGE);
-                    ok = false;
-                    break;
-                }
-            }
-        }
-
         try {
             conn.setAutoCommit(false);
         } catch (final SQLException ex) {
@@ -295,6 +263,18 @@ public final class DbImport implements Runnable {
 
         if (ok) {
             for (final TableDefinition table : this.data.tables) {
+
+                try (final Statement statement = conn.createStatement()) {
+                    statement.executeUpdate("ALTER TABLE " + schemaName + "." + table.tableName + " SET UNLOGGED");
+                    conn.setAutoCommit(false);
+                } catch (final SQLException ex) {
+                    Log.warning(ex);
+                    final String[] msg = {"Unable to set '" + table.tableName + "' table to unlogged", ex.getMessage()};
+                    JOptionPane.showMessageDialog(null, msg, "Import Database", JOptionPane.ERROR_MESSAGE);
+                    ok = false;
+                    break;
+                }
+
                 final String insertSql = table.makeInsertPreparedStatementSql(schemaName);
 
                 try (final PreparedStatement statement = conn.prepareStatement(insertSql)) {
@@ -381,6 +361,51 @@ public final class DbImport implements Runnable {
                     Log.warning(ex);
                     final String[] msg = {"Unable to insert record into " + table.tableName, ex.getMessage()};
                     JOptionPane.showMessageDialog(null, msg, "Import Database", JOptionPane.ERROR_MESSAGE);
+                    break;
+                }
+
+                try (final Statement statement = conn.createStatement()) {
+                    statement.executeUpdate("ALTER TABLE " + schemaName + "." + table.tableName + " SET LOGGED");
+                    conn.setAutoCommit(true);
+                } catch (final SQLException ex) {
+                    Log.warning(ex);
+                    final String[] msg = {"Unable to set '" + table.tableName + "' table to LOGGED", ex.getMessage()};
+                    JOptionPane.showMessageDialog(null, msg, "Import Database", JOptionPane.ERROR_MESSAGE);
+                    ok = false;
+                    break;
+                }
+            }
+        }
+
+        // Create the indexes after the bulk load so they don't have to get tested on each new row
+
+        if (ok) {
+            for (final IndexDefinition index : this.data.indexes) {
+                final String createSql = index.makeCreateSql(schemaName);
+
+                try (final Statement statement = conn.createStatement()) {
+                    statement.executeUpdate(createSql);
+                } catch (final SQLException ex) {
+                    Log.warning(ex);
+                    final String[] msg = {"Unable to create '" + index.tableName + "' index", ex.getMessage()};
+                    JOptionPane.showMessageDialog(null, msg, "Import Database", JOptionPane.ERROR_MESSAGE);
+                    ok = false;
+                    break;
+                }
+            }
+        }
+
+        if (ok) {
+            for (final UniqueIndexDefinition index : this.data.uniqueIndexes) {
+                final String createSql = index.makeCreateSql(schemaName);
+
+                try (final Statement statement = conn.createStatement()) {
+                    statement.executeUpdate(createSql);
+                } catch (final SQLException ex) {
+                    Log.warning(ex);
+                    final String[] msg = {"Unable to create '" + index.tableName + "' unique index", ex.getMessage()};
+                    JOptionPane.showMessageDialog(null, msg, "Import Database", JOptionPane.ERROR_MESSAGE);
+                    ok = false;
                     break;
                 }
             }
