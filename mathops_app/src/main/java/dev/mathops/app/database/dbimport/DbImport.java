@@ -1,6 +1,7 @@
 package dev.mathops.app.database.dbimport;
 
 import com.formdev.flatlaf.FlatLightLaf;
+import dev.mathops.commons.ESuccessFailure;
 import dev.mathops.commons.installation.EPath;
 import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.log.Log;
@@ -17,6 +18,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -127,26 +129,84 @@ public final class DbImport implements Runnable {
     /**
      * Called by the database chooser dialog when the user has made a selection of the database into which to import.
      *
-     * @param login  the selected login under which to perform the import
-     * @param schema the schema into which to import
+     * @param login      the selected login under which to perform the import
+     * @param schema     the schema into which to import
+     * @param dropTables true to drop existing tables in the database before importing
      */
-    void databaseSelected(final LoginConfig login, final EDbUse schema) {
+    void databaseSelected(final LoginConfig login, final EDbUse schema, final boolean dropTables) {
 
         try (final Connection conn = login.openConnection()) {
-            Log.info("Connected to PostgreSQL - checking wither the '", schema, "' schema is empty...");
+            Log.info("Connected to PostgreSQL.");
 
             final String schemaName = schema == EDbUse.PROD ? "legacy"
                     : (schema == EDbUse.DEV ? "legacy_dev" : "legacy_test");
 
-            if (isSchemaEmpty(conn, schemaName)) {
-                Log.info("Schema is empty - proceeding with import");
+            boolean schemaEmpty;
+            if (dropTables) {
+                Log.info("Dropping all existing tables in '", schemaName, "' schema.");
+                dropExistingTables(conn, schemaName);
+                schemaEmpty = true;
+            } else {
+                Log.info("Checking whether the '", schema, "' schema is empty...");
+                schemaEmpty = isSchemaEmpty(conn, schemaName);
+            }
+
+            if (schemaEmpty) {
+                Log.info("Proceeding with import");
                 performImport(conn, schemaName);
+            } else {
+                Log.info("Schema not empty - unable to import.");
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             final String[] msg = {"Unable to connect to PostgreSQL database:", ex.getMessage()};
             JOptionPane.showMessageDialog(null, msg, "Import Database", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    /**
+     * Drops all existing tables in the selected schema.
+     *
+     * @param conn       the database connection
+     * @param schemaName the schema name
+     * @return SUCCESS if all tables were dropped
+     */
+    private ESuccessFailure dropExistingTables(final Connection conn, final String schemaName) {
+
+        ESuccessFailure result = ESuccessFailure.SUCCESS;
+
+        for (final String view : this.data.synonyms.keySet()) {
+            final String dropSql = "DROP VIEW IF EXISTS " + schemaName + "." + view;
+
+            try (final Statement statement = conn.createStatement()) {
+                statement.executeUpdate(dropSql);
+            } catch (final SQLException ex) {
+                Log.warning(ex);
+                final String[] msg = {"Unable to drop '" + view + "' view", ex.getMessage()};
+                JOptionPane.showMessageDialog(null, msg, "Import Database", JOptionPane.ERROR_MESSAGE);
+                result = ESuccessFailure.FAILURE;
+                break;
+            }
+        }
+
+        if (result == ESuccessFailure.SUCCESS) {
+
+            for (final TableDefinition table : this.data.tables) {
+                final String dropSql = "DROP TABLE IF EXISTS " + schemaName + "." + table.tableName;
+
+                try (final Statement statement = conn.createStatement()) {
+                    statement.executeUpdate(dropSql);
+                } catch (final SQLException ex) {
+                    Log.warning(ex);
+                    final String[] msg = {"Unable to drop '" + table.tableName + "' table", ex.getMessage()};
+                    JOptionPane.showMessageDialog(null, msg, "Import Database", JOptionPane.ERROR_MESSAGE);
+                    result = ESuccessFailure.FAILURE;
+                    break;
+                }
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -161,7 +221,6 @@ public final class DbImport implements Runnable {
 
         for (final TableDefinition table : this.data.tables) {
             final String createSql = table.makeCreateSql(schemaName);
-            Log.fine(createSql);
 
             try (final Statement statement = conn.createStatement()) {
                 statement.executeUpdate(createSql);
@@ -181,7 +240,6 @@ public final class DbImport implements Runnable {
 
                 final String createSql = SimpleBuilder.concat("CREATE VIEW ", schemaName, ".", viewName,
                         " AS SELECT * FROM ", schemaName, ".", tableName, ";");
-                Log.fine(createSql);
 
                 try (final Statement statement = conn.createStatement()) {
                     statement.executeUpdate(createSql);
@@ -198,7 +256,6 @@ public final class DbImport implements Runnable {
         if (ok) {
             for (final IndexDefinition index : this.data.indexes) {
                 final String createSql = index.makeCreateSql(schemaName);
-                Log.fine(createSql);
 
                 try (final Statement statement = conn.createStatement()) {
                     statement.executeUpdate(createSql);
@@ -215,7 +272,6 @@ public final class DbImport implements Runnable {
         if (ok) {
             for (final UniqueIndexDefinition index : this.data.uniqueIndexes) {
                 final String createSql = index.makeCreateSql(schemaName);
-                Log.fine(createSql);
 
                 try (final Statement statement = conn.createStatement()) {
                     statement.executeUpdate(createSql);
@@ -229,54 +285,98 @@ public final class DbImport implements Runnable {
             }
         }
 
+        try {
+            conn.setAutoCommit(false);
+        } catch (final SQLException ex) {
+            final String[] msg = {"Unable to turn off autocommit on connection ", ex.getMessage()};
+            JOptionPane.showMessageDialog(null, msg, "Import Database", JOptionPane.ERROR_MESSAGE);
+            ok = false;
+        }
+
         if (ok) {
             for (final TableDefinition table : this.data.tables) {
                 final String insertSql = table.makeInsertPreparedStatementSql(schemaName);
-                Log.fine(insertSql);
 
                 try (final PreparedStatement statement = conn.prepareStatement(insertSql)) {
 
                     final int numRows = table.data.size();
+
+                    Log.fine("Inserting " + numRows + " rows into '", table.tableName, "'...");
+
                     for (int i = 0; i < numRows; ++i) {
                         final Object[] values = table.data.get(i);
-                        final FieldDefinition field = table.fields.get(i);
+                        final int numFields = table.fields.size();
 
-                        int index = 1;
-                        for (final Object value : values) {
-                            switch (value) {
-                                case null -> statement.setNull(index, field.type);
-                                case final Integer integerValue -> {
-                                    final int primitive = integerValue.intValue();
-                                    statement.setInt(index, primitive);
+                        if (values.length == numFields) {
+
+                            int index = 0;
+                            for (final Object value : values) {
+                                final FieldDefinition field = table.fields.get(index);
+                                ++index;
+
+                                if ("desc".equals(field.fieldName)) {
+                                    continue;
                                 }
-                                case final Long longValue -> {
-                                    final long primitive = longValue.longValue();
-                                    statement.setLong(index, primitive);
-                                }
-                                case final Double doubleValue -> {
-                                    final double primitive = doubleValue.doubleValue();
-                                    statement.setDouble(index, primitive);
-                                }
-                                case final LocalDate dateValue -> {
-                                    final Date sqlDate = Date.valueOf(dateValue);
-                                    statement.setDate(index, sqlDate);
-                                }
-                                case final LocalDateTime dateTimeValue -> {
-                                    final Timestamp sqlTimestamp = Timestamp.valueOf(dateTimeValue);
-                                    statement.setTimestamp(index, sqlTimestamp);
-                                }
-                                case final String stringValue -> statement.setString(index, stringValue);
-                                default -> {
-                                    final String valueClassName = value.getClass().getName();
-                                    Log.warning("Unexpected object type: ", valueClassName);
+
+                                switch (value) {
+                                    case null -> statement.setNull(index, field.type);
+                                    case final Integer integerValue -> {
+                                        final int primitive = integerValue.intValue();
+                                        statement.setInt(index, primitive);
+                                    }
+                                    case final Long longValue -> {
+                                        final long primitive = longValue.longValue();
+                                        statement.setLong(index, primitive);
+                                    }
+                                    case final Double doubleValue -> {
+                                        final double primitive = doubleValue.doubleValue();
+                                        statement.setDouble(index, primitive);
+                                    }
+                                    case final LocalDate dateValue -> {
+                                        final Date sqlDate = Date.valueOf(dateValue);
+                                        statement.setDate(index, sqlDate);
+                                    }
+                                    case final LocalDateTime dateTimeValue -> {
+                                        final Timestamp sqlTimestamp = Timestamp.valueOf(dateTimeValue);
+                                        statement.setTimestamp(index, sqlTimestamp);
+                                    }
+                                    case final String stringValue -> {
+                                        final int maxLen = field.length;
+                                        int strLen = stringValue.getBytes(StandardCharsets.UTF_8).length;
+
+                                        if (strLen > maxLen) {
+                                            String truncated = stringValue;
+
+                                            while (strLen > maxLen) {
+                                                final int delta = strLen - maxLen;
+                                                final int truncatedLen = truncated.length();
+                                                truncated = truncated.substring(0, Math.max(0, truncatedLen - delta));
+                                                strLen = truncated.getBytes(StandardCharsets.UTF_8).length;
+                                            }
+
+                                            Log.warning("Truncating '", stringValue, "' to '", truncated,
+                                                    "' to fit field '", field.fieldName, "'");
+                                            statement.setString(index, truncated);
+                                        } else {
+                                            statement.setString(index, stringValue);
+                                        }
+                                    }
+                                    default -> {
+                                        final String valueClassName = value.getClass().getName();
+                                        Log.warning("Unexpected object type: ", valueClassName);
+                                    }
                                 }
                             }
 
-                            ++index;
+                            statement.executeUpdate();
+                        } else {
+                            final String[] msg = {"Incorrect number of values in row " + i + " in input file"};
+                            JOptionPane.showMessageDialog(null, msg, "Import Database", JOptionPane.ERROR_MESSAGE);
+                            break;
                         }
-
-                        statement.executeUpdate();
                     }
+
+                    conn.commit();
                 } catch (final SQLException ex) {
                     Log.warning(ex);
                     final String[] msg = {"Unable to insert record into " + table.tableName, ex.getMessage()};

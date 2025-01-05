@@ -3,7 +3,6 @@ package dev.mathops.app.database.dbimport;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.text.builder.HtmlBuilder;
 
-import java.math.BigInteger;
 import java.sql.Types;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -81,7 +80,10 @@ final class FieldDefinition {
             final int typeLen = typeStr.length();
             final String lengthStr = typeStr.substring(5, typeLen - 1);
             try {
-                theLength = Integer.parseInt(lengthStr);
+                // Double since PostgreSQL uses UTF-8 and for characters from Informix that are >127, one Informix
+                // byte will become 2 PostgreSQL bytes.  We make all the fields "varchar" anyway in PostgreSQL, so there
+                // is no waste.
+                theLength = Integer.parseInt(lengthStr) * 2;
             } catch (final NumberFormatException ex) {
                 final String lineStr = DataToImport.makeLineNumberText(lineIndex, filename);
                 throw new IllegalArgumentException("Unable to interpret field length" + lineStr, ex);
@@ -91,7 +93,10 @@ final class FieldDefinition {
             final int typeLen = typeStr.length();
             final String lengthStr = typeStr.substring(8, typeLen - 1);
             try {
-                theLength = Integer.parseInt(lengthStr);
+                // Double since PostgreSQL uses UTF-8 and for characters from Informix that are >127, one Informix
+                // byte will become 2 PostgreSQL bytes.  We make all the fields "varchar" anyway in PostgreSQL, so there
+                // is no waste.
+                theLength = Integer.parseInt(lengthStr) * 2;
             } catch (final NumberFormatException ex) {
                 final String lineStr = DataToImport.makeLineNumberText(lineIndex, filename);
                 throw new IllegalArgumentException("Unable to interpret field length" + lineStr, ex);
@@ -221,6 +226,7 @@ final class FieldDefinition {
         } else if (this.type == Types.TIMESTAMP) {
             builder.add(" timestamp(0)");
         } else if (this.type == Types.CHAR || this.type == Types.VARCHAR) {
+            // PostgreSQL chars are bytes
             builder.add(" varchar(");
             builder.add(Integer.toString(this.length));
             builder.add(")");

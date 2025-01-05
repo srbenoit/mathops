@@ -10,9 +10,11 @@ import dev.mathops.db.old.cfg.ServerConfig;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 import java.awt.FlowLayout;
@@ -72,6 +74,9 @@ final class PgDatabasePicker extends JFrame implements ActionListener {
 
     /** The PROD/DEV/TEST picker. */
     private final JComboBox<String> schemaPicker;
+
+    /** A checkbox to allow all existing tables to be dropped. */
+    private final JCheckBox deleteExisting;
 
     /** The "OK" button. */
     private final JButton okButton;
@@ -145,6 +150,11 @@ final class PgDatabasePicker extends JFrame implements ActionListener {
         row4.add(this.schemaPicker);
         content.add(row4, StackedBorderLayout.NORTH);
 
+        this.deleteExisting = new JCheckBox("Drop existing tables");
+        final JPanel row5 = new JPanel(new FlowLayout(FlowLayout.LEADING, 6, 6));
+        row5.add(this.deleteExisting);
+        content.add(row5, StackedBorderLayout.NORTH);
+
         this.okButton = new JButton("Ok");
         this.okButton.setActionCommand(OK_CMD);
         final JButton cancelButton = new JButton("Cancel");
@@ -184,6 +194,8 @@ final class PgDatabasePicker extends JFrame implements ActionListener {
             final int serverIndex = this.serverPicker.getSelectedIndex();
             final int dbIndex = this.databasePicker.getSelectedIndex();
             final int loginIndex = this.loginPicker.getSelectedIndex();
+            final boolean dropTables = this.deleteExisting.isSelected();
+
             if (serverIndex >= 0 && dbIndex >= 0 && loginIndex >= 0) {
                 final ServerConfig server = this.servers.get(serverIndex);
                 final DbConfig db = server.getDatabases().get(dbIndex);
@@ -192,7 +204,17 @@ final class PgDatabasePicker extends JFrame implements ActionListener {
                 final int whichSchema = this.schemaPicker.getSelectedIndex();
                 final EDbUse use = whichSchema == 0 ? EDbUse.PROD : (whichSchema == 1 ? EDbUse.DEV : EDbUse.TEST);
 
-                this.callback.databaseSelected(login, use);
+                if (dropTables) {
+                    final String[] message = {"This will drop all existing tables in the database.",
+                            "Do you want to proceed?"};
+                    final int option = JOptionPane.showConfirmDialog(this, message, "Database Import",
+                            JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+                    if (option == JOptionPane.YES_OPTION) {
+                        this.callback.databaseSelected(login, use, true);
+                    }
+                } else {
+                    this.callback.databaseSelected(login, use, false);
+                }
                 setVisible(false);
                 dispose();
             } else {
