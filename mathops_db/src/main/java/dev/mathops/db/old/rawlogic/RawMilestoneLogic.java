@@ -1,13 +1,15 @@
 package dev.mathops.db.old.rawlogic;
 
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rawrecord.RawMilestone;
+import dev.mathops.db.type.TermKey;
 import dev.mathops.text.builder.SimpleBuilder;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -166,151 +168,44 @@ public final class RawMilestoneLogic extends AbstractRawLogic<RawMilestone> {
         return executeListQuery(cache, sql);
     }
 
-//    /**
-//     * Finds the date and number of attempts for a specific milestone for a specific student.
-//     *
-//     * @param pace         the pace
-//     * @param paceTrack    the pace track
-//     * @param msNbr        the milestone number
-//     * @param msType       the milestone type
-//     * @param milestones   the list of milestones for the term
-//     * @param stmilestones the list of student milestones for a student in that term
-//     * @return the result; {@code null} if no milestone was found
-//     */
-//    public static CheckMilestoneResult checkMilestone(final Integer pace, final String paceTrack,
-//                                                      final Integer msNbr, final String msType,
-//                                                      final Iterable<? extends RawMilestone> milestones,
-//                                                      final Iterable<? extends RawStmilestone> stmilestones) {
-//
-//        LocalDate date = null;
-//        Integer numTries = null;
-//
-//        for (final RawMilestone milestone : milestones) {
-//            if (milestone.pace.equals(pace) && milestone.paceTrack.equals(paceTrack) && milestone.msNbr.equals(msNbr)
-//                    && milestone.msType.equals(msType)) {
-//                date = milestone.msDate;
-//                numTries = milestone.nbrAtmptsAllow;
-//            }
-//        }
-//
-//        if (date != null) {
-//            for (final RawStmilestone stmilestone : stmilestones) {
-//                if (stmilestone.paceTrack.equals(paceTrack) && stmilestone.msNbr.equals(msNbr)
-//                        && stmilestone.msType.equals(msType)) {
-//                    date = stmilestone.msDate;
-//                    numTries = stmilestone.nbrAtmptsAllow;
-//                }
-//            }
-//        }
-//
-//        CheckMilestoneResult result = null;
-//
-//        if (date != null) {
-//            result = new CheckMilestoneResult(date, numTries);
-//        }
-//
-//        return result;
-//    }
+    /**
+     * Gets all milestone records for a specified pace, ordered by milestone date.
+     *
+     * @param cache     the data cache
+     * @param milestone the milestone to update
+     * @param newMsDate the new milestone date
+     * @return true if successful; false if not
+     * @throws SQLException if there is an error accessing the database
+     */
+    public static boolean updateMsDate(final Cache cache, final RawMilestone milestone,
+                                       final LocalDate newMsDate) throws SQLException {
 
-//    /**
-//     * Finds the date and number of attempts for a specific milestone for a specific student. This starts with the
-//     * 'milestone' record, then tests for an updated date in a 'stmilestone' record.
-//     *
-//     * @param cache     the data cache
-//     * @param termKey   the term key
-//     * @param pace      the pace
-//     * @param paceTrack the pace track
-//     * @param msNbr     the milestone number
-//     * @param msType    the milestone type
-//     * @param stuId     an optional student ID - if non-null, the 'stmilestone' table is tested for an override,
-//     and the
-//     *                  overridden values are returned
-//     * @return the result; {@code null} if no milestone was found
-//     * @throws SQLException if there is an error accessing the database
-//     */
-//    public static CheckMilestoneResult checkMilestone(final Cache cache, final TermKey termKey, final Integer pace,
-//                                                      final String paceTrack, final Integer msNbr, final String
-//                                                      msType,
-//                                                      final String stuId) throws SQLException {
-//
-//        final HtmlBuilder sql = new HtmlBuilder(100);
-//
-//        sql.add("SELECT ms_date,nbr_atmpts_allow FROM milestone",
-//                " WHERE term = '", termKey.termCode, "'",
-//                "   AND term_yr = ", termKey.shortYear,
-//                "   AND pace = ", pace,
-//                "   AND pace_track = '", paceTrack, "'",
-//                "   AND ms_nbr = ", msNbr,
-//                "   AND ms_type = '", msType, "'");
-//
-//        LocalDate msDate = null;
-//        Integer nbrAtmptsAllow = null;
-//
-//        try (final Statement stmt1 = cache.conn.createStatement();
-//             final ResultSet rs = stmt1.executeQuery(sql.toString())) {
-//
-//            if (rs.next()) {
-//                final Date dt = rs.getDate(1);
-//                if (dt == null) {
-//                    Log.warning("MILESTONE record has no ms_date field!",
-//                            " (term=", termKey.termCode, ", term_yr=",
-//                            termKey.shortYear, ", pace=", pace,
-//                            ", pace_track=", paceTrack, ", ms_nbr=", msNbr,
-//                            ", ms_type=", msType);
-//                } else {
-//                    msDate = dt.toLocalDate();
-//                }
-//
-//                final int atmpts = rs.getInt(2);
-//                if (!rs.wasNull()) {
-//                    // NOTE: Null value here is expected
-//                    nbrAtmptsAllow = Integer.valueOf(atmpts);
-//                }
-//            }
-//        }
-//        sql.reset();
-//
-//        if (stuId != null && msDate != null) {
-//            sql.add("SELECT ms_date,nbr_atmpts_allow FROM stmilestone",
-//                    " WHERE stu_id = '", stuId, "'",
-//                    "   AND term = '", termKey.termCode, "'",
-//                    "   AND term_yr = ", termKey.shortYear,
-//                    "   AND pace_track = '", paceTrack, "'",
-//                    "   AND ms_nbr = ", msNbr,
-//                    "   AND ms_type = '", msType, "'");
-//
-//            try (final Statement stmt = cache.conn.createStatement();
-//                 final ResultSet rs = stmt.executeQuery(sql.toString())) {
-//
-//                if (rs.next()) {
-//                    final Date dt = rs.getDate(1);
-//                    if (dt == null) {
-//                        Log.warning("STMILESTONE record has no ms_date field!",
-//                                " (term=", termKey.termCode, ", term_yr=",
-//                                termKey.shortYear, ", pace_track=", paceTrack,
-//                                ", ms_nbr=", msNbr, ", ms_type=", msType);
-//                    } else {
-//                        msDate = dt.toLocalDate();
-//                    }
-//
-//                    final int atmpts = rs.getInt(2);
-//                    if (!rs.wasNull()) {
-//                        // NOTE: Null value here is expected
-//                        nbrAtmptsAllow = Integer.valueOf(atmpts);
-//                    }
-//                }
-//            }
-//            sql.reset();
-//        }
-//
-//        CheckMilestoneResult result = null;
-//
-//        if (msDate != null) {
-//            result = new CheckMilestoneResult(msDate, nbrAtmptsAllow);
-//        }
-//
-//        return result;
-//    }
+        final String sql = SimpleBuilder.concat("UPDATE milestone",
+                " SET ms_date=", sqlDateValue(newMsDate),
+                " WHERE term=", sqlStringValue(milestone.termKey.termCode),
+                "   AND term_yr=", sqlIntegerValue(milestone.termKey.shortYear),
+                "   AND pace=", sqlIntegerValue(milestone.pace),
+                "   AND pace_track=", sqlStringValue(milestone.paceTrack),
+                "   AND ms_nbr=", sqlIntegerValue(milestone.msNbr),
+                "   AND ms_type=", sqlStringValue(milestone.msType));
+
+        boolean result = false;
+
+        Log.info(sql);
+
+        try (final Statement stmt = cache.conn.createStatement()) {
+            final int numRows = stmt.executeUpdate(sql);
+            result = numRows == 1;
+
+            if (result) {
+                cache.conn.commit();
+            } else {
+                cache.conn.rollback();
+            }
+        }
+
+        return result;
+    }
 
     /**
      * Executes a query that returns a list of records.
@@ -334,28 +229,4 @@ public final class RawMilestoneLogic extends AbstractRawLogic<RawMilestone> {
 
         return result;
     }
-
-//    /**
-//     * The results of a check for milestone date/number of attempts.
-//     */
-//    public static final class CheckMilestoneResult {
-//
-//        /** The milestone date. */
-//        public final LocalDate msDate;
-//
-//        /** The number of attempts allowed. */
-//        public final Integer nbrAtmptsAllow;
-//
-//        /**
-//         * Constructs a new {@code CheckMilestoneResult}.
-//         *
-//         * @param theMsDate         the milestone date
-//         * @param theNbrAtmptsAllow the number of attempts allowed
-//         */
-//        CheckMilestoneResult(final LocalDate theMsDate, final Integer theNbrAtmptsAllow) {
-//
-//            this.msDate = theMsDate;
-//            this.nbrAtmptsAllow = theNbrAtmptsAllow;
-//        }
-//    }
 }

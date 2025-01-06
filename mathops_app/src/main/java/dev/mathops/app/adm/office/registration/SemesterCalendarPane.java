@@ -31,7 +31,7 @@ import java.util.Locale;
 
 /**
  * A panel that displays the semester calendar, based on the rows in the "semester_calendar" and "campus_calendar"
- * tables..
+ * tables.
  */
 public final class SemesterCalendarPane extends JPanel implements MouseListener {
 

@@ -6,12 +6,16 @@ import dev.mathops.text.builder.HtmlBuilder;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 
 /**
  * A raw "milestone" record.
  */
 public final class RawMilestone extends RawTermRecordBase implements Comparable<RawMilestone> {
+
+    /** The desired sort order of milestone types. */
+    private static final List<String> TYPE_ORDER = List.of("RE", "FE", "F1");
 
     /** The table name. */
     public static final String TABLE_NAME = "milestone";
@@ -239,7 +243,14 @@ public final class RawMilestone extends RawTermRecordBase implements Comparable<
                     result = compareAllowingNull(this.msDate, this.msDate);
 
                     if (result == 0) {
-                        result = compareAllowingNull(this.msType, o.msType);
+
+                        if (this.msType == null || o.msType == null) {
+                            result = compareAllowingNull(this.msType, o.msType);
+                        } else {
+                            final int myTypeIndex = TYPE_ORDER.indexOf(this.msType);
+                            final int oTypeIndex = TYPE_ORDER.indexOf(o.msType);
+                            result = Integer.compare(myTypeIndex, oTypeIndex);
+                        }
                     }
                 }
             }
@@ -285,12 +296,12 @@ public final class RawMilestone extends RawTermRecordBase implements Comparable<
     public int hashCode() {
 
         return Objects.hashCode(this.termKey)
-                + Objects.hashCode(this.pace)
-                + Objects.hashCode(this.paceTrack)
-                + Objects.hashCode(this.msNbr)
-                + Objects.hashCode(this.msType)
-                + Objects.hashCode(this.msDate)
-                + Objects.hashCode(this.nbrAtmptsAllow);
+               + Objects.hashCode(this.pace)
+               + Objects.hashCode(this.paceTrack)
+               + Objects.hashCode(this.msNbr)
+               + Objects.hashCode(this.msType)
+               + Objects.hashCode(this.msDate)
+               + Objects.hashCode(this.nbrAtmptsAllow);
     }
 
     /**

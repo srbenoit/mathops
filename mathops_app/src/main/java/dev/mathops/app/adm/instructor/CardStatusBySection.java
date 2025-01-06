@@ -2,7 +2,6 @@ package dev.mathops.app.adm.instructor;
 
 import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
-import dev.mathops.app.adm.UserData;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
@@ -10,7 +9,6 @@ import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
-import dev.mathops.db.type.TermKey;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -39,34 +37,30 @@ final class CardStatusBySection extends AdmPanelBase implements ActionListener {
     @Serial
     private static final long serialVersionUID = 818369202377595216L;
 
-    /** The owning admin pane. */
-    private final TopPanelInstructor owner;
-
     /** The data cache. */
     private final Cache cache;
 
-    /** The active term key. */
-    private final TermKey activeTermKey;
+    /** The center panel. */
+    private final JPanel center;
 
-    /** The fixed data. */
-    private final UserData fixed;
+    /** The panel showing the current section status. */
+    private SectionStatusPane currentStatus;
 
     /**
      * Constructs a new {@code CardPickCourseSection}.
      *
-     * @param theOwner the owning top-level student panel
      * @param theCache the data cache
-     * @param theFixed the fixed data
      */
-    CardStatusBySection(final TopPanelInstructor theOwner, final Cache theCache, final UserData theFixed) {
+    CardStatusBySection(final Cache theCache) {
 
         super();
+
+        this.cache = theCache;
 
         final JPanel panel = new JPanel(new BorderLayout(5, 5));
 
         final Color bg = getBackground();
-        final Color myBackground = bg;
-        panel.setBackground(myBackground);
+        panel.setBackground(bg);
 
         final Border myBorder = getBorder();
         panel.setBorder(myBorder);
@@ -79,22 +73,19 @@ final class CardStatusBySection extends AdmPanelBase implements ActionListener {
 
         add(panel, BorderLayout.CENTER);
 
-        this.owner = theOwner;
-        this.cache = theCache;
-        this.fixed = theFixed;
-
         final JLabel header = makeHeader("Select a course and section...", false);
         panel.add(header, BorderLayout.PAGE_START);
 
-        final JPanel center = makeOffWhitePanel(new BorderLayout(10, 10));
+        this.center = makeOffWhitePanel(new BorderLayout(10, 10));
         final Border centerPad = BorderFactory.createEmptyBorder(10, 10, 10, 10);
-        center.setBorder(centerPad);
-        panel.add(center, BorderLayout.CENTER);
+        this.center.setBorder(centerPad);
+        panel.add(this.center, BorderLayout.CENTER);
 
         final JPanel centerWest = new JPanel(new StackedBorderLayout());
         final JScrollPane centerWestScroll = new JScrollPane(centerWest);
+        centerWestScroll.getVerticalScrollBar().setUnitIncrement(10);
         centerWestScroll.setPreferredSize(new Dimension(150, 1));
-        center.add(centerWestScroll, BorderLayout.LINE_START);
+        this.center.add(centerWestScroll, BorderLayout.LINE_START);
 
         try {
             final TermRec active = TermLogic.get(this.cache).queryActive(this.cache);
@@ -134,29 +125,10 @@ final class CardStatusBySection extends AdmPanelBase implements ActionListener {
                 button.addActionListener(this);
                 flow.add(button);
                 centerWest.add(flow, StackedBorderLayout.NORTH);
-
             }
         } catch (final SQLException ex) {
             Log.warning("failed to query course sections", ex);
         }
-
-        //
-        //
-        //
-        //
-
-        TermKey key = null;
-        try {
-            final TermRec term = this.cache.getSystemData().getActiveTerm();
-            if (term == null) {
-                Log.warning("No active term found");
-            } else {
-                key = term.term;
-            }
-        } catch (final SQLException ex) {
-            Log.warning("Unable to query active term", ex);
-        }
-        this.activeTermKey = key;
     }
 
     /**
@@ -182,6 +154,17 @@ final class CardStatusBySection extends AdmPanelBase implements ActionListener {
         if (plus > 0) {
             final String course = cmd.substring(0, plus);
             final String sect = cmd.substring(plus + 1);
+
+            if (this.currentStatus != null) {
+                this.center.remove(this.currentStatus);
+            }
+
+            this.currentStatus = new SectionStatusPane(this.cache, course, sect);
+            this.center.add(this.currentStatus, StackedBorderLayout.CENTER);
+
+            invalidate();
+            revalidate();
+            repaint();
         }
     }
 }

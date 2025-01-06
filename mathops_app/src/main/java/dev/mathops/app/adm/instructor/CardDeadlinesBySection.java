@@ -4,18 +4,32 @@ import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.UserData;
 import dev.mathops.commons.log.Log;
+import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
+import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
+import dev.mathops.db.old.rawrecord.RawMilestone;
+import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
-import dev.mathops.db.type.TermKey;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serial;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * A card to display all current-term course sections for Precalculus courses, and then to display summary status for a
@@ -33,11 +47,14 @@ final class CardDeadlinesBySection extends AdmPanelBase implements ActionListene
     /** The data cache. */
     private final Cache cache;
 
-    /** The active term key. */
-    private final TermKey activeTermKey;
-
     /** The fixed data. */
     private final UserData fixed;
+
+    /** The center panel. */
+    private final JPanel center;
+
+    /** The panel showing the current track deadlines. */
+    private TrackDeadlinesPane currentDeadlines;
 
     /**
      * Constructs a new {@code CardDeadlinesBySection}.
@@ -55,44 +72,67 @@ final class CardDeadlinesBySection extends AdmPanelBase implements ActionListene
         this.fixed = theFixed;
 
         final JPanel panel = new JPanel(new BorderLayout(5, 5));
+
         panel.setBackground(Skin.OFF_WHITE_RED);
         panel.setBorder(getBorder());
 
         setBackground(Skin.LT_RED);
-        setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLoweredBevelBorder(),
-                BorderFactory.createEmptyBorder(3, 3, 3, 3)));
+        final Border bevel = BorderFactory.createLoweredBevelBorder();
+        final Border padding = BorderFactory.createEmptyBorder(3, 3, 3, 3);
+        final CompoundBorder newBorder = BorderFactory.createCompoundBorder(bevel, padding);
+        setBorder(newBorder);
+
         add(panel, BorderLayout.CENTER);
 
-        panel.add(makeHeader("Select a pace and track to update...", false), BorderLayout.PAGE_START);
+        final JLabel headerLabel = makeHeader("Select a pace and track...", false);
+        panel.add(headerLabel, BorderLayout.PAGE_START);
 
-        final JPanel center = new JPanel(new BorderLayout(10, 10));
-        center.setBackground(Skin.OFF_WHITE_RED);
-        final Border centerPad = BorderFactory.createEmptyBorder(20, 10, 20, 10);
-        center.setBorder(centerPad);
-        panel.add(center, BorderLayout.CENTER);
+        this.center = new JPanel(new BorderLayout(10, 10));
+        this.center.setBackground(Skin.OFF_WHITE_RED);
+        final Border centerPad = BorderFactory.createEmptyBorder(10, 10, 10, 10);
+        this.center.setBorder(centerPad);
+        panel.add(this.center, BorderLayout.CENTER);
 
-        final JPanel centerWest = makeOffWhitePanel(new BorderLayout());
-        center.add(centerWest, BorderLayout.LINE_START);
+        final JPanel centerWest = new JPanel(new StackedBorderLayout());
+        final JScrollPane centerWestScroll = new JScrollPane(centerWest);
+        centerWestScroll.getVerticalScrollBar().setUnitIncrement(10);
+        centerWestScroll.setPreferredSize(new Dimension(150, 1));
+        this.center.add(centerWestScroll, BorderLayout.LINE_START);
 
-        final Border etched = BorderFactory.createEtchedBorder();
-
-        //
-        //
-        //
-        //
-
-        TermKey key = null;
         try {
-            final TermRec term = this.cache.getSystemData().getActiveTerm();
-            if (term == null) {
-                Log.warning("No active term found");
-            } else {
-                key = term.term;
+            final TermRec active = TermLogic.get(this.cache).queryActive(this.cache);
+            final List<RawMilestone> milestones = RawMilestoneLogic.getAllMilestones(this.cache, active.term);
+            milestones.sort(null);
+
+            final Map<Integer, Set<String>> paceTracks = new HashMap<>(5);
+            for (final RawMilestone ms : milestones) {
+                final Set<String> tracks = paceTracks.computeIfAbsent(ms.pace, x -> new TreeSet<>());
+                tracks.add(ms.paceTrack);
+            }
+
+            for (final Map.Entry<Integer, Set<String>> entry : paceTracks.entrySet()) {
+                final String paceStr = entry.getKey().toString();
+                final String paceName = paceStr + "-course pace";
+                final JLabel paceTitle = makeLabelMedium(paceName);
+                final JPanel titleFlow = new JPanel(new FlowLayout(FlowLayout.LEADING, 6, 2));
+                titleFlow.add(paceTitle);
+                centerWest.add(titleFlow, StackedBorderLayout.NORTH);
+
+                for (final String track : entry.getValue()) {
+                    final String cmd = paceStr + "+" + track;
+
+                    final String trackName = "Track " + track;
+                    final JPanel flow = new JPanel(new FlowLayout(FlowLayout.LEADING, 20, 2));
+                    final JButton button = new JButton(trackName);
+                    button.setActionCommand(cmd);
+                    button.addActionListener(this);
+                    flow.add(button);
+                    centerWest.add(flow, StackedBorderLayout.NORTH);
+                }
             }
         } catch (final SQLException ex) {
-            Log.warning("Unable to query active term", ex);
+            Log.warning("failed to query milestones", ex);
         }
-        this.activeTermKey = key;
     }
 
     /**
@@ -108,7 +148,13 @@ final class CardDeadlinesBySection extends AdmPanelBase implements ActionListene
      */
     void clearDisplay() {
 
-        // No action
+        if (this.currentDeadlines != null) {
+            this.center.remove(this.currentDeadlines);
+
+            invalidate();
+            revalidate();
+            repaint();
+        }
     }
 
     /**
@@ -121,6 +167,27 @@ final class CardDeadlinesBySection extends AdmPanelBase implements ActionListene
 
         final String cmd = e.getActionCommand();
 
-        // TODO:
+        final int plus = cmd.indexOf('+');
+
+        if (plus > 0) {
+            if (this.currentDeadlines != null) {
+                this.center.remove(this.currentDeadlines);
+            }
+
+            final String paceStr = cmd.substring(0, plus);
+            try {
+                final int pace = Integer.parseInt(paceStr);
+                final String track = cmd.substring(plus + 1);
+
+                this.currentDeadlines = new TrackDeadlinesPane(this.cache, pace, track);
+                this.center.add(this.currentDeadlines, StackedBorderLayout.CENTER);
+            } catch (final NumberFormatException ex) {
+                Log.warning("Failed to parse pace", ex);
+            }
+
+            invalidate();
+            revalidate();
+            repaint();
+        }
     }
 }

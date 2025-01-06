@@ -266,6 +266,34 @@ public final class RawStcourseLogic extends AbstractRawLogic<RawStcourse> {
     }
 
     /**
+     * Queries for all students registered for a particular term. This method does not automatically scan for
+     * "provisional" satisfaction of prerequisites, and does not return synthetic test data records.
+     *
+     * @param cache          the database connection, checked out to this thread
+     * @param term           the active term
+     * @param course         the course ID
+     * @param sect           the section
+     * @param includeDropped true to include dropped records
+     * @return the list of records that matched the criteria, a zero-length array if none matched
+     * @throws SQLException if there is an error performing the query
+     */
+    public static List<RawStcourse> queryByTermCourseSection(final Cache cache, final TermKey term,
+                                                             final String course, final String sect,
+                                                             final boolean includeDropped) throws SQLException {
+
+        final HtmlBuilder sql = new HtmlBuilder(100);
+
+        sql.add("SELECT * FROM stcourse WHERE course='", course, "' AND sect='", sect, "' AND term='", term.termCode,
+                "' AND term_yr=", term.shortYear);
+
+        if (!includeDropped) {
+            sql.add(AND_NOT_DROPPED);
+        }
+
+        return executeQuery(cache, sql.toString());
+    }
+
+    /**
      * Queries for all registration records for in-progress incompletes.
      *
      * @param cache the database connection, checked out to this thread

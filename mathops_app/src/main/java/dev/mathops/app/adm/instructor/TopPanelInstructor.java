@@ -98,7 +98,7 @@ public final class TopPanelInstructor extends JPanel implements ActionListener {
 
         this.cards.show(this.cardPane, STATUS_CMD);
 
-        this.cardStatusBySection = new CardStatusBySection(this, theCache, fixed);
+        this.cardStatusBySection = new CardStatusBySection(theCache);
         this.cardPane.add(this.cardStatusBySection, STATUS_CMD);
 
         this.cardDeadlinesBySection = new CardDeadlinesBySection(this, theCache, fixed);
