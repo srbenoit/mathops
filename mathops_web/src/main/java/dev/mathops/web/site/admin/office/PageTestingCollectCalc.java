@@ -100,7 +100,7 @@ enum PageTestingCollectCalc {
                     emitCalcIdField(htm, null, false);
                     emitError(htm, "That calculator is not currently checked out.");
                     emitSubmit(htm, "Reset Form");
-                } else if (RawCalcsLogic.INSTANCE.delete(cache, found)) {
+                } else if (RawCalcsLogic.delete(cache, found)) {
                     emitCalcIdField(htm, calc, false);
                     emitInfo(htm, "This calculator has been returned.");
                     emitClose(htm);

@@ -25,18 +25,8 @@ import java.util.List;
  * end_dt               date                      no
  * </pre>
  */
-public final class RawSemesterCalendarLogic extends AbstractRawLogic<RawSemesterCalendar> {
-
-    /** A single instance. */
-    public static final RawSemesterCalendarLogic INSTANCE = new RawSemesterCalendarLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawSemesterCalendarLogic() {
-
-        super();
-    }
+public enum RawSemesterCalendarLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -46,8 +36,7 @@ public final class RawSemesterCalendarLogic extends AbstractRawLogic<RawSemester
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawSemesterCalendar record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawSemesterCalendar record) throws SQLException {
 
         if (record.termKey == null || record.weekNbr == null || record.startDt == null || record.endDt == null) {
             throw new SQLException("Null value in primary key or required field.");
@@ -55,11 +44,11 @@ public final class RawSemesterCalendarLogic extends AbstractRawLogic<RawSemester
 
         final String sql = SimpleBuilder.concat("INSERT INTO semester_calendar ",
                 "(term,term_yr,week_nbr,start_dt,end_dt) VALUES (",
-                sqlStringValue(record.termKey.termCode), ",",
-                sqlIntegerValue(record.termKey.shortYear), ",",
-                sqlIntegerValue(record.weekNbr), ",",
-                sqlDateValue(record.startDt), ",",
-                sqlDateValue(record.endDt), ")");
+                LogicUtils.sqlStringValue(record.termKey.termCode), ",",
+                LogicUtils.sqlIntegerValue(record.termKey.shortYear), ",",
+                LogicUtils.sqlIntegerValue(record.weekNbr), ",",
+                LogicUtils.sqlDateValue(record.startDt), ",",
+                LogicUtils.sqlDateValue(record.endDt), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -82,13 +71,12 @@ public final class RawSemesterCalendarLogic extends AbstractRawLogic<RawSemester
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawSemesterCalendar record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawSemesterCalendar record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM semester_calendar ",
-                "WHERE term=", sqlStringValue(record.termKey.termCode),
-                "  AND term_yr=", sqlIntegerValue(record.termKey.shortYear),
-                "  AND week_nbr=", sqlIntegerValue(record.weekNbr));
+                "WHERE term=", LogicUtils.sqlStringValue(record.termKey.termCode),
+                "  AND term_yr=", LogicUtils.sqlIntegerValue(record.termKey.shortYear),
+                "  AND week_nbr=", LogicUtils.sqlIntegerValue(record.weekNbr));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -110,8 +98,7 @@ public final class RawSemesterCalendarLogic extends AbstractRawLogic<RawSemester
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawSemesterCalendar> queryAll(final Cache cache) throws SQLException {
+    public static List<RawSemesterCalendar> queryAll(final Cache cache) throws SQLException {
 
         final List<RawSemesterCalendar> result = new ArrayList<>(50);
 

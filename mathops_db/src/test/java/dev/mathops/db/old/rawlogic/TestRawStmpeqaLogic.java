@@ -108,10 +108,10 @@ final class TestRawStmpeqaLogic {
                 final RawStmpeqa raw4 = new RawStmpeqa("333333333", "CCCCC", date3, Integer.valueOf(333444),
                         Integer.valueOf(4), "Ans4", "B", "w", "Tree.ref.4");
 
-                assertTrue(RawStmpeqaLogic.INSTANCE.insert(cache, raw1), "Failed to insert stmpeqa 1");
-                assertTrue(RawStmpeqaLogic.INSTANCE.insert(cache, raw2), "Failed to insert stmpeqa 2");
-                assertTrue(RawStmpeqaLogic.INSTANCE.insert(cache, raw3), "Failed to insert stmpeqa 3");
-                assertTrue(RawStmpeqaLogic.INSTANCE.insert(cache, raw4), "Failed to insert stmpeqa 4");
+                assertTrue(RawStmpeqaLogic.insert(cache, raw1), "Failed to insert stmpeqa 1");
+                assertTrue(RawStmpeqaLogic.insert(cache, raw2), "Failed to insert stmpeqa 2");
+                assertTrue(RawStmpeqaLogic.insert(cache, raw3), "Failed to insert stmpeqa 3");
+                assertTrue(RawStmpeqaLogic.insert(cache, raw4), "Failed to insert stmpeqa 4");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -131,7 +131,7 @@ final class TestRawStmpeqaLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawStmpeqa> all = RawStmpeqaLogic.INSTANCE.queryAll(cache);
+                final List<RawStmpeqa> all = RawStmpeqaLogic.queryAll(cache);
 
                 assertEquals(4, all.size(), "Incorrect record count from queryAll");
 
@@ -222,7 +222,7 @@ final class TestRawStmpeqaLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawStmpeqa> all = RawStmpeqaLogic.INSTANCE.queryAll(cache);
+                final List<RawStmpeqa> all = RawStmpeqaLogic.queryAll(cache);
 
                 assertEquals(4, all.size(), "Incorrect record count from queryAll");
 
@@ -321,7 +321,7 @@ final class TestRawStmpeqaLogic {
                 final boolean result = RawStmpeqaLogic.deleteAllForExam(cache, stmpe);
                 assertTrue(result, "deleteAllForExam returned false");
 
-                final List<RawStmpeqa> all = RawStmpeqaLogic.INSTANCE.queryAll(cache);
+                final List<RawStmpeqa> all = RawStmpeqaLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll after deleteAllForExam");
 
@@ -396,10 +396,10 @@ final class TestRawStmpeqaLogic {
                         "x",
                         "Tree.ref.3");
 
-                final boolean result = RawStmpeqaLogic.INSTANCE.delete(cache, raw3);
+                final boolean result = RawStmpeqaLogic.delete(cache, raw3);
                 assertTrue(result, "delete returned false");
 
-                final List<RawStmpeqa> all = RawStmpeqaLogic.INSTANCE.queryAll(cache);
+                final List<RawStmpeqa> all = RawStmpeqaLogic.queryAll(cache);
 
                 assertEquals(1, all.size(), "Incorrect record count from queryAll after delete");
 

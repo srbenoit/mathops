@@ -178,13 +178,13 @@ public enum ETextLogic {
                 final RawStetext record = new RawStetext(studentId, newEtext.etextId, activeDate,
                         key, null, refundDeadline, null, null);
 
-                RawStetextLogic.INSTANCE.insert(cache, record);
+                RawStetextLogic.insert(cache, record);
             } else {
                 final RawStetext record = new RawStetext(studentId, newEtext.etextId, activeDate,
                         key, toChange.expirationDt, refundDeadline, toChange.refundDt,
                         toChange.refundReason);
 
-                if (RawStetextLogic.INSTANCE.insert(cache, record)) {
+                if (RawStetextLogic.insert(cache, record)) {
 
                     // Now make sure the original record can no longer be refunded
                     final LocalDate deadline = toChange.refundDeadlineDt;

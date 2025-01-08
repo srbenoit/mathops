@@ -32,18 +32,8 @@ import java.util.List;
  * score_tenths         integer                   yes
  * </pre>
  */
-public final class RawStlessonAssignLogic extends AbstractRawLogic<RawStlessonAssign> {
-
-    /** A single instance. */
-    public static final RawStlessonAssignLogic INSTANCE = new RawStlessonAssignLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawStlessonAssignLogic() {
-
-        super();
-    }
+public enum RawStlessonAssignLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -53,8 +43,7 @@ public final class RawStlessonAssignLogic extends AbstractRawLogic<RawStlessonAs
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawStlessonAssign record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawStlessonAssign record) throws SQLException {
 
         if (record.stuId == null || record.lessonId == null) {
             throw new SQLException("Null value in primary key or required field.");
@@ -70,16 +59,16 @@ public final class RawStlessonAssignLogic extends AbstractRawLogic<RawStlessonAs
             final String sql = SimpleBuilder.concat("INSERT INTO stlesson_assign ",
                     "(stu_id,course,lesson_id,when_shown,when_open,when_closed,",
                     "when_hidden,when_started,when_finished,score_tenths) VALUES (",
-                    sqlStringValue(record.stuId), ",",
-                    sqlStringValue(record.course), ",",
-                    sqlStringValue(record.lessonId), ",",
-                    sqlDateTimeValue(record.whenShown), ",",
-                    sqlDateTimeValue(record.whenOpen), ",",
-                    sqlDateTimeValue(record.whenClosed), ",",
-                    sqlDateTimeValue(record.whenHidden), ",",
-                    sqlDateTimeValue(record.whenStarted), ",",
-                    sqlDateTimeValue(record.whenFinished), ",",
-                    sqlIntegerValue(record.scoreTenths), ")");
+                    LogicUtils.sqlStringValue(record.stuId), ",",
+                    LogicUtils.sqlStringValue(record.course), ",",
+                    LogicUtils.sqlStringValue(record.lessonId), ",",
+                    LogicUtils.sqlDateTimeValue(record.whenShown), ",",
+                    LogicUtils.sqlDateTimeValue(record.whenOpen), ",",
+                    LogicUtils.sqlDateTimeValue(record.whenClosed), ",",
+                    LogicUtils.sqlDateTimeValue(record.whenHidden), ",",
+                    LogicUtils.sqlDateTimeValue(record.whenStarted), ",",
+                    LogicUtils.sqlDateTimeValue(record.whenFinished), ",",
+                    LogicUtils.sqlIntegerValue(record.scoreTenths), ")");
 
             try (final Statement stmt = cache.conn.createStatement()) {
                 result = stmt.executeUpdate(sql) == 1;
@@ -103,13 +92,12 @@ public final class RawStlessonAssignLogic extends AbstractRawLogic<RawStlessonAs
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawStlessonAssign record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawStlessonAssign record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM stlesson_assign ",
-                "WHERE stu_id=", sqlStringValue(record.stuId),
-                "  AND course=", sqlStringValue(record.course),
-                "  AND lesson_id=", sqlStringValue(record.lessonId));
+                "WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                "  AND course=", LogicUtils.sqlStringValue(record.course),
+                "  AND lesson_id=", LogicUtils.sqlStringValue(record.lessonId));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -131,8 +119,7 @@ public final class RawStlessonAssignLogic extends AbstractRawLogic<RawStlessonAs
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawStlessonAssign> queryAll(final Cache cache) throws SQLException {
+    public static List<RawStlessonAssign> queryAll(final Cache cache) throws SQLException {
 
         return executeListQuery(cache.conn, "SELECT * FROM stlesson_assign");
     }
@@ -148,7 +135,7 @@ public final class RawStlessonAssignLogic extends AbstractRawLogic<RawStlessonAs
     public static List<RawStlessonAssign> queryByStudent(final Cache cache, final String stuId) throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM stlesson_assign",
-                " WHERE stu_id=", sqlStringValue(stuId));
+                " WHERE stu_id=", LogicUtils.sqlStringValue(stuId));
 
         return executeListQuery(cache.conn, sql);
     }
@@ -167,9 +154,9 @@ public final class RawStlessonAssignLogic extends AbstractRawLogic<RawStlessonAs
                                           final String lessonId) throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM stlesson_assign",
-                " WHERE stu_id=", sqlStringValue(stuId),
-                " AND course=", sqlStringValue(course),
-                " AND lessod_id=", sqlStringValue(lessonId));
+                " WHERE stu_id=", LogicUtils.sqlStringValue(stuId),
+                " AND course=", LogicUtils.sqlStringValue(course),
+                " AND lessod_id=", LogicUtils.sqlStringValue(lessonId));
 
         return executeSingleQuery(cache.conn, sql);
     }

@@ -28,18 +28,8 @@ import java.util.List;
  * weekdays_2           char(20)                  yes
  * </pre>
  */
-public final class RawCampusCalendarLogic extends AbstractRawLogic<RawCampusCalendar> {
-
-    /** A single instance. */
-    public static final RawCampusCalendarLogic INSTANCE = new RawCampusCalendarLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawCampusCalendarLogic() {
-
-        super();
-    }
+public enum RawCampusCalendarLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -49,8 +39,7 @@ public final class RawCampusCalendarLogic extends AbstractRawLogic<RawCampusCale
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawCampusCalendar record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawCampusCalendar record) throws SQLException {
 
         if (record.campusDt == null || record.dtDesc == null) {
             throw new SQLException("Null value in primary key field.");
@@ -59,14 +48,14 @@ public final class RawCampusCalendarLogic extends AbstractRawLogic<RawCampusCale
         final String sql = SimpleBuilder.concat(
                 "INSERT INTO campus_calendar (campus_dt,dt_desc,open_time1,open_time2,",
                 "close_time1,close_time2,weekdays_1,weekdays_2) VALUES (",
-                sqlDateValue(record.campusDt), ",",
-                sqlStringValue(record.dtDesc), ",",
-                sqlStringValue(record.openTime1), ",",
-                sqlStringValue(record.openTime2), ",",
-                sqlStringValue(record.closeTime1), ",",
-                sqlStringValue(record.closeTime2), ",",
-                sqlStringValue(record.weekdays1), ",",
-                sqlStringValue(record.weekdays2), ")");
+                LogicUtils.sqlDateValue(record.campusDt), ",",
+                LogicUtils.sqlStringValue(record.dtDesc), ",",
+                LogicUtils.sqlStringValue(record.openTime1), ",",
+                LogicUtils.sqlStringValue(record.openTime2), ",",
+                LogicUtils.sqlStringValue(record.closeTime1), ",",
+                LogicUtils.sqlStringValue(record.closeTime2), ",",
+                LogicUtils.sqlStringValue(record.weekdays1), ",",
+                LogicUtils.sqlStringValue(record.weekdays2), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -89,12 +78,11 @@ public final class RawCampusCalendarLogic extends AbstractRawLogic<RawCampusCale
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawCampusCalendar record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawCampusCalendar record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM campus_calendar ",
-                "WHERE campus_dt=", sqlDateValue(record.campusDt),
-                "  AND dt_desc=", sqlStringValue(record.dtDesc));
+                "WHERE campus_dt=", LogicUtils.sqlDateValue(record.campusDt),
+                "  AND dt_desc=", LogicUtils.sqlStringValue(record.dtDesc));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -116,8 +104,7 @@ public final class RawCampusCalendarLogic extends AbstractRawLogic<RawCampusCale
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawCampusCalendar> queryAll(final Cache cache) throws SQLException {
+    public static List<RawCampusCalendar> queryAll(final Cache cache) throws SQLException {
 
         final List<RawCampusCalendar> result = new ArrayList<>(50);
 

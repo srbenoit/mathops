@@ -31,10 +31,8 @@ import java.util.List;
  * dt_cr_refused        date                      yes
  * </pre>
  */
-public final class RawFfrTrnsLogic extends AbstractRawLogic<RawFfrTrns> {
-
-    /** A single instance. */
-    public static final RawFfrTrnsLogic INSTANCE = new RawFfrTrnsLogic();
+public enum RawFfrTrnsLogic {
+    ;
 
     /** Test student IDs that have transfer credit for 118-126 (but not 117). */
     private static final List<String> transfer118through126;
@@ -54,14 +52,6 @@ public final class RawFfrTrnsLogic extends AbstractRawLogic<RawFfrTrns> {
     }
 
     /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawFfrTrnsLogic() {
-
-        super();
-    }
-
-    /**
      * Inserts a new record.
      *
      * @param cache  the data cache
@@ -69,8 +59,7 @@ public final class RawFfrTrnsLogic extends AbstractRawLogic<RawFfrTrns> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawFfrTrns record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawFfrTrns record) throws SQLException {
 
         if (record.stuId == null || record.course == null || record.examPlaced == null || record.examDt == null) {
             throw new SQLException("Null value in primary key or required field.");
@@ -85,11 +74,11 @@ public final class RawFfrTrnsLogic extends AbstractRawLogic<RawFfrTrns> {
         } else {
             final String sql = SimpleBuilder.concat("INSERT INTO ffr_trns ",
                     "(stu_id,course,exam_placed,exam_dt,dt_cr_refused) VALUES (",
-                    sqlStringValue(record.stuId), ",",
-                    sqlStringValue(record.course), ",",
-                    sqlStringValue(record.examPlaced), ",",
-                    sqlDateValue(record.examDt), ",",
-                    sqlDateValue(record.dtCrRefused), ")");
+                    LogicUtils.sqlStringValue(record.stuId), ",",
+                    LogicUtils.sqlStringValue(record.course), ",",
+                    LogicUtils.sqlStringValue(record.examPlaced), ",",
+                    LogicUtils.sqlDateValue(record.examDt), ",",
+                    LogicUtils.sqlDateValue(record.dtCrRefused), ")");
 
             try (final Statement stmt = cache.conn.createStatement()) {
                 result = stmt.executeUpdate(sql) == 1;
@@ -113,12 +102,11 @@ public final class RawFfrTrnsLogic extends AbstractRawLogic<RawFfrTrns> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawFfrTrns record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawFfrTrns record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM ffr_trns ",
-                "WHERE stu_id=", sqlStringValue(record.stuId),
-                "  AND course=", sqlStringValue(record.course));
+                "WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                "  AND course=", LogicUtils.sqlStringValue(record.course));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -140,8 +128,7 @@ public final class RawFfrTrnsLogic extends AbstractRawLogic<RawFfrTrns> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawFfrTrns> queryAll(final Cache cache) throws SQLException {
+    public static List<RawFfrTrns> queryAll(final Cache cache) throws SQLException {
 
         return executeListQuery(cache.conn, "SELECT * FROM ffr_trns");
     }
@@ -162,7 +149,7 @@ public final class RawFfrTrnsLogic extends AbstractRawLogic<RawFfrTrns> {
             result = queryByTestStudent(stuId);
         } else {
             final String sql = SimpleBuilder.concat("SELECT * FROM ffr_trns",
-                    " WHERE stu_id=", sqlStringValue(stuId));
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(stuId));
 
             result = executeListQuery(cache.conn, sql);
         }

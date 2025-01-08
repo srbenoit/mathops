@@ -62,7 +62,7 @@ public enum UnitStandardsMasteryExamGenerator {
 
         // Query all "std" records and create a map that has all standards indicated above, keyed
         // on standard ID
-        final List<RawStd> standards = RawStdLogic.INSTANCE.queryAll(cache);
+        final List<RawStd> standards = RawStdLogic.queryAll(cache);
         final Map<String, RawStd> standardsMap = new HashMap<>(standards.size());
 
         for (final RawStd row : standards) {

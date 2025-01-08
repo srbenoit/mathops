@@ -124,11 +124,11 @@ final class TestRawMilestoneLogic {
                 final RawMilestone raw5 = new RawMilestone(fa20, Integer.valueOf(3), "C", Integer.valueOf(151),
                         "FE", date5, Integer.valueOf(4));
 
-                assertTrue(RawMilestoneLogic.INSTANCE.insert(cache, raw1), "Failed to insert milestone 1");
-                assertTrue(RawMilestoneLogic.INSTANCE.insert(cache, raw2), "Failed to insert milestone 2");
-                assertTrue(RawMilestoneLogic.INSTANCE.insert(cache, raw3), "Failed to insert milestone 3");
-                assertTrue(RawMilestoneLogic.INSTANCE.insert(cache, raw4), "Failed to insert milestone 4");
-                assertTrue(RawMilestoneLogic.INSTANCE.insert(cache, raw5), "Failed to insert milestone 5");
+                assertTrue(RawMilestoneLogic.insert(cache, raw1), "Failed to insert milestone 1");
+                assertTrue(RawMilestoneLogic.insert(cache, raw2), "Failed to insert milestone 2");
+                assertTrue(RawMilestoneLogic.insert(cache, raw3), "Failed to insert milestone 3");
+                assertTrue(RawMilestoneLogic.insert(cache, raw4), "Failed to insert milestone 4");
+                assertTrue(RawMilestoneLogic.insert(cache, raw5), "Failed to insert milestone 5");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -148,7 +148,7 @@ final class TestRawMilestoneLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawMilestone> all = RawMilestoneLogic.INSTANCE.queryAll(cache);
+                final List<RawMilestone> all = RawMilestoneLogic.queryAll(cache);
 
                 assertEquals(5, all.size(), "Incorrect record count from queryAll");
 
@@ -383,10 +383,10 @@ final class TestRawMilestoneLogic {
                 final RawMilestone raw2 = new RawMilestone(fa21, Integer.valueOf(1), "B", Integer.valueOf(121),
                         "R1", date2, Integer.valueOf(1));
 
-                final boolean result = RawMilestoneLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawMilestoneLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawMilestone> all = RawMilestoneLogic.INSTANCE.queryAll(cache);
+                final List<RawMilestone> all = RawMilestoneLogic.queryAll(cache);
 
                 assertEquals(4, all.size(), "Incorrect record count from queryAll after delete");
 

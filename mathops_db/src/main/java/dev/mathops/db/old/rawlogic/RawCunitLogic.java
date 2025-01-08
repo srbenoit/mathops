@@ -31,18 +31,8 @@ import java.util.List;
  * unit_type            char(4)                   yes
  * </pre>
  */
-public final class RawCunitLogic extends AbstractRawLogic<RawCunit> {
-
-    /** A single instance. */
-    public static final RawCunitLogic INSTANCE = new RawCunitLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawCunitLogic() {
-
-        super();
-    }
+public enum RawCunitLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -52,8 +42,7 @@ public final class RawCunitLogic extends AbstractRawLogic<RawCunit> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawCunit record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawCunit record) throws SQLException {
 
         if (record.course == null || record.unit == null || record.termKey == null) {
             throw new SQLException("Null value in primary key field.");
@@ -62,16 +51,16 @@ public final class RawCunitLogic extends AbstractRawLogic<RawCunit> {
         final String sql = SimpleBuilder.concat(
                 "INSERT INTO cunit (course,unit,term,term_yr,unit_exam_wgt,unit_desc,unit_timelimit,possible_score,",
                 "nbr_questions,unit_type) VALUES (",
-                sqlStringValue(record.course), ",",
+                LogicUtils.sqlStringValue(record.course), ",",
                 record.unit, ",",
-                sqlStringValue(record.termKey.termCode), ",",
+                LogicUtils.sqlStringValue(record.termKey.termCode), ",",
                 record.termKey.shortYear, ",",
-                sqlFloatValue(record.unitExamWgt), ",",
-                sqlStringValue(record.unitDesc), ",",
-                sqlIntegerValue(record.unitTimelimit), ",",
-                sqlIntegerValue(record.possibleScore), ",",
-                sqlIntegerValue(record.nbrQuestions), ",",
-                sqlStringValue(record.unitType), ")");
+                LogicUtils.sqlFloatValue(record.unitExamWgt), ",",
+                LogicUtils.sqlStringValue(record.unitDesc), ",",
+                LogicUtils.sqlIntegerValue(record.unitTimelimit), ",",
+                LogicUtils.sqlIntegerValue(record.possibleScore), ",",
+                LogicUtils.sqlIntegerValue(record.nbrQuestions), ",",
+                LogicUtils.sqlStringValue(record.unitType), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -94,14 +83,13 @@ public final class RawCunitLogic extends AbstractRawLogic<RawCunit> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawCunit record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawCunit record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM cunit ",
-                "WHERE course=", sqlStringValue(record.course),
-                "  AND unit=", sqlIntegerValue(record.unit),
-                "  AND term=", sqlStringValue(record.termKey.termCode),
-                "  AND term_yr=", sqlIntegerValue(record.termKey.shortYear));
+                "WHERE course=", LogicUtils.sqlStringValue(record.course),
+                "  AND unit=", LogicUtils.sqlIntegerValue(record.unit),
+                "  AND term=", LogicUtils.sqlStringValue(record.termKey.termCode),
+                "  AND term_yr=", LogicUtils.sqlIntegerValue(record.termKey.shortYear));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -123,8 +111,7 @@ public final class RawCunitLogic extends AbstractRawLogic<RawCunit> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawCunit> queryAll(final Cache cache) throws SQLException {
+    public static List<RawCunit> queryAll(final Cache cache) throws SQLException {
 
         return executeListQuery(cache, "SELECT * FROM cunit");
     }

@@ -17,10 +17,8 @@ import java.util.Map;
  * <p>
  * There is currently no table for this data - it is hard-coded into this class.
  */
-public final class RawLessonLogic extends AbstractRawLogic<RawLesson> {
-
-    /** A single instance. */
-    public static final RawLessonLogic INSTANCE = new RawLessonLogic();
+public enum RawLessonLogic {
+    ;
 
     /** A commonly used string. */
     private static final String SR_MAT = "Skills Review materials";
@@ -1292,22 +1290,13 @@ public final class RawLessonLogic extends AbstractRawLogic<RawLesson> {
     }
 
     /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawLessonLogic() {
-
-        super();
-    }
-
-    /**
      * Inserts a new record.
      *
      * @param cache  the data cache
      * @param record the record to insert
      * @return {@code true} if successful; {@code false} if not
      */
-    @Override
-    public boolean insert(final Cache cache, final RawLesson record) {
+    public static boolean insert(final Cache cache, final RawLesson record) {
 
         Log.warning("Unable to insert lesson record: no underlying table.");
 
@@ -1321,8 +1310,7 @@ public final class RawLessonLogic extends AbstractRawLogic<RawLesson> {
      * @param record the record to delete
      * @return {@code true} if successful; {@code false} if not
      */
-    @Override
-    public boolean delete(final Cache cache, final RawLesson record) {
+    public static boolean delete(final Cache cache, final RawLesson record) {
 
         Log.warning("Unable to delete lesson record: no underlying table.");
 
@@ -1346,8 +1334,7 @@ public final class RawLessonLogic extends AbstractRawLogic<RawLesson> {
      * @param cache the data cache
      * @return the list of records
      */
-    @Override
-    public List<RawLesson> queryAll(final Cache cache) {
+    public static List<RawLesson> queryAll(final Cache cache) {
 
         final Collection<RawLesson> values = lessons.values();
 

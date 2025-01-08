@@ -32,18 +32,8 @@ import java.util.TreeMap;
  * create_dt            date                      yes
  * </pre>
  */
-public final class RawStsurveyqaLogic extends AbstractRawLogic<RawStsurveyqa> {
-
-    /** A single instance. */
-    public static final RawStsurveyqaLogic INSTANCE = new RawStsurveyqaLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawStsurveyqaLogic() {
-
-        super();
-    }
+public enum RawStsurveyqaLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -53,11 +43,10 @@ public final class RawStsurveyqaLogic extends AbstractRawLogic<RawStsurveyqa> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawStsurveyqa record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawStsurveyqa record) throws SQLException {
 
         if (record.stuId == null || record.version == null || record.examDt == null
-                || record.surveyNbr == null || record.finishTime == null) {
+            || record.surveyNbr == null || record.finishTime == null) {
             throw new SQLException("Null value in primary key or required field.");
         }
 
@@ -65,12 +54,12 @@ public final class RawStsurveyqaLogic extends AbstractRawLogic<RawStsurveyqa> {
 
         final String sql = SimpleBuilder.concat("INSERT INTO stsurveyqa ",
                 "(stu_id,version,exam_dt,survey_nbr,stu_answer,finish_time) VALUES (",
-                sqlStringValue(record.stuId), ",",
-                sqlStringValue(record.version), ",",
-                sqlDateValue(record.examDt), ",",
-                sqlIntegerValue(record.surveyNbr), ",",
-                sqlStringValue(record.stuAnswer), ",",
-                sqlIntegerValue(record.finishTime), ")");
+                LogicUtils.sqlStringValue(record.stuId), ",",
+                LogicUtils.sqlStringValue(record.version), ",",
+                LogicUtils.sqlDateValue(record.examDt), ",",
+                LogicUtils.sqlIntegerValue(record.surveyNbr), ",",
+                LogicUtils.sqlStringValue(record.stuAnswer), ",",
+                LogicUtils.sqlIntegerValue(record.finishTime), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             result = stmt.executeUpdate(sql) == 1;
@@ -93,17 +82,16 @@ public final class RawStsurveyqaLogic extends AbstractRawLogic<RawStsurveyqa> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawStsurveyqa record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawStsurveyqa record) throws SQLException {
 
         final boolean result;
 
         final String sql = SimpleBuilder.concat("DELETE FROM stsurveyqa ",
-                "WHERE stu_id=", sqlStringValue(record.stuId),
-                "  AND version=", sqlStringValue(record.version),
-                "  AND exam_dt=", sqlDateValue(record.examDt),
-                "  AND finish_time=", sqlIntegerValue(record.finishTime),
-                "  AND survey_nbr=", sqlIntegerValue(record.surveyNbr));
+                "WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                "  AND version=", LogicUtils.sqlStringValue(record.version),
+                "  AND exam_dt=", LogicUtils.sqlDateValue(record.examDt),
+                "  AND finish_time=", LogicUtils.sqlIntegerValue(record.finishTime),
+                "  AND survey_nbr=", LogicUtils.sqlIntegerValue(record.surveyNbr));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             result = stmt.executeUpdate(sql) == 1;
@@ -125,8 +113,7 @@ public final class RawStsurveyqaLogic extends AbstractRawLogic<RawStsurveyqa> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawStsurveyqa> queryAll(final Cache cache) throws SQLException {
+    public static List<RawStsurveyqa> queryAll(final Cache cache) throws SQLException {
 
         return executeListQuery(cache.conn, "SELECT * FROM stsurveyqa");
     }
@@ -134,15 +121,15 @@ public final class RawStsurveyqaLogic extends AbstractRawLogic<RawStsurveyqa> {
     /**
      * Gets the most recent set of survey responses submitted by a student. Responses are ordered by question number.
      *
-     * @param cache   the data cache
-     * @param stuId   the ID of the student whose responses to retrieve
+     * @param cache the data cache
+     * @param stuId the ID of the student whose responses to retrieve
      * @return the list of records that matched the criteria, a zero-length array if none matched
      * @throws SQLException if there is an error accessing the database
      */
     public static List<RawStsurveyqa> queryLatestByStudent(final Cache cache, final String stuId) throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM stsurveyqa ",
-                "WHERE stu_id=", sqlStringValue(stuId));
+                "WHERE stu_id=", LogicUtils.sqlStringValue(stuId));
 
         final List<RawStsurveyqa> all = executeListQuery(cache.conn, sql);
 
@@ -174,8 +161,8 @@ public final class RawStsurveyqaLogic extends AbstractRawLogic<RawStsurveyqa> {
                                                                   final String version) throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM stsurveyqa ",
-                "WHERE stu_id=", sqlStringValue(stuId),
-                "  AND version=", sqlStringValue(version));
+                "WHERE stu_id=", LogicUtils.sqlStringValue(stuId),
+                "  AND version=", LogicUtils.sqlStringValue(version));
 
         final List<RawStsurveyqa> all = executeListQuery(cache.conn, sql);
 

@@ -773,7 +773,7 @@ class ExamDetailsCard extends JPanel implements ActionListener, IZTableCommandLi
 
             final RawMpeCredit newRow = new RawMpeCredit(stuId, theCourse, "P",
                     stexam.examDt, null, stexam.serialNbr, stexam.version, stexam.examSource);
-            RawMpeCreditLogic.INSTANCE.apply(this.cache, newRow);
+            RawMpeCreditLogic.apply(this.cache, newRow);
 
             // Send results to BANNER, or store in queue table
             final RawStudent stu = RawStudentLogic.query(this.cache, stuId, false);
@@ -786,10 +786,10 @@ class ExamDetailsCard extends JPanel implements ActionListener, IZTableCommandLi
                 final DbConnection liveConn = this.liveContext.checkOutConnection();
                 try {
                     if (RawRecordConstants.M100C.equals(theCourse)) {
-                        RawMpscorequeueLogic.INSTANCE.postELMTutorialResult(this.cache, liveConn,
+                        RawMpscorequeueLogic.postELMTutorialResult(this.cache, liveConn,
                                 stu.pidm, stexam.getFinishDateTime());
                     } else {
-                        RawMpscorequeueLogic.INSTANCE.postPrecalcTutorialResult(this.cache,
+                        RawMpscorequeueLogic.postPrecalcTutorialResult(this.cache,
                                 liveConn, stu.pidm, theCourse, stexam.getFinishDateTime());
                     }
                 } finally {

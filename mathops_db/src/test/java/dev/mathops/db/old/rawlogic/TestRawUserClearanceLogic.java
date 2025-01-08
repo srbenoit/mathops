@@ -89,9 +89,9 @@ final class TestRawUserClearanceLogic {
                 final RawUserClearance raw2 = new RawUserClearance("user01", "fxn002", Integer.valueOf(2), "pwd02");
                 final RawUserClearance raw3 = new RawUserClearance("user02", "fxn003", Integer.valueOf(3), "pwd03");
 
-                assertTrue(RawUserClearanceLogic.INSTANCE.insert(cache, raw1), "Failed to insert user_clearance 1");
-                assertTrue(RawUserClearanceLogic.INSTANCE.insert(cache, raw2), "Failed to insert user_clearance 2");
-                assertTrue(RawUserClearanceLogic.INSTANCE.insert(cache, raw3), "Failed to insert user_clearance 3");
+                assertTrue(RawUserClearanceLogic.insert(cache, raw1), "Failed to insert user_clearance 1");
+                assertTrue(RawUserClearanceLogic.insert(cache, raw2), "Failed to insert user_clearance 2");
+                assertTrue(RawUserClearanceLogic.insert(cache, raw3), "Failed to insert user_clearance 3");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -111,7 +111,7 @@ final class TestRawUserClearanceLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawUserClearance> all = RawUserClearanceLogic.INSTANCE.queryAll(cache);
+                final List<RawUserClearance> all = RawUserClearanceLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -218,10 +218,10 @@ final class TestRawUserClearanceLogic {
             try {
                 final RawUserClearance raw2 = new RawUserClearance("user01", "fxn002", Integer.valueOf(2), "pwd02");
 
-                final boolean result = RawUserClearanceLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawUserClearanceLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawUserClearance> all = RawUserClearanceLogic.INSTANCE.queryAll(cache);
+                final List<RawUserClearance> all = RawUserClearanceLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 

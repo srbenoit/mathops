@@ -28,18 +28,8 @@ import java.util.List;
  * end_dt               date                      yes
  * </pre>
  */
-public final class RawSpecialStusLogic extends AbstractRawLogic<RawSpecialStus> {
-
-    /** A single instance. */
-    public static final RawSpecialStusLogic INSTANCE = new RawSpecialStusLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawSpecialStusLogic() {
-
-        super();
-    }
+public enum RawSpecialStusLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -49,8 +39,7 @@ public final class RawSpecialStusLogic extends AbstractRawLogic<RawSpecialStus> 
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawSpecialStus record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawSpecialStus record) throws SQLException {
 
         if (record.stuId == null || record.stuType == null) {
             throw new SQLException("Null value in primary key field.");
@@ -58,10 +47,10 @@ public final class RawSpecialStusLogic extends AbstractRawLogic<RawSpecialStus> 
 
         final String sql = SimpleBuilder.concat(
                 "INSERT INTO special_stus (stu_id,stu_type,start_dt,end_dt) VALUES (",
-                sqlStringValue(record.stuId), ",",
-                sqlStringValue(record.stuType), ",",
-                sqlDateValue(record.startDt), ",",
-                sqlDateValue(record.endDt), ")");
+                LogicUtils.sqlStringValue(record.stuId), ",",
+                LogicUtils.sqlStringValue(record.stuType), ",",
+                LogicUtils.sqlDateValue(record.startDt), ",",
+                LogicUtils.sqlDateValue(record.endDt), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -84,12 +73,11 @@ public final class RawSpecialStusLogic extends AbstractRawLogic<RawSpecialStus> 
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawSpecialStus record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawSpecialStus record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM special_stus ",
-                " WHERE stu_id=", sqlStringValue(record.stuId),
-                "   AND stu_type=", sqlStringValue(record.stuType));
+                " WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                "   AND stu_type=", LogicUtils.sqlStringValue(record.stuType));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -111,8 +99,7 @@ public final class RawSpecialStusLogic extends AbstractRawLogic<RawSpecialStus> 
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawSpecialStus> queryAll(final Cache cache) throws SQLException {
+    public static List<RawSpecialStus> queryAll(final Cache cache) throws SQLException {
 
         return executeQuery(cache.conn, "SELECT * FROM special_stus");
     }
@@ -134,7 +121,7 @@ public final class RawSpecialStusLogic extends AbstractRawLogic<RawSpecialStus> 
         } else {
             final String sql = SimpleBuilder.concat(
                     "SELECT * FROM special_stus WHERE stu_id=",
-                    sqlStringValue(stuId));
+                    LogicUtils.sqlStringValue(stuId));
 
             result = executeQuery(cache.conn, sql);
         }
@@ -183,7 +170,7 @@ public final class RawSpecialStusLogic extends AbstractRawLogic<RawSpecialStus> 
     public static List<RawSpecialStus> queryByType(final Cache cache, final String stuType) throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM special_stus WHERE stu_type=",
-                sqlStringValue(stuType));
+                LogicUtils.sqlStringValue(stuType));
 
         return executeQuery(cache.conn, sql);
     }
@@ -300,7 +287,7 @@ public final class RawSpecialStusLogic extends AbstractRawLogic<RawSpecialStus> 
         final List<RawSpecialStus> result;
 
         if (studentId != null && studentId.length() == 9 //
-                && studentId.startsWith("99")) {
+            && studentId.startsWith("99")) {
             final char ch3 = studentId.charAt(2);
             final char ch4 = studentId.charAt(3);
 

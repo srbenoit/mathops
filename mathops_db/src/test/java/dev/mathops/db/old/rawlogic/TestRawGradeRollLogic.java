@@ -102,9 +102,9 @@ final class TestRawGradeRollLogic {
                 final RawGradeRoll raw3 = new RawGradeRoll(sm21, "222222222", RawRecordConstants.M124, "003",
                         "Jane Doe", "C");
 
-                assertTrue(RawGradeRollLogic.INSTANCE.insert(cache, raw1), "Failed to insert grade_roll 1");
-                assertTrue(RawGradeRollLogic.INSTANCE.insert(cache, raw2), "Failed to insert grade_roll 2");
-                assertTrue(RawGradeRollLogic.INSTANCE.insert(cache, raw3), "Failed to insert grade_roll 3");
+                assertTrue(RawGradeRollLogic.insert(cache, raw1), "Failed to insert grade_roll 1");
+                assertTrue(RawGradeRollLogic.insert(cache, raw2), "Failed to insert grade_roll 2");
+                assertTrue(RawGradeRollLogic.insert(cache, raw3), "Failed to insert grade_roll 3");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -124,7 +124,7 @@ final class TestRawGradeRollLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawGradeRoll> all = RawGradeRollLogic.INSTANCE.queryAll(cache);
+                final List<RawGradeRoll> all = RawGradeRollLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -183,10 +183,10 @@ final class TestRawGradeRollLogic {
                 final RawGradeRoll raw2 = new RawGradeRoll(fa21, "111111111", RawRecordConstants.M118, "002",
                         "John Doe", "B");
 
-                final boolean result = RawGradeRollLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawGradeRollLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawGradeRoll> all = RawGradeRollLogic.INSTANCE.queryAll(cache);
+                final List<RawGradeRoll> all = RawGradeRollLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 

@@ -123,7 +123,7 @@ public enum DeleteTestUserData {
      */
     private static void cleanAdminHold(final Cache cache) throws SQLException {
 
-        final List<RawAdminHold> all = RawAdminHoldLogic.INSTANCE.queryAll(cache);
+        final List<RawAdminHold> all = RawAdminHoldLogic.queryAll(cache);
 
         for (final RawAdminHold rec : all) {
             final String stuId = rec.stuId;
@@ -131,7 +131,7 @@ public enum DeleteTestUserData {
             if (TEST_STUS.contains(stuId) || stuId.startsWith(TEST_PREFIX)) {
                 Log.info("    Deleting ADMIN_HOLD record for ", stuId);
                 if (!DEBUG) {
-                    RawAdminHoldLogic.INSTANCE.delete(cache, rec);
+                    RawAdminHoldLogic.delete(cache, rec);
                 }
             }
         }
@@ -145,7 +145,7 @@ public enum DeleteTestUserData {
      */
     private static void cleanMpeCredit(final Cache cache) throws SQLException {
 
-        final List<RawMpeCredit> all = RawMpeCreditLogic.INSTANCE.queryAll(cache);
+        final List<RawMpeCredit> all = RawMpeCreditLogic.queryAll(cache);
 
         for (final RawMpeCredit rec : all) {
             final String stuId = rec.stuId;
@@ -153,7 +153,7 @@ public enum DeleteTestUserData {
             if (TEST_STUS.contains(stuId) || stuId.startsWith(TEST_PREFIX)) {
                 Log.info("    Deleting MPE_CREDIT record for ", stuId);
                 if (!DEBUG) {
-                    RawMpeCreditLogic.INSTANCE.delete(cache, rec);
+                    RawMpeCreditLogic.delete(cache, rec);
                 }
             }
         }
@@ -167,7 +167,7 @@ public enum DeleteTestUserData {
      */
     private static void cleanMpecrDenied(final Cache cache) throws SQLException {
 
-        final List<RawMpecrDenied> all = RawMpecrDeniedLogic.INSTANCE.queryAll(cache);
+        final List<RawMpecrDenied> all = RawMpecrDeniedLogic.queryAll(cache);
 
         for (final RawMpecrDenied rec : all) {
             final String stuId = rec.stuId;
@@ -175,7 +175,7 @@ public enum DeleteTestUserData {
             if (TEST_STUS.contains(stuId) || stuId.startsWith(TEST_PREFIX)) {
                 Log.info("    Deleting MPE_CR_DENIED record for ", stuId);
                 if (!DEBUG) {
-                    RawMpecrDeniedLogic.INSTANCE.delete(cache, rec);
+                    RawMpecrDeniedLogic.delete(cache, rec);
                 }
             }
         }
@@ -189,7 +189,7 @@ public enum DeleteTestUserData {
      */
     private static void cleanMpeLog(final Cache cache) throws SQLException {
 
-        final List<RawMpeLog> all = RawMpeLogLogic.INSTANCE.queryAll(cache);
+        final List<RawMpeLog> all = RawMpeLogLogic.queryAll(cache);
 
         for (final RawMpeLog rec : all) {
             final String stuId = rec.stuId;
@@ -197,7 +197,7 @@ public enum DeleteTestUserData {
             if (TEST_STUS.contains(stuId) || stuId.startsWith(TEST_PREFIX)) {
                 Log.info("    Deleting MPE_LOG record for ", stuId);
                 if (!DEBUG) {
-                    RawMpeLogLogic.INSTANCE.delete(cache, rec);
+                    RawMpeLogLogic.delete(cache, rec);
                 }
             }
         }
@@ -211,7 +211,7 @@ public enum DeleteTestUserData {
      */
     private static void cleanPaceApeals(final Cache cache) throws SQLException {
 
-        final List<RawPaceAppeals> all = RawPaceAppealsLogic.INSTANCE.queryAll(cache);
+        final List<RawPaceAppeals> all = RawPaceAppealsLogic.queryAll(cache);
 
         for (final RawPaceAppeals rec : all) {
             final String stuId = rec.stuId;
@@ -219,7 +219,7 @@ public enum DeleteTestUserData {
             if (TEST_STUS.contains(stuId) || stuId.startsWith(TEST_PREFIX)) {
                 Log.info("    Deleting PACE_APPEALS record for ", stuId);
                 if (!DEBUG) {
-                    RawPaceAppealsLogic.INSTANCE.delete(cache, rec);
+                    RawPaceAppealsLogic.delete(cache, rec);
                 }
             }
         }
@@ -233,7 +233,7 @@ public enum DeleteTestUserData {
      */
     private static void cleanPendingExam(final Cache cache) throws SQLException {
 
-        final List<RawPendingExam> all = RawPendingExamLogic.INSTANCE.queryAll(cache);
+        final List<RawPendingExam> all = RawPendingExamLogic.queryAll(cache);
 
         for (final RawPendingExam rec : all) {
             final String stuId = rec.stuId;
@@ -241,7 +241,7 @@ public enum DeleteTestUserData {
             if (TEST_STUS.contains(stuId) || stuId.startsWith(TEST_PREFIX)) {
                 Log.info("    Deleting PENDING_EXAM record for ", stuId);
                 if (!DEBUG) {
-                    RawPendingExamLogic.INSTANCE.delete(cache, rec);
+                    RawPendingExamLogic.delete(cache, rec);
                 }
             }
         }
@@ -255,7 +255,7 @@ public enum DeleteTestUserData {
      */
     private static void cleanStchallenge(final Cache cache) throws SQLException {
 
-        final List<RawStchallenge> all = RawStchallengeLogic.INSTANCE.queryAll(cache);
+        final List<RawStchallenge> all = RawStchallengeLogic.queryAll(cache);
 
         for (final RawStchallenge rec : all) {
             final String stuId = rec.stuId;
@@ -263,7 +263,7 @@ public enum DeleteTestUserData {
             if (TEST_STUS.contains(stuId) || stuId.startsWith(TEST_PREFIX)) {
                 Log.info("    Deleting STCHALLENGE record for ", stuId);
                 if (!DEBUG) {
-                    RawStchallengeLogic.INSTANCE.deleteAttemptAndAnswers(cache, rec);
+                    RawStchallengeLogic.deleteAttemptAndAnswers(cache, rec);
                 }
             }
         }
@@ -277,7 +277,7 @@ public enum DeleteTestUserData {
      */
     private static void cleanStcourse(final Cache cache) throws SQLException {
 
-        final List<RawStcourse> all = RawStcourseLogic.INSTANCE.queryAll(cache);
+        final List<RawStcourse> all = RawStcourseLogic.queryAll(cache);
 
         for (final RawStcourse rec : all) {
             final String stuId = rec.stuId;
@@ -285,7 +285,7 @@ public enum DeleteTestUserData {
             if (TEST_STUS.contains(stuId) || stuId.startsWith(TEST_PREFIX)) {
                 Log.info("    Deleting STCOURSE record for ", stuId);
                 if (!DEBUG) {
-                    RawStcourseLogic.INSTANCE.delete(cache, rec);
+                    RawStcourseLogic.delete(cache, rec);
                 }
             }
         }
@@ -299,7 +299,7 @@ public enum DeleteTestUserData {
      */
     private static void cleanStcuobjective(final Cache cache) throws SQLException {
 
-        final List<RawStcuobjective> all = RawStcuobjectiveLogic.INSTANCE.queryAll(cache);
+        final List<RawStcuobjective> all = RawStcuobjectiveLogic.queryAll(cache);
 
         for (final RawStcuobjective rec : all) {
             final String stuId = rec.stuId;
@@ -307,7 +307,7 @@ public enum DeleteTestUserData {
             if (TEST_STUS.contains(stuId) || stuId.startsWith(TEST_PREFIX)) {
                 Log.info("    Deleting STCUOBJECTIVE record for ", stuId);
                 if (!DEBUG) {
-                    RawStcuobjectiveLogic.INSTANCE.delete(cache, rec);
+                    RawStcuobjectiveLogic.delete(cache, rec);
                 }
             }
         }
@@ -321,7 +321,7 @@ public enum DeleteTestUserData {
      */
     private static void cleanStetext(final Cache cache) throws SQLException {
 
-        final List<RawStetext> all = RawStetextLogic.INSTANCE.queryAll(cache);
+        final List<RawStetext> all = RawStetextLogic.queryAll(cache);
 
         for (final RawStetext rec : all) {
             final String stuId = rec.stuId;
@@ -329,7 +329,7 @@ public enum DeleteTestUserData {
             if (TEST_STUS.contains(stuId) || stuId.startsWith(TEST_PREFIX)) {
                 Log.info("    Deleting STETEXT record for ", stuId);
                 if (!DEBUG) {
-                    RawStetextLogic.INSTANCE.delete(cache, rec);
+                    RawStetextLogic.delete(cache, rec);
                 }
             }
         }
@@ -343,7 +343,7 @@ public enum DeleteTestUserData {
      */
     private static void cleanStexam(final Cache cache) throws SQLException {
 
-        final List<RawStexam> all = RawStexamLogic.INSTANCE.queryAll(cache);
+        final List<RawStexam> all = RawStexamLogic.queryAll(cache);
 
         for (final RawStexam rec : all) {
             final String stuId = rec.stuId;
@@ -351,7 +351,7 @@ public enum DeleteTestUserData {
             if (TEST_STUS.contains(stuId) || stuId.startsWith(TEST_PREFIX)) {
                 Log.info("    Deleting STEXAM record for ", stuId);
                 if (!DEBUG) {
-                    RawStexamLogic.INSTANCE.delete(cache, rec);
+                    RawStexamLogic.delete(cache, rec);
                 }
             }
         }
@@ -365,7 +365,7 @@ public enum DeleteTestUserData {
      */
     private static void cleanSthomework(final Cache cache) throws SQLException {
 
-        final List<RawSthomework> all = RawSthomeworkLogic.INSTANCE.queryAll(cache);
+        final List<RawSthomework> all = RawSthomeworkLogic.queryAll(cache);
 
         for (final RawSthomework rec : all) {
             final String stuId = rec.stuId;
@@ -373,7 +373,7 @@ public enum DeleteTestUserData {
             if (TEST_STUS.contains(stuId) || stuId.startsWith(TEST_PREFIX)) {
                 Log.info("    Deleting STHOMEWORK record for ", stuId);
                 if (!DEBUG) {
-                    RawSthomeworkLogic.INSTANCE.delete(cache, rec);
+                    RawSthomeworkLogic.delete(cache, rec);
                 }
             }
         }
@@ -387,7 +387,7 @@ public enum DeleteTestUserData {
      */
     private static void cleanStmathplan(final Cache cache) throws SQLException {
 
-        final List<RawStmathplan> all = RawStmathplanLogic.INSTANCE.queryAll(cache);
+        final List<RawStmathplan> all = RawStmathplanLogic.queryAll(cache);
 
         for (final RawStmathplan rec : all) {
             final String stuId = rec.stuId;
@@ -395,7 +395,7 @@ public enum DeleteTestUserData {
             if (TEST_STUS.contains(stuId) || stuId.startsWith(TEST_PREFIX)) {
                 Log.info("    Deleting STMATHPLAN record for ", stuId);
                 if (!DEBUG) {
-                    RawStmathplanLogic.INSTANCE.delete(cache, rec);
+                    RawStmathplanLogic.delete(cache, rec);
                 }
             }
         }
@@ -409,7 +409,7 @@ public enum DeleteTestUserData {
      */
     private static void cleanStmilestone(final Cache cache) throws SQLException {
 
-        final List<RawStmilestone> all = RawStmilestoneLogic.INSTANCE.queryAll(cache);
+        final List<RawStmilestone> all = RawStmilestoneLogic.queryAll(cache);
 
         for (final RawStmilestone rec : all) {
             final String stuId = rec.stuId;
@@ -417,7 +417,7 @@ public enum DeleteTestUserData {
             if (TEST_STUS.contains(stuId) || stuId.startsWith(TEST_PREFIX)) {
                 Log.info("    Deleting STMILESTONE record for ", stuId);
                 if (!DEBUG) {
-                    RawStmilestoneLogic.INSTANCE.delete(cache, rec);
+                    RawStmilestoneLogic.delete(cache, rec);
                 }
             }
         }
@@ -431,7 +431,7 @@ public enum DeleteTestUserData {
      */
     private static void cleanStmpe(final Cache cache) throws SQLException {
 
-        final List<RawStmpe> all = RawStmpeLogic.INSTANCE.queryAll(cache);
+        final List<RawStmpe> all = RawStmpeLogic.queryAll(cache);
 
         for (final RawStmpe rec : all) {
             final String stuId = rec.stuId;
@@ -439,7 +439,7 @@ public enum DeleteTestUserData {
             if (TEST_STUS.contains(stuId) || stuId.startsWith(TEST_PREFIX)) {
                 Log.info("    Deleting STMPE record for ", stuId);
                 if (!DEBUG) {
-                    RawStmpeLogic.INSTANCE.deleteExamAndAnswers(cache, rec);
+                    RawStmpeLogic.deleteExamAndAnswers(cache, rec);
                 }
             }
         }
@@ -453,7 +453,7 @@ public enum DeleteTestUserData {
      */
     private static void cleanStmsg(final Cache cache) throws SQLException {
 
-        final List<RawStmsg> all = RawStmsgLogic.INSTANCE.queryAll(cache);
+        final List<RawStmsg> all = RawStmsgLogic.queryAll(cache);
 
         for (final RawStmsg rec : all) {
             final String stuId = rec.stuId;
@@ -461,7 +461,7 @@ public enum DeleteTestUserData {
             if (TEST_STUS.contains(stuId) || stuId.startsWith(TEST_PREFIX)) {
                 Log.info("    Deleting STMSG record for ", stuId);
                 if (!DEBUG) {
-                    RawStmsgLogic.INSTANCE.delete(cache, rec);
+                    RawStmsgLogic.delete(cache, rec);
                 }
             }
         }
@@ -475,7 +475,7 @@ public enum DeleteTestUserData {
      */
     private static void cleanStresource(final Cache cache) throws SQLException {
 
-        final List<RawStresource> all = RawStresourceLogic.INSTANCE.queryAll(cache);
+        final List<RawStresource> all = RawStresourceLogic.queryAll(cache);
 
         for (final RawStresource rec : all) {
             final String stuId = rec.stuId;
@@ -483,7 +483,7 @@ public enum DeleteTestUserData {
             if (TEST_STUS.contains(stuId) || stuId.startsWith(TEST_PREFIX)) {
                 Log.info("    Deleting STRESOURCE record for ", stuId);
                 if (!DEBUG) {
-                    RawStresourceLogic.INSTANCE.delete(cache, rec);
+                    RawStresourceLogic.delete(cache, rec);
                 }
             }
         }
@@ -497,7 +497,7 @@ public enum DeleteTestUserData {
      */
     private static void cleanStsurveyqa(final Cache cache) throws SQLException {
 
-        final List<RawStsurveyqa> all = RawStsurveyqaLogic.INSTANCE.queryAll(cache);
+        final List<RawStsurveyqa> all = RawStsurveyqaLogic.queryAll(cache);
 
         for (final RawStsurveyqa rec : all) {
             final String stuId = rec.stuId;
@@ -505,7 +505,7 @@ public enum DeleteTestUserData {
             if (TEST_STUS.contains(stuId) || stuId.startsWith(TEST_PREFIX)) {
                 Log.info("    Deleting STSURVEYQA record for ", stuId);
                 if (!DEBUG) {
-                    RawStsurveyqaLogic.INSTANCE.delete(cache, rec);
+                    RawStsurveyqaLogic.delete(cache, rec);
                 }
             }
         }
@@ -519,7 +519,7 @@ public enum DeleteTestUserData {
      */
     private static void cleanStterm(final Cache cache) throws SQLException {
 
-        final List<RawStterm> all = RawSttermLogic.INSTANCE.queryAll(cache);
+        final List<RawStterm> all = RawSttermLogic.queryAll(cache);
 
         for (final RawStterm rec : all) {
             final String stuId = rec.stuId;
@@ -527,7 +527,7 @@ public enum DeleteTestUserData {
             if (TEST_STUS.contains(stuId) || stuId.startsWith(TEST_PREFIX)) {
                 Log.info("    Deleting STTERM record for ", stuId);
                 if (!DEBUG) {
-                    RawSttermLogic.INSTANCE.delete(cache, rec);
+                    RawSttermLogic.delete(cache, rec);
                 }
             }
         }
@@ -541,7 +541,7 @@ public enum DeleteTestUserData {
      */
     private static void cleanUsers(final Cache cache) throws SQLException {
 
-        final List<RawUsers> all = RawUsersLogic.INSTANCE.queryAll(cache);
+        final List<RawUsers> all = RawUsersLogic.queryAll(cache);
 
         for (final RawUsers rec : all) {
             final String stuId = rec.stuId;
@@ -549,7 +549,7 @@ public enum DeleteTestUserData {
             if (TEST_STUS.contains(stuId) || stuId.startsWith(TEST_PREFIX)) {
                 Log.info("    Deleting USERS record for ", stuId);
                 if (!DEBUG) {
-                    RawUsersLogic.INSTANCE.delete(cache, rec);
+                    RawUsersLogic.delete(cache, rec);
                 }
             }
         }

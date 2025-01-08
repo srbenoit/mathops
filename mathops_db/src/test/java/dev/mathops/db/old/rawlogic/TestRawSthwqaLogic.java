@@ -120,13 +120,13 @@ final class TestRawSthwqaLogic {
                 final RawSthwqa qa4 = new RawSthwqa(Long.valueOf(1004L), Integer.valueOf(5), Integer.valueOf(1), "1.1",
                         "X", "222222222", "1711H", "Y", date3, Integer.valueOf(80));
 
-                assertTrue(RawSthomeworkLogic.INSTANCE.insert(cache, raw1), "Failed to insert sthomework 1");
-                assertTrue(RawSthomeworkLogic.INSTANCE.insert(cache, raw5), "Failed to insert sthomework 5");
+                assertTrue(RawSthomeworkLogic.insert(cache, raw1), "Failed to insert sthomework 1");
+                assertTrue(RawSthomeworkLogic.insert(cache, raw5), "Failed to insert sthomework 5");
 
-                assertTrue(RawSthwqaLogic.INSTANCE.insert(cache, qa1), "Failed to insert sthwqa 1");
-                assertTrue(RawSthwqaLogic.INSTANCE.insert(cache, qa2), "Failed to insert sthwqa 2");
-                assertTrue(RawSthwqaLogic.INSTANCE.insert(cache, qa3), "Failed to insert sthwqa 3");
-                assertTrue(RawSthwqaLogic.INSTANCE.insert(cache, qa4), "Failed to insert sthwqa 4");
+                assertTrue(RawSthwqaLogic.insert(cache, qa1), "Failed to insert sthwqa 1");
+                assertTrue(RawSthwqaLogic.insert(cache, qa2), "Failed to insert sthwqa 2");
+                assertTrue(RawSthwqaLogic.insert(cache, qa3), "Failed to insert sthwqa 3");
+                assertTrue(RawSthwqaLogic.insert(cache, qa4), "Failed to insert sthwqa 4");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -146,7 +146,7 @@ final class TestRawSthwqaLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawSthwqa> all = RawSthwqaLogic.INSTANCE.queryAll(cache);
+                final List<RawSthwqa> all = RawSthwqaLogic.queryAll(cache);
 
                 assertEquals(4, all.size(), "Incorrect record count from queryAll");
 
@@ -428,7 +428,7 @@ final class TestRawSthwqaLogic {
 
                 assertTrue(result, "deleteAllForAttempt returned false");
 
-                final List<RawSthwqa> all = RawSthwqaLogic.INSTANCE.queryAll(cache);
+                final List<RawSthwqa> all = RawSthwqaLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count after deleteAllForAttempt");
 
@@ -518,10 +518,10 @@ final class TestRawSthwqaLogic {
                 final RawSthwqa qa2 = new RawSthwqa(Long.valueOf(1001L), Integer.valueOf(2), Integer.valueOf(1), "1.2",
                         "B", "111111111", "1711H", "N", date1, Integer.valueOf(78));
 
-                final boolean result = RawSthwqaLogic.INSTANCE.delete(cache, qa2);
+                final boolean result = RawSthwqaLogic.delete(cache, qa2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawSthwqa> all = RawSthwqaLogic.INSTANCE.queryAll(cache);
+                final List<RawSthwqa> all = RawSthwqaLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 

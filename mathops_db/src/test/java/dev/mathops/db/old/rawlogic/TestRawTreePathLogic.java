@@ -98,12 +98,12 @@ final class TestRawTreePathLogic {
                 final RawTreePath raw6 = new RawTreePath("private", "internet", Integer.valueOf(4), Integer.valueOf(4),
                         "PRIVATE");
 
-                assertTrue(RawTreePathLogic.INSTANCE.insert(cache, raw1), "Failed to insert tree_path");
-                assertTrue(RawTreePathLogic.INSTANCE.insert(cache, raw2), "Failed to insert tree_path");
-                assertTrue(RawTreePathLogic.INSTANCE.insert(cache, raw3), "Failed to insert tree_path");
-                assertTrue(RawTreePathLogic.INSTANCE.insert(cache, raw4), "Failed to insert tree_path");
-                assertTrue(RawTreePathLogic.INSTANCE.insert(cache, raw5), "Failed to insert tree_path");
-                assertTrue(RawTreePathLogic.INSTANCE.insert(cache, raw6), "Failed to insert tree_path");
+                assertTrue(RawTreePathLogic.insert(cache, raw1), "Failed to insert tree_path");
+                assertTrue(RawTreePathLogic.insert(cache, raw2), "Failed to insert tree_path");
+                assertTrue(RawTreePathLogic.insert(cache, raw3), "Failed to insert tree_path");
+                assertTrue(RawTreePathLogic.insert(cache, raw4), "Failed to insert tree_path");
+                assertTrue(RawTreePathLogic.insert(cache, raw5), "Failed to insert tree_path");
+                assertTrue(RawTreePathLogic.insert(cache, raw6), "Failed to insert tree_path");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -123,7 +123,7 @@ final class TestRawTreePathLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawTreePath> all = RawTreePathLogic.INSTANCE.queryAll(cache);
+                final List<RawTreePath> all = RawTreePathLogic.queryAll(cache);
 
                 assertEquals(6, all.size(), "Incorrect record count from queryAll");
 
@@ -380,10 +380,10 @@ final class TestRawTreePathLogic {
                 final RawTreePath raw2 = new RawTreePath("org", "iso", Integer.valueOf(1), Integer.valueOf(3),
                         "IDENTIFIED-ORGANIZATION");
 
-                final boolean result = RawTreePathLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawTreePathLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawTreePath> all = RawTreePathLogic.INSTANCE.queryAll(cache);
+                final List<RawTreePath> all = RawTreePathLogic.queryAll(cache);
 
                 assertEquals(5, all.size(), "Incorrect record count from queryAll");
 

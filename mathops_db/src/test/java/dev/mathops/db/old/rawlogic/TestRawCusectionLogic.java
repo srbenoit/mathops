@@ -134,11 +134,11 @@ final class TestRawCusectionLogic {
                         Integer.valueOf(1), Integer.valueOf(90), Integer.valueOf(2), date1, date2, Integer.valueOf(100),
                         Integer.valueOf(200), Integer.valueOf(5), date3, "Y", "N", Integer.valueOf(3));
 
-                assertTrue(RawCusectionLogic.INSTANCE.insert(cache, raw1), "Failed to insert cusection 1");
-                assertTrue(RawCusectionLogic.INSTANCE.insert(cache, raw2), "Failed to insert cusection 2");
-                assertTrue(RawCusectionLogic.INSTANCE.insert(cache, raw3), "Failed to insert cusection 3");
-                assertTrue(RawCusectionLogic.INSTANCE.insert(cache, raw4), "Failed to insert cusection 4");
-                assertTrue(RawCusectionLogic.INSTANCE.insert(cache, raw5), "Failed to insert cusection 5");
+                assertTrue(RawCusectionLogic.insert(cache, raw1), "Failed to insert cusection 1");
+                assertTrue(RawCusectionLogic.insert(cache, raw2), "Failed to insert cusection 2");
+                assertTrue(RawCusectionLogic.insert(cache, raw3), "Failed to insert cusection 3");
+                assertTrue(RawCusectionLogic.insert(cache, raw4), "Failed to insert cusection 4");
+                assertTrue(RawCusectionLogic.insert(cache, raw5), "Failed to insert cusection 5");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -158,7 +158,7 @@ final class TestRawCusectionLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawCusection> all = RawCusectionLogic.INSTANCE.queryAll(cache);
+                final List<RawCusection> all = RawCusectionLogic.queryAll(cache);
 
                 assertEquals(5, all.size(), "Incorrect record count from queryAll");
 
@@ -314,10 +314,10 @@ final class TestRawCusectionLogic {
                         date1, date2, Integer.valueOf(100), Integer.valueOf(200),
                         Integer.valueOf(5), date3, "Y", "N", Integer.valueOf(3));
 
-                final boolean result = RawCusectionLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawCusectionLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawCusection> all = RawCusectionLogic.INSTANCE.queryAll(cache);
+                final List<RawCusection> all = RawCusectionLogic.queryAll(cache);
 
                 assertEquals(4, all.size(), "Incorrect record count from queryAll after delete");
 

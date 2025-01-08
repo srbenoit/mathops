@@ -27,18 +27,8 @@ import java.util.List;
  * hold_id              char(2)                   no
  * </pre>
  */
-public final class RawResourceLogic extends AbstractRawLogic<RawResource> {
-
-    /** A single instance. */
-    public static final RawResourceLogic INSTANCE = new RawResourceLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawResourceLogic() {
-
-        super();
-    }
+public enum RawResourceLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -48,8 +38,7 @@ public final class RawResourceLogic extends AbstractRawLogic<RawResource> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawResource record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawResource record) throws SQLException {
 
         if (record.resourceId == null || record.resourceType == null || record.daysAllowed == null
                 || record.holdsAllowed == null || record.holdId == null) {
@@ -58,12 +47,12 @@ public final class RawResourceLogic extends AbstractRawLogic<RawResource> {
 
         final String sql = SimpleBuilder.concat("INSERT INTO resource ",
                 "(resource_id,resource_type,resource_desc,days_allowed,holds_allowed,hold_id) VALUES (",
-                sqlStringValue(record.resourceId), ",",
-                sqlStringValue(record.resourceType), ",",
-                sqlStringValue(record.resourceDesc), ",",
-                sqlIntegerValue(record.daysAllowed), ",",
-                sqlIntegerValue(record.holdsAllowed), ",",
-                sqlStringValue(record.holdId), ")");
+                LogicUtils.sqlStringValue(record.resourceId), ",",
+                LogicUtils.sqlStringValue(record.resourceType), ",",
+                LogicUtils.sqlStringValue(record.resourceDesc), ",",
+                LogicUtils.sqlIntegerValue(record.daysAllowed), ",",
+                LogicUtils.sqlIntegerValue(record.holdsAllowed), ",",
+                LogicUtils.sqlStringValue(record.holdId), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -86,11 +75,10 @@ public final class RawResourceLogic extends AbstractRawLogic<RawResource> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawResource record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawResource record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM resource ",
-                "WHERE resource_id=", sqlStringValue(record.resourceId));
+                "WHERE resource_id=", LogicUtils.sqlStringValue(record.resourceId));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -112,8 +100,7 @@ public final class RawResourceLogic extends AbstractRawLogic<RawResource> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawResource> queryAll(final Cache cache) throws SQLException {
+    public static List<RawResource> queryAll(final Cache cache) throws SQLException {
 
         final String sql = "SELECT * FROM resource";
 
@@ -142,7 +129,7 @@ public final class RawResourceLogic extends AbstractRawLogic<RawResource> {
             throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM resource",
-                " WHERE resource_id=", sqlStringValue(resourceId));
+                " WHERE resource_id=", LogicUtils.sqlStringValue(resourceId));
 
         return executeSingleQuery(cache.conn, sql);
     }

@@ -171,7 +171,7 @@ public final class ImportOdsNewStus {
         int numFail = 0;
 
         for (final RawNewstu stu : newStus.values()) {
-            if (RawNewstuLogic.INSTANCE.insert(cache, stu)) {
+            if (RawNewstuLogic.insert(cache, stu)) {
                 ++numSuccess;
             } else {
                 ++numFail;

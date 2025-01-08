@@ -33,18 +33,8 @@ import java.util.List;
  * nbr_invalid_atmpts   smallint                  yes
  * </pre>
  */
-public final class RawLoginsLogic extends AbstractRawLogic<RawLogins> {
-
-    /** A single instance. */
-    public static final RawLoginsLogic INSTANCE = new RawLoginsLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawLoginsLogic() {
-
-        super();
-    }
+public enum RawLoginsLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -54,29 +44,28 @@ public final class RawLoginsLogic extends AbstractRawLogic<RawLogins> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawLogins record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawLogins record) throws SQLException {
 
         if (record.userId == null || record.userType == null || record.userName == null
-                || record.dtimeCreated == null || record.forcePwChange == null) {
+            || record.dtimeCreated == null || record.forcePwChange == null) {
             throw new SQLException("Null value in primary key or required field.");
         }
 
         final String sql = SimpleBuilder.concat("INSERT INTO logins (user_id,user_type,user_name,stored_key,",
                 "server_key,dtime_created,dtime_expires,dtime_last_login,force_pw_change,email,salt,",
                 "nbr_invalid_atmpts) VALUES (",
-                sqlStringValue(record.userId), ",",
-                sqlStringValue(record.userType), ",",
-                sqlStringValue(record.userName), ",",
-                sqlStringValue(record.storedKey), ",",
-                sqlStringValue(record.serverKey), ",",
-                sqlDateTimeValue(record.dtimeCreated), ",",
-                sqlDateTimeValue(record.dtimeExpires), ",",
-                sqlDateTimeValue(record.dtimeLastLogin), ",",
-                sqlStringValue(record.forcePwChange), ",",
-                sqlStringValue(record.email), ",",
-                sqlStringValue(record.salt), ",",
-                sqlIntegerValue(record.nbrInvalidAtmpts), ")");
+                LogicUtils.sqlStringValue(record.userId), ",",
+                LogicUtils.sqlStringValue(record.userType), ",",
+                LogicUtils.sqlStringValue(record.userName), ",",
+                LogicUtils.sqlStringValue(record.storedKey), ",",
+                LogicUtils.sqlStringValue(record.serverKey), ",",
+                LogicUtils.sqlDateTimeValue(record.dtimeCreated), ",",
+                LogicUtils.sqlDateTimeValue(record.dtimeExpires), ",",
+                LogicUtils.sqlDateTimeValue(record.dtimeLastLogin), ",",
+                LogicUtils.sqlStringValue(record.forcePwChange), ",",
+                LogicUtils.sqlStringValue(record.email), ",",
+                LogicUtils.sqlStringValue(record.salt), ",",
+                LogicUtils.sqlIntegerValue(record.nbrInvalidAtmpts), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -99,11 +88,10 @@ public final class RawLoginsLogic extends AbstractRawLogic<RawLogins> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawLogins record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawLogins record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM logins ",
-                "WHERE user_name=", sqlStringValue(record.userName));
+                "WHERE user_name=", LogicUtils.sqlStringValue(record.userName));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -125,8 +113,7 @@ public final class RawLoginsLogic extends AbstractRawLogic<RawLogins> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawLogins> queryAll(final Cache cache) throws SQLException {
+    public static List<RawLogins> queryAll(final Cache cache) throws SQLException {
 
         final String sql = "SELECT * FROM logins";
 
@@ -154,7 +141,7 @@ public final class RawLoginsLogic extends AbstractRawLogic<RawLogins> {
     public static RawLogins query(final Cache cache, final String username) throws SQLException {
 
         return doSingleQuery(cache, SimpleBuilder.concat(
-                "SELECT * FROM logins WHERE user_name=", sqlStringValue(username)));
+                "SELECT * FROM logins WHERE user_name=", LogicUtils.sqlStringValue(username)));
     }
 
     /**
@@ -170,8 +157,8 @@ public final class RawLoginsLogic extends AbstractRawLogic<RawLogins> {
         final LocalDateTime now = LocalDateTime.now();
 
         final String sql = SimpleBuilder.concat(
-                "UPDATE logins SET dtime_last_login=", sqlDateTimeValue(now),
-                " WHERE user_name=", sqlStringValue(record.userName));
+                "UPDATE logins SET dtime_last_login=", LogicUtils.sqlDateTimeValue(now),
+                " WHERE user_name=", LogicUtils.sqlStringValue(record.userName));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) > 0;
@@ -199,8 +186,8 @@ public final class RawLoginsLogic extends AbstractRawLogic<RawLogins> {
                                               final Integer fails) throws SQLException {
 
         final String sql = SimpleBuilder.concat(
-                "UPDATE logins SET nbr_invalid_atmpts=", sqlIntegerValue(fails),
-                " WHERE user_name=", sqlStringValue(username));
+                "UPDATE logins SET nbr_invalid_atmpts=", LogicUtils.sqlIntegerValue(fails),
+                " WHERE user_name=", LogicUtils.sqlStringValue(username));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) > 0;

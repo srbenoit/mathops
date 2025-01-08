@@ -380,7 +380,7 @@ public final class ChallengeExamSession extends HtmlSessionBase {
                                     avail.exam.course, avail.exam.version, start.toLocalDate(), null, null,
                                     Long.valueOf(serial), Integer.valueOf(startTime), null);
 
-                            RawMpeLogLogic.INSTANCE.insert(cache, mpelog);
+                            RawMpeLogLogic.insert(cache, mpelog);
 
                             // Apply time limit factor adjustment
                             if (reply.presentedExam.allowedSeconds != null) {
@@ -409,7 +409,7 @@ public final class ChallengeExamSession extends HtmlSessionBase {
                                     null, null, null, avail.exam.course, avail.exam.unit,
                                     avail.exam.examType, avail.timelimitFactor, "STU");
 
-                            RawPendingExamLogic.INSTANCE.insert(cache, pending);
+                            RawPendingExamLogic.insert(cache, pending);
                         }
                     }
                 } else {
@@ -1838,7 +1838,7 @@ public final class ChallengeExamSession extends HtmlSessionBase {
                             Integer.valueOf(finishTime), Integer.valueOf(ansrec.id), ansrec.studentAnswer,
                             ansrec.correct ? "Y" : "N");
 
-            if (!RawStchallengeqaLogic.INSTANCE.insert(cache, answer)) {
+            if (!RawStchallengeqaLogic.insert(cache, answer)) {
                 Log.warning("Failed to insert challenge attempt answer");
             }
         }
@@ -1854,7 +1854,7 @@ public final class ChallengeExamSession extends HtmlSessionBase {
 
         // Last thing is to insert the actual exam row. We do this last so other jobs can know
         // that if they see a row in this table, the associated data will be present and complete.
-        if (!RawStchallengeLogic.INSTANCE.insert(cache, attempt)) {
+        if (!RawStchallengeLogic.insert(cache, attempt)) {
             return "Failed to insert student challenge exam record";
         }
 
@@ -1880,7 +1880,7 @@ public final class ChallengeExamSession extends HtmlSessionBase {
             final RawMpeCredit credit = new RawMpeCredit(stexam.studentId, placeIn, "P", stexam.finish.toLocalDate(),
                     null, stexam.serialNumber, stexam.examId, stexam.proctored ? "RM" : null);
 
-            RawMpeCreditLogic.INSTANCE.apply(cache, credit);
+            RawMpeCreditLogic.apply(cache, credit);
         }
 
         // Indicate all earned credit.
@@ -1888,7 +1888,7 @@ public final class ChallengeExamSession extends HtmlSessionBase {
             final RawMpeCredit credit = new RawMpeCredit(stexam.studentId, placeIn, "C", stexam.finish.toLocalDate(),
                     null, stexam.serialNumber, stexam.examId, stexam.proctored ? "RM" : null);
 
-            RawMpeCreditLogic.INSTANCE.apply(cache, credit);
+            RawMpeCreditLogic.apply(cache, credit);
         }
 
         // Record all ignored credit results
@@ -1897,7 +1897,7 @@ public final class ChallengeExamSession extends HtmlSessionBase {
                     stexam.finish.toLocalDate(), stexam.deniedPlacement.get(placeIn), stexam.serialNumber,
                     stexam.examId, stexam.proctored ? "RM" : null);
 
-            RawMpecrDeniedLogic.INSTANCE.insert(cache, denied);
+            RawMpecrDeniedLogic.insert(cache, denied);
         }
 
         // Record all ignored placement results
@@ -1906,7 +1906,7 @@ public final class ChallengeExamSession extends HtmlSessionBase {
                     stexam.finish.toLocalDate(), entry.getValue(), stexam.serialNumber,
                     stexam.examId, stexam.proctored ? "RM" : null);
 
-            RawMpecrDeniedLogic.INSTANCE.insert(cache, denied);
+            RawMpecrDeniedLogic.insert(cache, denied);
         }
 
         // Send results to BANNER, or store in queue table
@@ -1921,7 +1921,7 @@ public final class ChallengeExamSession extends HtmlSessionBase {
             final DbConnection liveConn = liveCtx.checkOutConnection();
             try {
                 for (final String course : stexam.earnedCredit) {
-                    RawMpscorequeueLogic.INSTANCE.postChallengeCredit(cache, liveConn, stu.pidm, course, stexam.finish);
+                    RawMpscorequeueLogic.postChallengeCredit(cache, liveConn, stu.pidm, course, stexam.finish);
                 }
             } finally {
                 liveCtx.checkInConnection(liveConn);

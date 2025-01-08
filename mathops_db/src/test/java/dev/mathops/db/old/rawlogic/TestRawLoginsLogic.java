@@ -111,8 +111,8 @@ final class TestRawLoginsLogic {
                 final RawLogins raw2 = new RawLogins("222222222", "GUE", "floppy", "d", "e", datetime3, datetime6,
                         datetime5, "N", "email@mail.net", "f", Integer.valueOf(2));
 
-                assertTrue(RawLoginsLogic.INSTANCE.insert(cache, raw1), "Failed to insert logins");
-                assertTrue(RawLoginsLogic.INSTANCE.insert(cache, raw2), "Failed to insert logins");
+                assertTrue(RawLoginsLogic.insert(cache, raw1), "Failed to insert logins");
+                assertTrue(RawLoginsLogic.insert(cache, raw2), "Failed to insert logins");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -132,7 +132,7 @@ final class TestRawLoginsLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawLogins> all = RawLoginsLogic.INSTANCE.queryAll(cache);
+                final List<RawLogins> all = RawLoginsLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll");
 
@@ -351,10 +351,10 @@ final class TestRawLoginsLogic {
                 final RawLogins raw2 = new RawLogins("222222222", "GUE", "floppy", "d", "e", datetime3, datetime6,
                         datetime5, "N", "email@mail.net", "f", Integer.valueOf(2));
 
-                final boolean result = RawLoginsLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawLoginsLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawLogins> all = RawLoginsLogic.INSTANCE.queryAll(cache);
+                final List<RawLogins> all = RawLoginsLogic.queryAll(cache);
 
                 assertEquals(1, all.size(), "Incorrect record count from queryAll after delete");
 

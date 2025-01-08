@@ -118,10 +118,10 @@ final class TestRawRemoteMpeLogic {
                 final RawRemoteMpe raw3 = new RawRemoteMpe(sp22, sp22, RawRecordConstants.M100P, date4, date6);
                 final RawRemoteMpe raw4 = new RawRemoteMpe(sp22, sp22, RawRecordConstants.M100T, date6, date7);
 
-                assertTrue(RawRemoteMpeLogic.INSTANCE.insert(cache, raw1), "Failed to insert remote_mpe 1");
-                assertTrue(RawRemoteMpeLogic.INSTANCE.insert(cache, raw2), "Failed to insert remote_mpe 2");
-                assertTrue(RawRemoteMpeLogic.INSTANCE.insert(cache, raw3), "Failed to insert remote_mpe 3");
-                assertTrue(RawRemoteMpeLogic.INSTANCE.insert(cache, raw4), "Failed to insert remote_mpe 4");
+                assertTrue(RawRemoteMpeLogic.insert(cache, raw1), "Failed to insert remote_mpe 1");
+                assertTrue(RawRemoteMpeLogic.insert(cache, raw2), "Failed to insert remote_mpe 2");
+                assertTrue(RawRemoteMpeLogic.insert(cache, raw3), "Failed to insert remote_mpe 3");
+                assertTrue(RawRemoteMpeLogic.insert(cache, raw4), "Failed to insert remote_mpe 4");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -141,7 +141,7 @@ final class TestRawRemoteMpeLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawRemoteMpe> all = RawRemoteMpeLogic.INSTANCE.queryAll(cache);
+                final List<RawRemoteMpe> all = RawRemoteMpeLogic.queryAll(cache);
 
                 assertEquals(4, all.size(), "Incorrect record count from queryAll");
 
@@ -331,10 +331,10 @@ final class TestRawRemoteMpeLogic {
             try {
                 final RawRemoteMpe raw2 = new RawRemoteMpe(fa21, sp22, RawRecordConstants.M100P, date3, date4);
 
-                final boolean result = RawRemoteMpeLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawRemoteMpeLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawRemoteMpe> all = RawRemoteMpeLogic.INSTANCE.queryAll(cache);
+                final List<RawRemoteMpe> all = RawRemoteMpeLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll after delete");
 

@@ -13,7 +13,6 @@ import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawFfrTrns;
-import dev.mathops.db.old.rawrecord.RawMpeCredit;
 import dev.mathops.db.old.rawrecord.RawPacingStructure;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawSpecialStus;
@@ -758,7 +757,7 @@ public final class SiteDataRegistration {
                             new RawStterm(term.term, this.owner.studentData.getStudent().stuId,
                                     Integer.valueOf(pace), track, first, null, null, null);
 
-                    RawSttermLogic.INSTANCE.insert(cache, model);
+                    RawSttermLogic.insert(cache, model);
                     // Now, refresh the milestone object's data, so it's current
                     this.owner.milestoneData.preload(cache);
                 }

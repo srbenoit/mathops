@@ -42,18 +42,8 @@ import java.util.List;
  * re_points_ontime     smallint                  yes
  * </pre>
  */
-public final class RawCusectionLogic extends AbstractRawLogic<RawCusection> {
-
-    /** A single instance. */
-    public static final RawCusectionLogic INSTANCE = new RawCusectionLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawCusectionLogic() {
-
-        super();
-    }
+public enum RawCusectionLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -63,8 +53,7 @@ public final class RawCusectionLogic extends AbstractRawLogic<RawCusection> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawCusection record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawCusection record) throws SQLException {
 
         if (record.course == null || record.sect == null || record.termKey == null) {
             throw new SQLException("Null value in primary key field.");
@@ -75,27 +64,27 @@ public final class RawCusectionLogic extends AbstractRawLogic<RawCusection> {
                 "hw_mastery_score,hw_moveon_score,nbr_atmpts_allow,atmpts_per_review,first_test_dt,last_test_dt,",
                 "begin_test_period,end_test_period,coupon_cost,last_coupon_dt,show_test_window,unproctored_exam,",
                 "re_points_ontime) VALUES (",
-                sqlStringValue(record.course), ",",
-                sqlStringValue(record.sect), ",",
-                sqlIntegerValue(record.unit), ",",
-                sqlStringValue(record.termKey.termCode), ",",
-                sqlIntegerValue(record.termKey.shortYear), ",",
-                sqlIntegerValue(record.timeout), ",",
-                sqlIntegerValue(record.reMasteryScore), ",",
-                sqlIntegerValue(record.ueMasteryScore), ",",
-                sqlIntegerValue(record.hwMasteryScore), ",",
-                sqlIntegerValue(record.hwMoveonScore), ",",
-                sqlIntegerValue(record.nbrAtmptsAllow), ",",
-                sqlIntegerValue(record.atmptsPerReview), ",",
-                sqlDateValue(record.firstTestDt), ",",
-                sqlDateValue(record.lastTestDt), ",",
-                sqlIntegerValue(record.beginTestPeriod), ",",
-                sqlIntegerValue(record.endTestPeriod), ",",
-                sqlIntegerValue(record.couponCost), ",",
-                sqlDateValue(record.lastCouponDt), ",",
-                sqlStringValue(record.showTestWindow), ",",
-                sqlStringValue(record.unproctoredExam), ",",
-                sqlIntegerValue(record.rePointsOntime), ")");
+                LogicUtils.sqlStringValue(record.course), ",",
+                LogicUtils.sqlStringValue(record.sect), ",",
+                LogicUtils.sqlIntegerValue(record.unit), ",",
+                LogicUtils.sqlStringValue(record.termKey.termCode), ",",
+                LogicUtils.sqlIntegerValue(record.termKey.shortYear), ",",
+                LogicUtils.sqlIntegerValue(record.timeout), ",",
+                LogicUtils.sqlIntegerValue(record.reMasteryScore), ",",
+                LogicUtils.sqlIntegerValue(record.ueMasteryScore), ",",
+                LogicUtils.sqlIntegerValue(record.hwMasteryScore), ",",
+                LogicUtils.sqlIntegerValue(record.hwMoveonScore), ",",
+                LogicUtils.sqlIntegerValue(record.nbrAtmptsAllow), ",",
+                LogicUtils.sqlIntegerValue(record.atmptsPerReview), ",",
+                LogicUtils.sqlDateValue(record.firstTestDt), ",",
+                LogicUtils.sqlDateValue(record.lastTestDt), ",",
+                LogicUtils.sqlIntegerValue(record.beginTestPeriod), ",",
+                LogicUtils.sqlIntegerValue(record.endTestPeriod), ",",
+                LogicUtils.sqlIntegerValue(record.couponCost), ",",
+                LogicUtils.sqlDateValue(record.lastCouponDt), ",",
+                LogicUtils.sqlStringValue(record.showTestWindow), ",",
+                LogicUtils.sqlStringValue(record.unproctoredExam), ",",
+                LogicUtils.sqlIntegerValue(record.rePointsOntime), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -118,15 +107,14 @@ public final class RawCusectionLogic extends AbstractRawLogic<RawCusection> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawCusection record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawCusection record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM cusection ",
-                "WHERE course=", sqlStringValue(record.course),
-                "  AND sect=", sqlStringValue(record.sect),
-                "  AND unit=", sqlIntegerValue(record.unit),
-                "  AND term=", sqlStringValue(record.termKey.termCode),
-                "  AND term_yr=", sqlIntegerValue(record.termKey.shortYear));
+                "WHERE course=", LogicUtils.sqlStringValue(record.course),
+                "  AND sect=", LogicUtils.sqlStringValue(record.sect),
+                "  AND unit=", LogicUtils.sqlIntegerValue(record.unit),
+                "  AND term=", LogicUtils.sqlStringValue(record.termKey.termCode),
+                "  AND term_yr=", LogicUtils.sqlIntegerValue(record.termKey.shortYear));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -148,8 +136,7 @@ public final class RawCusectionLogic extends AbstractRawLogic<RawCusection> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawCusection> queryAll(final Cache cache) throws SQLException {
+    public static List<RawCusection> queryAll(final Cache cache) throws SQLException {
 
         final List<RawCusection> result = new ArrayList<>(100);
 
@@ -175,8 +162,8 @@ public final class RawCusectionLogic extends AbstractRawLogic<RawCusection> {
     public static List<RawCusection> queryByTerm(final Cache cache, final TermKey termKey) throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM cusection",
-                " WHERE term=", sqlStringValue(termKey.termCode),
-                "   AND term_yr=", sqlIntegerValue(termKey.shortYear));
+                " WHERE term=", LogicUtils.sqlStringValue(termKey.termCode),
+                "   AND term_yr=", LogicUtils.sqlIntegerValue(termKey.shortYear));
 
         final List<RawCusection> result = new ArrayList<>(10);
 

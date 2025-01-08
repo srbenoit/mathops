@@ -961,7 +961,7 @@ public enum MilestoneLogic {
                         paceTrack, msNbr, msType, current, shortExtension, null, "Requested extension via website",
                         comment, "websites");
 
-                if (!RawMilestoneAppealLogic.INSTANCE.insert(cache, appealRecord)) {
+                if (!RawMilestoneAppealLogic.insert(cache, appealRecord)) {
                     Log.warning("Failed to insert MILESTONE_APPEAL record for requested extension");
                 }
 
@@ -987,7 +987,7 @@ public enum MilestoneLogic {
                     paceTrack, msNbr, msType, current, newDeadline, null, "Requested extension via website",
                     CoreConstants.EMPTY, "websites");
 
-            if (!RawMilestoneAppealLogic.INSTANCE.insert(cache, appealRecord)) {
+            if (!RawMilestoneAppealLogic.insert(cache, appealRecord)) {
                 Log.warning("Failed to insert MILESTONE_APPEAL record for requested extension");
             }
 
@@ -1040,7 +1040,7 @@ public enum MilestoneLogic {
         if (existing == null) {
             final RawStmilestone add = new RawStmilestone(termKey, stuId, paceTrack, msNbr, msType, newDeadline,
                     attempts);
-            result = RawStmilestoneLogic.INSTANCE.insert(cache, add);
+            result = RawStmilestoneLogic.insert(cache, add);
         } else {
             existing.msDate = newDeadline;
             result = RawStmilestoneLogic.update(cache, existing);
@@ -1222,7 +1222,7 @@ public enum MilestoneLogic {
                         paceTrack, msNbr, msType, current, shortExtension, null, "Requested extension via website",
                         comment, "websites");
 
-                if (!RawMilestoneAppealLogic.INSTANCE.insert(cache, appealRecord)) {
+                if (!RawMilestoneAppealLogic.insert(cache, appealRecord)) {
                     Log.warning("Failed to insert MILESTONE_APPEAL record for requested extension");
                 }
 
@@ -1239,7 +1239,7 @@ public enum MilestoneLogic {
                     paceTrack, msNbr, msType, current, newDeadline, null, "Requested extension via website",
                     CoreConstants.EMPTY, "websites");
 
-            if (!RawMilestoneAppealLogic.INSTANCE.insert(cache, appealRecord)) {
+            if (!RawMilestoneAppealLogic.insert(cache, appealRecord)) {
                 Log.warning("Failed to insert MILESTONE_APPEAL record for requested extension");
             }
 

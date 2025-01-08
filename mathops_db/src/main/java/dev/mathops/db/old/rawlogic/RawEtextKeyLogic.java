@@ -24,18 +24,8 @@ import java.util.List;
  * active_dt            datetime year to second   yes
  * </pre>
  */
-public final class RawEtextKeyLogic extends AbstractRawLogic<RawEtextKey> {
-
-    /** A single instance. */
-    public static final RawEtextKeyLogic INSTANCE = new RawEtextKeyLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawEtextKeyLogic() {
-
-        super();
-    }
+public enum RawEtextKeyLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -45,8 +35,7 @@ public final class RawEtextKeyLogic extends AbstractRawLogic<RawEtextKey> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawEtextKey record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawEtextKey record) throws SQLException {
 
         if (record.etextKey == null) {
             throw new SQLException("Null value in primary key field.");
@@ -54,9 +43,9 @@ public final class RawEtextKeyLogic extends AbstractRawLogic<RawEtextKey> {
 
         final String sql = SimpleBuilder.concat("INSERT INTO etext_key ",
                 "(etext_id,etext_key,active_dt) VALUES (",
-                sqlStringValue(record.etextId), ",",
-                sqlStringValue(record.etextKey), ",",
-                sqlDateTimeValue(record.activeDt), ")");
+                LogicUtils.sqlStringValue(record.etextId), ",",
+                LogicUtils.sqlStringValue(record.etextKey), ",",
+                LogicUtils.sqlDateTimeValue(record.activeDt), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -79,11 +68,10 @@ public final class RawEtextKeyLogic extends AbstractRawLogic<RawEtextKey> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawEtextKey record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawEtextKey record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM etext_key ",
-                "WHERE etext_key=", sqlStringValue(record.etextKey));
+                "WHERE etext_key=", LogicUtils.sqlStringValue(record.etextKey));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -105,8 +93,7 @@ public final class RawEtextKeyLogic extends AbstractRawLogic<RawEtextKey> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawEtextKey> queryAll(final Cache cache) throws SQLException {
+    public static List<RawEtextKey> queryAll(final Cache cache) throws SQLException {
 
         final List<RawEtextKey> result = new ArrayList<>(500);
 
@@ -137,7 +124,7 @@ public final class RawEtextKeyLogic extends AbstractRawLogic<RawEtextKey> {
 
         final String sql = SimpleBuilder.concat(
                 "SELECT * FROM etext_key WHERE etext_key=",
-                sqlStringValue(etextKey));
+                LogicUtils.sqlStringValue(etextKey));
 
         try (final Statement stmt = cache.conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
@@ -163,7 +150,7 @@ public final class RawEtextKeyLogic extends AbstractRawLogic<RawEtextKey> {
                                          final LocalDateTime newActiveDt) throws SQLException {
 
         final String sql = SimpleBuilder.concat("UPDATE etext_key SET active_dt=",
-                sqlDateTimeValue(newActiveDt), " WHERE etext_key=", sqlStringValue(etextKey));
+                LogicUtils.sqlDateTimeValue(newActiveDt), " WHERE etext_key=", LogicUtils.sqlStringValue(etextKey));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             return stmt.executeUpdate(sql) == 1;

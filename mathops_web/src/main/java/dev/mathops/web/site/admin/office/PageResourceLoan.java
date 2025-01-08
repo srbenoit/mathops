@@ -143,7 +143,7 @@ enum PageResourceLoan {
                                     today, Integer.valueOf(start), due, null, null, Integer.valueOf(0),
                                     today);
 
-                            if (RawStresourceLogic.INSTANCE.insert(cache, loan)) {
+                            if (RawStresourceLogic.insert(cache, loan)) {
                                 emitStudentIdField(htm, stuId, true, false);
                                 emitInfo(htm, name);
                                 emitResourceIdField(htm, resId, true, false);

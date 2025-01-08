@@ -27,18 +27,8 @@ import java.util.List;
  *
  * </pre>
  */
-public final class RawPlcFeeLogic extends AbstractRawLogic<RawPlcFee> {
-
-    /** A single instance. */
-    public static final RawPlcFeeLogic INSTANCE = new RawPlcFeeLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawPlcFeeLogic() {
-
-        super();
-    }
+public enum RawPlcFeeLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -48,8 +38,7 @@ public final class RawPlcFeeLogic extends AbstractRawLogic<RawPlcFee> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawPlcFee record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawPlcFee record) throws SQLException {
 
         if (record.stuId == null || record.course == null || record.examDt == null || record.billDt == null) {
             throw new SQLException("Null value in primary key or required field.");
@@ -57,10 +46,10 @@ public final class RawPlcFeeLogic extends AbstractRawLogic<RawPlcFee> {
 
         final String sql = SimpleBuilder.concat(
                 "INSERT INTO plc_fee (stu_id,course,exam_dt,bill_dt) VALUES (",
-                sqlStringValue(record.stuId), ",",
-                sqlStringValue(record.course), ",",
-                sqlDateValue(record.examDt), ",",
-                sqlDateValue(record.billDt), ")");
+                LogicUtils.sqlStringValue(record.stuId), ",",
+                LogicUtils.sqlStringValue(record.course), ",",
+                LogicUtils.sqlDateValue(record.examDt), ",",
+                LogicUtils.sqlDateValue(record.billDt), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -83,12 +72,11 @@ public final class RawPlcFeeLogic extends AbstractRawLogic<RawPlcFee> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawPlcFee record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawPlcFee record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM plc_fee ",
-                "WHERE stu_id=", sqlStringValue(record.stuId),
-                "  AND course=", sqlStringValue(record.course));
+                "WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                "  AND course=", LogicUtils.sqlStringValue(record.course));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -110,8 +98,7 @@ public final class RawPlcFeeLogic extends AbstractRawLogic<RawPlcFee> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawPlcFee> queryAll(final Cache cache) throws SQLException {
+    public static List<RawPlcFee> queryAll(final Cache cache) throws SQLException {
 
         final String sql = "SELECT * FROM plc_fee";
 
@@ -139,7 +126,7 @@ public final class RawPlcFeeLogic extends AbstractRawLogic<RawPlcFee> {
     public static RawPlcFee queryByStudent(final Cache cache, final String stuId)
             throws SQLException {
 
-        return executeSingleQuery(cache, "SELECT * FROM plc_fee WHERE stu_id=" + sqlStringValue(stuId));
+        return executeSingleQuery(cache, "SELECT * FROM plc_fee WHERE stu_id=" + LogicUtils.sqlStringValue(stuId));
     }
 
     /**

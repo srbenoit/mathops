@@ -20,15 +20,8 @@ import java.sql.Statement;
  * descr                char(6)                   no      PK
  * </pre>
  */
-public final class RawWhichDbLogic extends AbstractLogicModule {
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawWhichDbLogic() {
-
-        super();
-    }
+public enum RawWhichDbLogic {
+    ;
 
     /**
      * Gets the first record found in a query of all records (there should be only one).

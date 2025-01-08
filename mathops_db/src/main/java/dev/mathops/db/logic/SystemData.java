@@ -302,7 +302,7 @@ public final class SystemData {
     public List<RawHoldType> getHoldTypes() throws SQLException {
 
         if (this.holdTypes == null) {
-            this.holdTypes = RawHoldTypeLogic.INSTANCE.queryAll(this.cache);
+            this.holdTypes = RawHoldTypeLogic.queryAll(this.cache);
         }
 
         return this.holdTypes;
@@ -339,7 +339,7 @@ public final class SystemData {
     public List<RawCampusCalendar> getCampusCalendars() throws SQLException {
 
         if (this.campusCalendars == null) {
-            this.campusCalendars = RawCampusCalendarLogic.INSTANCE.queryAll(this.cache);
+            this.campusCalendars = RawCampusCalendarLogic.queryAll(this.cache);
         }
 
         return this.campusCalendars;
@@ -440,7 +440,7 @@ public final class SystemData {
     public List<RawSemesterCalendar> getSemesterCalendars() throws SQLException {
 
         if (this.semesterCalendars == null) {
-            this.semesterCalendars = RawSemesterCalendarLogic.INSTANCE.queryAll(this.cache);
+            this.semesterCalendars = RawSemesterCalendarLogic.queryAll(this.cache);
             Collections.sort(this.semesterCalendars);
         }
 
@@ -456,7 +456,7 @@ public final class SystemData {
     public List<RawCourse> getCourses() throws SQLException {
 
         if (this.courses == null) {
-            this.courses = RawCourseLogic.INSTANCE.queryAll(this.cache);
+            this.courses = RawCourseLogic.queryAll(this.cache);
             this.courses.sort(null);
         }
 
@@ -1282,7 +1282,7 @@ public final class SystemData {
     public List<RawMilestone> getMilestones() throws SQLException {
 
         if (this.milestones == null) {
-            this.milestones = RawMilestoneLogic.INSTANCE.queryAll(this.cache);
+            this.milestones = RawMilestoneLogic.queryAll(this.cache);
             Collections.sort(this.milestones);
         }
 
@@ -1409,7 +1409,7 @@ public final class SystemData {
     private List<RawRemoteMpe> getRemotePlacementWindows() throws SQLException {
 
         if (this.remotePlacementWindows == null) {
-            this.remotePlacementWindows = RawRemoteMpeLogic.INSTANCE.queryAll(this.cache);
+            this.remotePlacementWindows = RawRemoteMpeLogic.queryAll(this.cache);
         }
 
         return this.remotePlacementWindows;
@@ -1445,7 +1445,7 @@ public final class SystemData {
     public List<RawEtext> getETexts() throws SQLException {
 
         if (this.etexts == null) {
-            this.etexts = RawEtextLogic.INSTANCE.queryAll(this.cache);
+            this.etexts = RawEtextLogic.queryAll(this.cache);
         }
 
         return this.etexts;
@@ -1482,7 +1482,7 @@ public final class SystemData {
     private List<RawEtextCourse> getETextCourses() throws SQLException {
 
         if (this.etextCourses == null) {
-            this.etextCourses = RawEtextCourseLogic.INSTANCE.queryAll(this.cache);
+            this.etextCourses = RawEtextCourseLogic.queryAll(this.cache);
         }
 
         return this.etextCourses;
@@ -1780,7 +1780,7 @@ public final class SystemData {
     public List<RawClientPc> getClientPcs() throws SQLException {
 
         if (this.clientPCs == null) {
-            this.clientPCs = RawClientPcLogic.INSTANCE.queryAll(this.cache);
+            this.clientPCs = RawClientPcLogic.queryAll(this.cache);
         }
 
         return this.clientPCs;
@@ -1846,7 +1846,7 @@ public final class SystemData {
     private List<RawTestingCenter> getTestingCenters() throws SQLException {
 
         if (this.testingCenters == null) {
-            this.testingCenters = RawTestingCenterLogic.INSTANCE.queryAll(this.cache);
+            this.testingCenters = RawTestingCenterLogic.queryAll(this.cache);
         }
 
         return this.testingCenters;

@@ -381,7 +381,7 @@ public enum PlacementBilling {
             final RawPlcFee rec = new RawPlcFee(stuId, "M 100P", examDt, today);
 
             try {
-                RawPlcFeeLogic.INSTANCE.insert(cache, rec);
+                RawPlcFeeLogic.insert(cache, rec);
             } catch (final SQLException ex) {
                 Log.warning("Failed to insert 'plc_fee' record", ex);
             }

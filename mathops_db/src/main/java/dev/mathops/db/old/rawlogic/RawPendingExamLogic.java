@@ -35,18 +35,8 @@ import java.util.List;
  * stu_type             char(3)                   yes
  * </pre>
  */
-public final class RawPendingExamLogic extends AbstractRawLogic<RawPendingExam> {
-
-    /** A single instance. */
-    public static final RawPendingExamLogic INSTANCE = new RawPendingExamLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawPendingExamLogic() {
-
-        super();
-    }
+public enum RawPendingExamLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -56,8 +46,7 @@ public final class RawPendingExamLogic extends AbstractRawLogic<RawPendingExam> 
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawPendingExam record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawPendingExam record) throws SQLException {
 
         if (record.serialNbr == null || record.version == null || record.stuId == null
                 || record.examDt == null || record.startTime == null || record.course == null
@@ -69,21 +58,21 @@ public final class RawPendingExamLogic extends AbstractRawLogic<RawPendingExam> 
                 "INSERT INTO pending_exam (serial_nbr,version,stu_id,exam_dt,exam_score,",
                 "start_time,finish_time,time_ok,passed,seq_nbr,course,unit,exam_type,",
                 "timelimit_factor,stu_type) VALUES (",
-                sqlLongValue(record.serialNbr), ",",
-                sqlStringValue(record.version), ",",
-                sqlStringValue(record.stuId), ",",
-                sqlDateValue(record.examDt), ",",
-                sqlIntegerValue(record.examScore), ",",
-                sqlIntegerValue(record.startTime), ",",
-                sqlIntegerValue(record.finishTime), ",",
-                sqlStringValue(record.timeOk), ",",
-                sqlStringValue(record.passed), ",",
-                sqlIntegerValue(record.seqNbr), ",",
-                sqlStringValue(record.course), ",",
-                sqlIntegerValue(record.unit), ",",
-                sqlStringValue(record.examType), ",",
-                sqlFloatValue(record.timelimitFactor), ",",
-                sqlStringValue(record.stuType), ")");
+                LogicUtils.sqlLongValue(record.serialNbr), ",",
+                LogicUtils.sqlStringValue(record.version), ",",
+                LogicUtils.sqlStringValue(record.stuId), ",",
+                LogicUtils.sqlDateValue(record.examDt), ",",
+                LogicUtils.sqlIntegerValue(record.examScore), ",",
+                LogicUtils.sqlIntegerValue(record.startTime), ",",
+                LogicUtils.sqlIntegerValue(record.finishTime), ",",
+                LogicUtils.sqlStringValue(record.timeOk), ",",
+                LogicUtils.sqlStringValue(record.passed), ",",
+                LogicUtils.sqlIntegerValue(record.seqNbr), ",",
+                LogicUtils.sqlStringValue(record.course), ",",
+                LogicUtils.sqlIntegerValue(record.unit), ",",
+                LogicUtils.sqlStringValue(record.examType), ",",
+                LogicUtils.sqlFloatValue(record.timelimitFactor), ",",
+                LogicUtils.sqlStringValue(record.stuType), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -106,12 +95,11 @@ public final class RawPendingExamLogic extends AbstractRawLogic<RawPendingExam> 
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawPendingExam record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawPendingExam record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM pending_exam ",
-                " WHERE serial_nbr=", sqlLongValue(record.serialNbr),
-                "   AND stu_id=", sqlStringValue(record.stuId));
+                " WHERE serial_nbr=", LogicUtils.sqlLongValue(record.serialNbr),
+                "   AND stu_id=", LogicUtils.sqlStringValue(record.stuId));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -138,8 +126,8 @@ public final class RawPendingExamLogic extends AbstractRawLogic<RawPendingExam> 
     public static boolean delete(final Cache cache, final Long serialNbr, final String stuId) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM pending_exam ",
-                " WHERE serial_nbr=", sqlLongValue(serialNbr),
-                "   AND stu_id=", sqlStringValue(stuId));
+                " WHERE serial_nbr=", LogicUtils.sqlLongValue(serialNbr),
+                "   AND stu_id=", LogicUtils.sqlStringValue(stuId));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -161,8 +149,7 @@ public final class RawPendingExamLogic extends AbstractRawLogic<RawPendingExam> 
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawPendingExam> queryAll(final Cache cache) throws SQLException {
+    public static List<RawPendingExam> queryAll(final Cache cache) throws SQLException {
 
         final List<RawPendingExam> result = new ArrayList<>(100);
 
@@ -190,7 +177,7 @@ public final class RawPendingExamLogic extends AbstractRawLogic<RawPendingExam> 
 
         final List<RawPendingExam> result = new ArrayList<>(10);
 
-        final String sql = "SELECT * FROM pending_exam WHERE stu_id=" + sqlStringValue(stuId);
+        final String sql = "SELECT * FROM pending_exam WHERE stu_id=" + LogicUtils.sqlStringValue(stuId);
 
         try (final Statement stmt = cache.conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {

@@ -28,24 +28,14 @@ import java.util.List;
  * exam_source          char(2)           yes
  * </pre>
  */
-public final class RawMpecrDeniedLogic extends AbstractRawLogic<RawMpecrDenied> {
-
-    /** A single instance. */
-    public static final RawMpecrDeniedLogic INSTANCE = new RawMpecrDeniedLogic();
+public enum RawMpecrDeniedLogic {
+    ;
 
     /** The field code to indicate denial by prerequisite failure. */
     public static final String DENIED_BY_PREREQ = "PQ";
 
     /** The field code to indicate denial by validation failure. */
     public static final String DENIED_BY_VAL = "V";
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawMpecrDeniedLogic() {
-
-        super();
-    }
 
     /**
      * Inserts a new record.
@@ -55,8 +45,7 @@ public final class RawMpecrDeniedLogic extends AbstractRawLogic<RawMpecrDenied> 
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawMpecrDenied record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawMpecrDenied record) throws SQLException {
 
         final boolean result;
 
@@ -66,14 +55,14 @@ public final class RawMpecrDeniedLogic extends AbstractRawLogic<RawMpecrDenied> 
             final String sql = SimpleBuilder.concat(
                     "INSERT INTO mpecr_denied (stu_id,course,exam_placed,exam_dt,",
                     "why_denied,serial_nbr,version,exam_source) VALUES (",
-                    sqlStringValue(record.stuId), ",",
-                    sqlStringValue(record.course), ",",
-                    sqlStringValue(record.examPlaced), ",",
-                    sqlDateValue(record.examDt), ",",
-                    sqlStringValue(record.whyDenied), ",",
-                    sqlLongValue(record.serialNbr), ",",
-                    sqlStringValue(record.version), ",",
-                    sqlStringValue(record.examSource), ")");
+                    LogicUtils.sqlStringValue(record.stuId), ",",
+                    LogicUtils.sqlStringValue(record.course), ",",
+                    LogicUtils.sqlStringValue(record.examPlaced), ",",
+                    LogicUtils.sqlDateValue(record.examDt), ",",
+                    LogicUtils.sqlStringValue(record.whyDenied), ",",
+                    LogicUtils.sqlLongValue(record.serialNbr), ",",
+                    LogicUtils.sqlStringValue(record.version), ",",
+                    LogicUtils.sqlStringValue(record.examSource), ")");
 
             try (final Statement stmt = cache.conn.createStatement()) {
                 result = stmt.executeUpdate(sql) == 1;
@@ -97,16 +86,15 @@ public final class RawMpecrDeniedLogic extends AbstractRawLogic<RawMpecrDenied> 
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawMpecrDenied record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawMpecrDenied record) throws SQLException {
 
         final boolean result;
 
         final String sql = SimpleBuilder.concat("DELETE FROM mpecr_denied ",
-                "WHERE stu_id=", sqlStringValue(record.stuId),
-                "  AND course=", sqlStringValue(record.course),
-                "  AND exam_dt=", sqlDateValue(record.examDt),
-                "  AND serial_nbr=", sqlLongValue(record.serialNbr));
+                "WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                "  AND course=", LogicUtils.sqlStringValue(record.course),
+                "  AND exam_dt=", LogicUtils.sqlDateValue(record.examDt),
+                "  AND serial_nbr=", LogicUtils.sqlLongValue(record.serialNbr));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             result = stmt.executeUpdate(sql) == 1;
@@ -128,8 +116,7 @@ public final class RawMpecrDeniedLogic extends AbstractRawLogic<RawMpecrDenied> 
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawMpecrDenied> queryAll(final Cache cache) throws SQLException {
+    public static List<RawMpecrDenied> queryAll(final Cache cache) throws SQLException {
 
         final List<RawMpecrDenied> result = new ArrayList<>(500);
 
@@ -157,7 +144,7 @@ public final class RawMpecrDeniedLogic extends AbstractRawLogic<RawMpecrDenied> 
 
         final String sql = SimpleBuilder.concat(
                 "SELECT * FROM mpecr_denied",
-                " WHERE stu_id=", sqlStringValue(stuId));
+                " WHERE stu_id=", LogicUtils.sqlStringValue(stuId));
 
         final List<RawMpecrDenied> result = new ArrayList<>(50);
 
@@ -184,7 +171,7 @@ public final class RawMpecrDeniedLogic extends AbstractRawLogic<RawMpecrDenied> 
 
         final String sql = SimpleBuilder.concat(
                 "SELECT * FROM mpecr_denied",
-                " WHERE serial_nbr=", sqlLongValue(serialNbr));
+                " WHERE serial_nbr=", LogicUtils.sqlLongValue(serialNbr));
 
         final List<RawMpecrDenied> result = new ArrayList<>(50);
 

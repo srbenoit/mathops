@@ -387,7 +387,7 @@ public final class HomeworkSession extends HtmlSessionBase {
                             "Y", "N", avail.assignmentType, avail.courseId, sect, avail.unit, avail.objective, "N",
                             null, null);
 
-                    if (!RawSthomeworkLogic.INSTANCE.insert(cache, sthw)) {
+                    if (!RawSthomeworkLogic.insert(cache, sthw)) {
                         error = "Failed to record start of assignment";
                     }
                 }
@@ -1252,7 +1252,7 @@ public final class HomeworkSession extends HtmlSessionBase {
                 hw.objective, "N", null, null);
 
         final String error;
-        if (RawSthomeworkLogic.INSTANCE.insert(cache, sthw)) {
+        if (RawSthomeworkLogic.insert(cache, sthw)) {
             error = recordQuestionAnswers(cache, hw, sthw.serialNbr);
         } else {
             error = "Failed to record assignment credit";
@@ -1316,7 +1316,7 @@ public final class HomeworkSession extends HtmlSessionBase {
                     new String(ans), this.studentId, hw.assignmentId, selected.isCorrect(answers[i]) ? "Y" : "N",
                     fin.toLocalDate(), Integer.valueOf(finTime));
 
-            if (!RawSthwqaLogic.INSTANCE.insert(cache, sthwqa)) {
+            if (!RawSthwqaLogic.insert(cache, sthwqa)) {
                 error = "There was an error recording the assignment score.";
                 break;
             }

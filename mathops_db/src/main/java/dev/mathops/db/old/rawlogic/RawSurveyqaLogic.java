@@ -35,18 +35,8 @@ import java.util.TreeMap;
  * tree_ref             char(40)          yes
  * </pre>
  */
-public final class RawSurveyqaLogic extends AbstractRawLogic<RawSurveyqa> {
-
-    /** A single instance. */
-    public static final RawSurveyqaLogic INSTANCE = new RawSurveyqaLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawSurveyqaLogic() {
-
-        super();
-    }
+public enum RawSurveyqaLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -56,8 +46,7 @@ public final class RawSurveyqaLogic extends AbstractRawLogic<RawSurveyqa> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawSurveyqa record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawSurveyqa record) throws SQLException {
 
         if (record.termKey == null || record.version == null || record.surveyNbr == null
                 || record.questionDesc == null || record.answer == null || record.answerDesc == null) {
@@ -67,17 +56,17 @@ public final class RawSurveyqaLogic extends AbstractRawLogic<RawSurveyqa> {
         final String sql = SimpleBuilder.concat(
                 "INSERT INTO surveyqa (term,term_yr,version,survey_nbr,question_desc,type_question,answer,",
                 "answer_desc,answer_meaning,must_answer,tree_ref) VALUES (",
-                sqlStringValue(record.termKey.termCode), ",",
-                sqlIntegerValue(record.termKey.shortYear), ",",
-                sqlStringValue(record.version), ",",
-                sqlIntegerValue(record.surveyNbr), ",",
-                sqlStringValue(record.questionDesc), ",",
-                sqlStringValue(record.typeQuestion), ",",
-                sqlStringValue(record.answer), ",",
-                sqlStringValue(record.answerDesc), ",",
-                sqlStringValue(record.answerMeaning), ",",
-                sqlStringValue(record.mustAnswer), ",",
-                sqlStringValue(record.treeRef), ")");
+                LogicUtils.sqlStringValue(record.termKey.termCode), ",",
+                LogicUtils.sqlIntegerValue(record.termKey.shortYear), ",",
+                LogicUtils.sqlStringValue(record.version), ",",
+                LogicUtils.sqlIntegerValue(record.surveyNbr), ",",
+                LogicUtils.sqlStringValue(record.questionDesc), ",",
+                LogicUtils.sqlStringValue(record.typeQuestion), ",",
+                LogicUtils.sqlStringValue(record.answer), ",",
+                LogicUtils.sqlStringValue(record.answerDesc), ",",
+                LogicUtils.sqlStringValue(record.answerMeaning), ",",
+                LogicUtils.sqlStringValue(record.mustAnswer), ",",
+                LogicUtils.sqlStringValue(record.treeRef), ")");
 
         try (final Statement s = cache.conn.createStatement()) {
             final boolean result = s.executeUpdate(sql) == 1;
@@ -100,15 +89,14 @@ public final class RawSurveyqaLogic extends AbstractRawLogic<RawSurveyqa> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawSurveyqa record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawSurveyqa record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM surveyqa ",
-                "WHERE term=", sqlStringValue(record.termKey.termCode),
-                "  AND term_yr=", sqlIntegerValue(record.termKey.shortYear),
-                "  AND version=", sqlStringValue(record.version),
-                "  AND survey_nbr=", sqlIntegerValue(record.surveyNbr),
-                "  AND answer=", sqlStringValue(record.answer));
+                "WHERE term=", LogicUtils.sqlStringValue(record.termKey.termCode),
+                "  AND term_yr=", LogicUtils.sqlIntegerValue(record.termKey.shortYear),
+                "  AND version=", LogicUtils.sqlStringValue(record.version),
+                "  AND survey_nbr=", LogicUtils.sqlIntegerValue(record.surveyNbr),
+                "  AND answer=", LogicUtils.sqlStringValue(record.answer));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -130,8 +118,7 @@ public final class RawSurveyqaLogic extends AbstractRawLogic<RawSurveyqa> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawSurveyqa> queryAll(final Cache cache) throws SQLException {
+    public static List<RawSurveyqa> queryAll(final Cache cache) throws SQLException {
 
         return executeQuery(cache, "SELECT * FROM surveyqa");
     }
@@ -149,8 +136,8 @@ public final class RawSurveyqaLogic extends AbstractRawLogic<RawSurveyqa> {
 
         final String sql = SimpleBuilder.concat(
                 "SELECT * FROM surveyqa",
-                " WHERE term=", sqlStringValue(termKey.termCode),
-                "   AND term_yr=", sqlIntegerValue(termKey.shortYear));
+                " WHERE term=", LogicUtils.sqlStringValue(termKey.termCode),
+                "   AND term_yr=", LogicUtils.sqlIntegerValue(termKey.shortYear));
 
         return executeQuery(cache, sql);
     }
@@ -170,9 +157,9 @@ public final class RawSurveyqaLogic extends AbstractRawLogic<RawSurveyqa> {
 
         final String sql = SimpleBuilder.concat(
                 "SELECT * FROM surveyqa",
-                " WHERE version=", sqlStringValue(theVersion),
-                "   AND term=", sqlStringValue(active.term.termCode),
-                "   AND term_yr=", sqlIntegerValue(active.term.shortYear));
+                " WHERE version=", LogicUtils.sqlStringValue(theVersion),
+                "   AND term=", LogicUtils.sqlStringValue(active.term.termCode),
+                "   AND term_yr=", LogicUtils.sqlIntegerValue(active.term.shortYear));
 
         return executeQuery(cache, sql);
     }
@@ -216,10 +203,10 @@ public final class RawSurveyqaLogic extends AbstractRawLogic<RawSurveyqa> {
 
         final String sql = SimpleBuilder.concat(
                 "SELECT * FROM surveyqa",
-                " WHERE version=", sqlStringValue(theVersion),
-                "   AND survey_nbr=", sqlIntegerValue(theSurveyNbr),
-                "   AND term=", sqlStringValue(active.term.termCode),
-                "   AND term_yr=", sqlIntegerValue(active.term.shortYear),
+                " WHERE version=", LogicUtils.sqlStringValue(theVersion),
+                "   AND survey_nbr=", LogicUtils.sqlIntegerValue(theSurveyNbr),
+                "   AND term=", LogicUtils.sqlStringValue(active.term.termCode),
+                "   AND term_yr=", LogicUtils.sqlIntegerValue(active.term.shortYear),
                 " ORDER BY answer DESC");
 
         return executeQuery(cache, sql);

@@ -29,18 +29,8 @@ import java.util.List;
  * ans_correct          char(1)                   yes
  * </pre>
  */
-public final class RawStchallengeqaLogic extends AbstractRawLogic<RawStchallengeqa> {
-
-    /** A single instance. */
-    public static final RawStchallengeqaLogic INSTANCE = new RawStchallengeqaLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawStchallengeqaLogic() {
-
-        super();
-    }
+public enum RawStchallengeqaLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -50,8 +40,7 @@ public final class RawStchallengeqaLogic extends AbstractRawLogic<RawStchallenge
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawStchallengeqa record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawStchallengeqa record) throws SQLException {
 
         if (record.stuId == null || record.course == null || record.version == null
                 || record.examDt == null || record.finishTime == null || record.questionNbr == null) {
@@ -61,14 +50,14 @@ public final class RawStchallengeqaLogic extends AbstractRawLogic<RawStchallenge
         final String sql = SimpleBuilder.concat(
                 "INSERT INTO stchallengeqa (stu_id,course,version,exam_dt,finish_time,",
                 "question_nbr,stu_answer,ans_correct) VALUES (",
-                sqlStringValue(record.stuId), ",",
-                sqlStringValue(record.course), ",",
-                sqlStringValue(record.version), ",",
-                sqlDateValue(record.examDt), ",",
-                sqlIntegerValue(record.finishTime), ",",
-                sqlIntegerValue(record.questionNbr), ",",
-                sqlStringValue(record.stuAnswer), ",",
-                sqlStringValue(record.ansCorrect), ")");
+                LogicUtils.sqlStringValue(record.stuId), ",",
+                LogicUtils.sqlStringValue(record.course), ",",
+                LogicUtils.sqlStringValue(record.version), ",",
+                LogicUtils.sqlDateValue(record.examDt), ",",
+                LogicUtils.sqlIntegerValue(record.finishTime), ",",
+                LogicUtils.sqlIntegerValue(record.questionNbr), ",",
+                LogicUtils.sqlStringValue(record.stuAnswer), ",",
+                LogicUtils.sqlStringValue(record.ansCorrect), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -91,15 +80,14 @@ public final class RawStchallengeqaLogic extends AbstractRawLogic<RawStchallenge
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawStchallengeqa record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawStchallengeqa record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM stchallengeqa ",
-                "WHERE stu_id=", sqlStringValue(record.stuId),
-                "  AND course=", sqlStringValue(record.course),
-                "  AND exam_dt=", sqlDateValue(record.examDt),
-                "  AND finish_time=", sqlIntegerValue(record.finishTime),
-                "  AND question_nbr=", sqlIntegerValue(record.questionNbr));
+                "WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                "  AND course=", LogicUtils.sqlStringValue(record.course),
+                "  AND exam_dt=", LogicUtils.sqlDateValue(record.examDt),
+                "  AND finish_time=", LogicUtils.sqlIntegerValue(record.finishTime),
+                "  AND question_nbr=", LogicUtils.sqlIntegerValue(record.questionNbr));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -125,9 +113,9 @@ public final class RawStchallengeqaLogic extends AbstractRawLogic<RawStchallenge
     public static boolean deleteAllForAttempt(final Cache cache, final RawStchallenge record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM stchallengeqa ",
-                "WHERE stu_id=", sqlStringValue(record.stuId),
-                "  AND course=", sqlStringValue(record.course),
-                "  AND exam_dt=", sqlDateValue(record.examDt));
+                "WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                "  AND course=", LogicUtils.sqlStringValue(record.course),
+                "  AND exam_dt=", LogicUtils.sqlDateValue(record.examDt));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             stmt.executeUpdate(sql);
@@ -143,8 +131,7 @@ public final class RawStchallengeqaLogic extends AbstractRawLogic<RawStchallenge
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawStchallengeqa> queryAll(final Cache cache) throws SQLException {
+    public static List<RawStchallengeqa> queryAll(final Cache cache) throws SQLException {
 
         final String sql = "SELECT * FROM stchallengeqa";
 

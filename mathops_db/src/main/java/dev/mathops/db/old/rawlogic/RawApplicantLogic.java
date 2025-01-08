@@ -41,18 +41,8 @@ import java.util.List;
  * apln_term            char(6)           no
  * </pre>
  */
-public final class RawApplicantLogic extends AbstractRawLogic<RawApplicant> {
-
-    /** A single instance. */
-    public static final RawApplicantLogic INSTANCE = new RawApplicantLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawApplicantLogic() {
-
-        super();
-    }
+public enum RawApplicantLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -62,8 +52,7 @@ public final class RawApplicantLogic extends AbstractRawLogic<RawApplicant> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawApplicant record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawApplicant record) throws SQLException {
 
         if (record.stuId == null) {
             throw new SQLException("Null value in primary key or required field.");
@@ -81,26 +70,26 @@ public final class RawApplicantLogic extends AbstractRawLogic<RawApplicant> {
                     "INSERT INTO applicant (stu_id,first_name,last_name,birthdate,ethnicity,gender,college,prog_study,",
                     "hs_code,tr_credits,resident,resident_state,resident_county,hs_gpa,hs_class_rank,hs_size_class,",
                     "act_score,sat_score,pidm,apln_term) VALUES (",
-                    sqlStringValue(record.stuId), ",",
-                    sqlStringValue(record.firstName), ",",
-                    sqlStringValue(record.lastName), ",",
-                    sqlDateValue(record.birthdate), ",",
-                    sqlStringValue(record.ethnicity), ",",
-                    sqlStringValue(record.gender), ",",
-                    sqlStringValue(record.college), ",",
-                    sqlStringValue(record.progStudy), ",",
-                    sqlStringValue(record.hsCode), ",",
-                    sqlStringValue(record.trCredits), ",",
-                    sqlStringValue(record.resident), ",",
-                    sqlStringValue(record.residentState), ",",
-                    sqlStringValue(record.residentCounty), ",",
-                    sqlStringValue(record.hsGpa), ",",
-                    sqlIntegerValue(record.hsClassRank), ",",
-                    sqlIntegerValue(record.hsSizeClass), ",",
-                    sqlIntegerValue(record.actScore), ",",
-                    sqlIntegerValue(record.satScore), ",",
-                    sqlIntegerValue(record.pidm), ",",
-                    sqlStringValue(apln), ")");
+                    LogicUtils.sqlStringValue(record.stuId), ",",
+                    LogicUtils.sqlStringValue(record.firstName), ",",
+                    LogicUtils.sqlStringValue(record.lastName), ",",
+                    LogicUtils.sqlDateValue(record.birthdate), ",",
+                    LogicUtils.sqlStringValue(record.ethnicity), ",",
+                    LogicUtils.sqlStringValue(record.gender), ",",
+                    LogicUtils.sqlStringValue(record.college), ",",
+                    LogicUtils.sqlStringValue(record.progStudy), ",",
+                    LogicUtils.sqlStringValue(record.hsCode), ",",
+                    LogicUtils.sqlStringValue(record.trCredits), ",",
+                    LogicUtils.sqlStringValue(record.resident), ",",
+                    LogicUtils.sqlStringValue(record.residentState), ",",
+                    LogicUtils.sqlStringValue(record.residentCounty), ",",
+                    LogicUtils.sqlStringValue(record.hsGpa), ",",
+                    LogicUtils.sqlIntegerValue(record.hsClassRank), ",",
+                    LogicUtils.sqlIntegerValue(record.hsSizeClass), ",",
+                    LogicUtils.sqlIntegerValue(record.actScore), ",",
+                    LogicUtils.sqlIntegerValue(record.satScore), ",",
+                    LogicUtils.sqlIntegerValue(record.pidm), ",",
+                    LogicUtils.sqlStringValue(apln), ")");
 
             try (final Statement stmt = cache.conn.createStatement()) {
                 result = stmt.executeUpdate(sql) == 1;
@@ -124,14 +113,13 @@ public final class RawApplicantLogic extends AbstractRawLogic<RawApplicant> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawApplicant record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawApplicant record) throws SQLException {
 
         final boolean result;
 
         final HtmlBuilder sql = new HtmlBuilder(100);
 
-        sql.add("DELETE FROM applicant WHERE stu_id=", sqlStringValue(record.stuId));
+        sql.add("DELETE FROM applicant WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             result = stmt.executeUpdate(sql.toString()) == 1;
@@ -153,8 +141,7 @@ public final class RawApplicantLogic extends AbstractRawLogic<RawApplicant> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawApplicant> queryAll(final Cache cache) throws SQLException {
+    public static List<RawApplicant> queryAll(final Cache cache) throws SQLException {
 
         return executeQuery(cache, "SELECT * FROM applicant");
     }
@@ -170,7 +157,8 @@ public final class RawApplicantLogic extends AbstractRawLogic<RawApplicant> {
     public static List<RawApplicant> queryByStudent(final Cache cache, final String stuId)
             throws SQLException {
 
-        final String sql = SimpleBuilder.concat("SELECT * FROM applicant WHERE stu_id=", sqlStringValue(stuId));
+        final String sql = SimpleBuilder.concat(
+                "SELECT * FROM applicant WHERE stu_id=", LogicUtils.sqlStringValue(stuId));
 
         return executeQuery(cache, sql);
     }

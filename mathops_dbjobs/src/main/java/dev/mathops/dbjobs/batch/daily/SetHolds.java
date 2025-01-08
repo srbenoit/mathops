@@ -87,7 +87,7 @@ public enum SetHolds {
 
         final TermRec active = cache.getSystemData().getActiveTerm();
 
-        final List<RawStresource> resources = RawStresourceLogic.INSTANCE.queryAll(cache);
+        final List<RawStresource> resources = RawStresourceLogic.queryAll(cache);
 
         // Add warning hold for students who have an unreturned rental calculator (once per term, near the end)
         endDate = active.endDate.minusDays(8L);
@@ -142,7 +142,7 @@ public enum SetHolds {
                     Log.info("  Adding hold " + LATE_RENTAL_CALC_HOLD + FOR_STUDENT + student);
 
                     if (!DEBUG) {
-                        RawAdminHoldLogic.INSTANCE.insert(cache, hold);
+                        RawAdminHoldLogic.insert(cache, hold);
                     }
                 } else {
                     Log.info("  Retaining existing hold " + LATE_RENTAL_CALC_HOLD + FOR_STUDENT + student);
@@ -202,7 +202,7 @@ public enum SetHolds {
                         Log.info("  Adding hold " + res.holdId + FOR_STUDENT + stres.stuId);
 
                         if (!DEBUG) {
-                            RawAdminHoldLogic.INSTANCE.insert(cache, hold);
+                            RawAdminHoldLogic.insert(cache, hold);
                         }
                         ++count;
                     } else {
@@ -518,7 +518,7 @@ public enum SetHolds {
                     }
                 }
                 if (searching) {
-                    RawAdminHoldLogic.INSTANCE.insert(cache, hold);
+                    RawAdminHoldLogic.insert(cache, hold);
                 }
             }
 
@@ -539,7 +539,7 @@ public enum SetHolds {
 
                     if (searching) {
                         Log.info("Removing hold ", holdId, " for student '", stuId, "'");
-                        RawAdminHoldLogic.INSTANCE.delete(cache, test);
+                        RawAdminHoldLogic.delete(cache, test);
 
                         switch (holdId) {
                             case "03" -> ++num03Removed;
@@ -573,7 +573,7 @@ public enum SetHolds {
      */
     private static void reconcileStudentTableWithHolds(final Cache cache) throws SQLException {
 
-        final List<RawAdminHold> allStudentHolds = RawAdminHoldLogic.INSTANCE.queryAll(cache);
+        final List<RawAdminHold> allStudentHolds = RawAdminHoldLogic.queryAll(cache);
         final int numStudentHolds = allStudentHolds.size();
 
         final Collection<String> withFatalHolds = new HashSet<>(numStudentHolds);
@@ -587,7 +587,7 @@ public enum SetHolds {
             }
         }
 
-        final List<RawStudent> allStudents = RawStudentLogic.INSTANCE.queryAll(cache);
+        final List<RawStudent> allStudents = RawStudentLogic.queryAll(cache);
 
         int numCleared = 0;
         int numFatalSet = 0;

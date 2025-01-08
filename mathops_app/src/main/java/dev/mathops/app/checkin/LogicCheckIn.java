@@ -226,7 +226,7 @@ public final class LogicCheckIn {
                     final Integer paceObj = Integer.valueOf(pace);
                     stterm = new RawStterm(this.activeTerm.term, stuId, paceObj, paceTrack, first, null, null, null);
                     try {
-                        RawSttermLogic.INSTANCE.insert(this.cache, stterm);
+                        RawSttermLogic.insert(this.cache, stterm);
                     } catch (final SQLException ex) {
                         // Even if this insert fails, we can continue with the STTERM row we have created
                         Log.warning(ex);

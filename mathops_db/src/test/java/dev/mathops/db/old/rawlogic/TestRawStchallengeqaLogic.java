@@ -137,18 +137,18 @@ final class TestRawStchallengeqaLogic {
                 final RawStchallengeqa qa33 = new RawStchallengeqa("222222222", RawRecordConstants.M124, "124CH",
                         date3, Integer.valueOf(202), Integer.valueOf(3), "X3", "N");
 
-                assertTrue(RawStchallengeLogic.INSTANCE.insert(cache, raw1), "Failed to insert stchallenge");
-                assertTrue(RawStchallengeLogic.INSTANCE.insert(cache, raw2), "Failed to insert stchallenge");
-                assertTrue(RawStchallengeLogic.INSTANCE.insert(cache, raw3), "Failed to insert stchallenge");
-                assertTrue(RawStchallengeqaLogic.INSTANCE.insert(cache, qa11), "Failed to insert stchallengeqa");
-                assertTrue(RawStchallengeqaLogic.INSTANCE.insert(cache, qa12), "Failed to insert stchallengeqa");
-                assertTrue(RawStchallengeqaLogic.INSTANCE.insert(cache, qa13), "Failed to insert stchallengeqa");
-                assertTrue(RawStchallengeqaLogic.INSTANCE.insert(cache, qa21), "Failed to insert stchallengeqa");
-                assertTrue(RawStchallengeqaLogic.INSTANCE.insert(cache, qa22), "Failed to insert stchallengeqa");
-                assertTrue(RawStchallengeqaLogic.INSTANCE.insert(cache, qa23), "Failed to insert stchallengeqa");
-                assertTrue(RawStchallengeqaLogic.INSTANCE.insert(cache, qa31), "Failed to insert stchallengeqa");
-                assertTrue(RawStchallengeqaLogic.INSTANCE.insert(cache, qa32), "Failed to insert stchallengeqa");
-                assertTrue(RawStchallengeqaLogic.INSTANCE.insert(cache, qa33), "Failed to insert stchallengeqa");
+                assertTrue(RawStchallengeLogic.insert(cache, raw1), "Failed to insert stchallenge");
+                assertTrue(RawStchallengeLogic.insert(cache, raw2), "Failed to insert stchallenge");
+                assertTrue(RawStchallengeLogic.insert(cache, raw3), "Failed to insert stchallenge");
+                assertTrue(RawStchallengeqaLogic.insert(cache, qa11), "Failed to insert stchallengeqa");
+                assertTrue(RawStchallengeqaLogic.insert(cache, qa12), "Failed to insert stchallengeqa");
+                assertTrue(RawStchallengeqaLogic.insert(cache, qa13), "Failed to insert stchallengeqa");
+                assertTrue(RawStchallengeqaLogic.insert(cache, qa21), "Failed to insert stchallengeqa");
+                assertTrue(RawStchallengeqaLogic.insert(cache, qa22), "Failed to insert stchallengeqa");
+                assertTrue(RawStchallengeqaLogic.insert(cache, qa23), "Failed to insert stchallengeqa");
+                assertTrue(RawStchallengeqaLogic.insert(cache, qa31), "Failed to insert stchallengeqa");
+                assertTrue(RawStchallengeqaLogic.insert(cache, qa32), "Failed to insert stchallengeqa");
+                assertTrue(RawStchallengeqaLogic.insert(cache, qa33), "Failed to insert stchallengeqa");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -168,7 +168,7 @@ final class TestRawStchallengeqaLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawStchallengeqa> all = RawStchallengeqaLogic.INSTANCE.queryAll(cache);
+                final List<RawStchallengeqa> all = RawStchallengeqaLogic.queryAll(cache);
 
                 assertEquals(9, all.size(), "Incorrect record count from queryAll");
 
@@ -332,7 +332,7 @@ final class TestRawStchallengeqaLogic {
 
                 assertTrue(result, "deleteAllForAttempt returned false");
 
-                final List<RawStchallengeqa> all = RawStchallengeqaLogic.INSTANCE.queryAll(cache);
+                final List<RawStchallengeqa> all = RawStchallengeqaLogic.queryAll(cache);
 
                 assertEquals(6, all.size(), "Incorrect record count from queryAll after deleteAllForAttempt");
 
@@ -453,11 +453,11 @@ final class TestRawStchallengeqaLogic {
                 final RawStchallengeqa qa23 = new RawStchallengeqa("222222222", RawRecordConstants.M118, "118CH",
                         date2, Integer.valueOf(201), Integer.valueOf(3), "A3", "N");
 
-                final boolean result = RawStchallengeqaLogic.INSTANCE.delete(cache, qa23);
+                final boolean result = RawStchallengeqaLogic.delete(cache, qa23);
 
                 assertTrue(result, "delete returned false");
 
-                final List<RawStchallengeqa> all = RawStchallengeqaLogic.INSTANCE.queryAll(cache);
+                final List<RawStchallengeqa> all = RawStchallengeqaLogic.queryAll(cache);
 
                 assertEquals(5, all.size(), "Incorrect record count from queryAll after delete");
 

@@ -88,8 +88,8 @@ final class TestRawHoldTypeLogic {
                 final RawHoldType raw1 = new RawHoldType("AA", "B", "C", "D", "E");
                 final RawHoldType raw2 = new RawHoldType("FF", "G", "H", "I", "J");
 
-                assertTrue(RawHoldTypeLogic.INSTANCE.insert(cache, raw1), "Failed to insert hold_type");
-                assertTrue(RawHoldTypeLogic.INSTANCE.insert(cache, raw2), "Failed to insert hold_type");
+                assertTrue(RawHoldTypeLogic.insert(cache, raw1), "Failed to insert hold_type");
+                assertTrue(RawHoldTypeLogic.insert(cache, raw2), "Failed to insert hold_type");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -109,7 +109,7 @@ final class TestRawHoldTypeLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawHoldType> all = RawHoldTypeLogic.INSTANCE.queryAll(cache);
+                final List<RawHoldType> all = RawHoldTypeLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll");
 
@@ -167,10 +167,10 @@ final class TestRawHoldTypeLogic {
             try {
                 final RawHoldType raw2 = new RawHoldType("FF", "G", "H", "I", "J");
 
-                final boolean result = RawHoldTypeLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawHoldTypeLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawHoldType> all = RawHoldTypeLogic.INSTANCE.queryAll(cache);
+                final List<RawHoldType> all = RawHoldTypeLogic.queryAll(cache);
 
                 assertEquals(1, all.size(), "Incorrect record count from queryAll after delete");
 

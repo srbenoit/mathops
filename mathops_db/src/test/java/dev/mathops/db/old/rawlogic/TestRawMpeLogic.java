@@ -89,9 +89,9 @@ final class TestRawMpeLogic {
                 final RawMpe raw2 = new RawMpe("MPTUN", Integer.valueOf(1), Integer.valueOf(0));
                 final RawMpe raw3 = new RawMpe("MPTPU", Integer.valueOf(0), Integer.valueOf(1));
 
-                assertTrue(RawMpeLogic.INSTANCE.insert(cache, raw1), "Failed to insert mpe 1");
-                assertTrue(RawMpeLogic.INSTANCE.insert(cache, raw2), "Failed to insert mpe 2");
-                assertTrue(RawMpeLogic.INSTANCE.insert(cache, raw3), "Failed to insert mpe 3");
+                assertTrue(RawMpeLogic.insert(cache, raw1), "Failed to insert mpe 1");
+                assertTrue(RawMpeLogic.insert(cache, raw2), "Failed to insert mpe 2");
+                assertTrue(RawMpeLogic.insert(cache, raw3), "Failed to insert mpe 3");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -111,7 +111,7 @@ final class TestRawMpeLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawMpe> all = RawMpeLogic.INSTANCE.queryAll(cache);
+                final List<RawMpe> all = RawMpeLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -169,10 +169,10 @@ final class TestRawMpeLogic {
             try {
                 final RawMpe raw2 = new RawMpe("MPTUN", Integer.valueOf(1), Integer.valueOf(0));
 
-                final boolean result = RawMpeLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawMpeLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawMpe> all = RawMpeLogic.INSTANCE.queryAll(cache);
+                final List<RawMpe> all = RawMpeLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 

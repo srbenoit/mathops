@@ -101,7 +101,7 @@ enum StudentReconciliation {
                     Log.fine(" Course Order:", rec.orderEnforce);
                     Log.fine(" When Created:", rec.createDt);
                 } else {
-                    RawStudentLogic.INSTANCE.insert(cache, rec);
+                    RawStudentLogic.insert(cache, rec);
                 }
 
                 ++insertCount;

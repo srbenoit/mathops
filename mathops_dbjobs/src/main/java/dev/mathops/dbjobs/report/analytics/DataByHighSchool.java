@@ -99,14 +99,14 @@ final class DataByHighSchool {
 
         try {
             log(reportLog, "Querying all students");
-            final List<RawStudent> allStudents = RawStudentLogic.INSTANCE.queryAll(this.cache);
+            final List<RawStudent> allStudents = RawStudentLogic.queryAll(this.cache);
             final int numStudents = allStudents.size();
             final String numStudentsStr = Integer.toString(numStudents);
             log(reportLog, "    Loaded ", numStudentsStr, " student records.");
             log(reportLog, CoreConstants.EMPTY);
 
             log(reportLog, "Querying all high schools");
-            final List<RawHighSchools> allHs = RawHighSchoolsLogic.INSTANCE.queryAll(this.cache);
+            final List<RawHighSchools> allHs = RawHighSchoolsLogic.queryAll(this.cache);
             final int numHs = allHs.size();
             final String numHsStr = Integer.toString(numHs);
             log(reportLog, "    Loaded ", numHsStr, " high school.");
@@ -254,7 +254,7 @@ final class DataByHighSchool {
                                                               final HtmlBuilder reportLog) throws SQLException {
 
         log(reportLog, "Querying all placement attempt records");
-        final List<RawStmpe> allStmpe = RawStmpeLogic.INSTANCE.queryAll(this.cache);
+        final List<RawStmpe> allStmpe = RawStmpeLogic.queryAll(this.cache);
         final int numPlacementAttempts = allStmpe.size();
         final String numPlacementAttemptsStr = Integer.toString(numPlacementAttempts);
         log(reportLog, "    Loaded ", numPlacementAttemptsStr, " placement attempts records.");

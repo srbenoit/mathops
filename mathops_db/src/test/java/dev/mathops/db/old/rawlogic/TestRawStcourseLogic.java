@@ -469,16 +469,16 @@ final class TestRawStcourseLogic {
 
                 assertTrue(systemData.insertTerm(term1), "Failed to insert term 1");
                 assertTrue(systemData.insertTerm(term2), "Failed to insert term 2");
-                assertTrue(RawStcourseLogic.INSTANCE.insert(cache, raw1), "Failed to insert stcourse 1");
-                assertTrue(RawStcourseLogic.INSTANCE.insert(cache, raw2), "Failed to insert stcourse 2");
-                assertTrue(RawStcourseLogic.INSTANCE.insert(cache, raw3), "Failed to insert stcourse 3");
-                assertTrue(RawStcourseLogic.INSTANCE.insert(cache, raw4), "Failed to insert stcourse 4");
-                assertTrue(RawStcourseLogic.INSTANCE.insert(cache, raw5), "Failed to insert stcourse 5");
-                assertTrue(RawStcourseLogic.INSTANCE.insert(cache, raw6), "Failed to insert stcourse 6");
-                assertTrue(RawStcourseLogic.INSTANCE.insert(cache, raw7), "Failed to insert stcourse 7");
-                assertTrue(RawStcourseLogic.INSTANCE.insert(cache, raw8), "Failed to insert stcourse 8");
-                assertTrue(RawStcourseLogic.INSTANCE.insert(cache, raw9), "Failed to insert stcourse 9");
-                assertTrue(RawStcourseLogic.INSTANCE.insert(cache, raw10), "Failed to insert stcourse 10");
+                assertTrue(RawStcourseLogic.insert(cache, raw1), "Failed to insert stcourse 1");
+                assertTrue(RawStcourseLogic.insert(cache, raw2), "Failed to insert stcourse 2");
+                assertTrue(RawStcourseLogic.insert(cache, raw3), "Failed to insert stcourse 3");
+                assertTrue(RawStcourseLogic.insert(cache, raw4), "Failed to insert stcourse 4");
+                assertTrue(RawStcourseLogic.insert(cache, raw5), "Failed to insert stcourse 5");
+                assertTrue(RawStcourseLogic.insert(cache, raw6), "Failed to insert stcourse 6");
+                assertTrue(RawStcourseLogic.insert(cache, raw7), "Failed to insert stcourse 7");
+                assertTrue(RawStcourseLogic.insert(cache, raw8), "Failed to insert stcourse 8");
+                assertTrue(RawStcourseLogic.insert(cache, raw9), "Failed to insert stcourse 9");
+                assertTrue(RawStcourseLogic.insert(cache, raw10), "Failed to insert stcourse 10");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -498,7 +498,7 @@ final class TestRawStcourseLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawStcourse> all = RawStcourseLogic.INSTANCE.queryAll(cache);
+                final List<RawStcourse> all = RawStcourseLogic.queryAll(cache);
 
                 assertEquals(10, all.size(), "Incorrect record count from queryAll");
 
@@ -2106,10 +2106,10 @@ final class TestRawStcourseLogic {
                         null, // i_term / i_term_yr
                         null); // i_deadline_dt
 
-                final boolean result = RawStcourseLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawStcourseLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawStcourse> all = RawStcourseLogic.INSTANCE.queryAll(cache);
+                final List<RawStcourse> all = RawStcourseLogic.queryAll(cache);
 
                 assertEquals(9, all.size(), "Incorrect record count from queryAll after delete");
 

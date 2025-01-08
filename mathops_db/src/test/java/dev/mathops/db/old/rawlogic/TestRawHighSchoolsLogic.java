@@ -94,9 +94,9 @@ final class TestRawHighSchoolsLogic {
                 final RawHighSchools raw3 = new RawHighSchools("HS3", "High School 3", "Addr 3", "City 3", "S3",
                         "ZIP03");
 
-                assertTrue(RawHighSchoolsLogic.INSTANCE.insert(cache, raw1), "Failed to insert high_schools 1");
-                assertTrue(RawHighSchoolsLogic.INSTANCE.insert(cache, raw2), "Failed to insert high_schools 2");
-                assertTrue(RawHighSchoolsLogic.INSTANCE.insert(cache, raw3), "Failed to insert high_schools 3");
+                assertTrue(RawHighSchoolsLogic.insert(cache, raw1), "Failed to insert high_schools 1");
+                assertTrue(RawHighSchoolsLogic.insert(cache, raw2), "Failed to insert high_schools 2");
+                assertTrue(RawHighSchoolsLogic.insert(cache, raw3), "Failed to insert high_schools 3");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -116,7 +116,7 @@ final class TestRawHighSchoolsLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawHighSchools> all = RawHighSchoolsLogic.INSTANCE.queryAll(cache);
+                final List<RawHighSchools> all = RawHighSchoolsLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -178,10 +178,10 @@ final class TestRawHighSchoolsLogic {
                 final RawHighSchools raw2 = new RawHighSchools("HS2", "High School 2", "Addr 2", "City 2", "S2",
                         "ZIP02");
 
-                final boolean result = RawHighSchoolsLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawHighSchoolsLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawHighSchools> all = RawHighSchoolsLogic.INSTANCE.queryAll(cache);
+                final List<RawHighSchools> all = RawHighSchoolsLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 

@@ -224,7 +224,7 @@ final class InitialCohortAssignment {
         final RawStterm record = RawSttermLogic.query(cache, this.active.term, stuId);
 
         if (record == null) {
-            failed = !RawSttermLogic.INSTANCE.insert(cache, new RawStterm(this.active.term, stuId,
+            failed = !RawSttermLogic.insert(cache, new RawStterm(this.active.term, stuId,
                     Integer.valueOf(pace), track, firstCourse, cohort, null, null));
         } else if (record.termKey.equals(this.active.term)) {
             failed = !RawSttermLogic.updateCohort(cache, stuId, this.active.term, cohort);
@@ -239,7 +239,7 @@ final class InitialCohortAssignment {
         } else {
             Log.warning("Existing STTERM record for ", stuId,
                     " does not match active term!");
-            failed = !RawSttermLogic.INSTANCE.insert(cache, new RawStterm(this.active.term, stuId,
+            failed = !RawSttermLogic.insert(cache, new RawStterm(this.active.term, stuId,
                     Integer.valueOf(pace), track, firstCourse, cohort, null, null));
         }
 
@@ -265,7 +265,7 @@ final class InitialCohortAssignment {
         final boolean failed;
 
         if (existing == null) {
-            failed = !RawCohortLogic.INSTANCE.insert(cache,
+            failed = !RawCohortLogic.insert(cache,
                     new RawCohort(cohortId, Integer.valueOf(cohortSize), null));
         } else {
             failed = !RawCohortLogic.updateCohortSize(cache, cohortId, Integer.valueOf(cohortSize));

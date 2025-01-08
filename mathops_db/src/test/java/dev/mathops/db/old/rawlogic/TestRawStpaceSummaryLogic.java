@@ -127,9 +127,9 @@ final class TestRawStpaceSummaryLogic {
                         Integer.valueOf(3), "C", Integer.valueOf(2), Integer.valueOf(321), Integer.valueOf(1), date5,
                         "D", date6, Integer.valueOf(9));
 
-                assertTrue(RawStpaceSummaryLogic.INSTANCE.insert(cache, raw1), "Failed to insert stpace_summary 1");
-                assertTrue(RawStpaceSummaryLogic.INSTANCE.insert(cache, raw2), "Failed to insert stpace_summary 2");
-                assertTrue(RawStpaceSummaryLogic.INSTANCE.insert(cache, raw3), "Failed to insert stpace_summary 3");
+                assertTrue(RawStpaceSummaryLogic.insert(cache, raw1), "Failed to insert stpace_summary 1");
+                assertTrue(RawStpaceSummaryLogic.insert(cache, raw2), "Failed to insert stpace_summary 2");
+                assertTrue(RawStpaceSummaryLogic.insert(cache, raw3), "Failed to insert stpace_summary 3");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -149,7 +149,7 @@ final class TestRawStpaceSummaryLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawStpaceSummary> all = RawStpaceSummaryLogic.INSTANCE.queryAll(cache);
+                final List<RawStpaceSummary> all = RawStpaceSummaryLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -251,10 +251,10 @@ final class TestRawStpaceSummaryLogic {
                         Integer.valueOf(4), "B", Integer.valueOf(3), Integer.valueOf(432), Integer.valueOf(2), date3,
                         "N", date4, Integer.valueOf(5));
 
-                final boolean result = RawStpaceSummaryLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawStpaceSummaryLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawStpaceSummary> all = RawStpaceSummaryLogic.INSTANCE.queryAll(cache);
+                final List<RawStpaceSummary> all = RawStpaceSummaryLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 

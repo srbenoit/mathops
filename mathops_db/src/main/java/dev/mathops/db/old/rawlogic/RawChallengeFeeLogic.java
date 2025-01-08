@@ -24,18 +24,8 @@ import java.util.List;
  * bill_dt              date                       no
  * </pre>
  */
-public final class RawChallengeFeeLogic extends AbstractRawLogic<RawChallengeFee> {
-
-    /** A single instance. */
-    public static final RawChallengeFeeLogic INSTANCE = new RawChallengeFeeLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawChallengeFeeLogic() {
-
-        super();
-    }
+public enum RawChallengeFeeLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -45,8 +35,7 @@ public final class RawChallengeFeeLogic extends AbstractRawLogic<RawChallengeFee
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawChallengeFee record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawChallengeFee record) throws SQLException {
 
         if (record.stuId == null || record.course == null || record.examDt == null || record.billDt == null) {
 
@@ -55,10 +44,10 @@ public final class RawChallengeFeeLogic extends AbstractRawLogic<RawChallengeFee
 
         final String sql = SimpleBuilder.concat(
                 "INSERT INTO challenge_fee (stu_id,course,exam_dt,bill_dt) VALUES (",
-                sqlStringValue(record.stuId), ",",
-                sqlStringValue(record.course), ",",
-                sqlDateValue(record.examDt), ",",
-                sqlDateValue(record.billDt), ")");
+                LogicUtils.sqlStringValue(record.stuId), ",",
+                LogicUtils.sqlStringValue(record.course), ",",
+                LogicUtils.sqlDateValue(record.examDt), ",",
+                LogicUtils.sqlDateValue(record.billDt), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -81,12 +70,11 @@ public final class RawChallengeFeeLogic extends AbstractRawLogic<RawChallengeFee
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawChallengeFee record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawChallengeFee record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM challenge_fee ",
-                "WHERE stu_id=", sqlStringValue(record.stuId),
-                "  AND course=", sqlStringValue(record.course));
+                "WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                "  AND course=", LogicUtils.sqlStringValue(record.course));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -108,8 +96,7 @@ public final class RawChallengeFeeLogic extends AbstractRawLogic<RawChallengeFee
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawChallengeFee> queryAll(final Cache cache) throws SQLException {
+    public static List<RawChallengeFee> queryAll(final Cache cache) throws SQLException {
 
         return executeListQuery(cache, "SELECT * FROM challenge_fee");
     }
@@ -124,7 +111,8 @@ public final class RawChallengeFeeLogic extends AbstractRawLogic<RawChallengeFee
      */
     public static List<RawChallengeFee> queryByStudent(final Cache cache, final String stuId) throws SQLException {
 
-        return executeListQuery(cache, "SELECT * FROM challenge_fee WHERE stu_id=" + sqlStringValue(stuId));
+        return executeListQuery(cache,
+                "SELECT * FROM challenge_fee WHERE stu_id=" + LogicUtils.sqlStringValue(stuId));
     }
 
     /**
@@ -140,7 +128,8 @@ public final class RawChallengeFeeLogic extends AbstractRawLogic<RawChallengeFee
                                                        final String course) throws SQLException {
 
         return executeSingleQuery(cache, "SELECT * FROM challenge_fee WHERE stu_id="
-                + sqlStringValue(stuId) + " AND course=" + sqlStringValue(course));
+                                         + LogicUtils.sqlStringValue(stuId)
+                                         + " AND course=" + LogicUtils.sqlStringValue(course));
     }
 
     /**

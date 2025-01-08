@@ -101,9 +101,9 @@ final class TestRawEtextKeyLogic {
                 final RawEtextKey raw2 = new RawEtextKey("PACE", "789012", null);
                 final RawEtextKey raw3 = new RawEtextKey(RawRecordConstants.M117, "ABC", datetime2);
 
-                assertTrue(RawEtextKeyLogic.INSTANCE.insert(cache, raw1), "Failed to insert etext_key");
-                assertTrue(RawEtextKeyLogic.INSTANCE.insert(cache, raw2), "Failed to insert etext_key");
-                assertTrue(RawEtextKeyLogic.INSTANCE.insert(cache, raw3), "Failed to insert etext_key");
+                assertTrue(RawEtextKeyLogic.insert(cache, raw1), "Failed to insert etext_key");
+                assertTrue(RawEtextKeyLogic.insert(cache, raw2), "Failed to insert etext_key");
+                assertTrue(RawEtextKeyLogic.insert(cache, raw3), "Failed to insert etext_key");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -123,7 +123,7 @@ final class TestRawEtextKeyLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawEtextKey> all = RawEtextKeyLogic.INSTANCE.queryAll(cache);
+                final List<RawEtextKey> all = RawEtextKeyLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -235,10 +235,10 @@ final class TestRawEtextKeyLogic {
             try {
                 final RawEtextKey raw2 = new RawEtextKey("PACE", "789012", null);
 
-                final boolean result = RawEtextKeyLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawEtextKeyLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawEtextKey> all = RawEtextKeyLogic.INSTANCE.queryAll(cache);
+                final List<RawEtextKey> all = RawEtextKeyLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 

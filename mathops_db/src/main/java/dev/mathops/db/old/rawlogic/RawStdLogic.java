@@ -13,18 +13,8 @@ import java.util.List;
  * <p>
  * There is currently no table for this data - it is hard-coded into this class.
  */
-public final class RawStdLogic extends AbstractRawLogic<RawStd> {
-
-    /** A single instance. */
-    public static final RawStdLogic INSTANCE = new RawStdLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawStdLogic() {
-
-        super();
-    }
+public enum RawStdLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -33,8 +23,7 @@ public final class RawStdLogic extends AbstractRawLogic<RawStd> {
      * @param record the record to insert
      * @return {@code true} if successful; {@code false} if not
      */
-    @Override
-    public boolean insert(final Cache cache, final RawStd record) {
+    public static boolean insert(final Cache cache, final RawStd record) {
 
         Log.warning("Unable to insert std record: no underlying table.");
 
@@ -48,8 +37,7 @@ public final class RawStdLogic extends AbstractRawLogic<RawStd> {
      * @param record the record to delete
      * @return {@code true} if successful; {@code false} if not
      */
-    @Override
-    public boolean delete(final Cache cache, final RawStd record) {
+    public static boolean delete(final Cache cache, final RawStd record) {
 
         Log.warning("Unable to delete std record: no underlying table.");
 
@@ -62,8 +50,7 @@ public final class RawStdLogic extends AbstractRawLogic<RawStd> {
      * @param cache the data cache
      * @return the list of records
      */
-    @Override
-    public List<RawStd> queryAll(final Cache cache) {
+    public static List<RawStd> queryAll(final Cache cache) {
 
         final List<RawStd> result = new ArrayList<>(100);
 

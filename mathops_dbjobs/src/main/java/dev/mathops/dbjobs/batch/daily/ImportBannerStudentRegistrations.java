@@ -33,7 +33,6 @@ import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.schema.AbstractImpl;
 import dev.mathops.db.old.svc.term.TermRec;
-import dev.mathops.db.type.TermKey;
 import dev.mathops.dbjobs.report.SpecialOpenReport;
 import dev.mathops.text.builder.HtmlBuilder;
 
@@ -707,7 +706,7 @@ public final class ImportBannerStudentRegistrations {
                     report.add("  Placement credit record to be added to STCOURSE for " + newRec.stuId + " / "
                                + newRec.course + SECTION + newRec.sect + " (" + newRec.instrnType + ")");
                     if (!DEBUG) {
-                        RawStcourseLogic.INSTANCE.insert(cache, newRec);
+                        RawStcourseLogic.insert(cache, newRec);
                     }
                     ++numAdded;
                 }
@@ -729,7 +728,7 @@ public final class ImportBannerStudentRegistrations {
                 try {
                     report.add("  Placement credit record in STCOURSE for " + nextDb.stuId + " / " + nextDb.course
                                + " is not present in Banner data and will be deleted.");
-                    if (!DEBUG && !RawStcourseLogic.INSTANCE.delete(cache, nextDb)) {
+                    if (!DEBUG && !RawStcourseLogic.delete(cache, nextDb)) {
                         report.add("  *** ERROR deleting STCOURSE placement credit record.");
                     }
                 } catch (final SQLException ex) {
@@ -958,7 +957,7 @@ public final class ImportBannerStudentRegistrations {
 
                 final RawDupRegistr dup = new RawDupRegistr(odsReg);
                 if (!DEBUG) {
-                    RawDupRegistrLogic.INSTANCE.insert(cache, dup);
+                    RawDupRegistrLogic.insert(cache, dup);
                 }
 
                 report.add("  *** DUPLICATE loaded into DUP_REGISTR " + odsReg.course + SECTION + odsReg.sect + FOR
@@ -1036,7 +1035,7 @@ public final class ImportBannerStudentRegistrations {
                 existing.lastClassRollDt = LocalDate.now();
 
                 if (!DEBUG) {
-                    RawStcourseLogic.INSTANCE.insert(cache, existing);
+                    RawStcourseLogic.insert(cache, existing);
 
                     final List<RawStcourse> regs = RawStcourseLogic.getActiveForStudent(cache, odsReg.stuId,
                             active.term);
@@ -1107,7 +1106,7 @@ public final class ImportBannerStudentRegistrations {
                 null); // iDeadlineDt
 
         if (!DEBUG) {
-            RawStcourseLogic.INSTANCE.insert(cache, toInsert);
+            RawStcourseLogic.insert(cache, toInsert);
         }
 
         report.add("  STCOURSE row created for ID: " + toInsert.stuId + CoreConstants.SPC + toInsert.course
@@ -1152,7 +1151,7 @@ public final class ImportBannerStudentRegistrations {
             report.add("  Adding hold " + holdId + " to student " + studentId);
 
             if (!DEBUG) {
-                RawAdminHoldLogic.INSTANCE.insert(cache, found);
+                RawAdminHoldLogic.insert(cache, found);
 
                 final RawStudent stuRec = RawStudentLogic.query(cache, studentId, false);
 
@@ -1166,7 +1165,7 @@ public final class ImportBannerStudentRegistrations {
 
             if (!DEBUG) {
                 found = new RawAdminHold(studentId, holdId, "F", Integer.valueOf(0), LocalDate.now());
-                RawAdminHoldLogic.INSTANCE.insert(cache, found);
+                RawAdminHoldLogic.insert(cache, found);
             }
         }
     }
@@ -1210,7 +1209,7 @@ public final class ImportBannerStudentRegistrations {
                             null, null, null);
                     report.add(STUDENT + stuId + " did not have an STTERM record - adding.");
                     if (!DEBUG) {
-                        RawSttermLogic.INSTANCE.insert(cache, newRec);
+                        RawSttermLogic.insert(cache, newRec);
                     }
                 } else {
                     boolean diff = false;
@@ -1283,7 +1282,7 @@ public final class ImportBannerStudentRegistrations {
         report.add("  Total Overall: " + (riCount + ceCount + otCount + incCount));
         report.add(CoreConstants.EMPTY);
 
-        final List<RawDupRegistr> allDups = RawDupRegistrLogic.INSTANCE.queryAll(cache);
+        final List<RawDupRegistr> allDups = RawDupRegistrLogic.queryAll(cache);
 
         report.add("  Duplicate total: " + allDups.size());
 

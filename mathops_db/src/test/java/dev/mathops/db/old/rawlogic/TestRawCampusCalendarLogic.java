@@ -104,9 +104,9 @@ final class TestRawCampusCalendarLogic {
                 final RawCampusCalendar raw3 = new RawCampusCalendar(date3, RawCampusCalendar.DT_DESC_HOLIDAY,
                         "9:02 am", "6:32 pm", "4:02 pm", "9:02 pm", "Monday-Friday", "Monday-Thursday");
 
-                assertTrue(RawCampusCalendarLogic.INSTANCE.insert(cache, raw1), "Failed to insert campus_calendar");
-                assertTrue(RawCampusCalendarLogic.INSTANCE.insert(cache, raw2), "Failed to insert campus_calendar");
-                assertTrue(RawCampusCalendarLogic.INSTANCE.insert(cache, raw3), "Failed to insert campus_calendar");
+                assertTrue(RawCampusCalendarLogic.insert(cache, raw1), "Failed to insert campus_calendar");
+                assertTrue(RawCampusCalendarLogic.insert(cache, raw2), "Failed to insert campus_calendar");
+                assertTrue(RawCampusCalendarLogic.insert(cache, raw3), "Failed to insert campus_calendar");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -126,7 +126,7 @@ final class TestRawCampusCalendarLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawCampusCalendar> all = RawCampusCalendarLogic.INSTANCE.queryAll(cache);
+                final List<RawCampusCalendar> all = RawCampusCalendarLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -268,10 +268,10 @@ final class TestRawCampusCalendarLogic {
                 final RawCampusCalendar raw2 = new RawCampusCalendar(date2, RawCampusCalendar.DT_DESC_HOLIDAY,
                         "9:01 am", "6:31 pm", "4:01 pm", "9:01 pm", "Mon-Fri", "Mon-Thu");
 
-                final boolean result = RawCampusCalendarLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawCampusCalendarLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawCampusCalendar> all = RawCampusCalendarLogic.INSTANCE.queryAll(cache);
+                final List<RawCampusCalendar> all = RawCampusCalendarLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 

@@ -114,8 +114,8 @@ final class TestRawTestingCenterLogic {
                         "Apartment B", "Closet 2", "Denver", "CO", "12345", "Y", dateTime3, dateTime4, dateTime5,
                         dateTime6, "Y", "N");
 
-                assertTrue(RawTestingCenterLogic.INSTANCE.insert(cache, raw1), "Failed to insert testing_centers");
-                assertTrue(RawTestingCenterLogic.INSTANCE.insert(cache, raw2), "Failed to insert testing_centers");
+                assertTrue(RawTestingCenterLogic.insert(cache, raw1), "Failed to insert testing_centers");
+                assertTrue(RawTestingCenterLogic.insert(cache, raw2), "Failed to insert testing_centers");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -135,7 +135,7 @@ final class TestRawTestingCenterLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawTestingCenter> all = RawTestingCenterLogic.INSTANCE.queryAll(cache);
+                final List<RawTestingCenter> all = RawTestingCenterLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll");
 
@@ -259,10 +259,10 @@ final class TestRawTestingCenterLogic {
                         "Apartment B", "Closet 2", "Denver", "CO", "12345", "Y", dateTime3, dateTime4,
                         dateTime5, dateTime6, "Y", "N");
 
-                final boolean result = RawTestingCenterLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawTestingCenterLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawTestingCenter> all = RawTestingCenterLogic.INSTANCE.queryAll(cache);
+                final List<RawTestingCenter> all = RawTestingCenterLogic.queryAll(cache);
 
                 assertEquals(1, all.size(), "Incorrect record count from queryAll after delete");
 

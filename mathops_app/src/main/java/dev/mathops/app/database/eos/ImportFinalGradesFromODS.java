@@ -239,7 +239,7 @@ final class ImportFinalGradesFromODS {
 
                 final RawGradeRoll toInsert = new RawGradeRoll(rec.term, stu, cid, sect, rec.name, rec.grade);
 
-                if (RawGradeRollLogic.INSTANCE.insert(cache, toInsert)) {
+                if (RawGradeRollLogic.insert(cache, toInsert)) {
                     ++count;
                 } else {
                     report.add("Insert failed");
@@ -257,7 +257,7 @@ final class ImportFinalGradesFromODS {
                 report.add("    Deleting record for " + row.stuId + CoreConstants.SLASH + row.course + " ("
                         + row.sect + ") - " + row.gradeOpt + " for " + row.fullname + " in " + row.termKey.shortString);
 
-                if (RawGradeRollLogic.INSTANCE.delete(cache, row)) {
+                if (RawGradeRollLogic.delete(cache, row)) {
                     ++count;
                 } else {
                     report.add("Delete failed");

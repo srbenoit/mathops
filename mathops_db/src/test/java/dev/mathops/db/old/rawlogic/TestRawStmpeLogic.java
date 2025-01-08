@@ -120,10 +120,10 @@ final class TestRawStmpeLogic {
                         Integer.valueOf(6), Integer.valueOf(5),
                         Integer.valueOf(4), "N", "R");
 
-                assertTrue(RawStmpeLogic.INSTANCE.insert(cache, raw1), "Failed to insert stmpe 1");
-                assertTrue(RawStmpeLogic.INSTANCE.insert(cache, raw2), "Failed to insert stmpe 2");
-                assertTrue(RawStmpeLogic.INSTANCE.insert(cache, raw3), "Failed to insert stmpe 3");
-                assertTrue(RawStmpeLogic.INSTANCE.insert(cache, raw4), "Failed to insert stmpe 4");
+                assertTrue(RawStmpeLogic.insert(cache, raw1), "Failed to insert stmpe 1");
+                assertTrue(RawStmpeLogic.insert(cache, raw2), "Failed to insert stmpe 2");
+                assertTrue(RawStmpeLogic.insert(cache, raw3), "Failed to insert stmpe 3");
+                assertTrue(RawStmpeLogic.insert(cache, raw4), "Failed to insert stmpe 4");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -143,7 +143,7 @@ final class TestRawStmpeLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawStmpe> all = RawStmpeLogic.INSTANCE.queryAll(cache);
+                final List<RawStmpe> all = RawStmpeLogic.queryAll(cache);
 
                 assertEquals(4, all.size(), "Incorrect record count from queryAll");
 

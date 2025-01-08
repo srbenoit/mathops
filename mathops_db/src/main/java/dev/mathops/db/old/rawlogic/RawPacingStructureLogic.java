@@ -48,18 +48,8 @@ import java.util.List;
  * first_obj_avail      char(1)                   yes
  * </pre>
  */
-public final class RawPacingStructureLogic extends AbstractRawLogic<RawPacingStructure> {
-
-    /** A single instance. */
-    public static final RawPacingStructureLogic INSTANCE = new RawPacingStructureLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawPacingStructureLogic() {
-
-        super();
-    }
+public enum RawPacingStructureLogic {
+    ;
 
     /**
      * Inserts a new pacing_structure record.
@@ -69,8 +59,7 @@ public final class RawPacingStructureLogic extends AbstractRawLogic<RawPacingStr
      * @return {@code true} if successful; {@code false} otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawPacingStructure record)
+    public static boolean insert(final Cache cache, final RawPacingStructure record)
             throws SQLException {
 
         if (record.termKey == null || record.pacingStructure == null || record.requirePartic == null
@@ -86,32 +75,32 @@ public final class RawPacingStructureLogic extends AbstractRawLogic<RawPacingStr
                 "use_midterms,allow_coupons,coupons_after_window,users_progress_cr,hw_progress_cr,re_progress_cr,",
                 "ue_progress_cr,fin_progress_cr,pacing_name,schedule_source,sr_due_date_enforced,re_due_date_enforced,",
                 "ue_due_date_enforced,fe_due_date_enforced,first_obj_avail) VALUES (",
-                sqlStringValue(record.termKey.termCode), ",",
+                LogicUtils.sqlStringValue(record.termKey.termCode), ",",
                 record.termKey.shortYear, ",",
-                sqlStringValue(record.pacingStructure), ",",
-                sqlStringValue(record.defPaceTrack), ",",
-                sqlStringValue(record.requireLicensed), ",",
-                sqlStringValue(record.requirePartic), ",",
-                sqlIntegerValue(record.maxParticMissed), ",",
-                sqlStringValue(record.allowInc), ",",
-                sqlIntegerValue(record.maxCourses), ",",
-                sqlIntegerValue(record.nbrOpenAllowed), ",",
-                sqlStringValue(record.requireUnitExams), ",",
-                sqlStringValue(record.useMidterms), ",",
-                sqlStringValue(record.allowCoupons), ",",
-                sqlStringValue(record.couponsAfterWindow), ",",
-                sqlIntegerValue(record.usersProgressCr), ",",
-                sqlIntegerValue(record.hwProgressCr), ",",
-                sqlIntegerValue(record.reProgressCr), ",",
-                sqlIntegerValue(record.ueProgressCr), ",",
-                sqlIntegerValue(record.finProgressCr), ",",
-                sqlStringValue(record.pacingName), ",",
-                sqlStringValue(record.scheduleSource), ",",
-                sqlStringValue(record.srDueDateEnforced), ",",
-                sqlStringValue(record.reDueDateEnforced), ",",
-                sqlStringValue(record.ueDueDateEnforced), ",",
-                sqlStringValue(record.feDueDateEnforced), ",",
-                sqlStringValue(record.firstObjAvail), ")");
+                LogicUtils.sqlStringValue(record.pacingStructure), ",",
+                LogicUtils.sqlStringValue(record.defPaceTrack), ",",
+                LogicUtils.sqlStringValue(record.requireLicensed), ",",
+                LogicUtils.sqlStringValue(record.requirePartic), ",",
+                LogicUtils.sqlIntegerValue(record.maxParticMissed), ",",
+                LogicUtils.sqlStringValue(record.allowInc), ",",
+                LogicUtils.sqlIntegerValue(record.maxCourses), ",",
+                LogicUtils.sqlIntegerValue(record.nbrOpenAllowed), ",",
+                LogicUtils.sqlStringValue(record.requireUnitExams), ",",
+                LogicUtils.sqlStringValue(record.useMidterms), ",",
+                LogicUtils.sqlStringValue(record.allowCoupons), ",",
+                LogicUtils.sqlStringValue(record.couponsAfterWindow), ",",
+                LogicUtils.sqlIntegerValue(record.usersProgressCr), ",",
+                LogicUtils.sqlIntegerValue(record.hwProgressCr), ",",
+                LogicUtils.sqlIntegerValue(record.reProgressCr), ",",
+                LogicUtils.sqlIntegerValue(record.ueProgressCr), ",",
+                LogicUtils.sqlIntegerValue(record.finProgressCr), ",",
+                LogicUtils.sqlStringValue(record.pacingName), ",",
+                LogicUtils.sqlStringValue(record.scheduleSource), ",",
+                LogicUtils.sqlStringValue(record.srDueDateEnforced), ",",
+                LogicUtils.sqlStringValue(record.reDueDateEnforced), ",",
+                LogicUtils.sqlStringValue(record.ueDueDateEnforced), ",",
+                LogicUtils.sqlStringValue(record.feDueDateEnforced), ",",
+                LogicUtils.sqlStringValue(record.firstObjAvail), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -134,14 +123,13 @@ public final class RawPacingStructureLogic extends AbstractRawLogic<RawPacingStr
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawPacingStructure record)
+    public static boolean delete(final Cache cache, final RawPacingStructure record)
             throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM pacing_structure ",
-                "WHERE pacing_structure=", sqlStringValue(record.pacingStructure),
-                "  AND term=", sqlStringValue(record.termKey.termCode),
-                "  AND term_yr=", sqlIntegerValue(record.termKey.shortYear));
+                "WHERE pacing_structure=", LogicUtils.sqlStringValue(record.pacingStructure),
+                "  AND term=", LogicUtils.sqlStringValue(record.termKey.termCode),
+                "  AND term_yr=", LogicUtils.sqlIntegerValue(record.termKey.shortYear));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -163,8 +151,7 @@ public final class RawPacingStructureLogic extends AbstractRawLogic<RawPacingStr
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawPacingStructure> queryAll(final Cache cache) throws SQLException {
+    public static List<RawPacingStructure> queryAll(final Cache cache) throws SQLException {
 
         return executeListQuery(cache, "SELECT * FROM pacing_structure");
     }
@@ -181,7 +168,7 @@ public final class RawPacingStructureLogic extends AbstractRawLogic<RawPacingStr
             throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM pacing_structure",
-                " WHERE term=", sqlStringValue(termKey.termCode),
+                " WHERE term=", LogicUtils.sqlStringValue(termKey.termCode),
                 "   AND term_yr=", termKey.shortYear);
 
         return executeListQuery(cache, sql);
@@ -200,8 +187,8 @@ public final class RawPacingStructureLogic extends AbstractRawLogic<RawPacingStr
                                            final String pacingStructure) throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM pacing_structure",
-                " WHERE pacing_structure=", sqlStringValue(pacingStructure),
-                "   AND term=", sqlStringValue(termKey.termCode),
+                " WHERE pacing_structure=", LogicUtils.sqlStringValue(pacingStructure),
+                "   AND term=", LogicUtils.sqlStringValue(termKey.termCode),
                 "   AND term_yr=", termKey.shortYear);
 
         return executeSingleQuery(cache, sql);

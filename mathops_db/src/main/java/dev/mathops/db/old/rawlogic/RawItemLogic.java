@@ -13,18 +13,8 @@ import java.util.List;
  * <p>
  * There is currently no table for this data - it is hard-coded into this class.
  */
-public final class RawItemLogic extends AbstractRawLogic<RawItem> {
-
-    /** A single instance. */
-    public static final RawItemLogic INSTANCE = new RawItemLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawItemLogic() {
-
-        super();
-    }
+public enum RawItemLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -33,8 +23,7 @@ public final class RawItemLogic extends AbstractRawLogic<RawItem> {
      * @param record the record to insert
      * @return {@code true} if successful; {@code false} if not
      */
-    @Override
-    public boolean insert(final Cache cache, final RawItem record) {
+    public static boolean insert(final Cache cache, final RawItem record) {
 
         Log.warning("Unable to insert item record: no underlying table.");
 
@@ -48,8 +37,7 @@ public final class RawItemLogic extends AbstractRawLogic<RawItem> {
      * @param record the record to delete
      * @return {@code true} if successful; {@code false} if not
      */
-    @Override
-    public boolean delete(final Cache cache, final RawItem record) {
+    public static boolean delete(final Cache cache, final RawItem record) {
 
         Log.warning("Unable to delete item record: no underlying table.");
 
@@ -62,8 +50,7 @@ public final class RawItemLogic extends AbstractRawLogic<RawItem> {
      * @param cache the data cache
      * @return the list of records
      */
-    @Override
-    public List<RawItem> queryAll(final Cache cache) {
+    public static List<RawItem> queryAll(final Cache cache) {
 
         final List<RawItem> result = new ArrayList<>(50);
 

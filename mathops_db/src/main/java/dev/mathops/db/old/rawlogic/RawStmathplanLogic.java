@@ -41,10 +41,8 @@ import java.util.Map;
  *
  *
  */
-public final class RawStmathplanLogic extends AbstractRawLogic<RawStmathplan> {
-
-    /** A single instance. */
-    public static final RawStmathplanLogic INSTANCE = new RawStmathplanLogic();
+public enum RawStmathplanLogic {
+    ;
 
     /** An unmodifiable empty list that can be returned for. */
     private static final List<RawStmathplan> EMPTY = Collections.unmodifiableList(new ArrayList<>(0));
@@ -293,14 +291,6 @@ public final class RawStmathplanLogic extends AbstractRawLogic<RawStmathplan> {
     }
 
     /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawStmathplanLogic() {
-
-        super();
-    }
-
-    /**
      * Inserts a new record.
      *
      * @param cache  the data cache
@@ -308,8 +298,7 @@ public final class RawStmathplanLogic extends AbstractRawLogic<RawStmathplan> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawStmathplan record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawStmathplan record) throws SQLException {
 
         if (record.stuId == null || record.pidm == null || record.version == null
                 || record.examDt == null || record.surveyNbr == null || record.finishTime == null) {
@@ -319,15 +308,15 @@ public final class RawStmathplanLogic extends AbstractRawLogic<RawStmathplan> {
         final String sql = SimpleBuilder.concat("INSERT INTO stmathplan (",
                 "stu_id,pidm,apln_term,version,exam_dt,survey_nbr,stu_answer,",
                 "finish_time,session) VALUES (",
-                sqlStringValue(record.stuId), ",",
-                sqlIntegerValue(record.pidm), ",",
-                sqlStringValue(record.aplnTerm), ",",
-                sqlStringValue(record.version), ",",
-                sqlDateValue(record.examDt), ",",
-                sqlIntegerValue(record.surveyNbr), ",",
-                sqlStringValue(record.stuAnswer), ",",
-                sqlIntegerValue(record.finishTime), ",",
-                sqlLongValue(record.session), ")");
+                LogicUtils.sqlStringValue(record.stuId), ",",
+                LogicUtils.sqlIntegerValue(record.pidm), ",",
+                LogicUtils.sqlStringValue(record.aplnTerm), ",",
+                LogicUtils.sqlStringValue(record.version), ",",
+                LogicUtils.sqlDateValue(record.examDt), ",",
+                LogicUtils.sqlIntegerValue(record.surveyNbr), ",",
+                LogicUtils.sqlStringValue(record.stuAnswer), ",",
+                LogicUtils.sqlIntegerValue(record.finishTime), ",",
+                LogicUtils.sqlLongValue(record.session), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -350,18 +339,17 @@ public final class RawStmathplanLogic extends AbstractRawLogic<RawStmathplan> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawStmathplan record)
+    public static boolean delete(final Cache cache, final RawStmathplan record)
             throws SQLException {
 
         final boolean result;
 
         final String sql = SimpleBuilder.concat("DELETE FROM stmathplan ",
-                "WHERE stu_id=", sqlStringValue(record.stuId),
-                " AND version=", sqlStringValue(record.version),
-                " AND exam_dt=", sqlDateValue(record.examDt),
-                " AND finish_time=", sqlIntegerValue(record.finishTime),
-                " AND survey_nbr=", sqlIntegerValue(record.surveyNbr));
+                "WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                " AND version=", LogicUtils.sqlStringValue(record.version),
+                " AND exam_dt=", LogicUtils.sqlDateValue(record.examDt),
+                " AND finish_time=", LogicUtils.sqlIntegerValue(record.finishTime),
+                " AND survey_nbr=", LogicUtils.sqlIntegerValue(record.surveyNbr));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             result = stmt.executeUpdate(sql) == 1;
@@ -383,8 +371,7 @@ public final class RawStmathplanLogic extends AbstractRawLogic<RawStmathplan> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawStmathplan> queryAll(final Cache cache) throws SQLException {
+    public static List<RawStmathplan> queryAll(final Cache cache) throws SQLException {
 
         return executeQuery(cache.conn, "SELECT * FROM stmathplan");
     }
@@ -400,7 +387,7 @@ public final class RawStmathplanLogic extends AbstractRawLogic<RawStmathplan> {
     public static List<RawStmathplan> queryByStudent(final Cache cache, final String stuId) throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM stmathplan ",
-                " WHERE stu_id=", sqlStringValue(stuId));
+                " WHERE stu_id=", LogicUtils.sqlStringValue(stuId));
 
         return executeQuery(cache.conn, sql);
     }
@@ -424,19 +411,19 @@ public final class RawStmathplanLogic extends AbstractRawLogic<RawStmathplan> {
             result = queryLatestByTestStudentPage(studentId, pageId);
         } else {
             final String sql = SimpleBuilder.concat("SELECT * FROM stmathplan ",
-                    " WHERE stu_id=", sqlStringValue(studentId),
-                    "   AND version=", sqlStringValue(pageId),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(studentId),
+                    "   AND version=", LogicUtils.sqlStringValue(pageId),
                     "  AND exam_dt IN ",
                     "  (SELECT MAX(exam_dt) ",
-                    "    FROM stmathplan WHERE stu_id=", sqlStringValue(studentId),
-                    "    AND version=", sqlStringValue(pageId), ") ",
+                    "    FROM stmathplan WHERE stu_id=", LogicUtils.sqlStringValue(studentId),
+                    "    AND version=", LogicUtils.sqlStringValue(pageId), ") ",
                     "  AND finish_time IN ",
                     "  (SELECT MAX(finish_time) FROM stmathplan WHERE exam_dt IN ",
                     "   (SELECT MAX(exam_dt) FROM stmathplan ",
-                    "      WHERE stu_id=", sqlStringValue(studentId),
-                    "        AND version=", sqlStringValue(pageId), ") ",
-                    "   AND stu_id=", sqlStringValue(studentId),
-                    "   AND version=", sqlStringValue(pageId),
+                    "      WHERE stu_id=", LogicUtils.sqlStringValue(studentId),
+                    "        AND version=", LogicUtils.sqlStringValue(pageId), ") ",
+                    "   AND stu_id=", LogicUtils.sqlStringValue(studentId),
+                    "   AND version=", LogicUtils.sqlStringValue(pageId),
                     "  ) ORDER BY survey_nbr");
 
             result = executeQuery(cache.conn, sql);
@@ -465,19 +452,19 @@ public final class RawStmathplanLogic extends AbstractRawLogic<RawStmathplan> {
         } else {
 
             final String sql = SimpleBuilder.concat("SELECT * FROM stmathplan ",
-                    " WHERE pidm=", sqlIntegerValue(pidm),
-                    "   AND version=", sqlStringValue(pageId),
+                    " WHERE pidm=", LogicUtils.sqlIntegerValue(pidm),
+                    "   AND version=", LogicUtils.sqlStringValue(pageId),
                     "  AND exam_dt IN ",
                     "  (SELECT MAX(exam_dt) ",
-                    "    FROM stmathplan WHERE pidm=", sqlIntegerValue(pidm),
-                    "    AND version=", sqlStringValue(pageId), ") ",
+                    "    FROM stmathplan WHERE pidm=", LogicUtils.sqlIntegerValue(pidm),
+                    "    AND version=", LogicUtils.sqlStringValue(pageId), ") ",
                     "  AND finish_time IN ",
                     "  (SELECT MAX(finish_time) FROM stmathplan WHERE exam_dt IN ",
                     "   (SELECT MAX(exam_dt) FROM stmathplan ",
-                    "      WHERE pidm=", sqlIntegerValue(pidm),
-                    "        AND version=", sqlStringValue(pageId), ") ",
-                    "   AND pidm=", sqlIntegerValue(pidm),
-                    "   AND version=", sqlStringValue(pageId),
+                    "      WHERE pidm=", LogicUtils.sqlIntegerValue(pidm),
+                    "        AND version=", LogicUtils.sqlStringValue(pageId), ") ",
+                    "   AND pidm=", LogicUtils.sqlIntegerValue(pidm),
+                    "   AND version=", LogicUtils.sqlStringValue(pageId),
                     "  ) ORDER BY survey_nbr");
 
             result = executeQuery(cache.conn, sql);
@@ -505,8 +492,8 @@ public final class RawStmathplanLogic extends AbstractRawLogic<RawStmathplan> {
             result = false;
         } else {
             final String sql = SimpleBuilder.concat("DELETE FROM stmathplan ",
-                    "WHERE stu_id=", sqlStringValue(stuId),
-                    "  AND version=", sqlStringValue(pageId));
+                    "WHERE stu_id=", LogicUtils.sqlStringValue(stuId),
+                    "  AND version=", LogicUtils.sqlStringValue(pageId));
 
             Log.info(sql);
 
@@ -545,7 +532,8 @@ public final class RawStmathplanLogic extends AbstractRawLogic<RawStmathplan> {
             earliest = today.minus(Period.ofDays(numDays - 1));
         }
 
-        final String sql = SimpleBuilder.concat("SELECT * FROM stmathplan WHERE exam_dt>=", sqlDateValue(earliest));
+        final String sql = SimpleBuilder.concat("SELECT * FROM stmathplan WHERE exam_dt>=",
+                LogicUtils.sqlDateValue(earliest));
 
         final List<RawStmathplan> all = executeQuery(cache.conn, sql);
         Collections.sort(all);

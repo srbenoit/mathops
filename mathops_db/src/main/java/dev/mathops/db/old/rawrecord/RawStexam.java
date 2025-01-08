@@ -130,7 +130,33 @@ public final class RawStexam extends RecBase implements Comparable<RawStexam> {
     /** The 'exam_source' field value. */
     public String examSource;
 
-    /** The 'calc_nbr' field value. */
+    /**
+     * The 'calc_nbr' field value. This field is no longer used, and is being re-tasked to manage "on-time" status of
+     * the exam.
+     *
+     * <p>
+     * The field is null for exams (Unit, Final) for which on-time status has no impact on grade.
+     *
+     * <p>
+     * For Review exams, the field is calculated based on deadlines at the time the exam is submitted and marked "N" if
+     * not on time, "Y" if on time (this should be updated when MILESTONE or STMILESTONE records are updated so it is
+     * always correct and can be relied on for grade calculation).
+     *
+     * <p>
+     * Instructors can override these calculations for special situations.  The field is set to "NN" to "force" the exam
+     * to be considered late even if it was completed on time, or "YY" to "force" the exam to be considered on-time even
+     * if it was late.  "YY" and "NN" values are not updated if milestones change.
+     *
+     * <p>
+     * If/when we allow for incremental point deductions based on how late an exam is (for example, 1 point off for 1
+     * day late, 2 points for 2 days, 3 points for 3 or more days), this field can be set to something of the form "N19"
+     * (not on time, 19 days late), "N2" (2 days late), "Y" (on time), "NN2" (forced to be considered 2 days late
+     * regardless of deadlines), or "YY" (forced to be considered on time).
+     *
+     * <p>
+     * If we ever wanted to frame this as an "early completion bonus", we could introduce "Y1", and "YY2" formats to
+     * mean "1 day early" or "force to consider as 2 days early".
+     */
     public String calcNbr;
 
     /**
@@ -410,22 +436,22 @@ public final class RawStexam extends RecBase implements Comparable<RawStexam> {
     public int hashCode() {
 
         return Objects.hashCode(this.serialNbr)
-                + Objects.hashCode(this.version)
-                + Objects.hashCode(this.stuId)
-                + Objects.hashCode(this.examDt)
-                + Objects.hashCode(this.examScore)
-                + Objects.hashCode(this.masteryScore)
-                + Objects.hashCode(this.startTime)
-                + Objects.hashCode(this.finishTime)
-                + Objects.hashCode(this.timeOk)
-                + Objects.hashCode(this.passed)
-                + Objects.hashCode(this.seqNbr)
-                + Objects.hashCode(this.course)
-                + Objects.hashCode(this.unit)
-                + Objects.hashCode(this.examType)
-                + Objects.hashCode(this.isFirstPassed)
-                + Objects.hashCode(this.examSource)
-                + Objects.hashCode(this.calcNbr);
+               + Objects.hashCode(this.version)
+               + Objects.hashCode(this.stuId)
+               + Objects.hashCode(this.examDt)
+               + Objects.hashCode(this.examScore)
+               + Objects.hashCode(this.masteryScore)
+               + Objects.hashCode(this.startTime)
+               + Objects.hashCode(this.finishTime)
+               + Objects.hashCode(this.timeOk)
+               + Objects.hashCode(this.passed)
+               + Objects.hashCode(this.seqNbr)
+               + Objects.hashCode(this.course)
+               + Objects.hashCode(this.unit)
+               + Objects.hashCode(this.examType)
+               + Objects.hashCode(this.isFirstPassed)
+               + Objects.hashCode(this.examSource)
+               + Objects.hashCode(this.calcNbr);
     }
 
     /**

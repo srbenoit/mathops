@@ -931,7 +931,7 @@ enum PageStudentSchedule {
                     final RawPaceAppeals appeal = new RawPaceAppeals(active.term, studentId, LocalDate.now(), relief,
                             paceObj, track, intMs, type, ms.msDate, newDate, attempts, ci, co, iv);
 
-                    RawPaceAppealsLogic.INSTANCE.insert(cache, appeal);
+                    RawPaceAppealsLogic.insert(cache, appeal);
 
                     // If there is an existing STMILESTONE, update it (if the new deadline later)
                     // Otherwise, create new one.
@@ -953,7 +953,7 @@ enum PageStudentSchedule {
 
                     // FIXME: Use actual extension type
                     if (sms == null) {
-                        RawStmilestoneLogic.INSTANCE.insert(cache, new RawStmilestone(active.term, studentId, track,
+                        RawStmilestoneLogic.insert(cache, new RawStmilestone(active.term, studentId, track,
                                 intMs, type, newDate, allowed));
                     } else if (newDate.isAfter(sms.msDate)) {
                         RawStmilestoneLogic.update(cache, new RawStmilestone(active.term, studentId, track, intMs, type,

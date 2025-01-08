@@ -23,18 +23,8 @@ import java.util.List;
  * max_proctored_atm+   smallint          no
  * </pre>
  */
-public final class RawMpeLogic extends AbstractRawLogic<RawMpe> {
-
-    /** A single instance. */
-    public static final RawMpeLogic INSTANCE = new RawMpeLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawMpeLogic() {
-
-        super();
-    }
+public enum RawMpeLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -44,8 +34,7 @@ public final class RawMpeLogic extends AbstractRawLogic<RawMpe> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawMpe record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawMpe record) throws SQLException {
 
         if (record.version == null || record.maxOnlineAtmpts == null || record.maxProctoredAtmpts == null) {
             throw new SQLException("Null value in primary key field.");
@@ -53,9 +42,9 @@ public final class RawMpeLogic extends AbstractRawLogic<RawMpe> {
 
         final String sql = SimpleBuilder.concat(
                 "INSERT INTO mpe (version,max_online_atmpts,max_proctored_atmpts) VALUES (",
-                sqlStringValue(record.version), ",",
-                sqlIntegerValue(record.maxOnlineAtmpts), ",",
-                sqlIntegerValue(record.maxProctoredAtmpts), ")");
+                LogicUtils.sqlStringValue(record.version), ",",
+                LogicUtils.sqlIntegerValue(record.maxOnlineAtmpts), ",",
+                LogicUtils.sqlIntegerValue(record.maxProctoredAtmpts), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -78,11 +67,10 @@ public final class RawMpeLogic extends AbstractRawLogic<RawMpe> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawMpe record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawMpe record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM mpe ",
-                "WHERE version=", sqlStringValue(record.version));
+                "WHERE version=", LogicUtils.sqlStringValue(record.version));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -104,8 +92,7 @@ public final class RawMpeLogic extends AbstractRawLogic<RawMpe> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawMpe> queryAll(final Cache cache) throws SQLException {
+    public static List<RawMpe> queryAll(final Cache cache) throws SQLException {
 
         final String sql = "SELECT * FROM mpe";
 

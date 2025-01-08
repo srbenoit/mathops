@@ -106,9 +106,9 @@ final class TestRawDisciplineLogic {
                         Integer.valueOf(3), "Emotional support nerd", "97", "Cake or death - chose both", "Bromley",
                         "Juan Doe");
 
-                assertTrue(RawDisciplineLogic.INSTANCE.insert(cache, raw1), "Failed to insert discipline");
-                assertTrue(RawDisciplineLogic.INSTANCE.insert(cache, raw2), "Failed to insert discipline");
-                assertTrue(RawDisciplineLogic.INSTANCE.insert(cache, raw3), "Failed to insert discipline");
+                assertTrue(RawDisciplineLogic.insert(cache, raw1), "Failed to insert discipline");
+                assertTrue(RawDisciplineLogic.insert(cache, raw2), "Failed to insert discipline");
+                assertTrue(RawDisciplineLogic.insert(cache, raw3), "Failed to insert discipline");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -128,7 +128,7 @@ final class TestRawDisciplineLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawDiscipline> all = RawDisciplineLogic.INSTANCE.queryAll(cache);
+                final List<RawDiscipline> all = RawDisciplineLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -246,7 +246,7 @@ final class TestRawDisciplineLogic {
                 final RawDiscipline toDelete = new RawDiscipline("888888881", date1, "01", RawRecordConstants.M117,
                         Integer.valueOf(1), null, null, null, null, null);
 
-                assertTrue(RawDisciplineLogic.INSTANCE.delete(cache, toDelete), "Delete discipline failed");
+                assertTrue(RawDisciplineLogic.delete(cache, toDelete), "Delete discipline failed");
 
                 final List<RawDiscipline> all = RawDisciplineLogic.queryByStudent(cache, "888888881");
 

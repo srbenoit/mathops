@@ -88,7 +88,7 @@ public enum PageDbAdminReport {
         htm.hr();
         htm.sH(2).add("Student Visits").eH(2);
 
-        final List<RawStvisit> all = RawStvisitLogic.INSTANCE.queryAll(cache);
+        final List<RawStvisit> all = RawStvisitLogic.queryAll(cache);
 
         // Categorize by date, then by start time
         final Map<LocalDate, Map<LocalTime, List<RawStvisit>>> categorized = new HashMap<>(150);

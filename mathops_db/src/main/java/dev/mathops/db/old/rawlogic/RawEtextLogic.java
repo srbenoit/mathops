@@ -27,18 +27,8 @@ import java.util.List;
  * button_label         char(80)                  yes
  * </pre>
  */
-public final class RawEtextLogic extends AbstractRawLogic<RawEtext> {
-
-    /** A single instance. */
-    public static final RawEtextLogic INSTANCE = new RawEtextLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawEtextLogic() {
-
-        super();
-    }
+public enum RawEtextLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -48,8 +38,7 @@ public final class RawEtextLogic extends AbstractRawLogic<RawEtext> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawEtext record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawEtext record) throws SQLException {
 
         if (record.etextId == null) {
             throw new SQLException("Null value in primary key field.");
@@ -57,13 +46,13 @@ public final class RawEtextLogic extends AbstractRawLogic<RawEtext> {
 
         final String sql = SimpleBuilder.concat("INSERT INTO etext ",
                 "(etext_id,retention,purchase_url,refund_period,key_entry,active,button_label) VALUES (",
-                sqlStringValue(record.etextId), ",",
-                sqlStringValue(record.retention), ",",
-                sqlStringValue(record.purchaseUrl), ",",
-                sqlIntegerValue(record.refundPeriod), ",",
-                sqlStringValue(record.keyEntry), ",",
-                sqlStringValue(record.active), ",",
-                sqlStringValue(record.buttonLabel), ")");
+                LogicUtils.sqlStringValue(record.etextId), ",",
+                LogicUtils.sqlStringValue(record.retention), ",",
+                LogicUtils.sqlStringValue(record.purchaseUrl), ",",
+                LogicUtils.sqlIntegerValue(record.refundPeriod), ",",
+                LogicUtils.sqlStringValue(record.keyEntry), ",",
+                LogicUtils.sqlStringValue(record.active), ",",
+                LogicUtils.sqlStringValue(record.buttonLabel), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -86,11 +75,10 @@ public final class RawEtextLogic extends AbstractRawLogic<RawEtext> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawEtext record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawEtext record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM etext ",
-                "WHERE etext_id=", sqlStringValue(record.etextId));
+                "WHERE etext_id=", LogicUtils.sqlStringValue(record.etextId));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -112,8 +100,7 @@ public final class RawEtextLogic extends AbstractRawLogic<RawEtext> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawEtext> queryAll(final Cache cache) throws SQLException {
+    public static List<RawEtext> queryAll(final Cache cache) throws SQLException {
 
         final String sql = "SELECT * FROM etext";
 
@@ -143,7 +130,7 @@ public final class RawEtextLogic extends AbstractRawLogic<RawEtext> {
         RawEtext result = null;
 
         final String sql = SimpleBuilder.concat(
-                "SELECT * FROM etext WHERE etext_id=", sqlStringValue(etextId));
+                "SELECT * FROM etext WHERE etext_id=", LogicUtils.sqlStringValue(etextId));
 
         try (final Statement stmt = cache.conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {

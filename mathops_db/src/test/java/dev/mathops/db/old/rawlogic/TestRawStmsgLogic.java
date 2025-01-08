@@ -104,9 +104,9 @@ final class TestRawStmsgLogic {
                 final RawStmsg raw3 = new RawStmsg("222222222", date14, Integer.valueOf(4), Integer.valueOf(3), "TP3",
                         "MSG3", "Sender3");
 
-                assertTrue(RawStmsgLogic.INSTANCE.insert(cache, raw1), "Failed to insert stmsg 1");
-                assertTrue(RawStmsgLogic.INSTANCE.insert(cache, raw2), "Failed to insert stmsg 2");
-                assertTrue(RawStmsgLogic.INSTANCE.insert(cache, raw3), "Failed to insert stmsg 3");
+                assertTrue(RawStmsgLogic.insert(cache, raw1), "Failed to insert stmsg 1");
+                assertTrue(RawStmsgLogic.insert(cache, raw2), "Failed to insert stmsg 2");
+                assertTrue(RawStmsgLogic.insert(cache, raw3), "Failed to insert stmsg 3");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -126,7 +126,7 @@ final class TestRawStmsgLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawStmsg> all = RawStmsgLogic.INSTANCE.queryAll(cache);
+                final List<RawStmsg> all = RawStmsgLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -302,10 +302,10 @@ final class TestRawStmsgLogic {
                 final RawStmsg raw2 = new RawStmsg("111111111", date13, Integer.valueOf(3), Integer.valueOf(2), "TP2",
                         "MSG2", "Sender2");
 
-                final boolean result = RawStmsgLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawStmsgLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawStmsg> all = RawStmsgLogic.INSTANCE.queryAll(cache);
+                final List<RawStmsg> all = RawStmsgLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 

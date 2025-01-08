@@ -89,8 +89,8 @@ final class TestRawEtextLogic {
                 final RawEtext raw1 = new RawEtext("ID1", "Y", "URL1", Integer.valueOf(10), "Y", "N", "Button 1");
                 final RawEtext raw2 = new RawEtext("ID2", "C", "URL2", Integer.valueOf(2), "N", "Y", "Button 2");
 
-                assertTrue(RawEtextLogic.INSTANCE.insert(cache, raw1), "Failed to insert etext");
-                assertTrue(RawEtextLogic.INSTANCE.insert(cache, raw2), "Failed to insert etext");
+                assertTrue(RawEtextLogic.insert(cache, raw1), "Failed to insert etext");
+                assertTrue(RawEtextLogic.insert(cache, raw2), "Failed to insert etext");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -110,7 +110,7 @@ final class TestRawEtextLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawEtext> all = RawEtextLogic.INSTANCE.queryAll(cache);
+                final List<RawEtext> all = RawEtextLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll");
 
@@ -206,10 +206,10 @@ final class TestRawEtextLogic {
             try {
                 final RawEtext raw2 = new RawEtext("ID2", "C", "URL2", Integer.valueOf(2), "N", "Y", "Button 2");
 
-                final boolean result = RawEtextLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawEtextLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawEtext> all = RawEtextLogic.INSTANCE.queryAll(cache);
+                final List<RawEtext> all = RawEtextLogic.queryAll(cache);
 
                 assertEquals(1, all.size(), "Incorrect record count from queryAll after delete");
 

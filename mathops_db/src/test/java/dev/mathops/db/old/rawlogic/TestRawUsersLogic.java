@@ -105,9 +105,9 @@ final class TestRawUsersLogic {
                 final RawUsers raw3 = new RawUsers(new TermKey("SP22"), "222222222", Long.valueOf(3000L), "UQQQQ",
                         date3, Integer.valueOf(4), "CC", "P");
 
-                assertTrue(RawUsersLogic.INSTANCE.insert(cache, raw1), "Failed to insert users 1");
-                assertTrue(RawUsersLogic.INSTANCE.insert(cache, raw2), "Failed to insert users 2");
-                assertTrue(RawUsersLogic.INSTANCE.insert(cache, raw3), "Failed to insert users 3");
+                assertTrue(RawUsersLogic.insert(cache, raw1), "Failed to insert users 1");
+                assertTrue(RawUsersLogic.insert(cache, raw2), "Failed to insert users 2");
+                assertTrue(RawUsersLogic.insert(cache, raw3), "Failed to insert users 3");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -127,7 +127,7 @@ final class TestRawUsersLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawUsers> all = RawUsersLogic.INSTANCE.queryAll(cache);
+                final List<RawUsers> all = RawUsersLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -273,10 +273,10 @@ final class TestRawUsersLogic {
                 final RawUsers raw2 = new RawUsers(new TermKey("FA21"), "111111111", Long.valueOf(2000L), "UPPPP",
                         date2, Integer.valueOf(3), "CB", "Y");
 
-                final boolean result = RawUsersLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawUsersLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawUsers> all = RawUsersLogic.INSTANCE.queryAll(cache);
+                final List<RawUsers> all = RawUsersLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 

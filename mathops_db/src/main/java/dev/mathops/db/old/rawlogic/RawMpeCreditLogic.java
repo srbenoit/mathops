@@ -33,10 +33,8 @@ import java.util.List;
  * exam_source          char(2)           yes
  * </pre>
  */
-public final class RawMpeCreditLogic extends AbstractRawLogic<RawMpeCredit> {
-
-    /** A single instance. */
-    public static final RawMpeCreditLogic INSTANCE = new RawMpeCreditLogic();
+public enum RawMpeCreditLogic {
+    ;
 
     /** Field name. */
     private static final String M_100M = "M 100M";
@@ -98,14 +96,6 @@ public final class RawMpeCreditLogic extends AbstractRawLogic<RawMpeCredit> {
     }
 
     /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawMpeCreditLogic() {
-
-        super();
-    }
-
-    /**
      * Inserts a new record.
      *
      * @param cache  the data cache
@@ -113,8 +103,7 @@ public final class RawMpeCreditLogic extends AbstractRawLogic<RawMpeCredit> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawMpeCredit record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawMpeCredit record) throws SQLException {
 
         final boolean result;
 
@@ -124,14 +113,14 @@ public final class RawMpeCreditLogic extends AbstractRawLogic<RawMpeCredit> {
             final String sql = SimpleBuilder.concat(
                     "INSERT INTO mpe_credit (stu_id,course,exam_placed,exam_dt,",
                     "dt_cr_refused,serial_nbr,version,exam_source) VALUES (",
-                    sqlStringValue(record.stuId), ",",
-                    sqlStringValue(record.course), ",",
-                    sqlStringValue(record.examPlaced), ",",
-                    sqlDateValue(record.examDt), ",",
-                    sqlDateValue(record.dtCrRefused), ",",
-                    sqlLongValue(record.serialNbr), ",",
-                    sqlStringValue(record.version), ",",
-                    sqlStringValue(record.examSource), ")");
+                    LogicUtils.sqlStringValue(record.stuId), ",",
+                    LogicUtils.sqlStringValue(record.course), ",",
+                    LogicUtils.sqlStringValue(record.examPlaced), ",",
+                    LogicUtils.sqlDateValue(record.examDt), ",",
+                    LogicUtils.sqlDateValue(record.dtCrRefused), ",",
+                    LogicUtils.sqlLongValue(record.serialNbr), ",",
+                    LogicUtils.sqlStringValue(record.version), ",",
+                    LogicUtils.sqlStringValue(record.examSource), ")");
 
             try (final Statement stmt = cache.conn.createStatement()) {
                 result = stmt.executeUpdate(sql) == 1;
@@ -155,18 +144,17 @@ public final class RawMpeCreditLogic extends AbstractRawLogic<RawMpeCredit> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawMpeCredit record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawMpeCredit record) throws SQLException {
 
         final boolean result;
 
         final String sql = SimpleBuilder.concat(
                 "DELETE FROM mpe_credit WHERE stu_id=",
-                sqlStringValue(record.stuId), " AND course=",
-                sqlStringValue(record.course), "AND exam_dt=",
-                sqlDateValue(record.examDt), " AND serial_nbr=",
-                sqlLongValue(record.serialNbr), " AND version=",
-                sqlStringValue(record.version));
+                LogicUtils.sqlStringValue(record.stuId), " AND course=",
+                LogicUtils.sqlStringValue(record.course), "AND exam_dt=",
+                LogicUtils.sqlDateValue(record.examDt), " AND serial_nbr=",
+                LogicUtils.sqlLongValue(record.serialNbr), " AND version=",
+                LogicUtils.sqlStringValue(record.version));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             result = stmt.executeUpdate(sql) == 1;
@@ -188,8 +176,7 @@ public final class RawMpeCreditLogic extends AbstractRawLogic<RawMpeCredit> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawMpeCredit> queryAll(final Cache cache) throws SQLException {
+    public static List<RawMpeCredit> queryAll(final Cache cache) throws SQLException {
 
         return executeSimpleQuery(cache, "SELECT * FROM mpe_credit");
     }
@@ -212,7 +199,7 @@ public final class RawMpeCreditLogic extends AbstractRawLogic<RawMpeCredit> {
         } else {
             final String sql = SimpleBuilder.concat(
                     "SELECT * FROM mpe_credit",
-                    " WHERE stu_id=", sqlStringValue(stuId));
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(stuId));
 
             result = executeSimpleQuery(cache, sql);
         }
@@ -233,7 +220,7 @@ public final class RawMpeCreditLogic extends AbstractRawLogic<RawMpeCredit> {
 
         final String sql = SimpleBuilder.concat(
                 "SELECT * FROM mpe_credit",
-                " WHERE serial_nbr=", sqlLongValue(serialNbr));
+                " WHERE serial_nbr=", LogicUtils.sqlLongValue(serialNbr));
 
         return executeSimpleQuery(cache, sql);
     }
@@ -251,7 +238,7 @@ public final class RawMpeCreditLogic extends AbstractRawLogic<RawMpeCredit> {
 
         final String sql = SimpleBuilder.concat(
                 "SELECT * FROM mpe_credit",
-                " WHERE course=", sqlStringValue(courseId));
+                " WHERE course=", LogicUtils.sqlStringValue(courseId));
 
         return executeSimpleQuery(cache, sql);
     }
@@ -265,7 +252,7 @@ public final class RawMpeCreditLogic extends AbstractRawLogic<RawMpeCredit> {
      * @param credit the placement credit to apply
      * @throws SQLException if there is an error accessing the database
      */
-    public void apply(final Cache cache, final RawMpeCredit credit) throws SQLException {
+    public static void apply(final Cache cache, final RawMpeCredit credit) throws SQLException {
 
         if (!credit.stuId.startsWith("99")) {
 
@@ -279,7 +266,7 @@ public final class RawMpeCreditLogic extends AbstractRawLogic<RawMpeCredit> {
                     final String student = credit.stuId;
 
                     final String sql1 = SimpleBuilder.concat("DELETE FROM mpe_credit",
-                            " WHERE stu_id=", sqlStringValue(student),
+                            " WHERE stu_id=", LogicUtils.sqlStringValue(student),
                             " AND course MATCHES 'M 100*'");
 
                     try (final Statement stmt = cache.conn.createStatement()) {
@@ -294,8 +281,8 @@ public final class RawMpeCreditLogic extends AbstractRawLogic<RawMpeCredit> {
 
                     final String sql2 = SimpleBuilder.concat(
                             "SELECT exam_placed FROM mpe_credit",
-                            " WHERE stu_id=", sqlStringValue(student),
-                            " AND course=", sqlStringValue(course));
+                            " WHERE stu_id=", LogicUtils.sqlStringValue(student),
+                            " AND course=", LogicUtils.sqlStringValue(course));
 
                     final boolean found;
                     String orig = null;
@@ -328,13 +315,13 @@ public final class RawMpeCreditLogic extends AbstractRawLogic<RawMpeCredit> {
      * @param credit the placement credit to apply
      * @throws SQLException if there is an error accessing the database
      */
-    private void applyM100T(final Cache cache, final RawMpeCredit credit) throws SQLException {
+    private static void applyM100T(final Cache cache, final RawMpeCredit credit) throws SQLException {
 
         final String student = credit.stuId;
 
         // If there exists an M 100C or M 100M row, do nothing
         final String sql1 = SimpleBuilder.concat("SELECT * FROM mpe_credit",
-                " WHERE stu_id=", sqlStringValue(student),
+                " WHERE stu_id=", LogicUtils.sqlStringValue(student),
                 "   AND (course='M 100C' OR course='M 100M')");
 
         final List<RawMpeCredit> m100cm = executeSimpleQuery(cache, sql1);
@@ -343,7 +330,7 @@ public final class RawMpeCreditLogic extends AbstractRawLogic<RawMpeCredit> {
             // If there exists an M 100T row, update its date; otherwise, insert a new M 100T row
 
             final String sql2 = SimpleBuilder.concat("SELECT * FROM mpe_credit",
-                    " WHERE stu_id=", sqlStringValue(student),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(student),
                     "   AND course='M 100T'");
 
             final List<RawMpeCredit> m100t = executeSimpleQuery(cache, sql2);
@@ -352,11 +339,11 @@ public final class RawMpeCreditLogic extends AbstractRawLogic<RawMpeCredit> {
                 insert(cache, credit);
             } else {
                 final String sql3 = SimpleBuilder.concat("UPDATE mpe_credit SET ",
-                        "exam_dt=", sqlDateValue(credit.examDt),
-                        ",serial_nbr=", sqlLongValue(credit.serialNbr),
-                        ",version=", sqlStringValue(credit.version),
-                        ",exam_source=", sqlStringValue(credit.examSource),
-                        " WHERE stu_id=", sqlStringValue(student),
+                        "exam_dt=", LogicUtils.sqlDateValue(credit.examDt),
+                        ",serial_nbr=", LogicUtils.sqlLongValue(credit.serialNbr),
+                        ",version=", LogicUtils.sqlStringValue(credit.version),
+                        ",exam_source=", LogicUtils.sqlStringValue(credit.examSource),
+                        " WHERE stu_id=", LogicUtils.sqlStringValue(student),
                         " AND course='M 100T'");
 
                 try (final Statement stmt = cache.conn.createStatement()) {
@@ -375,13 +362,13 @@ public final class RawMpeCreditLogic extends AbstractRawLogic<RawMpeCredit> {
      * @param credit the placement credit to apply
      * @throws SQLException if there is an error accessing the database
      */
-    private void applyM100M(final Cache cache, final RawMpeCredit credit) throws SQLException {
+    private static void applyM100M(final Cache cache, final RawMpeCredit credit) throws SQLException {
 
         final String student = credit.stuId;
 
         // If there exists an M 100C row, we do nothing
         final String sql2 = SimpleBuilder.concat("SELECT * FROM mpe_credit",
-                " WHERE stu_id=", sqlStringValue(student),
+                " WHERE stu_id=", LogicUtils.sqlStringValue(student),
                 "   AND course='M 100C'");
 
         final List<RawMpeCredit> m100c = executeSimpleQuery(cache, sql2);
@@ -400,7 +387,7 @@ public final class RawMpeCreditLogic extends AbstractRawLogic<RawMpeCredit> {
             // If there exists an M 100M row, we update placed and date
 
             final String sql4 = SimpleBuilder.concat("SELECT * FROM mpe_credit",
-                    " WHERE stu_id=", sqlStringValue(student),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(student),
                     "   AND course='M 100M'");
 
             final List<RawMpeCredit> m100m = executeSimpleQuery(cache, sql4);
@@ -410,12 +397,12 @@ public final class RawMpeCreditLogic extends AbstractRawLogic<RawMpeCredit> {
             } else {
                 // Result has improved, so update placed & exam date.
                 final String sql5 = SimpleBuilder.concat("UPDATE mpe_credit",
-                        " SET exam_placed=", sqlStringValue(credit.examPlaced),
-                        ",exam_dt=", sqlDateValue(credit.examDt),
-                        ",serial_nbr=", sqlLongValue(credit.serialNbr),
-                        ",version=", sqlStringValue(credit.version),
-                        ",exam_source=", sqlStringValue(credit.examSource),
-                        " WHERE stu_id=", sqlStringValue(credit.stuId),
+                        " SET exam_placed=", LogicUtils.sqlStringValue(credit.examPlaced),
+                        ",exam_dt=", LogicUtils.sqlDateValue(credit.examDt),
+                        ",serial_nbr=", LogicUtils.sqlLongValue(credit.serialNbr),
+                        ",version=", LogicUtils.sqlStringValue(credit.version),
+                        ",exam_source=", LogicUtils.sqlStringValue(credit.examSource),
+                        " WHERE stu_id=", LogicUtils.sqlStringValue(credit.stuId),
                         " AND course='M 100M'");
 
                 try (final Statement stmt = cache.conn.createStatement()) {
@@ -446,12 +433,12 @@ public final class RawMpeCreditLogic extends AbstractRawLogic<RawMpeCredit> {
             // Result is unchanged, so update existing record
 
             final String sql = SimpleBuilder.concat("UPDATE mpe_credit",
-                    " SET exam_dt=", sqlDateValue(credit.examDt),
-                    ",serial_nbr=", sqlLongValue(credit.serialNbr),
-                    ",version=", sqlStringValue(credit.version),
-                    ",exam_source=", sqlStringValue(credit.examSource),
-                    " WHERE stu_id=", sqlStringValue(student),
-                    " AND course=", sqlStringValue(course));
+                    " SET exam_dt=", LogicUtils.sqlDateValue(credit.examDt),
+                    ",serial_nbr=", LogicUtils.sqlLongValue(credit.serialNbr),
+                    ",version=", LogicUtils.sqlStringValue(credit.version),
+                    ",exam_source=", LogicUtils.sqlStringValue(credit.examSource),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(student),
+                    " AND course=", LogicUtils.sqlStringValue(course));
 
             try (final Statement stmt = cache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
@@ -463,12 +450,12 @@ public final class RawMpeCreditLogic extends AbstractRawLogic<RawMpeCredit> {
             // Result has improved, so update placed & exam date.
 
             final String sql = SimpleBuilder.concat("UPDATE mpe_credit",
-                    " SET exam_placed='C',exam_dt=", sqlDateValue(credit.examDt),
-                    ",serial_nbr=", sqlLongValue(credit.serialNbr),
-                    ",version=", sqlStringValue(credit.version),
-                    ",exam_source=", sqlStringValue(credit.examSource),
-                    " WHERE stu_id=", sqlStringValue(student),
-                    " AND course=", sqlStringValue(course));
+                    " SET exam_placed='C',exam_dt=", LogicUtils.sqlDateValue(credit.examDt),
+                    ",serial_nbr=", LogicUtils.sqlLongValue(credit.serialNbr),
+                    ",version=", LogicUtils.sqlStringValue(credit.version),
+                    ",exam_source=", LogicUtils.sqlStringValue(credit.examSource),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(student),
+                    " AND course=", LogicUtils.sqlStringValue(course));
 
             try (final Statement stmt = cache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
@@ -481,13 +468,13 @@ public final class RawMpeCreditLogic extends AbstractRawLogic<RawMpeCredit> {
             // New P or C status, so update row
 
             final String sql = SimpleBuilder.concat("UPDATE mpe_credit",
-                    " SET exam_placed=", sqlStringValue(credit.examPlaced),
-                    ",exam_dt=", sqlDateValue(credit.examDt),
-                    ",serial_nbr=", sqlLongValue(credit.serialNbr),
-                    ",version=", sqlStringValue(credit.version),
-                    ",exam_source=", sqlStringValue(credit.examSource),
-                    " WHERE stu_id=", sqlStringValue(student),
-                    " AND course=", sqlStringValue(course));
+                    " SET exam_placed=", LogicUtils.sqlStringValue(credit.examPlaced),
+                    ",exam_dt=", LogicUtils.sqlDateValue(credit.examDt),
+                    ",serial_nbr=", LogicUtils.sqlLongValue(credit.serialNbr),
+                    ",version=", LogicUtils.sqlStringValue(credit.version),
+                    ",exam_source=", LogicUtils.sqlStringValue(credit.examSource),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(student),
+                    " AND course=", LogicUtils.sqlStringValue(course));
 
             try (final Statement stmt = cache.conn.createStatement()) {
                 stmt.executeUpdate(sql);
@@ -557,7 +544,7 @@ public final class RawMpeCreditLogic extends AbstractRawLogic<RawMpeCredit> {
      */
     private static void getPlacementTestStudent(final String studentId, final Collection<? super RawMpeCredit> result) {
 
-        if (RawLogicUtilities.validate99PLStudentId(studentId)) {
+        if (LogicUtils.validate99PLStudentId(studentId)) {
 
             final char ch5 = studentId.charAt(4);
             final char ch6 = studentId.charAt(5);

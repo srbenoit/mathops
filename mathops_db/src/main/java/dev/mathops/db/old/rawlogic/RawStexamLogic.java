@@ -52,10 +52,8 @@ import java.util.List;
  * calc_nbr             char(7)                   yes
  * </pre>
  */
-public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
-
-    /** A single instance. */
-    public static final RawStexamLogic INSTANCE = new RawStexamLogic();
+public enum RawStexamLogic {
+    ;
 
     /** The types considered "unit" exams. */
     public static final String[] UNIT_EXAM_TYPES = {"U", "F"};
@@ -67,14 +65,6 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
     public static final String[] ALL_EXAM_TYPES = {"U", "F", "R"};
 
     /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawStexamLogic() {
-
-        super();
-    }
-
-    /**
      * Inserts a new record.
      *
      * @param cache  the data cache
@@ -82,13 +72,12 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawStexam record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawStexam record) throws SQLException {
 
         if (record.serialNbr == null || record.version == null || record.stuId == null
-                || record.examDt == null || record.examScore == null || record.startTime == null
-                || record.finishTime == null || record.timeOk == null || record.passed == null
-                || record.course == null || record.unit == null || record.examType == null) {
+            || record.examDt == null || record.examScore == null || record.startTime == null
+            || record.finishTime == null || record.timeOk == null || record.passed == null
+            || record.course == null || record.unit == null || record.examType == null) {
             throw new SQLException("Null value in primary key or required field.");
         }
 
@@ -102,7 +91,7 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
             // Adjust serial number if needed to avoid collision with existing record
             Long ser = record.serialNbr;
             for (int i = 0; i < 1000; ++i) {
-                final Integer existing = executeSimpleIntQuery(cache.conn,
+                final Integer existing = LogicUtils.executeSimpleIntQuery(cache.conn,
                         "SELECT COUNT(*) FROM stexam WHERE serial_nbr=" + ser);
 
                 if (existing == null || existing.longValue() == 0L) {
@@ -136,23 +125,23 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
                     "INSERT INTO stexam (serial_nbr,version,stu_id,exam_dt,exam_score,",
                     "mastery_score,start_time,finish_time,time_ok,passed,seq_nbr,course,",
                     "unit,exam_type,is_first_passed,exam_source,calc_nbr) VALUES (",
-                    sqlLongValue(ser), ",",
-                    sqlStringValue(record.version), ",",
-                    sqlStringValue(record.stuId), ",",
-                    sqlDateValue(examDate), ",",
-                    sqlIntegerValue(record.examScore), ",",
-                    sqlIntegerValue(record.masteryScore), ",",
-                    sqlIntegerValue(start), ",",
-                    sqlIntegerValue(finish), ",",
-                    sqlStringValue(record.timeOk), ",",
-                    sqlStringValue(record.passed), ",",
-                    sqlIntegerValue(record.seqNbr), ",",
-                    sqlStringValue(record.course), ",",
-                    sqlIntegerValue(record.unit), ",",
-                    sqlStringValue(record.examType), ",",
-                    sqlStringValue(record.isFirstPassed), ",",
-                    sqlStringValue(record.examSource), ",",
-                    sqlStringValue(record.calcNbr), ")");
+                    LogicUtils.sqlLongValue(ser), ",",
+                    LogicUtils.sqlStringValue(record.version), ",",
+                    LogicUtils.sqlStringValue(record.stuId), ",",
+                    LogicUtils.sqlDateValue(examDate), ",",
+                    LogicUtils.sqlIntegerValue(record.examScore), ",",
+                    LogicUtils.sqlIntegerValue(record.masteryScore), ",",
+                    LogicUtils.sqlIntegerValue(start), ",",
+                    LogicUtils.sqlIntegerValue(finish), ",",
+                    LogicUtils.sqlStringValue(record.timeOk), ",",
+                    LogicUtils.sqlStringValue(record.passed), ",",
+                    LogicUtils.sqlIntegerValue(record.seqNbr), ",",
+                    LogicUtils.sqlStringValue(record.course), ",",
+                    LogicUtils.sqlIntegerValue(record.unit), ",",
+                    LogicUtils.sqlStringValue(record.examType), ",",
+                    LogicUtils.sqlStringValue(record.isFirstPassed), ",",
+                    LogicUtils.sqlStringValue(record.examSource), ",",
+                    LogicUtils.sqlStringValue(record.calcNbr), ")");
 
             try (final Statement stmt = cache.conn.createStatement()) {
                 result = stmt.executeUpdate(sql) == 1;
@@ -176,13 +165,12 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawStexam record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawStexam record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM stexam",
-                " WHERE serial_nbr=", sqlLongValue(record.serialNbr),
-                " AND version=", sqlStringValue(record.version),
-                " AND stu_id=", sqlStringValue(record.stuId));
+                " WHERE serial_nbr=", LogicUtils.sqlLongValue(record.serialNbr),
+                " AND version=", LogicUtils.sqlStringValue(record.version),
+                " AND stu_id=", LogicUtils.sqlStringValue(record.stuId));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -204,8 +192,7 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawStexam> queryAll(final Cache cache) throws SQLException {
+    public static List<RawStexam> queryAll(final Cache cache) throws SQLException {
 
         return executeQuery(cache.conn, "SELECT * FROM stexam");
     }
@@ -229,7 +216,7 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
             result = queryTestDatByStudent(stuId);
         } else {
             final String sql = SimpleBuilder.concat("SELECT * FROM stexam ",
-                    "WHERE stu_id=", sqlStringValue(stuId),
+                    "WHERE stu_id=", LogicUtils.sqlStringValue(stuId),
                     (all ? CoreConstants.EMPTY : " AND (passed='Y' OR passed='N')"),
                     " ORDER BY exam_dt,finish_time");
 
@@ -260,8 +247,8 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
             result = queryByTestStudentCourse(stuId, course);
         } else {
             final String sql = SimpleBuilder.concat("SELECT * FROM stexam ",
-                    " WHERE stu_id=", sqlStringValue(stuId),
-                    "   AND course=", sqlStringValue(course),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(stuId),
+                    "   AND course=", LogicUtils.sqlStringValue(course),
                     (all ? CoreConstants.EMPTY : " AND (passed='Y' OR passed='N')"),
                     " ORDER BY exam_dt,finish_time");
 
@@ -285,7 +272,7 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
                                                 final boolean includeAll) throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM stexam ",
-                " WHERE course=", sqlStringValue(courseId),
+                " WHERE course=", LogicUtils.sqlStringValue(courseId),
                 (includeAll ? CoreConstants.EMPTY : " AND (passed='Y' OR passed='N')"),
                 " ORDER BY exam_dt,finish_time");
 
@@ -319,16 +306,16 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
 
         final int numCourses = courses.length;
         if (numCourses == 1) {
-            sql.add(" WHERE course=", sqlStringValue(courses[0]));
+            sql.add(" WHERE course=", LogicUtils.sqlStringValue(courses[0]));
         } else {
-            sql.add(" WHERE course IN (", sqlStringValue(courses[0]));
+            sql.add(" WHERE course IN (", LogicUtils.sqlStringValue(courses[0]));
             for (int i = 1; i < numCourses; ++i) {
-                sql.add(CoreConstants.COMMA_CHAR).add(sqlStringValue(courses[i]));
+                sql.add(CoreConstants.COMMA_CHAR).add(LogicUtils.sqlStringValue(courses[i]));
             }
             sql.add(')');
         }
 
-        sql.add(" AND exam_dt>=", sqlDateValue(earliest),
+        sql.add(" AND exam_dt>=", LogicUtils.sqlDateValue(earliest),
                 " ORDER BY exam_dt,finish_time");
 
         final List<RawStexam> all = executeQuery(cache.conn, sql.toString());
@@ -370,8 +357,7 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
 
         final HtmlBuilder sql = new HtmlBuilder(200);
 
-        sql.add("SELECT * FROM stexam ",
-                " WHERE course=", sqlStringValue(course));
+        sql.add("SELECT * FROM stexam WHERE course=", LogicUtils.sqlStringValue(course));
 
         if (passedOnly) {
             sql.add(" AND passed='Y'");
@@ -382,11 +368,11 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
         if (examTypes != null) {
             final int numExamTypes = examTypes.length;
             if (numExamTypes == 1) {
-                sql.add(" AND exam_type=", sqlStringValue(examTypes[0]));
+                sql.add(" AND exam_type=", LogicUtils.sqlStringValue(examTypes[0]));
             } else if (numExamTypes > 0) {
-                sql.add(" AND exam_type IN (", sqlStringValue(examTypes[0]));
+                sql.add(" AND exam_type IN (", LogicUtils.sqlStringValue(examTypes[0]));
                 for (int i = 1; i < numExamTypes; ++i) {
-                    sql.add(CoreConstants.COMMA_CHAR).add(sqlStringValue(examTypes[i]));
+                    sql.add(CoreConstants.COMMA_CHAR).add(LogicUtils.sqlStringValue(examTypes[i]));
                 }
                 sql.add(')');
             }
@@ -414,8 +400,8 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
         final HtmlBuilder sql = new HtmlBuilder(200);
 
         sql.add("SELECT * FROM stexam ",
-                " WHERE stu_id=", sqlStringValue(stuId),
-                "   AND course=", sqlStringValue(course));
+                " WHERE stu_id=", LogicUtils.sqlStringValue(stuId),
+                "   AND course=", LogicUtils.sqlStringValue(course));
 
         if (passedOnly) {
             sql.add(" AND passed='Y'");
@@ -426,11 +412,11 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
         if (examTypes != null) {
             final int numExamTypes = examTypes.length;
             if (numExamTypes == 1) {
-                sql.add(" AND exam_type=", sqlStringValue(examTypes[0]));
+                sql.add(" AND exam_type=", LogicUtils.sqlStringValue(examTypes[0]));
             } else if (numExamTypes > 0) {
-                sql.add(" AND exam_type IN (", sqlStringValue(examTypes[0]));
+                sql.add(" AND exam_type IN (", LogicUtils.sqlStringValue(examTypes[0]));
                 for (int i = 1; i < numExamTypes; ++i) {
-                    sql.add(CoreConstants.COMMA_CHAR).add(sqlStringValue(examTypes[i]));
+                    sql.add(CoreConstants.COMMA_CHAR).add(LogicUtils.sqlStringValue(examTypes[i]));
                 }
                 sql.add(')');
             }
@@ -460,9 +446,9 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
         final HtmlBuilder sql = new HtmlBuilder(200);
 
         sql.add("SELECT * FROM stexam ",
-                " WHERE stu_id=", sqlStringValue(stuId),
-                "   AND course=", sqlStringValue(course),
-                "   AND unit=", sqlIntegerValue(unit));
+                " WHERE stu_id=", LogicUtils.sqlStringValue(stuId),
+                "   AND course=", LogicUtils.sqlStringValue(course),
+                "   AND unit=", LogicUtils.sqlIntegerValue(unit));
 
         if (passedOnly) {
             sql.add(" AND passed='Y'");
@@ -473,11 +459,11 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
         if (examTypes != null) {
             final int numExamTypes = examTypes.length;
             if (numExamTypes == 1) {
-                sql.add(" AND exam_type=", sqlStringValue(examTypes[0]));
+                sql.add(" AND exam_type=", LogicUtils.sqlStringValue(examTypes[0]));
             } else if (numExamTypes > 0) {
-                sql.add(" AND exam_type IN (", sqlStringValue(examTypes[0]));
+                sql.add(" AND exam_type IN (", LogicUtils.sqlStringValue(examTypes[0]));
                 for (int i = 1; i < numExamTypes; ++i) {
-                    sql.add(CoreConstants.COMMA_CHAR).add(sqlStringValue(examTypes[i]));
+                    sql.add(CoreConstants.COMMA_CHAR).add(LogicUtils.sqlStringValue(examTypes[i]));
                 }
                 sql.add(')');
             }
@@ -504,8 +490,8 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
         final HtmlBuilder sql = new HtmlBuilder(200);
 
         sql.add("SELECT * FROM stexam ",
-                " WHERE stu_id=", sqlStringValue(stuId),
-                "   AND version=", sqlStringValue(version));
+                " WHERE stu_id=", LogicUtils.sqlStringValue(stuId),
+                "   AND version=", LogicUtils.sqlStringValue(version));
 
         if (passedOnly) {
             sql.add(" AND passed='Y'");
@@ -534,10 +520,10 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
                                             final Integer unit, final String examType) throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM stexam ",
-                " WHERE stu_id=", sqlStringValue(stuId),
-                " AND course=", sqlStringValue(course),
-                " AND unit=", sqlIntegerValue(unit),
-                " AND exam_type=", sqlStringValue(examType),
+                " WHERE stu_id=", LogicUtils.sqlStringValue(stuId),
+                " AND course=", LogicUtils.sqlStringValue(course),
+                " AND unit=", LogicUtils.sqlIntegerValue(unit),
+                " AND exam_type=", LogicUtils.sqlStringValue(examType),
                 " AND is_first_passed='Y'");
 
         RawStexam result = null;
@@ -607,10 +593,10 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
             result = false;
         } else {
             final String sql = SimpleBuilder.concat("UPDATE stexam ",
-                    " SET passed=", sqlStringValue(newPassed),
-                    " WHERE serial_nbr=", sqlLongValue(rec.serialNbr),
-                    " AND version=", sqlStringValue(rec.version),
-                    " AND stu_id=", sqlStringValue(rec.stuId));
+                    " SET passed=", LogicUtils.sqlStringValue(newPassed),
+                    " WHERE serial_nbr=", LogicUtils.sqlLongValue(rec.serialNbr),
+                    " AND version=", LogicUtils.sqlStringValue(rec.version),
+                    " AND stu_id=", LogicUtils.sqlStringValue(rec.stuId));
 
             try (final Statement stmt = cache.conn.createStatement()) {
                 result = stmt.executeUpdate(sql) > 0;
@@ -648,11 +634,11 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
             result = false;
         } else {
             final String sql = SimpleBuilder.concat("UPDATE stexam ",
-                    " SET exam_score=", sqlIntegerValue(newScore),
-                    ", passed=", sqlStringValue(newPassed),
-                    " WHERE serial_nbr=", sqlLongValue(rec.serialNbr),
-                    " AND version=", sqlStringValue(rec.version),
-                    " AND stu_id=", sqlStringValue(rec.stuId));
+                    " SET exam_score=", LogicUtils.sqlIntegerValue(newScore),
+                    ", passed=", LogicUtils.sqlStringValue(newPassed),
+                    " WHERE serial_nbr=", LogicUtils.sqlLongValue(rec.serialNbr),
+                    " AND version=", LogicUtils.sqlStringValue(rec.version),
+                    " AND stu_id=", LogicUtils.sqlStringValue(rec.stuId));
 
             try (final Statement stmt = cache.conn.createStatement()) {
                 result = stmt.executeUpdate(sql) > 0;
@@ -677,18 +663,18 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
      * @param newMastery the new mastery score
      * @throws SQLException if there is an error updating the record
      */
-    public static void updateMasteryScore(final Cache cache, final RawStexam rec,
-                                          final Integer newMastery) throws SQLException {
+    public static void updateMasteryScore(final Cache cache, final RawStexam rec, final Integer newMastery)
+            throws SQLException {
 
         if (rec.stuId.startsWith("99")) {
             Log.info("Skipping update of StudentExam for test student:");
             Log.info("  Student ID: ", rec.stuId);
         } else {
             final String sql = SimpleBuilder.concat("UPDATE stexam ",
-                    " SET mastery_score=", sqlIntegerValue(newMastery),
-                    " WHERE serial_nbr=", sqlLongValue(rec.serialNbr),
-                    " AND version=", sqlStringValue(rec.version),
-                    " AND stu_id=", sqlStringValue(rec.stuId));
+                    " SET mastery_score=", LogicUtils.sqlIntegerValue(newMastery),
+                    " WHERE serial_nbr=", LogicUtils.sqlLongValue(rec.serialNbr),
+                    " AND version=", LogicUtils.sqlStringValue(rec.version),
+                    " AND stu_id=", LogicUtils.sqlStringValue(rec.stuId));
 
             try (final Statement stmt = cache.conn.createStatement()) {
                 if (stmt.executeUpdate(sql) > 0) {
@@ -716,8 +702,7 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
 
         final boolean result;
 
-        // TODO: If the date is changing, should the start time be adjusted to be a number
-        // relative to the new day?
+        // TODO: If the date is changing, should the start time be adjusted to be a number relative to the new day?
 
         if (rec.stuId.startsWith("99")) {
             Log.info("Skipping update of StudentExam for test student:");
@@ -725,11 +710,11 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
             result = false;
         } else {
             final String sql = SimpleBuilder.concat("UPDATE stexam ",
-                    " SET exam_dt=", sqlDateValue(newExamDate),
-                    ", finish_time=", sqlIntegerValue(newFinishTime),
-                    " WHERE serial_nbr=", sqlLongValue(rec.serialNbr),
-                    " AND version=", sqlStringValue(rec.version),
-                    " AND stu_id=", sqlStringValue(rec.stuId));
+                    " SET exam_dt=", LogicUtils.sqlDateValue(newExamDate),
+                    ", finish_time=", LogicUtils.sqlIntegerValue(newFinishTime),
+                    " WHERE serial_nbr=", LogicUtils.sqlLongValue(rec.serialNbr),
+                    " AND version=", LogicUtils.sqlStringValue(rec.version),
+                    " AND stu_id=", LogicUtils.sqlStringValue(rec.stuId));
 
             try (final Statement stmt = cache.conn.createStatement()) {
                 result = stmt.executeUpdate(sql) > 0;
@@ -746,25 +731,56 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
     }
 
     /**
-     * Updates the "is_first_passed" field of an exam. This method does not commit the update.
+     * Updates the "is_first_passed" field of an exam.
      *
      * @param cache          the data cache
      * @param rec            the object to update
      * @param newFirstPassed the new "is_first_passed" value
      * @throws SQLException if there is an error updating the record
      */
-    private static void updateFirstPassed(final Cache cache, final RawStexam rec,
-                                          final String newFirstPassed) throws SQLException {
+    private static void updateFirstPassed(final Cache cache, final RawStexam rec, final String newFirstPassed)
+            throws SQLException {
 
         if (rec.stuId.startsWith("99")) {
             Log.info("Skipping update of StudentExam for test student:");
             Log.info("  Student ID: ", rec.stuId);
         } else {
             final String sql = SimpleBuilder.concat("UPDATE stexam ",
-                    " SET is_first_passed=", sqlStringValue(newFirstPassed),
-                    " WHERE serial_nbr=", sqlLongValue(rec.serialNbr),
-                    " AND version=", sqlStringValue(rec.version),
-                    " AND stu_id=", sqlStringValue(rec.stuId));
+                    " SET is_first_passed=", LogicUtils.sqlStringValue(newFirstPassed),
+                    " WHERE serial_nbr=", LogicUtils.sqlLongValue(rec.serialNbr),
+                    " AND version=", LogicUtils.sqlStringValue(rec.version),
+                    " AND stu_id=", LogicUtils.sqlStringValue(rec.stuId));
+
+            try (final Statement stmt = cache.conn.createStatement()) {
+                if (stmt.executeUpdate(sql) > 0) {
+                    cache.conn.commit();
+                } else {
+                    cache.conn.rollback();
+                }
+            }
+        }
+    }
+
+    /**
+     * Updates the "calc_nbr" field of an exam.
+     *
+     * @param cache      the data cache
+     * @param rec        the object to update
+     * @param newCalcNbr the new "calc_nbr" value
+     * @throws SQLException if there is an error updating the record
+     */
+    private static void updateCalcNbr(final Cache cache, final RawStexam rec, final String newCalcNbr)
+            throws SQLException {
+
+        if (rec.stuId.startsWith("99")) {
+            Log.info("Skipping update of StudentExam for test student:");
+            Log.info("  Student ID: ", rec.stuId);
+        } else {
+            final String sql = SimpleBuilder.concat("UPDATE stexam ",
+                    " SET calc_nbr=", LogicUtils.sqlStringValue(newCalcNbr),
+                    " WHERE serial_nbr=", LogicUtils.sqlLongValue(rec.serialNbr),
+                    " AND version=", LogicUtils.sqlStringValue(rec.version),
+                    " AND stu_id=", LogicUtils.sqlStringValue(rec.stuId));
 
             try (final Statement stmt = cache.conn.createStatement()) {
                 if (stmt.executeUpdate(sql) > 0) {
@@ -950,7 +966,7 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
      * Looks for a mastery exam attempt in a list of student mastery attempts whose finish time is greater than some
      * target value.
      *
-     * @param list the list to search
+     * @param list    the list to search
      * @param minutes the finish time
      * @return {@code true} if the list contained any exams with finish time greater than or equal to the target minute
      */
@@ -974,8 +990,6 @@ public final class RawStexamLogic extends AbstractRawLogic<RawStexam> {
 
         return found;
     }
-
-
 
     /**
      * Executes a query that returns a list of records.

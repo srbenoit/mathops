@@ -10,21 +10,20 @@ import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.rawrecord.RawMpeCredit;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
-
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Tests for the {@code RawMpeCreditLogic} class.
@@ -147,12 +146,12 @@ final class TestRawMpeCreditLogic {
                 final RawMpeCredit raw6 = new RawMpeCredit("888880003", RawRecordConstants.M100T, "P",
                         date6, null, Long.valueOf(12349L), "FOFUM", null);
 
-                assertTrue(RawMpeCreditLogic.INSTANCE.insert(cache, raw1), "Failed to insert mpe_credit");
-                assertTrue(RawMpeCreditLogic.INSTANCE.insert(cache, raw2), "Failed to insert mpe_credit");
-                assertTrue(RawMpeCreditLogic.INSTANCE.insert(cache, raw3), "Failed to insert mpe_credit");
-                assertTrue(RawMpeCreditLogic.INSTANCE.insert(cache, raw4), "Failed to insert mpe_credit");
-                assertTrue(RawMpeCreditLogic.INSTANCE.insert(cache, raw5), "Failed to insert mpe_credit");
-                assertTrue(RawMpeCreditLogic.INSTANCE.insert(cache, raw6), "Failed to insert mpe_credit");
+                assertTrue(RawMpeCreditLogic.insert(cache, raw1), "Failed to insert mpe_credit");
+                assertTrue(RawMpeCreditLogic.insert(cache, raw2), "Failed to insert mpe_credit");
+                assertTrue(RawMpeCreditLogic.insert(cache, raw3), "Failed to insert mpe_credit");
+                assertTrue(RawMpeCreditLogic.insert(cache, raw4), "Failed to insert mpe_credit");
+                assertTrue(RawMpeCreditLogic.insert(cache, raw5), "Failed to insert mpe_credit");
+                assertTrue(RawMpeCreditLogic.insert(cache, raw6), "Failed to insert mpe_credit");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -172,7 +171,7 @@ final class TestRawMpeCreditLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawMpeCredit> all = RawMpeCreditLogic.INSTANCE.queryAll(cache);
+                final List<RawMpeCredit> all = RawMpeCreditLogic.queryAll(cache);
 
                 assertEquals(6, all.size(), "Incorrect record count from queryAll");
 
@@ -422,10 +421,10 @@ final class TestRawMpeCreditLogic {
                 final RawMpeCredit raw2 = new RawMpeCredit("123456789", RawRecordConstants.M124, "C",
                         date1, date2, Long.valueOf(12345L), "MPTUN", "RM");
 
-                final boolean result = RawMpeCreditLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawMpeCreditLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawMpeCredit> all = RawMpeCreditLogic.INSTANCE.queryAll(cache);
+                final List<RawMpeCredit> all = RawMpeCreditLogic.queryAll(cache);
 
                 assertEquals(5, all.size(), "Incorrect record count from queryAll after delete");
 
@@ -534,7 +533,7 @@ final class TestRawMpeCreditLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                RawMpeCreditLogic.INSTANCE.apply(cache, rec);
+                RawMpeCreditLogic.apply(cache, rec);
 
                 final List<RawMpeCredit> all = RawMpeCreditLogic.queryByStudent(cache, "888880001");
 
@@ -593,7 +592,7 @@ final class TestRawMpeCreditLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                RawMpeCreditLogic.INSTANCE.apply(cache, rec);
+                RawMpeCreditLogic.apply(cache, rec);
 
                 final List<RawMpeCredit> all = RawMpeCreditLogic.queryByStudent(cache, "888880002");
 
@@ -652,7 +651,7 @@ final class TestRawMpeCreditLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                RawMpeCreditLogic.INSTANCE.apply(cache, rec);
+                RawMpeCreditLogic.apply(cache, rec);
 
                 final List<RawMpeCredit> all = RawMpeCreditLogic.queryByStudent(cache, "888880003");
 
@@ -712,7 +711,7 @@ final class TestRawMpeCreditLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                RawMpeCreditLogic.INSTANCE.apply(cache, rec);
+                RawMpeCreditLogic.apply(cache, rec);
 
                 final List<RawMpeCredit> all = RawMpeCreditLogic.queryByStudent(cache, "888880004");
 
@@ -772,7 +771,7 @@ final class TestRawMpeCreditLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                RawMpeCreditLogic.INSTANCE.apply(cache, rec);
+                RawMpeCreditLogic.apply(cache, rec);
 
                 final List<RawMpeCredit> all = RawMpeCreditLogic.queryByStudent(cache, "888880001");
 
@@ -832,7 +831,7 @@ final class TestRawMpeCreditLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                RawMpeCreditLogic.INSTANCE.apply(cache, rec);
+                RawMpeCreditLogic.apply(cache, rec);
 
                 final List<RawMpeCredit> all = RawMpeCreditLogic.queryByStudent(cache, "888880002");
 
@@ -891,7 +890,7 @@ final class TestRawMpeCreditLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                RawMpeCreditLogic.INSTANCE.apply(cache, rec);
+                RawMpeCreditLogic.apply(cache, rec);
 
                 final List<RawMpeCredit> all = RawMpeCreditLogic.queryByStudent(cache, "888880003");
 
@@ -951,7 +950,7 @@ final class TestRawMpeCreditLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                RawMpeCreditLogic.INSTANCE.apply(cache, rec);
+                RawMpeCreditLogic.apply(cache, rec);
 
                 final List<RawMpeCredit> all = RawMpeCreditLogic.queryByStudent(cache, "888880002");
 
@@ -1011,7 +1010,7 @@ final class TestRawMpeCreditLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                RawMpeCreditLogic.INSTANCE.apply(cache, rec);
+                RawMpeCreditLogic.apply(cache, rec);
 
                 final List<RawMpeCredit> all = RawMpeCreditLogic.queryByStudent(cache, "123456789");
 
@@ -1061,7 +1060,7 @@ final class TestRawMpeCreditLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                RawMpeCreditLogic.INSTANCE.apply(cache, rec);
+                RawMpeCreditLogic.apply(cache, rec);
 
                 final List<RawMpeCredit> all = RawMpeCreditLogic.queryByStudent(cache, "123456789");
 
@@ -1111,7 +1110,7 @@ final class TestRawMpeCreditLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                RawMpeCreditLogic.INSTANCE.apply(cache, rec);
+                RawMpeCreditLogic.apply(cache, rec);
 
                 final List<RawMpeCredit> all = RawMpeCreditLogic.queryByStudent(cache, "123456789");
 
@@ -1161,7 +1160,7 @@ final class TestRawMpeCreditLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                RawMpeCreditLogic.INSTANCE.apply(cache, rec);
+                RawMpeCreditLogic.apply(cache, rec);
 
                 final List<RawMpeCredit> all = RawMpeCreditLogic.queryByStudent(cache, "123456789");
 

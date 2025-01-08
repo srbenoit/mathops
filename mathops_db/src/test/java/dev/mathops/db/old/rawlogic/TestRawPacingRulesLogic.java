@@ -98,10 +98,10 @@ final class TestRawPacingRulesLogic {
                 final RawPacingRules raw3 = new RawPacingRules(fa20, "A", "F", "G");
                 final RawPacingRules raw4 = new RawPacingRules(fa21, "B", "H", "I");
 
-                assertTrue(RawPacingRulesLogic.INSTANCE.insert(cache, raw1), "Failed to insert pacing_rules 1");
-                assertTrue(RawPacingRulesLogic.INSTANCE.insert(cache, raw2), "Failed to insert pacing_rules 2");
-                assertTrue(RawPacingRulesLogic.INSTANCE.insert(cache, raw3), "Failed to insert pacing_rules 3");
-                assertTrue(RawPacingRulesLogic.INSTANCE.insert(cache, raw4), "Failed to insert pacing_rules 4");
+                assertTrue(RawPacingRulesLogic.insert(cache, raw1), "Failed to insert pacing_rules 1");
+                assertTrue(RawPacingRulesLogic.insert(cache, raw2), "Failed to insert pacing_rules 2");
+                assertTrue(RawPacingRulesLogic.insert(cache, raw3), "Failed to insert pacing_rules 3");
+                assertTrue(RawPacingRulesLogic.insert(cache, raw4), "Failed to insert pacing_rules 4");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -121,7 +121,7 @@ final class TestRawPacingRulesLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawPacingRules> all = RawPacingRulesLogic.INSTANCE.queryAll(cache);
+                final List<RawPacingRules> all = RawPacingRulesLogic.queryAll(cache);
 
                 assertEquals(4, all.size(), "Incorrect record count from queryAll");
 
@@ -328,10 +328,10 @@ final class TestRawPacingRulesLogic {
             try {
                 final RawPacingRules raw2 = new RawPacingRules(fa21, "A", "D", "E");
 
-                final boolean result = RawPacingRulesLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawPacingRulesLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawPacingRules> all = RawPacingRulesLogic.INSTANCE.queryAll(cache);
+                final List<RawPacingRules> all = RawPacingRulesLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll after delete");
 

@@ -23,18 +23,8 @@ import java.util.List;
  * instructor           char(30)                  yes
  * </pre>
  */
-public final class RawCohortLogic extends AbstractRawLogic<RawCohort> {
-
-    /** A single instance. */
-    public static final RawCohortLogic INSTANCE = new RawCohortLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawCohortLogic() {
-
-        super();
-    }
+public enum RawCohortLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -44,8 +34,7 @@ public final class RawCohortLogic extends AbstractRawLogic<RawCohort> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawCohort record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawCohort record) throws SQLException {
 
         if (record.cohort == null) {
             throw new SQLException("Null value in primary key field.");
@@ -53,9 +42,9 @@ public final class RawCohortLogic extends AbstractRawLogic<RawCohort> {
 
         final String sql = SimpleBuilder.concat(
                 "INSERT INTO cohort (cohort,size,instructor) VALUES (",
-                sqlStringValue(record.cohort), ",",
-                sqlIntegerValue(record.size), ",",
-                sqlStringValue(record.instructor), ")");
+                LogicUtils.sqlStringValue(record.cohort), ",",
+                LogicUtils.sqlIntegerValue(record.size), ",",
+                LogicUtils.sqlStringValue(record.instructor), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -78,11 +67,10 @@ public final class RawCohortLogic extends AbstractRawLogic<RawCohort> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawCohort record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawCohort record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM cohort ",
-                "WHERE cohort=", sqlStringValue(record.cohort));
+                "WHERE cohort=", LogicUtils.sqlStringValue(record.cohort));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -104,8 +92,7 @@ public final class RawCohortLogic extends AbstractRawLogic<RawCohort> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawCohort> queryAll(final Cache cache) throws SQLException {
+    public static List<RawCohort> queryAll(final Cache cache) throws SQLException {
 
         final List<RawCohort> result = new ArrayList<>(100);
 
@@ -134,7 +121,8 @@ public final class RawCohortLogic extends AbstractRawLogic<RawCohort> {
 
         RawCohort result = null;
 
-        final String sql = SimpleBuilder.concat("SELECT * FROM cohort WHERE cohort=", sqlStringValue(cohort));
+        final String sql = SimpleBuilder.concat(
+                "SELECT * FROM cohort WHERE cohort=", LogicUtils.sqlStringValue(cohort));
 
         try (final Statement stmt = cache.conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
@@ -160,7 +148,7 @@ public final class RawCohortLogic extends AbstractRawLogic<RawCohort> {
                                            final Integer newSize) throws SQLException {
 
         final String sql = SimpleBuilder.concat("UPDATE cohort SET size=",
-                sqlIntegerValue(newSize), " WHERE cohort=", sqlStringValue(cohort));
+                LogicUtils.sqlIntegerValue(newSize), " WHERE cohort=", LogicUtils.sqlStringValue(cohort));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;

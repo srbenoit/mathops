@@ -89,9 +89,9 @@ final class TestRawZipCodeLogic {
                 final RawZipCode raw2 = new RawZipCode("80222", "City2", "BB");
                 final RawZipCode raw3 = new RawZipCode("80333", "City3", "CC");
 
-                assertTrue(RawZipCodeLogic.INSTANCE.insert(cache, raw1), "Failed to insert zip code 1");
-                assertTrue(RawZipCodeLogic.INSTANCE.insert(cache, raw2), "Failed to insert zip code 2");
-                assertTrue(RawZipCodeLogic.INSTANCE.insert(cache, raw3), "Failed to insert zip code 3");
+                assertTrue(RawZipCodeLogic.insert(cache, raw1), "Failed to insert zip code 1");
+                assertTrue(RawZipCodeLogic.insert(cache, raw2), "Failed to insert zip code 2");
+                assertTrue(RawZipCodeLogic.insert(cache, raw3), "Failed to insert zip code 3");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -111,7 +111,7 @@ final class TestRawZipCodeLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawZipCode> all = RawZipCodeLogic.INSTANCE.queryAll(cache);
+                final List<RawZipCode> all = RawZipCodeLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -159,10 +159,10 @@ final class TestRawZipCodeLogic {
             try {
                 final RawZipCode raw2 = new RawZipCode("80222", "City2", "BB");
 
-                final boolean result = RawZipCodeLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawZipCodeLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawZipCode> all = RawZipCodeLogic.INSTANCE.queryAll(cache);
+                final List<RawZipCode> all = RawZipCodeLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 

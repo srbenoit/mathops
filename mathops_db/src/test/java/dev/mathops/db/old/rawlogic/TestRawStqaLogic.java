@@ -117,11 +117,11 @@ final class TestRawStqaLogic {
                 final RawStqa raw5 = new RawStqa(Long.valueOf(40404040L), Integer.valueOf(55), Integer.valueOf(5),
                         "5.5.5", "BB", "333333333", "18UE3", "Q", date56, "e", Integer.valueOf(80004));
 
-                assertTrue(RawStqaLogic.INSTANCE.insert(cache, raw1), "Failed to insert stqa 1");
-                assertTrue(RawStqaLogic.INSTANCE.insert(cache, raw2), "Failed to insert stqa 2");
-                assertTrue(RawStqaLogic.INSTANCE.insert(cache, raw3), "Failed to insert stqa 3");
-                assertTrue(RawStqaLogic.INSTANCE.insert(cache, raw4), "Failed to insert stqa 4");
-                assertTrue(RawStqaLogic.INSTANCE.insert(cache, raw5), "Failed to insert stqa 5");
+                assertTrue(RawStqaLogic.insert(cache, raw1), "Failed to insert stqa 1");
+                assertTrue(RawStqaLogic.insert(cache, raw2), "Failed to insert stqa 2");
+                assertTrue(RawStqaLogic.insert(cache, raw3), "Failed to insert stqa 3");
+                assertTrue(RawStqaLogic.insert(cache, raw4), "Failed to insert stqa 4");
+                assertTrue(RawStqaLogic.insert(cache, raw5), "Failed to insert stqa 5");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -141,7 +141,7 @@ final class TestRawStqaLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawStqa> all = RawStqaLogic.INSTANCE.queryAll(cache);
+                final List<RawStqa> all = RawStqaLogic.queryAll(cache);
 
                 assertEquals(5, all.size(), "Incorrect record count from queryAll");
 
@@ -491,7 +491,7 @@ final class TestRawStqaLogic {
 
                 assertTrue(result, "deleteAllForAttempt returned false");
 
-                final List<RawStqa> all = RawStqaLogic.INSTANCE.queryAll(cache);
+                final List<RawStqa> all = RawStqaLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll after deleteAllForAttempt");
 
@@ -583,11 +583,11 @@ final class TestRawStqaLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final boolean result = RawStqaLogic.INSTANCE.delete(cache, raw3);
+                final boolean result = RawStqaLogic.delete(cache, raw3);
 
                 assertTrue(result, "delete returned false");
 
-                final List<RawStqa> all = RawStqaLogic.INSTANCE.queryAll(cache);
+                final List<RawStqa> all = RawStqaLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 

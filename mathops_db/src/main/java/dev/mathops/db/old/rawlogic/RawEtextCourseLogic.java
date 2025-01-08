@@ -22,18 +22,8 @@ import java.util.List;
  * course               char(6)                   no      PK
  * </pre>
  */
-public final class RawEtextCourseLogic extends AbstractRawLogic<RawEtextCourse> {
-
-    /** A single instance. */
-    public static final RawEtextCourseLogic INSTANCE = new RawEtextCourseLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawEtextCourseLogic() {
-
-        super();
-    }
+public enum RawEtextCourseLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -43,16 +33,15 @@ public final class RawEtextCourseLogic extends AbstractRawLogic<RawEtextCourse> 
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawEtextCourse record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawEtextCourse record) throws SQLException {
 
         if (record.etextId == null || record.course == null) {
             throw new SQLException("Null value in primary key field.");
         }
 
         final String sql = SimpleBuilder.concat("INSERT INTO etext_course (etext_id,course) VALUES (",
-                sqlStringValue(record.etextId), ",",
-                sqlStringValue(record.course), ")");
+                LogicUtils.sqlStringValue(record.etextId), ",",
+                LogicUtils.sqlStringValue(record.course), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -75,12 +64,11 @@ public final class RawEtextCourseLogic extends AbstractRawLogic<RawEtextCourse> 
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawEtextCourse record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawEtextCourse record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM etext_course ",
-                "WHERE etext_id=", sqlStringValue(record.etextId),
-                "  AND course=", sqlStringValue(record.course));
+                "WHERE etext_id=", LogicUtils.sqlStringValue(record.etextId),
+                "  AND course=", LogicUtils.sqlStringValue(record.course));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -102,8 +90,7 @@ public final class RawEtextCourseLogic extends AbstractRawLogic<RawEtextCourse> 
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawEtextCourse> queryAll(final Cache cache) throws SQLException {
+    public static List<RawEtextCourse> queryAll(final Cache cache) throws SQLException {
 
         return executeQuery(cache, "SELECT * FROM etext_course");
     }
@@ -119,7 +106,7 @@ public final class RawEtextCourseLogic extends AbstractRawLogic<RawEtextCourse> 
     public static List<RawEtextCourse> queryByEtext(final Cache cache, final String etextId) throws SQLException {
 
         return executeQuery(cache, SimpleBuilder.concat(
-                "SELECT * FROM etext_course WHERE etext_id=", sqlStringValue(etextId)));
+                "SELECT * FROM etext_course WHERE etext_id=", LogicUtils.sqlStringValue(etextId)));
     }
 
     /**
@@ -134,7 +121,7 @@ public final class RawEtextCourseLogic extends AbstractRawLogic<RawEtextCourse> 
             throws SQLException {
 
         return executeQuery(cache, SimpleBuilder.concat(
-                "SELECT * FROM etext_course WHERE course=", sqlStringValue(courseId)));
+                "SELECT * FROM etext_course WHERE course=", LogicUtils.sqlStringValue(courseId)));
     }
 
     /**

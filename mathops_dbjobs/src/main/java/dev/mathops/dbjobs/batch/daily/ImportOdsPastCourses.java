@@ -173,7 +173,7 @@ public final class ImportOdsPastCourses {
 
                 final RawFfrTrns toInsert = new RawFfrTrns(stu, cid, "C", now, null);
 
-                if (RawFfrTrnsLogic.INSTANCE.insert(cache, toInsert)) {
+                if (RawFfrTrnsLogic.insert(cache, toInsert)) {
                     ++count;
                 } else {
                     report.add("Insert failed");

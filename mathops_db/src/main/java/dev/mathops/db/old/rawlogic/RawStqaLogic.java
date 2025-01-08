@@ -34,18 +34,8 @@ import java.util.List;
  * finish_time          integer                   yes
  * </pre>
  */
-public final class RawStqaLogic extends AbstractRawLogic<RawStqa> {
-
-    /** A single instance. */
-    public static final RawStqaLogic INSTANCE = new RawStqaLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawStqaLogic() {
-
-        super();
-    }
+public enum RawStqaLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -55,8 +45,7 @@ public final class RawStqaLogic extends AbstractRawLogic<RawStqa> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawStqa record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawStqa record) throws SQLException {
 
         final boolean result;
 
@@ -68,17 +57,17 @@ public final class RawStqaLogic extends AbstractRawLogic<RawStqa> {
             final String sql = SimpleBuilder.concat("INSERT INTO stqa (serial_nbr,",
                     "question_nbr,answer_nbr,objective,stu_answer,stu_id,version,",
                     "ans_correct,exam_dt,subtest,finish_time) VALUES (",
-                    sqlLongValue(record.serialNbr), ",",
-                    sqlIntegerValue(record.questionNbr), ",",
-                    sqlIntegerValue(record.answerNbr), ",",
-                    sqlStringValue(record.objective), ",",
-                    sqlStringValue(record.stuAnswer), ",",
-                    sqlStringValue(record.stuId), ",",
-                    sqlStringValue(record.version), ",",
-                    sqlStringValue(record.ansCorrect), ",",
-                    sqlDateValue(record.examDt), ",",
-                    sqlStringValue(record.subtest), ",",
-                    sqlIntegerValue(record.finishTime), ")");
+                    LogicUtils.sqlLongValue(record.serialNbr), ",",
+                    LogicUtils.sqlIntegerValue(record.questionNbr), ",",
+                    LogicUtils.sqlIntegerValue(record.answerNbr), ",",
+                    LogicUtils.sqlStringValue(record.objective), ",",
+                    LogicUtils.sqlStringValue(record.stuAnswer), ",",
+                    LogicUtils.sqlStringValue(record.stuId), ",",
+                    LogicUtils.sqlStringValue(record.version), ",",
+                    LogicUtils.sqlStringValue(record.ansCorrect), ",",
+                    LogicUtils.sqlDateValue(record.examDt), ",",
+                    LogicUtils.sqlStringValue(record.subtest), ",",
+                    LogicUtils.sqlIntegerValue(record.finishTime), ")");
 
             try (final Statement stmt = cache.conn.createStatement()) {
                 result = stmt.executeUpdate(sql) == 1;
@@ -102,13 +91,12 @@ public final class RawStqaLogic extends AbstractRawLogic<RawStqa> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawStqa record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawStqa record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM stqa",
-                " WHERE serial_nbr=", sqlLongValue(record.serialNbr),
-                " AND question_nbr=", sqlIntegerValue(record.questionNbr),
-                " AND answer_nbr=", sqlIntegerValue(record.answerNbr));
+                " WHERE serial_nbr=", LogicUtils.sqlLongValue(record.serialNbr),
+                " AND question_nbr=", LogicUtils.sqlIntegerValue(record.questionNbr),
+                " AND answer_nbr=", LogicUtils.sqlIntegerValue(record.answerNbr));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -130,8 +118,7 @@ public final class RawStqaLogic extends AbstractRawLogic<RawStqa> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawStqa> queryAll(final Cache cache) throws SQLException {
+    public static List<RawStqa> queryAll(final Cache cache) throws SQLException {
 
         return executeQuery(cache.conn, "SELECT * FROM stqa");
     }
@@ -146,7 +133,7 @@ public final class RawStqaLogic extends AbstractRawLogic<RawStqa> {
      */
     public static List<RawStqa> queryByStudent(final Cache cache, final String stuId) throws SQLException {
 
-        final String sql = SimpleBuilder.concat("SELECT * FROM stqa WHERE stu_id=", sqlStringValue(stuId));
+        final String sql = SimpleBuilder.concat("SELECT * FROM stqa WHERE stu_id=", LogicUtils.sqlStringValue(stuId));
 
         return executeQuery(cache.conn, sql);
     }
@@ -161,7 +148,8 @@ public final class RawStqaLogic extends AbstractRawLogic<RawStqa> {
      */
     public static List<RawStqa> queryBySerial(final Cache cache, final Long serial) throws SQLException {
 
-        final String sql = SimpleBuilder.concat("SELECT * FROM stqa WHERE serial_nbr=", sqlLongValue(serial));
+        final String sql = SimpleBuilder.concat("SELECT * FROM stqa WHERE serial_nbr=",
+                LogicUtils.sqlLongValue(serial));
 
         return executeQuery(cache.conn, sql);
     }
@@ -178,9 +166,9 @@ public final class RawStqaLogic extends AbstractRawLogic<RawStqa> {
             throws SQLException {
 
         final String sql1 = SimpleBuilder.concat("DELETE FROM stqa",
-                " WHERE serial_nbr=", sqlLongValue(record.serialNbr),
-                " AND version=", sqlStringValue(record.version),
-                " AND stu_id=", sqlStringValue(record.stuId));
+                " WHERE serial_nbr=", LogicUtils.sqlLongValue(record.serialNbr),
+                " AND version=", LogicUtils.sqlStringValue(record.version),
+                " AND stu_id=", LogicUtils.sqlStringValue(record.stuId));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             stmt.executeUpdate(sql1);
@@ -212,10 +200,10 @@ public final class RawStqaLogic extends AbstractRawLogic<RawStqa> {
             // more than one row if an answer applies to multiple subtests
 
             final String sql = SimpleBuilder.concat("UPDATE stqa ",
-                    " SET ans_correct=", sqlStringValue(newCorrect),
-                    " WHERE serial_nbr=", sqlLongValue(record.serialNbr),
-                    " AND question_nbr=", sqlIntegerValue(record.questionNbr),
-                    " AND answer_nbr=", sqlIntegerValue(record.answerNbr));
+                    " SET ans_correct=", LogicUtils.sqlStringValue(newCorrect),
+                    " WHERE serial_nbr=", LogicUtils.sqlLongValue(record.serialNbr),
+                    " AND question_nbr=", LogicUtils.sqlIntegerValue(record.questionNbr),
+                    " AND answer_nbr=", LogicUtils.sqlIntegerValue(record.answerNbr));
 
             try (final Statement stmt = cache.conn.createStatement()) {
                 result = stmt.executeUpdate(sql) > 0;

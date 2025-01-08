@@ -46,8 +46,8 @@ enum PagePower {
 
         TestingPage.emitNavBlock(ETestingTopic.POWER_ON_OFF, htm);
 
-        final List<RawTestingCenter> centers = RawTestingCenterLogic.INSTANCE.queryAll(cache);
-        final List<RawClientPc> allStations = RawClientPcLogic.INSTANCE.queryAll(cache);
+        final List<RawTestingCenter> centers = RawTestingCenterLogic.queryAll(cache);
+        final List<RawClientPc> allStations = RawClientPcLogic.queryAll(cache);
 
         Collections.sort(centers);
         Collections.sort(allStations);

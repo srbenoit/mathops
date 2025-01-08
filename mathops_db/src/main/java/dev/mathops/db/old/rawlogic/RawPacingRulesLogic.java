@@ -26,18 +26,8 @@ import java.util.List;
  * requirement          char(4)                   no      PK
  * </pre>
  */
-public final class RawPacingRulesLogic extends AbstractRawLogic<RawPacingRules> {
-
-    /** A single instance. */
-    public static final RawPacingRulesLogic INSTANCE = new RawPacingRulesLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawPacingRulesLogic() {
-
-        super();
-    }
+public enum RawPacingRulesLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -47,8 +37,7 @@ public final class RawPacingRulesLogic extends AbstractRawLogic<RawPacingRules> 
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawPacingRules record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawPacingRules record) throws SQLException {
 
         if (record.termKey == null || record.pacingStructure == null || record.activityType == null
                 || record.requirement == null) {
@@ -58,11 +47,11 @@ public final class RawPacingRulesLogic extends AbstractRawLogic<RawPacingRules> 
 
         final String sql = SimpleBuilder.concat( //
                 "INSERT INTO pacing_rules (term,term_yr,pacing_structure,activity_type,requirement) VALUES (",
-                sqlStringValue(record.termKey.termCode), ",",
+                LogicUtils.sqlStringValue(record.termKey.termCode), ",",
                 record.termKey.shortYear, ",",
-                sqlStringValue(record.pacingStructure), ",",
-                sqlStringValue(record.activityType), ",",
-                sqlStringValue(record.requirement), ")");
+                LogicUtils.sqlStringValue(record.pacingStructure), ",",
+                LogicUtils.sqlStringValue(record.activityType), ",",
+                LogicUtils.sqlStringValue(record.requirement), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -85,15 +74,14 @@ public final class RawPacingRulesLogic extends AbstractRawLogic<RawPacingRules> 
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawPacingRules record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawPacingRules record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM pacing_rules ",
-                "WHERE term=", sqlStringValue(record.termKey.termCode),
-                "  AND term_yr=", sqlIntegerValue(record.termKey.shortYear),
-                "  AND pacing_structure=", sqlStringValue(record.pacingStructure),
-                "  AND activity_type=", sqlStringValue(record.activityType),
-                "  AND requirement=", sqlStringValue(record.requirement));
+                "WHERE term=", LogicUtils.sqlStringValue(record.termKey.termCode),
+                "  AND term_yr=", LogicUtils.sqlIntegerValue(record.termKey.shortYear),
+                "  AND pacing_structure=", LogicUtils.sqlStringValue(record.pacingStructure),
+                "  AND activity_type=", LogicUtils.sqlStringValue(record.activityType),
+                "  AND requirement=", LogicUtils.sqlStringValue(record.requirement));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -115,8 +103,7 @@ public final class RawPacingRulesLogic extends AbstractRawLogic<RawPacingRules> 
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawPacingRules> queryAll(final Cache cache) throws SQLException {
+    public static List<RawPacingRules> queryAll(final Cache cache) throws SQLException {
 
         return executeListQuery(cache, "SELECT * FROM pacing_rules");
     }
@@ -133,7 +120,7 @@ public final class RawPacingRulesLogic extends AbstractRawLogic<RawPacingRules> 
             throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM pacing_rules WHERE term=",
-                sqlStringValue(termKey.termCode), " AND term_yr=", termKey.shortYear);
+                LogicUtils.sqlStringValue(termKey.termCode), " AND term_yr=", termKey.shortYear);
 
         return executeListQuery(cache, sql);
     }
@@ -151,8 +138,8 @@ public final class RawPacingRulesLogic extends AbstractRawLogic<RawPacingRules> 
                                                                      final String pacingStructure) throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM pacing_rules WHERE term=",
-                sqlStringValue(termKey.termCode), " AND term_yr=", termKey.shortYear,
-                " AND pacing_structure=", sqlStringValue(pacingStructure));
+                LogicUtils.sqlStringValue(termKey.termCode), " AND term_yr=", termKey.shortYear,
+                " AND pacing_structure=", LogicUtils.sqlStringValue(pacingStructure));
 
         return executeListQuery(cache, sql);
     }
@@ -173,11 +160,11 @@ public final class RawPacingRulesLogic extends AbstractRawLogic<RawPacingRules> 
             throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM pacing_rules",
-                " WHERE term=", sqlStringValue(termKey.termCode),
+                " WHERE term=", LogicUtils.sqlStringValue(termKey.termCode),
                 "   AND term_yr=", termKey.shortYear,
-                "   AND pacing_structure=", sqlStringValue(pacingStructure),
-                "   AND activity_type=", sqlStringValue(activityType),
-                "   AND requirement=", sqlStringValue(requirement));
+                "   AND pacing_structure=", LogicUtils.sqlStringValue(pacingStructure),
+                "   AND activity_type=", LogicUtils.sqlStringValue(activityType),
+                "   AND requirement=", LogicUtils.sqlStringValue(requirement));
 
         try (final Statement stmt = cache.conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {

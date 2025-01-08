@@ -130,11 +130,11 @@ final class TestRawCuobjectiveLogic {
                 final RawCuobjective raw5 = new RawCuobjective(fa21, RawRecordConstants.M118, Integer.valueOf(1),
                         Integer.valueOf(1), "Lesson 1.1", "1.1", date5);
 
-                assertTrue(RawCuobjectiveLogic.INSTANCE.insert(cache, raw1), "Failed to insert cuobjective 1");
-                assertTrue(RawCuobjectiveLogic.INSTANCE.insert(cache, raw2), "Failed to insert cuobjective 2");
-                assertTrue(RawCuobjectiveLogic.INSTANCE.insert(cache, raw3), "Failed to insert cuobjective 3");
-                assertTrue(RawCuobjectiveLogic.INSTANCE.insert(cache, raw4), "Failed to insert cuobjective 4");
-                assertTrue(RawCuobjectiveLogic.INSTANCE.insert(cache, raw5), "Failed to insert cuobjective 5");
+                assertTrue(RawCuobjectiveLogic.insert(cache, raw1), "Failed to insert cuobjective 1");
+                assertTrue(RawCuobjectiveLogic.insert(cache, raw2), "Failed to insert cuobjective 2");
+                assertTrue(RawCuobjectiveLogic.insert(cache, raw3), "Failed to insert cuobjective 3");
+                assertTrue(RawCuobjectiveLogic.insert(cache, raw4), "Failed to insert cuobjective 4");
+                assertTrue(RawCuobjectiveLogic.insert(cache, raw5), "Failed to insert cuobjective 5");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -154,7 +154,7 @@ final class TestRawCuobjectiveLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawCuobjective> all = RawCuobjectiveLogic.INSTANCE.queryAll(cache);
+                final List<RawCuobjective> all = RawCuobjectiveLogic.queryAll(cache);
 
                 assertEquals(5, all.size(), "Incorrect record count from queryAll");
 
@@ -242,10 +242,10 @@ final class TestRawCuobjectiveLogic {
                 final RawCuobjective raw2 = new RawCuobjective(fa21, RawRecordConstants.M117, Integer.valueOf(1),
                         Integer.valueOf(2), "Lesson 1.2", "1.2", date2);
 
-                final boolean result = RawCuobjectiveLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawCuobjectiveLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawCuobjective> all = RawCuobjectiveLogic.INSTANCE.queryAll(cache);
+                final List<RawCuobjective> all = RawCuobjectiveLogic.queryAll(cache);
 
                 assertEquals(4, all.size(), "Incorrect record count from queryAll after delete");
 

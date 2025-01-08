@@ -24,18 +24,8 @@ import java.util.List;
  * term                 char(6)                   no
  * </pre>
  */
-public final class RawNewstuLogic extends AbstractRawLogic<RawNewstu> {
-
-    /** A single instance. */
-    public static final RawNewstuLogic INSTANCE = new RawNewstuLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawNewstuLogic() {
-
-        super();
-    }
+public enum RawNewstuLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -45,18 +35,17 @@ public final class RawNewstuLogic extends AbstractRawLogic<RawNewstu> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawNewstu record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawNewstu record) throws SQLException {
 
         if (record.stuId == null || record.acadLevel == null || record.regType == null || record.term == null) {
             throw new SQLException("Null value in primary key or required field.");
         }
 
         final String sql = SimpleBuilder.concat("INSERT INTO newstu (stu_id,acad_level,reg_type,term) VALUES (",
-                sqlStringValue(record.stuId), ",",
-                sqlStringValue(record.acadLevel), ",",
-                sqlStringValue(record.regType), ",",
-                sqlStringValue(record.term), ")");
+                LogicUtils.sqlStringValue(record.stuId), ",",
+                LogicUtils.sqlStringValue(record.acadLevel), ",",
+                LogicUtils.sqlStringValue(record.regType), ",",
+                LogicUtils.sqlStringValue(record.term), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -79,11 +68,10 @@ public final class RawNewstuLogic extends AbstractRawLogic<RawNewstu> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawNewstu record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawNewstu record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM newstu ",
-                "WHERE stu_id=", sqlStringValue(record.stuId));
+                "WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -105,8 +93,7 @@ public final class RawNewstuLogic extends AbstractRawLogic<RawNewstu> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawNewstu> queryAll(final Cache cache) throws SQLException {
+    public static List<RawNewstu> queryAll(final Cache cache) throws SQLException {
 
         final String sql = "SELECT * FROM newstu";
 

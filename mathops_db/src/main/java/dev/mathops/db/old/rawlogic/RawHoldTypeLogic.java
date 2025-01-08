@@ -25,18 +25,8 @@ import java.util.List;
  * delete_hold          char(1)                   no
  * </pre>
  */
-public final class RawHoldTypeLogic extends AbstractRawLogic<RawHoldType> {
-
-    /** A single instance. */
-    public static final RawHoldTypeLogic INSTANCE = new RawHoldTypeLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawHoldTypeLogic() {
-
-        super();
-    }
+public enum RawHoldTypeLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -46,21 +36,20 @@ public final class RawHoldTypeLogic extends AbstractRawLogic<RawHoldType> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawHoldType record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawHoldType record) throws SQLException {
 
         if (record.holdId == null || record.sevAdminHold == null || record.holdType == null
-                || record.addHold == null || record.deleteHold == null) {
+            || record.addHold == null || record.deleteHold == null) {
             throw new SQLException("Null value in primary key or required field.");
         }
 
-        final String sql = SimpleBuilder.concat("INSERT INTO hold_type ("
-                , "hold_id,sev_admin_hold,hold_type,add_hold,delete_hold) VALUES (",
-                sqlStringValue(record.holdId), ",",
-                sqlStringValue(record.sevAdminHold), ",",
-                sqlStringValue(record.holdType), ",",
-                sqlStringValue(record.addHold), ",",
-                sqlStringValue(record.deleteHold), ")");
+        final String sql = SimpleBuilder.concat("INSERT INTO hold_type (",
+                "hold_id,sev_admin_hold,hold_type,add_hold,delete_hold) VALUES (",
+                LogicUtils.sqlStringValue(record.holdId), ",",
+                LogicUtils.sqlStringValue(record.sevAdminHold), ",",
+                LogicUtils.sqlStringValue(record.holdType), ",",
+                LogicUtils.sqlStringValue(record.addHold), ",",
+                LogicUtils.sqlStringValue(record.deleteHold), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -83,11 +72,10 @@ public final class RawHoldTypeLogic extends AbstractRawLogic<RawHoldType> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawHoldType record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawHoldType record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM hold_type ",
-                "WHERE hold_id=", sqlStringValue(record.holdId));
+                "WHERE hold_id=", LogicUtils.sqlStringValue(record.holdId));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -109,8 +97,7 @@ public final class RawHoldTypeLogic extends AbstractRawLogic<RawHoldType> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawHoldType> queryAll(final Cache cache) throws SQLException {
+    public static List<RawHoldType> queryAll(final Cache cache) throws SQLException {
 
         final String sql = "SELECT * FROM hold_type";
 

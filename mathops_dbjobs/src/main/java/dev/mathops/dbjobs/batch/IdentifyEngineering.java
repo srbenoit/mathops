@@ -120,7 +120,7 @@ public class IdentifyEngineering {
 
         report.add("Found " + numExisting + " existing " + SPECIAL_CATEGORY + " records in SPECIAL_STUS");
 
-        final List<RawApplicant> applicants = RawApplicantLogic.INSTANCE.queryAll(cache);
+        final List<RawApplicant> applicants = RawApplicantLogic.queryAll(cache);
         final List<RawApplicant> engineering = new ArrayList<>(1000);
 
         int total = 0;
@@ -171,7 +171,7 @@ public class IdentifyEngineering {
 
             if (!DEBUG) {
                 final RawSpecialStus newRow = new RawSpecialStus(applicant.stuId, SPECIAL_CATEGORY, null, null);
-                RawSpecialStusLogic.INSTANCE.insert(cache, newRow);
+                RawSpecialStusLogic.insert(cache, newRow);
             }
         }
 

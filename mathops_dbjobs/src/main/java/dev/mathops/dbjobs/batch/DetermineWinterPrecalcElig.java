@@ -175,7 +175,7 @@ final class DetermineWinterPrecalcElig {
                 + " who tried unit 1 review but did not pass unit 1 exam");
 
         // Compare these lists to the authorized special stus
-        final List<RawSpecialStus> specials = RawSpecialStusLogic.INSTANCE.queryAll(cacheProd);
+        final List<RawSpecialStus> specials = RawSpecialStusLogic.queryAll(cacheProd);
 
         final Iterator<RawSpecialStus> iter2 = specials.iterator();
         while (iter2.hasNext()) {
@@ -228,7 +228,7 @@ final class DetermineWinterPrecalcElig {
 
         for (final RawStcourse reg : toAdd) {
             final RawSpecialStus newRow = new RawSpecialStus(reg.stuId, reg.course + "0W", null, null);
-            RawSpecialStusLogic.INSTANCE.insert(cacheProd, newRow);
+            RawSpecialStusLogic.insert(cacheProd, newRow);
         }
 
         Log.fine("Last Name          First Name    Student ID   Course ");

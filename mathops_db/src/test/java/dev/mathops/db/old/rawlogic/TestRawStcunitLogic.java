@@ -119,9 +119,9 @@ final class TestRawStcunitLogic {
                         Integer.valueOf(18), // UE Score
                         Integer.valueOf(12)); // UE Points
 
-                assertTrue(RawStcunitLogic.INSTANCE.insert(cache, raw1), "Failed to insert stcunit 1");
-                assertTrue(RawStcunitLogic.INSTANCE.insert(cache, raw2), "Failed to insert stcunit 2");
-                assertTrue(RawStcunitLogic.INSTANCE.insert(cache, raw3), "Failed to insert stcunit 3");
+                assertTrue(RawStcunitLogic.insert(cache, raw1), "Failed to insert stcunit 1");
+                assertTrue(RawStcunitLogic.insert(cache, raw2), "Failed to insert stcunit 2");
+                assertTrue(RawStcunitLogic.insert(cache, raw3), "Failed to insert stcunit 3");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -141,7 +141,7 @@ final class TestRawStcunitLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawStcunit> all = RawStcunitLogic.INSTANCE.queryAll(cache);
+                final List<RawStcunit> all = RawStcunitLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -233,10 +233,10 @@ final class TestRawStcunitLogic {
                         Integer.valueOf(17), // UE Score
                         Integer.valueOf(11)); // UE Points
 
-                final boolean result = RawStcunitLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawStcunitLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawStcunit> all = RawStcunitLogic.INSTANCE.queryAll(cache);
+                final List<RawStcunit> all = RawStcunitLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 

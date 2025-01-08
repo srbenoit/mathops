@@ -27,18 +27,8 @@ import java.util.List;
  * label                char(32)                  yes
  * </pre>
  */
-public final class RawTreePathLogic extends AbstractRawLogic<RawTreePath> {
-
-    /** A single instance. */
-    public static final RawTreePathLogic INSTANCE = new RawTreePathLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawTreePathLogic() {
-
-        super();
-    }
+public enum RawTreePathLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -48,8 +38,7 @@ public final class RawTreePathLogic extends AbstractRawLogic<RawTreePath> {
      * @return {@code true} if successful; {@code false} otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawTreePath record)
+    public static boolean insert(final Cache cache, final RawTreePath record)
             throws SQLException {
 
         if (record.ident == null || record.depth == null || record.sortOrder == null) {
@@ -58,11 +47,11 @@ public final class RawTreePathLogic extends AbstractRawLogic<RawTreePath> {
 
         final String sql = SimpleBuilder.concat("INSERT INTO tree_path ",
                 "(ident,parent_ident,depth,sort_order,label) VALUES (",
-                sqlStringValue(record.ident), ",",
-                sqlStringValue(record.parentIdent), ",",
-                sqlIntegerValue(record.depth), ",",
-                sqlIntegerValue(record.sortOrder), ",",
-                sqlStringValue(record.label), ")");
+                LogicUtils.sqlStringValue(record.ident), ",",
+                LogicUtils.sqlStringValue(record.parentIdent), ",",
+                LogicUtils.sqlIntegerValue(record.depth), ",",
+                LogicUtils.sqlIntegerValue(record.sortOrder), ",",
+                LogicUtils.sqlStringValue(record.label), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -85,14 +74,13 @@ public final class RawTreePathLogic extends AbstractRawLogic<RawTreePath> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawTreePath record)
+    public static boolean delete(final Cache cache, final RawTreePath record)
             throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM tree_path ",
-                "WHERE ident=", sqlStringValue(record.ident),
-                "  AND parent_ident=", sqlStringValue(record.parentIdent),
-                "  AND depth=", sqlIntegerValue(record.depth));
+                "WHERE ident=", LogicUtils.sqlStringValue(record.ident),
+                "  AND parent_ident=", LogicUtils.sqlStringValue(record.parentIdent),
+                "  AND depth=", LogicUtils.sqlIntegerValue(record.depth));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -114,8 +102,7 @@ public final class RawTreePathLogic extends AbstractRawLogic<RawTreePath> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawTreePath> queryAll(final Cache cache) throws SQLException {
+    public static List<RawTreePath> queryAll(final Cache cache) throws SQLException {
 
         return executeListQuery(cache, "SELECT * FROM tree_path");
     }
@@ -135,7 +122,7 @@ public final class RawTreePathLogic extends AbstractRawLogic<RawTreePath> {
         final String sql = SimpleBuilder.concat(//
                 "SELECT * FROM tree_path",
                 " WHERE depth=", Integer.toString(theDepth),
-                "   AND parent_ident=", sqlStringValue(theParentIdent),
+                "   AND parent_ident=", LogicUtils.sqlStringValue(theParentIdent),
                 " ORDER BY sort_order");
 
         return executeListQuery(cache, sql);
@@ -159,16 +146,16 @@ public final class RawTreePathLogic extends AbstractRawLogic<RawTreePath> {
         if (theDepth == 0 || theParentIdent == null) {
             sql = SimpleBuilder.concat(
                     "SELECT * FROM tree_path",
-                    " WHERE ident=", sqlStringValue(theIdent),
+                    " WHERE ident=", LogicUtils.sqlStringValue(theIdent),
                     "   AND depth=", Integer.toString(theDepth),
                     "   AND parent_ident IS NULL",
                     " ORDER BY sort_order");
         } else {
             sql = SimpleBuilder.concat(
                     "SELECT * FROM tree_path",
-                    " WHERE ident=", sqlStringValue(theIdent),
+                    " WHERE ident=", LogicUtils.sqlStringValue(theIdent),
                     "   AND depth=", Integer.toString(theDepth),
-                    "   AND parent_ident=", sqlStringValue(theParentIdent),
+                    "   AND parent_ident=", LogicUtils.sqlStringValue(theParentIdent),
                     " ORDER BY sort_order");
         }
 
@@ -245,16 +232,16 @@ public final class RawTreePathLogic extends AbstractRawLogic<RawTreePath> {
 
         if (toUpdate.parentIdent == null) {
             sql = SimpleBuilder.concat("UPDATE tree_path",
-                    " SET sort_order=", sqlIntegerValue(theSortOrder),
-                    " WHERE ident=", sqlStringValue(toUpdate.ident),
-                    "   AND depth=", sqlIntegerValue(toUpdate.depth),
+                    " SET sort_order=", LogicUtils.sqlIntegerValue(theSortOrder),
+                    " WHERE ident=", LogicUtils.sqlStringValue(toUpdate.ident),
+                    "   AND depth=", LogicUtils.sqlIntegerValue(toUpdate.depth),
                     "   AND parent_ident IS NULL");
         } else {
             sql = SimpleBuilder.concat("UPDATE tree_path",
-                    " SET sort_order=", sqlIntegerValue(theSortOrder),
-                    " WHERE ident=", sqlStringValue(toUpdate.ident),
-                    "   AND depth=", sqlIntegerValue(toUpdate.depth),
-                    "   AND parent_ident=", sqlStringValue(toUpdate.parentIdent));
+                    " SET sort_order=", LogicUtils.sqlIntegerValue(theSortOrder),
+                    " WHERE ident=", LogicUtils.sqlStringValue(toUpdate.ident),
+                    "   AND depth=", LogicUtils.sqlIntegerValue(toUpdate.depth),
+                    "   AND parent_ident=", LogicUtils.sqlStringValue(toUpdate.parentIdent));
         }
 
         final boolean result = executeSimpleUpdate(cache, sql) == 1;
@@ -284,16 +271,16 @@ public final class RawTreePathLogic extends AbstractRawLogic<RawTreePath> {
 
         if (toUpdate.parentIdent == null) {
             sql = SimpleBuilder.concat("UPDATE tree_path",
-                    " SET label=", sqlStringValue(theLabel),
-                    " WHERE ident=", sqlStringValue(toUpdate.ident),
-                    "   AND depth=", sqlIntegerValue(toUpdate.depth),
+                    " SET label=", LogicUtils.sqlStringValue(theLabel),
+                    " WHERE ident=", LogicUtils.sqlStringValue(toUpdate.ident),
+                    "   AND depth=", LogicUtils.sqlIntegerValue(toUpdate.depth),
                     "   AND parent_ident IS NULL");
         } else {
             sql = SimpleBuilder.concat("UPDATE tree_path",
-                    " SET label=", sqlStringValue(theLabel),
-                    " WHERE ident=", sqlStringValue(toUpdate.ident),
-                    "   AND depth=", sqlIntegerValue(toUpdate.depth),
-                    "   AND parent_ident=", sqlStringValue(toUpdate.parentIdent));
+                    " SET label=", LogicUtils.sqlStringValue(theLabel),
+                    " WHERE ident=", LogicUtils.sqlStringValue(toUpdate.ident),
+                    "   AND depth=", LogicUtils.sqlIntegerValue(toUpdate.depth),
+                    "   AND parent_ident=", LogicUtils.sqlStringValue(toUpdate.parentIdent));
         }
 
         final boolean result = executeSimpleUpdate(cache, sql) == 1;

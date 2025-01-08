@@ -100,7 +100,7 @@ public final class BulkUpdateStudentInformation {
      */
     private static void exec(final Cache cache, final DbConnection odsConn) throws SQLException {
 
-        final List<RawStudent> allStudents = RawStudentLogic.INSTANCE.queryAll(cache);
+        final List<RawStudent> allStudents = RawStudentLogic.queryAll(cache);
         final int numStudents = allStudents.size();
 
         if (numStudents > 0) {

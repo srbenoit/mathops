@@ -356,7 +356,7 @@ public final class ImportOdsTransferCredit {
 
                 final RawFfrTrns toInsert = new RawFfrTrns(stu, cid, "T", now, null);
 
-                if (RawFfrTrnsLogic.INSTANCE.insert(cache, toInsert)) {
+                if (RawFfrTrnsLogic.insert(cache, toInsert)) {
                     ++count;
                 } else {
                     report.add("Insert failed");

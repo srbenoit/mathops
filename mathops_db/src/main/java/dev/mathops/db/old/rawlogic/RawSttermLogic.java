@@ -32,18 +32,8 @@ import java.util.List;
  * do_not_disturb       char(1)                   yes
  * </pre>
  */
-public final class RawSttermLogic extends AbstractRawLogic<RawStterm> {
-
-    /** A single instance. */
-    public static final RawSttermLogic INSTANCE = new RawSttermLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawSttermLogic() {
-
-        super();
-    }
+public enum RawSttermLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -53,8 +43,7 @@ public final class RawSttermLogic extends AbstractRawLogic<RawStterm> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawStterm record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawStterm record) throws SQLException {
 
         if (record.stuId == null || record.termKey == null) {
             throw new SQLException("Null value in primary key or required field.");
@@ -78,15 +67,15 @@ public final class RawSttermLogic extends AbstractRawLogic<RawStterm> {
         } else {
             final String sql = SimpleBuilder.concat("INSERT INTO stterm ",
                     "(stu_id,term,term_yr,pace,pace_track,first_course,cohort,urgency,do_not_disturb) VALUES (",
-                    sqlStringValue(record.stuId), ",",
-                    sqlStringValue(record.termKey.termCode), ",",
-                    sqlIntegerValue(record.termKey.shortYear), ",",
-                    sqlIntegerValue(record.pace), ",",
-                    sqlStringValue(record.paceTrack), ",",
-                    sqlStringValue(record.firstCourse), ",",
-                    sqlStringValue(record.cohort), ",",
-                    sqlIntegerValue(record.urgency), ",",
-                    sqlStringValue(record.doNotDisturb), ")");
+                    LogicUtils.sqlStringValue(record.stuId), ",",
+                    LogicUtils.sqlStringValue(record.termKey.termCode), ",",
+                    LogicUtils.sqlIntegerValue(record.termKey.shortYear), ",",
+                    LogicUtils.sqlIntegerValue(record.pace), ",",
+                    LogicUtils.sqlStringValue(record.paceTrack), ",",
+                    LogicUtils.sqlStringValue(record.firstCourse), ",",
+                    LogicUtils.sqlStringValue(record.cohort), ",",
+                    LogicUtils.sqlIntegerValue(record.urgency), ",",
+                    LogicUtils.sqlStringValue(record.doNotDisturb), ")");
 
             try (final Statement stmt = cache.conn.createStatement()) {
                 result = stmt.executeUpdate(sql) == 1;
@@ -110,13 +99,12 @@ public final class RawSttermLogic extends AbstractRawLogic<RawStterm> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawStterm record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawStterm record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM stterm ",
-                "WHERE stu_id=", sqlStringValue(record.stuId),
-                "  AND term=", sqlStringValue(record.termKey.termCode),
-                "  AND term_yr=", sqlIntegerValue(record.termKey.shortYear));
+                "WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                "  AND term=", LogicUtils.sqlStringValue(record.termKey.termCode),
+                "  AND term_yr=", LogicUtils.sqlIntegerValue(record.termKey.shortYear));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -138,8 +126,7 @@ public final class RawSttermLogic extends AbstractRawLogic<RawStterm> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawStterm> queryAll(final Cache cache) throws SQLException {
+    public static List<RawStterm> queryAll(final Cache cache) throws SQLException {
 
         return executeListQuery(cache.conn, "SELECT * FROM stterm");
     }
@@ -155,8 +142,8 @@ public final class RawSttermLogic extends AbstractRawLogic<RawStterm> {
     public static List<RawStterm> queryAllByTerm(final Cache cache, final TermKey termKey) throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM stterm",
-                " WHERE term=", sqlStringValue(termKey.termCode),
-                "   AND term_yr=", sqlIntegerValue(termKey.shortYear));
+                " WHERE term=", LogicUtils.sqlStringValue(termKey.termCode),
+                "   AND term_yr=", LogicUtils.sqlIntegerValue(termKey.shortYear));
 
         return executeListQuery(cache.conn, sql);
     }
@@ -172,7 +159,7 @@ public final class RawSttermLogic extends AbstractRawLogic<RawStterm> {
     public static List<RawStterm> queryByStudent(final Cache cache, final String stuId) throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM stterm",
-                " WHERE stu_id=", sqlStringValue(stuId));
+                " WHERE stu_id=", LogicUtils.sqlStringValue(stuId));
 
         return executeListQuery(cache.conn, sql);
     }
@@ -189,9 +176,9 @@ public final class RawSttermLogic extends AbstractRawLogic<RawStterm> {
     public static RawStterm query(final Cache cache, final TermKey termKey, final String stuId) throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM stterm ",
-                "WHERE stu_id=", sqlStringValue(stuId),
-                "  AND term=", sqlStringValue(termKey.termCode),
-                "  AND term_yr=", sqlIntegerValue(termKey.shortYear));
+                "WHERE stu_id=", LogicUtils.sqlStringValue(stuId),
+                "  AND term=", LogicUtils.sqlStringValue(termKey.termCode),
+                "  AND term_yr=", LogicUtils.sqlIntegerValue(termKey.shortYear));
 
         return executeSingleQuery(cache.conn, sql);
     }
@@ -215,11 +202,11 @@ public final class RawSttermLogic extends AbstractRawLogic<RawStterm> {
 
         final String sql = SimpleBuilder.concat("UPDATE stterm ",
                 " SET pace=", Integer.toString(pace), ",",
-                "     pace_track=", sqlStringValue(paceTrack), ",",
-                "     first_course=", sqlStringValue(firstCourse),
-                " WHERE stu_id=", sqlStringValue(stuId),
-                "  AND term=", sqlStringValue(termKey.termCode),
-                "  AND term_yr=", sqlIntegerValue(termKey.shortYear));
+                "     pace_track=", LogicUtils.sqlStringValue(paceTrack), ",",
+                "     first_course=", LogicUtils.sqlStringValue(firstCourse),
+                " WHERE stu_id=", LogicUtils.sqlStringValue(stuId),
+                "  AND term=", LogicUtils.sqlStringValue(termKey.termCode),
+                "  AND term_yr=", LogicUtils.sqlIntegerValue(termKey.shortYear));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -248,10 +235,10 @@ public final class RawSttermLogic extends AbstractRawLogic<RawStterm> {
                                        final String cohort) throws SQLException {
 
         final String sql = SimpleBuilder.concat("UPDATE stterm ",
-                " SET cohort=", sqlStringValue(cohort),
-                " WHERE stu_id=", sqlStringValue(stuId),
-                "  AND term=", sqlStringValue(termKey.termCode),
-                "  AND term_yr=", sqlIntegerValue(termKey.shortYear));
+                " SET cohort=", LogicUtils.sqlStringValue(cohort),
+                " WHERE stu_id=", LogicUtils.sqlStringValue(stuId),
+                "  AND term=", LogicUtils.sqlStringValue(termKey.termCode),
+                "  AND term_yr=", LogicUtils.sqlIntegerValue(termKey.shortYear));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -280,10 +267,10 @@ public final class RawSttermLogic extends AbstractRawLogic<RawStterm> {
                                         final Integer urgency) throws SQLException {
 
         final String sql = SimpleBuilder.concat("UPDATE stterm ",
-                " SET urgency=", sqlIntegerValue(urgency),
-                " WHERE stu_id=", sqlStringValue(stuId),
-                "  AND term=", sqlStringValue(termKey.termCode),
-                "  AND term_yr=", sqlIntegerValue(termKey.shortYear));
+                " SET urgency=", LogicUtils.sqlIntegerValue(urgency),
+                " WHERE stu_id=", LogicUtils.sqlStringValue(stuId),
+                "  AND term=", LogicUtils.sqlStringValue(termKey.termCode),
+                "  AND term_yr=", LogicUtils.sqlIntegerValue(termKey.shortYear));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -313,10 +300,10 @@ public final class RawSttermLogic extends AbstractRawLogic<RawStterm> {
                                          final String canvasId) throws SQLException {
 
         final String sql = SimpleBuilder.concat("UPDATE stterm ",
-                " SET canvas_id=", sqlStringValue(canvasId),
-                " WHERE stu_id=", sqlStringValue(stuId),
-                "  AND term=", sqlStringValue(termKey.termCode),
-                "  AND term_yr=", sqlIntegerValue(termKey.shortYear));
+                " SET canvas_id=", LogicUtils.sqlStringValue(canvasId),
+                " WHERE stu_id=", LogicUtils.sqlStringValue(stuId),
+                "  AND term=", LogicUtils.sqlStringValue(termKey.termCode),
+                "  AND term_yr=", LogicUtils.sqlIntegerValue(termKey.shortYear));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;

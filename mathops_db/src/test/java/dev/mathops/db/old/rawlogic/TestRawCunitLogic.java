@@ -118,11 +118,11 @@ final class TestRawCunitLogic {
                 final RawCunit raw5 = new RawCunit(fa21, RawRecordConstants.M118, Integer.valueOf(1), float1, "Unit 1",
                         Integer.valueOf(30), Integer.valueOf(10), Integer.valueOf(5), "INST");
 
-                assertTrue(RawCunitLogic.INSTANCE.insert(cache, raw1), "Failed to insert cunit 1");
-                assertTrue(RawCunitLogic.INSTANCE.insert(cache, raw2), "Failed to insert cunit 2");
-                assertTrue(RawCunitLogic.INSTANCE.insert(cache, raw3), "Failed to insert cunit 3");
-                assertTrue(RawCunitLogic.INSTANCE.insert(cache, raw4), "Failed to insert cunit 4");
-                assertTrue(RawCunitLogic.INSTANCE.insert(cache, raw5), "Failed to insert cunit 5");
+                assertTrue(RawCunitLogic.insert(cache, raw1), "Failed to insert cunit 1");
+                assertTrue(RawCunitLogic.insert(cache, raw2), "Failed to insert cunit 2");
+                assertTrue(RawCunitLogic.insert(cache, raw3), "Failed to insert cunit 3");
+                assertTrue(RawCunitLogic.insert(cache, raw4), "Failed to insert cunit 4");
+                assertTrue(RawCunitLogic.insert(cache, raw5), "Failed to insert cunit 5");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -142,7 +142,7 @@ final class TestRawCunitLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawCunit> all = RawCunitLogic.INSTANCE.queryAll(cache);
+                final List<RawCunit> all = RawCunitLogic.queryAll(cache);
 
                 assertEquals(5, all.size(), "Incorrect record count from queryAll");
 
@@ -240,10 +240,10 @@ final class TestRawCunitLogic {
                 final RawCunit raw2 = new RawCunit(fa21, RawRecordConstants.M117, Integer.valueOf(2), float15, "Unit 2",
                         Integer.valueOf(40), Integer.valueOf(20), Integer.valueOf(10), "INST");
 
-                final boolean result = RawCunitLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawCunitLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawCunit> all = RawCunitLogic.INSTANCE.queryAll(cache);
+                final List<RawCunit> all = RawCunitLogic.queryAll(cache);
 
                 assertEquals(4, all.size(), //
                         "Incorrect record count from queryAll after delete");

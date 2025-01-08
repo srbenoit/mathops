@@ -106,10 +106,10 @@ final class TestRawPrereqLogic {
                 final RawPrereq raw3 = new RawPrereq(fa21, RawRecordConstants.M125, RawRecordConstants.M118);
                 final RawPrereq raw4 = new RawPrereq(sp22, RawRecordConstants.M118, RawRecordConstants.M117);
 
-                assertTrue(RawPrereqLogic.INSTANCE.insert(cache, raw1), "Failed to insert prereq 1");
-                assertTrue(RawPrereqLogic.INSTANCE.insert(cache, raw2), "Failed to insert prereq 2");
-                assertTrue(RawPrereqLogic.INSTANCE.insert(cache, raw3), "Failed to insert prereq 3");
-                assertTrue(RawPrereqLogic.INSTANCE.insert(cache, raw4), "Failed to insert prereq 4");
+                assertTrue(RawPrereqLogic.insert(cache, raw1), "Failed to insert prereq 1");
+                assertTrue(RawPrereqLogic.insert(cache, raw2), "Failed to insert prereq 2");
+                assertTrue(RawPrereqLogic.insert(cache, raw3), "Failed to insert prereq 3");
+                assertTrue(RawPrereqLogic.insert(cache, raw4), "Failed to insert prereq 4");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -129,7 +129,7 @@ final class TestRawPrereqLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawPrereq> all = RawPrereqLogic.INSTANCE.queryAll(cache);
+                final List<RawPrereq> all = RawPrereqLogic.queryAll(cache);
 
                 assertEquals(4, all.size(), "Incorrect record count from queryAll");
 
@@ -331,10 +331,10 @@ final class TestRawPrereqLogic {
             try {
                 final RawPrereq raw2 = new RawPrereq(fa21, RawRecordConstants.M126, "M 160");
 
-                final boolean result = RawPrereqLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawPrereqLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawPrereq> all = RawPrereqLogic.INSTANCE.queryAll(cache);
+                final List<RawPrereq> all = RawPrereqLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll after delete");
 

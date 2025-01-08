@@ -398,7 +398,7 @@ public final class GetExamHandler extends AbstractHandlerBase {
                                     avail.exam.course, avail.exam.version, start.toLocalDate(), null, null,
                                     Long.valueOf(serial), Integer.valueOf(startTime), null);
 
-                            RawMpeLogLogic.INSTANCE.insert(cache, mpelog);
+                            RawMpeLogLogic.insert(cache, mpelog);
                         }
 
                         // Apply time limit factor adjustment
@@ -430,7 +430,7 @@ public final class GetExamHandler extends AbstractHandlerBase {
                                     null, Integer.valueOf(min), null, null, null, null, avail.exam.course,
                                     avail.exam.unit, avail.exam.examType, avail.timelimitFactor, "STU");
 
-                            RawPendingExamLogic.INSTANCE.insert(cache, pending);
+                            RawPendingExamLogic.insert(cache, pending);
                         }
                     }
                 } else {

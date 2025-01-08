@@ -1025,7 +1025,7 @@ public final class DlgEditStandardMilestoneAppeal extends JFrame implements Acti
                     typeCode, paceInt, paceTrack, msNbr, msType, priorDate, newDate, numAttempts, circumstances,
                     comment, interviewer);
 
-            RawMilestoneAppealLogic.INSTANCE.insert(this.cache, newRecord);
+            RawMilestoneAppealLogic.insert(this.cache, newRecord);
 
             // If relief was given, also insert or update STMILESTONE
             final List<RawStmilestone> stmilestones = RawStmilestoneLogic.getStudentMilestones(this.cache,
@@ -1042,7 +1042,7 @@ public final class DlgEditStandardMilestoneAppeal extends JFrame implements Acti
             if (stms == null) {
                 final RawStmilestone newRow = new RawStmilestone(this.active, stuId, paceTrack,
                         msNbr, msType, newDate, numAttempts);
-                RawStmilestoneLogic.INSTANCE.insert(this.cache, newRow);
+                RawStmilestoneLogic.insert(this.cache, newRow);
             } else if (!(stms.msDate.equals(newDate) && stms.nbrAtmptsAllow.equals(numAttempts))) {
                 stms.msDate = newDate;
                 stms.nbrAtmptsAllow = numAttempts;

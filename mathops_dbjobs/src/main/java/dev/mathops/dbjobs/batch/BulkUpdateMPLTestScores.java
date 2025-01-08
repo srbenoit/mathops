@@ -243,7 +243,7 @@ public final class BulkUpdateMPLTestScores {
         Log.fine(msg1);
         report.add(msg1);
 
-        final List<RawStmathplan> allStMathPlan = RawStmathplanLogic.INSTANCE.queryAll(cache);
+        final List<RawStmathplan> allStMathPlan = RawStmathplanLogic.queryAll(cache);
         final int size = allStMathPlan.size();
         final String sizeStr = Integer.toString(size);
 

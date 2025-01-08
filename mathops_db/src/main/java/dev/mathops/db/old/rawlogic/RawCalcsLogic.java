@@ -25,18 +25,8 @@ import java.util.List;
  * exam_dt              date                      no      PK
  * </pre>
  */
-public final class RawCalcsLogic extends AbstractRawLogic<RawCalcs> {
-
-    /** A single instance. */
-    public static final RawCalcsLogic INSTANCE = new RawCalcsLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawCalcsLogic() {
-
-        super();
-    }
+public enum RawCalcsLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -46,8 +36,7 @@ public final class RawCalcsLogic extends AbstractRawLogic<RawCalcs> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawCalcs record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawCalcs record) throws SQLException {
 
         if (record.stuId == null || record.issuedNbr == null || record.returnNbr == null
                 || record.serialNbr == null || record.examDt == null) {
@@ -56,11 +45,11 @@ public final class RawCalcsLogic extends AbstractRawLogic<RawCalcs> {
 
         final String sql = SimpleBuilder.concat("INSERT INTO calcs (",
                 "stu_id,issued_nbr,return_nbr,serial_nbr,exam_dt) VALUES (",
-                sqlStringValue(record.stuId), ",",
-                sqlStringValue(record.issuedNbr), ",",
-                sqlStringValue(record.returnNbr), ",",
-                sqlLongValue(record.serialNbr), ",",
-                sqlDateValue(record.examDt), ")");
+                LogicUtils.sqlStringValue(record.stuId), ",",
+                LogicUtils.sqlStringValue(record.issuedNbr), ",",
+                LogicUtils.sqlStringValue(record.returnNbr), ",",
+                LogicUtils.sqlLongValue(record.serialNbr), ",",
+                LogicUtils.sqlDateValue(record.examDt), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -83,15 +72,14 @@ public final class RawCalcsLogic extends AbstractRawLogic<RawCalcs> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawCalcs record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawCalcs record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM calcs ",
-                " WHERE stu_id=", sqlStringValue(record.stuId),
-                "   AND issued_nbr=", sqlStringValue(record.issuedNbr),
-                "   AND return_nbr=", sqlStringValue(record.returnNbr),
-                "   AND serial_nbr=", sqlLongValue(record.serialNbr),
-                "   AND exam_dt=", sqlDateValue(record.examDt));
+                " WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                "   AND issued_nbr=", LogicUtils.sqlStringValue(record.issuedNbr),
+                "   AND return_nbr=", LogicUtils.sqlStringValue(record.returnNbr),
+                "   AND serial_nbr=", LogicUtils.sqlLongValue(record.serialNbr),
+                "   AND exam_dt=", LogicUtils.sqlDateValue(record.examDt));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) > 0;
@@ -113,8 +101,7 @@ public final class RawCalcsLogic extends AbstractRawLogic<RawCalcs> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawCalcs> queryAll(final Cache cache) throws SQLException {
+    public static List<RawCalcs> queryAll(final Cache cache) throws SQLException {
 
         final List<RawCalcs> result = new ArrayList<>(50);
 
@@ -144,7 +131,7 @@ public final class RawCalcsLogic extends AbstractRawLogic<RawCalcs> {
         final List<RawCalcs> result = new ArrayList<>(10);
 
         final String sql = SimpleBuilder.concat("SELECT * FROM calcs",
-                " WHERE stu_id=", sqlStringValue(stuId));
+                " WHERE stu_id=", LogicUtils.sqlStringValue(stuId));
 
         try (final Statement stmt = cache.conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
@@ -170,7 +157,7 @@ public final class RawCalcsLogic extends AbstractRawLogic<RawCalcs> {
         RawCalcs result = null;
 
         final String sql = SimpleBuilder.concat("SELECT * FROM calcs",
-                " WHERE issued_nbr=", sqlStringValue(calculatorId));
+                " WHERE issued_nbr=", LogicUtils.sqlStringValue(calculatorId));
 
         try (final Statement stmt = cache.conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {

@@ -44,21 +44,11 @@ import java.util.List;
  * used_serial_nbr      integer                   yes
  * </pre>
  */
-public final class RawSthomeworkLogic extends AbstractRawLogic<RawSthomework> {
+public enum RawSthomeworkLogic {
+    ;
 
     /** All homework types considered. */
     public static final String[] ALL_HW_TYPES = {"HW", "ST"};
-
-    /** A single instance. */
-    public static final RawSthomeworkLogic INSTANCE = new RawSthomeworkLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawSthomeworkLogic() {
-
-        super();
-    }
 
     /**
      * Inserts a new record.
@@ -68,8 +58,7 @@ public final class RawSthomeworkLogic extends AbstractRawLogic<RawSthomework> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawSthomework record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawSthomework record) throws SQLException {
 
         if (record.serialNbr == null || record.version == null || record.stuId == null
                 || record.hwDt == null || record.hwScore == null || record.startTime == null
@@ -103,23 +92,23 @@ public final class RawSthomeworkLogic extends AbstractRawLogic<RawSthomework> {
             final String sql = SimpleBuilder.concat(
                     "INSERT INTO sthomework (serial_nbr,version,stu_id,hw_dt,hw_score,start_time,finish_time,time_ok,",
                     "passed,hw_type,course,sect,unit,objective,hw_coupon,used_dt,used_serial_nbr) VALUES (",
-                    sqlLongValue(record.serialNbr), ",",
-                    sqlStringValue(record.version), ",",
-                    sqlStringValue(record.stuId), ",",
-                    sqlDateValue(record.hwDt), ",",
-                    sqlIntegerValue(record.hwScore), ",",
-                    sqlIntegerValue(record.startTime), ",",
-                    sqlIntegerValue(record.finishTime), ",",
-                    sqlStringValue(record.timeOk), ",",
-                    sqlStringValue(record.passed), ",",
-                    sqlStringValue(record.hwType), ",",
-                    sqlStringValue(record.course), ",",
-                    sqlStringValue(record.sect), ",",
-                    sqlIntegerValue(record.unit), ",",
-                    sqlStringValue(obj), ",",
-                    sqlStringValue(record.hwCoupon), ",",
-                    sqlDateValue(record.usedDt), ",",
-                    sqlLongValue(record.usedSerialNbr), ")");
+                    LogicUtils.sqlLongValue(record.serialNbr), ",",
+                    LogicUtils.sqlStringValue(record.version), ",",
+                    LogicUtils.sqlStringValue(record.stuId), ",",
+                    LogicUtils.sqlDateValue(record.hwDt), ",",
+                    LogicUtils.sqlIntegerValue(record.hwScore), ",",
+                    LogicUtils.sqlIntegerValue(record.startTime), ",",
+                    LogicUtils.sqlIntegerValue(record.finishTime), ",",
+                    LogicUtils.sqlStringValue(record.timeOk), ",",
+                    LogicUtils.sqlStringValue(record.passed), ",",
+                    LogicUtils.sqlStringValue(record.hwType), ",",
+                    LogicUtils.sqlStringValue(record.course), ",",
+                    LogicUtils.sqlStringValue(record.sect), ",",
+                    LogicUtils.sqlIntegerValue(record.unit), ",",
+                    LogicUtils.sqlStringValue(obj), ",",
+                    LogicUtils.sqlStringValue(record.hwCoupon), ",",
+                    LogicUtils.sqlDateValue(record.usedDt), ",",
+                    LogicUtils.sqlLongValue(record.usedSerialNbr), ")");
 
             try (final Statement stmt = cache.conn.createStatement()) {
                 result = stmt.executeUpdate(sql) == 1;
@@ -143,13 +132,12 @@ public final class RawSthomeworkLogic extends AbstractRawLogic<RawSthomework> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawSthomework record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawSthomework record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM sthomework",
-                " WHERE serial_nbr=", sqlLongValue(record.serialNbr),
-                " AND version=", sqlStringValue(record.version),
-                " AND stu_id=", sqlStringValue(record.stuId));
+                " WHERE serial_nbr=", LogicUtils.sqlLongValue(record.serialNbr),
+                " AND version=", LogicUtils.sqlStringValue(record.version),
+                " AND stu_id=", LogicUtils.sqlStringValue(record.stuId));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -171,8 +159,7 @@ public final class RawSthomeworkLogic extends AbstractRawLogic<RawSthomework> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawSthomework> queryAll(final Cache cache) throws SQLException {
+    public static List<RawSthomework> queryAll(final Cache cache) throws SQLException {
 
         return executeQuery(cache.conn, "SELECT * FROM sthomework");
     }
@@ -191,7 +178,7 @@ public final class RawSthomeworkLogic extends AbstractRawLogic<RawSthomework> {
                                                      final boolean all) throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM sthomework WHERE stu_id=",
-                sqlStringValue(stuId), (all ? CoreConstants.EMPTY : " AND (passed='Y' OR passed='N')"),
+                LogicUtils.sqlStringValue(stuId), (all ? CoreConstants.EMPTY : " AND (passed='Y' OR passed='N')"),
                 " ORDER BY hw_dt,finish_time");
 
         return executeQuery(cache.conn, sql);
@@ -213,8 +200,8 @@ public final class RawSthomeworkLogic extends AbstractRawLogic<RawSthomework> {
                                                            final boolean all) throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM sthomework ",
-                " WHERE stu_id=", sqlStringValue(stuId),
-                "   AND course=", sqlStringValue(course),
+                " WHERE stu_id=", LogicUtils.sqlStringValue(stuId),
+                "   AND course=", LogicUtils.sqlStringValue(course),
                 (all ? CoreConstants.EMPTY : " AND (passed='Y' OR passed='N')"),
                 " ORDER BY hw_dt,finish_time");
 
@@ -239,9 +226,9 @@ public final class RawSthomeworkLogic extends AbstractRawLogic<RawSthomework> {
                                                                final boolean all) throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM sthomework ",
-                " WHERE stu_id=", sqlStringValue(stuId),
-                "   AND course=", sqlStringValue(course),
-                "   AND unit=", sqlIntegerValue(unit),
+                " WHERE stu_id=", LogicUtils.sqlStringValue(stuId),
+                "   AND course=", LogicUtils.sqlStringValue(course),
+                "   AND unit=", LogicUtils.sqlIntegerValue(unit),
                 (all ? CoreConstants.EMPTY : " AND (passed='Y' OR passed='N')"),
                 " ORDER BY hw_dt,finish_time");
 
@@ -268,10 +255,10 @@ public final class RawSthomeworkLogic extends AbstractRawLogic<RawSthomework> {
                                                                         final boolean all) throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM sthomework ",
-                " WHERE stu_id=", sqlStringValue(stuId),
-                "   AND course=", sqlStringValue(course),
-                "   AND unit=", sqlIntegerValue(unit),
-                "   AND objective=", sqlIntegerValue(objective),
+                " WHERE stu_id=", LogicUtils.sqlStringValue(stuId),
+                "   AND course=", LogicUtils.sqlStringValue(course),
+                "   AND unit=", LogicUtils.sqlIntegerValue(unit),
+                "   AND objective=", LogicUtils.sqlIntegerValue(objective),
                 (all ? CoreConstants.EMPTY : " AND (passed='Y' OR passed='N')"),
                 " ORDER BY hw_dt,finish_time");
 
@@ -388,16 +375,16 @@ public final class RawSthomeworkLogic extends AbstractRawLogic<RawSthomework> {
 
         final int numCourses = courses.length;
         if (numCourses == 1) {
-            sql.add(" WHERE course=", sqlStringValue(courses[0]));
+            sql.add(" WHERE course=", LogicUtils.sqlStringValue(courses[0]));
         } else {
-            sql.add(" WHERE course IN (", sqlStringValue(courses[0]));
+            sql.add(" WHERE course IN (", LogicUtils.sqlStringValue(courses[0]));
             for (int i = 1; i < numCourses; ++i) {
-                sql.add(CoreConstants.COMMA_CHAR).add(sqlStringValue(courses[i]));
+                sql.add(CoreConstants.COMMA_CHAR).add(LogicUtils.sqlStringValue(courses[i]));
             }
             sql.add(')');
         }
 
-        sql.add(" AND hw_dt>=", sqlDateValue(earliest), " ORDER BY hw_dt,finish_time");
+        sql.add(" AND hw_dt>=", LogicUtils.sqlDateValue(earliest), " ORDER BY hw_dt,finish_time");
 
         final List<RawSthomework> all = executeQuery(cache.conn, sql.toString());
         all.sort(new RawSthomework.FinishDateTimeComparator());
@@ -442,10 +429,10 @@ public final class RawSthomeworkLogic extends AbstractRawLogic<RawSthomework> {
         final String sql = SimpleBuilder.concat("UPDATE sthomework ",
                 "SET finish_time=", Integer.toString(newFinishTime),
                 ", hw_score=", Integer.toString(newScore),
-                ", passed=", sqlStringValue(newPassed),
-                " WHERE serial_nbr=", sqlLongValue(serial),
-                "   AND version=", sqlStringValue(version),
-                "   AND stu_id=", sqlStringValue(stuId));
+                ", passed=", LogicUtils.sqlStringValue(newPassed),
+                " WHERE serial_nbr=", LogicUtils.sqlLongValue(serial),
+                "   AND version=", LogicUtils.sqlStringValue(version),
+                "   AND stu_id=", LogicUtils.sqlStringValue(stuId));
 
         // Log.info(sql);
 

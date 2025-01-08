@@ -129,7 +129,7 @@ public final class SurveySubmitHandler extends AbstractHandlerBase {
                 final RawStsurveyqa ans = new RawStsurveyqa(studentId, version, now.toLocalDate(),
                         Integer.valueOf(i + 1), answer, Integer.valueOf(TemporalUtils.minuteOfDay(now)));
 
-                RawStsurveyqaLogic.INSTANCE.insert(cache, ans);
+                RawStsurveyqaLogic.insert(cache, ans);
             }
         }
 

@@ -21,10 +21,7 @@ import java.util.TreeMap;
  * <p>
  * There is currently no table for this data - it is hard-coded into this class.
  */
-public final class RawLessonComponentLogic extends AbstractRawLogic<RawLessonComponent> {
-
-    /** A single instance. */
-    public static final RawLessonComponentLogic INSTANCE = new RawLessonComponentLogic();
+public final class RawLessonComponentLogic {
 
     /** Label for overview video. */
     private static final String OVVID = "Instructor Lecture by Dr. Paul Kennedy";
@@ -774,7 +771,6 @@ public final class RawLessonComponentLogic extends AbstractRawLogic<RawLessonCom
      */
     private RawLessonComponentLogic() {
 
-        super();
     }
 
     /**
@@ -784,8 +780,7 @@ public final class RawLessonComponentLogic extends AbstractRawLogic<RawLessonCom
      * @param record the record to insert
      * @return {@code true} if successful; {@code false} if not
      */
-    @Override
-    public boolean insert(final Cache cache, final RawLessonComponent record) {
+    public static boolean insert(final Cache cache, final RawLessonComponent record) {
 
         Log.warning("Unable to insert lesson_component record: no underlying table.");
 
@@ -799,8 +794,7 @@ public final class RawLessonComponentLogic extends AbstractRawLogic<RawLessonCom
      * @param record the record to delete
      * @return {@code true} if successful; {@code false} if not
      */
-    @Override
-    public boolean delete(final Cache cache, final RawLessonComponent record) {
+    public static boolean delete(final Cache cache, final RawLessonComponent record) {
 
         Log.warning("Unable to delete lesson_component record: no underlying table.");
 
@@ -813,8 +807,7 @@ public final class RawLessonComponentLogic extends AbstractRawLogic<RawLessonCom
      * @param cache the data cache
      * @return the list of records
      */
-    @Override
-    public List<RawLessonComponent> queryAll(final Cache cache) {
+    public static List<RawLessonComponent> queryAll(final Cache cache) {
 
         final List<RawLessonComponent> result = new ArrayList<>(0);
 

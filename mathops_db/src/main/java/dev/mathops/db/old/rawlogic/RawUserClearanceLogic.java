@@ -24,18 +24,8 @@ import java.util.List;
  * clear_passwd         char(8)                   yes
  * </pre>
  */
-public final class RawUserClearanceLogic extends AbstractRawLogic<RawUserClearance> {
-
-    /** A single instance. */
-    public static final RawUserClearanceLogic INSTANCE = new RawUserClearanceLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawUserClearanceLogic() {
-
-        super();
-    }
+public enum RawUserClearanceLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -45,8 +35,7 @@ public final class RawUserClearanceLogic extends AbstractRawLogic<RawUserClearan
      * @return {@code true} if successful; {@code false} otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawUserClearance record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawUserClearance record) throws SQLException {
 
         if (record.login == null || record.clearFunction == null || record.clearType == null) {
             throw new SQLException("Null value in primary key field.");
@@ -54,10 +43,10 @@ public final class RawUserClearanceLogic extends AbstractRawLogic<RawUserClearan
 
         final String sql = SimpleBuilder.concat(
                 "INSERT INTO user_clearance (login,clear_function,clear_type,clear_passwd) VALUES (",
-                sqlStringValue(record.login), ",",
-                sqlStringValue(record.clearFunction), ",",
-                sqlIntegerValue(record.clearType), ",",
-                sqlStringValue(record.clearPasswd), ")");
+                LogicUtils.sqlStringValue(record.login), ",",
+                LogicUtils.sqlStringValue(record.clearFunction), ",",
+                LogicUtils.sqlIntegerValue(record.clearType), ",",
+                LogicUtils.sqlStringValue(record.clearPasswd), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             return stmt.executeUpdate(sql) == 1;
@@ -72,12 +61,11 @@ public final class RawUserClearanceLogic extends AbstractRawLogic<RawUserClearan
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawUserClearance record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawUserClearance record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM user_clearance ",
-                "WHERE login=", sqlStringValue(record.login),
-                "  AND clear_function=", sqlStringValue(record.clearFunction));
+                "WHERE login=", LogicUtils.sqlStringValue(record.login),
+                "  AND clear_function=", LogicUtils.sqlStringValue(record.clearFunction));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -99,8 +87,7 @@ public final class RawUserClearanceLogic extends AbstractRawLogic<RawUserClearan
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawUserClearance> queryAll(final Cache cache) throws SQLException {
+    public static List<RawUserClearance> queryAll(final Cache cache) throws SQLException {
 
         final List<RawUserClearance> result = new ArrayList<>(50);
 
@@ -127,7 +114,7 @@ public final class RawUserClearanceLogic extends AbstractRawLogic<RawUserClearan
             throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM user_clearance ",
-                "WHERE login=", sqlStringValue(login));
+                "WHERE login=", LogicUtils.sqlStringValue(login));
 
         final List<RawUserClearance> result = new ArrayList<>(10);
 

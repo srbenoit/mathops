@@ -10,16 +10,11 @@ import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.rawrecord.RawMpscorequeue;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
-
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -28,6 +23,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Tests for the {@code RawMpscorequeueLogic} class.
@@ -111,9 +110,9 @@ final class TestRawMpscorequeueLogic {
                 final RawMpscorequeue raw2 = new RawMpscorequeue(Integer.valueOf(123456), "MC17", datetime1, "1");
                 final RawMpscorequeue raw3 = new RawMpscorequeue(Integer.valueOf(456789), "MC26", datetime2, "0");
 
-                assertTrue(RawMpscorequeueLogic.INSTANCE.insert(cache, raw1), "Failed to insert mpscorequeue");
-                assertTrue(RawMpscorequeueLogic.INSTANCE.insert(cache, raw2), "Failed to insert mpscorequeue");
-                assertTrue(RawMpscorequeueLogic.INSTANCE.insert(cache, raw3), "Failed to insert mpscorequeue");
+                assertTrue(RawMpscorequeueLogic.insert(cache, raw1), "Failed to insert mpscorequeue");
+                assertTrue(RawMpscorequeueLogic.insert(cache, raw2), "Failed to insert mpscorequeue");
+                assertTrue(RawMpscorequeueLogic.insert(cache, raw3), "Failed to insert mpscorequeue");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -133,7 +132,7 @@ final class TestRawMpscorequeueLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawMpscorequeue> all = RawMpscorequeueLogic.INSTANCE.queryAll(cache);
+                final List<RawMpscorequeue> all = RawMpscorequeueLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -238,7 +237,7 @@ final class TestRawMpscorequeueLogic {
             try {
                 final RawMpscorequeue toInsert = new RawMpscorequeue(Integer.valueOf(99999), "MC12", datetime3, "3");
 
-                assertTrue(RawMpscorequeueLogic.INSTANCE.insert(cache, toInsert), "insertMpscorequeue failed");
+                assertTrue(RawMpscorequeueLogic.insert(cache, toInsert), "insertMpscorequeue failed");
 
                 final List<RawMpscorequeue> all = RawMpscorequeueLogic.queryByPidm(cache, Integer.valueOf(99999));
 
@@ -271,7 +270,7 @@ final class TestRawMpscorequeueLogic {
             try {
                 final RawMpscorequeue toDelete = new RawMpscorequeue(Integer.valueOf(99999), "MC12", datetime3, "3");
 
-                assertTrue(RawMpscorequeueLogic.INSTANCE.delete(cache, toDelete), "deleteMpscorequeue failed");
+                assertTrue(RawMpscorequeueLogic.delete(cache, toDelete), "deleteMpscorequeue failed");
                 conn.commit();
 
                 final List<RawMpscorequeue> all = RawMpscorequeueLogic.queryByPidm(cache, Integer.valueOf(99999));
@@ -300,13 +299,12 @@ final class TestRawMpscorequeueLogic {
         try {
             final DbConnection conn = ctx.checkOutConnection();
             final Cache cache = new Cache(dbProfile, conn);
-            AbstractLogicModule.indicateBannerDown();
+            LogicUtils.indicateBannerDown();
 
             try {
                 final DbConnection liveConn = liveCtx.checkOutConnection();
                 try {
-                    RawMpscorequeueLogic.INSTANCE.postChallengeCredit(cache, liveConn, pidm, RawRecordConstants.M117,
-                            now);
+                    RawMpscorequeueLogic.postChallengeCredit(cache, liveConn, pidm, RawRecordConstants.M117, now);
 
                     final List<RawMpscorequeue> all = RawMpscorequeueLogic.queryByPidm(cache, pidm);
 
@@ -320,7 +318,7 @@ final class TestRawMpscorequeueLogic {
                     assertEquals(rec.testDate, now, "Invalid test date after query");
                     assertEquals(rec.testScore, "2", "Invalid test score after query");
 
-                    assertTrue(RawMpscorequeueLogic.INSTANCE.delete(cache, rec), "deleteMpscorequeue failed");
+                    assertTrue(RawMpscorequeueLogic.delete(cache, rec), "deleteMpscorequeue failed");
                     conn.commit();
 
                     final List<RawMpscorequeue> sortest = RawMpscorequeueLogic.querySORTESTByStudent(liveConn, pidm);
@@ -332,7 +330,7 @@ final class TestRawMpscorequeueLogic {
                     liveCtx.checkInConnection(liveConn);
                 }
             } finally {
-                AbstractLogicModule.indicateBannerUp();
+                LogicUtils.indicateBannerUp();
                 ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
@@ -360,13 +358,12 @@ final class TestRawMpscorequeueLogic {
         try {
             final DbConnection conn = ctx.checkOutConnection();
             final Cache cache = new Cache(dbProfile, conn);
-            AbstractLogicModule.indicateBannerUp();
+            LogicUtils.indicateBannerUp();
 
             try {
                 final DbConnection liveConn = liveCtx.checkOutConnection();
                 try {
-                    RawMpscorequeueLogic.INSTANCE.postChallengeCredit(cache, liveConn, pidm, RawRecordConstants.M117,
-                            now);
+                    RawMpscorequeueLogic.postChallengeCredit(cache, liveConn, pidm, RawRecordConstants.M117, now);
 
                     final List<RawMpscorequeue> all = RawMpscorequeueLogic.queryByPidm(cache, pidm);
 
@@ -389,7 +386,7 @@ final class TestRawMpscorequeueLogic {
                     liveCtx.checkInConnection(liveConn);
                 }
             } finally {
-                AbstractLogicModule.indicateBannerUp();
+                LogicUtils.indicateBannerUp();
                 ctx.checkInConnection(conn);
             }
         } catch (SQLException ex) {
@@ -418,12 +415,12 @@ final class TestRawMpscorequeueLogic {
         try {
             final DbConnection conn = ctx.checkOutConnection();
             final Cache cache = new Cache(dbProfile, conn);
-            AbstractLogicModule.indicateBannerDown();
+            LogicUtils.indicateBannerDown();
 
             try {
                 final DbConnection liveConn = liveCtx.checkOutConnection();
                 try {
-                    RawMpscorequeueLogic.INSTANCE.postPlacementToolResult(cache, liveConn, pidm, earned, now);
+                    RawMpscorequeueLogic.postPlacementToolResult(cache, liveConn, pidm, earned, now);
 
                     final List<RawMpscorequeue> all = RawMpscorequeueLogic.queryByPidm(cache, pidm);
 
@@ -485,7 +482,7 @@ final class TestRawMpscorequeueLogic {
                     assertTrue(found6, "mpscorequeue 6 not found");
 
                     for (final RawMpscorequeue test : all) {
-                        assertTrue(RawMpscorequeueLogic.INSTANCE.delete(cache, test), "deleteMpscorequeue failed");
+                        assertTrue(RawMpscorequeueLogic.delete(cache, test), "deleteMpscorequeue failed");
                     }
                     conn.commit();
 
@@ -499,7 +496,7 @@ final class TestRawMpscorequeueLogic {
                     liveCtx.checkInConnection(liveConn);
                 }
             } finally {
-                AbstractLogicModule.indicateBannerUp();
+                LogicUtils.indicateBannerUp();
                 ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
@@ -533,12 +530,12 @@ final class TestRawMpscorequeueLogic {
         try {
             final DbConnection conn = ctx.checkOutConnection();
             final Cache cache = new Cache(dbProfile, conn);
-            AbstractLogicModule.indicateBannerUp();
+            LogicUtils.indicateBannerUp();
 
             try {
                 final DbConnection liveConn = liveCtx.checkOutConnection();
                 try {
-                    RawMpscorequeueLogic.INSTANCE.postPlacementToolResult(cache, liveConn, pidm, earned, now);
+                    RawMpscorequeueLogic.postPlacementToolResult(cache, liveConn, pidm, earned, now);
 
                     final List<RawMpscorequeue> all = RawMpscorequeueLogic.queryByPidm(cache, pidm);
 
@@ -609,7 +606,7 @@ final class TestRawMpscorequeueLogic {
                     liveCtx.checkInConnection(liveConn);
                 }
             } finally {
-                AbstractLogicModule.indicateBannerUp();
+                LogicUtils.indicateBannerUp();
                 ctx.checkInConnection(conn);
             }
         } catch (SQLException ex) {
@@ -632,12 +629,12 @@ final class TestRawMpscorequeueLogic {
         try {
             final DbConnection conn = ctx.checkOutConnection();
             final Cache cache = new Cache(dbProfile, conn);
-            AbstractLogicModule.indicateBannerDown();
+            LogicUtils.indicateBannerDown();
 
             try {
                 final DbConnection liveConn = liveCtx.checkOutConnection();
                 try {
-                    RawMpscorequeueLogic.INSTANCE.postPrecalcTutorialResult(cache, liveConn, pidm,
+                    RawMpscorequeueLogic.postPrecalcTutorialResult(cache, liveConn, pidm,
                             RawRecordConstants.M117, now);
 
                     final List<RawMpscorequeue> all = RawMpscorequeueLogic.queryByPidm(cache, pidm);
@@ -652,7 +649,7 @@ final class TestRawMpscorequeueLogic {
                     assertEquals(rec.testDate, now, "Invalid test date after query");
                     assertEquals(rec.testScore, "1", "Invalid test score after query");
 
-                    assertTrue(RawMpscorequeueLogic.INSTANCE.delete(cache, rec), "deleteMpscorequeue failed");
+                    assertTrue(RawMpscorequeueLogic.delete(cache, rec), "deleteMpscorequeue failed");
                     conn.commit();
 
                     final List<RawMpscorequeue> sortest = RawMpscorequeueLogic.querySORTESTByStudent(liveConn, pidm);
@@ -664,7 +661,7 @@ final class TestRawMpscorequeueLogic {
                     liveCtx.checkInConnection(liveConn);
                 }
             } finally {
-                AbstractLogicModule.indicateBannerUp();
+                LogicUtils.indicateBannerUp();
                 ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
@@ -690,12 +687,12 @@ final class TestRawMpscorequeueLogic {
         try {
             final DbConnection conn = ctx.checkOutConnection();
             final Cache cache = new Cache(dbProfile, conn);
-            AbstractLogicModule.indicateBannerUp();
+            LogicUtils.indicateBannerUp();
 
             try {
                 final DbConnection liveConn = liveCtx.checkOutConnection();
                 try {
-                    RawMpscorequeueLogic.INSTANCE.postPrecalcTutorialResult(cache, liveConn, pidm,
+                    RawMpscorequeueLogic.postPrecalcTutorialResult(cache, liveConn, pidm,
                             RawRecordConstants.M117, now);
 
                     final List<RawMpscorequeue> all = RawMpscorequeueLogic.queryByPidm(cache, pidm);
@@ -719,7 +716,7 @@ final class TestRawMpscorequeueLogic {
                     liveCtx.checkInConnection(liveConn);
                 }
             } finally {
-                AbstractLogicModule.indicateBannerUp();
+                LogicUtils.indicateBannerUp();
                 ctx.checkInConnection(conn);
             }
         } catch (SQLException ex) {
@@ -743,12 +740,12 @@ final class TestRawMpscorequeueLogic {
         try {
             final DbConnection conn = ctx.checkOutConnection();
             final Cache cache = new Cache(dbProfile, conn);
-            AbstractLogicModule.indicateBannerDown();
+            LogicUtils.indicateBannerDown();
 
             try {
                 final DbConnection liveConn = liveCtx.checkOutConnection();
                 try {
-                    RawMpscorequeueLogic.INSTANCE.postELMTutorialResult(cache, liveConn, pidm, now);
+                    RawMpscorequeueLogic.postELMTutorialResult(cache, liveConn, pidm, now);
 
                     final List<RawMpscorequeue> all = RawMpscorequeueLogic.queryByPidm(cache, pidm);
 
@@ -762,7 +759,7 @@ final class TestRawMpscorequeueLogic {
                     assertEquals(rec.testDate, now, "Invalid test date after query");
                     assertEquals(rec.testScore, "2", "Invalid test score after query");
 
-                    assertTrue(RawMpscorequeueLogic.INSTANCE.delete(cache, rec), "deleteMpscorequeue failed");
+                    assertTrue(RawMpscorequeueLogic.delete(cache, rec), "deleteMpscorequeue failed");
                     conn.commit();
 
                     final List<RawMpscorequeue> sortest = RawMpscorequeueLogic.querySORTESTByStudent(liveConn, pidm);
@@ -774,7 +771,7 @@ final class TestRawMpscorequeueLogic {
                     liveCtx.checkInConnection(liveConn);
                 }
             } finally {
-                AbstractLogicModule.indicateBannerUp();
+                LogicUtils.indicateBannerUp();
                 ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
@@ -801,12 +798,12 @@ final class TestRawMpscorequeueLogic {
         try {
             final DbConnection conn = ctx.checkOutConnection();
             final Cache cache = new Cache(dbProfile, conn);
-            AbstractLogicModule.indicateBannerUp();
+            LogicUtils.indicateBannerUp();
 
             try {
                 final DbConnection liveConn = liveCtx.checkOutConnection();
                 try {
-                    RawMpscorequeueLogic.INSTANCE.postELMTutorialResult(cache, liveConn, pidm, now);
+                    RawMpscorequeueLogic.postELMTutorialResult(cache, liveConn, pidm, now);
 
                     final List<RawMpscorequeue> all = RawMpscorequeueLogic.queryByPidm(cache, pidm);
 
@@ -829,7 +826,7 @@ final class TestRawMpscorequeueLogic {
                     liveCtx.checkInConnection(liveConn);
                 }
             } finally {
-                AbstractLogicModule.indicateBannerUp();
+                LogicUtils.indicateBannerUp();
                 ctx.checkInConnection(conn);
             }
         } catch (SQLException ex) {
@@ -852,12 +849,12 @@ final class TestRawMpscorequeueLogic {
         try {
             final DbConnection conn = ctx.checkOutConnection();
             final Cache cache = new Cache(dbProfile, conn);
-            AbstractLogicModule.indicateBannerDown();
+            LogicUtils.indicateBannerDown();
 
             try {
                 final DbConnection liveConn = liveCtx.checkOutConnection();
                 try {
-                    RawMpscorequeueLogic.INSTANCE.postELMUnit3ReviewPassed(cache, liveConn, pidm, now);
+                    RawMpscorequeueLogic.postELMUnit3ReviewPassed(cache, liveConn, pidm, now);
 
                     final List<RawMpscorequeue> all = RawMpscorequeueLogic.queryByPidm(cache, pidm);
 
@@ -871,7 +868,7 @@ final class TestRawMpscorequeueLogic {
                     assertEquals(rec.testDate, now, "Invalid test date after query");
                     assertEquals(rec.testScore, "4", "Invalid test score after query");
 
-                    assertTrue(RawMpscorequeueLogic.INSTANCE.delete(cache, rec), "deleteMpscorequeue failed");
+                    assertTrue(RawMpscorequeueLogic.delete(cache, rec), "deleteMpscorequeue failed");
                     conn.commit();
 
                     final List<RawMpscorequeue> sortest = RawMpscorequeueLogic.querySORTESTByStudent(liveConn, pidm);
@@ -883,7 +880,7 @@ final class TestRawMpscorequeueLogic {
                     liveCtx.checkInConnection(liveConn);
                 }
             } finally {
-                AbstractLogicModule.indicateBannerUp();
+                LogicUtils.indicateBannerUp();
                 ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
@@ -911,13 +908,13 @@ final class TestRawMpscorequeueLogic {
             final DbConnection conn = ctx.checkOutConnection();
             final Cache cache = new Cache(dbProfile, conn);
 
-            final boolean origBannerDown = AbstractLogicModule.isBannerDown();
-            AbstractLogicModule.indicateBannerUp();
+            final boolean origBannerDown = LogicUtils.isBannerDown();
+            LogicUtils.indicateBannerUp();
 
             try {
                 final DbConnection liveConn = liveCtx.checkOutConnection();
                 try {
-                    RawMpscorequeueLogic.INSTANCE.postELMUnit3ReviewPassed(cache, liveConn, pidm, now);
+                    RawMpscorequeueLogic.postELMUnit3ReviewPassed(cache, liveConn, pidm, now);
 
                     final List<RawMpscorequeue> all = RawMpscorequeueLogic.queryByPidm(cache, pidm);
 
@@ -941,7 +938,7 @@ final class TestRawMpscorequeueLogic {
                 }
             } finally {
                 if (origBannerDown) {
-                    AbstractLogicModule.indicateBannerDown();
+                    LogicUtils.indicateBannerDown();
                 }
                 ctx.checkInConnection(conn);
             }

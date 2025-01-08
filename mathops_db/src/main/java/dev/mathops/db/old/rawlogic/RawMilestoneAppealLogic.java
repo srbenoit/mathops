@@ -38,18 +38,8 @@ import java.util.List;
  * interviewer          char(20)                   no
  * </pre>
  */
-public final class RawMilestoneAppealLogic extends AbstractRawLogic<RawMilestoneAppeal> {
-
-    /** A single instance. */
-    public static final RawMilestoneAppealLogic INSTANCE = new RawMilestoneAppealLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawMilestoneAppealLogic() {
-
-        super();
-    }
+public enum RawMilestoneAppealLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -59,11 +49,10 @@ public final class RawMilestoneAppealLogic extends AbstractRawLogic<RawMilestone
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawMilestoneAppeal record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawMilestoneAppeal record) throws SQLException {
 
         // NOTE: This is a place where we send user-entered data into a table, so the insert is done
-        // with prepared statements.
+        //  with prepared statements.
 
         final boolean result;
 
@@ -75,21 +64,21 @@ public final class RawMilestoneAppealLogic extends AbstractRawLogic<RawMilestone
                                + "comment,interviewer) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
             try (final PreparedStatement ps = cache.conn.prepareStatement(sql)) {
-                setPsString(ps, 1, record.stuId);
-                setPsString(ps, 2, record.termKey.termCode);
-                setPsInteger(ps, 3, record.termKey.shortYear);
-                setPsTimestamp(ps, 4, record.appealDateTime);
-                setPsString(ps, 5, record.appealType);
-                setPsInteger(ps, 6, record.pace);
-                setPsString(ps, 7, record.paceTrack);
-                setPsInteger(ps, 8, record.msNbr);
-                setPsString(ps, 9, record.msType);
-                setPsDate(ps, 10, record.priorMsDt);
-                setPsDate(ps, 11, record.newMsDt);
-                setPsInteger(ps, 12, record.attemptsAllowed);
-                setPsString(ps, 13, record.circumstances);
-                setPsString(ps, 14, record.comment);
-                setPsString(ps, 15, record.interviewer);
+                LogicUtils.setPsString(ps, 1, record.stuId);
+                LogicUtils.setPsString(ps, 2, record.termKey.termCode);
+                LogicUtils.setPsInteger(ps, 3, record.termKey.shortYear);
+                LogicUtils.setPsTimestamp(ps, 4, record.appealDateTime);
+                LogicUtils.setPsString(ps, 5, record.appealType);
+                LogicUtils.setPsInteger(ps, 6, record.pace);
+                LogicUtils.setPsString(ps, 7, record.paceTrack);
+                LogicUtils.setPsInteger(ps, 8, record.msNbr);
+                LogicUtils.setPsString(ps, 9, record.msType);
+                LogicUtils.setPsDate(ps, 10, record.priorMsDt);
+                LogicUtils.setPsDate(ps, 11, record.newMsDt);
+                LogicUtils.setPsInteger(ps, 12, record.attemptsAllowed);
+                LogicUtils.setPsString(ps, 13, record.circumstances);
+                LogicUtils.setPsString(ps, 14, record.comment);
+                LogicUtils.setPsString(ps, 15, record.interviewer);
 
                 result = ps.executeUpdate() == 1;
 
@@ -112,18 +101,17 @@ public final class RawMilestoneAppealLogic extends AbstractRawLogic<RawMilestone
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawMilestoneAppeal record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawMilestoneAppeal record) throws SQLException {
 
         final boolean result;
 
         final HtmlBuilder sql = new HtmlBuilder(100);
 
         sql.add("DELETE FROM milestone_appeal",
-                " WHERE stu_id=", sqlStringValue(record.stuId),
-                "   AND term=", sqlStringValue(record.termKey.termCode),
-                "   AND term_yr=", sqlIntegerValue(record.termKey.shortYear),
-                "   AND appeal_date_time=", sqlDateTimeValue(record.appealDateTime));
+                " WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                "   AND term=", LogicUtils.sqlStringValue(record.termKey.termCode),
+                "   AND term_yr=", LogicUtils.sqlIntegerValue(record.termKey.shortYear),
+                "   AND appeal_date_time=", LogicUtils.sqlDateTimeValue(record.appealDateTime));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             result = stmt.executeUpdate(sql.toString()) == 1;
@@ -153,21 +141,21 @@ public final class RawMilestoneAppealLogic extends AbstractRawLogic<RawMilestone
         final HtmlBuilder sql = new HtmlBuilder(200);
 
         sql.add("UPDATE milestone_appeal",
-                " SET pace=", sqlIntegerValue(record.pace),
-                ", pace_track=", sqlStringValue(record.paceTrack),
-                ", appeal_type=", sqlStringValue(record.appealType),
-                ", ms_nbr=", sqlIntegerValue(record.msNbr),
-                ", ms_type=", sqlStringValue(record.msType),
-                ", prior_ms_dt=", sqlDateValue(record.priorMsDt),
-                ", new_ms_dt=", sqlDateValue(record.newMsDt),
-                ", attempts_allowed=", sqlIntegerValue(record.attemptsAllowed),
-                ", circumstances=", sqlStringValue(record.circumstances),
-                ", comment=", sqlStringValue(record.comment),
-                ", interviewer=", sqlStringValue(record.interviewer),
-                " WHERE stu_id=", sqlStringValue(record.stuId),
-                "   AND term=", sqlStringValue(record.termKey.termCode),
-                "   AND term_yr=", sqlIntegerValue(record.termKey.shortYear),
-                "   AND appeal_date_time=", sqlDateTimeValue(record.appealDateTime));
+                " SET pace=", LogicUtils.sqlIntegerValue(record.pace),
+                ", pace_track=", LogicUtils.sqlStringValue(record.paceTrack),
+                ", appeal_type=", LogicUtils.sqlStringValue(record.appealType),
+                ", ms_nbr=", LogicUtils.sqlIntegerValue(record.msNbr),
+                ", ms_type=", LogicUtils.sqlStringValue(record.msType),
+                ", prior_ms_dt=", LogicUtils.sqlDateValue(record.priorMsDt),
+                ", new_ms_dt=", LogicUtils.sqlDateValue(record.newMsDt),
+                ", attempts_allowed=", LogicUtils.sqlIntegerValue(record.attemptsAllowed),
+                ", circumstances=", LogicUtils.sqlStringValue(record.circumstances),
+                ", comment=", LogicUtils.sqlStringValue(record.comment),
+                ", interviewer=", LogicUtils.sqlStringValue(record.interviewer),
+                " WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                "   AND term=", LogicUtils.sqlStringValue(record.termKey.termCode),
+                "   AND term_yr=", LogicUtils.sqlIntegerValue(record.termKey.shortYear),
+                "   AND appeal_date_time=", LogicUtils.sqlDateTimeValue(record.appealDateTime));
 
         final String sqlString = sql.toString();
 //        Log.info(sqlString);
@@ -195,7 +183,6 @@ public final class RawMilestoneAppealLogic extends AbstractRawLogic<RawMilestone
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
     public List<RawMilestoneAppeal> queryAll(final Cache cache) throws SQLException {
 
         return executeQuery(cache, "SELECT * FROM milestone_appeal");
@@ -212,7 +199,7 @@ public final class RawMilestoneAppealLogic extends AbstractRawLogic<RawMilestone
     public static List<RawMilestoneAppeal> queryByStudent(final Cache cache, final String stuId) throws SQLException {
 
         final String sql = SimpleBuilder.concat(
-                "SELECT * FROM milestone_appeal WHERE stu_id=", sqlStringValue(stuId));
+                "SELECT * FROM milestone_appeal WHERE stu_id=", LogicUtils.sqlStringValue(stuId));
 
         return executeQuery(cache, sql);
     }

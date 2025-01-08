@@ -36,18 +36,8 @@ import java.util.List;
  * re_points            smallint                  no
  * </pre>
  */
-public final class RawStpaceSummaryLogic extends AbstractRawLogic<RawStpaceSummary> {
-
-    /** A single instance. */
-    public static final RawStpaceSummaryLogic INSTANCE = new RawStpaceSummaryLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawStpaceSummaryLogic() {
-
-        super();
-    }
+public enum RawStpaceSummaryLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -57,8 +47,7 @@ public final class RawStpaceSummaryLogic extends AbstractRawLogic<RawStpaceSumma
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawStpaceSummary record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawStpaceSummary record) throws SQLException {
 
         if (record.stuId == null || record.course == null || record.sect == null
                 || record.termKey == null || record.iInProgress == null || record.pace == null
@@ -71,21 +60,21 @@ public final class RawStpaceSummaryLogic extends AbstractRawLogic<RawStpaceSumma
                 "INSERT INTO stpace_summary (stu_id,course,sect,term,term_yr,",
                 "i_in_progress,pace,pace_track,pace_order,ms_nbr,ms_unit,ms_date,",
                 "new_ms_date,exam_dt,re_points) VALUES (",
-                sqlStringValue(record.stuId), ",",
-                sqlStringValue(record.course), ",",
-                sqlStringValue(record.sect), ",",
-                sqlStringValue(record.termKey.termCode), ",",
-                sqlIntegerValue(record.termKey.shortYear), ",",
-                sqlStringValue(record.iInProgress), ",",
-                sqlIntegerValue(record.pace), ",",
-                sqlStringValue(record.paceTrack), ",",
-                sqlIntegerValue(record.paceOrder), ",",
-                sqlIntegerValue(record.msNbr), ",",
-                sqlIntegerValue(record.msUnit), ",",
-                sqlDateValue(record.msDate), ",",
-                sqlStringValue(record.newMsDate), ",",
-                sqlDateValue(record.examDt), ",",
-                sqlIntegerValue(record.rePoints), ")");
+                LogicUtils.sqlStringValue(record.stuId), ",",
+                LogicUtils.sqlStringValue(record.course), ",",
+                LogicUtils.sqlStringValue(record.sect), ",",
+                LogicUtils.sqlStringValue(record.termKey.termCode), ",",
+                LogicUtils.sqlIntegerValue(record.termKey.shortYear), ",",
+                LogicUtils.sqlStringValue(record.iInProgress), ",",
+                LogicUtils.sqlIntegerValue(record.pace), ",",
+                LogicUtils.sqlStringValue(record.paceTrack), ",",
+                LogicUtils.sqlIntegerValue(record.paceOrder), ",",
+                LogicUtils.sqlIntegerValue(record.msNbr), ",",
+                LogicUtils.sqlIntegerValue(record.msUnit), ",",
+                LogicUtils.sqlDateValue(record.msDate), ",",
+                LogicUtils.sqlStringValue(record.newMsDate), ",",
+                LogicUtils.sqlDateValue(record.examDt), ",",
+                LogicUtils.sqlIntegerValue(record.rePoints), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -108,20 +97,19 @@ public final class RawStpaceSummaryLogic extends AbstractRawLogic<RawStpaceSumma
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawStpaceSummary record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawStpaceSummary record) throws SQLException {
 
         final boolean result;
 
         final HtmlBuilder builder = new HtmlBuilder(100);
 
         builder.add("DELETE FROM stpace_summary ",
-                "WHERE stu_id=", sqlStringValue(record.stuId),
-                "  AND course=", sqlStringValue(record.course),
-                "  AND sect=", sqlStringValue(record.sect),
-                "  AND term=", sqlStringValue(record.termKey.termCode),
-                "  AND term_yr=", sqlIntegerValue(record.termKey.shortYear),
-                "  AND ms_nbr=", sqlIntegerValue(record.msNbr));
+                "WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                "  AND course=", LogicUtils.sqlStringValue(record.course),
+                "  AND sect=", LogicUtils.sqlStringValue(record.sect),
+                "  AND term=", LogicUtils.sqlStringValue(record.termKey.termCode),
+                "  AND term_yr=", LogicUtils.sqlIntegerValue(record.termKey.shortYear),
+                "  AND ms_nbr=", LogicUtils.sqlIntegerValue(record.msNbr));
 
         final String sql = builder.toString();
 
@@ -145,8 +133,7 @@ public final class RawStpaceSummaryLogic extends AbstractRawLogic<RawStpaceSumma
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawStpaceSummary> queryAll(final Cache cache) throws SQLException {
+    public static List<RawStpaceSummary> queryAll(final Cache cache) throws SQLException {
 
         final String sql = "SELECT * FROM stpace_summary";
 

@@ -224,7 +224,7 @@ enum PagePlacementByCategory {
      */
     private static Set<String> getAvailableTypes(final Cache cache) throws SQLException {
 
-        final List<RawSpecialStus> allSpecials = RawSpecialStusLogic.INSTANCE.queryAll(cache);
+        final List<RawSpecialStus> allSpecials = RawSpecialStusLogic.queryAll(cache);
         final Set<String> availableTypes = new TreeSet<>();
 
         for (final RawSpecialStus rec : allSpecials) {

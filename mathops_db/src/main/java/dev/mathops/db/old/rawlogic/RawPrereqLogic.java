@@ -26,18 +26,8 @@ import java.util.List;
  * prerequisite         char(6)                   no      PK
  * </pre>
  */
-public final class RawPrereqLogic extends AbstractRawLogic<RawPrereq> {
-
-    /** A single instance. */
-    public static final RawPrereqLogic INSTANCE = new RawPrereqLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawPrereqLogic() {
-
-        super();
-    }
+public enum RawPrereqLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -47,8 +37,7 @@ public final class RawPrereqLogic extends AbstractRawLogic<RawPrereq> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawPrereq record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawPrereq record) throws SQLException {
 
         if (record.termKey == null || record.course == null || record.prerequisite == null) {
             throw new SQLException("Null value in primary key field.");
@@ -56,10 +45,10 @@ public final class RawPrereqLogic extends AbstractRawLogic<RawPrereq> {
 
         final String sql = SimpleBuilder.concat(
                 "INSERT INTO prereq (term,term_yr,course,prerequisite) VALUES (",
-                sqlStringValue(record.termKey.termCode), ",",
+                LogicUtils.sqlStringValue(record.termKey.termCode), ",",
                 record.termKey.shortYear, ",",
-                sqlStringValue(record.course), ",",
-                sqlStringValue(record.prerequisite), ")");
+                LogicUtils.sqlStringValue(record.course), ",",
+                LogicUtils.sqlStringValue(record.prerequisite), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -82,14 +71,13 @@ public final class RawPrereqLogic extends AbstractRawLogic<RawPrereq> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawPrereq record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawPrereq record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM prereq ",
-                "WHERE course=", sqlStringValue(record.course),
-                "  AND term=", sqlStringValue(record.termKey.termCode),
-                "  AND term_yr=", sqlIntegerValue(record.termKey.shortYear),
-                "  AND prerequisite=", sqlStringValue(record.prerequisite));
+                "WHERE course=", LogicUtils.sqlStringValue(record.course),
+                "  AND term=", LogicUtils.sqlStringValue(record.termKey.termCode),
+                "  AND term_yr=", LogicUtils.sqlIntegerValue(record.termKey.shortYear),
+                "  AND prerequisite=", LogicUtils.sqlStringValue(record.prerequisite));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -111,8 +99,7 @@ public final class RawPrereqLogic extends AbstractRawLogic<RawPrereq> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawPrereq> queryAll(final Cache cache) throws SQLException {
+    public static List<RawPrereq> queryAll(final Cache cache) throws SQLException {
 
         return executeListQuery(cache, "SELECT * FROM prereq");
     }
@@ -128,7 +115,7 @@ public final class RawPrereqLogic extends AbstractRawLogic<RawPrereq> {
     public static List<RawPrereq> queryByTerm(final Cache cache, final TermKey termKey) throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM prereq",
-                " WHERE term=", sqlStringValue(termKey.termCode),
+                " WHERE term=", LogicUtils.sqlStringValue(termKey.termCode),
                 "   AND term_yr=", termKey.shortYear);
 
         return executeListQuery(cache, sql);
@@ -147,9 +134,9 @@ public final class RawPrereqLogic extends AbstractRawLogic<RawPrereq> {
                                                        final String course) throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM prereq",
-                " WHERE term=", sqlStringValue(termKey.termCode),
+                " WHERE term=", LogicUtils.sqlStringValue(termKey.termCode),
                 "   AND term_yr=", termKey.shortYear,
-                "   AND course=", sqlStringValue(course));
+                "   AND course=", LogicUtils.sqlStringValue(course));
 
         return executeListQuery(cache, sql);
     }

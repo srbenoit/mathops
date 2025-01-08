@@ -30,18 +30,8 @@ import java.util.List;
  * button_label         char(50)                  yes
  * </pre>
  */
-public final class RawExamLogic extends AbstractRawLogic<RawExam> {
-
-    /** A single instance. */
-    public static final RawExamLogic INSTANCE = new RawExamLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawExamLogic() {
-
-        super();
-    }
+public enum RawExamLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -51,27 +41,26 @@ public final class RawExamLogic extends AbstractRawLogic<RawExam> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawExam record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawExam record) throws SQLException {
 
         if (record.version == null || record.course == null || record.unit == null
-                || record.examType == null || record.activeDt == null) {
+            || record.examType == null || record.activeDt == null) {
             throw new SQLException("Null value in primary key or required field.");
         }
 
         final String sql = SimpleBuilder.concat("INSERT INTO exam (",
                 "version,course,unit,vsn_explt,title,tree_ref,exam_type,active_dt,",
                 "pull_dt,button_label) VALUES (",
-                sqlStringValue(record.version), ",",
-                sqlStringValue(record.course), ",",
-                sqlIntegerValue(record.unit), ",",
-                sqlStringValue(record.vsnExplt), ",",
-                sqlStringValue(record.title), ",",
-                sqlStringValue(record.treeRef), ",",
-                sqlStringValue(record.examType), ",",
-                sqlDateValue(record.activeDt), ",",
-                sqlDateValue(record.pullDt), ",",
-                sqlStringValue(record.buttonLabel), ")");
+                LogicUtils.sqlStringValue(record.version), ",",
+                LogicUtils.sqlStringValue(record.course), ",",
+                LogicUtils.sqlIntegerValue(record.unit), ",",
+                LogicUtils.sqlStringValue(record.vsnExplt), ",",
+                LogicUtils.sqlStringValue(record.title), ",",
+                LogicUtils.sqlStringValue(record.treeRef), ",",
+                LogicUtils.sqlStringValue(record.examType), ",",
+                LogicUtils.sqlDateValue(record.activeDt), ",",
+                LogicUtils.sqlDateValue(record.pullDt), ",",
+                LogicUtils.sqlStringValue(record.buttonLabel), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -94,11 +83,10 @@ public final class RawExamLogic extends AbstractRawLogic<RawExam> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawExam record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawExam record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM exam ",
-                "WHERE version=", sqlStringValue(record.version));
+                "WHERE version=", LogicUtils.sqlStringValue(record.version));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -120,8 +108,7 @@ public final class RawExamLogic extends AbstractRawLogic<RawExam> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawExam> queryAll(final Cache cache) throws SQLException {
+    public static List<RawExam> queryAll(final Cache cache) throws SQLException {
 
         return doListQuery(cache, "SELECT * FROM exam");
     }
@@ -138,7 +125,7 @@ public final class RawExamLogic extends AbstractRawLogic<RawExam> {
             throws SQLException {
 
         final String sql = SimpleBuilder.concat(
-                "SELECT * FROM exam WHERE course=", sqlStringValue(course),
+                "SELECT * FROM exam WHERE course=", LogicUtils.sqlStringValue(course),
                 " AND pull_dt IS NULL");
 
         return doListQuery(cache, sql);
@@ -157,8 +144,8 @@ public final class RawExamLogic extends AbstractRawLogic<RawExam> {
                                                         final Integer unit) throws SQLException {
 
         final String sql = SimpleBuilder.concat(
-                "SELECT * FROM exam WHERE course=", sqlStringValue(course),
-                " AND unit=", sqlIntegerValue(unit),
+                "SELECT * FROM exam WHERE course=", LogicUtils.sqlStringValue(course),
+                " AND unit=",LogicUtils. sqlIntegerValue(unit),
                 " AND pull_dt IS NULL");
 
         return doListQuery(cache, sql);
@@ -179,9 +166,9 @@ public final class RawExamLogic extends AbstractRawLogic<RawExam> {
                                                       final Integer unit, final String examType) throws SQLException {
 
         final String sql = SimpleBuilder.concat(
-                "SELECT * FROM exam WHERE course=", sqlStringValue(course),
-                " AND unit=", sqlIntegerValue(unit),
-                " AND exam_type=", sqlStringValue(examType),
+                "SELECT * FROM exam WHERE course=", LogicUtils.sqlStringValue(course),
+                " AND unit=", LogicUtils.sqlIntegerValue(unit),
+                " AND exam_type=", LogicUtils.sqlStringValue(examType),
                 " AND pull_dt IS NULL");
 
         return doSingleQuery(cache, sql);
@@ -198,7 +185,7 @@ public final class RawExamLogic extends AbstractRawLogic<RawExam> {
     public static RawExam query(final Cache cache, final String version) throws SQLException {
 
         final String sql = SimpleBuilder.concat(
-                "SELECT * FROM exam WHERE version=", sqlStringValue(version));
+                "SELECT * FROM exam WHERE version=", LogicUtils.sqlStringValue(version));
 
         return doSingleQuery(cache, sql);
     }

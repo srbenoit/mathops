@@ -116,7 +116,7 @@ public final class CheckStudentTerm {
                             if (!DEBUG) {
                                 final RawStterm newRec = new RawStterm(active.term, studentId, Integer.valueOf(pace),
                                         track, first, null, null, null);
-                                RawSttermLogic.INSTANCE.insert(cache, newRec);
+                                RawSttermLogic.insert(cache, newRec);
                             }
                         } else {
                             boolean diff = false;
@@ -152,7 +152,7 @@ public final class CheckStudentTerm {
 
                     for (final RawStterm toDelete : allStTerms) {
                         if (!DEBUG) {
-                            RawSttermLogic.INSTANCE.delete(cache, toDelete);
+                            RawSttermLogic.delete(cache, toDelete);
                         }
                         report.add(STUDENT + toDelete.stuId + " STTERM record deleted.");
                     }

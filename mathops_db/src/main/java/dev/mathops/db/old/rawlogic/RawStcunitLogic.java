@@ -30,18 +30,8 @@ import java.util.List;
  * proctored_points     smallint                  yes
  * </pre>
  */
-public final class RawStcunitLogic extends AbstractRawLogic<RawStcunit> {
-
-    /** A single instance. */
-    public static final RawStcunitLogic INSTANCE = new RawStcunitLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawStcunitLogic() {
-
-        super();
-    }
+public enum RawStcunitLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -51,8 +41,7 @@ public final class RawStcunitLogic extends AbstractRawLogic<RawStcunit> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawStcunit record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawStcunit record) throws SQLException {
 
         if (record.stuId == null || record.course == null || record.unit == null
                 || record.reviewStatus == null || record.proctoredStatus == null) {
@@ -70,15 +59,15 @@ public final class RawStcunitLogic extends AbstractRawLogic<RawStcunit> {
                     "INSERT INTO stcunit (stu_id,course,unit,review_status,",
                     "review_score,review_points,proctored_status,proctored_score,",
                     "proctored_points) VALUES (",
-                    sqlStringValue(record.stuId), ",",
-                    sqlStringValue(record.course), ",",
-                    sqlIntegerValue(record.unit), ",",
-                    sqlStringValue(record.reviewStatus), ",",
-                    sqlIntegerValue(record.reviewScore), ",",
-                    sqlIntegerValue(record.reviewPoints), ",",
-                    sqlStringValue(record.proctoredStatus), ",",
-                    sqlIntegerValue(record.proctoredScore), ",",
-                    sqlIntegerValue(record.proctoredPoints), ")");
+                    LogicUtils.sqlStringValue(record.stuId), ",",
+                    LogicUtils.sqlStringValue(record.course), ",",
+                    LogicUtils.sqlIntegerValue(record.unit), ",",
+                    LogicUtils.sqlStringValue(record.reviewStatus), ",",
+                    LogicUtils.sqlIntegerValue(record.reviewScore), ",",
+                    LogicUtils.sqlIntegerValue(record.reviewPoints), ",",
+                    LogicUtils.sqlStringValue(record.proctoredStatus), ",",
+                    LogicUtils.sqlIntegerValue(record.proctoredScore), ",",
+                    LogicUtils.sqlIntegerValue(record.proctoredPoints), ")");
 
             try (final Statement stmt = cache.conn.createStatement()) {
                 result = stmt.executeUpdate(sql) == 1;
@@ -102,15 +91,14 @@ public final class RawStcunitLogic extends AbstractRawLogic<RawStcunit> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawStcunit record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawStcunit record) throws SQLException {
 
         final boolean result;
 
         final String sql = SimpleBuilder.concat("DELETE FROM stcunit ",
-                "WHERE stu_id=", sqlStringValue(record.stuId),
-                "  AND course=", sqlStringValue(record.course),
-                "  AND unit=", sqlIntegerValue(record.unit));
+                "WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                "  AND course=", LogicUtils.sqlStringValue(record.course),
+                "  AND unit=", LogicUtils.sqlIntegerValue(record.unit));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             result = stmt.executeUpdate(sql) == 1;
@@ -132,8 +120,7 @@ public final class RawStcunitLogic extends AbstractRawLogic<RawStcunit> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawStcunit> queryAll(final Cache cache) throws SQLException {
+    public static List<RawStcunit> queryAll(final Cache cache) throws SQLException {
 
         final String sql = "SELECT * FROM stcunit";
 
@@ -150,7 +137,8 @@ public final class RawStcunitLogic extends AbstractRawLogic<RawStcunit> {
      */
     public static List<RawStcunit> queryByStudent(final Cache cache, final String stuId) throws SQLException {
 
-        final String sql = SimpleBuilder.concat("SELECT * FROM stcunit where stu_id=", sqlStringValue(stuId));
+        final String sql = SimpleBuilder.concat("SELECT * FROM stcunit where stu_id=",
+                LogicUtils.sqlStringValue(stuId));
 
         return doListQuery(cache, sql);
     }

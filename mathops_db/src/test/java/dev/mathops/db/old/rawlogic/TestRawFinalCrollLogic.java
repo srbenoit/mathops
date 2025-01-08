@@ -400,15 +400,15 @@ final class TestRawFinalCrollLogic {
                         null, // i_term / i_term_yr
                         null); // i_deadline_dt
 
-                assertTrue(RawFinalCrollLogic.INSTANCE.insert(cache, raw1), "Failed to insert final_croll 1");
-                assertTrue(RawFinalCrollLogic.INSTANCE.insert(cache, raw2), "Failed to insert final_croll 2");
-                assertTrue(RawFinalCrollLogic.INSTANCE.insert(cache, raw3), "Failed to insert final_croll 3");
-                assertTrue(RawFinalCrollLogic.INSTANCE.insert(cache, raw4), "Failed to insert final_croll 4");
-                assertTrue(RawFinalCrollLogic.INSTANCE.insert(cache, raw5), "Failed to insert final_croll 5");
-                assertTrue(RawFinalCrollLogic.INSTANCE.insert(cache, raw6), "Failed to insert final_croll 6");
-                assertTrue(RawFinalCrollLogic.INSTANCE.insert(cache, raw7), "Failed to insert final_croll 7");
-                assertTrue(RawFinalCrollLogic.INSTANCE.insert(cache, raw8), "Failed to insert final_croll 8");
-                assertTrue(RawFinalCrollLogic.INSTANCE.insert(cache, raw9), "Failed to insert final_croll 9");
+                assertTrue(RawFinalCrollLogic.insert(cache, raw1), "Failed to insert final_croll 1");
+                assertTrue(RawFinalCrollLogic.insert(cache, raw2), "Failed to insert final_croll 2");
+                assertTrue(RawFinalCrollLogic.insert(cache, raw3), "Failed to insert final_croll 3");
+                assertTrue(RawFinalCrollLogic.insert(cache, raw4), "Failed to insert final_croll 4");
+                assertTrue(RawFinalCrollLogic.insert(cache, raw5), "Failed to insert final_croll 5");
+                assertTrue(RawFinalCrollLogic.insert(cache, raw6), "Failed to insert final_croll 6");
+                assertTrue(RawFinalCrollLogic.insert(cache, raw7), "Failed to insert final_croll 7");
+                assertTrue(RawFinalCrollLogic.insert(cache, raw8), "Failed to insert final_croll 8");
+                assertTrue(RawFinalCrollLogic.insert(cache, raw9), "Failed to insert final_croll 9");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -428,7 +428,7 @@ final class TestRawFinalCrollLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawFinalCroll> all = RawFinalCrollLogic.INSTANCE.queryAll(cache);
+                final List<RawFinalCroll> all = RawFinalCrollLogic.queryAll(cache);
 
                 assertEquals(9, all.size(), "Incorrect record count from queryAll");
 
@@ -776,10 +776,10 @@ final class TestRawFinalCrollLogic {
                         null, // i_term / i_term_yr
                         null); // i_deadline_dt
 
-                final boolean result = RawFinalCrollLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawFinalCrollLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawFinalCroll> all = RawFinalCrollLogic.INSTANCE.queryAll(cache);
+                final List<RawFinalCroll> all = RawFinalCrollLogic.queryAll(cache);
 
                 assertEquals(8, all.size(), "Incorrect record count from queryAll after delete");
 

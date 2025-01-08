@@ -29,18 +29,8 @@ import java.util.List;
  * sect_enroll          char(4)                   no
  * </pre>
  */
-public final class RawExceptStuLogic extends AbstractRawLogic<RawExceptStu> {
-
-    /** A single instance. */
-    public static final RawExceptStuLogic INSTANCE = new RawExceptStuLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawExceptStuLogic() {
-
-        super();
-    }
+public enum RawExceptStuLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -50,8 +40,7 @@ public final class RawExceptStuLogic extends AbstractRawLogic<RawExceptStu> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawExceptStu record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawExceptStu record) throws SQLException {
 
         if (record.stuId == null || record.course == null || record.unit == null) {
             throw new SQLException("Null value in primary key field.");
@@ -59,15 +48,15 @@ public final class RawExceptStuLogic extends AbstractRawLogic<RawExceptStu> {
 
         final String sql = SimpleBuilder.concat("INSERT INTO except_stu ",
                 "(term,term_yr,stu_id,course,unit,course_enroll,hwork_status,sect,sect_enroll) VALUES (",
-                sqlStringValue(record.termKey.termCode), ",",
-                sqlIntegerValue(record.termKey.shortYear), ",",
-                sqlStringValue(record.stuId), ",",
-                sqlStringValue(record.course), ",",
-                sqlIntegerValue(record.unit), ",",
-                sqlStringValue(record.courseEnroll), ",",
-                sqlStringValue(record.hworkStatus), ",",
-                sqlStringValue(record.sect), ",",
-                sqlStringValue(record.sectEnroll), ")");
+                LogicUtils.sqlStringValue(record.termKey.termCode), ",",
+                LogicUtils.sqlIntegerValue(record.termKey.shortYear), ",",
+                LogicUtils.sqlStringValue(record.stuId), ",",
+                LogicUtils.sqlStringValue(record.course), ",",
+                LogicUtils.sqlIntegerValue(record.unit), ",",
+                LogicUtils.sqlStringValue(record.courseEnroll), ",",
+                LogicUtils.sqlStringValue(record.hworkStatus), ",",
+                LogicUtils.sqlStringValue(record.sect), ",",
+                LogicUtils.sqlStringValue(record.sectEnroll), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -90,13 +79,12 @@ public final class RawExceptStuLogic extends AbstractRawLogic<RawExceptStu> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawExceptStu record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawExceptStu record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM except_stu ",
-                "WHERE stu_id=", sqlStringValue(record.stuId),
-                "  AND course=", sqlStringValue(record.course),
-                "  AND unit=", sqlIntegerValue(record.unit));
+                "WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                "  AND course=", LogicUtils.sqlStringValue(record.course),
+                "  AND unit=", LogicUtils.sqlIntegerValue(record.unit));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -118,8 +106,7 @@ public final class RawExceptStuLogic extends AbstractRawLogic<RawExceptStu> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawExceptStu> queryAll(final Cache cache) throws SQLException {
+    public static List<RawExceptStu> queryAll(final Cache cache) throws SQLException {
 
         return doListQuery(cache, "SELECT * FROM except_stu");
     }
@@ -127,14 +114,15 @@ public final class RawExceptStuLogic extends AbstractRawLogic<RawExceptStu> {
     /**
      * Queries for all records for a student.
      *
-     * @param cache  the data cache
-     * @param stuId  the student ID
+     * @param cache the data cache
+     * @param stuId the student ID
      * @return the complete set of records in the database
      * @throws SQLException if there is an error performing the query
      */
     public static List<RawExceptStu> queryByStudent(final Cache cache, final String stuId) throws SQLException {
 
-        final String sql = SimpleBuilder.concat( "SELECT * FROM except_stu WHERE stu_id=", sqlStringValue(stuId));
+        final String sql = SimpleBuilder.concat(
+                "SELECT * FROM except_stu WHERE stu_id=", LogicUtils.sqlStringValue(stuId));
 
         return doListQuery(cache, sql);
     }
@@ -153,8 +141,8 @@ public final class RawExceptStuLogic extends AbstractRawLogic<RawExceptStu> {
 
         final String sql = SimpleBuilder.concat(
                 "SELECT * FROM except_stu WHERE stu_id=",
-                sqlStringValue(stuId), " AND course=",
-                sqlStringValue(course));
+                LogicUtils.sqlStringValue(stuId), " AND course=",
+                LogicUtils.sqlStringValue(course));
 
         return doListQuery(cache, sql);
     }

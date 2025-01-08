@@ -32,18 +32,8 @@ import java.util.List;
  * proctor              char(20)          yes
  * </pre>
  */
-public final class RawDisciplineLogic extends AbstractRawLogic<RawDiscipline> {
-
-    /** A single instance. */
-    public static final RawDisciplineLogic INSTANCE = new RawDisciplineLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawDisciplineLogic() {
-
-        super();
-    }
+public enum RawDisciplineLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -53,8 +43,7 @@ public final class RawDisciplineLogic extends AbstractRawLogic<RawDiscipline> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawDiscipline record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawDiscipline record) throws SQLException {
 
         // NOTE: This is a place where we send user-entered data into a table, so the insert is done
         // with prepared statements.
@@ -70,16 +59,16 @@ public final class RawDisciplineLogic extends AbstractRawLogic<RawDiscipline> {
                 + "action_type,action_comment,interviewer,proctor) VALUES (?,?,?,?,?,?,?,?,?,?)";
 
         try (final PreparedStatement ps = cache.conn.prepareStatement(sql)) {
-            setPsString(ps, 1, record.stuId);
-            setPsDate(ps, 2, record.dtIncident);
-            setPsString(ps, 3, record.incidentType);
-            setPsString(ps, 4, record.course);
-            setPsInteger(ps, 5, record.unit);
-            setPsString(ps, 6, record.cheatDesc);
-            setPsString(ps, 7, record.actionType);
-            setPsString(ps, 8, record.actionComment);
-            setPsString(ps, 9, record.interviewer);
-            setPsString(ps, 10, record.proctor);
+            LogicUtils.setPsString(ps, 1, record.stuId);
+            LogicUtils.setPsDate(ps, 2, record.dtIncident);
+            LogicUtils.setPsString(ps, 3, record.incidentType);
+            LogicUtils.setPsString(ps, 4, record.course);
+            LogicUtils.setPsInteger(ps, 5, record.unit);
+            LogicUtils.setPsString(ps, 6, record.cheatDesc);
+            LogicUtils.setPsString(ps, 7, record.actionType);
+            LogicUtils.setPsString(ps, 8, record.actionComment);
+            LogicUtils.setPsString(ps, 9, record.interviewer);
+            LogicUtils.setPsString(ps, 10, record.proctor);
 
             result = ps.executeUpdate() == 1;
 
@@ -101,19 +90,18 @@ public final class RawDisciplineLogic extends AbstractRawLogic<RawDiscipline> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawDiscipline record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawDiscipline record) throws SQLException {
 
         final boolean result;
 
         final HtmlBuilder sql = new HtmlBuilder(100);
 
         sql.add("DELETE FROM discipline ",
-                " WHERE stu_id=", sqlStringValue(record.stuId),
-                " AND dt_incident=", sqlDateValue(record.dtIncident),
-                " AND incident_type=", sqlStringValue(record.incidentType),
-                " AND course=", sqlStringValue(record.course),
-                " AND unit=", sqlIntegerValue(record.unit));
+                " WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                " AND dt_incident=", LogicUtils.sqlDateValue(record.dtIncident),
+                " AND incident_type=", LogicUtils.sqlStringValue(record.incidentType),
+                " AND course=", LogicUtils.sqlStringValue(record.course),
+                " AND unit=", LogicUtils.sqlIntegerValue(record.unit));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             result = stmt.executeUpdate(sql.toString()) == 1;
@@ -135,8 +123,7 @@ public final class RawDisciplineLogic extends AbstractRawLogic<RawDiscipline> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawDiscipline> queryAll(final Cache cache) throws SQLException {
+    public static List<RawDiscipline> queryAll(final Cache cache) throws SQLException {
 
         return executeQuery(cache, "SELECT * FROM discipline");
     }
@@ -152,7 +139,8 @@ public final class RawDisciplineLogic extends AbstractRawLogic<RawDiscipline> {
     public static List<RawDiscipline> queryByStudent(final Cache cache, final String stuId)
             throws SQLException {
 
-        final String sql = SimpleBuilder.concat("SELECT * FROM discipline WHERE stu_id=", sqlStringValue(stuId));
+        final String sql = SimpleBuilder.concat(
+                "SELECT * FROM discipline WHERE stu_id=", LogicUtils.sqlStringValue(stuId));
 
         return executeQuery(cache, sql);
     }
@@ -168,7 +156,8 @@ public final class RawDisciplineLogic extends AbstractRawLogic<RawDiscipline> {
     public static List<RawDiscipline> queryByActionCode(final Cache cache, final String action)
             throws SQLException {
 
-        final String sql = SimpleBuilder.concat("SELECT * FROM discipline WHERE action_type=", sqlStringValue(action));
+        final String sql = SimpleBuilder.concat(
+                "SELECT * FROM discipline WHERE action_type=", LogicUtils.sqlStringValue(action));
 
         return executeQuery(cache, sql);
     }

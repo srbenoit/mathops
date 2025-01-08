@@ -167,8 +167,8 @@ final class TestRawDupRegistrLogic {
                         null, // i_term / i_term_yr
                         null); // i_deadline_dt
 
-                assertTrue(RawDupRegistrLogic.INSTANCE.insert(cache, raw1), "Failed to insert dup_registr 1");
-                assertTrue(RawDupRegistrLogic.INSTANCE.insert(cache, raw2), "Failed to insert dup_registr 2");
+                assertTrue(RawDupRegistrLogic.insert(cache, raw1), "Failed to insert dup_registr 1");
+                assertTrue(RawDupRegistrLogic.insert(cache, raw2), "Failed to insert dup_registr 2");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -188,7 +188,7 @@ final class TestRawDupRegistrLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawDupRegistr> all = RawDupRegistrLogic.INSTANCE.queryAll(cache);
+                final List<RawDupRegistr> all = RawDupRegistrLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll");
 
@@ -310,10 +310,10 @@ final class TestRawDupRegistrLogic {
                         null, // i_term / i_term_yr
                         null); // i_deadline_dt
 
-                final boolean result = RawDupRegistrLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawDupRegistrLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawDupRegistr> all = RawDupRegistrLogic.INSTANCE.queryAll(cache);
+                final List<RawDupRegistr> all = RawDupRegistrLogic.queryAll(cache);
 
                 assertEquals(1, all.size(), "Incorrect record count from queryAll after delete");
 
@@ -377,7 +377,7 @@ final class TestRawDupRegistrLogic {
             try {
                 assertTrue(RawDupRegistrLogic.deleteAll(cache), "deleteAll returned false");
 
-                final List<RawDupRegistr> all = RawDupRegistrLogic.INSTANCE.queryAll(cache);
+                final List<RawDupRegistr> all = RawDupRegistrLogic.queryAll(cache);
 
                 assertTrue(all.isEmpty(), "Incorrect record count after deleteAll");
             } finally {

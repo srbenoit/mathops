@@ -96,9 +96,9 @@ final class TestRawExceptStuLogic {
                 final RawExceptStu raw3 = new RawExceptStu(new TermKey("FA21"), "987654321", RawRecordConstants.M125,
                         Integer.valueOf(4), "M 676", "N", "004", "1");
 
-                assertTrue(RawExceptStuLogic.INSTANCE.insert(cache, raw1), "Failed to insert except_stu");
-                assertTrue(RawExceptStuLogic.INSTANCE.insert(cache, raw2), "Failed to insert except_stu");
-                assertTrue(RawExceptStuLogic.INSTANCE.insert(cache, raw3), "Failed to insert except_stu");
+                assertTrue(RawExceptStuLogic.insert(cache, raw1), "Failed to insert except_stu");
+                assertTrue(RawExceptStuLogic.insert(cache, raw2), "Failed to insert except_stu");
+                assertTrue(RawExceptStuLogic.insert(cache, raw3), "Failed to insert except_stu");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -118,7 +118,7 @@ final class TestRawExceptStuLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawExceptStu> all = RawExceptStuLogic.INSTANCE.queryAll(cache);
+                final List<RawExceptStu> all = RawExceptStuLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -269,10 +269,10 @@ final class TestRawExceptStuLogic {
                 final RawExceptStu raw2 = new RawExceptStu(new TermKey("FA21"), "123456789", RawRecordConstants.M117,
                         Integer.valueOf(2), "M 384", "Y", "001", "002");
 
-                final boolean result = RawExceptStuLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawExceptStuLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawExceptStu> all = RawExceptStuLogic.INSTANCE.queryAll(cache);
+                final List<RawExceptStu> all = RawExceptStuLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 

@@ -346,7 +346,7 @@ public enum ChallengeBilling {
             final RawChallengeFee rec = new RawChallengeFee(stuId, course, examDt, today);
 
             try {
-                RawChallengeFeeLogic.INSTANCE.insert(cache, rec);
+                RawChallengeFeeLogic.insert(cache, rec);
             } catch (final SQLException ex) {
                 Log.warning("Failed to insert 'challenge_fee' record", ex);
             }

@@ -108,10 +108,10 @@ final class TestRawMpecrDeniedLogic {
                 final RawMpecrDenied raw4 = new RawMpecrDenied("888888888", RawRecordConstants.M117, "Y",
                         date3, "EN", Long.valueOf(12347L), "MPTPU", null);
 
-                assertTrue(RawMpecrDeniedLogic.INSTANCE.insert(cache, raw1), "Failed to insert mpecr_denied");
-                assertTrue(RawMpecrDeniedLogic.INSTANCE.insert(cache, raw2), "Failed to insert mpecr_denied");
-                assertTrue(RawMpecrDeniedLogic.INSTANCE.insert(cache, raw3), "Failed to insert mpecr_denied");
-                assertTrue(RawMpecrDeniedLogic.INSTANCE.insert(cache, raw4), "Failed to insert mpecr_denied");
+                assertTrue(RawMpecrDeniedLogic.insert(cache, raw1), "Failed to insert mpecr_denied");
+                assertTrue(RawMpecrDeniedLogic.insert(cache, raw2), "Failed to insert mpecr_denied");
+                assertTrue(RawMpecrDeniedLogic.insert(cache, raw3), "Failed to insert mpecr_denied");
+                assertTrue(RawMpecrDeniedLogic.insert(cache, raw4), "Failed to insert mpecr_denied");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -131,7 +131,7 @@ final class TestRawMpecrDeniedLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawMpecrDenied> all = RawMpecrDeniedLogic.INSTANCE.queryAll(cache);
+                final List<RawMpecrDenied> all = RawMpecrDeniedLogic.queryAll(cache);
 
                 assertEquals(4, all.size(), "Incorrect record count from queryAll");
 
@@ -368,10 +368,10 @@ final class TestRawMpecrDeniedLogic {
                 final RawMpecrDenied raw2 = new RawMpecrDenied("123456789", RawRecordConstants.M124, "Y",
                         date1, "WH", Long.valueOf(12345L), "MPTUN", "RM");
 
-                final boolean result = RawMpecrDeniedLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawMpecrDeniedLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawMpecrDenied> all = RawMpecrDeniedLogic.INSTANCE.queryAll(cache);
+                final List<RawMpecrDenied> all = RawMpecrDeniedLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll after delete");
 

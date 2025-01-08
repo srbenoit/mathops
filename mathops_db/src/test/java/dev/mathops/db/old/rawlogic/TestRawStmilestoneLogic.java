@@ -123,11 +123,11 @@ final class TestRawStmilestoneLogic {
                 final RawStmilestone raw5 = new RawStmilestone(sp22, "222222222", "D", Integer.valueOf(123), "F1",
                         date5, Integer.valueOf(4));
 
-                assertTrue(RawStmilestoneLogic.INSTANCE.insert(cache, raw1), "Failed to insert stmilestone 1");
-                assertTrue(RawStmilestoneLogic.INSTANCE.insert(cache, raw2), "Failed to insert stmilestone 2");
-                assertTrue(RawStmilestoneLogic.INSTANCE.insert(cache, raw3), "Failed to insert stmilestone 3");
-                assertTrue(RawStmilestoneLogic.INSTANCE.insert(cache, raw4), "Failed to insert stmilestone 4");
-                assertTrue(RawStmilestoneLogic.INSTANCE.insert(cache, raw5), "Failed to insert stmilestone 5");
+                assertTrue(RawStmilestoneLogic.insert(cache, raw1), "Failed to insert stmilestone 1");
+                assertTrue(RawStmilestoneLogic.insert(cache, raw2), "Failed to insert stmilestone 2");
+                assertTrue(RawStmilestoneLogic.insert(cache, raw3), "Failed to insert stmilestone 3");
+                assertTrue(RawStmilestoneLogic.insert(cache, raw4), "Failed to insert stmilestone 4");
+                assertTrue(RawStmilestoneLogic.insert(cache, raw5), "Failed to insert stmilestone 5");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -147,7 +147,7 @@ final class TestRawStmilestoneLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawStmilestone> all = RawStmilestoneLogic.INSTANCE.queryAll(cache);
+                final List<RawStmilestone> all = RawStmilestoneLogic.queryAll(cache);
 
                 assertEquals(5, all.size(), "Incorrect record count from queryAll");
 
@@ -440,7 +440,7 @@ final class TestRawStmilestoneLogic {
                 final RawStmilestone raw1 = new RawStmilestone(fa21, "111111111", "A", Integer.valueOf(541), "RE",
                         date6, Integer.valueOf(100));
 
-                final boolean result = RawStmilestoneLogic.INSTANCE.delete(cache, raw1);
+                final boolean result = RawStmilestoneLogic.delete(cache, raw1);
 
                 assertTrue(result, "False result from delete");
 

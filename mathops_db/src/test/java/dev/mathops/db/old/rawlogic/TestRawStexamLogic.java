@@ -147,13 +147,13 @@ final class TestRawStexamLogic {
                         Integer.valueOf(83), "Y", "G", Integer.valueOf(6), RawRecordConstants.M117,
                         Integer.valueOf(2), "R", "N", null, null);
 
-                assertTrue(RawStexamLogic.INSTANCE.insert(cache, raw1), "Failed to insert stexam 1");
-                assertTrue(RawStexamLogic.INSTANCE.insert(cache, raw2), "Failed to insert stexam 2");
-                assertTrue(RawStexamLogic.INSTANCE.insert(cache, raw3), "Failed to insert stexam 3");
-                assertTrue(RawStexamLogic.INSTANCE.insert(cache, raw4), "Failed to insert stexam 4");
-                assertTrue(RawStexamLogic.INSTANCE.insert(cache, raw5), "Failed to insert stexam 5");
-                assertTrue(RawStexamLogic.INSTANCE.insert(cache, raw6), "Failed to insert stexam 6");
-                assertTrue(RawStexamLogic.INSTANCE.insert(cache, raw7), "Failed to insert stexam 7");
+                assertTrue(RawStexamLogic.insert(cache, raw1), "Failed to insert stexam 1");
+                assertTrue(RawStexamLogic.insert(cache, raw2), "Failed to insert stexam 2");
+                assertTrue(RawStexamLogic.insert(cache, raw3), "Failed to insert stexam 3");
+                assertTrue(RawStexamLogic.insert(cache, raw4), "Failed to insert stexam 4");
+                assertTrue(RawStexamLogic.insert(cache, raw5), "Failed to insert stexam 5");
+                assertTrue(RawStexamLogic.insert(cache, raw6), "Failed to insert stexam 6");
+                assertTrue(RawStexamLogic.insert(cache, raw7), "Failed to insert stexam 7");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -173,7 +173,7 @@ final class TestRawStexamLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawStexam> all = RawStexamLogic.INSTANCE.queryAll(cache);
+                final List<RawStexam> all = RawStexamLogic.queryAll(cache);
 
                 assertEquals(7, all.size(), "Incorrect record count from queryAll");
 
@@ -1893,11 +1893,11 @@ final class TestRawStexamLogic {
                         Integer.valueOf(90), "Y", "Y", Integer.valueOf(1), RawRecordConstants.M117,
                         Integer.valueOf(1), "R", "Y", null, null);
 
-                final boolean result = RawStexamLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawStexamLogic.delete(cache, raw2);
 
                 assertTrue(result, "delete returned false");
 
-                final List<RawStexam> all = RawStexamLogic.INSTANCE.queryAll(cache);
+                final List<RawStexam> all = RawStexamLogic.queryAll(cache);
 
                 assertEquals(6, all.size(), "Incorrect record count from queryAll after delete");
 

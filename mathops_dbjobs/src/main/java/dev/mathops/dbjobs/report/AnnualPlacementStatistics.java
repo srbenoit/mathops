@@ -108,8 +108,8 @@ public enum AnnualPlacementStatistics {
 
         // Query from the database.
 
-        final List<RawStmpe> allAttempts = RawStmpeLogic.INSTANCE.queryAll(cache);
-        final List<RawMpeCredit> allCredit = RawMpeCreditLogic.INSTANCE.queryAll(cache);
+        final List<RawStmpe> allAttempts = RawStmpeLogic.queryAll(cache);
+        final List<RawMpeCredit> allCredit = RawMpeCreditLogic.queryAll(cache);
 
         // Create storage to accumulate attempts by week
         final List<List<PlacementRecord>> byWeek = new ArrayList<>(numWeeks);

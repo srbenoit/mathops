@@ -29,18 +29,8 @@ import java.util.List;
  * require_etext        char(1)                   no
  * </pre>
  */
-public final class RawCourseLogic extends AbstractRawLogic<RawCourse> {
-
-    /** A single instance. */
-    public static final RawCourseLogic INSTANCE = new RawCourseLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawCourseLogic() {
-
-        super();
-    }
+public enum RawCourseLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -50,8 +40,7 @@ public final class RawCourseLogic extends AbstractRawLogic<RawCourse> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawCourse record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawCourse record) throws SQLException {
 
         if (record.course == null) {
             throw new SQLException("Null value in primary key field.");
@@ -61,14 +50,14 @@ public final class RawCourseLogic extends AbstractRawLogic<RawCourse> {
                 "INSERT INTO course (course,nbr_units,course_name,nbr_credits,calc_ok,course_label,inline_prefix,",
                 "is_tutorial,require_etext) VALUES (",
                 "'", record.course, "',",
-                sqlIntegerValue(record.nbrUnits), ",",
-                sqlStringValue(record.courseName), ",",
-                sqlIntegerValue(record.nbrCredits), ",",
-                sqlStringValue(record.calcOk), ",",
-                sqlStringValue(record.courseLabel), ",",
-                sqlStringValue(record.inlinePrefix), ",",
-                sqlStringValue(record.isTutorial), ",",
-                sqlStringValue(record.requireEtext), ")");
+                LogicUtils.sqlIntegerValue(record.nbrUnits), ",",
+                LogicUtils.sqlStringValue(record.courseName), ",",
+                LogicUtils.sqlIntegerValue(record.nbrCredits), ",",
+                LogicUtils.sqlStringValue(record.calcOk), ",",
+                LogicUtils.sqlStringValue(record.courseLabel), ",",
+                LogicUtils.sqlStringValue(record.inlinePrefix), ",",
+                LogicUtils.sqlStringValue(record.isTutorial), ",",
+                LogicUtils.sqlStringValue(record.requireEtext), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -91,11 +80,10 @@ public final class RawCourseLogic extends AbstractRawLogic<RawCourse> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawCourse record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawCourse record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM course ",
-                "WHERE course=", sqlStringValue(record.course));
+                "WHERE course=", LogicUtils.sqlStringValue(record.course));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -117,8 +105,7 @@ public final class RawCourseLogic extends AbstractRawLogic<RawCourse> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawCourse> queryAll(final Cache cache) throws SQLException {
+    public static List<RawCourse> queryAll(final Cache cache) throws SQLException {
 
         final List<RawCourse> result = new ArrayList<>(50);
 

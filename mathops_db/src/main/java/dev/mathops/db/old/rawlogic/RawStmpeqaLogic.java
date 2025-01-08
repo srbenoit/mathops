@@ -31,18 +31,8 @@ import java.util.List;
  * tree_ref             char(40)                  yes
  * </pre>
  */
-public final class RawStmpeqaLogic extends AbstractRawLogic<RawStmpeqa> {
-
-    /** A single instance. */
-    public static final RawStmpeqaLogic INSTANCE = new RawStmpeqaLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawStmpeqaLogic() {
-
-        super();
-    }
+public enum RawStmpeqaLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -52,8 +42,7 @@ public final class RawStmpeqaLogic extends AbstractRawLogic<RawStmpeqa> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawStmpeqa record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawStmpeqa record) throws SQLException {
 
         final boolean result;
 
@@ -64,15 +53,15 @@ public final class RawStmpeqaLogic extends AbstractRawLogic<RawStmpeqa> {
         } else {
             final String sql = SimpleBuilder.concat("INSERT INTO stmpeqa (stu_id,version,exam_dt,finish_time,"
                                                     + "question_nbr,stu_answer,ans_correct,subtest,tree_ref) VALUES (",
-                    sqlStringValue(record.stuId), ",",
-                    sqlStringValue(record.version), ",",
-                    sqlDateValue(record.examDt), ",",
-                    sqlIntegerValue(record.finishTime), ",",
-                    sqlIntegerValue(record.questionNbr), ",",
-                    sqlStringValue(record.stuAnswer), ",",
-                    sqlStringValue(record.ansCorrect), ",",
-                    sqlStringValue(record.subtest), ",",
-                    sqlStringValue(record.treeRef), ")");
+                    LogicUtils.sqlStringValue(record.stuId), ",",
+                    LogicUtils.sqlStringValue(record.version), ",",
+                    LogicUtils.sqlDateValue(record.examDt), ",",
+                    LogicUtils.sqlIntegerValue(record.finishTime), ",",
+                    LogicUtils.sqlIntegerValue(record.questionNbr), ",",
+                    LogicUtils.sqlStringValue(record.stuAnswer), ",",
+                    LogicUtils.sqlStringValue(record.ansCorrect), ",",
+                    LogicUtils.sqlStringValue(record.subtest), ",",
+                    LogicUtils.sqlStringValue(record.treeRef), ")");
 
             try (final Statement stmt = cache.conn.createStatement()) {
                 result = stmt.executeUpdate(sql) == 1;
@@ -96,15 +85,14 @@ public final class RawStmpeqaLogic extends AbstractRawLogic<RawStmpeqa> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawStmpeqa record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawStmpeqa record) throws SQLException {
 
         final String sql1 = SimpleBuilder.concat("DELETE FROM stmpeqa ",
-                "WHERE version=", sqlStringValue(record.version),
-                "  AND stu_id=", sqlStringValue(record.stuId),
-                "  AND exam_dt=", sqlDateValue(record.examDt),
-                "  AND finish_time=", sqlIntegerValue(record.finishTime),
-                "  AND question_nbr=", sqlIntegerValue(record.questionNbr));
+                "WHERE version=", LogicUtils.sqlStringValue(record.version),
+                "  AND stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                "  AND exam_dt=", LogicUtils.sqlDateValue(record.examDt),
+                "  AND finish_time=", LogicUtils.sqlIntegerValue(record.finishTime),
+                "  AND question_nbr=", LogicUtils.sqlIntegerValue(record.questionNbr));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql1) == 1;
@@ -126,8 +114,7 @@ public final class RawStmpeqaLogic extends AbstractRawLogic<RawStmpeqa> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawStmpeqa> queryAll(final Cache cache) throws SQLException {
+    public static List<RawStmpeqa> queryAll(final Cache cache) throws SQLException {
 
         final List<RawStmpeqa> result = new ArrayList<>(500);
 
@@ -154,10 +141,10 @@ public final class RawStmpeqaLogic extends AbstractRawLogic<RawStmpeqa> {
     public static boolean deleteAllForExam(final Cache cache, final RawStmpe record) throws SQLException {
 
         final String sql1 = SimpleBuilder.concat("DELETE FROM stmpeqa ",
-                "WHERE version=", sqlStringValue(record.version),
-                "  AND stu_id=", sqlStringValue(record.stuId),
-                "  AND exam_dt=", sqlDateValue(record.examDt),
-                "  AND finish_time=", sqlIntegerValue(record.finishTime));
+                "WHERE version=", LogicUtils.sqlStringValue(record.version),
+                "  AND stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                "  AND exam_dt=", LogicUtils.sqlDateValue(record.examDt),
+                "  AND finish_time=", LogicUtils.sqlIntegerValue(record.finishTime));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             stmt.executeUpdate(sql1);

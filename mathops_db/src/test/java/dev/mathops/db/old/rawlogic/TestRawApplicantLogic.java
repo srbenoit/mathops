@@ -118,9 +118,9 @@ final class TestRawApplicantLogic {
                         "Prog3", "HS03", "3.0", "R3", "RS3", "RC3", "3.33", Integer.valueOf(300), Integer.valueOf(3300),
                         Integer.valueOf(23), Integer.valueOf(503), Integer.valueOf(333333), fa23);
 
-                assertTrue(RawApplicantLogic.INSTANCE.insert(cache, raw1), "Failed to insert applicant");
-                assertTrue(RawApplicantLogic.INSTANCE.insert(cache, raw2), "Failed to insert applicant");
-                assertTrue(RawApplicantLogic.INSTANCE.insert(cache, raw3), "Failed to insert applicant");
+                assertTrue(RawApplicantLogic.insert(cache, raw1), "Failed to insert applicant");
+                assertTrue(RawApplicantLogic.insert(cache, raw2), "Failed to insert applicant");
+                assertTrue(RawApplicantLogic.insert(cache, raw3), "Failed to insert applicant");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -140,7 +140,7 @@ final class TestRawApplicantLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawApplicant> all = RawApplicantLogic.INSTANCE.queryAll(cache);
+                final List<RawApplicant> all = RawApplicantLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -300,7 +300,7 @@ final class TestRawApplicantLogic {
                 // Primary key fields to locate record
                 toDelete.stuId = "888888881";
 
-                assertTrue(RawApplicantLogic.INSTANCE.delete(cache, toDelete), "Delete applicant failed");
+                assertTrue(RawApplicantLogic.delete(cache, toDelete), "Delete applicant failed");
 
                 final List<RawApplicant> all = RawApplicantLogic.queryByStudent(cache, "888888881");
 

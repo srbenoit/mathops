@@ -27,18 +27,8 @@ import java.util.List;
  * template             text              yes
  * </pre>
  */
-public final class RawMsgLogic extends AbstractRawLogic<RawMsg> {
-
-    /** A single instance. */
-    public static final RawMsgLogic INSTANCE = new RawMsgLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawMsgLogic() {
-
-        super();
-    }
+public enum RawMsgLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -48,15 +38,14 @@ public final class RawMsgLogic extends AbstractRawLogic<RawMsg> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawMsg record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawMsg record) throws SQLException {
 
         if (record.termKey == null || record.touchPoint == null || record.msgCode == null) {
             throw new SQLException("Null value in primary key field.");
         }
 
         // FIXME: This needs to be a prepared statement! Subject and template text can include
-        // apostrophes or SQL escapes.
+        //  apostrophes or SQL escapes.
 
         final String sql = SimpleBuilder.concat("INSERT INTO msg (",
                 "term,term_yr,touch_point,msg_code,subject,template) VALUES (?,?,?,?,?,?)");
@@ -92,14 +81,13 @@ public final class RawMsgLogic extends AbstractRawLogic<RawMsg> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawMsg record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawMsg record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM msg ",
-                "WHERE term=", sqlStringValue(record.termKey.termCode),
-                "  AND term_yr=", sqlIntegerValue(record.termKey.shortYear),
-                "  AND touch_point=", sqlStringValue(record.touchPoint),
-                "  AND msg_code=", sqlStringValue(record.msgCode));
+                "WHERE term=", LogicUtils.sqlStringValue(record.termKey.termCode),
+                "  AND term_yr=", LogicUtils.sqlIntegerValue(record.termKey.shortYear),
+                "  AND touch_point=", LogicUtils.sqlStringValue(record.touchPoint),
+                "  AND msg_code=", LogicUtils.sqlStringValue(record.msgCode));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -121,8 +109,7 @@ public final class RawMsgLogic extends AbstractRawLogic<RawMsg> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawMsg> queryAll(final Cache cache) throws SQLException {
+    public static List<RawMsg> queryAll(final Cache cache) throws SQLException {
 
         final String sql = "SELECT * FROM msg";
 

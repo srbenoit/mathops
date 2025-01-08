@@ -26,18 +26,8 @@ import java.util.List;
  * end_dt               date                      no
  * </pre>
  */
-public final class RawRemoteMpeLogic extends AbstractRawLogic<RawRemoteMpe> {
-
-    /** A single instance. */
-    public static final RawRemoteMpeLogic INSTANCE = new RawRemoteMpeLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawRemoteMpeLogic() {
-
-        super();
-    }
+public enum RawRemoteMpeLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -47,8 +37,7 @@ public final class RawRemoteMpeLogic extends AbstractRawLogic<RawRemoteMpe> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawRemoteMpe record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawRemoteMpe record) throws SQLException {
 
         if (record.termKey == null || record.aplnTerm == null || record.course == null
                 || record.startDt == null || record.endDt == null) {
@@ -58,12 +47,12 @@ public final class RawRemoteMpeLogic extends AbstractRawLogic<RawRemoteMpe> {
         final String sql = SimpleBuilder.concat( //
                 "INSERT INTO remote_mpe (",
                 "term,term_yr,apln_term,course,start_dt,end_dt) VALUES (",
-                sqlStringValue(record.termKey.termCode), ",",
+                LogicUtils.sqlStringValue(record.termKey.termCode), ",",
                 record.termKey.shortYear, ",",
-                sqlTermValue(record.aplnTerm), ",",
-                sqlStringValue(record.course), ",",
-                sqlDateValue(record.startDt), ",",
-                sqlDateValue(record.endDt), ")");
+                LogicUtils.sqlTermValue(record.aplnTerm), ",",
+                LogicUtils.sqlStringValue(record.course), ",",
+                LogicUtils.sqlDateValue(record.startDt), ",",
+                LogicUtils.sqlDateValue(record.endDt), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -86,15 +75,14 @@ public final class RawRemoteMpeLogic extends AbstractRawLogic<RawRemoteMpe> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawRemoteMpe record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawRemoteMpe record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM remote_mpe ",
-                "WHERE term=", sqlStringValue(record.termKey.termCode),
-                "  AND term_yr=", sqlIntegerValue(record.termKey.shortYear),
-                "  AND apln_term=", sqlStringValue(record.aplnTerm.shortString),
-                "  AND course=", sqlStringValue(record.course),
-                "  AND start_dt=", sqlDateValue(record.startDt));
+                "WHERE term=", LogicUtils.sqlStringValue(record.termKey.termCode),
+                "  AND term_yr=", LogicUtils.sqlIntegerValue(record.termKey.shortYear),
+                "  AND apln_term=", LogicUtils.sqlStringValue(record.aplnTerm.shortString),
+                "  AND course=", LogicUtils.sqlStringValue(record.course),
+                "  AND start_dt=", LogicUtils.sqlDateValue(record.startDt));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -116,8 +104,7 @@ public final class RawRemoteMpeLogic extends AbstractRawLogic<RawRemoteMpe> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawRemoteMpe> queryAll(final Cache cache) throws SQLException {
+    public static List<RawRemoteMpe> queryAll(final Cache cache) throws SQLException {
 
         final List<RawRemoteMpe> result = new ArrayList<>(20);
 

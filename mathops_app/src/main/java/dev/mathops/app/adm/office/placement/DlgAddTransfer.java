@@ -247,7 +247,7 @@ final class DlgAddTransfer extends JFrame implements ActionListener, ItemListene
                     final RawFfrTrns newRecord = new RawFfrTrns(stuId, courseStr, examPlaced, date, null);
 
                     try {
-                        RawFfrTrnsLogic.INSTANCE.insert(this.cache, newRecord);
+                        RawFfrTrnsLogic.insert(this.cache, newRecord);
                         setVisible(false);
                         this.owner.updateTransferCreditList();
                     } catch (final SQLException ex) {

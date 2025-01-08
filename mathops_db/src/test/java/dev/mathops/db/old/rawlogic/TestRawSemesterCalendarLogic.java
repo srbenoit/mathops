@@ -113,9 +113,9 @@ final class TestRawSemesterCalendarLogic {
                 final RawSemesterCalendar raw2 = new RawSemesterCalendar(fa21, Integer.valueOf(2), date3, date4);
                 final RawSemesterCalendar raw3 = new RawSemesterCalendar(fa21, Integer.valueOf(3), date5, date6);
 
-                assertTrue(RawSemesterCalendarLogic.INSTANCE.insert(cache, raw1), "Failed to insert semester_calendar");
-                assertTrue(RawSemesterCalendarLogic.INSTANCE.insert(cache, raw2), "Failed to insert semester_calendar");
-                assertTrue(RawSemesterCalendarLogic.INSTANCE.insert(cache, raw3), "Failed to insert semester_calendar");
+                assertTrue(RawSemesterCalendarLogic.insert(cache, raw1), "Failed to insert semester_calendar");
+                assertTrue(RawSemesterCalendarLogic.insert(cache, raw2), "Failed to insert semester_calendar");
+                assertTrue(RawSemesterCalendarLogic.insert(cache, raw3), "Failed to insert semester_calendar");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -135,7 +135,7 @@ final class TestRawSemesterCalendarLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawSemesterCalendar> all = RawSemesterCalendarLogic.INSTANCE.queryAll(cache);
+                final List<RawSemesterCalendar> all = RawSemesterCalendarLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -194,10 +194,10 @@ final class TestRawSemesterCalendarLogic {
                 final RawSemesterCalendar raw2 = new RawSemesterCalendar(fa21, Integer.valueOf(2),
                         date3, date4);
 
-                final boolean result = RawSemesterCalendarLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawSemesterCalendarLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawSemesterCalendar> all = RawSemesterCalendarLogic.INSTANCE.queryAll(cache);
+                final List<RawSemesterCalendar> all = RawSemesterCalendarLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 

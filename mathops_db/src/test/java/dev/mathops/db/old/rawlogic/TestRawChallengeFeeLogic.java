@@ -109,9 +109,9 @@ final class TestRawChallengeFeeLogic {
                 final RawChallengeFee raw2 = new RawChallengeFee("111111111", RawRecordConstants.M1170, date3, date4);
                 final RawChallengeFee raw3 = new RawChallengeFee("222222222", RawRecordConstants.M100P, date5, date6);
 
-                assertTrue(RawChallengeFeeLogic.INSTANCE.insert(cache, raw1), "Failed to insert challenge_fee 1");
-                assertTrue(RawChallengeFeeLogic.INSTANCE.insert(cache, raw2), "Failed to insert challenge_fee 2");
-                assertTrue(RawChallengeFeeLogic.INSTANCE.insert(cache, raw3), "Failed to insert challenge_fee 3");
+                assertTrue(RawChallengeFeeLogic.insert(cache, raw1), "Failed to insert challenge_fee 1");
+                assertTrue(RawChallengeFeeLogic.insert(cache, raw2), "Failed to insert challenge_fee 2");
+                assertTrue(RawChallengeFeeLogic.insert(cache, raw3), "Failed to insert challenge_fee 3");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -131,7 +131,7 @@ final class TestRawChallengeFeeLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawChallengeFee> all = RawChallengeFeeLogic.INSTANCE.queryAll(cache);
+                final List<RawChallengeFee> all = RawChallengeFeeLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -241,10 +241,10 @@ final class TestRawChallengeFeeLogic {
             try {
                 final RawChallengeFee raw2 = new RawChallengeFee("111111111", RawRecordConstants.M1170, date3, date4);
 
-                final boolean result = RawChallengeFeeLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawChallengeFeeLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawChallengeFee> all = RawChallengeFeeLogic.INSTANCE.queryAll(cache);
+                final List<RawChallengeFee> all = RawChallengeFeeLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 

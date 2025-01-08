@@ -92,8 +92,8 @@ final class TestRawCourseLogic {
                 final RawCourse raw2 = new RawCourse(RawRecordConstants.M100T, Integer.valueOf(4),
                         "Entry Level Math Tutorial", Integer.valueOf(0), "N", "ELM Tutorial", "the", "Y", "N");
 
-                assertTrue(RawCourseLogic.INSTANCE.insert(cache, raw1), "Failed to insert course");
-                assertTrue(RawCourseLogic.INSTANCE.insert(cache, raw2), "Failed to insert course");
+                assertTrue(RawCourseLogic.insert(cache, raw1), "Failed to insert course");
+                assertTrue(RawCourseLogic.insert(cache, raw2), "Failed to insert course");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -113,7 +113,7 @@ final class TestRawCourseLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawCourse> all = RawCourseLogic.INSTANCE.queryAll(cache);
+                final List<RawCourse> all = RawCourseLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll");
 
@@ -182,10 +182,10 @@ final class TestRawCourseLogic {
                 final RawCourse raw2 = new RawCourse(RawRecordConstants.M100T, Integer.valueOf(4),
                         "Entry Level Math Tutorial", Integer.valueOf(0), "N", "ELM Tutorial", "the", "Y", "N");
 
-                final boolean result = RawCourseLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawCourseLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawCourse> all = RawCourseLogic.INSTANCE.queryAll(cache);
+                final List<RawCourse> all = RawCourseLogic.queryAll(cache);
 
                 assertEquals(1, all.size(), "Incorrect record count from queryAll after delete");
 

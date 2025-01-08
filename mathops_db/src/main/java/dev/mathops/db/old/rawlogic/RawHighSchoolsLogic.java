@@ -26,18 +26,8 @@ import java.util.List;
  * zip_code             char(10)          yes
  * </pre>
  */
-public final class RawHighSchoolsLogic extends AbstractRawLogic<RawHighSchools> {
-
-    /** A single instance. */
-    public static final RawHighSchoolsLogic INSTANCE = new RawHighSchoolsLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawHighSchoolsLogic() {
-
-        super();
-    }
+public enum RawHighSchoolsLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -47,8 +37,7 @@ public final class RawHighSchoolsLogic extends AbstractRawLogic<RawHighSchools> 
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawHighSchools record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawHighSchools record) throws SQLException {
 
         if (record.hsCode == null || record.hsName == null) {
             throw new SQLException("Null value in primary key field.");
@@ -59,12 +48,12 @@ public final class RawHighSchoolsLogic extends AbstractRawLogic<RawHighSchools> 
         final String sql = SimpleBuilder.concat(
                 "INSERT INTO high_schools (",
                 "hs_code,hs_name,addres_1,city,state,zip_code) VALUES (",
-                sqlStringValue(record.hsCode), ",",
-                sqlStringValue(record.hsName), ",",
-                sqlStringValue(record.addres1), ",",
-                sqlStringValue(record.city), ",",
-                sqlStringValue(record.state), ",",
-                sqlStringValue(record.zipCode), ")");
+                LogicUtils.sqlStringValue(record.hsCode), ",",
+                LogicUtils.sqlStringValue(record.hsName), ",",
+                LogicUtils.sqlStringValue(record.addres1), ",",
+                LogicUtils.sqlStringValue(record.city), ",",
+                LogicUtils.sqlStringValue(record.state), ",",
+                LogicUtils.sqlStringValue(record.zipCode), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -87,11 +76,10 @@ public final class RawHighSchoolsLogic extends AbstractRawLogic<RawHighSchools> 
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawHighSchools record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawHighSchools record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM high_schools ",
-                "WHERE hs_code=", sqlStringValue(record.hsCode));
+                "WHERE hs_code=", LogicUtils.sqlStringValue(record.hsCode));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -113,8 +101,7 @@ public final class RawHighSchoolsLogic extends AbstractRawLogic<RawHighSchools> 
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawHighSchools> queryAll(final Cache cache) throws SQLException {
+    public static List<RawHighSchools> queryAll(final Cache cache) throws SQLException {
 
         final String sql = "SELECT * FROM high_schools";
 

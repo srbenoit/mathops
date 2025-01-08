@@ -99,8 +99,8 @@ final class TestRawParametersLogic {
                 final RawParameters pgm2 = new RawParameters("prog2", "Z", "Y", "X", "W", "V", "U", "T", "S", "R",
                         date2);
 
-                assertTrue(RawParametersLogic.INSTANCE.insert(cache, pgm1), "Failed to insert parameters 1");
-                assertTrue(RawParametersLogic.INSTANCE.insert(cache, pgm2), "Failed to insert parameters 2");
+                assertTrue(RawParametersLogic.insert(cache, pgm1), "Failed to insert parameters 1");
+                assertTrue(RawParametersLogic.insert(cache, pgm2), "Failed to insert parameters 2");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -120,7 +120,7 @@ final class TestRawParametersLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawParameters> all = RawParametersLogic.INSTANCE.queryAll(cache);
+                final List<RawParameters> all = RawParametersLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll");
 
@@ -337,10 +337,10 @@ final class TestRawParametersLogic {
                 final RawParameters pgm1 = new RawParameters("prog1", "A", "B", "C", "D", "E", "F", "G", "H", "I",
                         date1);
 
-                final boolean result = RawParametersLogic.INSTANCE.delete(cache, pgm1);
+                final boolean result = RawParametersLogic.delete(cache, pgm1);
                 assertTrue(result, "delete returned false");
 
-                final List<RawParameters> all = RawParametersLogic.INSTANCE.queryAll(cache);
+                final List<RawParameters> all = RawParametersLogic.queryAll(cache);
 
                 assertEquals(1, all.size(), "Incorrect record count from queryAll after delete");
 

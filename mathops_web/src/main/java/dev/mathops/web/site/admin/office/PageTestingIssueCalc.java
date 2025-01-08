@@ -130,7 +130,7 @@ enum PageTestingIssueCalc {
                         final RawCalcs issued = new RawCalcs(stuId, cleanCalc, "0",
                                 Long.valueOf(serial), LocalDate.now());
 
-                        if (RawCalcsLogic.INSTANCE.insert(cache, issued)) {
+                        if (RawCalcsLogic.insert(cache, issued)) {
                             emitStudentIdField(htm, stuId, true, false);
                             emitInfo(htm, name);
                             emitCalcIdField(htm, calc, false);

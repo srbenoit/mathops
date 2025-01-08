@@ -57,18 +57,8 @@ import java.util.List;
  * ans_correct          char(1)                   yes
  * </pre>
  */
-public final class RawStchallengeLogic extends AbstractRawLogic<RawStchallenge> {
-
-    /** A single instance. */
-    public static final RawStchallengeLogic INSTANCE = new RawStchallengeLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawStchallengeLogic() {
-
-        super();
-    }
+public enum RawStchallengeLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -78,8 +68,7 @@ public final class RawStchallengeLogic extends AbstractRawLogic<RawStchallenge> 
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawStchallenge record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawStchallenge record) throws SQLException {
 
         if (record.stuId == null || record.course == null || record.version == null || record.academicYr == null
                 || record.examDt == null || record.finishTime == null || record.passed == null) {
@@ -90,21 +79,21 @@ public final class RawStchallengeLogic extends AbstractRawLogic<RawStchallenge> 
                 "INSERT INTO stchallenge (stu_id,course,version,academic_yr,exam_dt,",
                 "start_time,finish_time,last_name,first_name,middle_initial,seq_nbr,",
                 "serial_nbr,score,passed,how_validated) VALUES (",
-                sqlStringValue(record.stuId), ",",
-                sqlStringValue(record.course), ",",
-                sqlStringValue(record.version), ",",
-                sqlStringValue(record.academicYr), ",",
-                sqlDateValue(record.examDt), ",",
-                sqlIntegerValue(record.startTime), ",",
-                sqlIntegerValue(record.finishTime), ",",
-                sqlStringValue(record.lastName), ",",
-                sqlStringValue(record.firstName), ",",
-                sqlStringValue(record.middleInitial), ",",
-                sqlIntegerValue(record.seqNbr), ",",
-                sqlLongValue(record.serialNbr), ",",
-                sqlIntegerValue(record.score), ",",
-                sqlStringValue(record.passed), ",",
-                sqlStringValue(record.howValidated), ")");
+                LogicUtils.sqlStringValue(record.stuId), ",",
+                LogicUtils.sqlStringValue(record.course), ",",
+                LogicUtils.sqlStringValue(record.version), ",",
+                LogicUtils.sqlStringValue(record.academicYr), ",",
+                LogicUtils.sqlDateValue(record.examDt), ",",
+                LogicUtils.sqlIntegerValue(record.startTime), ",",
+                LogicUtils.sqlIntegerValue(record.finishTime), ",",
+                LogicUtils.sqlStringValue(record.lastName), ",",
+                LogicUtils.sqlStringValue(record.firstName), ",",
+                LogicUtils.sqlStringValue(record.middleInitial), ",",
+                LogicUtils.sqlIntegerValue(record.seqNbr), ",",
+                LogicUtils.sqlLongValue(record.serialNbr), ",",
+                LogicUtils.sqlIntegerValue(record.score), ",",
+                LogicUtils.sqlStringValue(record.passed), ",",
+                LogicUtils.sqlStringValue(record.howValidated), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -127,14 +116,13 @@ public final class RawStchallengeLogic extends AbstractRawLogic<RawStchallenge> 
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawStchallenge record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawStchallenge record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM stchallenge ",
-                "WHERE stu_id=", sqlStringValue(record.stuId),
-                "  AND course=", sqlStringValue(record.course),
-                "  AND exam_dt=", sqlDateValue(record.examDt),
-                "  AND finish_time=", sqlIntegerValue(record.finishTime));
+                "WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                "  AND course=", LogicUtils.sqlStringValue(record.course),
+                "  AND exam_dt=", LogicUtils.sqlDateValue(record.examDt),
+                "  AND finish_time=", LogicUtils.sqlIntegerValue(record.finishTime));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -156,7 +144,7 @@ public final class RawStchallengeLogic extends AbstractRawLogic<RawStchallenge> 
      * @param record the record to insert
      * @throws SQLException if there is an error accessing the database
      */
-    public void deleteAttemptAndAnswers(final Cache cache, final RawStchallenge record) throws SQLException {
+    public static void deleteAttemptAndAnswers(final Cache cache, final RawStchallenge record) throws SQLException {
 
         RawStchallengeqaLogic.deleteAllForAttempt(cache, record);
 
@@ -170,8 +158,7 @@ public final class RawStchallengeLogic extends AbstractRawLogic<RawStchallenge> 
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawStchallenge> queryAll(final Cache cache) throws SQLException {
+    public static List<RawStchallenge> queryAll(final Cache cache) throws SQLException {
 
         return executeQuery(cache.conn, "SELECT * FROM stchallenge");
     }
@@ -201,7 +188,7 @@ public final class RawStchallengeLogic extends AbstractRawLogic<RawStchallenge> 
                 Log.warning("Invalid test student ID: " + stuId);
             }
         } else {
-            final String sql = "SELECT * FROM stchallenge WHERE stu_id=" + sqlStringValue(stuId);
+            final String sql = "SELECT * FROM stchallenge WHERE stu_id=" + LogicUtils.sqlStringValue(stuId);
 
             try (final Statement stmt = cache.conn.createStatement();
                  final ResultSet rs = stmt.executeQuery(sql)) {
@@ -244,7 +231,7 @@ public final class RawStchallengeLogic extends AbstractRawLogic<RawStchallenge> 
 
         } else {
             final String sql = "SELECT * FROM stchallenge WHERE stu_id="
-                    + sqlStringValue(stuId) + " AND course=" + sqlStringValue(course);
+                    + LogicUtils.sqlStringValue(stuId) + " AND course=" + LogicUtils.sqlStringValue(course);
 
             try (final Statement stmt = cache.conn.createStatement();
                  final ResultSet rs = stmt.executeQuery(sql)) {
@@ -384,10 +371,10 @@ public final class RawStchallengeLogic extends AbstractRawLogic<RawStchallenge> 
 
         } else {
             // Count legal attempts
-            final String sql1 = "SELECT COUNT(*) FROM stchallenge WHERE stu_id=" + sqlStringValue(stuId)
-                    + " AND course=" + sqlStringValue(course) + " AND (passed='Y' OR passed='N')";
+            final String sql1 = "SELECT COUNT(*) FROM stchallenge WHERE stu_id=" + LogicUtils.sqlStringValue(stuId)
+                    + " AND course=" + LogicUtils.sqlStringValue(course) + " AND (passed='Y' OR passed='N')";
 
-            result = executeSimpleIntQuery(cache.conn, sql1).intValue();
+            result = LogicUtils.executeSimpleIntQuery(cache.conn, sql1).intValue();
         }
 
         return result;
@@ -453,7 +440,8 @@ public final class RawStchallengeLogic extends AbstractRawLogic<RawStchallenge> 
      */
     public static List<RawStchallenge> queryOnOrAfter(final Cache cache, final LocalDate earliest) throws SQLException {
 
-        final String sql = SimpleBuilder.concat("SELECT * FROM stchallenge WHERE exam_dt>=", sqlDateValue(earliest));
+        final String sql = SimpleBuilder.concat("SELECT * FROM stchallenge WHERE exam_dt>=",
+                LogicUtils.sqlDateValue(earliest));
 
         return executeQuery(cache.conn, sql);
     }

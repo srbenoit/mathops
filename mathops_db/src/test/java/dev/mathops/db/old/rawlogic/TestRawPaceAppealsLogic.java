@@ -129,9 +129,9 @@ final class TestRawPaceAppealsLogic {
                         date7, null, null, "SCD Letter",
                         "Quiet testing room", "pattison");
 
-                assertTrue(RawPaceAppealsLogic.INSTANCE.insert(cache, raw1), "Failed to insert pace_appeals");
-                assertTrue(RawPaceAppealsLogic.INSTANCE.insert(cache, raw2), "Failed to insert pace_appeals");
-                assertTrue(RawPaceAppealsLogic.INSTANCE.insert(cache, raw3), "Failed to insert pace_appeals");
+                assertTrue(RawPaceAppealsLogic.insert(cache, raw1), "Failed to insert pace_appeals");
+                assertTrue(RawPaceAppealsLogic.insert(cache, raw2), "Failed to insert pace_appeals");
+                assertTrue(RawPaceAppealsLogic.insert(cache, raw3), "Failed to insert pace_appeals");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -151,7 +151,7 @@ final class TestRawPaceAppealsLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawPaceAppeals> all = RawPaceAppealsLogic.INSTANCE.queryAll(cache);
+                final List<RawPaceAppeals> all = RawPaceAppealsLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
                 final TermKey termKey = new TermKey(ETermName.SPRING, 2022);
@@ -337,9 +337,9 @@ final class TestRawPaceAppealsLogic {
 
                 assertEquals(1, pre.size(), "Incorrect record count from queryByStudent");
 
-                RawPaceAppealsLogic.INSTANCE.delete(cache, pre.getFirst());
+                RawPaceAppealsLogic.delete(cache, pre.getFirst());
 
-                final List<RawPaceAppeals> all = RawPaceAppealsLogic.INSTANCE.queryAll(cache);
+                final List<RawPaceAppeals> all = RawPaceAppealsLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
                 final TermKey termKey = new TermKey(ETermName.SPRING, 2022);

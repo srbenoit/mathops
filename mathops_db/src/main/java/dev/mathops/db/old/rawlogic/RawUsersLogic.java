@@ -30,18 +30,8 @@ import java.util.List;
  * passed               char(1)                   yes
  * </pre>
  */
-public final class RawUsersLogic extends AbstractRawLogic<RawUsers> {
-
-    /** A single instance. */
-    public static final RawUsersLogic INSTANCE = new RawUsersLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawUsersLogic() {
-
-        super();
-    }
+public enum RawUsersLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -51,8 +41,7 @@ public final class RawUsersLogic extends AbstractRawLogic<RawUsers> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawUsers record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawUsers record) throws SQLException {
 
         if (record.stuId == null || record.termKey == null || record.serialNbr == null
                 || record.version == null || record.calcCourse == null) {
@@ -62,15 +51,15 @@ public final class RawUsersLogic extends AbstractRawLogic<RawUsers> {
         final String sql = SimpleBuilder.concat("INSERT INTO users ",
                 "(stu_id,term,term_yr,serial_nbr,version,exam_dt,exam_score,",
                 "calc_course,passed) VALUES (",
-                sqlStringValue(record.stuId), ",",
-                sqlStringValue(record.termKey.termCode), ",",
-                sqlIntegerValue(record.termKey.shortYear), ",",
-                sqlLongValue(record.serialNbr), ",",
-                sqlStringValue(record.version), ",",
-                sqlDateValue(record.examDt), ",",
-                sqlIntegerValue(record.examScore), ",",
-                sqlStringValue(record.calcCourse), ",",
-                sqlStringValue(record.passed), ")");
+                LogicUtils.sqlStringValue(record.stuId), ",",
+                LogicUtils.sqlStringValue(record.termKey.termCode), ",",
+                LogicUtils.sqlIntegerValue(record.termKey.shortYear), ",",
+                LogicUtils.sqlLongValue(record.serialNbr), ",",
+                LogicUtils.sqlStringValue(record.version), ",",
+                LogicUtils.sqlDateValue(record.examDt), ",",
+                LogicUtils.sqlIntegerValue(record.examScore), ",",
+                LogicUtils.sqlStringValue(record.calcCourse), ",",
+                LogicUtils.sqlStringValue(record.passed), ")");
 
         try (final Statement s = cache.conn.createStatement()) {
             final boolean result = s.executeUpdate(sql) == 1;
@@ -93,13 +82,12 @@ public final class RawUsersLogic extends AbstractRawLogic<RawUsers> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawUsers record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawUsers record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM users ",
-                "WHERE stu_id=", sqlStringValue(record.stuId),
-                "  AND serial_nbr=", sqlLongValue(record.serialNbr),
-                "  AND version=", sqlStringValue(record.version));
+                "WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                "  AND serial_nbr=", LogicUtils.sqlLongValue(record.serialNbr),
+                "  AND version=", LogicUtils.sqlStringValue(record.version));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -121,8 +109,7 @@ public final class RawUsersLogic extends AbstractRawLogic<RawUsers> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawUsers> queryAll(final Cache cache) throws SQLException {
+    public static List<RawUsers> queryAll(final Cache cache) throws SQLException {
 
         return executeQuery(cache.conn, "SELECT * FROM users");
     }
@@ -139,7 +126,7 @@ public final class RawUsersLogic extends AbstractRawLogic<RawUsers> {
             throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM users ",
-                "WHERE stu_id=", sqlStringValue(stuId));
+                "WHERE stu_id=", LogicUtils.sqlStringValue(stuId));
 
         return executeQuery(cache.conn, sql);
     }

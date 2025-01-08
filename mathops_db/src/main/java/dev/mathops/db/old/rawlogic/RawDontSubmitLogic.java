@@ -25,18 +25,8 @@ import java.util.List;
  * term_yr              smallint                  no      PK
  * </pre>
  */
-public final class RawDontSubmitLogic extends AbstractRawLogic<RawDontSubmit> {
-
-    /** A single instance. */
-    public static final RawDontSubmitLogic INSTANCE = new RawDontSubmitLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawDontSubmitLogic() {
-
-        super();
-    }
+public enum RawDontSubmitLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -46,8 +36,7 @@ public final class RawDontSubmitLogic extends AbstractRawLogic<RawDontSubmit> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawDontSubmit record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawDontSubmit record) throws SQLException {
 
         if (record.course == null || record.sect == null || record.termKey == null) {
             throw new SQLException("Null value in primary key field.");
@@ -81,18 +70,17 @@ public final class RawDontSubmitLogic extends AbstractRawLogic<RawDontSubmit> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawDontSubmit record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawDontSubmit record) throws SQLException {
 
         final boolean result;
 
         final HtmlBuilder sql = new HtmlBuilder(100);
 
         sql.add("DELETE FROM dont_submit ",
-                " WHERE course=", sqlStringValue(record.course),
-                " AND sect=", sqlStringValue(record.sect),
-                " AND term=", sqlStringValue(record.termKey.termCode),
-                " AND term_yr=", sqlIntegerValue(record.termKey.shortYear));
+                " WHERE course=", LogicUtils.sqlStringValue(record.course),
+                " AND sect=", LogicUtils.sqlStringValue(record.sect),
+                " AND term=", LogicUtils.sqlStringValue(record.termKey.termCode),
+                " AND term_yr=", LogicUtils.sqlIntegerValue(record.termKey.shortYear));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             result = stmt.executeUpdate(sql.toString()) == 1;
@@ -114,8 +102,7 @@ public final class RawDontSubmitLogic extends AbstractRawLogic<RawDontSubmit> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawDontSubmit> queryAll(final Cache cache) throws SQLException {
+    public static List<RawDontSubmit> queryAll(final Cache cache) throws SQLException {
 
         final List<RawDontSubmit> result = new ArrayList<>(50);
 

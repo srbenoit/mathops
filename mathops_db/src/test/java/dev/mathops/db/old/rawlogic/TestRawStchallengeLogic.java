@@ -109,9 +109,9 @@ final class TestRawStchallengeLogic {
                         date2, Integer.valueOf(102), Integer.valueOf(202), "Shafer", "Carol", "D",
                         Integer.valueOf(789), Long.valueOf(300300300L), Integer.valueOf(1), "G", "R");
 
-                assertTrue(RawStchallengeLogic.INSTANCE.insert(cache, raw1), "Failed to insert stchallenge");
-                assertTrue(RawStchallengeLogic.INSTANCE.insert(cache, raw2), "Failed to insert stchallenge");
-                assertTrue(RawStchallengeLogic.INSTANCE.insert(cache, raw3), "Failed to insert stchallenge");
+                assertTrue(RawStchallengeLogic.insert(cache, raw1), "Failed to insert stchallenge");
+                assertTrue(RawStchallengeLogic.insert(cache, raw2), "Failed to insert stchallenge");
+                assertTrue(RawStchallengeLogic.insert(cache, raw3), "Failed to insert stchallenge");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -131,7 +131,7 @@ final class TestRawStchallengeLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawStchallenge> all = RawStchallengeLogic.INSTANCE.queryAll(cache);
+                final List<RawStchallenge> all = RawStchallengeLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -496,10 +496,10 @@ final class TestRawStchallengeLogic {
                         date1, Integer.valueOf(101), Integer.valueOf(201), "Jones", "Bob", "C",
                         Integer.valueOf(456), Long.valueOf(200200200L), Integer.valueOf(2), "N", "Q");
 
-                final boolean result = RawStchallengeLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawStchallengeLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawStchallenge> all = RawStchallengeLogic.INSTANCE.queryAll(cache);
+                final List<RawStchallenge> all = RawStchallengeLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 

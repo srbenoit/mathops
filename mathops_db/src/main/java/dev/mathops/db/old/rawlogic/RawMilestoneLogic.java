@@ -31,18 +31,8 @@ import java.util.List;
  * nbr_atmpts_allow     smallint          yes
  * </pre>
  */
-public final class RawMilestoneLogic extends AbstractRawLogic<RawMilestone> {
-
-    /** A single instance. */
-    public static final RawMilestoneLogic INSTANCE = new RawMilestoneLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawMilestoneLogic() {
-
-        super();
-    }
+public enum RawMilestoneLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -52,8 +42,7 @@ public final class RawMilestoneLogic extends AbstractRawLogic<RawMilestone> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawMilestone record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawMilestone record) throws SQLException {
 
         if (record.termKey == null || record.paceTrack == null || record.msNbr == null || record.msType == null) {
             throw new SQLException("Null value in primary key field.");
@@ -64,12 +53,12 @@ public final class RawMilestoneLogic extends AbstractRawLogic<RawMilestone> {
                 " VALUES (",
                 "'", record.termKey.termCode, "',",
                 record.termKey.shortYear, ",",
-                sqlIntegerValue(record.pace), ",",
-                sqlStringValue(record.paceTrack), ",",
+                LogicUtils.sqlIntegerValue(record.pace), ",",
+                LogicUtils.sqlStringValue(record.paceTrack), ",",
                 record.msNbr, ",",
-                sqlStringValue(record.msType), ",",
-                sqlDateValue(record.msDate), ",",
-                sqlIntegerValue(record.nbrAtmptsAllow), ")");
+                LogicUtils.sqlStringValue(record.msType), ",",
+                LogicUtils.sqlDateValue(record.msDate), ",",
+                LogicUtils.sqlIntegerValue(record.nbrAtmptsAllow), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -92,16 +81,15 @@ public final class RawMilestoneLogic extends AbstractRawLogic<RawMilestone> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawMilestone record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawMilestone record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM milestone ",
-                "WHERE term=", sqlStringValue(record.termKey.termCode),
-                "  AND term_yr=", sqlIntegerValue(record.termKey.shortYear),
-                "  AND pace=", sqlIntegerValue(record.pace),
-                "  AND pace_track=", sqlStringValue(record.paceTrack),
-                "  AND ms_nbr=", sqlIntegerValue(record.msNbr),
-                "  AND ms_type=", sqlStringValue(record.msType));
+                "WHERE term=", LogicUtils.sqlStringValue(record.termKey.termCode),
+                "  AND term_yr=", LogicUtils.sqlIntegerValue(record.termKey.shortYear),
+                "  AND pace=", LogicUtils.sqlIntegerValue(record.pace),
+                "  AND pace_track=", LogicUtils.sqlStringValue(record.paceTrack),
+                "  AND ms_nbr=", LogicUtils.sqlIntegerValue(record.msNbr),
+                "  AND ms_type=", LogicUtils.sqlStringValue(record.msType));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -123,8 +111,7 @@ public final class RawMilestoneLogic extends AbstractRawLogic<RawMilestone> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawMilestone> queryAll(final Cache cache) throws SQLException {
+    public static List<RawMilestone> queryAll(final Cache cache) throws SQLException {
 
         return executeListQuery(cache, "SELECT * FROM milestone");
     }
@@ -140,8 +127,8 @@ public final class RawMilestoneLogic extends AbstractRawLogic<RawMilestone> {
     public static List<RawMilestone> getAllMilestones(final Cache cache, final TermKey termKey) throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM milestone",
-                " WHERE term=", sqlStringValue(termKey.termCode),
-                "   AND term_yr=", sqlIntegerValue(termKey.shortYear));
+                " WHERE term=", LogicUtils.sqlStringValue(termKey.termCode),
+                "   AND term_yr=", LogicUtils.sqlIntegerValue(termKey.shortYear));
 
         return executeListQuery(cache, sql);
     }
@@ -160,10 +147,10 @@ public final class RawMilestoneLogic extends AbstractRawLogic<RawMilestone> {
                                                       final String paceTrack) throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM milestone",
-                " WHERE term=", sqlStringValue(termKey.termCode),
-                "   AND term_yr=", sqlIntegerValue(termKey.shortYear),
-                "   AND pace=", sqlIntegerValue(Integer.valueOf(pace)),
-                "   AND pace_track=", sqlStringValue(paceTrack));
+                " WHERE term=", LogicUtils.sqlStringValue(termKey.termCode),
+                "   AND term_yr=", LogicUtils.sqlIntegerValue(termKey.shortYear),
+                "   AND pace=", LogicUtils.sqlIntegerValue(Integer.valueOf(pace)),
+                "   AND pace_track=", LogicUtils.sqlStringValue(paceTrack));
 
         return executeListQuery(cache, sql);
     }
@@ -181,13 +168,13 @@ public final class RawMilestoneLogic extends AbstractRawLogic<RawMilestone> {
                                        final LocalDate newMsDate) throws SQLException {
 
         final String sql = SimpleBuilder.concat("UPDATE milestone",
-                " SET ms_date=", sqlDateValue(newMsDate),
-                " WHERE term=", sqlStringValue(milestone.termKey.termCode),
-                "   AND term_yr=", sqlIntegerValue(milestone.termKey.shortYear),
-                "   AND pace=", sqlIntegerValue(milestone.pace),
-                "   AND pace_track=", sqlStringValue(milestone.paceTrack),
-                "   AND ms_nbr=", sqlIntegerValue(milestone.msNbr),
-                "   AND ms_type=", sqlStringValue(milestone.msType));
+                " SET ms_date=", LogicUtils.sqlDateValue(newMsDate),
+                " WHERE term=", LogicUtils.sqlStringValue(milestone.termKey.termCode),
+                "   AND term_yr=", LogicUtils.sqlIntegerValue(milestone.termKey.shortYear),
+                "   AND pace=", LogicUtils.sqlIntegerValue(milestone.pace),
+                "   AND pace_track=", LogicUtils.sqlStringValue(milestone.paceTrack),
+                "   AND ms_nbr=", LogicUtils.sqlIntegerValue(milestone.msNbr),
+                "   AND ms_type=", LogicUtils.sqlStringValue(milestone.msType));
 
         boolean result = false;
 

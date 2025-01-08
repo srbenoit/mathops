@@ -23,18 +23,8 @@ import java.util.List;
  * state                char(2)           no
  * </pre>
  */
-public final class RawZipCodeLogic extends AbstractRawLogic<RawZipCode> {
-
-    /** A single instance. */
-    public static final RawZipCodeLogic INSTANCE = new RawZipCodeLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawZipCodeLogic() {
-
-        super();
-    }
+public enum RawZipCodeLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -44,8 +34,7 @@ public final class RawZipCodeLogic extends AbstractRawLogic<RawZipCode> {
      * @return {@code true} if successful; {@code false} otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawZipCode record)
+    public static boolean insert(final Cache cache, final RawZipCode record)
             throws SQLException {
 
         if (record.zipCode == null || record.city == null || record.state == null) {
@@ -54,9 +43,9 @@ public final class RawZipCodeLogic extends AbstractRawLogic<RawZipCode> {
 
         final String sql = SimpleBuilder.concat("INSERT INTO zip_code ",
                 "(zip_code,city,state) VALUES (",
-                sqlStringValue(record.zipCode), ",",
-                sqlStringValue(record.city), ",",
-                sqlStringValue(record.state), ")");
+                LogicUtils.sqlStringValue(record.zipCode), ",",
+                LogicUtils.sqlStringValue(record.city), ",",
+                LogicUtils.sqlStringValue(record.state), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) { //
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -79,14 +68,13 @@ public final class RawZipCodeLogic extends AbstractRawLogic<RawZipCode> {
      * @return {@code true} if successful; {@code false} otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawZipCode record)
+    public static boolean delete(final Cache cache, final RawZipCode record)
             throws SQLException {
 
         final boolean result;
 
         final String sql = SimpleBuilder.concat("DELETE FROM zip_code ",
-                "WHERE zip_code=", sqlStringValue(record.zipCode));
+                "WHERE zip_code=", LogicUtils.sqlStringValue(record.zipCode));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             result = stmt.executeUpdate(sql) == 1;
@@ -108,8 +96,7 @@ public final class RawZipCodeLogic extends AbstractRawLogic<RawZipCode> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawZipCode> queryAll(final Cache cache) throws SQLException {
+    public static List<RawZipCode> queryAll(final Cache cache) throws SQLException {
 
         final List<RawZipCode> result = new ArrayList<>(500);
 

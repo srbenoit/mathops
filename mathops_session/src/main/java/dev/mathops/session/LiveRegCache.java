@@ -6,7 +6,7 @@ import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
 import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.ESchemaUse;
-import dev.mathops.db.old.rawlogic.AbstractLogicModule;
+import dev.mathops.db.old.rawlogic.LogicUtils;
 import dev.mathops.db.old.rec.LiveReg;
 import dev.mathops.db.old.schema.csubanner.ImplLiveRegFa;
 import dev.mathops.db.old.schema.csubanner.ImplLiveRegSm;
@@ -61,7 +61,7 @@ enum LiveRegCache {
                 live.checkInConnection(liveConn);
             }
         } catch (final SQLException ex) {
-            AbstractLogicModule.indicateBannerDown();
+            LogicUtils.indicateBannerDown();
             Log.warning(ex);
         }
 

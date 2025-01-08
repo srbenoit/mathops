@@ -391,7 +391,7 @@ public final class ImportOdsApplicants2 {
                                     final Collection<? super String> report) throws SQLException {
 
         try {
-            final List<RawApplicant> currentApplicants = RawApplicantLogic.INSTANCE.queryAll(cache);
+            final List<RawApplicant> currentApplicants = RawApplicantLogic.queryAll(cache);
             final int numCurrent = currentApplicants.size();
             final Map<String, RawApplicant> currentSorted = new HashMap<>(numCurrent);
             for (final RawApplicant applicant : currentApplicants) {
@@ -437,7 +437,7 @@ public final class ImportOdsApplicants2 {
                 report.add("Deleting obsolete record for " + toDelete.stuId);
 
                 if (!DEBUG) {
-                    RawApplicantLogic.INSTANCE.delete(cache, toDelete);
+                    RawApplicantLogic.delete(cache, toDelete);
                 }
                 ++numDeleted;
                 --total;
@@ -477,7 +477,7 @@ public final class ImportOdsApplicants2 {
         report.add("Inserting applicant record for " + odsData.csuId);
 
         if (!DEBUG) {
-            RawApplicantLogic.INSTANCE.insert(cache, newRow);
+            RawApplicantLogic.insert(cache, newRow);
         }
     }
 
@@ -520,7 +520,7 @@ public final class ImportOdsApplicants2 {
             report.add("Updating applicant record for " + odsData.csuId);
 
             if (!DEBUG) {
-                RawApplicantLogic.INSTANCE.delete(cache, localData);
+                RawApplicantLogic.delete(cache, localData);
 
                 final RawApplicant newRow = new RawApplicant(odsData.csuId, odsData.firstName, odsData.lastName,
                         birthDate, null, odsData.gender, odsData.college, odsData.programOfStudy, odsData.hsCode, null,
@@ -528,7 +528,7 @@ public final class ImportOdsApplicants2 {
                         odsData.hsClassRank, odsData.hsClassSize, odsData.actMath, odsData.satMath, odsData.pidm,
                         odsData.applicationTerm);
 
-                RawApplicantLogic.INSTANCE.insert(cache, newRow);
+                RawApplicantLogic.insert(cache, newRow);
                 result = 1;
             }
         }

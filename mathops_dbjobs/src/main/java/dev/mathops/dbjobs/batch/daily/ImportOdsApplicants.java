@@ -22,7 +22,6 @@ import dev.mathops.db.old.svc.term.TermRec;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.builder.SimpleBuilder;
 
-import javax.swing.GroupLayout;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -133,7 +132,7 @@ public final class ImportOdsApplicants {
     private void executeInTerm(final Cache cache, final TermRec active, final Collection<? super String> report)
             throws SQLException {
 
-        final List<RawStudent> all = RawStudentLogic.INSTANCE.queryAll(cache);
+        final List<RawStudent> all = RawStudentLogic.queryAll(cache);
         final String msg1 = "Retrieved " + all.size() + " existing student records.";
         report.add(msg1);
         Log.info(msg1);
@@ -675,7 +674,7 @@ public final class ImportOdsApplicants {
 
         try {
             // Load all current APPLICANT table rows and organize by student ID.
-            final List<RawApplicant> currentApplicants = RawApplicantLogic.INSTANCE.queryAll(cache);
+            final List<RawApplicant> currentApplicants = RawApplicantLogic.queryAll(cache);
             final int numCurrent = currentApplicants.size();
             final Map<String, RawApplicant> currentSorted = new HashMap<>(numCurrent);
             for (final RawApplicant applicant : currentApplicants) {

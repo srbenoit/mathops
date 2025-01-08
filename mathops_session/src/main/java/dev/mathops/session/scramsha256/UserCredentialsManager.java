@@ -46,7 +46,7 @@ final class UserCredentialsManager {
         this.credentials = new HashMap<>(10);
 
         try {
-            final List<RawLogins> allLogins = RawLoginsLogic.INSTANCE.queryAll(cache);
+            final List<RawLogins> allLogins = RawLoginsLogic.queryAll(cache);
 
             for (final RawLogins record : allLogins) {
                 if ("ADM".equals(record.userType)) {

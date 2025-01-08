@@ -614,7 +614,7 @@ final class LendCard extends AdmPanelBase implements ActionListener, FocusListen
                         Integer.valueOf(start), due, null, null, Integer.valueOf(0), today);
 
                 try {
-                    if (RawStresourceLogic.INSTANCE.insert(this.cache, record)) {
+                    if (RawStresourceLogic.insert(this.cache, record)) {
                         this.cache.conn.commit();
                         JOptionPane.showMessageDialog(this, "Loan has been recorded.");
                         reset();

@@ -109,9 +109,9 @@ final class TestRawSttermLogic {
                 final RawStterm raw3 = new RawStterm(fa20, "111111111", Integer.valueOf(2), "B",
                         RawRecordConstants.M117, "COH0", Integer.valueOf(12), "Z");
 
-                assertTrue(RawSttermLogic.INSTANCE.insert(cache, raw1), "Failed to insert stterm 1");
-                assertTrue(RawSttermLogic.INSTANCE.insert(cache, raw2), "Failed to insert stterm 2");
-                assertTrue(RawSttermLogic.INSTANCE.insert(cache, raw3), "Failed to insert stterm 3");
+                assertTrue(RawSttermLogic.insert(cache, raw1), "Failed to insert stterm 1");
+                assertTrue(RawSttermLogic.insert(cache, raw2), "Failed to insert stterm 2");
+                assertTrue(RawSttermLogic.insert(cache, raw3), "Failed to insert stterm 3");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -131,7 +131,7 @@ final class TestRawSttermLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawStterm> all = RawSttermLogic.INSTANCE.queryAll(cache);
+                final List<RawStterm> all = RawSttermLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -541,7 +541,7 @@ final class TestRawSttermLogic {
 
                 assertNotNull(toDelete, "No record from query");
 
-                assertTrue(RawSttermLogic.INSTANCE.delete(cache, toDelete), "delete() returned false");
+                assertTrue(RawSttermLogic.delete(cache, toDelete), "delete() returned false");
 
                 final RawStterm test = RawSttermLogic.query(cache, active.term, "111111111");
 

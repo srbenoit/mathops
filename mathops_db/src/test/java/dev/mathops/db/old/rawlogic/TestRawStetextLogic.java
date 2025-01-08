@@ -178,11 +178,11 @@ final class TestRawStetextLogic {
                         null, // refundDt
                         null); // refundReason
 
-                assertTrue(RawStetextLogic.INSTANCE.insert(cache, raw1), "Failed to insert stetext 1");
-                assertTrue(RawStetextLogic.INSTANCE.insert(cache, raw2), "Failed to insert stetext 2");
-                assertTrue(RawStetextLogic.INSTANCE.insert(cache, raw3), "Failed to insert stetext 3");
-                assertTrue(RawStetextLogic.INSTANCE.insert(cache, raw4), "Failed to insert stetext 4");
-                assertTrue(RawStetextLogic.INSTANCE.insert(cache, raw5), "Failed to insert stetext 5");
+                assertTrue(RawStetextLogic.insert(cache, raw1), "Failed to insert stetext 1");
+                assertTrue(RawStetextLogic.insert(cache, raw2), "Failed to insert stetext 2");
+                assertTrue(RawStetextLogic.insert(cache, raw3), "Failed to insert stetext 3");
+                assertTrue(RawStetextLogic.insert(cache, raw4), "Failed to insert stetext 4");
+                assertTrue(RawStetextLogic.insert(cache, raw5), "Failed to insert stetext 5");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -202,7 +202,7 @@ final class TestRawStetextLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawStetext> all = RawStetextLogic.INSTANCE.queryAll(cache);
+                final List<RawStetext> all = RawStetextLogic.queryAll(cache);
 
                 assertEquals(5, all.size(), "Incorrect record count from queryAll");
 
@@ -599,11 +599,11 @@ final class TestRawStetextLogic {
                         date0022, // refundDt
                         "Because"); // refundReason
 
-                final boolean result = RawStetextLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawStetextLogic.delete(cache, raw2);
 
                 assertTrue(result, "delete returned false");
 
-                final List<RawStetext> all = RawStetextLogic.INSTANCE.queryAll(cache);
+                final List<RawStetext> all = RawStetextLogic.queryAll(cache);
 
                 assertEquals(4, all.size(), "Incorrect record count from queryAll after delete");
 

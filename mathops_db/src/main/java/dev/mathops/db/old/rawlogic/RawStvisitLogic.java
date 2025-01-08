@@ -28,18 +28,8 @@ import java.util.List;
  * seat                 char(2)                   yes
  * </pre>
  */
-public final class RawStvisitLogic extends AbstractRawLogic<RawStvisit> {
-
-    /** A single instance. */
-    public static final RawStvisitLogic INSTANCE = new RawStvisitLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawStvisitLogic() {
-
-        super();
-    }
+public enum RawStvisitLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -49,8 +39,7 @@ public final class RawStvisitLogic extends AbstractRawLogic<RawStvisit> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawStvisit record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawStvisit record) throws SQLException {
 
         if (record.stuId == null || record.whenStarted == null || record.location == null) {
             throw new SQLException("Null value in primary key or required field.");
@@ -65,11 +54,11 @@ public final class RawStvisitLogic extends AbstractRawLogic<RawStvisit> {
         } else {
             final String sql = SimpleBuilder.concat("INSERT INTO stvisit ",
                     "(stu_id,when_started,when_ended,location,seat) VALUES (",
-                    sqlStringValue(record.stuId), ",",
-                    sqlDateTimeValue(record.whenStarted), ",",
-                    sqlDateTimeValue(record.whenEnded), ",",
-                    sqlStringValue(record.location), ",",
-                    sqlStringValue(record.seat), ")");
+                    LogicUtils.sqlStringValue(record.stuId), ",",
+                    LogicUtils.sqlDateTimeValue(record.whenStarted), ",",
+                    LogicUtils.sqlDateTimeValue(record.whenEnded), ",",
+                    LogicUtils.sqlStringValue(record.location), ",",
+                    LogicUtils.sqlStringValue(record.seat), ")");
 
             try (final Statement stmt = cache.conn.createStatement()) {
                 result = stmt.executeUpdate(sql) == 1;
@@ -93,12 +82,11 @@ public final class RawStvisitLogic extends AbstractRawLogic<RawStvisit> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawStvisit record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawStvisit record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM stvisit ",
-                "WHERE stu_id=", sqlStringValue(record.stuId),
-                "  AND when_started=", sqlDateTimeValue(record.whenStarted));
+                "WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                "  AND when_started=", LogicUtils.sqlDateTimeValue(record.whenStarted));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -120,8 +108,7 @@ public final class RawStvisitLogic extends AbstractRawLogic<RawStvisit> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawStvisit> queryAll(final Cache cache) throws SQLException {
+    public static List<RawStvisit> queryAll(final Cache cache) throws SQLException {
 
         return executeListQuery(cache.conn, "SELECT * FROM stvisit");
     }
@@ -138,7 +125,7 @@ public final class RawStvisitLogic extends AbstractRawLogic<RawStvisit> {
             throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM stvisit",
-                " WHERE stu_id=", sqlStringValue(stuId));
+                " WHERE stu_id=", LogicUtils.sqlStringValue(stuId));
 
         return executeListQuery(cache.conn, sql);
     }
@@ -156,7 +143,7 @@ public final class RawStvisitLogic extends AbstractRawLogic<RawStvisit> {
             throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM stvisit",
-                " WHERE stu_id=", sqlStringValue(stuId),
+                " WHERE stu_id=", LogicUtils.sqlStringValue(stuId),
                 " AND when_ended IS NULL");
 
         return executeListQuery(cache.conn, sql);
@@ -174,8 +161,8 @@ public final class RawStvisitLogic extends AbstractRawLogic<RawStvisit> {
      * @return true if operation succeeded
      * @throws SQLException if there is an error accessing the database
      */
-    public boolean startNewVisit(final Cache cache, final String stuId, final LocalDateTime whenStarted,
-                                 final String location, final String seat) throws SQLException {
+    public static boolean startNewVisit(final Cache cache, final String stuId, final LocalDateTime whenStarted,
+                                        final String location, final String seat) throws SQLException {
 
         endInProgressVisit(cache, stuId, whenStarted);
 
@@ -201,9 +188,9 @@ public final class RawStvisitLogic extends AbstractRawLogic<RawStvisit> {
             for (final RawStvisit rec : getInProgressStudentVisits(cache, stuId)) {
 
                 final String sql = SimpleBuilder.concat("UPDATE stvisit",
-                        " SET when_ended=", sqlDateTimeValue(endDateTime),
-                        " WHERE stu_id=", sqlStringValue(stuId),
-                        " AND when_started=", sqlDateTimeValue(rec.whenStarted));
+                        " SET when_ended=", LogicUtils.sqlDateTimeValue(endDateTime),
+                        " WHERE stu_id=", LogicUtils.sqlStringValue(stuId),
+                        " AND when_started=", LogicUtils.sqlDateTimeValue(rec.whenStarted));
 
                 if (stmt.executeUpdate(sql) == 1) {
                     cache.conn.commit();

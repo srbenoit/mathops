@@ -436,7 +436,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
                                         avail.exam.course, avail.exam.version, start.toLocalDate(), null, null,
                                         Long.valueOf(serial), Integer.valueOf(startTime), null);
 
-                                RawMpeLogLogic.INSTANCE.insert(cache, mpelog);
+                                RawMpeLogLogic.insert(cache, mpelog);
 
                                 // Apply time limit factor adjustment
                                 if (reply.presentedExam.allowedSeconds != null) {
@@ -474,7 +474,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
                                         Integer.valueOf(min), null, null, null, null, avail.exam.course,
                                         avail.exam.unit, avail.exam.examType, avail.timelimitFactor, "STU");
 
-                                RawPendingExamLogic.INSTANCE.insert(cache, pending);
+                                RawPendingExamLogic.insert(cache, pending);
                             }
                         }
                     } catch (final SQLException ex) {
@@ -1496,7 +1496,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
                                 now.toLocalDate(), Integer.valueOf(i + 1), answer,
                                 Integer.valueOf(TemporalUtils.minuteOfDay(now)));
 
-                        RawStsurveyqaLogic.INSTANCE.insert(cache, ans);
+                        RawStsurveyqaLogic.insert(cache, ans);
                     }
                 }
 
@@ -2573,7 +2573,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
                         // No hold, so create a new one
                         hold = new RawAdminHold(stexam.studentId, "18", "F", Integer.valueOf(0), LocalDate.now());
 
-                        if (RawAdminHoldLogic.INSTANCE.insert(cache, hold) && !"F".equals(getStudent().sevAdminHold)) {
+                        if (RawAdminHoldLogic.insert(cache, hold) && !"F".equals(getStudent().sevAdminHold)) {
                             RawStudentLogic.updateHoldSeverity(cache, getStudent().stuId, "F");
                         }
                     } else {
@@ -2628,7 +2628,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
                                     Integer.valueOf(ansrec.id), ansrec.studentAnswer, ansrec.correct ? "Y" : "N",
                                     ansrec.subtest, ansrec.treeRef);
 
-                    if (!RawStmpeqaLogic.INSTANCE.insert(cache, answer)) {
+                    if (!RawStmpeqaLogic.insert(cache, answer)) {
                         Log.warning("Failed to insert placement attempt answer");
                     }
                 }
@@ -2645,7 +2645,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
 
                 // Last thing is to insert the actual STMPE row. We do this last so other jobs can know that if they
                 // see a row in this table, the associated data will be present and complete.
-                if (!RawStmpeLogic.INSTANCE.insert(cache, attempt)) {
+                if (!RawStmpeLogic.insert(cache, attempt)) {
                     return "Failed to insert student placement exam record";
                 }
             } finally {
@@ -2680,7 +2680,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
             final RawMpeCredit credit = new RawMpeCredit(stexam.studentId, placeIn, "P", stexam.finish.toLocalDate(),
                     null, stexam.serialNumber, stexam.examId, stexam.proctored ? "RM" : null);
 
-            RawMpeCreditLogic.INSTANCE.apply(cache, credit);
+            RawMpeCreditLogic.apply(cache, credit);
         }
 
         // Indicate all earned credit.
@@ -2688,7 +2688,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
             final RawMpeCredit credit = new RawMpeCredit(stexam.studentId, placeIn, "C", stexam.finish.toLocalDate(),
                     null, stexam.serialNumber, stexam.examId, stexam.proctored ? "RM" : null);
 
-            RawMpeCreditLogic.INSTANCE.apply(cache, credit);
+            RawMpeCreditLogic.apply(cache, credit);
         }
 
         // Record all ignored credit results
@@ -2697,7 +2697,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
                     stexam.finish.toLocalDate(), entry.getValue(), stexam.serialNumber, stexam.examId,
                     stexam.proctored ? "RM" : null);
 
-            RawMpecrDeniedLogic.INSTANCE.insert(cache, denied);
+            RawMpecrDeniedLogic.insert(cache, denied);
         }
 
         // Record all ignored placement results
@@ -2706,7 +2706,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
                     stexam.finish.toLocalDate(), entry.getValue(), stexam.serialNumber, stexam.examId,
                     stexam.proctored ? "RM" : null);
 
-            RawMpecrDeniedLogic.INSTANCE.insert(cache, denied);
+            RawMpecrDeniedLogic.insert(cache, denied);
         }
 
         if (!deny) {
@@ -2720,7 +2720,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
                 final DbContext liveCtx = getDbProfile().getDbContext(ESchemaUse.LIVE);
                 final DbConnection liveConn = liveCtx.checkOutConnection();
                 try {
-                    RawMpscorequeueLogic.INSTANCE.postPlacementToolResult(cache, liveConn, stu.pidm,
+                    RawMpscorequeueLogic.postPlacementToolResult(cache, liveConn, stu.pidm,
                             new ArrayList<>(stexam.earnedPlacement), stexam.finish);
                 } catch (final SQLException ex) {
                     Log.warning("Failed to post placement results!", ex);

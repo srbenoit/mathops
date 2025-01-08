@@ -1208,7 +1208,7 @@ public final class LtaSession extends HtmlSessionBase {
         final String error = recordQuestionAnswers(cache, assignmentRec, exam.serialNumber);
 
         if (error == null) {
-            RawSthomeworkLogic.INSTANCE.insert(cache, sthw);
+            RawSthomeworkLogic.insert(cache, sthw);
         }
 
         return error;
@@ -1328,7 +1328,7 @@ public final class LtaSession extends HtmlSessionBase {
                     new String(ans), this.studentId, hw.assignmentId, isCorrect ? "Y" : "N", fin.toLocalDate(),
                     Integer.valueOf(finTime));
 
-            if (!RawSthwqaLogic.INSTANCE.insert(cache, sthwqa)) {
+            if (!RawSthwqaLogic.insert(cache, sthwqa)) {
                 error = "There was an error recording the assignment score.";
                 break;
             }

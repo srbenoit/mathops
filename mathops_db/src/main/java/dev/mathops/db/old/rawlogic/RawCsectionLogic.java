@@ -51,18 +51,8 @@ import java.util.List;
  * subterm              char(4)                   yes
  * </pre>
  */
-public final class RawCsectionLogic extends AbstractRawLogic<RawCsection> {
-
-    /** A single instance. */
-    public static final RawCsectionLogic INSTANCE = new RawCsectionLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawCsectionLogic() {
-
-        super();
-    }
+public enum RawCsectionLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -72,8 +62,7 @@ public final class RawCsectionLogic extends AbstractRawLogic<RawCsection> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawCsection record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawCsection record) throws SQLException {
 
         if (record.course == null || record.sect == null || record.termKey == null) {
             throw new SQLException("Null value in primary key field.");
@@ -85,36 +74,36 @@ public final class RawCsectionLogic extends AbstractRawLogic<RawCsection> {
                 "lst_stcrs_creat_dt,grading_std,a_min_score,b_min_score,c_min_score,d_min_score,survey_id,",
                 "course_label_shown,display_score,display_grade_scale,count_in_max_courses,online,bogus,canvas_id,",
                 "subterm) VALUES (",
-                sqlStringValue(record.course), ",",
-                sqlStringValue(record.sect), ",",
-                sqlStringValue(record.termKey.termCode), ",",
-                sqlIntegerValue(record.termKey.shortYear), ",",
-                sqlStringValue(record.sectionId), ",",
-                sqlDateValue(record.ariesStartDt), ",",
-                sqlDateValue(record.ariesEndDt), ",",
-                sqlDateValue(record.startDt), ",",
-                sqlDateValue(record.examDeleteDt), ",",
-                sqlStringValue(record.instrnType), ",",
-                sqlStringValue(record.instructor), ",",
-                sqlStringValue(record.campus), ",",
-                sqlStringValue(record.pacingStructure), ",",
-                sqlStringValue(record.mtgDays), ",",
-                sqlStringValue(record.classroomId), ",",
-                sqlDateValue(record.lstStcrsCreatDt), ",",
-                sqlStringValue(record.gradingStd), ",",
-                sqlIntegerValue(record.aMinScore), ",",
-                sqlIntegerValue(record.bMinScore), ",",
-                sqlIntegerValue(record.cMinScore), ",",
-                sqlIntegerValue(record.dMinScore), ",",
-                sqlStringValue(record.surveyId), ",",
-                sqlStringValue(record.courseLabelShown), ",",
-                sqlStringValue(record.displayScore), ",",
-                sqlStringValue(record.displayGradeScale), ",",
-                sqlStringValue(record.countInMaxCourses), ",",
-                sqlStringValue(record.online), ",",
-                sqlStringValue(record.bogus), ",",
-                sqlStringValue(record.canvasId), ",",
-                sqlStringValue(record.subterm), ")");
+                LogicUtils.sqlStringValue(record.course), ",",
+                LogicUtils.sqlStringValue(record.sect), ",",
+                LogicUtils.sqlStringValue(record.termKey.termCode), ",",
+                LogicUtils.sqlIntegerValue(record.termKey.shortYear), ",",
+                LogicUtils.sqlStringValue(record.sectionId), ",",
+                LogicUtils.sqlDateValue(record.ariesStartDt), ",",
+                LogicUtils.sqlDateValue(record.ariesEndDt), ",",
+                LogicUtils.sqlDateValue(record.startDt), ",",
+                LogicUtils.sqlDateValue(record.examDeleteDt), ",",
+                LogicUtils.sqlStringValue(record.instrnType), ",",
+                LogicUtils.sqlStringValue(record.instructor), ",",
+                LogicUtils.sqlStringValue(record.campus), ",",
+                LogicUtils.sqlStringValue(record.pacingStructure), ",",
+                LogicUtils.sqlStringValue(record.mtgDays), ",",
+                LogicUtils.sqlStringValue(record.classroomId), ",",
+                LogicUtils.sqlDateValue(record.lstStcrsCreatDt), ",",
+                LogicUtils.sqlStringValue(record.gradingStd), ",",
+                LogicUtils.sqlIntegerValue(record.aMinScore), ",",
+                LogicUtils.sqlIntegerValue(record.bMinScore), ",",
+                LogicUtils.sqlIntegerValue(record.cMinScore), ",",
+                LogicUtils.sqlIntegerValue(record.dMinScore), ",",
+                LogicUtils.sqlStringValue(record.surveyId), ",",
+                LogicUtils.sqlStringValue(record.courseLabelShown), ",",
+                LogicUtils.sqlStringValue(record.displayScore), ",",
+                LogicUtils.sqlStringValue(record.displayGradeScale), ",",
+                LogicUtils.sqlStringValue(record.countInMaxCourses), ",",
+                LogicUtils.sqlStringValue(record.online), ",",
+                LogicUtils.sqlStringValue(record.bogus), ",",
+                LogicUtils.sqlStringValue(record.canvasId), ",",
+                LogicUtils.sqlStringValue(record.subterm), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -137,15 +126,14 @@ public final class RawCsectionLogic extends AbstractRawLogic<RawCsection> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawCsection record)
+    public static boolean delete(final Cache cache, final RawCsection record)
             throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM csection ",
-                "WHERE course=", sqlStringValue(record.course),
-                "  AND sect=", sqlStringValue(record.sect),
-                "  AND term=", sqlStringValue(record.termKey.termCode),
-                "  AND term_yr=", sqlIntegerValue(record.termKey.shortYear));
+                "WHERE course=", LogicUtils.sqlStringValue(record.course),
+                "  AND sect=", LogicUtils.sqlStringValue(record.sect),
+                "  AND term=", LogicUtils.sqlStringValue(record.termKey.termCode),
+                "  AND term_yr=", LogicUtils.sqlIntegerValue(record.termKey.shortYear));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -167,8 +155,7 @@ public final class RawCsectionLogic extends AbstractRawLogic<RawCsection> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawCsection> queryAll(final Cache cache) throws SQLException {
+    public static List<RawCsection> queryAll(final Cache cache) throws SQLException {
 
         final List<RawCsection> result = new ArrayList<>(500);
 

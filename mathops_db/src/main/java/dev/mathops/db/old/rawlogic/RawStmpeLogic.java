@@ -47,10 +47,8 @@ import java.util.List;
  * how_validated        char(1)                   yes
  * </pre>
  */
-public final class RawStmpeLogic extends AbstractRawLogic<RawStmpe> {
-
-    /** A single instance. */
-    public static final RawStmpeLogic INSTANCE = new RawStmpeLogic();
+public enum RawStmpeLogic {
+    ;
 
     /** A commonly used string. */
     private static final String POOOO = "POOOO";
@@ -138,14 +136,6 @@ public final class RawStmpeLogic extends AbstractRawLogic<RawStmpe> {
     }
 
     /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawStmpeLogic() {
-
-        super();
-    }
-
-    /**
      * Inserts a new record.
      *
      * @param cache  the data cache
@@ -153,11 +143,10 @@ public final class RawStmpeLogic extends AbstractRawLogic<RawStmpe> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawStmpe record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawStmpe record) throws SQLException {
 
         if (record.stuId == null || record.version == null || record.academicYr == null
-                || record.examDt == null || record.finishTime == null || record.placed == null) {
+            || record.examDt == null || record.finishTime == null || record.placed == null) {
             throw new SQLException("Null value in primary key or required field.");
         }
 
@@ -171,7 +160,7 @@ public final class RawStmpeLogic extends AbstractRawLogic<RawStmpe> {
             // Adjust serial number if needed to avoid collision with existing record
             if (record.serialNbr != null) {
                 for (int i = 0; i < 1000; ++i) {
-                    final Integer existing = executeSimpleIntQuery(cache.conn,
+                    final Integer existing = LogicUtils.executeSimpleIntQuery(cache.conn,
                             "SELECT COUNT(*) FROM stmpe WHERE serial_nbr=" + record.serialNbr);
 
                     if (existing == null || existing.longValue() == 0L) {
@@ -185,25 +174,25 @@ public final class RawStmpeLogic extends AbstractRawLogic<RawStmpe> {
                     "INSERT INTO stmpe (stu_id,version,academic_yr,exam_dt,start_time,finish_time,last_name,",
                     "first_name,middle_initial,seq_nbr,serial_nbr,sts_a,sts_117,sts_118,sts_124,sts_125,sts_126,",
                     "placed,how_validated) VALUES (",
-                    sqlStringValue(record.stuId), ",",
-                    sqlStringValue(record.version), ",",
-                    sqlStringValue(record.academicYr), ",",
-                    sqlDateValue(record.examDt), ",",
-                    sqlIntegerValue(record.startTime), ",",
-                    sqlIntegerValue(record.finishTime), ",",
-                    sqlStringValue(record.lastName), ",",
-                    sqlStringValue(record.firstName), ",",
-                    sqlStringValue(record.middleInitial), ",",
-                    sqlIntegerValue(record.seqNbr), ",",
-                    sqlLongValue(record.serialNbr), ",",
-                    sqlIntegerValue(record.stsA), ",",
-                    sqlIntegerValue(record.sts117), ",",
-                    sqlIntegerValue(record.sts118), ",",
-                    sqlIntegerValue(record.sts124), ",",
-                    sqlIntegerValue(record.sts125), ",",
-                    sqlIntegerValue(record.sts126), ",",
-                    sqlStringValue(record.placed), ",",
-                    sqlStringValue(record.howValidated), ")");
+                    LogicUtils.sqlStringValue(record.stuId), ",",
+                    LogicUtils.sqlStringValue(record.version), ",",
+                    LogicUtils.sqlStringValue(record.academicYr), ",",
+                    LogicUtils.sqlDateValue(record.examDt), ",",
+                    LogicUtils.sqlIntegerValue(record.startTime), ",",
+                    LogicUtils.sqlIntegerValue(record.finishTime), ",",
+                    LogicUtils.sqlStringValue(record.lastName), ",",
+                    LogicUtils.sqlStringValue(record.firstName), ",",
+                    LogicUtils.sqlStringValue(record.middleInitial), ",",
+                    LogicUtils.sqlIntegerValue(record.seqNbr), ",",
+                    LogicUtils.sqlLongValue(record.serialNbr), ",",
+                    LogicUtils.sqlIntegerValue(record.stsA), ",",
+                    LogicUtils.sqlIntegerValue(record.sts117), ",",
+                    LogicUtils.sqlIntegerValue(record.sts118), ",",
+                    LogicUtils.sqlIntegerValue(record.sts124), ",",
+                    LogicUtils.sqlIntegerValue(record.sts125), ",",
+                    LogicUtils.sqlIntegerValue(record.sts126), ",",
+                    LogicUtils.sqlStringValue(record.placed), ",",
+                    LogicUtils.sqlStringValue(record.howValidated), ")");
 
             try (final Statement stmt = cache.conn.createStatement()) {
                 result = stmt.executeUpdate(sql) == 1;
@@ -227,14 +216,13 @@ public final class RawStmpeLogic extends AbstractRawLogic<RawStmpe> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawStmpe record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawStmpe record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM stmpe",
-                " WHERE version=", sqlStringValue(record.version),
-                " AND stu_id=", sqlStringValue(record.stuId),
-                " AND exam_dt=", sqlDateValue(record.examDt),
-                " AND finish_time=", sqlIntegerValue(record.finishTime));
+                " WHERE version=", LogicUtils.sqlStringValue(record.version),
+                " AND stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                " AND exam_dt=", LogicUtils.sqlDateValue(record.examDt),
+                " AND finish_time=", LogicUtils.sqlIntegerValue(record.finishTime));
 
         try (final Statement stmt = cache.conn.createStatement()) {
 
@@ -258,7 +246,7 @@ public final class RawStmpeLogic extends AbstractRawLogic<RawStmpe> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    public boolean deleteExamAndAnswers(final Cache cache, final RawStmpe record) throws SQLException {
+    public static boolean deleteExamAndAnswers(final Cache cache, final RawStmpe record) throws SQLException {
 
         RawStmpeqaLogic.deleteAllForExam(cache, record);
 
@@ -272,8 +260,7 @@ public final class RawStmpeLogic extends AbstractRawLogic<RawStmpe> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawStmpe> queryAll(final Cache cache) throws SQLException {
+    public static List<RawStmpe> queryAll(final Cache cache) throws SQLException {
 
         return executeQuery(cache.conn, "SELECT * FROM stmpe");
     }
@@ -294,7 +281,7 @@ public final class RawStmpeLogic extends AbstractRawLogic<RawStmpe> {
             result = queryByTestStudent(stuId);
         } else {
             final String sql = SimpleBuilder.concat("SELECT * FROM stmpe ",
-                    "WHERE stu_id=", sqlStringValue(stuId));
+                    "WHERE stu_id=", LogicUtils.sqlStringValue(stuId));
 
             return executeQuery(cache.conn, sql);
         }
@@ -318,7 +305,7 @@ public final class RawStmpeLogic extends AbstractRawLogic<RawStmpe> {
             result = queryByTestStudent(stuId);
         } else {
             final String sql = SimpleBuilder.concat("SELECT * FROM stmpe ",
-                    "WHERE stu_id=", sqlStringValue(stuId),
+                    "WHERE stu_id=", LogicUtils.sqlStringValue(stuId),
                     " AND (placed='Y' OR placed='N')");
 
             return executeQuery(cache.conn, sql);
@@ -639,8 +626,8 @@ public final class RawStmpeLogic extends AbstractRawLogic<RawStmpe> {
         } else {
             // Count legal unproctored attempts
             final String sql1 = SimpleBuilder.concat("SELECT COUNT(*) FROM stmpe ",
-                    " WHERE stu_id=", sqlStringValue(stuId),
-                    " AND version=", sqlStringValue(version),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(stuId),
+                    " AND version=", LogicUtils.sqlStringValue(version),
                     " AND (placed='Y' OR placed='N') ",
                     " AND ((how_validated!='P' AND how_validated!='C') ",
                     "  OR how_validated IS NULL)");
@@ -649,8 +636,8 @@ public final class RawStmpeLogic extends AbstractRawLogic<RawStmpe> {
 
             // Count legal proctored attempts
             final String sql2 = SimpleBuilder.concat("SELECT COUNT(*) FROM stmpe ",
-                    " WHERE stu_id=", sqlStringValue(stuId),
-                    " AND version=", sqlStringValue(version),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(stuId),
+                    " AND version=", LogicUtils.sqlStringValue(version),
                     " AND (placed='Y' OR placed='N') ",
                     " AND (how_validated='P' OR how_validated='C')");
 
@@ -675,11 +662,11 @@ public final class RawStmpeLogic extends AbstractRawLogic<RawStmpe> {
         final int[] result = new int[2];
 
         final boolean wasProctored = PPPPP.equals(examId) || MPTTC.equals(examId) || MPTPU.equals(examId)
-                || "MPTRW".equals(examId);
+                                     || "MPTRW".equals(examId);
 
         if (noResultsNoAttempts.contains(studentId)
-                || placedOutOf117to124OnMPEHas0.contains(studentId)
-                || placedOutOf117OnMPEHas0.contains(studentId)) {
+            || placedOutOf117to124OnMPEHas0.contains(studentId)
+            || placedOutOf117OnMPEHas0.contains(studentId)) {
 
             // Student has used all attempts
             if (POOOO.equals(examId) || MPTUN.equals(examId)) {
@@ -689,9 +676,9 @@ public final class RawStmpeLogic extends AbstractRawLogic<RawStmpe> {
             }
 
         } else if (almostPlacedOnMPEHas2MCE.contains(studentId)
-                || placedOutOf117to124OnMPEHas2MCE.contains(studentId)
-                || didNotPlaceOnMPEHas2MCE.contains(studentId)
-                || placedOutOf117to125OnMPEHas2MCE.contains(studentId)) {
+                   || placedOutOf117to124OnMPEHas2MCE.contains(studentId)
+                   || didNotPlaceOnMPEHas2MCE.contains(studentId)
+                   || placedOutOf117to125OnMPEHas2MCE.contains(studentId)) {
 
             // Student has used MPE attempt, still has 2 MCE attempts
             if (POOOO.equals(examId) || MPTUN.equals(examId)) {
@@ -699,7 +686,7 @@ public final class RawStmpeLogic extends AbstractRawLogic<RawStmpe> {
             }
 
         } else if (placedInto117OnMCEHas1MPE1MCE.contains(studentId)
-                || placedOutOf117to118OnMCEHas1MPE1MCE.contains(studentId)) {
+                   || placedOutOf117to118OnMCEHas1MPE1MCE.contains(studentId)) {
 
             // Student has used one MCE attempt, still has one MPE and one MCE attempt
             if (wasProctored) {
@@ -774,7 +761,7 @@ public final class RawStmpeLogic extends AbstractRawLogic<RawStmpe> {
     public static List<RawStmpe> queryOnOrAfter(final Cache cache, final LocalDate earliest) throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM stmpe WHERE exam_dt>=",
-                sqlDateValue(earliest), " AND (placed='Y' OR placed='N')");
+                LogicUtils.sqlDateValue(earliest), " AND (placed='Y' OR placed='N')");
 
         return executeQuery(cache.conn, sql);
     }

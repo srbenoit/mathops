@@ -90,9 +90,9 @@ final class TestRawEtextCourseLogic {
                 final RawEtextCourse raw2 = new RawEtextCourse("PACE", RawRecordConstants.M118);
                 final RawEtextCourse raw3 = new RawEtextCourse("ET117", RawRecordConstants.M117);
 
-                assertTrue(RawEtextCourseLogic.INSTANCE.insert(cache, raw1), "Failed to insert etext_course");
-                assertTrue(RawEtextCourseLogic.INSTANCE.insert(cache, raw2), "Failed to insert etext_course");
-                assertTrue(RawEtextCourseLogic.INSTANCE.insert(cache, raw3), "Failed to insert etext_course");
+                assertTrue(RawEtextCourseLogic.insert(cache, raw1), "Failed to insert etext_course");
+                assertTrue(RawEtextCourseLogic.insert(cache, raw2), "Failed to insert etext_course");
+                assertTrue(RawEtextCourseLogic.insert(cache, raw3), "Failed to insert etext_course");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -112,7 +112,7 @@ final class TestRawEtextCourseLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawEtextCourse> all = RawEtextCourseLogic.INSTANCE.queryAll(cache);
+                final List<RawEtextCourse> all = RawEtextCourseLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), //
                         "Incorrect record count from queryAll");
@@ -253,10 +253,10 @@ final class TestRawEtextCourseLogic {
             try {
                 final RawEtextCourse raw2 = new RawEtextCourse("PACE", RawRecordConstants.M118);
 
-                final boolean result = RawEtextCourseLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawEtextCourseLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawEtextCourse> all = RawEtextCourseLogic.INSTANCE.queryAll(cache);
+                final List<RawEtextCourse> all = RawEtextCourseLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 

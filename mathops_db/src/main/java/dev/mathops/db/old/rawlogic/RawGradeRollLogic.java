@@ -28,18 +28,8 @@ import java.util.List;
  * term_yr              smallint                  yes     PK
  * </pre>
  */
-public final class RawGradeRollLogic extends AbstractRawLogic<RawGradeRoll> {
-
-    /** A single instance. */
-    public static final RawGradeRollLogic INSTANCE = new RawGradeRollLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawGradeRollLogic() {
-
-        super();
-    }
+public enum RawGradeRollLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -49,8 +39,7 @@ public final class RawGradeRollLogic extends AbstractRawLogic<RawGradeRoll> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawGradeRoll record)
+    public static boolean insert(final Cache cache, final RawGradeRoll record)
             throws SQLException {
 
         if (record.stuId == null || record.course == null || record.sect == null || record.fullname == null
@@ -60,13 +49,13 @@ public final class RawGradeRollLogic extends AbstractRawLogic<RawGradeRoll> {
 
         final String sql = SimpleBuilder.concat("INSERT INTO grade_roll (",
                 "stu_id,course,sect,fullname,grade_opt,term,term_yr) VALUES (",
-                sqlStringValue(record.stuId), ",",
-                sqlStringValue(record.course), ",",
-                sqlStringValue(record.sect), ",",
-                sqlStringValue(record.fullname), ",",
-                sqlStringValue(record.gradeOpt), ",",
-                sqlStringValue(record.termKey.termCode), ",",
-                sqlIntegerValue(record.termKey.shortYear), ")");
+                LogicUtils.sqlStringValue(record.stuId), ",",
+                LogicUtils.sqlStringValue(record.course), ",",
+                LogicUtils.sqlStringValue(record.sect), ",",
+                LogicUtils.sqlStringValue(record.fullname), ",",
+                LogicUtils.sqlStringValue(record.gradeOpt), ",",
+                LogicUtils.sqlStringValue(record.termKey.termCode), ",",
+                LogicUtils.sqlIntegerValue(record.termKey.shortYear), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -89,19 +78,18 @@ public final class RawGradeRollLogic extends AbstractRawLogic<RawGradeRoll> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawGradeRoll record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawGradeRoll record) throws SQLException {
 
         if (record.stuId == null || record.course == null || record.sect == null || record.termKey == null) {
             throw new SQLException("Null value in primary key or required field.");
         }
 
         final String sql = SimpleBuilder.concat("DELETE FROM grade_roll ",
-                "WHERE stu_id=", sqlStringValue(record.stuId),
-                "  AND course=", sqlStringValue(record.course),
-                "  AND sect=", sqlStringValue(record.sect),
-                "  AND term=", sqlStringValue(record.termKey.termCode),
-                "  AND term_yr=", sqlIntegerValue(record.termKey.shortYear));
+                "WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                "  AND course=", LogicUtils.sqlStringValue(record.course),
+                "  AND sect=", LogicUtils.sqlStringValue(record.sect),
+                "  AND term=", LogicUtils.sqlStringValue(record.termKey.termCode),
+                "  AND term_yr=", LogicUtils.sqlIntegerValue(record.termKey.shortYear));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -123,8 +111,7 @@ public final class RawGradeRollLogic extends AbstractRawLogic<RawGradeRoll> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawGradeRoll> queryAll(final Cache cache) throws SQLException {
+    public static List<RawGradeRoll> queryAll(final Cache cache) throws SQLException {
 
         return executeQuery(cache, "SELECT * FROM grade_roll");
     }

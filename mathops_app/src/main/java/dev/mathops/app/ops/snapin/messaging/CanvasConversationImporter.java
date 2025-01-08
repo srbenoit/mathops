@@ -118,7 +118,7 @@ final class CanvasConversationImporter extends SwingWorker<String, ScannerStatus
             //
 
             publish(new ScannerStatus(5, 100, "Querying most recent message dates"));
-            final List<RawStmsg> messages = RawStmsgLogic.INSTANCE.queryAll(this.cache);
+            final List<RawStmsg> messages = RawStmsgLogic.queryAll(this.cache);
 
             final Map<String, LocalDate> csuIdToLatestMsgDate =
                     new HashMap<>(canvasIdToStterm.size());
@@ -216,7 +216,7 @@ final class CanvasConversationImporter extends SwingWorker<String, ScannerStatus
                                             Integer.valueOf(0), "OOB", "Canvas", "Canvas");
 
                                     try {
-                                        RawStmsgLogic.INSTANCE.insert(this.cache, newStmsg);
+                                        RawStmsgLogic.insert(this.cache, newStmsg);
                                     } catch (final SQLException ex) {
                                         Log.warning(ex);
                                     }

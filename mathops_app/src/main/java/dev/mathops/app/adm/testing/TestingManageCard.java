@@ -329,7 +329,7 @@ final class TestingManageCard extends AdmPanelBase implements ActionListener {
             this.clients.clear();
 
             try {
-                final List<RawClientPc> stations = RawClientPcLogic.INSTANCE.queryAll(this.cache);
+                final List<RawClientPc> stations = RawClientPcLogic.queryAll(this.cache);
 
                 for (final RawClientPc station : stations) {
                     final String center = station.testingCenterId;

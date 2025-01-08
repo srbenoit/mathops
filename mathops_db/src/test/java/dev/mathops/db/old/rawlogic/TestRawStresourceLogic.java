@@ -132,9 +132,9 @@ final class TestRawStresourceLogic {
                 final RawStresource raw3 = new RawStresource("222222222", "res2", date12b, Integer.valueOf(200),
                         date13b, date24b, Integer.valueOf(300), Integer.valueOf(9), date11b);
 
-                assertTrue(RawStresourceLogic.INSTANCE.insert(cache, raw1), "Failed to insert stresource 1");
-                assertTrue(RawStresourceLogic.INSTANCE.insert(cache, raw2), "Failed to insert stresource 2");
-                assertTrue(RawStresourceLogic.INSTANCE.insert(cache, raw3), "Failed to insert stresource 3");
+                assertTrue(RawStresourceLogic.insert(cache, raw1), "Failed to insert stresource 1");
+                assertTrue(RawStresourceLogic.insert(cache, raw2), "Failed to insert stresource 2");
+                assertTrue(RawStresourceLogic.insert(cache, raw3), "Failed to insert stresource 3");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -154,7 +154,7 @@ final class TestRawStresourceLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawStresource> all = RawStresourceLogic.INSTANCE.queryAll(cache);
+                final List<RawStresource> all = RawStresourceLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -339,7 +339,7 @@ final class TestRawStresourceLogic {
                 assertTrue(RawStresourceLogic.updateReturnDateTime(cache, outstanding, date1112, Integer.valueOf(987)),
                         "updateReturnDateTime failed");
 
-                final List<RawStresource> all = RawStresourceLogic.INSTANCE.queryAll(cache);
+                final List<RawStresource> all = RawStresourceLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -421,10 +421,10 @@ final class TestRawStresourceLogic {
                         Integer.valueOf(500), date56, null, null, Integer.valueOf(1),
                         date33);
 
-                final boolean result = RawStresourceLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawStresourceLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawStresource> all = RawStresourceLogic.INSTANCE.queryAll(cache);
+                final List<RawStresource> all = RawStresourceLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 

@@ -9,21 +9,20 @@ import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.rawrecord.RawStvisit;
-
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Tests for the {@code RawStvisitLogic} class.
@@ -120,9 +119,9 @@ final class TestRawStvisitLogic {
                 final RawStvisit raw2 = new RawStvisit("111111111", datetime3, datetime4, "TC", "99");
                 final RawStvisit raw3 = new RawStvisit("222222222", datetime5, datetime6, "LC", "AB");
 
-                assertTrue(RawStvisitLogic.INSTANCE.insert(cache, raw1), "Failed to insert stvisit 1");
-                assertTrue(RawStvisitLogic.INSTANCE.insert(cache, raw2), "Failed to insert stvisit 2");
-                assertTrue(RawStvisitLogic.INSTANCE.insert(cache, raw3), "Failed to insert stvisit 3");
+                assertTrue(RawStvisitLogic.insert(cache, raw1), "Failed to insert stvisit 1");
+                assertTrue(RawStvisitLogic.insert(cache, raw2), "Failed to insert stvisit 2");
+                assertTrue(RawStvisitLogic.insert(cache, raw3), "Failed to insert stvisit 3");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -142,7 +141,7 @@ final class TestRawStvisitLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawStvisit> all = RawStvisitLogic.INSTANCE.queryAll(cache);
+                final List<RawStvisit> all = RawStvisitLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -257,10 +256,10 @@ final class TestRawStvisitLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                assertTrue(RawStvisitLogic.INSTANCE.startNewVisit(cache, "123456789", datetime7, "TC", "1"),
+                assertTrue(RawStvisitLogic.startNewVisit(cache, "123456789", datetime7, "TC", "1"),
                         "startNewVisit returned false");
 
-                assertTrue(RawStvisitLogic.INSTANCE.startNewVisit(cache, "123456789", datetime8, "LC", "2"),
+                assertTrue(RawStvisitLogic.startNewVisit(cache, "123456789", datetime8, "LC", "2"),
                         "startNewVisit returned false");
 
                 final List<RawStvisit> all = RawStvisitLogic.queryByStudent(cache, "123456789");
@@ -387,10 +386,10 @@ final class TestRawStvisitLogic {
             try {
                 final RawStvisit raw2 = new RawStvisit("111111111", datetime3, datetime4, "TC", "99");
 
-                final boolean result = RawStvisitLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawStvisitLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawStvisit> all = RawStvisitLogic.INSTANCE.queryAll(cache);
+                final List<RawStvisit> all = RawStvisitLogic.queryAll(cache);
 
                 assertEquals(4, all.size(), "Incorrect record count from queryAll after delete");
 

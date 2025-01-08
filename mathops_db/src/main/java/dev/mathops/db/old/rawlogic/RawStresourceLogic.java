@@ -31,18 +31,8 @@ import java.util.List;
  * create_dt            date                      yes
  * </pre>
  */
-public final class RawStresourceLogic extends AbstractRawLogic<RawStresource> {
-
-    /** A single instance. */
-    public static final RawStresourceLogic INSTANCE = new RawStresourceLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawStresourceLogic() {
-
-        super();
-    }
+public enum RawStresourceLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -52,8 +42,7 @@ public final class RawStresourceLogic extends AbstractRawLogic<RawStresource> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawStresource record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawStresource record) throws SQLException {
 
         if (record.stuId == null || record.resourceId == null || record.loanDt == null || record.startTime == null) {
             throw new SQLException("Null value in primary key or required field.");
@@ -63,15 +52,15 @@ public final class RawStresourceLogic extends AbstractRawLogic<RawStresource> {
 
         final String sql = SimpleBuilder.concat("INSERT INTO stresource ",
                 "(stu_id,resource_id,loan_dt,start_time,due_dt,return_dt,finish_time,times_display,create_dt) VALUES (",
-                sqlStringValue(record.stuId), ",",
-                sqlStringValue(record.resourceId), ",",
-                sqlDateValue(record.loanDt), ",",
-                sqlIntegerValue(record.startTime), ",",
-                sqlDateValue(record.dueDt), ",",
-                sqlDateValue(record.returnDt), ",",
-                sqlIntegerValue(record.finishTime), ",",
-                sqlIntegerValue(record.timesDisplay), ",",
-                sqlDateValue(record.createDt), ")");
+                LogicUtils.sqlStringValue(record.stuId), ",",
+                LogicUtils.sqlStringValue(record.resourceId), ",",
+                LogicUtils.sqlDateValue(record.loanDt), ",",
+                LogicUtils.sqlIntegerValue(record.startTime), ",",
+                LogicUtils.sqlDateValue(record.dueDt), ",",
+                LogicUtils.sqlDateValue(record.returnDt), ",",
+                LogicUtils.sqlIntegerValue(record.finishTime), ",",
+                LogicUtils.sqlIntegerValue(record.timesDisplay), ",",
+                LogicUtils.sqlDateValue(record.createDt), ")");
 
         try (final Statement s = cache.conn.createStatement()) {
             result = s.executeUpdate(sql) == 1;
@@ -94,16 +83,15 @@ public final class RawStresourceLogic extends AbstractRawLogic<RawStresource> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawStresource record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawStresource record) throws SQLException {
 
         final boolean result;
 
         final String sql = SimpleBuilder.concat("DELETE FROM stresource ",
-                "WHERE stu_id=", sqlStringValue(record.stuId),
-                "  AND resource_id=", sqlStringValue(record.resourceId),
-                "  AND loan_dt=", sqlDateValue(record.loanDt),
-                "  AND start_time=", sqlIntegerValue(record.startTime));
+                "WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                "  AND resource_id=", LogicUtils.sqlStringValue(record.resourceId),
+                "  AND loan_dt=", LogicUtils.sqlDateValue(record.loanDt),
+                "  AND start_time=", LogicUtils.sqlIntegerValue(record.startTime));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             result = stmt.executeUpdate(sql) == 1;
@@ -125,8 +113,7 @@ public final class RawStresourceLogic extends AbstractRawLogic<RawStresource> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawStresource> queryAll(final Cache cache) throws SQLException {
+    public static List<RawStresource> queryAll(final Cache cache) throws SQLException {
 
         return executeListQuery(cache.conn, "SELECT * FROM stresource");
     }
@@ -142,7 +129,7 @@ public final class RawStresourceLogic extends AbstractRawLogic<RawStresource> {
     public static List<RawStresource> queryByStudent(final Cache cache, final String stuId) throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM stresource",
-                " WHERE stu_id=", sqlStringValue(stuId));
+                " WHERE stu_id=", LogicUtils.sqlStringValue(stuId));
 
         return executeListQuery(cache.conn, sql);
     }
@@ -158,7 +145,7 @@ public final class RawStresourceLogic extends AbstractRawLogic<RawStresource> {
     public static RawStresource queryOutstanding(final Cache cache, final String resourceId) throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM stresource",
-                " WHERE resource_id=", sqlStringValue(resourceId),
+                " WHERE resource_id=", LogicUtils.sqlStringValue(resourceId),
                 " AND return_dt IS NULL");
 
         return executeSingleQuery(cache.conn, sql);
@@ -179,12 +166,12 @@ public final class RawStresourceLogic extends AbstractRawLogic<RawStresource> {
             throws SQLException {
 
         final String sql = SimpleBuilder.concat("UPDATE stresource ",
-                "SET return_dt=", sqlDateValue(returnDate), ",",
-                "    finish_time=", sqlIntegerValue(finishTime),
-                " WHERE stu_id=", sqlStringValue(record.stuId),
-                "   AND resource_id=", sqlStringValue(record.resourceId),
-                "   AND loan_dt=", sqlDateValue(record.loanDt),
-                "   AND start_time=", sqlIntegerValue(record.startTime));
+                "SET return_dt=", LogicUtils.sqlDateValue(returnDate), ",",
+                "    finish_time=", LogicUtils.sqlIntegerValue(finishTime),
+                " WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                "   AND resource_id=", LogicUtils.sqlStringValue(record.resourceId),
+                "   AND loan_dt=", LogicUtils.sqlDateValue(record.loanDt),
+                "   AND start_time=", LogicUtils.sqlIntegerValue(record.startTime));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;

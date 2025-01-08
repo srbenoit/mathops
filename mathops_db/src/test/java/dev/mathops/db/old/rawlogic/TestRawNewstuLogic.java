@@ -88,8 +88,8 @@ final class TestRawNewstuLogic {
                 final RawNewstu raw1 = new RawNewstu("111111111", "A", "B", "C");
                 final RawNewstu raw2 = new RawNewstu("222222222", "D", "E", "F");
 
-                assertTrue(RawNewstuLogic.INSTANCE.insert(cache, raw1), "Failed to insert newstu 1");
-                assertTrue(RawNewstuLogic.INSTANCE.insert(cache, raw2), "Failed to insert newstu 2");
+                assertTrue(RawNewstuLogic.insert(cache, raw1), "Failed to insert newstu 1");
+                assertTrue(RawNewstuLogic.insert(cache, raw2), "Failed to insert newstu 2");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -109,7 +109,7 @@ final class TestRawNewstuLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawNewstu> all = RawNewstuLogic.INSTANCE.queryAll(cache);
+                final List<RawNewstu> all = RawNewstuLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll");
 
@@ -161,11 +161,11 @@ final class TestRawNewstuLogic {
             final RawNewstu raw2 = new RawNewstu("222222222", "D", "E", "F");
 
             try {
-                final boolean result = RawNewstuLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawNewstuLogic.delete(cache, raw2);
 
                 assertTrue(result, "delete returned false");
 
-                final List<RawNewstu> all = RawNewstuLogic.INSTANCE.queryAll(cache);
+                final List<RawNewstu> all = RawNewstuLogic.queryAll(cache);
 
                 assertEquals(1, all.size(), "Incorrect record count from queryAll");
 
@@ -229,7 +229,7 @@ final class TestRawNewstuLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawNewstu> all = RawNewstuLogic.INSTANCE.queryAll(cache);
+                final List<RawNewstu> all = RawNewstuLogic.queryAll(cache);
 
                 assertEquals(0, all.size(), "Incorrect record count from queryAll");
             } finally {

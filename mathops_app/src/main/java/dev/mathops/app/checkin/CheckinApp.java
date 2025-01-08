@@ -784,7 +784,7 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
         final String stuId = this.info.studentData.stuId;
 
         final LocalDateTime now = LocalDateTime.now();
-        RawStvisitLogic.INSTANCE.startNewVisit(cache, stuId, now, "TC", station.stationNbr);
+        RawStvisitLogic.startNewVisit(cache, stuId, now, "TC", station.stationNbr);
 
         final Integer selectedUnitObj = Integer.valueOf(this.info.selections.unit);
         final boolean ok = RawClientPcLogic.updateAllCurrent(cache, station.computerId,

@@ -482,7 +482,7 @@ public enum PaceTrackLogic {
                     Log.info("Deleting STTERM <", existing.termKey.shortString, ",", existing.stuId, ",",
                             existing.pace, ",", existing.paceTrack, ",", existing.firstCourse, ">");
 
-                    RawSttermLogic.INSTANCE.delete(cache, existing);
+                    RawSttermLogic.delete(cache, existing);
                 }
             } else {
                 final String first = determineFirstCourse(registrations);
@@ -496,7 +496,7 @@ public enum PaceTrackLogic {
                     Log.info("Inserting STTERM <", newRec.termKey.shortString, ",", newRec.stuId, ",",
                             newRec.pace, ",", newRec.paceTrack, ",", newRec.firstCourse, ">");
 
-                    RawSttermLogic.INSTANCE.insert(cache, newRec);
+                    RawSttermLogic.insert(cache, newRec);
 
                 } else if (!(existing.pace.intValue() == pace && existing.paceTrack.equals(track)
                              && existing.firstCourse.equals(first))) {

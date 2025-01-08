@@ -13,18 +13,8 @@ import java.util.List;
  * <p>
  * There is currently no table for this data - it is hard-coded into this class.
  */
-public final class RawStdItemLogic extends AbstractRawLogic<RawStdItem> {
-
-    /** A single instance. */
-    public static final RawStdItemLogic INSTANCE = new RawStdItemLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawStdItemLogic() {
-
-        super();
-    }
+public enum RawStdItemLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -33,8 +23,7 @@ public final class RawStdItemLogic extends AbstractRawLogic<RawStdItem> {
      * @param record the record to insert
      * @return {@code true} if successful; {@code false} if not
      */
-    @Override
-    public boolean insert(final Cache cache, final RawStdItem record) {
+    public static boolean insert(final Cache cache, final RawStdItem record) {
 
         Log.warning("Unable to insert std_item record: no underlying table.");
 
@@ -48,8 +37,7 @@ public final class RawStdItemLogic extends AbstractRawLogic<RawStdItem> {
      * @param record the record to delete
      * @return {@code true} if successful; {@code false} if not
      */
-    @Override
-    public boolean delete(final Cache cache, final RawStdItem record) {
+    public static boolean delete(final Cache cache, final RawStdItem record) {
 
         Log.warning("Unable to delete std_item record: no underlying table.");
 
@@ -62,8 +50,7 @@ public final class RawStdItemLogic extends AbstractRawLogic<RawStdItem> {
      * @param cache the data cache
      * @return the list of records
      */
-    @Override
-    public List<RawStdItem> queryAll(final Cache cache) {
+    public static List<RawStdItem> queryAll(final Cache cache) {
 
         final List<RawStdItem> result = new ArrayList<>(0);
 

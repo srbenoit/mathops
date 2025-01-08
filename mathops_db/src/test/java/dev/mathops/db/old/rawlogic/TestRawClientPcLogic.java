@@ -118,9 +118,9 @@ final class TestRawClientPcLogic {
                         "0123456789AB", RawClientPc.POWER_REPORTING_ON, Integer.valueOf(70), Integer.valueOf(71),
                         null, null, null, null);
 
-                assertTrue(RawClientPcLogic.INSTANCE.insert(cache, raw1), "Failed to insert client_pc");
-                assertTrue(RawClientPcLogic.INSTANCE.insert(cache, raw2), "Failed to insert client_pc");
-                assertTrue(RawClientPcLogic.INSTANCE.insert(cache, raw3), "Failed to insert client_pc");
+                assertTrue(RawClientPcLogic.insert(cache, raw1), "Failed to insert client_pc");
+                assertTrue(RawClientPcLogic.insert(cache, raw2), "Failed to insert client_pc");
+                assertTrue(RawClientPcLogic.insert(cache, raw3), "Failed to insert client_pc");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -140,7 +140,7 @@ final class TestRawClientPcLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawClientPc> all = RawClientPcLogic.INSTANCE.queryAll(cache);
+                final List<RawClientPc> all = RawClientPcLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -559,10 +559,10 @@ final class TestRawClientPcLogic {
                         "001122334455", RawClientPc.POWER_OFF, null, null, "888888888", RawRecordConstants.M117,
                         Integer.valueOf(1), "171UE");
 
-                final boolean result = RawClientPcLogic.INSTANCE.delete(cache, raw1);
+                final boolean result = RawClientPcLogic.delete(cache, raw1);
                 assertTrue(result, "delete returned false");
 
-                final List<RawClientPc> all = RawClientPcLogic.INSTANCE.queryAll(cache);
+                final List<RawClientPc> all = RawClientPcLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 

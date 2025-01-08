@@ -95,9 +95,9 @@ final class TestRawResourceLogic {
                 final RawResource raw3 = new RawResource("res3", "RL", "Lock 1", Integer.valueOf(3),
                         Integer.valueOf(4), "03");
 
-                assertTrue(RawResourceLogic.INSTANCE.insert(cache, raw1), "Failed to insert resource 1");
-                assertTrue(RawResourceLogic.INSTANCE.insert(cache, raw2), "Failed to insert resource 2");
-                assertTrue(RawResourceLogic.INSTANCE.insert(cache, raw3), "Failed to insert resource 3");
+                assertTrue(RawResourceLogic.insert(cache, raw1), "Failed to insert resource 1");
+                assertTrue(RawResourceLogic.insert(cache, raw2), "Failed to insert resource 2");
+                assertTrue(RawResourceLogic.insert(cache, raw3), "Failed to insert resource 3");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -117,7 +117,7 @@ final class TestRawResourceLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawResource> all = RawResourceLogic.INSTANCE.queryAll(cache);
+                final List<RawResource> all = RawResourceLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -218,10 +218,10 @@ final class TestRawResourceLogic {
                 final RawResource raw2 = new RawResource("res2", "RC", "Calculator 2", Integer.valueOf(2),
                         Integer.valueOf(3), "02");
 
-                final boolean result = RawResourceLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawResourceLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawResource> all = RawResourceLogic.INSTANCE.queryAll(cache);
+                final List<RawResource> all = RawResourceLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 

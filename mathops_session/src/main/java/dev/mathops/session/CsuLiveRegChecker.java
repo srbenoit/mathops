@@ -4,7 +4,7 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.logic.PaceTrackLogic;
-import dev.mathops.db.old.rawlogic.AbstractLogicModule;
+import dev.mathops.db.old.rawlogic.LogicUtils;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
@@ -68,7 +68,7 @@ public final class CsuLiveRegChecker {
 
             if (active != null && activeStr != null) {
 
-                if (AbstractLogicModule.isBannerDown()) {
+                if (LogicUtils.isBannerDown()) {
                     Log.warning("Banner is currently down - skipping live query...");
                     return;
                 }
@@ -76,7 +76,7 @@ public final class CsuLiveRegChecker {
                 final List<LiveReg> liveRegs = LiveRegCache.queryLiveStudentRegs(cache, stuId);
 
                 // The above will indicate Banner is down if the query fails, so abort here if so.
-                if (AbstractLogicModule.isBannerDown()) {
+                if (LogicUtils.isBannerDown()) {
                     Log.warning("Detected that Banner is currently down...");
                     return;
                 }
@@ -170,7 +170,7 @@ public final class CsuLiveRegChecker {
 
         if (student == null) {
             Log.info(" *** INSERTING STUDENT RECORD FOR STUDENT ", userId);
-            RawStudentLogic.INSTANCE.insertFromLive(cache, liveReg);
+            RawStudentLogic.insertFromLive(cache, liveReg);
         } else if (isDifferent(liveReg.studentId, student.stuId)
                    || isDifferent(liveReg.internalId, student.pidm)
                    || isDifferent(liveReg.firstName, student.firstName)
@@ -613,7 +613,7 @@ public final class CsuLiveRegChecker {
                 null, // iTermKey
                 null); // iDeadlineDt
 
-        RawStcourseLogic.INSTANCE.insert(cache, reg);
+        RawStcourseLogic.insert(cache, reg);
 
         final List<RawStcourse> regs = RawStcourseLogic.getActiveForStudent(cache, live.studentId, live.term);
 
@@ -710,7 +710,7 @@ public final class CsuLiveRegChecker {
         if (existing == null) {
             final RawAdminHold hold = new RawAdminHold(studentId, holdId, "F", timesApplied, LocalDate.now());
 
-            if (RawAdminHoldLogic.INSTANCE.insert(cache, hold)) {
+            if (RawAdminHoldLogic.insert(cache, hold)) {
 
                 // Indicate the hold is fatal.
                 final RawStudent stu = RawStudentLogic.query(cache, studentId, true);
@@ -737,7 +737,7 @@ public final class CsuLiveRegChecker {
             final RawAdminHold existing = RawAdminHoldLogic.query(cache, studentId, holdId);
 
             if (existing != null) {
-                RawAdminHoldLogic.INSTANCE.delete(cache, existing);
+                RawAdminHoldLogic.delete(cache, existing);
             }
         }
 

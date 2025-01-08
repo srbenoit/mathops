@@ -123,9 +123,9 @@ final class TestRawStcuobjectiveLogic {
                         null,
                         null);
 
-                assertTrue(RawStcuobjectiveLogic.INSTANCE.insert(cache, raw1), "Failed to insert stcuobjective 1");
-                assertTrue(RawStcuobjectiveLogic.INSTANCE.insert(cache, raw2), "Failed to insert stcuobjective 2");
-                assertTrue(RawStcuobjectiveLogic.INSTANCE.insert(cache, raw3), "Failed to insert stcuobjective 3");
+                assertTrue(RawStcuobjectiveLogic.insert(cache, raw1), "Failed to insert stcuobjective 1");
+                assertTrue(RawStcuobjectiveLogic.insert(cache, raw2), "Failed to insert stcuobjective 2");
+                assertTrue(RawStcuobjectiveLogic.insert(cache, raw3), "Failed to insert stcuobjective 3");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -145,7 +145,7 @@ final class TestRawStcuobjectiveLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawStcuobjective> all = RawStcuobjectiveLogic.INSTANCE.queryAll(cache);
+                final List<RawStcuobjective> all = RawStcuobjectiveLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -327,10 +327,10 @@ final class TestRawStcuobjectiveLogic {
                         Integer.valueOf(998),
                         Integer.valueOf(4));
 
-                final boolean result = RawStcuobjectiveLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawStcuobjectiveLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawStcuobjective> all = RawStcuobjectiveLogic.INSTANCE.queryAll(cache);
+                final List<RawStcuobjective> all = RawStcuobjectiveLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 

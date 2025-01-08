@@ -34,18 +34,8 @@ import java.util.List;
  * refund_reason        char(60)                  yes
  * </pre>
  */
-public final class RawStetextLogic extends AbstractRawLogic<RawStetext> {
-
-    /** A single instance. */
-    public static final RawStetextLogic INSTANCE = new RawStetextLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawStetextLogic() {
-
-        super();
-    }
+public enum RawStetextLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -55,8 +45,7 @@ public final class RawStetextLogic extends AbstractRawLogic<RawStetext> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawStetext record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawStetext record) throws SQLException {
 
         if (record.stuId == null || record.etextId == null || record.activeDt == null) {
             throw new SQLException("Null value in primary key field.");
@@ -72,14 +61,14 @@ public final class RawStetextLogic extends AbstractRawLogic<RawStetext> {
             final String sql = SimpleBuilder.concat(
                     "INSERT INTO stetext (stu_id,etext_id,active_dt,etext_key,",
                     "expiration_dt,refund_deadline_dt,refund_dt,refund_reason) VALUES (",
-                    sqlStringValue(record.stuId), ",",
-                    sqlStringValue(record.etextId), ",",
-                    sqlDateValue(record.activeDt), ",",
-                    sqlStringValue(record.etextKey), ",",
-                    sqlDateValue(record.expirationDt), ",",
-                    sqlDateValue(record.refundDeadlineDt), ",",
-                    sqlDateValue(record.refundDt), ",",
-                    sqlStringValue(record.refundReason), ")");
+                    LogicUtils.sqlStringValue(record.stuId), ",",
+                    LogicUtils.sqlStringValue(record.etextId), ",",
+                    LogicUtils.sqlDateValue(record.activeDt), ",",
+                    LogicUtils.sqlStringValue(record.etextKey), ",",
+                    LogicUtils.sqlDateValue(record.expirationDt), ",",
+                    LogicUtils.sqlDateValue(record.refundDeadlineDt), ",",
+                    LogicUtils.sqlDateValue(record.refundDt), ",",
+                    LogicUtils.sqlStringValue(record.refundReason), ")");
 
             try (final Statement stmt = cache.conn.createStatement()) {
                 result = stmt.executeUpdate(sql) == 1;
@@ -103,15 +92,14 @@ public final class RawStetextLogic extends AbstractRawLogic<RawStetext> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawStetext record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawStetext record) throws SQLException {
 
         final boolean result;
 
         final String sql = SimpleBuilder.concat(
-                "DELETE FROM stetext WHERE stu_id=", sqlStringValue(record.stuId),
-                "   AND etext_id=", sqlStringValue(record.etextId),
-                "   AND active_dt=", sqlDateValue(record.activeDt));
+                "DELETE FROM stetext WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                "   AND etext_id=", LogicUtils.sqlStringValue(record.etextId),
+                "   AND active_dt=", LogicUtils.sqlDateValue(record.activeDt));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             result = stmt.executeUpdate(sql) == 1;
@@ -133,8 +121,7 @@ public final class RawStetextLogic extends AbstractRawLogic<RawStetext> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawStetext> queryAll(final Cache cache) throws SQLException {
+    public static List<RawStetext> queryAll(final Cache cache) throws SQLException {
 
         return executeQuery(cache.conn, "SELECT * FROM stetext");
     }
@@ -154,11 +141,11 @@ public final class RawStetextLogic extends AbstractRawLogic<RawStetext> {
             throws SQLException {
 
         final String sql = SimpleBuilder.concat(
-                "SELECT * FROM stetext WHERE stu_id=", sqlStringValue(studentId),
-                " AND etext_id=", sqlStringValue(etextId),
+                "SELECT * FROM stetext WHERE stu_id=", LogicUtils.sqlStringValue(studentId),
+                " AND etext_id=", LogicUtils.sqlStringValue(etextId),
                 " AND refund_dt IS NULL ",
                 " AND (expiration_dt IS NULL OR expiration_dt>=",
-                sqlDateValue(now.toLocalDate()), ")");
+                LogicUtils.sqlDateValue(now.toLocalDate()), ")");
 
         return executeQuery(cache.conn, sql);
     }
@@ -175,7 +162,7 @@ public final class RawStetextLogic extends AbstractRawLogic<RawStetext> {
     public static List<RawStetext> queryByStudent(final Cache cache, final String studentId) throws SQLException {
 
         final String sql = SimpleBuilder.concat(
-                "SELECT * FROM stetext WHERE stu_id=", sqlStringValue(studentId),
+                "SELECT * FROM stetext WHERE stu_id=", LogicUtils.sqlStringValue(studentId),
                 " ORDER BY etext_id");
 
         return executeQuery(cache.conn, sql);
@@ -192,7 +179,7 @@ public final class RawStetextLogic extends AbstractRawLogic<RawStetext> {
     public static List<RawStetext> queryUnrefundedByKey(final Cache cache, final String key) throws SQLException {
 
         final String sql = SimpleBuilder.concat(
-                "SELECT * FROM stetext WHERE etext_key=", sqlStringValue(key),
+                "SELECT * FROM stetext WHERE etext_key=", LogicUtils.sqlStringValue(key),
                 "   AND refund_dt IS NULL");
 
         return executeQuery(cache.conn, sql);
@@ -273,11 +260,11 @@ public final class RawStetextLogic extends AbstractRawLogic<RawStetext> {
             result = false;
         } else {
             final String sql = SimpleBuilder.concat(
-                    "UPDATE stetext SET refund_dt=", sqlDateValue(now.toLocalDate()),
-                    ", refund_reason=", sqlStringValue(refundReason),
-                    " WHERE stu_id=", sqlStringValue(rec.stuId),
-                    "   AND etext_id=", sqlStringValue(rec.etextId),
-                    "   AND active_dt=", sqlDateValue(rec.activeDt));
+                    "UPDATE stetext SET refund_dt=", LogicUtils.sqlDateValue(now.toLocalDate()),
+                    ", refund_reason=", LogicUtils.sqlStringValue(refundReason),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(rec.stuId),
+                    "   AND etext_id=", LogicUtils.sqlStringValue(rec.etextId),
+                    "   AND active_dt=", LogicUtils.sqlDateValue(rec.activeDt));
 
             try (final Statement stmt = cache.conn.createStatement()) {
                 result = stmt.executeUpdate(sql) == 1;
@@ -317,10 +304,10 @@ public final class RawStetextLogic extends AbstractRawLogic<RawStetext> {
         } else {
             final String sql = SimpleBuilder.concat(
                     "UPDATE stetext",
-                    " SET refund_deadline_dt=", sqlDateValue(refundDeadline),
-                    " WHERE stu_id=", sqlStringValue(studentId),
-                    "   AND etext_id=", sqlStringValue(eTextId),
-                    "   AND active_dt=", sqlDateValue(whenActive));
+                    " SET refund_deadline_dt=", LogicUtils.sqlDateValue(refundDeadline),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(studentId),
+                    "   AND etext_id=", LogicUtils.sqlStringValue(eTextId),
+                    "   AND active_dt=", LogicUtils.sqlDateValue(whenActive));
 
             try (final Statement stmt = cache.conn.createStatement()) {
                 result = stmt.executeUpdate(sql) > 0;
@@ -360,11 +347,11 @@ public final class RawStetextLogic extends AbstractRawLogic<RawStetext> {
             result = false;
         } else {
             final String sql = SimpleBuilder.concat(
-                    "UPDATE stetext SET refund_dt=", sqlDateValue(refundDate),
-                    ", refund_reason=", sqlStringValue(refundReason),
-                    " WHERE stu_id=", sqlStringValue(stuId),
-                    "   AND etext_id=", sqlStringValue(etextId),
-                    "   AND active_dt=", sqlDateValue(activeDt));
+                    "UPDATE stetext SET refund_dt=", LogicUtils.sqlDateValue(refundDate),
+                    ", refund_reason=", LogicUtils.sqlStringValue(refundReason),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(stuId),
+                    "   AND etext_id=", LogicUtils.sqlStringValue(etextId),
+                    "   AND active_dt=", LogicUtils.sqlDateValue(activeDt));
 
             try (final Statement stmt = cache.conn.createStatement()) {
                 result = stmt.executeUpdate(sql) > 0;

@@ -153,7 +153,7 @@ public class StuDisciplinePanel extends AdmPanelBase implements ActionListener {
         String error = null;
 
         try {
-            RawDisciplineLogic.INSTANCE.insert(this.cache, rec);
+            RawDisciplineLogic.insert(this.cache, rec);
 
             // Add the new record and re-populate the list display
             this.currentStudentData.studentDisciplines.add(rec);

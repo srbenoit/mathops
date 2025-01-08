@@ -138,10 +138,10 @@ final class TestRawStmathplanLogic {
                         Integer.valueOf(987),
                         Long.valueOf(1234567893L));
 
-                assertTrue(RawStmathplanLogic.INSTANCE.insert(cache, raw1), "Failed to insert stmathplan 1");
-                assertTrue(RawStmathplanLogic.INSTANCE.insert(cache, raw2), "Failed to insert stmathplan 2");
-                assertTrue(RawStmathplanLogic.INSTANCE.insert(cache, raw3), "Failed to insert stmathplan 3");
-                assertTrue(RawStmathplanLogic.INSTANCE.insert(cache, raw4), "Failed to insert stmathplan 4");
+                assertTrue(RawStmathplanLogic.insert(cache, raw1), "Failed to insert stmathplan 1");
+                assertTrue(RawStmathplanLogic.insert(cache, raw2), "Failed to insert stmathplan 2");
+                assertTrue(RawStmathplanLogic.insert(cache, raw3), "Failed to insert stmathplan 3");
+                assertTrue(RawStmathplanLogic.insert(cache, raw4), "Failed to insert stmathplan 4");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -161,7 +161,7 @@ final class TestRawStmathplanLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawStmathplan> all = RawStmathplanLogic.INSTANCE.queryAll(cache);
+                final List<RawStmathplan> all = RawStmathplanLogic.queryAll(cache);
 
                 assertEquals(4, all.size(), "Incorrect record count from queryAll");
 
@@ -446,10 +446,10 @@ final class TestRawStmathplanLogic {
                         Integer.valueOf(456),
                         Long.valueOf(1234567891L));
 
-                final boolean result = RawStmathplanLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawStmathplanLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawStmathplan> all = RawStmathplanLogic.INSTANCE.queryAll(cache);
+                final List<RawStmathplan> all = RawStmathplanLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll after delete");
 

@@ -120,9 +120,9 @@ final class TestRawMpeLogLogic {
                 final RawMpeLog raw3 = new RawMpeLog("888888888", "2122", RawRecordConstants.M100P, "MPTUN",
                         date6, null, null, Long.valueOf(98989L), Integer.valueOf(800), null);
 
-                assertTrue(RawMpeLogLogic.INSTANCE.insert(cache, raw1), "Failed to insert mpe_log");
-                assertTrue(RawMpeLogLogic.INSTANCE.insert(cache, raw2), "Failed to insert mpe_log");
-                assertTrue(RawMpeLogLogic.INSTANCE.insert(cache, raw3), "Failed to insert mpe_log");
+                assertTrue(RawMpeLogLogic.insert(cache, raw1), "Failed to insert mpe_log");
+                assertTrue(RawMpeLogLogic.insert(cache, raw2), "Failed to insert mpe_log");
+                assertTrue(RawMpeLogLogic.insert(cache, raw3), "Failed to insert mpe_log");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -142,7 +142,7 @@ final class TestRawMpeLogLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawMpeLog> all = RawMpeLogLogic.INSTANCE.queryAll(cache);
+                final List<RawMpeLog> all = RawMpeLogLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), //
                         "Incorrect record count from queryAll");
@@ -235,7 +235,7 @@ final class TestRawMpeLogLogic {
                                 date7, date8),
                         "indicateFinished failed");
 
-                final List<RawMpeLog> all = RawMpeLogLogic.INSTANCE.queryAll(cache);
+                final List<RawMpeLog> all = RawMpeLogLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), //
                         "Incorrect record count from queryAll");
@@ -284,10 +284,10 @@ final class TestRawMpeLogLogic {
                 final RawMpeLog raw3 = new RawMpeLog("888888888", "2122", RawRecordConstants.M100P, "MPTUN",
                         date6, null, null, Long.valueOf(98989L), Integer.valueOf(800), null);
 
-                final boolean result = RawMpeLogLogic.INSTANCE.delete(cache, raw3);
+                final boolean result = RawMpeLogLogic.delete(cache, raw3);
                 assertTrue(result, "delete returned false");
 
-                final List<RawMpeLog> all = RawMpeLogLogic.INSTANCE.queryAll(cache);
+                final List<RawMpeLog> all = RawMpeLogLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), //
                         "Incorrect record count from queryAll after delete");

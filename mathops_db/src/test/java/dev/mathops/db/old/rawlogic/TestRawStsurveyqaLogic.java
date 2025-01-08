@@ -116,12 +116,12 @@ final class TestRawStsurveyqaLogic {
                 final RawStsurveyqa raw6 = new RawStsurveyqa("222222222", "UOOOO", date3, Integer.valueOf(5), "S",
                         Integer.valueOf(700));
 
-                assertTrue(RawStsurveyqaLogic.INSTANCE.insert(cache, raw1), "Failed to insert stsurveyqa 1");
-                assertTrue(RawStsurveyqaLogic.INSTANCE.insert(cache, raw2), "Failed to insert stsurveyqa 2");
-                assertTrue(RawStsurveyqaLogic.INSTANCE.insert(cache, raw3), "Failed to insert stsurveyqa 3");
-                assertTrue(RawStsurveyqaLogic.INSTANCE.insert(cache, raw4), "Failed to insert stsurveyqa 4");
-                assertTrue(RawStsurveyqaLogic.INSTANCE.insert(cache, raw5), "Failed to insert stsurveyqa 5");
-                assertTrue(RawStsurveyqaLogic.INSTANCE.insert(cache, raw6), "Failed to insert stsurveyqa 6");
+                assertTrue(RawStsurveyqaLogic.insert(cache, raw1), "Failed to insert stsurveyqa 1");
+                assertTrue(RawStsurveyqaLogic.insert(cache, raw2), "Failed to insert stsurveyqa 2");
+                assertTrue(RawStsurveyqaLogic.insert(cache, raw3), "Failed to insert stsurveyqa 3");
+                assertTrue(RawStsurveyqaLogic.insert(cache, raw4), "Failed to insert stsurveyqa 4");
+                assertTrue(RawStsurveyqaLogic.insert(cache, raw5), "Failed to insert stsurveyqa 5");
+                assertTrue(RawStsurveyqaLogic.insert(cache, raw6), "Failed to insert stsurveyqa 6");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -141,7 +141,7 @@ final class TestRawStsurveyqaLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawStsurveyqa> all = RawStsurveyqaLogic.INSTANCE.queryAll(cache);
+                final List<RawStsurveyqa> all = RawStsurveyqaLogic.queryAll(cache);
 
                 assertEquals(6, all.size(), "Incorrect record count from queryAll");
 
@@ -347,10 +347,10 @@ final class TestRawStsurveyqaLogic {
                 final RawStsurveyqa raw2 = new RawStsurveyqa("111111111", "POOOO", date1,
                         Integer.valueOf(2), "B", Integer.valueOf(110));
 
-                final boolean result = RawStsurveyqaLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawStsurveyqaLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawStsurveyqa> all = RawStsurveyqaLogic.INSTANCE.queryAll(cache);
+                final List<RawStsurveyqa> all = RawStsurveyqaLogic.queryAll(cache);
 
                 assertEquals(5, all.size(), "Incorrect record count from queryAll after delete");
 

@@ -1991,7 +1991,7 @@ public final class ReviewExamSession extends HtmlSessionBase {
                 stexam.examSource, null);
 
         String error = null;
-        if (RawStexamLogic.INSTANCE.insert(cache, record)) {
+        if (RawStexamLogic.insert(cache, record)) {
 
             RawStexamLogic.recalculateFirstPassed(cache, stexam.studentId, stexam.course, stexam.unit, stexam.examType);
 
@@ -2003,7 +2003,7 @@ public final class ReviewExamSession extends HtmlSessionBase {
                         ansrec.objective, ansrec.studentAnswer, stexam.studentId, stexam.examId,
                         ansrec.correct ? "Y" : "N", fin.toLocalDate(), ansrec.subtest, Integer.valueOf(finInt));
 
-                RawStqaLogic.INSTANCE.insert(cache, answer);
+                RawStqaLogic.insert(cache, answer);
                 ++question;
             }
         } else {
@@ -2033,7 +2033,7 @@ public final class ReviewExamSession extends HtmlSessionBase {
             final RawMpeCredit credit = new RawMpeCredit(stexam.studentId, placeIn, "P", stexam.finish.toLocalDate(),
                     null, stexam.serialNumber, stexam.examId, null);
 
-            RawMpeCreditLogic.INSTANCE.apply(cache, credit);
+            RawMpeCreditLogic.apply(cache, credit);
         }
 
         // Record all ignored placement results
@@ -2041,7 +2041,7 @@ public final class ReviewExamSession extends HtmlSessionBase {
             final RawMpecrDenied denied = new RawMpecrDenied(stexam.studentId, entry.getKey(), "P",
                     stexam.finish.toLocalDate(), entry.getValue(), stexam.serialNumber, stexam.examId, null);
 
-            RawMpecrDeniedLogic.INSTANCE.insert(cache, denied);
+            RawMpecrDeniedLogic.insert(cache, denied);
         }
 
         // Passing ELM exam unit 3 review sends score of "4" for MC00 test code to Banner
@@ -2059,7 +2059,7 @@ public final class ReviewExamSession extends HtmlSessionBase {
                 final DbContext liveCtx = getDbProfile().getDbContext(ESchemaUse.LIVE);
                 final DbConnection liveConn = liveCtx.checkOutConnection();
                 try {
-                    RawMpscorequeueLogic.INSTANCE.postELMUnit3ReviewPassed(cache, liveConn, stu.pidm, stexam.finish);
+                    RawMpscorequeueLogic.postELMUnit3ReviewPassed(cache, liveConn, stu.pidm, stexam.finish);
                 } finally {
                     liveCtx.checkInConnection(liveConn);
                 }
@@ -2119,7 +2119,7 @@ public final class ReviewExamSession extends HtmlSessionBase {
                         stexam.finish.toLocalDate(), stexam.subtestScores.get("score"), calc, passed ? "Y" : "N");
 
         String error = null;
-        if (!RawUsersLogic.INSTANCE.insert(cache, attempt)) {
+        if (!RawUsersLogic.insert(cache, attempt)) {
             error = "Failed to inser record of User's exam";
         }
 

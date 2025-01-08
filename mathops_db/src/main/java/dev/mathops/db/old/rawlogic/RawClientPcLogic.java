@@ -38,18 +38,8 @@ import java.util.List;
  * current_version      char(5)                   yes
  * </pre>
  */
-public final class RawClientPcLogic extends AbstractRawLogic<RawClientPc> {
-
-    /** A single instance. */
-    public static final RawClientPcLogic INSTANCE = new RawClientPcLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawClientPcLogic() {
-
-        super();
-    }
+public enum RawClientPcLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -59,8 +49,7 @@ public final class RawClientPcLogic extends AbstractRawLogic<RawClientPc> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawClientPc record)
+    public static boolean insert(final Cache cache, final RawClientPc record)
             throws SQLException {
 
         if (record.computerId == null) {
@@ -71,24 +60,24 @@ public final class RawClientPcLogic extends AbstractRawLogic<RawClientPc> {
                 "computer_desc,icon_x,icon_y,pc_usage,current_status,dtime_created,dtime_approved,mac_address,",
                 "power_status,power_on_due,last_ping,current_stu_id,current_course,",
                 "current_unit,current_version) VALUES (",
-                sqlStringValue(record.computerId), ",",
-                sqlStringValue(record.testingCenterId), ",",
-                sqlStringValue(record.stationNbr), ",",
-                sqlStringValue(record.computerDesc), ",",
-                sqlIntegerValue(record.iconX), ",",
-                sqlIntegerValue(record.iconY), ",",
-                sqlStringValue(record.pcUsage), ",",
-                sqlIntegerValue(record.currentStatus), ",",
-                sqlDateTimeValue(record.dtimeCreated), ",",
-                sqlDateTimeValue(record.dtimeApproved), ",",
-                sqlStringValue(record.macAddress), ",",
-                sqlStringValue(record.powerStatus), ",",
-                sqlIntegerValue(record.powerOnDue), ",",
-                sqlIntegerValue(record.lastPing), ",",
-                sqlStringValue(record.currentStuId), ",",
-                sqlStringValue(record.currentCourse), ",",
-                sqlIntegerValue(record.currentUnit), ",",
-                sqlStringValue(record.currentVersion), ")");
+                LogicUtils.sqlStringValue(record.computerId), ",",
+                LogicUtils.sqlStringValue(record.testingCenterId), ",",
+                LogicUtils.sqlStringValue(record.stationNbr), ",",
+                LogicUtils.sqlStringValue(record.computerDesc), ",",
+                LogicUtils.sqlIntegerValue(record.iconX), ",",
+                LogicUtils.sqlIntegerValue(record.iconY), ",",
+                LogicUtils.sqlStringValue(record.pcUsage), ",",
+                LogicUtils.sqlIntegerValue(record.currentStatus), ",",
+                LogicUtils.sqlDateTimeValue(record.dtimeCreated), ",",
+                LogicUtils.sqlDateTimeValue(record.dtimeApproved), ",",
+                LogicUtils.sqlStringValue(record.macAddress), ",",
+                LogicUtils.sqlStringValue(record.powerStatus), ",",
+                LogicUtils.sqlIntegerValue(record.powerOnDue), ",",
+                LogicUtils.sqlIntegerValue(record.lastPing), ",",
+                LogicUtils.sqlStringValue(record.currentStuId), ",",
+                LogicUtils.sqlStringValue(record.currentCourse), ",",
+                LogicUtils.sqlIntegerValue(record.currentUnit), ",",
+                LogicUtils.sqlStringValue(record.currentVersion), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -111,12 +100,11 @@ public final class RawClientPcLogic extends AbstractRawLogic<RawClientPc> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawClientPc record)
+    public static boolean delete(final Cache cache, final RawClientPc record)
             throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM client_pc ",
-                "WHERE computer_id=", sqlStringValue(record.computerId));
+                "WHERE computer_id=", LogicUtils.sqlStringValue(record.computerId));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -138,8 +126,7 @@ public final class RawClientPcLogic extends AbstractRawLogic<RawClientPc> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawClientPc> queryAll(final Cache cache) throws SQLException {
+    public static List<RawClientPc> queryAll(final Cache cache) throws SQLException {
 
         final List<RawClientPc> result = new ArrayList<>(200);
 
@@ -257,11 +244,11 @@ public final class RawClientPcLogic extends AbstractRawLogic<RawClientPc> {
             throws SQLException {
 
         final String sql = SimpleBuilder.concat("UPDATE client_pc",
-                " SET current_status=", sqlIntegerValue(newCurrentStatus), ",",
-                " current_stu_id=", sqlStringValue(newCurrentStuId), ",",
-                " current_course=", sqlStringValue(newCurrentCourse), ",",
-                " current_unit=", sqlIntegerValue(newCurrentUnit), ",",
-                " current_version=", sqlStringValue(newCurrentVersion),
+                " SET current_status=", LogicUtils.sqlIntegerValue(newCurrentStatus), ",",
+                " current_stu_id=", LogicUtils.sqlStringValue(newCurrentStuId), ",",
+                " current_course=", LogicUtils.sqlStringValue(newCurrentCourse), ",",
+                " current_unit=", LogicUtils.sqlIntegerValue(newCurrentUnit), ",",
+                " current_version=", LogicUtils.sqlStringValue(newCurrentVersion),
                 " WHERE computer_id='", computerId, "'");
 
         try (final Statement stmt = cache.conn.createStatement()) {
@@ -290,7 +277,7 @@ public final class RawClientPcLogic extends AbstractRawLogic<RawClientPc> {
                                         final String newPcUsage) throws SQLException {
 
         final String sql = SimpleBuilder.concat("UPDATE client_pc",
-                " SET pc_usage=", sqlStringValue(newPcUsage),
+                " SET pc_usage=", LogicUtils.sqlStringValue(newPcUsage),
                 " WHERE computer_id='", computerId, "'");
 
         try (final Statement stmt = cache.conn.createStatement()) {
@@ -319,7 +306,7 @@ public final class RawClientPcLogic extends AbstractRawLogic<RawClientPc> {
                                             final String newPowerStatus) throws SQLException {
 
         final String sql = SimpleBuilder.concat("UPDATE client_pc",
-                " SET power_status=", sqlStringValue(newPowerStatus),
+                " SET power_status=", LogicUtils.sqlStringValue(newPowerStatus),
                 " WHERE computer_id='", computerId, "'");
 
         try (final Statement stmt = cache.conn.createStatement()) {
@@ -330,7 +317,7 @@ public final class RawClientPcLogic extends AbstractRawLogic<RawClientPc> {
                 cache.conn.commit();
             } else {
                 Log.warning("Power status update matched " + numRows
-                        + " rows");
+                            + " rows");
                 cache.conn.rollback();
             }
 
@@ -351,7 +338,7 @@ public final class RawClientPcLogic extends AbstractRawLogic<RawClientPc> {
                                            final Integer newPowerOnDue) throws SQLException {
 
         final String sql = SimpleBuilder.concat("UPDATE client_pc",
-                " SET power_on_due=", sqlIntegerValue(newPowerOnDue),
+                " SET power_on_due=", LogicUtils.sqlIntegerValue(newPowerOnDue),
                 " WHERE computer_id='", computerId, "'");
 
         try (final Statement stmt = cache.conn.createStatement()) {
@@ -381,8 +368,7 @@ public final class RawClientPcLogic extends AbstractRawLogic<RawClientPc> {
                                          final Integer newLastPing) throws SQLException {
 
         final HtmlBuilder htm = new HtmlBuilder(50);
-        htm.add("UPDATE client_pc SET last_ping=");
-        htm.add(sqlIntegerValue(newLastPing));
+        htm.add("UPDATE client_pc SET last_ping=", LogicUtils.sqlIntegerValue(newLastPing));
         if (newLastPing != null) {
             htm.add(", power_status=2");
         }

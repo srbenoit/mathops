@@ -13,7 +13,7 @@ import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.ifaces.ILiveCsuCredit;
 import dev.mathops.db.old.ifaces.ILiveTransferCredit;
 import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
-import dev.mathops.db.old.rawlogic.AbstractLogicModule;
+import dev.mathops.db.old.rawlogic.LogicUtils;
 import dev.mathops.db.old.rawlogic.RawFfrTrnsLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
@@ -4441,7 +4441,7 @@ public final class MathPlanLogic {
 
         List<LiveCsuCredit> result;
 
-        if (AbstractLogicModule.isBannerDown()) {
+        if (LogicUtils.isBannerDown()) {
             result = new ArrayList<>(0);
         } else {
             try {
@@ -4458,7 +4458,7 @@ public final class MathPlanLogic {
                     banner.checkInConnection(conn);
                 }
             } catch (final Exception ex) {
-                AbstractLogicModule.indicateBannerDown();
+                LogicUtils.indicateBannerDown();
                 Log.warning(ex);
                 result = new ArrayList<>(0);
             }
@@ -4493,7 +4493,7 @@ public final class MathPlanLogic {
                 final LiveTransferCredit ltc = new LiveTransferCredit(studentId, null, tc.course, null, null);
                 result.add(ltc);
             }
-        } else if (AbstractLogicModule.isBannerDown()) {
+        } else if (LogicUtils.isBannerDown()) {
             result = new ArrayList<>(0);
         } else {
             try {
@@ -4504,7 +4504,7 @@ public final class MathPlanLogic {
                 result = impl.query(bannerConn, studentId);
                 banner.checkInConnection(bannerConn);
             } catch (final Exception ex) {
-                AbstractLogicModule.indicateBannerDown();
+                LogicUtils.indicateBannerDown();
                 Log.warning(ex);
                 result = new ArrayList<>(0);
             }
@@ -4542,7 +4542,7 @@ public final class MathPlanLogic {
                         final RawFfrTrns toAdd = new RawFfrTrns(live.studentId, live.courseId, "T", LocalDate.now(),
                                 null);
 
-                        RawFfrTrnsLogic.INSTANCE.insert(cache, toAdd);
+                        RawFfrTrnsLogic.insert(cache, toAdd);
                     }
                 }
             }
@@ -4786,10 +4786,10 @@ public final class MathPlanLogic {
             if (ans == null) {
                 // Old record had answer, new does not, so delete old record
                 if (existing != null) {
-                    RawStmathplanLogic.INSTANCE.delete(cache, existing);
+                    RawStmathplanLogic.delete(cache, existing);
                 }
             } else {
-                RawStmathplanLogic.INSTANCE.insert(cache, resp);
+                RawStmathplanLogic.insert(cache, resp);
             }
         }
 

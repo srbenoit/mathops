@@ -90,7 +90,7 @@ final class TrackDeadlinesPane extends JPanel implements ActionListener {
                 add(errorFlow, StackedBorderLayout.NORTH);
             } else {
 
-                final List<RawCampusCalendar> calenderRows = RawCampusCalendarLogic.INSTANCE.queryAll(theCache);
+                final List<RawCampusCalendar> calenderRows = RawCampusCalendarLogic.queryAll(theCache);
                 for (final RawCampusCalendar cal : calenderRows) {
                     if (RawCampusCalendar.DT_DESC_HOLIDAY.equals(cal.dtDesc)) {
                         this.holidays.add(cal.campusDt);

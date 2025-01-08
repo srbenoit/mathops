@@ -112,11 +112,11 @@ final class TestRawSurveyqaLogic {
                 final RawSurveyqa raw5 = new RawSurveyqa(termKey, "UOOOO", Integer.valueOf(1),
                         "Expected Calculus Course", "CC", "A", "M 160", "E", "Y", null);
 
-                assertTrue(RawSurveyqaLogic.INSTANCE.insert(cache, raw1), "Failed to insert surveyqa 1");
-                assertTrue(RawSurveyqaLogic.INSTANCE.insert(cache, raw2), "Failed to insert surveyqa 2");
-                assertTrue(RawSurveyqaLogic.INSTANCE.insert(cache, raw3), "Failed to insert surveyqa 3");
-                assertTrue(RawSurveyqaLogic.INSTANCE.insert(cache, raw4), "Failed to insert surveyqa 4");
-                assertTrue(RawSurveyqaLogic.INSTANCE.insert(cache, raw5), "Failed to insert surveyqa 5");
+                assertTrue(RawSurveyqaLogic.insert(cache, raw1), "Failed to insert surveyqa 1");
+                assertTrue(RawSurveyqaLogic.insert(cache, raw2), "Failed to insert surveyqa 2");
+                assertTrue(RawSurveyqaLogic.insert(cache, raw3), "Failed to insert surveyqa 3");
+                assertTrue(RawSurveyqaLogic.insert(cache, raw4), "Failed to insert surveyqa 4");
+                assertTrue(RawSurveyqaLogic.insert(cache, raw5), "Failed to insert surveyqa 5");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -136,7 +136,7 @@ final class TestRawSurveyqaLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawSurveyqa> all = RawSurveyqaLogic.INSTANCE.queryAll(cache);
+                final List<RawSurveyqa> all = RawSurveyqaLogic.queryAll(cache);
 
                 assertEquals(5, all.size(), "Incorrect record count from queryAll");
                 final TermKey termKey = new TermKey(ETermName.SPRING, 2022);
@@ -521,10 +521,10 @@ final class TestRawSurveyqaLogic {
                 final RawSurveyqa raw2 = new RawSurveyqa(termKey, "POOOO", Integer.valueOf(1), "Time spent preparing",
                         null, "2", "Less than 2 hours", null, null, null);
 
-                final boolean result = RawSurveyqaLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawSurveyqaLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawSurveyqa> all = RawSurveyqaLogic.INSTANCE.queryAll(cache);
+                final List<RawSurveyqa> all = RawSurveyqaLogic.queryAll(cache);
 
                 assertEquals(4, all.size(), "Incorrect record count from queryAll");
 

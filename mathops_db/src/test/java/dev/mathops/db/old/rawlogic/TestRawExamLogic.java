@@ -111,10 +111,10 @@ final class TestRawExamLogic {
                 final RawExam raw4 = new RawExam("18FIN", RawRecordConstants.M118, Integer.valueOf(5), "$$$$$",
                         "Final", "18.5.F", "F", date4, null, "Start 18FIN");
 
-                assertTrue(RawExamLogic.INSTANCE.insert(cache, raw1), "Failed to insert exam");
-                assertTrue(RawExamLogic.INSTANCE.insert(cache, raw2), "Failed to insert exam");
-                assertTrue(RawExamLogic.INSTANCE.insert(cache, raw3), "Failed to insert exam");
-                assertTrue(RawExamLogic.INSTANCE.insert(cache, raw4), "Failed to insert exam");
+                assertTrue(RawExamLogic.insert(cache, raw1), "Failed to insert exam");
+                assertTrue(RawExamLogic.insert(cache, raw2), "Failed to insert exam");
+                assertTrue(RawExamLogic.insert(cache, raw3), "Failed to insert exam");
+                assertTrue(RawExamLogic.insert(cache, raw4), "Failed to insert exam");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -134,7 +134,7 @@ final class TestRawExamLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawExam> all = RawExamLogic.INSTANCE.queryAll(cache);
+                final List<RawExam> all = RawExamLogic.queryAll(cache);
 
                 assertEquals(4, all.size(), "Incorrect record count from queryAll");
 
@@ -488,10 +488,10 @@ final class TestRawExamLogic {
                 final RawExam raw2 = new RawExam("171UE", RawRecordConstants.M117, Integer.valueOf(1), "@@@@@",
                         "Unit 1 Exam", "17.1.U", "U", date2, null, "Start 171UE");
 
-                final boolean result = RawExamLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawExamLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawExam> all = RawExamLogic.INSTANCE.queryAll(cache);
+                final List<RawExam> all = RawExamLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll after delete");
 

@@ -289,7 +289,7 @@ final class PlacementReport {
                             MathPlanConstants.CHECKED_RESULTS_PROFILE, when.toLocalDate(), Integer.valueOf(1), "Y",
                             Integer.valueOf(TemporalUtils.minuteOfDay(when)), Long.valueOf(session.loginSessionTag));
 
-                    RawStmathplanLogic.INSTANCE.insert(cache, log);
+                    RawStmathplanLogic.insert(cache, log);
                 }
             }
         }

@@ -104,9 +104,9 @@ final class TestRawAdminHoldLogic {
                 final RawAdminHold raw2 = new RawAdminHold("888888889", "01", "N", Integer.valueOf(2), date2);
                 final RawAdminHold raw3 = new RawAdminHold("888888889", "02", "N", Integer.valueOf(3), date3);
 
-                assertTrue(RawAdminHoldLogic.INSTANCE.insert(cache, raw1), "Failed to insert admin_hold");
-                assertTrue(RawAdminHoldLogic.INSTANCE.insert(cache, raw2), "Failed to insert admin_hold");
-                assertTrue(RawAdminHoldLogic.INSTANCE.insert(cache, raw3), "Failed to insert admin_hold");
+                assertTrue(RawAdminHoldLogic.insert(cache, raw1), "Failed to insert admin_hold");
+                assertTrue(RawAdminHoldLogic.insert(cache, raw2), "Failed to insert admin_hold");
+                assertTrue(RawAdminHoldLogic.insert(cache, raw3), "Failed to insert admin_hold");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -126,7 +126,7 @@ final class TestRawAdminHoldLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawAdminHold> all = RawAdminHoldLogic.INSTANCE.queryAll(cache);
+                final List<RawAdminHold> all = RawAdminHoldLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from getAllAdminHolds");
 
@@ -257,7 +257,7 @@ final class TestRawAdminHoldLogic {
                 toDelete.stuId = "888888889";
                 toDelete.holdId = "01";
 
-                assertTrue(RawAdminHoldLogic.INSTANCE.delete(cache, toDelete), "Delete admin_hold failed");
+                assertTrue(RawAdminHoldLogic.delete(cache, toDelete), "Delete admin_hold failed");
 
                 final List<RawAdminHold> all = RawAdminHoldLogic.queryByStudent(cache, "888888889");
 

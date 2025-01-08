@@ -89,8 +89,8 @@ final class TestRawCohortLogic {
                 final RawCohort raw1 = new RawCohort("ABCDEFGH", Integer.valueOf(100), "Alice");
                 final RawCohort raw2 = new RawCohort("IJKLMNOP", Integer.valueOf(101), "Bob");
 
-                assertTrue(RawCohortLogic.INSTANCE.insert(cache, raw1), "Failed to insert cohort");
-                assertTrue(RawCohortLogic.INSTANCE.insert(cache, raw2), "Failed to insert cohort");
+                assertTrue(RawCohortLogic.insert(cache, raw1), "Failed to insert cohort");
+                assertTrue(RawCohortLogic.insert(cache, raw2), "Failed to insert cohort");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -110,7 +110,7 @@ final class TestRawCohortLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawCohort> all = RawCohortLogic.INSTANCE.queryAll(cache);
+                final List<RawCohort> all = RawCohortLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll");
 
@@ -223,10 +223,10 @@ final class TestRawCohortLogic {
             try {
                 final RawCohort raw2 = new RawCohort("IJKLMNOP", Integer.valueOf(101), "Bob");
 
-                final boolean result = RawCohortLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawCohortLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawCohort> all = RawCohortLogic.INSTANCE.queryAll(cache);
+                final List<RawCohort> all = RawCohortLogic.queryAll(cache);
 
                 assertEquals(1, all.size(), "Incorrect record count from queryAll after delete");
 

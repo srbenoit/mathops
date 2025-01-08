@@ -155,9 +155,9 @@ final class TestRawCsectionLogic {
                         Integer.valueOf(61), Integer.valueOf(53), Integer.valueOf(0), "SUR-3", "1", "2", "3", "4", "5",
                         "6", "CANVAS-3", "HALF");
 
-                assertTrue(RawCsectionLogic.INSTANCE.insert(cache, raw1), "Failed to insert csection");
-                assertTrue(RawCsectionLogic.INSTANCE.insert(cache, raw2), "Failed to insert csection");
-                assertTrue(RawCsectionLogic.INSTANCE.insert(cache, raw3), "Failed to insert csection");
+                assertTrue(RawCsectionLogic.insert(cache, raw1), "Failed to insert csection");
+                assertTrue(RawCsectionLogic.insert(cache, raw2), "Failed to insert csection");
+                assertTrue(RawCsectionLogic.insert(cache, raw3), "Failed to insert csection");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -177,7 +177,7 @@ final class TestRawCsectionLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawCsection> all = RawCsectionLogic.INSTANCE.queryAll(cache);
+                final List<RawCsection> all = RawCsectionLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -471,10 +471,10 @@ final class TestRawCsectionLogic {
                         Integer.valueOf(63), Integer.valueOf(55), Integer.valueOf(2), "SUR-2", "Z", "Y", "X", "W", "V",
                         "U", "CANVAS-2", "LATE");
 
-                final boolean result = RawCsectionLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawCsectionLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawCsection> all = RawCsectionLogic.INSTANCE.queryAll(cache);
+                final List<RawCsection> all = RawCsectionLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 

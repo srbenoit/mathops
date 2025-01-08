@@ -173,9 +173,9 @@ final class TestRawStudentLogic {
                         "pwd", "at", "de", "Q",
                         date56, null, null);
 
-                assertTrue(RawStudentLogic.INSTANCE.insert(cache, raw1), "Failed to insert student 1");
-                assertTrue(RawStudentLogic.INSTANCE.insert(cache, raw2), "Failed to insert student 2");
-                assertTrue(RawStudentLogic.INSTANCE.insert(cache, raw3), "Failed to insert student 3");
+                assertTrue(RawStudentLogic.insert(cache, raw1), "Failed to insert student 1");
+                assertTrue(RawStudentLogic.insert(cache, raw2), "Failed to insert student 2");
+                assertTrue(RawStudentLogic.insert(cache, raw3), "Failed to insert student 3");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -195,7 +195,7 @@ final class TestRawStudentLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawStudent> all = RawStudentLogic.INSTANCE.queryAll(cache);
+                final List<RawStudent> all = RawStudentLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -2151,10 +2151,10 @@ final class TestRawStudentLogic {
                         "ae", "pwd", "at", "de",
                         "Q", date56, null, null);
 
-                final boolean result = RawStudentLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawStudentLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawStudent> all = RawStudentLogic.INSTANCE.queryAll(cache);
+                final List<RawStudent> all = RawStudentLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 

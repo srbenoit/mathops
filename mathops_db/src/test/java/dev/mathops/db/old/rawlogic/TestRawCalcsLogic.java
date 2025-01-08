@@ -100,9 +100,9 @@ final class TestRawCalcsLogic {
                 final RawCalcs raw2 = new RawCalcs("222222222", "987B", "RET5678", Long.valueOf(200L), date2);
                 final RawCalcs raw3 = new RawCalcs("111111111", "AAAA", "BBBBBBB", Long.valueOf(300L), date3);
 
-                assertTrue(RawCalcsLogic.INSTANCE.insert(cache, raw1), "Failed to insert calcs");
-                assertTrue(RawCalcsLogic.INSTANCE.insert(cache, raw2), "Failed to insert calcs");
-                assertTrue(RawCalcsLogic.INSTANCE.insert(cache, raw3), "Failed to insert calcs");
+                assertTrue(RawCalcsLogic.insert(cache, raw1), "Failed to insert calcs");
+                assertTrue(RawCalcsLogic.insert(cache, raw2), "Failed to insert calcs");
+                assertTrue(RawCalcsLogic.insert(cache, raw3), "Failed to insert calcs");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -122,7 +122,7 @@ final class TestRawCalcsLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawCalcs> all = RawCalcsLogic.INSTANCE.queryAll(cache);
+                final List<RawCalcs> all = RawCalcsLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -289,10 +289,10 @@ final class TestRawCalcsLogic {
             try {
                 final RawCalcs raw2 = new RawCalcs("222222222", "987B", "RET5678", Long.valueOf(200L), date2);
 
-                final boolean result = RawCalcsLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawCalcsLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawCalcs> all = RawCalcsLogic.INSTANCE.queryAll(cache);
+                final List<RawCalcs> all = RawCalcsLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 

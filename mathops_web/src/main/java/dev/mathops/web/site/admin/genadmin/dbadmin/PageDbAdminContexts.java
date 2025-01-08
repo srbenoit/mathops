@@ -7,7 +7,7 @@ import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.cfg.LoginConfig;
 import dev.mathops.db.old.cfg.WebSiteProfile;
-import dev.mathops.db.old.rawlogic.AbstractLogicModule;
+import dev.mathops.db.old.rawlogic.LogicUtils;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
@@ -73,9 +73,9 @@ public enum PageDbAdminContexts {
         final String bannerup = req.getParameter("bannerup");
 
         if (bannerup == null) {
-            AbstractLogicModule.indicateBannerDownIndefinitely();
+            LogicUtils.indicateBannerDownIndefinitely();
         } else {
-            AbstractLogicModule.indicateBannerUp();
+            LogicUtils.indicateBannerUp();
         }
 
         doGet(cache, site, req, resp, session);
@@ -96,7 +96,7 @@ public enum PageDbAdminContexts {
 
         htm.sP();
         htm.add("<input type='checkbox' id='bannerup' name='bannerup' value='x'");
-        if (!AbstractLogicModule.isBannerDown()) {
+        if (!LogicUtils.isBannerDown()) {
             htm.add(" checked");
         }
         htm.add("> &nbsp; ");

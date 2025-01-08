@@ -117,9 +117,9 @@ final class TestRawPendingExamLogic {
                         Integer.valueOf(5), Integer.valueOf(700), Integer.valueOf(800), "C", "D", Integer.valueOf(5),
                         RawRecordConstants.M100P, Integer.valueOf(6), "P", ONE, "ADM");
 
-                assertTrue(RawPendingExamLogic.INSTANCE.insert(cache, raw1), "Failed to insert pending_exam 1");
-                assertTrue(RawPendingExamLogic.INSTANCE.insert(cache, raw2), "Failed to insert pending_exam 2");
-                assertTrue(RawPendingExamLogic.INSTANCE.insert(cache, raw3), "Failed to insert pending_exam 3");
+                assertTrue(RawPendingExamLogic.insert(cache, raw1), "Failed to insert pending_exam 1");
+                assertTrue(RawPendingExamLogic.insert(cache, raw2), "Failed to insert pending_exam 2");
+                assertTrue(RawPendingExamLogic.insert(cache, raw3), "Failed to insert pending_exam 3");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -139,7 +139,7 @@ final class TestRawPendingExamLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawPendingExam> all = RawPendingExamLogic.INSTANCE.queryAll(cache);
+                final List<RawPendingExam> all = RawPendingExamLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -294,7 +294,7 @@ final class TestRawPendingExamLogic {
             try {
                 assertTrue(RawPendingExamLogic.delete(cache, Long.valueOf(12347L), "222222222"), "Delete failed");
 
-                final List<RawPendingExam> all = RawPendingExamLogic.INSTANCE.queryAll(cache);
+                final List<RawPendingExam> all = RawPendingExamLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll");
 
@@ -365,10 +365,10 @@ final class TestRawPendingExamLogic {
                         Integer.valueOf(3), Integer.valueOf(500), Integer.valueOf(600), "A", "B", Integer.valueOf(4),
                         RawRecordConstants.M118, Integer.valueOf(5), "FE", TWO, "STU");
 
-                final boolean result = RawPendingExamLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawPendingExamLogic.delete(cache, raw2);
                 assertTrue(result, "Delete failed");
 
-                final List<RawPendingExam> all = RawPendingExamLogic.INSTANCE.queryAll(cache);
+                final List<RawPendingExam> all = RawPendingExamLogic.queryAll(cache);
 
                 assertEquals(1, all.size(), //
                         "Incorrect record count from queryAll");

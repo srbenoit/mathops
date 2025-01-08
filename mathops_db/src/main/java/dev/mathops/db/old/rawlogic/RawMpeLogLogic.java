@@ -31,18 +31,8 @@ import java.util.List;
  * calc_nbr             char(4)           yes
  * </pre>
  */
-public final class RawMpeLogLogic extends AbstractRawLogic<RawMpeLog> {
-
-    /** A single instance. */
-    public static final RawMpeLogLogic INSTANCE = new RawMpeLogLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawMpeLogLogic() {
-
-        super();
-    }
+public enum RawMpeLogLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -52,8 +42,7 @@ public final class RawMpeLogLogic extends AbstractRawLogic<RawMpeLog> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawMpeLog record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawMpeLog record) throws SQLException {
 
         final boolean result;
 
@@ -63,16 +52,16 @@ public final class RawMpeLogLogic extends AbstractRawLogic<RawMpeLog> {
             final String sql = SimpleBuilder.concat(
                     "INSERT INTO mpe_log (stu_id,academic_yr,course,version,start_dt,",
                     "exam_dt,recover_dt,serial_nbr,start_time,calc_nbr) VALUES (",
-                    sqlStringValue(record.stuId), ",",
-                    sqlStringValue(record.academicYr), ",",
-                    sqlStringValue(record.course), ",",
-                    sqlStringValue(record.version), ",",
-                    sqlDateValue(record.startDt), ",",
-                    sqlDateValue(record.examDt), ",",
-                    sqlDateValue(record.recoverDt), ",",
-                    sqlLongValue(record.serialNbr), ",",
-                    sqlIntegerValue(record.startTime), ",",
-                    sqlStringValue(record.calcNbr), ")");
+                    LogicUtils.sqlStringValue(record.stuId), ",",
+                    LogicUtils.sqlStringValue(record.academicYr), ",",
+                    LogicUtils.sqlStringValue(record.course), ",",
+                    LogicUtils.sqlStringValue(record.version), ",",
+                    LogicUtils.sqlDateValue(record.startDt), ",",
+                    LogicUtils.sqlDateValue(record.examDt), ",",
+                    LogicUtils.sqlDateValue(record.recoverDt), ",",
+                    LogicUtils.sqlLongValue(record.serialNbr), ",",
+                    LogicUtils.sqlIntegerValue(record.startTime), ",",
+                    LogicUtils.sqlStringValue(record.calcNbr), ")");
 
             try (final Statement stmt = cache.conn.createStatement()) {
                 result = stmt.executeUpdate(sql) == 1;
@@ -96,18 +85,17 @@ public final class RawMpeLogLogic extends AbstractRawLogic<RawMpeLog> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawMpeLog record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawMpeLog record) throws SQLException {
 
         final boolean result;
 
         final String sql = SimpleBuilder.concat("DELETE FROM mpe_log ",
-                "WHERE stu_id=", sqlStringValue(record.stuId),
-                "  AND course=", sqlStringValue(record.course),
-                "  AND version=", sqlStringValue(record.version),
-                "  AND start_dt=", sqlDateValue(record.startDt),
-                "  AND start_time=", sqlIntegerValue(record.startTime),
-                "  AND serial_nbr=", sqlLongValue(record.serialNbr));
+                "WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                "  AND course=", LogicUtils.sqlStringValue(record.course),
+                "  AND version=", LogicUtils.sqlStringValue(record.version),
+                "  AND start_dt=", LogicUtils.sqlDateValue(record.startDt),
+                "  AND start_time=", LogicUtils.sqlIntegerValue(record.startTime),
+                "  AND serial_nbr=", LogicUtils.sqlLongValue(record.serialNbr));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             result = stmt.executeUpdate(sql) == 1;
@@ -129,8 +117,7 @@ public final class RawMpeLogLogic extends AbstractRawLogic<RawMpeLog> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawMpeLog> queryAll(final Cache cache) throws SQLException {
+    public static List<RawMpeLog> queryAll(final Cache cache) throws SQLException {
 
         final String sql = "SELECT * FROM mpe_log";
 
@@ -171,11 +158,11 @@ public final class RawMpeLogLogic extends AbstractRawLogic<RawMpeLog> {
         } else {
             final String sql = SimpleBuilder.concat(
                     "UPDATE mpe_log SET exam_dt=",
-                    sqlDateValue(examDt), ", recover_dt=",
-                    sqlDateValue(recoverDt), " WHERE stu_id=",
-                    sqlStringValue(stuId), " AND start_dt=",
-                    sqlDateValue(startDt), " AND start_time=",
-                    sqlIntegerValue(startTime));
+                    LogicUtils.sqlDateValue(examDt), ", recover_dt=",
+                    LogicUtils.sqlDateValue(recoverDt), " WHERE stu_id=",
+                    LogicUtils.sqlStringValue(stuId), " AND start_dt=",
+                    LogicUtils.sqlDateValue(startDt), " AND start_time=",
+                    LogicUtils.sqlIntegerValue(startTime));
 
             try (final Statement stmt = cache.conn.createStatement()) {
                 result = stmt.executeUpdate(sql) == 1;

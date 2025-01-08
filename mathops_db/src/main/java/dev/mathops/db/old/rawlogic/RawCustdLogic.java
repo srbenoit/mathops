@@ -13,18 +13,8 @@ import java.util.List;
  * <p>
  * There is currently no table for this data - it is hard-coded into this class.
  */
-public final class RawCustdLogic extends AbstractRawLogic<RawCustd> {
-
-    /** A single instance. */
-    public static final RawCustdLogic INSTANCE = new RawCustdLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawCustdLogic() {
-
-        super();
-    }
+public enum RawCustdLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -33,8 +23,7 @@ public final class RawCustdLogic extends AbstractRawLogic<RawCustd> {
      * @param record the record to insert
      * @return {@code true} if successful; {@code false} if not
      */
-    @Override
-    public boolean insert(final Cache cache, final RawCustd record) {
+    public static boolean insert(final Cache cache, final RawCustd record) {
 
         Log.warning("Unable to insert custd record: no underlying table.");
 
@@ -48,8 +37,7 @@ public final class RawCustdLogic extends AbstractRawLogic<RawCustd> {
      * @param record the record to delete
      * @return {@code true} if successful; {@code false} if not
      */
-    @Override
-    public boolean delete(final Cache cache, final RawCustd record) {
+    public static boolean delete(final Cache cache, final RawCustd record) {
 
         Log.warning("Unable to delete custd record: no underlying table.");
 
@@ -62,8 +50,7 @@ public final class RawCustdLogic extends AbstractRawLogic<RawCustd> {
      * @param cache the data cache
      * @return the list of records
      */
-    @Override
-    public List<RawCustd> queryAll(final Cache cache) {
+    public static List<RawCustd> queryAll(final Cache cache) {
 
         final List<RawCustd> result = new ArrayList<>(0);
 

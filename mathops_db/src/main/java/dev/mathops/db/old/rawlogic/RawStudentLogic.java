@@ -83,10 +83,8 @@ import java.util.random.RandomGenerator;
  * create_dt            date                      yes
  * </pre>
  */
-public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
-
-    /** A single instance. */
-    public static final RawStudentLogic INSTANCE = new RawStudentLogic();
+public enum RawStudentLogic {
+    ;
 
     /** A commonly used string. */
     private static final String SKIPPING_UPDATE = "Skipping update of Student for test student:";
@@ -264,14 +262,6 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
     }
 
     /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawStudentLogic() {
-
-        super();
-    }
-
-    /**
      * Inserts a new record.
      *
      * @param cache  the data cache
@@ -279,8 +269,7 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
      * @return {@code true} if successful; {@code false} otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawStudent record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawStudent record) throws SQLException {
 
         if (record.stuId == null || record.discipHistory == null || record.licensed == null
                 || record.orderEnforce == null) {
@@ -293,44 +282,44 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
                 "ap_score,resident,birthdate,ethnicity,gender,discip_history,discip_status,sev_admin_hold,",
                 "timelimit_factor,licensed,campus,stu_email,adviser_email,password,admit_type,order_enforce,",
                 "pacing_structure,create_dt) VALUES (",
-                sqlStringValue(record.stuId), ",",
-                sqlIntegerValue(record.pidm), ",",
-                sqlStringValue(record.lastName), ",",
-                sqlStringValue(record.firstName), ",",
-                sqlStringValue(record.prefName), ",",
-                sqlStringValue(record.middleInitial), ",",
-                sqlTermValue(record.aplnTerm), ",",
-                sqlStringValue(record.clazz), ",",
-                sqlStringValue(record.college), ",",
-                sqlStringValue(record.dept), ",",
-                sqlStringValue(record.programCode), ",",
-                sqlStringValue(record.minor), ",",
-                sqlTermValue(record.estGraduation), ",",
-                sqlStringValue(record.trCredits), ",",
-                sqlStringValue(record.hsCode), ",",
-                sqlStringValue(record.hsGpa), ",",
-                sqlIntegerValue(record.hsClassRank), ",",
-                sqlIntegerValue(record.hsSizeClass), ",",
-                sqlIntegerValue(record.actScore), ",",
-                sqlIntegerValue(record.satScore), ",",
-                sqlStringValue(record.apScore), ",",
-                sqlStringValue(record.resident), ",",
-                sqlDateValue(record.birthdate), ",",
-                sqlStringValue(record.ethnicity), ",",
-                sqlStringValue(record.gender), ",",
-                sqlStringValue(record.discipHistory), ",",
-                sqlStringValue(record.discipStatus), ",",
-                sqlStringValue(record.sevAdminHold), ",",
-                sqlFloatValue(record.timelimitFactor), ",",
-                sqlStringValue(record.licensed), ",",
-                sqlStringValue(record.campus), ",",
-                sqlStringValue(record.stuEmail), ",",
-                sqlStringValue(record.adviserEmail), ",",
-                sqlStringValue(record.password), ",",
-                sqlStringValue(record.admitType), ",",
-                sqlStringValue(record.orderEnforce), ",",
-                sqlStringValue(record.pacingStructure), ",",
-                sqlDateValue(record.createDt), ")");
+                LogicUtils.sqlStringValue(record.stuId), ",",
+                LogicUtils.sqlIntegerValue(record.pidm), ",",
+                LogicUtils.sqlStringValue(record.lastName), ",",
+                LogicUtils.sqlStringValue(record.firstName), ",",
+                LogicUtils.sqlStringValue(record.prefName), ",",
+                LogicUtils.sqlStringValue(record.middleInitial), ",",
+                LogicUtils.sqlTermValue(record.aplnTerm), ",",
+                LogicUtils.sqlStringValue(record.clazz), ",",
+                LogicUtils.sqlStringValue(record.college), ",",
+                LogicUtils.sqlStringValue(record.dept), ",",
+                LogicUtils.sqlStringValue(record.programCode), ",",
+                LogicUtils.sqlStringValue(record.minor), ",",
+                LogicUtils.sqlTermValue(record.estGraduation), ",",
+                LogicUtils.sqlStringValue(record.trCredits), ",",
+                LogicUtils.sqlStringValue(record.hsCode), ",",
+                LogicUtils.sqlStringValue(record.hsGpa), ",",
+                LogicUtils.sqlIntegerValue(record.hsClassRank), ",",
+                LogicUtils.sqlIntegerValue(record.hsSizeClass), ",",
+                LogicUtils.sqlIntegerValue(record.actScore), ",",
+                LogicUtils.sqlIntegerValue(record.satScore), ",",
+                LogicUtils.sqlStringValue(record.apScore), ",",
+                LogicUtils.sqlStringValue(record.resident), ",",
+                LogicUtils.sqlDateValue(record.birthdate), ",",
+                LogicUtils.sqlStringValue(record.ethnicity), ",",
+                LogicUtils.sqlStringValue(record.gender), ",",
+                LogicUtils.sqlStringValue(record.discipHistory), ",",
+                LogicUtils.sqlStringValue(record.discipStatus), ",",
+                LogicUtils.sqlStringValue(record.sevAdminHold), ",",
+                LogicUtils.sqlFloatValue(record.timelimitFactor), ",",
+                LogicUtils.sqlStringValue(record.licensed), ",",
+                LogicUtils.sqlStringValue(record.campus), ",",
+                LogicUtils.sqlStringValue(record.stuEmail), ",",
+                LogicUtils.sqlStringValue(record.adviserEmail), ",",
+                LogicUtils.sqlStringValue(record.password), ",",
+                LogicUtils.sqlStringValue(record.admitType), ",",
+                LogicUtils.sqlStringValue(record.orderEnforce), ",",
+                LogicUtils.sqlStringValue(record.pacingStructure), ",",
+                LogicUtils.sqlDateValue(record.createDt), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -352,7 +341,7 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
      * @param liveReg a model of type {@code CLiveReg}
      * @throws SQLException if there is an error accessing the database
      */
-    public void insertFromLive(final Cache cache, final LiveReg liveReg) throws SQLException {
+    public static void insertFromLive(final Cache cache, final LiveReg liveReg) throws SQLException {
 
         final Integer sat = liveReg.satrScore == null ? liveReg.satScore : liveReg.satrScore;
 
@@ -377,10 +366,10 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawStudent record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawStudent record) throws SQLException {
 
-        final String sql = SimpleBuilder.concat("DELETE FROM student WHERE stu_id=", sqlStringValue(record.stuId));
+        final String sql = SimpleBuilder.concat("DELETE FROM student WHERE stu_id=",
+                LogicUtils.sqlStringValue(record.stuId));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -402,8 +391,7 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawStudent> queryAll(final Cache cache) throws SQLException {
+    public static List<RawStudent> queryAll(final Cache cache) throws SQLException {
 
         return executeListQuery(cache, "SELECT * FROM student");
     }
@@ -425,7 +413,8 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
         if (stuId.startsWith("99")) {
             result = getTestStudent(cache, stuId);
         } else {
-            final String sql = SimpleBuilder.concat("SELECT * FROM student WHERE stu_id=", sqlStringValue(stuId));
+            final String sql = SimpleBuilder.concat("SELECT * FROM student WHERE stu_id=",
+                    LogicUtils.sqlStringValue(stuId));
 
             try (final Statement stmt = cache.conn.createStatement();
                  final ResultSet rs = stmt.executeQuery(sql)) {
@@ -436,8 +425,8 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
             }
         }
 
-        if (liveRefreshes && !AbstractLogicModule.isBannerDown() && stuId.length() == 9
-                && stuId.charAt(0) == '8' && !"888888888".equals(stuId)) {
+        if (liveRefreshes && !LogicUtils.isBannerDown() && stuId.length() == 9
+            && stuId.charAt(0) == '8' && !"888888888".equals(stuId)) {
 
             final Long when = LIVE_QUERIED_STUDENTS.get(stuId);
             final long now = System.currentTimeMillis();
@@ -488,9 +477,8 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
 
         final String upper = lastName.toUpperCase(Locale.US);
 
-        final String sql = SimpleBuilder.concat(//
-                "SELECT * FROM student",
-                " WHERE UPPER(last_name)=", sqlStringValue(upper));
+        final String sql = SimpleBuilder.concat(
+                "SELECT * FROM student WHERE UPPER(last_name)=", LogicUtils.sqlStringValue(upper));
 
         final List<RawStudent> list = executeListQuery(cache, sql);
 
@@ -514,9 +502,9 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
         final String upperFirst = firstName.toUpperCase(Locale.US);
 
         final String sql = SimpleBuilder.concat("SELECT * FROM student ",
-                "WHERE UPPER(last_name)=", sqlStringValue(upperLast),
-                "  AND (UPPER(first_name)=", sqlStringValue(upperFirst),
-                " OR UPPER(pref_name)=", sqlStringValue(upperFirst),
+                "WHERE UPPER(last_name)=", LogicUtils.sqlStringValue(upperLast),
+                "  AND (UPPER(first_name)=", LogicUtils.sqlStringValue(upperFirst),
+                " OR UPPER(pref_name)=", LogicUtils.sqlStringValue(upperFirst),
                 ")");
 
         return executeSingleQuery(cache, sql);
@@ -538,9 +526,9 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
         final String upperFirst = firstName.toUpperCase(Locale.US);
 
         final String sql = SimpleBuilder.concat("SELECT * FROM student ",
-                "WHERE UPPER(last_name) LIKE ", sqlStringValue(upperLast),
-                " AND (UPPER(first_name) LIKE ", sqlStringValue(upperFirst),
-                " OR UPPER(pref_name) LIKE ", sqlStringValue(upperFirst),
+                "WHERE UPPER(last_name) LIKE ", LogicUtils.sqlStringValue(upperLast),
+                " AND (UPPER(first_name) LIKE ", LogicUtils.sqlStringValue(upperFirst),
+                " OR UPPER(pref_name) LIKE ", LogicUtils.sqlStringValue(upperFirst),
                 ")");
 
         return executeListQuery(cache, sql);
@@ -609,11 +597,11 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
             check(middleInitial);
 
             final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET last_name=", sqlStringValue(lastName),
-                    ", first_name=", sqlStringValue(firstName),
-                    ", pref_name=", sqlStringValue(prefName),
-                    ", middle_initial=", sqlStringValue(middleInitial),
-                    " WHERE stu_id=", sqlStringValue(studentId));
+                    "SET last_name=", LogicUtils.sqlStringValue(lastName),
+                    ", first_name=", LogicUtils.sqlStringValue(firstName),
+                    ", pref_name=", LogicUtils.sqlStringValue(prefName),
+                    ", middle_initial=", LogicUtils.sqlStringValue(middleInitial),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
             result = executeSimpleUpdate(cache, sql) == 1;
 
@@ -647,8 +635,8 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
             result = false;
         } else {
             final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET apln_term=", sqlTermValue(newApplicationTerm),
-                    " WHERE stu_id=", sqlStringValue(studentId));
+                    "SET apln_term=", LogicUtils.sqlTermValue(newApplicationTerm),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
             result = executeSimpleUpdate(cache, sql) == 1;
 
@@ -682,8 +670,8 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
             result = false;
         } else {
             final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET class=", sqlStringValue(newClassLevel),
-                    " WHERE stu_id=", sqlStringValue(studentId));
+                    "SET class=", LogicUtils.sqlStringValue(newClassLevel),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
             result = executeSimpleUpdate(cache, sql) == 1;
 
@@ -721,11 +709,11 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
             result = false;
         } else {
             final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET college=", sqlStringValue(newCollege),
-                    ", dept=", sqlStringValue(newDepartment),
-                    ", program_code=", sqlStringValue(newProgramCode),
-                    ", minor=", sqlStringValue(newMinor),
-                    " WHERE stu_id=", sqlStringValue(studentId));
+                    "SET college=", LogicUtils.sqlStringValue(newCollege),
+                    ", dept=", LogicUtils.sqlStringValue(newDepartment),
+                    ", program_code=", LogicUtils.sqlStringValue(newProgramCode),
+                    ", minor=", LogicUtils.sqlStringValue(newMinor),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
             result = executeSimpleUpdate(cache, sql) == 1;
 
@@ -759,8 +747,8 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
             result = false;
         } else {
             final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET est_graduation=", sqlTermValue(newGraduationTerm),
-                    " WHERE stu_id=", sqlStringValue(studentId));
+                    "SET est_graduation=", LogicUtils.sqlTermValue(newGraduationTerm),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
             result = executeSimpleUpdate(cache, sql) == 1;
 
@@ -794,8 +782,8 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
             result = false;
         } else {
             final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET tr_credits=", sqlStringValue(newNumXferCredits),
-                    " WHERE stu_id=", sqlStringValue(studentId));
+                    "SET tr_credits=", LogicUtils.sqlStringValue(newNumXferCredits),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
             result = executeSimpleUpdate(cache, sql) == 1;
 
@@ -833,11 +821,11 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
             result = false;
         } else {
             final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET hs_code=", sqlStringValue(newHighSchoolCode),
-                    ", hs_gpa=", sqlStringValue(newHichSchoolGpa),
-                    ", hs_class_rank=", sqlIntegerValue(newHSClassRank),
-                    ", hs_size_class=", sqlIntegerValue(newHSClassSize),
-                    " WHERE stu_id=", sqlStringValue(studentId));
+                    "SET hs_code=", LogicUtils.sqlStringValue(newHighSchoolCode),
+                    ", hs_gpa=", LogicUtils.sqlStringValue(newHichSchoolGpa),
+                    ", hs_class_rank=", LogicUtils.sqlIntegerValue(newHSClassRank),
+                    ", hs_size_class=", LogicUtils.sqlIntegerValue(newHSClassSize),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
             result = executeSimpleUpdate(cache, sql) == 1;
 
@@ -873,10 +861,10 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
             result = false;
         } else {
             final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET act_score=", sqlIntegerValue(newAct),
-                    ", sat_score=", sqlIntegerValue(newSat),
-                    ", ap_score=", sqlStringValue(newAp),
-                    " WHERE stu_id=", sqlStringValue(studentId));
+                    "SET act_score=", LogicUtils.sqlIntegerValue(newAct),
+                    ", sat_score=", LogicUtils.sqlIntegerValue(newSat),
+                    ", ap_score=", LogicUtils.sqlStringValue(newAp),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
             result = executeSimpleUpdate(cache, sql) == 1;
 
@@ -910,8 +898,8 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
             result = false;
         } else {
             final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET resident=", sqlStringValue(newResidency),
-                    " WHERE stu_id=", sqlStringValue(studentId));
+                    "SET resident=", LogicUtils.sqlStringValue(newResidency),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
             result = executeSimpleUpdate(cache, sql) == 1;
 
@@ -945,8 +933,8 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
             result = false;
         } else {
             final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET birthdate=", sqlDateValue(newBirthDate),
-                    " WHERE stu_id=", sqlStringValue(studentId));
+                    "SET birthdate=", LogicUtils.sqlDateValue(newBirthDate),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
             result = executeSimpleUpdate(cache, sql) == 1;
 
@@ -980,8 +968,8 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
             result = false;
         } else {
             final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET gender=", sqlStringValue(newGender),
-                    " WHERE stu_id=", sqlStringValue(studentId));
+                    "SET gender=", LogicUtils.sqlStringValue(newGender),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
             result = executeSimpleUpdate(cache, sql) == 1;
 
@@ -1015,8 +1003,8 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
             result = false;
         } else {
             final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET sev_admin_hold=", sqlStringValue(newHoldSeverity),
-                    " WHERE stu_id=", sqlStringValue(studentId));
+                    "SET sev_admin_hold=", LogicUtils.sqlStringValue(newHoldSeverity),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
             result = executeSimpleUpdate(cache, sql) == 1;
 
@@ -1120,8 +1108,8 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
             result = false;
         } else {
             final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET licensed=", sqlStringValue(newLicensed),
-                    " WHERE stu_id=", sqlStringValue(studentId));
+                    "SET licensed=", LogicUtils.sqlStringValue(newLicensed),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
             result = executeSimpleUpdate(cache, sql) == 1;
 
@@ -1155,8 +1143,8 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
             result = false;
         } else {
             final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET campus=", sqlStringValue(newCampus),
-                    " WHERE stu_id=", sqlStringValue(studentId));
+                    "SET campus=", LogicUtils.sqlStringValue(newCampus),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
             result = executeSimpleUpdate(cache, sql) == 1;
 
@@ -1194,9 +1182,9 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
             check(newAdviserEmail);
 
             final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET stu_email=", sqlStringValue(newStudentEmail),
-                    ", adviser_email=", sqlStringValue(newAdviserEmail),
-                    " WHERE stu_id=", sqlStringValue(studentId));
+                    "SET stu_email=", LogicUtils.sqlStringValue(newStudentEmail),
+                    ", adviser_email=", LogicUtils.sqlStringValue(newAdviserEmail),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
             result = executeSimpleUpdate(cache, sql) == 1;
 
@@ -1230,8 +1218,8 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
             result = false;
         } else {
             final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET admit_type=", sqlStringValue(newAdmitType),
-                    " WHERE stu_id=", sqlStringValue(studentId));
+                    "SET admit_type=", LogicUtils.sqlStringValue(newAdmitType),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
             result = executeSimpleUpdate(cache, sql) == 1;
 
@@ -1265,8 +1253,8 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
             result = false;
         } else {
             final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET order_enforce=", sqlStringValue(newCourseOrder),
-                    " WHERE stu_id=", sqlStringValue(studentId));
+                    "SET order_enforce=", LogicUtils.sqlStringValue(newCourseOrder),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
             result = executeSimpleUpdate(cache, sql) == 1;
 
@@ -1300,8 +1288,8 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
             result = false;
         } else {
             final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET pacing_structure=", sqlStringValue(newPacingStructure),
-                    " WHERE stu_id=", sqlStringValue(studentId));
+                    "SET pacing_structure=", LogicUtils.sqlStringValue(newPacingStructure),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
             result = executeSimpleUpdate(cache, sql) == 1;
 
@@ -1331,8 +1319,8 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
             Log.info(STU_ID, studentId);
         } else {
             final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET canvas_id=", sqlStringValue(newCanvasId),
-                    " WHERE stu_id=", sqlStringValue(studentId));
+                    "SET canvas_id=", LogicUtils.sqlStringValue(newCanvasId),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
             if (executeSimpleUpdate(cache, sql) == 1) {
                 cache.conn.commit();
@@ -1446,7 +1434,7 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
                 banner.checkInConnection(bannerConn);
             }
         } catch (final SQLException ex) {
-            AbstractLogicModule.indicateBannerDown();
+            LogicUtils.indicateBannerDown();
             Log.warning(ex);
         }
 
@@ -1533,7 +1521,7 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
                     null, "N", null, "N", liveStudent.campus, liveStudent.email, liveStudent.adviserEmail, null,
                     liveStudent.admitType, "N", null, LocalDate.now(), null, null);
 
-            INSTANCE.insert(cache, result);
+            RawStudentLogic.insert(cache, result);
 
             // Scan FFR_TRNS table and add any MATH transfer credits not in that table already.
 
@@ -1555,7 +1543,7 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
 
                     final RawFfrTrns toAdd = new RawFfrTrns(live.studentId, live.courseId, "T", today, null);
 
-                    RawFfrTrnsLogic.INSTANCE.insert(cache, toAdd);
+                    RawFfrTrnsLogic.insert(cache, toAdd);
                 }
             }
         }
@@ -1652,7 +1640,7 @@ public final class RawStudentLogic extends AbstractRawLogic<RawStudent> {
                 banner.checkInConnection(bannerConn);
             }
         } catch (final SQLException ex) {
-            indicateBannerDown();
+            LogicUtils.indicateBannerDown();
             Log.warning(ex);
         }
     }

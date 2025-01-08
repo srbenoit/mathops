@@ -27,18 +27,8 @@ import java.util.List;
  * criteria             char(30)                  no
  * </pre>
  */
-public final class RawPaceTrackRuleLogic extends AbstractRawLogic<RawPaceTrackRule> {
-
-    /** A single instance. */
-    public static final RawPaceTrackRuleLogic INSTANCE = new RawPaceTrackRuleLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawPaceTrackRuleLogic() {
-
-        super();
-    }
+public enum RawPaceTrackRuleLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -48,8 +38,7 @@ public final class RawPaceTrackRuleLogic extends AbstractRawLogic<RawPaceTrackRu
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawPaceTrackRule record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawPaceTrackRule record) throws SQLException {
 
         if (record.termKey == null || record.subterm == null || record.pace == null || record.paceTrack == null) {
             throw new SQLException("Null value in primary key field.");
@@ -57,12 +46,12 @@ public final class RawPaceTrackRuleLogic extends AbstractRawLogic<RawPaceTrackRu
 
         final String sql = SimpleBuilder.concat(
                 "INSERT INTO pace_track_rule (term,term_yr,subterm,pace,pace_track,criteria) VALUES (",
-                sqlStringValue(record.termKey.termCode), ",",
-                sqlIntegerValue(record.termKey.shortYear), ",",
-                sqlStringValue(record.subterm), ",",
-                sqlIntegerValue(record.pace), ",",
-                sqlStringValue(record.paceTrack), ",",
-                sqlStringValue(record.criteria), ")");
+                LogicUtils.sqlStringValue(record.termKey.termCode), ",",
+                LogicUtils.sqlIntegerValue(record.termKey.shortYear), ",",
+                LogicUtils.sqlStringValue(record.subterm), ",",
+                LogicUtils.sqlIntegerValue(record.pace), ",",
+                LogicUtils.sqlStringValue(record.paceTrack), ",",
+                LogicUtils.sqlStringValue(record.criteria), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -85,15 +74,14 @@ public final class RawPaceTrackRuleLogic extends AbstractRawLogic<RawPaceTrackRu
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawPaceTrackRule record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawPaceTrackRule record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM pace_track_rule ",
-                "WHERE term=", sqlStringValue(record.termKey.termCode),
-                "  AND term_yr=", sqlIntegerValue(record.termKey.shortYear),
-                "  AND subterm=", sqlStringValue(record.subterm),
-                "  AND pace=", sqlIntegerValue(record.pace),
-                "  AND pace_track=", sqlStringValue(record.paceTrack));
+                "WHERE term=", LogicUtils.sqlStringValue(record.termKey.termCode),
+                "  AND term_yr=", LogicUtils.sqlIntegerValue(record.termKey.shortYear),
+                "  AND subterm=", LogicUtils.sqlStringValue(record.subterm),
+                "  AND pace=", LogicUtils.sqlIntegerValue(record.pace),
+                "  AND pace_track=", LogicUtils.sqlStringValue(record.paceTrack));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -115,8 +103,7 @@ public final class RawPaceTrackRuleLogic extends AbstractRawLogic<RawPaceTrackRu
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawPaceTrackRule> queryAll(final Cache cache) throws SQLException {
+    public static List<RawPaceTrackRule> queryAll(final Cache cache) throws SQLException {
 
         return executeListQuery(cache, "SELECT * FROM pace_track_rule");
     }
@@ -132,7 +119,7 @@ public final class RawPaceTrackRuleLogic extends AbstractRawLogic<RawPaceTrackRu
     public static List<RawPaceTrackRule> queryByTerm(final Cache cache, final TermKey termKey) throws SQLException {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM pace_track_rule",
-                " WHERE term=", sqlStringValue(termKey.termCode),
+                " WHERE term=", LogicUtils.sqlStringValue(termKey.termCode),
                 "   AND term_yr=", termKey.shortYear);
 
         return executeListQuery(cache, sql);

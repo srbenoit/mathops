@@ -2249,7 +2249,7 @@ public final class UnitExamSession extends HtmlSessionBase {
                 stexam.examType, "N", stexam.examSource, null);
 
         String error = null;
-        if (RawStexamLogic.INSTANCE.insert(cache, record)) {
+        if (RawStexamLogic.insert(cache, record)) {
 
             RawStexamLogic.recalculateFirstPassed(cache, stexam.studentId, stexam.course, stexam.unit, stexam.examType);
 
@@ -2264,7 +2264,7 @@ public final class UnitExamSession extends HtmlSessionBase {
                         ansrec.objective, ansrec.studentAnswer, stexam.studentId, stexam.examId,
                         ansrec.correct ? "Y" : "N", fin.toLocalDate(), ansrec.subtest, Integer.valueOf(finishTime));
 
-                RawStqaLogic.INSTANCE.insert(cache, answer);
+                RawStqaLogic.insert(cache, answer);
                 ++question;
             }
         } else {
@@ -2288,7 +2288,7 @@ public final class UnitExamSession extends HtmlSessionBase {
             final RawMpeCredit credit = new RawMpeCredit(stexam.studentId, RawRecordConstants.M100C, "P",
                     stexam.finish.toLocalDate(), null, stexam.serialNumber, stexam.examId, null);
 
-            RawMpeCreditLogic.INSTANCE.apply(cache, credit);
+            RawMpeCreditLogic.apply(cache, credit);
 
             // Send results to BANNER, or store in queue table
             final RawStudent stu = getStudent();
@@ -2301,7 +2301,7 @@ public final class UnitExamSession extends HtmlSessionBase {
                 final DbConnection liveConn = liveCtx.checkOutConnection();
 
                 try {
-                    RawMpscorequeueLogic.INSTANCE.postELMTutorialResult(cache, liveConn, stu.pidm, stexam.finish);
+                    RawMpscorequeueLogic.postELMTutorialResult(cache, liveConn, stu.pidm, stexam.finish);
                 } finally {
                     liveCtx.checkInConnection(liveConn);
                 }
@@ -2335,7 +2335,7 @@ public final class UnitExamSession extends HtmlSessionBase {
             final RawMpeCredit credit = new RawMpeCredit(stexam.studentId, course, "P", stexam.finish.toLocalDate(),
                     null, stexam.serialNumber, stexam.examId, null);
 
-            RawMpeCreditLogic.INSTANCE.apply(cache, credit);
+            RawMpeCreditLogic.apply(cache, credit);
 
             // Send results to BANNER, or store in queue table
             final RawStudent stu = getStudent();
@@ -2348,7 +2348,7 @@ public final class UnitExamSession extends HtmlSessionBase {
                 final DbConnection liveConn = liveCtx.checkOutConnection();
 
                 try {
-                    RawMpscorequeueLogic.INSTANCE.postPrecalcTutorialResult(cache, liveConn, stu.pidm, course,
+                    RawMpscorequeueLogic.postPrecalcTutorialResult(cache, liveConn, stu.pidm, course,
                             stexam.finish);
                 } finally {
                     liveCtx.checkInConnection(liveConn);
@@ -2404,7 +2404,7 @@ public final class UnitExamSession extends HtmlSessionBase {
                 stexam.finish.toLocalDate(), stexam.subtestScores.get("score"), calc, passed ? "Y" : "N");
 
         String error = null;
-        if (!RawUsersLogic.INSTANCE.insert(cache, attempt)) {
+        if (!RawUsersLogic.insert(cache, attempt)) {
             error = "Failed to inser record of User's exam";
         }
 

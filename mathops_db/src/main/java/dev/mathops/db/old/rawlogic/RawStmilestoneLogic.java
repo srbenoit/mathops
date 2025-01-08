@@ -31,18 +31,8 @@ import java.util.List;
  * nbr_atmpts_allow     smallint          yes
  * </pre>
  */
-public final class RawStmilestoneLogic extends AbstractRawLogic<RawStmilestone> {
-
-    /** A single instance. */
-    public static final RawStmilestoneLogic INSTANCE = new RawStmilestoneLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawStmilestoneLogic() {
-
-        super();
-    }
+public enum RawStmilestoneLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -52,8 +42,7 @@ public final class RawStmilestoneLogic extends AbstractRawLogic<RawStmilestone> 
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawStmilestone record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawStmilestone record) throws SQLException {
 
         if (record.stuId == null || record.termKey == null || record.paceTrack == null
                 || record.msNbr == null || record.msType == null) {
@@ -62,14 +51,14 @@ public final class RawStmilestoneLogic extends AbstractRawLogic<RawStmilestone> 
 
         final String sql = SimpleBuilder.concat("INSERT INTO stmilestone (",
                 "stu_id,term,term_yr,pace_track,ms_nbr,ms_type,ms_date,nbr_atmpts_allow) VALUES (",
-                sqlStringValue(record.stuId), ",",
-                sqlStringValue(record.termKey.termCode), ",",
+                LogicUtils.sqlStringValue(record.stuId), ",",
+                LogicUtils.sqlStringValue(record.termKey.termCode), ",",
                 record.termKey.shortYear, ",",
-                sqlStringValue(record.paceTrack), ",",
+                LogicUtils.sqlStringValue(record.paceTrack), ",",
                 record.msNbr, ",",
-                sqlStringValue(record.msType), ",",
-                sqlDateValue(record.msDate), ",",
-                sqlIntegerValue(record.nbrAtmptsAllow),")");
+                LogicUtils.sqlStringValue(record.msType), ",",
+                LogicUtils.sqlDateValue(record.msDate), ",",
+                LogicUtils.sqlIntegerValue(record.nbrAtmptsAllow),")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -92,18 +81,17 @@ public final class RawStmilestoneLogic extends AbstractRawLogic<RawStmilestone> 
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawStmilestone record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawStmilestone record) throws SQLException {
 
         final HtmlBuilder sql = new HtmlBuilder(100);
 
         sql.add("DELETE FROM stmilestone ",
-                " WHERE stu_id=", sqlStringValue(record.stuId),
-                "   AND term=", sqlStringValue(record.termKey.termCode),
-                "   AND term_yr=", sqlIntegerValue(record.termKey.shortYear),
-                "   AND pace_track=", sqlStringValue(record.paceTrack),
-                "   AND ms_nbr=", sqlIntegerValue(record.msNbr),
-                "   AND ms_type=", sqlStringValue(record.msType));
+                " WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                "   AND term=", LogicUtils.sqlStringValue(record.termKey.termCode),
+                "   AND term_yr=", LogicUtils.sqlIntegerValue(record.termKey.shortYear),
+                "   AND pace_track=", LogicUtils.sqlStringValue(record.paceTrack),
+                "   AND ms_nbr=", LogicUtils.sqlIntegerValue(record.msNbr),
+                "   AND ms_type=", LogicUtils.sqlStringValue(record.msType));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql.toString()) == 1;
@@ -125,8 +113,7 @@ public final class RawStmilestoneLogic extends AbstractRawLogic<RawStmilestone> 
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawStmilestone> queryAll(final Cache cache) throws SQLException {
+    public static List<RawStmilestone> queryAll(final Cache cache) throws SQLException {
 
         final List<RawStmilestone> result = new ArrayList<>(500);
 
@@ -153,7 +140,7 @@ public final class RawStmilestoneLogic extends AbstractRawLogic<RawStmilestone> 
 
         final HtmlBuilder sql = new HtmlBuilder(100);
 
-        sql.add("SELECT * FROM stmilestone WHERE stu_id=", sqlStringValue(stuId));
+        sql.add("SELECT * FROM stmilestone WHERE stu_id=", LogicUtils.sqlStringValue(stuId));
 
         final List<RawStmilestone> result = new ArrayList<>(20);
 
@@ -183,9 +170,9 @@ public final class RawStmilestoneLogic extends AbstractRawLogic<RawStmilestone> 
         final HtmlBuilder sql = new HtmlBuilder(100);
 
         sql.add("SELECT * FROM stmilestone",
-                " WHERE term=", sqlStringValue(termKey.termCode),
-                "   AND term_yr=", sqlIntegerValue(termKey.shortYear),
-                "   AND stu_id=", sqlStringValue(stuId));
+                " WHERE term=", LogicUtils.sqlStringValue(termKey.termCode),
+                "   AND term_yr=", termKey.shortYear,
+                "   AND stu_id=", LogicUtils.sqlStringValue(stuId));
 
         final List<RawStmilestone> result = new ArrayList<>(20);
 
@@ -217,10 +204,10 @@ public final class RawStmilestoneLogic extends AbstractRawLogic<RawStmilestone> 
         final HtmlBuilder sql = new HtmlBuilder(100);
 
         sql.add("SELECT * FROM stmilestone",
-                " WHERE term=", sqlStringValue(termKey.termCode),
-                "   AND term_yr=", sqlIntegerValue(termKey.shortYear),
-                "   AND pace_track=", sqlStringValue(paceTrack),
-                "   AND stu_id=", sqlStringValue(stuId));
+                " WHERE term=", LogicUtils.sqlStringValue(termKey.termCode),
+                "   AND term_yr=", LogicUtils.sqlIntegerValue(termKey.shortYear),
+                "   AND pace_track=", LogicUtils.sqlStringValue(paceTrack),
+                "   AND stu_id=", LogicUtils.sqlStringValue(stuId));
 
         final List<RawStmilestone> result = new ArrayList<>(20);
 
@@ -247,14 +234,14 @@ public final class RawStmilestoneLogic extends AbstractRawLogic<RawStmilestone> 
 
         final HtmlBuilder sql = new HtmlBuilder(100);
 
-        sql.add("UPDATE stmilestone SET ms_date=", sqlDateValue(record.msDate),
-                ", nbr_atmpts_allow=", sqlIntegerValue(record.nbrAtmptsAllow),
-                " WHERE stu_id=", sqlStringValue(record.stuId),
-                "   AND term=", sqlStringValue(record.termKey.termCode),
-                "   AND term_yr=", sqlIntegerValue(record.termKey.shortYear),
-                "   AND pace_track=", sqlStringValue(record.paceTrack),
-                "   AND ms_nbr=", sqlIntegerValue(record.msNbr),
-                "   AND ms_type=", sqlStringValue(record.msType));
+        sql.add("UPDATE stmilestone SET ms_date=", LogicUtils.sqlDateValue(record.msDate),
+                ", nbr_atmpts_allow=", LogicUtils.sqlIntegerValue(record.nbrAtmptsAllow),
+                " WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                "   AND term=", LogicUtils.sqlStringValue(record.termKey.termCode),
+                "   AND term_yr=", LogicUtils.sqlIntegerValue(record.termKey.shortYear),
+                "   AND pace_track=", LogicUtils.sqlStringValue(record.paceTrack),
+                "   AND ms_nbr=", LogicUtils.sqlIntegerValue(record.msNbr),
+                "   AND ms_type=", LogicUtils.sqlStringValue(record.msType));
 
         Log.info(sql.toString());
 

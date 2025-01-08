@@ -131,11 +131,11 @@ final class TestRawSthomeworkLogic {
                         "N", "HW", RawRecordConstants.M117, "001", Integer.valueOf(1), Integer.valueOf(1), "N", null,
                         null);
 
-                assertTrue(RawSthomeworkLogic.INSTANCE.insert(cache, raw1), "Failed to insert sthomework 1");
-                assertTrue(RawSthomeworkLogic.INSTANCE.insert(cache, raw2), "Failed to insert sthomework 2");
-                assertTrue(RawSthomeworkLogic.INSTANCE.insert(cache, raw3), "Failed to insert sthomework 3");
-                assertTrue(RawSthomeworkLogic.INSTANCE.insert(cache, raw4), "Failed to insert sthomework 4");
-                assertTrue(RawSthomeworkLogic.INSTANCE.insert(cache, raw5), "Failed to insert sthomework 5");
+                assertTrue(RawSthomeworkLogic.insert(cache, raw1), "Failed to insert sthomework 1");
+                assertTrue(RawSthomeworkLogic.insert(cache, raw2), "Failed to insert sthomework 2");
+                assertTrue(RawSthomeworkLogic.insert(cache, raw3), "Failed to insert sthomework 3");
+                assertTrue(RawSthomeworkLogic.insert(cache, raw4), "Failed to insert sthomework 4");
+                assertTrue(RawSthomeworkLogic.insert(cache, raw5), "Failed to insert sthomework 5");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -155,7 +155,7 @@ final class TestRawSthomeworkLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawSthomework> all = RawSthomeworkLogic.INSTANCE.queryAll(cache);
+                final List<RawSthomework> all = RawSthomeworkLogic.queryAll(cache);
 
                 assertEquals(5, all.size(), "Incorrect record count from queryAll");
 
@@ -1223,7 +1223,7 @@ final class TestRawSthomeworkLogic {
 
                 assertTrue(result, "updateFinishTimeScore returned false");
 
-                final List<RawSthomework> all = RawSthomeworkLogic.INSTANCE.queryAll(cache);
+                final List<RawSthomework> all = RawSthomeworkLogic.queryAll(cache);
 
                 assertEquals(5, all.size(), "Incorrect record count from queryAll after updateFinishTimeScore");
 
@@ -1386,11 +1386,11 @@ final class TestRawSthomeworkLogic {
                         "Y", "HW", RawRecordConstants.M117, "001", Integer.valueOf(1), Integer.valueOf(1), "N", null,
                         null);
 
-                final boolean result = RawSthomeworkLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawSthomeworkLogic.delete(cache, raw2);
 
                 assertTrue(result, "delete returned false");
 
-                final List<RawSthomework> all = RawSthomeworkLogic.INSTANCE.queryAll(cache);
+                final List<RawSthomework> all = RawSthomeworkLogic.queryAll(cache);
 
                 assertEquals(4, all.size(), "Incorrect record count from queryAll after delete");
 

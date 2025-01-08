@@ -491,7 +491,7 @@ final class ReturnCard extends AdmPanelBase implements ActionListener {
 
                 if (!contains) {
                     Log.info("Deleting hold " + hold.holdId);
-                    RawAdminHoldLogic.INSTANCE.delete(this.cache, hold);
+                    RawAdminHoldLogic.delete(this.cache, hold);
                 }
             }
 

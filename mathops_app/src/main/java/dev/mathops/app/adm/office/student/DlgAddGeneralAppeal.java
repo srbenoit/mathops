@@ -422,7 +422,7 @@ public final class DlgAddGeneralAppeal extends JFrame implements ActionListener,
 
             final RawMilestoneAppeal newRecord = new RawMilestoneAppeal(this.active, stuId, appealDateTime, appealType,
                     null, null, null, null, null, null, null, circumstances, comment, interviewer);
-            RawMilestoneAppealLogic.INSTANCE.insert(this.cache, newRecord);
+            RawMilestoneAppealLogic.insert(this.cache, newRecord);
 
             if (this.listener != null) {
                 this.listener.updateAppeals();

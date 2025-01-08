@@ -245,7 +245,7 @@ class SpecialStudentsPanel extends AdmPanelBase implements ActionListener, ListS
         try {
             final Map<String, Integer> types = new TreeMap<>();
 
-            final List<RawSpecialStus> all = RawSpecialStusLogic.INSTANCE.queryAll(this.cache);
+            final List<RawSpecialStus> all = RawSpecialStusLogic.queryAll(this.cache);
             for (final RawSpecialStus row : all) {
                 final Integer count = types.get(row.stuType);
                 if (count == null) {
@@ -455,7 +455,7 @@ class SpecialStudentsPanel extends AdmPanelBase implements ActionListener, ListS
                             if (exists) {
                                 Log.info("Skipping existing record for ", stuId);
                             } else {
-                                RawSpecialStusLogic.INSTANCE.insert(this.cache, toAdd);
+                                RawSpecialStusLogic.insert(this.cache, toAdd);
                             }
                         } catch (final SQLException ex) {
                             Log.warning("Failed to insert record.", ex);
@@ -509,7 +509,7 @@ class SpecialStudentsPanel extends AdmPanelBase implements ActionListener, ListS
                             if (selType.equals(hitRow.stuType)) {
                                 Log.info("Delete '", selType,
                                         "' row for ", stuId);
-                                RawSpecialStusLogic.INSTANCE.delete(this.cache, hitRow);
+                                RawSpecialStusLogic.delete(this.cache, hitRow);
                             }
                         }
                     } catch (final SQLException ex) {

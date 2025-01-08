@@ -97,10 +97,10 @@ final class TestRawPaceTrackRuleLogic {
                 final RawPaceTrackRule raw3 = new RawPaceTrackRule(fa20, "A", Integer.valueOf(3), "F", "G");
                 final RawPaceTrackRule raw4 = new RawPaceTrackRule(fa21, "B", Integer.valueOf(4), "H", "I");
 
-                assertTrue(RawPaceTrackRuleLogic.INSTANCE.insert(cache, raw1), "Failed to insert pace_track_rule 1");
-                assertTrue(RawPaceTrackRuleLogic.INSTANCE.insert(cache, raw2), "Failed to insert pace_track_rule 2");
-                assertTrue(RawPaceTrackRuleLogic.INSTANCE.insert(cache, raw3), "Failed to insert pace_track_rule 3");
-                assertTrue(RawPaceTrackRuleLogic.INSTANCE.insert(cache, raw4), "Failed to insert pace_track_rule 4");
+                assertTrue(RawPaceTrackRuleLogic.insert(cache, raw1), "Failed to insert pace_track_rule 1");
+                assertTrue(RawPaceTrackRuleLogic.insert(cache, raw2), "Failed to insert pace_track_rule 2");
+                assertTrue(RawPaceTrackRuleLogic.insert(cache, raw3), "Failed to insert pace_track_rule 3");
+                assertTrue(RawPaceTrackRuleLogic.insert(cache, raw4), "Failed to insert pace_track_rule 4");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -120,7 +120,7 @@ final class TestRawPaceTrackRuleLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawPaceTrackRule> all = RawPaceTrackRuleLogic.INSTANCE.queryAll(cache);
+                final List<RawPaceTrackRule> all = RawPaceTrackRuleLogic.queryAll(cache);
 
                 assertEquals(4, all.size(), "Incorrect record count from queryAll");
 
@@ -255,10 +255,10 @@ final class TestRawPaceTrackRuleLogic {
             try {
                 final RawPaceTrackRule raw2 = new RawPaceTrackRule(fa21, "A", Integer.valueOf(2), "D", "E");
 
-                final boolean result = RawPaceTrackRuleLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawPaceTrackRuleLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawPaceTrackRule> all = RawPaceTrackRuleLogic.INSTANCE.queryAll(cache);
+                final List<RawPaceTrackRule> all = RawPaceTrackRuleLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll after delete");
 

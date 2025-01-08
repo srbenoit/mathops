@@ -30,18 +30,8 @@ import java.util.List;
  * last_component_finished  smallint                  yes
  * </pre>
  */
-public final class RawStcuobjectiveLogic extends AbstractRawLogic<RawStcuobjective> {
-
-    /** A single instance. */
-    public static final RawStcuobjectiveLogic INSTANCE = new RawStcuobjectiveLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawStcuobjectiveLogic() {
-
-        super();
-    }
+public enum RawStcuobjectiveLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -51,8 +41,7 @@ public final class RawStcuobjectiveLogic extends AbstractRawLogic<RawStcuobjecti
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawStcuobjective record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawStcuobjective record) throws SQLException {
 
         if (record.stuId == null || record.course == null || record.unit == null || record.objective == null) {
             throw new SQLException("Null value in primary key or required field.");
@@ -68,13 +57,13 @@ public final class RawStcuobjectiveLogic extends AbstractRawLogic<RawStcuobjecti
             final String sql = SimpleBuilder.concat(
                     "INSERT INTO stcuobjective (stu_id,course,unit,objective,",
                     "lecture_viewed_dt,seed,last_component_finished) VALUES (",
-                    sqlStringValue(record.stuId), ",",
-                    sqlStringValue(record.course), ",",
-                    sqlIntegerValue(record.unit), ",",
-                    sqlIntegerValue(record.objective), ",",
-                    sqlDateValue(record.lectureViewedDt), ",",
-                    sqlIntegerValue(record.seed), ",",
-                    sqlIntegerValue(record.lastComponentFinished), ")");
+                    LogicUtils.sqlStringValue(record.stuId), ",",
+                    LogicUtils.sqlStringValue(record.course), ",",
+                    LogicUtils.sqlIntegerValue(record.unit), ",",
+                    LogicUtils.sqlIntegerValue(record.objective), ",",
+                    LogicUtils.sqlDateValue(record.lectureViewedDt), ",",
+                    LogicUtils.sqlIntegerValue(record.seed), ",",
+                    LogicUtils.sqlIntegerValue(record.lastComponentFinished), ")");
 
             try (final Statement stmt = cache.conn.createStatement()) {
                 result = stmt.executeUpdate(sql) == 1;
@@ -98,16 +87,15 @@ public final class RawStcuobjectiveLogic extends AbstractRawLogic<RawStcuobjecti
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawStcuobjective record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawStcuobjective record) throws SQLException {
 
         final boolean result;
 
         final String sql = SimpleBuilder.concat("DELETE FROM stcuobjective ",
-                "WHERE stu_id=", sqlStringValue(record.stuId),
-                "  AND course=", sqlStringValue(record.course),
-                "  AND unit=", sqlIntegerValue(record.unit),
-                "  AND objective=", sqlIntegerValue(record.objective));
+                "WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                "  AND course=", LogicUtils.sqlStringValue(record.course),
+                "  AND unit=", LogicUtils.sqlIntegerValue(record.unit),
+                "  AND objective=", LogicUtils.sqlIntegerValue(record.objective));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             result = stmt.executeUpdate(sql) == 1;
@@ -129,8 +117,7 @@ public final class RawStcuobjectiveLogic extends AbstractRawLogic<RawStcuobjecti
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawStcuobjective> queryAll(final Cache cache) throws SQLException {
+    public static List<RawStcuobjective> queryAll(final Cache cache) throws SQLException {
 
         final String sql = "SELECT * FROM stcuobjective";
 
@@ -140,7 +127,7 @@ public final class RawStcuobjectiveLogic extends AbstractRawLogic<RawStcuobjecti
     /**
      * Gets all records for a student.
      *
-     * @param cache the data cache
+     * @param cache     the data cache
      * @param studentId the ID of the student to query
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
@@ -149,7 +136,7 @@ public final class RawStcuobjectiveLogic extends AbstractRawLogic<RawStcuobjecti
 
         final String sql = SimpleBuilder.concat(
                 "SELECT * FROM stcuobjective",
-                " WHERE stu_id=", sqlStringValue(studentId));
+                " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
         return doListQuery(cache, sql);
     }
@@ -170,10 +157,10 @@ public final class RawStcuobjectiveLogic extends AbstractRawLogic<RawStcuobjecti
 
         final String sql = SimpleBuilder.concat(
                 "SELECT * FROM stcuobjective",
-                " WHERE stu_id=", sqlStringValue(studentId),
-                " AND course=", sqlStringValue(courseId),
-                " AND unit=", sqlIntegerValue(unit),
-                " AND objective=", sqlIntegerValue(objective));
+                " WHERE stu_id=", LogicUtils.sqlStringValue(studentId),
+                " AND course=", LogicUtils.sqlStringValue(courseId),
+                " AND unit=", LogicUtils.sqlIntegerValue(unit),
+                " AND objective=", LogicUtils.sqlIntegerValue(objective));
 
         return doSingleQuery(cache.conn, sql);
     }
@@ -228,18 +215,18 @@ public final class RawStcuobjectiveLogic extends AbstractRawLogic<RawStcuobjecti
                 sql = SimpleBuilder.concat(
                         "INSERT INTO stcuobjective (stu_id,course,unit,objective,",
                         "lecture_viewed_dt) VALUES (",
-                        sqlStringValue(studentId), ",",
-                        sqlStringValue(courseId), ",",
-                        sqlIntegerValue(unit), ",",
-                        sqlIntegerValue(objective), ",",
-                        sqlDateValue(now.toLocalDate()), ")");
+                        LogicUtils.sqlStringValue(studentId), ",",
+                        LogicUtils.sqlStringValue(courseId), ",",
+                        LogicUtils.sqlIntegerValue(unit), ",",
+                        LogicUtils.sqlIntegerValue(objective), ",",
+                        LogicUtils.sqlDateValue(now.toLocalDate()), ")");
             } else {
                 sql = SimpleBuilder.concat("UPDATE stcuobjective ",
-                        "SET lecture_viewed_dt=", sqlDateValue(now.toLocalDate()),
-                        " WHERE stu_id=", sqlStringValue(studentId),
-                        " AND course=", sqlStringValue(courseId),
-                        " AND unit=", sqlIntegerValue(unit),
-                        " AND objective=", sqlIntegerValue(objective));
+                        "SET lecture_viewed_dt=", LogicUtils.sqlDateValue(now.toLocalDate()),
+                        " WHERE stu_id=", LogicUtils.sqlStringValue(studentId),
+                        " AND course=", LogicUtils.sqlStringValue(courseId),
+                        " AND unit=", LogicUtils.sqlIntegerValue(unit),
+                        " AND objective=", LogicUtils.sqlIntegerValue(objective));
             }
 
             try (final Statement stmt = cache.conn.createStatement()) {
@@ -283,7 +270,7 @@ public final class RawStcuobjectiveLogic extends AbstractRawLogic<RawStcuobjecti
      * Executes a query that returns a list of records.
      *
      * @param cache the cache
-     * @param sql  the SQL to execute
+     * @param sql   the SQL to execute
      * @return the list of matching records
      * @throws SQLException if there is an error accessing the database
      */

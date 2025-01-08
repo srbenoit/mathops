@@ -285,7 +285,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
                             Integer.valueOf(finish.getHour() * 60 + finish.getMinute()),
                             "Y", "C", null, exam.course, unit, examObj.examType, "N", source, null);
 
-                    RawStexamLogic.INSTANCE.insert(cache, stexam);
+                    RawStexamLogic.insert(cache, stexam);
                 }
             }
         }
@@ -1491,7 +1491,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
                             final RawStsurveyqa updated = new RawStsurveyqa(answer.stuId, answer.version,
                                     stexam.finish.toLocalDate(), answer.surveyNbr, survey.studentAnswer,
                                     Integer.valueOf(TemporalUtils.minuteOfDay(stexam.finish)));
-                            RawStsurveyqaLogic.INSTANCE.insert(cache, updated);
+                            RawStsurveyqaLogic.insert(cache, updated);
                             answers.set(i, updated);
                         }
                     } else if (!answer.stuAnswer.equals(survey.studentAnswer)) {
@@ -1499,7 +1499,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
                         final RawStsurveyqa updated = new RawStsurveyqa(answer.stuId, answer.version,
                                 stexam.finish.toLocalDate(), answer.surveyNbr, survey.studentAnswer,
                                 Integer.valueOf(TemporalUtils.minuteOfDay(stexam.finish)));
-                        RawStsurveyqaLogic.INSTANCE.insert(cache, updated);
+                        RawStsurveyqaLogic.insert(cache, updated);
                         answers.set(i, updated);
                     }
 
@@ -1511,7 +1511,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
                 final RawStsurveyqa answer = new RawStsurveyqa(stexam.studentId, stexam.examId,
                         stexam.finish.toLocalDate(), Integer.valueOf(survey.id), survey.studentAnswer,
                         Integer.valueOf(TemporalUtils.minuteOfDay(stexam.finish)));
-                RawStsurveyqaLogic.INSTANCE.insert(cache, answer);
+                RawStsurveyqaLogic.insert(cache, answer);
             }
         }
 
@@ -1585,7 +1585,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
 
                 final RawStudent student = getStudentData().getStudentRecord();
 
-                if (RawAdminHoldLogic.INSTANCE.insert(cache, hold) && !"F".equals(student.sevAdminHold)) {
+                if (RawAdminHoldLogic.insert(cache, hold) && !"F".equals(student.sevAdminHold)) {
                     RawStudentLogic.updateHoldSeverity(cache, student.stuId, "F");
                     // Update cached record in place to avoid re-query
                     student.sevAdminHold = "F";
@@ -1651,7 +1651,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
                             Integer.valueOf(ansrec.id), ansrec.studentAnswer, ansrec.correct ? "Y" : "N",
                             ansrec.subtest, ansrec.treeRef);
 
-            ok = RawStmpeqaLogic.INSTANCE.insert(cache, answer);
+            ok = RawStmpeqaLogic.insert(cache, answer);
         }
 
         if (ok) {
@@ -1668,7 +1668,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
         // Last thing is to insert the actual STMPE row. We do this last so other jobs can know
         // that if they see a row in this table, the associated data will be present and complete.
         if (ok) {
-            ok = RawStmpeLogic.INSTANCE.insert(cache, attempt);
+            ok = RawStmpeLogic.insert(cache, attempt);
 
             // Clear the indication that the student has checked their results...
             RawStmathplanLogic.deleteAllForPage(cache, attempt.stuId, "WLCM7");
@@ -1709,7 +1709,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
             final RawMpeCredit credit = new RawMpeCredit(stexam.studentId, placeIn, "P", stexam.finish.toLocalDate(),
                     null, stexam.serialNumber, stexam.examId, source);
 
-            RawMpeCreditLogic.INSTANCE.apply(cache, credit);
+            RawMpeCreditLogic.apply(cache, credit);
         }
 
         // Indicate all earned credit.
@@ -1728,7 +1728,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
             final RawMpeCredit credit = new RawMpeCredit(stexam.studentId, placeIn, "C", stexam.finish.toLocalDate(),
                     null, stexam.serialNumber, stexam.examId, source);
 
-            RawMpeCreditLogic.INSTANCE.apply(cache, credit);
+            RawMpeCreditLogic.apply(cache, credit);
         }
 
         // Record all ignored credit results
@@ -1748,7 +1748,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
                     stexam.finish.toLocalDate(), stexam.deniedCredit.get(placeIn), stexam.serialNumber, stexam.examId,
                     source);
 
-            RawMpecrDeniedLogic.INSTANCE.insert(cache, denied);
+            RawMpecrDeniedLogic.insert(cache, denied);
         }
 
         // Record all ignored placement results
@@ -1767,7 +1767,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
             final RawMpecrDenied denied = new RawMpecrDenied(stexam.studentId, entry.getKey(), "P",
                     stexam.finish.toLocalDate(), entry.getValue(), stexam.serialNumber, stexam.examId, source);
 
-            RawMpecrDeniedLogic.INSTANCE.insert(cache, denied);
+            RawMpecrDeniedLogic.insert(cache, denied);
         }
 
         // Send results to BANNER, or store in queue table
@@ -1782,11 +1782,11 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
 
             try {
                 if (RawRecordConstants.M100P.equals(stexam.course)) {
-                    RawMpscorequeueLogic.INSTANCE.postPlacementToolResult(cache, liveConn, student.pidm,
+                    RawMpscorequeueLogic.postPlacementToolResult(cache, liveConn, student.pidm,
                             new ArrayList<>(stexam.earnedPlacement), stexam.finish);
                 } else if (RawRecordConstants.M100T.equals(stexam.course)) {
                     if (stexam.earnedPlacement.contains(RawRecordConstants.M100C)) {
-                        RawMpscorequeueLogic.INSTANCE.postELMTutorialResult(cache, liveConn, student.pidm,
+                        RawMpscorequeueLogic.postELMTutorialResult(cache, liveConn, student.pidm,
                                 stexam.finish);
                     }
                 } else {
@@ -1804,12 +1804,12 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
                     }
 
                     if (course != null && stexam.earnedPlacement.contains(course)) {
-                        RawMpscorequeueLogic.INSTANCE.postPrecalcTutorialResult(cache, liveConn, student.pidm, course,
+                        RawMpscorequeueLogic.postPrecalcTutorialResult(cache, liveConn, student.pidm, course,
                                 stexam.finish);
                     }
 
                     for (final String credit : stexam.earnedCredit) {
-                        RawMpscorequeueLogic.INSTANCE.postChallengeCredit(cache, liveConn, student.pidm, credit,
+                        RawMpscorequeueLogic.postChallengeCredit(cache, liveConn, student.pidm, credit,
                                 stexam.finish);
                     }
                 }
@@ -1884,7 +1884,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
 
                 // Now that we've inserted a fatal hold, update the student record to indicate a fatal hold exists.
                 // TODO: Fix hardcode
-                if (RawAdminHoldLogic.INSTANCE.insert(cache, hold) && !"F".equals(student.sevAdminHold)) {
+                if (RawAdminHoldLogic.insert(cache, hold) && !"F".equals(student.sevAdminHold)) {
                     RawStudentLogic.updateHoldSeverity(cache, student.stuId, "F");
                     // Update cached record in place to avoid re-query
                     student.sevAdminHold = "F";
@@ -1955,7 +1955,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
                     ansrec.studentAnswer, //
                     ansrec.correct ? "Y" : "N");
 
-            ok = RawStchallengeqaLogic.INSTANCE.insert(cache, answer);
+            ok = RawStchallengeqaLogic.insert(cache, answer);
         }
 
         if (ok) {
@@ -1965,7 +1965,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
         // Last thing is to insert the actual STMPE row. We do this last so other jobs can know
         // that if they see a row in this table, the associated data will be present and complete.
         if (ok) {
-            ok = RawStchallengeLogic.INSTANCE.insert(cache, attempt);
+            ok = RawStchallengeLogic.insert(cache, attempt);
         }
 
         return ok;
@@ -2013,7 +2013,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
                 Integer.valueOf(startInt), Integer.valueOf(finInt), "Y", passed, null,
                 stexam.course, stexam.unit, stexam.examType, "N", source, null);
 
-        final boolean ok = RawStexamLogic.INSTANCE.insert(cache, exam);
+        final boolean ok = RawStexamLogic.insert(cache, exam);
 
         if (ok) {
             RawStexamLogic.recalculateFirstPassed(cache, stexam.studentId, stexam.course,
@@ -2026,7 +2026,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
                         ansrec.objective, ansrec.studentAnswer, stexam.studentId, stexam.examId, //
                         ansrec.correct ? "Y" : "N", fin.toLocalDate(), ansrec.subtest, Integer.valueOf(finInt));
 
-                RawStqaLogic.INSTANCE.insert(cache, answer);
+                RawStqaLogic.insert(cache, answer);
                 ++question;
             }
         }
@@ -2091,7 +2091,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
                 stexam.examId, stexam.finish.toLocalDate(), stexam.subtestScores.get("score"),
                 calc, passed ? "Y" : "N");
 
-        return RawUsersLogic.INSTANCE.insert(cache, attempt);
+        return RawUsersLogic.insert(cache, attempt);
     }
 
     /**

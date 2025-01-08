@@ -116,9 +116,9 @@ final class TestRawPacingStructureLogic {
 
                 assertTrue(cache.getSystemData().insertTerm(term1), "Failed to insert term 1");
 
-                assertTrue(RawPacingStructureLogic.INSTANCE.insert(cache, raw1), "Failed to insert pacing_structure 1");
-                assertTrue(RawPacingStructureLogic.INSTANCE.insert(cache, raw2), "Failed to insert pacing_structure 2");
-                assertTrue(RawPacingStructureLogic.INSTANCE.insert(cache, raw3), "Failed to insert pacing_structure 3");
+                assertTrue(RawPacingStructureLogic.insert(cache, raw1), "Failed to insert pacing_structure 1");
+                assertTrue(RawPacingStructureLogic.insert(cache, raw2), "Failed to insert pacing_structure 2");
+                assertTrue(RawPacingStructureLogic.insert(cache, raw3), "Failed to insert pacing_structure 3");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -138,7 +138,7 @@ final class TestRawPacingStructureLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawPacingStructure> all = RawPacingStructureLogic.INSTANCE.queryAll(cache);
+                final List<RawPacingStructure> all = RawPacingStructureLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -500,10 +500,10 @@ final class TestRawPacingStructureLogic {
                         Integer.valueOf(15), Integer.valueOf(16), Integer.valueOf(17), Integer.valueOf(18), "j", "k",
                         "l", "m", "n", "o", "p", null);
 
-                final boolean result = RawPacingStructureLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawPacingStructureLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawPacingStructure> all = RawPacingStructureLogic.INSTANCE.queryAll(cache);
+                final List<RawPacingStructure> all = RawPacingStructureLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 

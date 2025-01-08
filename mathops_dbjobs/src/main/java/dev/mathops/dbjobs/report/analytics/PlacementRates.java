@@ -100,10 +100,10 @@ final class PlacementRates {
         final File desktop = new File("F:/OneDrive - Colostate/Desktop/");
         final HtmlBuilder htm = new HtmlBuilder(10000);
 
-        final List<RawStmpe> allStmpe = RawStmpeLogic.INSTANCE.queryAll(this.cache);
-        final List<RawMpeCredit> allMpeCredit = RawMpeCreditLogic.INSTANCE.queryAll(this.cache);
-        final List<RawFfrTrns> allTransfer = RawFfrTrnsLogic.INSTANCE.queryAll(this.cache);
-        final List<RawPrereq> allPrereq = RawPrereqLogic.INSTANCE.queryAll(this.cache);
+        final List<RawStmpe> allStmpe = RawStmpeLogic.queryAll(this.cache);
+        final List<RawMpeCredit> allMpeCredit = RawMpeCreditLogic.queryAll(this.cache);
+        final List<RawFfrTrns> allTransfer = RawFfrTrnsLogic.queryAll(this.cache);
+        final List<RawPrereq> allPrereq = RawPrereqLogic.queryAll(this.cache);
 
         final LocalDate today = LocalDate.now();
         final List<RawSpecialStus> specials = RawSpecialStusLogic.queryActiveByType(this.cache, specialCategory, today);

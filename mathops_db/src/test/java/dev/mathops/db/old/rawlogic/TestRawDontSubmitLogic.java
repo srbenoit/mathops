@@ -95,9 +95,9 @@ final class TestRawDontSubmitLogic {
                 final RawDontSubmit raw3 = new RawDontSubmit(new TermKey(ETermName.FALL, 2023),
                         RawRecordConstants.M124, "003");
 
-                assertTrue(RawDontSubmitLogic.INSTANCE.insert(cache, raw1), "Failed to insert dont_submit");
-                assertTrue(RawDontSubmitLogic.INSTANCE.insert(cache, raw2), "Failed to insert dont_submit");
-                assertTrue(RawDontSubmitLogic.INSTANCE.insert(cache, raw3), "Failed to insert dont_submit");
+                assertTrue(RawDontSubmitLogic.insert(cache, raw1), "Failed to insert dont_submit");
+                assertTrue(RawDontSubmitLogic.insert(cache, raw2), "Failed to insert dont_submit");
+                assertTrue(RawDontSubmitLogic.insert(cache, raw3), "Failed to insert dont_submit");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -117,7 +117,7 @@ final class TestRawDontSubmitLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawDontSubmit> all = RawDontSubmitLogic.INSTANCE.queryAll(cache);
+                final List<RawDontSubmit> all = RawDontSubmitLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -173,9 +173,9 @@ final class TestRawDontSubmitLogic {
                 final RawDontSubmit toDelete = new RawDontSubmit(new TermKey(ETermName.SPRING, 2021),
                         RawRecordConstants.M117, "001");
 
-                assertTrue(RawDontSubmitLogic.INSTANCE.delete(cache, toDelete), "Delete dont_submit failed");
+                assertTrue(RawDontSubmitLogic.delete(cache, toDelete), "Delete dont_submit failed");
 
-                final List<RawDontSubmit> all = RawDontSubmitLogic.INSTANCE.queryAll(cache);
+                final List<RawDontSubmit> all = RawDontSubmitLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll");
 

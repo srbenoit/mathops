@@ -110,9 +110,9 @@ final class TestRawPlcFeeLogic {
                 final RawPlcFee raw2 = new RawPlcFee("222222222", RawRecordConstants.M1170, date3, date4);
                 final RawPlcFee raw3 = new RawPlcFee("333333333", RawRecordConstants.M100P, date5, date6);
 
-                assertTrue(RawPlcFeeLogic.INSTANCE.insert(cache, raw1), "Failed to insert plc_fee 1");
-                assertTrue(RawPlcFeeLogic.INSTANCE.insert(cache, raw2), "Failed to insert plc_fee 2");
-                assertTrue(RawPlcFeeLogic.INSTANCE.insert(cache, raw3), "Failed to insert plc_fee 3");
+                assertTrue(RawPlcFeeLogic.insert(cache, raw1), "Failed to insert plc_fee 1");
+                assertTrue(RawPlcFeeLogic.insert(cache, raw2), "Failed to insert plc_fee 2");
+                assertTrue(RawPlcFeeLogic.insert(cache, raw3), "Failed to insert plc_fee 3");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -132,7 +132,7 @@ final class TestRawPlcFeeLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawPlcFee> all = RawPlcFeeLogic.INSTANCE.queryAll(cache);
+                final List<RawPlcFee> all = RawPlcFeeLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -247,10 +247,10 @@ final class TestRawPlcFeeLogic {
             try {
                 final RawPlcFee raw2 = new RawPlcFee("222222222", RawRecordConstants.M1170, date3, date4);
 
-                final boolean result = RawPlcFeeLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawPlcFeeLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawPlcFee> all = RawPlcFeeLogic.INSTANCE.queryAll(cache);
+                final List<RawPlcFee> all = RawPlcFeeLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 

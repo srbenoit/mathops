@@ -1800,13 +1800,13 @@ enum PageTestStudent {
         for (int i = 0; i < numSpec; ++i) {
             if (want[i]) {
                 if (!curTypes.contains(SPECIAL[i])) {
-                    RawSpecialStusLogic.INSTANCE.insert(cache, new RawSpecialStus(RawStudent.TEST_STUDENT_ID,
+                    RawSpecialStusLogic.insert(cache, new RawSpecialStus(RawStudent.TEST_STUDENT_ID,
                             SPECIAL[i], null, null));
                 }
             } else if (curTypes.contains(SPECIAL[i])) {
                 for (final RawSpecialStus test : existing) {
                     if (SPECIAL[i].equals(test.stuType)) {
-                        RawSpecialStusLogic.INSTANCE.delete(cache, test);
+                        RawSpecialStusLogic.delete(cache, test);
                         break;
                     }
                 }
@@ -1888,7 +1888,7 @@ enum PageTestStudent {
                             // Delete any results we don't want
                             for (final RawMpeCredit res : results) {
                                 if ((PT_OUTCOMES[j].equals(res.course) && res.serialNbr.equals(serial))
-                                    && !RawMpeCreditLogic.INSTANCE.delete(cache, res)) {
+                                    && !RawMpeCreditLogic.delete(cache, res)) {
                                     Log.warning("Failed to delete test student MPE_CREDIT");
                                     error = true;
                                 }
@@ -1914,13 +1914,13 @@ enum PageTestStudent {
                 }
             } else if (attempts[i] != null) {
                 // Delete the attempt and any related outcomes
-                if (RawStmpeLogic.INSTANCE.deleteExamAndAnswers(cache, attempts[i])) {
+                if (RawStmpeLogic.deleteExamAndAnswers(cache, attempts[i])) {
                     if (attempts[i] != null) {
                         final Long serial = attempts[i].serialNbr;
 
                         for (final RawMpeCredit res : results) {
                             if ((res.serialNbr != null && res.serialNbr.equals(serial))
-                                && !RawMpeCreditLogic.INSTANCE.delete(cache, res)) {
+                                && !RawMpeCreditLogic.delete(cache, res)) {
                                 Log.warning("Failed to delete test student MPE_CREDIT");
                                 error = true;
                             }
@@ -1997,7 +1997,7 @@ enum PageTestStudent {
                 Integer.valueOf(0), Integer.valueOf(0), placed ? "Y" : "N",
                 "P");
 
-        RawStmpeLogic.INSTANCE.insert(cache, record);
+        RawStmpeLogic.insert(cache, record);
     }
 
     /**
@@ -2016,7 +2016,7 @@ enum PageTestStudent {
         final RawMpeCredit credit = new RawMpeCredit(RawStudent.TEST_STUDENT_ID, course, outcome,
                 examDt, null, Long.valueOf(serial), "MPTTC", "TC");
 
-        RawMpeCreditLogic.INSTANCE.apply(cache, credit);
+        RawMpeCreditLogic.apply(cache, credit);
     }
 
     /**
@@ -2045,7 +2045,7 @@ enum PageTestStudent {
             final List<RawStexam> exams = RawStexamLogic.getExams(cache, RawStudent.TEST_STUDENT_ID,
                     tutorial, false, RawStexamLogic.ALL_EXAM_TYPES);
             for (final RawStexam exam : exams) {
-                RawStexamLogic.INSTANCE.delete(cache, exam);
+                RawStexamLogic.delete(cache, exam);
             }
 
             for (int i = 0; i < 5; ++i) {
@@ -2095,7 +2095,7 @@ enum PageTestStudent {
                     Integer.valueOf(time), Integer.valueOf(time), "Y", passing ? "Y" : "N", null, tutorial, unit,
                     "R", passing ? "Y" : "N", null, null);
 
-            RawStexamLogic.INSTANCE.insert(cache, record);
+            RawStexamLogic.insert(cache, record);
             // this is committed by the caller...
         } else {
             Log.warning("No unit review exam found for ", tutorial, " unit ", unit);
@@ -2127,7 +2127,7 @@ enum PageTestStudent {
                     Integer.valueOf(time), Integer.valueOf(time), "Y", passing ? "Y" : "N", null, tutorial,
                     Integer.valueOf(4), "R", passing ? "Y" : "N", null, null);
 
-            RawStexamLogic.INSTANCE.insert(cache, record);
+            RawStexamLogic.insert(cache, record);
             // this is committed by the caller...
         } else {
             Log.warning("No unit exam found for ", tutorial, " unit 4");
@@ -2211,7 +2211,7 @@ enum PageTestStudent {
         while (iter.hasNext()) {
             final RawStetext stetext = iter.next();
             if (etextId.equals(stetext.etextId)) {
-                RawStetextLogic.INSTANCE.delete(cache, stetext);
+                RawStetextLogic.delete(cache, stetext);
                 iter.remove();
             }
         }
@@ -2236,7 +2236,7 @@ enum PageTestStudent {
         final RawStetext model = new RawStetext(RawStudent.TEST_STUDENT_ID, etextId, dayBef, "88888888", expired ?
                 yester : null, yester, refunded ? yester : null, refunded ? "Admin Web Site config" : null);
 
-        RawStetextLogic.INSTANCE.insert(cache, model);
+        RawStetextLogic.insert(cache, model);
     }
 
     /**
@@ -2292,7 +2292,7 @@ enum PageTestStudent {
                     // Delete any existing row in case parameters have changed
                     for (final RawStcourse test : curReg) {
                         if (courseId.equals(test.course)) {
-                            RawStcourseLogic.INSTANCE.delete(cache, test);
+                            RawStcourseLogic.delete(cache, test);
                         }
                     }
 
@@ -2303,7 +2303,7 @@ enum PageTestStudent {
             } else {
                 for (final RawStcourse test : curReg) {
                     if (courseId.equals(test.course)) {
-                        RawStcourseLogic.INSTANCE.delete(cache, test);
+                        RawStcourseLogic.delete(cache, test);
                     }
                 }
             }
@@ -2317,7 +2317,7 @@ enum PageTestStudent {
 
         final RawStterm existingStterm = RawSttermLogic.query(cache, active.term, RawStudent.TEST_STUDENT_ID);
         if (existingStterm != null) {
-            RawSttermLogic.INSTANCE.delete(cache, existingStterm);
+            RawSttermLogic.delete(cache, existingStterm);
         }
 
         RawStudent student = RawStudentLogic.query(cache, RawStudent.TEST_STUDENT_ID, false);
@@ -2333,7 +2333,7 @@ enum PageTestStudent {
 
             final RawStterm newStterm = new RawStterm(active.term, RawStudent.TEST_STUDENT_ID, Integer.valueOf(pace),
                     track, first, null, null, null);
-            RawSttermLogic.INSTANCE.insert(cache, newStterm);
+            RawSttermLogic.insert(cache, newStterm);
 
             final String pacing = PaceTrackLogic.determinePacingStructure(cache, RawStudent.TEST_STUDENT_ID, inPace,
                     null);
@@ -2470,13 +2470,13 @@ enum PageTestStudent {
                     null); // iDeadlineDt
         }
 
-        final boolean success = RawStcourseLogic.INSTANCE.insert(cache, stcourse);
+        final boolean success = RawStcourseLogic.insert(cache, stcourse);
 
         if (success && isInc) {
             final RawStterm stTerm = new RawStterm(priorTerm.term, RawStudent.TEST_STUDENT_ID, Integer.valueOf(1), "A",
                     courseId, null, null, null);
 
-            RawSttermLogic.INSTANCE.insert(cache, stTerm);
+            RawSttermLogic.insert(cache, stTerm);
         }
     }
 
@@ -2493,13 +2493,13 @@ enum PageTestStudent {
         final List<RawSthomework> hws = RawSthomeworkLogic.queryByStudentCourse(cache, RawStudent.TEST_STUDENT_ID,
                 courseId, true);
         for (final RawSthomework hw : hws) {
-            RawSthomeworkLogic.INSTANCE.delete(cache, hw);
+            RawSthomeworkLogic.delete(cache, hw);
         }
 
         // Delete exams on record
         final List<RawStexam> exams = RawStexamLogic.getExams(cache, RawStudent.TEST_STUDENT_ID, courseId, true);
         for (final RawStexam exam : exams) {
-            RawStexamLogic.INSTANCE.delete(cache, exam);
+            RawStexamLogic.delete(cache, exam);
         }
 
         final SystemData systemData = cache.getSystemData();
@@ -2816,7 +2816,7 @@ enum PageTestStudent {
                 Integer.valueOf(startInt), Integer.valueOf(endInt), "Y", passed ? "Y" : "N", null, courseId, unit,
                 examType, firstPassed ? "Y" : "N", null, null);
 
-        RawStexamLogic.INSTANCE.insert(cache, exam);
+        RawStexamLogic.insert(cache, exam);
     }
 
     /**
@@ -2851,7 +2851,7 @@ enum PageTestStudent {
                 Integer.valueOf(3), time, time, "Y", passed, type, courseId, sect, Integer.valueOf(unit),
                 Integer.valueOf(objective), "N", null, null);
 
-        RawSthomeworkLogic.INSTANCE.insert(cache, sthw);
+        RawSthomeworkLogic.insert(cache, sthw);
     }
 
     /**

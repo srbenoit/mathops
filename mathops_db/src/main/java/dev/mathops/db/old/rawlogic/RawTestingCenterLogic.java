@@ -36,18 +36,8 @@ import java.util.List;
  * is_proctored         char(1)                   no
  * </pre>
  */
-public final class RawTestingCenterLogic extends AbstractRawLogic<RawTestingCenter> {
-
-    /** A single instance. */
-    public static final RawTestingCenterLogic INSTANCE = new RawTestingCenterLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawTestingCenterLogic() {
-
-        super();
-    }
+public enum RawTestingCenterLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -57,8 +47,7 @@ public final class RawTestingCenterLogic extends AbstractRawLogic<RawTestingCent
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawTestingCenter record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawTestingCenter record) throws SQLException {
 
         if (record.testingCenterId == null) {
             throw new SQLException("Null value in primary key field.");
@@ -69,21 +58,21 @@ public final class RawTestingCenterLogic extends AbstractRawLogic<RawTestingCent
                 "testing_center_id,tc_name,addres_1,addres_2,addres_3,city,state,",
                 "zip_code,active,dtime_created,dtime_approved,dtime_denied,",
                 "dtime_revoked,is_remote,is_proctored) VALUES (",
-                sqlStringValue(record.testingCenterId), ",",
-                sqlStringValue(record.tcName), ",",
-                sqlStringValue(record.addres1), ",",
-                sqlStringValue(record.addres2), ",",
-                sqlStringValue(record.addres3), ",",
-                sqlStringValue(record.city), ",",
-                sqlStringValue(record.state), ",",
-                sqlStringValue(record.zipCode), ",",
-                sqlStringValue(record.active), ",",
-                sqlDateTimeValue(record.dtimeCreated), ",",
-                sqlDateTimeValue(record.dtimeApproved), ",",
-                sqlDateTimeValue(record.dtimeDenied), ",",
-                sqlDateTimeValue(record.dtimeRevoked), ",",
-                sqlStringValue(record.isRemote), ",",
-                sqlStringValue(record.isProctored), ")");
+                LogicUtils.sqlStringValue(record.testingCenterId), ",",
+                LogicUtils.sqlStringValue(record.tcName), ",",
+                LogicUtils.sqlStringValue(record.addres1), ",",
+                LogicUtils.sqlStringValue(record.addres2), ",",
+                LogicUtils.sqlStringValue(record.addres3), ",",
+                LogicUtils.sqlStringValue(record.city), ",",
+                LogicUtils.sqlStringValue(record.state), ",",
+                LogicUtils.sqlStringValue(record.zipCode), ",",
+                LogicUtils.sqlStringValue(record.active), ",",
+                LogicUtils.sqlDateTimeValue(record.dtimeCreated), ",",
+                LogicUtils.sqlDateTimeValue(record.dtimeApproved), ",",
+                LogicUtils.sqlDateTimeValue(record.dtimeDenied), ",",
+                LogicUtils.sqlDateTimeValue(record.dtimeRevoked), ",",
+                LogicUtils.sqlStringValue(record.isRemote), ",",
+                LogicUtils.sqlStringValue(record.isProctored), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -106,11 +95,10 @@ public final class RawTestingCenterLogic extends AbstractRawLogic<RawTestingCent
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawTestingCenter record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawTestingCenter record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM testing_centers ",
-                "WHERE testing_center_id=", sqlStringValue(record.testingCenterId));
+                "WHERE testing_center_id=", LogicUtils.sqlStringValue(record.testingCenterId));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -132,8 +120,7 @@ public final class RawTestingCenterLogic extends AbstractRawLogic<RawTestingCent
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawTestingCenter> queryAll(final Cache cache) throws SQLException {
+    public static List<RawTestingCenter> queryAll(final Cache cache) throws SQLException {
 
         final List<RawTestingCenter> result = new ArrayList<>(10);
 
@@ -163,7 +150,7 @@ public final class RawTestingCenterLogic extends AbstractRawLogic<RawTestingCent
 
         final String sql = SimpleBuilder.concat(
                 "SELECT * FROM testing_centers WHERE testing_center_id=",
-                sqlStringValue(testingCenterId));
+                LogicUtils.sqlStringValue(testingCenterId));
 
         try (final Statement stmt = cache.conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {

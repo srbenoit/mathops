@@ -8,7 +8,7 @@ import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
-import dev.mathops.db.old.rawlogic.AbstractLogicModule;
+import dev.mathops.db.old.rawlogic.LogicUtils;
 import dev.mathops.db.old.rawlogic.RawMpscorequeueLogic;
 import dev.mathops.db.old.rawrecord.RawMpscorequeue;
 import dev.mathops.text.builder.HtmlBuilder;
@@ -56,7 +56,7 @@ public final class SendQueuedBannerTestScores {
 
         if (this.primaryCtx == null || this.liveCtx == null) {
             report.add("Unable to create database contexts.");
-        } else if (AbstractLogicModule.isBannerDown()) {
+        } else if (LogicUtils.isBannerDown()) {
             report.add("BANNER currently down; skipping queued test score scan");
         } else {
             try {
@@ -67,14 +67,14 @@ public final class SendQueuedBannerTestScores {
                     final DbConnection liveConn = this.liveCtx.checkOutConnection();
 
                     try {
-                        final List<RawMpscorequeue> queued = RawMpscorequeueLogic.INSTANCE.queryAll(cache);
+                        final List<RawMpscorequeue> queued = RawMpscorequeueLogic.queryAll(cache);
                         report.add("Number of queued test scores: " + queued.size());
 
                         for (final RawMpscorequeue toProcess : queued) {
                             report.add("Posting queued test score to BANNER: [" + toProcess + "]");
 
                             if (RawMpscorequeueLogic.insertSORTEST(liveConn, toProcess)) {
-                                RawMpscorequeueLogic.INSTANCE.delete(cache, toProcess);
+                                RawMpscorequeueLogic.delete(cache, toProcess);
                             } else {
                                 report.add("Failed to post queued test score to BANNER");
                             }

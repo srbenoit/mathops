@@ -37,18 +37,8 @@ import java.util.List;
  * interviewer          char(20)          no
  * </pre>
  */
-public final class RawPaceAppealsLogic extends AbstractRawLogic<RawPaceAppeals> {
-
-    /** A single instance. */
-    public static final RawPaceAppealsLogic INSTANCE = new RawPaceAppealsLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawPaceAppealsLogic() {
-
-        super();
-    }
+public enum RawPaceAppealsLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -58,8 +48,7 @@ public final class RawPaceAppealsLogic extends AbstractRawLogic<RawPaceAppeals> 
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawPaceAppeals record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawPaceAppeals record) throws SQLException {
 
         // NOTE: This is a place where we send user-entered data into a table, so the insert is done
         // with prepared statements.
@@ -71,25 +60,24 @@ public final class RawPaceAppealsLogic extends AbstractRawLogic<RawPaceAppeals> 
         } else {
             final String sql = "INSERT INTO pace_appeals (stu_id,term,term_yr,appeal_dt,relief_given,pace,pace_track,"
                                + "ms_nbr,ms_type,ms_date,new_deadline_dt,nbr_atmpts_allow,circumstances,comment," +
-                               "interviewer"
-                               + ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                               "interviewer) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
             try (final PreparedStatement ps = cache.conn.prepareStatement(sql)) {
-                setPsString(ps, 1, record.stuId);
-                setPsString(ps, 2, record.termKey.termCode);
-                setPsInteger(ps, 3, record.termKey.shortYear);
-                setPsDate(ps, 4, record.appealDt);
-                setPsString(ps, 5, record.reliefGiven);
-                setPsInteger(ps, 6, record.pace);
-                setPsString(ps, 7, record.paceTrack);
-                setPsInteger(ps, 8, record.msNbr);
-                setPsString(ps, 9, record.msType);
-                setPsDate(ps, 10, record.msDate);
-                setPsDate(ps, 11, record.newDeadlineDt);
-                setPsInteger(ps, 12, record.nbrAtmptsAllow);
-                setPsString(ps, 13, record.circumstances);
-                setPsString(ps, 14, record.comment);
-                setPsString(ps, 15, record.interviewer);
+                LogicUtils.setPsString(ps, 1, record.stuId);
+                LogicUtils.setPsString(ps, 2, record.termKey.termCode);
+                LogicUtils.setPsInteger(ps, 3, record.termKey.shortYear);
+                LogicUtils.setPsDate(ps, 4, record.appealDt);
+                LogicUtils.setPsString(ps, 5, record.reliefGiven);
+                LogicUtils.setPsInteger(ps, 6, record.pace);
+                LogicUtils.setPsString(ps, 7, record.paceTrack);
+                LogicUtils.setPsInteger(ps, 8, record.msNbr);
+                LogicUtils.setPsString(ps, 9, record.msType);
+                LogicUtils.setPsDate(ps, 10, record.msDate);
+                LogicUtils.setPsDate(ps, 11, record.newDeadlineDt);
+                LogicUtils.setPsInteger(ps, 12, record.nbrAtmptsAllow);
+                LogicUtils.setPsString(ps, 13, record.circumstances);
+                LogicUtils.setPsString(ps, 14, record.comment);
+                LogicUtils.setPsString(ps, 15, record.interviewer);
 
                 result = ps.executeUpdate() == 1;
 
@@ -112,22 +100,21 @@ public final class RawPaceAppealsLogic extends AbstractRawLogic<RawPaceAppeals> 
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawPaceAppeals record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawPaceAppeals record) throws SQLException {
 
         final boolean result;
 
         final HtmlBuilder sql = new HtmlBuilder(100);
 
         sql.add("DELETE FROM pace_appeals",
-                " WHERE stu_id=", sqlStringValue(record.stuId),
-                "   AND term=", sqlStringValue(record.termKey.termCode),
-                "   AND term_yr=", sqlIntegerValue(record.termKey.shortYear),
-                "   AND appeal_dt=", sqlDateValue(record.appealDt),
-                "   AND pace=", sqlIntegerValue(record.pace),
-                "   AND pace_track=", sqlStringValue(record.paceTrack),
-                "   AND ms_nbr=", sqlIntegerValue(record.msNbr),
-                "   AND ms_type=", sqlStringValue(record.msType));
+                " WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                "   AND term=", LogicUtils.sqlStringValue(record.termKey.termCode),
+                "   AND term_yr=", LogicUtils.sqlIntegerValue(record.termKey.shortYear),
+                "   AND appeal_dt=", LogicUtils.sqlDateValue(record.appealDt),
+                "   AND pace=", LogicUtils.sqlIntegerValue(record.pace),
+                "   AND pace_track=", LogicUtils.sqlStringValue(record.paceTrack),
+                "   AND ms_nbr=", LogicUtils.sqlIntegerValue(record.msNbr),
+                "   AND ms_type=", LogicUtils.sqlStringValue(record.msType));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             result = stmt.executeUpdate(sql.toString()) == 1;
@@ -157,20 +144,20 @@ public final class RawPaceAppealsLogic extends AbstractRawLogic<RawPaceAppeals> 
         final HtmlBuilder sql = new HtmlBuilder(100);
 
         sql.add("UPDATE pace_appeals",
-                " SET relief_given=", sqlStringValue(record.reliefGiven),
-                ", new_deadline_dt=", sqlDateValue(record.newDeadlineDt),
-                ", nbr_atmpts_allow=", sqlIntegerValue(record.nbrAtmptsAllow),
-                ", interviewer=", sqlStringValue(record.interviewer),
-                ", circumstances=", sqlStringValue(record.circumstances),
-                ", comment=", sqlStringValue(record.comment),
-                " WHERE stu_id=", sqlStringValue(record.stuId),
-                "   AND term=", sqlStringValue(record.termKey.termCode),
-                "   AND term_yr=", sqlIntegerValue(record.termKey.shortYear),
-                "   AND appeal_dt=", sqlDateValue(record.appealDt),
-                "   AND pace=", sqlIntegerValue(record.pace),
-                "   AND pace_track=", sqlStringValue(record.paceTrack),
-                "   AND ms_nbr=", sqlIntegerValue(record.msNbr),
-                "   AND ms_type=", sqlStringValue(record.msType));
+                " SET relief_given=", LogicUtils.sqlStringValue(record.reliefGiven),
+                ", new_deadline_dt=", LogicUtils.sqlDateValue(record.newDeadlineDt),
+                ", nbr_atmpts_allow=", LogicUtils.sqlIntegerValue(record.nbrAtmptsAllow),
+                ", interviewer=", LogicUtils.sqlStringValue(record.interviewer),
+                ", circumstances=", LogicUtils.sqlStringValue(record.circumstances),
+                ", comment=", LogicUtils.sqlStringValue(record.comment),
+                " WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                "   AND term=", LogicUtils.sqlStringValue(record.termKey.termCode),
+                "   AND term_yr=", LogicUtils.sqlIntegerValue(record.termKey.shortYear),
+                "   AND appeal_dt=", LogicUtils.sqlDateValue(record.appealDt),
+                "   AND pace=", LogicUtils.sqlIntegerValue(record.pace),
+                "   AND pace_track=", LogicUtils.sqlStringValue(record.paceTrack),
+                "   AND ms_nbr=", LogicUtils.sqlIntegerValue(record.msNbr),
+                "   AND ms_type=", LogicUtils.sqlStringValue(record.msType));
 
         final String sqlString = sql.toString();
 //        Log.info(sqlString);
@@ -195,8 +182,7 @@ public final class RawPaceAppealsLogic extends AbstractRawLogic<RawPaceAppeals> 
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawPaceAppeals> queryAll(final Cache cache) throws SQLException {
+    public static List<RawPaceAppeals> queryAll(final Cache cache) throws SQLException {
 
         return executeQuery(cache, "SELECT * FROM pace_appeals");
     }
@@ -212,7 +198,7 @@ public final class RawPaceAppealsLogic extends AbstractRawLogic<RawPaceAppeals> 
     public static List<RawPaceAppeals> queryByStudent(final Cache cache, final String stuId) throws SQLException {
 
         final String sql = SimpleBuilder.concat(
-                "SELECT * FROM pace_appeals WHERE stu_id=", sqlStringValue(stuId));
+                "SELECT * FROM pace_appeals WHERE stu_id=", LogicUtils.sqlStringValue(stuId));
 
         return executeQuery(cache, sql);
     }

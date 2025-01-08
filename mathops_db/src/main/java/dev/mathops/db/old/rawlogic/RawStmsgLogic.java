@@ -29,18 +29,8 @@ import java.util.List;
  * sender               char(50)                  yes
  * </pre>
  */
-public final class RawStmsgLogic extends AbstractRawLogic<RawStmsg> {
-
-    /** A single instance. */
-    public static final RawStmsgLogic INSTANCE = new RawStmsgLogic();
-
-    /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawStmsgLogic() {
-
-        super();
-    }
+public enum RawStmsgLogic {
+    ;
 
     /**
      * Inserts a new record.
@@ -50,8 +40,7 @@ public final class RawStmsgLogic extends AbstractRawLogic<RawStmsg> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawStmsg record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawStmsg record) throws SQLException {
 
         if (record.stuId == null || record.msgDt == null || record.touchPoint == null || record.sender == null) {
             throw new SQLException("Null value in primary key or required field.");
@@ -61,13 +50,13 @@ public final class RawStmsgLogic extends AbstractRawLogic<RawStmsg> {
 
         final String sql = SimpleBuilder.concat(
                 "INSERT INTO stmsg (stu_id,msg_dt,pace,course_index,touch_point,msg_code,sender) VALUES (",
-                sqlStringValue(record.stuId), ",",
-                sqlDateValue(record.msgDt), ",",
-                sqlIntegerValue(record.pace), ",",
-                sqlIntegerValue(record.courseIndex), ",",
-                sqlStringValue(record.touchPoint), ",",
-                sqlStringValue(record.msgCode), ",",
-                sqlStringValue(record.sender), ")");
+                LogicUtils.sqlStringValue(record.stuId), ",",
+                LogicUtils.sqlDateValue(record.msgDt), ",",
+                LogicUtils.sqlIntegerValue(record.pace), ",",
+                LogicUtils.sqlIntegerValue(record.courseIndex), ",",
+                LogicUtils.sqlStringValue(record.touchPoint), ",",
+                LogicUtils.sqlStringValue(record.msgCode), ",",
+                LogicUtils.sqlStringValue(record.sender), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             result = stmt.executeUpdate(sql) == 1;
@@ -90,16 +79,15 @@ public final class RawStmsgLogic extends AbstractRawLogic<RawStmsg> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawStmsg record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawStmsg record) throws SQLException {
 
         final boolean result;
 
         final String sql = SimpleBuilder.concat("DELETE FROM stmsg ",
-                "WHERE stu_id=", sqlStringValue(record.stuId),
-                "  AND msg_dt=", sqlDateValue(record.msgDt),
-                "  AND touch_point=", sqlStringValue(record.touchPoint),
-                "  AND msg_code=", sqlStringValue(record.msgCode));
+                "WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                "  AND msg_dt=", LogicUtils.sqlDateValue(record.msgDt),
+                "  AND touch_point=", LogicUtils.sqlStringValue(record.touchPoint),
+                "  AND msg_code=", LogicUtils.sqlStringValue(record.msgCode));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             result = stmt.executeUpdate(sql) == 1;
@@ -121,8 +109,7 @@ public final class RawStmsgLogic extends AbstractRawLogic<RawStmsg> {
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawStmsg> queryAll(final Cache cache) throws SQLException {
+    public static List<RawStmsg> queryAll(final Cache cache) throws SQLException {
 
         return executeQuery(cache.conn, "SELECT * FROM stmsg");
     }
@@ -139,7 +126,8 @@ public final class RawStmsgLogic extends AbstractRawLogic<RawStmsg> {
     public static List<RawStmsg> queryByStudent(final Cache cache, final String studentId)
             throws SQLException {
 
-        final String sql = SimpleBuilder.concat("SELECT * FROM stmsg WHERE stu_id=", sqlStringValue(studentId));
+        final String sql = SimpleBuilder.concat("SELECT * FROM stmsg WHERE stu_id=",
+                LogicUtils.sqlStringValue(studentId));
 
         return executeQuery(cache.conn, sql);
     }
@@ -155,7 +143,7 @@ public final class RawStmsgLogic extends AbstractRawLogic<RawStmsg> {
 
         final String sql = "SELECT count(*) FROM stmsg";
 
-        return executeSimpleIntQuery(cache.conn, sql);
+        return LogicUtils.executeSimpleIntQuery(cache.conn, sql);
     }
 
     /**
@@ -169,7 +157,7 @@ public final class RawStmsgLogic extends AbstractRawLogic<RawStmsg> {
 
         final String sql = "SELECT max(msg_dt) FROM stmsg";
 
-        return executeSimpleDateQuery(cache.conn, sql);
+        return LogicUtils.executeSimpleDateQuery(cache.conn, sql);
     }
 
     /**

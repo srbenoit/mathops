@@ -51,10 +51,10 @@ public final class CleanPending {
                 final Cache cache = new Cache(this.dbProfile, conn);
                 try {
                     Log.info("Running CLEAN_PENDING job");
-                    final List<RawPendingExam> all = RawPendingExamLogic.INSTANCE.queryAll(cache);
+                    final List<RawPendingExam> all = RawPendingExamLogic.queryAll(cache);
                     for (final RawPendingExam row : all) {
                         Log.info("    CLEAN_PENDING deleting row for student ", row.stuId);
-                        RawPendingExamLogic.INSTANCE.delete(cache, row);
+                        RawPendingExamLogic.delete(cache, row);
                     }
                 } finally {
                     this.primaryCtx.checkInConnection(conn);

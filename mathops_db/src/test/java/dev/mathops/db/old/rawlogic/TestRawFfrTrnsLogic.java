@@ -109,9 +109,9 @@ final class TestRawFfrTrnsLogic {
                 final RawFfrTrns raw2 = new RawFfrTrns("111111111", RawRecordConstants.M118, "B", date3, date4);
                 final RawFfrTrns raw3 = new RawFfrTrns("222222222", RawRecordConstants.M124, "C", date5, date6);
 
-                assertTrue(RawFfrTrnsLogic.INSTANCE.insert(cache, raw1), "Failed to insert ffr_trns 1");
-                assertTrue(RawFfrTrnsLogic.INSTANCE.insert(cache, raw2), "Failed to insert ffr_trns 2");
-                assertTrue(RawFfrTrnsLogic.INSTANCE.insert(cache, raw3), "Failed to insert ffr_trns 3");
+                assertTrue(RawFfrTrnsLogic.insert(cache, raw1), "Failed to insert ffr_trns 1");
+                assertTrue(RawFfrTrnsLogic.insert(cache, raw2), "Failed to insert ffr_trns 2");
+                assertTrue(RawFfrTrnsLogic.insert(cache, raw3), "Failed to insert ffr_trns 3");
             } finally {
                 ctx.checkInConnection(conn);
             }
@@ -131,7 +131,7 @@ final class TestRawFfrTrnsLogic {
             final Cache cache = new Cache(dbProfile, conn);
 
             try {
-                final List<RawFfrTrns> all = RawFfrTrnsLogic.INSTANCE.queryAll(cache);
+                final List<RawFfrTrns> all = RawFfrTrnsLogic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -249,10 +249,10 @@ final class TestRawFfrTrnsLogic {
                 final RawFfrTrns raw2 = new RawFfrTrns("111111111", RawRecordConstants.M118, "B",
                         date3, date4);
 
-                final boolean result = RawFfrTrnsLogic.INSTANCE.delete(cache, raw2);
+                final boolean result = RawFfrTrnsLogic.delete(cache, raw2);
                 assertTrue(result, "delete returned false");
 
-                final List<RawFfrTrns> all = RawFfrTrnsLogic.INSTANCE.queryAll(cache);
+                final List<RawFfrTrns> all = RawFfrTrnsLogic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 

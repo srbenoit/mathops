@@ -184,7 +184,7 @@ public final class MessageDetailPanel extends JPanel implements ActionListener {
                             msg.milestone.code, msg.msgCode.name(), msg.status.instructorName);
 
                     try {
-                        RawStmsgLogic.INSTANCE.insert(this.cache, stmsg);
+                        RawStmsgLogic.insert(this.cache, stmsg);
                     } catch (final SQLException ex) {
                         Log.warning("Failed to insert STMSG record.", ex);
                     }

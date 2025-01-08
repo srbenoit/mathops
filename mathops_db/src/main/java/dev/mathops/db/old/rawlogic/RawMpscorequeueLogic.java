@@ -41,10 +41,8 @@ import java.util.List;
  *
  * </pre>
  */
-public final class RawMpscorequeueLogic extends AbstractRawLogic<RawMpscorequeue> {
-
-    /** A single instance. */
-    public static final RawMpscorequeueLogic INSTANCE = new RawMpscorequeueLogic();
+public enum RawMpscorequeueLogic {
+    ;
 
     /** A commonly used string. */
     public static final String MC00 = "MC00";
@@ -74,14 +72,6 @@ public final class RawMpscorequeueLogic extends AbstractRawLogic<RawMpscorequeue
     private static final String FAILED_QUEUEING = "Failed to post score to BANNER - Queueing";
 
     /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawMpscorequeueLogic() {
-
-        super();
-    }
-
-    /**
      * Inserts a new record.
      *
      * @param cache  the data cache
@@ -89,8 +79,7 @@ public final class RawMpscorequeueLogic extends AbstractRawLogic<RawMpscorequeue
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean insert(final Cache cache, final RawMpscorequeue record) throws SQLException {
+    public static boolean insert(final Cache cache, final RawMpscorequeue record) throws SQLException {
 
         if (record.pidm == null || record.testCode == null || record.testDate == null || record.testScore == null) {
             throw new SQLException("Null value in primary key or required field.");
@@ -98,10 +87,10 @@ public final class RawMpscorequeueLogic extends AbstractRawLogic<RawMpscorequeue
 
         final String sql = SimpleBuilder.concat(
                 "INSERT INTO mpscorequeue (pidm,test_code,test_date,test_score) VALUES (",
-                sqlIntegerValue(record.pidm), ",",
-                sqlStringValue(record.testCode), ",",
-                sqlDateTimeValue(record.testDate), ",",
-                sqlStringValue(record.testScore), ")");
+                LogicUtils.sqlIntegerValue(record.pidm), ",",
+                LogicUtils.sqlStringValue(record.testCode), ",",
+                LogicUtils.sqlDateTimeValue(record.testDate), ",",
+                LogicUtils.sqlStringValue(record.testScore), ")");
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -124,14 +113,13 @@ public final class RawMpscorequeueLogic extends AbstractRawLogic<RawMpscorequeue
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public boolean delete(final Cache cache, final RawMpscorequeue record) throws SQLException {
+    public static boolean delete(final Cache cache, final RawMpscorequeue record) throws SQLException {
 
         final String sql = SimpleBuilder.concat("DELETE FROM mpscorequeue",
-                " WHERE pidm=", sqlIntegerValue(record.pidm),
-                " AND test_code=", sqlStringValue(record.testCode),
-                " AND test_date=", sqlDateTimeValue(record.testDate),
-                " AND test_score=", sqlStringValue(record.testScore));
+                " WHERE pidm=", LogicUtils.sqlIntegerValue(record.pidm),
+                " AND test_code=", LogicUtils.sqlStringValue(record.testCode),
+                " AND test_date=", LogicUtils.sqlDateTimeValue(record.testDate),
+                " AND test_score=", LogicUtils.sqlStringValue(record.testScore));
 
         try (final Statement stmt = cache.conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -153,8 +141,7 @@ public final class RawMpscorequeueLogic extends AbstractRawLogic<RawMpscorequeue
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */
-    @Override
-    public List<RawMpscorequeue> queryAll(final Cache cache) throws SQLException {
+    public static List<RawMpscorequeue> queryAll(final Cache cache) throws SQLException {
 
         final List<RawMpscorequeue> result = new ArrayList<>(50);
 
@@ -182,7 +169,7 @@ public final class RawMpscorequeueLogic extends AbstractRawLogic<RawMpscorequeue
         final List<RawMpscorequeue> result = new ArrayList<>(10);
 
         final String sql = SimpleBuilder.concat("SELECT * FROM mpscorequeue",
-                " WHERE pidm=", sqlIntegerValue(pidm));
+                " WHERE pidm=", LogicUtils.sqlIntegerValue(pidm));
 
         try (final Statement stmt = cache.conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
@@ -214,8 +201,8 @@ public final class RawMpscorequeueLogic extends AbstractRawLogic<RawMpscorequeue
      * @param examFinishTime the exam finish time
      * @throws SQLException if there is an error accessing the database
      */
-    public void postChallengeCredit(final Cache cache, final DbConnection liveConn, final Integer pidm,
-                                    final String courseId, final LocalDateTime examFinishTime) throws SQLException {
+    public static void postChallengeCredit(final Cache cache, final DbConnection liveConn, final Integer pidm,
+                                           final String courseId, final LocalDateTime examFinishTime) throws SQLException {
 
         String testCode = null;
         if (RawRecordConstants.M117.equals(courseId)) {
@@ -235,7 +222,7 @@ public final class RawMpscorequeueLogic extends AbstractRawLogic<RawMpscorequeue
         } else {
             final RawMpscorequeue rec = new RawMpscorequeue(pidm, testCode, examFinishTime, "2");
 
-            if (AbstractLogicModule.isBannerDown()) {
+            if (LogicUtils.isBannerDown()) {
                 Log.warning("BANNER down - Queueing");
                 insert(cache, rec);
             } else if (!insertSORTEST(liveConn, rec)) {
@@ -264,17 +251,17 @@ public final class RawMpscorequeueLogic extends AbstractRawLogic<RawMpscorequeue
      * @param examFinishTime  the exam finish time
      * @throws SQLException if there is an error accessing the database
      */
-    public void postPlacementToolResult(final Cache cache, final DbConnection liveConn, final Integer pidm,
-                                        final Iterable<String> earnedPlacement, final LocalDateTime examFinishTime)
+    public static void postPlacementToolResult(final Cache cache, final DbConnection liveConn, final Integer pidm,
+                                               final Iterable<String> earnedPlacement, final LocalDateTime examFinishTime)
             throws SQLException {
 
         List<RawMpscorequeue> existing = null;
-        if (!isBannerDown()) {
+        if (!LogicUtils.isBannerDown()) {
             try {
                 existing = querySORTESTByStudent(liveConn, pidm);
             } catch (final SQLException ex) {
                 Log.warning("Failed to look up SORTEST in Banner - indicating Banner is down for 15 minutes", ex);
-                indicateBannerDown();
+                LogicUtils.indicateBannerDown();
             }
         }
 
@@ -301,7 +288,7 @@ public final class RawMpscorequeueLogic extends AbstractRawLogic<RawMpscorequeue
             }
         }
 
-        if (isBannerDown() || existing == null) {
+        if (LogicUtils.isBannerDown() || existing == null) {
             logActivity("BANNER down - queueing placement scores for PIDM " + pidm);
 
             final RawMpscorequeue rec00 = new RawMpscorequeue(pidm, MC00, examFinishTime, Integer.toString(mc00));
@@ -425,8 +412,8 @@ public final class RawMpscorequeueLogic extends AbstractRawLogic<RawMpscorequeue
      * @param examFinishTime the exam finish time
      * @throws SQLException if there is an error accessing the database
      */
-    public void postPrecalcTutorialResult(final Cache cache, final DbConnection liveConn, final Integer pidm,
-                                          final String courseId, final LocalDateTime examFinishTime)
+    public static void postPrecalcTutorialResult(final Cache cache, final DbConnection liveConn, final Integer pidm,
+                                                 final String courseId, final LocalDateTime examFinishTime)
             throws SQLException {
 
         String testCode = null;
@@ -446,7 +433,7 @@ public final class RawMpscorequeueLogic extends AbstractRawLogic<RawMpscorequeue
             Log.warning("Unrecognized placement course: ", courseId);
         } else {
             List<RawMpscorequeue> existing = null;
-            if (!AbstractLogicModule.isBannerDown()) {
+            if (!LogicUtils.isBannerDown()) {
                 existing = querySORTESTByStudent(liveConn, pidm);
             }
 
@@ -505,11 +492,11 @@ public final class RawMpscorequeueLogic extends AbstractRawLogic<RawMpscorequeue
      * @param examFinishTime the exam finish time
      * @throws SQLException if there is an error accessing the database
      */
-    public void postELMTutorialResult(final Cache cache, final DbConnection liveConn, final Integer pidm,
-                                      final LocalDateTime examFinishTime) throws SQLException {
+    public static void postELMTutorialResult(final Cache cache, final DbConnection liveConn, final Integer pidm,
+                                             final LocalDateTime examFinishTime) throws SQLException {
 
         List<RawMpscorequeue> existing = null;
-        if (!AbstractLogicModule.isBannerDown()) {
+        if (!LogicUtils.isBannerDown()) {
             existing = querySORTESTByStudent(liveConn, pidm);
         }
 
@@ -556,11 +543,11 @@ public final class RawMpscorequeueLogic extends AbstractRawLogic<RawMpscorequeue
      * @param examFinishTime the exam finish time
      * @throws SQLException if there is an error accessing the database
      */
-    public void postELMUnit3ReviewPassed(final Cache cache, final DbConnection liveConn, final Integer pidm,
-                                         final LocalDateTime examFinishTime) throws SQLException {
+    public static void postELMUnit3ReviewPassed(final Cache cache, final DbConnection liveConn, final Integer pidm,
+                                                final LocalDateTime examFinishTime) throws SQLException {
 
         List<RawMpscorequeue> existing = null;
-        if (!AbstractLogicModule.isBannerDown()) {
+        if (!LogicUtils.isBannerDown()) {
             existing = querySORTESTByStudent(liveConn, pidm);
         }
 
@@ -602,7 +589,7 @@ public final class RawMpscorequeueLogic extends AbstractRawLogic<RawMpscorequeue
 
         final List<RawMpscorequeue> result = new ArrayList<>(10);
 
-        if (!isBannerDown()) {
+        if (!LogicUtils.isBannerDown()) {
             final String sql = SimpleBuilder.concat("SELECT * FROM SORTEST",
                     " WHERE SORTEST_PIDM=", pidm,
                     " AND SORTEST_TESC_CODE IN ('MPL','MC00','MC17','MC18','MC24','MC25','MC26')");
@@ -637,7 +624,7 @@ public final class RawMpscorequeueLogic extends AbstractRawLogic<RawMpscorequeue
         } else if (record.pidm.intValue() == 10567708) {
             logActivity("Skipping SORTEST insert for Steve Benoit: " + record);
             result = true;
-        } else if (AbstractLogicModule.isBannerDown()) {
+        } else if (LogicUtils.isBannerDown()) {
             logActivity("Skipping SORTEST insert because BANNER is down");
         } else {
             Log.info("Inserting '", record.testCode, "' SORTEST record for PIDM ", record.pidm);

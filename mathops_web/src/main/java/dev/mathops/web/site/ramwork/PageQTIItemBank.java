@@ -82,7 +82,7 @@ enum PageQTIItemBank {
      */
     private static void appendItemBank(final Cache cache, final HtmlBuilder htm) throws SQLException {
 
-        final List<RawTreePath> allPaths = RawTreePathLogic.INSTANCE.queryAll(cache);
+        final List<RawTreePath> allPaths = RawTreePathLogic.queryAll(cache);
         Log.info("There were " + allPaths.size() + " paths");
 
         final List<RawTreePath.TreeNode> tree = RawTreePathLogic.organizeIntoTree(allPaths);
@@ -268,7 +268,7 @@ enum PageQTIItemBank {
         if (existing == null) {
             final RawTreePath toInsert = new RawTreePath(ident, parentIdent, Integer.valueOf(depth),
                     Integer.valueOf(sortOrder), null);
-            if (!RawTreePathLogic.INSTANCE.insert(cache, toInsert)) {
+            if (!RawTreePathLogic.insert(cache, toInsert)) {
                 error = "Error: Failed to create directory entry.";
             }
         } else {
