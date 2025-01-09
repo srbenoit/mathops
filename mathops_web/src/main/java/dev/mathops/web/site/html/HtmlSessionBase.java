@@ -232,8 +232,7 @@ public class HtmlSessionBase {
      */
     protected static void appendFooter(final HtmlBuilder htm, final String command,
                                        final String label, final String prevCmd, final String prevLabel,
-                                       final String nextCmd,
-                                       final String nextLabel) {
+                                       final String nextCmd, final String nextLabel) {
 
         htm.sDiv(null, "style='flex: 1 100%; order:99; background-color:AliceBlue; "
                 + "display:block; border:1px solid SteelBlue; margin:1px; "

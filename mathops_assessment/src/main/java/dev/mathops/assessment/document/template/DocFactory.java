@@ -858,7 +858,7 @@ public enum DocFactory {
         final String indentStr = elem.getStringAttr(INDENT);
         if (indentStr != null) {
             try {
-                int parsed = Integer.parseInt(indentStr);
+                final int parsed = Integer.parseInt(indentStr);
                 par.setIndent(parsed);
             } catch (final NumberFormatException ex) {
                 elem.logError("Invalid paragraph indent.");

@@ -187,7 +187,7 @@ public final class DocVSpace extends AbstractDocObjectTemplate {
     @Override
     public void toXml(final HtmlBuilder xml, final int indent) {
 
-        final String ind = AbstractDocObjectTemplate.makeIndent(indent);
+        final String ind = makeIndent(indent);
 
         xml.add(ind, "<v-space");
         if (this.spaceHeight != null) {

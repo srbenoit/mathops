@@ -300,7 +300,7 @@ public final class MainWindow extends JFrame implements WindowListener, ChangeLi
      * @param e the window event
      */
     @Override
-    public void windowDeactivated(WindowEvent e) {
+    public void windowDeactivated(final WindowEvent e) {
 
         // No action
     }

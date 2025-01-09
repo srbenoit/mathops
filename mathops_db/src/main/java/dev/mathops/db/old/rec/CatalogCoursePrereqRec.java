@@ -119,7 +119,7 @@ public final class CatalogCoursePrereqRec extends RecBase {
         } else if (obj instanceof final CatalogCoursePrereqRec rec) {
             equal = Objects.equals(this.prereqId, rec.prereqId)
                     && Objects.equals(this.parentPrereqId, rec.parentPrereqId)
-                    && Objects.equals(this.prereqType, rec.prereqType)
+                    && this.prereqType == rec.prereqType
                     && Objects.equals(this.courseId, rec.courseId)
                     && Objects.equals(this.minGrade, rec.minGrade)
                     && Objects.equals(this.concurrent, rec.concurrent);

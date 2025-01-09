@@ -962,7 +962,7 @@ enum PageDetails {
                         final HtmlBuilder builder = new HtmlBuilder(1000);
                         builder.addln("[");
                         for (final Object o : existingNotes) {
-                            if (o instanceof JSONObject oldNoteJson) {
+                            if (o instanceof final JSONObject oldNoteJson) {
                                 builder.addln(oldNoteJson.toJSONCompact(), ",");
                             }
                         }
@@ -1039,7 +1039,7 @@ enum PageDetails {
 
                         boolean found = false;
                         for (final Object o : existingNotes) {
-                            if (o instanceof JSONObject oldNoteJson) {
+                            if (o instanceof final JSONObject oldNoteJson) {
                                 if (oldNoteJson.getStringProperty("date").equals(date)
                                     && oldNoteJson.getStringProperty("author").equals(who)) {
                                     found = true;

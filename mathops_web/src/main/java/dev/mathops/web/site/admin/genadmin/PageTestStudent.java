@@ -2320,7 +2320,7 @@ enum PageTestStudent {
             RawSttermLogic.delete(cache, existingStterm);
         }
 
-        RawStudent student = RawStudentLogic.query(cache, RawStudent.TEST_STUDENT_ID, false);
+        final RawStudent student = RawStudentLogic.query(cache, RawStudent.TEST_STUDENT_ID, false);
 
         if (inPace.isEmpty()) {
             if (student != null && student.pacingStructure != null) {

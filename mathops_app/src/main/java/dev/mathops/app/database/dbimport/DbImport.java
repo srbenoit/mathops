@@ -141,7 +141,7 @@ public final class DbImport implements Runnable {
             final String schemaName = schema == EDbUse.PROD ? "legacy"
                     : (schema == EDbUse.DEV ? "legacy_dev" : "legacy_test");
 
-            boolean schemaEmpty;
+            final boolean schemaEmpty;
             if (dropTables) {
                 Log.info("Dropping all existing tables in '", schemaName, "' schema.");
                 dropExistingTables(conn, schemaName);

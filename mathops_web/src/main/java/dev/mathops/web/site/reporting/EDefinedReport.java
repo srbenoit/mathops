@@ -40,7 +40,7 @@ public enum EDefinedReport {
 
         EDefinedReport found = null;
 
-        for (final EDefinedReport test : EDefinedReport.values()) {
+        for (final EDefinedReport test : values()) {
             if (test.id.equals(theId)) {
                 found = test;
                 break;

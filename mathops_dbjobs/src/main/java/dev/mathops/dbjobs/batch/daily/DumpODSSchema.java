@@ -70,8 +70,8 @@ final class DumpODSSchema {
 
         final String sql= "SELECT COUNT(*) FROM CSUBAN.CSUG_GP_DEMO";
 
-        try (Statement stmt = conn.createStatement()) {
-            try (ResultSet rs = stmt.executeQuery(sql)) {
+        try (final Statement stmt = conn.createStatement()) {
+            try (final ResultSet rs = stmt.executeQuery(sql)) {
                 if (rs.next()) {
                     Log.info(" number of rows = " + rs.getInt(1));
                 }
@@ -90,8 +90,8 @@ final class DumpODSSchema {
                 + "FROM CSUBAN.CSUG_GP_DEMO A "
                 + "WHERE A.CSU_ID = '831645739'";
 
-        try (Statement stmt = conn.createStatement()) {
-            try (ResultSet rs = stmt.executeQuery(sql1)) {
+        try (final Statement stmt = conn.createStatement()) {
+            try (final ResultSet rs = stmt.executeQuery(sql1)) {
                 while (rs.next()) {
                     Log.info("Found a CSUBAN.CSUG_GP_DEMO record");
 
@@ -121,8 +121,8 @@ final class DumpODSSchema {
                 + "FROM CSUBAN.CSUS_ENROLL_MASTER_AH A "
                 + "WHERE A.PERSON_UID = 11612982";
 
-        try (Statement stmt = conn.createStatement()) {
-            try (ResultSet rs = stmt.executeQuery(sql2)) {
+        try (final Statement stmt = conn.createStatement()) {
+            try (final ResultSet rs = stmt.executeQuery(sql2)) {
                 while (rs.next()) {
                     Log.info("Found a CSUBAN.CSUS_ENROLL_MASTER_AH record");
 
@@ -152,8 +152,8 @@ final class DumpODSSchema {
                 + "FROM CSUBAN.CSUS_ENROLL_TERM_SUMMARY_AH A "
                 + "WHERE A.PIDM = 11612982";
 
-        try (Statement stmt = conn.createStatement()) {
-            try (ResultSet rs = stmt.executeQuery(sql3)) {
+        try (final Statement stmt = conn.createStatement()) {
+            try (final ResultSet rs = stmt.executeQuery(sql3)) {
                 while (rs.next()) {
                     Log.info("Found a CSUBAN.CSUS_ENROLL_TERM_SUMMARY_AH record");
 

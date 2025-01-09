@@ -77,7 +77,7 @@ enum PagePlacementByCategory {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
             String specialType = null;
-            List<RawSpecialStus> foundSpecials;
+            final List<RawSpecialStus> foundSpecials;
             if (category != null) {
                 foundSpecials = RawSpecialStusLogic.queryByType(cache, category);
                 if (!foundSpecials.isEmpty()) {
@@ -184,7 +184,7 @@ enum PagePlacementByCategory {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
             String specialType = null;
-            List<RawSpecialStus> foundSpecials;
+            final List<RawSpecialStus> foundSpecials;
             if (category != null) {
                 foundSpecials = RawSpecialStusLogic.queryByType(cache, category);
                 if (!foundSpecials.isEmpty()) {

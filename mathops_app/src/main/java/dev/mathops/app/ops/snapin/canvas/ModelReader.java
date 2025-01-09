@@ -315,7 +315,7 @@ final class ModelReader extends SwingWorker<String, ModelReaderStatus> {
                     final long groupIdLong = Math.round(groupIdDbl);
 
                     AssignmentGroup group = null;
-                    for (AssignmentGroup test : course.assignmentGroups) {
+                    for (final AssignmentGroup test : course.assignmentGroups) {
                         if (test.id == groupIdLong) {
                             group = test;
                             break;

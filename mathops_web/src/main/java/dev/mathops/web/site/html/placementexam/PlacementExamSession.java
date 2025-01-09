@@ -74,6 +74,7 @@ import dev.mathops.text.parser.xml.XmlEscaper;
 import dev.mathops.web.site.html.HtmlSessionBase;
 
 import jakarta.servlet.ServletRequest;
+
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -361,7 +362,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
                 htm.addln("<div style='text-align:center; color:navy;'>");
                 htm.addln("Unsupported state.");
                 htm.eDiv();
-                appendFooter(htm, "close", "Close", null, null, null, null);
+                appendPlacementFooter(htm, "close", "Close", null, null, null, null);
                 break;
         }
     }
@@ -537,7 +538,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
 
                         if (prb == null || prb.id == null) {
                             Log.warning("Exam " + ref + " section " + onSect + " problem " + onProb + " choice " + i
-                                    + " getProblem() returned " + prb);
+                                        + " getProblem() returned " + prb);
                         } else {
                             prb = InstructionalCache.getProblem(prb.id);
 
@@ -867,10 +868,10 @@ public final class PlacementExamSession extends HtmlSessionBase {
         endMain(htm);
 
         if (this.started) {
-            appendFooter(htm, "score", "I am finished.  Generate my placement results.", null, null, "nav_0_0",
+            appendPlacementFooter(htm, "score", "I am finished.  Generate my placement results.", null, null, "nav_0_0",
                     "Go to Question 1");
         } else {
-            appendFooter(htm, "nav_0_0", "Begin...", null, null, null, null);
+            appendPlacementFooter(htm, "nav_0_0", "Begin...", null, null, null, null);
         }
     }
 
@@ -974,7 +975,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
         }
 
         endMain(htm);
-        appendFooter(htm, "score", "I am finished.  Generate my placement results.", prevCmd,
+        appendPlacementFooter(htm, "score", "I am finished.  Generate my placement results.", prevCmd,
                 "Go to Question " + prevLbl, nextCmd, "Go to Question " + nextLbl);
     }
 
@@ -1049,7 +1050,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
         htm.eSpan().eDiv();
 
         endMain(htm);
-        appendFooter(htm, "close", "Close", null, null, null, null);
+        appendPlacementFooter(htm, "close", "Close", null, null, null, null);
     }
 
     // AliceBlue --> #ECECE4
@@ -1065,7 +1066,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
         htm.sDiv(null, "style='display:flex; flex-flow:row wrap; margin:0 6px 12px 6px;'");
 
         htm.sDiv(null, "style='flex: 1 100%; display:block; "
-                        + "background-color:#ECECE4; border-top:1px solid #1E4D2B; ",
+                       + "background-color:#ECECE4; border-top:1px solid #1E4D2B; ",
                 "border-bottom:1px solid #1E4D2B; margin:1px;'");
 
         htm.add("<h1 style='text-align:center; font-family:sans-serif; font-size:18pt; ",
@@ -1079,8 +1080,8 @@ public final class PlacementExamSession extends HtmlSessionBase {
         htm.addln("<div style='text-align:center;margin-top:2px;'>");
 
         if (this.timeout > 0L && (this.state == EPlacementExamState.INSTRUCTIONS
-                || this.state == EPlacementExamState.SUBMIT_NN
-                || this.state == EPlacementExamState.ITEM_NN)) {
+                                  || this.state == EPlacementExamState.SUBMIT_NN
+                                  || this.state == EPlacementExamState.ITEM_NN)) {
 
             final long now = System.currentTimeMillis();
 
@@ -1275,16 +1276,16 @@ public final class PlacementExamSession extends HtmlSessionBase {
                 final ExamProblem ep = sect.getPresentedProblem(p);
 
                 if (this.currentSect == sectIndex && this.currentItem == p
-                        && this.state == EPlacementExamState.ITEM_NN) {
+                    && this.state == EPlacementExamState.ITEM_NN) {
                     htm.addln("<div id='selected_menu_item' style='background:#7FFF7F;'>");
                 } else {
                     htm.sDiv();
                 }
 
                 if (this.state == EPlacementExamState.ITEM_NN
-                        || this.state == EPlacementExamState.INSTRUCTIONS
-                        || this.state == EPlacementExamState.SUBMIT_NN
-                        || this.state == EPlacementExamState.COMPLETED) {
+                    || this.state == EPlacementExamState.INSTRUCTIONS
+                    || this.state == EPlacementExamState.SUBMIT_NN
+                    || this.state == EPlacementExamState.COMPLETED) {
                     // When interacting or instructions, mark the ones that have been answered
 
                     if (ep.getSelectedProblem().isAnswered()) {
@@ -1588,12 +1589,12 @@ public final class PlacementExamSession extends HtmlSessionBase {
                             if (startTimer && this.timeout == 0L && getExam().allowedSeconds != null) {
 
                                 final String msg = "Starting placement exam timer, duration is "
-                                        + getExam().allowedSeconds;
+                                                   + getExam().allowedSeconds;
                                 Log.info(msg);
                                 appendExamLog(msg);
 
                                 this.timeout = System.currentTimeMillis()
-                                        + 1000L * getExam().allowedSeconds.longValue();
+                                               + 1000L * getExam().allowedSeconds.longValue();
                             }
                         }
                     }
@@ -1940,7 +1941,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
 
         for (final RawStmpe test : existing) {
             if (test.getStartDateTime() != null && test.serialNbr.equals(ser)
-                    && test.getStartDateTime().equals(start)) {
+                && test.getStartDateTime().equals(start)) {
                 Log.warning("Submitted placement exam for student ", this.studentId, ", exam " + this.version,
                         ": serial=", test.serialNbr, " submitted a second time - ignoring");
                 return "Exam submitted a second time - ignoring.";
@@ -2715,7 +2716,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
 
             if (stu == null) {
                 RawMpscorequeueLogic.logActivity("Unable to upload placement result for student " + stexam.studentId
-                        + ": student record not found");
+                                                 + ": student record not found");
             } else {
                 final DbContext liveCtx = getDbProfile().getDbContext(ESchemaUse.LIVE);
                 final DbConnection liveConn = liveCtx.checkOutConnection();
@@ -2799,12 +2800,12 @@ public final class PlacementExamSession extends HtmlSessionBase {
      * @param nextCmd   the button name (command) for the "next" button, null if not present
      * @param nextLabel the button label for the "next" button
      */
-    protected static void appendFooter(final HtmlBuilder htm, final String command, final String label,
-                                       final String prevCmd, final String prevLabel, final String nextCmd,
-                                       final String nextLabel) {
+    private static void appendPlacementFooter(final HtmlBuilder htm, final String command, final String label,
+                                              final String prevCmd, final String prevLabel, final String nextCmd,
+                                              final String nextLabel) {
 
         htm.sDiv(null, "style='flex: 1 100%; order:99; background-color:#ECECE4; "
-                + "display:block; border:1px solid #1E4D2B; margin:1px; padding:0 12px; text-align:center;'");
+                       + "display:block; border:1px solid #1E4D2B; margin:1px; padding:0 12px; text-align:center;'");
 
         if (prevCmd != null || nextCmd != null) {
             if (prevCmd != null) {

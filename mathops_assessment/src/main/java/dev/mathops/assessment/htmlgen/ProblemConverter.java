@@ -33,14 +33,14 @@ public enum ProblemConverter {
 
         synchronized (problem) {
             switch (problem) {
-                case ProblemMultipleChoiceTemplate problemMultipleChoiceTemplate ->
+                case final ProblemMultipleChoiceTemplate problemMultipleChoiceTemplate ->
                         populateMutipleChoice(problemMultipleChoiceTemplate, id);
-                case ProblemMultipleSelectionTemplate problemMultipleSelectionTemplate ->
+                case final ProblemMultipleSelectionTemplate problemMultipleSelectionTemplate ->
                         populateMutipleSelection(problemMultipleSelectionTemplate, id);
-                case ProblemNumericTemplate problemNumericTemplate -> populateNumeric(problemNumericTemplate, id);
-                case ProblemEmbeddedInputTemplate problemEmbeddedInputTemplate ->
+                case final ProblemNumericTemplate problemNumericTemplate -> populateNumeric(problemNumericTemplate, id);
+                case final ProblemEmbeddedInputTemplate problemEmbeddedInputTemplate ->
                         populateEmbeddedInput(problemEmbeddedInputTemplate, id);
-                case ProblemAutoCorrectTemplate problemAutoCorrectTemplate ->
+                case final ProblemAutoCorrectTemplate problemAutoCorrectTemplate ->
                         populateAutoCorrect(problemAutoCorrectTemplate, id);
                 case final ProblemDummyTemplate dummy -> {
                     if (dummy.id != null) {
@@ -361,11 +361,11 @@ public enum ProblemConverter {
         } else if (ans instanceof Double) {
             final float value = ans.floatValue();
             content.add(value < 0.0f ? "<span class='sr-only'>negative</span>&minus;"
-                    + Math.abs(value) : Float.toString(value));
+                                       + Math.abs(value) : Float.toString(value));
         } else {
             final long value = ans.longValue();
             content.add(value < 0L ? "<span class='sr-only'>negative</span>&minus;"
-                    + Math.abs(value) : Long.toString(value));
+                                     + Math.abs(value) : Long.toString(value));
         }
         content.eDiv();
         problem.answerHtml = content.toString();
@@ -388,11 +388,11 @@ public enum ProblemConverter {
         } else if (ans instanceof Double) {
             final float value = ans.floatValue();
             content.add(value < 0.0f ? "<span class='sr-only'>negative</span>&minus;"
-                    + Math.abs(value) : Float.toString(value));
+                                       + Math.abs(value) : Float.toString(value));
         } else {
             final long value = ans.longValue();
             content.add(value < 0L ? "<span class='sr-only'>negative</span>&minus;"
-                    + Math.abs(value) : Long.toString(value));
+                                     + Math.abs(value) : Long.toString(value));
         }
 
         content.eDiv();

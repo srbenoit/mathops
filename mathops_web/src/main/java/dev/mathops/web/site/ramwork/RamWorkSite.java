@@ -357,7 +357,7 @@ public final class RamWorkSite extends AbstractSite {
 
         final String target = req.getParameter("target");
 
-        if (AbstractSite.isParamInvalid(target)) {
+        if (isParamInvalid(target)) {
             Log.warning("Invalid request parameters - possible attack:");
             Log.warning("  target='", target, "'");
             PageError.doGet(cache, this, req, resp, session,

@@ -13,7 +13,6 @@ import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
 import dev.mathops.session.SessionResult;
 import dev.mathops.text.builder.HtmlBuilder;
-import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.BasicCss;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
@@ -21,11 +20,11 @@ import dev.mathops.web.site.course.CourseSite;
 import dev.mathops.web.site.lti.canvascourse.PageCourseAdmin;
 import dev.mathops.web.site.lti.canvascourse.PageCourseConfig;
 import dev.mathops.web.site.lti.canvascourse.PageCourseContent;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -254,9 +253,8 @@ public final class LtiSite extends CourseSite {
         final String id = req.getParameter("id");
         final String width = req.getParameter("width");
 
-        if (AbstractSite.isParamInvalid(dir) || AbstractSite.isParamInvalid(id)
-                || AbstractSite.isParamInvalid(width) || AbstractSite.isParamInvalid(course)
-                || AbstractSite.isParamInvalid(mediaId)) {
+        if (isParamInvalid(dir) || isParamInvalid(id) || isParamInvalid(width) || isParamInvalid(course)
+            || isParamInvalid(mediaId)) {
             Log.warning("Bad parametrs - possible attack");
             Log.warning("  dir='", dir, "'");
             Log.warning("  id='", id, "'");
@@ -375,8 +373,7 @@ public final class LtiSite extends CourseSite {
             htm.addln("</body>")
                     .addln("</html>");
 
-            AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML,
-                    htm.toString().getBytes(StandardCharsets.UTF_8));
+            sendReply(req, resp, MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
         }
     }
 }

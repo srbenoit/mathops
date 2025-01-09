@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * The data for one row in the activity table.
  */
-class ExamListRow implements Comparable<ExamListRow> {
+public class ExamListRow implements Comparable<ExamListRow> {
 
     /** The week. */
     public final int week;

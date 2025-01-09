@@ -161,15 +161,15 @@ public final class ChallengeExamLogic {
         String examId = null;
 
         if (RawRecordConstants.M117.equals(theCourseId) || RawRecordConstants.MATH117.equals(theCourseId)) {
-            examId = ChallengeExamLogic.M117_CHALLENGE_EXAM_ID;
+            examId = M117_CHALLENGE_EXAM_ID;
         } else if (RawRecordConstants.M118.equals(theCourseId) || RawRecordConstants.MATH118.equals(theCourseId)) {
-            examId = ChallengeExamLogic.M118_CHALLENGE_EXAM_ID;
+            examId = M118_CHALLENGE_EXAM_ID;
         } else if (RawRecordConstants.M124.equals(theCourseId) || RawRecordConstants.MATH124.equals(theCourseId)) {
-            examId = ChallengeExamLogic.M124_CHALLENGE_EXAM_ID;
+            examId = M124_CHALLENGE_EXAM_ID;
         } else if (RawRecordConstants.M125.equals(theCourseId) || RawRecordConstants.MATH125.equals(theCourseId)) {
-            examId = ChallengeExamLogic.M125_CHALLENGE_EXAM_ID;
+            examId = M125_CHALLENGE_EXAM_ID;
         } else if (RawRecordConstants.M126.equals(theCourseId) || RawRecordConstants.MATH126.equals(theCourseId)) {
-            examId = ChallengeExamLogic.M126_CHALLENGE_EXAM_ID;
+            examId = M126_CHALLENGE_EXAM_ID;
         }
 
         return examId;

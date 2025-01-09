@@ -1,8 +1,8 @@
 package dev.mathops.web.site.tutorial.precalc;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.file.FileLoader;
+import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
 import dev.mathops.db.Cache;
@@ -12,14 +12,13 @@ import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractPageSite;
-import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.BasicCss;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -294,9 +293,9 @@ public final class PrecalcTutorialSite extends AbstractPageSite {
         final String mediaId = req.getParameter("media");
         final String mode = req.getParameter("mode");
 
-        if (AbstractSite.isParamInvalid(courseId) || AbstractSite.isParamInvalid(unit)
-                || AbstractSite.isParamInvalid(lessonId) || AbstractSite.isParamInvalid(mediaId)
-                || AbstractSite.isParamInvalid(mode)) {
+        if (isParamInvalid(courseId) || isParamInvalid(unit)
+            || isParamInvalid(lessonId) || isParamInvalid(mediaId)
+            || isParamInvalid(mode)) {
             Log.warning("Invalid request parameters - possible attack:");
             Log.warning("  course='", courseId, "'");
             Log.warning("  unit='", unit, "'");
@@ -335,8 +334,7 @@ public final class PrecalcTutorialSite extends AbstractPageSite {
 
             Page.endOrdinaryPage(cache, this, htm, true);
 
-            AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML,
-                    htm.toString().getBytes(StandardCharsets.UTF_8));
+            sendReply(req, resp, MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
         }
     }
 

@@ -390,16 +390,12 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
             final int unit = number % 10;
             final String unitStr = Integer.toString(unit);
 
-            final String unitTypeStr;
-            if ("RE".equals(appeal.msType)) {
-                unitTypeStr = SimpleBuilder.concat("Unit: ", unitStr, " (Review Exam)");
-            } else if ("FE".equals(appeal.msType)) {
-                unitTypeStr = SimpleBuilder.concat("Unit: ", unitStr, " (Final Exam)");
-            } else if ("F1".equals(appeal.msType)) {
-                unitTypeStr = SimpleBuilder.concat("Unit: ", unitStr, " (Final +1)");
-            } else {
-                unitTypeStr = SimpleBuilder.concat("Unit: ", unitStr, " (Type ", appeal.msType, ")");
-            }
+            final String unitTypeStr = switch (appeal.msType) {
+                case "RE" -> SimpleBuilder.concat("Unit: ", unitStr, " (Review Exam)");
+                case "FE" -> SimpleBuilder.concat("Unit: ", unitStr, " (Final Exam)");
+                case "F1" -> SimpleBuilder.concat("Unit: ", unitStr, " (Final +1)");
+                case null, default -> SimpleBuilder.concat("Unit: ", unitStr, " (Type ", appeal.msType, ")");
+            };
 
             final JLabel unitTypeLbl = new JLabel(unitTypeStr);
             unitTypeLbl.setFont(Skin.MEDIUM_13_FONT);
@@ -550,16 +546,12 @@ public final class StuAppealsPanel extends AdmPanelBase implements ActionListene
             final int unit = number % 10;
             final String unitStr = Integer.toString(unit);
 
-            final String unitTypeStr;
-            if ("RE".equals(appeal.msType)) {
-                unitTypeStr = SimpleBuilder.concat("Unit: ", unitStr, " (Review Exam)");
-            } else if ("FE".equals(appeal.msType)) {
-                unitTypeStr = SimpleBuilder.concat("Unit: ", unitStr, " (Final Exam)");
-            } else if ("F1".equals(appeal.msType)) {
-                unitTypeStr = SimpleBuilder.concat("Unit: ", unitStr, " (Final +1)");
-            } else {
-                unitTypeStr = SimpleBuilder.concat("Unit: ", unitStr, " (Type ", appeal.msType, ")");
-            }
+            final String unitTypeStr = switch (appeal.msType) {
+                case "RE" -> SimpleBuilder.concat("Unit: ", unitStr, " (Review Exam)");
+                case "FE" -> SimpleBuilder.concat("Unit: ", unitStr, " (Final Exam)");
+                case "F1" -> SimpleBuilder.concat("Unit: ", unitStr, " (Final +1)");
+                case null, default -> SimpleBuilder.concat("Unit: ", unitStr, " (Type ", appeal.msType, ")");
+            };
 
             final JLabel unitTypeLbl = new JLabel(unitTypeStr);
             unitTypeLbl.setFont(Skin.MEDIUM_13_FONT);

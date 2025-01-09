@@ -537,10 +537,10 @@ public final class FEFunction extends AbstractFEObject {
                     groupingAllowed.addAll(allowedArgs);
                     setArg(grouping, true);
                 } else if ((int) ch >= '\u2720' && (int) ch <= '\u274F') {
-                    final EFunction fxn = EFunction.forChar(ch);
-                    if (fxn != null) {
+                    final EFunction whichFxn = EFunction.forChar(ch);
+                    if (whichFxn != null) {
                         ++fECursor.cursorPosition;
-                        final FEFunction function = new FEFunction(fontSize, fxn);
+                        final FEFunction function = new FEFunction(fontSize, whichFxn);
                         setArg(function, true);
                     }
                 } else if ((int) ch == '<') {

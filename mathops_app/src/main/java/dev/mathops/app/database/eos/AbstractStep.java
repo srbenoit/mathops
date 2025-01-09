@@ -19,7 +19,7 @@ import java.awt.event.MouseListener;
 /**
  * The base class panels that represent steps.
  */
-abstract class AbstractStep extends JPanel implements ActionListener, MouseListener {
+public abstract class AbstractStep extends JPanel implements ActionListener, MouseListener {
 
     /** An action command. */
     static final String DETAILS_CMD = "DETAILS";

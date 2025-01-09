@@ -109,22 +109,23 @@ final class SectionStatusPane extends JPanel {
         final Collection<RawStcourse> forfeit = new ArrayList<>(10);
 
         for (final RawStcourse reg : regs) {
-            if ("G".equals(reg.openStatus)) {
-                forfeit.add(reg);
-            } else if ("N".equals(reg.openStatus)) {
-                if ("Y".equals(reg.completed)) {
-                    completed.add(reg);
-                } else {
-                    forfeit.add(reg);
+            switch (reg.openStatus) {
+                case "G" -> forfeit.add(reg);
+                case "N" -> {
+                    if ("Y".equals(reg.completed)) {
+                        completed.add(reg);
+                    } else {
+                        forfeit.add(reg);
+                    }
                 }
-            } else if ("Y".equals(reg.openStatus)) {
-                if ("Y".equals(reg.completed)) {
-                    completed.add(reg);
-                } else {
-                    inProgress.add(reg);
+                case "Y" -> {
+                    if ("Y".equals(reg.completed)) {
+                        completed.add(reg);
+                    } else {
+                        inProgress.add(reg);
+                    }
                 }
-            } else {
-                notStarted.add(reg);
+                case null, default -> notStarted.add(reg);
             }
         }
 

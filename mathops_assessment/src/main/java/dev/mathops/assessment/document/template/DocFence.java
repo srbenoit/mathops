@@ -859,8 +859,6 @@ public final class DocFence extends AbstractDocSpanBase {
     @Override
     public void toXml(final HtmlBuilder xml, final int indent) {
 
-        int count = 0;
-
         xml.add("<fence");
         printFormat(xml, 1.0f);
 
@@ -886,8 +884,6 @@ public final class DocFence extends AbstractDocSpanBase {
         }
 
         xml.add('>');
-
-        final int size = getChildren().size();
 
         for (final AbstractDocObjectTemplate child : getChildren()) {
             if (child instanceof DocText) {

@@ -69,7 +69,7 @@ enum PageAdmin {
                 htm.sDiv("indent");
                 generatePageContent(htm, whichReport, allPerms, studentRecs);
                 htm.eDiv();
-            } catch (SQLException ex) {
+            } catch (final SQLException ex) {
                 htm.sP().addln("There was an error querying the database for report permissions:").eP();
                 htm.sP().addln(ex.getLocalizedMessage()).eP();
             }
@@ -123,7 +123,7 @@ enum PageAdmin {
             final EDefinedReport key = EDefinedReport.forId(rec.rptId);
 
             if (key != null) {
-                Integer cur = counts.get(key);
+                final Integer cur = counts.get(key);
                 if (cur == null) {
                     counts.put(key, Integer.valueOf(1));
                 } else {
@@ -136,7 +136,7 @@ enum PageAdmin {
         htm.sDiv("indent0");
 
         // --------------------
-        htm.addln(EDefinedReport.MPT_BY_CATEGORY.equals(whichReport) ? "<details open='open'>" : "<details>");
+        htm.addln(EDefinedReport.MPT_BY_CATEGORY == whichReport ? "<details open='open'>" : "<details>");
         final Integer count1 = counts.get(EDefinedReport.MPT_BY_CATEGORY);
         emitSummary(htm, count1, "Math Placement progress by special category");
         htm.sP("rptdesc");
@@ -150,7 +150,7 @@ enum PageAdmin {
         htm.div("vgap0");
 
         // --------------------
-        htm.addln(EDefinedReport.MPT_BY_IDS.equals(whichReport) ? "<details open='open'>" : "<details>");
+        htm.addln(EDefinedReport.MPT_BY_IDS == whichReport ? "<details open='open'>" : "<details>");
         final Integer count2 = counts.get(EDefinedReport.MPT_BY_IDS);
         emitSummary(htm, count2, "Math Placement progress for specified students");
         htm.sP("rptdesc");
@@ -165,7 +165,7 @@ enum PageAdmin {
         htm.sH(4).add("Precalculus Course Reports").eH(4);
 
         // --------------------
-        htm.addln(EDefinedReport.PROGRESS_BY_SECTION.equals(whichReport) ? "<details open='open'>" : "<details>");
+        htm.addln(EDefinedReport.PROGRESS_BY_SECTION == whichReport ? "<details open='open'>" : "<details>");
         final Integer count3 = counts.get(EDefinedReport.PROGRESS_BY_SECTION);
         emitSummary(htm, count3, "Precalculus Course progress by course and/or section");
         htm.sP("rptdesc");
@@ -178,7 +178,7 @@ enum PageAdmin {
         htm.div("vgap0");
 
         // --------------------
-        htm.addln(EDefinedReport.PROGRESS_BY_IDS.equals(whichReport) ? "<details open='open'>" : "<details>");
+        htm.addln(EDefinedReport.PROGRESS_BY_IDS == whichReport ? "<details open='open'>" : "<details>");
         final Integer count4 = counts.get(EDefinedReport.PROGRESS_BY_IDS);
         emitSummary(htm, count4, "Precalculus Course progress for specified students");
         htm.sP("rptdesc");
@@ -339,7 +339,7 @@ enum PageAdmin {
             if (newIdList != null && !newIdList.isBlank()) {
                 final List<String> newIds = ReportingSite.extractIds(newIdList);
 
-                for (String newId : newIds) {
+                for (final String newId : newIds) {
                     final String cleaned = ReportingSite.cleanId(newId);
                     if (newId.length() == 9) {
                         boolean exists = false;

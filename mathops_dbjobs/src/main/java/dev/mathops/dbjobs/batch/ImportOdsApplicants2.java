@@ -351,9 +351,8 @@ public final class ImportOdsApplicants2 {
                             inner.put(admitted, Integer.valueOf(count.intValue() + 1));
                         }
 
-                        boolean isAdmitted;
                         if (admitted != null) {
-                            isAdmitted = decision != null || "Y".equals(admitted);
+                            final boolean isAdmitted = decision != null || "Y".equals(admitted);
 
                             if (isAdmitted) {
                                 final ApplicantRecord newRec = new ApplicantRecord(csuId, firstName, lastName, prefName,

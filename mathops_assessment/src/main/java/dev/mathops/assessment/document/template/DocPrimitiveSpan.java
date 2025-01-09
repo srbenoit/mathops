@@ -743,7 +743,7 @@ final class DocPrimitiveSpan extends AbstractDocPrimitive {
         } else if (obj instanceof final DocPrimitiveSpan spn) {
             equal = Objects.equals(this.xCoord, spn.xCoord)
                     && Objects.equals(this.yCoord, spn.yCoord)
-                    && Objects.equals(this.anchor, spn.anchor)
+                    && this.anchor == spn.anchor
                     && Objects.equals(this.filled, spn.filled)
                     && Objects.equals(this.colorName, spn.colorName)
                     && Objects.equals(this.color, spn.color)

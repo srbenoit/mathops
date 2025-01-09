@@ -143,19 +143,19 @@ final class TestRawMpscorequeueLogic {
                 for (final RawMpscorequeue test : all) {
 
                     if (Integer.valueOf(123456).equals(test.pidm)
-                            && "MC00".equals(test.testCode)
-                            && datetime1.equals(test.testDate)
-                            && "2".equals(test.testScore)) {
+                        && "MC00".equals(test.testCode)
+                        && datetime1.equals(test.testDate)
+                        && "2".equals(test.testScore)) {
                         found1 = true;
                     } else if (Integer.valueOf(123456).equals(test.pidm)
-                            && "MC17".equals(test.testCode)
-                            && datetime1.equals(test.testDate)
-                            && "1".equals(test.testScore)) {
+                               && "MC17".equals(test.testCode)
+                               && datetime1.equals(test.testDate)
+                               && "1".equals(test.testScore)) {
                         found2 = true;
                     } else if (Integer.valueOf(456789).equals(test.pidm)
-                            && "MC26".equals(test.testCode)
-                            && datetime2.equals(test.testDate)
-                            && "0".equals(test.testScore)) {
+                               && "MC26".equals(test.testCode)
+                               && datetime2.equals(test.testDate)
+                               && "0".equals(test.testScore)) {
                         found3 = true;
                     } else {
                         Log.warning("Unexpected pidm ", test.pidm);
@@ -196,14 +196,14 @@ final class TestRawMpscorequeueLogic {
                 for (final RawMpscorequeue test : all) {
 
                     if (Integer.valueOf(123456).equals(test.pidm)
-                            && "MC00".equals(test.testCode)
-                            && datetime1.equals(test.testDate)
-                            && "2".equals(test.testScore)) {
+                        && "MC00".equals(test.testCode)
+                        && datetime1.equals(test.testDate)
+                        && "2".equals(test.testScore)) {
                         found1 = true;
                     } else if (Integer.valueOf(123456).equals(test.pidm)
-                            && "MC17".equals(test.testCode)
-                            && datetime1.equals(test.testDate)
-                            && "1".equals(test.testScore)) {
+                               && "MC17".equals(test.testCode)
+                               && datetime1.equals(test.testDate)
+                               && "1".equals(test.testScore)) {
                         found2 = true;
                     } else {
                         Log.warning("Unexpected pidm ", test.pidm);
@@ -313,10 +313,10 @@ final class TestRawMpscorequeueLogic {
 
                     final RawMpscorequeue rec = all.getFirst();
 
-                    assertEquals(rec.pidm, pidm, "Invalid PIDM after query");
-                    assertEquals(rec.testCode, RawMpscorequeueLogic.MC17, "Invalid test code after query");
-                    assertEquals(rec.testDate, now, "Invalid test date after query");
-                    assertEquals(rec.testScore, "2", "Invalid test score after query");
+                    assertEquals(pidm, rec.pidm, "Invalid PIDM after query");
+                    assertEquals(RawMpscorequeueLogic.MC17, rec.testCode, "Invalid test code after query");
+                    assertEquals(now, rec.testDate, "Invalid test date after query");
+                    assertEquals("2", rec.testScore, "Invalid test score after query");
 
                     assertTrue(RawMpscorequeueLogic.delete(cache, rec), "deleteMpscorequeue failed");
                     conn.commit();
@@ -378,10 +378,10 @@ final class TestRawMpscorequeueLogic {
 
                     final RawMpscorequeue rec = sortest.getFirst();
 
-                    assertEquals(rec.pidm, pidm, "Invalid PIDM after query");
-                    assertEquals(rec.testCode, RawMpscorequeueLogic.MC17, "Invalid test code after query");
-                    assertEquals(rec.testDate, now, "Invalid test date after query");
-                    assertEquals(rec.testScore, "2", "Invalid test score after query");
+                    assertEquals(pidm, rec.pidm, "Invalid PIDM after query");
+                    assertEquals(RawMpscorequeueLogic.MC17, rec.testCode, "Invalid test code after query");
+                    assertEquals(now, rec.testDate, "Invalid test date after query");
+                    assertEquals("2", rec.testScore, "Invalid test score after query");
                 } finally {
                     liveCtx.checkInConnection(liveConn);
                 }
@@ -389,7 +389,7 @@ final class TestRawMpscorequeueLogic {
                 LogicUtils.indicateBannerUp();
                 ctx.checkInConnection(conn);
             }
-        } catch (SQLException ex) {
+        } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while posting challenge credit: " + ex.getMessage());
         }
@@ -437,34 +437,34 @@ final class TestRawMpscorequeueLogic {
                     for (final RawMpscorequeue test : all) {
 
                         if (pidm.equals(test.pidm)
-                                && "MC17".equals(test.testCode)
-                                && now.equals(test.testDate)
-                                && "1".equals(test.testScore)) {
+                            && "MC17".equals(test.testCode)
+                            && now.equals(test.testDate)
+                            && "1".equals(test.testScore)) {
                             found1 = true;
                         } else if (pidm.equals(test.pidm)
-                                && "MC18".equals(test.testCode)
-                                && now.equals(test.testDate)
-                                && "1".equals(test.testScore)) {
+                                   && "MC18".equals(test.testCode)
+                                   && now.equals(test.testDate)
+                                   && "1".equals(test.testScore)) {
                             found2 = true;
                         } else if (pidm.equals(test.pidm)
-                                && "MC24".equals(test.testCode)
-                                && now.equals(test.testDate)
-                                && "1".equals(test.testScore)) {
+                                   && "MC24".equals(test.testCode)
+                                   && now.equals(test.testDate)
+                                   && "1".equals(test.testScore)) {
                             found3 = true;
                         } else if (pidm.equals(test.pidm)
-                                && "MC25".equals(test.testCode)
-                                && now.equals(test.testDate)
-                                && "0".equals(test.testScore)) {
+                                   && "MC25".equals(test.testCode)
+                                   && now.equals(test.testDate)
+                                   && "0".equals(test.testScore)) {
                             found4 = true;
                         } else if (pidm.equals(test.pidm)
-                                && "MC26".equals(test.testCode)
-                                && now.equals(test.testDate)
-                                && "0".equals(test.testScore)) {
+                                   && "MC26".equals(test.testCode)
+                                   && now.equals(test.testDate)
+                                   && "0".equals(test.testScore)) {
                             found5 = true;
                         } else if (pidm.equals(test.pidm)
-                                && "MC00".equals(test.testCode)
-                                && now.equals(test.testDate)
-                                && "2".equals(test.testScore)) {
+                                   && "MC00".equals(test.testCode)
+                                   && now.equals(test.testDate)
+                                   && "2".equals(test.testScore)) {
                             found6 = true;
                         } else {
                             Log.warning("Unexpected pidm ", test.pidm);
@@ -490,7 +490,7 @@ final class TestRawMpscorequeueLogic {
                             RawMpscorequeueLogic.querySORTESTByStudent(liveConn, pidm);
 
                     assertEquals(0, sortest.size(), "query SORTEST after postPlacementToolResult with Banner down "
-                            + "returned wrong number of rows");
+                                                    + "returned wrong number of rows");
 
                 } finally {
                     liveCtx.checkInConnection(liveConn);
@@ -521,7 +521,7 @@ final class TestRawMpscorequeueLogic {
                 LocalDateTime.of(nowWithMs.getYear(), nowWithMs.getMonth(), nowWithMs.getDayOfMonth(),
                         nowWithMs.getHour(), nowWithMs.getMinute(), nowWithMs.getSecond());
 
-        List<String> earned = new ArrayList<>(4);
+        final List<String> earned = new ArrayList<>(4);
         earned.add(RawRecordConstants.M100C);
         earned.add(RawRecordConstants.M117);
         earned.add(RawRecordConstants.M118);
@@ -558,34 +558,34 @@ final class TestRawMpscorequeueLogic {
                     for (final RawMpscorequeue test : sortest) {
 
                         if (pidm.equals(test.pidm) //
-                                && "MC17".equals(test.testCode)
-                                && now.equals(test.testDate) //
-                                && "1".equals(test.testScore)) {
+                            && "MC17".equals(test.testCode)
+                            && now.equals(test.testDate) //
+                            && "1".equals(test.testScore)) {
                             found1 = true;
                         } else if (pidm.equals(test.pidm) //
-                                && "MC18".equals(test.testCode)
-                                && now.equals(test.testDate) //
-                                && "1".equals(test.testScore)) {
+                                   && "MC18".equals(test.testCode)
+                                   && now.equals(test.testDate) //
+                                   && "1".equals(test.testScore)) {
                             found2 = true;
                         } else if (pidm.equals(test.pidm) //
-                                && "MC24".equals(test.testCode)
-                                && now.equals(test.testDate) //
-                                && "1".equals(test.testScore)) {
+                                   && "MC24".equals(test.testCode)
+                                   && now.equals(test.testDate) //
+                                   && "1".equals(test.testScore)) {
                             found3 = true;
                         } else if (pidm.equals(test.pidm) //
-                                && "MC25".equals(test.testCode)
-                                && now.equals(test.testDate) //
-                                && "0".equals(test.testScore)) {
+                                   && "MC25".equals(test.testCode)
+                                   && now.equals(test.testDate) //
+                                   && "0".equals(test.testScore)) {
                             found4 = true;
                         } else if (pidm.equals(test.pidm) //
-                                && "MC26".equals(test.testCode)
-                                && now.equals(test.testDate) //
-                                && "0".equals(test.testScore)) {
+                                   && "MC26".equals(test.testCode)
+                                   && now.equals(test.testDate) //
+                                   && "0".equals(test.testScore)) {
                             found5 = true;
                         } else if (pidm.equals(test.pidm) //
-                                && "MC00".equals(test.testCode)
-                                && now.equals(test.testDate) //
-                                && "2".equals(test.testScore)) {
+                                   && "MC00".equals(test.testCode)
+                                   && now.equals(test.testDate) //
+                                   && "2".equals(test.testScore)) {
                             found6 = true;
                         } else {
                             Log.warning("Unexpected pidm ", test.pidm);
@@ -609,7 +609,7 @@ final class TestRawMpscorequeueLogic {
                 LogicUtils.indicateBannerUp();
                 ctx.checkInConnection(conn);
             }
-        } catch (SQLException ex) {
+        } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while posting placement result: " + ex.getMessage());
         }
@@ -624,7 +624,7 @@ final class TestRawMpscorequeueLogic {
 
         final LocalDateTime nowWithMs = LocalDateTime.now();
         final LocalDateTime now = LocalDateTime.of(nowWithMs.getYear(), nowWithMs.getMonth(), nowWithMs.getDayOfMonth(),
-                        nowWithMs.getHour(), nowWithMs.getMinute(), nowWithMs.getSecond());
+                nowWithMs.getHour(), nowWithMs.getMinute(), nowWithMs.getSecond());
 
         try {
             final DbConnection conn = ctx.checkOutConnection();
@@ -640,14 +640,14 @@ final class TestRawMpscorequeueLogic {
                     final List<RawMpscorequeue> all = RawMpscorequeueLogic.queryByPidm(cache, pidm);
 
                     assertEquals(1, all.size(), "query after postPrecalcTutorialResult "
-                            + "with Banner down returned wrong number of rows");
+                                                + "with Banner down returned wrong number of rows");
 
                     final RawMpscorequeue rec = all.getFirst();
 
-                    assertEquals(rec.pidm, pidm, "Invalid PIDM after query");
-                    assertEquals(rec.testCode, RawMpscorequeueLogic.MC17, "Invalid test code after query");
-                    assertEquals(rec.testDate, now, "Invalid test date after query");
-                    assertEquals(rec.testScore, "1", "Invalid test score after query");
+                    assertEquals(pidm, rec.pidm, "Invalid PIDM after query");
+                    assertEquals(RawMpscorequeueLogic.MC17, rec.testCode, "Invalid test code after query");
+                    assertEquals(now, rec.testDate, "Invalid test date after query");
+                    assertEquals("1", rec.testScore, "Invalid test score after query");
 
                     assertTrue(RawMpscorequeueLogic.delete(cache, rec), "deleteMpscorequeue failed");
                     conn.commit();
@@ -655,7 +655,7 @@ final class TestRawMpscorequeueLogic {
                     final List<RawMpscorequeue> sortest = RawMpscorequeueLogic.querySORTESTByStudent(liveConn, pidm);
 
                     assertEquals(0, sortest.size(), "query SORTEST after postPrecalcTutorialResult with Banner down "
-                            + "returned wrong number of rows");
+                                                    + "returned wrong number of rows");
 
                 } finally {
                     liveCtx.checkInConnection(liveConn);
@@ -682,7 +682,7 @@ final class TestRawMpscorequeueLogic {
         final Integer pidm = Integer.valueOf(10567708);
         final LocalDateTime nowWithMs = LocalDateTime.now();
         final LocalDateTime now = LocalDateTime.of(nowWithMs.getYear(), nowWithMs.getMonth(), nowWithMs.getDayOfMonth(),
-                        nowWithMs.getHour(), nowWithMs.getMinute(), nowWithMs.getSecond());
+                nowWithMs.getHour(), nowWithMs.getMinute(), nowWithMs.getSecond());
 
         try {
             final DbConnection conn = ctx.checkOutConnection();
@@ -703,14 +703,14 @@ final class TestRawMpscorequeueLogic {
                     final List<RawMpscorequeue> sortest = RawMpscorequeueLogic.querySORTESTByStudent(liveConn, pidm);
 
                     assertEquals(1, sortest.size(), "query SORTEST after postPrecalcTutorialResult with Banner up "
-                            + "returned wrong number of rows");
+                                                    + "returned wrong number of rows");
 
                     final RawMpscorequeue rec = sortest.getFirst();
 
-                    assertEquals(rec.pidm, pidm, "Invalid PIDM after query");
-                    assertEquals(rec.testCode, RawMpscorequeueLogic.MC17, "Invalid test code after query");
-                    assertEquals(rec.testDate, now, "Invalid test date after query");
-                    assertEquals(rec.testScore, "1", "Invalid test score after query");
+                    assertEquals(pidm, rec.pidm, "Invalid PIDM after query");
+                    assertEquals(RawMpscorequeueLogic.MC17, rec.testCode, "Invalid test code after query");
+                    assertEquals(now, rec.testDate, "Invalid test date after query");
+                    assertEquals("1", rec.testScore, "Invalid test score after query");
 
                 } finally {
                     liveCtx.checkInConnection(liveConn);
@@ -719,7 +719,7 @@ final class TestRawMpscorequeueLogic {
                 LogicUtils.indicateBannerUp();
                 ctx.checkInConnection(conn);
             }
-        } catch (SQLException ex) {
+        } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while posting precalculus tutorial result: " + ex.getMessage());
         }
@@ -754,10 +754,10 @@ final class TestRawMpscorequeueLogic {
 
                     final RawMpscorequeue rec = all.getFirst();
 
-                    assertEquals(rec.pidm, pidm, "Invalid PIDM after query");
-                    assertEquals(rec.testCode, RawMpscorequeueLogic.MC00, "Invalid test code after query");
-                    assertEquals(rec.testDate, now, "Invalid test date after query");
-                    assertEquals(rec.testScore, "2", "Invalid test score after query");
+                    assertEquals(pidm, rec.pidm, "Invalid PIDM after query");
+                    assertEquals(RawMpscorequeueLogic.MC00, rec.testCode, "Invalid test code after query");
+                    assertEquals(now, rec.testDate, "Invalid test date after query");
+                    assertEquals("2", rec.testScore, "Invalid test score after query");
 
                     assertTrue(RawMpscorequeueLogic.delete(cache, rec), "deleteMpscorequeue failed");
                     conn.commit();
@@ -765,7 +765,7 @@ final class TestRawMpscorequeueLogic {
                     final List<RawMpscorequeue> sortest = RawMpscorequeueLogic.querySORTESTByStudent(liveConn, pidm);
 
                     assertEquals(0, sortest.size(), "query SORTEST after postELMTutorialResult with Banner down "
-                            + "returned wrong number of rows");
+                                                    + "returned wrong number of rows");
 
                 } finally {
                     liveCtx.checkInConnection(liveConn);
@@ -793,7 +793,7 @@ final class TestRawMpscorequeueLogic {
 
         final LocalDateTime nowWithMs = LocalDateTime.now();
         final LocalDateTime now = LocalDateTime.of(nowWithMs.getYear(), nowWithMs.getMonth(), nowWithMs.getDayOfMonth(),
-                        nowWithMs.getHour(), nowWithMs.getMinute(), nowWithMs.getSecond());
+                nowWithMs.getHour(), nowWithMs.getMinute(), nowWithMs.getSecond());
 
         try {
             final DbConnection conn = ctx.checkOutConnection();
@@ -817,10 +817,10 @@ final class TestRawMpscorequeueLogic {
 
                     final RawMpscorequeue rec = sortest.getFirst();
 
-                    assertEquals(rec.pidm, pidm, "Invalid PIDM after query");
-                    assertEquals(rec.testCode, RawMpscorequeueLogic.MC00, "Invalid test code after query");
-                    assertEquals(rec.testDate, now, "Invalid test date after query");
-                    assertEquals(rec.testScore, "2", "Invalid test score after query");
+                    assertEquals(pidm, rec.pidm, "Invalid PIDM after query");
+                    assertEquals(RawMpscorequeueLogic.MC00, rec.testCode, "Invalid test code after query");
+                    assertEquals(now, rec.testDate, "Invalid test date after query");
+                    assertEquals("2", rec.testScore, "Invalid test score after query");
 
                 } finally {
                     liveCtx.checkInConnection(liveConn);
@@ -829,7 +829,7 @@ final class TestRawMpscorequeueLogic {
                 LogicUtils.indicateBannerUp();
                 ctx.checkInConnection(conn);
             }
-        } catch (SQLException ex) {
+        } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while posting ELM tutorial result: " + ex.getMessage());
         }
@@ -863,10 +863,10 @@ final class TestRawMpscorequeueLogic {
 
                     final RawMpscorequeue rec = all.getFirst();
 
-                    assertEquals(rec.pidm, pidm, "Invalid PIDM after query");
-                    assertEquals(rec.testCode, RawMpscorequeueLogic.MC00, "Invalid test code after query");
-                    assertEquals(rec.testDate, now, "Invalid test date after query");
-                    assertEquals(rec.testScore, "4", "Invalid test score after query");
+                    assertEquals(pidm, rec.pidm, "Invalid PIDM after query");
+                    assertEquals(RawMpscorequeueLogic.MC00, rec.testCode, "Invalid test code after query");
+                    assertEquals(now, rec.testDate, "Invalid test date after query");
+                    assertEquals("4", rec.testScore, "Invalid test score after query");
 
                     assertTrue(RawMpscorequeueLogic.delete(cache, rec), "deleteMpscorequeue failed");
                     conn.commit();
@@ -874,7 +874,7 @@ final class TestRawMpscorequeueLogic {
                     final List<RawMpscorequeue> sortest = RawMpscorequeueLogic.querySORTESTByStudent(liveConn, pidm);
 
                     assertEquals(0, sortest.size(), "query SORTEST after postELMUnit3ReviewPassed with Banner down "
-                            + "returned wrong number of rows");
+                                                    + "returned wrong number of rows");
 
                 } finally {
                     liveCtx.checkInConnection(liveConn);
@@ -902,7 +902,7 @@ final class TestRawMpscorequeueLogic {
 
         final LocalDateTime nowWithMs = LocalDateTime.now();
         final LocalDateTime now = LocalDateTime.of(nowWithMs.getYear(), nowWithMs.getMonth(), nowWithMs.getDayOfMonth(),
-                        nowWithMs.getHour(), nowWithMs.getMinute(), nowWithMs.getSecond());
+                nowWithMs.getHour(), nowWithMs.getMinute(), nowWithMs.getSecond());
 
         try {
             final DbConnection conn = ctx.checkOutConnection();
@@ -919,19 +919,19 @@ final class TestRawMpscorequeueLogic {
                     final List<RawMpscorequeue> all = RawMpscorequeueLogic.queryByPidm(cache, pidm);
 
                     assertEquals(0, all.size(), "query after postELMUnit3ReviewPassed "
-                            + "with Banner up returned wrong number of rows");
+                                                + "with Banner up returned wrong number of rows");
 
                     final List<RawMpscorequeue> sortest = RawMpscorequeueLogic.querySORTESTByStudent(liveConn, pidm);
 
                     assertEquals(1, sortest.size(), "query SORTEST after postELMTutorialResult with Banner up "
-                            + "returned wrong number of rows");
+                                                    + "returned wrong number of rows");
 
                     final RawMpscorequeue rec = sortest.getFirst();
 
-                    assertEquals(rec.pidm, pidm, "Invalid PIDM after query");
-                    assertEquals(rec.testCode, RawMpscorequeueLogic.MC00, "Invalid test code after query");
-                    assertEquals(rec.testDate, now, "Invalid test date after query");
-                    assertEquals(rec.testScore, "4", "Invalid test score after query");
+                    assertEquals(pidm, rec.pidm, "Invalid PIDM after query");
+                    assertEquals(RawMpscorequeueLogic.MC00, rec.testCode, "Invalid test code after query");
+                    assertEquals(now, rec.testDate, "Invalid test date after query");
+                    assertEquals("4", rec.testScore, "Invalid test score after query");
 
                 } finally {
                     liveCtx.checkInConnection(liveConn);
@@ -942,7 +942,7 @@ final class TestRawMpscorequeueLogic {
                 }
                 ctx.checkInConnection(conn);
             }
-        } catch (SQLException ex) {
+        } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while posting ELM review 3 result: " + ex.getMessage());
         }

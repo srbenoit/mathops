@@ -1,6 +1,5 @@
 package dev.mathops.assessment.problem.template;
 
-import dev.mathops.assessment.AbstractXmlObject;
 import dev.mathops.assessment.document.inst.DocColumnInst;
 import dev.mathops.assessment.formula.Formula;
 import dev.mathops.assessment.problem.EProblemType;
@@ -261,7 +260,7 @@ public final class ProblemNumericTemplate extends AbstractProblemTemplate {
         }
 
         // Test the answer against the acceptable number parameters
-        boolean correct;
+        final boolean correct;
 
         if (useInts) {
             correct = answer.doubleValue() >= (double) minInt && answer.doubleValue() <= (double) maxInt;
@@ -385,7 +384,7 @@ public final class ProblemNumericTemplate extends AbstractProblemTemplate {
         super.printSubclassAttributes(builder);
 
         if (this.stringAnswer != null) {
-            AbstractXmlObject.writeAttribute(builder, "student-string-answer", this.stringAnswer);
+            writeAttribute(builder, "student-string-answer", this.stringAnswer);
         }
     }
 
@@ -476,19 +475,19 @@ public final class ProblemNumericTemplate extends AbstractProblemTemplate {
                 buf.add("<tr><td><b>Name:</b></td><td>", param.name);
 
                 switch (param) {
-                    case VariableInteger variableInteger -> buf.add(" (Integer)");
-                    case VariableReal variableReal -> buf.add(" (Real)");
-                    case VariableBoolean variableBoolean -> buf.add(" (Boolean)");
-                    case VariableSpan variableSpan -> buf.add(" (Span)");
-                    case VariableRandomInteger variableRandomInteger -> buf.add(" (Random Integer)");
-                    case VariableRandomReal variableRandomReal -> buf.add(" (Random Real)");
-                    case VariableRandomPermutation variableRandomPermutation -> buf.add(" (Random Permutation)");
-                    case VariableRandomBoolean variableRandomBoolean -> buf.add(" (Random Boolean)");
-                    case VariableRandomChoice variableRandomChoice -> buf.add(" (Random Choice)");
-                    case VariableRandomSimpleAngle variableRandomSimpleAngle -> buf.add(" (Random Simple Angle)");
-                    case VariableDerived variableDerived -> buf.add(" (Derived)");
-                    case VariableInputInteger variableInputInteger -> buf.add(" (Input Int)");
-                    case VariableInputReal variableInputReal -> buf.add(" (Input Real)");
+                    case final VariableInteger variableInteger -> buf.add(" (Integer)");
+                    case final VariableReal variableReal -> buf.add(" (Real)");
+                    case final VariableBoolean variableBoolean -> buf.add(" (Boolean)");
+                    case final VariableSpan variableSpan -> buf.add(" (Span)");
+                    case final VariableRandomInteger variableRandomInteger -> buf.add(" (Random Integer)");
+                    case final VariableRandomReal variableRandomReal -> buf.add(" (Random Real)");
+                    case final VariableRandomPermutation variableRandomPermutation -> buf.add(" (Random Permutation)");
+                    case final VariableRandomBoolean variableRandomBoolean -> buf.add(" (Random Boolean)");
+                    case final VariableRandomChoice variableRandomChoice -> buf.add(" (Random Choice)");
+                    case final VariableRandomSimpleAngle variableRandomSimpleAngle -> buf.add(" (Random Simple Angle)");
+                    case final VariableDerived variableDerived -> buf.add(" (Derived)");
+                    case final VariableInputInteger variableInputInteger -> buf.add(" (Input Int)");
+                    case final VariableInputReal variableInputReal -> buf.add(" (Input Real)");
                     default -> buf.add(" (Unknown)");
                 }
 

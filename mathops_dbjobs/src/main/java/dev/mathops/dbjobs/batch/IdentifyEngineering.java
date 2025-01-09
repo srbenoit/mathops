@@ -28,7 +28,7 @@ import java.util.List;
  * This class scans the APPLICANTS table for applicants with programs of study that fall in a list that are identified
  * as "Engineering", and then adds them as "ENGRPLC" special student records.
  */
-public class IdentifyEngineering {
+public final class IdentifyEngineering {
 
     /** The special category. */
     public static final String SPECIAL_CATEGORY = "ENGRPLC";

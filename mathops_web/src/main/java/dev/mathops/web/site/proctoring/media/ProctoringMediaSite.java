@@ -315,7 +315,7 @@ public final class ProctoringMediaSite extends AbstractSite {
 
         final String target = req.getParameter("target");
 
-        if (AbstractSite.isParamInvalid(target)) {
+        if (isParamInvalid(target)) {
             Log.warning("Invalid request parameters - possible attack:");
             Log.warning("  target='", target, "'");
             PageError.doGet(cache, this, req, resp, session, Res.get(Res.ERR_NO_ROLE_TARGET));
@@ -354,8 +354,7 @@ public final class ProctoringMediaSite extends AbstractSite {
         } else if (when == null || when.isEmpty()) {
             Log.warning("Upload with no WHEN field - ignorning");
         } else // PSID and STUID will be used as parts of a file path - ensure they are safe!
-            if (AbstractSite.isParamInvalid(psid) || AbstractSite.isParamInvalid(stuid)
-                    || AbstractSite.isParamInvalid(when)) {
+            if (isParamInvalid(psid) || isParamInvalid(stuid) || isParamInvalid(when)) {
                 Log.warning("Invalid request parameters - possible attack:");
                 Log.warning("  psid='", psid, "'");
                 Log.warning("  stuid='", stuid, "'");

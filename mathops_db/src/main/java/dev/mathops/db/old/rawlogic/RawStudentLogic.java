@@ -1521,7 +1521,7 @@ public enum RawStudentLogic {
                     null, "N", null, "N", liveStudent.campus, liveStudent.email, liveStudent.adviserEmail, null,
                     liveStudent.admitType, "N", null, LocalDate.now(), null, null);
 
-            RawStudentLogic.insert(cache, result);
+            insert(cache, result);
 
             // Scan FFR_TRNS table and add any MATH transfer credits not in that table already.
 

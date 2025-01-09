@@ -370,16 +370,12 @@ public final class DlgEditGeneralAppeal extends JFrame implements ActionListener
 
         this.appealDateTimePicker.setCurrentDateTime(milestoneAppeal.appealDateTime);
 
-        if (RawMilestoneAppeal.APPEAL_TYPE_ACC.equals(milestoneAppeal.appealType)) {
-            this.appealTypeDropdown.setSelectedIndex(0);
-        } else if (RawMilestoneAppeal.APPEAL_TYPE_EXC.equals(milestoneAppeal.appealType)) {
-            this.appealTypeDropdown.setSelectedIndex(1);
-        } else if (RawMilestoneAppeal.APPEAL_TYPE_MED.equals(milestoneAppeal.appealType)) {
-            this.appealTypeDropdown.setSelectedIndex(2);
-        } else if (RawMilestoneAppeal.APPEAL_TYPE_FAM.equals(milestoneAppeal.appealType)) {
-            this.appealTypeDropdown.setSelectedIndex(3);
-        } else {
-            this.appealTypeDropdown.setSelectedIndex(4);
+        switch (milestoneAppeal.appealType) {
+            case RawMilestoneAppeal.APPEAL_TYPE_ACC -> this.appealTypeDropdown.setSelectedIndex(0);
+            case RawMilestoneAppeal.APPEAL_TYPE_EXC -> this.appealTypeDropdown.setSelectedIndex(1);
+            case RawMilestoneAppeal.APPEAL_TYPE_MED -> this.appealTypeDropdown.setSelectedIndex(2);
+            case RawMilestoneAppeal.APPEAL_TYPE_FAM -> this.appealTypeDropdown.setSelectedIndex(3);
+            case null, default -> this.appealTypeDropdown.setSelectedIndex(4);
         }
         this.appealTypeDropdown.setEnabled(true);
 

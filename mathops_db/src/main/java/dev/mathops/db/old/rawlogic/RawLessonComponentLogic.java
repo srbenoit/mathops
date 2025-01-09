@@ -21,7 +21,8 @@ import java.util.TreeMap;
  * <p>
  * There is currently no table for this data - it is hard-coded into this class.
  */
-public final class RawLessonComponentLogic {
+public enum RawLessonComponentLogic {
+    ;
 
     /** Label for overview video. */
     private static final String OVVID = "Instructor Lecture by Dr. Paul Kennedy";
@@ -767,13 +768,6 @@ public final class RawLessonComponentLogic {
     }
 
     /**
-     * Private constructor to prevent direct instantiation.
-     */
-    private RawLessonComponentLogic() {
-
-    }
-
-    /**
      * Inserts a new record.
      *
      * @param cache  the data cache
@@ -1069,13 +1063,13 @@ public final class RawLessonComponentLogic {
         lst.add(mkVid("TV2.3", "Technology Supplement: Finding Intersections of Linear and Absolute Value Functions"));
 
         lst.add(mkSEC("2.3.1", "Develop and apply methods to solve absolute value equations of the form "
-                + "<em>|u| = a</em> where <em>a > 0</em>."));
+                               + "<em>|u| = a</em> where <em>a > 0</em>."));
         lst.add(mkETT("2231E1", EX1));
         lst.add(mkETT("2231E2", EX2));
         lst.add(mkETT("2231T1", TT1));
         lst.add(mkETT("2231T2", TT2));
         lst.add(mkSEC("2.3.2", "Develop and apply methods to solve absolute value equations of the form "
-                + "<em>|u| = v</em> where <em>v</em> is an expression in <em>x</em>."));
+                               + "<em>|u| = v</em> where <em>v</em> is an expression in <em>x</em>."));
         lst.add(mkETT("2232E1", EX1));
         lst.add(mkETT("2232E2", EX2));
         lst.add(mkETT("2232T1", TT1));
@@ -1090,13 +1084,13 @@ public final class RawLessonComponentLogic {
         lst.add(mkVid("TV2.4", "Technology Supplement: Solving Absolute Value Inequalities"));
 
         lst.add(mkSEC("2.4.1", "Develop and apply methods to solve absolute value inequalities of the form "
-                + "<em>|u| < a</em> where <em>a > 0</em>."));
+                               + "<em>|u| < a</em> where <em>a > 0</em>."));
         lst.add(mkETT("2241E1", EX1));
         lst.add(mkETT("2241E2", EX2));
         lst.add(mkETT("2241T1", TT1));
         lst.add(mkETT("2241T2", TT2));
         lst.add(mkSEC("2.4.2", "Develop and apply methods to solve absolute value inequalities of the form "
-                + "<em>|u| > a</em> where <em>a > 0</em>."));
+                               + "<em>|u| > a</em> where <em>a > 0</em>."));
         lst.add(mkETT("2242E1", EX1));
         lst.add(mkETT("2242E2", EX2));
         lst.add(mkETT("2242T1", TT1));
@@ -1138,7 +1132,7 @@ public final class RawLessonComponentLogic {
         lst.add(mkETT("2311T1", TT1));
         lst.add(mkETT("2311T2", TT2));
         lst.add(mkSEC("3.1.2", "Write and graph quadratic functions in vertex form and determine the domain, range, "
-                + "and where increasing or decreasing."));
+                               + "and where increasing or decreasing."));
         lst.add(mkETT("2312E1", EX1));
         lst.add(mkETT("2312E2", EX2));
         lst.add(mkETT("2312T1", TT1));
@@ -1195,13 +1189,13 @@ public final class RawLessonComponentLogic {
         lst.add(mkETT("2341T1", TT1));
         lst.add(mkETT("2341T2", TT2));
         lst.add(mkSEC("3.4.2", "Graph and interpret graphs of the form "
-                + "(x - h)<sup>2</sup> + (y - k)<sup>2</sup> = r<sup>2</sup>."));
+                               + "(x - h)<sup>2</sup> + (y - k)<sup>2</sup> = r<sup>2</sup>."));
         lst.add(mkETT("2342E1", EX1));
         lst.add(mkETT("2342E2", EX2));
         lst.add(mkETT("2342T1", TT1));
         lst.add(mkETT("2342T2", TT2));
         lst.add(mkSEC("3.4.3", "Graph and interpret graphs of the form "
-                + "[(x - h)<sup>2</sup> / a<sup>2</sup>] + [(y - k)<sup>2</sup> / b<sup>2</sup>] = 1."));
+                               + "[(x - h)<sup>2</sup> / a<sup>2</sup>] + [(y - k)<sup>2</sup> / b<sup>2</sup>] = 1."));
         lst.add(mkETT("2343E1", EX1));
         lst.add(mkETT("2343E2", EX2));
         lst.add(mkETT("2343T1", TT1));
@@ -1578,9 +1572,9 @@ public final class RawLessonComponentLogic {
 
         lst.add(mkLH2("2: Absolute Value and Piecewise-Defined Functions", O2_5,
                 "Develop and apply methods to solve absolute value equations of the form "
-                        + "<em>|u| = a</em> where <em>a > 0</em>"));
+                + "<em>|u| = a</em> where <em>a > 0</em>"));
         lst.add(mkSEC("2.5.1", "Develop and apply methods to solve absolute value equations of the form "
-                + "<em>|u| = a</em> where <em>a > 0</em>."));
+                               + "<em>|u| = a</em> where <em>a > 0</em>."));
         lst.add(mkETT("2231E1", EX1));
         lst.add(mkETT("2231E2", EX2));
         lst.add(mkETT("2231T1", TT1));
@@ -1589,10 +1583,10 @@ public final class RawLessonComponentLogic {
         startLesson(prefix + ".26", 2, 6);
         lst.add(mkLH2("2: Absolute Value and Piecewise-Defined Functions", O2_6,
                 "Develop and apply methods to solve absolute value equations of the form "
-                        + "<em>|u| = v</em> where <em>v</em> is an expression in <em>x</em>."));
+                + "<em>|u| = v</em> where <em>v</em> is an expression in <em>x</em>."));
         lst.add(mkSEC("2.6.1",
                 "Develop and apply methods to solve absolute value equations of the form "
-                        + "<em>|u| = v</em> where <em>v</em> is an expression in <em>x</em>."));
+                + "<em>|u| = v</em> where <em>v</em> is an expression in <em>x</em>."));
         lst.add(mkETT("2232E1", EX1));
         lst.add(mkETT("2232E2", EX2));
         lst.add(mkETT("2232T1", TT1));
@@ -1606,9 +1600,9 @@ public final class RawLessonComponentLogic {
 
         lst.add(mkLH2("2: Absolute Value and Piecewise-Defined Functions", O2_7,
                 "Develop and apply methods to solve absolute value inequalities of the form "
-                        + "<em>|u| < a</em> where <em>a > 0</em>."));
-        lst.add(mkSEC("2.7.1", "Develop and apply methods to solve absolute value inequalities of the form "
                 + "<em>|u| < a</em> where <em>a > 0</em>."));
+        lst.add(mkSEC("2.7.1", "Develop and apply methods to solve absolute value inequalities of the form "
+                               + "<em>|u| < a</em> where <em>a > 0</em>."));
         lst.add(mkETT("2241E1", EX1));
         lst.add(mkETT("2241E2", EX2));
         lst.add(mkETT("2241T1", TT1));
@@ -1617,9 +1611,9 @@ public final class RawLessonComponentLogic {
         startLesson(prefix + ".28", 2, 8);
         lst.add(mkLH2("2: Absolute Value and Piecewise-Defined Functions", O2_8,
                 "Develop and apply methods to solve absolute value inequalities of the form "
-                        + "<em>|u| > a</em> where <em>a > 0</em>"));
+                + "<em>|u| > a</em> where <em>a > 0</em>"));
         lst.add(mkSEC("2.8.1", "Develop and apply methods to solve absolute value inequalities of the form "
-                + "<em>|u| > a</em> where <em>a > 0</em>."));
+                               + "<em>|u| > a</em> where <em>a > 0</em>."));
         lst.add(mkETT("2242E1", EX1));
         lst.add(mkETT("2242E2", EX2));
         lst.add(mkETT("2242T1", TT1));
@@ -1663,9 +1657,9 @@ public final class RawLessonComponentLogic {
         startLesson(prefix + ".32", 3, 2);
         lst.add(mkLH2("3: Quadratic Relations and Functions", O3_2,
                 "Write and graph quadratic functions in vertex form and determine the domain, range, and where "
-                        + "increasing or decreasing."));
+                + "increasing or decreasing."));
         lst.add(mkSEC("3.2.1", "Write and graph quadratic functions in vertex form and determine the domain, range, "
-                + "and where increasing or decreasing."));
+                               + "and where increasing or decreasing."));
         lst.add(mkETT("2312E1", EX1));
         lst.add(mkETT("2312E2", EX2));
         lst.add(mkETT("2312T1", TT1));
@@ -1727,9 +1721,10 @@ public final class RawLessonComponentLogic {
 
         startLesson(prefix + ".37", 3, 7);
         lst.add(mkLH2("3: Quadratic Relations and Functions", O3_6, "Graph and interpret graphs of the form "
-                + "(x - h)<sup>2</sup> + (y - k)<sup>2</sup> = r<sup>2</sup>"));
+                                                                    + "(x - h)<sup>2</sup> + (y - k)<sup>2</sup> = " +
+                                                                    "r<sup>2</sup>"));
         lst.add(mkSEC("3.7.1", "Graph and interpret graphs of the form "
-                + "(x - h)<sup>2</sup> + (y - k)<sup>2</sup> = r<sup>2</sup>."));
+                               + "(x - h)<sup>2</sup> + (y - k)<sup>2</sup> = r<sup>2</sup>."));
         lst.add(mkETT("2342E1", EX1));
         lst.add(mkETT("2342E2", EX2));
         lst.add(mkETT("2342T1", TT1));
@@ -3012,7 +3007,7 @@ public final class RawLessonComponentLogic {
         lst.add(mkETT("4141T1", TT1));
         lst.add(mkETT("4141T2", TT2));
         lst.add(mkSEC("1.4.2", "Given two functions, <em>f</em> and <em>g</em>, find and compare "
-                + "<em>(f <small>o</small> g)(x)</em> and <em>(g <small>o</small> f)(x)</em>."));
+                               + "<em>(f <small>o</small> g)(x)</em> and <em>(g <small>o</small> f)(x)</em>."));
         lst.add(mkETT("4142E1", EX1));
         lst.add(mkETT("4142E2", EX2));
         lst.add(mkETT("4142T1", TT1));
@@ -3037,7 +3032,7 @@ public final class RawLessonComponentLogic {
         lst.add(mkETT("4151E1", EX1));
         lst.add(mkETT("4151T1", TT1));
         lst.add(mkSEC("1.5.2", "Given a table, graph or rule for a function, determine whether or not its "
-                + "inverse is a function."));
+                               + "inverse is a function."));
         lst.add(mkETT("4152E1", EX1));
         lst.add(mkETT("4152E2", EX2));
         lst.add(mkETT("4152E3", EX3));
@@ -3045,7 +3040,8 @@ public final class RawLessonComponentLogic {
         lst.add(mkETT("4152T2", TT2));
         lst.add(mkETT("4152T3", TT3));
         lst.add(mkSEC("1.5.3", "Given <em>f</em>, determine <em>f<sup>-1</sup></em> and compose "
-                + "<em>f</em> with <em>f<sup>-1</sup></em> and <em>f<sup>-1</sup></em> with <em>f</em>."));
+                               + "<em>f</em> with <em>f<sup>-1</sup></em> and <em>f<sup>-1</sup></em> with <em>f</em>" +
+                               "."));
         lst.add(mkETT("4153E1", EX1));
         lst.add(mkETT("4153E2", EX2));
         lst.add(mkETT("4153T1", TT1));
@@ -3137,7 +3133,7 @@ public final class RawLessonComponentLogic {
         startLesson(prefix + ".24", 2, 4);
         lst.add(mkLH2("2: Introduction to Exponential and Logarithmic Functions", O2_4,
                 "Interpret graphs of functions of the form <em>y</em> = log<sub><em>b</em></sub><em>x</em> and "
-                        + "solve equations."));
+                + "solve equations."));
         lst.add(mkVid("424OV", OVVID));
         lst.add(mkPdf("424OV", OVPDF));
         lst.add(mkSEC("2.4.1", "Given the graph of a logarithmic function identify the equation."));
@@ -3323,7 +3319,7 @@ public final class RawLessonComponentLogic {
         // TODO: Here
 
         lst.add(mkSEC("4.2.1", "Simplify and solve equations of the form "
-                + "log<sub><em>b</em></sub><em>u</em> = log<sub><em>b</em></sub><em>v</em>."));
+                               + "log<sub><em>b</em></sub><em>u</em> = log<sub><em>b</em></sub><em>v</em>."));
         lst.add(mkETT("4421E1", EX1));
         lst.add(mkETT("4421E2", EX2));
         lst.add(mkETT("4421T1", TT1));
@@ -3522,9 +3518,10 @@ public final class RawLessonComponentLogic {
 
         startLesson(prefix + ".17", 1, 7);
         lst.add(mkLH2("1: Functions", O1_7, "Given two functions, <em>f</em> and <em>g</em>, find and compare "
-                + "<em>(f <small>o</small> g)(x)</em> and <em>(g <small>o</small> f)(x)</em>."));
+                                            + "<em>(f <small>o</small> g)(x)</em> and <em>(g <small>o</small> f)(x)" +
+                                            "</em>."));
         lst.add(mkSEC("1.7.1", "Given two functions, <em>f</em> and <em>g</em>, find and compare "
-                + "<em>(f <small>o</small> g)(x)</em> and <em>(g <small>o</small> f)(x)</em>."));
+                               + "<em>(f <small>o</small> g)(x)</em> and <em>(g <small>o</small> f)(x)</em>."));
         lst.add(mkETT("4142E1", EX1));
         lst.add(mkETT("4142E2", EX2));
         lst.add(mkETT("4142T1", TT1));
@@ -3548,7 +3545,8 @@ public final class RawLessonComponentLogic {
         lst.add(mkPreVid("TV1.2", "Technology Supplement: Graphing a function and its inverse"));
 
         lst.add(mkLH2("1: Functions", O1_9, "Given a table, graph or rule for a function, identify the inverse "
-                + "numerically and graphically. Determine whether or not its inverse is a function."));
+                                            + "numerically and graphically. Determine whether or not its inverse is a" +
+                                            " function."));
         lst.add(mkSEC("1.9.1", "Identify the inverse of a function numerically and graphically."));
         lst.add(mkETT("4151E1", EX1));
         lst.add(mkETT("4151T1", TT1));
@@ -3563,9 +3561,11 @@ public final class RawLessonComponentLogic {
 
         startLesson(prefix + ".110", 1, 10);
         lst.add(mkLH2("1: Functions", O1_10, "Given <em>f</em>, determine <em>f<sup>-1</sup></em> and compose "
-                + "<em>f</em> with <em>f<sup>-1</sup></em> and <em>f<sup>-1</sup></em> with <em>f</em>."));
+                                             + "<em>f</em> with <em>f<sup>-1</sup></em> and <em>f<sup>-1</sup></em> " +
+                                             "with <em>f</em>."));
         lst.add(mkSEC("1.10.1", "Given <em>f</em>, determine <em>f<sup>-1</sup></em> and compose "
-                + "<em>f</em> with <em>f<sup>-1</sup></em> and <em>f<sup>-1</sup></em> with <em>f</em>."));
+                                + "<em>f</em> with <em>f<sup>-1</sup></em> and <em>f<sup>-1</sup></em> with " +
+                                "<em>f</em>."));
         lst.add(mkETT("4153E1", EX1));
         lst.add(mkETT("4153E2", EX2));
         lst.add(mkETT("4153T1", TT1));
@@ -3889,9 +3889,9 @@ public final class RawLessonComponentLogic {
 
         lst.add(mkLH2("4: Properties of Logarithms and Exponential Functions", O4_3,
                 "Simplify and solve equations of the form "
-                        + "log<sub><em>b</em></sub><em>u</em> = log<sub><em>b</em></sub><em>v</em>."));
-        lst.add(mkSEC("4.3.1", "Simplify and solve equations of the form "
                 + "log<sub><em>b</em></sub><em>u</em> = log<sub><em>b</em></sub><em>v</em>."));
+        lst.add(mkSEC("4.3.1", "Simplify and solve equations of the form "
+                               + "log<sub><em>b</em></sub><em>u</em> = log<sub><em>b</em></sub><em>v</em>."));
         lst.add(mkETT("4421E1", EX1));
         lst.add(mkETT("4421E2", EX2));
         lst.add(mkETT("4421T1", TT1));
@@ -4351,7 +4351,7 @@ public final class RawLessonComponentLogic {
         lst.add(mkETT("5411T3", TT3));
 
         lst.add(mkSEC("4.1.2", "Graph and identify vertical and horizontal shifts of "
-                + "<em>y</em> = sin <em>x</em> and <em>y</em> = cos <em>x</em>."));
+                               + "<em>y</em> = sin <em>x</em> and <em>y</em> = cos <em>x</em>."));
         lst.add(mkETT("5412E1", EX1));
         lst.add(mkETT("5412E2", EX2));
         lst.add(mkETT("5412E3", EX3));
@@ -4369,7 +4369,7 @@ public final class RawLessonComponentLogic {
         lst.add(mkETT("5412T7", TT7));
         lst.add(mkETT("5412T8", TT8));
         lst.add(mkSEC("4.1.3", "Graph and identify translations of <em>y</em> = sin <em>x</em> and "
-                + "<em>y</em> = cos <em>x</em>."));
+                               + "<em>y</em> = cos <em>x</em>."));
         lst.add(mkETT("5413E1", EX1));
         lst.add(mkETT("5413E2", EX2));
         lst.add(mkETT("5413E3", EX3));
@@ -4384,7 +4384,7 @@ public final class RawLessonComponentLogic {
         lst.add(mkPdf("542OV", OVPDF));
         lst.add(mkTip("12542Tips"));
         lst.add(mkSEC("4.2.1", "Graph and identify amplitude transformations of the form "
-                + "<em>y = a</em> sin <em>x</em> and <em>y = a</em> cos <em>x</em>."));
+                               + "<em>y = a</em> sin <em>x</em> and <em>y = a</em> cos <em>x</em>."));
         lst.add(mkETT("5421E1", EX1));
         lst.add(mkETT("5421E2", EX2));
         lst.add(mkETT("5421E3", EX3));
@@ -4398,7 +4398,7 @@ public final class RawLessonComponentLogic {
         lst.add(mkETT("5421T5", TT5));
         lst.add(mkETT("5421T6", TT6));
         lst.add(mkSEC("4.2.2", "Graph and identify period transformations of the form "
-                + "<em>y = a</em> sin <em>bx</em> and <em>y = a</em> cos <em>bx</em>."));
+                               + "<em>y = a</em> sin <em>bx</em> and <em>y = a</em> cos <em>bx</em>."));
         lst.add(mkETT("5422E1", EX1));
         lst.add(mkETT("5422E2", EX2));
         lst.add(mkETT("5422E3", EX3));
@@ -4446,7 +4446,7 @@ public final class RawLessonComponentLogic {
         lst.add(mkETT("5441T1", TT1));
         lst.add(mkETT("5441T2", TT2));
         lst.add(mkSEC("4.4.2", "Graph and identify transformations of <em>y</em> = sec <em>x</em>, "
-                + "<em>y</em> = csc <em>x</em>, and <em>y</em> = cot <em>x</em>."));
+                               + "<em>y</em> = csc <em>x</em>, and <em>y</em> = cot <em>x</em>."));
         lst.add(mkETT("5442E1", EX1));
         lst.add(mkETT("5442E2", EX2));
         lst.add(mkETT("5442E3", EX3));
@@ -4914,9 +4914,9 @@ public final class RawLessonComponentLogic {
         startLesson(prefix + ".42", 4, 2);
         lst.add(mkLH2("4: Periodic Functions and Applications", O4_2,
                 "Graph and identify vertical and horizontal shifts of "
-                        + "<em>y</em> = sin <em>x</em> and <em>y</em> = cos <em>x</em>."));
-        lst.add(mkSEC("4.2.1", "Graph and identify vertical and horizontal shifts of "
                 + "<em>y</em> = sin <em>x</em> and <em>y</em> = cos <em>x</em>."));
+        lst.add(mkSEC("4.2.1", "Graph and identify vertical and horizontal shifts of "
+                               + "<em>y</em> = sin <em>x</em> and <em>y</em> = cos <em>x</em>."));
         lst.add(mkETT("5412E1", EX1));
         lst.add(mkETT("5412E2", EX2));
         lst.add(mkETT("5412E3", EX3));
@@ -4952,9 +4952,9 @@ public final class RawLessonComponentLogic {
         lst.add(mkTip("12542Tips"));
         lst.add(mkLH2("4: Periodic Functions and Applications", O4_4,
                 "Graph and identify amplitude transformations of the form "
-                        + "<em>y = a</em> sin <em>x</em> and <em>y = a</em> cos <em>x</em>."));
-        lst.add(mkSEC("4.4.1", "Graph and identify amplitude transformations of the form "
                 + "<em>y = a</em> sin <em>x</em> and <em>y = a</em> cos <em>x</em>."));
+        lst.add(mkSEC("4.4.1", "Graph and identify amplitude transformations of the form "
+                               + "<em>y = a</em> sin <em>x</em> and <em>y = a</em> cos <em>x</em>."));
         lst.add(mkETT("5421E1", EX1));
         lst.add(mkETT("5421E2", EX2));
         lst.add(mkETT("5421E3", EX3));
@@ -4971,9 +4971,9 @@ public final class RawLessonComponentLogic {
         startLesson(prefix + ".45", 4, 5);
         lst.add(mkLH2("4: Periodic Functions and Applications", O4_5,
                 "Graph and identify period transformations of the form "
-                        + "<em>y = a</em> sin <em>bx</em> and <em>y = a</em> cos <em>bx</em>."));
-        lst.add(mkSEC("4.5.1", "Graph and identify period transformations of the form "
                 + "<em>y = a</em> sin <em>bx</em> and <em>y = a</em> cos <em>bx</em>."));
+        lst.add(mkSEC("4.5.1", "Graph and identify period transformations of the form "
+                               + "<em>y = a</em> sin <em>bx</em> and <em>y = a</em> cos <em>bx</em>."));
         lst.add(mkETT("5422E1", EX1));
         lst.add(mkETT("5422E2", EX2));
         lst.add(mkETT("5422E3", EX3));
@@ -5028,9 +5028,12 @@ public final class RawLessonComponentLogic {
 
         startLesson(prefix + ".49", 4, 9);
         lst.add(mkLH2("4: Periodic Functions and Applications", O4_9, "Graph and identify transformations of "
-                + "<em>y</em> = sec <em>x</em>, <em>y</em> = csc <em>x</em>, and <em>y</em> = cot <em>x</em>."));
+                                                                      + "<em>y</em> = sec <em>x</em>, <em>y</em> = " +
+                                                                      "csc <em>x</em>, and <em>y</em> = cot " +
+                                                                      "<em>x</em>."));
         lst.add(mkSEC("4.9.1", "Graph and identify transformations of "
-                + "<em>y</em> = sec <em>x</em>, <em>y</em> = csc <em>x</em>, and <em>y</em> = cot <em>x</em>."));
+                               + "<em>y</em> = sec <em>x</em>, <em>y</em> = csc <em>x</em>, and <em>y</em> = cot " +
+                               "<em>x</em>."));
         lst.add(mkETT("5442E1", EX1));
         lst.add(mkETT("5442E2", EX2));
         lst.add(mkETT("5442E3", EX3));
@@ -5041,7 +5044,7 @@ public final class RawLessonComponentLogic {
         startLesson(prefix + ".410", 4, 10);
         lst.add(mkTip("12545Tips"));
         lst.add(mkLH2("4: Periodic Functions and Applications", O4_10, "Model real world situations with periodic " +
-                "functions."));
+                                                                       "functions."));
         lst.add(mkSEC("4.10.1", "Identify a periodic function of a data set."));
         lst.add(mkETT("5451E1", EX1));
         lst.add(mkETT("5451E2", EX2));
@@ -5137,7 +5140,8 @@ public final class RawLessonComponentLogic {
         lst.add(mkETT("6121T1", TT1));
         lst.add(mkETT("6121T2", TT2));
         lst.add(mkSEC("1.2.2", "Determine the domain and range, and graph for "
-                + "<em>y</em> = cos<sup>-1</sup> (<em>x</em>) and <em>y</em> = tan<sup>-1</sup> (<em>x</em>)."));
+                               + "<em>y</em> = cos<sup>-1</sup> (<em>x</em>) and <em>y</em> = tan<sup>-1</sup> " +
+                               "(<em>x</em>)."));
         lst.add(mkETT("6122E1", EX1));
         lst.add(mkETT("6122T1", TT1));
 
@@ -5525,9 +5529,11 @@ public final class RawLessonComponentLogic {
 
         startLesson(prefix + ".14", 1, 4);
         lst.add(mkLH2("1: Inverses", O1_4, "Determine the domain and range, and graph for "
-                + "<em>y</em> = cos<sup>-1</sup> (<em>x</em>) and <em>y</em> = tan<sup>-1</sup> (<em>x</em>)."));
+                                           + "<em>y</em> = cos<sup>-1</sup> (<em>x</em>) and <em>y</em> = " +
+                                           "tan<sup>-1</sup> (<em>x</em>)."));
         lst.add(mkSEC("1.4.1", "Determine the domain and range, and graph for "
-                + "<em>y</em> = cos<sup>-1</sup> (<em>x</em>) and <em>y</em> = tan<sup>-1</sup> (<em>x</em>)."));
+                               + "<em>y</em> = cos<sup>-1</sup> (<em>x</em>) and <em>y</em> = tan<sup>-1</sup> " +
+                               "(<em>x</em>)."));
         lst.add(mkETT("6122E1", EX1));
         lst.add(mkETT("6122T1", TT1));
 
@@ -6014,7 +6020,7 @@ public final class RawLessonComponentLogic {
         xml.addln("<div class='sol'>");
         if (doPdf) {
             xml.addln(" <img src='/images/pdf.png' alt='' "
-                    + "style='padding-right:3px;'/>");
+                      + "style='padding-right:3px;'/>");
             xml.addln(" <a class='linkbtn' target='_blank' href='https://nibbler.math.colostate.edu/media/",
                     courseId.replace(CoreConstants.SPC, CoreConstants.EMPTY), "/pdf/", mediaId, ".pdf'>", title,
                     " Solution</a>");

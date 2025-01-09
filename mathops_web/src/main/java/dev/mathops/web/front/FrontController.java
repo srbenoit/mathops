@@ -190,8 +190,8 @@ public final class FrontController extends HttpServlet {
     @Override
     public void destroy() {
 
-        final Installation installation = getInstallation();
-        final File dir = new File(installation.getBaseDir(), "sessions");
+        final Installation myInstallation = getInstallation();
+        final File dir = new File(myInstallation.getBaseDir(), "sessions");
 
         SessionManager.getInstance().persist(dir);
         ChallengeExamSessionStore.getInstance().persist(dir);

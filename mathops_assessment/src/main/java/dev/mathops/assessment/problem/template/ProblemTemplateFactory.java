@@ -146,11 +146,11 @@ public enum ProblemTemplateFactory {
 
                             EType newType = null;
                             switch (value) {
-                                case Boolean b -> newType = EType.BOOLEAN;
-                                case Long l -> newType = EType.INTEGER;
-                                case Double v -> newType = EType.REAL;
-                                case DocSimpleSpan docSimpleSpan -> newType = EType.SPAN;
-                                case ErrorValue errorValue -> {
+                                case final Boolean b -> newType = EType.BOOLEAN;
+                                case final Long l -> newType = EType.INTEGER;
+                                case final Double v -> newType = EType.REAL;
+                                case final DocSimpleSpan docSimpleSpan -> newType = EType.SPAN;
+                                case final ErrorValue errorValue -> {
                                     newType = EType.ERROR;
                                     errors.add("Variable {" + var.name + "} generated ErrorValue");
                                 }
@@ -202,11 +202,11 @@ public enum ProblemTemplateFactory {
 
                             EType newType = null;
                             switch (value) {
-                                case Boolean b -> newType = EType.BOOLEAN;
-                                case Long l -> newType = EType.INTEGER;
-                                case Double v -> newType = EType.REAL;
-                                case DocSimpleSpan docSimpleSpan -> newType = EType.SPAN;
-                                case ErrorValue errorValue -> {
+                                case final Boolean b -> newType = EType.BOOLEAN;
+                                case final Long l -> newType = EType.INTEGER;
+                                case final Double v -> newType = EType.REAL;
+                                case final DocSimpleSpan docSimpleSpan -> newType = EType.SPAN;
+                                case final ErrorValue errorValue -> {
                                     newType = EType.ERROR;
                                     errors.add("Variable {" + var.name + "} generated ErrorValue");
                                 }

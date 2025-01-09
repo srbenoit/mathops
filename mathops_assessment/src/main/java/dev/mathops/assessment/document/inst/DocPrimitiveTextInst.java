@@ -203,7 +203,7 @@ public final class DocPrimitiveTextInst extends AbstractPrimitiveInst {
         } else if (obj instanceof final DocPrimitiveTextInst txt) {
             equal = this.x == txt.x
                     && this.y == txt.y
-                    && Objects.equals(this.anchor, txt.anchor)
+                    && this.anchor == txt.anchor
                     && this.text.equals(txt.text)
                     && this.style.equals(txt.style)
                     && this.alpha == txt.alpha;

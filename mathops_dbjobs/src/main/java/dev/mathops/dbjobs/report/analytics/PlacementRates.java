@@ -660,50 +660,56 @@ final class PlacementRates {
             if (test.stuId.equals(stuId)) {
                 final String course = test.course;
 
-                if ("M 160".equals(course)) {
-                    xfer160 = true;
-                    doneWith160 = true;
-                } else if ("M 117".equals(course)) {
-                    xfer117 = true;
-                    readyFor118 = true;
-                } else if ("M 118".equals(course)) {
-                    xfer118 = true;
-                    readyFor124 = true;
-                    readyFor125 = true;
-                } else if ("M 124".equals(course)) {
-                    xfer124 = true;
-                } else if ("M 125".equals(course)) {
-                    xfer125 = true;
-                    readyFor126 = true;
-                } else if ("M 126".equals(course)) {
-                    xfer126 = true;
-                } else if ("M 120".equals(course)) {
-                    xfer117 = true;
-                    xfer118 = true;
-                    xfer124 = true;
-                    readyFor125 = true;
-                } else if ("M 127".equals(course)) {
-                    xfer117 = true;
-                    xfer118 = true;
-                    xfer124 = true;
-                    xfer125 = true;
-                    xfer126 = true;
-                    readyFor160 = true;
-                } else {
-                    for (final RawPrereq prereq : allPrereq) {
-                        if (prereq.prerequisite.equals(course)) {
-                            final String prereqFor = prereq.course;
+                switch (course) {
+                    case "M 160" -> {
+                        xfer160 = true;
+                        doneWith160 = true;
+                    }
+                    case "M 117" -> {
+                        xfer117 = true;
+                        readyFor118 = true;
+                    }
+                    case "M 118" -> {
+                        xfer118 = true;
+                        readyFor124 = true;
+                        readyFor125 = true;
+                    }
+                    case "M 124" -> xfer124 = true;
+                    case "M 125" -> {
+                        xfer125 = true;
+                        readyFor126 = true;
+                    }
+                    case "M 126" -> xfer126 = true;
+                    case "M 120" -> {
+                        xfer117 = true;
+                        xfer118 = true;
+                        xfer124 = true;
+                        readyFor125 = true;
+                    }
+                    case "M 127" -> {
+                        xfer117 = true;
+                        xfer118 = true;
+                        xfer124 = true;
+                        xfer125 = true;
+                        xfer126 = true;
+                        readyFor160 = true;
+                    }
+                    case null, default -> {
+                        for (final RawPrereq prereq : allPrereq) {
+                            if (prereq.prerequisite.equals(course)) {
+                                final String prereqFor = prereq.course;
 
-                            if ("M 117".equals(prereqFor)) {
-                                readyFor117 = true;
-                            } else if ("M 118".equals(prereqFor)) {
-                                readyFor118 = true;
-                            } else if ("M 124".equals(prereqFor)) {
-                                readyFor124 = true;
-                            } else if ("M 125".equals(prereqFor)) {
-                                readyFor125 = true;
-                            } else if ("M 126".equals(prereqFor)) {
-                                readyFor126 = true;
+                                if ("M 117".equals(prereqFor)) {
+                                    readyFor117 = true;
+                                } else if ("M 118".equals(prereqFor)) {
+                                    readyFor118 = true;
+                                } else if ("M 124".equals(prereqFor)) {
+                                    readyFor124 = true;
+                                } else if ("M 125".equals(prereqFor)) {
+                                    readyFor125 = true;
+                                } else if ("M 126".equals(prereqFor)) {
+                                    readyFor126 = true;
+                                }
                             }
                         }
                     }

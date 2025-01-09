@@ -50,13 +50,13 @@ final class TrackDeadlinesPane extends JPanel implements ActionListener {
     private final List<LocalDate> holidays;
 
     /** The original milestones, to allow up to detect which ones the user has changed. */
-    private Map<Integer, RawMilestone> original;
+    private final Map<Integer, RawMilestone> original;
 
     /** The date choosers associated with each milestone. */
-    private Map<Integer, JDateChooser> choosers;
+    private final Map<Integer, JDateChooser> choosers;
 
     /** The "changed" label associated with each milestone. */
-    private Map<Integer, JLabel> changedLabel;
+    private final Map<Integer, JLabel> changedLabel;
 
     /**
      * Constructs a new {@code TrackDeadlinesPane}.

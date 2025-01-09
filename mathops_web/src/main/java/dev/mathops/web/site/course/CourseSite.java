@@ -17,14 +17,13 @@ import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
 import dev.mathops.web.site.AbstractPageSite;
-import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.BasicCss;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
@@ -311,8 +310,7 @@ public class CourseSite extends AbstractPageSite {
         final String exam = req.getParameter("exam");
         final String password = req.getParameter("drowssap");
 
-        if (AbstractSite.isParamInvalid(course) || AbstractSite.isParamInvalid(exam)
-                || AbstractSite.isParamInvalid(password)) {
+        if (isParamInvalid(course) || isParamInvalid(exam) || isParamInvalid(password)) {
             Log.warning("Invalid request parameters - possible attack:");
             Log.warning("  course='", course, "'");
             Log.warning("  exam='", exam, "'");
@@ -349,8 +347,7 @@ public class CourseSite extends AbstractPageSite {
         final String exam = req.getParameter("exam");
         final String password = req.getParameter("drowssap");
 
-        if (AbstractSite.isParamInvalid(course) || AbstractSite.isParamInvalid(exam)
-                || AbstractSite.isParamInvalid(password)) {
+        if (isParamInvalid(course) || isParamInvalid(exam) || isParamInvalid(password)) {
             Log.warning("Invalid request parameters - possible attack:");
             Log.warning("  course='", course, "'");
             Log.warning("  exam='", exam, "'");

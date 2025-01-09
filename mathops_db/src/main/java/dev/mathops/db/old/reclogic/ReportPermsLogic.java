@@ -175,7 +175,7 @@ public abstract class ReportPermsLogic implements IRecLogic<ReportPermsRec> {
          * @return {@code true} if successful; {@code false} otherwise
          * @throws SQLException if there is an error accessing the database
          */
-        public boolean updatePermLevel(Cache cache, ReportPermsRec record) throws SQLException {
+        public boolean updatePermLevel(final Cache cache, final ReportPermsRec record) throws SQLException {
 
             if (record.stuId == null || record.rptId == null || record.permLevel == null) {
                 throw new SQLException("Null value in primary key or required field.");
@@ -228,7 +228,7 @@ public abstract class ReportPermsLogic implements IRecLogic<ReportPermsRec> {
          * @return the list of records returned
          * @throws SQLException if there is an error performing the query
          */
-        public List<ReportPermsRec> queryByStuId(Cache cache, String stuId) throws SQLException {
+        public List<ReportPermsRec> queryByStuId(final Cache cache, final String stuId) throws SQLException {
 
             final String sql = SimpleBuilder.concat("SELECT * FROM report_perms ",
                     "WHERE stu_id=", sqlStringValue(stuId));
@@ -244,7 +244,7 @@ public abstract class ReportPermsLogic implements IRecLogic<ReportPermsRec> {
          * @return the list of records returned
          * @throws SQLException if there is an error performing the query
          */
-        public List<ReportPermsRec> queryByRptId(Cache cache, String rptId) throws SQLException {
+        public List<ReportPermsRec> queryByRptId(final Cache cache, final String rptId) throws SQLException {
 
             final String sql = SimpleBuilder.concat("SELECT * FROM report_perms ",
                     "WHERE rpt_id=", sqlStringValue(rptId));
@@ -261,7 +261,7 @@ public abstract class ReportPermsLogic implements IRecLogic<ReportPermsRec> {
          * @return the record; {@code null} if not found
          * @throws SQLException if there is an error performing the query
          */
-        public ReportPermsRec query(Cache cache, String stuId, String rptId) throws SQLException {
+        public ReportPermsRec query(final Cache cache, final String stuId, final String rptId) throws SQLException {
 
             final String sql = SimpleBuilder.concat("SELECT * FROM report_perms ",
                     "WHERE stu_id=", sqlStringValue(stuId),
@@ -359,7 +359,7 @@ public abstract class ReportPermsLogic implements IRecLogic<ReportPermsRec> {
          * @return {@code true} if successful; {@code false} otherwise
          * @throws SQLException if there is an error accessing the database
          */
-        public boolean updatePermLevel(Cache cache, ReportPermsRec record) throws SQLException {
+        public boolean updatePermLevel(final Cache cache, final ReportPermsRec record) throws SQLException {
 
             if (record.stuId == null || record.rptId == null || record.permLevel == null) {
                 throw new SQLException("Null value in primary key or required field.");
@@ -415,7 +415,7 @@ public abstract class ReportPermsLogic implements IRecLogic<ReportPermsRec> {
          * @return the list of records returned
          * @throws SQLException if there is an error performing the query
          */
-        public List<ReportPermsRec> queryByStuId(Cache cache, String stuId) throws SQLException {
+        public List<ReportPermsRec> queryByStuId(final Cache cache, final String stuId) throws SQLException {
 
                 final String sql = SimpleBuilder.concat("SELECT * FROM ", cache.mainSchemaName,
                         ".report_perms WHERE stu_id=", sqlStringValue(stuId));
@@ -431,7 +431,7 @@ public abstract class ReportPermsLogic implements IRecLogic<ReportPermsRec> {
          * @return the list of records returned
          * @throws SQLException if there is an error performing the query
          */
-        public List<ReportPermsRec> queryByRptId(Cache cache, String rptId) throws SQLException {
+        public List<ReportPermsRec> queryByRptId(final Cache cache, final String rptId) throws SQLException {
 
                 final String sql = SimpleBuilder.concat("SELECT * FROM ", cache.mainSchemaName,
                         ".report_perms WHERE rpt_id=", sqlStringValue(rptId));
@@ -448,7 +448,7 @@ public abstract class ReportPermsLogic implements IRecLogic<ReportPermsRec> {
          * @return the record; {@code null} if not found
          * @throws SQLException if there is an error performing the query
          */
-        public ReportPermsRec query(Cache cache, String stuId, String rptId) throws SQLException {
+        public ReportPermsRec query(final Cache cache, final String stuId, final String rptId) throws SQLException {
 
             final String sql = SimpleBuilder.concat("SELECT * FROM ", cache.mainSchemaName,
                     ".report_perms WHERE stu_id=", sqlStringValue(stuId),

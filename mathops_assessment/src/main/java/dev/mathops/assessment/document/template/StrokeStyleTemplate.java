@@ -49,9 +49,9 @@ final class StrokeStyleTemplate {
      * @param theJoin            the label color name; {@code null} to use axis color
      * @param theMiterLimit      the optional ticks
      */
-    public StrokeStyleTemplate(final NumberOrFormula theStrokeWidth, final String theStrokeColorName,
-                               final float[] theDash, final NumberOrFormula theAlpha, final EStrokeCap theCap,
-                               final EStrokeJoin theJoin, final float theMiterLimit) {
+    StrokeStyleTemplate(final NumberOrFormula theStrokeWidth, final String theStrokeColorName,
+                        final float[] theDash, final NumberOrFormula theAlpha, final EStrokeCap theCap,
+                        final EStrokeJoin theJoin, final float theMiterLimit) {
 
         if (theStrokeColorName == null) {
             throw new IllegalArgumentException("Stroke color name may not be null");

@@ -1732,7 +1732,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
         }
 
         // Record all ignored credit results
-        for (String placeIn : stexam.deniedCredit.keySet()) {
+        for (final String placeIn : stexam.deniedCredit.keySet()) {
             String source = null;
             if (stexam.proctored) {
                 if (getMachineId() == null) {

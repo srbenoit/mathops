@@ -29,7 +29,7 @@ import java.awt.event.KeyEvent;
 /**
  * A class that presents an editor and allows the user to edit an expression.
  */
-public class ExpressionEditor extends KeyAdapter implements Runnable, ActionListener {
+public final class ExpressionEditor extends KeyAdapter implements Runnable, ActionListener {
 
     /** An action command. */
     public static final String CMD_ENGINEERING_E = "ENGR_E";

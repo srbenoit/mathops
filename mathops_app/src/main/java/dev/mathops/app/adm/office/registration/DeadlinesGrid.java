@@ -90,18 +90,17 @@ final class DeadlinesGrid extends JPanel {
             header.add(courseNameLbl);
 
             final String labelText;
-            if ("G".equals(reg.openStatus)) {
-                labelText = "(Course " + paceOrderStr + " of " + paceStr + ", Forfeit [G])";
-            } else if ("N".equals(reg.openStatus)) {
-                labelText = "(Course " + paceOrderStr + " of " + paceStr + ", Forfeit [N])";
-            } else if ("Y".equals(reg.openStatus)) {
-                if ("Y".equals(reg.completed)) {
-                    labelText = "(Course " + paceOrderStr + " of " + paceStr + ", Completed)";
-                } else {
-                    labelText = "(Course " + paceOrderStr + " of " + paceStr + ", Open)";
+            switch (reg.openStatus) {
+                case "G" -> labelText = "(Course " + paceOrderStr + " of " + paceStr + ", Forfeit [G])";
+                case "N" -> labelText = "(Course " + paceOrderStr + " of " + paceStr + ", Forfeit [N])";
+                case "Y" -> {
+                    if ("Y".equals(reg.completed)) {
+                        labelText = "(Course " + paceOrderStr + " of " + paceStr + ", Completed)";
+                    } else {
+                        labelText = "(Course " + paceOrderStr + " of " + paceStr + ", Open)";
+                    }
                 }
-            } else {
-                labelText = "(Course " + paceOrderStr + " of " + paceStr + ", Not started)";
+                case null, default -> labelText = "(Course " + paceOrderStr + " of " + paceStr + ", Not started)";
             }
 
             final JLabel paceOrderLbl = new JLabel(labelText);

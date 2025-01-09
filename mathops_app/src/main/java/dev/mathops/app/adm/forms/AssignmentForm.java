@@ -490,7 +490,7 @@ final class AssignmentForm extends AbstractForm implements ListSelectionListener
             final Dimension spacing = getIntercellSpacing();
             setPreferredSize(new Dimension(360 + 6 * spacing.width, 5 * getRowHeight() + 6 * spacing.height));
 
-            setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+            setAutoResizeMode(AUTO_RESIZE_ALL_COLUMNS);
         }
 
         /**

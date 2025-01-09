@@ -215,13 +215,13 @@ final class JMonthCalendar extends JPanel implements ActionListener {
         }
 
         if (this.weekdayLabels != null) {
-            for (final JLabel lbl : weekdayLabels) {
+            for (final JLabel lbl : this.weekdayLabels) {
                 lbl.setFont(weekdayFont);
             }
         }
 
         if (this.dateButtons != null) {
-            for (final JButton[] row : dateButtons) {
+            for (final JButton[] row : this.dateButtons) {
                 for (final JButton button : row) {
                     button.setFont(font);
                 }

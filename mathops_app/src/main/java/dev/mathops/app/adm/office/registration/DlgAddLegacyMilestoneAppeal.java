@@ -616,20 +616,19 @@ public final class DlgAddLegacyMilestoneAppeal extends JFrame implements ActionL
             final int unit = theMilestone.getUnit();
             final String unitStr = Integer.toString(unit);
             this.unitField.setText(unitStr);
-            if ("RE".equals(theMilestone.msType)) {
-                this.milestoneTypeDropdown.setSelectedIndex(0);
-            } else if ("FE".equals(theMilestone.msType)) {
-                this.milestoneTypeDropdown.setSelectedIndex(1);
-            } else if ("F1".equals(theMilestone.msType)) {
-                this.milestoneTypeDropdown.setSelectedIndex(2);
-                this.attemptsAllowedField.setText("1");
-            } else {
-                this.milestoneTypeDropdown.setSelectedIndex(-1);
+            switch (theMilestone.msType) {
+                case "RE" -> this.milestoneTypeDropdown.setSelectedIndex(0);
+                case "FE" -> this.milestoneTypeDropdown.setSelectedIndex(1);
+                case "F1" -> {
+                    this.milestoneTypeDropdown.setSelectedIndex(2);
+                    this.attemptsAllowedField.setText("1");
+                }
+                case null, default -> this.milestoneTypeDropdown.setSelectedIndex(-1);
             }
             this.priorDatePicker.setCurrentDate(theMilestone.msDate);
         }
 
-        final boolean isF1 = "F1".equals(milestone.msType);
+        final boolean isF1 = "F1".equals(this.milestone.msType);
         this.attemptsAllowedField.setEnabled(isF1);
         this.attemptsAllowedField.setText(isF1 ? "1" : CoreConstants.EMPTY);
 
@@ -694,7 +693,7 @@ public final class DlgAddLegacyMilestoneAppeal extends JFrame implements ActionL
         }
 
         final String track = this.paceTrackField.getText();
-        boolean hasTrack = track != null && track.length() == 1;
+        final boolean hasTrack = track != null && track.length() == 1;
 
         boolean hasCourse = false;
         int courseInt = 0;

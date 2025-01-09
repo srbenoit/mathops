@@ -622,14 +622,11 @@ public final class DlgAddStandardMilestoneAppeal extends JFrame implements Actio
             final int unit = theStdMilestone.unit.intValue();
             final String unitStr = Integer.toString(unit);
             this.unitField.setText(unitStr);
-            if ("RE".equals(theStdMilestone.msType)) {
-                this.milestoneTypeDropdown.setSelectedIndex(0);
-            } else if ("FE".equals(theStdMilestone.msType)) {
-                this.milestoneTypeDropdown.setSelectedIndex(1);
-            } else if ("F1".equals(theStdMilestone.msType)) {
-                this.milestoneTypeDropdown.setSelectedIndex(2);
-            } else {
-                this.milestoneTypeDropdown.setSelectedIndex(-1);
+            switch (theStdMilestone.msType) {
+                case "RE" -> this.milestoneTypeDropdown.setSelectedIndex(0);
+                case "FE" -> this.milestoneTypeDropdown.setSelectedIndex(1);
+                case "F1" -> this.milestoneTypeDropdown.setSelectedIndex(2);
+                case null, default -> this.milestoneTypeDropdown.setSelectedIndex(-1);
             }
             this.priorDatePicker.setCurrentDate(theStdMilestone.msDate);
         }
@@ -696,7 +693,7 @@ public final class DlgAddStandardMilestoneAppeal extends JFrame implements Actio
         }
 
         final String track = this.paceTrackField.getText();
-        boolean hasTrack = track != null && track.length() == 1;
+        final boolean hasTrack = track != null && track.length() == 1;
 
         boolean hasCourse = false;
         int courseInt = 0;

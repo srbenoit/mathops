@@ -79,11 +79,11 @@ public enum MessageFactory {
                 msg = new ExceptionSubmissionReply(xml);
             } else if (tag.equals(GetExamRequest.xmlTag())) {
                 msg = new GetExamRequest(xml);
-            } else if (tag.equals(GetExamReply.xmlTag())) {
+            } else if ("get-exam-reply".equals(tag)) {
                 msg = new GetExamReply(xml);
             } else if (tag.equals(GetReviewExamRequest.xmlTag())) {
                 msg = new GetReviewExamRequest(xml);
-            } else if (tag.equals(GetReviewExamReply.xmlTag())) {
+            } else if ("get-review-exam-reply".equals(tag)) {
                 msg = new GetReviewExamReply(xml);
             } else if (tag.equals(MachineSetupRequest.xmlTag())) {
                 msg = new MachineSetupRequest(xml);

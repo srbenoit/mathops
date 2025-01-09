@@ -976,7 +976,7 @@ public final class Function extends AbstractFormulaContainer implements IEditabl
         if (obj == this) {
             equal = true;
         } else if (obj instanceof final Function fxn) {
-            equal = innerEquals(fxn) && Objects.equals(this.function, fxn.function);
+            equal = innerEquals(fxn) && this.function == fxn.function;
         } else {
             equal = false;
         }

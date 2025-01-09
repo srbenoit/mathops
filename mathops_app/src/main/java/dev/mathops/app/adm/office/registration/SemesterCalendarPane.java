@@ -256,7 +256,7 @@ public final class SemesterCalendarPane extends JPanel implements MouseListener 
     private LocalDate getFirstDate() {
 
         LocalDate start;
-        RawSemesterCalendar firstWeek = this.semesterCalendars.getFirst();
+        final RawSemesterCalendar firstWeek = this.semesterCalendars.getFirst();
         if (firstWeek.weekNbr.intValue() == 0) {
             start = this.semesterCalendars.get(1).startDt;
         } else {

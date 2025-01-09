@@ -180,13 +180,11 @@ public enum RawCsectionLogic {
      */
     public static List<RawCsection> queryByTerm(final Cache cache, final TermKey termKey) throws SQLException {
 
-        List<RawCsection> result;
-
         final String sql = SimpleBuilder.concat(
                 "SELECT * FROM csection WHERE term='", termKey.termCode,
                 "' AND term_yr=", termKey.shortYear);
 
-        result = new ArrayList<>(100);
+        final List<RawCsection> result = new ArrayList<>(100);
 
         try (final Statement stmt = cache.conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {

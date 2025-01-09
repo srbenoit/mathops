@@ -284,7 +284,7 @@ final class DocPrimitiveProtractor extends AbstractDocRectangleShape {
         final Rectangle2D bounds = getBoundsRect(context);
 
         if (bounds != null) {
-            Object result;
+            final Object result;
 
             double orient = 0.0;
             if (this.orientation != null) {
@@ -332,11 +332,11 @@ final class DocPrimitiveProtractor extends AbstractDocRectangleShape {
                 a = Math.min(1.0f, this.alpha.floatValue());
             }
 
-            double x = bounds.getX();
-            double y = bounds.getY();
-            double width = bounds.getWidth();
-            double height = bounds.getHeight();
-            double r = Math.max(Math.abs(width), Math.abs(height)) * 0.5;
+            final double x = bounds.getX();
+            final double y = bounds.getY();
+            final double width = bounds.getWidth();
+            final double height = bounds.getHeight();
+            final double r = Math.max(Math.abs(width), Math.abs(height)) * 0.5;
 
             if (a > 0.0f) {
                 final double cxval = x + width * 0.5;
@@ -1055,7 +1055,7 @@ final class DocPrimitiveProtractor extends AbstractDocRectangleShape {
         } else if (obj instanceof final DocPrimitiveProtractor prot) {
             equal = Objects.equals(getShape(), prot.getShape())
                     && Objects.equals(this.orientation, prot.orientation)
-                    && Objects.equals(this.angleUnits, prot.angleUnits)
+                    && this.angleUnits == prot.angleUnits
                     && Objects.equals(this.numQuadrants, prot.numQuadrants)
                     && Objects.equals(this.colorName, prot.colorName)
                     && Objects.equals(this.color, prot.color)

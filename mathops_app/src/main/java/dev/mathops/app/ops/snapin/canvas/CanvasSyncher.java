@@ -150,7 +150,7 @@ final class CanvasSyncher extends SwingWorker<String, SyncherStatus> {
                         + "&shared_secret=dlsdf"
                         + "&url=https://testing.math.colostate.edu/lta/lta.html", "POST");
 
-                if (x1.response instanceof JSONObject obj) {
+                if (x1.response instanceof final JSONObject obj) {
                     Log.info("ID=", obj.getProperty("id"));
                     Log.info("  domain=", obj.getProperty("domain"));
                     Log.info("  name=", obj.getProperty("name"));

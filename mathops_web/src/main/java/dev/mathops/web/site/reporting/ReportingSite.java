@@ -231,7 +231,7 @@ public final class ReportingSite extends AbstractSite {
 
         final String target = req.getParameter("target");
 
-        if (AbstractSite.isParamInvalid(target)) {
+        if (isParamInvalid(target)) {
             Log.warning("Invalid request parameters - possible attack:");
             Log.warning("  target='", target, "'");
             resp.sendError(400, "Invalid target provided with role control");

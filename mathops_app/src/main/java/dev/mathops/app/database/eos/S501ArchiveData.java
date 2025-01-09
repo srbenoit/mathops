@@ -65,7 +65,7 @@ final class S501ArchiveData extends StepExecutable {
     static class S501Worker extends SwingWorker<Boolean, StepStatus> {
 
         /** TRUE to simply print what actions would be taken, FALSE to actually take actions. */
-        private static final boolean DEBUG = true;
+        private static final boolean DEBUG_WORKER = true;
 
         /** The owning step. */
         private final S501ArchiveData owner;

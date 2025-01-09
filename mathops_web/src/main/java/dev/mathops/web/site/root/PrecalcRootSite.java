@@ -16,14 +16,13 @@ import dev.mathops.session.SessionResult;
 import dev.mathops.session.login.TestStudentLoginProcessor;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractPageSite;
-import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -216,8 +215,7 @@ public final class PrecalcRootSite extends AbstractPageSite {
 
         Page.endOrdinaryPage(cache, this, htm, true);
 
-        sendReply(req, resp, AbstractSite.MIME_TEXT_HTML,
-                htm.toString().getBytes(StandardCharsets.UTF_8));
+        sendReply(req, resp, MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
     }
 
     /**

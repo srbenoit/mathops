@@ -262,7 +262,7 @@ final class TopicMetadataPanel extends JPanel implements ActionListener {
      *
      * @param parsedJson the parsed JSON object
      */
-    private void populateFields(JSONObject parsedJson) {
+    private void populateFields(final JSONObject parsedJson) {
 
         final String title = parsedJson.getStringProperty("title");
         final String authors = parsedJson.getStringProperty("authors");

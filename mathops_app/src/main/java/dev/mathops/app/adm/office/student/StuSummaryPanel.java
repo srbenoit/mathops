@@ -622,7 +622,7 @@ public final class StuSummaryPanel extends AdmPanelBase {
 
                 final JLabel lbl = new JLabel(msg.toString());
                 lbl.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 0));
-                lbl.setAlignmentX(Component.RIGHT_ALIGNMENT);
+                lbl.setAlignmentX(RIGHT_ALIGNMENT);
                 lbl.setFont(Skin.BUTTON_BOLD_13_FONT);
                 this.holdsPane.add(lbl);
 

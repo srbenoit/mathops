@@ -59,7 +59,7 @@ public class GetExamReply extends AbstractReplyBase {
 
         super();
 
-        final String message = extractMessage(xml, xmlTag());
+        final String message = extractMessage(xml, "get-exam-reply");
 
         this.error = extractField(message, "error");
         this.studentId = extractField(message, "student");
@@ -73,13 +73,12 @@ public class GetExamReply extends AbstractReplyBase {
         if (this.error == null) {
             final int start = message.indexOf("<exam ");
             if (start == -1) {
-                throw new IllegalArgumentException("GetReviewExamReply did not contain exam");
+                throw new IllegalArgumentException("GetExamReply did not contain exam");
             }
 
             final int end = message.indexOf("</exam>", start + 6);
             if (end == -1) {
-                throw new IllegalArgumentException(
-                        "GetReviewExamReply: can't find end tag of <exam>");
+                throw new IllegalArgumentException("GetExamReply: can't find end tag of <exam>");
             }
 
             // Use the exam factory to extract the exam.
@@ -137,16 +136,6 @@ public class GetExamReply extends AbstractReplyBase {
                 throw new IllegalArgumentException(Res.get(Res.NO_SELECTED_LIST));
             }
         }
-    }
-
-    /**
-     * Gets the unique XML tag of all messages of this class, to identify such a message in an XML stream.
-     *
-     * @return the XML tag
-     */
-    static String xmlTag() {
-
-        return "get-exam-reply";
     }
 
     /**

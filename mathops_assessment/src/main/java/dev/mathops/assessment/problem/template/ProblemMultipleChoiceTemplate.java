@@ -496,19 +496,19 @@ public final class ProblemMultipleChoiceTemplate extends AbstractProblemMultiple
                 buf.add("<tr><td><b>Name:</b></td><td>", abstractVariable.name);
 
                 switch (abstractVariable) {
-                    case VariableInteger variableInteger -> buf.add(" (Integer)");
-                    case VariableReal variableReal -> buf.add(" (Real)");
-                    case VariableBoolean variableBoolean -> buf.add(" (Boolean)");
-                    case VariableSpan variableSpan -> buf.add(" (Span)");
-                    case VariableRandomInteger variableRandomInteger -> buf.add(" (Random Integer)");
-                    case VariableRandomReal variableRandomReal -> buf.add(" (Random Real)");
-                    case VariableRandomPermutation variableRandomPermutation -> buf.add(" (Random Permutation)");
-                    case VariableRandomBoolean variableRandomBoolean -> buf.add(" (Random Boolean)");
-                    case VariableRandomChoice variableRandomChoice -> buf.add(" (Random Choice)");
-                    case VariableRandomSimpleAngle variableRandomSimpleAngle -> buf.add(" (Random Simple Angle)");
-                    case VariableDerived variableDerived -> buf.add(" (Derived)");
-                    case VariableInputInteger variableInputInteger -> buf.add(" (Input Int)");
-                    case VariableInputReal variableInputReal -> buf.add(" (Input Real)");
+                    case final VariableInteger variableInteger -> buf.add(" (Integer)");
+                    case final VariableReal variableReal -> buf.add(" (Real)");
+                    case final VariableBoolean variableBoolean -> buf.add(" (Boolean)");
+                    case final VariableSpan variableSpan -> buf.add(" (Span)");
+                    case final VariableRandomInteger variableRandomInteger -> buf.add(" (Random Integer)");
+                    case final VariableRandomReal variableRandomReal -> buf.add(" (Random Real)");
+                    case final VariableRandomPermutation variableRandomPermutation -> buf.add(" (Random Permutation)");
+                    case final VariableRandomBoolean variableRandomBoolean -> buf.add(" (Random Boolean)");
+                    case final VariableRandomChoice variableRandomChoice -> buf.add(" (Random Choice)");
+                    case final VariableRandomSimpleAngle variableRandomSimpleAngle -> buf.add(" (Random Simple Angle)");
+                    case final VariableDerived variableDerived -> buf.add(" (Derived)");
+                    case final VariableInputInteger variableInputInteger -> buf.add(" (Input Int)");
+                    case final VariableInputReal variableInputReal -> buf.add(" (Input Real)");
                     default -> buf.add(" (Unknown)");
                 }
 
@@ -541,10 +541,10 @@ public final class ProblemMultipleChoiceTemplate extends AbstractProblemMultiple
 
                 if (value != null) {
                     switch (value) {
-                        case Long l -> buf.add("<tr><td><b>Integer Value:</b></td><td>", value, "</td></tr>");
-                        case Number number -> buf.add("<tr><td><b>Real Value:</b></td><td>", value, "</td></tr>");
-                        case Boolean b -> buf.add("<tr><td><b>Boolean Value:</b></td><td>", value, "</td></tr>");
-                        case String s -> buf.add("<tr><td><b>String Value:</b></td><td>", value, "</td></tr>");
+                        case final Long l -> buf.add("<tr><td><b>Integer Value:</b></td><td>", value, "</td></tr>");
+                        case final Number number -> buf.add("<tr><td><b>Real Value:</b></td><td>", value, "</td></tr>");
+                        case final Boolean b -> buf.add("<tr><td><b>Boolean Value:</b></td><td>", value, "</td></tr>");
+                        case final String s -> buf.add("<tr><td><b>String Value:</b></td><td>", value, "</td></tr>");
                         default -> {
                         }
                     }

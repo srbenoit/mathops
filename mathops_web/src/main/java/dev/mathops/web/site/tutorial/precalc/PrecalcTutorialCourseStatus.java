@@ -173,8 +173,8 @@ final class PrecalcTutorialCourseStatus {
                     final int unit = exam.unit.intValue();
                     final int finishTime = exam.finishTime.intValue();
 
-                    LocalTime endTime;
-                    LocalDateTime whenFinished;
+                    final LocalTime endTime;
+                    final LocalDateTime whenFinished;
 
                     if (finishTime < 1440) {
                         endTime = LocalTime.of(finishTime / 60, finishTime % 60);

@@ -458,15 +458,15 @@ public final class VariableEditorPanel extends JPanel
             String type = null;
 
             switch (theVar) {
-                case VariableBoolean variableBoolean -> type = BOOLEAN;
-                case VariableInteger variableInteger -> type = INTEGER;
-                case VariableReal variableReal -> type = REAL;
-                case VariableSpan variableSpan -> type = SPAN;
-                case VariableRandomBoolean variableRandomBoolean -> type = RANDOM_BOOLEAN;
-                case VariableRandomInteger variableRandomInteger -> type = RANDOM_INTEGER;
-                case VariableRandomReal variableRandomReal -> type = RANDOM_REAL;
-                case VariableRandomPermutation variableRandomPermutation -> type = RANDOM_PERMUTATION;
-                case VariableRandomChoice variableRandomChoice -> {
+                case final VariableBoolean variableBoolean -> type = BOOLEAN;
+                case final VariableInteger variableInteger -> type = INTEGER;
+                case final VariableReal variableReal -> type = REAL;
+                case final VariableSpan variableSpan -> type = SPAN;
+                case final VariableRandomBoolean variableRandomBoolean -> type = RANDOM_BOOLEAN;
+                case final VariableRandomInteger variableRandomInteger -> type = RANDOM_INTEGER;
+                case final VariableRandomReal variableRandomReal -> type = RANDOM_REAL;
+                case final VariableRandomPermutation variableRandomPermutation -> type = RANDOM_PERMUTATION;
+                case final VariableRandomChoice variableRandomChoice -> {
                     if (theVar.type == EType.INTEGER) {
                         type = RANDOM_CHOICE_INTEGER;
                     } else if (theVar.type == EType.REAL) {
@@ -477,8 +477,8 @@ public final class VariableEditorPanel extends JPanel
                         Log.warning("Unsupported random choice type: ", theVar.type);
                     }
                 }
-                case VariableRandomSimpleAngle variableRandomSimpleAngle -> type = RANDOM_SIMPLE_ANGLE;
-                case VariableDerived variableDerived -> {
+                case final VariableRandomSimpleAngle variableRandomSimpleAngle -> type = RANDOM_SIMPLE_ANGLE;
+                case final VariableDerived variableDerived -> {
                     if (theVar.type == EType.BOOLEAN) {
                         type = DERIVED_BOOLEAN;
                     } else if (theVar.type == EType.INTEGER) {
@@ -1289,7 +1289,7 @@ public final class VariableEditorPanel extends JPanel
         // See if value is different
         final Object oldValue = this.var.getValue();
         switch (this.var) {
-            case VariableBoolean variableBoolean -> {
+            case final VariableBoolean variableBoolean -> {
 
                 final Object newValue = this.booleanValue.getSelectedItem();
                 if (Objects.equals(newValue, oldValue)) {
@@ -1299,7 +1299,7 @@ public final class VariableEditorPanel extends JPanel
                     changes = true;
                 }
             }
-            case VariableInteger variableInteger -> {
+            case final VariableInteger variableInteger -> {
 
                 final String newText = this.integerValue.getText();
                 try {
@@ -1316,7 +1316,7 @@ public final class VariableEditorPanel extends JPanel
                 }
 
             }
-            case VariableReal variableReal -> {
+            case final VariableReal variableReal -> {
 
                 final String newText = this.realValue.getText();
                 try {
@@ -1333,7 +1333,7 @@ public final class VariableEditorPanel extends JPanel
                 }
 
             }
-            case VariableSpan variableSpan -> {
+            case final VariableSpan variableSpan -> {
 
                 final String spanText = this.spanValue.getText();
                 if (spanText == null || spanText.isBlank()) {

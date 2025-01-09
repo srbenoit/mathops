@@ -361,8 +361,7 @@ public final class ProgramFlows {
                                    || "MATH272".equals(course)
                                    || "MATH340".equals(course)
                                    || "MATH345".equals(course)
-                                   || "MATH348".equals(course)
-                                   || "MATH271".equals(course)) {
+                                   || "MATH348".equals(course)) {
                             courseCredits = 4;
                         } else {
                             courseCredits = 3;

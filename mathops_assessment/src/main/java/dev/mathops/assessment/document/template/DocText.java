@@ -235,18 +235,18 @@ public final class DocText extends AbstractDocObjectTemplate {
         } else if (this.isStixMath) {
             font = bfm.getFont("STIX Two Math Regular", font.getSize(), font.getStyle());
         } else if (mathMode != ELayoutMode.TEXT) {
-            if (CoreConstants.DASH.equals(this.text)) {
-                txt = "\u2013";
-            } else if ("'".equals(this.text)) {
-                txt = "\u2032";
-            } else if ("''".equals(this.text)) {
-                txt = "\u2033";
-            } else if ("'''".equals(this.text)) {
-                txt = "\u2034";
-                font = bfm.getFont("STIX Two Text Regular", font.getSize(), font.getStyle());
-            } else if ("''''".equals(this.text)) {
-                txt = "\u2057";
-                font = bfm.getFont("STIX Two Text Regular", font.getSize(), font.getStyle());
+            switch (this.text) {
+                case CoreConstants.DASH -> txt = "\u2013";
+                case "'" -> txt = "\u2032";
+                case "''" -> txt = "\u2033";
+                case "'''" -> {
+                    txt = "\u2034";
+                    font = bfm.getFont("STIX Two Text Regular", font.getSize(), font.getStyle());
+                }
+                case "''''" -> {
+                    txt = "\u2057";
+                    font = bfm.getFont("STIX Two Text Regular", font.getSize(), font.getStyle());
+                }
             }
         }
 

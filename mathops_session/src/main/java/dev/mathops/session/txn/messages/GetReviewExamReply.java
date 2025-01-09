@@ -37,7 +37,7 @@ public final class GetReviewExamReply extends GetExamReply {
 
         super();
 
-        final String message = extractMessage(xml, xmlTag());
+        final String message = extractMessage(xml, "get-review-exam-reply");
 
         this.error = extractField(message, "error");
         this.studentId = extractField(message, "student");
@@ -118,16 +118,6 @@ public final class GetReviewExamReply extends GetExamReply {
                 throw new IllegalArgumentException(Res.get(Res.NO_SELECTED_LIST));
             }
         }
-    }
-
-    /**
-     * Gets the unique XML tag of all messages of this class, to identify such a message in an XML stream.
-     *
-     * @return the XML tag
-     */
-    static String xmlTag() {
-
-        return "get-review-exam-reply";
     }
 
     /**

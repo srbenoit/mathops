@@ -1034,7 +1034,7 @@ final class ScreenCourse extends AbstractStudentScreen {
     /**
      * A comparator that sorts {@code RawStcourse} records on course ID then term.
      */
-    private static class StCourseSort implements Comparator<RawStcourse> {
+    private static final class StCourseSort implements Comparator<RawStcourse> {
 
         /**
          * Constructs a new {@code StCourseSort}.
@@ -1068,7 +1068,7 @@ final class ScreenCourse extends AbstractStudentScreen {
     /**
      * A comparator that sorts {@code RawSthomework} records chronologically.
      */
-    private static class SthwSort implements Comparator<RawSthomework> {
+    private static final class SthwSort implements Comparator<RawSthomework> {
 
         /**
          * Constructs a new {@code SthwSort}.

@@ -1,6 +1,5 @@
 package dev.mathops.assessment.variable;
 
-import dev.mathops.assessment.AbstractXmlObject;
 import dev.mathops.assessment.EType;
 import dev.mathops.text.builder.HtmlBuilder;
 
@@ -133,7 +132,7 @@ public final class VariableBoolean extends AbstractVariable {
 
         startXml(xml, indent, TYPE_TAG);
         final Object value = getValue();
-        AbstractXmlObject.writeAttribute(xml, "value", value);
+        writeAttribute(xml, "value", value);
         xml.addln("/>");
     }
 

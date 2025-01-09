@@ -149,7 +149,7 @@ public final class DocParagraph extends AbstractDocSpanBase {
     public void setJustification(final int theJustification) {
 
         if (theJustification == LEFT || theJustification == RIGHT || theJustification == CENTER
-                || theJustification == FULL || theJustification == LEFT_HANG) {
+            || theJustification == FULL || theJustification == LEFT_HANG) {
             this.justification = theJustification;
         } else {
             throw new IllegalArgumentException("Invalid justification setting");
@@ -174,7 +174,7 @@ public final class DocParagraph extends AbstractDocSpanBase {
     public void setSpacing(final int theSpacing) {
 
         if ((theSpacing != NONE) && (theSpacing != SMALL)
-                && (theSpacing != NORMAL) && (theSpacing != LARGE)) {
+            && (theSpacing != NORMAL) && (theSpacing != LARGE)) {
             throw new IllegalArgumentException("Invalid spacing setting");
         }
 
@@ -251,31 +251,25 @@ public final class DocParagraph extends AbstractDocSpanBase {
             }
         }
 
-        int topInset;
-        int bottomInset;
-
-        switch (this.spacing) {
-            case NONE:
+        final int topInset;
+        final int bottomInset = switch (this.spacing) {
+            case NONE -> {
                 topInset = INSET_TOP_NONE;
-                bottomInset = INSET_BOTTOM_NONE;
-                break;
-
-            case SMALL:
+                yield INSET_BOTTOM_NONE;
+            }
+            case SMALL -> {
                 topInset = INSET_TOP_SMALL;
-                bottomInset = INSET_BOTTOM_SMALL;
-                break;
-
-            case LARGE:
+                yield INSET_BOTTOM_SMALL;
+            }
+            case LARGE -> {
                 topInset = INSET_TOP_LARGE;
-                bottomInset = INSET_BOTTOM_LARGE;
-                break;
-
-            case NORMAL:
-            default:
+                yield INSET_BOTTOM_LARGE;
+            }
+            default -> {
                 topInset = INSET_TOP_NORMAL;
-                bottomInset = INSET_BOTTOM_NORMAL;
-                break;
-        }
+                yield INSET_BOTTOM_NORMAL;
+            }
+        };
 
         int leftInset = INSET_LEFT;
         if (this.indent > 0) {
@@ -311,7 +305,7 @@ public final class DocParagraph extends AbstractDocSpanBase {
                 if (posC != null) {
                     final double absolute = posC.doubleValue() * (double) digitWidth;
                     if (Double.isFinite(absolute) && absolute > 0.0) {
-                        final int intAbs = INSET_LEFT + (int)absolute;
+                        final int intAbs = INSET_LEFT + (int) absolute;
                         if (intAbs > (getWidth() - INSET_RIGHT)) {
                             // Tab is past end of line - do a line wrap
                             if (first < i) {
@@ -395,7 +389,7 @@ public final class DocParagraph extends AbstractDocSpanBase {
             final AbstractDocObjectTemplate obj = objects.get(i);
 
             if (obj instanceof DocDrawing || obj instanceof DocGraphXY || obj instanceof DocImage
-                    || obj instanceof DocTable) {
+                || obj instanceof DocTable) {
                 continue;
             }
 
@@ -550,13 +544,13 @@ public final class DocParagraph extends AbstractDocSpanBase {
     /**
      * Write the XML representation of the object to a {@code HtmlBuilder}.
      *
-     * @param xml    the {@code HtmlBuilder} to which to write the XML
-     * @param indent the number of spaces to indent the printout
+     * @param xml       the {@code HtmlBuilder} to which to write the XML
+     * @param theIndent the number of spaces to indent the printout
      */
     @Override
-    public void toXml(final HtmlBuilder xml, final int indent) {
+    public void toXml(final HtmlBuilder xml, final int theIndent) {
 
-        final String ind = makeIndent(indent);
+        final String ind = makeIndent(theIndent);
 
         xml.add(ind, "<p");
         printFormat(xml, 1.0f);
@@ -626,7 +620,7 @@ public final class DocParagraph extends AbstractDocSpanBase {
             if (child instanceof DocText) {
                 child.toXml(xml, 0);
             } else {
-                child.toXml(xml, indent + 1);
+                child.toXml(xml, theIndent + 1);
             }
         }
 

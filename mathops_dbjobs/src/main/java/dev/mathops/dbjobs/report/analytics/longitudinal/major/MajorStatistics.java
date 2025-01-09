@@ -907,17 +907,14 @@ public final class MajorStatistics {
             String course = rec.course();
             if (course.startsWith("MATH")) {
 
-                if ("MATH180A3".equals(course)) {
-                    course = "MATH157";
-                } else if ("MATH180A4".equals(course)) {
-                    course = "MATH159";
-                } else if ("MATH180A5".equals(course)) {
-                    course = "MATH156";
-                } else if ("MATH181A1".equals(course)) {
-                    course = "MATH116";
-                } else if ("MATH345".equals(course)) {
-                    course = "MATH340";
-                }
+                course = switch (course) {
+                    case "MATH180A3" -> "MATH157";
+                    case "MATH180A4" -> "MATH159";
+                    case "MATH180A5" -> "MATH156";
+                    case "MATH181A1" -> "MATH116";
+                    case "MATH345" -> "MATH340";
+                    default -> course;
+                };
 
                 if (FOUNDATIONAL.contains(course)) {
                     final Integer currentValue = attemptsByCourse.get(course);
@@ -1098,8 +1095,7 @@ public final class MajorStatistics {
                    || "MATH272".equals(course)
                    || "MATH340".equals(course)
                    || "MATH345".equals(course)
-                   || "MATH348".equals(course)
-                   || "MATH271".equals(course)) {
+                   || "MATH348".equals(course)) {
             courseCredits = 4;
         } else {
             courseCredits = 3;

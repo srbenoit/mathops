@@ -46,7 +46,7 @@ public class ExprBox extends AbstractObjectBox {
 
         int maxTop = getTypoCenter() * 2;
         int minBottom = 0;
-        int x = 0;
+        int xPos = 0;
 
         for (int i = 0; i < numChildren; ++i) {
             final ExprObject obj = this.source.get(i);
@@ -69,8 +69,8 @@ public class ExprBox extends AbstractObjectBox {
                 this.childBoxes.add(box);
                 maxTop = Math.max(maxTop, box.getTop());
                 minBottom = Math.min(minBottom, box.getBottom());
-                box.setX(x);
-                x += box.getWidth();
+                box.setX(xPos);
+                xPos += box.getWidth();
             }
         }
 

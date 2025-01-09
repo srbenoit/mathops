@@ -9,7 +9,6 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
-import javax.swing.WindowConstants;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -145,7 +144,7 @@ final class BundledFontViewer extends JFrame {
         final BundledFontManager mgr = BundledFontManager.getInstance();
 
         obj.createUI(mgr);
-        obj.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        obj.setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         UIUtilities.packAndCenter(obj);
     }

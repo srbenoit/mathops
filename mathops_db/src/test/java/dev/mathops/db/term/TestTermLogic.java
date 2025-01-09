@@ -5,30 +5,29 @@ import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
 import dev.mathops.db.old.DbContext;
-import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.EDbUse;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.svc.term.TermLogic;
 import dev.mathops.db.old.svc.term.TermRec;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
+import dev.mathops.db.type.TermKey;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import org.junit.jupiter.api.Test;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Tests for the {@code TermLogic} class.
@@ -217,7 +216,7 @@ final class TestTermLogic {
                     final TermRec index2 = TermLogic.Informix.INSTANCE.queryByIndex(cache, 2);
 
                     assertNotNull(index2, "Informix queryByIndex returned null");
-                    assertEquals(index2, RAW5, "Informix term index 2 not found");
+                    assertEquals(RAW5, index2, "Informix term index 2 not found");
                 } finally {
                     informixCtx.checkInConnection(conn);
                 }
@@ -280,7 +279,7 @@ final class TestTermLogic {
                     final TermRec active = TermLogic.Informix.INSTANCE.queryActive(cache);
 
                     assertNotNull(active, "Informix queryActive returned null");
-                    assertEquals(active, RAW3, "Informix active term not found");
+                    assertEquals(RAW3, active, "Informix active term not found");
                 } finally {
                     informixCtx.checkInConnection(conn);
                 }
@@ -303,7 +302,7 @@ final class TestTermLogic {
                     final TermRec active = TermLogic.Informix.INSTANCE.queryNext(cache);
 
                     assertNotNull(active, "Informix queryNext returned null");
-                    assertEquals(active, RAW4, "Informix next term not found");
+                    assertEquals(RAW4, active, "Informix next term not found");
                 } finally {
                     informixCtx.checkInConnection(conn);
                 }
@@ -326,7 +325,7 @@ final class TestTermLogic {
                     final TermRec active = TermLogic.Informix.INSTANCE.queryPrior(cache);
 
                     assertNotNull(active, "Informix queryPrior returned null");
-                    assertEquals(active, RAW2, "Informix prior term not found");
+                    assertEquals(RAW2, active, "Informix prior term not found");
                 } finally {
                     informixCtx.checkInConnection(conn);
                 }
@@ -349,7 +348,7 @@ final class TestTermLogic {
                     final TermRec active = TermLogic.Informix.INSTANCE.query(cache, RAW1.term);
 
                     assertNotNull(active, "Informix query returned null");
-                    assertEquals(active, RAW1, "Informix term not found");
+                    assertEquals(RAW1, active, "Informix term not found");
                 } finally {
                     informixCtx.checkInConnection(conn);
                 }
@@ -504,7 +503,7 @@ final class TestTermLogic {
                     final TermRec index2 = TermLogic.Postgres.INSTANCE.queryByIndex(cache, 2);
 
                     assertNotNull(index2, "PostgreSQL queryByIndex returned null");
-                    assertEquals(index2, RAW5, "PostgreSQL term index 2 not found");
+                    assertEquals(RAW5, index2, "PostgreSQL term index 2 not found");
                 } finally {
                     postgresCtx.checkInConnection(conn);
                 }
@@ -567,7 +566,7 @@ final class TestTermLogic {
                     final TermRec active = TermLogic.Postgres.INSTANCE.queryActive(cache);
 
                     assertNotNull(active, "PostgreSQL queryActive returned null");
-                    assertEquals(active, RAW3, "PostgreSQL active term not found");
+                    assertEquals(RAW3, active, "PostgreSQL active term not found");
                 } finally {
                     postgresCtx.checkInConnection(conn);
                 }
@@ -590,7 +589,7 @@ final class TestTermLogic {
                     final TermRec active = TermLogic.Postgres.INSTANCE.queryNext(cache);
 
                     assertNotNull(active, "PostgreSQL queryNext returned null");
-                    assertEquals(active, RAW4, "PostgreSQL next term not found");
+                    assertEquals(RAW4, active, "PostgreSQL next term not found");
                 } finally {
                     postgresCtx.checkInConnection(conn);
                 }
@@ -613,7 +612,7 @@ final class TestTermLogic {
                     final TermRec active = TermLogic.Postgres.INSTANCE.queryPrior(cache);
 
                     assertNotNull(active, "PostgreSQL queryPrior returned null");
-                    assertEquals(active, RAW2, "PostgreSQL prior term not found");
+                    assertEquals(RAW2, active, "PostgreSQL prior term not found");
                 } finally {
                     postgresCtx.checkInConnection(conn);
                 }
@@ -636,7 +635,7 @@ final class TestTermLogic {
                     final TermRec active = TermLogic.Postgres.INSTANCE.query(cache, RAW1.term);
 
                     assertNotNull(active, "PostgreSQL query returned null");
-                    assertEquals(active, RAW1, "Postgres term not found");
+                    assertEquals(RAW1, active, "Postgres term not found");
                 } finally {
                     postgresCtx.checkInConnection(conn);
                 }

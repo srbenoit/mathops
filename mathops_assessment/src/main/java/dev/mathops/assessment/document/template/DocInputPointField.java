@@ -119,7 +119,7 @@ public final class DocInputPointField extends AbstractDocInputField {
 
         final String oldVal = getTextValue();
 
-        boolean ok = cleaned.equals(oldVal);
+        final boolean ok = cleaned.equals(oldVal);
 
         // If no change, do nothing.
 

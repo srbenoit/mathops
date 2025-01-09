@@ -287,54 +287,24 @@ public enum FetchEnrollmentData {
 
                     Double gradeValue = null;
                     if (grade != null) {
-                        if ("A+".equals(grade) || "TA+".equals(grade)
-                            || "RA+".equals(grade) || "XA+".equals(grade)) {
-                            gradeValue = Double.valueOf(4.0);
-                        } else if ("A".equals(grade) || "TA".equals(grade)
-                                   || "RA".equals(grade) || "XA".equals(grade)) {
-                            gradeValue = Double.valueOf(4.0);
-                        } else if ("A-".equals(grade) || "TA-".equals(grade)
-                                   || "RA-".equals(grade) || "XA-".equals(grade)) {
-                            gradeValue = Double.valueOf(3.667);
-                        } else if ("B+".equals(grade) || "TB+".equals(grade)
-                                   || "RB+".equals(grade) || "XB+".equals(grade)) {
-                            gradeValue = Double.valueOf(3.333);
-                        } else if ("B".equals(grade) || "TB".equals(grade)
-                                   || "RB".equals(grade) || "XB".equals(grade)) {
-                            gradeValue = Double.valueOf(3.0);
-                        } else if ("B-".equals(grade) || "TB-".equals(grade)
-                                   || "RB-".equals(grade) || "XB-".equals(grade)) {
-                            gradeValue = Double.valueOf(2.667);
-                        } else if ("C+".equals(grade) || "TC+".equals(grade)
-                                   || "RC+".equals(grade) || "XC+".equals(grade)) {
-                            gradeValue = Double.valueOf(2.333);
-                        } else if ("C".equals(grade) || "TC".equals(grade)
-                                   || "RC".equals(grade) || "XC".equals(grade)) {
-                            gradeValue = Double.valueOf(2.0);
-                        } else if ("C-".equals(grade) || "TC-".equals(grade)
-                                   || "RC-".equals(grade) || "XC-".equals(grade)) {
-                            gradeValue = Double.valueOf(1.667);
-                        } else if ("D+".equals(grade) || "TD+".equals(grade)
-                                   || "RD+".equals(grade) || "XD+".equals(grade)) {
-                            gradeValue = Double.valueOf(1.333);
-                        } else if ("D".equals(grade) || "TD".equals(grade)
-                                   || "RD".equals(grade) || "XD".equals(grade)) {
-                            gradeValue = Double.valueOf(1.0);
-                        } else if ("D-".equals(grade) || "TD-".equals(grade)
-                                   || "RD-".equals(grade) || "XD-".equals(grade)) {
-                            gradeValue = Double.valueOf(0.667);
-                        } else if ("F".equals(grade) || "TF".equals(grade)
-                                   || "RF".equals(grade) || "XF".equals(grade)) {
-                            gradeValue = Double.valueOf(0.0);
-                        } else if ("U".equals(grade) || "TU".equals(grade)
-                                   || "RU".equals(grade) || "XU".equals(grade)) {
-                            gradeValue = Double.valueOf(0.0);
-                        } else if ("S".equals(grade) || "TS".equals(grade) || "XS".equals(grade)) {
-                            gradeValue = Double.valueOf(2.5);
-                        } else if ("W".equals(grade)) {
-                            withdrawn = true;
-                        } else {
-                            Log.warning("Unrecognized grade: ", grade, " in ", course);
+                        switch (grade) {
+                            case "A+", "TA+", "RA+", "XA+" -> gradeValue = Double.valueOf(4.0);
+                            case "A", "TA", "RA", "XA" -> gradeValue = Double.valueOf(4.0);
+                            case "A-", "TA-", "RA-", "XA-" -> gradeValue = Double.valueOf(3.667);
+                            case "B+", "TB+", "RB+", "XB+" -> gradeValue = Double.valueOf(3.333);
+                            case "B", "TB", "RB", "XB" -> gradeValue = Double.valueOf(3.0);
+                            case "B-", "TB-", "RB-", "XB-" -> gradeValue = Double.valueOf(2.667);
+                            case "C+", "TC+", "RC+", "XC+" -> gradeValue = Double.valueOf(2.333);
+                            case "C", "TC", "RC", "XC" -> gradeValue = Double.valueOf(2.0);
+                            case "C-", "TC-", "RC-", "XC-" -> gradeValue = Double.valueOf(1.667);
+                            case "D+", "TD+", "RD+", "XD+" -> gradeValue = Double.valueOf(1.333);
+                            case "D", "TD", "RD", "XD" -> gradeValue = Double.valueOf(1.0);
+                            case "D-", "TD-", "RD-", "XD-" -> gradeValue = Double.valueOf(0.667);
+                            case "F", "TF", "RF", "XF" -> gradeValue = Double.valueOf(0.0);
+                            case "U", "TU", "RU", "XU" -> gradeValue = Double.valueOf(0.0);
+                            case "S", "TS", "XS" -> gradeValue = Double.valueOf(2.5);
+                            case "W" -> withdrawn = true;
+                            default -> Log.warning("Unrecognized grade: ", grade, " in ", course);
                         }
                     }
 

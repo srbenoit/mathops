@@ -13,15 +13,15 @@ public class StepManual extends AbstractStep {
      * Constructs a new {@code StepManual}.
      *
      * @param theOwner        the step list that will hold the step
-     * @param stepNumber      the step number
+     * @param theStepNumber   the step number
      * @param stepDescription the step description
      * @param stepDetails     the step details text
      * @param statusDisplay   the content of the status display for this panel
      */
-    protected StepManual(final StepList theOwner, final int stepNumber, final String stepDescription,
+    protected StepManual(final StepList theOwner, final int theStepNumber, final String stepDescription,
                          final String[] stepDetails, final StepDisplay statusDisplay) {
 
-        super(theOwner, stepNumber, stepDescription, stepDetails, statusDisplay);
+        super(theOwner, theStepNumber, stepDescription, stepDetails, statusDisplay);
     }
 
     /**

@@ -330,7 +330,7 @@ public final class CatalogCourseRec extends RecBase implements Comparable<Catalo
                     && Objects.equals(this.registrationInfo, rec.registrationInfo)
                     && Objects.equals(this.restriction, rec.restriction)
                     && Objects.equals(this.termsOffered, rec.termsOffered)
-                    && Objects.equals(this.gradeMode, rec.gradeMode)
+                    && this.gradeMode == rec.gradeMode
                     && Objects.equals(this.specialCourseFee, rec.specialCourseFee)
                     && Objects.equals(this.additionalInfo, rec.additionalInfo)
                     && Objects.equals(this.gtCode, rec.gtCode)
