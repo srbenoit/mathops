@@ -139,7 +139,8 @@ final class ScanWorker extends SwingWorker<String, ProgressUpdate> {
                 break;
             }
 
-            Log.info("Scanning ", file.getAbsolutePath());
+//                Log.info("Scanning ", file.getAbsolutePath());
+
             count += scanProblem(report, dirLen, file);
             pct += step;
 
@@ -186,11 +187,13 @@ final class ScanWorker extends SwingWorker<String, ProgressUpdate> {
                     }
                 }
 
-                final long start = System.currentTimeMillis();
+//                final long start = System.currentTimeMillis();
+
                 count += QualityControlChecks.problemQualityChecks(report, problemFile, prob);
-                final long end = System.currentTimeMillis();
-                final long duration = end - start;
-                Log.info("Tests on ", prob.id, " took " + duration + " ms.");
+
+//                final long end = System.currentTimeMillis();
+//                final long duration = end - start;
+//                Log.info("Tests on ", prob.id, " took " + duration + " ms.");
 
             } catch (final ParsingException ex) {
                 report.sSpan(null, "style='color:red;'").add("ERROR: Exception while parsing file: ", ex.getMessage())

@@ -4,8 +4,8 @@ import dev.mathops.assessment.NumberOrFormula;
 import dev.mathops.assessment.document.EStrokeCap;
 import dev.mathops.assessment.document.EStrokeJoin;
 import dev.mathops.assessment.document.NumberBounds;
-import dev.mathops.assessment.document.inst.StrokeStyleInst;
 import dev.mathops.assessment.document.inst.DocPrimitiveFormulaInst;
+import dev.mathops.assessment.document.inst.StrokeStyleInst;
 import dev.mathops.assessment.formula.AbstractFormulaObject;
 import dev.mathops.assessment.formula.Formula;
 import dev.mathops.assessment.variable.AbstractVariable;
@@ -499,6 +499,9 @@ final class DocPrimitiveFormula extends AbstractDocPrimitive {
         set.add(this.domainVarName);
         if (this.formula != null) {
             set.addAll(this.formula.params.keySet());
+        }
+        if (this.strokeWidth != null && this.strokeWidth.getFormula() != null) {
+            set.addAll(this.strokeWidth.getFormula().params.keySet());
         }
         if (this.formulaMinX != null && this.formulaMinX.getFormula() != null) {
             set.addAll(this.formulaMinX.getFormula().params.keySet());

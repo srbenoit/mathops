@@ -367,7 +367,11 @@ enum QualityControlChecks {
      */
     private static int problemTest7(final HtmlBuilder report, final AbstractProblemTemplate problem) {
 
-        int count = scan7(report, problem.question);
+        int count = 0;
+
+        if (problem.question != null) {
+            count = scan7(report, problem.question);
+        }
 
         if (problem.solution != null) {
             count += scan7(report, problem.solution);
@@ -486,7 +490,11 @@ enum QualityControlChecks {
      */
     private static int problemTest8(final HtmlBuilder report, final AbstractProblemTemplate problem) {
 
-        int count = scan8(report, problem.question);
+        int count = 0;
+
+        if (problem.question != null) {
+            count = scan8(report, problem.question);
+        }
 
         if (problem.solution != null) {
             count += scan8(report, problem.solution);
@@ -584,7 +592,9 @@ enum QualityControlChecks {
         for (int i = 0; i < NUM_REALIZATIONS; ++i) {
             if (problem.realize(problem.evalContext)) {
 
-                count += scan9(report, problem.question);
+                if (problem.question != null) {
+                    count += scan9(report, problem.question);
+                }
 
                 if (problem.solution != null) {
                     count += scan9(report, problem.solution);
@@ -831,7 +841,11 @@ enum QualityControlChecks {
      */
     private static int problemTest10(final HtmlBuilder report, final AbstractProblemTemplate problem) {
 
-        int count = scan10(report, problem.question);
+        int count = 0;
+
+        if (problem.question != null) {
+            count = scan10(report, problem.question);
+        }
 
         if (problem.solution != null) {
             count += scan10(report, problem.solution);

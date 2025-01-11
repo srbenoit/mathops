@@ -1,7 +1,6 @@
 package dev.mathops.assessment.formula;
 
 import dev.mathops.assessment.EType;
-import dev.mathops.assessment.document.template.AbstractDocObjectTemplate;
 import dev.mathops.assessment.document.template.DocSimpleSpan;
 import dev.mathops.assessment.formula.edit.FEFormula;
 import dev.mathops.assessment.formula.edit.FormulaEditorPanel;
@@ -9,6 +8,7 @@ import dev.mathops.assessment.formula.edit.IEditableFormulaObject;
 import dev.mathops.assessment.variable.AbstractVariable;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.log.Log;
 import dev.mathops.text.builder.HtmlBuilder;
 
 import java.awt.Insets;
@@ -86,53 +86,66 @@ public final class Formula extends AbstractFormulaContainer {
      */
     private void scanParameters(final AbstractFormulaObject base) {
 
-        if (base instanceof final VariableRef ref) {
-            final List<VariableRef> list = this.params.computeIfAbsent(ref.name, s -> new ArrayList<>(1));
-            list.add(ref);
-        } else if (base instanceof final SwitchOper sw) {
-            if (sw.condition != null) {
-                scanParameters(sw.condition);
+        switch (base) {
+            case final VariableRef ref -> {
+                final List<VariableRef> list = this.params.computeIfAbsent(ref.name, s -> new ArrayList<>(1));
+                list.add(ref);
             }
-            if (sw.defaultValue != null) {
-                scanParameters(sw.defaultValue);
-            }
-            for (final SwitchCase cs : sw.cases) {
-                scanParameters(cs.value);
-            }
-
-        } else if (base instanceof final Formula inner) {
-            final String[] innerNames = inner.parameterNames();
-
-            for (final String innerName : innerNames) {
-                for (final VariableRef innerRef : inner.parametersByName(innerName)) {
-                    final List<VariableRef> list2 = this.params.computeIfAbsent(innerName, s -> new ArrayList<>(1));
-                    list2.add(innerRef);
+            case final SwitchOper sw -> {
+                if (sw.condition != null) {
+                    scanParameters(sw.condition);
+                }
+                if (sw.defaultValue != null) {
+                    scanParameters(sw.defaultValue);
+                }
+                for (final SwitchCase cs : sw.cases) {
+                    scanParameters(cs.value);
                 }
             }
-        } else if (base instanceof ConstSpanValue) {
-            final DocSimpleSpan value = ((ConstSpanValue) base).value;
+            case final Formula inner -> {
+                final String[] innerNames = inner.parameterNames();
 
-            final Set<String> set = new HashSet<>(10);
-            value.accumulateParameterNames(set);
-            if (!set.isEmpty()) {
-                // Span inside a formula referenced some parameters via DocParameterReference
-                // objects - make "fake" VariableRef objects to track this, if the variable is
-                // not already referenced by a "real" VariableRef
-                for (final String name : set) {
-                    List<VariableRef> list2 = this.params.get(name);
-
-                    if (list2 == null) {
-                        list2 = new ArrayList<>(1);
-                        this.params.put(name, list2);
-                        list2.add(new VariableRef(name));
+                for (final String innerName : innerNames) {
+                    for (final VariableRef innerRef : inner.parametersByName(innerName)) {
+                        final List<VariableRef> list2 = this.params.computeIfAbsent(innerName, s -> new ArrayList<>(1));
+                        list2.add(innerRef);
                     }
                 }
             }
+            case ConstSpanValue constSpanValue -> {
+                final DocSimpleSpan value = constSpanValue.value;
 
-        } else if (base instanceof final AbstractFormulaContainer container) {
-            for (int i = 0; i < container.numChildren(); ++i) {
-                scanParameters(container.getChild(i));
+                final Set<String> set = new HashSet<>(10);
+                value.accumulateParameterNames(set);
+                if (!set.isEmpty()) {
+                    // Span inside a formula referenced some parameters via DocParameterReference
+                    // objects - make "fake" VariableRef objects to track this, if the variable is
+                    // not already referenced by a "real" VariableRef
+                    for (final String name : set) {
+                        List<VariableRef> list2 = this.params.get(name);
+
+                        if (list2 == null) {
+                            list2 = new ArrayList<>(1);
+                            this.params.put(name, list2);
+                            list2.add(new VariableRef(name));
+                        }
+                    }
+                }
             }
+            case final AbstractFormulaContainer container -> {
+                for (int i = 0; i < container.numChildren(); ++i) {
+                    scanParameters(container.getChild(i));
+                }
+            }
+            case final ConstIntegerValue ignored -> {
+            }
+            case final ConstRealValue ignored -> {
+            }
+            case final ConstBooleanValue ignored -> {
+            }
+            case final ConstStringValue ignored -> {
+            }
+            case null, default -> Log.warning("Unexpected child of formula: ", base.getClass().getName());
         }
     }
 

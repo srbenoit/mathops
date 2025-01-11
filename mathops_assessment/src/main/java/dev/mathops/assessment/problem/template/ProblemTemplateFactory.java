@@ -105,8 +105,8 @@ public enum ProblemTemplateFactory {
                 for (final XmlContentError err : source.getAllErrors()) {
                     Log.warning("    ", err);
                 }
-            } else {
-                Log.info(problem.id);
+//            } else {
+//                Log.info(problem.id);
             }
 
             for (final XmlContentError err : source.getAllErrors()) {
