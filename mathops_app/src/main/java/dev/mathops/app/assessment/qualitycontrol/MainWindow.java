@@ -8,11 +8,12 @@ import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.WindowConstants;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -56,14 +57,17 @@ final class MainWindow extends JFrame implements ActionListener {
     /** The "Cancel" button. */
     private final JButton cancelButton;
 
+    /** The field to enter the maximum number of errors to display. */
+    private final JTextField maxErrorsField;
+
     /** The progress bar. */
     private final JProgressBar progress;
 
     /** The current scan worker. */
-    private ScanWorker worker;
+    private ScanWorker worker = null;
 
     /** Refresh report only once per second. */
-    private long nextRefresh = 0;
+    private long nextRefresh = 0L;
 
     /**
      * Constructs a new {@code MainWindow}.
@@ -76,7 +80,7 @@ final class MainWindow extends JFrame implements ActionListener {
 
         this.libraryDir = theLibraryDir;
 
-        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         final JPanel content = new JPanel(new StackedBorderLayout());
         setContentPane(content);
@@ -111,6 +115,11 @@ final class MainWindow extends JFrame implements ActionListener {
         this.cancelButton.addActionListener(this);
         this.cancelButton.setEnabled(false);
         buttons.add(this.cancelButton);
+
+        final JLabel lbl = new JLabel("         Maximum number of errors: " );
+        buttons.add(lbl);
+        this.maxErrorsField = new JTextField("200");
+        buttons.add(this.maxErrorsField);
 
         content.add(buttons, StackedBorderLayout.SOUTH);
 
@@ -182,19 +191,35 @@ final class MainWindow extends JFrame implements ActionListener {
             this.progress.setValue(0);
             this.progress.setString(CoreConstants.SPC);
 
+            final String maxErrorsStr = this.maxErrorsField.getText();
+            int maxErrors;
+            try {
+                maxErrors = Integer.parseInt(maxErrorsStr);
+            } catch (final NumberFormatException ex) {
+                maxErrors = Integer.MAX_VALUE;
+            }
+
             this.scanNormalButton.setEnabled(false);
             this.scanAllowDeprButton.setEnabled(false);
             this.cancelButton.setEnabled(true);
-            this.worker = new ScanWorker(this, EParserMode.NORMAL);
+            this.worker = new ScanWorker(this, EParserMode.NORMAL, maxErrors);
             this.worker.execute();
         } else if (SCAN_ALLOW_DEPR_CMD.equals(cmd)) {
             this.progress.setValue(0);
             this.progress.setString(CoreConstants.SPC);
 
+            final String maxErrorsStr = this.maxErrorsField.getText();
+            int maxErrors;
+            try {
+                maxErrors = Integer.parseInt(maxErrorsStr);
+            } catch (final NumberFormatException ex) {
+                maxErrors = Integer.MAX_VALUE;
+            }
+
             this.scanNormalButton.setEnabled(false);
             this.scanAllowDeprButton.setEnabled(false);
             this.cancelButton.setEnabled(true);
-            this.worker = new ScanWorker(this, EParserMode.ALLOW_DEPRECATED);
+            this.worker = new ScanWorker(this, EParserMode.ALLOW_DEPRECATED, maxErrors);
             this.worker.execute();
         } else if (CANCEL_CMD.equals(cmd)) {
             if (this.worker != null) {
