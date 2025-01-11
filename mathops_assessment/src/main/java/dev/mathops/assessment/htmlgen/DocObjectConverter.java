@@ -1099,364 +1099,364 @@ enum DocObjectConverter {
                 htm.add("&amp;");
             } else if (fontName == null || fontName.contains("Times") || fontName.contains("Arial")) {
 
-                if (cur == (int) '\u00a0') {
+                if (cur == 0x00a0) {
                     htm.add("&nbsp;");
-                } else if (cur == (int) '\u00b0') {
+                } else if (cur == 0x00b0) {
                     htm.add("<span class='sr-only'> degrees </span><span class='no-sr'>&deg;</span>");
-                } else if (cur == (int) '\u00b1') {
+                } else if (cur == 0x00b1) {
                     htm.add("<span class='sr-only'> plus or minus </span><span class='no-sr'>&plusmn;</span>");
-                } else if (cur == (int) '\u00b7') {
+                } else if (cur == 0x00b7) {
                     htm.add("<span class='sr-only'> dot </span><span class='no-sr'>&middot;</span>");
-                } else if (cur == (int) '\u00d7') {
+                } else if (cur == 0x00d7) {
                     htm.add("<span class='sr-only'> times </span><span class='no-sr'>&times;</span>");
-                } else if (cur == (int) '\u00f7') {
+                } else if (cur == 0x00f7) {
                     htm.add("<span class='sr-only'> divided by </span><span class='no-sr'>&div;</span>");
-                } else if (cur == (int) '\u0192') {
+                } else if (cur == 0x0192) {
                     htm.add("<span class='sr-only'> f </span><span class='no-sr'>&fnof;</span>");
-                } else if (cur == (int) '\u0393') {
+                } else if (cur == 0x0393) {
                     htm.add("<span class='sr-only'> Gamma </span><span class='no-sr'>&Gamma;</span>");
-                } else if (cur == (int) '\u0394') {
+                } else if (cur == 0x0394) {
                     htm.add("<span class='sr-only'> Delta </span><span class='no-sr'>&Delta;</span>");
-                } else if (cur == (int) '\u0398') {
+                } else if (cur == 0x0398) {
                     htm.add("<span class='sr-only'> Theta </span><span class='no-sr'>&Theta;</span>");
-                } else if (cur == (int) '\u039B') {
+                } else if (cur == 0x039B) {
                     htm.add("<span class='sr-only'> Lamda </span><span class='no-sr'>&Lamda;</span>");
-                } else if (cur == (int) '\u039E') {
+                } else if (cur == 0x039E) {
                     htm.add("<span class='sr-only'> Xi </span><span class='no-sr'>&Xi;</span>");
-                } else if (cur == (int) '\u03A0') {
+                } else if (cur == 0x03A0) {
                     htm.add("<span class='sr-only'> Pi </span><span class='no-sr'>&Pi;</span>");
-                } else if (cur == (int) '\u03A3') {
+                } else if (cur == 0x03A3) {
                     htm.add("<span class='sr-only'> Sigma </span><span class='no-sr'>&Sigma;</span>");
-                } else if (cur == (int) '\u03A5') {
+                } else if (cur == 0x03A5) {
                     htm.add("<span class='sr-only'> Upsilon </span><span class='no-sr'>&Upsilon;</span>");
-                } else if (cur == (int) '\u03A6') {
+                } else if (cur == 0x03A6) {
                     htm.add("<span class='sr-only'> Phi </span><span class='no-sr'>&Phi;</span>");
-                } else if (cur == (int) '\u03A8') {
+                } else if (cur == 0x03A8) {
                     htm.add("<span class='sr-only'> Psi </span><span class='no-sr'>&Psi;</span>");
-                } else if (cur == (int) '\u03A9') {
+                } else if (cur == 0x03A9) {
                     htm.add("<span class='sr-only'> Omega </span><span class='no-sr'>&Omega;</span>");
-                } else if (cur == (int) '\u03B1') {
+                } else if (cur == 0x03B1) {
                     htm.add("<span class='sr-only'> alpha </span><span class='no-sr'>&alpha;</span>");
-                } else if (cur == (int) '\u03B2') {
+                } else if (cur == 0x03B2) {
                     htm.add("<span class='sr-only'> beta </span><span class='no-sr'>&beta;</span>");
-                } else if (cur == (int) '\u03B3') {
+                } else if (cur == 0x03B3) {
                     htm.add("<span class='sr-only'> gamma </span><span class='no-sr'>&gamma;</span>");
-                } else if (cur == (int) '\u03B4') {
+                } else if (cur == 0x03B4) {
                     htm.add("<span class='sr-only'> delta </span><span class='no-sr'>&delta;</span>");
-                } else if (cur == (int) '\u03B5') {
+                } else if (cur == 0x03B5) {
                     htm.add("<span class='sr-only'> epsilon </span><span class='no-sr'>&epsilon;</span>");
-                } else if (cur == (int) '\u03B6') {
+                } else if (cur == 0x03B6) {
                     htm.add("<span class='sr-only'> zeta </span><span class='no-sr'>&zeta;</span>");
-                } else if (cur == (int) '\u03B7') {
+                } else if (cur == 0x03B7) {
                     htm.add("<span class='sr-only'> eta </span><span class='no-sr'>&eta;</span>");
-                } else if (cur == (int) '\u03B8') {
+                } else if (cur == 0x03B8) {
                     htm.add("<span class='sr-only'> theta </span><span class='no-sr'>&theta;</span>");
-                } else if (cur == (int) '\u03B9') {
+                } else if (cur == 0x03B9) {
                     htm.add("<span class='sr-only'> iota </span><span class='no-sr'>&iota;</span>");
-                } else if (cur == (int) '\u03BA') {
+                } else if (cur == 0x03BA) {
                     htm.add("<span class='sr-only'> kappa </span><span class='no-sr'>&kappa;</span>");
-                } else if (cur == (int) '\u03BB') {
+                } else if (cur == 0x03BB) {
                     htm.add("<span class='sr-only'> lamda </span><span class='no-sr'>&lamda;</span>");
-                } else if (cur == (int) '\u03BC') {
+                } else if (cur == 0x03BC) {
                     htm.add("<span class='sr-only'> mu </span><span class='no-sr'>&mu;</span>");
-                } else if (cur == (int) '\u03BD') {
+                } else if (cur == 0x03BD) {
                     htm.add("<span class='sr-only'> nu </span><span class='no-sr'>&nu;</span>");
-                } else if (cur == (int) '\u03BE') {
+                } else if (cur == 0x03BE) {
                     htm.add("<span class='sr-only'> xi </span><span class='no-sr'>&xi;</span>");
-                } else if (cur == (int) '\u03BF') {
+                } else if (cur == 0x03BF) {
                     htm.add("<span class='sr-only'> omicron </span><span class='no-sr'>&omicron;</span>");
-                } else if (cur == (int) '\u03C0') {
+                } else if (cur == 0x03C0) {
                     htm.add("<span class='sr-only'> pi </span><span class='no-sr'>&pi;</span>");
-                } else if (cur == (int) '\u03C1') {
+                } else if (cur == 0x03C1) {
                     htm.add("<span class='sr-only'> rho </span><span class='no-sr'>&rho;</span>");
-                } else if (cur == (int) '\u03C2') {
+                } else if (cur == 0x03C2) {
                     htm.add("<span class='sr-only'> stigma </span><span class='no-sr'>&stigmaf;</span>");
-                } else if (cur == (int) '\u03C3') {
+                } else if (cur == 0x03C3) {
                     htm.add("<span class='sr-only'> sigma </span><span class='no-sr'>&sigma;</span>");
-                } else if (cur == (int) '\u03C4') {
+                } else if (cur == 0x03C4) {
                     htm.add("<span class='sr-only'> tau </span><span class='no-sr'>&tau;</span>");
-                } else if (cur == (int) '\u03C5') {
+                } else if (cur == 0x03C5) {
                     htm.add("<span class='sr-only'> upsilon </span><span class='no-sr'>&upsilon;</span>");
-                } else if (cur == (int) '\u03C6') {
+                } else if (cur == 0x03C6) {
                     htm.add("<span class='sr-only'> phi </span><span class='no-sr'>&phi;</span>");
-                } else if (cur == (int) '\u03C7') {
+                } else if (cur == 0x03C7) {
                     htm.add("<span class='sr-only'> chi </span><span class='no-sr'>&chi;</span>");
-                } else if (cur == (int) '\u03C8') {
+                } else if (cur == 0x03C8) {
                     htm.add("<span class='sr-only'> psi </span><span class='no-sr'>&psi;</span>");
-                } else if (cur == (int) '\u03C9') {
+                } else if (cur == 0x03C9) {
                     htm.add("<span class='sr-only'> omega </span><span class='no-sr'>&omega;</span>");
-                } else if (cur == (int) '\u03D1') {
+                } else if (cur == 0x03D1) {
                     htm.add("<span class='sr-only'> theta </span><span class='no-sr'>&thetasym;</span>");
-                } else if (cur == (int) '\u03D5') {
+                } else if (cur == 0x03D5) {
                     htm.add("<span class='sr-only'> phi </span><span class='no-sr'>&phi;</span>");
-                } else if (cur == (int) '\u03D6') {
+                } else if (cur == 0x03D6) {
                     htm.add("<span class='sr-only'> pi </span><span class='no-sr'>&piv;</span>");
-                } else if (cur == (int) '\u03F0') {
+                } else if (cur == 0x03F0) {
                     htm.add("<span class='sr-only'> kappa </span><span class='no-sr'>&varkappa;</span>");
-                } else if (cur == (int) '\u03F1') {
+                } else if (cur == 0x03F1) {
                     htm.add("<span class='sr-only'> rho </span><span class='no-sr'>&rho;</span>");
-                } else if (cur == (int) '\u03F5') {
+                } else if (cur == 0x03F5) {
                     htm.add("<span class='sr-only'> epsilon </span><span class='no-sr'>&epsilon;</span>");
-                } else if (cur == (int) '\u2013') {
+                } else if (cur == 0x2013) {
                     htm.add("<span class='sr-only'> dash </span><span class='no-sr'>&ndash;</span>");
                 } else if (cur == (int) '-') {
                     htm.add(inMath ? "<span class='sr-only'> minus </span><span class='no-sr'>&minus;</span>"
                             : CoreConstants.DASH);
-                } else if (cur == (int) '\u2014') {
+                } else if (cur == 0x2014) {
                     htm.add("<span class='sr-only'> dash </span><span class='no-sr'>&mdash;</span>");
-                } else if (cur == (int) '\u2018') {
+                } else if (cur == 0x2018) {
                     htm.add("<span class='sr-only'> open quote </span><span class='no-sr'>&lsquo;</span>");
-                } else if (cur == (int) '\u2019') {
+                } else if (cur == 0x2019) {
                     htm.add("<span class='sr-only'> close quote </span><span class='no-sr'>&rsquo;</span>");
-                } else if (cur == (int) '\u201C') {
+                } else if (cur == 0x201C) {
                     htm.add("<span class='sr-only'> open quote </span><span class='no-sr'>&ldquo;</span>");
-                } else if (cur == (int) '\u201D') {
+                } else if (cur == 0x201D) {
                     htm.add("<span class='sr-only'> close quote </span><span class='no-sr'>&rdquo;</span>");
-                } else if (cur == (int) '\u2022') {
+                } else if (cur == 0x2022) {
                     htm.add("<span class='sr-only'> bullet </span><span class='no-sr'>&bull;</span>");
-                } else if (cur == (int) '\u2032') {
+                } else if (cur == 0x2032) {
                     htm.add("<span class='sr-only'> prime </span><span class='no-sr'>&prime;</span>");
-                } else if (cur == (int) '\u2033') {
+                } else if (cur == 0x2033) {
                     htm.add("<span class='sr-only'> double prime </span><span class='no-sr'>&Prime;</span>");
-                } else if (cur == (int) '\u2034') {
+                } else if (cur == 0x2034) {
                     htm.add("<span class='sr-only'> triple prime </span><span class='no-sr'>&tprime;</span>");
-                } else if (cur == (int) '\u2057') {
+                } else if (cur == 0x2057) {
                     htm.add("<span class='sr-only'> quadruple prime </span><span class='no-sr'>&qprime;</span>");
-                } else if (cur == (int) '\u2147') {
+                } else if (cur == 0x2147) {
                     htm.add("<i><b>e</b></i>");
-                } else if (cur == (int) '\u2148') {
+                } else if (cur == 0x2148) {
                     htm.add("<i><b>i</b></i>");
-                } else if (cur == (int) '\u2190') {
+                } else if (cur == 0x2190) {
                     htm.add("<span class='sr-only'> left arrow </span><span class='no-sr'>&larr;</span>");
-                } else if (cur == (int) '\u2191') {
+                } else if (cur == 0x2191) {
                     htm.add("<span class='sr-only'> up arrow </span><span class='no-sr'>&uarr;</span>");
-                } else if (cur == (int) '\u2192') {
+                } else if (cur == 0x2192) {
                     htm.add("<span class='sr-only'> right arrow </span><span class='no-sr'>&rarr;</span>");
-                } else if (cur == (int) '\u2193') {
+                } else if (cur == 0x2193) {
                     htm.add("<span class='sr-only'> down arrow </span><span class='no-sr'>&darr;</span>");
-                } else if (cur == (int) '\u2194') {
+                } else if (cur == 0x2194) {
                     htm.add("<span class='sr-only'> left right arrow </span><span class='no-sr'>&harr;</span>");
-                } else if (cur == (int) '\u2195') {
+                } else if (cur == 0x2195) {
                     htm.add("<span class='sr-only'> up down arrow </span><span class='no-sr'>&varr;</span>");
-                } else if (cur == (int) '\u2206') {
+                } else if (cur == 0x2206) {
                     htm.add("<span class='sr-only'> Delta </span><span class='no-sr'>&xutri;</span>");
-                } else if (cur == (int) '\u2212') {
+                } else if (cur == 0x2212) {
                     htm.add("<span class='sr-only'> minus </span><span class='no-sr'>&minus;</span>");
-                } else if (cur == (int) '\u2218') {
+                } else if (cur == 0x2218) {
                     htm.add("<span class='sr-only'> composed with </span><span class='no-sr'>&compfn;</span>");
-                } else if (cur == (int) '\u221D') {
+                } else if (cur == 0x221D) {
                     htm.add("<span class='sr-only'> proportional to </span><span class='no-sr'>&varpropto;</span>");
                     htm.add("&;");
-                } else if (cur == (int) '\u221E') {
+                } else if (cur == 0x221E) {
                     htm.add("<span class='sr-only'> infinity </span><span class='no-sr'>&infin;</span>");
-                } else if (cur == (int) '\u2220') {
+                } else if (cur == 0x2220) {
                     htm.add("<span class='sr-only'> angle </span><span class='no-sr'>&angle;</span>");
-                } else if (cur == (int) '\u2221') {
+                } else if (cur == 0x2221) {
                     htm.add("<span class='sr-only'> measured angle </span><span class='no-sr'>&measuredangle;</span>");
-                } else if (cur == (int) '\u222B') {
+                } else if (cur == 0x222B) {
                     htm.add("<span class='sr-only'> integral of </span>",
                             "<span class='no-sr' style='position:relative; top:.2em;'>&int;</span>");
-                } else if (cur == (int) '\u2243') {
+                } else if (cur == 0x2243) {
                     htm.add("<span class='sr-only'> similar to </span><span class='no-sr'>&sime;</span>");
-                } else if (cur == (int) '\u2248') {
+                } else if (cur == 0x2248) {
                     htm.add("<span class='sr-only'> approximately equal to </span><span class='no-sr'>&asymp;</span>");
-                } else if (cur == (int) '\u2260') {
+                } else if (cur == 0x2260) {
                     htm.add("<span class='sr-only'> not equal to </span><span class='no-sr'>&ne;</span>");
-                } else if (cur == (int) '\u2264') {
+                } else if (cur == 0x2264) {
                     htm.add("<span class='sr-only'> less than or equal to </span><span class='no-sr'>&le;</span>");
-                } else if (cur == (int) '\u2265') {
+                } else if (cur == 0x2265) {
                     htm.add("<span class='sr-only'> greater than or equal to </span><span class='no-sr'>&ge;</span>");
-                } else if (cur == (int) '\u2266') {
+                } else if (cur == 0x2266) {
                     htm.add("<span class='sr-only'> less than or equal to </span><span class='no-sr'>&leqq;</span>");
-                } else if (cur == (int) '\u2267') {
+                } else if (cur == 0x2267) {
                     htm.add("<span class='sr-only'> greater than or equal to </span><span class='no-sr'>&geqq;</span>");
-                } else if (cur == (int) '\u2268') {
+                } else if (cur == 0x2268) {
                     htm.add("<span class='sr-only'> not less than or equal to </span>",
                             "<span class='no-sr'>&lneqq;</span>");
-                } else if (cur == (int) '\u2269') {
+                } else if (cur == 0x2269) {
                     htm.add("<span class='sr-only'> not greater than or equal to </span>",
                             "<span class='no-sr'>&gneqq;</span>");
-                } else if (cur == (int) '\u226A') {
+                } else if (cur == 0x226A) {
                     htm.add("<span class='sr-only'> much less than or equal to </span><span class='no-sr'>&ll;</span>");
-                } else if (cur == (int) '\u226B') {
+                } else if (cur == 0x226B) {
                     htm.add("<span class='sr-only'> much greater than or equal to </span>",
                             "<span class='no-sr'>&gg;</span>");
-                } else if (cur == (int) '\u226C') {
+                } else if (cur == 0x226C) {
                     htm.add("<span class='sr-only'> between </span><span class='no-sr'>&between;</span>");
-                } else if (cur == (int) '\u226E') {
+                } else if (cur == 0x226E) {
                     htm.add("<span class='sr-only'> not less than </span><span class='no-sr'>&nless;</span>");
-                } else if (cur == (int) '\u226F') {
+                } else if (cur == 0x226F) {
                     htm.add("<span class='sr-only'> not greater than </span><span class='no-sr'>&ngt;</span>");
-                } else if (cur == (int) '\u2270') {
+                } else if (cur == 0x2270) {
                     htm.add("<span class='sr-only'> not less than or equal to </span>",
                             "<span class='no-sr'>&nleq;</span>");
-                } else if (cur == (int) '\u2271') {
+                } else if (cur == 0x2271) {
                     htm.add("<span class='sr-only'> not greater than or equal to </span>",
                             "<span class='no-sr'>&ngeq;</span>");
-                } else if (cur == (int) '\u2272') {
+                } else if (cur == 0x2272) {
                     htm.add("<span class='sr-only'> less than or similar to </span>",
                             "<span class='no-sr'>&lesssim;</span>");
-                } else if (cur == (int) '\u2273') {
+                } else if (cur == 0x2273) {
                     htm.add("<span class='sr-only'> greater than or similar to </span>",
                             "<span class='no-sr'>&gtrsim;</span>");
-                } else if (cur == (int) '\u2276') {
+                } else if (cur == 0x2276) {
                     htm.add("<span class='sr-only'> less than greater than </span>",
                             "<span class='no-sr'>&lessgtr;</span>");
-                } else if (cur == (int) '\u2277') {
+                } else if (cur == 0x2277) {
                     htm.add("<span class='sr-only'> greater than less than </span>",
                             "<span class='no-sr'>&gtrless;</span>");
-                } else if (cur == (int) '\u227A') {
+                } else if (cur == 0x227A) {
                     htm.add("<span class='sr-only'> precedes </span><span class='no-sr'>&prec;</span>");
-                } else if (cur == (int) '\u227B') {
+                } else if (cur == 0x227B) {
                     htm.add("<span class='sr-only'> succeeds </span><span class='no-sr'>&succ;</span>");
-                } else if (cur == (int) '\u227C') {
+                } else if (cur == 0x227C) {
                     htm.add("&preccurlyeq;");
-                } else if (cur == (int) '\u227D') {
+                } else if (cur == 0x227D) {
                     htm.add("&succcurlyeq;");
-                } else if (cur == (int) '\u227E') {
+                } else if (cur == 0x227E) {
                     htm.add("&precsim;");
-                } else if (cur == (int) '\u227F') {
+                } else if (cur == 0x227F) {
                     htm.add("&succsim;");
-                } else if (cur == (int) '\u2280') {
+                } else if (cur == 0x2280) {
                     htm.add("&nprec;");
-                } else if (cur == (int) '\u2281') {
+                } else if (cur == 0x2281) {
                     htm.add("&nsucc;");
-                } else if (cur == (int) '\u22D6') {
+                } else if (cur == 0x22D6) {
                     htm.add("&lessdot;");
-                } else if (cur == (int) '\u22D7') {
+                } else if (cur == 0x22D7) {
                     htm.add("&gtrdot;");
-                } else if (cur == (int) '\u22DA') {
+                } else if (cur == 0x22DA) {
                     htm.add("&lesseqgtr;");
-                } else if (cur == (int) '\u22DB') {
+                } else if (cur == 0x22DB) {
                     htm.add("&gtreqless;");
-                } else if (cur == (int) '\u22DE') {
+                } else if (cur == 0x22DE) {
                     htm.add("&curlyeqprec;");
-                } else if (cur == (int) '\u22DF') {
+                } else if (cur == 0x22DF) {
                     htm.add("&curlyeqsucc;");
-                } else if (cur == (int) '\u22E0') {
+                } else if (cur == 0x22E0) {
                     htm.add("&npreceq;");
-                } else if (cur == (int) '\u22E1') {
+                } else if (cur == 0x22E1) {
                     htm.add("&nsucceq;");
-                } else if (cur == (int) '\u22E6') {
+                } else if (cur == 0x22E6) {
                     htm.add("&lnsim;");
-                } else if (cur == (int) '\u22E7') {
+                } else if (cur == 0x22E7) {
                     htm.add("&gnsim;");
-                } else if (cur == (int) '\u22E8') {
+                } else if (cur == 0x22E8) {
                     htm.add("&precnsim;");
-                } else if (cur == (int) '\u22E9') {
+                } else if (cur == 0x22E9) {
                     htm.add("&succnsim;");
-                } else if (cur == (int) '\u22EF') {
+                } else if (cur == 0x22EF) {
                     htm.add("<span class='sr-only'> three middle dots </span>",
                             "<span class='no-sr'>&middot;&middot;&middot;</span>");
-                } else if (cur == (int) '\u2322') {
+                } else if (cur == 0x2322) {
                     htm.add("<span class='sr-only'> frown </span><span class='no-sr'>&smallfrown;</span>");
-                } else if (cur == (int) '\u2323') {
+                } else if (cur == 0x2323) {
                     htm.add("<span class='sr-only'> smile </span><span class='no-sr'>&smallsmile;</span>");
-                } else if (cur == (int) '\u2329') {
+                } else if (cur == 0x2329) {
                     htm.add("<span class='sr-only'> left angle brackets </span><span class='no-sr'>&lang;</span>");
-                } else if (cur == (int) '\u232A') {
+                } else if (cur == 0x232A) {
                     htm.add("<span class='sr-only'> right angle brackets </span><span class='no-sr'>&rang;</span>");
-                } else if (cur == (int) '\u25A0') {
+                } else if (cur == 0x25A0) {
                     htm.add("<span class='sr-only'> filled square </span>",
                             "<span class='no-sr'>&FilledSmallSquare;</span>");
-                } else if (cur == (int) '\u25B2') {
+                } else if (cur == 0x25B2) {
                     htm.add("<span class='sr-only'> up-pointing triangle </span>",
                             "<span class='no-sr'>&blacktriangle;</span>");
-                } else if (cur == (int) '\u25B3') {
+                } else if (cur == 0x25B3) {
                     htm.add("<span class='sr-only'> up-pointing triangle </span><span class='no-sr'>&xutri;</span>");
-                } else if (cur == (int) '\u25BA') {
+                } else if (cur == 0x25BA) {
                     htm.add("<span class='sr-only'> right-pointing triangle </span>",
                             "<span class='no-sr'>&blacktriangleright;</span>");
-                } else if (cur == (int) '\u25BC') {
+                } else if (cur == 0x25BC) {
                     htm.add("<span class='sr-only'> down-pointing triangle </span>",
                             "<span class='no-sr'>&blacktriangledown;</span>");
-                } else if (cur == (int) '\u25C4') {
+                } else if (cur == 0x25C4) {
                     htm.add("<span class='sr-only'> left-pointing triangle </span>",
                             "<span class='no-sr'>&blacktriangleleft;</span>");
-                } else if (cur == (int) '\u2660') {
+                } else if (cur == 0x2660) {
                     htm.add("<span class='sr-only'> class </span><span class='no-sr'>&class;</span>");
-                } else if (cur == (int) '\u2663') {
+                } else if (cur == 0x2663) {
                     htm.add("<span class='sr-only'> clubs </span><span class='no-sr'>&clubs;</span>");
-                } else if (cur == (int) '\u2665') {
+                } else if (cur == 0x2665) {
                     htm.add("<span class='sr-only'> hearts </span><span class='no-sr'>&hearts;</span>");
-                } else if (cur == (int) '\u2666') {
+                } else if (cur == 0x2666) {
                     htm.add("<span class='sr-only'> diamonds </span><span class='no-sr'>&diams;</span>");
-                } else if (cur == (int) '\u2713') {
+                } else if (cur == 0x2713) {
                     htm.add("<span class='sr-only'> checkmark </span><span class='no-sr'>&check;</span>");
-                } else if (cur == (int) '\u27CB') {
+                } else if (cur == 0x27CB) {
                     htm.add("<span class='sr-only'> diagonal up arrow </span><span class='no-sr'>&diagup;</span>");
-                } else if (cur == (int) '\u27CD') {
+                } else if (cur == 0x27CD) {
                     htm.add("<span class='sr-only'> diagonal down arrow </span><span class='no-sr'>&diagdown;</span>");
-                } else if (cur == (int) '\u27F8') {
+                } else if (cur == 0x27F8) {
                     htm.add("<span class='sr-only'> left arrow </span><span class='no-sr'>&Longleftarrow;</span>");
-                } else if (cur == (int) '\u27F9') {
+                } else if (cur == 0x27F9) {
                     htm.add("<span class='sr-only'> right arrow </span><span class='no-sr'>&Longrightarrow;</span>");
-                } else if (cur == (int) '\u2A7D') {
+                } else if (cur == 0x2A7D) {
                     htm.add("<span class='sr-only'> less than or equal to </span>",
                             "<span class='no-sr'>&leqslant;</span>");
-                } else if (cur == (int) '\u2A7E') {
+                } else if (cur == 0x2A7E) {
                     htm.add("<span class='sr-only'> greater than or equal to </span>",
                             "<span class='no-sr'>&geqslant;</span>");
-                } else if (cur == (int) '\u2A85') {
+                } else if (cur == 0x2A85) {
                     htm.add("&lessapprox;");
-                } else if (cur == (int) '\u2A86') {
+                } else if (cur == 0x2A86) {
                     htm.add("&gtrapprox;");
-                } else if (cur == (int) '\u2A87') {
+                } else if (cur == 0x2A87) {
                     htm.add("<span class='sr-only'> not less than or equal to </span>",
                             "<span class='no-sr'>&lneq;</span>");
-                } else if (cur == (int) '\u2A88') {
+                } else if (cur == 0x2A88) {
                     htm.add("<span class='sr-only'> not greater than or equal to </span>",
                             "<span class='no-sr'>&gneq;</span>");
-                } else if (cur == (int) '\u2A89') {
+                } else if (cur == 0x2A89) {
                     htm.add("&lnapprox;");
-                } else if (cur == (int) '\u2A8A') {
+                } else if (cur == 0x2A8A) {
                     htm.add("&gnapprox;");
-                } else if (cur == (int) '\u2A8B') {
+                } else if (cur == 0x2A8B) {
                     htm.add("&lesseqqgtr;");
-                } else if (cur == (int) '\u2A8C') {
+                } else if (cur == 0x2A8C) {
                     htm.add("&gtreqqless;");
-                } else if (cur == (int) '\u2A95') {
+                } else if (cur == 0x2A95) {
                     htm.add("<span class='sr-only'> less than or equal to </span>",
                             "<span class='no-sr'>&eqslantless;</span>");
-                } else if (cur == (int) '\u2A96') {
+                } else if (cur == 0x2A96) {
                     htm.add("<span class='sr-only'> greater than or equal to </span>",
                             "<span class='no-sr'>&eqslantgtr;</span>");
-                } else if (cur == (int) '\u2AA1') {
+                } else if (cur == 0x2AA1) {
                     htm.add("&lll;");
-                } else if (cur == (int) '\u2AA2') {
+                } else if (cur == 0x2AA2) {
                     htm.add("&ggg;");
-                } else if (cur == (int) '\u2AAF') {
+                } else if (cur == 0x2AAF) {
                     htm.add("&preceq;");
-                } else if (cur == (int) '\u2AB0') {
+                } else if (cur == 0x2AB0) {
                     htm.add("&succeq;");
-                } else if (cur == (int) '\u2AB5') {
+                } else if (cur == 0x2AB5) {
                     htm.add("&precneqq;");
-                } else if (cur == (int) '\u2AB6') {
+                } else if (cur == 0x2AB6) {
                     htm.add("&succneqq;");
-                } else if (cur == (int) '\u2AB7') {
+                } else if (cur == 0x2AB7) {
                     htm.add("&precapprox;");
-                } else if (cur == (int) '\u2AB8') {
+                } else if (cur == 0x2AB8) {
                     htm.add("&succapprox;");
-                } else if (cur == (int) '\u2AB9') {
+                } else if (cur == 0x2AB9) {
                     htm.add("&precnapprox;");
-                } else if (cur == (int) '\u2ABA') {
+                } else if (cur == 0x2ABA) {
                     htm.add("&succnapprox;");
-                } else if (cur == (int) '\u2ADB') {
+                } else if (cur == 0x2ADB) {
                     htm.add("&pitchfork;");
                 } else {
                     htm.add((char) cur);
                 }
             } else if (fontName.contains("ESSTIXOne")) {
 
-                if (cur == (int) '\u0029') {
+                if (cur == 0x0029) {
                     htm.add("<span class='sr-only'> left arrow </span><span class='no-sr'>&larr;</span>");
-                } else if (cur == (int) '\u002A') {
+                } else if (cur == 0x002A) {
                     htm.add("<span class='sr-only'> left arrow </span><span class='no-sr'>&Longleftarrow;</span>");
-                } else if (cur == (int) '\u002f') {
+                } else if (cur == 0x002f) {
                     htm.add("<span class='sr-only'> right arrow </span><span class='no-sr'>&rarr;</span>");
-                } else if (cur == (int) '\u0030') {
+                } else if (cur == 0x0030) {
                     htm.add("<span class='sr-only'> right arrow </span><span class='no-sr'>&Longrightarrow;</span>");
-                } else if (cur == (int) '\u0035') {
+                } else if (cur == 0x0035) {
                     htm.add("<span class='sr-only'> left right arrow </span><span class='no-sr'>&hArr;</span>");
                 } else {
                     Log.warning("Unmatched character from ESSTIXOne: 0x", Integer.toHexString(cur), " in ", txt);
@@ -1464,12 +1464,12 @@ enum DocObjectConverter {
                 }
             } else if (fontName.contains("ESSTIXTwo")) {
 
-                if (cur == (int) '\u0023') {
+                if (cur == 0x0023) {
                     htm.add("<span class='sr-only'> checkmark </span><span class='no-sr'>&check;</span>");
-                } else if (cur == (int) '\u0036') {
+                } else if (cur == 0x0036) {
                     htm.add("<span class='sr-only'> triangle </span><span class='no-sr'>&xutri;</span>");
                     htm.add("&xutri;");
-                } else if (cur == (int) '\u004f') {
+                } else if (cur == 0x004f) {
                     htm.add("<span class='sr-only'> triangle </span><span class='no-sr'>&xutri;</span>");
                 } else {
                     Log.warning("Unmatched character from ESSTIXTwo: 0x", Integer.toHexString(cur), " in ", txt);
@@ -1477,174 +1477,174 @@ enum DocObjectConverter {
                 }
             } else if (fontName.contains("ESSTIXThree")) {
 
-                if (cur == (int) '\u0021') {
+                if (cur == 0x0021) {
                     htm.add("<span class='sr-only'> less than </span><span class='no-sr'> &lt; </span>");
-                } else if (cur == (int) '\u0023') {
+                } else if (cur == 0x0023) {
                     htm.add(" &leqslant; ");
-                } else if (cur == (int) '\u0024') {
+                } else if (cur == 0x0024) {
                     htm.add(" &eqslantless; ");
-                } else if (cur == (int) '\u0025') {
+                } else if (cur == 0x0025) {
                     htm.add("<span class='sr-only'> less than or equal to </span><span class='no-sr'> &leq; </span>");
-                } else if (cur == (int) '\u0026') {
+                } else if (cur == 0x0026) {
                     htm.add("<span class='sr-only'> less than or equal to </span><span class='no-sr'> &leqq; </span>");
-                } else if (cur == (int) '\u0028') {
+                } else if (cur == 0x0028) {
                     htm.add(" &lesssim; ");
-                } else if (cur == (int) '\u0029') {
+                } else if (cur == 0x0029) {
                     htm.add(" &lessapprox; ");
-                } else if (cur == (int) '\u002b') {
+                } else if (cur == 0x002b) {
                     htm.add(" &lessgtr; ");
-                } else if (cur == (int) '\u002c') {
+                } else if (cur == 0x002c) {
                     htm.add(" &lesseqgtr; ");
-                } else if (cur == (int) '\u002d') {
+                } else if (cur == 0x002d) {
                     htm.add(" &lesseqqgtr; ");
-                } else if (cur == (int) '\u002f') {
+                } else if (cur == 0x002f) {
                     htm.add(" &ll; ");
-                } else if (cur == (int) '\u0030') {
+                } else if (cur == 0x0030) {
                     htm.add(" &lll; ");
-                } else if (cur == (int) '\u0031') {
+                } else if (cur == 0x0031) {
                     htm.add(" &lessdot; ");
-                } else if (cur == (int) '\u0033') {
+                } else if (cur == 0x0033) {
                     htm.add(" &prec; ");
-                } else if (cur == (int) '\u0034') {
+                } else if (cur == 0x0034) {
                     htm.add(" &precsim; ");
-                } else if (cur == (int) '\u0035') {
+                } else if (cur == 0x0035) {
                     htm.add(" &precapprox; ");
-                } else if (cur == (int) '\u0036') {
+                } else if (cur == 0x0036) {
                     htm.add(" &preceq; ");
-                } else if (cur == (int) '\u0037') {
+                } else if (cur == 0x0037) {
                     htm.add(" &preccurlyeq; ");
-                } else if (cur == (int) '\u0038') {
+                } else if (cur == 0x0038) {
                     htm.add(" &curlyeqprec; ");
-                } else if (cur == (int) '\u003a') {
+                } else if (cur == 0x003a) {
                     htm.add("<span class='sr-only'> angle </span><span class='no-sr'> &angle; </span>");
-                } else if (cur == (int) '\u003b') {
+                } else if (cur == 0x003b) {
                     htm.add("<span class='sr-only'> measured angle </span>",
                             "<span class='no-sr'> &measuredangle; </span>");
-                } else if (cur == (int) '\u003e') {
+                } else if (cur == 0x003e) {
                     htm.add("<span class='sr-only'> not less than </span><span class='no-sr'> &nless; </span>");
-                } else if (cur == (int) '\u003f') {
+                } else if (cur == 0x003f) {
                     htm.add("<span class='sr-only'> not less than or equal to </span>",
                             "<span class='no-sr'> &nleq; </span>");
-                } else if (cur == (int) '\u0040') {
+                } else if (cur == 0x0040) {
                     htm.add("<span class='sr-only'> not less than or equal to </span>",
                             "<span class='no-sr'> &lneq; </span>");
-                } else if (cur == (int) '\u0041') {
+                } else if (cur == 0x0041) {
                     htm.add("<span class='sr-only'> not less than or equal to </span>",
                             "<span class='no-sr'> &lneqq; </span>");
-                } else if (cur == (int) '\u0042') {
+                } else if (cur == 0x0042) {
                     htm.add(" &lnsim; ");
-                } else if (cur == (int) '\u0043') {
+                } else if (cur == 0x0043) {
                     htm.add(" &lnapprox; ");
-                } else if (cur == (int) '\u0046') {
+                } else if (cur == 0x0046) {
                     htm.add("<span class='sr-only'> not less than or equal to </span>",
                             "<span class='no-sr'> &nleq; </span>");
-                } else if (cur == (int) '\u0047') {
+                } else if (cur == 0x0047) {
                     htm.add("<span class='sr-only'> not less than or equal to </span>",
                             "<span class='no-sr'> &nleqq; </span>");
-                } else if (cur == (int) '\u0048') {
+                } else if (cur == 0x0048) {
                     htm.add("<span class='sr-only'> between </span><span class='no-sr'> &between; </span>");
-                } else if (cur == (int) '\u0049') {
+                } else if (cur == 0x0049) {
                     htm.add(" &nprec; ");
-                } else if (cur == (int) '\u004a') {
+                } else if (cur == 0x004a) {
                     htm.add(" &precnsim; ");
-                } else if (cur == (int) '\u004b') {
+                } else if (cur == 0x004b) {
                     htm.add(" &precnapprox; ");
-                } else if (cur == (int) '\u004c') {
+                } else if (cur == 0x004c) {
                     htm.add(" &precneqq; ");
-                } else if (cur == (int) '\u004d') {
+                } else if (cur == 0x004d) {
                     htm.add(" &npreceq; ");
-                } else if (cur == (int) '\u004e') {
+                } else if (cur == 0x004e) {
                     htm.add("<span class='sr-only'> infinity </span><span class='no-sr'>&infin;</span>");
-                } else if (cur == (int) '\u004f') {
+                } else if (cur == 0x004f) {
                     htm.add("<span class='sr-only'> greater than </span><span class='no-sr'> &gt; </span>");
-                } else if (cur == (int) '\u0050') {
+                } else if (cur == 0x0050) {
                     htm.add("<span class='sr-only'> greater than or equal to </span>",
                             "<span class='no-sr'> &geqslant; </span>");
                     htm.add(" &geqslant; ");
-                } else if (cur == (int) '\u0051') {
+                } else if (cur == 0x0051) {
                     htm.add("<span class='sr-only'> greater than or equal to </span>",
                             "<span class='no-sr'> &eqslantgtr; </span>");
-                } else if (cur == (int) '\u0052') {
+                } else if (cur == 0x0052) {
                     htm.add("<span class='sr-only'> greater than or equal to </span>",
                             "<span class='no-sr'> &geq; </span>");
-                } else if (cur == (int) '\u0053') {
+                } else if (cur == 0x0053) {
                     htm.add("<span class='sr-only'> greater than or equal to </span>",
                             "<span class='no-sr'> &geqq; </span>");
-                } else if (cur == (int) '\u0054') {
+                } else if (cur == 0x0054) {
                     htm.add(" &gtrsim; ");
-                } else if (cur == (int) '\u0055') {
+                } else if (cur == 0x0055) {
                     htm.add(" &gtrapprox; ");
-                } else if (cur == (int) '\u0057') {
+                } else if (cur == 0x0057) {
                     htm.add(" &gtrless; ");
-                } else if (cur == (int) '\u0058') {
+                } else if (cur == 0x0058) {
                     htm.add(" &gtreqless; ");
-                } else if (cur == (int) '\u0059') {
+                } else if (cur == 0x0059) {
                     htm.add(" &gtreqqless; ");
-                } else if (cur == (int) '\u005b') {
+                } else if (cur == 0x005b) {
                     htm.add(" &gg; ");
                 } else if (cur == (int) '&') {
                     htm.add(" &ggg; ");
-                } else if (cur == (int) '\u005d') {
+                } else if (cur == 0x005d) {
                     htm.add(" &gtrdot; ");
-                } else if (cur == (int) '\u005f') {
+                } else if (cur == 0x005f) {
                     htm.add(" &succ; ");
-                } else if (cur == (int) '\u0061') {
+                } else if (cur == 0x0061) {
                     htm.add(" &succsim; ");
-                } else if (cur == (int) '\u0062') {
+                } else if (cur == 0x0062) {
                     htm.add(" &succapprox; ");
-                } else if (cur == (int) '\u0063') {
+                } else if (cur == 0x0063) {
                     htm.add(" &succeq; ");
-                } else if (cur == (int) '\u0064') {
+                } else if (cur == 0x0064) {
                     htm.add(" &succcurlyeq; ");
-                } else if (cur == (int) '\u0065') {
+                } else if (cur == 0x0065) {
                     htm.add(" &curlyeqsucc; ");
-                } else if (cur == (int) '\u0066') {
+                } else if (cur == 0x0066) {
                     htm.add(" &varpropto; ");
-                } else if (cur == (int) '\u0067') {
+                } else if (cur == 0x0067) {
                     htm.add(" &smallsmile; ");
-                } else if (cur == (int) '\u0068') {
+                } else if (cur == 0x0068) {
                     htm.add(" &smallfrown; ");
-                } else if (cur == (int) '\u0069') {
+                } else if (cur == 0x0069) {
                     htm.add(" &pitchfork; ");
-                } else if (cur == (int) '\u006a') {
+                } else if (cur == 0x006a) {
                     htm.add("<span class='sr-only'> not greater than </span>",
                             "<span class='no-sr'> &ngt; </span>");
-                } else if (cur == (int) '\u006b') {
+                } else if (cur == 0x006b) {
                     htm.add("<span class='sr-only'> not greater than or equal to </span>",
                             "<span class='no-sr'> &ngeq; </span>");
-                } else if (cur == (int) '\u006c') {
+                } else if (cur == 0x006c) {
                     htm.add("<span class='sr-only'> not greater than or equal to </span>",
                             "<span class='no-sr'> &gneq; </span>");
-                } else if (cur == (int) '\u006d') {
+                } else if (cur == 0x006d) {
                     htm.add("<span class='sr-only'> not greater than or equal to </span>",
                             "<span class='no-sr'> &gneqq; </span>");
-                } else if (cur == (int) '\u006e') {
+                } else if (cur == 0x006e) {
                     htm.add(" &gnsim; ");
-                } else if ((cur == (int) '\u006f') || (cur == (int) '\u0070')) {
+                } else if ((cur == 0x006f) || (cur == 0x0070)) {
                     htm.add(" &gnapprox; ");
-                } else if (cur == (int) '\u0072') {
+                } else if (cur == 0x0072) {
                     htm.add("<span class='sr-only'> not greater than or equal to </span>",
                             "<span class='no-sr'> &ngeq; </span>");
-                } else if (cur == (int) '\u0073') {
+                } else if (cur == 0x0073) {
                     htm.add("<span class='sr-only'> not greater than or equal to </span>",
                             "<span class='no-sr'> &ngeqq; </span>");
-                } else if (cur == (int) '\u0074') {
+                } else if (cur == 0x0074) {
                     htm.add(" &nsucc; ");
-                } else if (cur == (int) '\u0075') {
+                } else if (cur == 0x0075) {
                     htm.add(" &succnsim; ");
-                } else if (cur == (int) '\u0076') {
+                } else if (cur == 0x0076) {
                     htm.add(" &succnapprox; ");
-                } else if (cur == (int) '\u0077') {
+                } else if (cur == 0x0077) {
                     htm.add(" &succneqq; ");
-                } else if (cur == (int) '\u0078') {
+                } else if (cur == 0x0078) {
                     htm.add(" &nsucceq; ");
-                } else if (cur == (int) '\u0079') {
+                } else if (cur == 0x0079) {
                     htm.add("<span class='sr-only'> diagonal up arrow </span>",
                             "<span class='no-sr'> &diagup; </span>");
-                } else if (cur == (int) '\u007a') {
+                } else if (cur == 0x007a) {
                     htm.add("<span class='sr-only'> diagonal down arrow </span>",
                             "<span class='no-sr'> &diagdown; </span>");
-                } else if (cur == (int) '\u2010') {
+                } else if (cur == 0x2010) {
                     htm.add(" &lesseqqgtr; ");
                 } else {
                     Log.warning("Unmatched character from ESSTIXThree: 0x", Integer.toHexString(cur), " in ", txt);
@@ -1652,24 +1652,24 @@ enum DocObjectConverter {
                 }
             } else if (fontName.contains("ESSTIXFour")) {
 
-                if (cur == (int) '\u0021') {
+                if (cur == 0x0021) {
                     htm.add("<span class='sr-only'> grave </span><span class='no-sr'>grave</span>");
-                } else if (cur == (int) '\u0023') {
+                } else if (cur == 0x0023) {
                     htm.add("<span class='sr-only'> prime </span><span class='no-sr'>prime</span>");
-                } else if (cur == (int) '\u0024') {
+                } else if (cur == 0x0024) {
                     htm.add("<span class='sr-only'> double prime </span><span class='no-sr'>Prime</span>");
-                } else if (cur == (int) '\u0025') {
+                } else if (cur == 0x0025) {
                     htm.add("<span class='sr-only'> triple prime </span><span class='no-sr'>tprime</span>");
-                } else if (cur == (int) '\u0026') {
+                } else if (cur == 0x0026) {
                     htm.add("<span class='sr-only'> quadruple prime </span><span class='no-sr'>&Prime;&Prime;</span>");
-                } else if (cur == (int) '\u0028') {
+                } else if (cur == 0x0028) {
                     htm.add("<span class='sr-only'> degrees </span><span class='no-sr'>&deg;</span>");
-                } else if (cur == (int) '\u002b') {
+                } else if (cur == 0x002b) {
                     htm.add("<span class='sr-only'> composed with </span><span class='no-sr'>&compfn;</span>");
-                } else if (cur == (int) '\u002f') {
+                } else if (cur == 0x002f) {
                     htm.add("<span class='sr-only'> three middle dots </span>",
                             "<span class='no-sr'>&middot;&middot;&middot;</span>");
-                } else if (cur == (int) '\u007a') {
+                } else if (cur == 0x007a) {
                     htm.add("<span class='sr-only'> approximately equal to </span><span class='no-sr'>&asymp;</span>");
                 } else {
                     final String hex = Integer.toHexString(cur);
@@ -1678,11 +1678,11 @@ enum DocObjectConverter {
                 }
             } else if (fontName.contains("ESSTIXFive")) {
 
-                if ((cur == (int) '\u0021') || (cur == (int) '\u0023')) {
+                if ((cur == 0x0021) || (cur == 0x0023)) {
                     htm.add("<span class='sr-only'> times </span><span class='no-sr'>&times;</span>");
-                } else if (cur == (int) '\u0025') {
+                } else if (cur == 0x0025) {
                     htm.add("<span class='sr-only'> bullet </span><span class='no-sr'>&bull;</span>");
-                } else if (cur == (int) '\u004f') {
+                } else if (cur == 0x004f) {
                     htm.add("<span class='sr-only'> divided by </span><span class='no-sr'>&div;</span>");
                 } else {
                     final String hex = Integer.toHexString(cur);
@@ -1691,7 +1691,7 @@ enum DocObjectConverter {
                 }
             } else if (fontName.contains("ESSTIXSix")) {
 
-                if (cur == (int) '\u0021' || cur == (int) '\u0045') {
+                if (cur == 0x0021 || cur == 0x0045) {
 
                     // Integral signs are large - we really want to center it on the line
                     // rather than align it with the baseline
@@ -1704,21 +1704,21 @@ enum DocObjectConverter {
                 }
             } else if (fontName.contains("ESSTIXSeven")) {
 
-                if (cur == (int) '\u0030') {
+                if (cur == 0x0030) {
                     htm.add('(');
-                } else if (cur == (int) '\u0031') {
+                } else if (cur == 0x0031) {
                     htm.add(')');
-                } else if (cur == (int) '\u0034') {
+                } else if (cur == 0x0034) {
                     htm.add("<span style='font-size:larger'>{").eSpan();
-                } else if (cur == (int) '\u0035') {
+                } else if (cur == 0x0035) {
                     htm.add("<span style='font-size:larger'>}").eSpan();
-                } else if (cur == (int) '\u0041') {
+                } else if (cur == 0x0041) {
                     htm.add('{');
-                } else if (cur == (int) '\u0042') {
+                } else if (cur == 0x0042) {
                     htm.add('}');
-                } else if (cur == (int) '\u0043') {
+                } else if (cur == 0x0043) {
                     htm.add("<span class='sr-only'> left angle bracket </span><span class='no-sr'>&lang;</span>");
-                } else if (cur == (int) '\u0044') {
+                } else if (cur == 0x0044) {
                     htm.add("<span class='sr-only'> right angle bracket </span><span class='no-sr'>&rang;</span>");
                 } else {
                     final String hex = Integer.toHexString(cur);
@@ -1727,17 +1727,17 @@ enum DocObjectConverter {
                 }
             } else if (fontName.contains("ESSTIXNine")) {
 
-                if (cur == (int) '\u0061') {
+                if (cur == 0x0061) {
                     htm.add("<span class='sr-only'> alpha </span><span class='no-sr'><b>&alpha;</b></span>");
-                } else if (cur == (int) '\u0062') {
+                } else if (cur == 0x0062) {
                     htm.add("<span class='sr-only'> beta </span><span class='no-sr'><b>&beta;</b></span>");
-                } else if (cur == (int) '\u0064') {
+                } else if (cur == 0x0064) {
                     htm.add("<span class='sr-only'> delta </span><span class='no-sr'><b>&delta;</b></span>");
-                } else if (cur == (int) '\u0070') {
+                } else if (cur == 0x0070) {
                     htm.add("<span class='sr-only'> pi </span><span class='no-sr'><b>&pi;</b></span>");
-                } else if (cur == (int) '\u0071') {
+                } else if (cur == 0x0071) {
                     htm.add("<span class='sr-only'> theta </span><span class='no-sr'><b>&theta;</b></span>");
-                } else if (cur == (int) '\u0072') {
+                } else if (cur == 0x0072) {
                     htm.add("<span class='sr-only'> rho </span><span class='no-sr'><b>&rho;</b></span>");
                 } else {
                     final String hex = Integer.toHexString(cur);
@@ -1746,27 +1746,27 @@ enum DocObjectConverter {
                 }
             } else if (fontName.contains("ESSTIXEleven")) {
 
-                if (cur == (int) '\u0061') {
+                if (cur == 0x0061) {
                     htm.add("<span class='sr-only'> alpha </span><span class='no-sr'><b>&alpha;</b></span>");
-                } else if (cur == (int) '\u0062') {
+                } else if (cur == 0x0062) {
                     htm.add("<span class='sr-only'> beta </span><span class='no-sr'><b>&beta;</b></span>");
-                } else if (cur == (int) '\u0064') {
+                } else if (cur == 0x0064) {
                     htm.add("<span class='sr-only'> delta </span><span class='no-sr'><b>&delta;</b></span>");
-                } else if (cur == (int) '\u0065') {
+                } else if (cur == 0x0065) {
                     htm.add("<span class='sr-only'> epsilon </span><span class='no-sr'><b>&epsilon;</b></span>");
-                } else if (cur == (int) '\u0066') {
+                } else if (cur == 0x0066) {
                     htm.add("<span class='sr-only'> phi </span><span class='no-sr'><b>&phi;</b></span>");
-                } else if (cur == (int) '\u0067') {
+                } else if (cur == 0x0067) {
                     htm.add("<span class='sr-only'> gamma </span><span class='no-sr'><b>&gamma;</b></span>");
-                } else if (cur == (int) '\u006d') {
+                } else if (cur == 0x006d) {
                     htm.add("<span class='sr-only'> mu </span><span class='no-sr'><b>&mu;</b></span>");
-                } else if (cur == (int) '\u0070') {
+                } else if (cur == 0x0070) {
                     htm.add("<span class='sr-only'> pi </span><span class='no-sr'><b>&pi;</b></span>");
-                } else if (cur == (int) '\u0072') {
+                } else if (cur == 0x0072) {
                     htm.add("<span class='sr-only'> rho </span><span class='no-sr'><b>&rho;</b></span>");
-                } else if (cur == (int) '\u0074') {
+                } else if (cur == 0x0074) {
                     htm.add("<span class='sr-only'> tau </span><span class='no-sr'><b>&tau;</b></span>");
-                } else if (cur == (int) '\u0075') {
+                } else if (cur == 0x0075) {
                     htm.add("<span class='sr-only'> omega </span><span class='no-sr'><b>&omega;</b></span>");
                 } else {
                     final String hex = Integer.toHexString(cur);
@@ -1775,15 +1775,15 @@ enum DocObjectConverter {
                 }
             } else if (fontName.contains("ESSTIXThirteen")) {
 
-                if (cur == (int) '\u0065') {
+                if (cur == 0x0065) {
                     htm.add("<span class='sr-only'> script E </span><span class='no-sr'>&escr;</span>");
-                } else if (cur == (int) '\u0066') {
+                } else if (cur == 0x0066) {
                     htm.add("<span class='sr-only'> f </span><span class='no-sr'>&fnof;</span>");
-                } else if (cur == (int) '\u0069') {
+                } else if (cur == 0x0069) {
                     htm.add("<i><b>i</b></i>");
-                } else if (cur == (int) '\u006c') {
+                } else if (cur == 0x006c) {
                     htm.add("<span class='sr-only'> script L </span><span class='no-sr'>&lscr;</span>");
-                } else if (cur == (int) '\u0078') {
+                } else if (cur == 0x0078) {
                     htm.add("<span class='sr-only'> script X </span><span class='no-sr'>&xscr;</span>");
                 } else {
                     final String hex = Integer.toHexString(cur);
