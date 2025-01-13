@@ -53,20 +53,21 @@ enum QualityControlChecks {
      * @param report      the report being constructed
      * @param problemFile the problem file to scan
      * @param problem     the problem to check
+     * @return the number of errors/warnings found
      */
-    static void problemQualityChecks(final HtmlBuilder report, final File problemFile,
-                                     final AbstractProblemTemplate problem) {
+    static int problemQualityChecks(final HtmlBuilder report, final File problemFile,
+                                    final AbstractProblemTemplate problem) {
 
-        problemTest1(report, problemFile, problem);
-        problemTest2(report, problem);
-        problemTest3(report, problem);
-        problemTest4(report, problem);
-        problemTest5(report, problem);
-        problemTest6(report, problem);
-        problemTest7(report, problem);
-        problemTest8(report, problem);
-        problemTest9(report, problem);
-        problemTest10(report, problem);
+        return problemTest1(report, problemFile, problem)
+               + problemTest2(report, problem)
+               + problemTest3(report, problem)
+               + problemTest4(report, problem)
+               + problemTest5(report, problem)
+               + problemTest6(report, problem)
+               + problemTest7(report, problem)
+               + problemTest8(report, problem)
+               + problemTest9(report, problem)
+               + problemTest10(report, problem);
 
         // TODO: all branches in "test" or "switch" formulas result in compatible value types.
         //  In particular, if any return SPAN values, all should.
@@ -128,9 +129,12 @@ enum QualityControlChecks {
      * @param report      the report being constructed
      * @param problemFile the problem file to scan
      * @param problem     the problem to check
+     * @return the number of errors/warnings found
      */
-    private static void problemTest1(final HtmlBuilder report, final File problemFile,
-                                     final AbstractProblemTemplate problem) {
+    private static int problemTest1(final HtmlBuilder report, final File problemFile,
+                                    final AbstractProblemTemplate problem) {
+
+        int count = 0;
 
         String absPath = problemFile.getAbsolutePath().replace('/', '.').replace('\\', '.');
         final int lastDot = absPath.lastIndexOf('.');
@@ -144,7 +148,10 @@ enum QualityControlChecks {
             report.sSpan(null, "style='color:orange;'")
                     .add("WARNING: &lt;ref-base&gt; was ", problem.id, " but relative path was ", relPath)
                     .eSpan().br().addln();
+            ++count;
         }
+
+        return count;
     }
 
     /**
@@ -152,8 +159,11 @@ enum QualityControlChecks {
      *
      * @param report  the report being constructed
      * @param problem the problem to check
+     * @return the number of errors/warnings found
      */
-    private static void problemTest2(final HtmlBuilder report, final AbstractProblemTemplate problem) {
+    private static int problemTest2(final HtmlBuilder report, final AbstractProblemTemplate problem) {
+
+        int count = 0;
 
         final Set<String> referenced = new HashSet<>(10);
         for (final AbstractVariable test : problem.evalContext.getVariables()) {
@@ -218,13 +228,16 @@ enum QualityControlChecks {
             }
 
             if (var instanceof final VariableDerived der
-                    && (der.getMin() != null || der.getMax() != null || der.getExcludes() != null)) {
+                && (der.getMin() != null || der.getMax() != null || der.getExcludes() != null)) {
                 continue;
             }
 
             report.sSpan(null, "style='color:orange;'").add("WARNING: Variable {", var.name, "} is never used.")
                     .eSpan().br().addln();
+            ++count;
         }
+
+        return count;
     }
 
     /**
@@ -232,8 +245,11 @@ enum QualityControlChecks {
      *
      * @param report  the report being constructed
      * @param problem the problem to check
+     * @return the number of errors/warnings found
      */
-    private static void problemTest3(final HtmlBuilder report, final AbstractProblemTemplate problem) {
+    private static int problemTest3(final HtmlBuilder report, final AbstractProblemTemplate problem) {
+
+        int count = 0;
 
         final String initialXml = problem.toXmlString(0);
 
@@ -242,6 +258,7 @@ enum QualityControlChecks {
             report.sSpan(null, "style='color:red;'")
                     .add("ERROR: Failed to parsed serialized pre-realize problem.").eSpan().br()
                     .addln();
+            ++count;
         } else {
             final String finalXml = parsed.toXmlString(0);
 
@@ -250,8 +267,11 @@ enum QualityControlChecks {
                         .add("ERROR: serialization of parsed pre-realize problem differs.").eSpan().br()
                         .addln();
                 logDiff(report, finalXml, initialXml);
+                ++count;
             }
         }
+
+        return count;
     }
 
     /**
@@ -259,14 +279,20 @@ enum QualityControlChecks {
      *
      * @param report  the report being constructed
      * @param problem the problem to check
+     * @return the number of errors/warnings found
      */
-    private static void problemTest4(final HtmlBuilder report, final AbstractProblemTemplate problem) {
+    private static int problemTest4(final HtmlBuilder report, final AbstractProblemTemplate problem) {
+
+        int count = 0;
 
         for (int i = 0; i < NUM_REALIZATIONS; ++i) {
             if (!problem.realize(problem.evalContext)) {
                 report.sSpan(null, "style='color:red;'").add("ERROR: Failed to realize problem.").eSpan().br().addln();
+                ++count;
             }
         }
+
+        return count;
     }
 
     /**
@@ -274,8 +300,11 @@ enum QualityControlChecks {
      *
      * @param report  the report being constructed
      * @param problem the problem to check
+     * @return the number of errors/warnings found
      */
-    private static void problemTest5(final HtmlBuilder report, final AbstractProblemTemplate problem) {
+    private static int problemTest5(final HtmlBuilder report, final AbstractProblemTemplate problem) {
+
+        int count = 0;
 
         if (problem.realize(problem.evalContext)) {
 
@@ -288,6 +317,7 @@ enum QualityControlChecks {
             if (parsed instanceof ProblemDummyTemplate) {
                 report.sSpan(null, "style='color:red;'")
                         .add("ERROR: Failed to parsed serialized post-realize problem.").eSpan().br().addln();
+                ++count;
             } else {
                 final String finalXml = parsed.toXmlString(0);
 
@@ -295,11 +325,15 @@ enum QualityControlChecks {
                     report.sSpan(null, "style='color:red;'")
                             .add("ERROR: serialization of parsed post-realize problem differs.").eSpan().br().addln();
                     logDiff(report, finalXml, initialXml);
+                    ++count;
                 }
             }
         } else {
             report.sSpan(null, "style='color:red;'").add("ERROR: Failed to realize problem.").eSpan().br().addln();
+            ++count;
         }
+
+        return count;
     }
 
     /**
@@ -307,16 +341,21 @@ enum QualityControlChecks {
      *
      * @param report  the report being constructed
      * @param problem the problem to check
+     * @return the number of errors/warnings found
      */
-    private static void problemTest6(final HtmlBuilder report,
-                                     final AbstractProblemTemplate problem) {
+    private static int problemTest6(final HtmlBuilder report, final AbstractProblemTemplate problem) {
+
+        int count = 0;
 
         for (final AbstractVariable var : problem.evalContext.getVariables()) {
             if (var instanceof final VariableDerived derived && derived.getVariableType() == null) {
                 report.sSpan(null, "style='color:orange;'")
                         .add("WARNING: Variable {", var.name, "} does not specify value type.").eSpan().br().addln();
+                ++count;
             }
         }
+
+        return count;
     }
 
     /**
@@ -324,21 +363,26 @@ enum QualityControlChecks {
      *
      * @param report  the report being constructed
      * @param problem the problem to check
+     * @return the number of errors/warnings found
      */
-    private static void problemTest7(final HtmlBuilder report, final AbstractProblemTemplate problem) {
+    private static int problemTest7(final HtmlBuilder report, final AbstractProblemTemplate problem) {
 
-        scan7(report, problem.question);
+        int count = 0;
+
+        if (problem.question != null) {
+            count = scan7(report, problem.question);
+        }
 
         if (problem.solution != null) {
-            scan7(report, problem.solution);
+            count += scan7(report, problem.solution);
         }
 
         if (problem instanceof final AbstractProblemMultipleChoiceTemplate mc) {
             for (final ProblemChoiceTemplate choice : mc.getChoices()) {
-                scan7(report, choice.doc);
+                count += scan7(report, choice.doc);
             }
         } else if (problem instanceof final ProblemEmbeddedInputTemplate embedded && embedded.correctAnswer != null) {
-            scan7(report, embedded.correctAnswer);
+            count += scan7(report, embedded.correctAnswer);
         }
 
         final List<AbstractDocSpanBase> spans = new ArrayList<>(10);
@@ -346,7 +390,7 @@ enum QualityControlChecks {
 
             final Object value = var.getValue();
             if (value instanceof final DocSimpleSpan spanVal) {
-                scan7(report, spanVal);
+                count += scan7(report, spanVal);
             }
 
             if (var instanceof final VariableRandomChoice rc) {
@@ -364,8 +408,10 @@ enum QualityControlChecks {
         }
 
         for (final AbstractDocSpanBase span : spans) {
-            scan7(report, span);
+            count += scan7(report, span);
         }
+
+        return count;
     }
 
     /**
@@ -373,8 +419,11 @@ enum QualityControlChecks {
      *
      * @param report    the report being constructed
      * @param container the document column to check
+     * @return the number of errors/warnings found
      */
-    private static void scan7(final HtmlBuilder report, final AbstractDocContainer container) {
+    private static int scan7(final HtmlBuilder report, final AbstractDocContainer container) {
+
+        int count = 0;
 
         for (final AbstractDocObjectTemplate obj : container.getChildren()) {
 
@@ -387,6 +436,7 @@ enum QualityControlChecks {
                         report.sSpan(null, "style='color:orange;'")
                                 .add("WARNING: Font scale of " + percent + "% on Superscript in REL-OFFSET")
                                 .eSpan().br().addln();
+                        ++count;
                     }
                 }
 
@@ -397,6 +447,7 @@ enum QualityControlChecks {
                         report.sSpan(null, "style='color:orange;'")
                                 .add("WARNING: Font scale of " + percent + "% on Subscript in REL-OFFSET")
                                 .eSpan().br().addln();
+                        ++count;
                     }
                 }
 
@@ -407,6 +458,7 @@ enum QualityControlChecks {
                         report.sSpan(null, "style='color:orange;'")
                                 .add("WARNING: Font scale of " + percent + "% on Over in REL-OFFSET")
                                 .eSpan().br().addln();
+                        ++count;
                     }
                 }
 
@@ -417,6 +469,7 @@ enum QualityControlChecks {
                         report.sSpan(null, "style='color:orange;'")
                                 .add("WARNING: Font scale of " + percent + "% on Under in REL-OFFSET")
                                 .eSpan().br().addln();
+                        ++count;
                     }
                 }
 
@@ -424,6 +477,8 @@ enum QualityControlChecks {
                 scan7(report, inner);
             }
         }
+
+        return count;
     }
 
     /**
@@ -431,21 +486,26 @@ enum QualityControlChecks {
      *
      * @param report  the report being constructed
      * @param problem the problem to check
+     * @return the number of errors/warnings found
      */
-    private static void problemTest8(final HtmlBuilder report, final AbstractProblemTemplate problem) {
+    private static int problemTest8(final HtmlBuilder report, final AbstractProblemTemplate problem) {
 
-        scan8(report, problem.question);
+        int count = 0;
+
+        if (problem.question != null) {
+            count = scan8(report, problem.question);
+        }
 
         if (problem.solution != null) {
-            scan8(report, problem.solution);
+            count += scan8(report, problem.solution);
         }
 
         if (problem instanceof final AbstractProblemMultipleChoiceTemplate mc) {
             for (final ProblemChoiceTemplate choice : mc.getChoices()) {
-                scan8(report, choice.doc);
+                count += scan8(report, choice.doc);
             }
         } else if (problem instanceof final ProblemEmbeddedInputTemplate embedded && embedded.correctAnswer != null) {
-            scan8(report, embedded.correctAnswer);
+            count += scan8(report, embedded.correctAnswer);
         }
 
         final List<AbstractDocSpanBase> spans = new ArrayList<>(10);
@@ -453,7 +513,7 @@ enum QualityControlChecks {
 
             final Object value = var.getValue();
             if (value instanceof final DocSimpleSpan spanVal) {
-                scan8(report, spanVal);
+                count += scan8(report, spanVal);
             }
 
             if (var instanceof final VariableRandomChoice rc) {
@@ -471,8 +531,10 @@ enum QualityControlChecks {
         }
 
         for (final AbstractDocSpanBase span : spans) {
-            scan8(report, span);
+            count += scan8(report, span);
         }
+
+        return count;
     }
 
     /**
@@ -480,8 +542,11 @@ enum QualityControlChecks {
      *
      * @param report    the report being constructed
      * @param container the document column to check
+     * @return the number of errors/warnings found
      */
-    private static void scan8(final HtmlBuilder report, final AbstractDocContainer container) {
+    private static int scan8(final HtmlBuilder report, final AbstractDocContainer container) {
+
+        int count = 0;
 
         for (final AbstractDocObjectTemplate obj : container.getChildren()) {
 
@@ -489,7 +554,7 @@ enum QualityControlChecks {
 
                 final AbstractDocObjectTemplate base = radical.getBase();
                 if (base instanceof final AbstractDocContainer rootContainer) {
-                    scan8(report, rootContainer);
+                    count += scan8(report, rootContainer);
                 }
 
                 final AbstractDocObjectTemplate root = radical.getRoot();
@@ -498,15 +563,18 @@ enum QualityControlChecks {
                     if (rootContainer.getChildren().isEmpty()) {
                         report.sSpan(null, "style='color:orange;'").add("WARNING: Empty ROOT in RADICAL").eSpan()
                                 .br().addln();
+                        ++count;
                     } else {
-                        scan8(report, rootContainer);
+                        count += scan8(report, rootContainer);
                     }
                 }
 
             } else if (obj instanceof final AbstractDocContainer inner) {
-                scan8(report, inner);
+                count += scan8(report, inner);
             }
         }
+
+        return count;
     }
 
     /**
@@ -515,24 +583,29 @@ enum QualityControlChecks {
      *
      * @param report  the report being constructed
      * @param problem the problem to check
+     * @return the number of errors/warnings found
      */
-    private static void problemTest9(final HtmlBuilder report, final AbstractProblemTemplate problem) {
+    private static int problemTest9(final HtmlBuilder report, final AbstractProblemTemplate problem) {
+
+        int count = 0;
 
         for (int i = 0; i < NUM_REALIZATIONS; ++i) {
             if (problem.realize(problem.evalContext)) {
 
-                scan9(report, problem.question);
+                if (problem.question != null) {
+                    count += scan9(report, problem.question);
+                }
 
                 if (problem.solution != null) {
-                    scan9(report, problem.solution);
+                    count += scan9(report, problem.solution);
                 }
 
                 if (problem instanceof final AbstractProblemMultipleChoiceTemplate mc) {
                     for (final ProblemChoiceTemplate choice : mc.getChoices()) {
-                        scan9(report, choice.doc);
+                        count += scan9(report, choice.doc);
                     }
                 } else if (problem instanceof final ProblemEmbeddedInputTemplate embedded && embedded.correctAnswer != null) {
-                    scan9(report, embedded.correctAnswer);
+                    count += scan9(report, embedded.correctAnswer);
                 }
 
                 final List<AbstractDocSpanBase> spans = new ArrayList<>(10);
@@ -540,7 +613,7 @@ enum QualityControlChecks {
 
                     final Object value = var.getValue();
                     if (value instanceof final DocSimpleSpan spanVal) {
-                        scan9(report, spanVal);
+                        count += scan9(report, spanVal);
                     }
 
                     if (var instanceof final VariableRandomChoice rc) {
@@ -558,12 +631,14 @@ enum QualityControlChecks {
                 }
 
                 for (final AbstractDocSpanBase span : spans) {
-                    scan9(report, span);
+                    count += scan9(report, span);
                 }
             } else {
                 report.sSpan(null, "style='color:red;'").add("ERROR: Failed to realize problem.").eSpan().br().addln();
             }
         }
+
+        return count;
     }
 
     /**
@@ -571,17 +646,22 @@ enum QualityControlChecks {
      *
      * @param report    the report being constructed
      * @param container the document column to check
+     * @return the number of errors/warnings found
      */
-    private static void scan9(final HtmlBuilder report, final AbstractDocContainer container) {
+    private static int scan9(final HtmlBuilder report, final AbstractDocContainer container) {
+
+        int count = 0;
 
         for (final AbstractDocObjectTemplate obj : container.getChildren()) {
 
             if (obj instanceof final DocText text) {
-                textCheck9(report, text.getText());
+                count += textCheck9(report, text.getText());
             } else if (obj instanceof final AbstractDocContainer inner) {
-                scan9(report, inner);
+                count += scan9(report, inner);
             }
         }
+
+        return count;
     }
 
     /**
@@ -589,8 +669,11 @@ enum QualityControlChecks {
      *
      * @param report the report being constructed
      * @param txt    the txt column to check
+     * @return the number of errors/warnings found
      */
-    private static void textCheck9(final HtmlBuilder report, final String txt) {
+    private static int textCheck9(final HtmlBuilder report, final String txt) {
+
+        int count = 0;
 
         int index = txt.indexOf('-');
         while (index >= 0) {
@@ -599,81 +682,81 @@ enum QualityControlChecks {
             boolean error = true;
 
             if (follows.startsWith("axis")
-                    || follows.startsWith("axes")
-                    || follows.startsWith("coordinate")
-                    || follows.startsWith("like")
-                    || follows.startsWith("clockwise")
-                    || follows.startsWith("terminal")
-                    || follows.startsWith("hand")
-                    || follows.startsWith("of")
-                    || follows.startsWith("living")
-                    || follows.startsWith("to")
-                    || follows.startsWith("one")
-                    || follows.startsWith("angle")
-                    || follows.startsWith("triang")
-                    || follows.startsWith("term")
-                    || follows.startsWith("spring")
-                    || follows.startsWith("mass")
-                    || follows.startsWith("aligned")
-                    || follows.startsWith("value")
-                    || follows.startsWith("inch")
-                    || follows.startsWith("foot")
-                    || follows.startsWith("meter")
-                    || follows.startsWith("second")
-                    || follows.startsWith("mile")
-                    || follows.startsWith("example")
-                    || follows.startsWith("labeled")
-                    || follows.startsWith("Benz")
-                    || follows.startsWith("over")
-                    || follows.startsWith("east")
-                    || follows.startsWith("west")
-                    || follows.startsWith("house")
-                    || follows.startsWith("45-90")
-                    || follows.startsWith("60-90")
-                    || follows.startsWith("campus")
-                    || follows.startsWith("week")
-                    || follows.startsWith("paced")
-                    || follows.startsWith("point")
-                    || follows.startsWith("solving")
-                    || follows.startsWith("issued")
-                    || follows.startsWith("person")
-                    || follows.startsWith("in")
-                    || follows.startsWith("root")
-                    || follows.startsWith("half")
-                    || follows.startsWith("even")
-                    || follows.startsWith("odd")
-                    || follows.startsWith("plane")
-                    || follows.startsWith("side")
-                    || follows.startsWith("slope")
-                    || follows.startsWith("intercept")
-                    || follows.startsWith("to-end")
-                    || follows.startsWith("end")
-                    || follows.startsWith("South")
-                    || follows.startsWith("West")
-                    || follows.startsWith("circle")
-                    || follows.startsWith("function")
-                    || follows.startsWith("to-sum")
-                    || follows.startsWith("sum")
-                    || follows.startsWith("to-product")
-                    || follows.startsWith("product")
-                    || follows.startsWith("radius")
-                    || follows.startsWith("max")
-                    || follows.startsWith("min")
-                    || follows.startsWith("than")
-                    || follows.startsWith("or")
-                    || follows.startsWith("equal")
-                    || follows.startsWith("base")
-                    || follows.startsWith("ten")
-                    || follows.startsWith("squared")
-                    || follows.startsWith("van")
-                    || follows.startsWith("wagon")
-                    || follows.startsWith("shift")
-                    || follows.startsWith("letter")
-                    || follows.startsWith("line")
-                    || follows.startsWith("degree")
-                    || follows.startsWith("looking")
-                    || follows.startsWith("turn")
-                    || follows.startsWith("th")) {
+                || follows.startsWith("axes")
+                || follows.startsWith("coordinate")
+                || follows.startsWith("like")
+                || follows.startsWith("clockwise")
+                || follows.startsWith("terminal")
+                || follows.startsWith("hand")
+                || follows.startsWith("of")
+                || follows.startsWith("living")
+                || follows.startsWith("to")
+                || follows.startsWith("one")
+                || follows.startsWith("angle")
+                || follows.startsWith("triang")
+                || follows.startsWith("term")
+                || follows.startsWith("spring")
+                || follows.startsWith("mass")
+                || follows.startsWith("aligned")
+                || follows.startsWith("value")
+                || follows.startsWith("inch")
+                || follows.startsWith("foot")
+                || follows.startsWith("meter")
+                || follows.startsWith("second")
+                || follows.startsWith("mile")
+                || follows.startsWith("example")
+                || follows.startsWith("labeled")
+                || follows.startsWith("Benz")
+                || follows.startsWith("over")
+                || follows.startsWith("east")
+                || follows.startsWith("west")
+                || follows.startsWith("house")
+                || follows.startsWith("45-90")
+                || follows.startsWith("60-90")
+                || follows.startsWith("campus")
+                || follows.startsWith("week")
+                || follows.startsWith("paced")
+                || follows.startsWith("point")
+                || follows.startsWith("solving")
+                || follows.startsWith("issued")
+                || follows.startsWith("person")
+                || follows.startsWith("in")
+                || follows.startsWith("root")
+                || follows.startsWith("half")
+                || follows.startsWith("even")
+                || follows.startsWith("odd")
+                || follows.startsWith("plane")
+                || follows.startsWith("side")
+                || follows.startsWith("slope")
+                || follows.startsWith("intercept")
+                || follows.startsWith("to-end")
+                || follows.startsWith("end")
+                || follows.startsWith("South")
+                || follows.startsWith("West")
+                || follows.startsWith("circle")
+                || follows.startsWith("function")
+                || follows.startsWith("to-sum")
+                || follows.startsWith("sum")
+                || follows.startsWith("to-product")
+                || follows.startsWith("product")
+                || follows.startsWith("radius")
+                || follows.startsWith("max")
+                || follows.startsWith("min")
+                || follows.startsWith("than")
+                || follows.startsWith("or")
+                || follows.startsWith("equal")
+                || follows.startsWith("base")
+                || follows.startsWith("ten")
+                || follows.startsWith("squared")
+                || follows.startsWith("van")
+                || follows.startsWith("wagon")
+                || follows.startsWith("shift")
+                || follows.startsWith("letter")
+                || follows.startsWith("line")
+                || follows.startsWith("degree")
+                || follows.startsWith("looking")
+                || follows.startsWith("turn")
+                || follows.startsWith("th")) {
                 error = false;
             } else {
                 if (index >= 1) {
@@ -693,7 +776,7 @@ enum QualityControlChecks {
                 if (index >= 3) {
                     final String sub3 = txt.substring(index - 3, index);
                     if ("sub".equalsIgnoreCase(sub3) || "non".equalsIgnoreCase(sub3)
-                            || "SOH".equalsIgnoreCase(sub3) || "CAH".equalsIgnoreCase(sub3)) {
+                        || "SOH".equalsIgnoreCase(sub3) || "CAH".equalsIgnoreCase(sub3)) {
                         error = false;
                     }
                 }
@@ -740,10 +823,13 @@ enum QualityControlChecks {
                 report.sSpan(null, "style='color:orange;'")
                         .add("WARNING: Possible use of '-' as a minus sign: [", pre, surround, post, "]")
                         .eSpan().br().addln();
+                ++count;
             }
 
             index = txt.indexOf('-', index + 1);
         }
+
+        return count;
     }
 
     /**
@@ -751,21 +837,26 @@ enum QualityControlChecks {
      *
      * @param report  the report being constructed
      * @param problem the problem to check
+     * @return the number of errors/warnings found
      */
-    private static void problemTest10(final HtmlBuilder report, final AbstractProblemTemplate problem) {
+    private static int problemTest10(final HtmlBuilder report, final AbstractProblemTemplate problem) {
 
-        scan10(report, problem.question);
+        int count = 0;
+
+        if (problem.question != null) {
+            count = scan10(report, problem.question);
+        }
 
         if (problem.solution != null) {
-            scan10(report, problem.solution);
+            count += scan10(report, problem.solution);
         }
 
         if (problem instanceof final AbstractProblemMultipleChoiceTemplate mc) {
             for (final ProblemChoiceTemplate choice : mc.getChoices()) {
-                scan10(report, choice.doc);
+                count += scan10(report, choice.doc);
             }
         } else if (problem instanceof final ProblemEmbeddedInputTemplate embedded && embedded.correctAnswer != null) {
-            scan10(report, embedded.correctAnswer);
+            count += scan10(report, embedded.correctAnswer);
         }
 
         final List<AbstractDocSpanBase> spans = new ArrayList<>(10);
@@ -773,7 +864,7 @@ enum QualityControlChecks {
 
             final Object value = var.getValue();
             if (value instanceof final DocSimpleSpan spanVal) {
-                scan10(report, spanVal);
+                count += scan10(report, spanVal);
             }
 
             if (var instanceof final VariableRandomChoice rc) {
@@ -791,18 +882,23 @@ enum QualityControlChecks {
         }
 
         for (final AbstractDocSpanBase span : spans) {
-            scan10(report, span);
+            count += scan10(report, span);
         }
+
+        return count;
     }
 
     /**
-     * Scans a document object container recursively for drawing or graph objects, and reports any that do not have
-     * an 'alt' value.
+     * Scans a document object container recursively for drawing or graph objects, and reports any that do not have an
+     * 'alt' value.
      *
-     * @param report  the report being constructed
+     * @param report    the report being constructed
      * @param container the container to check
+     * @return the number of errors/warnings found
      */
-    private static void scan10(final HtmlBuilder report, final AbstractDocContainer container) {
+    private static int scan10(final HtmlBuilder report, final AbstractDocContainer container) {
+
+        int count = 0;
 
         for (final AbstractDocObjectTemplate obj : container.getChildren()) {
 
@@ -811,17 +907,21 @@ enum QualityControlChecks {
                     final String typeName = obj.getClass().getSimpleName();
                     report.sSpan(null, "style='color:orange;'").add("WARNING: Empty ALT in ", typeName).eSpan()
                             .br().addln();
+                    ++count;
                 }
             } else if (obj instanceof final DocImage img) {
                 if (img.getAltText() == null) {
                     final String typeName = obj.getClass().getSimpleName();
                     report.sSpan(null, "style='color:orange;'").add("WARNING: Empty ALT in ", typeName).eSpan()
                             .br().addln();
+                    ++count;
                 }
             } else if (obj instanceof final AbstractDocContainer inner) {
-                scan10(report, inner);
+                count += scan10(report, inner);
             }
         }
+
+        return count;
     }
 
     /**
@@ -830,10 +930,11 @@ enum QualityControlChecks {
      * @param report   the report being constructed
      * @param examFile the exam file to scan
      * @param exam     the exam object to check
+     * @return the number of errors/warnings found
      */
-    static void examQualityChecks(final HtmlBuilder report, final File examFile, final ExamObj exam) {
+    static int examQualityChecks(final HtmlBuilder report, final File examFile, final ExamObj exam) {
 
-        examTest1(report, examFile, exam);
+        return examTest1(report, examFile, exam);
 
         // TODO: Check that all referenced problems exist
     }
@@ -844,11 +945,11 @@ enum QualityControlChecks {
      * @param report   the report being constructed
      * @param examFile the exam file to scan
      * @param exam     the exam object to check
+     * @return the number of errors/warnings found
      */
-    static void homeworkQualityChecks(final HtmlBuilder report, final File examFile,
-                                      final ExamObj exam) {
+    static int homeworkQualityChecks(final HtmlBuilder report, final File examFile, final ExamObj exam) {
 
-        examTest1(report, examFile, exam);
+        return examTest1(report, examFile, exam);
 
         // TODO: Check that all referenced problems exist
     }
@@ -859,9 +960,11 @@ enum QualityControlChecks {
      * @param report   the report being constructed
      * @param examFile the exam file to scan
      * @param exam     the exam to check
+     * @return the number of errors/warnings found
      */
-    private static void examTest1(final HtmlBuilder report, final File examFile,
-                                  final ExamObj exam) {
+    private static int examTest1(final HtmlBuilder report, final File examFile, final ExamObj exam) {
+
+        int count = 0;
 
         String absPath = examFile.getAbsolutePath().replace('/', '.').replace('\\', '.');
         final int lastDot = absPath.lastIndexOf('.');
@@ -875,7 +978,10 @@ enum QualityControlChecks {
             report.sSpan(null, "style='color:orange;'")
                     .add("WARNING: &lt;ref-base&gt; was ", exam.ref, " but relative path was ", relPath)
                     .eSpan().br().addln();
+            ++count;
         }
+
+        return count;
     }
 
     /**

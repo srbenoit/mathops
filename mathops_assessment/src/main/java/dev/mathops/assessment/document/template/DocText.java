@@ -86,28 +86,28 @@ public final class DocText extends AbstractDocObjectTemplate {
         this.text = theText;
 
         if (theText.length() == 1) {
-            final char ch = theText.charAt(0);
+            final int ch = (int) theText.charAt(0);
 
-            this.isStixText = ch == '\u03C0' || ch == '\u03D1' || ch == '\u03D5' || ch == '\u03D6' || ch == '\u03F0'
-                    || ch == '\u03F1' || ch == '\u03F5' || ch == '\u2034' || ch == '\u2057';
+            this.isStixText = ch == 0x03C0 || ch == 0x03D1 || ch == 0x03D5 || ch == 0x03D6 || ch == 0x03F0
+                              || ch == 0x03F1 || ch == 0x03F5 || ch == 0x2034 || ch == 0x2057;
 
-            this.isStixMath = ch == '\u21D0' || ch == '\u21D1' || ch == '\u21D2' || ch == '\u21D3' || ch == '\u21D4'
-                    || ch == '\u21D5' || ch == '\u2218' || ch == '\u221D' || ch == '\u2220' || ch == '\u2221'
-                    || ch == '\u2229' || ch == '\u222A' || ch == '\u2243' || ch == '\u2266' || ch == '\u2267'
-                    || ch == '\u2268' || ch == '\u2269' || ch == '\u226A' || ch == '\u226B' || ch == '\u226C'
-                    || ch == '\u226E' || ch == '\u226F' || ch == '\u2270' || ch == '\u2271' || ch == '\u2272'
-                    || ch == '\u2273' || ch == '\u2276' || ch == '\u2277' || ch == '\u227A' || ch == '\u227B'
-                    || ch == '\u227C' || ch == '\u227D' || ch == '\u227E' || ch == '\u227F' || ch == '\u2280'
-                    || ch == '\u2281' || ch == '\u22D6' || ch == '\u22D7' || ch == '\u22DA' || ch == '\u22DB'
-                    || ch == '\u22DE' || ch == '\u22DF' || ch == '\u22E0' || ch == '\u22E1' || ch == '\u22E6'
-                    || ch == '\u22E7' || ch == '\u22E8' || ch == '\u22E9' || ch == '\u22EF' || ch == '\u2322'
-                    || ch == '\u2323' || ch == '\u2329' || ch == '\u232A' || ch == '\u25B3' || ch == '\u2713'
-                    || ch == '\u27CB' || ch == '\u27CD' || ch == '\u27F8' || ch == '\u27F9' || ch == '\u27FA'
-                    || ch == '\u2A7D' || ch == '\u2A7E' || ch == '\u2A85' || ch == '\u2A86' || ch == '\u2A87'
-                    || ch == '\u2A88' || ch == '\u2A89' || ch == '\u2A8A' || ch == '\u2A8B' || ch == '\u2A8C'
-                    || ch == '\u2A95' || ch == '\u2A96' || ch == '\u2AA1' || ch == '\u2AA2' || ch == '\u2AAF'
-                    || ch == '\u2AB0' || ch == '\u2AB5' || ch == '\u2AB6' || ch == '\u2AB7' || ch == '\u2AB8'
-                    || ch == '\u2AB9' || ch == '\u2ABA' || ch == '\u2ADB';
+            this.isStixMath = ch == 0x21D0 || ch == 0x21D1 || ch == 0x21D2 || ch == 0x21D3 || ch == 0x21D4
+                              || ch == 0x21D5 || ch == 0x2218 || ch == 0x221D || ch == 0x2220 || ch == 0x2221
+                              || ch == 0x2229 || ch == 0x222A || ch == 0x2243 || ch == 0x2266 || ch == 0x2267
+                              || ch == 0x2268 || ch == 0x2269 || ch == 0x226A || ch == 0x226B || ch == 0x226C
+                              || ch == 0x226E || ch == 0x226F || ch == 0x2270 || ch == 0x2271 || ch == 0x2272
+                              || ch == 0x2273 || ch == 0x2276 || ch == 0x2277 || ch == 0x227A || ch == 0x227B
+                              || ch == 0x227C || ch == 0x227D || ch == 0x227E || ch == 0x227F || ch == 0x2280
+                              || ch == 0x2281 || ch == 0x22D6 || ch == 0x22D7 || ch == 0x22DA || ch == 0x22DB
+                              || ch == 0x22DE || ch == 0x22DF || ch == 0x22E0 || ch == 0x22E1 || ch == 0x22E6
+                              || ch == 0x22E7 || ch == 0x22E8 || ch == 0x22E9 || ch == 0x22EF || ch == 0x2322
+                              || ch == 0x2323 || ch == 0x2329 || ch == 0x232A || ch == 0x25B3 || ch == 0x2713
+                              || ch == 0x27CB || ch == 0x27CD || ch == 0x27F8 || ch == 0x27F9 || ch == 0x27FA
+                              || ch == 0x2A7D || ch == 0x2A7E || ch == 0x2A85 || ch == 0x2A86 || ch == 0x2A87
+                              || ch == 0x2A88 || ch == 0x2A89 || ch == 0x2A8A || ch == 0x2A8B || ch == 0x2A8C
+                              || ch == 0x2A95 || ch == 0x2A96 || ch == 0x2AA1 || ch == 0x2AA2 || ch == 0x2AAF
+                              || ch == 0x2AB0 || ch == 0x2AB5 || ch == 0x2AB6 || ch == 0x2AB7 || ch == 0x2AB8
+                              || ch == 0x2AB9 || ch == 0x2ABA || ch == 0x2ADB;
         } else {
             this.isStixText = false;
             this.isStixMath = false;
@@ -146,9 +146,10 @@ public final class DocText extends AbstractDocObjectTemplate {
                 txt = "\u2057";
                 font = bfm.getFont("STIX Two Text Regular", font.getSize(), font.getStyle());
             } else if (txt.length() == 1) {
-                final char ch = txt.charAt(0);
+                final int ch = (int) txt.charAt(0);
 
-                if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '\u03b1' && ch <= '\u03f5')) {
+                if ((ch >= (int) 'a' && ch <= (int) 'z') || (ch >= (int) 'A' && ch <= (int) 'Z')
+                    || (ch >= 0x03b1 && ch <= 0x03f5)) {
                     font = font.deriveFont(Font.ITALIC);
                 }
             } else {
@@ -168,13 +169,13 @@ public final class DocText extends AbstractDocObjectTemplate {
             setCenterLine(0);
         } else {
             if (txt.length() == 1) {
-                final char ch = txt.charAt(0);
+                final int ch = (int)txt.charAt(0);
 
-                if (ch == '\u2147' || ch == '\u2148') {
+                if (ch == 0x2147 || ch == 0x2148) {
                     font = font.deriveFont(Font.ITALIC);
                     fm = bfm.getFontMetrics(font);
 
-                    if (ch == '\u2147') {
+                    if (ch == 0x2147) {
                         w = fm.stringWidth("e");
                     } else {
                         w = fm.stringWidth("i");
@@ -266,11 +267,11 @@ public final class DocText extends AbstractDocObjectTemplate {
 
         if (isVisible()) {
             if (txt.length() == 1) {
-                final char ch = txt.charAt(0);
+                final int ch = (int)txt.charAt(0);
 
-                if (ch == '\u2147' || ch == '\u2148') {
+                if (ch == 0x2147 || ch == 0x2148) {
                     grx.setFont(font.deriveFont(Font.ITALIC));
-                    if (ch == '\u2147') {
+                    if (ch == 0x2147) {
                         grx.drawString("e", x, y);
                     } else {
                         grx.drawString("i", x, y);
@@ -360,368 +361,369 @@ public final class DocText extends AbstractDocObjectTemplate {
     public void toXml(final HtmlBuilder xml, final int indent) {
 
         int inx;
-        char ch;
+        int ch;
 
-        // TODO: If the text has a format attached, wrap it in a "nonwrap" (or in the future,
-        // "text") tag with the format. Need to combine it with adjacent texts with the same format
-        // - use a span object?
+        // TODO: If the text has a format attached, wrap it in a "nonwrap" (or in the future, "text") tag with the
+        //  format. Need to combine it with adjacent texts with the same format - use a span object?
 
         if ("\n".equals(this.text)) {
             xml.add("<br/>");
         } else {
             for (inx = 0; inx < this.text.length(); inx++) {
-                ch = this.text.charAt(inx);
+                ch = (int) this.text.charAt(inx);
 
-                if (ch == '<') {
+                if (ch == (int) '<') {
                     // xml.add("\\u003c");
                     xml.add("&lt;");
-                } else if (ch == '>') {
+                } else if (ch == (int) '>') {
                     // xml.add("\\u003e");
                     xml.add("&gt;");
-                } else if (ch == '\"') {
+                } else if (ch == (int) '\"') {
                     xml.add("&quot;");
-                } else if (ch == '&') {
+                } else if (ch == (int) '&') {
                     // xml.add("\\u0026");
                     // xml.add("&amp;");
-                } else if (ch == '{') {
+                } else if (ch == (int) '{') {
                     xml.add("\\u007b");
-                } else if (ch == '}') {
+                } else if (ch == (int) '}') {
                     xml.add("\\u007d");
-                } else if (ch == '\t') {
+                } else if (ch == (int) '\t') {
                     xml.add("\\u0009");
                 } else if (ch < 0x80) {
-                    xml.add(ch);
-                } else if (ch == '\u00A0') {
+                    xml.add((char) ch);
+                } else if (ch == 0x00A0) {
                     xml.add("{\\nbsp}");
-                } else if (ch == '\u00B0') {
+                } else if (ch == 0x00B0) {
                     xml.add("{\\degree}");
-                } else if (ch == '\u00B1') {
+                } else if (ch == 0x00B1) {
                     xml.add("{\\pm}");
-                } else if (ch == '\u00B7') {
+                } else if (ch == 0x00B7) {
                     xml.add("{\\cdot}");
-                } else if (ch == '\u00D7') {
+                } else if (ch == 0x00D7) {
                     xml.add("{\\times}");
-                } else if (ch == '\u00F7') {
+                } else if (ch == 0x00F7) {
                     xml.add("{\\div}");
-                } else if (ch == '\u0192') {
+                } else if (ch == 0x0192) {
                     xml.add("{\\fnof}");
-                } else if (ch == '\u0393') {
+                } else if (ch == 0x0393) {
                     xml.add("{\\Gamma}");
-                } else if (ch == '\u0394') {
+                } else if (ch == 0x0394) {
                     xml.add("{\\Delta}");
-                } else if (ch == '\u0398') {
+                } else if (ch == 0x0398) {
                     xml.add("{\\Theta}");
-                } else if (ch == '\u039B') {
+                } else if (ch == 0x039B) {
                     xml.add("{\\Lamda}");
-                } else if (ch == '\u039E') {
+                } else if (ch == 0x039E) {
                     xml.add("{\\Xi}");
-                } else if (ch == '\u03A0') {
+                } else if (ch == 0x03A0) {
                     xml.add("{\\Pi}");
-                } else if (ch == '\u03A3') {
+                } else if (ch == 0x03A3) {
                     xml.add("{\\Sigma}");
-                } else if (ch == '\u03A5') {
+                } else if (ch == 0x03A5) {
                     xml.add("{\\Upsilon}");
-                } else if (ch == '\u03A6') {
+                } else if (ch == 0x03A6) {
                     xml.add("{\\Phi}");
-                } else if (ch == '\u03A8') {
+                } else if (ch == 0x03A8) {
                     xml.add("{\\Psi}");
-                } else if (ch == '\u03A9') {
+                } else if (ch == 0x03A9) {
                     xml.add("{\\Omega}");
-                } else if (ch == '\u03B1') {
+                } else if (ch == 0x03B1) {
                     xml.add("{\\alpha}");
-                } else if (ch == '\u03B2') {
+                } else if (ch == 0x03B2) {
                     xml.add("{\\beta}");
-                } else if (ch == '\u03B3') {
+                } else if (ch == 0x03B3) {
                     xml.add("{\\gamma}");
-                } else if (ch == '\u03B4') {
+                } else if (ch == 0x03B4) {
                     xml.add("{\\delta}");
-                } else if (ch == '\u03B5') {
+                } else if (ch == 0x03B5) {
                     xml.add("{\\varepsilon}");
-                } else if (ch == '\u03B6') {
+                } else if (ch == 0x03B6) {
                     xml.add("{\\zeta}");
-                } else if (ch == '\u03B7') {
+                } else if (ch == 0x03B7) {
                     xml.add("{\\eta}");
-                } else if (ch == '\u03B8') {
+                } else if (ch == 0x03B8) {
                     xml.add("{\\theta}");
-                } else if (ch == '\u03B9') {
+                } else if (ch == 0x03B9) {
                     xml.add("{\\iota}");
-                } else if (ch == '\u03BA') {
+                } else if (ch == 0x03BA) {
                     xml.add("{\\kappa}");
-                } else if (ch == '\u03BB') {
+                } else if (ch == 0x03BB) {
                     xml.add("{\\lamda}");
-                } else if (ch == '\u03BC') {
+                } else if (ch == 0x03BC) {
                     xml.add("{\\mu}");
-                } else if (ch == '\u03BD') {
+                } else if (ch == 0x03BD) {
                     xml.add("{\\nu}");
-                } else if (ch == '\u03BE') {
+                } else if (ch == 0x03BE) {
                     xml.add("{\\xi}");
-                } else if (ch == '\u03BF') {
+                } else if (ch == 0x03BF) {
                     xml.add("{\\omicron}");
-                } else if (ch == '\u03C0') {
+                } else if (ch == 0x03C0) {
                     xml.add("{\\pi}");
-                } else if (ch == '\u03C1') {
+                } else if (ch == 0x03C1) {
                     xml.add("{\\rho}");
-                } else if (ch == '\u03C2') {
+                } else if (ch == 0x03C2) {
                     xml.add("{\\varsigma}");
-                } else if (ch == '\u03C3') {
+                } else if (ch == 0x03C3) {
                     xml.add("{\\sigma}");
-                } else if (ch == '\u03C4') {
+                } else if (ch == 0x03C4) {
                     xml.add("{\\tau}");
-                } else if (ch == '\u03C5') {
+                } else if (ch == 0x03C5) {
                     xml.add("{\\upsilon}");
-                } else if (ch == '\u03C6') {
+                } else if (ch == 0x03C6) {
                     xml.add("{\\varphi}");
-                } else if (ch == '\u03C7') {
+                } else if (ch == 0x03C7) {
                     xml.add("{\\chi}");
-                } else if (ch == '\u03C8') {
+                } else if (ch == 0x03C8) {
                     xml.add("{\\psi}");
-                } else if (ch == '\u03C9') {
+                } else if (ch == 0x03C9) {
                     xml.add("{\\omega}");
-                } else if (ch == '\u03D1') {
+                } else if (ch == 0x03D1) {
                     xml.add("{\\vartheta}");
-                } else if (ch == '\u03D5') {
+                } else if (ch == 0x03D5) {
                     xml.add("{\\phi}");
-                } else if (ch == '\u03D6') {
+                } else if (ch == 0x03D6) {
                     xml.add("{\\varpi}");
-                } else if (ch == '\u03F0') {
+                } else if (ch == 0x03F0) {
                     xml.add("{\\varkappa}");
-                } else if (ch == '\u03F1') {
+                } else if (ch == 0x03F1) {
                     xml.add("{\\varrho}");
-                } else if (ch == '\u03F5') {
+                } else if (ch == 0x03F5) {
                     xml.add("{\\epsilon}");
-                } else if (ch == '\u2212') {
+                } else if (ch == 0x2212) {
                     xml.add("{\\minus}");
-                } else if (ch == '\u2014') {
+                } else if (ch == 0x2013) {
+                    xml.add("{\\textendash}");
+                } else if (ch == 0x2014) {
                     xml.add("{\\textemdash}");
-                } else if (ch == '\u2018') {
+                } else if (ch == 0x2018) {
                     xml.add("{\\textquoteleft}");
-                } else if (ch == '\u2019') {
+                } else if (ch == 0x2019) {
                     xml.add("{\\textquoteright}");
-                } else if (ch == '\u201C') {
+                } else if (ch == 0x201C) {
                     xml.add("{\\textquotedblleft}");
-                } else if (ch == '\u201D') {
+                } else if (ch == 0x201D) {
                     xml.add("{\\textquotedblright}");
-                } else if (ch == '\u2022') {
+                } else if (ch == 0x2022) {
                     xml.add("{\\bullet}");
-                } else if (ch == '\u2032') {
+                } else if (ch == 0x2032) {
                     xml.add("{\\prime}");
-                } else if (ch == '\u2033') {
+                } else if (ch == 0x2033) {
                     xml.add("{\\dprime}");
-                } else if (ch == '\u2034') {
+                } else if (ch == 0x2034) {
                     xml.add("{\\tprime}");
-                } else if (ch == '\u2057') {
+                } else if (ch == 0x2057) {
                     xml.add("{\\qprime}");
-                } else if (ch == '\u2147') {
+                } else if (ch == 0x2147) {
                     xml.add("{\\e}");
-                } else if (ch == '\u2148') {
+                } else if (ch == 0x2148) {
                     xml.add("{\\i}");
-                } else if (ch == '\u2190') {
+                } else if (ch == 0x2190) {
                     xml.add("{\\leftarrow}");
-                } else if (ch == '\u2191') {
+                } else if (ch == 0x2191) {
                     xml.add("{\\uparrow}");
-                } else if (ch == '\u2192') {
+                } else if (ch == 0x2192) {
                     xml.add("{\\rightarrow}");
-                } else if (ch == '\u2193') {
+                } else if (ch == 0x2193) {
                     xml.add("{\\downarrow}");
-                } else if (ch == '\u2194') {
+                } else if (ch == 0x2194) {
                     xml.add("{\\leftrightarrow}");
-                } else if (ch == '\u2195') {
+                } else if (ch == 0x2195) {
                     xml.add("{\\updownarrow}");
-                } else if (ch == '\u21D0') {
+                } else if (ch == 0x21D0) {
                     xml.add("{\\Leftarrow}");
-                } else if (ch == '\u21D1') {
+                } else if (ch == 0x21D1) {
                     xml.add("{\\Uparrow}");
-                } else if (ch == '\u21D2') {
+                } else if (ch == 0x21D2) {
                     xml.add("{\\Rightarrow}");
-                } else if (ch == '\u21D3') {
+                } else if (ch == 0x21D3) {
                     xml.add("{\\Downarrow}");
-                } else if (ch == '\u21D4') {
+                } else if (ch == 0x21D4) {
                     xml.add("{\\Leftrightarrow}");
-                } else if (ch == '\u21D5') {
+                } else if (ch == 0x21D5) {
                     xml.add("{\\Updownarrow}");
-                } else if (ch == '\u2218') {
+                } else if (ch == 0x2218) {
                     xml.add("{\\circ}");
-                } else if (ch == '\u221D') {
+                } else if (ch == 0x221D) {
                     xml.add("{\\varpropto}");
-                } else if (ch == '\u221E') {
+                } else if (ch == 0x221E) {
                     xml.add("{\\infty}");
-                } else if (ch == '\u2220') {
+                } else if (ch == 0x2220) {
                     xml.add("{\\angle}");
-                } else if (ch == '\u2221') {
+                } else if (ch == 0x2221) {
                     xml.add("{\\measuredangle}");
-                } else if (ch == '\u2229') {
+                } else if (ch == 0x2229) {
                     xml.add("{\\cap}");
-                } else if (ch == '\u222A') {
+                } else if (ch == 0x222A) {
                     xml.add("{\\cup}");
-                } else if (ch == '\u222B') {
+                } else if (ch == 0x222B) {
                     xml.add("{\\int}");
-                } else if (ch == '\u2243') {
+                } else if (ch == 0x2243) {
                     xml.add("{\\simeq}");
-                } else if (ch == '\u2248') {
+                } else if (ch == 0x2248) {
                     xml.add("{\\approx}");
-                } else if (ch == '\u2260') {
+                } else if (ch == 0x2260) {
                     xml.add("{\\neq}");
-                } else if (ch == '\u2264') {
+                } else if (ch == 0x2264) {
                     xml.add("{\\leq}");
-                } else if (ch == '\u2265') {
+                } else if (ch == 0x2265) {
                     xml.add("{\\geq}");
-                } else if (ch == '\u2266') {
+                } else if (ch == 0x2266) {
                     xml.add("{\\leqq}");
-                } else if (ch == '\u2267') {
+                } else if (ch == 0x2267) {
                     xml.add("{\\geqq}");
-                } else if (ch == '\u2268') {
+                } else if (ch == 0x2268) {
                     xml.add("{\\lneqq}");
-                } else if (ch == '\u2269') {
+                } else if (ch == 0x2269) {
                     xml.add("{\\gneqq}");
-                } else if (ch == '\u226A') {
+                } else if (ch == 0x226A) {
                     xml.add("{\\ll}");
-                } else if (ch == '\u226B') {
+                } else if (ch == 0x226B) {
                     xml.add("{\\gg}");
-                } else if (ch == '\u226C') {
+                } else if (ch == 0x226C) {
                     xml.add("{\\between}");
-                } else if (ch == '\u226E') {
+                } else if (ch == 0x226E) {
                     xml.add("{\\nless}");
-                } else if (ch == '\u226F') {
+                } else if (ch == 0x226F) {
                     xml.add("{\\ngtr}");
-                } else if (ch == '\u2270') {
+                } else if (ch == 0x2270) {
                     xml.add("{\\nleq}");
-                } else if (ch == '\u2271') {
+                } else if (ch == 0x2271) {
                     xml.add("{\\ngeq}");
-                } else if (ch == '\u2272') {
+                } else if (ch == 0x2272) {
                     xml.add("{\\lesssim}");
-                } else if (ch == '\u2273') {
+                } else if (ch == 0x2273) {
                     xml.add("{\\gtrsim}");
-                } else if (ch == '\u2276') {
+                } else if (ch == 0x2276) {
                     xml.add("{\\lessgtr}");
-                } else if (ch == '\u2277') {
+                } else if (ch == 0x2277) {
                     xml.add("{\\gtrless}");
-                } else if (ch == '\u227A') {
+                } else if (ch == 0x227A) {
                     xml.add("{\\prec}");
-                } else if (ch == '\u227B') {
+                } else if (ch == 0x227B) {
                     xml.add("{\\succ}");
-                } else if (ch == '\u227C') {
+                } else if (ch == 0x227C) {
                     xml.add("{\\preccurlyeq}");
-                } else if (ch == '\u227D') {
+                } else if (ch == 0x227D) {
                     xml.add("{\\succcurlyeq}");
-                } else if (ch == '\u227E') {
+                } else if (ch == 0x227E) {
                     xml.add("{\\precsim}");
-                } else if (ch == '\u227F') {
+                } else if (ch == 0x227F) {
                     xml.add("{\\succsim}");
-                } else if (ch == '\u2280') {
+                } else if (ch == 0x2280) {
                     xml.add("{\\nprec}");
-                } else if (ch == '\u2281') {
+                } else if (ch == 0x2281) {
                     xml.add("{\\nsucc}");
-                } else if (ch == '\u22D6') {
+                } else if (ch == 0x22D6) {
                     xml.add("{\\lessdot}");
-                } else if (ch == '\u22D7') {
+                } else if (ch == 0x22D7) {
                     xml.add("{\\gtrdot}");
-                } else if (ch == '\u22DA') {
+                } else if (ch == 0x22DA) {
                     xml.add("{\\lesseqgtr}");
-                } else if (ch == '\u22DB') {
+                } else if (ch == 0x22DB) {
                     xml.add("{\\gtreqless}");
-                } else if (ch == '\u22DE') {
+                } else if (ch == 0x22DE) {
                     xml.add("{\\curlyeqprec}");
-                } else if (ch == '\u22DF') {
+                } else if (ch == 0x22DF) {
                     xml.add("{\\curlyeqsucc}");
-                } else if (ch == '\u22E0') {
+                } else if (ch == 0x22E0) {
                     xml.add("{\\npreceq}");
-                } else if (ch == '\u22E1') {
+                } else if (ch == 0x22E1) {
                     xml.add("{\\nsucceq}");
-                } else if (ch == '\u22E6') {
+                } else if (ch == 0x22E6) {
                     xml.add("{\\lnsim}");
-                } else if (ch == '\u22E7') {
+                } else if (ch == 0x22E7) {
                     xml.add("{\\gnsim}");
-                } else if (ch == '\u22E8') {
+                } else if (ch == 0x22E8) {
                     xml.add("{\\precnsim}");
-                } else if (ch == '\u22E9') {
+                } else if (ch == 0x22E9) {
                     xml.add("{\\succnsim}");
-                } else if (ch == '\u22EF') {
+                } else if (ch == 0x22EF) {
                     xml.add("{\\cdots}");
-                } else if (ch == '\u2322') {
+                } else if (ch == 0x2322) {
                     xml.add("{\\smallfrown}");
-                } else if (ch == '\u2323') {
+                } else if (ch == 0x2323) {
                     xml.add("{\\smallsmile}");
-                } else if (ch == '\u2329') {
+                } else if (ch == 0x2329) {
                     xml.add("{\\langle}");
-                } else if (ch == '\u232A') {
+                } else if (ch == 0x232A) {
                     xml.add("{\\rangle}");
-                } else if (ch == '\u25A0') {
+                } else if (ch == 0x25A0) {
                     xml.add("{\\blacksquare}");
-                } else if (ch == '\u25B2') {
+                } else if (ch == 0x25B2) {
                     xml.add("{\\blacktriangle}");
-                } else if (ch == '\u25B3') {
+                } else if (ch == 0x25B3) {
                     xml.add("{\\triangle}");
-                } else if (ch == '\u25BA') {
+                } else if (ch == 0x25BA) {
                     xml.add("{\\blacktriangleright}");
-                } else if (ch == '\u25BC') {
+                } else if (ch == 0x25BC) {
                     xml.add("{\\blacktriangledown}");
-                } else if (ch == '\u25C4') {
+                } else if (ch == 0x25C4) {
                     xml.add("{\\blacktriangleleft}");
-                } else if (ch == '\u2660') {
+                } else if (ch == 0x2660) {
                     xml.add("{\\spadesuit}");
-                } else if (ch == '\u2663') {
+                } else if (ch == 0x2663) {
                     xml.add("{\\clubsuit}");
-                } else if (ch == '\u2665') {
+                } else if (ch == 0x2665) {
                     xml.add("{\\heartsuit}");
-                } else if (ch == '\u2666') {
+                } else if (ch == 0x2666) {
                     xml.add("{\\diamondsuit}");
-                } else if (ch == '\u2713') {
+                } else if (ch == 0x2713) {
                     xml.add("{\\checkmark}");
-                } else if (ch == '\u27CB') {
+                } else if (ch == 0x27CB) {
                     xml.add("{\\diagup}");
-                } else if (ch == '\u27CD') {
+                } else if (ch == 0x27CD) {
                     xml.add("{\\diagdown}");
-                } else if (ch == '\u27F8') {
+                } else if (ch == 0x27F8) {
                     xml.add("{\\Longleftarrow}");
-                } else if (ch == '\u27F9') {
+                } else if (ch == 0x27F9) {
                     xml.add("{\\Longrightarrow}");
-                } else if (ch == '\u27FA') {
+                } else if (ch == 0x27FA) {
                     xml.add("{\\Longleftrightarrow}");
-                } else if (ch == '\u2A7D') {
+                } else if (ch == 0x2A7D) {
                     xml.add("{\\leqslant}");
-                } else if (ch == '\u2A7E') {
+                } else if (ch == 0x2A7E) {
                     xml.add("{\\geqslant}");
-                } else if (ch == '\u2A85') {
+                } else if (ch == 0x2A85) {
                     xml.add("{\\lessapprox}");
-                } else if (ch == '\u2A86') {
+                } else if (ch == 0x2A86) {
                     xml.add("{\\gtrapprox}");
-                } else if (ch == '\u2A87') {
+                } else if (ch == 0x2A87) {
                     xml.add("{\\lneq}");
-                } else if (ch == '\u2A88') {
+                } else if (ch == 0x2A88) {
                     xml.add("{\\gneq}");
-                } else if (ch == '\u2A89') {
+                } else if (ch == 0x2A89) {
                     xml.add("{\\lnapprox}");
-                } else if (ch == '\u2A8A') {
+                } else if (ch == 0x2A8A) {
                     xml.add("{\\gnapprox}");
-                } else if (ch == '\u2A8B') {
+                } else if (ch == 0x2A8B) {
                     xml.add("{\\lesseqqgtr}");
-                } else if (ch == '\u2A8C') {
+                } else if (ch == 0x2A8C) {
                     xml.add("{\\gtreqqless}");
-                } else if (ch == '\u2A95') {
+                } else if (ch == 0x2A95) {
                     xml.add("{\\eqslantless}");
-                } else if (ch == '\u2A96') {
+                } else if (ch == 0x2A96) {
                     xml.add("{\\eqslantgtr}");
-                } else if (ch == '\u2AA1') {
+                } else if (ch == 0x2AA1) {
                     xml.add("{\\lll}");
-                } else if (ch == '\u2AA2') {
+                } else if (ch == 0x2AA2) {
                     xml.add("{\\ggg}");
-                } else if (ch == '\u2AAF') {
+                } else if (ch == 0x2AAF) {
                     xml.add("{\\preceq}");
-                } else if (ch == '\u2AB0') {
+                } else if (ch == 0x2AB0) {
                     xml.add("{\\succeq}");
-                } else if (ch == '\u2AB5') {
+                } else if (ch == 0x2AB5) {
                     xml.add("{\\precneqq}");
-                } else if (ch == '\u2AB6') {
+                } else if (ch == 0x2AB6) {
                     xml.add("{\\succneqq}");
-                } else if (ch == '\u2AB7') {
+                } else if (ch == 0x2AB7) {
                     xml.add("{\\precapprox}");
-                } else if (ch == '\u2AB8') {
+                } else if (ch == 0x2AB8) {
                     xml.add("{\\succapprox}");
-                } else if (ch == '\u2AB9') {
+                } else if (ch == 0x2AB9) {
                     xml.add("{\\precnapprox}");
-                } else if (ch == '\u2ABA') {
+                } else if (ch == 0x2ABA) {
                     xml.add("{\\succnapprox}");
-                } else if (ch == '\u2ADB') {
+                } else if (ch == 0x2ADB) {
                     xml.add("{\\pitchfork}");
                 } else {
                     xml.add("\\u", Integer.toHexString((ch >> 12) & 0x0F),
@@ -752,441 +754,437 @@ public final class DocText extends AbstractDocObjectTemplate {
                         final char[] mode, final EvalContext context) {
 
         final String theFontName = getFont().getFontName();
-        char ch;
+        int ch;
         int inx;
 
         for (inx = 0; inx < this.text.length(); inx++) {
-            ch = this.text.charAt(inx);
+            ch = (int) this.text.charAt(inx);
 
-            if (ch == '$') {
+            if (ch == (int) '$') {
                 builder.add("\\$");
-            } else if (ch == '&') {
+            } else if (ch == (int) '&') {
                 builder.add("\\&");
-            } else if (ch == '%') {
+            } else if (ch == (int) '%') {
                 builder.add("\\%");
-            } else if (ch == '_') {
+            } else if (ch == (int) '_') {
                 builder.add("\\_");
-            } else if (ch == '#') {
+            } else if (ch == (int) '#') {
                 builder.add("\\#");
-            } else if (ch == '|') {
-                if (mode[0] == 'T') {
+            } else if (ch == (int) '|') {
+                if ((int) mode[0] == (int) 'T') {
                     builder.add("$|$");
                 } else {
                     builder.add("|");
                 }
-            } else if ((theFontName.contains("Times"))
-                    || (theFontName.contains("Arial"))) {
+            } else if ((theFontName.contains("Times")) || (theFontName.contains("Arial"))) {
 
-                if (ch == '\u00a0') {
+                if (ch == 0x00a0) {
                     builder.add("\\hspace*{2 mm}");
-                } else if (ch == '\u00b0') {
-                    builder.add((mode[0] == 'T') ? "$^\\circ$ "
-                            : "^\\circ");
-                } else if (ch == '\u00b1') {
+                } else if (ch == 0x00b0) {
+                    builder.add(((int) mode[0] == (int) 'T') ? "$^\\circ$ " : "^\\circ");
+                } else if (ch == 0x00b1) {
 
-                    if (mode[0] == 'T') {
+                    if ((int) mode[0] == (int) 'T') {
                         builder.add("$\\pm$ ");
                     } else {
                         builder.add("\\pm ");
                     }
-                } else if (ch == '\u00b7') {
+                } else if (ch == 0x00b7) {
 
-                    if (mode[0] == 'T') {
+                    if ((int) mode[0] == (int) 'T') {
                         builder.add("$\\cdot$ ");
                     } else {
                         builder.add("\\cdot ");
                     }
-                } else if (ch == '\u00d7') {
+                } else if (ch == 0x00d7) {
 
-                    if (mode[0] == 'T') {
+                    if ((int) mode[0] == (int) 'T') {
                         builder.add("$\\times$ ");
                     } else {
                         builder.add("\\times ");
                     }
-                } else if (ch == '\u003c') {
+                } else if (ch == 0x003c) {
 
-                    if (mode[0] == 'T') {
+                    if ((int) mode[0] ==(int)  'T') {
                         builder.add("$<$");
                     } else {
                         builder.add("<");
                     }
-                } else if (ch == '\u003e') {
+                } else if (ch == 0x003e) {
 
-                    if (mode[0] == 'T') {
+                    if ((int) mode[0] == (int) 'T') {
                         builder.add("$>$");
                     } else {
                         builder.add(">");
                     }
-                } else if (ch == '\u0192') {
+                } else if (ch == 0x0192) {
 
-                    if (mode[0] == 'T') {
+                    if ((int) mode[0] == (int) 'T') {
                         builder.add("$\\mathnormal{f}$ ");
                     } else {
                         builder.add("\\mathnormal{f} ");
                     }
-                } else if (ch == '\u0394') {
+                } else if (ch == 0x0394) {
 
-                    if (mode[0] == 'T') {
+                    if ((int) mode[0] ==(int)  'T') {
                         builder.add("$\\Delta$ ");
                     } else {
                         builder.add("\\Delta ");
                     }
-                } else if (ch == '\u2013') {
+                } else if (ch == 0x2013) {
 
-                    if (mode[0] == 'T') {
+                    if ((int) mode[0] ==(int)  'T') {
                         builder.add("\\textendash ");
                     } else {
                         builder.add("\text{\\textendash} ");
                     }
-                } else if (ch == '\u2014') {
+                } else if (ch == 0x2014) {
 
-                    if (mode[0] == 'T') {
+                    if ((int) mode[0] == (int) 'T') {
                         builder.add("\\textemdash ");
                     } else {
                         builder.add("\text{\\textemdash} ");
                     }
-                } else if (ch == '\u2022') {
+                } else if (ch == 0x2022) {
 
-                    if (mode[0] == 'T') {
+                    if ((int) mode[0] == (int) 'T') {
                         builder.add("\\textbullet ");
                     } else {
                         builder.add("\\text{\\textbullet} ");
                     }
-                } else if (ch == '\u2190') {
+                } else if (ch == 0x2190) {
 
-                    if (mode[0] == 'T') {
+                    if ((int) mode[0] == (int) 'T') {
                         builder.add("$\\leftarrow$ ");
                     } else {
                         builder.add("\\leftarrow ");
                     }
-                } else if (ch == '\u2191') {
+                } else if (ch == 0x2191) {
 
-                    if (mode[0] == 'T') {
+                    if ((int) mode[0] == (int) 'T') {
                         builder.add("$\\uparrow$ ");
                     } else {
                         builder.add("\\uparrow ");
                     }
-                } else if (ch == '\u2192') {
+                } else if (ch == 0x2192) {
 
-                    if (mode[0] == 'T') {
+                    if ((int) mode[0] ==(int)  'T') {
                         builder.add("$\\rightarrow$ ");
                     } else {
                         builder.add("\\rightarrow ");
                     }
-                } else if (ch == '\u2193') {
+                } else if (ch == 0x2193) {
 
-                    if (mode[0] == 'T') {
+                    if ((int) mode[0] == (int) 'T') {
                         builder.add("$\\downarrow$ ");
                     } else {
                         builder.add("\\downarrow ");
                     }
-                } else if (ch == '\u2194') {
+                } else if (ch == 0x2194) {
 
-                    if (mode[0] == 'T') {
+                    if ((int) mode[0] ==(int)  'T') {
                         builder.add("$\\leftrightarrow$ ");
                     } else {
                         builder.add("\\leftrightarrow ");
                     }
-                } else if (ch == '\u2195') {
+                } else if (ch == 0x2195) {
 
-                    if (mode[0] == 'T') {
+                    if ((int) mode[0] == (int) 'T') {
                         builder.add("$\\updownarrow$ ");
                     } else {
                         builder.add("\\updownarrow ");
                     }
-                } else if (ch == '\u21D0') {
+                } else if (ch == 0x21D0) {
 
-                    if (mode[0] == 'T') {
+                    if ((int) mode[0] == (int) 'T') {
                         builder.add("$\\Leftarrow ");
                     } else {
                         builder.add("\\Leftarrow ");
                     }
-                } else if (ch == '\u21D1') {
+                } else if (ch == 0x21D1) {
 
-                    if (mode[0] == 'T') {
+                    if ((int) mode[0] == (int) 'T') {
                         builder.add("$\\Uparrow ");
                     } else {
                         builder.add("\\Uparrow ");
                     }
-                } else if (ch == '\u21D2') {
+                } else if (ch == 0x21D2) {
 
-                    if (mode[0] == 'T') {
+                    if ((int) mode[0] == (int) 'T') {
                         builder.add("$\\Rightarrow ");
                     } else {
                         builder.add("\\Rightarrow ");
                     }
-                } else if (ch == '\u21D3') {
+                } else if (ch == 0x21D3) {
 
-                    if (mode[0] == 'T') {
+                    if ((int) mode[0] == (int) 'T') {
                         builder.add("$\\Downarrow ");
                     } else {
                         builder.add("\\Downarrow ");
                     }
-                } else if (ch == '\u21D4') {
+                } else if (ch == 0x21D4) {
 
-                    if (mode[0] == 'T') {
+                    if ((int) mode[0] == (int) 'T') {
                         builder.add("$\\Leftrightarrow ");
                     } else {
                         builder.add("\\Leftrightarrow ");
                     }
-                } else if (ch == '\u21D5') {
+                } else if (ch == 0x21D5) {
 
-                    if (mode[0] == 'T') {
+                    if ((int) mode[0] == (int) 'T') {
                         builder.add("$\\Updownarrow ");
                     } else {
                         builder.add("\\Updownarrow ");
                     }
 
-                } else if (ch == '\u2212') {
+                } else if (ch == 0x2212) {
                     builder.add('-');
-                } else if (ch == '\u2248') {
-                    builder.add((mode[0] == 'T') ? "$\\approx$ " :
-                            "\\approx ");
-                } else if (ch == '\u2260') {
-                    builder.add((mode[0] == 'T') ? "$\\neq$ " : "\\neq$ ");
-                } else if (ch == '\u2264') {
-                    builder.add((mode[0] == 'T') ? "$\\leq$ " : "\\leq$ ");
-                } else if (ch == '\u2265') {
-                    builder.add((mode[0] == 'T') ? "$\\geq$ " : "\\geq$ ");
-                } else if (ch == '\u25a0') {
+                } else if (ch == 0x2248) {
+                    builder.add(((int) mode[0] == (int) 'T') ? "$\\approx$ " : "\\approx ");
+                } else if (ch == 0x2260) {
+                    builder.add(((int) mode[0] == (int) 'T') ? "$\\neq$ " : "\\neq$ ");
+                } else if (ch == 0x2264) {
+                    builder.add(((int) mode[0] == (int) 'T') ? "$\\leq$ " : "\\leq$ ");
+                } else if (ch == 0x2265) {
+                    builder.add(((int) mode[0] == (int) 'T') ? "$\\geq$ " : "\\geq$ ");
+                } else if (ch == 0x25a0) {
                     builder.add("\\blacksquare ");
-                } else if (ch == '\u25ac') {
+                } else if (ch == 0x25ac) {
                     builder.add("\\emdash ");
-                } else if (ch == '\u25b2') {
+                } else if (ch == 0x25b2) {
                     builder.add("\\blacktriangle ");
-                } else if (ch == '\u25ba') {
+                } else if (ch == 0x25ba) {
                     builder.add("\\blacktriangleright ");
-                } else if (ch == '\u25bc') {
+                } else if (ch == 0x25bc) {
                     builder.add("\\blacktriangledown ");
-                } else if (ch == '\u25c4') {
+                } else if (ch == 0x25c4) {
                     builder.add("\\blacktriangleleft ");
                 } else {
-                    builder.add(ch);
+                    builder.add((char) ch);
                 }
             } else if (theFontName.contains("ESSTIXThree")) {
 
-                if (ch == '\u0021') {
+                if (ch == 0x0021) {
                     builder.add("<");
-                } else if (ch == '\u0023') {
+                } else if (ch == 0x0023) {
                     builder.add(" \\leqslant ");
-                } else if (ch == '\u0024') {
+                } else if (ch == 0x0024) {
                     builder.add(" \\eqslantless ");
-                } else if (ch == '\u0025') {
+                } else if (ch == 0x0025) {
                     builder.add(" \\leq ");
-                } else if (ch == '\u0026') {
+                } else if (ch == 0x0026) {
                     builder.add(" \\leqq ");
-                } else if (ch == '\u0028') {
+                } else if (ch == 0x0028) {
                     builder.add(" \\lesssim ");
-                } else if (ch == '\u0029') {
+                } else if (ch == 0x0029) {
                     builder.add(" \\lessapprox ");
-                } else if (ch == '\u002b') {
+                } else if (ch == 0x002b) {
                     builder.add(" \\lessgtr ");
-                } else if (ch == '\u002c') {
+                } else if (ch == 0x002c) {
                     builder.add(" \\lesseqgtr ");
-                } else if (ch == '\u002d') {
+                } else if (ch == 0x002d) {
                     builder.add(" \\lesseqqgtr ");
-                } else if (ch == '\u002f') {
+                } else if (ch == 0x002f) {
                     builder.add(" \\ll ");
-                } else if (ch == '\u0030') {
+                } else if (ch == 0x0030) {
                     builder.add(" \\lll ");
-                } else if (ch == '\u0031') {
+                } else if (ch == 0x0031) {
                     builder.add(" \\lessdot ");
-                } else if (ch == '\u0033') {
+                } else if (ch == 0x0033) {
                     builder.add(" \\prec ");
-                } else if (ch == '\u0034') {
+                } else if (ch == 0x0034) {
                     builder.add(" \\precsim ");
-                } else if (ch == '\u0035') {
+                } else if (ch == 0x0035) {
                     builder.add(" \\precapprox ");
-                } else if (ch == '\u0036') {
+                } else if (ch == 0x0036) {
                     builder.add(" \\preceq ");
-                } else if (ch == '\u0037') {
+                } else if (ch == 0x0037) {
                     builder.add(" \\preccurlyeq ");
-                } else if (ch == '\u0038') {
+                } else if (ch == 0x0038) {
                     builder.add(" \\curlyeqprec ");
-                } else if (ch == '\u003a') {
-                    builder.add((mode[0] == 'T') ? " $\\angle$ " :
-                            " \\angle ");
-                } else if (ch == '\u003b') {
+                } else if (ch == 0x003a) {
+                    builder.add(((int) mode[0] == (int) 'T') ? " $\\angle$ " : " \\angle ");
+                } else if (ch == 0x003b) {
                     builder.add(" \\measuredangle ");
-                } else if (ch == '\u003e') {
+                } else if (ch == 0x003e) {
                     builder.add(" \\nless ");
-                } else if (ch == '\u003f') {
+                } else if (ch == 0x003f) {
                     builder.add(" \\nleq ");
-                } else if (ch == '\u0040') {
+                } else if (ch == 0x0040) {
                     builder.add(" \\lneq ");
-                } else if (ch == '\u0041') {
+                } else if (ch == 0x0041) {
                     builder.add(" \\lneqq ");
-                } else if (ch == '\u0042') {
+                } else if (ch == 0x0042) {
                     builder.add(" \\lnsim ");
-                } else if (ch == '\u0043') {
+                } else if (ch == 0x0043) {
                     builder.add(" \\lnapprox ");
-                } else if (ch == '\u0046') {
+                } else if (ch == 0x0046) {
                     builder.add(" \\nleq ");
-                } else if (ch == '\u0047') {
+                } else if (ch == 0x0047) {
                     builder.add(" \\nleqq ");
-                } else if (ch == '\u0048') {
+                } else if (ch == 0x0048) {
                     builder.add(" \\between ");
-                } else if (ch == '\u0049') {
+                } else if (ch == 0x0049) {
                     builder.add(" \\nprec ");
-                } else if (ch == '\u004a') {
+                } else if (ch == 0x004a) {
                     builder.add(" \\precnsim ");
-                } else if (ch == '\u004b') {
+                } else if (ch == 0x004b) {
                     builder.add(" \\precnapprox ");
-                } else if (ch == '\u004c') {
+                } else if (ch == 0x004c) {
                     builder.add(" \\precneqq ");
-                } else if (ch == '\u004d') {
+                } else if (ch == 0x004d) {
                     builder.add(" \\npreceq ");
-                } else if (ch == '\u004e') {
+                } else if (ch == 0x004e) {
                     builder.add(" \\infty ");
-                } else if (ch == '\u004f') {
+                } else if (ch == 0x004f) {
                     builder.add(">");
-                } else if (ch == '\u0050') {
+                } else if (ch == 0x0050) {
                     builder.add(" \\geqslant ");
-                } else if (ch == '\u0051') {
+                } else if (ch == 0x0051) {
                     builder.add(" \\eqslantgtr ");
-                } else if (ch == '\u0052') {
+                } else if (ch == 0x0052) {
                     builder.add(" \\geq ");
-                } else if (ch == '\u0053') {
+                } else if (ch == 0x0053) {
                     builder.add(" \\geqq ");
-                } else if (ch == '\u0054') {
+                } else if (ch == 0x0054) {
                     builder.add(" \\gtrsim ");
-                } else if (ch == '\u0055') {
+                } else if (ch == 0x0055) {
                     builder.add(" \\gtrapprox ");
-                } else if (ch == '\u0057') {
+                } else if (ch == 0x0057) {
                     builder.add(" \\gtrless ");
-                } else if (ch == '\u0058') {
+                } else if (ch == 0x0058) {
                     builder.add(" \\gtreqless ");
-                } else if (ch == '\u0059') {
+                } else if (ch == 0x0059) {
                     builder.add(" \\gtreqqless ");
-                } else if (ch == '\u005b') {
+                } else if (ch == 0x005b) {
                     builder.add(" \\gg ");
                 } else if (ch == '\\') {
                     builder.add(" \\ggg ");
-                } else if (ch == '\u005d') {
+                } else if (ch == 0x005d) {
                     builder.add(" \\gtrdot ");
-                } else if (ch == '\u005f') {
+                } else if (ch == 0x005f) {
                     builder.add(" \\succ ");
-                } else if (ch == '\u0061') {
+                } else if (ch == 0x0061) {
                     builder.add(" \\succsim ");
-                } else if (ch == '\u0062') {
+                } else if (ch == 0x0062) {
                     builder.add(" \\succapprox ");
-                } else if (ch == '\u0063') {
+                } else if (ch == 0x0063) {
                     builder.add(" \\succeq ");
-                } else if (ch == '\u0064') {
+                } else if (ch == 0x0064) {
                     builder.add(" \\succcurlyeq ");
-                } else if (ch == '\u0065') {
+                } else if (ch == 0x0065) {
                     builder.add(" \\curlyeqsucc ");
-                } else if (ch == '\u0066') {
+                } else if (ch == 0x0066) {
                     builder.add(" \\varpropto ");
-                } else if (ch == '\u0067') {
+                } else if (ch == 0x0067) {
                     builder.add(" \\smallsmile ");
-                } else if (ch == '\u0068') {
+                } else if (ch == 0x0068) {
                     builder.add(" \\smallfrown ");
-                } else if (ch == '\u0069') {
+                } else if (ch == 0x0069) {
                     builder.add(" \\pitchfork ");
-                } else if (ch == '\u006a') {
+                } else if (ch == 0x006a) {
                     builder.add(" \\ngrt ");
-                } else if (ch == '\u006b') {
+                } else if (ch == 0x006b) {
                     builder.add(" \\ngeq ");
-                } else if (ch == '\u006c') {
+                } else if (ch == 0x006c) {
                     builder.add(" \\gneq ");
-                } else if (ch == '\u006d') {
+                } else if (ch == 0x006d) {
                     builder.add(" \\gneqq ");
-                } else if (ch == '\u006e') {
+                } else if (ch == 0x006e) {
                     builder.add(" \\gnsim ");
-                } else if (ch == '\u006f') {
+                } else if (ch == 0x006f) {
                     builder.add(" \\gnapprox ");
-                } else if (ch == '\u0070') {
+                } else if (ch == 0x0070) {
                     builder.add(" \\gnapprox ");
-                } else if (ch == '\u0072') {
+                } else if (ch == 0x0072) {
                     builder.add(" \\ngeq ");
-                } else if (ch == '\u0073') {
+                } else if (ch == 0x0073) {
                     builder.add(" \\ngeqq ");
-                } else if (ch == '\u0074') {
+                } else if (ch == 0x0074) {
                     builder.add(" \\nsucc ");
-                } else if (ch == '\u0075') {
+                } else if (ch == 0x0075) {
                     builder.add(" \\succnsim ");
-                } else if (ch == '\u0076') {
+                } else if (ch == 0x0076) {
                     builder.add(" \\succnapprox ");
-                } else if (ch == '\u0077') {
+                } else if (ch == 0x0077) {
                     builder.add(" \\succneqq ");
-                } else if (ch == '\u0078') {
+                } else if (ch == 0x0078) {
                     builder.add(" \\nsucceq ");
-                } else if (ch == '\u0079') {
+                } else if (ch == 0x0079) {
                     builder.add(" \\diagup ");
-                } else if (ch == '\u007a') {
+                } else if (ch == 0x007a) {
                     builder.add(" \\diagdown ");
-                } else if (ch == '\u2010') {
+                } else if (ch == 0x2010) {
                     builder.add(" \\lesseqqgtr ");
                 } else {
-                    builder.add(ch);
+                    builder.add((char) ch);
                 }
             } else if (theFontName.contains("ESSTIXFour")) {
 
-                if (ch == '\u0021') {
+                if (ch == 0x0021) {
                     builder.add("`");
-                } else if (ch == '\u0023') {
+                } else if (ch == 0x0023) {
                     builder.add('\'');
-                } else if (ch == '\u0024') {
+                } else if (ch == 0x0024) {
                     builder.add(CoreConstants.QUOTE);
-                } else if (ch == '\u0025') {
+                } else if (ch == 0x0025) {
                     builder.add("'\"");
-                } else if (ch == '\u0026') {
+                } else if (ch == 0x0026) {
                     builder.add("\"\"");
-                } else if (ch == '\u0028') {
+                } else if (ch == 0x0028) {
                     builder.add(" \\ ");
-                } else if (ch == '\u002b') {
+                } else if (ch == 0x002b) {
                     builder.add(" \\circ ");
                 } else {
-                    builder.add(ch);
+                    builder.add((char) ch);
                 }
             } else if (theFontName.contains("ESSTIXSeven")) {
 
-                if (ch == '\u0030') {
+                if (ch == 0x0030) {
 
-                    if (mode[0] == 'T') {
+                    if ((int) mode[0] == (int) 'T') {
                         builder.add("$($");
                     } else {
                         builder.add("(");
                     }
-                } else if (ch == '\u0031') {
+                } else if (ch == 0x0031) {
 
-                    if (mode[0] == 'T') {
+                    if ((int) mode[0] == (int) 'T') {
                         builder.add("$)$");
                     } else {
                         builder.add(")");
                     }
                 } else {
-                    builder.add(ch);
+                    builder.add((char) ch);
                 }
             } else if (theFontName.contains("ESSTIXNine")) {
 
-                if (ch == '\u0070') {
+                if (ch == 0x0070) {
 
-                    if (mode[0] == 'T') {
+                    if ((int) mode[0] == (int) 'T') {
                         builder.add("$\\pi$");
                     } else {
                         builder.add("\\pi");
                     }
-                } else if (ch == '\u0071') {
+                } else if (ch == 0x0071) {
 
-                    if (mode[0] == 'T') {
+                    if ((int) mode[0] == (int) 'T') {
                         builder.add("$\\theta$");
                     } else {
                         builder.add("\\theta");
                     }
-                } else if (ch == '\u0072') {
+                } else if (ch == 0x0072) {
 
-                    if (mode[0] == 'T') {
+                    if ((int) mode[0] == (int) 'T') {
                         builder.add("$\\rho$");
                     } else {
                         builder.add("\\rho");
                     }
                 } else {
-                    builder.add(ch);
+                    builder.add((char) ch);
                 }
             } else {
-                builder.add(ch);
+                builder.add((char) ch);
             }
         }
     }

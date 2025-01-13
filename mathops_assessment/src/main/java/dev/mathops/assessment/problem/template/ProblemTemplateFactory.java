@@ -102,11 +102,6 @@ public enum ProblemTemplateFactory {
 
                 Log.warning("Failed to parse problem.");
                 Log.fine(xml);
-                for (final XmlContentError err : source.getAllErrors()) {
-                    Log.warning("    ", err);
-                }
-            } else {
-                Log.info(problem.id);
             }
 
             for (final XmlContentError err : source.getAllErrors()) {

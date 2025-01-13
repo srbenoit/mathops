@@ -27,20 +27,28 @@ final class ScanWorker extends SwingWorker<String, ProgressUpdate> {
     /** The owning window to update with progress. */
     private final MainWindow owner;
 
-    /** The parser mode./ */
+    /** The parser mode. */
     private final EParserMode parserMode;
+
+    /**
+     * The maximum number of errors to report (once a problem has been scanned that causes the error total to meet or
+     * exceed this number, scanning will halt).
+     */
+    private final int maxErrors;
 
     /**
      * Constructs a new {@code ScanWorker}.
      *
      * @param theOwner      the owning window to update with progress
      * @param theParserMode the parser mode
+     * @param theMaxErrors  the maximum number of errors to report
      */
-    ScanWorker(final MainWindow theOwner, final EParserMode theParserMode) {
+    ScanWorker(final MainWindow theOwner, final EParserMode theParserMode, final int theMaxErrors) {
         super();
 
         this.owner = theOwner;
         this.parserMode = theParserMode;
+        this.maxErrors = theMaxErrors;
     }
 
     /**
@@ -72,8 +80,8 @@ final class ScanWorker extends SwingWorker<String, ProgressUpdate> {
         final String numProblemsStr = Integer.toString(numProblems);
         final String numExamsStr = Integer.toString(numExams);
         final String numHomeworksStr = Integer.toString(numHomeworks);
-        report.add("&bull; Found ", numProblemsStr, " problems, ", numExamsStr, " exams, and ", numHomeworksStr, " " +
-                                                                                                                 "homeworks.").br().addln();
+        report.add("&bull; Found ", numProblemsStr, " problems, ", numExamsStr, " exams, and ", numHomeworksStr,
+                " homeworks.").br().addln();
 
         try {
             final float pct1 = 100.0f * (float) numProblems / (float) total;
@@ -124,16 +132,23 @@ final class ScanWorker extends SwingWorker<String, ProgressUpdate> {
         final float step = (endPct - 0.5f) / (float) problemFiles.size();
         float pct = 0.5f;
 
+        int count = 0;
+
         for (final File file : problemFiles) {
             if (isCancelled()) {
                 break;
             }
 
-            Log.info("Scanning ", file.getAbsolutePath());
-            scanProblem(report, dirLen, file);
+//                Log.info("Scanning ", file.getAbsolutePath());
+
+            count += scanProblem(report, dirLen, file);
             pct += step;
 
             publish(new ProgressUpdate(pct, "Scanning Problems...", report.toString()));
+
+            if (count >= this.maxErrors) {
+                break;
+            }
         }
     }
 
@@ -143,8 +158,11 @@ final class ScanWorker extends SwingWorker<String, ProgressUpdate> {
      * @param report      the report being constructed
      * @param dirLen      the length of the directory path being scanned
      * @param problemFile the problem file to scan
+     * @return the number of errors/warnings found
      */
-    private void scanProblem(final HtmlBuilder report, final int dirLen, final File problemFile) {
+    private int scanProblem(final HtmlBuilder report, final int dirLen, final File problemFile) {
+
+        int count = 0;
 
         final String filePath = problemFile.getAbsolutePath();
         final String relativePath = filePath.substring(dirLen);
@@ -153,6 +171,7 @@ final class ScanWorker extends SwingWorker<String, ProgressUpdate> {
         final String xml = FileLoader.loadFileAsString(problemFile, true);
         if (xml == null) {
             report.sSpan(null, "style='color:red;'").add("ERROR: Unable to read file.").eSpan().br().addln();
+            ++count;
         } else {
             try {
                 final XmlContent content = new XmlContent(xml, false, true);
@@ -162,22 +181,28 @@ final class ScanWorker extends SwingWorker<String, ProgressUpdate> {
                 if (!parseErrors.isEmpty()) {
                     report.sSpan(null, "style='color:red;'").add("WARNING: There were parser warnings:").eSpan().br()
                             .addln();
+                    ++count;
                     for (final XmlContentError err : parseErrors) {
                         report.add("&nbsp; &bull; ").sSpan(null, "style='color:blue;'").add(err).eSpan().br().addln();
                     }
                 }
 
-                final long start = System.currentTimeMillis();
-                QualityControlChecks.problemQualityChecks(report, problemFile, prob);
-                final long end = System.currentTimeMillis();
-                final long duration = end - start;
-                Log.info("Tests on ", prob.id, " took " + duration + " ms.");
+//                final long start = System.currentTimeMillis();
+
+                count += QualityControlChecks.problemQualityChecks(report, problemFile, prob);
+
+//                final long end = System.currentTimeMillis();
+//                final long duration = end - start;
+//                Log.info("Tests on ", prob.id, " took " + duration + " ms.");
 
             } catch (final ParsingException ex) {
                 report.sSpan(null, "style='color:red;'").add("ERROR: Exception while parsing file: ", ex.getMessage())
                         .eSpan().br().addln();
+                ++count;
             }
         }
+
+        return count;
     }
 
     /**
