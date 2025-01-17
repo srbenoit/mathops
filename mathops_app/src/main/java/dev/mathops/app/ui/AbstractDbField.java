@@ -20,7 +20,7 @@ public abstract class AbstractDbField extends JPanel {
      */
     AbstractDbField(final ENullability theNullability) {
 
-        super();
+        super(null);
 
         this.nullability = theNullability;
         this.mode = EDbFieldMode.DISPLAY_EXISTING_DATA;
