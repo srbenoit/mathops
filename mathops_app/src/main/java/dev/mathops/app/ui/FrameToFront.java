@@ -1,4 +1,4 @@
-package dev.mathops.app;
+package dev.mathops.app.ui;
 
 import dev.mathops.commons.log.Log;
 
@@ -34,7 +34,8 @@ public class FrameToFront implements Runnable {
     public void run() {
 
         if (!SwingUtilities.isEventDispatchThread()) {
-            Log.warning(Res.get(Res.NOT_AWT_THREAD));
+            final String msg = Res.get(Res.NOT_AWT_THREAD);
+            Log.warning(msg);
         }
 
         // this.target.toFront();

@@ -5,7 +5,6 @@ import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.Color;
-import java.awt.FlowLayout;
 import java.awt.Font;
 
 /**

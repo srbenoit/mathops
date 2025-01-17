@@ -109,6 +109,9 @@ final class Res extends ResBundle {
     static final String ANSWER_KEY_FOR = key(index++);
 
     /** A resource key. */
+    static final String SOLUTIONS_FOR = key(index++);
+
+    /** A resource key. */
     static final String EXAM_ID = key(index++);
 
     /** A resource key. */
@@ -174,6 +177,7 @@ final class Res extends ResBundle {
             {HAD_NO_QUESTION, "had no question"},
             {ENTER_ANS_HERE, "Enter your answer here:"},
             {ANSWER_KEY_FOR, "ANSWER KEY FOR"},
+            {SOLUTIONS_FOR, "SOLUTIONS FOR"},
             {EXAM_ID, "EXAM ID:"},
             {GENERATED, "GENERATED:"},
             {CORRECT_ANS_IS, "The correct answer is :"},

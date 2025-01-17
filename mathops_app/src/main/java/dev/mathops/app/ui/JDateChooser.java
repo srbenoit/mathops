@@ -1,10 +1,9 @@
-package dev.mathops.app;
+package dev.mathops.app.ui;
 
 import com.formdev.flatlaf.FlatLightLaf;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
-import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.UIUtilities;
 
 import javax.swing.BorderFactory;

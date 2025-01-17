@@ -1,4 +1,4 @@
-package dev.mathops.app;
+package dev.mathops.app.ui;
 
 import dev.mathops.commons.log.Log;
 

@@ -5,6 +5,7 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.DbContext;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.cfg.ContextMap;
@@ -76,7 +77,8 @@ final class ImportFinalGradesFromODS {
                 final Cache cache = new Cache(this.dbProfile, primaryConn);
 
                 try {
-                    priorTerm = cache.getSystemData().getPriorTerm();
+                    final SystemData systemData = cache.getSystemData();
+                    priorTerm = systemData.getPriorTerm();
                 } finally {
                     this.primaryCtx.checkInConnection(primaryConn);
                 }

@@ -1,5 +1,6 @@
 package dev.mathops.app;
 
+import dev.mathops.app.ui.InternalPanelBase;
 import dev.mathops.commons.log.Log;
 
 import javax.swing.JPanel;

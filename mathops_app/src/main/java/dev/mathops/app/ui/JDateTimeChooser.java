@@ -1,4 +1,4 @@
-package dev.mathops.app;
+package dev.mathops.app.ui;
 
 import com.formdev.flatlaf.FlatLightLaf;
 import dev.mathops.app.adm.Skin;

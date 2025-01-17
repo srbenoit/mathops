@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.office.student;
 
-import dev.mathops.app.JDateTimeChooser;
+import dev.mathops.app.ui.JDateTimeChooser;
 import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;

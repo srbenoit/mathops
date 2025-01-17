@@ -2,7 +2,7 @@ package dev.mathops.app.teststation;
 
 import com.formdev.flatlaf.FlatLightLaf;
 import dev.mathops.app.ClientBase;
-import dev.mathops.app.FrameToFront;
+import dev.mathops.app.ui.FrameToFront;
 import dev.mathops.app.TempFileCleaner;
 import dev.mathops.app.exam.ExamContainerInt;
 import dev.mathops.app.exam.ExamPanel;

@@ -1,9 +1,10 @@
 package dev.mathops.app.assessment.examprinter;
 
+import com.formdev.flatlaf.FlatLightLaf;
 import dev.mathops.app.ClientBase;
-import dev.mathops.app.DirectoryFilter;
-import dev.mathops.app.GuiBuilderRunner;
-import dev.mathops.app.IGuiBuilder;
+import dev.mathops.app.ui.DirectoryFilter;
+import dev.mathops.app.ui.GuiBuilderRunner;
+import dev.mathops.app.ui.IGuiBuilder;
 import dev.mathops.assessment.EParserMode;
 import dev.mathops.assessment.FactoryBase;
 import dev.mathops.assessment.InstructionalCache;
@@ -82,16 +83,16 @@ public final class ExamPrinterApp extends ClientBase {
     private static final String[] ZERO_LEN_STRING_ARR = new String[0];
 
     /** The progress frame. */
-    private ProgressFrame frame;
+    private ProgressFrame frame = null;
 
     /** The presented exam the student is to take. */
-    private ExamObj exam;
+    private ExamObj exam = null;
 
     /** The directory that contains the 'math' directory. */
-    private File instructionDir;
+    private File instructionDir = null;
 
     /** The exam XML file. */
-    private File examFile;
+    private File examFile = null;
 
     /**
      * Constructs a new {@code ExamPrinterApp}.
@@ -112,15 +113,18 @@ public final class ExamPrinterApp extends ClientBase {
 
         try {
             if (chooseExam()) {
-                final int rc = JOptionPane.showOptionDialog(null, Res.get(Res.WHAT_TO_DO),
-                        APP_TITLE, JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null,
-                        options, null);
+                final WhatToDoDialog whatToDo = new WhatToDoDialog(this);
+                whatToDo.setVisible(true);
 
-                if (rc == 0) {
-                    printExam();
-                } else if (rc == 1) {
-                    latexExam();
-                }
+//                final String msg = Res.get(Res.WHAT_TO_DO);
+//                final int rc = JOptionPane.showOptionDialog(null, msg, APP_TITLE, JOptionPane.DEFAULT_OPTION,
+//                        JOptionPane.QUESTION_MESSAGE, null, options, null);
+
+//                if (rc == 0) {
+//                    printExam();
+//                } else if (rc == 1) {
+//                    latexExam();
+//                }
             }
         } catch (final Exception ex) {
             final List<String> list = new ArrayList<>(100);
@@ -180,7 +184,8 @@ public final class ExamPrinterApp extends ClientBase {
         }
 
         jfc.setFileFilter(new DirectoryFilter());
-        jfc.setDialogTitle(Res.get(Res.FIND_MATH_PARENT));
+        final String findParentMsg = Res.get(Res.FIND_MATH_PARENT);
+        jfc.setDialogTitle(findParentMsg);
         jfc.setAcceptAllFileFilterUsed(false);
         jfc.setMultiSelectionEnabled(false);
         jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -191,7 +196,8 @@ public final class ExamPrinterApp extends ClientBase {
             File baseDir = jfc.getSelectedFile();
 
             // User may select the math folder inadvertently - if so, go up one.
-            if ("math".equalsIgnoreCase(baseDir.getName())) {
+            final String baseDirName = baseDir.getName();
+            if ("math".equalsIgnoreCase(baseDirName)) {
                 baseDir = baseDir.getParentFile();
             }
 
@@ -200,7 +206,8 @@ public final class ExamPrinterApp extends ClientBase {
             file = new File(this.instructionDir, "math");
             jfc.setCurrentDirectory(file);
             jfc.setFileFilter(new XmlFileFilter());
-            jfc.setDialogTitle(Res.get(Res.SELECT_EXAM));
+            final String dialogTitle = Res.get(Res.SELECT_EXAM);
+            jfc.setDialogTitle(dialogTitle);
             jfc.setAcceptAllFileFilterUsed(false);
             jfc.setMultiSelectionEnabled(false);
             jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -222,16 +229,21 @@ public final class ExamPrinterApp extends ClientBase {
 
     /**
      * Prints the exam.
+     *
+     * @param largeFonts       true to generate larger fonts
+     * @param includeSolutions true to include solutions
      */
-    private void printExam() {
+    void printExam(final boolean largeFonts, final boolean includeSolutions) {
 
-        this.frame = new ProgressFrame(APP_TITLE, Res.get(Res.PRINTING));
+        final String title = Res.get(Res.PRINTING);
+        this.frame = new ProgressFrame(APP_TITLE, title);
         this.frame.setVisible(true);
 
         // Set the default size to something scaled for printing.
-        AbstractDocObjectTemplate.setDefaultFontSize(16);
+        AbstractDocObjectTemplate.setDefaultFontSize(largeFonts ? 16 : 13);
 
-        this.frame.updateStatus(10, Res.get(Res.LOADING_EXAM));
+        final String loadingExamMsg = Res.get(Res.LOADING_EXAM);
+        this.frame.updateStatus(10, loadingExamMsg);
 
         try {
             // Generate the realized exam
@@ -241,7 +253,8 @@ public final class ExamPrinterApp extends ClientBase {
             if (this.exam == null) {
                 dumpLoadErrors(content);
             } else {
-                this.frame.updateStatus(20, Res.get(Res.LOADING_QUESTIONS));
+                final String loadingQuestionsMsg = Res.get(Res.LOADING_QUESTIONS);
+                this.frame.updateStatus(20, loadingQuestionsMsg);
 
                 if (this.exam.ref != null) {
                     final String root = this.exam.refRoot;
@@ -272,7 +285,8 @@ public final class ExamPrinterApp extends ClientBase {
                     }
                 }
 
-                this.frame.updateStatus(40, Res.get(Res.RANDOMIZING));
+                final String randomizingMsg = Res.get(Res.RANDOMIZING);
+                this.frame.updateStatus(40, randomizingMsg);
 
                 final long ser = AbstractHandlerBase.generateSerialNumber(false);
 
@@ -280,31 +294,38 @@ public final class ExamPrinterApp extends ClientBase {
 
                 if (this.exam.realize(false, false, ser)) {
 
-                    this.frame.updateStatus(60, Res.get(Res.LAYING_OUT));
+                    final String layoutMsg = Res.get(Res.LAYING_OUT);
+                    this.frame.updateStatus(60, layoutMsg);
 
                     // Now we have a randomized exam with known answers.
-                    this.frame.updateStatus(70, Res.get(Res.STARTING_PRINT));
+                    final String startingMsg = Res.get(Res.STARTING_PRINT);
+                    this.frame.updateStatus(70, startingMsg);
                     final PrintJob job = Toolkit.getDefaultToolkit().getPrintJob(this.frame,
                             this.exam.examName, null);
 
                     if (job != null) {
-                        this.frame.updateStatus(80, Res.get(Res.PRINTING_EXAM));
-                        doPrintExam(job);
-                        this.frame.updateStatus(90, Res.get(Res.PRINTING_ANSWERS));
-                        doPrintAnswerKey(job);
+                        final String printingMsg = Res.get(Res.PRINTING_EXAM);
+                        this.frame.updateStatus(80, printingMsg);
+                        doPrintExam(job, largeFonts);
+                        final String printingAnsMsg = Res.get(Res.PRINTING_ANSWERS);
+                        this.frame.updateStatus(90, printingAnsMsg);
+                        doPrintAnswerKey(job, largeFonts);
+                        if (includeSolutions) {
+                            doPrintSolutions(job, largeFonts);
+                        }
                         job.end();
                     }
 
-                    this.frame.updateStatus(100, Res.get(Res.COMPLETE));
+                    final String completeMsg = Res.get(Res.COMPLETE);
+                    this.frame.updateStatus(100, completeMsg);
                 } else {
-                    JOptionPane.showMessageDialog(null, Res.get(Res.RANDOMIZING_FAILED), APP_TITLE,
-                            JOptionPane.ERROR_MESSAGE);
+                    final String failMsg = Res.get(Res.RANDOMIZING_FAILED);
+                    JOptionPane.showMessageDialog(null, failMsg, APP_TITLE, JOptionPane.ERROR_MESSAGE);
                 }
             }
         } catch (final ParsingException ex) {
             Log.warning(ex);
-            JOptionPane.showMessageDialog(null, "Failed to parse exam", APP_TITLE,
-                    JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Failed to parse exam", APP_TITLE, JOptionPane.ERROR_MESSAGE);
         }
 
         waitAndClose();
@@ -313,9 +334,10 @@ public final class ExamPrinterApp extends ClientBase {
     /**
      * Generate LaTeX output from the exam.
      */
-    private void latexExam() {
+    void latexExam(final boolean largeFonts, final boolean includeSolutions) {
 
-        this.frame = new ProgressFrame(APP_TITLE, Res.get(Res.GENERATING_LATEX));
+        final String theHeader = Res.get(Res.GENERATING_LATEX);
+        this.frame = new ProgressFrame(APP_TITLE, theHeader);
         this.frame.setVisible(true);
 
         // Choose the location for the generated LaTeX output.
@@ -370,7 +392,8 @@ public final class ExamPrinterApp extends ClientBase {
                         }
                     }
 
-                    this.frame.updateStatus(40, Res.get(Res.RANDOMIZING));
+                    final String randomizingMsg = Res.get(Res.RANDOMIZING);
+                    this.frame.updateStatus(40, randomizingMsg);
 
                     final long ser = AbstractHandlerBase.generateSerialNumber(false);
 
@@ -378,20 +401,27 @@ public final class ExamPrinterApp extends ClientBase {
                         final int[] fileIndex = {0};
                         final boolean[] overwriteAll = {false};
 
-                        this.frame.updateStatus(60, Res.get(Res.LAYING_OUT));
+                        final String layoutMsg = Res.get(Res.LAYING_OUT);
+                        this.frame.updateStatus(60, layoutMsg);
 
-                        this.frame.updateStatus(70, Res.get(Res.GENERTING_EXAM_TEX));
+                        final String examTexMsg = Res.get(Res.GENERTING_EXAM_TEX);
+                        this.frame.updateStatus(70, examTexMsg);
                         if (doLaTeXExam(dir, fileIndex, overwriteAll)) {
-                            this.frame.updateStatus(80, Res.get(Res.GENERTING_ANSWER_TEX));
+                            final String answerTexMsg = Res.get(Res.GENERTING_ANSWER_TEX);
+                            this.frame.updateStatus(80, answerTexMsg);
                             doLaTeXAnswerKey(dir, fileIndex, overwriteAll);
-                            this.frame.updateStatus(90, Res.get(Res.GENERTING_SOLUTION_TEX));
-                            doLaTeXSolutions(dir, fileIndex, overwriteAll);
+                            if (includeSolutions) {
+                                final String solutionTexMsg = Res.get(Res.GENERTING_SOLUTION_TEX);
+                                this.frame.updateStatus(90, solutionTexMsg);
+                                doLaTeXSolutions(dir, fileIndex, overwriteAll);
+                            }
 
-                            this.frame.updateStatus(100, Res.get(Res.COMPLETE));
+                            final String completeMsg = Res.get(Res.COMPLETE);
+                            this.frame.updateStatus(100, completeMsg);
                         }
                     } else {
-                        JOptionPane.showMessageDialog(null, Res.get(Res.RANDOMIZING_FAILED),
-                                APP_TITLE, JOptionPane.ERROR_MESSAGE);
+                        final String failedMsg = Res.get(Res.RANDOMIZING_FAILED);
+                        JOptionPane.showMessageDialog(null, failedMsg, APP_TITLE, JOptionPane.ERROR_MESSAGE);
                     }
                 }
             } catch (final ParsingException ex) {
@@ -417,7 +447,8 @@ public final class ExamPrinterApp extends ClientBase {
 
         final int count = messages.size();
         for (int i = 0; i < count; ++i) {
-            display[i + 1] = messages.get(i).toString();
+            final XmlContentError msgStr = messages.get(i);
+            display[i + 1] = msgStr.toString();
         }
 
         JOptionPane.showMessageDialog(null, display, APP_TITLE, JOptionPane.ERROR_MESSAGE);
@@ -441,9 +472,10 @@ public final class ExamPrinterApp extends ClientBase {
     /**
      * Prints out the exam.
      *
-     * @param job the print job to print to
+     * @param job        the print job to print to
+     * @param largeFonts true to use larger fonts
      */
-    private void doPrintExam(final PrintJob job) {
+    private void doPrintExam(final PrintJob job, final boolean largeFonts) {
 
         final BundledFontManager fonts = BundledFontManager.getInstance();
         Graphics grx = job.getGraphics();
@@ -456,7 +488,7 @@ public final class ExamPrinterApp extends ClientBase {
         int y = res; // 1" top margin
 
         // Print the exam title
-        Font font = new Font("Serif", Font.BOLD, 22);
+        Font font = new Font("Serif", Font.BOLD, largeFonts ? 22 : 16);
         grx.setFont(font);
 
         FontMetrics fm = grx.getFontMetrics();
@@ -464,7 +496,7 @@ public final class ExamPrinterApp extends ClientBase {
         y += fm.getHeight() + fm.getLeading();
 
         // Print the page number
-        final Font pagefont = new Font("SansSerif", Font.PLAIN, 12);
+        final Font pagefont = new Font("SansSerif", Font.PLAIN, largeFonts ? 12 : 10);
         grx.setFont(pagefont);
         fm = grx.getFontMetrics();
 
@@ -472,7 +504,7 @@ public final class ExamPrinterApp extends ClientBase {
         int width = fm.stringWidth(str);
         grx.drawString(str, (size.width - width) / 2, size.height - (res / 2));
 
-        font = new Font("Serif", Font.PLAIN, 14);
+        font = new Font("Serif", Font.PLAIN, largeFonts ? 14 : 12);
         grx.setFont(font);
         fm = grx.getFontMetrics();
 
@@ -485,11 +517,12 @@ public final class ExamPrinterApp extends ClientBase {
             boolean comma = false;
 
             if (time > (2 * 60 * 60)) {
-                tmlimit.add(CoreConstants.SPC, Integer.toString(time / (60 * 60)),
-                        CoreConstants.SPC, Res.get(Res.HOURS));
+                final String hoursMsg = Res.get(Res.HOURS);
+                tmlimit.add(CoreConstants.SPC, Integer.toString(time / (60 * 60)), CoreConstants.SPC, hoursMsg);
                 comma = true;
             } else if (time > (60 * 60)) {
-                tmlimit.add(" 1 ", Res.get(Res.HOUR));
+                final String hourLbl = Res.get(Res.HOUR);
+                tmlimit.add(" 1 ", hourLbl);
                 comma = true;
             }
 
@@ -503,9 +536,11 @@ public final class ExamPrinterApp extends ClientBase {
                 tmlimit.add(CoreConstants.SPC, Integer.toString(time / 60));
 
                 if (time == 1) {
-                    tmlimit.add(Res.get(Res.MINUTE));
+                    final String minuteLbl = Res.get(Res.MINUTE);
+                    tmlimit.add(minuteLbl);
                 } else {
-                    tmlimit.add(Res.get(Res.MINUTES));
+                    final String minutesLbl = Res.get(Res.MINUTES);
+                    tmlimit.add(minutesLbl);
                 }
             }
 
@@ -513,8 +548,7 @@ public final class ExamPrinterApp extends ClientBase {
         }
 
         x = size.width / 2;
-        grx.drawString(Res.get(Res.SERIAL) + " P" + this.exam.serialNumber, x,
-                y + fm.getAscent());
+        grx.drawString(Res.get(Res.SERIAL) + " P" + this.exam.serialNumber, x, y + fm.getAscent());
         x = res;
         y += fm.getHeight() + fm.getLeading();
 
@@ -549,7 +583,7 @@ public final class ExamPrinterApp extends ClientBase {
         y += res / 2; // .5" space after instructions
 
         // Now print all the questions, paging as needed
-        font = new Font("SansSerif", Font.BOLD, 14);
+        font = new Font("SansSerif", Font.BOLD, largeFonts ? 14 : 12);
         grx.setFont(font);
         fm = grx.getFontMetrics();
 
@@ -588,7 +622,7 @@ public final class ExamPrinterApp extends ClientBase {
                 if (selected instanceof ProblemNumericTemplate) {
                     height += (res / 6) + (res / 3);
                 } else if ((selected instanceof ProblemMultipleChoiceTemplate)
-                        || (selected instanceof ProblemMultipleSelectionTemplate)) {
+                           || (selected instanceof ProblemMultipleSelectionTemplate)) {
                     height += res / 6;
 
                     final AbstractProblemMultipleChoiceTemplate probmult =
@@ -655,7 +689,7 @@ public final class ExamPrinterApp extends ClientBase {
                     grx.drawRect(xx, y, res, res / 3);
                     y += res / 3;
                 } else if ((selected instanceof ProblemMultipleChoiceTemplate)
-                        || (selected instanceof ProblemMultipleSelectionTemplate)) {
+                           || (selected instanceof ProblemMultipleSelectionTemplate)) {
                     y += res / 6;
 
                     final AbstractProblemMultipleChoiceTemplate probmult =
@@ -717,9 +751,10 @@ public final class ExamPrinterApp extends ClientBase {
     /**
      * Prints out the answer key to the exam.
      *
-     * @param job the print job to print to
+     * @param job        the print job to print to
+     * @param largeFonts true to use larger fonts
      */
-    private void doPrintAnswerKey(final PrintJob job) {
+    private void doPrintAnswerKey(final PrintJob job, final boolean largeFonts) {
 
         final BundledFontManager fonts = BundledFontManager.getInstance();
 
@@ -732,23 +767,20 @@ public final class ExamPrinterApp extends ClientBase {
         int y = res; // 1" top margin
 
         // Print the exam title
-        final Font title = new Font("Serif", Font.BOLD, 22);
+        final Font title = new Font("Serif", Font.BOLD, largeFonts ? 22 : 16);
         grx.setFont(title);
 
         FontMetrics fm = grx.getFontMetrics();
-        grx.drawString(Res.get(Res.ANSWER_KEY_FOR) + CoreConstants.SPC + this.exam.examName, x,
-                y + fm.getAscent());
+        grx.drawString(Res.get(Res.ANSWER_KEY_FOR) + CoreConstants.SPC + this.exam.examName, x, y + fm.getAscent());
         y += fm.getHeight() + fm.getLeading();
 
         // Print the exam version and the date it was generated
-        final Font plain = new Font("Serif", Font.PLAIN, 14);
+        final Font plain = new Font("Serif", Font.PLAIN, largeFonts ? 14 : 12);
         grx.setFont(plain);
         fm = grx.getFontMetrics();
-        grx.drawString(Res.get(Res.EXAM_ID) + CoreConstants.SPC + this.exam.examVersion, x,
-                y + fm.getAscent());
+        grx.drawString(Res.get(Res.EXAM_ID) + CoreConstants.SPC + this.exam.examVersion, x, y + fm.getAscent());
         x = size.width / 2;
-        grx.drawString(Res.get(Res.SERIAL) + " P" + this.exam.serialNumber, x,
-                y + fm.getAscent());
+        grx.drawString(Res.get(Res.SERIAL) + " P" + this.exam.serialNumber, x, y + fm.getAscent());
         y += fm.getHeight() + fm.getLeading();
         x = res;
 
@@ -760,7 +792,7 @@ public final class ExamPrinterApp extends ClientBase {
         y += res / 4; // .25" space before answers
 
         // Now print all the answers, paging as needed
-        final Font bold = new Font("SansSerif", Font.BOLD, 14);
+        final Font bold = new Font("SansSerif", Font.BOLD, largeFonts ? 14 : 12);
         grx.setFont(bold);
         fm = grx.getFontMetrics();
 
@@ -789,7 +821,7 @@ public final class ExamPrinterApp extends ClientBase {
                 if (selected instanceof ProblemNumericTemplate) {
                     height += 2 * (fm.getHeight() + fm.getLeading());
                 } else if ((selected instanceof ProblemMultipleChoiceTemplate)
-                        || (selected instanceof ProblemMultipleSelectionTemplate)) {
+                           || (selected instanceof ProblemMultipleSelectionTemplate)) {
                     final AbstractProblemMultipleChoiceTemplate probmult =
                             (AbstractProblemMultipleChoiceTemplate) selected;
 
@@ -843,13 +875,13 @@ public final class ExamPrinterApp extends ClientBase {
                     if (correct instanceof Long) {
                         final DecimalFormat fmt = new DecimalFormat();
                         str = Res.get(Res.CORRECT_ANS_IS) + CoreConstants.SPC
-                                + fmt.format(((Long) correct).longValue());
+                              + fmt.format(((Long) correct).longValue());
                     } else if (correct instanceof Double) {
                         // By default, we truncate reals at 8 decimal points
                         final DecimalFormat fmt = new DecimalFormat();
                         fmt.setMaximumFractionDigits(8);
                         str = Res.get(Res.CORRECT_ANS_IS) + CoreConstants.SPC
-                                + fmt.format(((Double) correct).doubleValue());
+                              + fmt.format(((Double) correct).doubleValue());
                     } else {
                         str = Res.get(Res.CORRECT_ANS_IS) + CoreConstants.SPC + correct.toString();
                     }
@@ -865,7 +897,7 @@ public final class ExamPrinterApp extends ClientBase {
                         y += fm.getHeight() + fm.getLeading();
                     }
                 } else if ((selected instanceof ProblemMultipleChoiceTemplate)
-                        || (selected instanceof ProblemMultipleSelectionTemplate)) {
+                           || (selected instanceof ProblemMultipleSelectionTemplate)) {
                     final AbstractProblemMultipleChoiceTemplate probmult =
                             (AbstractProblemMultipleChoiceTemplate) selected;
 
@@ -905,6 +937,117 @@ public final class ExamPrinterApp extends ClientBase {
 
                 y += res / 4;
                 number++;
+            }
+        }
+
+        // Make sure the last page gets sent to the printer.
+        grx.dispose();
+    }
+
+    /**
+     * Prints out the solutions to the exam.
+     *
+     * @param job        the print job to print to
+     * @param largeFonts true to use larger fonts
+     */
+    private void doPrintSolutions(final PrintJob job, final boolean largeFonts) {
+
+        final BundledFontManager fonts = BundledFontManager.getInstance();
+
+        Graphics grx = job.getGraphics();
+        fonts.setGraphics(grx);
+
+        final Dimension size = job.getPageDimension();
+        final int res = job.getPageResolution();
+        int x = res; // 1" left margin
+        int y = res; // 1" top margin
+
+        // Print the exam title
+        final Font title = new Font("Serif", Font.BOLD, largeFonts ? 22 : 16);
+        grx.setFont(title);
+
+        FontMetrics fm = grx.getFontMetrics();
+        grx.drawString(Res.get(Res.SOLUTIONS_FOR) + CoreConstants.SPC + this.exam.examName, x, y + fm.getAscent());
+        y += fm.getHeight() + fm.getLeading();
+
+        // Print the exam version and the date it was generated
+        final Font plain = new Font("Serif", Font.PLAIN, largeFonts ? 14 : 12);
+        grx.setFont(plain);
+        fm = grx.getFontMetrics();
+        grx.drawString(Res.get(Res.EXAM_ID) + CoreConstants.SPC + this.exam.examVersion, x, y + fm.getAscent());
+        x = size.width / 2;
+        grx.drawString(Res.get(Res.SERIAL) + " P" + this.exam.serialNumber, x, y + fm.getAscent());
+        y += fm.getHeight() + fm.getLeading();
+        x = res;
+
+        String str = new Date(this.exam.realizationTime).toString();
+        grx.drawString(Res.get(Res.GENERATED) + CoreConstants.SPC + str, x, y + fm.getAscent());
+        y += fm.getHeight() + fm.getLeading();
+
+        grx.drawLine(x, y, size.width - x, y);
+        y += res / 4; // .25" space before answers
+
+        // Now print all the solutions, paging as needed
+        final Font bold = new Font("SansSerif", Font.BOLD, largeFonts ? 14 : 12);
+        grx.setFont(bold);
+        fm = grx.getFontMetrics();
+
+        int number = 1;
+        final int numSect = this.exam.getNumSections();
+
+        for (int onSect = 0; onSect < numSect; onSect++) {
+            final ExamSection sect = this.exam.getSection(onSect);
+
+            final int numProb = sect.getNumProblems();
+
+            for (int onProb = 0; onProb < numProb; onProb++) {
+                final ExamProblem prob = sect.getProblem(onProb);
+
+                // Get the problem number/name
+                grx.setFont(bold);
+                str = (prob.problemName != null) ? prob.problemName : Integer.toString(number);
+
+                final AbstractProblemTemplate selected = prob.getSelectedProblem();
+
+                // Lay out the solution, accumulating total height, so // we can paginate if needed.
+                int height = fm.getHeight() + fm.getLeading();
+
+                // Based on the problem type, print additional fields
+                final DocColumn sol = selected.solution;
+                if (sol != null) {
+                    sol.setColumnWidth(size.width - (3 * res));
+                    sol.doLayout(selected.evalContext, ELayoutMode.TEXT);
+                    height += sol.getHeight() + (res / 6);
+                }
+
+                // See if we need to go to the next page.
+                if ((y + height) > (size.height - res)) {
+                    // New page.
+                    grx.dispose();
+                    grx = job.getGraphics();
+                    grx.setFont(plain);
+                    fonts.setGraphics(grx);
+                    x = res;
+                    y = res;
+                }
+
+                // Print the problem number/name
+                grx.setFont(bold);
+                grx.drawString(str, x, y + fm.getAscent());
+                y += fm.getHeight() + fm.getLeading();
+                grx.setFont(plain);
+
+                y += res / 4;
+                number++;
+
+                if (sol != null) {
+                    sol.setColumnWidth(size.width - res - x);
+                    sol.doLayout(selected.evalContext, ELayoutMode.TEXT);
+                    sol.setX(x);
+                    sol.setY(y);
+                    sol.paintComponent(grx, ELayoutMode.TEXT);
+                    y += sol.getHeight() + (res / 6);
+                }
             }
         }
 
@@ -1038,6 +1181,8 @@ public final class ExamPrinterApp extends ClientBase {
      */
     public static void main(final String... args) {
 
+        FlatLightLaf.setup();
+
         try {
             new ExamPrinterApp().go();
         } catch (final Exception ex) {
@@ -1072,7 +1217,7 @@ public final class ExamPrinterApp extends ClientBase {
         /**
          * Constructs a new {@code ProgressFrame} (should be called from the AWT event thread).
          *
-         * @param title  the frame title
+         * @param title     the frame title
          * @param theHeader the frame header
          */
         ProgressFrame(final String title, final String theHeader) {

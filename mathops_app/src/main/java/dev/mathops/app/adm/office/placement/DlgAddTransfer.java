@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.office.placement;
 
-import dev.mathops.app.JDateChooser;
+import dev.mathops.app.ui.JDateChooser;
 import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;

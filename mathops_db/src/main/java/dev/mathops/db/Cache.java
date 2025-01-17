@@ -5,10 +5,13 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.ELiveRefreshes;
 import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.DbConfig;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.EDbUse;
 import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.old.cfg.LoginConfig;
+import dev.mathops.db.old.cfg.ServerConfig;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.svc.term.TermLogic;
@@ -94,7 +97,7 @@ public final class Cache {
             this.termSchemaName = "math";
         } else if (type == EDbProduct.POSTGRESQL) {
             if (db.use == EDbUse.PROD) {
-                this.mainSchemaName = "main";
+                this.mainSchemaName = "legacy";
                 final TermRec active = TermLogic.Postgres.INSTANCE.queryActive(this);
                 if (active == null) {
                     throw new IllegalArgumentException("No active TermRec found");
@@ -102,10 +105,10 @@ public final class Cache {
                 this.termSchemaName = active.term.shortString.toLowerCase(Locale.ROOT);
                 Log.info("Using the '", this.termSchemaName, "' schema for term data");
             } else if (db.use == EDbUse.DEV) {
-                this.mainSchemaName = "main_d";
+                this.mainSchemaName = "legacy_dev";
                 this.termSchemaName = "term_d";
             } else {
-                this.mainSchemaName = "main_t";
+                this.mainSchemaName = "legacy_test";
                 this.termSchemaName = "term_t";
             }
         } else {
@@ -250,5 +253,20 @@ public final class Cache {
 
         return this.studentData.computeIfAbsent(studentId,
                 key -> new StudentData(this, studentRecord));
+    }
+
+    /**
+     * Tests whether this cache is connected to a PostgreSQL database.
+     *
+     * @return true if PostgreSQL
+     */
+    public boolean isPostgreSQL() {
+
+        final DbContext context = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        final LoginConfig login = context.getLoginConfig();
+        final DbConfig db = login.db;
+        final ServerConfig server = db.server;
+
+        return server.type == EDbProduct.POSTGRESQL;
     }
 }

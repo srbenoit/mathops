@@ -1,8 +1,8 @@
 package dev.mathops.app.checkout;
 
 import com.formdev.flatlaf.FlatLightLaf;
-import dev.mathops.app.FrameToFront;
-import dev.mathops.app.PopupPanel;
+import dev.mathops.app.ui.FrameToFront;
+import dev.mathops.app.ui.PopupPanel;
 import dev.mathops.app.TempFileCleaner;
 import dev.mathops.app.checkin.FieldPanel;
 import dev.mathops.app.checkin.LoginDialog;

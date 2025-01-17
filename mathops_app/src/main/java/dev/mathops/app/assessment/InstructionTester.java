@@ -1,6 +1,6 @@
 package dev.mathops.app.assessment;
 
-import dev.mathops.app.DirectoryFilter;
+import dev.mathops.app.ui.DirectoryFilter;
 import dev.mathops.assessment.EParserMode;
 import dev.mathops.assessment.FactoryBase;
 import dev.mathops.assessment.NumberOrFormula;

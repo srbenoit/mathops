@@ -1,6 +1,6 @@
 package dev.mathops.app.exam;
 
-import dev.mathops.app.InternalPanelBase;
+import dev.mathops.app.ui.InternalPanelBase;
 import dev.mathops.commons.log.Log;
 
 import javax.swing.SwingUtilities;

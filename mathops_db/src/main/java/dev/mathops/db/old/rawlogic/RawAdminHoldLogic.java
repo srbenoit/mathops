@@ -225,13 +225,25 @@ public enum RawAdminHoldLogic {
         if (record.stuId.startsWith("99")) {
             result = false;
         } else {
-            final String sql = SimpleBuilder.concat(
-                    "INSERT INTO admin_hold (stu_id,hold_id,sev_admin_hold,times_display,create_dt) VALUES (",
-                    LogicUtils.sqlStringValue(record.stuId), ",",
-                    LogicUtils.sqlStringValue(record.holdId), ",",
-                    LogicUtils.sqlStringValue(record.sevAdminHold), ",",
-                    LogicUtils.sqlIntegerValue(record.timesDisplay), ",",
-                    LogicUtils.sqlDateValue(record.createDt), ")");
+            final String sql;
+
+            if (cache.isPostgreSQL()) {
+                sql = SimpleBuilder.concat(
+                        "INSERT INTO admin_hold (stu_id,hold_id,sev_admin_hold,times_display,create_dt) VALUES (",
+                        LogicUtils.sqlStringValue(record.stuId), ",",
+                        LogicUtils.sqlStringValue(record.holdId), ",",
+                        LogicUtils.sqlStringValue(record.sevAdminHold), ",",
+                        LogicUtils.sqlIntegerValue(record.timesDisplay), ",",
+                        LogicUtils.sqlPgDateValue(record.createDt), ")");
+            } else {
+                sql = SimpleBuilder.concat(
+                        "INSERT INTO admin_hold (stu_id,hold_id,sev_admin_hold,times_display,create_dt) VALUES (",
+                        LogicUtils.sqlStringValue(record.stuId), ",",
+                        LogicUtils.sqlStringValue(record.holdId), ",",
+                        LogicUtils.sqlStringValue(record.sevAdminHold), ",",
+                        LogicUtils.sqlIntegerValue(record.timesDisplay), ",",
+                        LogicUtils.sqlDateValue(record.createDt), ")");
+            }
 
             try (final Statement stmt = cache.conn.createStatement()) {
                 result = stmt.executeUpdate(sql) == 1;
@@ -345,8 +357,7 @@ public enum RawAdminHoldLogic {
      * @return the admin_hold record; null if not found
      * @throws SQLException if there is an error accessing the database
      */
-    public static RawAdminHold query(final Cache cache, final String stuId, final String holdId)
-            throws SQLException {
+    public static RawAdminHold query(final Cache cache, final String stuId, final String holdId) throws SQLException {
 
         RawAdminHold result = null;
 
@@ -441,11 +452,17 @@ public enum RawAdminHoldLogic {
         } else {
             final HtmlBuilder sql = new HtmlBuilder(100);
 
-            sql.add(//
-                    "UPDATE admin_hold ",
-                    "   SET create_dt=", LogicUtils.sqlDateValue(record.createDt),
-                    " WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
-                    "   AND hold_id=", LogicUtils.sqlStringValue(record.holdId));
+            if (cache.isPostgreSQL()) {
+                sql.add("UPDATE admin_hold ",
+                        "   SET create_dt=", LogicUtils.sqlPgDateValue(record.createDt),
+                        " WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                        "   AND hold_id=", LogicUtils.sqlStringValue(record.holdId));
+            } else {
+                sql.add("UPDATE admin_hold ",
+                        "   SET create_dt=", LogicUtils.sqlDateValue(record.createDt),
+                        " WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                        "   AND hold_id=", LogicUtils.sqlStringValue(record.holdId));
+            }
 
             try (final Statement stmt = cache.conn.createStatement()) {
                 result = stmt.executeUpdate(sql.toString()) == 1;

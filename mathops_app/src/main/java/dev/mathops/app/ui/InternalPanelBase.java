@@ -1,4 +1,4 @@
-package dev.mathops.app;
+package dev.mathops.app.ui;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.file.FileLoader;
@@ -123,7 +123,7 @@ public class InternalPanelBase extends JInternalFrame {
      *
      * @param res the properties settings governing GUI look
      */
-    protected void setupFrame(final Properties res) {
+    public void setupFrame(final Properties res) {
 
         if (!SwingUtilities.isEventDispatchThread()) {
             final String msg = Res.get(Res.NOT_AWT_THREAD);
@@ -188,7 +188,7 @@ public class InternalPanelBase extends JInternalFrame {
      * @param name the name of the label, used as a prefix to obtain the relevant resource settings
      * @return the created label
      */
-    protected final JLabel createSingleLabel(final Properties res, final String name) {
+    public final JLabel createSingleLabel(final Properties res, final String name) {
 
         final JLabel label = new JLabel();
 

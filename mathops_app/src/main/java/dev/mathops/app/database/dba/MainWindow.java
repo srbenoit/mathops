@@ -2,23 +2,30 @@ package dev.mathops.app.database.dba;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
-import dev.mathops.db.old.cfg.LoginConfig;
+import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.old.DbContext;
+import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.old.cfg.ESchemaUse;
 
-import java.awt.Dimension;
-import java.awt.Toolkit;
-import java.sql.Connection;
-import java.sql.SQLException;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
+import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
-/** The main window. */
+/**
+ * The main window.
+ */
 final class MainWindow extends JFrame {
 
-    /** The login configuration that can create connections to the database. */
-    private final LoginConfig login;
+    /** The caches for each login configuration provided. */
+    private final List<Cache> caches;
 
     /** The content pane. */
     private final JPanel content;
@@ -41,13 +48,25 @@ final class MainWindow extends JFrame {
     /**
      * Constructs a new {@code MainWindow}.
      *
-     * @param theLogin the login configuration that can create connections to the database
+     * @param theProfiles the database profiles (each with a distinct login)
      */
-    MainWindow(final LoginConfig theLogin) {
+    MainWindow(final Collection<DbProfile> theProfiles) {
 
         super("Math Database Administrator");
 
-        this.login = theLogin;
+        final int numLogins = theProfiles.size();
+        this.caches = new ArrayList<>(numLogins);
+
+        for (final DbProfile profile : theProfiles) {
+            try {
+                final DbContext primary = profile.getDbContext(ESchemaUse.PRIMARY);
+                final DbConnection conn = primary.checkOutConnection();
+                final Cache cache = new Cache(profile, conn);
+                this.caches.add(cache);
+            } catch (final SQLException ex) {
+                Log.warning("Failed to connect to ", ex);
+            }
+        }
 
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -64,9 +83,9 @@ final class MainWindow extends JFrame {
 
         setContentPane(this.content);
 
-        this.schemaPanel = new SchemaPanel();
-        this.tablePanel = new TablePanel();
-        this.viewPanel = new ViewPanel();
+        this.schemaPanel = new SchemaPanel(this.caches);
+        this.tablePanel = new TablePanel(this.caches);
+        this.viewPanel = new ViewPanel(this.caches);
     }
 
     /**
@@ -78,24 +97,6 @@ final class MainWindow extends JFrame {
         this.objectTree = new ObjectTreePanel(this);
         this.objectTree.init();
         this.content.add(this.objectTree, StackedBorderLayout.WEST);
-
-        refresh();
-    }
-
-    /**
-     * Refreshes the display, querying the database for the current set of schemas, tables, views, etc.
-     */
-    void refresh() {
-
-        if (this.objectTree != null) {
-            try (final Connection conn = this.login.openConnection()) {
-                this.objectTree.refresh(conn);
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                final String[] msg = {"Unable to connect to PostgreSQL database:", ex.getMessage()};
-                JOptionPane.showMessageDialog(null, msg, "Import Database", JOptionPane.ERROR_MESSAGE);
-            }
-        }
     }
 
     /**
@@ -116,7 +117,7 @@ final class MainWindow extends JFrame {
      */
     void schemaSelected(final String schemaName) {
 
-        Log.info("Selected schema ", schemaName);
+//        Log.info("Selected schema ", schemaName);
 
         clearDisplay();
 
@@ -136,7 +137,7 @@ final class MainWindow extends JFrame {
      */
     void tableSelected(final String schemaName, final String tableName) {
 
-        Log.info("Selected table: ", tableName, " in schema ", schemaName);
+//        Log.info("Selected table: ", tableName, " in schema ", schemaName);
 
         clearDisplay();
 
@@ -156,7 +157,7 @@ final class MainWindow extends JFrame {
      */
     void viewSelected(final String schemaName, final String viewName) {
 
-        Log.info("Selected view: ", viewName, " in schema ", schemaName);
+//        Log.info("Selected view: ", viewName, " in schema ", schemaName);
 
         clearDisplay();
 

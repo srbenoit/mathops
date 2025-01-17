@@ -1,6 +1,6 @@
 package dev.mathops.app.teststation;
 
-import dev.mathops.app.AbstractInternalDialogBase;
+import dev.mathops.app.ui.AbstractInternalDialogBase;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 

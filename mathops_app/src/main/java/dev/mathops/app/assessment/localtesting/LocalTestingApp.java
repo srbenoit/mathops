@@ -1,7 +1,7 @@
 package dev.mathops.app.assessment.localtesting;
 
 import dev.mathops.app.ClientBase;
-import dev.mathops.app.DirectoryFilter;
+import dev.mathops.app.ui.DirectoryFilter;
 import dev.mathops.app.PleaseWait;
 import dev.mathops.app.exam.ExamContainerInt;
 import dev.mathops.app.exam.ExamPanel;

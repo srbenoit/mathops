@@ -176,6 +176,40 @@ public enum LogicUtils {
     }
 
     /**
+     * Returns the string needed to include a date in an SQL statement for PostgreSQL.
+     *
+     * @param dt the date
+     * @return the SQL string, in the form "DATE('12/31/2021')".
+     */
+    static String sqlPgDateValue(final LocalDate dt) {
+
+        final String result;
+
+        if (dt == null) {
+            result = "null";
+        } else {
+            final int yy = dt.getYear();
+            final int mm = dt.getMonthValue();
+            final int dd = dt.getDayOfMonth();
+
+            result = "'" + yy + "-" + padTo2(mm) + "-" + padTo2(dd) + "'";
+        }
+
+        return result;
+    }
+
+    /**
+     * Returns the string representation of an integer padded with a leading zero if needed to make it 2 characters.
+     *
+     * @param value the integer value
+     * @return the 2-character representation, like "01" or "95".
+     */
+    private static String padTo2(final int value) {
+
+        return value > 9 ? Integer.toString(value) : ("0" + value);
+    }
+
+    /**
      * Returns the string needed to include a date/time in an SQL statement.
      *
      * @param dtm the date/time
@@ -411,7 +445,6 @@ public enum LogicUtils {
     //
     // return result;
     // }
-
 
     /**
      * Validates a test student ID that begins with "99PL". There are only certain combinations of remaining digits that

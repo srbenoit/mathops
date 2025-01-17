@@ -1,7 +1,7 @@
 package dev.mathops.app.exam;
 
-import dev.mathops.app.GuiBuilderRunner;
-import dev.mathops.app.IGuiBuilder;
+import dev.mathops.app.ui.GuiBuilderRunner;
+import dev.mathops.app.ui.IGuiBuilder;
 import dev.mathops.assessment.exam.EExamSessionState;
 import dev.mathops.assessment.exam.ExamObj;
 import dev.mathops.assessment.exam.ExamSection;

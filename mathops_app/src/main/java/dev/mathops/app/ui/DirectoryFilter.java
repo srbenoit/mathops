@@ -1,4 +1,4 @@
-package dev.mathops.app;
+package dev.mathops.app.ui;
 
 import javax.swing.filechooser.FileFilter;
 import java.io.File;

@@ -1,6 +1,6 @@
 package dev.mathops.app.adm.instructor;
 
-import dev.mathops.app.JDateChooser;
+import dev.mathops.app.ui.JDateChooser;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;

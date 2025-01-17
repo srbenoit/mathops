@@ -12,6 +12,7 @@ import dev.mathops.text.parser.xml.XmlContent;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,8 +68,11 @@ public final class ContextMap {
     /** An empty array used when converting strings to arrays. */
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
-    /** An empty array used when converting strings to arrays. */
+    /** An empty array used when converting lists to arrays. */
     private static final ServerConfig[] EMPTY_SERVER_CFG_ARRAY = new ServerConfig[0];
+
+    /** An empty array used when converting lists to arrays. */
+    private static final DbProfile[] EMPTY_PROFILE_ARRAY = new DbProfile[0];
 
     /** Object on which to synchronize member access. */
     private final Object synch;
@@ -383,17 +387,18 @@ public final class ContextMap {
         }
     }
 
-//    /**
-//     * Gets the list of profile IDs in the context map.
-//     *
-//     * @return the array of profile IDs
-//     */
-//    public String[] getProfileIDs() {
-//
-//        synchronized (this.synch) {
-//            return this.profiles.keySet().toArray(EMPTY_STRING_ARRAY);
-//        }
-//    }
+    /**
+     * Gets the list of profile IDs in the context map.
+     *
+     * @return the array of profile IDs
+     */
+    public DbProfile[] getProfiles() {
+
+        synchronized (this.synch) {
+            final Collection<DbProfile> values = this.profiles.values();
+            return values.toArray(EMPTY_PROFILE_ARRAY);
+        }
+    }
 
 //    /**
 //     * Gets the profile with a particular ID from the context map.

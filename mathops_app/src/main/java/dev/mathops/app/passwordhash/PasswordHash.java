@@ -1,6 +1,6 @@
 package dev.mathops.app.passwordhash;
 
-import dev.mathops.app.IGuiBuilder;
+import dev.mathops.app.ui.IGuiBuilder;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.HexEncoder;
 import dev.mathops.commons.ui.ColorNames;
