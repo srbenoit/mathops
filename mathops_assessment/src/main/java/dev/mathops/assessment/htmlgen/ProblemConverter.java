@@ -34,7 +34,7 @@ public enum ProblemConverter {
         synchronized (problem) {
             switch (problem) {
                 case final ProblemMultipleChoiceTemplate problemMultipleChoiceTemplate ->
-                        populateMutipleChoice(problemMultipleChoiceTemplate, id);
+                        populateMultipleChoice(problemMultipleChoiceTemplate, id);
                 case final ProblemMultipleSelectionTemplate problemMultipleSelectionTemplate ->
                         populateMutipleSelection(problemMultipleSelectionTemplate, id);
                 case final ProblemNumericTemplate problemNumericTemplate -> populateNumeric(problemNumericTemplate, id);
@@ -72,7 +72,7 @@ public enum ProblemConverter {
      * @param id      a one-integer array that holds a value used to generate unique IDs for spans (element [0] is
      *                incremented each time a unique ID is called for)
      */
-    private static void populateMutipleChoice(final ProblemMultipleChoiceTemplate problem, final int[] id) {
+    private static void populateMultipleChoice(final ProblemMultipleChoiceTemplate problem, final int[] id) {
 
         final Deque<Style> styleStack = new LinkedList<>();
         styleStack.push(new Style(AbstractDocObjectTemplate.DEFAULT_BASE_FONT_SIZE, "black"));

@@ -76,8 +76,7 @@ public final class GeneratedPane extends JPanel implements AnswerListener, Input
 
         this.variables = new VariableValuesPanel(bg);
 
-        this.split =
-                new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.currentProblemPane, this.variables);
+        this.split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.currentProblemPane, this.variables);
 
         add(this.split, StackedBorderLayout.CENTER);
     }
@@ -100,8 +99,7 @@ public final class GeneratedPane extends JPanel implements AnswerListener, Input
      * @param answers    true to show answers
      * @param solutions  true to show solutions (ignored if 'answers' is false)
      */
-    public void realize(final AbstractProblemTemplate theProblem, final boolean answers,
-                        final boolean solutions) {
+    public void realize(final AbstractProblemTemplate theProblem, final boolean answers, final boolean solutions) {
 
         final Dimension mySize = getSize();
         final int problemWidth = (mySize.width << 2) / 5;

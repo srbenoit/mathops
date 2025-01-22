@@ -1,8 +1,19 @@
 package dev.mathops.app.assessment.problemauthor;
 
+import dev.mathops.assessment.EParserMode;
+import dev.mathops.assessment.htmlgen.ProblemConverter;
+import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
+import dev.mathops.assessment.problem.template.ProblemTemplateFactory;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.UIUtilities;
+import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.ParsingException;
+import dev.mathops.text.parser.xml.IElement;
+import dev.mathops.text.parser.xml.INode;
+import dev.mathops.text.parser.xml.NonemptyElement;
+import dev.mathops.text.parser.xml.XmlContent;
+import dev.mathops.text.parser.xml.XmlContentError;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -19,9 +30,11 @@ import javax.swing.WindowConstants;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
@@ -34,7 +47,11 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serial;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -50,8 +67,11 @@ final class MainWindow extends JFrame implements MouseListener, ActionListener {
     /** The prefix for action commands to close files. */
     private static final String CMD_CLOSE_PREFIX = "CLOSE:";
 
-    /** The action commands to refresh the files list. */
+    /** The action command to refresh the files list. */
     private static final String CMD_REFRESH = "REFRESH";
+
+    /** The action command to generate a collection of problems. */
+    private static final String CMD_GENERATE = "GENERATE";
 
     /** The library directory. */
     private final File libraryDir;
@@ -94,7 +114,7 @@ final class MainWindow extends JFrame implements MouseListener, ActionListener {
         this.libraryTreeModel = new DefaultTreeModel(root);
 
         this.libraryTree = new JTree(this.libraryTreeModel);
-        this.libraryTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        this.libraryTree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
         this.libraryTree.setCellRenderer(new MyTreeCellRenderer());
         this.libraryTree.setBorder(BorderFactory.createEtchedBorder());
         this.libraryTree.setRootVisible(false);
@@ -107,10 +127,17 @@ final class MainWindow extends JFrame implements MouseListener, ActionListener {
         west.add(treeScroll, BorderLayout.CENTER);
 
         final JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+
         final JButton refresh = new JButton("Refresh");
         refresh.setActionCommand(CMD_REFRESH);
         refresh.addActionListener(this);
         buttons.add(refresh);
+
+        final JButton generate = new JButton("Generate");
+        generate.setActionCommand(CMD_GENERATE);
+        generate.addActionListener(this);
+        buttons.add(generate);
+
         west.add(buttons, BorderLayout.PAGE_END);
 
         this.tabs = new JTabbedPane();
@@ -168,7 +195,7 @@ final class MainWindow extends JFrame implements MouseListener, ActionListener {
                 final Object userObj = node.getUserObject();
 
                 if (userObj instanceof final File file && !file.isDirectory()
-                        && file.getName().toLowerCase(Locale.ROOT).endsWith(".xml")) {
+                    && file.getName().toLowerCase(Locale.ROOT).endsWith(".xml")) {
 
                     final FilePane existing = this.openFiles.get(file);
 
@@ -302,9 +329,218 @@ final class MainWindow extends JFrame implements MouseListener, ActionListener {
                 this.tabs.remove(index);
             }
         } else if (CMD_REFRESH.equals(cmd)) {
-
             final DefaultMutableTreeNode root = makeTreeNode(this.libraryDir);
             this.libraryTreeModel.setRoot(root);
+        } else if (CMD_GENERATE.equals(cmd)) {
+            doGenerate();
+        }
+    }
+
+    /**
+     * Handles a click on the "Generate" button.
+     */
+    private void doGenerate() {
+
+        final TreeSelectionModel model = this.libraryTree.getSelectionModel();
+        final int numSelected = model.getSelectionCount();
+
+        if (numSelected > 0) {
+            final List<File> files = new ArrayList<>(numSelected);
+            final TreePath[] paths = model.getSelectionPaths();
+
+            for (final TreePath path : paths) {
+                final Object last = path.getLastPathComponent();
+
+                if (last instanceof final DefaultMutableTreeNode node) {
+                    final Object userObj = node.getUserObject();
+
+                    if (userObj instanceof final File file && !file.isDirectory()) {
+                        final String name = file.getName().toLowerCase(Locale.ROOT);
+
+                        if (name.endsWith(".xml") || name.endsWith(".item")) {
+                            files.add(file);
+                        }
+                    }
+                }
+            }
+
+            if (!files.isEmpty()) {
+                Log.info("Generating " + files.size() + " problems...");
+                final HtmlBuilder htm = new HtmlBuilder(1000);
+
+                final String css1 = FileLoader.loadFileAsString(ProblemAuthor.class, "basestyle.css", true);
+
+                if (css1 != null) {
+                    htm.addln("<style>");
+                    htm.addln(css1);
+                    htm.addln("</style>");
+                }
+
+                final String css2 = FileLoader.loadFileAsString(ProblemAuthor.class, "style.css", true);
+
+                if (css2 != null) {
+                    htm.addln("<style>");
+                    htm.addln(css2);
+                    htm.addln("</style>");
+                }
+
+                htm.addln("<meta charset='utf-8'>");
+                htm.addln("<title>Problem Author</title>");
+                htm.addln("</head>");
+
+                htm.addln("<body style='background:white;padding:10px;'>");
+
+                htm.sDiv("page-wrapper");
+
+                for (final File problemFile : files) {
+                    generateProblem(problemFile, htm);
+                }
+
+                htm.eDiv(); // page-wrapper
+
+                htm.addln("</body>");
+                htm.addln("</html>");
+
+                try {
+                    final Path tempFile = Files.createTempFile("tempfiles", ".html");
+                    Files.writeString(tempFile, htm.toString());
+
+                    final File file1 = tempFile.toFile();
+                    Desktop.getDesktop().open(file1);
+                } catch (final IOException ex) {
+                    Log.warning(ex);
+                }
+            }
+        }
+    }
+
+    /**
+     * Generates a problem and adds its HTML representation to an {@code HtmlBuilder}.
+     *
+     * @param problemFile the file to load
+     * @param output      the {@code HtmlBuilder} to which to append
+     */
+    private void generateProblem(final File problemFile, final HtmlBuilder output) {
+
+        final String absolutePath = problemFile.getAbsolutePath();
+        final String fileContent = FileLoader.loadFileAsString(problemFile, true);
+
+        if (fileContent == null) {
+            output.addln("<p color='red'>ERROR: Unable to load file '", absolutePath, "'.</p>");
+        } else {
+            final String nameLC = problemFile.getName().toLowerCase(Locale.ROOT);
+            final boolean isXml = nameLC.endsWith(".xml") || nameLC.endsWith(".item");
+
+            if (isXml) {
+                if (fileContent.contains("</exam>")) {
+                    output.addln("<p color='red'>ERROR: '", absolutePath, "' appears to be an exam file.</p>");
+                } else if (fileContent.contains("</problem>")
+                           || fileContent.contains("</problem-multiple-choice>")
+                           || fileContent.contains("</problem-multiple-selection")
+                           || fileContent.contains("</problem-numeric>")
+                           || fileContent.contains("</problem-embedded-input>")
+                           || fileContent.contains("</problem-auto-correct>")
+                           || fileContent.contains("</problem-dummy>")) {
+                    try {
+                        final XmlContent source = new XmlContent(fileContent, false, false);
+
+                        final AbstractProblemTemplate problem = ProblemTemplateFactory.load(source, EParserMode.NORMAL);
+
+                        problem.realize(problem.evalContext);
+
+                        final List<XmlContentError> allErrors = gatherErrors(source);
+                        final IElement top = source.getTopLevel();
+                        accumulateErrors(top, allErrors);
+
+                        if (!allErrors.isEmpty()) {
+                            output.addln("<div color='red'>Errors in parsed pre-realize XML:</div>");
+                            output.addln("<ul>");
+                            for (final XmlContentError error : allErrors) {
+                                output.addln("<li>" + error + "</li>");
+                            }
+                            output.addln("</ul>");
+                        }
+
+                        // Add the problem, answer, and solution
+
+                        final int[] id = {1};
+                        ProblemConverter.populateProblemHtml(problem, id);
+
+                        output.addln("<hr/>");
+                        output.sH(2).add(problem.id).eH(2);
+                        output.addln("<hr/>");
+                        output.addln(problem.questionHtml);
+                        if (problem.answerHtml != null) {
+                            output.addln("<hr/>");
+                            output.addln(problem.answerHtml);
+                        }
+                        if (problem.solutionHtml != null) {
+                            output.addln("<hr/>");
+                            output.addln(problem.solutionHtml);
+                        }
+                        output.addln("<hr/>");
+
+                    } catch (final ParsingException ex) {
+                        final String msg = ex.getLocalizedMessage();
+                        output.addln("<p color='red'>ERROR: Unable to parse '", absolutePath, "': ", msg, ".</p>");
+                    }
+                } else {
+                    output.addln("<p color='red'>ERROR: '", absolutePath, "' does not appear to be an item file.</p>");
+                }
+            } else {
+                output.addln("<p color='red'>ERROR: '", absolutePath, "' does not appear to be an item file.</p>");
+            }
+        }
+    }
+
+    /**
+     * Gathers all errors from an {@code XmlContent} object.
+     *
+     * @param content the {@code XmlContent} object
+     * @return the list of all errors
+     */
+    private static List<XmlContentError> gatherErrors(final XmlContent content) {
+
+        final List<XmlContentError> allErrors = new ArrayList<>(10);
+        final List<XmlContentError> mainErrors = content.getErrors();
+        if (mainErrors != null) {
+            allErrors.addAll(mainErrors);
+        }
+
+        final IElement top = content.getTopLevel();
+        accumulateErrors(top, allErrors);
+
+        return allErrors;
+    }
+
+    /**
+     * Recursively accumulates errors from a node and its descendants.
+     *
+     * @param node   the node
+     * @param target the list to which to add accumulated errors
+     */
+    private static void accumulateErrors(final INode node, final List<? super XmlContentError> target) {
+
+        final List<XmlContentError> nodeErrors = node.getErrors();
+        if (nodeErrors != null && !nodeErrors.isEmpty()) {
+            if (node instanceof final IElement elem) {
+                final String tag = elem.getTagName();
+                final String prefix = "In <" + tag + ">: ";
+                for (final XmlContentError error : nodeErrors) {
+                    target.add(new XmlContentError(error.span, prefix + error.msg));
+                }
+            } else {
+                final String prefix = "In text: ";
+                for (final XmlContentError error : nodeErrors) {
+                    target.add(new XmlContentError(error.span, prefix + error.msg));
+                }
+            }
+        }
+
+        if (node instanceof final NonemptyElement elem) {
+            for (final INode child : elem.getChildrenAsList()) {
+                accumulateErrors(child, target);
+            }
         }
     }
 
@@ -334,7 +570,7 @@ final class MainWindow extends JFrame implements MouseListener, ActionListener {
          * @param expanded true if expanded
          * @param leaf     true if a leaf node
          * @param row      the row number
-         * @param hasFocus  true if this window has focus
+         * @param hasFocus true if this window has focus
          */
         @Override
         public Component getTreeCellRendererComponent(final JTree tree, final Object value, final boolean sel,
