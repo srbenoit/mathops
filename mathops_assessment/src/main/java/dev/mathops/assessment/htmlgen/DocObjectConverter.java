@@ -18,6 +18,8 @@ import dev.mathops.assessment.document.template.DocHSpace;
 import dev.mathops.assessment.document.template.DocImage;
 import dev.mathops.assessment.document.template.DocInputCheckbox;
 import dev.mathops.assessment.document.template.DocInputDoubleField;
+import dev.mathops.assessment.document.template.DocInputDropdown;
+import dev.mathops.assessment.document.template.DocInputDropdownOption;
 import dev.mathops.assessment.document.template.DocInputLongField;
 import dev.mathops.assessment.document.template.DocInputRadioButton;
 import dev.mathops.assessment.document.template.DocInputStringField;
@@ -41,6 +43,7 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.ColorNames;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.builder.SimpleBuilder;
+import dev.mathops.text.parser.xml.XmlEscaper;
 
 import java.awt.Color;
 import java.awt.Insets;
@@ -272,7 +275,7 @@ enum DocObjectConverter {
         htm.addln("<table style='font-size:inherit; font-family:inherit; display:inline-table; ",
                 "vertical-align:middle; position:relative; top:-0.1em;'>");
         htm.sTr().add("<td style='font-size:inherit;font-family:inherit; text-align:center;",
-                "border-bottom:1px solid " , colorName, "; padding:0 .2em .2em .2em; line-height:1em;'>");
+                "border-bottom:1px solid ", colorName, "; padding:0 .2em .2em .2em; line-height:1em;'>");
         htm.addln("<span class='sr-only'> fraction whose numerator is </span>");
 
         final DocNonwrappingSpan numerator = obj.getNumerator();
@@ -974,9 +977,9 @@ enum DocObjectConverter {
                 }
 
                 if ((style & AbstractDocObjectTemplate.UNDERLINE) == AbstractDocObjectTemplate.UNDERLINE
-                        || (style & AbstractDocObjectTemplate.OVERLINE) == AbstractDocObjectTemplate.OVERLINE
-                        || (style & AbstractDocObjectTemplate.STRIKETHROUGH)
-                        == AbstractDocObjectTemplate.STRIKETHROUGH) {
+                    || (style & AbstractDocObjectTemplate.OVERLINE) == AbstractDocObjectTemplate.OVERLINE
+                    || (style & AbstractDocObjectTemplate.STRIKETHROUGH)
+                       == AbstractDocObjectTemplate.STRIKETHROUGH) {
                     htm.add("text-decoration:");
 
                     if ((style & AbstractDocObjectTemplate.UNDERLINE) == AbstractDocObjectTemplate.UNDERLINE) {
@@ -2469,6 +2472,106 @@ enum DocObjectConverter {
     }
 
     /**
+     * Given a realized {@code DocInputDropdown}, generates the corresponding HTML.
+     *
+     * @param obj        the {@code DocInputDropdown}
+     * @param styleStack the font size stack - top Integer is current HTML font size
+     * @param enabled    true to disable inputs (used when showing answers or solutions)
+     * @param context    the evaluation context
+     * @return the generated HTML
+     */
+    private static String convertDocInputDropdown(final DocInputDropdown obj,
+                                                  final Deque<Style> styleStack, final boolean enabled,
+                                                  final EvalContext context) {
+
+        final HtmlBuilder htm = new HtmlBuilder(1000);
+
+        final Style current = styleStack.peek();
+        final float objFontSize = (float) obj.getFontSize();
+        final String objColorName = obj.getColorName();
+
+        final boolean updateSize = current != null && Math.abs(objFontSize - current.getSize()) > 0.01f;
+        final boolean updateColor = current != null && !objColorName.equals(current.getColorName());
+
+        if (updateSize || updateColor) {
+            final Style newStyle = new Style(objFontSize, objColorName);
+            styleStack.push(newStyle);
+            htm.add("<span style='");
+            if (updateSize) {
+                htm.add("font-size:" + objFontSize + "px;");
+            }
+            if (updateColor) {
+                final String colorString = getColorString(objColorName);
+                htm.add("color:", colorString, ";");
+            }
+            htm.add("'>");
+        }
+
+        // An input may set its enabled status based on a radio button.
+        final String data = null;
+        boolean actualDisabled = !enabled;
+
+        if (enabled) {
+            final String varName = obj.getEnabledVarName();
+            final Object varValue = obj.getEnabledVarValue();
+
+            if (varName == null || varValue == null) {
+                // An input may set its enabled status based on a radio button.
+                final Formula formula = obj.getEnabledFormula();
+
+                if (formula != null) {
+                    final String formstr = formula.toString();
+                    if (formstr.startsWith("{which}=")) {
+                    } else if (formstr.startsWith("{WHICH}=")) {
+                    } else if (formstr.startsWith("{which2}=")) {
+                    }
+
+                    final Object result = formula.evaluate(context);
+                    if (!Boolean.TRUE.equals(result)) {
+                        actualDisabled = true;
+                    }
+                }
+            } else {
+                final Object result = context.getVariable(varName);
+                if (!varValue.equals(result)) {
+                    actualDisabled = true;
+                }
+            }
+        }
+
+        final String name = obj.getName();
+
+        final Style style = styleStack.peek();
+        final float floatFontSize = style == null ? 16.0f : style.getSize();
+        final String fontSizeStr = Float.toString(floatFontSize);
+
+        htm.add("<select style='font-size:", fontSizeStr, "px;'");
+
+        if (actualDisabled) {
+            htm.add(" disabled");
+        }
+
+        htm.add(" id='INP_", name, "' name='INP_", name, "'>");
+
+        final int numOptions = obj.getNumOptions();
+        for (int i = 0; i < numOptions; i++) {
+            final DocInputDropdownOption option = obj.getOption(i);
+            final Long optionValue = option.getValue();
+            final String optionText = option.getText();
+            final String escaped = XmlEscaper.escape(optionText);
+            htm.add("<option value='", optionValue, "'>", escaped, "</option>");
+        }
+        htm.add("</select>");
+
+        if (updateSize || updateColor) {
+            htm.eSpan();
+            styleStack.pop();
+        }
+
+        return htm.toString();
+    }
+
+    /**
      * Given a realized {@code DocNonwrappingSpan}, generates the corresponding HTML.
      *
      * @param column     the owning column
@@ -2561,7 +2664,7 @@ enum DocObjectConverter {
             htm.addln("  function " + name + "() {");
             htm.addln("    if (document.activeElement) {");
             htm.addln("      document.activeElement.value = document.activeElement.value + \""
-                    + key.symbol.character + "\";");
+                      + key.symbol.character + "\";");
             htm.addln("    }");
             htm.addln("  }");
             htm.addln("</script>");
@@ -2695,6 +2798,8 @@ enum DocObjectConverter {
                     htm.add(convertDocInputRadioButton(column, radio, styles, enabled, context));
             case final DocInputCheckbox checkbox ->
                     htm.add(convertDocInputCheckbox(column, checkbox, styles, enabled, context));
+            case final DocInputDropdown dropdown ->
+                    htm.add(convertDocInputDropdown(dropdown, styles, enabled, context));
             case final DocNonwrappingSpan span ->
                     htm.add(convertDocNonwrappingSpan(column, span, styles, enabled, id, context, inMath));
             case final DocSimpleSpan span ->

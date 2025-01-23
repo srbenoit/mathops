@@ -533,7 +533,7 @@ public final class DocColumn extends AbstractDocContainer {
                 }
 
                 if (searching) {
-                    // Log.warning(" Found no input matching any provided values.");
+                     Log.warning(" Found no input matching any provided values.");
 
                     // set an empty value to trigger use of default value
                     in.setValue("{" + in.getName() + "}=");

@@ -12,6 +12,7 @@ import dev.mathops.assessment.variable.AbstractVariable;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.assessment.variable.VariableInputReal;
 import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.ColorNames;
 import dev.mathops.font.BundledFontManager;
 import dev.mathops.text.builder.HtmlBuilder;
@@ -481,6 +482,9 @@ public enum DocFactory {
     private static final String CHECKBOX = "checkbox";
 
     /** A commonly-used string. */
+    private static final String DROPDOWN = "dropdown";
+
+    /** A commonly-used string. */
     private static final String TEXT_VALUE = "textvalue";
 
     /** A commonly-used string. */
@@ -536,6 +540,9 @@ public enum DocFactory {
 
     /** A commonly-used string. */
     private static final String SYMBOLS = "symbols";
+
+    /** A commonly-used string. */
+    private static final String OPTION = "option";
 
     /**
      * Generate a {@code DocColumn} object from an XML element that contains a document tag (with an optional ID), and a
@@ -4170,6 +4177,7 @@ public enum DocFactory {
                 case STRING -> valid = extractInputString(evalContext, name, elem, container, mode);
                 case RADIO_BUTTON -> valid = extractInputRadioButton(evalContext, name, elem, container, mode);
                 case CHECKBOX -> valid = extractInputCheckbox(evalContext, name, elem, container, mode);
+                case DROPDOWN -> valid = extractInputDropdown(evalContext, name, elem, container, mode);
                 default -> {
                     elem.logError("Unrecognized type of input: " + type);
                     valid = false;
@@ -4767,6 +4775,146 @@ public enum DocFactory {
         } catch (final NumberFormatException e) {
             elem.logError("Invalid checkbox value.");
             valid = false;
+        }
+
+        return valid;
+    }
+
+    /**
+     * Generate a {@code DocInputDropdown} object from XML source. Any errors encountered while generating the input
+     * object will be reflected in the source file's error context.
+     *
+     * @param evalContext the evaluation context
+     * @param name        the input name
+     * @param elem        the element
+     * @param container   the span to which to add this input
+     * @param mode        the parser mode
+     * @return true if loading successful; false otherwise
+     */
+    private static boolean extractInputDropdown(final EvalContext evalContext, final String name,
+                                                final NonemptyElement elem, final AbstractDocSpanBase container,
+                                                final EParserMode mode) {
+
+        boolean valid = true;
+
+        final String value = elem.getStringAttr(VALUE);
+        final String defaultStr = elem.getStringAttr(DEFAULT);
+        final String enabledVarNameStr = elem.getStringAttr(ENABLED_VAR_NAME);
+        final String enabledVarValueStr = elem.getStringAttr(ENABLED_VAR_VALUE);
+
+        final DocInputDropdown input = new DocInputDropdown(name);
+
+        Formula enabledF = null;
+
+        for (final INode child : elem.getChildrenAsList()) {
+            if (child instanceof final NonemptyElement nonempty) {
+                final String childTag = nonempty.getTagName();
+
+                if (ENABLED.equalsIgnoreCase(childTag)) {
+                    if (mode == EParserMode.NORMAL) {
+                        elem.logError("Deprecated 'enabled' formula on input");
+                    }
+                    enabledF = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
+                    if (enabledF == null) {
+                        elem.logError("Invalid 'enabled' formula.");
+                        valid = false;
+                    }
+                } else {
+                    elem.logError("The " + childTag + " tag is not valid within input.");
+                    valid = false;
+                }
+            } else if (child instanceof final EmptyElement empty) {
+                final String childTag = empty.getTagName();
+                if (OPTION.equals(childTag)) {
+                    final String optionText = empty.getStringAttr("text");
+
+                    if (optionText == null) {
+                        elem.logError("Option within dropdown input has no text");
+                        valid = false;
+                    } else {
+                        final String optionValue = empty.getStringAttr("value");
+                        if (optionValue == null) {
+                            elem.logError("Option within dropdown input has no value");
+                            valid = false;
+                        } else {
+                            try {
+                                final Long parsedValue = Long.valueOf(optionValue);
+                                final DocInputDropdownOption option = new DocInputDropdownOption(optionText,
+                                        parsedValue);
+                                Log.info("Dropdown adding option ", optionText);
+                                input.addOption(option);
+                            } catch (final NumberFormatException e) {
+                                elem.logError("Unable to parse option value within dropdown input");
+                                valid = false;
+                            }
+                        }
+                    }
+                } else {
+                    elem.logError("The " + childTag + " tag is not valid within input.");
+                    valid = false;
+                }
+            } else if ((!(child instanceof CData) && !(child instanceof Comment))) {
+                elem.logError("Found " + child.getClass().getSimpleName() + " in Input.");
+                valid = false;
+            }
+        }
+
+        if (input.getNumOptions() == 0) {
+            elem.logError("Dropdown input has no options.");
+            valid = false;
+        } else {
+            input.setEnabledFormula(enabledF);
+        }
+
+        if (defaultStr != null) {
+            try {
+                input.defaultValue = Long.valueOf(defaultStr);
+            } catch (final NumberFormatException ex) {
+                elem.logError("Invalid 'default' attribute value");
+                valid = false;
+            }
+        }
+
+        if (value != null) {
+            try {
+                final Long longValue = Long.valueOf(value);
+                input.setValue(longValue);
+            } catch (final NumberFormatException ex) {
+                elem.logError("Invalid 'value' attribute value");
+                valid = false;
+            }
+        }
+
+        if (enabledVarNameStr != null) {
+            if (enabledVarValueStr == null) {
+                elem.logError("'enabled-var-name' present but 'enabled-var-value' absent");
+                valid = false;
+            } else {
+                input.setEnabledVarName(enabledVarNameStr);
+
+                if (TRUE.equalsIgnoreCase(enabledVarValueStr)) {
+                    input.setEnabledVarValue(Boolean.TRUE);
+                } else if (FALSE.equalsIgnoreCase(enabledVarValueStr)) {
+                    input.setEnabledVarValue(Boolean.FALSE);
+                } else {
+                    try {
+                        final Long varValue = Long.valueOf(enabledVarValueStr);
+                        input.setEnabledVarValue(varValue);
+                    } catch (final NumberFormatException ex) {
+                        elem.logError("Invalid 'enabled-var-value' attribute value");
+                        valid = false;
+                    }
+                }
+            }
+        } else if (enabledVarValueStr != null) {
+            elem.logError("'enabled-var-value' present but 'enabled-var-name' absent");
+            valid = false;
+        }
+
+        valid = valid && extractFormattable(elem, input);
+
+        if (valid) {
+            container.add(input);
         }
 
         return valid;

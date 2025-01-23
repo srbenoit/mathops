@@ -24,7 +24,7 @@ import java.util.Set;
 public abstract class AbstractDocInput extends AbstractDocContainer {
 
     // FIXME: This class must inherit from AbstractDocContainer so it gets the UI events,
-    // maybe make the UI event handling an interface
+    //  maybe make the UI event handling an interface
 
     /** A background color to use for disabled fields. */
     static final Color DISABLED_BG_COLOR;
@@ -362,7 +362,7 @@ public abstract class AbstractDocInput extends AbstractDocContainer {
 
                 final Object varValue = variable.getValue();
                 if (!value.equals(varValue)) {
-//                    Log.info("Storing value '", value, "' in EvalContext variable '", var.name, "'");
+//                    Log.info("Storing value '", value, "' in EvalContext variable '", variable.name, "'");
                     variable.setValue(value);
                 }
             } else if (variable.getValue() != null) {
