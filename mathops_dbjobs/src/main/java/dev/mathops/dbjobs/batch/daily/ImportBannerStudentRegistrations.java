@@ -847,8 +847,8 @@ public final class ImportBannerStudentRegistrations {
 
             // For each Banner registration, match a DB registration - if DB has none, add one;
             // otherwise update DB registration if needed
-            for (final RawStcourse odsReg : entry.getValue()) {
-                matchCourse(cache, active, odsReg, stuDbRegs, stuHolds, incompletes, report);
+            for (final RawStcourse bannerReg : entry.getValue()) {
+                matchCourse(cache, active, bannerReg, stuDbRegs, stuHolds, incompletes, report);
             }
 
             for (final RawStcourse dropped : stuDbRegs) {
@@ -895,7 +895,7 @@ public final class ImportBannerStudentRegistrations {
      *
      * @param cache       the data cache
      * @param active      the active term
-     * @param odsReg      the Banner course registration record
+     * @param bannerReg   the Banner course registration record
      * @param stuDbRegs   the list of all course registrations from our database that have not already been matched
      * @param stuHolds    the list of holds on the student account
      * @param incompletes incompletes from the current database
@@ -903,11 +903,11 @@ public final class ImportBannerStudentRegistrations {
      * @throws SQLException if there is an error querying
      */
     private static void matchCourse(final Cache cache, final TermRec active,
-                                    final RawStcourse odsReg, final Collection<RawStcourse> stuDbRegs,
+                                    final RawStcourse bannerReg, final Collection<RawStcourse> stuDbRegs,
                                     final Iterable<RawAdminHold> stuHolds, final Iterable<RawStcourse> incompletes,
                                     final Collection<? super String> report) throws SQLException {
 
-        final String stuId = odsReg.stuId;
+        final String stuId = bannerReg.stuId;
 
         final List<RawDiscipline> allDiscipline = RawDisciplineLogic.queryByStudent(cache, stuId);
 
@@ -915,7 +915,7 @@ public final class ImportBannerStudentRegistrations {
         boolean addHold5 = false;
         boolean addHold4 = false;
         for (final RawDiscipline test : allDiscipline) {
-            if (odsReg.course.equals(test.course)) {
+            if (bannerReg.course.equals(test.course)) {
                 if (EDisciplineActionType.DEFERRED_F_GRADE.code.equals(test.actionType)) {
                     addHold5 = true;
                 } else if (EDisciplineActionType.CANT_REREGISTER.code.equals(test.actionType)) {
@@ -925,19 +925,19 @@ public final class ImportBannerStudentRegistrations {
         }
 
         if (addHold5) {
-            report.add("  Deferred F course registration - research " + odsReg.course + FOR + stuId);
+            report.add("  Deferred F course registration - research " + bannerReg.course + FOR + stuId);
             ensureHoldExists(cache, stuId, "05", stuHolds, report);
         }
 
         if (addHold4) {
-            report.add("  Can never re-register in " + odsReg.course + FOR + stuId);
+            report.add("  Can never re-register in " + bannerReg.course + FOR + stuId);
             ensureHoldExists(cache, stuId, "04", stuHolds, report);
         }
 
         // See if there is an existing record
         RawStcourse existing = null;
         for (final RawStcourse reg : stuDbRegs) {
-            if (reg.course.equals(odsReg.course)) {
+            if (reg.course.equals(bannerReg.course)) {
                 existing = reg;
                 break;
             }
@@ -945,7 +945,7 @@ public final class ImportBannerStudentRegistrations {
 
         if (existing == null) {
             // Need to add the registration
-            addRegistration(cache, active, odsReg, report);
+            addRegistration(cache, active, bannerReg, report);
         } else {
             stuDbRegs.remove(existing);
         }
@@ -953,47 +953,49 @@ public final class ImportBannerStudentRegistrations {
         // See if there is also an Incomplete for this course in this term
         for (final RawStcourse test : incompletes) {
 
-            if (test.stuId.equals(odsReg.stuId) && test.course.equals(odsReg.course)) {
+            if (test.stuId.equals(bannerReg.stuId) && test.course.equals(bannerReg.course)) {
 
-                final RawDupRegistr dup = new RawDupRegistr(odsReg);
+                final RawDupRegistr dup = new RawDupRegistr(bannerReg);
                 if (!DEBUG) {
                     RawDupRegistrLogic.insert(cache, dup);
                 }
 
-                report.add("  *** DUPLICATE loaded into DUP_REGISTR " + odsReg.course + SECTION + odsReg.sect + FOR
-                           + odsReg.stuId);
+                report.add(
+                        "  *** DUPLICATE loaded into DUP_REGISTR " + bannerReg.course + SECTION + bannerReg.sect + FOR
+                        + bannerReg.stuId);
                 break;
             }
         }
 
         if (existing != null) {
-            final RawCsection odsCsect = cache.getSystemData().getCourseSection(odsReg.course, odsReg.sect,
+            final RawCsection odsCsect = cache.getSystemData().getCourseSection(bannerReg.course, bannerReg.sect,
                     active.term);
 
             if (odsCsect == null) {
-                report.add("  *** ERROR: STCOURSE section " + odsReg.sect + " not in CSECTION for " + odsReg.course
-                           + " ID: " + odsReg.stuId);
-            } else if (odsReg.sect.equals(existing.sect)) {
+                report.add(
+                        "  *** ERROR: STCOURSE section " + bannerReg.sect + " not in CSECTION for " + bannerReg.course
+                        + " ID: " + bannerReg.stuId);
+            } else if (bannerReg.sect.equals(existing.sect)) {
 
                 if (!DEBUG) {
-                    if (odsReg.gradingOption != null && !odsReg.gradingOption.equals(existing.gradingOption)) {
+                    if (bannerReg.gradingOption != null && !bannerReg.gradingOption.equals(existing.gradingOption)) {
 
                         report.add("  Updating grading option from " + existing.gradingOption + " to "
-                                   + odsReg.gradingOption + FOR + odsReg.course + SECTION + odsReg.sect + ": "
-                                   + odsReg.stuId);
+                                   + bannerReg.gradingOption + FOR + bannerReg.course + SECTION + bannerReg.sect + ": "
+                                   + bannerReg.stuId);
 
                         if (RawStcourseLogic.updateGradingOption(cache, existing.stuId, existing.course, existing.sect,
-                                existing.termKey, odsReg.gradingOption)) {
+                                existing.termKey, bannerReg.gradingOption)) {
 
-                            existing.gradingOption = odsReg.gradingOption;
+                            existing.gradingOption = bannerReg.gradingOption;
                         }
                     }
 
                     if (odsCsect.instrnType != null && !odsCsect.instrnType.equals(existing.instrnType)) {
 
                         report.add("  Updating instruction type from " + existing.instrnType + " to "
-                                   + odsCsect.instrnType + FOR + odsReg.course + SECTION + odsReg.sect + ": "
-                                   + odsReg.stuId);
+                                   + odsCsect.instrnType + FOR + bannerReg.course + SECTION + bannerReg.sect + ": "
+                                   + bannerReg.stuId);
 
                         if (RawStcourseLogic.updateInstructionType(cache, existing.stuId, existing.course,
                                 existing.sect, existing.termKey, odsCsect.instrnType)) {
@@ -1016,8 +1018,9 @@ public final class ImportBannerStudentRegistrations {
             } else {
                 // Registration is changing sections
 
-                report.add("SECTION CHANGE for ID: " + odsReg.stuId + " in " + odsReg.course + " from " + existing.sect
-                           + " to " + odsReg.sect);
+                report.add(
+                        "SECTION CHANGE for ID: " + bannerReg.stuId + " in " + bannerReg.course + " from " + existing.sect
+                        + " to " + bannerReg.sect);
 
                 // Mark old record as "dropped"
 
@@ -1029,7 +1032,7 @@ public final class ImportBannerStudentRegistrations {
 
                 // Create new record (update existing record to new section and insert)
 
-                existing.sect = odsReg.sect;
+                existing.sect = bannerReg.sect;
                 existing.openStatus = null;
                 existing.finalClassRoll = "Y";
                 existing.lastClassRollDt = LocalDate.now();
@@ -1037,9 +1040,9 @@ public final class ImportBannerStudentRegistrations {
                 if (!DEBUG) {
                     RawStcourseLogic.insert(cache, existing);
 
-                    final List<RawStcourse> regs = RawStcourseLogic.getActiveForStudent(cache, odsReg.stuId,
+                    final List<RawStcourse> regs = RawStcourseLogic.getActiveForStudent(cache, bannerReg.stuId,
                             active.term);
-                    PaceTrackLogic.updateStudentTerm(cache, odsReg.stuId, regs);
+                    PaceTrackLogic.updateStudentTerm(cache, bannerReg.stuId, regs);
                 }
             }
         }

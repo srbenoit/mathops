@@ -747,14 +747,14 @@ final class RectangleShapeTemplate {
 
                 final double p2X = (x2 == EAttribute.WIDTH) ? p1X + x2Dbl : (x2 == EAttribute.X2) ? x2Dbl :
                         (x2 == EAttribute.GX2) ? coordinateSystems.graphXToPixelX(x2Dbl) :
-                                p1X + coordinateSystems.graphWidthToPixelWidth(x2Dbl);
+                                p1X + Math.abs(coordinateSystems.graphWidthToPixelWidth(x2Dbl));
 
                 final double p1Y = (y1 == EAttribute.Y || y1 == EAttribute.Y1) ? y1Dbl :
                         coordinateSystems.graphYToPixelY(y1Dbl);
 
                 final double p2Y = (y2 == EAttribute.HEIGHT) ? p1Y + y2Dbl : (y2 == EAttribute.Y2) ? y2Dbl :
                         (y2 == EAttribute.GY2) ? coordinateSystems.graphYToPixelY(y2Dbl) :
-                                p1Y + coordinateSystems.graphHeightToPixelHeight(y2Dbl);
+                                p1Y + Math.abs(coordinateSystems.graphHeightToPixelHeight(y2Dbl));
 
                 result = new Rectangle2D.Double(p1X, p1Y, p2X - p1X, p2Y - p1Y);
             }
@@ -798,11 +798,11 @@ final class RectangleShapeTemplate {
 
                             final double pRx = (rx == EAttribute.RX) ? rxDbl : (rx == EAttribute.WIDTH) ? rxDbl * 0.5 :
                                     (rx == EAttribute.GRX) ? coordinateSystems.graphXToPixelX(rxDbl) :
-                                            coordinateSystems.graphWidthToPixelWidth(rxDbl);
+                                            Math.abs(coordinateSystems.graphWidthToPixelWidth(rxDbl));
 
                             final double pRy = (ry == EAttribute.RY) ? ryDbl : (ry == EAttribute.HEIGHT) ? ryDbl * 0.5 :
                                     (ry == EAttribute.GRY) ? coordinateSystems.graphXToPixelX(ryDbl) :
-                                            coordinateSystems.graphHeightToPixelHeight(ryDbl);
+                                            Math.abs(coordinateSystems.graphHeightToPixelHeight(ryDbl));
 
                             result = new Rectangle2D.Double(centerX - pRx, centerY - pRy, pRx * 2.0, pRy * 2.0);
                         }
@@ -826,14 +826,14 @@ final class RectangleShapeTemplate {
                                     pRx = rDbl;
                                     pRy = rDbl;
                                 } else if (r == EAttribute.GR) {
-                                    pRx = coordinateSystems.graphWidthToPixelWidth(rDbl);
-                                    pRy = coordinateSystems.graphHeightToPixelHeight(rDbl);
+                                    pRx = Math.abs(coordinateSystems.graphWidthToPixelWidth(rDbl));
+                                    pRy = Math.abs(coordinateSystems.graphHeightToPixelHeight(rDbl));
                                 } else if (r == EAttribute.WIDTH || r == EAttribute.HEIGHT) {
                                     pRx = rDbl * 0.5;
                                     pRy = pRx;
                                 } else {
-                                    pRx = coordinateSystems.graphWidthToPixelWidth(rDbl) * 0.5;
-                                    pRy = coordinateSystems.graphHeightToPixelHeight(rDbl) * 0.5;
+                                    pRx = Math.abs(coordinateSystems.graphWidthToPixelWidth(rDbl) * 0.5);
+                                    pRy = Math.abs(coordinateSystems.graphHeightToPixelHeight(rDbl) * 0.5);
                                 }
 
                                 result = new Rectangle2D.Double(centerX - pRx, centerY - pRy, pRx * 2.0, pRy * 2.0);

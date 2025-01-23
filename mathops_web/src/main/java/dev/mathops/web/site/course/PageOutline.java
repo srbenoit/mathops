@@ -382,8 +382,6 @@ enum PageOutline {
 
         final boolean isPractice = !"course".equals(mode);
 
-        boolean result;
-
         final SystemData systemData = cache.getSystemData();
         final TermRec activeTerm = systemData.getActiveTerm();
         final RawCourse course = systemData.getCourse(courseId);

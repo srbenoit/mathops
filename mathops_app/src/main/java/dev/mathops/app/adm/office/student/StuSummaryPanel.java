@@ -34,7 +34,6 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -949,16 +948,17 @@ public final class StuSummaryPanel extends AdmPanelBase {
             constraints.gridx = 25;
             grid.add(makeStepStatus(getExamStatus(data, reg, 5, RawStexam.FINAL_EXAM), 3), constraints);
 
-            int totalPoints;
+            int totalPoints = 0;
 
             constraints.gridx = 26;
             try {
                 final CourseStatus status = CourseLogic.computeStatus(this.cache, reg);
                 final CourseStatus.LegacyCourseStatus legacyStatus = status.legacyStatus;
-                totalPoints = legacyStatus.totalScore;
+                if (legacyStatus != null) {
+                    totalPoints = legacyStatus.totalScore;
+                }
             } catch (final SQLException ex) {
                 Log.warning(ex);
-                totalPoints = 0;
             }
 
             final StepStatus totalStatus = new StepStatus(ECourseStepStatus.TOTAL_SCORE, totalPoints);

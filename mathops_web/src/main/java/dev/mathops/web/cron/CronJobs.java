@@ -1,7 +1,5 @@
 package dev.mathops.web.cron;
 
-import dev.mathops.dbjobs.batch.BulkUpdateMPLTestScores;
-import dev.mathops.dbjobs.batch.BulkUpdateStudentInformation;
 import dev.mathops.dbjobs.batch.daily.AuditBannerTestScores;
 import dev.mathops.dbjobs.batch.daily.CheckStudentTerm;
 import dev.mathops.dbjobs.batch.daily.CleanPending;
@@ -14,8 +12,6 @@ import dev.mathops.dbjobs.batch.daily.ImportOdsTransferCredit;
 import dev.mathops.dbjobs.batch.daily.PcCleanup;
 import dev.mathops.dbjobs.batch.daily.SendQueuedBannerTestScores;
 import dev.mathops.dbjobs.batch.daily.SetHolds;
-import dev.mathops.dbjobs.report.cron.PlacementReport;
-import dev.mathops.dbjobs.report.cron.PrecalcProgressReport;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -140,8 +136,8 @@ public final class CronJobs implements ICronJob {
         }
 
         if (now.isAfter(this.earlyMorning)) {
-            new BulkUpdateMPLTestScores().execute();
-            new BulkUpdateStudentInformation().execute();
+//            new BulkUpdateMPLTestScores().execute();
+//            new BulkUpdateStudentInformation().execute();
             new ImportOdsApplicants().execute();
             new ImportOdsTransferCredit().execute();
             new ImportOdsPastCourses().execute();

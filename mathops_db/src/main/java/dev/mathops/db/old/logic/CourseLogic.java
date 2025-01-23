@@ -211,14 +211,14 @@ public enum CourseLogic {
 
         if ("Y".equals(reg.iInProgress)) {
             final RawCsection csection = cache.getSystemData().getCourseSection(reg);
-            status = new CourseStatus(reg, csection, null);
 
             if ("Y".equals(reg.iCounted)) {
                 // Incomplete, counted in pace
-
                 final List<RawStcourse> paced = RawStcourseLogic.getPaced(cache, reg.stuId);
+                status = computeCurrentTermStatus(cache, reg, paced);
             } else {
                 // Incomplete, not counted in pace
+                status = new CourseStatus(reg, csection, null);
             }
         } else {
             final List<RawStcourse> paced = RawStcourseLogic.getPaced(cache, reg.stuId);
