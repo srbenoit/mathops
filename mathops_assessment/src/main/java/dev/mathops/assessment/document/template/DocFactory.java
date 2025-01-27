@@ -4841,7 +4841,6 @@ public enum DocFactory {
                                 final Long parsedValue = Long.valueOf(optionValue);
                                 final DocInputDropdownOption option = new DocInputDropdownOption(optionText,
                                         parsedValue);
-                                Log.info("Dropdown adding option ", optionText);
                                 input.addOption(option);
                             } catch (final NumberFormatException e) {
                                 elem.logError("Unable to parse option value within dropdown input");
