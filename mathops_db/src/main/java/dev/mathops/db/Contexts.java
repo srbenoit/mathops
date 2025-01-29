@@ -60,6 +60,9 @@ public enum Contexts {
     public static final String INSTRUCTION_PATH = "/instruction";
 
     /** A common path. */
+    public static final String CANVAS_PATH = "/canvas";
+
+    /** A common path. */
     public static final String TESTING_CENTER_PATH = "/testing-center";
 
     /** A common path. */

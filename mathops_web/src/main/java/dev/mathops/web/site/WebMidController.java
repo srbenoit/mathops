@@ -1,8 +1,8 @@
 package dev.mathops.web.site;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.installation.Installation;
+import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
@@ -17,6 +17,7 @@ import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.front.IMidController;
 import dev.mathops.web.site.admin.AdminRootSite;
 import dev.mathops.web.site.admin.AdminSite;
+import dev.mathops.web.site.canvas.CanvasSite;
 import dev.mathops.web.site.cfm.CfmSite;
 import dev.mathops.web.site.course.CourseSite;
 import dev.mathops.web.site.help.HelpSite;
@@ -148,6 +149,7 @@ public final class WebMidController implements IMidController {
             add(map, Contexts.PRECALC_HOST, Contexts.ROOT_PATH, PrecalcRootSite.class);
             add(map, Contexts.PRECALC_HOST, Contexts.INSTRUCTION_PATH, CourseSite.class);
             add(map, Contexts.PRECALC_HOST, Contexts.WELCOME_PATH, LandingSite.class);
+            add(map, Contexts.PRECALC_HOST, Contexts.CANVAS_PATH, CanvasSite.class);
         }
 
         if (webHosts.contains(Contexts.PLACEMENT_HOST)) {

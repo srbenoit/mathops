@@ -55,11 +55,9 @@ enum PageLTI {
         htm.addln(
                 "<blti:description>Library of Mathematics lessons to refresh skills.</blti:description>");
 
-        htm.addln("<blti:icon>https://", HOST,
-                "/images/bullet.png</blti:icon>");
+        htm.addln("<blti:icon>https://", HOST, "/images/bullet.png</blti:icon>");
 
-        htm.addln("<blti:secure_launch_url>https://", HOST,
-                "/lti/</blti:secure_launch_url>");
+        htm.addln("<blti:secure_launch_url>https://", HOST, "/lti/</blti:secure_launch_url>");
 
         htm.addln("<blti:extensions platform=\"canvas.instructure.com\">");
         htm.addln("<lticm:property name=\"tool_id\">CSU_MATH_refresher</lticm:property>");
@@ -171,8 +169,7 @@ enum PageLTI {
 
         //
 
-        // *** A button that appears in the content editor for an assignment, along with "Bold"
-        // and "Italic" or
+        // *** A button that appears in the content editor for an assignment, along with "Bold" and "Italic"
 
         // htm.addln("<lticm:options name=\"editor_button\">");
         // htm.addln("<lticm:property name=\"enabled\">true</lticm:property>");
@@ -185,8 +182,7 @@ enum PageLTI {
 
         //
 
-        // *** FILES MENU - this appears in the context menu for a selected file, along with
-        // "Download"
+        // *** FILES MENU - this appears in the context menu for a selected file, along with "Download"
 
         // htm.addln("<lticm:options name=\"file_menu\">");
         // htm.addln("<lticm:property name=\"enabled\">true</lticm:property>");
@@ -284,8 +280,7 @@ enum PageLTI {
         htm.addln("<lticm:options name=\"tool_configuration\">");
         htm.addln("<lticm:property name=\"enabled\">true</lticm:property>");
         htm.addln("<lticm:property name=\"text\">tool_configuration Text</lticm:property>");
-        htm.addln("<lticm:property name=\"url\">https://", HOST,
-                "/lti/tool_configuration.html</lticm:property>");
+        htm.addln("<lticm:property name=\"url\">https://", HOST, "/lti/tool_configuration.html</lticm:property>");
         htm.addln("</lticm:options>");
 
         //
@@ -311,10 +306,8 @@ enum PageLTI {
         // htm.addln("<lticm:options name=\"wiki_page_menu\">");
         // htm.addln("<lticm:property name=\"enabled\">true</lticm:property>");
         // htm.addln("<lticm:property name=\"text\">wiki_page_menu Text</lticm:property>");
-        // htm.addln("<lticm:property
-        // name=\"message_type\">ContentItemSelection</lticm:property>");
-        // htm.addln("<lticm:property name=\"url\">https://", HOST,
-        // "/lti/wiki_page_menu.html</lticm:property>");
+        // htm.addln("<lticm:property name=\"message_type\">ContentItemSelection</lticm:property>");
+        // htm.addln("<lticm:property name=\"url\">https://", HOST, "/lti/wiki_page_menu.html</lticm:property>");
         // htm.addln("</lticm:options>");
 
         //
