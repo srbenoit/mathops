@@ -58,7 +58,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
@@ -547,8 +546,7 @@ public final class WebMidController implements IMidController {
 
         htm.addln("</body>");
         Page.endPage(htm);
-        final String htmStr = htm.toString();
-        final byte[] htmBytes = htmStr.getBytes(StandardCharsets.UTF_8);
-        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htmBytes);
+
+        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm);
     }
 }

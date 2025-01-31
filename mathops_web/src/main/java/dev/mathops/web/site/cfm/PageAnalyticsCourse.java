@@ -9,7 +9,6 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 /**
@@ -74,6 +73,6 @@ enum PageAnalyticsCourse {
         PageUtilities.emitNavigationBar(htm);
 
         Page.endOrdinaryPage(cache, site, htm, true);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
     }
 }

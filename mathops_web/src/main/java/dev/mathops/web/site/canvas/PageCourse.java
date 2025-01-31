@@ -9,15 +9,12 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 /**
- * A page that presents the set of courses in which the student is enrolled, the date range in the current
- * semester that each course occupies, and all due dates associated with each course.  Students can then select a
- * course, which redirects to "course.html?course=ID".
+ * A page that presents the top-level view of a course.
  */
-enum PageHome {
+enum PageCourse {
     ;
 
     /**
@@ -41,20 +38,21 @@ enum PageHome {
                       final HttpServletResponse resp, final ImmutableSessionInfo session) throws IOException,
             SQLException {
 
-        final HtmlBuilder htm = new HtmlBuilder(2000);
-        final String siteTitle = site.getTitle();
-        Page.startOrdinaryPage(htm, siteTitle, null, true, Page.NO_BARS, null, false, true);
-
         final String selectedCourse = req.getParameter("course");
 
         if (selectedCourse == null) {
-            htm.addln("Home");
+            final String homePath = site.makePagePath("home.html", null);
+            resp.sendRedirect(homePath);
         } else {
-            htm.addln("Home (Course is ", selectedCourse, ")");
+            final HtmlBuilder htm = new HtmlBuilder(2000);
+            final String siteTitle = site.getTitle();
+            Page.startOrdinaryPage(htm, siteTitle, null, true, Page.NO_BARS, null, false, true);
+
+            htm.addln("Course page (Course is ", selectedCourse, ")");
+
+            Page.endOrdinaryPage(cache, site, htm, true);
+
+            AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm);
         }
-
-        Page.endOrdinaryPage(cache, site, htm, true);
-
-        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
     }
 }

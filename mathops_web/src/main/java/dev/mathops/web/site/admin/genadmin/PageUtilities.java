@@ -7,11 +7,10 @@ import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.admin.AdminSite;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 /**
@@ -64,7 +63,7 @@ enum PageUtilities {
         htm.addln("</ul>");
 
         Page.endOrdinaryPage(cache, site, htm, true);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
     }
 
     /**
@@ -81,12 +80,13 @@ enum PageUtilities {
         final HtmlBuilder htm = new HtmlBuilder(500);
         final String scheme = req.getScheme();
         final String host = req.getServerName();
-        final String port = Integer.toString(req.getServerPort());
+        final int serverPort = req.getServerPort();
+        final String port = Integer.toString(serverPort);
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
-        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://",
-                host, CoreConstants.COLON, port, site.siteProfile.path, "'>");
+        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.siteProfile.path,
+                "'>");
 
         htm.addln("  <information>");
         htm.addln("    <title>XML Authoring Tool</title>");
@@ -111,19 +111,18 @@ enum PageUtilities {
         htm.addln("    <property name='jnlp.packEnabled' value='true'/>");
         htm.addln("  </resources>");
 
-        htm.addln("  <application-desc ",
-                "main-class='com.javafx.main.NoJavaFXFallback' name='XmlAuthor'>");
+        htm.addln("  <application-desc main-class='com.javafx.main.NoJavaFXFallback' name='XmlAuthor'>");
         htm.addln("    <param name='requiredFXVersion' value='2.2+'/>");
         htm.addln("  </application-desc>");
         htm.addln("  <jfx:javafx-desc  width='0' height='0' ",
                 "main-class='edu.colostate.math.doc.author.XmlAuthor' name='XmlAuthor'/>");
         htm.addln("</jnlp>");
 
-        resp.setDateHeader("Expires", System.currentTimeMillis());
-        resp.setDateHeader("Last-Modified", System.currentTimeMillis());
+        final long millis = System.currentTimeMillis();
+        resp.setDateHeader("Expires", millis);
+        resp.setDateHeader("Last-Modified", millis);
 
-        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file",
-                htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file", htm);
     }
 
     /**
@@ -140,12 +139,13 @@ enum PageUtilities {
         final HtmlBuilder htm = new HtmlBuilder(500);
         final String scheme = req.getScheme();
         final String host = req.getServerName();
-        final String port = Integer.toString(req.getServerPort());
+        final int serverPort = req.getServerPort();
+        final String port = Integer.toString(serverPort);
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
-        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://",
-                host, CoreConstants.COLON, port, site.siteProfile.path, "'>");
+        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.siteProfile.path,
+                "'>");
 
         htm.addln("  <information>");
         htm.addln("    <title>Problem Authoring Tool</title>");
@@ -168,14 +168,13 @@ enum PageUtilities {
         htm.addln("    <property name='jnlp.packEnabled' value='true'/>");
         htm.addln("  </resources>");
 
-        htm.addln("  <application-desc ",
-                "main-class='edu.colostate.math.instruction.problem.ui.ProblemTester'>");
+        htm.addln("  <application-desc main-class='edu.colostate.math.instruction.problem.ui.ProblemTester'>");
         htm.addln("  </application-desc>");
         htm.addln("</jnlp>");
 
-        resp.setDateHeader("Expires", System.currentTimeMillis() - (long) (86400 * 1000 * 7));
-        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file",
-                htm.toString().getBytes(StandardCharsets.UTF_8));
+        final long millis = System.currentTimeMillis();
+        resp.setDateHeader("Expires", millis - (long) (86400 * 1000 * 7));
+        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file", htm);
     }
 
     /**
@@ -192,12 +191,13 @@ enum PageUtilities {
         final HtmlBuilder htm = new HtmlBuilder(500);
         final String scheme = req.getScheme();
         final String host = req.getServerName();
-        final String port = Integer.toString(req.getServerPort());
+        final int serverPort = req.getServerPort();
+        final String port = Integer.toString(serverPort);
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
-        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://",
-                host, CoreConstants.COLON, port, site.siteProfile.path, "'>");
+        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.siteProfile.path,
+                "'>");
 
         htm.addln("  <information>");
         htm.addln("    <title>Exam Testing Tool</title>");
@@ -220,14 +220,14 @@ enum PageUtilities {
         htm.addln("    <property name='jnlp.packEnabled' value='true'/>");
         htm.addln("  </resources>");
 
-        htm.addln("  <application-desc ",
-                "main-class='edu.colostate.math.app.localtesting.LocalTestingApp'>");
+        htm.addln("  <application-desc main-class='edu.colostate.math.app.localtesting.LocalTestingApp'>");
         htm.addln("  </application-desc>");
         htm.addln("</jnlp>");
 
-        resp.setDateHeader("Expires", System.currentTimeMillis() - (long) (86400 * 1000 * 7));
-        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file",
-                htm.toString().getBytes(StandardCharsets.UTF_8));
+        final long millis = System.currentTimeMillis();
+        resp.setDateHeader("Expires", millis - (long) (86400 * 1000 * 7));
+
+        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file", htm);
     }
 
     /**
@@ -244,12 +244,13 @@ enum PageUtilities {
         final HtmlBuilder htm = new HtmlBuilder(500);
         final String scheme = req.getScheme();
         final String host = req.getServerName();
-        final String port = Integer.toString(req.getServerPort());
+        final int serverPort = req.getServerPort();
+        final String port = Integer.toString(serverPort);
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
-        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://",
-                host, CoreConstants.COLON, port, site.siteProfile.path, "'>");
+        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.siteProfile.path,
+                "'>");
 
         htm.addln("  <information>");
         htm.addln("    <title>Exam Printing Tool</title>");
@@ -272,16 +273,15 @@ enum PageUtilities {
         htm.addln("    <property name='jnlp.packEnabled' value='true'/>");
         htm.addln("  </resources>");
 
-        htm.addln("  <application-desc ",
-                "main-class='edu.colostate.math.app.examprinter.ExamPrinterApp'>");
+        htm.addln("  <application-desc main-class='edu.colostate.math.app.examprinter.ExamPrinterApp'>");
         htm.addln("  </application-desc>");
         htm.addln("</jnlp>");
 
-        resp.setDateHeader("Expires", System.currentTimeMillis());
-        resp.setDateHeader("Last-Modified", System.currentTimeMillis());
+        final long millis = System.currentTimeMillis();
+        resp.setDateHeader("Expires", millis);
+        resp.setDateHeader("Last-Modified", millis);
 
-        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file",
-                htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file", htm);
     }
 
     /**
@@ -298,12 +298,13 @@ enum PageUtilities {
         final HtmlBuilder htm = new HtmlBuilder(500);
         final String scheme = req.getScheme();
         final String host = req.getServerName();
-        final String port = Integer.toString(req.getServerPort());
+        final int serverPort = req.getServerPort();
+        final String port = Integer.toString(serverPort);
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
-        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://",
-                host, CoreConstants.COLON, port, site.siteProfile.path, "'>");
+        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.siteProfile.path,
+                "'>");
 
         htm.addln("  <information>");
         htm.addln("    <title>Instructional Materials Testing Tool</title>");
@@ -332,11 +333,11 @@ enum PageUtilities {
         htm.addln("  </application-desc>");
         htm.addln("</jnlp>");
 
-        resp.setDateHeader("Expires", System.currentTimeMillis());
-        resp.setDateHeader("Last-Modified", System.currentTimeMillis());
+        final long millis = System.currentTimeMillis();
+        resp.setDateHeader("Expires", millis);
+        resp.setDateHeader("Last-Modified", millis);
 
-        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file",
-                htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file", htm);
     }
 
     /**
@@ -353,12 +354,13 @@ enum PageUtilities {
         final HtmlBuilder htm = new HtmlBuilder(500);
         final String scheme = req.getScheme();
         final String host = req.getServerName();
-        final String port = Integer.toString(req.getServerPort());
+        final int serverPort = req.getServerPort();
+        final String port = Integer.toString(serverPort);
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
-        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://",
-                host, CoreConstants.COLON, port, site.siteProfile.path, "'>");
+        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.siteProfile.path,
+                "'>");
 
         htm.addln("  <information>");
         htm.addln("    <title>Bundled Font Glyph Viewer</title>");
@@ -381,15 +383,15 @@ enum PageUtilities {
         htm.addln("  </resources>");
 
         htm.addln("  <application-desc "
-                + "main-class='edu.colostate.math.font.GlyphViewer'>");
+                  + "main-class='edu.colostate.math.font.GlyphViewer'>");
         htm.addln("  </application-desc>");
         htm.addln("</jnlp>");
 
-        resp.setDateHeader("Expires", System.currentTimeMillis());
-        resp.setDateHeader("Last-Modified", System.currentTimeMillis());
+        final long millis = System.currentTimeMillis();
+        resp.setDateHeader("Expires", millis);
+        resp.setDateHeader("Last-Modified", millis);
 
-        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file",
-                htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file", htm);
     }
 
     /**
@@ -406,12 +408,13 @@ enum PageUtilities {
         final HtmlBuilder htm = new HtmlBuilder(500);
         final String scheme = req.getScheme();
         final String host = req.getServerName();
-        final String port = Integer.toString(req.getServerPort());
+        final int serverPort = req.getServerPort();
+        final String port = Integer.toString(serverPort);
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
-        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://",
-                host, CoreConstants.COLON, port, site.siteProfile.path, "'>");
+        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.siteProfile.path,
+                "'>");
 
         htm.addln("  <information>");
         htm.addln("    <title>Calculator Key Configuration</title>");
@@ -439,11 +442,11 @@ enum PageUtilities {
         htm.addln("  </application-desc>");
         htm.addln("</jnlp>");
 
-        resp.setDateHeader("Expires", System.currentTimeMillis());
-        resp.setDateHeader("Last-Modified", System.currentTimeMillis());
+        final long millis = System.currentTimeMillis();
+        resp.setDateHeader("Expires", millis);
+        resp.setDateHeader("Last-Modified", millis);
 
-        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file",
-                htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file", htm);
     }
 
     /**
@@ -460,12 +463,13 @@ enum PageUtilities {
         final HtmlBuilder htm = new HtmlBuilder(500);
         final String scheme = req.getScheme();
         final String host = req.getServerName();
-        final String port = Integer.toString(req.getServerPort());
+        final int serverPort = req.getServerPort();
+        final String port = Integer.toString(serverPort);
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
-        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://",
-                host, CoreConstants.COLON, port, site.siteProfile.path, "'>");
+        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.siteProfile.path,
+                "'>");
 
         htm.addln("  <information>");
         htm.addln("    <title>Calculator Key Configuration</title>");
@@ -492,11 +496,11 @@ enum PageUtilities {
         htm.addln("  </application-desc>");
         htm.addln("</jnlp>");
 
-        resp.setDateHeader("Expires", System.currentTimeMillis());
-        resp.setDateHeader("Last-Modified", System.currentTimeMillis());
+        final long millis = System.currentTimeMillis();
+        resp.setDateHeader("Expires", millis);
+        resp.setDateHeader("Last-Modified", millis);
 
-        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file",
-                htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file", htm);
     }
 
     /**
@@ -513,12 +517,13 @@ enum PageUtilities {
         final HtmlBuilder htm = new HtmlBuilder(500);
         final String scheme = req.getScheme();
         final String host = req.getServerName();
-        final String port = Integer.toString(req.getServerPort());
+        final int serverPort = req.getServerPort();
+        final String port = Integer.toString(serverPort);
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
-        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://",
-                host, CoreConstants.COLON, port, site.siteProfile.path, "'>");
+        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.siteProfile.path,
+                "'>");
 
         htm.addln("  <information>");
         htm.addln("    <title>Rename Directories</title>");
@@ -544,11 +549,11 @@ enum PageUtilities {
         htm.addln("  </application-desc>");
         htm.addln("</jnlp>");
 
-        resp.setDateHeader("Expires", System.currentTimeMillis());
-        resp.setDateHeader("Last-Modified", System.currentTimeMillis());
+        final long millis = System.currentTimeMillis();
+        resp.setDateHeader("Expires", millis);
+        resp.setDateHeader("Last-Modified", millis);
 
-        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file",
-                htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file", htm);
     }
 
     /**
@@ -565,12 +570,13 @@ enum PageUtilities {
         final HtmlBuilder htm = new HtmlBuilder(500);
         final String scheme = req.getScheme();
         final String host = req.getServerName();
-        final String port = Integer.toString(req.getServerPort());
+        final int serverPort = req.getServerPort();
+        final String port = Integer.toString(serverPort);
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
-        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://",
-                host, CoreConstants.COLON, port, site.siteProfile.path, "'>");
+        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.siteProfile.path,
+                "'>");
 
         htm.addln("  <information>");
         htm.addln("    <title>JWabbit Emulator</title>");
@@ -596,10 +602,10 @@ enum PageUtilities {
         htm.addln("  </application-desc>");
         htm.addln("</jnlp>");
 
-        resp.setDateHeader("Expires", System.currentTimeMillis());
-        resp.setDateHeader("Last-Modified", System.currentTimeMillis());
+        final long millis = System.currentTimeMillis();
+        resp.setDateHeader("Expires", millis);
+        resp.setDateHeader("Last-Modified", millis);
 
-        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file",
-                htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file", htm);
     }
 }

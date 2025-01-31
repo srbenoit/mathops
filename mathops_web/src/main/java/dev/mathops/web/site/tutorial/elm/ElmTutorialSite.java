@@ -297,8 +297,7 @@ public final class ElmTutorialSite extends AbstractPageSite {
             htm.eDiv(); // (end "menupanel" div)
             Page.endOrdinaryPage(cache, this, htm, true);
 
-            sendReply(req, resp, Page.MIME_TEXT_HTML,
-                    htm.toString().getBytes(StandardCharsets.UTF_8));
+            sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
         }
     }
 

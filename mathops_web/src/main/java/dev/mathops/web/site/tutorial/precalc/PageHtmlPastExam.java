@@ -8,11 +8,10 @@ import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.html.pastexam.PastExamSession;
 import dev.mathops.web.site.html.pastexam.PastExamSessionStore;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 /**
@@ -85,8 +84,7 @@ enum PageHtmlPastExam {
 
             Page.endOrdinaryPage(cache, site, htm, true);
 
-            AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML,
-                    htm.toString().getBytes(StandardCharsets.UTF_8));
+            AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm);
         }
     }
 
@@ -148,8 +146,7 @@ enum PageHtmlPastExam {
 
                 Page.endOrdinaryPage(cache, site, htm, true);
 
-                AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML,
-                        htm.toString().getBytes(StandardCharsets.UTF_8));
+                AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm);
             } else {
                 resp.sendRedirect(redirect);
             }

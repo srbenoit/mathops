@@ -14,11 +14,10 @@ import dev.mathops.web.site.Page;
 import dev.mathops.web.site.admin.AdminSite;
 import dev.mathops.web.site.admin.genadmin.EAdmSubtopic;
 import dev.mathops.web.site.admin.genadmin.GenAdminPage;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 /**
@@ -57,7 +56,7 @@ public enum PageDbAdminBatchRun {
             doPageContent(htm, id);
 
             Page.endOrdinaryPage(cache, site, htm, true);
-            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
         }
     }
 
@@ -151,7 +150,7 @@ public enum PageDbAdminBatchRun {
             }
 
             Page.endOrdinaryPage(cache, site, htm, true);
-            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
         }
     }
 }

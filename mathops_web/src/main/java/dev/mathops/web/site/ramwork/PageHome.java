@@ -6,11 +6,10 @@ import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 /**
@@ -35,9 +34,11 @@ enum PageHome {
             throws IOException, SQLException {
 
         final ERole role = session.getEffectiveRole();
+        final String siteTitle = Res.get(Res.SITE_TITLE);
+        final HtmlBuilder htm = new HtmlBuilder(2000);
+
         if (role.canActAs(ERole.ADMINISTRATOR)) {
-            final HtmlBuilder htm = new HtmlBuilder(2000);
-            Page.startOrdinaryPage(htm, Res.get(Res.SITE_TITLE), session, false, Page.ADMIN_BAR, null, false, true);
+            Page.startOrdinaryPage(htm, siteTitle, session, false, Page.ADMIN_BAR, null, false, true);
 
             htm.hr();
 
@@ -51,23 +52,21 @@ enum PageHome {
             htm.sP().add("<a href='authoring.html'>Item Authoring Resources</a>").eP();
 
             Page.endOrdinaryPage(cache, site, htm, true);
-            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
         } else if (role.canActAs(ERole.OFFICE_STAFF)) {
-            final HtmlBuilder htm = new HtmlBuilder(2000);
-            Page.startOrdinaryPage(htm, Res.get(Res.SITE_TITLE), session, false, Page.ADMIN_BAR, null, false, true);
+            Page.startOrdinaryPage(htm, siteTitle, session, false, Page.ADMIN_BAR, null, false, true);
 
             htm.sP().add("<a href='authoring.html'>Item Authoring Resources</a>").eP();
 
             Page.endOrdinaryPage(cache, site, htm, true);
-            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
         } else {
-            final HtmlBuilder htm = new HtmlBuilder(2000);
-            Page.startOrdinaryPage(htm, Res.get(Res.SITE_TITLE), session, false, Page.ADMIN_BAR, null, false, true);
+            Page.startOrdinaryPage(htm, siteTitle, session, false, Page.ADMIN_BAR, null, false, true);
 
             htm.sP().add("<a href='authoring.html'>Item Authoring Resources</a>").eP();
 
             Page.endOrdinaryPage(cache, site, htm, true);
-            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
         }
     }
 }

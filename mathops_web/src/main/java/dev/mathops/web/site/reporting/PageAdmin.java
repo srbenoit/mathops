@@ -15,7 +15,6 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -78,7 +77,7 @@ enum PageAdmin {
         }
 
         Page.endOrdinaryPage(cache, site, htm, true);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
     }
 
     /**
@@ -87,12 +86,13 @@ enum PageAdmin {
      * @param cache    the data cache
      * @param allPerms the list of all report permissions records
      * @return a map from student ID to the student record (or to {@code null} if student was not found)
-     * @throws SQLException  if there is an error accessing the database
+     * @throws SQLException if there is an error accessing the database
      */
     private static Map<String, RawStudent> lookupStudents(final Cache cache, final List<ReportPermsRec> allPerms)
             throws SQLException {
 
-        final Map<String, RawStudent> studentRecs = new HashMap<>(allPerms.size());
+        final int numPerms = allPerms.size();
+        final Map<String, RawStudent> studentRecs = new HashMap<>(numPerms);
 
         for (final ReportPermsRec rec : allPerms) {
             final String stuId = rec.stuId;
@@ -113,7 +113,7 @@ enum PageAdmin {
      * @param allPerms    the list of all permissions
      * @param studentRecs a map from student ID to student record
      */
-    private static void generatePageContent(final HtmlBuilder htm,  final EDefinedReport whichReport,
+    private static void generatePageContent(final HtmlBuilder htm, final EDefinedReport whichReport,
                                             final List<ReportPermsRec> allPerms,
                                             final Map<String, RawStudent> studentRecs) {
 
@@ -196,7 +196,7 @@ enum PageAdmin {
     /**
      * Emits a summary line for a report.
      *
-     * @param htm the {@code HtmlBuilder} to which to append
+     * @param htm   the {@code HtmlBuilder} to which to append
      * @param count the count of users authorized for the report; {@code null} if none
      * @param title the report title
      */
@@ -289,9 +289,9 @@ enum PageAdmin {
     /**
      * Generates the page.
      *
-     * @param cache   the data cache
-     * @param req     the request
-     * @param resp    the response
+     * @param cache the data cache
+     * @param req   the request
+     * @param resp  the response
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
@@ -323,7 +323,7 @@ enum PageAdmin {
                             if (parsedInt == 0) {
                                 logic.delete(cache, toCheck);
                             } else if (!parsedSetting.equals(toCheck.permLevel) &&
-                                    parsedInt >= 1 && parsedInt <= 3) {
+                                       parsedInt >= 1 && parsedInt <= 3) {
                                 toCheck.permLevel = parsedSetting;
                                 logic.updatePermLevel(cache, toCheck);
                             }
@@ -352,7 +352,8 @@ enum PageAdmin {
                         }
 
                         if (!exists) {
-                            final ReportPermsRec newRec = new ReportPermsRec(cleaned, whichReport.id, Integer.valueOf(1));
+                            final ReportPermsRec newRec = new ReportPermsRec(cleaned, whichReport.id,
+                                    Integer.valueOf(1));
                             logic.insert(cache, newRec);
                         }
                     }

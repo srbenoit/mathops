@@ -319,7 +319,7 @@ enum RamReadyService {
         htm.eDiv();
 
         Page.endOrdinaryPage(cache, site, htm, true);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
     }
 
     /**
@@ -412,7 +412,7 @@ enum RamReadyService {
         htm.addln("  \"Status\":\"NOT STARTED\"");
         htm.addln("}");
 
-        AbstractSite.sendReply(req, resp, "application/json", htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, "application/json", htm);
     }
 
     /**
@@ -434,7 +434,7 @@ enum RamReadyService {
         htm.addln("  \"Status\":\"COMPLETED\"");
         htm.addln("}");
 
-        AbstractSite.sendReply(req, resp, "application/json", htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, "application/json", htm);
     }
 
     /**
@@ -456,7 +456,7 @@ enum RamReadyService {
         htm.addln("  \"Status\":\"COMPLETED\"");
         htm.addln("}");
 
-        AbstractSite.sendReply(req, resp, "application/json", htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, "application/json", htm);
     }
 
     /**
@@ -477,7 +477,7 @@ enum RamReadyService {
         htm.addln("  \"Status\":\"\"");
         htm.addln("}");
 
-        AbstractSite.sendReply(req, resp, "application/json", htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, "application/json", htm);
     }
 
     /**
@@ -503,7 +503,7 @@ enum RamReadyService {
         htm.addln("  \"Status\":\"NOT STARTED\"");
         htm.addln("}");
 
-        AbstractSite.sendReply(req, resp, "application/json", htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, "application/json", htm);
     }
 
     /**
@@ -527,6 +527,6 @@ enum RamReadyService {
         htm.addln("  \"Status\":\"NOT STARTED\"");
         htm.addln("}");
 
-        AbstractSite.sendReply(req, resp, "application/json", htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, "application/json", htm);
     }
 }

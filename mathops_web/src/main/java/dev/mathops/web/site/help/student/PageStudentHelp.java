@@ -48,7 +48,7 @@ public enum PageStudentHelp {
         htm.add("</div>");
 
         Page.endOrdinaryPage(cache, site, htm, true);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
     }
 
     /**
@@ -76,7 +76,7 @@ public enum PageStudentHelp {
         htm.add("</div>");
 
         Page.endOrdinaryMaxPage(htm, true);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
     }
 
     /**

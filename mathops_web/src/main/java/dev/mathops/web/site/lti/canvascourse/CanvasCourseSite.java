@@ -10,12 +10,11 @@ import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.course.CourseSite;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 
 /**
@@ -252,7 +251,7 @@ public final class CanvasCourseSite extends CourseSite {
         htm.addln("<cartridge_icon   identifierref=\"BLTI001_Icon\"/>");
         htm.addln("</cartridge_basiclti_link>");
 
-        sendReply(req, resp, MIME_TEXT_XML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        sendReply(req, resp, MIME_TEXT_XML, htm);
     }
 
     /**

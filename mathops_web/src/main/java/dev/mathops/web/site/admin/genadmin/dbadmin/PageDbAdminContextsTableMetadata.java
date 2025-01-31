@@ -13,11 +13,10 @@ import dev.mathops.web.site.admin.AdminSite;
 import dev.mathops.web.site.admin.genadmin.EAdmSubtopic;
 import dev.mathops.web.site.admin.genadmin.GenAdminPage;
 import dev.mathops.web.site.admin.genadmin.GenAdminSubsite;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -101,8 +100,7 @@ public enum PageDbAdminContextsTableMetadata {
                         emitMetadata(htm, cat, schema, table, meta);
 
                         Page.endOrdinaryPage(cache, site, htm, true);
-                        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML,
-                                htm.toString().getBytes(StandardCharsets.UTF_8));
+                        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
                     } catch (final SQLException ex) {
                         Log.warning(ex);
                         GenAdminSubsite.removeConnection(session.loginSessionId, driver);

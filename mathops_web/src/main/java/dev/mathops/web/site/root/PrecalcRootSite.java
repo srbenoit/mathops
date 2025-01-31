@@ -178,7 +178,7 @@ public final class PrecalcRootSite extends AbstractPageSite {
         data.addln("User-agent: *");
         data.addln("Disallow: /");
 
-        sendReply(req, resp, MIME_TEXT_PLAIN, data.toString().getBytes(StandardCharsets.UTF_8));
+        sendReply(req, resp, MIME_TEXT_PLAIN, data);
     }
 
     /**
@@ -215,7 +215,7 @@ public final class PrecalcRootSite extends AbstractPageSite {
 
         Page.endOrdinaryPage(cache, this, htm, true);
 
-        sendReply(req, resp, MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        sendReply(req, resp, MIME_TEXT_HTML, htm);
     }
 
     /**

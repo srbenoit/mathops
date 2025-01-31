@@ -13,7 +13,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 /**
  * Handles servlet requests for embedded assessment items in pages.
@@ -72,9 +71,7 @@ enum AssessmentItem {
             doLoadAction(req, htm);
         }
 
-        final String replyStr = htm.toString();
-        final byte[] replyBytes = replyStr.getBytes(StandardCharsets.UTF_8);
-        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_PLAIN, replyBytes);
+        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_PLAIN, htm);
     }
 
     /**

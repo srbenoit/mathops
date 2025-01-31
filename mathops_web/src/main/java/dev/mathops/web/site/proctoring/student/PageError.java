@@ -5,11 +5,10 @@ import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 /**
@@ -42,11 +41,10 @@ enum PageError {
         htm.sP("error").add(message).eP();
 
         htm.addln("<form action='home.html' method='GET'>");
-        htm.addln("<input class='btn' type='submit' value='",
-                "Return to main page'/>");
+        htm.addln("<input class='btn' type='submit' value='Return to main page'/>");
         htm.addln("</form>");
 
         Page.endOrdinaryPage(cache, site, htm, true);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
     }
 }

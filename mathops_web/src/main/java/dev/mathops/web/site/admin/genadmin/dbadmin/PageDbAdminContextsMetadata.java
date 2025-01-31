@@ -3,8 +3,8 @@ package dev.mathops.web.site.admin.genadmin.dbadmin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.EDbProduct;
+import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.LoginConfig;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
@@ -14,11 +14,10 @@ import dev.mathops.web.site.admin.AdminSite;
 import dev.mathops.web.site.admin.genadmin.EAdmSubtopic;
 import dev.mathops.web.site.admin.genadmin.GenAdminPage;
 import dev.mathops.web.site.admin.genadmin.GenAdminSubsite;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -101,8 +100,7 @@ public enum PageDbAdminContextsMetadata {
                         emitMetadata(htm, cfg, driver, meta);
 
                         Page.endOrdinaryPage(cache, site, htm, true);
-                        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML,
-                                htm.toString().getBytes(StandardCharsets.UTF_8));
+                        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
 
                     } catch (final SQLException ex) {
                         Log.warning(ex);

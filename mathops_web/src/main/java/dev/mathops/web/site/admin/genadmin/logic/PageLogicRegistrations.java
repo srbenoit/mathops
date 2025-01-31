@@ -24,7 +24,6 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -415,7 +414,6 @@ public enum PageLogicRegistrations {
             throws IOException, SQLException {
 
         Page.endOrdinaryPage(cache, site, htm, true);
-        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
     }
 }

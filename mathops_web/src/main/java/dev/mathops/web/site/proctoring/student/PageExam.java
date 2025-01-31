@@ -50,7 +50,7 @@ enum PageExam {
         htm.addln("<body style='background:white;color:black;height:calc(100% - 50px);'>");
         htm.addln("</body>");
         Page.endPage(htm);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
     }
 
     /**
@@ -133,7 +133,7 @@ enum PageExam {
 
         htm.addln("</body>");
         Page.endPage(htm);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
     }
 
     /**
@@ -210,7 +210,7 @@ enum PageExam {
 
         htm.addln("</body>");
         Page.endPage(htm);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
     }
 
     /**
@@ -430,7 +430,7 @@ enum PageExam {
             Page.endPage(htm);
 
             if (redirect == null) {
-                AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+                AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
             } else {
                 Log.info("Redirect is ", redirect);
                 resp.sendRedirect(redirect);
@@ -519,6 +519,6 @@ enum PageExam {
         htm.addln("</body>");
 
         Page.endPage(htm);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
     }
 }

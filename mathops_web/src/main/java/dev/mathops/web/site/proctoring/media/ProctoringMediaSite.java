@@ -416,7 +416,7 @@ public final class ProctoringMediaSite extends AbstractSite {
                     final HtmlBuilder htm = new HtmlBuilder(200);
                     Page.startEmptyPage(htm, Res.get(Res.SITE_TITLE), false);
                     Page.endEmptyPage(htm, false);
-                    sendReply(req, resp, MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+                    sendReply(req, resp, MIME_TEXT_HTML, htm);
 
                 } catch (final IOException ex) {
                     Log.warning("Unable to write file: ", sessPath.getAbsolutePath(), ex);
@@ -471,7 +471,7 @@ public final class ProctoringMediaSite extends AbstractSite {
                     final HtmlBuilder htm = new HtmlBuilder(200);
                     Page.startEmptyPage(htm, Res.get(Res.SITE_TITLE), false);
                     Page.endEmptyPage(htm, false);
-                    sendReply(req, resp, MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+                    sendReply(req, resp, MIME_TEXT_HTML, htm);
 
                 } catch (final IOException ex) {
                     Log.warning("Unable to write file: ", sessPath.getAbsolutePath(), ex);

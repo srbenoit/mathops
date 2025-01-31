@@ -210,6 +210,6 @@ public enum PageStudentPick {
         htm.sP().add("<a href='student.html'>Return to student selection.</a>").eP();
 
         Page.endOrdinaryPage(cache, site, htm, true);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
     }
 }

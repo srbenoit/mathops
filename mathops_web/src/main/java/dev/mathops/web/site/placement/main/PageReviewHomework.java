@@ -8,11 +8,10 @@ import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.html.hw.HomeworkSession;
 import dev.mathops.web.site.html.hw.HomeworkSessionStore;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 /**
@@ -165,7 +164,7 @@ enum PageReviewHomework {
                 MPPage.emitScripts(htm);
 
                 Page.endNoFooterPage(htm, false);
-                AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+                AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
             } else {
                 resp.sendRedirect(redirect);
             }

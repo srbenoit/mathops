@@ -3,18 +3,18 @@ package dev.mathops.web.site.course;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.rawrecord.RawPacingRules;
-import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ERole;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStcuobjectiveLogic;
 import dev.mathops.db.old.rawrecord.RawLessonComponent;
+import dev.mathops.db.old.rawrecord.RawPacingRules;
 import dev.mathops.db.old.rawrecord.RawPacingStructure;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rec.AssignmentRec;
+import dev.mathops.db.type.TermKey;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
 import dev.mathops.session.sitelogic.servlet.CourseLesson;
@@ -22,12 +22,11 @@ import dev.mathops.session.sitelogic.servlet.StudentCourseStatus;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 /**
@@ -91,8 +90,7 @@ enum PageLesson {
 
                 Page.endOrdinaryPage(cache, site, htm, true);
 
-                AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML,
-                        htm.toString().getBytes(StandardCharsets.UTF_8));
+                AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm);
 
             } catch (final NumberFormatException ex) {
                 resp.sendRedirect("home.html");

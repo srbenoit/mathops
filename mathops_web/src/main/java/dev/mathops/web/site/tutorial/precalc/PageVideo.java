@@ -1,8 +1,8 @@
 package dev.mathops.web.site.tutorial.precalc;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.file.FileLoader;
+import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawStcuobjectiveLogic;
@@ -12,12 +12,11 @@ import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.parser.xml.XmlEscaper;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 /**
@@ -175,8 +174,7 @@ enum PageVideo {
 
             Page.endOrdinaryPage(cache, site, htm, true);
 
-            AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML,
-                    htm.toString().getBytes(StandardCharsets.UTF_8));
+            AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm);
         }
     }
 

@@ -14,7 +14,6 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -139,7 +138,7 @@ enum PagePlacementByCategory {
 
             htm.sP().add("To update the list of students who are considered part of a category, please send an ",
                     "email to <a href='mailto:precalc_math@colostate.edu'>precalc_math@colostate.edu</a> " +
-                            "with the category label and the updated list of CSU IDs.").eP();
+                    "with the category label and the updated list of CSU IDs.").eP();
             htm.hr();
 
             if (specialType != null) {
@@ -158,7 +157,7 @@ enum PagePlacementByCategory {
             }
 
             Page.endOrdinaryPage(cache, site, htm, true);
-            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
         }
     }
 
@@ -174,7 +173,7 @@ enum PagePlacementByCategory {
      * @throws SQLException if there is an error accessing the database
      */
     private static void emitCsvData(final Cache cache, final ReportingSite site, final ServletRequest req,
-                                     final HttpServletResponse resp, final ImmutableSessionInfo session)
+                                    final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
         final String category = req.getParameter("category");
@@ -210,14 +209,14 @@ enum PagePlacementByCategory {
                 }
 
                 resp.setHeader("Content-Disposition", "attachment;filename=placement_data.csv;");
-                AbstractSite.sendReply(req, resp, Page.MIME_TEXT_CSV,
-                        csvData.toString().getBytes(StandardCharsets.UTF_8));
+                AbstractSite.sendReply(req, resp, Page.MIME_TEXT_CSV, csvData);
             }
         }
     }
 
     /**
      * Gathers the list of available student categories for which the report can be run.
+     *
      * @param cache the cache
      * @return the set of available types (never {@code null}, but could be empty)
      * @throws SQLException if there is an error accessing the database
@@ -230,9 +229,9 @@ enum PagePlacementByCategory {
         for (final RawSpecialStus rec : allSpecials) {
             final String test = rec.stuType;
             if ("ADMIN".equals(test) || "STEVE".equals(test) || "TUTOR".equals(test) || "RAMWORK".equals(test)
-                    || "PROCTOR".equals(test) || "MPT3".equals(test) || "PCT117".equals(test)
-                    || "PCT118".equals(test) || "PCT124".equals(test) || "PCT125".equals(test)
-                    || "PCT126".equals(test)) {
+                || "PROCTOR".equals(test) || "MPT3".equals(test) || "PCT117".equals(test)
+                || "PCT118".equals(test) || "PCT124".equals(test) || "PCT125".equals(test)
+                || "PCT126".equals(test)) {
                 continue;
             }
             availableTypes.add(test);

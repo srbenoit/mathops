@@ -16,7 +16,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 /**
  * A site that serves video files without a session requirement. Used by online course web pages, Precalculus course web
@@ -181,10 +180,7 @@ public final class VideoSite extends AbstractSite {
                             </body>
                             </html>""");
 
-            final String reply = htm.toString();
-
-            final byte[] bytes = reply.getBytes(StandardCharsets.UTF_8);
-            sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
+            sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
         } else {
             // For the tutorial courses, we don't want to force duplication of the video files in a
             // new directory, so map those course numbers to the corresponding non-tutorial courses
@@ -250,9 +246,7 @@ public final class VideoSite extends AbstractSite {
                     </body>
                     </html>""");
 
-            final String htmStr = htm.toString();
-            final byte[] bytes = htmStr.getBytes(StandardCharsets.UTF_8);
-            sendReply(req, resp, MIME_TEXT_HTML, bytes);
+            sendReply(req, resp, MIME_TEXT_HTML, htm);
         }
     }
 }

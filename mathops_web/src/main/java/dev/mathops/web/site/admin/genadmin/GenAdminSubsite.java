@@ -48,13 +48,11 @@ import dev.mathops.web.site.admin.genadmin.student.PageStudentMathPlan;
 import dev.mathops.web.site.admin.genadmin.student.PageStudentPastExam;
 import dev.mathops.web.site.admin.genadmin.student.PageStudentPick;
 import dev.mathops.web.site.admin.genadmin.student.PageStudentPlacement;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -299,11 +297,11 @@ public final class GenAdminSubsite extends AbstractSubsite {
             htm.addln("  </application-desc>");
             htm.addln("</jnlp>");
 
-            resp.setDateHeader("Expires", System.currentTimeMillis());
-            resp.setDateHeader("Last-Modified", System.currentTimeMillis());
+            final long millis = System.currentTimeMillis();
+            resp.setDateHeader("Expires", millis);
+            resp.setDateHeader("Last-Modified", millis);
 
-            AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file",
-                    htm.toString().getBytes(StandardCharsets.UTF_8));
+            AbstractSite.sendReply(req, resp, "application/x-java-jnlp-file", htm);
         }
     }
 

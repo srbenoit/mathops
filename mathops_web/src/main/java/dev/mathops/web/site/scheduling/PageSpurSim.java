@@ -112,6 +112,6 @@ enum PageSpurSim {
         htm.addln("</form>");
 
         Page.endEmptyPage(htm, true);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
     }
 }

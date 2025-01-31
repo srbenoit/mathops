@@ -12,11 +12,10 @@ import dev.mathops.web.site.Page;
 import dev.mathops.web.site.admin.AdminSite;
 import dev.mathops.web.site.admin.genadmin.GenAdminPage;
 import dev.mathops.web.site.admin.genadmin.GenAdminSubsite;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
@@ -100,7 +99,7 @@ public enum PageDbAdminContextsServer {
                 }
 
                 Page.endOrdinaryPage(cache, site, htm, true);
-                AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+                AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
             }
         }
     }

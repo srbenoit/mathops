@@ -1,12 +1,11 @@
 package dev.mathops.web.site;
 
 import dev.mathops.commons.CoreConstants;
-
 import dev.mathops.text.builder.HtmlBuilder;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -128,6 +127,6 @@ public class CssStylesheet {
         final HtmlBuilder css = new HtmlBuilder(500);
 
         appendCss(css);
-        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_CSS, css.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_CSS, css);
     }
 }

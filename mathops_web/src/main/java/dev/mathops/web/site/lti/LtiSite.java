@@ -300,9 +300,7 @@ public final class LtiSite extends CourseSite {
                     .addln("</body>")
                     .addln("</html>");
 
-            final String reply = htm.toString();
-
-            sendReply(req, resp, Page.MIME_TEXT_HTML, reply.getBytes(StandardCharsets.UTF_8));
+            sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
         } else {
             // For the tutorial courses, we don't want to force duplication of the video files in a
             // new directory, so map those course numbers to the corresponding non-tutorial courses
@@ -373,7 +371,7 @@ public final class LtiSite extends CourseSite {
             htm.addln("</body>")
                     .addln("</html>");
 
-            sendReply(req, resp, MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+            sendReply(req, resp, MIME_TEXT_HTML, htm);
         }
     }
 }

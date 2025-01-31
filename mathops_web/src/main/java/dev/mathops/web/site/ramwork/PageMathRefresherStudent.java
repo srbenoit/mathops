@@ -140,7 +140,7 @@ enum PageMathRefresherStudent {
 
             htm.eDiv();
             Page.endEmptyPage(htm, true);
-            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
         } else {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         }

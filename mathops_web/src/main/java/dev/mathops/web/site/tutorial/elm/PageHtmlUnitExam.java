@@ -72,7 +72,7 @@ enum PageHtmlUnitExam {
 
             Page.endOrdinaryPage(cache, site, htm, true);
 
-            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
         }
     }
 
@@ -126,7 +126,7 @@ enum PageHtmlUnitExam {
             if (redirect == null) {
                 Page.endOrdinaryPage(cache, site, htm, true);
 
-                AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+                AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
             } else {
                 Log.info("Redirect is ", redirect);
 

@@ -9,21 +9,32 @@ import dev.mathops.db.logic.ELiveRefreshes;
 import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
-import dev.mathops.session.sitelogic.CourseSiteLogic;
-import dev.mathops.web.site.AbstractPageSite;
+import dev.mathops.session.SessionManager;
+import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
+import dev.mathops.web.site.UserInfoBar;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 /**
  * A site that delivers courses in a style similar to Canvas.  This allows testing of content for potential deep
  * integration with Canvas, and provides an alternative if that integration is not permitted.
  */
-public final class CanvasSite extends AbstractPageSite {
+public final class CanvasSite extends AbstractSite {
+
+    /** A CSS filename. */
+    private static final String BASE_STYLE_CSS = "basestyle.css";
+
+    /** A CSS filename. */
+    private static final String STYLE_CSS = "style.css";
 
     /**
      * Constructs a new {@code CanvasSite}.
@@ -48,59 +59,83 @@ public final class CanvasSite extends AbstractPageSite {
      * @throws IOException if there is an error writing the response
      */
     @Override
-    public void doGet(final Cache cache, final String subpath, final ESiteType type,
-                      final HttpServletRequest req, final HttpServletResponse resp)
-            throws IOException, SQLException {
+    public void doGet(final Cache cache, final String subpath, final ESiteType type, final HttpServletRequest req,
+                      final HttpServletResponse resp) throws IOException, SQLException {
 
         final String path = this.siteProfile.path;
 
         Log.info("GET ", subpath, " within ", path);
 
-        if (CoreConstants.EMPTY.equals(subpath)) {
-            resp.sendRedirect(path + (path.endsWith(CoreConstants.SLASH) ? "index.html" : "/index.html"));
-        } else if ("basestyle.css".equals(subpath)) {
-            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
-        } else if ("style.css".equals(subpath)) {
-            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(CanvasSite.class, "style.css", true));
-        } else if ("favicon.ico".equals(subpath)) {
-            serveImage(subpath, req, resp);
-        } else {
-            final String maintenanceMsg = isMaintenance(this.siteProfile);
+        switch (subpath) {
+            case BASE_STYLE_CSS -> serveCss(req, resp, Page.class, BASE_STYLE_CSS);
+            case STYLE_CSS -> serveCss(req, resp, CanvasSite.class, STYLE_CSS);
+            case "favicon.ico" -> serveImage(subpath, req, resp);
 
-            if (maintenanceMsg == null) {
-                // The pages that follow require the user to be logged in
-                final ImmutableSessionInfo session = validateSession(req, resp, null);
+            case null -> {
+                final String homePath = makePagePath(path, "home.html");
+                resp.sendRedirect(homePath);
+            }
 
-                if (session == null) {
-                    switch (subpath) {
-                        case "index.html", "login.html" -> PageLogin.doGet(cache, this, type, req, resp);
+            case CoreConstants.EMPTY -> {
+                final String homePath = makePagePath(path, "home.html");
+                resp.sendRedirect(homePath);
+            }
 
-                        case "secure/shibboleth.html" -> doShibbolethLogin(cache, req, resp, null, "home.html");
-                        default -> {
-                            Log.warning("Unrecognized GET request path: ", subpath);
-                            resp.sendRedirect(path + (path.endsWith(CoreConstants.SLASH)
-                                    ? "index.html" : "/index.html"));
-                        }
-                    }
-                } else {
-                    final String userId = session.getEffectiveUserId();
-                    LogBase.setSessionInfo(session.loginSessionId, userId);
+            default -> doPageGet(cache, subpath, req, resp);
+        }
+    }
 
-                    switch (subpath) {
-                        case "secure/shibboleth.html" -> doShibbolethLogin(cache, req, resp, session, "home.html");
+    /**
+     * Processes a GET request for a page. Before this method is called, the request will have been verified to be
+     * secure and have a session ID.
+     *
+     * @param cache   the data cache
+     * @param subpath the portion of the path beyond that which was used to select this site
+     * @param req     the request
+     * @param resp    the response
+     * @throws IOException if there is an error writing the response
+     */
+    private void doPageGet(final Cache cache, final String subpath, final HttpServletRequest req,
+                           final HttpServletResponse resp) throws IOException, SQLException {
 
-                        case "index.html", "home.html" -> PageHome.doGet(cache, this, req, resp, session);
+        final String path = this.siteProfile.path;
 
-                        default -> {
-                            Log.warning("Unrecognized GET request path: ", subpath);
-                            resp.sendRedirect(path + (path.endsWith(CoreConstants.SLASH)
-                                    ? "index.html" : "/index.html"));
-                        }
+        final String maintenanceMsg = isMaintenance(this.siteProfile);
+
+        if (maintenanceMsg == null) {
+            // The pages that follow require the user to be logged in
+            final ImmutableSessionInfo session = validateSession(req, resp, null);
+
+            if (session == null) {
+                switch (subpath) {
+                    case "login.html" -> PageLogin.doGet(cache, this, req, resp);
+                    case "secure/shibboleth.html" -> doShibbolethLogin(cache, req, resp, null);
+
+                    case null, default -> {
+                        Log.warning("Unrecognized GET request path: ", subpath);
+                        final String homePath = makePagePath(path, "home.html");
+                        resp.sendRedirect(homePath);
                     }
                 }
             } else {
-                PageMaintenance.doGet(cache, this, req, resp, maintenanceMsg);
+                final String userId = session.getEffectiveUserId();
+                LogBase.setSessionInfo(session.loginSessionId, userId);
+
+                switch (subpath) {
+                    case "login.html" -> PageLogin.doGet(cache, this, req, resp);
+                    case "secure/shibboleth.html" -> doShibbolethLogin(cache, req, resp, session);
+                    case "home.html" -> PageHome.doGet(cache, this, req, resp, session);
+                    case "course.html" -> PageCourse.doGet(cache, this, req, resp, session);
+
+                    case null, default -> {
+                        Log.warning("Unrecognized GET request path: ", subpath);
+                        final String homePath = makePagePath(path, "home.html");
+                        resp.sendRedirect(homePath);
+                    }
+                }
             }
+        } else {
+            PageMaintenance.doGet(cache, this, req, resp, maintenanceMsg);
         }
     }
 
@@ -116,9 +151,8 @@ public final class CanvasSite extends AbstractPageSite {
      * @throws IOException if there is an error writing the response
      */
     @Override
-    public void doPost(final Cache cache, final String subpath, final ESiteType type,
-                       final HttpServletRequest req, final HttpServletResponse resp)
-            throws IOException, SQLException {
+    public void doPost(final Cache cache, final String subpath, final ESiteType type, final HttpServletRequest req,
+                       final HttpServletResponse resp) throws IOException, SQLException {
 
         final String path = this.siteProfile.path;
 
@@ -127,27 +161,140 @@ public final class CanvasSite extends AbstractPageSite {
         final String maintenanceMsg = isMaintenance(this.siteProfile);
 
         if (maintenanceMsg == null) {
-            final ImmutableSessionInfo session = validateSession(req, resp, "index.html");
+            final ImmutableSessionInfo session = validateSession(req, resp, "login.html");
 
             if (session != null) {
                 final String userId = session.getEffectiveUserId();
                 LogBase.setSessionInfo(session.loginSessionId, userId);
-
-                final CourseSiteLogic logic = new CourseSiteLogic(cache, this.siteProfile, session);
-                logic.gatherData();
 
                 switch (subpath) {
                     case "rolecontrol.html" -> processRoleControls(cache, req, resp, session);
 
                     case null, default -> {
                         Log.warning("Unrecognized POST request path: ", subpath);
-                        resp.sendRedirect(path + (path.endsWith(CoreConstants.SLASH) ? "index.html" : "/index.html"));
+                        final String homePath = makePagePath(path, "home.html");
+                        resp.sendRedirect(homePath);
                     }
                 }
             }
         } else {
             PageMaintenance.doGet(cache, this, req, resp, maintenanceMsg);
         }
+    }
+
+    /**
+     * Serves a CSS file.
+     *
+     * @param req      the request
+     * @param resp     the response
+     * @param cls      the class in whose package the CSS file is found
+     * @param filename the CSS file name
+     * @throws IOException if there is an error writing the response
+     */
+    private static void serveCss(final HttpServletRequest req, final HttpServletResponse resp, final Class<?> cls,
+                                 final String filename) throws IOException {
+
+        final byte[] cssBytes = FileLoader.loadFileAsBytes(cls, filename, true);
+
+        sendReply(req, resp, MIME_TEXT_CSS, cssBytes);
+    }
+
+    /**
+     * Processes any submissions by the role controls (call on POST).
+     *
+     * @param cache   the data cache
+     * @param req     the HTTP request
+     * @param resp    the HTTP response
+     * @param session the session information
+     * @throws IOException  if there is an error writing the response
+     * @throws SQLException if there is an error accessing the database
+     */
+    private void processRoleControls(final Cache cache, final ServletRequest req,
+                                     final HttpServletResponse resp, final ImmutableSessionInfo session)
+            throws IOException, SQLException {
+
+        UserInfoBar.processRoleControls(cache, req, session);
+
+        final String target = req.getParameter("target");
+
+        if (isParamInvalid(target)) {
+            Log.warning("Invalid request parameters - possible attack:");
+            Log.warning("  target='", target, "'");
+//            PageError.doGet(cache, this, req, resp, session, "No target provided with role control");
+        } else if (target == null) {
+//            PageError.doGet(cache, this, req, resp, session, "No target provided with role control");
+        } else {
+            resp.sendRedirect(target);
+        }
+    }
+
+    /**
+     * Scans the request for Shibboleth attributes and uses them (if found) to establish a session, and then redirects
+     * to either the secure page (if valid) or the login page (if not valid).
+     *
+     * @param cache   the data cache
+     * @param req     the request
+     * @param resp    the response
+     * @param session the user's login session information
+     * @throws SQLException if there was an error accessing the database
+     */
+    private void doShibbolethLogin(final Cache cache, final HttpServletRequest req, final HttpServletResponse resp,
+                                   final ImmutableSessionInfo session) throws SQLException {
+
+        Log.info("Shibboleth login attempt");
+
+        ImmutableSessionInfo sess = session;
+
+        if (sess == null) {
+            sess = processShibbolethLogin(cache, req);
+        }
+
+        final String path = this.siteProfile.path;
+        final String selectedCourse = req.getParameter("course");
+
+        final String redirect;
+        if (sess == null) {
+            // Login failed - return to login page
+            redirect = makePagePath("login.html", selectedCourse);
+        } else {
+            redirect = makePagePath("home.html", selectedCourse);
+
+            // Install the session ID cookie in the response
+            final String serverName = req.getServerName();
+            Log.info("Adding session ID cookie ", serverName);
+            final Cookie cook = new Cookie(SessionManager.SESSION_ID_COOKIE, sess.loginSessionId);
+            cook.setDomain(serverName);
+            cook.setPath(CoreConstants.SLASH);
+            cook.setMaxAge(-1);
+            cook.setSecure(true);
+            resp.addCookie(cook);
+        }
+        resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
+        resp.setHeader("Location", redirect);
+        Log.info("Redirecting to ", redirect);
+    }
+
+    /**
+     * Given the path of this site, generates the path of a page.
+     *
+     * @param page           the page, like "home.html"
+     * @param selectedCourse the course ID to add as a parameter (null to skip adding parameter)
+     * @return the index file path
+     */
+    String makePagePath(final String page, final String selectedCourse) {
+
+        final String result;
+
+        final String path = this.siteProfile.path;
+
+        if (selectedCourse == null) {
+            result = path + (path.endsWith(CoreConstants.SLASH) ? page : ("/" + page));
+        } else {
+            final String encoded = URLEncoder.encode(selectedCourse, StandardCharsets.UTF_8);
+            result = path + (path.endsWith(CoreConstants.SLASH) ? page : ("/" + page)) + "?course=" + encoded;
+        }
+
+        return result;
     }
 
     /**

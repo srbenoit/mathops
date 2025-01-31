@@ -2,8 +2,8 @@ package dev.mathops.web.site.tutorial.precalc;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawrecord.RawCuobjective;
 import dev.mathops.db.old.rawrecord.RawLessonComponent;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
@@ -13,11 +13,10 @@ import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
@@ -71,8 +70,7 @@ enum PageElmUnit {
                 htm.eDiv(); // (end "menupanel" div)
                 Page.endOrdinaryPage(cache, site, htm, true);
 
-                AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML,
-                        htm.toString().getBytes(StandardCharsets.UTF_8));
+                AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm);
             } catch (final NumberFormatException ex) {
                 resp.sendRedirect("home.html");
             }

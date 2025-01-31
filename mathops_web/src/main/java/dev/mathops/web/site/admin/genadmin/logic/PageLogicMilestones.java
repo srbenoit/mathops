@@ -381,7 +381,6 @@ public enum PageLogicMilestones {
             throws IOException, SQLException {
 
         Page.endOrdinaryPage(cache, site, htm, true);
-        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
     }
 }

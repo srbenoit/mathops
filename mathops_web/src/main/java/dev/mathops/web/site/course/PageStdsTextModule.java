@@ -28,12 +28,10 @@ import dev.mathops.web.site.course.data.LearningTargetData;
 import dev.mathops.web.site.course.data.Math125;
 import dev.mathops.web.site.course.data.Math126;
 import dev.mathops.web.site.course.data.ModuleData;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -155,9 +153,7 @@ enum PageStdsTextModule {
 
                 Page.endOrdinaryPage(cache, site, htm, true);
 
-                final String htmString = htm.toString();
-                final byte[] bytes = htmString.getBytes(StandardCharsets.UTF_8);
-                AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, bytes);
+                AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm);
             } catch (final NumberFormatException ex) {
                 PageError.doGet(cache, site, req, resp, session,
                         "Invalid module number provided for course module page");

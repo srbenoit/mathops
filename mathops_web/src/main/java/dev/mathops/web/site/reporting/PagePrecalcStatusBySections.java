@@ -142,9 +142,7 @@ enum PagePrecalcStatusBySections {
         }
 
         Page.endOrdinaryPage(cache, site, htm, true);
-        final String str = htm.toString();
-        final byte[] bytes = str.getBytes(StandardCharsets.UTF_8);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
     }
     /**
      * Generates a CSV file with report data.
@@ -189,9 +187,7 @@ enum PagePrecalcStatusBySections {
             }
 
             resp.setHeader("Content-Disposition", "attachment;filename=placement_data.csv;");
-            final String str = csvData.toString();
-            final byte[] bytes = str.getBytes(StandardCharsets.UTF_8);
-            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_CSV, bytes);
+            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_CSV, csvData);
         }
     }
 }

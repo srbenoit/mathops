@@ -318,7 +318,7 @@ enum PageLTI {
         htm.addln("<cartridge_icon   identifierref=\"BLTI001_Icon\"/>");
         htm.addln("</cartridge_basiclti_link>");
 
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_XML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_XML, htm);
     }
 
     /**

@@ -85,7 +85,7 @@ enum PagePlacementExam {
 
         htm.addln("</body>");
         Page.endPage(htm);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
     }
 
     /**
@@ -144,8 +144,7 @@ enum PagePlacementExam {
                 if (redirect == null) {
                     Page.endEmptyPage(htm, true);
 
-                    AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML,
-                            htm.toString().getBytes(StandardCharsets.UTF_8));
+                    AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
                 } else {
                     resp.sendRedirect(redirect);
                 }
@@ -156,7 +155,7 @@ enum PagePlacementExam {
 
         htm.addln("</body>");
         Page.endPage(htm);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
     }
 
     /**
@@ -218,6 +217,6 @@ enum PagePlacementExam {
         htm.addln("</body>");
 
         Page.endPage(htm);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
     }
 }

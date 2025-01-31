@@ -17,6 +17,7 @@ import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
 import dev.mathops.session.SessionResult;
 import dev.mathops.session.login.ShibbolethLoginProcessor;
+import dev.mathops.text.builder.HtmlBuilder;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -53,7 +54,7 @@ public abstract class AbstractSite {
     protected static final String MIME_TEXT_XML = "text/xml";
 
     /** The MIME type text/css. */
-    static final String MIME_TEXT_CSS = "text/css";
+    protected static final String MIME_TEXT_CSS = "text/css";
 
     /** Characters valid in parameter strings. */
     private static final String VALID_PARAM_CHARS =
@@ -206,6 +207,24 @@ public abstract class AbstractSite {
                 throw ex;
             }
         }
+    }
+
+    /**
+     * Sends a response with a particular content type and content.
+     *
+     * @param req          the request
+     * @param resp         the response
+     * @param contentType  the content type
+     * @param replyBuilder a {@code HtmlBuilder} holding reply content
+     * @throws IOException if there was an exception writing the response
+     */
+    public static void sendReply(final ServletRequest req, final HttpServletResponse resp, final String contentType,
+                                 final HtmlBuilder replyBuilder) throws IOException {
+
+        final String reply = replyBuilder.toString();
+        final byte[] replyBytes = reply.getBytes(StandardCharsets.UTF_8);
+
+        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, replyBytes);
     }
 
     /**

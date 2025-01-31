@@ -54,12 +54,9 @@ enum PageHome {
         final ERole role = session.role;
         if (role == ERole.SYSADMIN) {
             emitSysadminNavBlock(htm);
-
             htm.div("vgap");
-
             Page.endOrdinaryPage(cache, site, htm, true);
-            final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
-            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
+            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
         } else if (role == ERole.ADMINISTRATOR) {
             resp.sendRedirect("genadmin/home.html");
         } else if (role.canActAs(ERole.DIRECTOR)) {

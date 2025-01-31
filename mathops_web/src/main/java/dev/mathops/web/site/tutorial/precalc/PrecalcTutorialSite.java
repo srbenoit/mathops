@@ -334,7 +334,7 @@ public final class PrecalcTutorialSite extends AbstractPageSite {
 
             Page.endOrdinaryPage(cache, this, htm, true);
 
-            sendReply(req, resp, MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+            sendReply(req, resp, MIME_TEXT_HTML, htm);
         }
     }
 

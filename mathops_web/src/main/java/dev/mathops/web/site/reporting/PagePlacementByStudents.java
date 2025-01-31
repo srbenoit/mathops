@@ -11,7 +11,6 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -128,7 +127,7 @@ enum PagePlacementByStudents {
         }
 
         Page.endOrdinaryPage(cache, site, htm, true);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
     }
     /**
      * Generates a CSV file with report data.
@@ -160,8 +159,7 @@ enum PagePlacementByStudents {
             }
 
             resp.setHeader("Content-Disposition", "attachment;filename=placement_data.csv;");
-            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_CSV,
-                    csvData.toString().getBytes(StandardCharsets.UTF_8));
+            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_CSV, csvData);
         }
     }
 }

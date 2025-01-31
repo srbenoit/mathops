@@ -15,11 +15,10 @@ import dev.mathops.web.site.Page;
 import dev.mathops.web.site.admin.AdminSite;
 import dev.mathops.web.site.admin.genadmin.EAdminTopic;
 import dev.mathops.web.site.admin.genadmin.GenAdminPage;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -182,7 +181,7 @@ public enum PagePopulationPick {
                 htm.sP().add("<a href='student.html'>Return to student selection.</a>").eP();
 
                 Page.endOrdinaryPage(cache, site, htm, true);
-                AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+                AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
             }
         }
     }
