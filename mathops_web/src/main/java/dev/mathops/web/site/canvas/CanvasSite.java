@@ -10,6 +10,7 @@ import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
+import dev.mathops.text.builder.SimpleBuilder;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
@@ -35,6 +36,15 @@ public final class CanvasSite extends AbstractSite {
 
     /** A CSS filename. */
     private static final String STYLE_CSS = "style.css";
+
+    /** A web page. */
+    private static final String SHIBBOLETH_PAGE = "secure/shibboleth.html";
+
+    /** A request parameter name. */
+    static final String COURSE_PARAM = "course";
+
+    /** A request parameter name. */
+    static final String TARGET_PARAM = "target";
 
     /**
      * Constructs a new {@code CanvasSite}.
@@ -72,12 +82,12 @@ public final class CanvasSite extends AbstractSite {
             case "favicon.ico" -> serveImage(subpath, req, resp);
 
             case null -> {
-                final String homePath = makePagePath(path, "home.html");
+                final String homePath = makePagePath(PageHome.PAGE, null);
                 resp.sendRedirect(homePath);
             }
 
             case CoreConstants.EMPTY -> {
-                final String homePath = makePagePath(path, "home.html");
+                final String homePath = makePagePath(PageHome.PAGE, null);
                 resp.sendRedirect(homePath);
             }
 
@@ -108,12 +118,14 @@ public final class CanvasSite extends AbstractSite {
 
             if (session == null) {
                 switch (subpath) {
-                    case "login.html" -> PageLogin.doGet(cache, this, req, resp);
-                    case "secure/shibboleth.html" -> doShibbolethLogin(cache, req, resp, null);
+                    case PageLogin.PAGE -> PageLogin.doGet(cache, this, req, resp);
+                    case SHIBBOLETH_PAGE -> doShibbolethLogin(cache, req, resp, null);
 
                     case null, default -> {
                         Log.warning("Unrecognized GET request path: ", subpath);
-                        final String homePath = makePagePath(path, "home.html");
+                        final String selectedCourse = req.getParameter(COURSE_PARAM);
+                        final String homePath = selectedCourse == null ? makePagePath(PageHome.PAGE, null)
+                                : makePagePath(PageCourse.PAGE, selectedCourse);
                         resp.sendRedirect(homePath);
                     }
                 }
@@ -122,14 +134,16 @@ public final class CanvasSite extends AbstractSite {
                 LogBase.setSessionInfo(session.loginSessionId, userId);
 
                 switch (subpath) {
-                    case "login.html" -> PageLogin.doGet(cache, this, req, resp);
-                    case "secure/shibboleth.html" -> doShibbolethLogin(cache, req, resp, session);
-                    case "home.html" -> PageHome.doGet(cache, this, req, resp, session);
-                    case "course.html" -> PageCourse.doGet(cache, this, req, resp, session);
+                    case PageLogin.PAGE -> PageLogin.doGet(cache, this, req, resp);
+                    case SHIBBOLETH_PAGE -> doShibbolethLogin(cache, req, resp, session);
+                    case PageHome.PAGE -> PageHome.doGet(cache, this, req, resp, session);
+                    case PageCourse.PAGE -> PageCourse.doGet(cache, this, req, resp, session);
 
                     case null, default -> {
                         Log.warning("Unrecognized GET request path: ", subpath);
-                        final String homePath = makePagePath(path, "home.html");
+                        final String selectedCourse = req.getParameter(COURSE_PARAM);
+                        final String homePath = selectedCourse == null ? makePagePath(PageHome.PAGE, null)
+                                : makePagePath(PageCourse.PAGE, selectedCourse);
                         resp.sendRedirect(homePath);
                     }
                 }
@@ -161,7 +175,7 @@ public final class CanvasSite extends AbstractSite {
         final String maintenanceMsg = isMaintenance(this.siteProfile);
 
         if (maintenanceMsg == null) {
-            final ImmutableSessionInfo session = validateSession(req, resp, "login.html");
+            final ImmutableSessionInfo session = validateSession(req, resp, PageLogin.PAGE);
 
             if (session != null) {
                 final String userId = session.getEffectiveUserId();
@@ -172,7 +186,9 @@ public final class CanvasSite extends AbstractSite {
 
                     case null, default -> {
                         Log.warning("Unrecognized POST request path: ", subpath);
-                        final String homePath = makePagePath(path, "home.html");
+                        final String selectedCourse = req.getParameter(PageCourse.PAGE);
+                        final String homePath = selectedCourse == null ? makePagePath(PageHome.PAGE, null)
+                                : makePagePath(PageCourse.PAGE, selectedCourse);
                         resp.sendRedirect(homePath);
                     }
                 }
@@ -215,7 +231,7 @@ public final class CanvasSite extends AbstractSite {
 
         UserInfoBar.processRoleControls(cache, req, session);
 
-        final String target = req.getParameter("target");
+        final String target = req.getParameter(TARGET_PARAM);
 
         if (isParamInvalid(target)) {
             Log.warning("Invalid request parameters - possible attack:");
@@ -249,15 +265,15 @@ public final class CanvasSite extends AbstractSite {
             sess = processShibbolethLogin(cache, req);
         }
 
-        final String path = this.siteProfile.path;
-        final String selectedCourse = req.getParameter("course");
+        final String selectedCourse = req.getParameter(COURSE_PARAM);
 
         final String redirect;
         if (sess == null) {
             // Login failed - return to login page
-            redirect = makePagePath("login.html", selectedCourse);
+            redirect = makePagePath(PageLogin.PAGE, selectedCourse);
         } else {
-            redirect = makePagePath("home.html", selectedCourse);
+            redirect = selectedCourse == null ? makePagePath(PageHome.PAGE, null)
+                    : makePagePath(PageCourse.PAGE, selectedCourse);
 
             // Install the session ID cookie in the response
             final String serverName = req.getServerName();
@@ -269,6 +285,7 @@ public final class CanvasSite extends AbstractSite {
             cook.setSecure(true);
             resp.addCookie(cook);
         }
+
         resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
         resp.setHeader("Location", redirect);
         Log.info("Redirecting to ", redirect);
@@ -286,12 +303,14 @@ public final class CanvasSite extends AbstractSite {
         final String result;
 
         final String path = this.siteProfile.path;
+        final boolean endsWithSlash = path.endsWith(CoreConstants.SLASH);
+        final String fixedPage = endsWithSlash ? page : ("/" + page);
 
         if (selectedCourse == null) {
-            result = path + (path.endsWith(CoreConstants.SLASH) ? page : ("/" + page));
+            result = SimpleBuilder.concat(path, fixedPage);
         } else {
             final String encoded = URLEncoder.encode(selectedCourse, StandardCharsets.UTF_8);
-            result = path + (path.endsWith(CoreConstants.SLASH) ? page : ("/" + page)) + "?course=" + encoded;
+            result = SimpleBuilder.concat(path, fixedPage, "?", COURSE_PARAM, "=", encoded);
         }
 
         return result;

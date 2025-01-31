@@ -8,7 +8,6 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 /**
@@ -39,14 +38,19 @@ enum PageMaintenance {
         htm.div("vgap2");
 
         htm.sDiv("center");
+
+        htm.sP().add("TODO: Program image, construction sign").eP();
+
         htm.sH(4, "center").add("SYSTEM UNDERGOING MAINTENANCE").eH(4);
         htm.sP().add("<strong>", message, "</strong>").eP();
+
+        htm.sP().add("TODO: Links to public information, link back to Canvas.").eP();
 
         htm.eDiv(); // center
         htm.eDiv(); // vgap2
 
         Page.endOrdinaryPage(cache, site, htm, true);
 
-        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm);
     }
 }

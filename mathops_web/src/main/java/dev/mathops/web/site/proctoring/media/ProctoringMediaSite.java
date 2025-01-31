@@ -494,12 +494,11 @@ public final class ProctoringMediaSite extends AbstractSite {
      * @param req   the HTTP request
      * @param resp  the HTTP response
      * @param psid  the proctoring session ID
-     * @param stuid the student ID
+     * @param stuId the student ID
      * @throws IOException if there is an error writing the response
      */
-    private void storeMeta(final Cache cache, final ServletRequest req,
-                           final HttpServletResponse resp, final String psid, final String stuid)
-            throws IOException {
+    private void storeMeta(final Cache cache, final ServletRequest req, final HttpServletResponse resp,
+                           final String psid, final String stuId) throws IOException {
 
         final ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
         final byte[] buffer = new byte[1024];
@@ -511,18 +510,17 @@ public final class ProctoringMediaSite extends AbstractSite {
                 numRead = in.read(buffer);
             }
 
-            final File stuPath = new File(this.dataDir, stuid);
+            final File stuPath = new File(this.dataDir, stuId);
 
             if (!stuPath.exists() && stuPath.mkdirs()) {
                 // Just created the student directory - populate metadata
-                final RawStudent stuRec = RawStudentLogic.query(cache, stuid, false);
+                final RawStudent stuRec = RawStudentLogic.query(cache, stuId, false);
 
                 final HtmlBuilder meta = new HtmlBuilder(100);
                 if (stuRec == null) {
                     meta.add("{\"first\":\"Record not found\",\"last\":\"* ERROR\"}");
                 } else {
-                    meta.add("{\"first\":\"", stuRec.firstName,
-                            "\",\"last\":\"", stuRec.lastName, "\"}");
+                    meta.add("{\"first\":\"", stuRec.firstName, "\",\"last\":\"", stuRec.lastName, "\"}");
                 }
                 try (final FileWriter w = new FileWriter(new File(stuPath, "meta.json"), StandardCharsets.UTF_8)) {
                     w.write(meta.toString());
@@ -540,17 +538,14 @@ public final class ProctoringMediaSite extends AbstractSite {
                     final HtmlBuilder htm = new HtmlBuilder(200);
                     Page.startEmptyPage(htm, Res.get(Res.SITE_TITLE), false);
                     Page.endEmptyPage(htm, false);
-                    sendReply(req, resp, MIME_TEXT_HTML,
-                            htm.toString().getBytes(StandardCharsets.UTF_8));
+                    sendReply(req, resp, MIME_TEXT_HTML, htm);
 
                 } catch (final IOException ex) {
-                    Log.warning("Unable to write file: ",
-                            sessPath.getAbsolutePath(), ex);
+                    Log.warning("Unable to write file: ", sessPath.getAbsolutePath(), ex);
                     resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 }
             } else {
-                Log.warning("Unable to create directory: ",
-                        sessPath.getAbsolutePath());
+                Log.warning("Unable to create directory: ", sessPath.getAbsolutePath());
                 resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
         } catch (final Exception ex) {

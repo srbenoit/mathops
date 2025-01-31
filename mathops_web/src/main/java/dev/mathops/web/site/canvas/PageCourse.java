@@ -17,6 +17,9 @@ import java.sql.SQLException;
 enum PageCourse {
     ;
 
+    /** The page. */
+    static final String PAGE = "course.html";
+
     /**
      * Generates the welcome page that users see when they access the site with either the '/' or '/index.html' paths
      * and are logged in, or if they access the "/home.html" path.
@@ -38,7 +41,7 @@ enum PageCourse {
                       final HttpServletResponse resp, final ImmutableSessionInfo session) throws IOException,
             SQLException {
 
-        final String selectedCourse = req.getParameter("course");
+        final String selectedCourse = req.getParameter(CanvasSite.COURSE_PARAM);
 
         if (selectedCourse == null) {
             final String homePath = site.makePagePath("home.html", null);
@@ -48,7 +51,16 @@ enum PageCourse {
             final String siteTitle = site.getTitle();
             Page.startOrdinaryPage(htm, siteTitle, null, true, Page.NO_BARS, null, false, true);
 
-            htm.addln("Course page (Course is ", selectedCourse, ")");
+            htm.sH(2).add("Course page (Course is ", selectedCourse, ")").eH(2);
+
+            htm.sP().add("TODO: Announcements like upcoming outage notifications, holds.").eP();
+
+            htm.sP().add("TODO: Left-side menu with [Home], [Announcements], [Assignments], [Modules], [Grades], ",
+                    "[Syllabus], [Course Survey].").eP();
+
+            htm.sP().add("TODO: right-side menu with [View Course Calendar").eP();
+
+            htm.sP().add("TODO: Right-side TODO list.").eP();
 
             Page.endOrdinaryPage(cache, site, htm, true);
 

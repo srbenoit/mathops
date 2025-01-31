@@ -9,16 +9,18 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 /**
- * A page that presents the set of courses in which the student is enrolled, the date range in the current
- * semester that each course occupies, and all due dates associated with each course.  Students can then select a
- * course, which redirects to "course.html?course=ID".
+ * A page that presents the set of courses in which the student is enrolled, the date range in the current semester that
+ * each course occupies, and all due dates associated with each course.  Students can then select a course, which
+ * redirects to "course.html?course=ID".
  */
 enum PageHome {
     ;
+
+    /** The page. */
+    static final String PAGE = "home.html";
 
     /**
      * Generates the welcome page that users see when they access the site with either the '/' or '/index.html' paths
@@ -45,16 +47,21 @@ enum PageHome {
         final String siteTitle = site.getTitle();
         Page.startOrdinaryPage(htm, siteTitle, null, true, Page.NO_BARS, null, false, true);
 
-        final String selectedCourse = req.getParameter("course");
+        htm.sH(2).add("Home").eH(2);
 
-        if (selectedCourse == null) {
-            htm.addln("Home");
-        } else {
-            htm.addln("Home (Course is ", selectedCourse, ")");
-        }
+        htm.sP().add("TODO: Announcements like upcoming outage notifications, holds.").eP();
+
+        htm.sP().add("TODO: Present a list of the Precalculus courses in which student is enrolled.").eP();
+
+        htm.sP().add("TODO: Present a semester calendar showing all courses, today, due dates, ",
+                "and list of upcoming things.").eP();
+
+        htm.sP().add("TODO: Present student progress in each course.").eP();
+
+        htm.sP().add("TODO: Present links to full textbook, help, information.").eP();
 
         Page.endOrdinaryPage(cache, site, htm, true);
 
-        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm);
     }
 }

@@ -7,7 +7,6 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 enum PageAssessmentDev {
     ;
@@ -395,7 +394,7 @@ enum PageAssessmentDev {
 
         htm.eDiv(); // maincontent
         Page.endEmptyPage(htm, true);
-        final byte[] bytes = htm.toString().getBytes(StandardCharsets.UTF_8);
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, bytes);
+
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
     }
 }

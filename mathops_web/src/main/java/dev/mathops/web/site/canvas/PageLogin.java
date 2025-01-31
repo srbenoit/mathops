@@ -20,6 +20,9 @@ import java.sql.SQLException;
 enum PageLogin {
     ;
 
+    /** The page. */
+    static final String PAGE = "login.html";
+
     /**
      * Generates the welcome page that users see when they access the site with either the '/' or '/index.html' paths
      * but have not logged in.
@@ -38,7 +41,11 @@ enum PageLogin {
         final String siteTitle = site.getTitle();
         Page.startOrdinaryPage(htm, siteTitle, null, true, Page.NO_BARS, null, false, true);
 
-        final String selectedCourse = req.getParameter("course");
+        final String selectedCourse = req.getParameter(CanvasSite.COURSE_PARAM);
+
+        htm.sH(2).add(siteTitle).eH(2);
+
+        htm.sP().add("TODO: Program image and introductory text.").eP();
 
         if (selectedCourse == null) {
             htm.addln("<a href='secure/shibboleth.html' class='menubtn'/>eID Login</a>");
@@ -47,8 +54,10 @@ enum PageLogin {
             htm.addln("<a href='secure/shibboleth.html?course=", encoded, "' class='menubtn'/>eID Login</a>");
         }
 
+        htm.sP().add("TODO: Links to public information, link back to Canvas.").eP();
+
         Page.endOrdinaryPage(cache, site, htm, true);
 
-        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm);
     }
 }

@@ -4,11 +4,10 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 
 /**
@@ -411,9 +410,7 @@ enum PageLTI {
         json.addln("    \"height\":  600");
         json.addln(" }");
 
-        Log.fine(json.toString());
-
-        AbstractSite.sendReply(req, resp, Page.MIME_APP_JSON, json.toString().getBytes(StandardCharsets.UTF_8));
+        AbstractSite.sendReply(req, resp, Page.MIME_APP_JSON, json);
     }
 
 //    /**
