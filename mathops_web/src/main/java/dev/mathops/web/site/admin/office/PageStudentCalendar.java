@@ -10,23 +10,22 @@ import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
 import dev.mathops.db.old.rawlogic.RawStmpeLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
-import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
 import dev.mathops.db.old.rawrecord.RawStchallenge;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.old.rawrecord.RawStmpe;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.rec.TermRec;
+import dev.mathops.db.rec.TermWeekRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.admin.AdminSite;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.Month;
@@ -159,7 +158,7 @@ enum PageStudentCalendar {
             htm.eDiv();
             htm.div("vgap0");
 
-            final List<RawSemesterCalendar> weeks = cache.getSystemData().getSemesterCalendars();
+            final List<TermWeekRec> weeks = cache.getSystemData().getTermWeeks();
 
             final List<RawCampusCalendar> holidays = cache.getSystemData().getCampusCalendarsByType(
                     RawCampusCalendar.DT_DESC_HOLIDAY);
@@ -239,7 +238,7 @@ enum PageStudentCalendar {
      * @param homeworks the list of student homework records
      */
     private static void emitCalendar(final HtmlBuilder htm,
-                                     final List<RawSemesterCalendar> weeks,
+                                     final List<TermWeekRec> weeks,
                                      final Iterable<RawCampusCalendar> holidays,
                                      final Iterable<RawStmpe> mpes,
                                      final Iterable<RawStchallenge> chals,
@@ -250,14 +249,14 @@ enum PageStudentCalendar {
 
         // Find range of dates that represents all complete months that the term overlaps
 
-        LocalDate start = weeks.getFirst().startDt;
+        LocalDate start = weeks.getFirst().startDate;
         final Month startMonth = start.getMonth();
         while (start.getMonth() == startMonth) {
             start = start.minusDays(1L);
         }
         start = start.plusDays(1L);
 
-        LocalDate end = weeks.getLast().endDt;
+        LocalDate end = weeks.getLast().endDate;
         final Month endMonth = end.getMonth();
         while (end.getMonth() == endMonth) {
             end = end.plusDays(1L);
@@ -371,9 +370,9 @@ enum PageStudentCalendar {
             }
 
             // Emit the day
-            RawSemesterCalendar inWeek = null;
-            for (final RawSemesterCalendar week : weeks) {
-                if (curDate.isBefore(week.startDt) || curDate.isAfter(week.endDt)) {
+            TermWeekRec inWeek = null;
+            for (final TermWeekRec week : weeks) {
+                if (curDate.isBefore(week.startDate) || curDate.isAfter(week.endDate)) {
                     continue;
                 }
                 inWeek = week;

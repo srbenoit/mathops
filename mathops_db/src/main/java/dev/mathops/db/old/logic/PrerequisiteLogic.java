@@ -16,7 +16,7 @@ import dev.mathops.db.old.rawrecord.RawFfrTrns;
 import dev.mathops.db.old.rawrecord.RawMpeCredit;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
-import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.rec.TermRec;
 
 import java.sql.SQLException;
 import java.util.ArrayList;

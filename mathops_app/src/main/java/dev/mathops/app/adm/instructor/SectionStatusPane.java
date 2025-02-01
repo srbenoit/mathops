@@ -12,8 +12,8 @@ import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
-import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.reclogic.TermLogic;
+import dev.mathops.db.rec.TermRec;
 import dev.mathops.text.builder.HtmlBuilder;
 
 import javax.swing.BorderFactory;

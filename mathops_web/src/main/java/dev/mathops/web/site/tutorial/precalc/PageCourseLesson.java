@@ -5,7 +5,7 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawrecord.RawLessonComponent;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.rec.AssignmentRec;
+import dev.mathops.db.rec.AssignmentRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.servlet.CourseLesson;
 import dev.mathops.session.sitelogic.servlet.StudentCourseStatus;

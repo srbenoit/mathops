@@ -20,9 +20,6 @@ import java.sql.SQLException;
 enum PageLogin {
     ;
 
-    /** The page. */
-    static final String PAGE = "login.html";
-
     /**
      * Generates the welcome page that users see when they access the site with either the '/' or '/index.html' paths
      * but have not logged in.
@@ -47,14 +44,18 @@ enum PageLogin {
 
         htm.sP().add("TODO: Program image and introductory text.").eP();
 
+        htm.sP("center");
         if (selectedCourse == null) {
-            htm.addln("<a href='secure/shibboleth.html' class='menubtn'/>eID Login</a>");
+            htm.add("<a href='secure/shibboleth.html' class='btn'/>");
         } else {
             final String encoded = URLEncoder.encode(selectedCourse, StandardCharsets.UTF_8);
-            htm.addln("<a href='secure/shibboleth.html?course=", encoded, "' class='menubtn'/>eID Login</a>");
+            htm.add("<a href='secure/shibboleth.html?course=", encoded, "' class='btn'/>").eP();
         }
+        htm.add("CSU NetID Login</a>").eP();
 
-        htm.sP().add("TODO: Links to public information, link back to Canvas.").eP();
+        htm.sP().add("TODO: Links to public information.").eP();
+
+        htm.sP("center").add("<a href='https://canvas.colostate.edu/' class='smallbtn'/>Return to Canvas</a>").eP();
 
         Page.endOrdinaryPage(cache, site, htm, true);
 

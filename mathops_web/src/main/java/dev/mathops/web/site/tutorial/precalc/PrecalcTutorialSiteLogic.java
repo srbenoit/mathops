@@ -17,7 +17,7 @@ import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStmpe;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.rec.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 
 import java.sql.SQLException;

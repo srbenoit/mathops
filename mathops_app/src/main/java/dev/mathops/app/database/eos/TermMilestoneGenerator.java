@@ -6,16 +6,16 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
+import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.DbContext;
-import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
-import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.old.rawrecord.RawMilestone;
-import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
-import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.rec.TermRec;
+import dev.mathops.db.rec.TermWeekRec;
+import dev.mathops.db.type.TermKey;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -51,7 +51,7 @@ public enum TermMilestoneGenerator {
      * @return the list of generated milestones
      */
     private static List<RawMilestone> generateMilestones(final TermRec term,
-                                                         final Iterable<RawSemesterCalendar> termWeeks,
+                                                         final Iterable<TermWeekRec> termWeeks,
                                                          final Collection<RawCampusCalendar> holidays) {
 
         final TermKey key = term.term;
@@ -81,7 +81,7 @@ public enum TermMilestoneGenerator {
      * @return the list of generated milestones
      */
     private static List<RawMilestone> generateFallMilestones(final TermRec term,
-                                                             final Iterable<RawSemesterCalendar> termWeeks,
+                                                             final Iterable<TermWeekRec> termWeeks,
                                                              final Collection<RawCampusCalendar> holidays) {
 
         final Map<Integer, Map<Integer, LocalDate>> daysOfWeeks = generateDaysOfWeeks(termWeeks, holidays);
@@ -500,7 +500,7 @@ public enum TermMilestoneGenerator {
      * @return the list of generated milestones
      */
     private static List<RawMilestone> generateSpringMilestones(final TermRec term,
-                                                               final Iterable<RawSemesterCalendar> termWeeks,
+                                                               final Iterable<TermWeekRec> termWeeks,
                                                                final Collection<RawCampusCalendar> holidays) {
 
         final Map<Integer, Map<Integer, LocalDate>> daysOfWeeks = generateDaysOfWeeks(termWeeks, holidays);
@@ -920,7 +920,7 @@ public enum TermMilestoneGenerator {
      * @return the list of generated milestones
      */
     private static List<RawMilestone> generateSummerMilestones(final TermRec term,
-                                                               final Iterable<RawSemesterCalendar> termWeeks,
+                                                               final Iterable<TermWeekRec> termWeeks,
                                                                final Collection<RawCampusCalendar> holidays) {
 
         final Map<Integer, Map<Integer, LocalDate>> daysOfWeeks = generateDaysOfWeeks(termWeeks, holidays);
@@ -1261,7 +1261,7 @@ public enum TermMilestoneGenerator {
      * @return the map from week number to map from day of week (1-5) to its date
      */
     private static Map<Integer, Map<Integer, LocalDate>> generateDaysOfWeeks(
-            final Iterable<RawSemesterCalendar> termWeeks, final Collection<RawCampusCalendar> holidays) {
+            final Iterable<TermWeekRec> termWeeks, final Collection<RawCampusCalendar> holidays) {
 
         final Collection<LocalDate> holidayDates = new ArrayList<>(holidays.size());
         for (final RawCampusCalendar cal : holidays) {
@@ -1273,11 +1273,11 @@ public enum TermMilestoneGenerator {
         final java.util.Calendar cal = java.util.Calendar.getInstance();
 
         int maxWeek = -1;
-        for (final RawSemesterCalendar week : termWeeks) {
+        for (final TermWeekRec week : termWeeks) {
             maxWeek = Math.max(maxWeek, week.weekNbr.intValue());
         }
 
-        for (final RawSemesterCalendar week : termWeeks) {
+        for (final TermWeekRec week : termWeeks) {
             final Integer weekNum = week.weekNbr;
             if (weekNum.intValue() == 0 || weekNum.intValue() == maxWeek) {
                 continue;
@@ -1286,8 +1286,8 @@ public enum TermMilestoneGenerator {
             final Map<Integer, LocalDate> weekMap = new TreeMap<>();
             daysOfWeeks.put(weekNum, weekMap);
 
-            final LocalDate start = week.startDt;
-            final LocalDate end = week.endDt;
+            final LocalDate start = week.startDate;
+            final LocalDate end = week.endDate;
 
             LocalDate cur = start;
             do {
@@ -1683,7 +1683,7 @@ public enum TermMilestoneGenerator {
             try {
                 final TermRec active = cache.getSystemData().getActiveTerm();
 
-                final List<RawSemesterCalendar> weeks = cache.getSystemData().getSemesterCalendars();
+                final List<TermWeekRec> weeks = cache.getSystemData().getTermWeeks();
                 final List<RawCampusCalendar> calendarDays = cache.getSystemData().getCampusCalendars();
 
                 final List<RawMilestone> milestones =

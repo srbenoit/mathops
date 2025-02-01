@@ -5,9 +5,9 @@ import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStqa;
+import dev.mathops.db.rec.TermWeekRec;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -31,7 +31,7 @@ class ExamListCard extends JPanel {
     private static final long serialVersionUID = -7690311966795710851L;
 
     /** The list of all term weeks. */
-    private final List<RawSemesterCalendar> termWeeks;
+    private final List<TermWeekRec> termWeeks;
 
     /** The exam table. */
     private final ZTableExamList examsTable;
@@ -62,9 +62,9 @@ class ExamListCard extends JPanel {
 
         this.examsScroll.setPreferredSize(new Dimension(prefWidth, Integer.MAX_VALUE));
 
-        List<RawSemesterCalendar> allTermWeeks;
+        List<TermWeekRec> allTermWeeks;
         try {
-            allTermWeeks = cache.getSystemData().getSemesterCalendars();
+            allTermWeeks = cache.getSystemData().getTermWeeks();
         } catch (final SQLException ex) {
             Log.warning(ex);
             allTermWeeks = new ArrayList<>(0);
@@ -99,8 +99,8 @@ class ExamListCard extends JPanel {
 
                 int week = 0;
                 for (int i = this.termWeeks.size() - 1; i >= 0; --i) {
-                    final RawSemesterCalendar test = this.termWeeks.get(i);
-                    if (!stexam.examDt.isBefore(test.startDt)) {
+                    final TermWeekRec test = this.termWeeks.get(i);
+                    if (!stexam.examDt.isBefore(test.startDate)) {
                         week = test.weekNbr.intValue();
                         break;
                     }

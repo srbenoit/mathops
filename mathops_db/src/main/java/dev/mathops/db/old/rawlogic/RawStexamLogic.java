@@ -10,8 +10,8 @@ import dev.mathops.db.old.rawrecord.RawStchallenge;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmpe;
 import dev.mathops.db.old.rawrecord.RawUsers;
-import dev.mathops.db.old.rec.MasteryAttemptRec;
-import dev.mathops.db.old.reclogic.MasteryAttemptLogic;
+import dev.mathops.db.rec.MasteryAttemptRec;
+import dev.mathops.db.reclogic.MasteryAttemptLogic;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.builder.SimpleBuilder;
 

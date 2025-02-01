@@ -19,7 +19,6 @@ import dev.mathops.db.old.rawlogic.RawPacingRulesLogic;
 import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
 import dev.mathops.db.old.rawlogic.RawPrereqLogic;
 import dev.mathops.db.old.rawlogic.RawRemoteMpeLogic;
-import dev.mathops.db.old.rawlogic.RawSemesterCalendarLogic;
 import dev.mathops.db.old.rawlogic.RawSurveyqaLogic;
 import dev.mathops.db.old.rawlogic.RawTestingCenterLogic;
 import dev.mathops.db.old.rawlogic.RawWhichDbLogic;
@@ -41,19 +40,20 @@ import dev.mathops.db.old.rawrecord.RawPacingRules;
 import dev.mathops.db.old.rawrecord.RawPacingStructure;
 import dev.mathops.db.old.rawrecord.RawPrereq;
 import dev.mathops.db.old.rawrecord.RawRemoteMpe;
-import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawSurveyqa;
 import dev.mathops.db.old.rawrecord.RawTestingCenter;
 import dev.mathops.db.old.rawrecord.RawWhichDb;
-import dev.mathops.db.old.rec.AssignmentRec;
-import dev.mathops.db.old.rec.MasteryExamRec;
-import dev.mathops.db.old.rec.StandardMilestoneRec;
-import dev.mathops.db.old.reclogic.AssignmentLogic;
-import dev.mathops.db.old.reclogic.MasteryExamLogic;
-import dev.mathops.db.old.reclogic.StandardMilestoneLogic;
-import dev.mathops.db.old.svc.term.TermLogic;
-import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.rec.AssignmentRec;
+import dev.mathops.db.rec.MasteryExamRec;
+import dev.mathops.db.rec.StandardMilestoneRec;
+import dev.mathops.db.rec.TermRec;
+import dev.mathops.db.rec.TermWeekRec;
+import dev.mathops.db.reclogic.AssignmentLogic;
+import dev.mathops.db.reclogic.MasteryExamLogic;
+import dev.mathops.db.reclogic.StandardMilestoneLogic;
+import dev.mathops.db.reclogic.TermLogic;
+import dev.mathops.db.reclogic.TermWeekLogic;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -96,8 +96,8 @@ public final class SystemData {
     /** All campus calendar records. */
     private List<RawCampusCalendar> campusCalendars = null;
 
-    /** All semester calendar records. */
-    private List<RawSemesterCalendar> semesterCalendars = null;
+    /** All term week records. */
+    private List<TermWeekRec> termWeeks = null;
 
     /** All courses. */
     private List<RawCourse> courses = null;
@@ -432,19 +432,19 @@ public final class SystemData {
     }
 
     /**
-     * Gets all semester calendar records.
+     * Gets all term week records.
      *
-     * @return the list of semester calendar records
+     * @return the list of term week records
      * @throws SQLException if there is an error accessing the database
      */
-    public List<RawSemesterCalendar> getSemesterCalendars() throws SQLException {
+    public List<TermWeekRec> getTermWeeks() throws SQLException {
 
-        if (this.semesterCalendars == null) {
-            this.semesterCalendars = RawSemesterCalendarLogic.queryAll(this.cache);
-            Collections.sort(this.semesterCalendars);
+        if (this.termWeeks == null) {
+            this.termWeeks = TermWeekLogic.get(this.cache).queryAll(this.cache);
+            Collections.sort(this.termWeeks);
         }
 
-        return this.semesterCalendars;
+        return this.termWeeks;
     }
 
     /**
@@ -496,7 +496,12 @@ public final class SystemData {
 
         final RawCourse rec = getCourse(course);
 
-        return rec == null ? null : Boolean.valueOf("Y".equals(rec.requireEtext));
+        if (rec == null) {
+            return null;
+        } else {
+            final boolean requiresEText = "Y".equals(rec.requireEtext);
+            return Boolean.valueOf(requiresEText);
+        }
     }
 
     /**
@@ -511,7 +516,12 @@ public final class SystemData {
 
         final RawCourse rec = getCourse(course);
 
-        return rec == null ? null : Boolean.valueOf("Y".equals(rec.isTutorial));
+        if (rec == null) {
+            return null;
+        } else {
+            final boolean isTutorial = "Y".equals(rec.isTutorial);
+            return Boolean.valueOf(isTutorial);
+        }
     }
 
     /**

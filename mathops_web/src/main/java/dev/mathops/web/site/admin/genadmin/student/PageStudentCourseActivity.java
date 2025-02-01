@@ -12,13 +12,13 @@ import dev.mathops.db.old.rawlogic.RawStmpeLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawExam;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
-import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
 import dev.mathops.db.old.rawrecord.RawStchallenge;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.old.rawrecord.RawStmpe;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.rec.TermRec;
+import dev.mathops.db.rec.TermWeekRec;
 import dev.mathops.session.ExamWriter;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
@@ -172,7 +172,7 @@ public enum PageStudentCourseActivity {
         if (active == null) {
             htm.add("(Unable to query the active term)");
         } else {
-            final List<RawSemesterCalendar> weeks = cache.getSystemData().getSemesterCalendars();
+            final List<TermWeekRec> weeks = cache.getSystemData().getTermWeeks();
 
             final List<RawStmpe> mpes = RawStmpeLogic.queryLegalByStudent(cache, student.stuId);
             mpes.sort(new RawStmpe.FinishDateTimeComparator());
@@ -209,7 +209,7 @@ public enum PageStudentCourseActivity {
      * @param role      the user role
      */
     private static void emitActivityTable(final HtmlBuilder htm, final TermRec active,
-                                          final List<RawSemesterCalendar> weeks,
+                                          final List<TermWeekRec> weeks,
                                           final List<RawStexam> exams,
                                           final List<RawStmpe> mpes,
                                           final List<RawStchallenge> chals,
@@ -234,10 +234,10 @@ public enum PageStudentCourseActivity {
         htm.sTh().add("Action").eTh();
         htm.eTr();
 
-        for (final RawSemesterCalendar week : weeks) {
+        for (final TermWeekRec week : weeks) {
             htm.sTr().sTd(null, "colspan='10'", "style='padding:1px;background:white;'").eTd().eTr();
 
-            if (week.startDt.isAfter(today)) {
+            if (week.startDate.isAfter(today)) {
                 break;
             }
             final boolean odd = (week.weekNbr.intValue() & 0x01) == 0x01;
@@ -264,7 +264,7 @@ public enum PageStudentCourseActivity {
                 htm.eTr();
 
             } else {
-                RawSemesterCalendar toWrite = week;
+                TermWeekRec toWrite = week;
                 final List<LocalDateTime> dates = new ArrayList<>(10);
 
                 if (nextMpe != null) {
@@ -352,12 +352,12 @@ public enum PageStudentCourseActivity {
      * @return the earliest student exam record that was finished before the end of the specified week in the list of
      *         exams (this record is removed from the list before returning)
      */
-    private static RawStexam nextExamInWeek(final RawSemesterCalendar week,
+    private static RawStexam nextExamInWeek(final TermWeekRec week,
                                             final List<RawStexam> exams) {
 
         final RawStexam nextExam;
 
-        if (exams.isEmpty() || exams.getFirst().examDt.isAfter(week.endDt)) {
+        if (exams.isEmpty() || exams.getFirst().examDt.isAfter(week.endDate)) {
             nextExam = null;
         } else {
             nextExam = exams.removeFirst();
@@ -375,12 +375,12 @@ public enum PageStudentCourseActivity {
      * @return the earliest student placement attempt record that was finished before the end of the specified week in
      *         the list of placement attempts (this record is removed from the list before returning)
      */
-    private static RawStmpe nextMpeInWeek(final RawSemesterCalendar week,
+    private static RawStmpe nextMpeInWeek(final TermWeekRec week,
                                           final List<RawStmpe> mpes) {
 
         final RawStmpe nextMpe;
 
-        if (mpes.isEmpty() || mpes.getFirst().examDt.isAfter(week.endDt)) {
+        if (mpes.isEmpty() || mpes.getFirst().examDt.isAfter(week.endDate)) {
             nextMpe = null;
         } else {
             nextMpe = mpes.removeFirst();
@@ -398,12 +398,12 @@ public enum PageStudentCourseActivity {
      * @return the earliest student challenge attempt record that was finished before the end of the specified week in
      *         the list of challenge attempts (this record is removed from the list before returning)
      */
-    private static RawStchallenge nextChalInWeek(final RawSemesterCalendar week,
+    private static RawStchallenge nextChalInWeek(final TermWeekRec week,
                                                  final List<RawStchallenge> chals) {
 
         final RawStchallenge nextChal;
 
-        if (chals.isEmpty() || chals.getFirst().examDt.isAfter(week.endDt)) {
+        if (chals.isEmpty() || chals.getFirst().examDt.isAfter(week.endDate)) {
             nextChal = null;
         } else {
             nextChal = chals.removeFirst();
@@ -421,12 +421,12 @@ public enum PageStudentCourseActivity {
      * @return the earliest student homework record that was finished before the end of the specified week in the list
      *         of homeworks (this record is removed from the list before returning)
      */
-    private static RawSthomework nextHwInWeek(final RawSemesterCalendar week,
+    private static RawSthomework nextHwInWeek(final TermWeekRec week,
                                               final List<RawSthomework> homeworks) {
 
         final RawSthomework nextHw;
 
-        if (homeworks.isEmpty() || homeworks.getFirst().hwDt.isAfter(week.endDt)) {
+        if (homeworks.isEmpty() || homeworks.getFirst().hwDt.isAfter(week.endDate)) {
             nextHw = null;
         } else {
             nextHw = homeworks.removeFirst();
@@ -446,7 +446,7 @@ public enum PageStudentCourseActivity {
      * @param role   the user role
      */
     private static void emitExamRow(final HtmlBuilder htm, final TermRec active,
-                                    final RawSemesterCalendar week, final boolean odd, final RawStexam ex,
+                                    final TermWeekRec week, final boolean odd, final RawStexam ex,
                                     final ERole role) {
 
         final String path =
@@ -525,7 +525,7 @@ public enum PageStudentCourseActivity {
      * @param role   the user role
      */
     private static void emitMpeRow(final HtmlBuilder htm, final TermRec active,
-                                   final RawSemesterCalendar week, final boolean odd, final RawStmpe ex,
+                                   final TermWeekRec week, final boolean odd, final RawStmpe ex,
                                    final ERole role) {
 
         final String path = ExamWriter.makeWebExamPath(active.term.shortString, ex.stuId, ex.serialNbr.longValue());
@@ -591,7 +591,7 @@ public enum PageStudentCourseActivity {
      * @param role   the user role
      */
     private static void emitChalRow(final HtmlBuilder htm, final TermRec active,
-                                    final RawSemesterCalendar week, final boolean odd, final RawStchallenge ex,
+                                    final TermWeekRec week, final boolean odd, final RawStchallenge ex,
                                     final ERole role) {
 
         final String path = ExamWriter.makeWebExamPath(active.term.shortString, ex.stuId, ex.serialNbr.longValue());
@@ -643,7 +643,7 @@ public enum PageStudentCourseActivity {
      * @param odd  true if this is an odd week number
      * @param hw   the student homework record
      */
-    private static void emitHomeworkRow(final HtmlBuilder htm, final RawSemesterCalendar week,
+    private static void emitHomeworkRow(final HtmlBuilder htm, final TermWeekRec week,
                                         final boolean odd, final RawSthomework hw) {
 
         htm.sTr(week == null ? null : "first");

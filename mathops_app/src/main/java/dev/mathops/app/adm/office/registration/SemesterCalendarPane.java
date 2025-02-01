@@ -5,7 +5,7 @@ import dev.mathops.app.adm.office.ISemesterCalendarPaneListener;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
-import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
+import dev.mathops.db.rec.TermWeekRec;
 
 import javax.swing.JPanel;
 import java.awt.Color;
@@ -42,7 +42,7 @@ public final class SemesterCalendarPane extends JPanel implements MouseListener 
     private static final int DAY_PAD = 2;
 
     /** The list of semester calendar rows. */
-    private final List<RawSemesterCalendar> semesterCalendars;
+    private final List<TermWeekRec> semesterCalendars;
 
     /** The list of holiday dates. */
     private final List<LocalDate> holidays;
@@ -67,11 +67,11 @@ public final class SemesterCalendarPane extends JPanel implements MouseListener 
 
         setBackground(Skin.LIGHTEST);
 
-        List<RawSemesterCalendar> theSemesterCalendars;
+        List<TermWeekRec> theSemesterCalendars;
         List<LocalDate> theHolidays;
 
         try {
-            theSemesterCalendars = cache.getSystemData().getSemesterCalendars();
+            theSemesterCalendars = cache.getSystemData().getTermWeeks();
             final List<RawCampusCalendar> campusCalendarRows =
                     cache.getSystemData().getCampusCalendarsByType(RawCampusCalendar.DT_DESC_HOLIDAY);
             final int size = campusCalendarRows.size();
@@ -256,11 +256,11 @@ public final class SemesterCalendarPane extends JPanel implements MouseListener 
     private LocalDate getFirstDate() {
 
         LocalDate start;
-        final RawSemesterCalendar firstWeek = this.semesterCalendars.getFirst();
+        final TermWeekRec firstWeek = this.semesterCalendars.getFirst();
         if (firstWeek.weekNbr.intValue() == 0) {
-            start = this.semesterCalendars.get(1).startDt;
+            start = this.semesterCalendars.get(1).startDate;
         } else {
-            start = firstWeek.startDt;
+            start = firstWeek.startDate;
         }
 
         if (start.getDayOfWeek() == DayOfWeek.SATURDAY) {
@@ -277,7 +277,7 @@ public final class SemesterCalendarPane extends JPanel implements MouseListener 
      */
     private LocalDate getLastDate() {
 
-        LocalDate end = this.semesterCalendars.getLast().endDt;
+        LocalDate end = this.semesterCalendars.getLast().endDate;
         if (end.getDayOfWeek() == DayOfWeek.SUNDAY) {
             end = end.minusDays(1L);
         }

@@ -16,9 +16,9 @@ import dev.mathops.db.old.rawrecord.RawMpeCredit;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.rec.LiveCsuCredit;
-import dev.mathops.db.old.rec.LiveTransferCredit;
-import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.rec.LiveCsuCredit;
+import dev.mathops.db.rec.LiveTransferCredit;
+import dev.mathops.db.rec.TermRec;
 import dev.mathops.text.builder.HtmlBuilder;
 
 import java.sql.SQLException;

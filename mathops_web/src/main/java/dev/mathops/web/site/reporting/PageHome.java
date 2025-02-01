@@ -2,8 +2,8 @@ package dev.mathops.web.site.reporting;
 
 import dev.mathops.db.Cache;
 import dev.mathops.db.enums.ERole;
-import dev.mathops.db.old.rec.ReportPermsRec;
-import dev.mathops.db.old.reclogic.ReportPermsLogic;
+import dev.mathops.db.rec.ReportPermsRec;
+import dev.mathops.db.reclogic.ReportPermsLogic;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;

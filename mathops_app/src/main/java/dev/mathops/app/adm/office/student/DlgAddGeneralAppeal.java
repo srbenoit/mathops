@@ -14,7 +14,7 @@ import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawMilestoneAppealLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.old.rawrecord.RawMilestoneAppeal;
-import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.rec.TermRec;
 import dev.mathops.db.type.TermKey;
 
 import javax.swing.BorderFactory;

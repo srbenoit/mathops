@@ -4,7 +4,7 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
-import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
+import dev.mathops.db.rec.TermWeekRec;
 
 import java.sql.SQLException;
 import java.time.DayOfWeek;
@@ -42,11 +42,11 @@ public enum TermCalendarLogic {
             holidayDates.add(row.campusDt);
         }
 
-        final List<RawSemesterCalendar> all = systemData.getSemesterCalendars();
+        final List<TermWeekRec> all = systemData.getTermWeeks();
 
-        for (final RawSemesterCalendar test : all) {
+        for (final TermWeekRec test : all) {
             if (test.weekNbr.intValue() == 1) {
-                result = test.startDt;
+                result = test.startDate;
                 if (result.getDayOfWeek() == DayOfWeek.SATURDAY) {
                     result = result.plusDays(2L);
                 } else if (result.getDayOfWeek() == DayOfWeek.SUNDAY) {
@@ -82,12 +82,12 @@ public enum TermCalendarLogic {
             holidayDates.add(row.campusDt);
         }
 
-        final List<RawSemesterCalendar> all = systemData.getSemesterCalendars();
+        final List<TermWeekRec> all = systemData.getTermWeeks();
         final int numSemesterRows = all.size();
         if (numSemesterRows > 2) {
-            final RawSemesterCalendar lastClassWeek = all.get(numSemesterRows - 2);
+            final TermWeekRec lastClassWeek = all.get(numSemesterRows - 2);
 
-            result = lastClassWeek.endDt;
+            result = lastClassWeek.endDate;
             if (result.getDayOfWeek() == DayOfWeek.SATURDAY) {
                 result = result.minusDays(1L);
             }
@@ -120,24 +120,24 @@ public enum TermCalendarLogic {
             holidayDates.add(row.campusDt);
         }
 
-        final List<RawSemesterCalendar> all = systemData.getSemesterCalendars();
+        final List<TermWeekRec> all = systemData.getTermWeeks();
         if (!all.isEmpty()) {
             final int last = all.getLast().weekNbr.intValue();
 
-            for (final RawSemesterCalendar row : all) {
+            for (final TermWeekRec row : all) {
                 final int weekNbr = row.weekNbr.intValue();
                 if (weekNbr == 0 || weekNbr == last) {
                     continue;
                 }
 
-                LocalDate date = row.startDt;
+                LocalDate date = row.startDate;
                 final DayOfWeek day = date.getDayOfWeek();
                 if (day == DayOfWeek.SATURDAY) {
                     date = date.plusDays(2L);
                 } else if (day == DayOfWeek.SUNDAY) {
                     date = date.plusDays(1L);
                 }
-                while (!date.isAfter(row.endDt)) {
+                while (!date.isAfter(row.endDate)) {
                     if (!holidayDates.contains(date)) {
                         result.add(date);
                     }

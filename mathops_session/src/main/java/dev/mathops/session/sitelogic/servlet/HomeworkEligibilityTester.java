@@ -10,7 +10,7 @@ import dev.mathops.db.old.rawrecord.RawPacingRules;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawSthomework;
-import dev.mathops.db.old.rec.AssignmentRec;
+import dev.mathops.db.rec.AssignmentRec;
 import dev.mathops.text.builder.HtmlBuilder;
 
 import java.sql.SQLException;

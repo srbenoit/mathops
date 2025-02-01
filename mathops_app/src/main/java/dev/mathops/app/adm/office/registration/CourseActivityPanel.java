@@ -7,14 +7,14 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
-import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
-import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
 import dev.mathops.db.old.rawrecord.RawStchallenge;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.old.rawrecord.RawStmpe;
 import dev.mathops.db.old.rawrecord.RawStterm;
+import dev.mathops.db.rec.TermWeekRec;
+import dev.mathops.db.type.TermKey;
 import dev.mathops.text.builder.HtmlBuilder;
 
 import javax.swing.BorderFactory;
@@ -166,7 +166,7 @@ public final class CourseActivityPanel extends AdmPanelBase {
                 this.paceTrackDisplay.setText(stterm.paceTrack);
             }
 
-            final List<RawSemesterCalendar> weeks = cache.getSystemData().getSemesterCalendars();
+            final List<TermWeekRec> weeks = cache.getSystemData().getTermWeeks();
 
             final List<ActivityRow> rows = new ArrayList<>(10);
 
@@ -292,18 +292,18 @@ public final class CourseActivityPanel extends AdmPanelBase {
      * @return 0 if the date is before all term week records,the week number of the matching record, or one larger than
      *         the largest week number if the date is beyond all term weeks
      */
-    private static int determineWeek(final ChronoLocalDate date, final List<RawSemesterCalendar> weeks) {
+    private static int determineWeek(final ChronoLocalDate date, final List<TermWeekRec> weeks) {
 
         int result;
 
-        if (date.isBefore(weeks.getFirst().startDt)) {
+        if (date.isBefore(weeks.getFirst().startDate)) {
             result = 0;
         } else {
-            final RawSemesterCalendar last = weeks.getLast();
+            final TermWeekRec last = weeks.getLast();
             result = last.weekNbr.intValue() + 1;
 
-            for (final RawSemesterCalendar test : weeks) {
-                if (!date.isAfter(test.endDt)) {
+            for (final TermWeekRec test : weeks) {
+                if (!date.isAfter(test.endDate)) {
                     result = test.weekNbr.intValue();
                     break;
                 }

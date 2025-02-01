@@ -3,14 +3,14 @@ package dev.mathops.dbjobs.report.analytics;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.IProgressListener;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
+import dev.mathops.db.enums.ETermName;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.cfg.ESchemaUse;
-import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
@@ -18,11 +18,11 @@ import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.old.rawrecord.RawMilestone;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
-import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
-import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.rec.TermRec;
+import dev.mathops.db.rec.TermWeekRec;
 import dev.mathops.text.builder.HtmlBuilder;
 
 import java.io.File;
@@ -381,7 +381,7 @@ final class UrgencyHistoryAnalysis {
     private void processStudent(final String stuId, final Iterable<RawStcourse> stuRegs,
                                 final Collection<? super StudentReportRow> reportRows) throws SQLException {
 
-        final List<RawSemesterCalendar> weeks = this.cache.getSystemData().getSemesterCalendars();
+        final List<TermWeekRec> weeks = this.cache.getSystemData().getTermWeeks();
         Collections.sort(weeks);
 
         final List<RawStexam> stexams = RawStexamLogic.queryByStudent(this.cache, stuId, true);
@@ -401,14 +401,14 @@ final class UrgencyHistoryAnalysis {
         }
 
         int dayIndex = 0;
-        for (final RawSemesterCalendar week : weeks) {
+        for (final TermWeekRec week : weeks) {
             final int weekNumber = week.weekNbr.intValue();
             if (weekNumber == 0 || weekNumber > maxWeek) {
                 continue;
             }
 
-            LocalDate day = week.startDt;
-            while (!day.isAfter(week.endDt)) {
+            LocalDate day = week.startDate;
+            while (!day.isAfter(week.endDate)) {
                 if (day.getDayOfWeek() == DayOfWeek.SUNDAY
                         || day.getDayOfWeek() == DayOfWeek.SATURDAY || holidays.contains(day)) {
                     day = day.plusDays(1L);

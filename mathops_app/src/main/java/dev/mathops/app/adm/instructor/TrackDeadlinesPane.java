@@ -12,8 +12,8 @@ import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
 import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.old.rawrecord.RawMilestone;
-import dev.mathops.db.old.svc.term.TermLogic;
-import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.reclogic.TermLogic;
+import dev.mathops.db.rec.TermRec;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;

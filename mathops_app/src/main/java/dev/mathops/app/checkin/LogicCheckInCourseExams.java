@@ -22,10 +22,10 @@ import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStterm;
-import dev.mathops.db.old.rec.StandardMilestoneRec;
-import dev.mathops.db.old.rec.StudentStandardMilestoneRec;
-import dev.mathops.db.old.reclogic.StudentStandardMilestoneLogic;
-import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.rec.StandardMilestoneRec;
+import dev.mathops.db.rec.StudentStandardMilestoneRec;
+import dev.mathops.db.reclogic.StudentStandardMilestoneLogic;
+import dev.mathops.db.rec.TermRec;
 import dev.mathops.text.builder.SimpleBuilder;
 
 import java.sql.SQLException;

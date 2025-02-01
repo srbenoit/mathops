@@ -21,8 +21,8 @@ import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.rec.AssignmentRec;
-import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.rec.AssignmentRec;
+import dev.mathops.db.rec.TermRec;
 
 import java.sql.SQLException;
 import java.time.LocalDate;

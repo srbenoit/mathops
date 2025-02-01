@@ -31,6 +31,15 @@ import java.sql.SQLException;
  */
 public final class CanvasSite extends AbstractSite {
 
+    /** A page. */
+    private static final String HOME_PAGE = "home.html";
+
+    /** A page. */
+    private static final String LOGIN_PAGE = "login.html";
+
+    /** A page. */
+    private static final String COURSE_PAGE = "course.html";
+
     /** A CSS filename. */
     private static final String BASE_STYLE_CSS = "basestyle.css";
 
@@ -41,10 +50,10 @@ public final class CanvasSite extends AbstractSite {
     private static final String SHIBBOLETH_PAGE = "secure/shibboleth.html";
 
     /** A request parameter name. */
-    static final String COURSE_PARAM = "course";
+    private static final String TARGET_PARAM = "target";
 
     /** A request parameter name. */
-    static final String TARGET_PARAM = "target";
+    static final String COURSE_PARAM = "course";
 
     /**
      * Constructs a new {@code CanvasSite}.
@@ -82,12 +91,12 @@ public final class CanvasSite extends AbstractSite {
             case "favicon.ico" -> serveImage(subpath, req, resp);
 
             case null -> {
-                final String homePath = makePagePath(PageHome.PAGE, null);
+                final String homePath = makePagePath(HOME_PAGE, null);
                 resp.sendRedirect(homePath);
             }
 
             case CoreConstants.EMPTY -> {
-                final String homePath = makePagePath(PageHome.PAGE, null);
+                final String homePath = makePagePath(HOME_PAGE, null);
                 resp.sendRedirect(homePath);
             }
 
@@ -118,14 +127,13 @@ public final class CanvasSite extends AbstractSite {
 
             if (session == null) {
                 switch (subpath) {
-                    case PageLogin.PAGE -> PageLogin.doGet(cache, this, req, resp);
+                    case LOGIN_PAGE -> PageLogin.doGet(cache, this, req, resp);
                     case SHIBBOLETH_PAGE -> doShibbolethLogin(cache, req, resp, null);
 
                     case null, default -> {
                         Log.warning("Unrecognized GET request path: ", subpath);
                         final String selectedCourse = req.getParameter(COURSE_PARAM);
-                        final String homePath = selectedCourse == null ? makePagePath(PageHome.PAGE, null)
-                                : makePagePath(PageCourse.PAGE, selectedCourse);
+                        final String homePath = makePagePath(LOGIN_PAGE, selectedCourse);
                         resp.sendRedirect(homePath);
                     }
                 }
@@ -134,16 +142,16 @@ public final class CanvasSite extends AbstractSite {
                 LogBase.setSessionInfo(session.loginSessionId, userId);
 
                 switch (subpath) {
-                    case PageLogin.PAGE -> PageLogin.doGet(cache, this, req, resp);
+                    case LOGIN_PAGE -> PageLogin.doGet(cache, this, req, resp);
                     case SHIBBOLETH_PAGE -> doShibbolethLogin(cache, req, resp, session);
-                    case PageHome.PAGE -> PageHome.doGet(cache, this, req, resp, session);
-                    case PageCourse.PAGE -> PageCourse.doGet(cache, this, req, resp, session);
+                    case HOME_PAGE -> PageHome.doGet(cache, this, req, resp, session);
+                    case COURSE_PAGE -> PageCourse.doGet(cache, this, req, resp, session);
 
                     case null, default -> {
                         Log.warning("Unrecognized GET request path: ", subpath);
                         final String selectedCourse = req.getParameter(COURSE_PARAM);
-                        final String homePath = selectedCourse == null ? makePagePath(PageHome.PAGE, null)
-                                : makePagePath(PageCourse.PAGE, selectedCourse);
+                        final String homePath = selectedCourse == null ? makePagePath(HOME_PAGE, null)
+                                : makePagePath(COURSE_PAGE, selectedCourse);
                         resp.sendRedirect(homePath);
                     }
                 }
@@ -175,7 +183,7 @@ public final class CanvasSite extends AbstractSite {
         final String maintenanceMsg = isMaintenance(this.siteProfile);
 
         if (maintenanceMsg == null) {
-            final ImmutableSessionInfo session = validateSession(req, resp, PageLogin.PAGE);
+            final ImmutableSessionInfo session = validateSession(req, resp, LOGIN_PAGE);
 
             if (session != null) {
                 final String userId = session.getEffectiveUserId();
@@ -186,9 +194,9 @@ public final class CanvasSite extends AbstractSite {
 
                     case null, default -> {
                         Log.warning("Unrecognized POST request path: ", subpath);
-                        final String selectedCourse = req.getParameter(PageCourse.PAGE);
-                        final String homePath = selectedCourse == null ? makePagePath(PageHome.PAGE, null)
-                                : makePagePath(PageCourse.PAGE, selectedCourse);
+                        final String selectedCourse = req.getParameter(COURSE_PAGE);
+                        final String homePath = selectedCourse == null ? makePagePath(HOME_PAGE, null)
+                                : makePagePath(COURSE_PAGE, selectedCourse);
                         resp.sendRedirect(homePath);
                     }
                 }
@@ -270,10 +278,10 @@ public final class CanvasSite extends AbstractSite {
         final String redirect;
         if (sess == null) {
             // Login failed - return to login page
-            redirect = makePagePath(PageLogin.PAGE, selectedCourse);
+            redirect = makePagePath(LOGIN_PAGE, selectedCourse);
         } else {
-            redirect = selectedCourse == null ? makePagePath(PageHome.PAGE, null)
-                    : makePagePath(PageCourse.PAGE, selectedCourse);
+            redirect = selectedCourse == null ? makePagePath(HOME_PAGE, null)
+                    : makePagePath(COURSE_PAGE, selectedCourse);
 
             // Install the session ID cookie in the response
             final String serverName = req.getServerName();

@@ -38,7 +38,6 @@ import dev.mathops.db.old.rawrecord.RawMpecrDenied;
 import dev.mathops.db.old.rawrecord.RawMsg;
 import dev.mathops.db.old.rawrecord.RawMsgLookup;
 import dev.mathops.db.old.rawrecord.RawPaceAppeals;
-import dev.mathops.db.old.rawrecord.RawPaceTrackRule;
 import dev.mathops.db.old.rawrecord.RawPacingRules;
 import dev.mathops.db.old.rawrecord.RawPacingStructure;
 import dev.mathops.db.old.rawrecord.RawParameters;
@@ -46,7 +45,6 @@ import dev.mathops.db.old.rawrecord.RawPlcFee;
 import dev.mathops.db.old.rawrecord.RawPrereq;
 import dev.mathops.db.old.rawrecord.RawRemoteMpe;
 import dev.mathops.db.old.rawrecord.RawResource;
-import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
 import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.db.old.rawrecord.RawStchallenge;
 import dev.mathops.db.old.rawrecord.RawStchallengeqa;
@@ -73,16 +71,16 @@ import dev.mathops.db.old.rawrecord.RawSurveyqa;
 import dev.mathops.db.old.rawrecord.RawTestingCenter;
 import dev.mathops.db.old.rawrecord.RawUserClearance;
 import dev.mathops.db.old.rawrecord.RawUsers;
-import dev.mathops.db.old.rec.AssignmentRec;
-import dev.mathops.db.old.rec.MasteryAttemptQaRec;
-import dev.mathops.db.old.rec.MasteryAttemptRec;
-import dev.mathops.db.old.rec.MasteryExamRec;
-import dev.mathops.db.old.rec.ReportPermsRec;
-import dev.mathops.db.old.rec.StandardMilestoneRec;
-import dev.mathops.db.old.rec.StudentCourseMasteryRec;
-import dev.mathops.db.old.rec.StudentStandardMilestoneRec;
-import dev.mathops.db.old.rec.StudentUnitMasteryRec;
-import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.rec.AssignmentRec;
+import dev.mathops.db.rec.MasteryAttemptQaRec;
+import dev.mathops.db.rec.MasteryAttemptRec;
+import dev.mathops.db.rec.MasteryExamRec;
+import dev.mathops.db.rec.ReportPermsRec;
+import dev.mathops.db.rec.StandardMilestoneRec;
+import dev.mathops.db.rec.StudentCourseMasteryRec;
+import dev.mathops.db.rec.StudentStandardMilestoneRec;
+import dev.mathops.db.rec.StudentUnitMasteryRec;
+import dev.mathops.db.rec.TermRec;
 import dev.mathops.text.builder.SimpleBuilder;
 
 import javax.swing.JPanel;
@@ -323,10 +321,10 @@ final class S500CreateArchiveTables extends StepExecutable {
                     MasteryExamRec.TABLE_NAME, RawMilestone.TABLE_NAME, RawMilestoneAppeal.TABLE_NAME,
                     RawMpe.TABLE_NAME,
                     RawMpeCredit.TABLE_NAME, RawMpeLog.TABLE_NAME, RawMpecrDenied.TABLE_NAME, RawMsg.TABLE_NAME,
-                    RawMsgLookup.TABLE_NAME, RawPaceAppeals.TABLE_NAME, RawPaceTrackRule.TABLE_NAME,
+                    RawMsgLookup.TABLE_NAME, RawPaceAppeals.TABLE_NAME, "pace_track_rule",
                     RawPacingRules.TABLE_NAME, RawPacingStructure.TABLE_NAME, RawParameters.TABLE_NAME,
                     RawPlcFee.TABLE_NAME, RawPrereq.TABLE_NAME, RawRemoteMpe.TABLE_NAME, ReportPermsRec.TABLE_NAME,
-                    RawResource.TABLE_NAME, RawSemesterCalendar.TABLE_NAME, RawSpecialStus.TABLE_NAME,
+                    RawResource.TABLE_NAME, "semester_calendar", RawSpecialStus.TABLE_NAME,
                     RawStchallenge.TABLE_NAME, RawStchallengeqa.TABLE_NAME, RawStcourse.TABLE_NAME,
                     RawStcunit.TABLE_NAME,
                     RawStcuobjective.TABLE_NAME, StandardMilestoneRec.TABLE_NAME, RawStetext.TABLE_NAME,
@@ -1804,7 +1802,7 @@ final class S500CreateArchiveTables extends StepExecutable {
 
                 try (final Statement stmt = this.owner.archiveCache.conn.createStatement()) {
                     stmt.executeUpdate(sql);
-                    ok = werePermissionsSet(RawPaceTrackRule.TABLE_NAME);
+                    ok = werePermissionsSet("pace_track_rule");
                 } catch (final SQLException ex) {
                     Log.warning("Failed to create 'pace_track_rule' table in archive database");
                     ok = false;
@@ -2117,7 +2115,7 @@ final class S500CreateArchiveTables extends StepExecutable {
 
                 try (final Statement stmt = this.owner.archiveCache.conn.createStatement()) {
                     stmt.executeUpdate(sql);
-                    ok = werePermissionsSet(RawSemesterCalendar.TABLE_NAME);
+                    ok = werePermissionsSet("semester_calendar");
                 } catch (final SQLException ex) {
                     Log.warning("Failed to create 'semester_calendar' table in archive database");
                     ok = false;

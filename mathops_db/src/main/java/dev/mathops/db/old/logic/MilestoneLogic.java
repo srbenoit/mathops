@@ -14,10 +14,10 @@ import dev.mathops.db.old.rawrecord.RawPaceAppeals;
 import dev.mathops.db.old.rawrecord.RawPacingStructure;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.rec.StandardMilestoneRec;
-import dev.mathops.db.old.rec.StudentStandardMilestoneRec;
-import dev.mathops.db.old.reclogic.StudentStandardMilestoneLogic;
-import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.rec.StandardMilestoneRec;
+import dev.mathops.db.rec.StudentStandardMilestoneRec;
+import dev.mathops.db.reclogic.StudentStandardMilestoneLogic;
+import dev.mathops.db.rec.TermRec;
 import dev.mathops.db.type.TermKey;
 
 import java.sql.SQLException;

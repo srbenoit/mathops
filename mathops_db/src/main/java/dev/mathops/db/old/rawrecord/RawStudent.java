@@ -2,7 +2,7 @@ package dev.mathops.db.old.rawrecord;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.type.TermKey;
-import dev.mathops.db.old.rec.RecBase;
+import dev.mathops.db.rec.RecBase;
 import dev.mathops.text.builder.HtmlBuilder;
 
 import java.sql.ResultSet;

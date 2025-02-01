@@ -4,7 +4,7 @@ import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
 import dev.mathops.db.old.ifaces.ILiveCsuCredit;
 import dev.mathops.db.old.schema.AbstractImpl;
-import dev.mathops.db.old.rec.LiveCsuCredit;
+import dev.mathops.db.rec.LiveCsuCredit;
 import dev.mathops.text.builder.HtmlBuilder;
 
 import java.sql.ResultSet;

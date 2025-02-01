@@ -1,6 +1,10 @@
 package dev.mathops.web.site.canvas;
 
 import dev.mathops.db.Cache;
+import dev.mathops.db.old.logic.RegistrationsLogic;
+import dev.mathops.db.old.rawlogic.RawStudentLogic;
+import dev.mathops.db.old.rawrecord.RawStcourse;
+import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
@@ -17,17 +21,8 @@ import java.sql.SQLException;
 enum PageCourse {
     ;
 
-    /** The page. */
-    static final String PAGE = "course.html";
-
     /**
-     * Generates the welcome page that users see when they access the site with either the '/' or '/index.html' paths
-     * and are logged in, or if they access the "/home.html" path.
-     *
-     * <p>
-     * If this page is accessed with a "course=COURSE_ID" parameter in the request, the dashboard for that course will
-     * be shown.  Otherwise, the set of all courses in which the student is enrolled is shown, and the student can
-     * choose one to jump into that course.
+     * Tests request parameters, shows the course page if valid or redirects to the home page if not.
      *
      * @param cache   the data cache
      * @param site    the owning site
@@ -38,8 +33,8 @@ enum PageCourse {
      * @throws SQLException if there is an error accessing the database
      */
     static void doGet(final Cache cache, final CanvasSite site, final ServletRequest req,
-                      final HttpServletResponse resp, final ImmutableSessionInfo session) throws IOException,
-            SQLException {
+                      final HttpServletResponse resp, final ImmutableSessionInfo session)
+            throws IOException, SQLException {
 
         final String selectedCourse = req.getParameter(CanvasSite.COURSE_PARAM);
 
@@ -47,24 +42,118 @@ enum PageCourse {
             final String homePath = site.makePagePath("home.html", null);
             resp.sendRedirect(homePath);
         } else {
-            final HtmlBuilder htm = new HtmlBuilder(2000);
-            final String siteTitle = site.getTitle();
-            Page.startOrdinaryPage(htm, siteTitle, null, true, Page.NO_BARS, null, false, true);
+            // Make sure student is actually enrolled in the selected course
 
-            htm.sH(2).add("Course page (Course is ", selectedCourse, ")").eH(2);
+            final String stuId = session.getEffectiveUserId();
+            final RegistrationsLogic.ActiveTermRegistrations registrations =
+                    RegistrationsLogic.gatherActiveTermRegistrations(cache, stuId);
 
-            htm.sP().add("TODO: Announcements like upcoming outage notifications, holds.").eP();
+            boolean enrolled = false;
+            for (final RawStcourse reg : registrations.uncountedIncompletes()) {
+                if (reg.course.equals(selectedCourse)) {
+                    enrolled = true;
+                    break;
+                }
+            }
+            for (final RawStcourse reg : registrations.inPace()) {
+                if (reg.course.equals(selectedCourse)) {
+                    enrolled = true;
+                    break;
+                }
+            }
 
-            htm.sP().add("TODO: Left-side menu with [Home], [Announcements], [Assignments], [Modules], [Grades], ",
-                    "[Syllabus], [Course Survey].").eP();
-
-            htm.sP().add("TODO: right-side menu with [View Course Calendar").eP();
-
-            htm.sP().add("TODO: Right-side TODO list.").eP();
-
-            Page.endOrdinaryPage(cache, site, htm, true);
-
-            AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm);
+            if (enrolled) {
+                presentCoursePage(cache, site, req, resp, session);
+            } else {
+                final String homePath = site.makePagePath("home.html", null);
+                resp.sendRedirect(homePath);
+            }
         }
+    }
+
+    /**
+     * Presents the top-level view of a course in which the student is enrolled
+     *
+     * @param cache   the data cache
+     * @param site    the owning site
+     * @param req     the request
+     * @param resp    the response
+     * @param session the login session
+     * @throws IOException  if there is an error writing the response
+     * @throws SQLException if there is an error accessing the database
+     */
+    static void presentCoursePage(final Cache cache, final CanvasSite site, final ServletRequest req,
+                                  final HttpServletResponse resp, final ImmutableSessionInfo session) throws IOException,
+            SQLException {
+
+        final String stuId = session.getEffectiveUserId();
+        final String selectedCourse = req.getParameter(CanvasSite.COURSE_PARAM);
+        final RawStudent student = RawStudentLogic.query(cache, stuId, false);
+
+        final HtmlBuilder htm = new HtmlBuilder(2000);
+        final String siteTitle = site.getTitle();
+        Page.startOrdinaryPage(htm, siteTitle, session, true, Page.ADMIN_BAR, null, false, true);
+
+        final String studentName = student.getScreenName();
+
+        htm.sH(2).add(selectedCourse, " (logged in as ", studentName, ")").eH(2);
+
+        emitLeftSideMenu(cache, htm);
+        emitRightSideMenu(cache, htm);
+        emitCourseAnnouncements(cache, htm);
+        emitCourseImageAndWelcome(cache, htm);
+
+        Page.endOrdinaryPage(cache, site, htm, true);
+
+        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm);
+    }
+
+    /**
+     * Emits a left-side menu with links for [Home], [Announcements], [Assignments], [Modules], [Grades], [Syllabus],
+     * [Course Survey].
+     *
+     * @param cache the data cache
+     * @param htm   the {@code HtmlBuilder} to which to append
+     * @throws SQLException if there is an error accessing the database
+     */
+    private static void emitLeftSideMenu(final Cache cache, final HtmlBuilder htm) throws SQLException {
+
+        // TODO:
+    }
+
+    /**
+     * Emits a left-side menu with links for [View Course Calendar] and a list of upcoming due dates or milestones.
+     *
+     * @param cache the data cache
+     * @param htm   the {@code HtmlBuilder} to which to append
+     * @throws SQLException if there is an error accessing the database
+     */
+    private static void emitRightSideMenu(final Cache cache, final HtmlBuilder htm) throws SQLException {
+
+        // TODO:
+    }
+
+    /**
+     * Emits any course-level announcements that are currently active.
+     *
+     * @param cache the data cache
+     * @param htm   the {@code HtmlBuilder} to which to append
+     * @throws SQLException if there is an error accessing the database
+     */
+    private static void emitCourseAnnouncements(final Cache cache, final HtmlBuilder htm) throws SQLException {
+
+        // TODO:
+    }
+
+    /**
+     * Emits the course image and welcome content.
+     *
+     * @param cache the data cache
+     * @param htm   the {@code HtmlBuilder} to which to append
+     * @throws SQLException if there is an error accessing the database
+     */
+    private static void emitCourseImageAndWelcome(final Cache cache, final HtmlBuilder htm) throws SQLException {
+
+        // TODO:
     }
 }

@@ -14,8 +14,8 @@ import dev.mathops.db.old.rawrecord.RawMilestoneAppeal;
 import dev.mathops.db.old.rawrecord.RawPaceAppeals;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStterm;
-import dev.mathops.db.old.rec.StandardMilestoneRec;
-import dev.mathops.db.old.rec.StudentStandardMilestoneRec;
+import dev.mathops.db.rec.StandardMilestoneRec;
+import dev.mathops.db.rec.StudentStandardMilestoneRec;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;

@@ -2,7 +2,7 @@ package dev.mathops.db.old.rawrecord;
 
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.old.rec.RecBase;
+import dev.mathops.db.rec.RecBase;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

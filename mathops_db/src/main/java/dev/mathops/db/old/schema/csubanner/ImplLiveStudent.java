@@ -6,7 +6,7 @@ import dev.mathops.db.DbConnection;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.ifaces.ILiveStudent;
-import dev.mathops.db.old.rec.LiveStudent;
+import dev.mathops.db.rec.LiveStudent;
 import dev.mathops.db.old.schema.AbstractImpl;
 import dev.mathops.text.builder.HtmlBuilder;
 

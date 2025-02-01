@@ -7,12 +7,12 @@ import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawSthomework;
-import dev.mathops.db.old.rec.MasteryAttemptRec;
-import dev.mathops.db.old.rec.MasteryExamRec;
-import dev.mathops.db.old.rec.StandardMilestoneRec;
-import dev.mathops.db.old.rec.StudentStandardMilestoneRec;
-import dev.mathops.db.old.reclogic.MasteryAttemptLogic;
-import dev.mathops.db.old.reclogic.StudentStandardMilestoneLogic;
+import dev.mathops.db.rec.MasteryAttemptRec;
+import dev.mathops.db.rec.MasteryExamRec;
+import dev.mathops.db.rec.StandardMilestoneRec;
+import dev.mathops.db.rec.StudentStandardMilestoneRec;
+import dev.mathops.db.reclogic.MasteryAttemptLogic;
+import dev.mathops.db.reclogic.StudentStandardMilestoneLogic;
 import dev.mathops.session.sitelogic.data.SiteDataCfgCourse;
 
 import java.sql.SQLException;

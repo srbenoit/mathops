@@ -2,7 +2,9 @@ package dev.mathops.app.catalog;
 
 import dev.mathops.commons.ESuccessFailure;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.rec.CatalogCourseRec;
+import dev.mathops.db.enums.EGradeMode;
+import dev.mathops.db.enums.EOfferingTermName;
+import dev.mathops.db.rec.CatalogCourseRec;
 import dev.mathops.db.type.CatalogCourseNumber;
 import dev.mathops.text.parser.xml.XmlEscaper;
 
@@ -17,6 +19,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.EnumSet;
 
 /**
  * A crawler that imports course information from the catalog.
@@ -201,16 +204,17 @@ enum CourseImporter {
                     if (fieldsEnd == -1) {
                         Log.warning("Failed to find end of data fields block.");
                     } else {
-                        final CatalogCourseRec record = new CatalogCourseRec();
+                        final CatalogCourseInfo info = new CatalogCourseInfo();
 
                         final String infoLine = content.substring(infoStart + infoPrefixLen, infoEnd);
                         final String fields = content.substring(fieldsStart + fieldsPrefixLen, fieldsEnd);
 
-                        if (processCourseInfoLine(infoLine, record) == ESuccessFailure.SUCCESS
-                                && processCourseFields(fields, record) == ESuccessFailure.SUCCESS) {
+                        if (processCourseInfoLine(infoLine, info) == ESuccessFailure.SUCCESS
+                            && processCourseFields(fields, info) == ESuccessFailure.SUCCESS) {
 
-                            // TODO:
-                            // Log.fine(record.serializedString());
+                            final CatalogCourseRec record = info.toRecord();
+
+                            Log.fine(record.toString());
                         }
                     }
                 }
@@ -225,7 +229,7 @@ enum CourseImporter {
      * @param record   the course record being populated
      * @return the result
      */
-    private static ESuccessFailure processCourseInfoLine(final String infoLine, final CatalogCourseRec record) {
+    private static ESuccessFailure processCourseInfoLine(final String infoLine, final CatalogCourseInfo record) {
 
         // Info line format:
         // SOWK&#160;706&#160;&#160;Advanced Research Methods for Social Work&#160;&#160;Credits: 3&#160;(1-0-2)
@@ -286,7 +290,7 @@ enum CourseImporter {
      * @param fields the block with data fields
      * @param record the course record being populated
      */
-    private static ESuccessFailure processCourseFields(final String fields, final CatalogCourseRec record) {
+    private static ESuccessFailure processCourseFields(final String fields, final CatalogCourseInfo record) {
 
         ESuccessFailure ok = ESuccessFailure.SUCCESS;
 
@@ -316,7 +320,7 @@ enum CourseImporter {
                             case "Prerequisite:" -> record.prerequisite = value;
                             case "Restriction:", "Restrictions:" -> record.restriction = value;
                             case "Registration Information:" -> record.registrationInfo = value;
-                            case "Term Offered:", "Terms Offered:"  -> record.setTermsOffered(value);
+                            case "Term Offered:", "Terms Offered:" -> CatalogCourseRec.parseTermsOffered(value);
                             case "Grade Mode:", "Grade Modes:" -> {
                                 // TODO: Parse into grade mode
                             }
@@ -376,5 +380,73 @@ enum CourseImporter {
         }
 
         return response.toString();
+    }
+
+    /**
+     * A container for course information from the catalog.
+     */
+    static class CatalogCourseInfo {
+
+        /**
+         * The course number field value, such as "MATH 126".  This represents the course_id, prefix, and number fields,
+         * which must be set together as a unit.
+         */
+        CatalogCourseNumber courseNumber;
+
+        /** The 'title' field value, such as "Topology". */
+        String title;
+
+        /** The 'description' field value, with the catalog course description. */
+        String description;
+
+        /** The 'prerequisite' field value. */
+        String prerequisite;
+
+        /** The 'registration_info' field value from the catalog. */
+        String registrationInfo;
+
+        /** The 'restriction' field value from the catalog. */
+        String restriction;
+
+        /** The 'terms_offered' field value, with the terms in which the course is offered. */
+        EnumSet<EOfferingTermName> termsOffered;
+
+        /** The 'grade_mode' field value from the catalog. */
+        EGradeMode gradeMode;
+
+        /** The 'special_course_fee' field value from the catalog. */
+        String specialCourseFee;
+
+        /** The 'additional_info' field value from the catalog. */
+        String additionalInfo;
+
+        /** The 'gt_code' field value from the catalog, such as "MA1". */
+        String gtCode;
+
+        /** The minimum (or fixed) number of credits. */
+        Integer minCredits;
+
+        /** The maximum (or fixed) number of credits. */
+        Integer maxCredits;
+
+        /**
+         * Constructs a new {@code CatalogCourseInfo}.
+         */
+        CatalogCourseInfo() {
+
+            super();
+        }
+
+        /**
+         * Generates an immutable record from the data in this object.
+         *
+         * @return the immutable record
+         */
+        public CatalogCourseRec toRecord() {
+
+            return new CatalogCourseRec(this.courseNumber, this.title, this.description, this.prerequisite,
+                    this.registrationInfo, this.restriction, this.termsOffered, this.gradeMode, this.specialCourseFee,
+                    this.additionalInfo, this.gtCode, this.minCredits, this.maxCredits);
+        }
     }
 }

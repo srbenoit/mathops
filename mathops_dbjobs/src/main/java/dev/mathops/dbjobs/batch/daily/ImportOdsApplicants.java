@@ -17,8 +17,8 @@ import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.ifaces.ILiveStudent;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.rec.LiveStudent;
-import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.rec.LiveStudent;
+import dev.mathops.db.rec.TermRec;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.builder.SimpleBuilder;
 

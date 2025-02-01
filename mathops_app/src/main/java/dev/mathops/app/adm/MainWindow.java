@@ -1,6 +1,5 @@
 package dev.mathops.app.adm;
 
-import dev.mathops.app.adm.forms.TopPanelForms;
 import dev.mathops.app.adm.instructor.TopPanelInstructor;
 import dev.mathops.app.adm.management.TopPanelManagement;
 import dev.mathops.app.adm.resource.TopPanelResource;
@@ -66,9 +65,6 @@ public final class MainWindow extends JFrame implements WindowListener, ChangeLi
 
     /** The management pane. */
     private TopPanelManagement managementPane = null;
-
-    /** The form pane. */
-    private TopPanelForms formsPane = null;
 
     /** The text render hint to use. */
     private final Object renderingHint;
@@ -165,12 +161,6 @@ public final class MainWindow extends JFrame implements WindowListener, ChangeLi
             this.tabs.addTab(tabTitle, this.managementPane);
         }
 
-        if (this.fixed.getClearanceLevel("FRM_MENU") != null) {
-            this.formsPane = new TopPanelForms(this.ifxCache);
-            final String tabTitle = Res.get(Res.FORMS_TAB);
-            this.tabs.addTab(tabTitle, this.formsPane);
-        }
-
         if (this.tabs.getTabCount() == 0) {
             // No tabs to provide a preferred size
             this.tabs.setPreferredSize(PREF_SIZE);
@@ -209,8 +199,6 @@ public final class MainWindow extends JFrame implements WindowListener, ChangeLi
             this.resourcePane.focus();
         } else if (comp == this.testingPane) {
             this.testingPane.focus();
-        } else if (comp == this.formsPane) {
-            this.formsPane.focus();
         } else if (comp == this.managementPane) {
             this.managementPane.focus();
         }
@@ -243,7 +231,6 @@ public final class MainWindow extends JFrame implements WindowListener, ChangeLi
             this.resourcePane.clearDisplay();
             this.testingPane.clearDisplay();
             this.managementPane.clearDisplay();
-            this.formsPane.clearDisplay();
 
             setVisible(false);
             dispose();

@@ -8,8 +8,8 @@ import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawrecord.RawMilestone;
-import dev.mathops.db.old.svc.term.TermLogic;
-import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.reclogic.TermLogic;
+import dev.mathops.db.rec.TermRec;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;

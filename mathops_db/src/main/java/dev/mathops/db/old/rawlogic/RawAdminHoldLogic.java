@@ -32,6 +32,7 @@ import java.util.Map;
  * create_dt            date              no
  * </pre>
  */
+@Deprecated
 public enum RawAdminHoldLogic {
     ;
 
@@ -52,13 +53,13 @@ public enum RawAdminHoldLogic {
         STAFF_HOLD_MSG.put("03",
                 "registered for both course and placement section -refer to a director!");
         STAFF_HOLD_MSG.put("04",
-                "can never reregister for course -- see discipline table for details");
+                "can never re-register for course -- see discipline table for details");
         STAFF_HOLD_MSG.put("05",
                 "deferred F issued to student -- see discipline table for details");
         STAFF_HOLD_MSG.put("06",
                 "discretionary administrative hold -- have student speak with a director");
         STAFF_HOLD_MSG.put("07",
-                "Profile info specifies different registrtion format than is in STUDENT record");
+                "Profile info specifies different registration format than is in STUDENT record");
         STAFF_HOLD_MSG.put("08",
                 "student is behind course pacing schedule -- WARN STUDENT ACCORDINGLY");
         STAFF_HOLD_MSG.put("09",
@@ -86,21 +87,21 @@ public enum RawAdminHoldLogic {
         STAFF_HOLD_MSG.put("21",
                 "tried to create stcourse record after deadline date based on User's survey");
         STAFF_HOLD_MSG.put("22",
-                "tried to create stu managed stcourse rowafter add deadline date so not registerd");
+                "tried to create stu managed stcourse row after add deadline date so not registered");
         STAFF_HOLD_MSG.put("23",
                 "officially registered for two different Precalculus formats -- needs to change registration");
         STAFF_HOLD_MSG.put("24",
-                "tried to take batch exam for course/sectin which open_status = 'N'");
+                "tried to take batch exam for course/sect in which open_status = 'N'");
         STAFF_HOLD_MSG.put("25",
                 "student is working on an INC but has re-registered for course in error");
         STAFF_HOLD_MSG.put("26",
-                "registered for placement credit that hasbeen declined");
+                "registered for placement credit that has been declined");
         STAFF_HOLD_MSG.put("27",
                 "has registered for placement credit but is not eligible");
         STAFF_HOLD_MSG.put("28",
                 "*** 4 WEEK SUMMER STUDENT *** GIVE STUDENT SPECIAL GRADING HANDOUT");
         STAFF_HOLD_MSG.put("29",
-                "*** M120B student who is also registeredfor another minicourse -- PROBLEM!!! ***");
+                "*** M120B student who is also registered for another course -- PROBLEM!!! ***");
         STAFF_HOLD_MSG.put("30",
                 "student has not met weekly progress requirement and may no longer test");
         STAFF_HOLD_MSG.put("31",
@@ -138,7 +139,7 @@ public enum RawAdminHoldLogic {
         STAFF_HOLD_MSG.put("52",
                 "student has an OVERDUE PADLOCK --ask to return it immediately!");
         STAFF_HOLD_MSG.put("53",
-                "student has an OVERDUE IPAD -- ask to retutn it immediately!");
+                "student has an OVERDUE IPAD -- ask to return it immediately!");
         STAFF_HOLD_MSG.put("54",
                 "student has an OVERDUE LAPTOP -- ask to return it immediately!");
 

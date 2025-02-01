@@ -22,7 +22,7 @@ import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.rec.TermRec;
 import dev.mathops.session.ExamWriter;
 import dev.mathops.session.sitelogic.servlet.ReviewExamEligibilityTester;
 import dev.mathops.session.txn.messages.AbstractRequestBase;

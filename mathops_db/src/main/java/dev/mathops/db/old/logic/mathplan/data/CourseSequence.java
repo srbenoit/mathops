@@ -4,8 +4,8 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawMpeCredit;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
-import dev.mathops.db.old.rec.LiveCsuCredit;
-import dev.mathops.db.old.rec.LiveTransferCredit;
+import dev.mathops.db.rec.LiveCsuCredit;
+import dev.mathops.db.rec.LiveTransferCredit;
 
 import java.util.ArrayList;
 import java.util.Collection;

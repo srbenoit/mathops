@@ -14,8 +14,8 @@ import dev.mathops.db.old.cfg.LoginConfig;
 import dev.mathops.db.old.cfg.ServerConfig;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.svc.term.TermLogic;
-import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.reclogic.TermLogic;
+import dev.mathops.db.rec.TermRec;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -45,6 +45,9 @@ import java.util.Map;
  * used in a query).
  */
 public final class Cache {
+
+    /** A guest User ID. */
+    private static final String GUEST = "GUEST";
 
     /** The database profile that was used to create the cache. */
     public final DbProfile dbProfile;
@@ -147,8 +150,8 @@ public final class Cache {
      */
     public StudentData setLoggedInUser(final String studentId) {
 
-        if ("GUEST".equals(studentId)) {
-            final RawStudent stu = RawStudentLogic.makeFakeStudent("GUEST", CoreConstants.EMPTY, "GUEST");
+        if (GUEST.equals(studentId)) {
+            final RawStudent stu = RawStudentLogic.makeFakeStudent(GUEST, CoreConstants.EMPTY, GUEST);
             this.loggedInUser = new StudentData(this, stu);
         } else {
             if (this.loggedInUser == null || !this.loggedInUser.getStudentId().equals(studentId)) {

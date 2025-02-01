@@ -32,7 +32,7 @@ import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.schema.AbstractImpl;
-import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.rec.TermRec;
 import dev.mathops.dbjobs.report.SpecialOpenReport;
 import dev.mathops.text.builder.HtmlBuilder;
 

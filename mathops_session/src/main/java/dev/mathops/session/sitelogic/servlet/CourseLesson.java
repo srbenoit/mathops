@@ -6,7 +6,7 @@ import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.rawrecord.RawCuobjective;
 import dev.mathops.db.old.rawrecord.RawLesson;
 import dev.mathops.db.old.rawrecord.RawLessonComponent;
-import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.rec.TermRec;
 
 import java.sql.SQLException;
 import java.util.ArrayList;

@@ -4,11 +4,11 @@ import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
 import dev.mathops.db.old.rawrecord.RawSthomework;
-import dev.mathops.db.old.rec.MasteryAttemptQaRec;
-import dev.mathops.db.old.rec.MasteryAttemptRec;
-import dev.mathops.db.old.rec.MasteryExamRec;
-import dev.mathops.db.old.reclogic.MasteryAttemptLogic;
-import dev.mathops.db.old.reclogic.MasteryAttemptQaLogic;
+import dev.mathops.db.rec.MasteryAttemptQaRec;
+import dev.mathops.db.rec.MasteryAttemptRec;
+import dev.mathops.db.rec.MasteryExamRec;
+import dev.mathops.db.reclogic.MasteryAttemptLogic;
+import dev.mathops.db.reclogic.MasteryAttemptQaLogic;
 import dev.mathops.text.builder.SimpleBuilder;
 
 import java.sql.SQLException;

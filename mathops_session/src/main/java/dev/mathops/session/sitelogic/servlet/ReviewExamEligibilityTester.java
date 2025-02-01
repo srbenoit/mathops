@@ -15,7 +15,7 @@ import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawSthomework;
-import dev.mathops.db.old.rec.AssignmentRec;
+import dev.mathops.db.rec.AssignmentRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.LiveSessionInfo;
 import dev.mathops.session.txn.messages.AvailableExam;

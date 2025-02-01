@@ -2,7 +2,7 @@ package dev.mathops.db.old.ifaces;
 
 import dev.mathops.db.DbConnection;
 import dev.mathops.db.old.IDataObject;
-import dev.mathops.db.old.rec.LiveTransferCredit;
+import dev.mathops.db.rec.LiveTransferCredit;
 
 import java.sql.SQLException;
 import java.util.List;

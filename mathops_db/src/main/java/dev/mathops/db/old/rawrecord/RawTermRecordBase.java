@@ -1,7 +1,7 @@
 package dev.mathops.db.old.rawrecord;
 
 import dev.mathops.db.type.TermKey;
-import dev.mathops.db.old.rec.RecBase;
+import dev.mathops.db.rec.RecBase;
 
 /**
  * The base class for raw records that include "term" and "term_yr" fields.

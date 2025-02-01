@@ -2,7 +2,7 @@ package dev.mathops.db.old.schema.csubanner;
 
 import dev.mathops.db.DbConnection;
 import dev.mathops.db.old.ifaces.ILiveRegFa;
-import dev.mathops.db.old.rec.LiveReg;
+import dev.mathops.db.rec.LiveReg;
 
 import java.sql.SQLException;
 import java.util.List;

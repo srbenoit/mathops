@@ -8,7 +8,7 @@ import dev.mathops.db.old.rawlogic.RawStetextLogic;
 import dev.mathops.db.old.rawrecord.RawEtext;
 import dev.mathops.db.old.rawrecord.RawEtextCourse;
 import dev.mathops.db.old.rawrecord.RawStetext;
-import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.rec.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
@@ -21,7 +21,6 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.chrono.ChronoZonedDateTime;

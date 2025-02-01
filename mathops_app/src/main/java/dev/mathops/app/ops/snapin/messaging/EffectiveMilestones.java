@@ -4,8 +4,8 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.old.rawrecord.RawMilestone;
-import dev.mathops.db.old.rawrecord.RawSemesterCalendar;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
+import dev.mathops.db.rec.TermWeekRec;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -155,19 +155,19 @@ public class EffectiveMilestones {
                 holidays.add(row.campusDt);
             }
 
-            final List<RawSemesterCalendar> semesterRows = cache.getSystemData().getSemesterCalendars();
+            final List<TermWeekRec> semesterRows = cache.getSystemData().getTermWeeks();
 
             int maxWeek = 0;
-            for (final RawSemesterCalendar test : semesterRows) {
+            for (final TermWeekRec test : semesterRows) {
                 maxWeek = Math.max(test.weekNbr.intValue(), maxWeek);
             }
 
             // Accumulate days from all weeks (in order) except week 0 and the last week
             for (int week = 1; week < maxWeek; ++week) {
-                for (final RawSemesterCalendar test : semesterRows) {
+                for (final TermWeekRec test : semesterRows) {
                     if (test.weekNbr.intValue() == week) {
                         // Start date is Sunday - move to Monday
-                        final LocalDate monday = test.startDt.plusDays(1L);
+                        final LocalDate monday = test.startDate.plusDays(1L);
                         daysOfTerm.add(monday);
                         final LocalDate tuesday = monday.plusDays(1L);
                         daysOfTerm.add(tuesday);

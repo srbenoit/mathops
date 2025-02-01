@@ -1,7 +1,7 @@
 package dev.mathops.db.old.logic;
 
-import dev.mathops.db.old.rec.StandardMilestoneRec;
-import dev.mathops.db.old.rec.StudentStandardMilestoneRec;
+import dev.mathops.db.rec.StandardMilestoneRec;
+import dev.mathops.db.rec.StudentStandardMilestoneRec;
 
 import java.util.ArrayList;
 import java.util.Collection;

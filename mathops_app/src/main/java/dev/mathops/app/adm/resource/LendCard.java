@@ -14,7 +14,7 @@ import dev.mathops.db.old.rawlogic.RawStresourceLogic;
 import dev.mathops.db.old.rawrecord.RawResource;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStresource;
-import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.rec.TermRec;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;

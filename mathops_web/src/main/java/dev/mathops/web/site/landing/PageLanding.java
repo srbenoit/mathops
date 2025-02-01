@@ -2,7 +2,7 @@ package dev.mathops.web.site.landing;
 
 import dev.mathops.db.Cache;
 import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.old.svc.term.TermRec;
+import dev.mathops.db.rec.TermRec;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.ESiteType;
@@ -11,7 +11,6 @@ import dev.mathops.web.site.Page;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 /**
