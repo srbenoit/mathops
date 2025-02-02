@@ -103,18 +103,18 @@ public final class Database {
         url.add("jdbc:");
 
         final String portStr = Integer.toString(this.server.port);
-        final String encPassword = URLEncoder.encode(thePassword, StandardCharsets.UTF_8);
 
         if (this.server.type == EDbProduct.INFORMIX) {
             url.add("informix-sqli://", this.server.host, CoreConstants.COLON, portStr, CoreConstants.SLASH,
-                    this.id, ":INFORMIXSERVER=", this.instance, ";user=", theUser, ";password=", encPassword,
+                    this.id, ":INFORMIXSERVER=", this.instance, ";user=", theUser, ";password=", thePassword,
                     "; IFX_LOCK_MODE_WAIT=5; CLIENT_LOCALE=en_US.8859-1;");
         } else if (this.server.type == EDbProduct.ORACLE) {
+            final String encPassword = URLEncoder.encode(thePassword, StandardCharsets.UTF_8);
             url.add("oracle:thin:", theUser, CoreConstants.SLASH, encPassword, "@", this.server.host,
                     CoreConstants.COLON, portStr, CoreConstants.SLASH, this.id);
         } else if (this.server.type == EDbProduct.POSTGRESQL) {
             url.add("postgresql://", this.server.host, CoreConstants.COLON, portStr, CoreConstants.SLASH, this.id,
-                    "?user=", theUser, "&password=", encPassword);
+                    "?user=", theUser, "&password=", thePassword);
         }
 
         return url.toString();
@@ -146,7 +146,9 @@ public final class Database {
 
             final DatabaseMetaData metadata = conn.getMetaData();
             final String productName = metadata.getDatabaseProductName();
-            final String msg = Res.fmt(Res.DATABASE_CONNECTED_TO, this.instance, productName);
+            final String msg = this.instance == null ?
+                    Res.fmt(Res.DATABASE_CONNECTED_TO_NO_INST, productName, this.id, theUser) :
+                    Res.fmt(Res.DATABASE_CONNECTED_TO, this.instance, productName, this.id, theUser);
             Log.info(msg);
 
             return conn;

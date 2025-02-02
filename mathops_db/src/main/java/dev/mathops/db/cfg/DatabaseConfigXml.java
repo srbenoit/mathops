@@ -3,6 +3,7 @@ package dev.mathops.db.cfg;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.DbConnection;
 import dev.mathops.db.EDbProduct;
 import dev.mathops.db.EDbUse;
 import dev.mathops.db.ESchema;
@@ -13,6 +14,8 @@ import dev.mathops.text.parser.xml.XmlContent;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -472,12 +475,71 @@ public enum DatabaseConfigXml {
      */
     public static void main(final String... args) {
 
+        DbConnection.registerDrivers();
+
+        DatabaseConfig config = null;
+
         final File source = getDefaultFile();
         try {
-            final DatabaseConfig config = load(source);
-
+            config = load(source);
         } catch (final IOException | ParsingException ex) {
             Log.warning(ex);
+        }
+
+        if (config != null) {
+            final Login ifxPMath = config.getLogin("IFX.P.MATH");
+            try (final Connection ignored = ifxPMath.openConnection()) {
+            } catch (final SQLException ex) {
+                Log.warning("Failed to connect to IFX.P.MATH", ex);
+            }
+
+            final Login ifxDMath = config.getLogin("IFX.D.MATH");
+            try (final Connection ignored = ifxDMath.openConnection()) {
+            } catch (final SQLException ex) {
+                Log.warning("Failed to connect to IFX.D.MATH", ex);
+            }
+
+            final Login ifxTMath = config.getLogin("IFX.T.MATH");
+            try (final Connection ignored = ifxTMath.openConnection()) {
+            } catch (final SQLException ex) {
+                Log.warning("Failed to connect to IFX.T.MATH", ex);
+            }
+
+            final Login ifxPWeb = config.getLogin("IFX.P.WEB");
+            try (final Connection ignored = ifxPWeb.openConnection()) {
+            } catch (final SQLException ex) {
+                Log.warning("Failed to connect to IFX.P.WEB", ex);
+            }
+
+            final Login ifxDWeb = config.getLogin("IFX.D.WEB");
+            try (final Connection ignored = ifxDWeb.openConnection()) {
+            } catch (final SQLException ex) {
+                Log.warning("Failed to connect to IFX.D.WEB", ex);
+            }
+
+            final Login pgsMath = config.getLogin("PGS.MATH");
+            try (final Connection ignored = pgsMath.openConnection()) {
+            } catch (final SQLException ex) {
+                Log.warning("Failed to connect to PGS.MATH", ex);
+            }
+
+            final Login banPWeb = config.getLogin("BAN.P.WEB");
+            try (final Connection ignored = banPWeb.openConnection()) {
+            } catch (final SQLException ex) {
+                Log.warning("Failed to connect to BAN.P.WEB", ex);
+            }
+
+            final Login banTWeb = config.getLogin("BAN.T.WEB");
+            try (final Connection ignored = banTWeb.openConnection()) {
+            } catch (final SQLException ex) {
+                Log.warning("Failed to connect to BAN.T.WEB", ex);
+            }
+
+            final Login opsPWeb = config.getLogin("ODS.P.WEB");
+            try (final Connection ignored = opsPWeb.openConnection()) {
+            } catch (final SQLException ex) {
+                Log.warning("Failed to connect to ODS.P.WEB", ex);
+            }
         }
     }
 }

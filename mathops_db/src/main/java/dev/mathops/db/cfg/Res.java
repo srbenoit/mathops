@@ -43,7 +43,10 @@ final class Res extends ResBundle {
     static final String DATABASE_CONNECTED_TO = key(21);
 
     /** A resource key. */
-    static final String DATABASE_CANT_CONNECT = key(22);
+    static final String DATABASE_CONNECTED_TO_NO_INST = key(22);
+
+    /** A resource key. */
+    static final String DATABASE_CANT_CONNECT = key(23);
 
     // Used by Login
 
@@ -110,7 +113,8 @@ final class Res extends ResBundle {
             {SERVER_NULL_TYPE_HOST, "Server type and host may not be null"},
 
             {DATABASE_NULL_SERVER_ID, "Database server and ID may not be null"},
-            {DATABASE_CONNECTED_TO, "Connected to {0} {1}"},
+            {DATABASE_CONNECTED_TO, "Connected to {0} {1} ({2}) as {3}"},
+            {DATABASE_CONNECTED_TO_NO_INST, "Connected to {0} ({1}) as {2}"},
             {DATABASE_CANT_CONNECT, "Failed to connect to server {0}.{1} ({2}:{3})"},
 
             {LOGIN_NULL_DB_ID_USER, "Login database, ID, and username may not be null"},
