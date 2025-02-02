@@ -33,6 +33,7 @@ import java.util.Properties;
  * &lt;/db&gt;
  * </pre>
  */
+@Deprecated
 public final class DbConfig implements Comparable<DbConfig> {
 
     /** The element tag used in the XML representation of the configuration. */

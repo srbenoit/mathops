@@ -103,9 +103,9 @@ final class Res extends ResBundle {
             {XML_CANT_READ_FILE, "Unable to read file: {0}"},
             {XML_CANT_FIND_TOP_ELEM, "Unable to find top-level element: {0}"},
             {XML_TOP_ELEM_IS_EMPTY, "Top-level element is empty: {0}"},
-            {XML_TOP_INCORRECT, "Top-level element was not '{0}'"},
-            {XML_UNEXPECTED_ELEM, "Unexpected element ({0}) within '{1}"},
-            {XML_BAD_ATTR, "Invalid '{0}' attribute in '{1}}' element"},
+            {XML_TOP_INCORRECT, "Top-level element was not ''{0}''"},
+            {XML_UNEXPECTED_ELEM, "Unexpected element ({0}) within ''{1}''"},
+            {XML_BAD_ATTR, "Invalid ''{0}'' attribute ({1}) in ''{2}'' element"},
 
             {SERVER_NULL_TYPE_HOST, "Server type and host may not be null"},
 

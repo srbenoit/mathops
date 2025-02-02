@@ -14,6 +14,7 @@ import dev.mathops.commons.CoreConstants;
  * &lt;/profile&gt;
  * </pre>
  */
+@Deprecated
 public final class WebSiteProfile {
 
     /** The host name. */

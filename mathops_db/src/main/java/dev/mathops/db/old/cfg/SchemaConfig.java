@@ -18,6 +18,7 @@ import dev.mathops.text.parser.xml.EmptyElement;
  * &lt;schema id='...' builder='(fully-qualified class name)' use='...'/&gt;
  * </pre>
  */
+@Deprecated
 public final class SchemaConfig {
 
     /** The element tag used in the XML representation of the schema. */

@@ -8,6 +8,9 @@ import dev.mathops.db.ESchema;
  */
 public final class Data {
 
+    /** A character that is valid in prefixes. */
+    private static final int UNDERSCORE = (int) '_';
+
     /** The database that owns the data. */
     public final Database database;
 
@@ -42,7 +45,7 @@ public final class Data {
         }
 
         // "Prefix" will get injected into SQL - we need to make sure it's just a sequence of alphabetic and digit
-        // characters (where the first character is alphabetic) and not arbitrary SQL code.
+        // characters or underscores (where the first character is alphabetic) and not arbitrary SQL code.
         if (thePrefix != null) {
             if (thePrefix.isBlank()) {
                 final String msg = Res.get(Res.DATA_PREFIX_BLANK);
@@ -53,7 +56,7 @@ public final class Data {
                 final int len = thePrefix.length();
                 for (int i = 1; i < len; ++i) {
                     final int chr = (int) thePrefix.charAt(i);
-                    if (!(Character.isAlphabetic(chr) || Character.isDigit(chr))) {
+                    if (!(Character.isAlphabetic(chr) || Character.isDigit(chr) || chr == UNDERSCORE)) {
                         final String msg = Res.get(Res.DATA_BAD_PREFIX);
                         throw new IllegalArgumentException(msg);
                     }

@@ -3,6 +3,7 @@ package dev.mathops.db.old.cfg;
 /**
  * Enumeration of supported schema uses.
  */
+@Deprecated
 public enum ESchemaUse {
 
     /** Primary data schema. */

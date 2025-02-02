@@ -22,6 +22,7 @@ import java.util.Map;
  * &lt;/profile&gt;
  * </pre>
  */
+@Deprecated
 public final class DbProfile implements Comparable<DbProfile> {
 
     /** The element tag used in the XML representation of the configuration. */

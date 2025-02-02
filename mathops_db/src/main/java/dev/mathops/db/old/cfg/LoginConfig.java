@@ -10,6 +10,7 @@ import java.sql.SQLException;
 /**
  * Represents a login to a database.
  */
+@Deprecated
 public final class LoginConfig {
 
     /** The element tag used in the XML representation of the configuration. */

@@ -45,6 +45,17 @@ public final class Profile {
     }
 
     /**
+     * Gets the profile schema to use for a specified {@code ESchema}.
+     *
+     * @param which the {@code ESchema}
+     * @return the schema configuration
+     */
+    public Schema getSchema(final ESchema which) {
+
+        return this.schemas.get(which);
+    }
+
+    /**
      * Tests whether the profile provides all required schemas (and provides no schema twice).
      *
      * @return an error message if the profile is not valid; null if it is valid

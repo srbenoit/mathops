@@ -33,6 +33,7 @@ import java.util.TreeMap;
  * advantage of this is that this class can be instantiated once, then multiple clients can request maps based on their
  * base directories, but all queries for the same directory will return the same map.
  */
+@Deprecated
 public final class ContextMap {
 
     /** Name of file where context map data is stored. */

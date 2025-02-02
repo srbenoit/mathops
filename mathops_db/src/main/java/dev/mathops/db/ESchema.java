@@ -23,7 +23,13 @@ public enum ESchema {
     TERM,
 
     /** The legacy schema. */
-    LEGACY;
+    LEGACY,
+
+    /** The live schema. */
+    LIVE,
+
+    /** The ODS schema. */
+    ODS;
 
     /**
      * Finds the {@code ESchema} with a particular name.

@@ -1,6 +1,8 @@
 package dev.mathops.db.cfg;
 
 import dev.mathops.commons.file.FileLoader;
+import dev.mathops.commons.installation.PathList;
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.EDbProduct;
 import dev.mathops.db.EDbUse;
 import dev.mathops.db.ESchema;
@@ -98,6 +100,25 @@ public enum DatabaseConfigXml {
     private static final String PROFILE_ATTR = "profile";
 
     /**
+     * Gets the default file location for the database configuration.
+     *
+     * @return the file location
+     */
+    public static File getDefaultFile() {
+
+        final PathList pathList = PathList.getInstance();
+        final File baseDir = pathList.getBaseDir();
+        final File dbDir = new File(baseDir, "db");
+        File result = null;
+
+        if (dbDir.exists() && dbDir.isDirectory()) {
+            result = new File(dbDir, FILENAME);
+        }
+
+        return result;
+    }
+
+    /**
      * Attempts to load a source file, parse it as XML, then extract a database configuration from its structure.
      *
      * @param source the source file
@@ -183,7 +204,7 @@ public enum DatabaseConfigXml {
 
         final EDbProduct type = EDbProduct.forName(typeStr);
         if (type == null) {
-            final String msg = Res.fmt(Res.XML_BAD_ATTR, TYPE_ATTR, SERVER_TAG);
+            final String msg = Res.fmt(Res.XML_BAD_ATTR, TYPE_ATTR, typeStr, SERVER_TAG);
             throw new ParsingException(elem, msg);
         }
 
@@ -207,7 +228,7 @@ public enum DatabaseConfigXml {
                 }
             }
         } catch (final NumberFormatException ex) {
-            final String msg = Res.fmt(Res.XML_BAD_ATTR, PORT_ATTR, SERVER_TAG);
+            final String msg = Res.fmt(Res.XML_BAD_ATTR, PORT_ATTR, portStr, SERVER_TAG);
             throw new ParsingException(elem, msg, ex);
         }
     }
@@ -285,7 +306,16 @@ public enum DatabaseConfigXml {
         final String prefixStr = elem.getStringAttr(PREFIX_ATTR);
 
         final ESchema schema = ESchema.forName(schemaStr);
+        if (schema == null) {
+            final String msg = Res.fmt(Res.XML_BAD_ATTR, SCHEMA_ATTR, schemaStr, DATA_TAG);
+            throw new ParsingException(elem, msg);
+        }
+
         final EDbUse use = EDbUse.forName(useStr);
+        if (use == null) {
+            final String msg = Res.fmt(Res.XML_BAD_ATTR, USE_ATTR, useStr, DATA_TAG);
+            throw new ParsingException(elem, msg);
+        }
 
         final Data data = new Data(database, idStr, schema, use, prefixStr);
         final List<Data> databaseData = database.getData();
@@ -344,13 +374,13 @@ public enum DatabaseConfigXml {
 
         final Data data = config.getData(dataStr);
         if (data == null) {
-            final String msg = Res.fmt(Res.XML_BAD_ATTR, DATA_ATTR, SCHEMA_TAG);
+            final String msg = Res.fmt(Res.XML_BAD_ATTR, DATA_ATTR, dataStr, SCHEMA_TAG);
             throw new ParsingException(elem, msg);
         }
 
         final Login login = config.getLogin(loginStr);
         if (login == null) {
-            final String msg = Res.fmt(Res.XML_BAD_ATTR, LOGIN_ATTR, SCHEMA_TAG);
+            final String msg = Res.fmt(Res.XML_BAD_ATTR, LOGIN_ATTR, loginStr, SCHEMA_TAG);
             throw new ParsingException(elem, msg);
         }
 
@@ -404,7 +434,7 @@ public enum DatabaseConfigXml {
 
         final Profile profile = config.getProfile(profileStr);
         if (profile == null) {
-            final String msg = Res.fmt(Res.XML_BAD_ATTR, PROFILE_ATTR, SITE_TAG);
+            final String msg = Res.fmt(Res.XML_BAD_ATTR, PROFILE_ATTR, profileStr, SITE_TAG);
             throw new ParsingException(elem, msg);
         }
 
@@ -427,11 +457,27 @@ public enum DatabaseConfigXml {
 
         final Profile profile = config.getProfile(profileStr);
         if (profile == null) {
-            final String msg = Res.fmt(Res.XML_BAD_ATTR, PROFILE_ATTR, CODE_CONTEXT_TAG);
+            final String msg = Res.fmt(Res.XML_BAD_ATTR, PROFILE_ATTR, profileStr, CODE_CONTEXT_TAG);
             throw new ParsingException(elem, msg);
         }
 
         final CodeContext codeContext = new CodeContext(idStr, profile);
         config.addCodeContext(codeContext);
+    }
+
+    /**
+     * Main method to load the default configuration file and print the results.
+     *
+     * @param args command-line arguments
+     */
+    public static void main(final String... args) {
+
+        final File source = getDefaultFile();
+        try {
+            final DatabaseConfig config = load(source);
+
+        } catch (final IOException | ParsingException ex) {
+            Log.warning(ex);
+        }
     }
 }

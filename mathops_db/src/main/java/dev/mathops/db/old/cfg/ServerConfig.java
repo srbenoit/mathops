@@ -31,6 +31,7 @@ import java.util.Objects;
  * &lt;/server&gt;
  * </pre>
  */
+@Deprecated
 public final class ServerConfig {
 
     /** The element tag used in the XML representation of the configuration. */
