@@ -300,13 +300,15 @@ public final class ContextMap {
         final File xmlFile = new File(dir, FILENAME);
 
         if (!xmlFile.exists()) {
-            throw new ParsingException(-1, -1, Res.fmt(Res.CTX_MAP_FILE_NONEXIST, xmlFile.getAbsolutePath()));
+            final String xmlPath = xmlFile.getAbsolutePath();
+            throw new ParsingException(-1, -1, Res.fmt(Res.CTX_MAP_FILE_NONEXIST, xmlPath));
         }
 
         final String xml = FileLoader.loadFileAsString(xmlFile, true);
 
         if (xml == null) {
-            throw new ParsingException(-1, -1, Res.fmt(Res.CTX_MAP_CANT_OPEN_SRC, xmlFile.getAbsolutePath()));
+            final String xmlPath = xmlFile.getAbsolutePath();
+            throw new ParsingException(-1, -1, Res.fmt(Res.CTX_MAP_CANT_OPEN_SRC, xmlPath));
         }
 
         final XmlContent content = new XmlContent(xml, true, false);
@@ -314,15 +316,18 @@ public final class ContextMap {
 
         if (nodes != null) {
             if (nodes.size() == 1 && nodes.getFirst() instanceof final NonemptyElement elem) {
-                if (XML_TAG.equals(elem.getTagName())) {
+                final String tagName = elem.getTagName();
+                if (XML_TAG.equals(tagName)) {
                     return new ContextMap(elem);
                 }
 
-                throw new ParsingException(0, 0, Res.get(Res.CTX_MAP_NO_TOPLEVEL));
+                final String msg = Res.get(Res.CTX_MAP_NO_TOPLEVEL);
+                throw new ParsingException(0, 0, msg);
             }
         }
 
-        throw new ParsingException(-1, -1, Res.get(Res.CTX_MAP_BAD_TOPLEVEL));
+        final String msg = Res.get(Res.CTX_MAP_BAD_TOPLEVEL);
+        throw new ParsingException(-1, -1, msg);
     }
 
 //    /**

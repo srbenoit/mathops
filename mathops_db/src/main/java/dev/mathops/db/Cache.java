@@ -8,7 +8,6 @@ import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.DbConfig;
 import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.EDbUse;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.cfg.LoginConfig;
 import dev.mathops.db.old.cfg.ServerConfig;

@@ -172,7 +172,6 @@ public enum PageDbAdminContextsServer {
             case PROD:
             case DEV:
             case TEST:
-            case ARCH:
             case ODS:
             default:
                 PageDbAdmin.emitProdNavMenu(htm, null, query);

@@ -7,7 +7,7 @@ import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbConfig;
 import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.EDbUse;
+import dev.mathops.db.EDbUse;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.cfg.LoginConfig;
 import dev.mathops.db.old.cfg.ServerConfig;
@@ -128,7 +128,7 @@ final class DatabasePicker extends JFrame implements ActionListener {
 
                 final EDbUse use = database.use;
 
-                if (use == EDbUse.ARCH || use == EDbUse.LIVE || use == EDbUse.ODS) {
+                if (use == EDbUse.LIVE || use == EDbUse.ODS) {
                     continue;
                 }
 
@@ -155,7 +155,7 @@ final class DatabasePicker extends JFrame implements ActionListener {
                 check.setSelected(databaseChecked);
 
                 builder.reset();
-                builder.add(database.use.name, " database '", database.id, "'");
+                builder.add(database.use.name(), " database '", database.id, "'");
 
                 final String databaseTitleStr = builder.toString();
                 final JLabel databaseTitle = new JLabel(databaseTitleStr);

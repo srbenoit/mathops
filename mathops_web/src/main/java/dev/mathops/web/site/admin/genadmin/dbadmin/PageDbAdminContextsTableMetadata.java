@@ -89,7 +89,6 @@ public enum PageDbAdminContextsTableMetadata {
                             case PROD:
                             case DEV:
                             case TEST:
-                            case ARCH:
                             default:
                                 PageDbAdmin.emitProdNavMenu(htm, EAdmSubtopic.DB_META, query);
                                 break;

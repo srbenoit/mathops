@@ -7,7 +7,7 @@ import dev.mathops.db.DbConnection;
 import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.EDbUse;
+import dev.mathops.db.EDbUse;
 import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.rec.StudentStandardMilestoneRec;
 import org.junit.jupiter.api.AfterAll;

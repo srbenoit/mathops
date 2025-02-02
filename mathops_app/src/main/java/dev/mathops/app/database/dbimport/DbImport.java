@@ -9,7 +9,7 @@ import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.db.DbConnection;
 import dev.mathops.db.EDbProduct;
 import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.EDbUse;
+import dev.mathops.db.EDbUse;
 import dev.mathops.db.old.cfg.LoginConfig;
 import dev.mathops.db.old.cfg.ServerConfig;
 import dev.mathops.text.builder.SimpleBuilder;

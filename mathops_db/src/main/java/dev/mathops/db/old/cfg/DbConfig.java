@@ -3,6 +3,7 @@ package dev.mathops.db.old.cfg;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.EDbProduct;
+import dev.mathops.db.EDbUse;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.parser.ParsingException;
 import dev.mathops.text.parser.xml.EmptyElement;
@@ -132,8 +133,8 @@ public final class DbConfig implements Comparable<DbConfig> {
      * Constructs a new {@code DbConfig}.
      *
      * @param theServer the owning server configuration
-     * @param theId the database configuration ID
-     * @param theUse  the database use
+     * @param theId     the database configuration ID
+     * @param theUse    the database use
      */
     public DbConfig(final ServerConfig theServer, final String theId, final EDbUse theUse) {
 
@@ -231,7 +232,7 @@ public final class DbConfig implements Comparable<DbConfig> {
                 conn = DriverManager.getConnection(url);
             }
 
-            Log.info("Connected to ", this.use.name, CoreConstants.SPC, conn.getMetaData().getDatabaseProductName());
+            Log.info("Connected to ", this.use.name(), CoreConstants.SPC, conn.getMetaData().getDatabaseProductName());
 
             return conn;
         } catch (final SQLException | IllegalArgumentException ex) {
