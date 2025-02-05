@@ -40,6 +40,12 @@ public final class CanvasSite extends AbstractSite {
     /** A page. */
     private static final String COURSE_PAGE = "course.html";
 
+    /** A page. */
+    private static final String COURSE_TEXT_PAGE = "course_text.html";
+
+    /** A page. */
+    private static final String COURSE_TEXT_MODULE_PAGE = "course_text_module.html";
+
     /** A CSS filename. */
     private static final String BASE_STYLE_CSS = "basestyle.css";
 
@@ -146,6 +152,8 @@ public final class CanvasSite extends AbstractSite {
                     case SHIBBOLETH_PAGE -> doShibbolethLogin(cache, req, resp, session);
                     case HOME_PAGE -> PageHome.doGet(cache, this, req, resp, session);
                     case COURSE_PAGE -> PageCourse.doGet(cache, this, req, resp, session);
+                    case COURSE_TEXT_PAGE -> PageCourseText.doGet(cache, this, req, resp, session);
+                    case COURSE_TEXT_MODULE_PAGE -> PageCourseModule.doGet(cache, this, req, resp, session);
 
                     case null, default -> {
                         Log.warning("Unrecognized GET request path: ", subpath);

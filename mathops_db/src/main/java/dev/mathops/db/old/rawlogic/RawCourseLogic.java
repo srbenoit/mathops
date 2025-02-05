@@ -51,7 +51,7 @@ public enum RawCourseLogic {
         final String sql = SimpleBuilder.concat(
                 "INSERT INTO course (course,nbr_units,course_name,nbr_credits,calc_ok,course_label,inline_prefix,",
                 "is_tutorial,require_etext) VALUES (",
-                "'", record.course, "',",
+                LogicUtils.sqlStringValue(record.course), ",",
                 LogicUtils.sqlIntegerValue(record.nbrUnits), ",",
                 LogicUtils.sqlStringValue(record.courseName), ",",
                 LogicUtils.sqlIntegerValue(record.nbrCredits), ",",
