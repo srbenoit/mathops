@@ -73,4 +73,36 @@ public final class Data {
         this.use = theUse;
         this.prefix = thePrefix;
     }
+
+    /**
+     * Generates a hash code for the object.
+     *
+     * @return the hash code
+     */
+    public int hashCode() {
+
+        return this.database.hashCode() + this.id.hashCode() + this.schema.hashCode() + this.use.hashCode();
+    }
+
+    /**
+     * Tests whether this object is equal to another.
+     *
+     * @param o the other object
+     * @return true if the objects are equal
+     */
+    public boolean equals(final Object o) {
+
+        final boolean equal;
+
+        if (o == this) {
+            equal = true;
+        } else if (o instanceof final Data data) {
+            equal = this.schema == data.schema && this.use == data.use && this.id.equals(data.id)
+                    && this.database.equals(data.database);
+        } else {
+            equal = false;
+        }
+
+        return equal;
+    }
 }

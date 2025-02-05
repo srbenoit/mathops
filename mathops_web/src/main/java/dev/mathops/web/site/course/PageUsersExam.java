@@ -76,7 +76,7 @@ enum PageUsersExam {
     private static void doPageContent(final Cache cache, final CourseSite site, final HtmlBuilder htm,
                                       final ImmutableSessionInfo session) throws SQLException {
 
-        final StudentInfo info = new StudentInfo(site.getDbProfile());
+        final StudentInfo info = new StudentInfo(site.site.profile);
 
         final String stuId = session.getEffectiveUserId();
         info.gatherData(cache, stuId);

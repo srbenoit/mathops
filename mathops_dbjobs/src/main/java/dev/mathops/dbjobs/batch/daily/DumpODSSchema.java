@@ -3,10 +3,10 @@ package dev.mathops.dbjobs.batch.daily;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Profile;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,20 +18,15 @@ import java.sql.Statement;
 final class DumpODSSchema {
 
     /** The database profile through which to access the database. */
-    private final DbProfile dbProfile;
-
-    /** The ODS database context. */
-    private final DbContext odsCtx;
+    private final Profile profile;
 
     /**
      * Constructs a new {@code DumpODSSchema}.
      */
     private DumpODSSchema() {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-
-        this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
-        this.odsCtx = this.dbProfile.getDbContext(ESchemaUse.ODS);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        this.profile = config.getCodeProfile(Contexts.BATCH_PATH);
     }
 
     /**
@@ -39,23 +34,20 @@ final class DumpODSSchema {
      */
     private void execute() {
 
-        if (this.dbProfile == null) {
-            Log.warning("Unable to create production context.");
-        } else if (this.odsCtx == null) {
-            Log.warning("Unable to create ODS database context.");
+        if (this.profile == null) {
+            Log.warning("Unable to create production profile.");
         } else {
-            try {
-                final DbConnection conn = this.odsCtx.checkOutConnection();
+            final Login odsLogin = this.profile.getLogin(ESchema.ODS);
+            final DbConnection conn = odsLogin.checkOutConnection();
 
-                try {
-//                    dumpMetadata(conn);
-                    debugQuery(conn);
-                } finally {
-                    this.odsCtx.checkInConnection(conn);
-                }
+            try {
+//                dumpMetadata(conn);
+                debugQuery(conn);
             } catch (final SQLException ex) {
                 Log.warning(ex);
                 Log.warning("Unable to obtain connection to ODS database");
+            } finally {
+                odsLogin.checkInConnection(conn);
             }
         }
     }
@@ -68,7 +60,7 @@ final class DumpODSSchema {
      */
     private static void debugQuery(final DbConnection conn) throws SQLException {
 
-        final String sql= "SELECT COUNT(*) FROM CSUBAN.CSUG_GP_DEMO";
+        final String sql = "SELECT COUNT(*) FROM CSUBAN.CSUG_GP_DEMO";
 
         try (final Statement stmt = conn.createStatement()) {
             try (final ResultSet rs = stmt.executeQuery(sql)) {
@@ -79,16 +71,16 @@ final class DumpODSSchema {
         }
 
         final String sql1 = "SELECT "
-                + " A.CSU_ID csuid, "
-                + " A.PIDM pidm, "
-                + " A.FIRST_NAME first, "
-                + " A.MIDDLE_NAME middle, "
-                + " A.LAST_NAME last, "
-                + " A.PREFERRED_FIRST_NAME pref, "
-                + " A.EMAIL email, "
-                + " A.BIRTH_DATE birth "
-                + "FROM CSUBAN.CSUG_GP_DEMO A "
-                + "WHERE A.CSU_ID = '831645739'";
+                            + " A.CSU_ID csuid, "
+                            + " A.PIDM pidm, "
+                            + " A.FIRST_NAME first, "
+                            + " A.MIDDLE_NAME middle, "
+                            + " A.LAST_NAME last, "
+                            + " A.PREFERRED_FIRST_NAME pref, "
+                            + " A.EMAIL email, "
+                            + " A.BIRTH_DATE birth "
+                            + "FROM CSUBAN.CSUG_GP_DEMO A "
+                            + "WHERE A.CSU_ID = '831645739'";
 
         try (final Statement stmt = conn.createStatement()) {
             try (final ResultSet rs = stmt.executeQuery(sql1)) {
@@ -108,18 +100,18 @@ final class DumpODSSchema {
         }
 
         final String sql2 = "SELECT "
-                + " A.PERSON_UID pidm, "
-                + " A.ID id, "
-                + " A.NAME name, "
-                + " A.HS_CODE hs_code, "
-                + " A.PRIMARY_COLLEGE college, "
-                + " A.PRIMARY_DEPARTMENT dept, "
-                + " A.PRIMARY_MAJOR major, "
-                + " A.PROGRAM_OF_STUDY program, "
-                + " A.START_DATE startDt, "
-                + " A.END_DATE endDt "
-                + "FROM CSUBAN.CSUS_ENROLL_MASTER_AH A "
-                + "WHERE A.PERSON_UID = 11612982";
+                            + " A.PERSON_UID pidm, "
+                            + " A.ID id, "
+                            + " A.NAME name, "
+                            + " A.HS_CODE hs_code, "
+                            + " A.PRIMARY_COLLEGE college, "
+                            + " A.PRIMARY_DEPARTMENT dept, "
+                            + " A.PRIMARY_MAJOR major, "
+                            + " A.PROGRAM_OF_STUDY program, "
+                            + " A.START_DATE startDt, "
+                            + " A.END_DATE endDt "
+                            + "FROM CSUBAN.CSUS_ENROLL_MASTER_AH A "
+                            + "WHERE A.PERSON_UID = 11612982";
 
         try (final Statement stmt = conn.createStatement()) {
             try (final ResultSet rs = stmt.executeQuery(sql2)) {
@@ -141,16 +133,16 @@ final class DumpODSSchema {
         }
 
         final String sql3 = "SELECT "
-                + " A.PIDM pidm, "
-                + " A.CSU_ID id, "
-                + " A.NAME name, "
-                + " A.TERM term, "
-                + " A.PRIMARY_COLLEGE college, "
-                + " A.PRIMARY_DEPARTMENT dept, "
-                + " A.PRIMARY_MAJOR major, "
-                + " A.PROGRAM_OF_STUDY program "
-                + "FROM CSUBAN.CSUS_ENROLL_TERM_SUMMARY_AH A "
-                + "WHERE A.PIDM = 11612982";
+                            + " A.PIDM pidm, "
+                            + " A.CSU_ID id, "
+                            + " A.NAME name, "
+                            + " A.TERM term, "
+                            + " A.PRIMARY_COLLEGE college, "
+                            + " A.PRIMARY_DEPARTMENT dept, "
+                            + " A.PRIMARY_MAJOR major, "
+                            + " A.PROGRAM_OF_STUDY program "
+                            + "FROM CSUBAN.CSUS_ENROLL_TERM_SUMMARY_AH A "
+                            + "WHERE A.PIDM = 11612982";
 
         try (final Statement stmt = conn.createStatement()) {
             try (final ResultSet rs = stmt.executeQuery(sql3)) {

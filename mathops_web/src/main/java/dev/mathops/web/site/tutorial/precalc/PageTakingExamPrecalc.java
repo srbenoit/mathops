@@ -20,7 +20,6 @@ import dev.mathops.web.site.html.unitexam.UnitExamSessionStore;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -137,7 +136,7 @@ enum PageTakingExamPrecalc {
                 Log.info("Starting unit exam for session ", session.loginSessionId, " user ",
                         session.getEffectiveUserId(), " exam ", version);
 
-                us = new UnitExamSession(cache, site.siteProfile, session.loginSessionId, session.getEffectiveUserId(),
+                us = new UnitExamSession(cache, site.site, session.loginSessionId, session.getEffectiveUserId(),
                         course, version, redirect);
                 store.setUnitExamSession(us);
             } else {

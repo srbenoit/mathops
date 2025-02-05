@@ -2,6 +2,7 @@ package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawStmsg;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -58,14 +59,18 @@ public enum RawStmsgLogic {
                 LogicUtils.sqlStringValue(record.msgCode), ",",
                 LogicUtils.sqlStringValue(record.sender), ")");
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -89,14 +94,18 @@ public enum RawStmsgLogic {
                 "  AND touch_point=", LogicUtils.sqlStringValue(record.touchPoint),
                 "  AND msg_code=", LogicUtils.sqlStringValue(record.msgCode));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -111,7 +120,7 @@ public enum RawStmsgLogic {
      */
     public static List<RawStmsg> queryAll(final Cache cache) throws SQLException {
 
-        return executeQuery(cache.conn, "SELECT * FROM stmsg");
+        return executeQuery(cache, "SELECT * FROM stmsg");
     }
 
     /**
@@ -129,7 +138,7 @@ public enum RawStmsgLogic {
         final String sql = SimpleBuilder.concat("SELECT * FROM stmsg WHERE stu_id=",
                 LogicUtils.sqlStringValue(studentId));
 
-        return executeQuery(cache.conn, sql);
+        return executeQuery(cache, sql);
     }
 
     /**
@@ -143,7 +152,7 @@ public enum RawStmsgLogic {
 
         final String sql = "SELECT count(*) FROM stmsg";
 
-        return LogicUtils.executeSimpleIntQuery(cache.conn, sql);
+        return LogicUtils.executeSimpleIntQuery(cache, sql);
     }
 
     /**
@@ -157,19 +166,20 @@ public enum RawStmsgLogic {
 
         final String sql = "SELECT max(msg_dt) FROM stmsg";
 
-        return LogicUtils.executeSimpleDateQuery(cache.conn, sql);
+        return LogicUtils.executeSimpleDateQuery(cache, sql);
     }
 
     /**
      * Executes a query that returns a list of records.
      *
-     * @param conn the database connection, checked out to this thread
-     * @param sql  the SQL to execute
+     * @param cache the data cache
+     * @param sql   the SQL to execute
      * @return the list of matching records
      * @throws SQLException if there is an error accessing the database
      */
-    private static List<RawStmsg> executeQuery(final DbConnection conn, final String sql)
-            throws SQLException {
+    private static List<RawStmsg> executeQuery(final Cache cache, final String sql) throws SQLException {
+
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
         final List<RawStmsg> result = new ArrayList<>(50);
 
@@ -179,6 +189,8 @@ public enum RawStmsgLogic {
             while (rs.next()) {
                 result.add(RawStmsg.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;

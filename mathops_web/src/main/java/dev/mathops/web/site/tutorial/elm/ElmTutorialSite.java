@@ -6,8 +6,8 @@ import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
 import dev.mathops.db.Cache;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.db.logic.ELiveRefreshes;
-import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.old.logic.ELMTutorialStatus;
 import dev.mathops.db.old.logic.HoldsStatus;
 import dev.mathops.session.ISessionManager;
@@ -38,12 +38,12 @@ public final class ElmTutorialSite extends AbstractPageSite {
     /**
      * Constructs a new {@code ElmCourseSite}.
      *
-     * @param theSiteProfile the website profile
+     * @param theSite the website profile
      * @param theSessions    the singleton user session repository
      */
-    public ElmTutorialSite(final WebSiteProfile theSiteProfile, final ISessionManager theSessions) {
+    public ElmTutorialSite(final Site theSite, final ISessionManager theSessions) {
 
-        super(theSiteProfile, theSessions);
+        super(theSite, theSessions);
     }
 
     /**
@@ -75,7 +75,7 @@ public final class ElmTutorialSite extends AbstractPageSite {
             throws IOException, SQLException {
 
         if (CoreConstants.EMPTY.equals(subpath)) {
-            final String path = this.siteProfile.path;
+            final String path = this.site.path;
             resp.sendRedirect(path + (path.endsWith(CoreConstants.SLASH) ? "index.html" : "/index.html"));
         } else if ("basestyle.css".equals(subpath)) {
             sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
@@ -88,7 +88,7 @@ public final class ElmTutorialSite extends AbstractPageSite {
         } else if ("favicon.ico".equals(subpath)) {
             serveImage(subpath, req, resp);
         } else {
-            final String maintMsg = isMaintenance(this.siteProfile);
+            final String maintMsg = isMaintenance(this.site);
 
             if (maintMsg == null) {
                 if ("index.html".equals(subpath) || "login.html".equals(subpath)) {
@@ -102,7 +102,7 @@ public final class ElmTutorialSite extends AbstractPageSite {
                             doShibbolethLogin(cache, req, resp, null, "home.html");
                         } else {
                             Log.warning("Unrecognized GET request path: ", subpath);
-                            final String path = this.siteProfile.path;
+                            final String path = this.site.path;
                             resp.sendRedirect(path + (path.endsWith(CoreConstants.SLASH)
                                     ? "index.html" : "/index.html"));
                         }
@@ -158,7 +158,7 @@ public final class ElmTutorialSite extends AbstractPageSite {
                             case "taking_exam_elm.html" -> PageTakingExamElm.doGet(cache, this, req, resp, session);
                             default -> {
                                 Log.warning("Unrecognized GET request path: ", subpath);
-                                final String path = this.siteProfile.path;
+                                final String path = this.site.path;
                                 resp.sendRedirect(path + (path.endsWith(CoreConstants.SLASH)
                                         ? "index.html" : "/index.html"));
                             }
@@ -188,7 +188,7 @@ public final class ElmTutorialSite extends AbstractPageSite {
                        final HttpServletRequest req, final HttpServletResponse resp)
             throws IOException, SQLException {
 
-        final String maintMsg = isMaintenance(this.siteProfile);
+        final String maintMsg = isMaintenance(this.site);
 
         if (maintMsg == null) {
             if ("login.html".equals(subpath)) {
@@ -222,7 +222,7 @@ public final class ElmTutorialSite extends AbstractPageSite {
                         case "process_proctor_login_elm.html" -> doProcessProctorLoginElm(req, resp);
                         case null, default -> {
                             Log.warning("Unrecognized POST request path: ", subpath);
-                            final String path = this.siteProfile.path;
+                            final String path = this.site.path;
                             resp.sendRedirect(path + (path.endsWith(CoreConstants.SLASH) //
                                     ? "index.html" : "/index.html"));
                         }

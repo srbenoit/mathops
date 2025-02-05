@@ -5,6 +5,8 @@ import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -279,53 +281,34 @@ class StudentLoanHistoryCard extends AdmPanelBase implements ActionListener, Foc
 
         final String foundFirstName;
         String foundLastName = null;
-        final String sql1 = "SELECT first_name, last_name "
-                + "FROM student WHERE stu_id=?";
+        final String sql1 = "SELECT first_name, last_name FROM student WHERE stu_id=?";
 
-        try (final PreparedStatement ps = this.cache.conn.prepareStatement(sql1)) {
-            ps.setString(1, cleanStu);
-            try (final ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    foundFirstName = rs.getString(1);
-                    foundLastName = rs.getString(2);
-                    this.studentIdField.setBackground(Skin.FIELD_BG);
+        final DbConnection conn = this.cache.checkOutConnection(ESchema.LEGACY);
 
-                    final String first =
-                            foundFirstName == null ? CoreConstants.EMPTY : foundFirstName.trim();
-                    final String last =
-                            foundLastName == null ? CoreConstants.EMPTY : foundLastName.trim();
+        try {
+            try (final PreparedStatement ps = conn.prepareStatement(sql1)) {
+                ps.setString(1, cleanStu);
+                try (final ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        foundFirstName = rs.getString(1);
+                        foundLastName = rs.getString(2);
+                        this.studentIdField.setBackground(Skin.FIELD_BG);
 
-                    this.studentNameDisplay.setText(first + CoreConstants.SPC + last);
+                        final String first =
+                                foundFirstName == null ? CoreConstants.EMPTY : foundFirstName.trim();
+                        final String last =
+                                foundLastName == null ? CoreConstants.EMPTY : foundLastName.trim();
 
-                } else {
-                    this.error1.setText("Student not found.");
-                    this.error2.setText(CoreConstants.SPC);
-                    this.studentIdField.setBackground(Skin.FIELD_ERROR_BG);
-                }
-            }
-        } catch (final SQLException ex) {
-            this.error1.setText("Error querying student table:");
-            if (ex.getMessage() == null) {
-                this.error2.setText(ex.getClass().getSimpleName());
-            } else {
-                this.error2.setText(ex.getMessage());
-            }
-        }
+                        this.studentNameDisplay.setText(first + CoreConstants.SPC + last);
 
-        if (foundLastName != null) {
-
-            // Get all resource records and build map from resource ID to resource type
-            final Map<String, String> resourceMap = new HashMap<>(100);
-
-            try (final Statement stmt = this.cache.conn.createStatement()) {
-                try (final ResultSet rs = stmt.executeQuery(//
-                        "SELECT resource_id, resource_type FROM resource")) {
-                    while (rs.next()) {
-                        resourceMap.put(rs.getString(1), rs.getString(2));
+                    } else {
+                        this.error1.setText("Student not found.");
+                        this.error2.setText(CoreConstants.SPC);
+                        this.studentIdField.setBackground(Skin.FIELD_ERROR_BG);
                     }
                 }
             } catch (final SQLException ex) {
-                this.error1.setText("Error querying resource table:");
+                this.error1.setText("Error querying student table:");
                 if (ex.getMessage() == null) {
                     this.error2.setText(ex.getClass().getSimpleName());
                 } else {
@@ -333,52 +316,75 @@ class StudentLoanHistoryCard extends AdmPanelBase implements ActionListener, Foc
                 }
             }
 
-            if (!resourceMap.isEmpty()) {
-                final String sql3 = "SELECT resource_id,loan_dt,start_time,due_dt, "
-                        + "return_dt,finish_time FROM stresource WHERE stu_id=? "
-                        + "ORDER BY loan_dt, start_time";
+            if (foundLastName != null) {
 
-                final List<StudentResourceLoanRow> records = new ArrayList<>(10);
-                try (final PreparedStatement ps2 = this.cache.conn.prepareStatement(sql3)) {
-                    ps2.setString(1, cleanStu);
-                    try (final ResultSet rs = ps2.executeQuery()) {
+                // Get all resource records and build map from resource ID to resource type
+                final Map<String, String> resourceMap = new HashMap<>(100);
+
+                try (final Statement stmt = conn.createStatement()) {
+                    try (final ResultSet rs = stmt.executeQuery(//
+                            "SELECT resource_id, resource_type FROM resource")) {
                         while (rs.next()) {
-                            final String resId = rs.getString(1);
-                            final Date loanDt = rs.getDate(2);
-                            final int loanTime = rs.getInt(3);
-                            final Date dueDt = rs.getDate(4);
-                            final Date returnDt = rs.getDate(5);
-                            final int returnTime = rs.getInt(6);
-                            final String type = resourceMap.get(resId);
-
-                            final int lh = loanTime / 60;
-                            final int lm = loanTime % 60;
-                            final LocalDateTime lent = loanDt == null ? null
-                                    : LocalDateTime.of(loanDt.toLocalDate(), LocalTime.of(lh, lm));
-
-                            final LocalDate due = dueDt == null ? null : dueDt.toLocalDate();
-
-                            final int rh = returnTime / 60;
-                            final int rm = returnTime % 60;
-                            final LocalDateTime returned = returnDt == null ? null
-                                    : LocalDateTime.of(returnDt.toLocalDate(), LocalTime.of(rh, rm));
-
-                            records
-                                    .add(new StudentResourceLoanRow(resId, lent, due, returned, type));
+                            resourceMap.put(rs.getString(1), rs.getString(2));
                         }
-
-                        this.table.clear();
-                        this.table.addData(records, 2);
                     }
                 } catch (final SQLException ex) {
-                    this.error1.setText("Error querying stresource table:");
+                    this.error1.setText("Error querying resource table:");
                     if (ex.getMessage() == null) {
                         this.error2.setText(ex.getClass().getSimpleName());
                     } else {
                         this.error2.setText(ex.getMessage());
                     }
                 }
+
+                if (!resourceMap.isEmpty()) {
+                    final String sql3 = "SELECT resource_id,loan_dt,start_time,due_dt, "
+                                        + "return_dt,finish_time FROM stresource WHERE stu_id=? "
+                                        + "ORDER BY loan_dt, start_time";
+
+                    final List<StudentResourceLoanRow> records = new ArrayList<>(10);
+                    try (final PreparedStatement ps2 = conn.prepareStatement(sql3)) {
+                        ps2.setString(1, cleanStu);
+                        try (final ResultSet rs = ps2.executeQuery()) {
+                            while (rs.next()) {
+                                final String resId = rs.getString(1);
+                                final Date loanDt = rs.getDate(2);
+                                final int loanTime = rs.getInt(3);
+                                final Date dueDt = rs.getDate(4);
+                                final Date returnDt = rs.getDate(5);
+                                final int returnTime = rs.getInt(6);
+                                final String type = resourceMap.get(resId);
+
+                                final int lh = loanTime / 60;
+                                final int lm = loanTime % 60;
+                                final LocalDateTime lent = loanDt == null ? null
+                                        : LocalDateTime.of(loanDt.toLocalDate(), LocalTime.of(lh, lm));
+
+                                final LocalDate due = dueDt == null ? null : dueDt.toLocalDate();
+
+                                final int rh = returnTime / 60;
+                                final int rm = returnTime % 60;
+                                final LocalDateTime returned = returnDt == null ? null
+                                        : LocalDateTime.of(returnDt.toLocalDate(), LocalTime.of(rh, rm));
+
+                                records.add(new StudentResourceLoanRow(resId, lent, due, returned, type));
+                            }
+
+                            this.table.clear();
+                            this.table.addData(records, 2);
+                        }
+                    } catch (final SQLException ex) {
+                        this.error1.setText("Error querying stresource table:");
+                        if (ex.getMessage() == null) {
+                            this.error2.setText(ex.getClass().getSimpleName());
+                        } else {
+                            this.error2.setText(ex.getMessage());
+                        }
+                    }
+                }
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 

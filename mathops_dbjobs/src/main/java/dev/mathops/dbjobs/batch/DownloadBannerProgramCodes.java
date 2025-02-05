@@ -1,13 +1,13 @@
 package dev.mathops.dbjobs.batch;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.Contexts;
 import dev.mathops.db.Cache;
+import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -24,24 +24,15 @@ import java.util.Collection;
 public final class DownloadBannerProgramCodes {
 
     /** The database profile through which to access the database. */
-    private final DbProfile dbProfile;
-
-    /** The Primary database context. */
-    private final DbContext primaryCtx;
-
-    /** The live data database context. */
-    private final DbContext liveCtx;
+    private final Profile profile;
 
     /**
      * Constructs a new {@code DownloadBannerProgramCodes}.
      */
     public DownloadBannerProgramCodes() {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-
-        this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
-        this.primaryCtx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
-        this.liveCtx = this.dbProfile.getDbContext(ESchemaUse.LIVE);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        this.profile = config.getCodeProfile(Contexts.BATCH_PATH);
     }
 
     /**
@@ -53,21 +44,13 @@ public final class DownloadBannerProgramCodes {
 
         final Collection<String> report = new ArrayList<>(10);
 
-        if (this.dbProfile == null) {
-            Log.warning("Unable to create production context.");
-        } else if (this.primaryCtx == null) {
-            Log.warning("Unable to create PRIMARY database context.");
-        } else if (this.liveCtx == null) {
-            Log.warning("Unable to create LIVE database context.");
+        if (this.profile == null) {
+            Log.warning("Unable to create production profile.");
         } else {
+            final Cache cache = new Cache(this.profile);
+
             try {
-                final DbConnection conn = this.primaryCtx.checkOutConnection();
-                final Cache cache = new Cache(this.dbProfile, conn);
-                try {
-                    execute(cache, report);
-                } finally {
-                    this.primaryCtx.checkInConnection(conn);
-                }
+                execute(cache, report);
             } catch (final SQLException ex) {
                 report.add("EXCEPTION: " + ex.getMessage());
             }
@@ -101,12 +84,14 @@ public final class DownloadBannerProgramCodes {
                 "   AND n.sgbstdn_styp_code in ('N','T')",
                 " ORDER BY n.sgbstdn_program_1");
 
-        final DbConnection conn = this.liveCtx.checkOutConnection();
+        final Login login = this.profile.getLogin(ESchema.LIVE);
+
+        final DbConnection conn = login.checkOutConnection();
         try {
             final Connection jdbc = conn.getConnection();
 
             try (final Statement stmt = jdbc.createStatement();
-                final ResultSet rs = stmt.executeQuery(sql)) {
+                 final ResultSet rs = stmt.executeQuery(sql)) {
 
                 while (rs.next()) {
                     final String program = rs.getString(1);
@@ -118,7 +103,7 @@ public final class DownloadBannerProgramCodes {
                 }
             }
         } finally {
-            this.liveCtx.checkInConnection(conn);
+            login.checkInConnection(conn);
         }
     }
 
@@ -129,6 +114,7 @@ public final class DownloadBannerProgramCodes {
      */
     public static void main(final String... args) {
 
+        DbConnection.registerDrivers();
         final DownloadBannerProgramCodes job = new DownloadBannerProgramCodes();
 
         Log.fine(job.execute());

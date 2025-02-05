@@ -1,15 +1,15 @@
 package dev.mathops.dbjobs.batch;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.Contexts;
-import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.Cache;
+import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Profile;
+import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.DbUtils;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.type.TermKey;
@@ -36,24 +36,15 @@ public final class BulkUpdateStudentInformation {
     private static final boolean DEBUG = false;
 
     /** The database profile through which to access the database. */
-    private final DbProfile dbProfile;
-
-    /** The primary database context. */
-    private final DbContext primaryCtx;
-
-    /** The ODS data database context. */
-    private final DbContext odsCtx;
+    private final Profile profile;
 
     /**
-     * Constructs a new {@code StudentNamesToMixedCase}.
+     * Constructs a new {@code BulkUpdateStudentInformation}.
      */
     public BulkUpdateStudentInformation() {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-
-        this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
-        this.primaryCtx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
-        this.odsCtx = this.dbProfile.getDbContext(ESchemaUse.ODS);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        this.profile = config.getCodeProfile(Contexts.BATCH_PATH);
     }
 
     /**
@@ -61,32 +52,22 @@ public final class BulkUpdateStudentInformation {
      */
     public void execute() {
 
-        if (this.dbProfile == null) {
-            Log.warning("Unable to create production context.");
-        } else if (this.primaryCtx == null) {
-            Log.warning("Unable to create PRIMARY database context.");
-        } else if (this.odsCtx == null) {
-            Log.warning("Unable to create LIVE database context.");
+        if (this.profile == null) {
+            Log.warning("Unable to create production profile.");
         } else {
+            final Cache cache = new Cache(this.profile);
+            final Login login = this.profile.getLogin(ESchema.ODS);
+
             try {
-                final DbConnection conn = this.primaryCtx.checkOutConnection();
-                final Cache cache = new Cache(this.dbProfile, conn);
-
+                final DbConnection odsConn = login.checkOutConnection();
                 try {
-                    final DbConnection odsConn = this.odsCtx.checkOutConnection();
-                    try {
-                        exec(cache, odsConn);
-                    } finally {
-                        this.odsCtx.checkInConnection(odsConn);
-                    }
-
-                } catch (final SQLException ex) {
-                    Log.warning("Failed to connect to LIVE database.", ex);
+                    exec(cache, odsConn);
                 } finally {
-                    this.primaryCtx.checkInConnection(conn);
+                    login.checkInConnection(odsConn);
                 }
+
             } catch (final SQLException ex) {
-                Log.warning("Failed to connect to PRIMARY database.", ex);
+                Log.warning("Failed to connect to LIVE database.", ex);
             }
         }
     }
@@ -501,8 +482,8 @@ public final class BulkUpdateStudentInformation {
         final boolean matchHsClassRank = Objects.equals(student.hsClassRank, hsClassRank);
 
         final boolean changed = !(matchPidm && matchFirstName && matchMiddleInitial && matchLastName && matchPrefName
-                && matchEmail && matchBirthDate && matchAct && matchSat && matchHsGpa && matchHsCode && matchHsClassSize
-                && matchHsClassRank);
+                                  && matchEmail && matchBirthDate && matchAct && matchSat && matchHsGpa && matchHsCode && matchHsClassSize
+                                  && matchHsClassRank);
 
         if (changed) {
             final String stuId = student.stuId;
@@ -617,7 +598,7 @@ public final class BulkUpdateStudentInformation {
         final boolean matchStudentClass = Objects.equals(student.clazz, studentClass);
 
         final boolean changed = !(matchGradTerm && matchCampus && matchCollege && matchDept && matchProgram
-                && matchResidency && matchStudentClass);
+                                  && matchResidency && matchStudentClass);
 
         if (changed) {
             final String stuId = student.stuId;
@@ -672,6 +653,7 @@ public final class BulkUpdateStudentInformation {
      */
     public static void main(final String... args) {
 
+        DbConnection.registerDrivers();
         final BulkUpdateStudentInformation job = new BulkUpdateStudentInformation();
 
         job.execute();

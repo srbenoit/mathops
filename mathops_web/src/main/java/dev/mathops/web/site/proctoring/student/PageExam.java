@@ -20,7 +20,6 @@ import dev.mathops.web.websocket.proctor.MPSSessionManager;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -237,7 +236,7 @@ enum PageExam {
             Log.info("Starting unit exam for session ", session.loginSessionId, " user ",
                     session.getEffectiveUserId(), " exam ", examId);
 
-            us = new UnitExamSession(cache, site.siteProfile, session.loginSessionId,
+            us = new UnitExamSession(cache, site.site, session.loginSessionId,
                     session.getEffectiveUserId(), RawRecordConstants.M100T, examId, redirect);
             store.setUnitExamSession(us);
         } else {
@@ -250,7 +249,7 @@ enum PageExam {
                     us.closeSession(session);
 
                     final String redirect = "unit_done.html?course=M%20100T";
-                    us = new UnitExamSession(cache, site.siteProfile, session.loginSessionId,
+                    us = new UnitExamSession(cache, site.site, session.loginSessionId,
                             session.getEffectiveUserId(), RawRecordConstants.M100T, examId, redirect);
                     store.setUnitExamSession(us);
                 }
@@ -290,7 +289,7 @@ enum PageExam {
             Log.info("Starting unit exam for session ", session.loginSessionId, " user ",
                     session.getEffectiveUserId(), " exam ", examId);
 
-            us = new UnitExamSession(cache, site.siteProfile, session.loginSessionId,
+            us = new UnitExamSession(cache, site.site, session.loginSessionId,
                     session.getEffectiveUserId(), courseId, examId, redirect);
             store.setUnitExamSession(us);
         } else {
@@ -304,7 +303,7 @@ enum PageExam {
                     us.closeSession(session);
 
                     final String redirect = "unit_done.html?course=" + courseId;
-                    us = new UnitExamSession(cache, site.siteProfile, session.loginSessionId,
+                    us = new UnitExamSession(cache, site.site, session.loginSessionId,
                             session.getEffectiveUserId(), courseId, examId, redirect);
                     store.setUnitExamSession(us);
                 }
@@ -344,7 +343,7 @@ enum PageExam {
             Log.info("Starting unit exam for session ", session.loginSessionId, " user ",
                     session.getEffectiveUserId(), " exam ", examId);
 
-            us = new UnitExamSession(cache, site.siteProfile, session.loginSessionId,
+            us = new UnitExamSession(cache, site.site, session.loginSessionId,
                     session.getEffectiveUserId(), courseId, examId, redirect);
             store.setUnitExamSession(us);
         } else {
@@ -358,7 +357,7 @@ enum PageExam {
                     us.closeSession(session);
 
                     final String redirect = "unit_done.html?course=" + courseId;
-                    us = new UnitExamSession(cache, site.siteProfile, session.loginSessionId,
+                    us = new UnitExamSession(cache, site.site, session.loginSessionId,
                             session.getEffectiveUserId(), courseId, examId, redirect);
                     store.setUnitExamSession(us);
                 }

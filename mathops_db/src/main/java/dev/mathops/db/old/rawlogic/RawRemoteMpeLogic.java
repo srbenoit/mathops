@@ -1,6 +1,8 @@
 package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawRemoteMpe;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -44,7 +46,7 @@ public enum RawRemoteMpeLogic {
             throw new SQLException("Null value in primary key field.");
         }
 
-        final String sql = SimpleBuilder.concat( //
+        final String sql = SimpleBuilder.concat(
                 "INSERT INTO remote_mpe (",
                 "term,term_yr,apln_term,course,start_dt,end_dt) VALUES (",
                 LogicUtils.sqlStringValue(record.termKey.termCode), ",",
@@ -54,16 +56,20 @@ public enum RawRemoteMpeLogic {
                 LogicUtils.sqlDateValue(record.startDt), ",",
                 LogicUtils.sqlDateValue(record.endDt), ")");
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -84,16 +90,20 @@ public enum RawRemoteMpeLogic {
                 "  AND course=", LogicUtils.sqlStringValue(record.course),
                 "  AND start_dt=", LogicUtils.sqlDateValue(record.startDt));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -108,12 +118,16 @@ public enum RawRemoteMpeLogic {
 
         final List<RawRemoteMpe> result = new ArrayList<>(20);
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery("SELECT * FROM remote_mpe")) {
 
             while (rs.next()) {
                 result.add(RawRemoteMpe.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -135,12 +149,16 @@ public enum RawRemoteMpeLogic {
         final String sql = SimpleBuilder.concat("SELECT * FROM remote_mpe",
                 " WHERE apln_term='", applicationTerm, "'");
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 result.add(RawRemoteMpe.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -161,12 +179,16 @@ public enum RawRemoteMpeLogic {
         final String sql = SimpleBuilder.concat("SELECT * FROM remote_mpe",
                 " WHERE course='", course, "'");
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 result.add(RawRemoteMpe.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;

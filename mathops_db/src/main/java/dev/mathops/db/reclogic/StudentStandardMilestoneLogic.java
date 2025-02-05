@@ -2,6 +2,7 @@ package dev.mathops.db.reclogic;
 
 import dev.mathops.db.Cache;
 import dev.mathops.db.EDbProduct;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.rec.StudentStandardMilestoneRec;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -416,7 +417,9 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
                 throw new SQLException("Null value in primary key or required field.");
             }
 
-            final String sql = SimpleBuilder.concat("INSERT INTO ", cache.termSchemaName,
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
+
+            final String sql = SimpleBuilder.concat("INSERT INTO ", schemaPrefix,
                     ".stu_std_milestone (stu_id,pace_track,pace,pace_index,unit,objective,ms_type,ms_date) VALUES (",
                     sqlStringValue(record.stuId), ",",
                     sqlStringValue(record.paceTrack), ",",
@@ -439,10 +442,11 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
          * @throws SQLException if there is an error accessing the database
          */
         @Override
-        public boolean delete(final Cache cache, final StudentStandardMilestoneRec record)
-                throws SQLException {
+        public boolean delete(final Cache cache, final StudentStandardMilestoneRec record) throws SQLException {
 
-            final String sql = SimpleBuilder.concat("DELETE FROM ", cache.termSchemaName, ".stu_std_milestone ",
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
+
+            final String sql = SimpleBuilder.concat("DELETE FROM ", schemaPrefix, ".stu_std_milestone ",
                     "WHERE stu_id=", sqlStringValue(record.stuId),
                     " AND pace_track=", sqlStringValue(record.paceTrack),
                     " AND pace=", sqlIntegerValue(record.pace),
@@ -464,7 +468,9 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
         @Override
         public List<StudentStandardMilestoneRec> queryAll(final Cache cache) throws SQLException {
 
-            final String sql = SimpleBuilder.concat("SELECT * FROM ", cache.termSchemaName, ".stu_std_milestone");
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
+
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".stu_std_milestone");
 
             return doListQuery(cache, sql);
         }
@@ -482,7 +488,9 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
         public boolean updateDate(final Cache cache, final StudentStandardMilestoneRec record,
                                   final LocalDate newDate) throws SQLException {
 
-            final String sql = SimpleBuilder.concat("UPDATE ", cache.termSchemaName, ".stu_std_milestone ",
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
+
+            final String sql = SimpleBuilder.concat("UPDATE ", schemaPrefix, ".stu_std_milestone ",
                     "SET ms_date=", sqlDateValue(newDate),
                     " WHERE stu_id=", sqlStringValue(record.stuId),
                     " AND pace_track=", sqlStringValue(record.paceTrack),
@@ -507,7 +515,9 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
         public List<StudentStandardMilestoneRec> queryByStudent(final Cache cache,
                                                                 final String stuId) throws SQLException {
 
-            final String sql = SimpleBuilder.concat("SELECT * FROM ", cache.termSchemaName, ".stu_std_milestone ",
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
+
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".stu_std_milestone ",
                     "WHERE stu_id=", sqlStringValue(stuId));
 
             return doListQuery(cache, sql);
@@ -529,7 +539,9 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
                                                                          final String track, final Integer pace)
                 throws SQLException {
 
-            final String sql = SimpleBuilder.concat("SELECT * FROM ", cache.termSchemaName, ".stu_std_milestone ",
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
+
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".stu_std_milestone ",
                     "WHERE stu_id=", sqlStringValue(stuId),
                     " AND pace_track=", sqlStringValue(track),
                     " AND pace=", sqlIntegerValue(pace));
@@ -554,7 +566,9 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
                                                                               final Integer paceIndex)
                 throws SQLException {
 
-            final String sql = SimpleBuilder.concat("SELECT * FROM ", cache.termSchemaName, ".stu_std_milestone ",
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
+
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".stu_std_milestone ",
                     "WHERE stu_id=", sqlStringValue(stuId),
                     " AND pace_track=", sqlStringValue(track),
                     " AND pace=", sqlIntegerValue(pace),
@@ -582,7 +596,9 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
                                                  final Integer pace, final Integer paceIndex, final Integer unit,
                                                  final Integer objective, final String msType) throws SQLException {
 
-            final String sql = SimpleBuilder.concat("SELECT * FROM ", cache.termSchemaName, ".stu_std_milestone ",
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
+
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".stu_std_milestone ",
                     "WHERE stu_id=", sqlStringValue(stuId),
                     " AND pace_track=", sqlStringValue(track),
                     " AND pace=", sqlIntegerValue(pace),

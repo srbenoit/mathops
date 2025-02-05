@@ -4,11 +4,8 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.IProgressListener;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.old.rawlogic.RawHighSchoolsLogic;
 import dev.mathops.db.old.rawlogic.RawStmpeLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
@@ -543,33 +540,17 @@ final class DataByHighSchool {
                 "060432", "060428", "060123", "060372", "060014", "060503", "060354", "060555", "060638", "060002",
                 "060509", "060459", "060455", "060502", "060457", "060552", "060460");
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-
-        final DbProfile profile = map.getCodeProfile("batch");
+        final DatabaseConfig databaseConfig = DatabaseConfig.getDefault();
+        final Profile profile = databaseConfig.getCodeProfile("batch");
 
         if (profile == null) {
             Log.warning("Unable to create production context.");
         } else {
-            final DbContext dbCtx = profile.getDbContext(ESchemaUse.PRIMARY);
+            final Cache cache = new Cache(profile);
+            Log.info("Connected to " + profile.id);
 
-            if (dbCtx == null) {
-                Log.warning("Unable to create database context.");
-            } else {
-                try {
-                    final DbConnection conn = dbCtx.checkOutConnection();
-                    try {
-                        final Cache cache = new Cache(profile, conn);
-                        Log.info("Connected to " + profile.id);
-
-                        final DataByHighSchool obj = new DataByHighSchool(cache, null);
-                        obj.calculate(highSchoolCodes);
-                    } finally {
-                        dbCtx.checkInConnection(conn);
-                    }
-                } catch (final SQLException ex) {
-                    Log.warning(ex);
-                }
-            }
+            final DataByHighSchool obj = new DataByHighSchool(cache, null);
+            obj.calculate(highSchoolCodes);
         }
     }
 }

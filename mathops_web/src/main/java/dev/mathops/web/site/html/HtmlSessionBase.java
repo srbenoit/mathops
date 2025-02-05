@@ -4,9 +4,9 @@ import dev.mathops.assessment.exam.ExamObj;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.WebSiteProfile;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.rec.TermRec;
@@ -33,7 +33,7 @@ public class HtmlSessionBase {
             DateTimeFormatter.ofPattern("MM/dd HH:mm:ss.SSS", Locale.US);
 
     /** The website profile in which this session is running. */
-    private WebSiteProfile siteProfile;
+    private Site siteProfile;
 
     /** The host from the context. */
     private final String host;
@@ -82,7 +82,7 @@ public class HtmlSessionBase {
      * @param theRedirectOnEnd the URL to which to redirect at the end of the exam
      * @throws SQLException if there is an error accessing the database
      */
-    protected HtmlSessionBase(final Cache cache, final WebSiteProfile theSiteProfile,
+    protected HtmlSessionBase(final Cache cache, final Site theSiteProfile,
                               final String theSessionId, final String theStudentId, final String theExamId,
                               final String theRedirectOnEnd) throws SQLException {
 
@@ -103,7 +103,7 @@ public class HtmlSessionBase {
         }
 
         this.siteProfile = theSiteProfile;
-        this.host = theSiteProfile.host;
+        this.host = theSiteProfile.getHost();
         this.path = theSiteProfile.path;
         this.sessionId = theSessionId;
         this.studentId = theStudentId;
@@ -129,7 +129,7 @@ public class HtmlSessionBase {
 
         in.defaultReadObject();
 
-        this.siteProfile = ContextMap.getDefaultInstance().getWebSiteProfile(this.host, this.path);
+        this.siteProfile = DatabaseConfig.getDefault().getSite(this.host, this.path);
         this.writer = new ExamWriter();
     }
 
@@ -138,7 +138,7 @@ public class HtmlSessionBase {
      *
      * @return the website profile
      */
-    protected final WebSiteProfile getSiteProfile() {
+    protected final Site getSiteProfile() {
 
         return this.siteProfile;
     }
@@ -148,9 +148,9 @@ public class HtmlSessionBase {
      *
      * @return the database profile
      */
-    protected final DbProfile getDbProfile() {
+    protected final Profile getProfile() {
 
-        return this.siteProfile.dbProfile;
+        return this.siteProfile.profile;
     }
 
 //    /**
@@ -212,7 +212,7 @@ public class HtmlSessionBase {
 
             try (final FileWriter out = new FileWriter(log, Charset.defaultCharset(), log.exists())) {
                 out.write(DATE_FMT.format(LocalDateTime.now()) + CoreConstants.SPC + message
-                        + CoreConstants.CRLF);
+                          + CoreConstants.CRLF);
             } catch (final IOException ex) {
                 Log.warning("Failed to append '", message, "' to ", log.getAbsolutePath(), ex);
             }
@@ -235,8 +235,8 @@ public class HtmlSessionBase {
                                        final String nextCmd, final String nextLabel) {
 
         htm.sDiv(null, "style='flex: 1 100%; order:99; background-color:AliceBlue; "
-                + "display:block; border:1px solid SteelBlue; margin:1px; "
-                + "padding:0 12px; text-align:center;'");
+                       + "display:block; border:1px solid SteelBlue; margin:1px; "
+                       + "padding:0 12px; text-align:center;'");
 
         if (prevCmd != null || nextCmd != null) {
             if (prevCmd != null) {

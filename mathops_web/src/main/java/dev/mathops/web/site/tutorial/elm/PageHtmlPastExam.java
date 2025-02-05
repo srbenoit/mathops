@@ -13,7 +13,6 @@ import dev.mathops.web.site.html.pastexam.PastExamSessionStore;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 /**
@@ -56,7 +55,7 @@ enum PageHtmlPastExam {
             PastExamSession pes = store.getPastExamSession(session.loginSessionId, xml);
 
             if (pes == null) {
-                pes = new PastExamSession(cache, site.siteProfile, session.loginSessionId, exam,
+                pes = new PastExamSession(cache, site.site, session.loginSessionId, exam,
                         xml, session.getEffectiveUserId(), "tutorial_status.html");
                 store.setPastExamSession(pes);
             }

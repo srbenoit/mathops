@@ -11,8 +11,8 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.WebSiteProfile;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.parser.ParsingException;
 import dev.mathops.text.parser.xml.Attribute;
@@ -244,7 +244,7 @@ public final class LtaSessionStore {
      * @param elem  the XML element
      * @return the parsed session
      * @throws IllegalArgumentException if the XML could not be parsed
-     * @throws SQLException if there is an error accessing the database
+     * @throws SQLException             if there is an error accessing the database
      */
     private static LtaSession parseSession(final Cache cache, final String xml,
                                            final NonemptyElement elem) throws IllegalArgumentException, SQLException {
@@ -455,7 +455,7 @@ public final class LtaSessionStore {
             throw new IllegalArgumentException("'lta-session' was missing 'exam'");
         }
 
-        final WebSiteProfile siteProfile = ContextMap.getDefaultInstance().getWebSiteProfile(host, path);
+        final Site siteProfile = DatabaseConfig.getDefault().getSite(host, path);
         final Integer minMastery = mastery == null ? null : Integer.valueOf(mastery);
         final int theSection = sect == null ? 0 : Integer.parseInt(sect);
         final int theItem = item == null ? 0 : Integer.parseInt(item);

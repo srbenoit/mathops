@@ -2,6 +2,8 @@ package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawStmpe;
 import dev.mathops.db.old.rawrecord.RawStmpeqa;
 import dev.mathops.text.builder.SimpleBuilder;
@@ -63,14 +65,18 @@ public enum RawStmpeqaLogic {
                     LogicUtils.sqlStringValue(record.subtest), ",",
                     LogicUtils.sqlStringValue(record.treeRef), ")");
 
-            try (final Statement stmt = cache.conn.createStatement()) {
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement()) {
                 result = stmt.executeUpdate(sql) == 1;
 
                 if (result) {
-                    cache.conn.commit();
+                    conn.commit();
                 } else {
-                    cache.conn.rollback();
+                    conn.rollback();
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -94,16 +100,20 @@ public enum RawStmpeqaLogic {
                 "  AND finish_time=", LogicUtils.sqlIntegerValue(record.finishTime),
                 "  AND question_nbr=", LogicUtils.sqlIntegerValue(record.questionNbr));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql1) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -118,12 +128,16 @@ public enum RawStmpeqaLogic {
 
         final List<RawStmpeqa> result = new ArrayList<>(500);
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery("SELECT * FROM stmpeqa")) {
 
             while (rs.next()) {
                 result.add(RawStmpeqa.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -146,10 +160,15 @@ public enum RawStmpeqaLogic {
                 "  AND exam_dt=", LogicUtils.sqlDateValue(record.examDt),
                 "  AND finish_time=", LogicUtils.sqlIntegerValue(record.finishTime));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             stmt.executeUpdate(sql1);
-            cache.conn.commit();
-            return true;
+            conn.commit();
+        } finally {
+            Cache.checkInConnection(conn);
         }
+
+        return true;
     }
 }

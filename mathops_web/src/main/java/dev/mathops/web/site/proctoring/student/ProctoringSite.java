@@ -6,8 +6,8 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.db.logic.ELiveRefreshes;
-import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
@@ -15,11 +15,11 @@ import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.UserInfoBar;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -34,13 +34,12 @@ public final class ProctoringSite extends AbstractSite {
     /**
      * Constructs a new {@code ProctoringSite}.
      *
-     * @param theSiteProfile the site profile under which this site is accessed
-     * @param theSessions    the singleton user session repository
+     * @param theSite     the site profile under which this site is accessed
+     * @param theSessions the singleton user session repository
      */
-    public ProctoringSite(final WebSiteProfile theSiteProfile,
-                          final ISessionManager theSessions) {
+    public ProctoringSite(final Site theSite, final ISessionManager theSessions) {
 
-        super(theSiteProfile, theSessions);
+        super(theSite, theSessions);
     }
 
     /**
@@ -88,21 +87,21 @@ public final class ProctoringSite extends AbstractSite {
         if ("basestyle.css".equals(subpath) || "secure/basestyle.css".equals(subpath)) {
             sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
         } else if ("style.css".equals(subpath)
-                || "secure/style.css".equals(subpath)) {
+                   || "secure/style.css".equals(subpath)) {
             sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(getClass(), "style.css", true));
         } else if ("favicon.ico".equals(subpath)
-                || "secure/favicon.ico".equals(subpath)) {
+                   || "secure/favicon.ico".equals(subpath)) {
             serveImage("favicon.ico", req, resp);
         } else if (subpath.startsWith("images/")) {
             serveImage(subpath.substring(7), req, resp);
         } else if (subpath.endsWith(".jpg")
-                || subpath.endsWith(".png")) {
+                   || subpath.endsWith(".png")) {
             serveImage(subpath, req, resp);
         } else {
             final ImmutableSessionInfo session = validateSession(req, resp, null);
 
             final boolean showLanding = CoreConstants.EMPTY.equals(subpath)
-                    || "index.html".equals(subpath) || "login.html".equals(subpath);
+                                        || "index.html".equals(subpath) || "login.html".equals(subpath);
 
             if (session == null) {
                 if (showLanding) {
@@ -111,7 +110,7 @@ public final class ProctoringSite extends AbstractSite {
                     doShibbolethLogin(cache, req, resp, null);
                 } else {
                     resp.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-                    final String path = this.siteProfile.path;
+                    final String path = this.site.path;
                     resp.setHeader("Location",
                             path + (path.endsWith(Contexts.ROOT_PATH) ? "index.html" : "/index.html"));
                     sendReply(req, resp, Page.MIME_TEXT_HTML, ZERO_LEN_BYTE_ARR);
@@ -128,7 +127,7 @@ public final class ProctoringSite extends AbstractSite {
                     // site does at this time.
 
                     resp.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-                    final String path = this.siteProfile.path;
+                    final String path = this.site.path;
                     resp.setHeader("Location",
                             path + (path.endsWith(Contexts.ROOT_PATH) ? "proctoring.html" : "/proctoring.html"));
 
@@ -273,7 +272,7 @@ public final class ProctoringSite extends AbstractSite {
             sess = processShibbolethLogin(cache, req);
         }
 
-        final String path = this.siteProfile.path;
+        final String path = this.site.path;
         final String redirect;
         if (sess == null) {
             redirect = path + (path.endsWith(CoreConstants.SLASH) ? "login.html" : "/login.html");

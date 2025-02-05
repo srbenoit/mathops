@@ -3,6 +3,9 @@ package dev.mathops.db.old.rawlogic;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.EDbProduct;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.builder.SimpleBuilder;
@@ -32,7 +35,6 @@ import java.util.Map;
  * create_dt            date              no
  * </pre>
  */
-@Deprecated
 public enum RawAdminHoldLogic {
     ;
 
@@ -226,34 +228,40 @@ public enum RawAdminHoldLogic {
         if (record.stuId.startsWith("99")) {
             result = false;
         } else {
-            final String sql;
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
-            if (cache.isPostgreSQL()) {
-                sql = SimpleBuilder.concat(
-                        "INSERT INTO admin_hold (stu_id,hold_id,sev_admin_hold,times_display,create_dt) VALUES (",
-                        LogicUtils.sqlStringValue(record.stuId), ",",
-                        LogicUtils.sqlStringValue(record.holdId), ",",
-                        LogicUtils.sqlStringValue(record.sevAdminHold), ",",
-                        LogicUtils.sqlIntegerValue(record.timesDisplay), ",",
-                        LogicUtils.sqlPgDateValue(record.createDt), ")");
-            } else {
-                sql = SimpleBuilder.concat(
-                        "INSERT INTO admin_hold (stu_id,hold_id,sev_admin_hold,times_display,create_dt) VALUES (",
-                        LogicUtils.sqlStringValue(record.stuId), ",",
-                        LogicUtils.sqlStringValue(record.holdId), ",",
-                        LogicUtils.sqlStringValue(record.sevAdminHold), ",",
-                        LogicUtils.sqlIntegerValue(record.timesDisplay), ",",
-                        LogicUtils.sqlDateValue(record.createDt), ")");
-            }
+            try {
+                final String sql;
 
-            try (final Statement stmt = cache.conn.createStatement()) {
-                result = stmt.executeUpdate(sql) == 1;
-
-                if (result) {
-                    cache.conn.commit();
+                if (conn.getProduct() == EDbProduct.POSTGRESQL) {
+                    sql = SimpleBuilder.concat(
+                            "INSERT INTO admin_hold (stu_id,hold_id,sev_admin_hold,times_display,create_dt) VALUES (",
+                            LogicUtils.sqlStringValue(record.stuId), ",",
+                            LogicUtils.sqlStringValue(record.holdId), ",",
+                            LogicUtils.sqlStringValue(record.sevAdminHold), ",",
+                            LogicUtils.sqlIntegerValue(record.timesDisplay), ",",
+                            LogicUtils.sqlPgDateValue(record.createDt), ")");
                 } else {
-                    cache.conn.rollback();
+                    sql = SimpleBuilder.concat(
+                            "INSERT INTO admin_hold (stu_id,hold_id,sev_admin_hold,times_display,create_dt) VALUES (",
+                            LogicUtils.sqlStringValue(record.stuId), ",",
+                            LogicUtils.sqlStringValue(record.holdId), ",",
+                            LogicUtils.sqlStringValue(record.sevAdminHold), ",",
+                            LogicUtils.sqlIntegerValue(record.timesDisplay), ",",
+                            LogicUtils.sqlDateValue(record.createDt), ")");
                 }
+
+                try (final Statement stmt = conn.createStatement()) {
+                    result = stmt.executeUpdate(sql) == 1;
+
+                    if (result) {
+                        conn.commit();
+                    } else {
+                        conn.rollback();
+                    }
+                }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -278,14 +286,18 @@ public enum RawAdminHoldLogic {
                 " WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
                 "   AND hold_id=", LogicUtils.sqlStringValue(record.holdId));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             result = stmt.executeUpdate(sql.toString()) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -306,12 +318,16 @@ public enum RawAdminHoldLogic {
 
         final List<RawAdminHold> result = new ArrayList<>(50);
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql.toString())) {
 
             while (rs.next()) {
                 result.add(RawAdminHold.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -337,12 +353,16 @@ public enum RawAdminHoldLogic {
 
             result = new ArrayList<>(10);
 
-            try (final Statement stmt = cache.conn.createStatement();
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement();
                  final ResultSet rs = stmt.executeQuery(sql)) {
 
                 while (rs.next()) {
                     result.add(RawAdminHold.fromResultSet(rs));
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -371,12 +391,16 @@ public enum RawAdminHoldLogic {
                     " WHERE stu_id=", LogicUtils.sqlStringValue(stuId),
                     "   AND hold_id=", LogicUtils.sqlStringValue(holdId));
 
-            try (final Statement stmt = cache.conn.createStatement();
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement();
                  final ResultSet rs = stmt.executeQuery(sql.toString())) {
 
                 if (rs.next()) {
                     result = RawAdminHold.fromResultSet(rs);
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -401,12 +425,16 @@ public enum RawAdminHoldLogic {
 
         boolean result = false;
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql.toString())) {
 
             if (rs.next()) {
                 result = rs.getInt(1) > 0;
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -427,10 +455,14 @@ public enum RawAdminHoldLogic {
         sql.add("DELETE FROM admin_hold ",
                 " WHERE hold_id=", LogicUtils.sqlStringValue(holdId));
 
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
         final int count;
-        try (final Statement stmt = cache.conn.createStatement()) {
+        try (final Statement stmt = conn.createStatement()) {
             count = stmt.executeUpdate(sql.toString());
-            cache.conn.commit();
+            conn.commit();
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return count;
@@ -453,26 +485,31 @@ public enum RawAdminHoldLogic {
         } else {
             final HtmlBuilder sql = new HtmlBuilder(100);
 
-            if (cache.isPostgreSQL()) {
-                sql.add("UPDATE admin_hold ",
-                        "   SET create_dt=", LogicUtils.sqlPgDateValue(record.createDt),
-                        " WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
-                        "   AND hold_id=", LogicUtils.sqlStringValue(record.holdId));
-            } else {
-                sql.add("UPDATE admin_hold ",
-                        "   SET create_dt=", LogicUtils.sqlDateValue(record.createDt),
-                        " WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
-                        "   AND hold_id=", LogicUtils.sqlStringValue(record.holdId));
-            }
-
-            try (final Statement stmt = cache.conn.createStatement()) {
-                result = stmt.executeUpdate(sql.toString()) == 1;
-
-                if (result) {
-                    cache.conn.commit();
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+            try {
+                if (conn.getProduct() == EDbProduct.POSTGRESQL) {
+                    sql.add("UPDATE admin_hold ",
+                            "   SET create_dt=", LogicUtils.sqlPgDateValue(record.createDt),
+                            " WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                            "   AND hold_id=", LogicUtils.sqlStringValue(record.holdId));
                 } else {
-                    cache.conn.rollback();
+                    sql.add("UPDATE admin_hold ",
+                            "   SET create_dt=", LogicUtils.sqlDateValue(record.createDt),
+                            " WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
+                            "   AND hold_id=", LogicUtils.sqlStringValue(record.holdId));
                 }
+
+                try (final Statement stmt = conn.createStatement()) {
+                    result = stmt.executeUpdate(sql.toString()) == 1;
+
+                    if (result) {
+                        conn.commit();
+                    } else {
+                        conn.rollback();
+                    }
+                }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 

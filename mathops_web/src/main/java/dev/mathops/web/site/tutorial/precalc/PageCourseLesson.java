@@ -100,12 +100,12 @@ enum PageCourseLesson {
                                               final int objective, final PrecalcTutorialSiteLogic logic,
                                               final HtmlBuilder htm) throws SQLException {
 
-        final CourseLesson less = new CourseLesson(site.getDbProfile());
+        final CourseLesson less = new CourseLesson(site.site.profile);
         final String studentId = logic.getStudentId();
         final String mode = logic.hasTutorAccess() ? "practice" : "course";
 
         if (less.gatherData(cache, courseId, Integer.valueOf(unit), Integer.valueOf(objective))) {
-            final StudentCourseStatus status = new StudentCourseStatus(site.getDbProfile());
+            final StudentCourseStatus status = new StudentCourseStatus(site.site.profile);
 
             if (status.gatherData(cache, session, studentId, courseId, false, false)) {
 

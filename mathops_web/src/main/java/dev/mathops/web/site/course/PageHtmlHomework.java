@@ -77,7 +77,7 @@ enum PageHtmlHomework {
 
                 final String effectiveUserId = session.getEffectiveUserId();
                 final boolean isPractice = "practice".equals(mode);
-                hs = new HomeworkSession(cache, site.siteProfile, session.loginSessionId, effectiveUserId, assignmentId,
+                hs = new HomeworkSession(cache, site.site, session.loginSessionId, effectiveUserId, assignmentId,
                         isPractice, redirect);
                 store.setHomeworkSession(hs);
             }

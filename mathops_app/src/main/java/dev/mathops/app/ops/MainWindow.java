@@ -1,11 +1,11 @@
 package dev.mathops.app.ops;
 
-import dev.mathops.db.Cache;
-import dev.mathops.db.old.DbContext;
 import dev.mathops.app.ops.snapin.AbstractSnapIn;
 import dev.mathops.app.ops.snapin.activity.SystemActivitySnapIn;
 import dev.mathops.app.ops.snapin.canvas.CanvasSnapIn;
 import dev.mathops.app.ops.snapin.messaging.MessagingSnapIn;
+import dev.mathops.db.Cache;
+import dev.mathops.db.cfg.Facet;
 import dev.mathops.text.builder.HtmlBuilder;
 
 import javax.swing.BorderFactory;
@@ -43,11 +43,11 @@ final class MainWindow implements Runnable {
     /** The username. */
     private final String username;
 
-    /** The database context. */
-    private final DbContext context;
+    /** The database schema. */
+    private final Facet schema;
 
-    /** The live database context. */
-    private final DbContext liveContext;
+    /** The live database schema. */
+    private final Facet liveSchema;
 
     /** The data cache. */
     private final Cache cache;
@@ -70,20 +70,19 @@ final class MainWindow implements Runnable {
     /**
      * Constructs a new {@code MainWindow}
      *
-     * @param theUsername    the username
-     * @param theContext     the database context
-     * @param theCache       the data cache
-     * @param theLiveContext the live data database context
+     * @param theUsername   the username
+     * @param theSchema     the database schema
+     * @param theCache      the data cache
+     * @param theLiveSchema the live data database schema
      */
-    MainWindow(final String theUsername, final DbContext theContext, final Cache theCache,
-               final DbContext theLiveContext) {
+    MainWindow(final String theUsername, final Facet theSchema, final Cache theCache, final Facet theLiveSchema) {
 
         this.synch = new Object();
         this.username = theUsername;
-        this.context = theContext;
+        this.schema = theSchema;
         this.cache = theCache;
 
-        this.liveContext = theLiveContext;
+        this.liveSchema = theLiveSchema;
     }
 
     /**
@@ -101,21 +100,21 @@ final class MainWindow implements Runnable {
 
         frame.setContentPane(this.content);
 
-        final String dbName = this.context.loginConfig.db.id;
-        final String server = this.context.loginConfig.db.server.name;
+        final String dbName = this.schema.login.database.id;
+        final String server = this.schema.login.database.server.type.name();
 
         final HtmlBuilder windowTitle = new HtmlBuilder(100);
         windowTitle.add("Connected to database  [", dbName, "]  on server [", server, "]  (",
-                this.context.loginConfig.db.use, ")  as  [", this.username, "]");
+                this.schema.data.use, ")  as  [", this.username, "]");
 
         frame.setTitle(windowTitle.toString());
 
         // TODO: Populate contents
 
         final List<AbstractSnapIn> snapIns = new ArrayList<>(10);
-        snapIns.add(new SystemActivitySnapIn(this.context, this.liveContext, this.cache));
-        snapIns.add(new MessagingSnapIn(this.context, this.liveContext, this.cache, frame));
-        snapIns.add(new CanvasSnapIn(this.context, this.liveContext, this.cache, frame));
+        snapIns.add(new SystemActivitySnapIn(this.schema, this.liveSchema, this.cache));
+        snapIns.add(new MessagingSnapIn(this.schema, this.liveSchema, this.cache, frame));
+        snapIns.add(new CanvasSnapIn(this.schema, this.liveSchema, this.cache, frame));
 
         this.dashCard = new DashboardCard(snapIns, this);
         this.content.add(this.dashCard, DASHBOARD);

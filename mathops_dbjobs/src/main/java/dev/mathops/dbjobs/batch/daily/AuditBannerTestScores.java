@@ -6,10 +6,10 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.old.rawlogic.RawMpscorequeueLogic;
 import dev.mathops.db.old.rawlogic.RawStchallengeLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
@@ -48,30 +48,21 @@ public final class AuditBannerTestScores {
     private static final String DIAGNOSE_STU = null;
 
     /** Date before which scores have already been audited. */
-    private static final LocalDate START_DATE = LocalDate.of(2024, Month.DECEMBER, 17);
+    private static final LocalDate START_DATE = LocalDate.of(2025, Month.FEBRUARY, 5);
 
     /** A commonly used string. */
     private static final String ERROR = "ERROR: ";
 
     /** The database profile through which to access the database. */
-    private final DbProfile dbProfile;
-
-    /** The Primary database context. */
-    private final DbContext primaryCtx;
-
-    /** The live data database context. */
-    private final DbContext liveCtx;
+    private final Profile profile;
 
     /**
      * Constructs a new {@code AuditBannerTestScores}.
      */
     public AuditBannerTestScores() {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-
-        this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
-        this.primaryCtx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
-        this.liveCtx = this.dbProfile.getDbContext(ESchemaUse.LIVE);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        this.profile = config.getCodeProfile(Contexts.BATCH_PATH);
     }
 
     /**
@@ -83,21 +74,13 @@ public final class AuditBannerTestScores {
 
         final Collection<String> report = new ArrayList<>(10);
 
-        if (this.dbProfile == null) {
-            Log.warning("Unable to create production context.");
-        } else if (this.primaryCtx == null) {
-            Log.warning("Unable to create PRIMARY database context.");
-        } else if (this.liveCtx == null) {
-            Log.warning("Unable to create LIVE database context.");
+        if (this.profile == null) {
+            Log.warning("Unable to create production profile.");
         } else {
+            final Cache cache = new Cache(this.profile);
+
             try {
-                final DbConnection conn = this.primaryCtx.checkOutConnection();
-                final Cache cache = new Cache(this.dbProfile, conn);
-                try {
-                    execute(cache, report);
-                } finally {
-                    this.primaryCtx.checkInConnection(conn);
-                }
+                execute(cache, report);
             } catch (final SQLException ex) {
                 report.add("EXCEPTION: " + ex.getMessage());
             }
@@ -278,8 +261,9 @@ public final class AuditBannerTestScores {
             boolean needs00Score2 = true;
             boolean needs00Score4 = true;
 
+            final Login liveLogin = this.profile.getLogin(ESchema.LIVE);
             try {
-                final DbConnection liveConn = this.liveCtx.checkOutConnection();
+                final DbConnection liveConn = liveLogin.checkOutConnection();
                 try {
                     sortest = RawMpscorequeueLogic.querySORTESTByStudent(liveConn, student.pidm);
 
@@ -304,7 +288,7 @@ public final class AuditBannerTestScores {
                         }
                     }
                 } finally {
-                    this.liveCtx.checkInConnection(liveConn);
+                    liveLogin.checkInConnection(liveConn);
                 }
             } catch (final SQLException ex) {
                 Log.warning(ex);
@@ -723,6 +707,7 @@ public final class AuditBannerTestScores {
      */
     public static void main(final String... args) {
 
+        DbConnection.registerDrivers();
         final AuditBannerTestScores job = new AuditBannerTestScores();
 
         Log.fine(job.execute());

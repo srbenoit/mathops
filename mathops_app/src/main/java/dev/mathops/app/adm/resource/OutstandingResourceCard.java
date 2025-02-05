@@ -3,7 +3,9 @@ package dev.mathops.app.adm.resource;
 import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
+import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -40,8 +42,8 @@ class OutstandingResourceCard extends AdmPanelBase implements ActionListener {
     @Serial
     private static final long serialVersionUID = -1125912507644704215L;
 
-    /** The database connection. */
-    private final DbConnection conn;
+    /** The data cache. */
+    private final Cache cache;
 
     /** The outstanding resource table. */
     private final JTableOutstandingResource table;
@@ -58,9 +60,9 @@ class OutstandingResourceCard extends AdmPanelBase implements ActionListener {
     /**
      * Constructs a new {@code OutstandingResourceCard}.
      *
-     * @param theConn          the database connection
+     * @param theCache the data cache
      */
-    OutstandingResourceCard(final DbConnection theConn) {
+    OutstandingResourceCard(final Cache theCache) {
 
         super();
 
@@ -73,7 +75,7 @@ class OutstandingResourceCard extends AdmPanelBase implements ActionListener {
                 BorderFactory.createEmptyBorder(3, 3, 3, 3)));
         add(panel, BorderLayout.CENTER);
 
-        this.conn = theConn;
+        this.cache = theCache;
 
         panel.add(makeHeader("Outstanding Resources", false), BorderLayout.NORTH);
 
@@ -188,37 +190,38 @@ class OutstandingResourceCard extends AdmPanelBase implements ActionListener {
         // Get all resource records and build map from resource ID to resource type
         final Map<String, String> resourceMap = new HashMap<>(100);
 
-        try (final Statement stmt = this.conn.createStatement()) {
-            try (final ResultSet rs =
-                         stmt.executeQuery("SELECT resource_id,resource_type FROM resource")) {
+        final DbConnection conn = this.cache.checkOutConnection(ESchema.LEGACY);
+
+        try {
+            try (final Statement stmt = conn.createStatement();
+                 final ResultSet rs = stmt.executeQuery("SELECT resource_id,resource_type FROM resource")) {
                 while (rs.next()) {
                     resourceMap.put(rs.getString(1), rs.getString(2));
                 }
+            } catch (final SQLException ex) {
+                this.error1.setText("Error querying resource table:");
+                if (ex.getMessage() == null) {
+                    this.error2.setText(ex.getClass().getSimpleName());
+                } else {
+                    this.error2.setText(ex.getMessage());
+                }
             }
-        } catch (final SQLException ex) {
-            this.error1.setText("Error querying resource table:");
-            if (ex.getMessage() == null) {
-                this.error2.setText(ex.getClass().getSimpleName());
+
+            if (resourceMap.isEmpty()) {
+                this.table.updatePrefSize();
+                revalidate();
+                repaint();
             } else {
-                this.error2.setText(ex.getMessage());
-            }
-        }
+                final String sql2 = "SELECT student.stu_id, student.first_name, "
+                                    + "student.last_name, stresource.resource_id, stresource.loan_dt, "
+                                    + "stresource.start_time, stresource.due_dt "
+                                    + "FROM stresource, student WHERE return_dt IS NULL "
+                                    + "AND student.stu_id = stresource.stu_id "
+                                    + "ORDER BY loan_dt, start_time";
 
-        if (resourceMap.isEmpty()) {
-            this.table.updatePrefSize();
-            revalidate();
-            repaint();
-        } else {
-            final String sql2 = "SELECT student.stu_id, student.first_name, "
-                    + "student.last_name, stresource.resource_id, stresource.loan_dt, "
-                    + "stresource.start_time, stresource.due_dt "
-                    + "FROM stresource, student WHERE return_dt IS NULL "
-                    + "AND student.stu_id = stresource.stu_id "
-                    + "ORDER BY loan_dt, start_time";
-
-            final List<OutstandingResourceRow> records = new ArrayList<>(10);
-            try (final Statement stmt = this.conn.createStatement()) {
-                try (final ResultSet rs = stmt.executeQuery(sql2)) {
+                final List<OutstandingResourceRow> records = new ArrayList<>(10);
+                try (final Statement stmt = conn.createStatement();
+                     final ResultSet rs = stmt.executeQuery(sql2)) {
                     while (rs.next()) {
                         final String stuId = rs.getString(1).trim();
                         final String first = rs.getString(2).trim();
@@ -237,8 +240,7 @@ class OutstandingResourceCard extends AdmPanelBase implements ActionListener {
                         final LocalDate due = dueDt == null ? null : dueDt.toLocalDate();
                         final String stuName = last + ", " + first;
 
-                        records.add(
-                                new OutstandingResourceRow(stuId, stuName, resId, lent, due, type));
+                        records.add(new OutstandingResourceRow(stuId, stuName, resId, lent, due, type));
                     }
 
                     this.table.addData(records, 2);
@@ -246,15 +248,17 @@ class OutstandingResourceCard extends AdmPanelBase implements ActionListener {
                     invalidate();
                     revalidate();
                     repaint();
-                }
-            } catch (final SQLException ex) {
-                this.error1.setText("Error querying stresource table:");
-                if (ex.getMessage() == null) {
-                    this.error2.setText(ex.getClass().getSimpleName());
-                } else {
-                    this.error2.setText(ex.getMessage());
+                } catch (final SQLException ex) {
+                    this.error1.setText("Error querying stresource table:");
+                    if (ex.getMessage() == null) {
+                        this.error2.setText(ex.getClass().getSimpleName());
+                    } else {
+                        this.error2.setText(ex.getMessage());
+                    }
                 }
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 

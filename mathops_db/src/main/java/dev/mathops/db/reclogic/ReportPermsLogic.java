@@ -2,6 +2,7 @@ package dev.mathops.db.reclogic;
 
 import dev.mathops.db.Cache;
 import dev.mathops.db.EDbProduct;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.rec.ReportPermsRec;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -279,8 +280,10 @@ public abstract class ReportPermsLogic implements IRecLogic<ReportPermsRec> {
                 throw new SQLException("Null value in primary key or required field.");
             }
 
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
+
             final String sql = SimpleBuilder.concat("INSERT INTO ",
-                    cache.mainSchemaName, ".report_perms (stu_id,rpt_id,perm_level) VALUES (",
+                    schemaPrefix, ".report_perms (stu_id,rpt_id,perm_level) VALUES (",
                     sqlStringValue(record.stuId), ",",
                     sqlStringValue(record.rptId), ",",
                     sqlIntegerValue(record.permLevel), ")");
@@ -302,7 +305,9 @@ public abstract class ReportPermsLogic implements IRecLogic<ReportPermsRec> {
                 throw new SQLException("Null value in primary key or required field.");
             }
 
-            final String sql = SimpleBuilder.concat("UPDATE ", cache.mainSchemaName, ".report_perms set perm_level=",
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
+
+            final String sql = SimpleBuilder.concat("UPDATE ", schemaPrefix, ".report_perms set perm_level=",
                     sqlIntegerValue(record.permLevel),
                     " WHERE stu_id=", sqlStringValue(record.stuId),
                     " AND rpt_id=", sqlStringValue(record.rptId));
@@ -321,7 +326,9 @@ public abstract class ReportPermsLogic implements IRecLogic<ReportPermsRec> {
         @Override
         public boolean delete(final Cache cache, final ReportPermsRec record) throws SQLException {
 
-            final String sql = SimpleBuilder.concat("DELETE FROM ", cache.mainSchemaName, ".report_perms WHERE stu_id=",
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
+
+            final String sql = SimpleBuilder.concat("DELETE FROM ", schemaPrefix, ".report_perms WHERE stu_id=",
                     sqlStringValue(record.stuId), " AND rpt_id=",
                     sqlStringValue(record.rptId));
 
@@ -338,8 +345,10 @@ public abstract class ReportPermsLogic implements IRecLogic<ReportPermsRec> {
         @Override
         public List<ReportPermsRec> queryAll(final Cache cache) throws SQLException {
 
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
+
             final String sql = SimpleBuilder.concat("SELECT * FROM ",
-                    cache.mainSchemaName, ".report_perms");
+                    schemaPrefix, ".report_perms");
 
             return doListQuery(cache, sql);
         }
@@ -354,7 +363,9 @@ public abstract class ReportPermsLogic implements IRecLogic<ReportPermsRec> {
          */
         public List<ReportPermsRec> queryByStuId(final Cache cache, final String stuId) throws SQLException {
 
-            final String sql = SimpleBuilder.concat("SELECT * FROM ", cache.mainSchemaName,
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
+
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".report_perms WHERE stu_id=", sqlStringValue(stuId));
 
             return doListQuery(cache, sql);
@@ -370,7 +381,9 @@ public abstract class ReportPermsLogic implements IRecLogic<ReportPermsRec> {
          */
         public List<ReportPermsRec> queryByRptId(final Cache cache, final String rptId) throws SQLException {
 
-            final String sql = SimpleBuilder.concat("SELECT * FROM ", cache.mainSchemaName,
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
+
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".report_perms WHERE rpt_id=", sqlStringValue(rptId));
 
             return doListQuery(cache, sql);
@@ -387,7 +400,9 @@ public abstract class ReportPermsLogic implements IRecLogic<ReportPermsRec> {
          */
         public ReportPermsRec query(final Cache cache, final String stuId, final String rptId) throws SQLException {
 
-            final String sql = SimpleBuilder.concat("SELECT * FROM ", cache.mainSchemaName,
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
+
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".report_perms WHERE stu_id=", sqlStringValue(stuId),
                     " AND rpt_id=", sqlStringValue(rptId));
 

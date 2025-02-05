@@ -3,14 +3,13 @@ package dev.mathops.app.database.dba;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbConfig;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.EDbUse;
-import dev.mathops.db.old.cfg.ESchemaUse;
-import dev.mathops.db.old.cfg.LoginConfig;
-import dev.mathops.db.old.cfg.ServerConfig;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.Database;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Profile;
+import dev.mathops.db.cfg.Server;
+import dev.mathops.persistence.config.LoginConfig;
 import dev.mathops.text.builder.HtmlBuilder;
 
 import javax.swing.BorderFactory;
@@ -48,8 +47,8 @@ final class DatabasePicker extends JFrame implements ActionListener {
     /** User preferences. */
     private final Preferences prefs;
 
-    /** The context map. */
-    private final ContextMap map;
+    /** The database configuration. */
+    private final DatabaseConfig databaseConfig;
 
     /** A map from checkbox ID to checkbox. */
     private final Map<String, JCheckBox> checkboxes;
@@ -58,7 +57,7 @@ final class DatabasePicker extends JFrame implements ActionListener {
     private final Map<String, JRadioButton> radioButtons;
 
     /** A map from radio button ID to the associated database profile. */
-    private final Map<String, DbProfile> profiles;
+    private final Map<String, Profile> profiles;
 
     /** The "OK" button. */
     private final JButton okButton;
@@ -69,21 +68,21 @@ final class DatabasePicker extends JFrame implements ActionListener {
     /**
      * Constructs a new {@code DatabasePicker}.  This should be called on the AWT event thread.
      *
-     * @param theMap the context map
+     * @param theDatabaseConfig the context map
      */
-    DatabasePicker(final ContextMap theMap) {
+    DatabasePicker(final DatabaseConfig theDatabaseConfig) {
 
         super("Select Databases to Administer");
 
         final Class<? extends DatabasePicker> cls = getClass();
         this.prefs = Preferences.userNodeForPackage(cls);
 
-        this.map = theMap;
+        this.databaseConfig = theDatabaseConfig;
         this.checkboxes = new HashMap<>(5);
         this.radioButtons = new HashMap<>(10);
         this.profiles = new HashMap<>(10);
 
-        final DbProfile[] contextProfiles = theMap.getProfiles();
+        final List<Profile> contextProfiles = theDatabaseConfig.getProfiles();
 
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setResizable(false);
@@ -108,14 +107,14 @@ final class DatabasePicker extends JFrame implements ActionListener {
         final Border pad4Border = BorderFactory.createEmptyBorder(4, 4, 4, 4);
         final Border serverPadding = BorderFactory.createCompoundBorder(highlightLineBorder, pad4Border);
 
-        final ServerConfig[] servers = theMap.getServers();
-        for (final ServerConfig server : servers) {
+        final List<Server> servers = theDatabaseConfig.getServers();
+        for (final Server server : servers) {
             final JPanel serverBlock = new JPanel(new StackedBorderLayout(4, 4));
             serverBlock.setBackground(accentColor);
             serverBlock.setBorder(serverPadding);
 
             builder.reset();
-            builder.add(server.type.name, " server '", server.name, "' on ", server.host, ":");
+            builder.add(server.type.name, " server on ", server.host, ":");
             builder.add(server.port);
             final String serverTitleStr = builder.toString();
             final JLabel serverTitle = new JLabel(serverTitleStr);
@@ -123,22 +122,16 @@ final class DatabasePicker extends JFrame implements ActionListener {
 
             boolean addBlock = false;
 
-            final List<DbConfig> databases = server.getDatabases();
-            for (final DbConfig database : databases) {
+            final List<Database> databases = server.getDatabases();
+            for (final Database database : databases) {
 
-                final EDbUse use = database.use;
-
-                if (use == EDbUse.LIVE || use == EDbUse.ODS) {
-                    continue;
-                }
-
-                final List<LoginConfig> dbLogins = database.getLogins();
+                final List<Login> dbLogins = database.getLogins();
                 if (dbLogins.isEmpty()) {
                     continue;
                 }
 
                 builder.reset();
-                builder.add("DB:", server.name, ".", database.id);
+                builder.add("DB:", database.id);
                 final String checkboxId = builder.toString();
 
                 final JPanel databaseFlow = new JPanel(new FlowLayout(FlowLayout.LEADING, 4, 0));
@@ -155,7 +148,7 @@ final class DatabasePicker extends JFrame implements ActionListener {
                 check.setSelected(databaseChecked);
 
                 builder.reset();
-                builder.add(database.use.name(), " database '", database.id, "'");
+                builder.add("database '", database.id, "'");
 
                 final String databaseTitleStr = builder.toString();
                 final JLabel databaseTitle = new JLabel(databaseTitleStr);
@@ -164,17 +157,14 @@ final class DatabasePicker extends JFrame implements ActionListener {
                 serverBlock.add(databaseFlow, StackedBorderLayout.NORTH);
 
                 final ButtonGroup group = new ButtonGroup();
-                for (final LoginConfig login : dbLogins) {
+                for (final Login login : dbLogins) {
 
-                    DbProfile profile = null;
-                    for (final DbProfile testProfile : contextProfiles) {
-                        final DbContext testContext = testProfile.getDbContext(ESchemaUse.PRIMARY);
-                        if (testContext != null) {
-                            final LoginConfig testLogin = testContext.getLoginConfig();
-                            if (testLogin != null && testLogin.id.equals(login.id)) {
-                                profile = testProfile;
-                                break;
-                            }
+                    Profile profile = null;
+                    for (final Profile testProfile : contextProfiles) {
+                        final Login testLogin = testProfile.getLogin(ESchema.LEGACY);
+                        if (testLogin != null && testLogin.id.equals(login.id)) {
+                            profile = testProfile;
+                            break;
                         }
                     }
 
@@ -190,7 +180,7 @@ final class DatabasePicker extends JFrame implements ActionListener {
                     loginFlow.add(indent);
 
                     builder.reset();
-                    builder.add("L:", server.name, ".", database.id, ".", login.id);
+                    builder.add("L: ", database.id, ".", login.id);
                     final String radioId = builder.toString();
 
                     final JRadioButton radio = new JRadioButton();
@@ -294,12 +284,12 @@ final class DatabasePicker extends JFrame implements ActionListener {
             setVisible(false);
             dispose();
 
-            final List<DbProfile> selectedProfiles = new ArrayList<>(10);
+            final List<Profile> selectedProfiles = new ArrayList<>(10);
             for (final Map.Entry<String, JRadioButton> entry : this.radioButtons.entrySet()) {
                 final JRadioButton radio = entry.getValue();
                 if (radio.isSelected()) {
                     final String key = entry.getKey();
-                    final DbProfile profile = this.profiles.get(key);
+                    final Profile profile = this.profiles.get(key);
                     if (profile != null) {
                         selectedProfiles.add(profile);
                     }

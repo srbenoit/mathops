@@ -4,11 +4,12 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.EDbUse;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Profile;
+import dev.mathops.db.cfg.Facet;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.rec.MasteryExamRec;
 import org.junit.jupiter.api.AfterAll;
@@ -95,74 +96,66 @@ final class TestMasteryExamLogic {
     final class Informix {
 
         /** The Informix database profile. */
-        public static DbProfile informixProfile;
+        static Profile informixProfile;
 
         /** The Informix database context. */
-        public static DbContext informixCtx;
+        static Login informixLogin;
 
         /** Initialize the test class. */
         @BeforeAll
         static void initTests() {
 
-            informixProfile = ContextMap.getDefaultInstance().getCodeProfile(Contexts.INFORMIX_TEST_PATH);
+            final DatabaseConfig config = DatabaseConfig.getDefault();
+            informixProfile = config.getCodeProfile(Contexts.INFORMIX_TEST_PATH);
             if (informixProfile == null) {
                 throw new IllegalArgumentException(TestRes.get(TestRes.ERR_NO_IFXTEST_PROFILE));
             }
-
-            informixCtx = informixProfile.getDbContext(ESchemaUse.PRIMARY);
-            if (informixCtx == null) {
-                throw new IllegalArgumentException(TestRes.get(TestRes.ERR_NO_IFXPRIMARY_CONTEXT));
+            informixLogin = informixProfile.getLogin(ESchema.LEGACY);
+            if (informixLogin == null) {
+                throw new IllegalArgumentException(TestRes.get(TestRes.ERR_NO_PGPRIMARY_CONTEXT));
             }
 
             // Make sure the Informix connection is accessing the TEST database
-            try {
-                final DbConnection conn = informixCtx.checkOutConnection();
-
-                try {
-                    try (final Statement stmt = conn.createStatement();
-                         final ResultSet rs = stmt.executeQuery("SELECT descr FROM which_db")) {
-
-                        if (rs.next()) {
-                            final String which = rs.getString(1);
-                            if (which == null || !"TEST".equals(which.trim())) {
-                                throw new IllegalArgumentException(TestRes.fmt(TestRes.ERR_NOT_CONNECTED_TO_TEST,
-                                        which));
-                            }
-                        } else {
-                            throw new IllegalArgumentException(TestRes.get(TestRes.ERR_CANT_QUERY_WHICH_DB));
-                        }
-                    }
-                } finally {
-                    informixCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                throw new IllegalArgumentException(ex);
+            final Facet facet = informixProfile.getFacet(ESchema.LEGACY);
+            if (facet.data.use != EDbUse.TEST) {
+                throw new IllegalArgumentException(TestRes.fmt(TestRes.ERR_NOT_CONNECTED_TO_TEST, facet.data.use));
             }
 
+            final DbConnection conn = informixLogin.checkOutConnection();
+            final Cache cache = new Cache(informixProfile);
+
             try {
-                final DbConnection conn = informixCtx.checkOutConnection();
+                try (final Statement stmt = conn.createStatement();
+                     final ResultSet rs = stmt.executeQuery("SELECT descr FROM which_db")) {
 
-                try {
-                    try (final Statement stmt = conn.createStatement()) {
-                        stmt.executeUpdate("DELETE FROM mastery_exam");
+                    if (rs.next()) {
+                        final String which = rs.getString(1);
+                        if (which == null || !"TEST".equals(which.trim())) {
+                            throw new IllegalArgumentException(TestRes.fmt(TestRes.ERR_NOT_CONNECTED_TO_TEST, which));
+                        }
+                    } else {
+                        throw new IllegalArgumentException(TestRes.get(TestRes.ERR_CANT_QUERY_WHICH_DB));
                     }
-                    conn.commit();
-
-                    final Cache cache = new Cache(informixProfile, conn);
-                    final MasteryExamLogic logic = MasteryExamLogic.get(cache);
-
-                    assertTrue(logic.insert(cache, RAW1), "Failed to insert Informix mastery_exam");
-                    assertTrue(logic.insert(cache, RAW2), "Failed to insert Informix mastery_exam");
-                    assertTrue(logic.insert(cache, RAW3), "Failed to insert Informix mastery_exam");
-                    assertTrue(logic.insert(cache, RAW4), "Failed to insert Informix mastery_exam");
-                    assertTrue(logic.insert(cache, RAW5), "Failed to insert Informix mastery_exam");
-                    assertTrue(logic.insert(cache, RAW6), "Failed to insert Informix mastery_exam");
-                } finally {
-                    informixCtx.checkInConnection(conn);
                 }
+
+                try (final Statement stmt = conn.createStatement()) {
+                    stmt.executeUpdate("DELETE FROM mastery_exam");
+                }
+                conn.commit();
+
+                final MasteryExamLogic logic = MasteryExamLogic.get(cache);
+
+                assertTrue(logic.insert(cache, RAW1), "Failed to insert Informix mastery_exam");
+                assertTrue(logic.insert(cache, RAW2), "Failed to insert Informix mastery_exam");
+                assertTrue(logic.insert(cache, RAW3), "Failed to insert Informix mastery_exam");
+                assertTrue(logic.insert(cache, RAW4), "Failed to insert Informix mastery_exam");
+                assertTrue(logic.insert(cache, RAW5), "Failed to insert Informix mastery_exam");
+                assertTrue(logic.insert(cache, RAW6), "Failed to insert Informix mastery_exam");
             } catch (final SQLException ex) {
-                Log.warning(ex);
                 fail("Exception while initializing Informix 'mastery_exam' table: " + ex.getMessage());
+                throw new IllegalArgumentException(ex);
+            } finally {
+                informixLogin.checkInConnection(conn);
             }
         }
 
@@ -171,52 +164,46 @@ final class TestMasteryExamLogic {
         @DisplayName("Informix queryAll results")
         void test0003() {
 
+            final Cache cache = new Cache(informixProfile);
+            final MasteryExamLogic logic = MasteryExamLogic.get(cache);
+
             try {
-                final DbConnection conn = informixCtx.checkOutConnection();
-                final Cache cache = new Cache(informixProfile, conn);
-                final MasteryExamLogic logic = MasteryExamLogic.get(cache);
+                final List<MasteryExamRec> all = logic.queryAll(cache);
 
-                try {
-                    final List<MasteryExamRec> all = logic.queryAll(cache);
+                assertEquals(6, all.size(), "Incorrect record count from Informix queryAll");
 
-                    assertEquals(6, all.size(), "Incorrect record count from Informix queryAll");
+                boolean found1 = false;
+                boolean found2 = false;
+                boolean found3 = false;
+                boolean found4 = false;
+                boolean found5 = false;
+                boolean found6 = false;
 
-                    boolean found1 = false;
-                    boolean found2 = false;
-                    boolean found3 = false;
-                    boolean found4 = false;
-                    boolean found5 = false;
-                    boolean found6 = false;
-
-                    for (final MasteryExamRec r : all) {
-                        if (RAW1.equals(r)) {
-                            found1 = true;
-                        } else if (RAW2.equals(r)) {
-                            found2 = true;
-                        } else if (RAW3.equals(r)) {
-                            found3 = true;
-                        } else if (RAW4.equals(r)) {
-                            found4 = true;
-                        } else if (RAW5.equals(r)) {
-                            found5 = true;
-                        } else if (RAW6.equals(r)) {
-                            found6 = true;
-                        } else {
-                            printUnexpected(r);
-                            fail("Extra record found");
-                        }
+                for (final MasteryExamRec r : all) {
+                    if (RAW1.equals(r)) {
+                        found1 = true;
+                    } else if (RAW2.equals(r)) {
+                        found2 = true;
+                    } else if (RAW3.equals(r)) {
+                        found3 = true;
+                    } else if (RAW4.equals(r)) {
+                        found4 = true;
+                    } else if (RAW5.equals(r)) {
+                        found5 = true;
+                    } else if (RAW6.equals(r)) {
+                        found6 = true;
+                    } else {
+                        printUnexpected(r);
+                        fail("Extra record found");
                     }
-
-                    assertTrue(found1, "Informix mastery_exam 1 not found");
-                    assertTrue(found2, "Informix mastery_exam 2 not found");
-                    assertTrue(found3, "Informix mastery_exam 3 not found");
-                    assertTrue(found4, "Informix mastery_exam 4 not found");
-                    assertTrue(found5, "Informix mastery_exam 5 not found");
-                    assertTrue(found6, "Informix mastery_exam 6 not found");
-
-                } finally {
-                    informixCtx.checkInConnection(conn);
                 }
+
+                assertTrue(found1, "Informix mastery_exam 1 not found");
+                assertTrue(found2, "Informix mastery_exam 2 not found");
+                assertTrue(found3, "Informix mastery_exam 3 not found");
+                assertTrue(found4, "Informix mastery_exam 4 not found");
+                assertTrue(found5, "Informix mastery_exam 5 not found");
+                assertTrue(found6, "Informix mastery_exam 6 not found");
             } catch (final SQLException ex) {
                 Log.warning(ex);
                 fail("Exception while querying all Informix 'mastery_exam' rows: " + ex.getMessage());
@@ -228,48 +215,42 @@ final class TestMasteryExamLogic {
         @DisplayName("Informix queryActiveByCourse results")
         void test0004() {
 
+            final Cache cache = new Cache(informixProfile);
+            final MasteryExamLogic logic = MasteryExamLogic.get(cache);
+
             try {
-                final DbConnection conn = informixCtx.checkOutConnection();
-                final Cache cache = new Cache(informixProfile, conn);
-                final MasteryExamLogic logic = MasteryExamLogic.get(cache);
+                final List<MasteryExamRec> all = logic.queryActiveByCourse(cache, RawRecordConstants.M125);
 
-                try {
-                    final List<MasteryExamRec> all = logic.queryActiveByCourse(cache, RawRecordConstants.M125);
+                assertEquals(5, all.size(), "Incorrect record count from Informix queryActiveByCourse");
 
-                    assertEquals(5, all.size(), "Incorrect record count from Informix queryActiveByCourse");
+                boolean found1 = false;
+                boolean found2 = false;
+                boolean found3 = false;
+                boolean found4 = false;
+                boolean found6 = false;
 
-                    boolean found1 = false;
-                    boolean found2 = false;
-                    boolean found3 = false;
-                    boolean found4 = false;
-                    boolean found6 = false;
-
-                    for (final MasteryExamRec r : all) {
-                        if (RAW1.equals(r)) {
-                            found1 = true;
-                        } else if (RAW2.equals(r)) {
-                            found2 = true;
-                        } else if (RAW3.equals(r)) {
-                            found3 = true;
-                        } else if (RAW4.equals(r)) {
-                            found4 = true;
-                        } else if (RAW6.equals(r)) {
-                            found6 = true;
-                        } else {
-                            printUnexpected(r);
-                            fail("Extra record found");
-                        }
+                for (final MasteryExamRec r : all) {
+                    if (RAW1.equals(r)) {
+                        found1 = true;
+                    } else if (RAW2.equals(r)) {
+                        found2 = true;
+                    } else if (RAW3.equals(r)) {
+                        found3 = true;
+                    } else if (RAW4.equals(r)) {
+                        found4 = true;
+                    } else if (RAW6.equals(r)) {
+                        found6 = true;
+                    } else {
+                        printUnexpected(r);
+                        fail("Extra record found");
                     }
-
-                    assertTrue(found1, "Informix mastery_exam 1 not found");
-                    assertTrue(found2, "Informix mastery_exam 2 not found");
-                    assertTrue(found3, "Informix mastery_exam 3 not found");
-                    assertTrue(found4, "Informix mastery_exam 4 not found");
-                    assertTrue(found6, "Informix mastery_exam 6 not found");
-
-                } finally {
-                    informixCtx.checkInConnection(conn);
                 }
+
+                assertTrue(found1, "Informix mastery_exam 1 not found");
+                assertTrue(found2, "Informix mastery_exam 2 not found");
+                assertTrue(found3, "Informix mastery_exam 3 not found");
+                assertTrue(found4, "Informix mastery_exam 4 not found");
+                assertTrue(found6, "Informix mastery_exam 6 not found");
             } catch (final SQLException ex) {
                 Log.warning(ex);
                 fail("Exception while querying Informix 'mastery_exam' rows by course: "
@@ -282,45 +263,39 @@ final class TestMasteryExamLogic {
         @DisplayName("Informix queryActiveByCourseUnit results")
         void test0005() {
 
+            final Cache cache = new Cache(informixProfile);
+            final MasteryExamLogic logic = MasteryExamLogic.get(cache);
+
             try {
-                final DbConnection conn = informixCtx.checkOutConnection();
-                final Cache cache = new Cache(informixProfile, conn);
-                final MasteryExamLogic logic = MasteryExamLogic.get(cache);
+                final List<MasteryExamRec> all = logic.queryActiveByCourseUnit(cache, RawRecordConstants.M125,
+                        Integer.valueOf(1));
 
-                try {
-                    final List<MasteryExamRec> all = logic.queryActiveByCourseUnit(cache, RawRecordConstants.M125,
-                            Integer.valueOf(1));
+                assertEquals(4, all.size(), "Incorrect record count from Informix queryActiveByCourseUnit");
 
-                    assertEquals(4, all.size(), "Incorrect record count from Informix queryActiveByCourseUnit");
+                boolean found1 = false;
+                boolean found2 = false;
+                boolean found3 = false;
+                boolean found6 = false;
 
-                    boolean found1 = false;
-                    boolean found2 = false;
-                    boolean found3 = false;
-                    boolean found6 = false;
-
-                    for (final MasteryExamRec r : all) {
-                        if (RAW1.equals(r)) {
-                            found1 = true;
-                        } else if (RAW2.equals(r)) {
-                            found2 = true;
-                        } else if (RAW3.equals(r)) {
-                            found3 = true;
-                        } else if (RAW6.equals(r)) {
-                            found6 = true;
-                        } else {
-                            printUnexpected(r);
-                            fail("Extra record found");
-                        }
+                for (final MasteryExamRec r : all) {
+                    if (RAW1.equals(r)) {
+                        found1 = true;
+                    } else if (RAW2.equals(r)) {
+                        found2 = true;
+                    } else if (RAW3.equals(r)) {
+                        found3 = true;
+                    } else if (RAW6.equals(r)) {
+                        found6 = true;
+                    } else {
+                        printUnexpected(r);
+                        fail("Extra record found");
                     }
-
-                    assertTrue(found1, "Informix mastery_exam 1 not found");
-                    assertTrue(found2, "Informix mastery_exam 2 not found");
-                    assertTrue(found3, "Informix mastery_exam 3 not found");
-                    assertTrue(found6, "Informix mastery_exam 6 not found");
-
-                } finally {
-                    informixCtx.checkInConnection(conn);
                 }
+
+                assertTrue(found1, "Informix mastery_exam 1 not found");
+                assertTrue(found2, "Informix mastery_exam 2 not found");
+                assertTrue(found3, "Informix mastery_exam 3 not found");
+                assertTrue(found6, "Informix mastery_exam 6 not found");
             } catch (final SQLException ex) {
                 Log.warning(ex);
                 fail("Exception while querying Informix 'mastery_exam' rows by course unit: " + ex.getMessage());
@@ -332,38 +307,32 @@ final class TestMasteryExamLogic {
         @DisplayName("Informix queryActiveByCourseUnitObjective results")
         void test0006() {
 
+            final Cache cache = new Cache(informixProfile);
+            final MasteryExamLogic logic = MasteryExamLogic.get(cache);
+
             try {
-                final DbConnection conn = informixCtx.checkOutConnection();
-                final Cache cache = new Cache(informixProfile, conn);
-                final MasteryExamLogic logic = MasteryExamLogic.get(cache);
+                final List<MasteryExamRec> all = logic.queryActiveByCourseUnitObjective(cache,
+                        RawRecordConstants.M125, Integer.valueOf(1), Integer.valueOf(3));
 
-                try {
-                    final List<MasteryExamRec> all = logic.queryActiveByCourseUnitObjective(cache,
-                            RawRecordConstants.M125, Integer.valueOf(1), Integer.valueOf(3));
+                assertEquals(2, all.size(),
+                        "Incorrect record count from Informix queryActiveByCourseUnitObjective");
 
-                    assertEquals(2, all.size(),
-                            "Incorrect record count from Informix queryActiveByCourseUnitObjective");
+                boolean found3 = false;
+                boolean found6 = false;
 
-                    boolean found3 = false;
-                    boolean found6 = false;
-
-                    for (final MasteryExamRec r : all) {
-                        if (RAW3.equals(r)) {
-                            found3 = true;
-                        } else if (RAW6.equals(r)) {
-                            found6 = true;
-                        } else {
-                            printUnexpected(r);
-                            fail("Extra record found");
-                        }
+                for (final MasteryExamRec r : all) {
+                    if (RAW3.equals(r)) {
+                        found3 = true;
+                    } else if (RAW6.equals(r)) {
+                        found6 = true;
+                    } else {
+                        printUnexpected(r);
+                        fail("Extra record found");
                     }
-
-                    assertTrue(found3, "Informix mastery_exam 3 not found");
-                    assertTrue(found6, "Informix mastery_exam 6 not found");
-
-                } finally {
-                    informixCtx.checkInConnection(conn);
                 }
+
+                assertTrue(found3, "Informix mastery_exam 3 not found");
+                assertTrue(found6, "Informix mastery_exam 6 not found");
             } catch (final SQLException ex) {
                 Log.warning(ex);
                 fail("Exception while querying Informix 'mastery_exam' rows by course unit objective: "
@@ -376,23 +345,18 @@ final class TestMasteryExamLogic {
         @DisplayName("Informix queryActiveByCourseUnitObjectiveType results")
         void test0007() {
 
+            final Cache cache = new Cache(informixProfile);
+            final MasteryExamLogic logic = MasteryExamLogic.get(cache);
+
             try {
-                final DbConnection conn = informixCtx.checkOutConnection();
-                final Cache cache = new Cache(informixProfile, conn);
-                final MasteryExamLogic logic = MasteryExamLogic.get(cache);
+                final MasteryExamRec r = logic.queryActive(cache,
+                        RawRecordConstants.M125, Integer.valueOf(1), Integer.valueOf(3), "ST");
 
-                try {
-                    final MasteryExamRec r = logic.queryActive(cache,
-                            RawRecordConstants.M125, Integer.valueOf(1), Integer.valueOf(3), "ST");
+                assertNotNull(r, "No record returned by Informix queryActiveByCourseUnitObjective");
 
-                    assertNotNull(r, "No record returned by Informix queryActiveByCourseUnitObjective");
-
-                    if (!RAW3.equals(r)) {
-                        printUnexpected(r);
-                        fail("Extra record found");
-                    }
-                } finally {
-                    informixCtx.checkInConnection(conn);
+                if (!RAW3.equals(r)) {
+                    printUnexpected(r);
+                    fail("Extra record found");
                 }
             } catch (final SQLException ex) {
                 Log.warning(ex);
@@ -406,22 +370,17 @@ final class TestMasteryExamLogic {
         @DisplayName("query results")
         void test0008() {
 
+            final Cache cache = new Cache(informixProfile);
+            final MasteryExamLogic logic = MasteryExamLogic.get(cache);
+
             try {
-                final DbConnection conn = informixCtx.checkOutConnection();
-                final Cache cache = new Cache(informixProfile, conn);
-                final MasteryExamLogic logic = MasteryExamLogic.get(cache);
+                final MasteryExamRec r = logic.query(cache, "C41_LT1_M");
 
-                try {
-                    final MasteryExamRec r = logic.query(cache, "C41_LT1_M");
+                assertNotNull(r, "No record returned by query");
 
-                    assertNotNull(r, "No record returned by query");
-
-                    if (!RAW1.equals(r)) {
-                        printUnexpected(r);
-                        fail("Extra record found");
-                    }
-                } finally {
-                    informixCtx.checkInConnection(conn);
+                if (!RAW1.equals(r)) {
+                    printUnexpected(r);
+                    fail("Extra record found");
                 }
             } catch (final SQLException ex) {
                 Log.warning(ex);
@@ -434,51 +393,45 @@ final class TestMasteryExamLogic {
         @DisplayName("delete results")
         void test0009() {
 
+            final Cache cache = new Cache(informixProfile);
+            final MasteryExamLogic logic = MasteryExamLogic.get(cache);
+
             try {
-                final DbConnection conn = informixCtx.checkOutConnection();
-                final Cache cache = new Cache(informixProfile, conn);
-                final MasteryExamLogic logic = MasteryExamLogic.get(cache);
+                final boolean result = logic.delete(cache, RAW5);
+                assertTrue(result, "delete returned false");
 
-                try {
-                    final boolean result = logic.delete(cache, RAW5);
-                    assertTrue(result, "delete returned false");
+                final List<MasteryExamRec> all = logic.queryAll(cache);
 
-                    final List<MasteryExamRec> all = logic.queryAll(cache);
+                assertEquals(5, all.size(), "Incorrect record count from queryAll after delete");
 
-                    assertEquals(5, all.size(), "Incorrect record count from queryAll after delete");
+                boolean found1 = false;
+                boolean found2 = false;
+                boolean found3 = false;
+                boolean found4 = false;
+                boolean found6 = false;
 
-                    boolean found1 = false;
-                    boolean found2 = false;
-                    boolean found3 = false;
-                    boolean found4 = false;
-                    boolean found6 = false;
-
-                    for (final MasteryExamRec r : all) {
-                        if (RAW1.equals(r)) {
-                            found1 = true;
-                        } else if (RAW2.equals(r)) {
-                            found2 = true;
-                        } else if (RAW3.equals(r)) {
-                            found3 = true;
-                        } else if (RAW4.equals(r)) {
-                            found4 = true;
-                        } else if (RAW6.equals(r)) {
-                            found6 = true;
-                        } else {
-                            printUnexpected(r);
-                            fail("Extra record found");
-                        }
+                for (final MasteryExamRec r : all) {
+                    if (RAW1.equals(r)) {
+                        found1 = true;
+                    } else if (RAW2.equals(r)) {
+                        found2 = true;
+                    } else if (RAW3.equals(r)) {
+                        found3 = true;
+                    } else if (RAW4.equals(r)) {
+                        found4 = true;
+                    } else if (RAW6.equals(r)) {
+                        found6 = true;
+                    } else {
+                        printUnexpected(r);
+                        fail("Extra record found");
                     }
-
-                    assertTrue(found1, "mastery_exam 1 not found");
-                    assertTrue(found2, "mastery_exam 2 not found");
-                    assertTrue(found3, "mastery_exam 3 not found");
-                    assertTrue(found4, "mastery_exam 4 not found");
-                    assertTrue(found6, "mastery_exam 6 not found");
-
-                } finally {
-                    informixCtx.checkInConnection(conn);
                 }
+
+                assertTrue(found1, "mastery_exam 1 not found");
+                assertTrue(found2, "mastery_exam 2 not found");
+                assertTrue(found3, "mastery_exam 3 not found");
+                assertTrue(found4, "mastery_exam 4 not found");
+                assertTrue(found6, "mastery_exam 6 not found");
             } catch (final SQLException ex) {
                 Log.warning(ex);
                 fail("Exception while deleting mastery_exams: " + ex.getMessage());
@@ -490,7 +443,7 @@ final class TestMasteryExamLogic {
         static void cleanUp() {
 
             try {
-                final DbConnection conn = informixCtx.checkOutConnection();
+                final DbConnection conn = informixLogin.checkOutConnection();
 
                 try {
                     try (final Statement stmt = conn.createStatement()) {
@@ -500,407 +453,7 @@ final class TestMasteryExamLogic {
                     conn.commit();
 
                 } finally {
-                    informixCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while cleaning tables: " + ex.getMessage());
-            }
-        }
-    }
-
-    /**
-     * Tests for the {@code MasteryExamLogic} class.
-     */
-    @Nested
-    final class Postgres {
-
-        /** The PostgreSQL database profile. */
-        public static DbProfile postgresProfile;
-
-        /** The PostgreSQL database context. */
-        public static DbContext postgresCtx;
-
-        /** Initialize the test class. */
-        @BeforeAll
-        static void initTests() {
-
-            postgresProfile = ContextMap.getDefaultInstance().getCodeProfile(Contexts.POSTGRES_TEST_PATH);
-            if (postgresProfile == null) {
-                throw new IllegalArgumentException(TestRes.get(TestRes.ERR_NO_PGTEST_PROFILE));
-            }
-
-            postgresCtx = postgresProfile.getDbContext(ESchemaUse.PRIMARY);
-            if (postgresCtx == null) {
-                throw new IllegalArgumentException(TestRes.get(TestRes.ERR_NO_PGPRIMARY_CONTEXT));
-            }
-
-            // Make sure the PostgreSQL connection is using a TEST schema
-            if (postgresCtx.loginConfig.db.use != EDbUse.TEST) {
-                throw new IllegalArgumentException(TestRes.fmt(TestRes.ERR_NOT_CONNECTED_TO_TEST,
-                        postgresCtx.loginConfig.db.use));
-            }
-            try {
-                final DbConnection conn = postgresCtx.checkOutConnection();
-
-                try {
-                    try (final Statement stmt = conn.createStatement()) {
-                        stmt.executeUpdate("DELETE FROM main_t.mastery_exam");
-                    }
-                    conn.commit();
-
-                    final Cache cache = new Cache(postgresProfile, conn);
-                    final MasteryExamLogic logic = MasteryExamLogic.get(cache);
-
-                    assertTrue(logic.insert(cache, RAW1), "Failed to insert Postgres mastery_exam");
-                    assertTrue(logic.insert(cache, RAW2), "Failed to insert Postgres mastery_exam");
-                    assertTrue(logic.insert(cache, RAW3), "Failed to insert Postgres mastery_exam");
-                    assertTrue(logic.insert(cache, RAW4), "Failed to insert Postgres mastery_exam");
-                    assertTrue(logic.insert(cache, RAW5), "Failed to insert Postgres mastery_exam");
-                    assertTrue(logic.insert(cache, RAW6), "Failed to insert Postgres mastery_exam");
-                } finally {
-                    postgresCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while initializing Postgres 'main_t.mastery_exam' table: " + ex.getMessage());
-            }
-        }
-
-        /** Test case. */
-        @Test
-        @DisplayName("Postgres queryAll results")
-        void test0003() {
-
-            try {
-                final DbConnection conn = postgresCtx.checkOutConnection();
-                final Cache cache = new Cache(postgresProfile, conn);
-                final MasteryExamLogic logic = MasteryExamLogic.get(cache);
-
-                try {
-                    final List<MasteryExamRec> all = logic.queryAll(cache);
-
-                    assertEquals(6, all.size(), "Incorrect record count from Postgres queryAll");
-
-                    boolean found1 = false;
-                    boolean found2 = false;
-                    boolean found3 = false;
-                    boolean found4 = false;
-                    boolean found5 = false;
-                    boolean found6 = false;
-
-                    for (final MasteryExamRec r : all) {
-                        if (RAW1.equals(r)) {
-                            found1 = true;
-                        } else if (RAW2.equals(r)) {
-                            found2 = true;
-                        } else if (RAW3.equals(r)) {
-                            found3 = true;
-                        } else if (RAW4.equals(r)) {
-                            found4 = true;
-                        } else if (RAW5.equals(r)) {
-                            found5 = true;
-                        } else if (RAW6.equals(r)) {
-                            found6 = true;
-                        } else {
-                            printUnexpected(r);
-                            fail("Extra record found");
-                        }
-                    }
-
-                    assertTrue(found1, "Postgres mastery_exam 1 not found");
-                    assertTrue(found2, "Postgres mastery_exam 2 not found");
-                    assertTrue(found3, "Postgres mastery_exam 3 not found");
-                    assertTrue(found4, "Postgres mastery_exam 4 not found");
-                    assertTrue(found5, "Postgres mastery_exam 5 not found");
-                    assertTrue(found6, "Postgres mastery_exam 6 not found");
-
-                } finally {
-                    postgresCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while querying all Postgres 'mastery_exam' rows: " + ex.getMessage());
-            }
-        }
-
-        /** Test case. */
-        @Test
-        @DisplayName("Postgres queryActiveByCourse results")
-        void test0004() {
-
-            try {
-                final DbConnection conn = postgresCtx.checkOutConnection();
-                final Cache cache = new Cache(postgresProfile, conn);
-                final MasteryExamLogic logic = MasteryExamLogic.get(cache);
-
-                try {
-                    final List<MasteryExamRec> all = logic.queryActiveByCourse(cache, RawRecordConstants.M125);
-
-                    assertEquals(5, all.size(), "Incorrect record count from Postgres queryActiveByCourse");
-
-                    boolean found1 = false;
-                    boolean found2 = false;
-                    boolean found3 = false;
-                    boolean found4 = false;
-                    boolean found6 = false;
-
-                    for (final MasteryExamRec r : all) {
-                        if (RAW1.equals(r)) {
-                            found1 = true;
-                        } else if (RAW2.equals(r)) {
-                            found2 = true;
-                        } else if (RAW3.equals(r)) {
-                            found3 = true;
-                        } else if (RAW4.equals(r)) {
-                            found4 = true;
-                        } else if (RAW6.equals(r)) {
-                            found6 = true;
-                        } else {
-                            printUnexpected(r);
-                            fail("Extra record found");
-                        }
-                    }
-
-                    assertTrue(found1, "Postgres mastery_exam 1 not found");
-                    assertTrue(found2, "Postgres mastery_exam 2 not found");
-                    assertTrue(found3, "Postgres mastery_exam 3 not found");
-                    assertTrue(found4, "Postgres mastery_exam 4 not found");
-                    assertTrue(found6, "Postgres mastery_exam 6 not found");
-
-                } finally {
-                    postgresCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while querying Postgres 'mastery_exam' rows by course: " + ex.getMessage());
-            }
-        }
-
-        /** Test case. */
-        @Test
-        @DisplayName("Postgres queryActiveByCourseUnit results")
-        void test0005() {
-
-            try {
-                final DbConnection conn = postgresCtx.checkOutConnection();
-                final Cache cache = new Cache(postgresProfile, conn);
-                final MasteryExamLogic logic = MasteryExamLogic.get(cache);
-
-                try {
-                    final List<MasteryExamRec> all = logic.queryActiveByCourseUnit(cache, RawRecordConstants.M125,
-                            Integer.valueOf(1));
-
-                    assertEquals(4, all.size(), "Incorrect record count from Postgres queryActiveByCourseUnit");
-
-                    boolean found1 = false;
-                    boolean found2 = false;
-                    boolean found3 = false;
-                    boolean found6 = false;
-
-                    for (final MasteryExamRec r : all) {
-                        if (RAW1.equals(r)) {
-                            found1 = true;
-                        } else if (RAW2.equals(r)) {
-                            found2 = true;
-                        } else if (RAW3.equals(r)) {
-                            found3 = true;
-                        } else if (RAW6.equals(r)) {
-                            found6 = true;
-                        } else {
-                            printUnexpected(r);
-                            fail("Extra record found");
-                        }
-                    }
-
-                    assertTrue(found1, "Postgres mastery_exam 1 not found");
-                    assertTrue(found2, "Postgres mastery_exam 2 not found");
-                    assertTrue(found3, "Postgres mastery_exam 3 not found");
-                    assertTrue(found6, "Postgres mastery_exam 6 not found");
-
-                } finally {
-                    postgresCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while querying Postgres 'mastery_exam' rows by course unit: " + ex.getMessage());
-            }
-        }
-
-        /** Test case. */
-        @Test
-        @DisplayName("Postgres queryActiveByCourseUnitObjective results")
-        void test0006() {
-
-            try {
-                final DbConnection conn = postgresCtx.checkOutConnection();
-                final Cache cache = new Cache(postgresProfile, conn);
-                final MasteryExamLogic logic = MasteryExamLogic.get(cache);
-
-                try {
-                    final List<MasteryExamRec> all = logic.queryActiveByCourseUnitObjective(cache,
-                            RawRecordConstants.M125, Integer.valueOf(1), Integer.valueOf(3));
-
-                    assertEquals(2, all.size(), "Incorrect record count from Postgres " +
-                                                "queryActiveByCourseUnitObjective");
-
-                    boolean found3 = false;
-                    boolean found6 = false;
-
-                    for (final MasteryExamRec r : all) {
-                        if (RAW3.equals(r)) {
-                            found3 = true;
-                        } else if (RAW6.equals(r)) {
-                            found6 = true;
-                        } else {
-                            printUnexpected(r);
-                            fail("Extra record found");
-                        }
-                    }
-
-                    assertTrue(found3, "Postgres mastery_exam 3 not found");
-                    assertTrue(found6, "Postgres mastery_exam 6 not found");
-
-                } finally {
-                    postgresCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while querying Postgres 'mastery_exam' rows by course unit objective: "
-                     + ex.getMessage());
-            }
-        }
-
-        /** Test case. */
-        @Test
-        @DisplayName("Postgres queryActiveByCourseUnitObjectiveType results")
-        void test0007() {
-
-            try {
-                final DbConnection conn = postgresCtx.checkOutConnection();
-                final Cache cache = new Cache(postgresProfile, conn);
-                final MasteryExamLogic logic = MasteryExamLogic.get(cache);
-
-                try {
-                    final MasteryExamRec r = logic.queryActive(cache, RawRecordConstants.M125, Integer.valueOf(1),
-                            Integer.valueOf(3), "ST");
-
-                    assertNotNull(r, "No record returned by Postgres queryActiveByCourseUnitObjective");
-
-                    if (!RAW3.equals(r)) {
-                        printUnexpected(r);
-                        fail("Extra record found");
-                    }
-                } finally {
-                    postgresCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while querying Postgres 'mastery_exam' by course unit objective type: "
-                     + ex.getMessage());
-            }
-        }
-
-        /** Test case. */
-        @Test
-        @DisplayName("query results")
-        void test0008() {
-
-            try {
-                final DbConnection conn = postgresCtx.checkOutConnection();
-                final Cache cache = new Cache(postgresProfile, conn);
-                final MasteryExamLogic logic = MasteryExamLogic.get(cache);
-
-                try {
-                    final MasteryExamRec r = logic.query(cache, "C41_LT1_M");
-
-                    assertNotNull(r, "No record returned by query");
-
-                    if (!RAW1.equals(r)) {
-                        printUnexpected(r);
-                        fail("Extra record found");
-                    }
-                } finally {
-                    postgresCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while querying mastery_exam by version: " + ex.getMessage());
-            }
-        }
-
-        /** Test case. */
-        @Test
-        @DisplayName("delete results")
-        void test0009() {
-
-            try {
-                final DbConnection conn = postgresCtx.checkOutConnection();
-                final Cache cache = new Cache(postgresProfile, conn);
-                final MasteryExamLogic logic = MasteryExamLogic.get(cache);
-
-                try {
-                    final boolean result = logic.delete(cache, RAW5);
-                    assertTrue(result, "delete returned false");
-
-                    final List<MasteryExamRec> all = logic.queryAll(cache);
-
-                    assertEquals(5, all.size(), "Incorrect record count from queryAll after delete");
-
-                    boolean found1 = false;
-                    boolean found2 = false;
-                    boolean found3 = false;
-                    boolean found4 = false;
-                    boolean found6 = false;
-
-                    for (final MasteryExamRec r : all) {
-                        if (RAW1.equals(r)) {
-                            found1 = true;
-                        } else if (RAW2.equals(r)) {
-                            found2 = true;
-                        } else if (RAW3.equals(r)) {
-                            found3 = true;
-                        } else if (RAW4.equals(r)) {
-                            found4 = true;
-                        } else if (RAW6.equals(r)) {
-                            found6 = true;
-                        } else {
-                            printUnexpected(r);
-                            fail("Extra record found");
-                        }
-                    }
-
-                    assertTrue(found1, "mastery_exam 1 not found");
-                    assertTrue(found2, "mastery_exam 2 not found");
-                    assertTrue(found3, "mastery_exam 3 not found");
-                    assertTrue(found4, "mastery_exam 4 not found");
-                    assertTrue(found6, "mastery_exam 6 not found");
-
-                } finally {
-                    postgresCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while deleting mastery_exams: " + ex.getMessage());
-            }
-        }
-
-        /** Clean up. */
-        @AfterAll
-        static void cleanUp() {
-
-            try {
-                final DbConnection conn = postgresCtx.checkOutConnection();
-
-                try {
-                    try (final Statement stmt = conn.createStatement()) {
-                        stmt.executeUpdate("DELETE FROM term_t.mastery_exam");
-                    }
-
-                    conn.commit();
-
-                } finally {
-                    postgresCtx.checkInConnection(conn);
+                    informixLogin.checkInConnection(conn);
                 }
             } catch (final SQLException ex) {
                 Log.warning(ex);

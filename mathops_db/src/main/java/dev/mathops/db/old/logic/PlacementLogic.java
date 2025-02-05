@@ -3,15 +3,12 @@ package dev.mathops.db.old.logic;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Contexts;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
-import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawStmpeLogic;
@@ -205,7 +202,7 @@ public class PlacementLogic {
     private void computeStatus(final Cache cache, final LocalDate today) throws SQLException {
 
         if (this.student == null || this.allAttempts == null || this.allPlacementCredit == null
-                || this.allSpecials == null) {
+            || this.allSpecials == null) {
 
             // Can't query required data - make nothing available
             this.status.allowedToUseUnproctored = false;
@@ -240,9 +237,9 @@ public class PlacementLogic {
                     ++numUnproctored;
                     ++numCountedAttempts;
                 } else if (LEGACY_PROCTORED_MPE_ID.equals(attempt.version)
-                        || PROCTORED_MPT_DEPT_TC_ID.equals(attempt.version)
-                        || PROCTORED_MPT_PROCTORU_ID.equals(attempt.version)
-                        || PROCTORED_MPT_RAMWORK.equals(attempt.version)) {
+                           || PROCTORED_MPT_DEPT_TC_ID.equals(attempt.version)
+                           || PROCTORED_MPT_PROCTORU_ID.equals(attempt.version)
+                           || PROCTORED_MPT_RAMWORK.equals(attempt.version)) {
                     ++numAttempts;
                     ++numCountedAttempts;
                 }
@@ -500,31 +497,22 @@ public class PlacementLogic {
      */
     public static void main(final String... args) {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
         DbConnection.registerDrivers();
 
-        final WebSiteProfile webProfile =map.getWebSiteProfile(Contexts.PLACEMENT_HOST, Contexts.ROOT_PATH);
-        if (webProfile == null) {
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        final Profile profile = config.getWebProfile(Contexts.PLACEMENT_HOST, Contexts.ROOT_PATH);
+
+        if (profile == null) {
             Log.warning("Web profile not found");
         } else {
-            final DbProfile dbProfile = webProfile.dbProfile;
-            final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
+            final Cache cache = new Cache(profile);
 
             final ZonedDateTime now = ZonedDateTime.now();
-
             try {
-                final DbConnection conn = ctx.checkOutConnection();
+                final PlacementLogic logic = new PlacementLogic(cache, "888888888", new TermKey(ETermName.SPRING, 2025),
+                        now);
 
-                try {
-                    final Cache cache = new Cache(dbProfile, conn);
-
-                    final PlacementLogic logic = new PlacementLogic(cache, "888888888",
-                            new TermKey(ETermName.SPRING, 2025), now);
-
-                    mainPrintStatus(logic.status);
-                } finally {
-                    ctx.checkInConnection(conn);
-                }
+                mainPrintStatus(logic.status);
             } catch (final SQLException ex) {
                 Log.warning(ex);
             }

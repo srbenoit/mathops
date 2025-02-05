@@ -1,16 +1,16 @@
 package dev.mathops.session;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.rawlogic.LogicUtils;
-import dev.mathops.db.rec.LiveReg;
 import dev.mathops.db.old.schema.csubanner.ImplLiveRegFa;
 import dev.mathops.db.old.schema.csubanner.ImplLiveRegSm;
 import dev.mathops.db.old.schema.csubanner.ImplLiveRegSp;
+import dev.mathops.db.rec.LiveReg;
 import dev.mathops.db.rec.TermRec;
 
 import java.sql.SQLException;
@@ -41,7 +41,7 @@ enum LiveRegCache {
 
         final TermRec active = cache.getSystemData().getActiveTerm();
 
-        final DbContext live = cache.dbProfile.getDbContext(ESchemaUse.LIVE);
+        final Login live = cache.profile.getLogin(ESchema.LIVE);
 
         try {
             final DbConnection liveConn = live.checkOutConnection();

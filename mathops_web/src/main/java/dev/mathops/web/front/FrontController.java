@@ -8,11 +8,8 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.session.SessionManager;
 import dev.mathops.web.ServletUtils;
 import dev.mathops.web.site.WebMidController;
@@ -121,26 +118,19 @@ public final class FrontController extends HttpServlet {
 
         this.publicDir = this.installation.extractFileProperty(PUBLIC_DIR_PROPERTY, new File(DEFAULT_PUBLIC_DIR));
 
-        final DbProfile dbProfile = ContextMap.getDefaultInstance().getCodeProfile(Contexts.BATCH_PATH);
+        final Profile dbProfile = DatabaseConfig.getDefault().getCodeProfile(Contexts.BATCH_PATH);
         if (dbProfile == null) {
             throw new ServletException("No 'batch' code profile configured");
         }
 
-        final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
-
         try {
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(dbProfile, conn);
+            final Cache cache = new Cache(dbProfile);
 
             // NOTE: This cache is not stored in the web mid-controller.  It is used only for initialization.
             // Each web page request will generate its own cache, so we get consistency of data within a page
             // request, but responsiveness to changes in underlying data between page requests.
 
-            try {
-                this.webMidController = new WebMidController(cache, config);
-            } finally {
-                ctx.checkInConnection(conn);
-            }
+            this.webMidController = new WebMidController(cache, config);
         } catch (final SQLException ex) {
             throw new ServletException("Unable to connect to to database", ex);
         }

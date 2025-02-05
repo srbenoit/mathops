@@ -4,10 +4,10 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -27,20 +26,25 @@ import java.util.Collection;
 final class OdsDataDictionary {
 
     /** The database profile through which to access the database. */
-    private final DbProfile dbProfile;
+    private final Profile profile;
 
-    /** The ODS database context. */
-    private final DbContext odsCtx;
+    /** The login for the ODS schema in the batch profile. */
+    private final Login odsLogin;
 
     /**
      * Constructs a new {@code OdsDataDictionary}.
      */
     private OdsDataDictionary() {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        this.profile = config.getCodeProfile(Contexts.BATCH_PATH);
 
-        this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
-        this.odsCtx = this.dbProfile.getDbContext(ESchemaUse.ODS);
+        Login theLogin = null;
+        if (this.profile != null) {
+            theLogin = this.profile.getLogin(ESchema.ODS);
+        }
+
+        this.odsLogin = theLogin;
     }
 
     /**
@@ -52,10 +56,10 @@ final class OdsDataDictionary {
 
         final Collection<String> report = new ArrayList<>(100);
 
-        if (this.dbProfile == null) {
-            report.add("Unable to create production context.");
-        } else if (this.odsCtx == null) {
-            report.add("Unable to create ODS database context.");
+        if (this.profile == null) {
+            report.add("Unable to locate batch profile.");
+        } else if (this.odsLogin == null) {
+            report.add("Unable to locate ODS database login.");
         } else {
             execute(report);
         }
@@ -75,7 +79,7 @@ final class OdsDataDictionary {
      */
     private void execute(final Collection<? super String> report) {
 
-        final DbConnection odsConn = this.odsCtx.checkOutConnection();
+        final DbConnection odsConn = this.odsLogin.checkOutConnection();
 
         try {
             queryOdsFields(odsConn, report);
@@ -83,7 +87,7 @@ final class OdsDataDictionary {
             Log.warning(ex);
             report.add("Unable to perform query: " + ex.getMessage());
         } finally {
-            this.odsCtx.checkInConnection(odsConn);
+            this.odsLogin.checkInConnection(odsConn);
         }
     }
 

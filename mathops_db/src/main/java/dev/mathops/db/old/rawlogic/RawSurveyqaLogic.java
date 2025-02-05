@@ -1,6 +1,8 @@
 package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawSurveyqa;
 import dev.mathops.db.rec.TermRec;
 import dev.mathops.db.type.TermKey;
@@ -68,16 +70,20 @@ public enum RawSurveyqaLogic {
                 LogicUtils.sqlStringValue(record.mustAnswer), ",",
                 LogicUtils.sqlStringValue(record.treeRef), ")");
 
-        try (final Statement s = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement s = conn.createStatement()) {
             final boolean result = s.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -98,16 +104,20 @@ public enum RawSurveyqaLogic {
                 "  AND survey_nbr=", LogicUtils.sqlIntegerValue(record.surveyNbr),
                 "  AND answer=", LogicUtils.sqlStringValue(record.answer));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -135,8 +145,7 @@ public enum RawSurveyqaLogic {
     public static List<RawSurveyqa> queryByTerm(final Cache cache, final TermKey termKey) throws SQLException {
 
         final String sql = SimpleBuilder.concat(
-                "SELECT * FROM surveyqa",
-                " WHERE term=", LogicUtils.sqlStringValue(termKey.termCode),
+                "SELECT * FROM surveyqa WHERE term=", LogicUtils.sqlStringValue(termKey.termCode),
                 "   AND term_yr=", LogicUtils.sqlIntegerValue(termKey.shortYear));
 
         return executeQuery(cache, sql);
@@ -156,8 +165,7 @@ public enum RawSurveyqaLogic {
         final TermRec active = cache.getSystemData().getActiveTerm();
 
         final String sql = SimpleBuilder.concat(
-                "SELECT * FROM surveyqa",
-                " WHERE version=", LogicUtils.sqlStringValue(theVersion),
+                "SELECT * FROM surveyqa WHERE version=", LogicUtils.sqlStringValue(theVersion),
                 "   AND term=", LogicUtils.sqlStringValue(active.term.termCode),
                 "   AND term_yr=", LogicUtils.sqlIntegerValue(active.term.shortYear));
 
@@ -202,8 +210,7 @@ public enum RawSurveyqaLogic {
         final TermRec active = cache.getSystemData().getActiveTerm();
 
         final String sql = SimpleBuilder.concat(
-                "SELECT * FROM surveyqa",
-                " WHERE version=", LogicUtils.sqlStringValue(theVersion),
+                "SELECT * FROM surveyqa WHERE version=", LogicUtils.sqlStringValue(theVersion),
                 "   AND survey_nbr=", LogicUtils.sqlIntegerValue(theSurveyNbr),
                 "   AND term=", LogicUtils.sqlStringValue(active.term.termCode),
                 "   AND term_yr=", LogicUtils.sqlIntegerValue(active.term.shortYear),
@@ -224,12 +231,16 @@ public enum RawSurveyqaLogic {
 
         final List<RawSurveyqa> result = new ArrayList<>(50);
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 result.add(RawSurveyqa.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;

@@ -2,6 +2,8 @@ package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawClientPc;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.builder.SimpleBuilder;
@@ -79,16 +81,20 @@ public enum RawClientPcLogic {
                 LogicUtils.sqlIntegerValue(record.currentUnit), ",",
                 LogicUtils.sqlStringValue(record.currentVersion), ")");
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -106,16 +112,20 @@ public enum RawClientPcLogic {
         final String sql = SimpleBuilder.concat("DELETE FROM client_pc ",
                 "WHERE computer_id=", LogicUtils.sqlStringValue(record.computerId));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -130,12 +140,16 @@ public enum RawClientPcLogic {
 
         final List<RawClientPc> result = new ArrayList<>(200);
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery("SELECT * FROM client_pc")) {
 
             while (rs.next()) {
                 result.add(RawClientPc.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -157,12 +171,16 @@ public enum RawClientPcLogic {
         final String sql = SimpleBuilder.concat("SELECT * FROM client_pc WHERE testing_center_id='",
                 testingCenterId, "'");
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 result.add(RawClientPc.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -183,12 +201,16 @@ public enum RawClientPcLogic {
         final String sql = SimpleBuilder.concat(
                 "SELECT * FROM client_pc WHERE computer_id='", computerId, "'");
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
 
             if (rs.next()) {
                 result = RawClientPc.fromResultSet(rs);
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -211,16 +233,20 @@ public enum RawClientPcLogic {
         sql.add("UPDATE client_pc SET current_status=",
                 newCurrentStatus, " WHERE computer_id='", computerId, "'");
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql.toString()) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -251,16 +277,20 @@ public enum RawClientPcLogic {
                 " current_version=", LogicUtils.sqlStringValue(newCurrentVersion),
                 " WHERE computer_id='", computerId, "'");
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -280,16 +310,20 @@ public enum RawClientPcLogic {
                 " SET pc_usage=", LogicUtils.sqlStringValue(newPcUsage),
                 " WHERE computer_id='", computerId, "'");
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -309,19 +343,22 @@ public enum RawClientPcLogic {
                 " SET power_status=", LogicUtils.sqlStringValue(newPowerStatus),
                 " WHERE computer_id='", computerId, "'");
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final int numRows = stmt.executeUpdate(sql);
             final boolean result = numRows == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                Log.warning("Power status update matched " + numRows
-                            + " rows");
-                cache.conn.rollback();
+                Log.warning("Power status update matched " + numRows + " rows");
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -341,16 +378,20 @@ public enum RawClientPcLogic {
                 " SET power_on_due=", LogicUtils.sqlIntegerValue(newPowerOnDue),
                 " WHERE computer_id='", computerId, "'");
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -374,16 +415,20 @@ public enum RawClientPcLogic {
         }
         htm.add(" WHERE computer_id='", computerId, "'");
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(htm.toString()) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 }

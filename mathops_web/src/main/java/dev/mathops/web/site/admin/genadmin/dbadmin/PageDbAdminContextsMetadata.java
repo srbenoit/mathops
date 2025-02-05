@@ -4,14 +4,13 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.EDbProduct;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.LoginConfig;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.admin.AdminSite;
-import dev.mathops.web.site.admin.genadmin.EAdmSubtopic;
 import dev.mathops.web.site.admin.genadmin.GenAdminPage;
 import dev.mathops.web.site.admin.genadmin.GenAdminSubsite;
 import jakarta.servlet.ServletRequest;
@@ -51,12 +50,11 @@ public enum PageDbAdminContextsMetadata {
             Log.warning("  driver='", driver, "'");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
-            final ContextMap map = ContextMap.getDefaultInstance();
-            final LoginConfig cfg = map.getLogin(driver);
+            final DatabaseConfig map = DatabaseConfig.getDefault();
+            final Login cfg = map.getLogin(driver);
 
             if (cfg == null) {
-                PageDbAdminContextsServer.doGet(cache, site, req, resp, session,
-                        "Invalid database");
+                PageDbAdminContextsServer.doGet(cache, site, req, resp, session, "Invalid database");
             } else {
                 final Connection jdbc = GenAdminSubsite.getConnection(session.loginSessionId, driver);
 
@@ -77,22 +75,22 @@ public enum PageDbAdminContextsMetadata {
                         PageDbAdmin.emitDisconnectLink(htm, query);
                         PageDbAdmin.emitCfgInfoTable(htm, cfg);
 
-                        switch (cfg.db.use) {
-                            case LIVE:
-                                PageDbAdmin.emitLiveNavMenu(htm, EAdmSubtopic.DB_META, query);
-                                break;
-
-                            case ODS:
-                                PageDbAdmin.emitOdsNavMenu(htm, EAdmSubtopic.DB_META, query);
-                                break;
-
-                            case PROD:
-                            case DEV:
-                            case TEST:
-                            default:
-                                PageDbAdmin.emitProdNavMenu(htm, EAdmSubtopic.DB_META, query);
-                                break;
-                        }
+//                        switch (cfg.database.use) {
+//                            case LIVE:
+//                                PageDbAdmin.emitLiveNavMenu(htm, EAdmSubtopic.DB_META, query);
+//                                break;
+//
+//                            case ODS:
+//                                PageDbAdmin.emitOdsNavMenu(htm, EAdmSubtopic.DB_META, query);
+//                                break;
+//
+//                            case PROD:
+//                            case DEV:
+//                            case TEST:
+//                            default:
+//                                PageDbAdmin.emitProdNavMenu(htm, EAdmSubtopic.DB_META, query);
+//                                break;
+//                        }
 
                         htm.div("vgap");
 
@@ -120,7 +118,7 @@ public enum PageDbAdminContextsMetadata {
      * @param meta   the database metadata object
      * @throws SQLException if there is an error querying the database
      */
-    private static void emitMetadata(final HtmlBuilder htm, final LoginConfig cfg,
+    private static void emitMetadata(final HtmlBuilder htm, final Login cfg,
                                      final String driver, final DatabaseMetaData meta) throws SQLException {
 
         htm.addln("<h3>Database Metadata</h3>");
@@ -205,11 +203,11 @@ public enum PageDbAdminContextsMetadata {
                 do {
                     final String sch = tables.getString("TABLE_SCHEM");
 
-                    if (cfg.db.server.type == EDbProduct.INFORMIX) {
+                    if (cfg.database.server.type == EDbProduct.INFORMIX) {
                         if ("informix".equals(sch) || "9.55C1".equals(sch) || CoreConstants.EMPTY.equals(sch)) {
                             continue;
                         }
-                    } else if (cfg.db.server.type == EDbProduct.ORACLE) {
+                    } else if (cfg.database.server.type == EDbProduct.ORACLE) {
                         if ("SYS".equals(sch) || "SYSTEM".equals(sch)
                                 || "WMSYS".equals(sch) || "MDSYS".equals(sch)
                                 || "MODSMGR".equals(sch) || "OLAPSYS".equals(sch)
@@ -218,7 +216,7 @@ public enum PageDbAdminContextsMetadata {
                                 || "GSMADMIN_INTERNAL".equals(sch)) {
                             continue;
                         }
-                    } else if ((cfg.db.server.type == EDbProduct.POSTGRESQL)
+                    } else if ((cfg.database.server.type == EDbProduct.POSTGRESQL)
                             && ("pg_catalog".equals(sch) || "pg_toast".equals(sch)
                             || "information_schema".equals(sch))) {
                         continue;

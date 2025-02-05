@@ -5,25 +5,24 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
-import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
-import dev.mathops.db.old.rawlogic.RawMpscorequeueLogic;
-import dev.mathops.db.old.rawrecord.RawMpscorequeue;
-import dev.mathops.db.type.TermKey;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.old.rawrecord.RawStmathplan;
-import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
 import dev.mathops.db.old.logic.mathplan.data.CourseInfo;
 import dev.mathops.db.old.logic.mathplan.data.CourseRecommendations;
 import dev.mathops.db.old.logic.mathplan.data.CourseSequence;
 import dev.mathops.db.old.logic.mathplan.data.ENextStep;
+import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
 import dev.mathops.db.old.logic.mathplan.data.MathPlanStudentData;
+import dev.mathops.db.old.rawlogic.RawMpscorequeueLogic;
+import dev.mathops.db.old.rawrecord.RawMpscorequeue;
+import dev.mathops.db.old.rawrecord.RawStmathplan;
+import dev.mathops.db.type.TermKey;
+import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.Page;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -76,7 +75,7 @@ enum PagePlanNext {
                       final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final MathPlanLogic logic = new MathPlanLogic(site.getDbProfile());
+        final MathPlanLogic logic = new MathPlanLogic(site.site.profile);
 
         final String stuId = session.getEffectiveUserId();
         final MathPlanStudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
@@ -231,8 +230,8 @@ enum PagePlanNext {
 
             for (final ENextStep step : nextSteps) {
                 if (step == ENextStep.MSG_3A || step == ENextStep.MSG_3G || step == ENextStep.MSG_3H
-                        || step == ENextStep.MSG_4A || step == ENextStep.MSG_4B
-                        || step == ENextStep.MSG_4C) {
+                    || step == ENextStep.MSG_4A || step == ENextStep.MSG_4B
+                    || step == ENextStep.MSG_4C) {
                     needsPlacement = false;
                 }
                 emitStep(htm, step, applicationTerm, data, false);
@@ -276,7 +275,7 @@ enum PagePlanNext {
 
             for (final ENextStep step : nextSteps) {
                 if (step == ENextStep.MSG_3A || step == ENextStep.MSG_3G || step == ENextStep.MSG_3H
-                        || step == ENextStep.MSG_4A || step == ENextStep.MSG_4B || step == ENextStep.MSG_4C) {
+                    || step == ENextStep.MSG_4A || step == ENextStep.MSG_4B || step == ENextStep.MSG_4C) {
                     needsPlacement = false;
                 }
                 emitStep(htm, step, applicationTerm, data, false);
@@ -988,7 +987,7 @@ enum PagePlanNext {
                        final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final DbProfile profile = site.getDbProfile();
+        final Profile profile = site.site.profile;
         final MathPlanLogic logic = new MathPlanLogic(profile);
 
         final boolean aff1 = req.getParameter("affirm1") != null;
@@ -998,7 +997,8 @@ enum PagePlanNext {
         if (session.actAsUserId == null) {
             final String effectiveId = session.getEffectiveUserId();
             final ZonedDateTime sessNow = session.getNow();
-            final MathPlanStudentData data = logic.getStudentData(cache, effectiveId, sessNow, session.loginSessionTag, true);
+            final MathPlanStudentData data = logic.getStudentData(cache, effectiveId, sessNow, session.loginSessionTag,
+                    true);
 
             logic.deleteMathPlanResponses(cache, data.student, MathPlanConstants.INTENTIONS_PROFILE, sessNow,
                     session.loginSessionTag);
@@ -1024,7 +1024,7 @@ enum PagePlanNext {
             if (aff1) {
                 final String desiredMPLTestScore = aff2 ? "2" : "1";
 
-                final DbContext liveCtx = profile.getDbContext(ESchemaUse.LIVE);
+                final Login liveCtx = profile.getLogin(ESchema.LIVE);
                 final DbConnection liveConn = liveCtx.checkOutConnection();
                 try {
                     // Query the test score, see if this update represents a change, and only insert a new test score

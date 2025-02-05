@@ -64,7 +64,7 @@ public enum PageStudentPick {
             Log.warning("  stu='", stu, "'");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else if (stu == null || stu.isEmpty()) {
-            final String path = site.siteProfile.path;
+            final String path = site.site.path;
             resp.sendRedirect(path + (path.endsWith(Contexts.ROOT_PATH) ? "home.html" : "/home.html"));
         } else {
             // Try first as a student ID

@@ -1,9 +1,9 @@
 package dev.mathops.app.ops.snapin.messaging;
 
-import dev.mathops.db.Cache;
-import dev.mathops.db.old.DbContext;
 import dev.mathops.app.ops.snapin.AbstractFullPanel;
 import dev.mathops.app.ops.snapin.AbstractSnapIn;
+import dev.mathops.db.Cache;
+import dev.mathops.db.cfg.Facet;
 
 import javax.swing.JFrame;
 
@@ -24,15 +24,15 @@ public final class MessagingSnapIn extends AbstractSnapIn {
     /**
      * Constructs a new {@code MessagingSnapIn}.
      *
-     * @param theContext     the database context
-     * @param theLiveContext the live database context
-     * @param theCache       the data cache
-     * @param theFrame       the owning frame
+     * @param theSchema     the database schema
+     * @param theLiveSchema the live database schema
+     * @param theCache      the data cache
+     * @param theFrame      the owning frame
      */
-    public MessagingSnapIn(final DbContext theContext, final DbContext theLiveContext,
-                           final Cache theCache, final JFrame theFrame) {
+    public MessagingSnapIn(final Facet theSchema, final Facet theLiveSchema, final Cache theCache,
+                           final JFrame theFrame) {
 
-        super(theContext, theLiveContext, theCache);
+        super(theSchema, theLiveSchema, theCache);
 
         this.thumbnail = new MessagingThumbnail();
         this.dashboardTile = new MessagingDashboard();

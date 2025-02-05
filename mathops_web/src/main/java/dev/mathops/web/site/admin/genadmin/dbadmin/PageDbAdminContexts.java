@@ -1,12 +1,13 @@
 package dev.mathops.web.site.admin.genadmin.dbadmin;
 
-import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.ESchemaUse;
-import dev.mathops.db.old.cfg.LoginConfig;
-import dev.mathops.db.old.cfg.WebSiteProfile;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.Database;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Facet;
+import dev.mathops.db.cfg.Profile;
+import dev.mathops.db.cfg.Server;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.db.old.rawlogic.LogicUtils;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
@@ -20,7 +21,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Arrays;
+import java.util.List;
 
 /**
  * The "Contexts" sub-page of the Database Administration page.
@@ -110,47 +111,55 @@ public enum PageDbAdminContexts {
 
         htm.sH(2).add("Contexts and Servers").eH(2);
 
-        final ContextMap map = ContextMap.getDefaultInstance();
+        final DatabaseConfig dbConfig = DatabaseConfig.getDefault();
 
         // List contexts by host and path
-        final String[] hosts = map.getWebHosts();
-        Arrays.sort(hosts, null);
+        final List<String> hosts = dbConfig.getWebHosts();
+        hosts.sort(null);
 
         for (final String host : hosts) {
+
             htm.sP().add(host).eP();
             htm.sTable("report");
             htm.sTr();
             htm.sTh().add("Path").eTh();
-            htm.sTh().add("Primary Server").eTh();
-            htm.sTh().add("ODS Server").eTh();
-            htm.sTh().add("Live Server").eTh();
+            htm.sTh().add("Profile").eTh();
+            htm.sTh().add("Legacy<br/>Facet").eTh();
+            htm.sTh().add("System<br/>Facet").eTh();
+            htm.sTh().add("Main<br/>Facet").eTh();
+            htm.sTh().add("Extern<br/>Facet").eTh();
+            htm.sTh().add("Analytics<br/>Facet").eTh();
+            htm.sTh().add("ODS<br/>Facet").eTh();
+            htm.sTh().add("Live<br/>Facet").eTh();
             htm.eTr();
 
-            final String[] paths = map.getWebSites(host);
+            final List<String> paths = dbConfig.getWebSites(host);
             if (paths != null) {
-                Arrays.sort(paths, null);
-                for (final String path : paths) {
+                paths.sort(null);
 
-                    final WebSiteProfile siteProfile = map.getWebSiteProfile(host, path);
-                    if (siteProfile != null) {
+                for (final String path : paths) {
+                    final Site site = dbConfig.getSite(host, path);
+
+                    if (site != null) {
+                        final Profile profile = site.profile;
+
                         htm.sTr();
                         htm.sTd().add(path).eTd();
-
-                        final DbContext pri = siteProfile.dbProfile.getDbContext(ESchemaUse.PRIMARY);
-                        final LoginConfig pd = pri.loginConfig;
-                        htm.sTd().add("<a class='ulink' href='db_admin_server.html?driver=",
-                                pd.id.replace(' ', '+'), "'>", pd.id, "</a>").eTd();
-
-                        final DbContext ods = siteProfile.dbProfile.getDbContext(ESchemaUse.ODS);
-                        final LoginConfig od = ods.loginConfig;
-                        htm.sTd().add("<a class='ulink' href='db_admin_server.html?driver=",
-                                od.id.replace(' ', '+'), "'>", od.id, "</a>").eTd();
-
-                        final DbContext live = siteProfile.dbProfile.getDbContext(ESchemaUse.LIVE);
-                        final LoginConfig ld = live.loginConfig;
-                        htm.sTd().add("<a class='ulink' href='db_admin_server.html?driver=",
-                                ld.id.replace(' ', '+'), "'>", ld.id, "</a>").eTd();
-
+                        htm.sTd().add(profile.id).eTd();
+                        final Facet legacy = profile.getFacet(ESchema.LEGACY);
+                        emitFacetCell(legacy, htm);
+                        final Facet system = profile.getFacet(ESchema.SYSTEM);
+                        emitFacetCell(system, htm);
+                        final Facet main = profile.getFacet(ESchema.MAIN);
+                        emitFacetCell(main, htm);
+                        final Facet extern = profile.getFacet(ESchema.EXTERN);
+                        emitFacetCell(extern, htm);
+                        final Facet analytics = profile.getFacet(ESchema.ANALYTICS);
+                        emitFacetCell(analytics, htm);
+                        final Facet ods = profile.getFacet(ESchema.ODS);
+                        emitFacetCell(ods, htm);
+                        final Facet live = profile.getFacet(ESchema.LIVE);
+                        emitFacetCell(live, htm);
                         htm.eTr();
                     }
                 }
@@ -162,25 +171,58 @@ public enum PageDbAdminContexts {
 
         htm.sTable("report");
         htm.sTr();
-        htm.sTh().add("Server").eTh();
-        htm.sTh().add("Type").eTh();
+        htm.sTh().add("Server Type").eTh();
         htm.sTh().add("Host").eTh();
         htm.sTh().add("Database").eTh();
+        htm.sTh().add("Instance").eTh();
         htm.eTr();
 
-        final String[] names = map.getLoginIDs();
-        Arrays.sort(names);
-        for (final String name : names) {
-            final LoginConfig cfg = map.getLogin(name);
+        final List<Server> servers = dbConfig.getServers();
+        servers.sort(null);
 
-            htm.sTd().add("<a class='ulink' href='db_admin_server.html?driver=",
-                    name.replace(' ', '+'), "'>", name, "</a>").eTd();
-            htm.sTd().add(cfg.db.server.type.name()).eTd();
-            htm.sTd().add(cfg.db.server.host, CoreConstants.COLON, //
-                    Integer.toString(cfg.db.server.port)).eTd();
-            htm.sTd().add(cfg.db.id).eTd();
-            htm.eTr();
+        for (final Server server : servers) {
+            boolean startServer = true;
+
+            final List<Database> databases = server.getDatabases();
+            if (!databases.isEmpty()) {
+                databases.sort(null);
+
+                final String rowSpan = "rowSpan='" + databases.size() + "'";
+                final String hostStr = server.host + ":" + server.port;
+
+                for (final Database database : databases) {
+                    htm.sTr();
+                    if (startServer) {
+                        htm.sTd(null, rowSpan).add(server.type).eTd();
+                        htm.sTd(null, rowSpan).add(hostStr).eTd();
+                        startServer = false;
+                    }
+                    htm.sTd().add(database.id).eTd();
+                    if (database.instance == null) {
+                        htm.sTd().add("-").eTd();
+                    } else {
+                        htm.sTd().add(database.instance).eTd();
+                    }
+                    htm.eTr();
+                }
+            }
         }
         htm.eTable();
+    }
+
+    /**
+     * Emits a table cell with a link for a facet.
+     *
+     * @param facet the facet
+     * @param htm   the {@code HtmlBuilder} to which to append
+     */
+    private static void emitFacetCell(final Facet facet, final HtmlBuilder htm) {
+
+        if (facet == null) {
+            htm.sTd().add("-").eTd();
+        } else {
+            htm.sTd().add("<a class='ulink' href='db_admin_server.html?login=", facet.login.id,
+                    "&data=", facet.data.id, "'>", facet.login.id, "</a>").eTd();
+        }
     }
 }

@@ -6,6 +6,7 @@ import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.DbUtils;
 import dev.mathops.db.old.rawrecord.RawMpscorequeue;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
@@ -92,16 +93,20 @@ public enum RawMpscorequeueLogic {
                 LogicUtils.sqlDateTimeValue(record.testDate), ",",
                 LogicUtils.sqlStringValue(record.testScore), ")");
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -121,16 +126,20 @@ public enum RawMpscorequeueLogic {
                 " AND test_date=", LogicUtils.sqlDateTimeValue(record.testDate),
                 " AND test_score=", LogicUtils.sqlStringValue(record.testScore));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -145,12 +154,16 @@ public enum RawMpscorequeueLogic {
 
         final List<RawMpscorequeue> result = new ArrayList<>(50);
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery("SELECT * FROM mpscorequeue")) {
 
             while (rs.next()) {
                 result.add(RawMpscorequeue.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -171,12 +184,16 @@ public enum RawMpscorequeueLogic {
         final String sql = SimpleBuilder.concat("SELECT * FROM mpscorequeue",
                 " WHERE pidm=", LogicUtils.sqlIntegerValue(pidm));
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 result.add(RawMpscorequeue.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;

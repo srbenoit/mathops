@@ -70,7 +70,7 @@ enum PageTakingExamElm {
             Log.info("Starting unit exam for session ", session.loginSessionId,
                     " user ", session.getEffectiveUserId(), " exam MT4UE");
 
-            us = new UnitExamSession(cache, site.siteProfile, session.loginSessionId,
+            us = new UnitExamSession(cache, site.site, session.loginSessionId,
                     session.getEffectiveUserId(), RawRecordConstants.M100T, "MT4UE", "tutorial.html");
             store.setUnitExamSession(us);
         } else {

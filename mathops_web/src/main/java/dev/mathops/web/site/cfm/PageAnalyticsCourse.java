@@ -44,7 +44,7 @@ enum PageAnalyticsCourse {
             htm.sH(3).add("MATH 105: Patterns of Phenomena (GT-MA1)").eH(3);
         } else {
             resp.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-            final String path = site.siteProfile.path;
+            final String path = site.site.path;
             resp.setHeader("Location",
                     path + (path.endsWith(Contexts.ROOT_PATH) ? "analytics.html" : "/analytics.html"));
 

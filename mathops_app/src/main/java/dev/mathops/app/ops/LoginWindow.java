@@ -5,16 +5,17 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbConfig;
-import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.EDbProduct;
 import dev.mathops.db.EDbUse;
-import dev.mathops.db.old.cfg.ESchemaUse;
-import dev.mathops.db.old.cfg.LoginConfig;
-import dev.mathops.db.old.cfg.SchemaConfig;
-import dev.mathops.db.old.cfg.ServerConfig;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.Data;
+import dev.mathops.db.cfg.Database;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.DatabaseConfigXml;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Profile;
+import dev.mathops.db.cfg.Facet;
+import dev.mathops.db.cfg.Server;
 import dev.mathops.text.parser.ParsingException;
 
 import javax.swing.BorderFactory;
@@ -41,12 +42,11 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A window where the user can choose a server host, and a database cluster (selections are persisted via the
@@ -62,10 +62,10 @@ final class LoginWindow implements Runnable, ActionListener {
     private static final String CANCEL_CMD = "CANCEL";
 
     /** An empty array used to create other arrays. */
-    private static final DbConfig[] EMPTY_DB_CONFIG_ARR = new DbConfig[0];
+    private static final Database[] EMPTY_DB_CONFIG_ARR = new Database[0];
 
-    /** The database context map. */
-    private final ContextMap map;
+    /** The database configuration. */
+    private final DatabaseConfig dbConfig;
 
     /** The initial username. */
     private final String initialUsername;
@@ -77,7 +77,7 @@ final class LoginWindow implements Runnable, ActionListener {
     private JFrame frame;
 
     /** A combo box from which to choose database. */
-    private JComboBox<DbConfig> dbCombo;
+    private JComboBox<Database> dbCombo;
 
     /** The username. */
     private JTextField username;
@@ -101,22 +101,22 @@ final class LoginWindow implements Runnable, ActionListener {
 
         final String path = System.getProperty("user.dir");
         final File dir = new File(path);
-        final File cfgFile = new File(dir, "db-config.xml");
+        final File cfgFile = new File(dir, DatabaseConfigXml.FILENAME);
 
-        ContextMap theMap;
+        DatabaseConfig theMap;
         if (cfgFile.exists()) {
-            Log.info("Found 'db-config.xml' in ", dir.getAbsolutePath());
+            Log.info("Found '", DatabaseConfigXml.FILENAME, " ' in ", dir.getAbsolutePath());
             try {
-                theMap = ContextMap.load(dir);
-            } catch (final ParsingException ex) {
-                theMap = ContextMap.getDefaultInstance();
+                theMap = DatabaseConfigXml.load(dir);
+            } catch (final IOException | ParsingException ex) {
+                theMap = DatabaseConfig.getDefault();
                 Log.warning(ex);
             }
         } else {
-            theMap = ContextMap.getDefaultInstance();
+            theMap = DatabaseConfig.getDefault();
         }
 
-        this.map = theMap;
+        this.dbConfig = theMap;
     }
 
     /**
@@ -125,25 +125,32 @@ final class LoginWindow implements Runnable, ActionListener {
     @Override
     public void run() {
 
-        final List<DbConfig> toChooseFrom = new ArrayList<>(10);
-        DbConfig initial = null;
+        final List<Database> toChooseFrom = new ArrayList<>(10);
+        Database initial = null;
 
-        final ServerConfig[] servers = this.map.getServers();
-        for (final ServerConfig cfg : servers) {
-            for (final DbConfig db : cfg.getDatabases()) {
-                if (db.id.startsWith("term")) {
-                    continue;
-                }
+        final List<Server> servers = this.dbConfig.getServers();
+        for (final Server server : servers) {
+            if (server.type == EDbProduct.INFORMIX) {
+                for (final Database db : server.getDatabases()) {
 
-                final EDbUse use = db.use;
+                    boolean hasProd = false;
+                    boolean hasDev = false;
+                    for (final Data data : db.getData()) {
+                        if (data.schema == ESchema.LEGACY) {
+                            if (data.use == EDbUse.PROD) {
+                                hasProd = true;
+                            } else if (data.use == EDbUse.DEV) {
+                                hasDev = true;
+                            }
+                        }
+                    }
 
-                if (db.server.type == EDbProduct.INFORMIX) {
-                    if (use == EDbUse.DEV) {
-                        toChooseFrom.add(db);
-                    } else if (use == EDbUse.PROD) {
+                    if (hasProd) {
                         toChooseFrom.add(db);
                         // Default the database selection
                         initial = db;
+                    } else if (hasDev) {
+                        toChooseFrom.add(db);
                     }
                 }
             }
@@ -326,58 +333,59 @@ final class LoginWindow implements Runnable, ActionListener {
                 ++good;
             }
 
-            SchemaConfig selectedSchema = null;
+            Data selectedData = null;
 
-            final DbConfig db = (DbConfig) this.dbCombo.getSelectedItem();
+            final Database db = (Database) this.dbCombo.getSelectedItem();
             if (db == null) {
                 err = Res.get(Res.LOGIN_NO_DB_ERR);
             } else {
-                for (final SchemaConfig sch : db.getSchemata()) {
-                    if (sch.use == ESchemaUse.PRIMARY) {
-                        selectedSchema = sch;
+                for (final Data dat : db.getData()) {
+                    if (dat.schema == ESchema.LEGACY) {
+                        selectedData = dat;
+                        ++good;
+                        break;
                     }
                 }
 
-                if (selectedSchema == null) {
+                if (selectedData == null) {
                     err = Res.get(Res.LOGIN_NO_SCHEMA_ERR);
                 }
-                ++good;
             }
 
             if (good == 3 && p != null) {
-                final LoginConfig login = new LoginConfig("ADMIN_APP", db, u, new String(p));
-                final DbContext ctx = new DbContext(selectedSchema, login);
+                final Profile batchProfile = this.dbConfig.getCodeProfile(Contexts.BATCH_PATH);
 
-                final DbProfile batchProfile = this.map.getCodeProfile(Contexts.BATCH_PATH);
-                final DbContext odsContext = batchProfile.getDbContext(ESchemaUse.ODS);
-                final DbContext liveContext = batchProfile.getDbContext(ESchemaUse.LIVE);
+                final Facet odsFacet = batchProfile.getFacet(ESchema.ODS);
+                final Facet liveFacet = batchProfile.getFacet(ESchema.LIVE);
+                final Facet extrenFacet = batchProfile.getFacet(ESchema.EXTERN);
+                final Facet analyticsFacet = batchProfile.getFacet(ESchema.ANALYTICS);
+                final Facet legacyFacet = batchProfile.getFacet(ESchema.LEGACY);
 
-                final Map<ESchemaUse, DbContext> dbContexts = new EnumMap<>(ESchemaUse.class);
-                dbContexts.put(ESchemaUse.PRIMARY, ctx);
-                dbContexts.put(ESchemaUse.ODS, odsContext);
-                dbContexts.put(ESchemaUse.LIVE, liveContext);
+                final Profile profile = new Profile("Operations");
+                profile.addFacet(odsFacet);
+                profile.addFacet(liveFacet);
+                profile.addFacet(extrenFacet);
+                profile.addFacet(analyticsFacet);
 
-                final DbProfile profile = new DbProfile("Operations", dbContexts);
+                final Login login = new Login(db, "ADMIN_LOGIN", u, new String(p));
+                final Facet newFacet = new Facet(legacyFacet.data, login);
+                profile.addFacet(newFacet);
+
+                final Cache cache = new Cache(profile);
+                final DbConnection conn = login.checkOutConnection();
 
                 try {
-                    final DbConnection conn = ctx.checkOutConnection();
-                    final Cache cache = new Cache(profile, conn);
+                    // The following throws exception if login credentials are invalid
+                    conn.getConnection();
 
-                    try {
-                        // The following throws exception if login credentials are invalid
-                        conn.getConnection();
-
-                        new MainWindow(u, ctx, cache, liveContext).run();
-                        this.frame.setVisible(false);
-                        this.frame.dispose();
-                    } catch (final SQLException ex2) {
-                        Log.warning(ex2.getMessage());
-                        this.error.setText(Res.get(Res.LOGIN_BAD_LOGIN_ERR));
-                        ctx.checkInConnection(conn);
-                    }
-                } catch (final SQLException ex) {
-                    Log.warning(ex.getMessage());
-                    this.error.setText(Res.get(Res.LOGIN_CANT_CREATE_SCHEMA_ERR));
+                    new MainWindow(u, newFacet, cache, liveFacet).run();
+                    this.frame.setVisible(false);
+                    this.frame.dispose();
+                } catch (final SQLException ex2) {
+                    Log.warning(ex2.getMessage());
+                    this.error.setText(Res.get(Res.LOGIN_BAD_LOGIN_ERR));
+                } finally {
+                    login.checkInConnection(conn);
                 }
             } else if (err != null) {
                 this.error.setText(err);

@@ -4,11 +4,9 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.rawlogic.RawApplicantLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawrecord.RawApplicant;
@@ -37,10 +35,7 @@ public final class IdentifyEngineering {
     private static final boolean DEBUG = false;
 
     /** The database profile through which to access the database. */
-    private final DbProfile dbProfile;
-
-    /** The Primary database context. */
-    private final DbContext primaryCtx;
+    private final Profile profile;
 
     /** The list of "engineering" program codes. */
     private static final List<String> ENGINEERING_PROGRAM_CODES = Arrays.asList("CBEG-AVMZ-BS", "CBEG-BIMS-BS",
@@ -53,10 +48,8 @@ public final class IdentifyEngineering {
      */
     private IdentifyEngineering() {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-
-        this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
-        this.primaryCtx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        this.profile = config.getCodeProfile(Contexts.BATCH_PATH);
     }
 
     /**
@@ -69,26 +62,16 @@ public final class IdentifyEngineering {
 
         final Collection<String> report = new ArrayList<>(10);
 
-        if (this.dbProfile == null) {
-            report.add("Unable to create production context.");
-        } else if (this.primaryCtx == null) {
-            report.add("Unable to create primary database context.");
+        if (this.profile == null) {
+            report.add("Unable to create production profile.");
         } else {
-            try {
-                final DbConnection conn = this.primaryCtx.checkOutConnection();
-                final Cache cache = new Cache(this.dbProfile, conn);
+            final Cache cache = new Cache(this.profile);
 
-                try {
-                    executeInTerm(cache, applicationTerm, report);
-                } catch (final SQLException ex) {
-                    Log.warning(ex);
-                    report.add("Unable to perform query");
-                } finally {
-                    this.primaryCtx.checkInConnection(conn);
-                }
+            try {
+                executeInTerm(cache, applicationTerm, report);
             } catch (final SQLException ex) {
                 Log.warning(ex);
-                report.add("Unable to obtain connection to ODS database");
+                report.add("Unable to perform query");
             }
         }
 

@@ -14,7 +14,6 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 
@@ -98,7 +97,7 @@ public enum PageStudentLobby {
                                             final ImmutableSessionInfo session) {
 
         if (context.course != null) {
-            final String path = site.siteProfile.path;
+            final String path = site.site.path;
             final String redirect = path + (path.endsWith(CoreConstants.SLASH) ? "help.html" : "/help.html");
 
             htm.addln("<script>");

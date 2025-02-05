@@ -1,12 +1,12 @@
 package dev.mathops.session.sitelogic.servlet;
 
 import dev.mathops.db.Cache;
-import dev.mathops.db.type.TermKey;
-import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.old.rawrecord.RawCuobjective;
 import dev.mathops.db.old.rawrecord.RawLesson;
 import dev.mathops.db.old.rawrecord.RawLessonComponent;
 import dev.mathops.db.rec.TermRec;
+import dev.mathops.db.type.TermKey;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -32,11 +32,11 @@ public final class CourseLesson extends LogicBase {
     /**
      * Constructs a new {@code CourseLesson}.
      *
-     * @param theDbProfile the database profile under which this site is accessed
+     * @param theProfile the database profile under which this site is accessed
      */
-    public CourseLesson(final DbProfile theDbProfile) {
+    public CourseLesson(final Profile theProfile) {
 
-        super(theDbProfile);
+        super(theProfile);
     }
 
     /**
@@ -65,7 +65,7 @@ public final class CourseLesson extends LogicBase {
             ok = false;
         } else {
             ok = queryCourseUnitObjective(cache, courseId, unit, objective, active.term)
-                    && queryCourseTutorialStatus(cache, courseId) && queryLesson(cache);
+                 && queryCourseTutorialStatus(cache, courseId) && queryLesson(cache);
 
             if (ok) {
                 this.components = cache.getSystemData().getLessonComponentsByLesson(this.courseUnitObjective.lessonId);

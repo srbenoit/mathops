@@ -17,7 +17,6 @@ import dev.mathops.web.site.Page;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -207,7 +206,7 @@ final class PageIndex {
                 Log.info("Student ", stu, " attempting to start ", title, ", can't create login session");
                 generatePage(req, resp, exam, stu, "Unable to create an exam session");
             } else {
-                final StudentCourseStatus courseStatus = new StudentCourseStatus(site.getDbProfile());
+                final StudentCourseStatus courseStatus = new StudentCourseStatus(site.site.profile);
 
                 courseStatus.gatherData(cache, session, stu, course, false, false);
 

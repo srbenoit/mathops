@@ -3,6 +3,7 @@ package dev.mathops.db.old.rawlogic;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawFfrTrns;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.text.builder.SimpleBuilder;
@@ -80,14 +81,18 @@ public enum RawFfrTrnsLogic {
                     LogicUtils.sqlDateValue(record.examDt), ",",
                     LogicUtils.sqlDateValue(record.dtCrRefused), ")");
 
-            try (final Statement stmt = cache.conn.createStatement()) {
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement()) {
                 result = stmt.executeUpdate(sql) == 1;
 
                 if (result) {
-                    cache.conn.commit();
+                    conn.commit();
                 } else {
-                    cache.conn.rollback();
+                    conn.rollback();
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -108,16 +113,20 @@ public enum RawFfrTrnsLogic {
                 "WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
                 "  AND course=", LogicUtils.sqlStringValue(record.course));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -130,7 +139,7 @@ public enum RawFfrTrnsLogic {
      */
     public static List<RawFfrTrns> queryAll(final Cache cache) throws SQLException {
 
-        return executeListQuery(cache.conn, "SELECT * FROM ffr_trns");
+        return executeListQuery(cache, "SELECT * FROM ffr_trns");
     }
 
     /**
@@ -151,7 +160,7 @@ public enum RawFfrTrnsLogic {
             final String sql = SimpleBuilder.concat("SELECT * FROM ffr_trns",
                     " WHERE stu_id=", LogicUtils.sqlStringValue(stuId));
 
-            result = executeListQuery(cache.conn, sql);
+            result = executeListQuery(cache, sql);
         }
 
         return result;
@@ -160,15 +169,17 @@ public enum RawFfrTrnsLogic {
     /**
      * Executes a query that returns a list of records.
      *
-     * @param conn the database connection, checked out to this thread
+     * @param cache the data cache
      * @param sql  the SQL to execute
      * @return the list of matching records
      * @throws SQLException if there is an error accessing the database
      */
-    private static List<RawFfrTrns> executeListQuery(final DbConnection conn, final String sql)
+    private static List<RawFfrTrns> executeListQuery(final Cache cache, final String sql)
             throws SQLException {
 
         final List<RawFfrTrns> result = new ArrayList<>(50);
+
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
         try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
@@ -176,6 +187,8 @@ public enum RawFfrTrnsLogic {
             while (rs.next()) {
                 result.add(RawFfrTrns.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;

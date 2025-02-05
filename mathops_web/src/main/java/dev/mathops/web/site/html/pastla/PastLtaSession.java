@@ -13,9 +13,9 @@ import dev.mathops.assessment.problem.template.ProblemMultipleSelectionTemplate;
 import dev.mathops.assessment.problem.template.ProblemNumericTemplate;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.txn.messages.GetExamReply;
 import dev.mathops.session.txn.messages.GetReviewExamReply;
@@ -39,8 +39,8 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 /**
- * A user session used to review a submitted learning target assignment. It takes as arguments a session ID,
- * student name, and assignment ID and retrieves the submitted assignment and presents it to the student.
+ * A user session used to review a submitted learning target assignment. It takes as arguments a session ID, student
+ * name, and assignment ID and retrieves the submitted assignment and presents it to the student.
  */
 public final class PastLtaSession extends HtmlSessionBase {
 
@@ -76,7 +76,7 @@ public final class PastLtaSession extends HtmlSessionBase {
      * target assignment. It stores data but does not generate the HTML until the page is actually generated.
      *
      * @param cache            the data cache
-     * @param theSiteProfile   the site profile
+     * @param theSite          the site profile
      * @param theSessionId     the session ID
      * @param theExamId        the exam ID
      * @param theXmlFilename   the XML filename
@@ -84,11 +84,11 @@ public final class PastLtaSession extends HtmlSessionBase {
      * @param theRedirectOnEnd the URL to which to redirect at the end of the exam
      * @throws SQLException if there is an error accessing the database
      */
-    public PastLtaSession(final Cache cache, final WebSiteProfile theSiteProfile, final String theSessionId,
+    public PastLtaSession(final Cache cache, final Site theSite, final String theSessionId,
                           final String theExamId, final String theXmlFilename, final String theStudentId,
                           final String theRedirectOnEnd) throws SQLException {
 
-        super(cache, theSiteProfile, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
+        super(cache, theSite, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
 
         if (theXmlFilename == null) {
             throw new IllegalArgumentException("XML Filename may not be null");
@@ -105,7 +105,7 @@ public final class PastLtaSession extends HtmlSessionBase {
      * Constructs a new {@code PastLtaSession}. This is used when restoring the session from its persisted state.
      *
      * @param cache            the data cache
-     * @param theSiteProfile   the site profile
+     * @param theSite          the site profile
      * @param theSessionId     the session ID
      * @param theXmlFilename   the XML filename
      * @param theStudentId     the student ID
@@ -117,12 +117,12 @@ public final class PastLtaSession extends HtmlSessionBase {
      * @param theExam          the exam
      * @throws SQLException if there is an error accessing the database
      */
-    PastLtaSession(final Cache cache, final WebSiteProfile theSiteProfile, final String theSessionId,
+    PastLtaSession(final Cache cache, final Site theSite, final String theSessionId,
                    final String theXmlFilename, final String theStudentId, final String theRedirectOnEnd,
                    final EPastLtaState theState, final String theError, final int theCurrentItem, final long theTimeout,
                    final ExamObj theExam) throws SQLException {
 
-        super(cache, theSiteProfile, theSessionId, theStudentId, theExam.examVersion, theRedirectOnEnd);
+        super(cache, theSite, theSessionId, theStudentId, theExam.examVersion, theRedirectOnEnd);
 
         if (theXmlFilename == null) {
             throw new IllegalArgumentException("XML Filename may not be null");
@@ -665,7 +665,7 @@ public final class PastLtaSession extends HtmlSessionBase {
 
         htm.sDiv(null, "style='padding:8px; min-height:100%; border:1px solid ", OUTLINE_COLOR, "; background:",
                 MAIN_BG_COLOR, "; font-family:serif; font-size:" + AbstractDocObjectTemplate.DEFAULT_BASE_FONT_SIZE
-                        + "px;'");
+                               + "px;'");
     }
 
     /**
@@ -730,7 +730,7 @@ public final class PastLtaSession extends HtmlSessionBase {
             }
 
             htm.addln("<a style='font-family:serif;' href='javascript:invokeAct(\"nav_", Integer.toString(p),
-                      "\");'> Question ", Integer.valueOf(p + 1), "</a>");
+                    "\");'> Question ", Integer.valueOf(p + 1), "</a>");
             htm.eDiv();
         }
 
@@ -936,7 +936,7 @@ public final class PastLtaSession extends HtmlSessionBase {
 
         if (getExam() != null) {
             xml.addln("<past-lta-session>");
-            xml.addln(" <host>", getSiteProfile().host, "</host>");
+            xml.addln(" <host>", getSiteProfile().getHost(), "</host>");
             xml.addln(" <path>", getSiteProfile().path, "</path>");
             xml.addln(" <session>", this.sessionId, "</session>");
             xml.addln(" <xml>", this.xmlFilename, "</xml>");

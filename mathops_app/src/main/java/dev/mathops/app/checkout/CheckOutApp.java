@@ -1,20 +1,21 @@
 package dev.mathops.app.checkout;
 
 import com.formdev.flatlaf.FlatLightLaf;
-import dev.mathops.app.ui.FrameToFront;
-import dev.mathops.app.ui.PopupPanel;
 import dev.mathops.app.TempFileCleaner;
 import dev.mathops.app.checkin.FieldPanel;
 import dev.mathops.app.checkin.LoginDialog;
+import dev.mathops.app.ui.FrameToFront;
+import dev.mathops.app.ui.PopupPanel;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Profile;
+import dev.mathops.db.cfg.Facet;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
 import dev.mathops.db.old.rawlogic.RawPendingExamLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
@@ -94,8 +95,8 @@ final class CheckOutApp extends KeyAdapter implements Runnable, ActionListener {
     /** The ID of the student attempting to check out. */
     private String studentId = null;
 
-    /** The context. */
-    private DbProfile dbProfile = null;
+    /** The database profile to use. */
+    private Profile profile = null;
 
     /**
      * Constructs a new {@code CheckOutApp}.
@@ -119,33 +120,27 @@ final class CheckOutApp extends KeyAdapter implements Runnable, ActionListener {
         // Clear out old Java font files from the temporary directory.
         TempFileCleaner.clean();
 
-        this.dbProfile = ContextMap.getDefaultInstance().getCodeProfile(Contexts.CHECKOUT_PATH);
-        if (this.dbProfile == null) {
+        final DatabaseConfig databaseConfig = DatabaseConfig.getDefault();
+        this.profile = databaseConfig.getCodeProfile(Contexts.CHECKOUT_PATH);
+        if (this.profile == null) {
             throw new IllegalArgumentException("No 'checkout' code profile configured");
         }
 
-        final DbContext ctx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        final Cache cache = new Cache(this.profile);
 
         try {
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            // Force the person starting the checkout application to log in with a username and password before
+            // starting the application.
+            doStartupLogin();
 
-            try {
-                // Force the person starting the checkout application to log in with a username and password before
-                // starting the application.
-                doStartupLogin();
+            // Now, we create a full-screen, top-level window and activate a thread that will keep it on top of
+            // everything else on the desktop. All windows this application creates will be children of this
+            // window, so they will not be obscured, but the desktop will not be available.
+            createBlockingWindow(fullScreen);
 
-                // Now, we create a full-screen, top-level window and activate a thread that will keep it on top of
-                // everything else on the desktop. All windows this application creates will be children of this
-                // window, so they will not be obscured, but the desktop will not be available.
-                createBlockingWindow(fullScreen);
-
-                // Start the thread to keep the window on top
-                new Thread(this).start();
-                checkoutLoop(cache);
-            } finally {
-                ctx.checkInConnection(conn);
-            }
+            // Start the thread to keep the window on top
+            new Thread(this).start();
+            checkoutLoop(cache);
         } catch (final SQLException | RuntimeException ex) {
             Log.severe(ex);
         }
@@ -162,8 +157,7 @@ final class CheckOutApp extends KeyAdapter implements Runnable, ActionListener {
      * @param cache the cache
      * @throws SQLException if there is an error accessing the database
      */
-    private void checkoutLoop( final Cache cache) throws SQLException {
-
+    private void checkoutLoop(final Cache cache) throws SQLException {
 
         // Enter an infinite loop, waiting for checkouts. Each checkout consists of scanning/typing a student
         // ID, looking up the seat assigned to that student, forcing submission of the exam if it is still in
@@ -219,29 +213,27 @@ final class CheckOutApp extends KeyAdapter implements Runnable, ActionListener {
      */
     private void doStartupLogin() {
 
-        final DbContext dbctx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        final Facet facet = this.profile.getFacet(ESchema.LEGACY);
 
-        // Present a login dialog to gather username, password
-        final LoginDialog dlg = new LoginDialog(dbctx.loginConfig.id, dbctx.loginConfig.user);
+        final LoginDialog dlg = new LoginDialog(facet.data.use.name(), facet.login.user);
 
         while (true) {
             if (dlg.gatherInformation()) {
                 final String username = dlg.getUsername();
                 final char[] passwordChars = dlg.getPassword();
                 final String password = String.valueOf(passwordChars);
-                dbctx.loginConfig.setLogin(username, password);
+
+                // Replace the original schema with a new one with the entered login credentials
+                final Login newLogin = new Login(facet.login.database, "CHECKOUT_LOGIN", username, password);
+                final Facet newFacet = new Facet(facet.data, newLogin);
+                this.profile.addFacet(newFacet);
+
+                final Cache cache = new Cache(this.profile);
 
                 try {
-                    final DbConnection conn = dbctx.checkOutConnection();
-                    final Cache cache = new Cache(this.dbProfile, conn);
-
-                    try {
-                        cache.getSystemData().getActiveTerm();
-                        dlg.close();
-                        break;
-                    } finally {
-                        dbctx.checkInConnection(conn);
-                    }
+                    cache.getSystemData().getActiveTerm();
+                    dlg.close();
+                    break;
                 } catch (final SQLException ex) {
                     Log.warning(ex);
                     JOptionPane.showMessageDialog(null, "Unable to connect to database");
@@ -261,7 +253,7 @@ final class CheckOutApp extends KeyAdapter implements Runnable, ActionListener {
     private void createBlockingWindow(final boolean fullScreen) {
 
         // Construct the window in the AWT dispatcher thread.
-        final BlockingWindowBuilder builder = new BlockingWindowBuilder(this, this.dbProfile, this.centerId,
+        final BlockingWindowBuilder builder = new BlockingWindowBuilder(this, this.profile, this.centerId,
                 fullScreen);
 
         try {
@@ -369,7 +361,7 @@ final class CheckOutApp extends KeyAdapter implements Runnable, ActionListener {
             final Integer theStatus = pc.currentStatus;
 
             if (RawClientPc.STATUS_AWAIT_STUDENT.equals(theStatus)
-                    || RawClientPc.STATUS_LOGIN_NOCHECK.equals(theStatus)) {
+                || RawClientPc.STATUS_LOGIN_NOCHECK.equals(theStatus)) {
 
                 final String msg1 = SimpleBuilder.concat("Student never signed in at testing station ", pc.stationNbr,
                         CoreConstants.DOT);
@@ -531,8 +523,7 @@ final class CheckOutApp extends KeyAdapter implements Runnable, ActionListener {
 
         if ("Login".equals(cmd)) {
             this.state = LOGGING_IN;
-        } else
-            if (TOP_FIELD_CMD.equals(cmd)) {
+        } else if (TOP_FIELD_CMD.equals(cmd)) {
             final String value = this.top.getFieldValue();
 
             if (value.length() == 9) {
@@ -596,7 +587,6 @@ final class CheckOutApp extends KeyAdapter implements Runnable, ActionListener {
             }
         }
 
-        ContextMap.getDefaultInstance();
         DbConnection.registerDrivers();
 
         final CheckOutApp app = new CheckOutApp(centerId);
@@ -615,7 +605,7 @@ final class BlockingWindowBuilder implements Runnable {
     private final CheckOutApp listener;
 
     /** The database profile. */
-    private final DbProfile dbProfile;
+    private final Profile profile;
 
     /** The ID of the testing center being managed. */
     private final String testingCenterId;
@@ -638,16 +628,16 @@ final class BlockingWindowBuilder implements Runnable {
     /**
      * Constructs a new {@code BlockingWindowBuilder}.
      *
-     * @param theListener  the key listener to install on all panels
-     * @param theDbProfile the database profile
-     * @param centerId     the ID of the testing center being managed
-     * @param fullScreen   {@code true} to build screen in full-screen mode
+     * @param theListener the key listener to install on all panels
+     * @param theProfile  the database profile
+     * @param centerId    the ID of the testing center being managed
+     * @param fullScreen  {@code true} to build screen in full-screen mode
      */
-    BlockingWindowBuilder(final CheckOutApp theListener, final DbProfile theDbProfile, final String centerId,
+    BlockingWindowBuilder(final CheckOutApp theListener, final Profile theProfile, final String centerId,
                           final boolean fullScreen) {
 
         this.listener = theListener;
-        this.dbProfile = theDbProfile;
+        this.profile = theProfile;
         this.testingCenterId = centerId;
         this.full = fullScreen;
     }
@@ -720,7 +710,7 @@ final class BlockingWindowBuilder implements Runnable {
 
         this.topPanel = new FieldPanel(screen, this.listener, CheckOutApp.TOP_FIELD_CMD);
         content.add(this.topPanel, BorderLayout.PAGE_START);
-        this.centerPanel = new CenterPanel(this.dbProfile, this.testingCenterId);
+        this.centerPanel = new CenterPanel(this.profile, this.testingCenterId);
         content.add(this.centerPanel, BorderLayout.CENTER);
         this.bottomPanel = new FieldPanel(screen, this.listener, "BottomField");
         content.add(this.bottomPanel, BorderLayout.PAGE_END);

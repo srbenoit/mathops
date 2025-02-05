@@ -1,6 +1,8 @@
 package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawHoldType;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -51,16 +53,20 @@ public enum RawHoldTypeLogic {
                 LogicUtils.sqlStringValue(record.addHold), ",",
                 LogicUtils.sqlStringValue(record.deleteHold), ")");
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -77,16 +83,20 @@ public enum RawHoldTypeLogic {
         final String sql = SimpleBuilder.concat("DELETE FROM hold_type ",
                 "WHERE hold_id=", LogicUtils.sqlStringValue(record.holdId));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -103,12 +113,16 @@ public enum RawHoldTypeLogic {
 
         final List<RawHoldType> result = new ArrayList<>(50);
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 result.add(RawHoldType.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;

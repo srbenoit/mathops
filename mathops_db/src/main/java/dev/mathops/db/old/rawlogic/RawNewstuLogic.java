@@ -1,6 +1,8 @@
 package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawNewstu;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -47,16 +49,20 @@ public enum RawNewstuLogic {
                 LogicUtils.sqlStringValue(record.regType), ",",
                 LogicUtils.sqlStringValue(record.term), ")");
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -73,16 +79,20 @@ public enum RawNewstuLogic {
         final String sql = SimpleBuilder.concat("DELETE FROM newstu ",
                 "WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -99,12 +109,16 @@ public enum RawNewstuLogic {
 
         final List<RawNewstu> result = new ArrayList<>(500);
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 result.add(RawNewstu.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -119,10 +133,14 @@ public enum RawNewstuLogic {
      */
     public static int deleteAll(final Cache cache) throws SQLException {
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final int result = stmt.executeUpdate("DELETE FROM newstu");
-            cache.conn.commit();
+            conn.commit();
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 }

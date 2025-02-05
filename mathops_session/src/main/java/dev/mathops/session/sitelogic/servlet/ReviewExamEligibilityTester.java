@@ -4,10 +4,8 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
@@ -74,10 +72,10 @@ public class ReviewExamEligibilityTester extends EligibilityTesterBase {
                 if (RawRecordConstants.M100T.equals(course)) {
                     ok = checkELMTutorialExamAvailability(cache, reasons, avail.exam.course, avail.exam.version);
                 } else if (RawRecordConstants.M1170.equals(course)
-                        || RawRecordConstants.M1180.equals(course)
-                        || RawRecordConstants.M1240.equals(course)
-                        || RawRecordConstants.M1250.equals(course)
-                        || RawRecordConstants.M1260.equals(course)) {
+                           || RawRecordConstants.M1180.equals(course)
+                           || RawRecordConstants.M1240.equals(course)
+                           || RawRecordConstants.M1250.equals(course)
+                           || RawRecordConstants.M1260.equals(course)) {
                     ok = checkPrecalcTutorialExamAvailability(cache, reasons, avail.exam.course, avail.exam.version);
                 } else {
                     ok = checkExamAvailability(cache, now, reasons, avail.exam.course, avail.exam.unit);
@@ -110,16 +108,16 @@ public class ReviewExamEligibilityTester extends EligibilityTesterBase {
 
         // Verify that there is a term active and currently in progress
         boolean ok = validateStudent(cache, now, reasons, holds, true)
-                && checkActiveTerm(cache, now, reasons);
+                     && checkActiveTerm(cache, now, reasons);
 
         if (ok && !isSpecialStudentId() && !isSpecial()) {
             if (RawRecordConstants.M100T.equals(course)) {
                 ok = checkELMTutorialExamAvailability(cache, reasons, course, version);
             } else if (RawRecordConstants.M1170.equals(course)
-                    || RawRecordConstants.M1180.equals(course)
-                    || RawRecordConstants.M1240.equals(course)
-                    || RawRecordConstants.M1250.equals(course)
-                    || RawRecordConstants.M1260.equals(course)) {
+                       || RawRecordConstants.M1180.equals(course)
+                       || RawRecordConstants.M1240.equals(course)
+                       || RawRecordConstants.M1250.equals(course)
+                       || RawRecordConstants.M1260.equals(course)) {
                 ok = checkPrecalcTutorialExamAvailability(cache, reasons, course, version);
             } else {
                 ok = checkExamAvailability(cache, now, reasons, course, unit);
@@ -302,12 +300,12 @@ public class ReviewExamEligibilityTester extends EligibilityTesterBase {
 
         if ("Y".equals(this.studentCourse.iInProgress)) {
             ok = ok && (checkIncompleteDeadline(now, reasons) && checkCourseRegistration(reasons)
-                    && checkTimeWindows(now, reasons) && checkCourseEligibility(reasons)
-                    && checkUnitEligibility(cache, reasons, course, unit));
+                        && checkTimeWindows(now, reasons) && checkCourseEligibility(reasons)
+                        && checkUnitEligibility(cache, reasons, course, unit));
         } else {
             ok = ok && (checkCourseRegistration(reasons) && checkTimeWindows(now, reasons)
-                    && checkCourseEligibility(reasons) && checkUnitEligibility(cache, reasons, course, unit)
-                    && checkForCourseLockout(cache, now, reasons));
+                        && checkCourseEligibility(reasons) && checkUnitEligibility(cache, reasons, course, unit)
+                        && checkForCourseLockout(cache, now, reasons));
         }
 
         return ok;
@@ -420,7 +418,7 @@ public class ReviewExamEligibilityTester extends EligibilityTesterBase {
         boolean success = true;
 
         if (!"Y".equals(this.studentCourse.iInProgress) && this.courseSectionUnit != null &&
-                this.courseSectionUnit.lastTestDt != null) {
+            this.courseSectionUnit.lastTestDt != null) {
 
             final LocalDate day = this.courseSectionUnit.lastTestDt;
             final LocalDate today = now.toLocalDate();
@@ -449,7 +447,7 @@ public class ReviewExamEligibilityTester extends EligibilityTesterBase {
 
         if (!ok) {
             final String msg = this.courseSection.course + " section " + this.courseSection.sect
-                    + " is not currently in progress.";
+                               + " is not currently in progress.";
             Log.info(msg);
             reasons.add(msg);
         }
@@ -517,37 +515,32 @@ public class ReviewExamEligibilityTester extends EligibilityTesterBase {
 
         DbConnection.registerDrivers();
 
-        final DbProfile dbProfile = ContextMap.getDefaultInstance().getCodeProfile("checkin");
+        final DatabaseConfig databaseConfig = DatabaseConfig.getDefault();
+        final Profile profile = databaseConfig.getCodeProfile("checkin");
 
-        final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        final Cache cache = new Cache(profile);
+
         try {
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(dbProfile, conn);
+            final LiveSessionInfo live = new LiveSessionInfo("abcdef", "Local", ERole.STUDENT);
 
-            try {
-                final LiveSessionInfo live = new LiveSessionInfo("abcdef", "Local", ERole.STUDENT);
+            live.setUserInfo("833291747", "Test", "Student", "Test Student");
 
-                live.setUserInfo("833291747", "Test", "Student", "Test Student");
+            final ImmutableSessionInfo session = new ImmutableSessionInfo(live);
 
-                final ImmutableSessionInfo session = new ImmutableSessionInfo(live);
+            final ReviewExamEligibilityTester tester = new ReviewExamEligibilityTester(session.userId);
 
-                final ReviewExamEligibilityTester tester = new ReviewExamEligibilityTester(session.userId);
+            final Collection<RawAdminHold> holds = new ArrayList<>(10);
 
-                final Collection<RawAdminHold> holds = new ArrayList<>(10);
+            final HtmlBuilder reason = new HtmlBuilder(100);
+            final ZonedDateTime now = session.getNow();
+            final boolean ok = tester.isExamEligible(cache, now, RawRecordConstants.M125, Integer.valueOf(3),
+                    "253RE", reason, holds);
 
-                final HtmlBuilder reason = new HtmlBuilder(100);
-                final ZonedDateTime now = session.getNow();
-                final boolean ok = tester.isExamEligible(cache, now, RawRecordConstants.M125, Integer.valueOf(3),
-                        "253RE", reason, holds);
-
-                Log.info("Student  : ", live.getUserId());
-                Log.info("Exam     : M 125 unit 3");
-                Log.info("Eligible : ", Boolean.toString(ok));
-                if (!ok) {
-                    Log.info("Reason   : ", reason.toString());
-                }
-            } finally {
-                ctx.checkInConnection(conn);
+            Log.info("Student  : ", live.getUserId());
+            Log.info("Exam     : M 125 unit 3");
+            Log.info("Eligible : ", Boolean.toString(ok));
+            if (!ok) {
+                Log.info("Reason   : ", reason.toString());
             }
         } catch (final SQLException ex) {
             Log.warning(ex);

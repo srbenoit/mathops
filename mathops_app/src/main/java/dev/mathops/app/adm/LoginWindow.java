@@ -3,19 +3,17 @@ package dev.mathops.app.adm;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
-import dev.mathops.db.Contexts;
-import dev.mathops.db.EDbProduct;
-import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbConfig;
-import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.EDbProduct;
 import dev.mathops.db.EDbUse;
-import dev.mathops.db.old.cfg.ESchemaUse;
-import dev.mathops.db.old.cfg.LoginConfig;
-import dev.mathops.db.old.cfg.SchemaConfig;
-import dev.mathops.db.old.cfg.ServerConfig;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.Data;
+import dev.mathops.db.cfg.Database;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Profile;
+import dev.mathops.db.cfg.Facet;
+import dev.mathops.db.cfg.Server;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -47,12 +45,7 @@ import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.prefs.Preferences;
 
 /**
@@ -83,11 +76,11 @@ final class LoginWindow extends JFrame implements ActionListener {
     /** The width of text fields. */
     private static final int FIELD_WIDTH = 14;
 
-    /** The database context map. */
-    private final ContextMap map;
+    /** The database configuration. */
+    private final DatabaseConfig dbConfig;
 
-    /** A combo box from which to choose database. */
-    private final JComboBox<EDbUse> schemaCombo;
+    /** A combo box from which to choose between PROD and DEV. */
+    private final JComboBox<EDbUse> useCombo;
 
     /** The username. */
     private final JTextField username;
@@ -113,15 +106,15 @@ final class LoginWindow extends JFrame implements ActionListener {
     /**
      * Constructs a new {@code LoginWindow}
      *
-     * @param theContextMap      the context map
+     * @param theDbConfig        the database configuration
      * @param theInitialUsername the username to pre-populate (from command-line)
      * @param theInitialPassword the password to pre-populate (from command-line)
      */
-    LoginWindow(final ContextMap theContextMap, final String theInitialUsername, final String theInitialPassword) {
+    LoginWindow(final DatabaseConfig theDbConfig, final String theInitialUsername, final String theInitialPassword) {
 
         super();
 
-        this.map = theContextMap;
+        this.dbConfig = theDbConfig;
 
         final String title = Res.get(Res.TITLE);
         setTitle(title);
@@ -197,25 +190,11 @@ final class LoginWindow extends JFrame implements ActionListener {
         schemaPick.setBackground(Skin.OFF_WHITE_GRAY);
         schemaPick.add(schemaPickLbl, BorderLayout.LINE_START);
 
-        final Set<EDbUse> uses = EnumSet.noneOf(EDbUse.class);
-        for (final ServerConfig server : this.map.getServers()) {
-            for (final DbConfig db : server.getDatabases()) {
-                if (db.id.startsWith("term")) {
-                    continue;
-                }
-                final EDbUse use = db.use;
-                if (use == EDbUse.PROD || use == EDbUse.DEV) {
-                    uses.add(use);
-                }
-            }
-        }
-        final List<EDbUse> toChooseFrom = new ArrayList<>(uses);
-
-        final EDbUse[] useArray = toChooseFrom.toArray(new EDbUse[0]);
-        this.schemaCombo = new JComboBox<>(useArray);
-        this.schemaCombo.setBackground(Color.WHITE);
-        this.schemaCombo.setSelectedItem(EDbUse.PROD);
-        schemaPick.add(this.schemaCombo);
+        final EDbUse[] useArray = {EDbUse.PROD, EDbUse.DEV};
+        this.useCombo = new JComboBox<>(useArray);
+        this.useCombo.setBackground(Color.WHITE);
+        this.useCombo.setSelectedItem(EDbUse.PROD);
+        schemaPick.add(this.useCombo);
         center.add(schemaPick);
 
         final Component spacer24 = Box.createRigidArea(new Dimension(0, 24));
@@ -435,9 +414,9 @@ final class LoginWindow extends JFrame implements ActionListener {
                 ++good;
             }
 
-            final String u = this.username.getText();
+            final String usr = this.username.getText();
 
-            if (u == null || u.isEmpty()) {
+            if (usr == null || usr.isEmpty()) {
                 this.username.setBackground(ERROR_COLOR);
                 err = Res.get(Res.LOGIN_NO_USER_ERR);
             } else {
@@ -445,112 +424,122 @@ final class LoginWindow extends JFrame implements ActionListener {
                 ++good;
             }
 
-            DbConfig ifxDb = null;
-            SchemaConfig ifxSchema = null;
-
-            final EDbUse dbUse = (EDbUse) this.schemaCombo.getSelectedItem();
-
-            final ServerConfig[] servers = this.map.getServers();
+            final EDbUse dbUse = (EDbUse) this.useCombo.getSelectedItem();
 
             if (dbUse == null) {
-                this.schemaCombo.setBackground(ERROR_COLOR);
+                this.useCombo.setBackground(ERROR_COLOR);
                 err = Res.get(Res.LOGIN_NO_DB_ERR);
             } else {
-                for (final ServerConfig cfg : servers) {
-                    for (final DbConfig db : cfg.getDatabases()) {
-                        if (db.id.startsWith("term")) {
-                            continue;
-                        }
-                        if (db.use == dbUse) {
-                            if (db.server.type == EDbProduct.INFORMIX) {
-                                ifxDb = db;
-                            }
-                        }
-                    }
-                }
-
-                if (ifxDb == null) {
-                    this.schemaCombo.setBackground(ERROR_COLOR);
-                    err = Res.get(Res.LOGIN_NO_DB_ERR);
+                if (dbUse == EDbUse.PROD) {
+                    ++good;
+                } else if (dbUse == EDbUse.DEV) {
+                    ++good;
                 } else {
-                    for (final SchemaConfig sch : ifxDb.getSchemata()) {
-                        if (sch.use == ESchemaUse.PRIMARY) {
-                            ifxSchema = sch;
-                        }
-                    }
-
-                    if (ifxSchema == null) {
-                        this.schemaCombo.setBackground(ERROR_COLOR);
-                        err = Res.get(Res.LOGIN_NO_SCHEMA_ERR);
-                    } else {
-                        this.schemaCombo.setBackground(Color.WHITE);
-                        ++good;
-                    }
+                    this.useCombo.setBackground(ERROR_COLOR);
+                    err = Res.get(Res.LOGIN_NO_DB_ERR);
                 }
             }
 
             if (good == 3) {
                 final String pwd = new String(p);
-                final LoginConfig ifxLogin = new LoginConfig("ADM_I", ifxDb, u, pwd);
-                final DbContext ifxCtx = new DbContext(ifxSchema, ifxLogin);
 
-                final DbProfile batchProfile = this.map.getCodeProfile(Contexts.BATCH_PATH);
-                final DbContext odsContext = batchProfile.getDbContext(ESchemaUse.ODS);
-                final DbContext liveContext = batchProfile.getDbContext(ESchemaUse.LIVE);
+                // Rather than pick a pre-made profile (that already has a password), we need to create a new
+                // Login for the Informix database (PROD or DEV), then create a new profile that uses that Login.
 
-                final Map<ESchemaUse, DbContext> ifxContexts = new EnumMap<>(ESchemaUse.class);
-                ifxContexts.put(ESchemaUse.PRIMARY, ifxCtx);
-                ifxContexts.put(ESchemaUse.ODS, odsContext);
-                ifxContexts.put(ESchemaUse.LIVE, liveContext);
+                final Profile profile = new Profile("ADMIN_PROFILE");
 
-                final DbProfile ifxProfile = new DbProfile("AdminIfx", ifxContexts);
-
-                final DbConnection ifxConn = ifxCtx.checkOutConnection();
-
-                try {
-                    final Cache ifxCache = new Cache(ifxProfile, ifxConn);
-
-                    // The following throws exception if login credentials are invalid
-                    ifxConn.getConnection();
-
-                    Object renderingHint = null;
-                    int pref = -1;
-                    if (this.radios[0].isSelected()) {
-                        renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_OFF;
-                        pref = 0;
-                    } else if (this.radios[1].isSelected()) {
-                        renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_ON;
-                        pref = 1;
-                    } else if (this.radios[2].isSelected()) {
-                        renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HBGR;
-                        pref = 2;
-                    } else if (this.radios[3].isSelected()) {
-                        renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB;
-                        pref = 3;
-                    } else if (this.radios[4].isSelected()) {
-                        renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_VBGR;
-                        pref = 4;
-                    } else if (this.radios[5].isSelected()) {
-                        renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_VRGB;
-                        pref = 5;
+                // Find login/data combinations for non-LEGACY schemas and add those to the profile
+                boolean foundLive = false;
+                boolean foundOds = false;
+                boolean foundExtern = false;
+                boolean foundAnalytic = false;
+                Data legacyData = null;
+                for (final Server server : this.dbConfig.getServers()) {
+                    for (final Database database : server.getDatabases()) {
+                        for (final Data data : database.getData()) {
+                            if (data.schema == ESchema.LIVE && data.use == EDbUse.LIVE) {
+                                final List<Login> logins = database.getLogins();
+                                final Login login = logins.getFirst();
+                                final Facet facet = new Facet(data, login);
+                                profile.addFacet(facet);
+                                foundLive = true;
+                            } else if (data.schema == ESchema.ODS && data.use == EDbUse.ODS) {
+                                final List<Login> logins = database.getLogins();
+                                final Login login = logins.getFirst();
+                                final Facet facet = new Facet(data, login);
+                                profile.addFacet(facet);
+                                foundOds = true;
+                            } else if (data.schema == ESchema.EXTERN && data.use == dbUse) {
+                                final List<Login> logins = database.getLogins();
+                                final Login login = logins.getFirst();
+                                final Facet facet = new Facet(data, login);
+                                profile.addFacet(facet);
+                                foundExtern = true;
+                            } else if (data.schema == ESchema.ANALYTICS && data.use == dbUse) {
+                                final List<Login> logins = database.getLogins();
+                                final Login login = logins.getFirst();
+                                final Facet facet = new Facet(data, login);
+                                profile.addFacet(facet);
+                                foundAnalytic = true;
+                            } else if (data.schema == ESchema.LEGACY && data.use == dbUse
+                                       && server.type == EDbProduct.INFORMIX) {
+                                legacyData = data;
+                            }
+                        }
                     }
+                }
 
-                    final Class<? extends LoginWindow> cls = getClass();
-                    final Preferences prefs = Preferences.userNodeForPackage(cls);
-                    if (prefs != null) {
-                        prefs.putInt(ANTIALIAS, pref);
+                if (foundLive && foundOds && foundExtern && foundAnalytic && legacyData != null) {
+
+                    // Find a legacy server/database/data combination
+                    final Login login = new Login(legacyData.database, "ADMIN_LOGIN_ID", usr, pwd);
+                    final Facet facet = new Facet(legacyData, login);
+                    profile.addFacet(facet);
+
+                    try {
+                        // Attempt to make a connection to see if login credentials are invalid
+                        final DbConnection conn = login.checkOutConnection();
+                        login.checkInConnection(conn);
+
+                        Object renderingHint = null;
+                        int pref = -1;
+                        if (this.radios[0].isSelected()) {
+                            renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_OFF;
+                            pref = 0;
+                        } else if (this.radios[1].isSelected()) {
+                            renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_ON;
+                            pref = 1;
+                        } else if (this.radios[2].isSelected()) {
+                            renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HBGR;
+                            pref = 2;
+                        } else if (this.radios[3].isSelected()) {
+                            renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB;
+                            pref = 3;
+                        } else if (this.radios[4].isSelected()) {
+                            renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_VBGR;
+                            pref = 4;
+                        } else if (this.radios[5].isSelected()) {
+                            renderingHint = RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_VRGB;
+                            pref = 5;
+                        }
+
+                        final Class<? extends LoginWindow> cls = getClass();
+                        final Preferences prefs = Preferences.userNodeForPackage(cls);
+                        if (prefs != null) {
+                            prefs.putInt(ANTIALIAS, pref);
+                        }
+
+                        new MainWindow(usr, profile, renderingHint).setVisible(true);
+
+                        setVisible(false);
+                        dispose();
+                    } catch (final SQLException ex2) {
+                        Log.warning(ex2);
+                        final String msg = Res.get(Res.LOGIN_BAD_LOGIN_ERR);
+                        this.error.setText(msg);
                     }
-
-                    new MainWindow(u, ifxCtx, ifxCache, liveContext, renderingHint).setVisible(true);
-
-                    setVisible(false);
-                    dispose();
-                } catch (final SQLException ex2) {
-                    Log.warning(ex2);
-                    final String msg = Res.get(Res.LOGIN_BAD_LOGIN_ERR);
-                    this.error.setText(msg);
-                } finally {
-                    ifxCtx.checkInConnection(ifxConn);
+                } else {
+                    err = Res.get(Res.LOGIN_NO_SCHEMA_ERR);
                 }
             } else if (err != null) {
                 this.error.setText(err);

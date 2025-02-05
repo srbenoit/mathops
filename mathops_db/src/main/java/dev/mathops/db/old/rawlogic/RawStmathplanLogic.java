@@ -4,6 +4,7 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -38,8 +39,6 @@ import java.util.Map;
  * finish_time          integer                   no
  * session              bigint                    yes
  * </pre>
- *
- *
  */
 public enum RawStmathplanLogic {
     ;
@@ -301,7 +300,7 @@ public enum RawStmathplanLogic {
     public static boolean insert(final Cache cache, final RawStmathplan record) throws SQLException {
 
         if (record.stuId == null || record.pidm == null || record.version == null
-                || record.examDt == null || record.surveyNbr == null || record.finishTime == null) {
+            || record.examDt == null || record.surveyNbr == null || record.finishTime == null) {
             throw new SQLException("Null value in primary key or required field.");
         }
 
@@ -318,16 +317,20 @@ public enum RawStmathplanLogic {
                 LogicUtils.sqlIntegerValue(record.finishTime), ",",
                 LogicUtils.sqlLongValue(record.session), ")");
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -351,14 +354,18 @@ public enum RawStmathplanLogic {
                 " AND finish_time=", LogicUtils.sqlIntegerValue(record.finishTime),
                 " AND survey_nbr=", LogicUtils.sqlIntegerValue(record.surveyNbr));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -373,7 +380,7 @@ public enum RawStmathplanLogic {
      */
     public static List<RawStmathplan> queryAll(final Cache cache) throws SQLException {
 
-        return executeQuery(cache.conn, "SELECT * FROM stmathplan");
+        return executeQuery(cache, "SELECT * FROM stmathplan");
     }
 
     /**
@@ -389,7 +396,7 @@ public enum RawStmathplanLogic {
         final String sql = SimpleBuilder.concat("SELECT * FROM stmathplan ",
                 " WHERE stu_id=", LogicUtils.sqlStringValue(stuId));
 
-        return executeQuery(cache.conn, sql);
+        return executeQuery(cache, sql);
     }
 
     /**
@@ -426,7 +433,7 @@ public enum RawStmathplanLogic {
                     "   AND version=", LogicUtils.sqlStringValue(pageId),
                     "  ) ORDER BY survey_nbr");
 
-            result = executeQuery(cache.conn, sql);
+            result = executeQuery(cache, sql);
         }
 
         return result;
@@ -467,7 +474,7 @@ public enum RawStmathplanLogic {
                     "   AND version=", LogicUtils.sqlStringValue(pageId),
                     "  ) ORDER BY survey_nbr");
 
-            result = executeQuery(cache.conn, sql);
+            result = executeQuery(cache, sql);
         }
 
         return result;
@@ -497,14 +504,18 @@ public enum RawStmathplanLogic {
 
             Log.info(sql);
 
-            try (final Statement stmt = cache.conn.createStatement()) {
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement()) {
                 result = stmt.executeUpdate(sql) > 0;
 
                 if (result) {
-                    cache.conn.commit();
+                    conn.commit();
                 } else {
-                    cache.conn.rollback();
+                    conn.rollback();
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -535,7 +546,7 @@ public enum RawStmathplanLogic {
         final String sql = SimpleBuilder.concat("SELECT * FROM stmathplan WHERE exam_dt>=",
                 LogicUtils.sqlDateValue(earliest));
 
-        final List<RawStmathplan> all = executeQuery(cache.conn, sql);
+        final List<RawStmathplan> all = executeQuery(cache, sql);
         Collections.sort(all);
 
         int start = 0;
@@ -611,14 +622,16 @@ public enum RawStmathplanLogic {
     /**
      * Executes a query that returns a list of records.
      *
-     * @param conn the database connection, checked out to this thread
-     * @param sql  the SQL to execute
+     * @param cache the data cache
+     * @param sql   the SQL to execute
      * @return the list of matching records
      * @throws SQLException if there is an error accessing the database
      */
-    private static List<RawStmathplan> executeQuery(final DbConnection conn, final String sql) throws SQLException {
+    private static List<RawStmathplan> executeQuery(final Cache cache, final String sql) throws SQLException {
 
         final List<RawStmathplan> result = new ArrayList<>(20);
+
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
         try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
@@ -626,6 +639,8 @@ public enum RawStmathplanLogic {
             while (rs.next()) {
                 result.add(RawStmathplan.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;

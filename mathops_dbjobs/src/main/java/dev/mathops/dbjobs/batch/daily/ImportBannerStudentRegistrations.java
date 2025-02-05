@@ -2,15 +2,15 @@ package dev.mathops.dbjobs.batch.daily;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.enums.EDisciplineActionType;
 import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.Cache;
-import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
@@ -71,24 +71,15 @@ public final class ImportBannerStudentRegistrations {
     private static final boolean DEBUG = false;
 
     /** The database profile through which to access the database. */
-    private final DbProfile dbProfile;
-
-    /** The database context for the "Primary" schema. */
-    private final DbContext primaryDbCtx;
-
-    /** The database context for the "Live" (Banner) schema. */
-    private final DbContext liveDbCtx;
+    private final Profile profile;
 
     /**
      * Constructs a new {@code ImportBannerStudentRegistrations}.
      */
     public ImportBannerStudentRegistrations() {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-
-        this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
-        this.primaryDbCtx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
-        this.liveDbCtx = this.dbProfile.getDbContext(ESchemaUse.LIVE);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        this.profile = config.getCodeProfile(Contexts.BATCH_PATH);
     }
 
     /**
@@ -100,32 +91,20 @@ public final class ImportBannerStudentRegistrations {
 
         final HtmlBuilder htm = new HtmlBuilder(1000);
 
-        final DbContext ctx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        final Cache cache = new Cache(this.profile);
+
         try {
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            final TermRec active = cache.getSystemData().getActiveTerm();
 
-            try {
-                final TermRec active = cache.getSystemData().getActiveTerm();
+            final Collection<String> report = new ArrayList<>(10);
 
-                final Collection<String> report = new ArrayList<>(10);
+            executeInTerm(cache, active, report);
 
-                if (this.primaryDbCtx == null) {
-                    report.add("Unable to create production context.");
-                } else if (this.liveDbCtx == null) {
-                    report.add("Unable to create Banner database context.");
-                } else {
-                    executeInTerm(cache, active, report);
-                }
-
-                htm.addln("<pre>");
-                for (final String rep : report) {
-                    htm.addln(rep);
-                }
-                htm.addln("</pre>");
-            } finally {
-                ctx.checkInConnection(conn);
+            htm.addln("<pre>");
+            for (final String rep : report) {
+                htm.addln(rep);
             }
+            htm.addln("</pre>");
         } catch (final SQLException ex) {
             Log.warning(ex);
         }
@@ -145,7 +124,8 @@ public final class ImportBannerStudentRegistrations {
         report.add(CoreConstants.EMPTY);
         report.add("Retrieving data from Banner:");
 
-        final DbConnection bannerConn = this.liveDbCtx.checkOutConnection();
+        final Login liveLogin = this.profile.getLogin(ESchema.LIVE);
+        final DbConnection bannerConn = liveLogin.checkOutConnection();
 
         try {
             final List<RawStcourse> regs = new ArrayList<>(3500);
@@ -174,7 +154,7 @@ public final class ImportBannerStudentRegistrations {
             Log.warning(ex);
             report.add("Unable to perform query: " + ex.getMessage());
         } finally {
-            this.liveDbCtx.checkInConnection(bannerConn);
+            liveLogin.checkInConnection(bannerConn);
         }
     }
 
@@ -295,7 +275,7 @@ public final class ImportBannerStudentRegistrations {
                         regs.add(regRec);
 
                         if (DEBUG) {
-                            Log.fine("Registration for ", regRec.stuId, " in ", regRec.course, SECTION, regRec.sect);
+                            // Log.fine("Registration for ", regRec.stuId, " in ", regRec.course, SECTION, regRec.sect);
                             // Log.fine(" Grading: ", regRec.gradingOption);
                             // Log.fine(" Status: ", regRec.registrationStatus);
                             // Log.fine(" Instruction:", regRec.instrnType);
@@ -1316,6 +1296,7 @@ public final class ImportBannerStudentRegistrations {
      */
     public static void main(final String... args) {
 
+        DbConnection.registerDrivers();
         final ImportBannerStudentRegistrations job = new ImportBannerStudentRegistrations();
 
         Log.info(job.execute());

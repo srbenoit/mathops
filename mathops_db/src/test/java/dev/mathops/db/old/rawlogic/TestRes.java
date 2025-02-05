@@ -9,22 +9,16 @@ import java.util.Locale;
  */
 final class TestRes extends ResBundle {
 
-    /** An incrementing index for resource keys. */
-    private static int index = 1;
-
     // Used by multiple classes
 
     /** A resource key. */
-    static final String ERR_NO_TEST_PROFILE = key(index++);
+    static final String ERR_NO_TEST_PROFILE = key(1);
 
     /** A resource key. */
-    static final String ERR_NO_PRIMARY_CONTEXT = key(index++);
+    static final String ERR_CANT_QUERY_WHICH_DB = key(2);
 
     /** A resource key. */
-    static final String ERR_CANT_QUERY_WHICH_DB = key(index++);
-
-    /** A resource key. */
-    static final String ERR_NOT_CONNECTED_TO_TEST = key(index++);
+    static final String ERR_NOT_CONNECTED_TO_TEST = key(3);
 
     //
 
@@ -32,7 +26,6 @@ final class TestRes extends ResBundle {
     private static final String[][] EN_US = {
 
             {ERR_NO_TEST_PROFILE, "No 'test' code profile configured."},
-            {ERR_NO_PRIMARY_CONTEXT, "No primary context in the 'test' code profile."},
             {ERR_CANT_QUERY_WHICH_DB, "Can't query which_db"},
             {ERR_NOT_CONNECTED_TO_TEST, "Connected to {0}rather than TEST database"},
     };

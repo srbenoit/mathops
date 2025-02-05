@@ -2,11 +2,10 @@ package dev.mathops.web.site.scheduling;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.file.FileLoader;
-import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.db.logic.ELiveRefreshes;
-import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.ESiteType;
@@ -15,7 +14,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 /**
@@ -29,12 +27,12 @@ public final class SchedulingSite extends AbstractSite {
     /**
      * Constructs a new {@code SchedulingSite}.
      *
-     * @param theSiteProfile the site profile under which this site is accessed
-     * @param theSessions    the singleton user session repository
+     * @param theSite     the site profile under which this site is accessed
+     * @param theSessions the singleton user session repository
      */
-    public SchedulingSite(final WebSiteProfile theSiteProfile, final ISessionManager theSessions) {
+    public SchedulingSite(final Site theSite, final ISessionManager theSessions) {
 
-        super(theSiteProfile, theSessions);
+        super(theSite, theSessions);
     }
 
     /**
@@ -86,7 +84,7 @@ public final class SchedulingSite extends AbstractSite {
             case "spursim.html" -> PageSpurSim.showPage(cache, this, type, req, resp);
             case null, default -> {
                 resp.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-                final String path = this.siteProfile.path;
+                final String path = this.site.path;
                 resp.setHeader("Location", path + (path.endsWith(Contexts.ROOT_PATH) ? "index.html" : "/index.html"));
                 sendReply(req, resp, Page.MIME_TEXT_HTML, ZERO_LEN_BYTE_ARR);
             }

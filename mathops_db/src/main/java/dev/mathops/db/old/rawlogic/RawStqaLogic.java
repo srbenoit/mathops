@@ -3,6 +3,7 @@ package dev.mathops.db.old.rawlogic;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStqa;
 import dev.mathops.text.builder.SimpleBuilder;
@@ -69,14 +70,18 @@ public enum RawStqaLogic {
                     LogicUtils.sqlStringValue(record.subtest), ",",
                     LogicUtils.sqlIntegerValue(record.finishTime), ")");
 
-            try (final Statement stmt = cache.conn.createStatement()) {
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement()) {
                 result = stmt.executeUpdate(sql) == 1;
 
                 if (result) {
-                    cache.conn.commit();
+                    conn.commit();
                 } else {
-                    cache.conn.rollback();
+                    conn.rollback();
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -98,16 +103,20 @@ public enum RawStqaLogic {
                 " AND question_nbr=", LogicUtils.sqlIntegerValue(record.questionNbr),
                 " AND answer_nbr=", LogicUtils.sqlIntegerValue(record.answerNbr));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -120,7 +129,7 @@ public enum RawStqaLogic {
      */
     public static List<RawStqa> queryAll(final Cache cache) throws SQLException {
 
-        return executeQuery(cache.conn, "SELECT * FROM stqa");
+        return executeQuery(cache, "SELECT * FROM stqa");
     }
 
     /**
@@ -135,7 +144,7 @@ public enum RawStqaLogic {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM stqa WHERE stu_id=", LogicUtils.sqlStringValue(stuId));
 
-        return executeQuery(cache.conn, sql);
+        return executeQuery(cache, sql);
     }
 
     /**
@@ -151,7 +160,7 @@ public enum RawStqaLogic {
         final String sql = SimpleBuilder.concat("SELECT * FROM stqa WHERE serial_nbr=",
                 LogicUtils.sqlLongValue(serial));
 
-        return executeQuery(cache.conn, sql);
+        return executeQuery(cache, sql);
     }
 
     /**
@@ -170,11 +179,16 @@ public enum RawStqaLogic {
                 " AND version=", LogicUtils.sqlStringValue(record.version),
                 " AND stu_id=", LogicUtils.sqlStringValue(record.stuId));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             stmt.executeUpdate(sql1);
-            cache.conn.commit();
-            return true;
+            conn.commit();
+        } finally {
+            Cache.checkInConnection(conn);
         }
+
+        return true;
     }
 
     /**
@@ -197,7 +211,7 @@ public enum RawStqaLogic {
             result = false;
         } else {
             // TODO: We don't match on subtest here - should be moot, but this could update
-            // more than one row if an answer applies to multiple subtests
+            //  more than one row if an answer applies to multiple subtests
 
             final String sql = SimpleBuilder.concat("UPDATE stqa ",
                     " SET ans_correct=", LogicUtils.sqlStringValue(newCorrect),
@@ -205,14 +219,18 @@ public enum RawStqaLogic {
                     " AND question_nbr=", LogicUtils.sqlIntegerValue(record.questionNbr),
                     " AND answer_nbr=", LogicUtils.sqlIntegerValue(record.answerNbr));
 
-            try (final Statement stmt = cache.conn.createStatement()) {
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement()) {
                 result = stmt.executeUpdate(sql) > 0;
 
                 if (result) {
-                    cache.conn.commit();
+                    conn.commit();
                 } else {
-                    cache.conn.rollback();
+                    conn.rollback();
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -222,17 +240,19 @@ public enum RawStqaLogic {
     /**
      * Executes a query that returns a list of records.
      *
-     * @param conn the database connection, checked out to this thread
-     * @param sql  the SQL to execute
+     * @param cache the data cache
+     * @param sql   the SQL to execute
      * @return the list of matching records
      * @throws SQLException if there is an error accessing the database
      */
-    private static List<RawStqa> executeQuery(final DbConnection conn, final String sql) throws SQLException {
+    private static List<RawStqa> executeQuery(final Cache cache, final String sql) throws SQLException {
 
         final List<RawStqa> result = new ArrayList<>(20);
 
-        try (final Statement s = conn.createStatement(); //
-             final ResultSet rs = s.executeQuery(sql)) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement statement = conn.createStatement();
+             final ResultSet rs = statement.executeQuery(sql)) {
 
             while (rs.next()) {
                 result.add(RawStqa.fromResultSet(rs));
@@ -240,6 +260,8 @@ public enum RawStqaLogic {
         } catch (final SQLException ex) {
             Log.warning("Query failed: [", sql, "]", ex);
             throw ex;
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;

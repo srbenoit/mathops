@@ -1,6 +1,8 @@
 package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawEtextKey;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -47,16 +49,20 @@ public enum RawEtextKeyLogic {
                 LogicUtils.sqlStringValue(record.etextKey), ",",
                 LogicUtils.sqlDateTimeValue(record.activeDt), ")");
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -73,16 +79,20 @@ public enum RawEtextKeyLogic {
         final String sql = SimpleBuilder.concat("DELETE FROM etext_key ",
                 "WHERE etext_key=", LogicUtils.sqlStringValue(record.etextKey));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -99,12 +109,16 @@ public enum RawEtextKeyLogic {
 
         final String sql = "SELECT * FROM etext_key";
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 result.add(RawEtextKey.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -126,12 +140,16 @@ public enum RawEtextKeyLogic {
                 "SELECT * FROM etext_key WHERE etext_key=",
                 LogicUtils.sqlStringValue(etextKey));
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
 
             if (rs.next()) {
                 result = RawEtextKey.fromResultSet(rs);
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -152,8 +170,20 @@ public enum RawEtextKeyLogic {
         final String sql = SimpleBuilder.concat("UPDATE etext_key SET active_dt=",
                 LogicUtils.sqlDateTimeValue(newActiveDt), " WHERE etext_key=", LogicUtils.sqlStringValue(etextKey));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
-            return stmt.executeUpdate(sql) == 1;
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
+            boolean result = stmt.executeUpdate(sql) == 1;
+
+            if (result) {
+                conn.commit();
+            } else {
+                conn.rollback();
+            }
+
+            return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 }

@@ -4,10 +4,8 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.rawlogic.RawCohortLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
@@ -53,8 +51,8 @@ final class InitialCohortAssignment {
     }
 
     /**
-     * Computes initial cohort assignments, and stores the assigned cohort in a "stterm" record for each student with
-     * at least one active (non-placement) registration.
+     * Computes initial cohort assignments, and stores the assigned cohort in a "stterm" record for each student with at
+     * least one active (non-placement) registration.
      *
      * @param cache the data cache
      * @throws SQLException if there was an error accessing the database
@@ -113,7 +111,7 @@ final class InitialCohortAssignment {
         final Map<String, Map<String, List<RawStcourse>>> cohortPrefixMap = getCohortPrefixMap(sortedRegs);
 
         // For each cohort prefix, determine cohort size, and assign students to cohorts
-        for (final Map.Entry<String, Map<String, List<RawStcourse>>> entry : cohortPrefixMap .entrySet()) {
+        for (final Map.Entry<String, Map<String, List<RawStcourse>>> entry : cohortPrefixMap.entrySet()) {
 
             final String prefix = entry.getKey();
             final Map<String, List<RawStcourse>> students = entry.getValue();
@@ -133,6 +131,7 @@ final class InitialCohortAssignment {
 
     /**
      * Generates a map from students ID to cohort prefixes.
+     *
      * @param sortedRegs the sorted registrations for each student
      * @return the prefix map
      */
@@ -230,9 +229,9 @@ final class InitialCohortAssignment {
             failed = !RawSttermLogic.updateCohort(cache, stuId, this.active.term, cohort);
 
             if (record.pace == null || record.pace.intValue() != pace
-                    || !track.equals(record.paceTrack) || !firstCourse.equals(record.firstCourse)) {
+                || !track.equals(record.paceTrack) || !firstCourse.equals(record.firstCourse)) {
                 if (!RawSttermLogic.updatePaceTrackFirstCourse(cache, stuId, this.active.term,
-                        pace, track, firstCourse))  {
+                        pace, track, firstCourse)) {
                     failed = true;
                 }
             }
@@ -283,20 +282,15 @@ final class InitialCohortAssignment {
      */
     public static void main(final String... args) {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-        final DbProfile dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
-        final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        DbConnection.registerDrivers();
+
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        final Profile profile = config.getCodeProfile(Contexts.BATCH_PATH);
+        final Cache cache = new Cache(profile);
 
         try {
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(dbProfile, conn);
-
-            try {
-                final InitialCohortAssignment obj = new InitialCohortAssignment(cache);
-                obj.initialCohortAssignments(cache);
-            } finally {
-                ctx.checkInConnection(conn);
-            }
+            final InitialCohortAssignment obj = new InitialCohortAssignment(cache);
+            obj.initialCohortAssignments(cache);
         } catch (final SQLException ex) {
             Log.warning(ex);
         }

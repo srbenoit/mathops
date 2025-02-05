@@ -3,15 +3,12 @@ package dev.mathops.session.sitelogic.servlet;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
-import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
@@ -234,11 +231,11 @@ public final class StudentCourseStatus extends LogicBase {
     /**
      * Constructs a new {@code StudentCourseStatus}.
      *
-     * @param theDbProfile the database context under which this site is accessed
+     * @param theProfile the database context under which this site is accessed
      */
-    public StudentCourseStatus(final DbProfile theDbProfile) {
+    public StudentCourseStatus(final Profile theProfile) {
 
-        super(theDbProfile);
+        super(theProfile);
 
         this.media = new TreeMap<>();
         this.termStrings = new ArrayList<>(4);
@@ -2999,125 +2996,120 @@ public final class StudentCourseStatus extends LogicBase {
      */
     public static void main(final String... args) {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
         DbConnection.registerDrivers();
 
-        final WebSiteProfile siteProfile = map.getWebSiteProfile(Contexts.PRECALC_HOST, Contexts.INSTRUCTION_PATH);
-        if (siteProfile == null) {
+        final DatabaseConfig databaseConfig = DatabaseConfig.getDefault();
+        final Profile profile = databaseConfig.getWebProfile(Contexts.PRECALC_HOST, Contexts.INSTRUCTION_PATH);
+
+        if (profile == null) {
             Log.warning("Site profile not found");
         } else {
-            final StudentCourseStatus status = new StudentCourseStatus(siteProfile.dbProfile);
+            final StudentCourseStatus status = new StudentCourseStatus(profile);
 
             final String sessionId = CoreConstants.newId(ISessionManager.SESSION_ID_LEN);
 
             final LiveSessionInfo live = new LiveSessionInfo(sessionId, "None", ERole.STUDENT);
             live.setUserInfo("888888888", "Test", "Student", "Test Student");
 
-            final DbContext ctx = siteProfile.dbProfile.getDbContext(ESchemaUse.PRIMARY);
+            final Cache cache = new Cache(profile);
+
             try {
-                final DbConnection conn = ctx.checkOutConnection();
-                final Cache cache = new Cache(siteProfile.dbProfile, conn);
+                final ImmutableSessionInfo session = new ImmutableSessionInfo(live);
 
-                try {
-                    final ImmutableSessionInfo session = new ImmutableSessionInfo(live);
+                if (status.gatherData(cache, session, "888888888", RawRecordConstants.M117, false, false)) {
 
-                    if (status.gatherData(cache, session, "888888888", RawRecordConstants.M117, false, false)) {
+                    final SystemData systemData = cache.getSystemData();
+                    final TermRec active = systemData.getActiveTerm();
+                    final RawPacingStructure pacing = status.pacingStructure;
 
-                        final SystemData systemData = cache.getSystemData();
-                        final TermRec active = systemData.getActiveTerm();
-                        final RawPacingStructure pacing = status.pacingStructure;
+                    Log.info("Pacing structure: ", pacing.pacingStructure);
 
-                        Log.info("Pacing structure: ", pacing.pacingStructure);
+                    Log.info("Prior UE mastery required for Unit exam: "
+                             + systemData.isRequiredByPacingRules(active.term, pacing.pacingStructure,
+                            RawPacingRules.ACTIVITY_UNIT_EXAM, RawPacingRules.UE_MSTR));
 
-                        Log.info("Prior UE mastery required for Unit exam: "
-                                 + systemData.isRequiredByPacingRules(active.term, pacing.pacingStructure,
-                                RawPacingRules.ACTIVITY_UNIT_EXAM, RawPacingRules.UE_MSTR));
+                    Log.info("Prior UE passed required for Unit exam: "
+                             + systemData.isRequiredByPacingRules(active.term, pacing.pacingStructure,
+                            RawPacingRules.ACTIVITY_UNIT_EXAM, RawPacingRules.UE_PASS));
 
-                        Log.info("Prior UE passed required for Unit exam: "
-                                 + systemData.isRequiredByPacingRules(active.term, pacing.pacingStructure,
-                                RawPacingRules.ACTIVITY_UNIT_EXAM, RawPacingRules.UE_PASS));
+                    Log.info("UR mastery required for Unit exam: "
+                             + systemData.isRequiredByPacingRules(active.term, pacing.pacingStructure,
+                            RawPacingRules.ACTIVITY_UNIT_EXAM, RawPacingRules.UR_MSTR));
 
-                        Log.info("UR mastery required for Unit exam: "
-                                 + systemData.isRequiredByPacingRules(active.term, pacing.pacingStructure,
-                                RawPacingRules.ACTIVITY_UNIT_EXAM, RawPacingRules.UR_MSTR));
+                    Log.info("UR passed required for Unit exam: "
+                             + systemData.isRequiredByPacingRules(active.term, pacing.pacingStructure,
+                            RawPacingRules.ACTIVITY_UNIT_EXAM, RawPacingRules.UR_PASS));
 
-                        Log.info("UR passed required for Unit exam: "
-                                 + systemData.isRequiredByPacingRules(active.term, pacing.pacingStructure,
-                                RawPacingRules.ACTIVITY_UNIT_EXAM, RawPacingRules.UR_PASS));
+                    Log.info("Homework mastery required for Unit exam: "
+                             + systemData.isRequiredByPacingRules(active.term, pacing.pacingStructure,
+                            RawPacingRules.ACTIVITY_UNIT_EXAM, RawPacingRules.HW_MSTR));
 
-                        Log.info("Homework mastery required for Unit exam: "
-                                 + systemData.isRequiredByPacingRules(active.term, pacing.pacingStructure,
-                                RawPacingRules.ACTIVITY_UNIT_EXAM, RawPacingRules.HW_MSTR));
+                    Log.info("Homework passed required for Unit exam: "
+                             + systemData.isRequiredByPacingRules(active.term, pacing.pacingStructure,
+                            RawPacingRules.ACTIVITY_UNIT_EXAM, RawPacingRules.HW_PASS));
 
-                        Log.info("Homework passed required for Unit exam: "
-                                 + systemData.isRequiredByPacingRules(active.term, pacing.pacingStructure,
-                                RawPacingRules.ACTIVITY_UNIT_EXAM, RawPacingRules.HW_PASS));
+                    final StudentCourseScores scores = status.scores;
 
-                        final StudentCourseScores scores = status.scores;
+                    final int total = scores.getTotalScore();
+                    Log.fine("Total Score: " + total);
+                    Log.fine("Prereq: " + status.studentCourse.prereqSatis);
 
-                        final int total = scores.getTotalScore();
-                        Log.fine("Total Score: " + total);
-                        Log.fine("Prereq: " + status.studentCourse.prereqSatis);
+                    final int max = status.getMaxUnit();
 
-                        final int max = status.getMaxUnit();
+                    for (int i = 0; i <= max; ++i) {
 
-                        for (int i = 0; i <= max; ++i) {
+                        Log.info(scores.getPassingUnitExamScore(i) + " points from passing unit " + i
+                                 + " exam with raw score " + scores.getRawUnitExamScore(i));
 
-                            Log.info(scores.getPassingUnitExamScore(i) + " points from passing unit " + i
-                                     + " exam with raw score " + scores.getRawUnitExamScore(i));
-
-                            final int count = status.getNumLessons(i);
-                            for (int j = 1; j <= count; j++) {
-                                if (status.hasHomework(i, j)) {
-                                    if (status.isHomeworkAvailable(i, j)) {
-                                        Log.info(" Homework " + i + CoreConstants.DOT + j + " available ("
-                                                 + status.getHomeworkStatus(i, j) + ")");
-                                    } else {
-                                        Log.info(" Homework " + i + CoreConstants.DOT + j + " unavailable ("
-                                                 + status.getHomeworkReason(i, j) + ")");
-                                    }
+                        final int count = status.getNumLessons(i);
+                        for (int j = 1; j <= count; j++) {
+                            if (status.hasHomework(i, j)) {
+                                if (status.isHomeworkAvailable(i, j)) {
+                                    Log.info(" Homework " + i + CoreConstants.DOT + j + " available ("
+                                             + status.getHomeworkStatus(i, j) + ")");
                                 } else {
-                                    Log.info(" No Homework " + i + CoreConstants.DOT + j);
+                                    Log.info(" Homework " + i + CoreConstants.DOT + j + " unavailable ("
+                                             + status.getHomeworkReason(i, j) + ")");
                                 }
-                            }
-
-                            if (status.isReviewExamAvailable(i)) {
-                                Log.info(" Review Exam " + i + " available (" + status.getReviewStatus(i) + ") " +
-                                         "On-time: "
-                                         + status.isReviewPassedOnTime(i));
                             } else {
-                                Log.info(" Review Exam " + i + " unavailable (" + status.getReviewReason(i) + ")");
-                            }
-
-                            if (status.isProctoredPassed(i)) {
-                                if (status.isProctoredExamAvailable(i)) {
-                                    Log.info(" Proctored Exam ", Integer.toString(i), " passed and available (",
-                                            status.getProctoredStatus(i), ") score=",
-                                            Integer.toString(status.scores.getRawUnitExamScore(i)), ", ",
-                                            Integer.toString(status.getProctoredAttemptsAvailable(i)),
-                                            " attempts available");
-                                } else {
-                                    Log.info(" Proctored Exam ", Integer.toString(i), " passed but unavailable (",
-                                            status.getProctoredStatus(i), ") score=",
-                                            Integer.toString(status.scores.getRawUnitExamScore(i)), ", ",
-                                            Integer.toString(status.getProctoredAttemptsAvailable(i)),
-                                            " attempts available");
-                                }
-                            } else if (status.isProctoredExamAvailable(i)) {
-                                Log.info(" Proctored Exam " + i + " available (" + status.getProctoredStatus(i) + ") "
-                                         + status.getProctoredAttemptsAvailable(i) + " attempts available");
-                                Log.info(" Proctored Exam " + i + " deadline: " + status.getUnitExamDeadline(i)
-                                         + " last try: " + status.getUnitExamLastTry(i));
-                            } else {
-                                Log.info(" Proctored Exam " + i + " unavailable (" + status.getProctoredReason(i) +
-                                         ")");
+                                Log.info(" No Homework " + i + CoreConstants.DOT + j);
                             }
                         }
-                    } else {
-                        Log.warning(status.getErrorText());
+
+                        if (status.isReviewExamAvailable(i)) {
+                            Log.info(" Review Exam " + i + " available (" + status.getReviewStatus(i) + ") " +
+                                     "On-time: "
+                                     + status.isReviewPassedOnTime(i));
+                        } else {
+                            Log.info(" Review Exam " + i + " unavailable (" + status.getReviewReason(i) + ")");
+                        }
+
+                        if (status.isProctoredPassed(i)) {
+                            if (status.isProctoredExamAvailable(i)) {
+                                Log.info(" Proctored Exam ", Integer.toString(i), " passed and available (",
+                                        status.getProctoredStatus(i), ") score=",
+                                        Integer.toString(status.scores.getRawUnitExamScore(i)), ", ",
+                                        Integer.toString(status.getProctoredAttemptsAvailable(i)),
+                                        " attempts available");
+                            } else {
+                                Log.info(" Proctored Exam ", Integer.toString(i), " passed but unavailable (",
+                                        status.getProctoredStatus(i), ") score=",
+                                        Integer.toString(status.scores.getRawUnitExamScore(i)), ", ",
+                                        Integer.toString(status.getProctoredAttemptsAvailable(i)),
+                                        " attempts available");
+                            }
+                        } else if (status.isProctoredExamAvailable(i)) {
+                            Log.info(" Proctored Exam " + i + " available (" + status.getProctoredStatus(i) + ") "
+                                     + status.getProctoredAttemptsAvailable(i) + " attempts available");
+                            Log.info(" Proctored Exam " + i + " deadline: " + status.getUnitExamDeadline(i)
+                                     + " last try: " + status.getUnitExamLastTry(i));
+                        } else {
+                            Log.info(" Proctored Exam " + i + " unavailable (" + status.getProctoredReason(i) +
+                                     ")");
+                        }
                     }
-                } finally {
-                    ctx.checkInConnection(conn);
+                } else {
+                    Log.warning(status.getErrorText());
                 }
             } catch (final SQLException ex) {
                 Log.warning(ex);

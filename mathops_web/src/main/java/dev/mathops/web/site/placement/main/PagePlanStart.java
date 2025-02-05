@@ -1,17 +1,17 @@
 package dev.mathops.web.site.placement.main;
 
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.cfg.Profile;
+import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
 import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
+import dev.mathops.db.old.logic.mathplan.data.MathPlanStudentData;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.session.ImmutableSessionInfo;
-import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
-import dev.mathops.db.old.logic.mathplan.data.MathPlanStudentData;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.Page;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.ZonedDateTime;
@@ -43,7 +43,7 @@ enum PagePlanStart {
                       final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final MathPlanLogic logic = new MathPlanLogic(site.getDbProfile());
+        final MathPlanLogic logic = new MathPlanLogic(site.site.profile);
 
         doGet(cache, site, req, resp, session, logic);
     }
@@ -228,7 +228,7 @@ enum PagePlanStart {
                        final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final DbProfile dbProfile = site.getDbProfile();
+        final Profile dbProfile = site.site.profile;
         final MathPlanLogic logic = new MathPlanLogic(dbProfile);
         final ZonedDateTime now = session.getNow();
 

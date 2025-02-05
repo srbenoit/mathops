@@ -115,7 +115,7 @@ final class TestRawPacingStructure {
             "re_due_date_enforced=h",
             "ue_due_date_enforced=i",
             "fe_due_date_enforced=j",
-            "first_obj_avail=k");
+            "first_obj_avail=k","");
 
     /**
      * Constructs a new {@code IvtRawPacingStructure}.

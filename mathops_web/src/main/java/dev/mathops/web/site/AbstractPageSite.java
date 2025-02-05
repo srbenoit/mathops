@@ -5,18 +5,18 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.old.cfg.WebSiteProfile;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.rec.TermRec;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
-
 import dev.mathops.text.builder.HtmlBuilder;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -34,12 +34,12 @@ public abstract class AbstractPageSite extends AbstractSite {
     /**
      * Constructs a new {@code AbstractCourseSite}.
      *
-     * @param theSiteProfile the website profile
-     * @param theSessions    the singleton user session repository
+     * @param theSite     the site
+     * @param theSessions the singleton user session repository
      */
-    protected AbstractPageSite(final WebSiteProfile theSiteProfile, final ISessionManager theSessions) {
+    protected AbstractPageSite(final Site theSite, final ISessionManager theSessions) {
 
-        super(theSiteProfile, theSessions);
+        super(theSite, theSessions);
     }
 
     /**
@@ -66,7 +66,7 @@ public abstract class AbstractPageSite extends AbstractSite {
 
         final String effId = session.getEffectiveUserId();
         if (effId != null && effId.startsWith("99")) {
-            final String path = this.siteProfile.path;
+            final String path = this.site.path;
             resp.sendRedirect(path + (path.endsWith(Contexts.ROOT_PATH)
                     ? "login_test_user_99.html"
                     : "/login_test_user_99.html"));
@@ -116,7 +116,7 @@ public abstract class AbstractPageSite extends AbstractSite {
             sess = processShibbolethLogin(cache, req);
         }
 
-        final String path = this.siteProfile.path;
+        final String path = this.site.path;
         final String redirect;
         if (sess == null) {
             redirect = path + (path.endsWith(CoreConstants.SLASH) ? "login.html" : "/login.html");

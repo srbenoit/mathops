@@ -44,7 +44,7 @@ enum PageStartCourse {
             Log.warning("  course='", course, "'");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
-            final StartCourse start = new StartCourse(site.getDbProfile());
+            final StartCourse start = new StartCourse(site.site.profile);
 
             if (start.startCourse(cache, session.getNow(), session.getEffectiveUserId(), course)) {
                 resp.sendRedirect("course.html?course=" + course.replace(CoreConstants.SPC, "+") + "&mode=course");

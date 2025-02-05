@@ -1,24 +1,16 @@
 package dev.mathops.db;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.log.Log;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Profile;
+import dev.mathops.db.cfg.Facet;
 import dev.mathops.db.logic.ELiveRefreshes;
 import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.logic.SystemData;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.DbConfig;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
-import dev.mathops.db.old.cfg.LoginConfig;
-import dev.mathops.db.old.cfg.ServerConfig;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.reclogic.TermLogic;
-import dev.mathops.db.rec.TermRec;
 
-import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -49,16 +41,7 @@ public final class Cache {
     private static final String GUEST = "GUEST";
 
     /** The database profile that was used to create the cache. */
-    public final DbProfile dbProfile;
-
-    /** The database connection to use for all cached data queries. */
-    public final DbConnection conn;
-
-    /** The main schema name. */
-    public final String mainSchemaName;
-
-    /** The term schema name. */
-    public final String termSchemaName;
+    public final Profile profile;
 
     /** The single system data instance shared by all student data instances. */
     private final SystemData systemData;
@@ -75,50 +58,42 @@ public final class Cache {
     /**
      * Constructs a new {@code Cache}.
      *
-     * @param theDbProfile the database profile that was used to create the cache (this can provide access to other
-     *                     schema contexts than the PRIMARY context used here)
-     * @param theConn      the database connection to use for all cached data queries
-     * @throws SQLException if there is an error accessing the database
+     * @param theProfile the database profile that was used to create the cache (this can provide access to other schema
+     *                   contexts than the PRIMARY context used here)
      */
-    public Cache(final DbProfile theDbProfile, final DbConnection theConn) throws SQLException {
+    public Cache(final Profile theProfile) {
 
-        if (theConn.dbContext.schema.use != ESchemaUse.PRIMARY) {
-            throw new IllegalArgumentException("Cache must be used with primary schema connection");
-        }
-
-        this.dbProfile = theDbProfile;
-        this.conn = theConn;
-
-        // Attempt to determine the schema name for term-related queries
-
-        final DbConfig db = theDbProfile.getDbContext(ESchemaUse.PRIMARY).loginConfig.db;
-
-        final EDbProduct type = db.server.type;
-        if (type == EDbProduct.INFORMIX) {
-            this.mainSchemaName = "math";
-            this.termSchemaName = "math";
-        } else if (type == EDbProduct.POSTGRESQL) {
-            if (db.use == EDbUse.PROD) {
-                this.mainSchemaName = "legacy";
-                final TermRec active = TermLogic.Postgres.INSTANCE.queryActive(this);
-                if (active == null) {
-                    throw new IllegalArgumentException("No active TermRec found");
-                }
-                this.termSchemaName = active.term.shortString.toLowerCase(Locale.ROOT);
-                Log.info("Using the '", this.termSchemaName, "' schema for term data");
-            } else if (db.use == EDbUse.DEV) {
-                this.mainSchemaName = "legacy_dev";
-                this.termSchemaName = "term_d";
-            } else {
-                this.mainSchemaName = "legacy_test";
-                this.termSchemaName = "term_t";
-            }
-        } else {
-            throw new IllegalArgumentException("No TERM implementation for " + type + " database");
-        }
-
+        this.profile = theProfile;
         this.systemData = new SystemData(this);
         this.studentData = new HashMap<>(4);
+    }
+
+    /**
+     * Checks out a connection for this cache that will access a particular schema.
+     *
+     * @param whichSchema the schema
+     * @return the connection for the specified schema
+     */
+    public DbConnection checkOutConnection(final ESchema whichSchema) {
+
+        DbConnection conn = null;
+
+        final Login login = this.profile.getLogin(whichSchema);
+        if (login != null) {
+            conn = login.checkOutConnection();
+        }
+
+        return conn;
+    }
+
+    /**
+     * Checks in a connection that was previously checked out with {@code checkOutConnection}.
+     *
+     * @param connection the connection
+     */
+    public static void checkInConnection(final DbConnection connection) {
+
+        connection.login.checkInConnection(connection);
     }
 
     /**
@@ -126,9 +101,9 @@ public final class Cache {
      *
      * @return the database profile
      */
-    public DbProfile getDbProfile() {
+    public Profile getProfile() {
 
-        return this.dbProfile;
+        return this.profile;
     }
 
     /**
@@ -253,22 +228,19 @@ public final class Cache {
 
         final String studentId = studentRecord.stuId;
 
-        return this.studentData.computeIfAbsent(studentId,
-                key -> new StudentData(this, studentRecord));
+        return this.studentData.computeIfAbsent(studentId, key -> new StudentData(this, studentRecord));
     }
 
     /**
-     * Tests whether this cache is connected to a PostgreSQL database.
+     * Gets the prefix for a specified schema.
      *
-     * @return true if PostgreSQL
+     * @param which the schema
+     * @return the prefix (null if none)
      */
-    public boolean isPostgreSQL() {
+    public String getSchemaPrefix(final ESchema which) {
 
-        final DbContext context = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
-        final LoginConfig login = context.getLoginConfig();
-        final DbConfig db = login.db;
-        final ServerConfig server = db.server;
+        final Facet facet = this.profile.getFacet(which);
 
-        return server.type == EDbProduct.POSTGRESQL;
+        return facet.data.prefix;
     }
 }

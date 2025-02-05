@@ -5,10 +5,8 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
@@ -61,31 +59,24 @@ final class StudentsByUniqueCourseCombination implements Runnable {
     @Override
     public void run() {
 
-        final DbProfile dbProfile = ContextMap.getDefaultInstance().getCodeProfile(Contexts.REPORT_PATH);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        final Profile profile = config.getCodeProfile(Contexts.REPORT_PATH);
 
         final HtmlBuilder report = new HtmlBuilder(10000);
 
-        if (dbProfile == null) {
+        if (profile == null) {
             report.addln("*** ERROR: There is no database code profile named 'report'.");
         } else {
-            Log.info("Using ", dbProfile.id, " profile");
-
-            final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
+            Log.info("Using ", profile.id, " profile");
+            final Cache cache = new Cache(profile);
 
             try {
-                final DbConnection conn = ctx.checkOutConnection();
-                final Cache cache = new Cache(dbProfile, conn);
+                this.registrations = RawStcourseLogic.queryActiveForActiveTerm(cache);
 
-                try {
-                    this.registrations = RawStcourseLogic.queryActiveForActiveTerm(cache);
+                Log.info("Generating report of counts for each unique course combination... please wait.");
 
-                    Log.info("Generating report of counts for each unique course combination... please wait.");
-
-                    compute();
-                    generateReport(report);
-                } finally {
-                    ctx.checkInConnection(conn);
-                }
+                compute();
+                generateReport(report);
             } catch (final SQLException ex) {
                 Log.warning(ex);
             }
@@ -93,7 +84,7 @@ final class StudentsByUniqueCourseCombination implements Runnable {
 
         final LocalDateTime now = LocalDateTime.now();
         final File file = new File("/opt/zircon/reports/CountByUniqueCourseCombination_" + DTTM_FMT.format(now)
-                + ".txt");
+                                   + ".txt");
         try (final FileWriter fw = new FileWriter(file, StandardCharsets.UTF_8)) {
             fw.write(report.toString());
             Log.info("Report complete, written to: ", file.getAbsolutePath());
@@ -126,19 +117,19 @@ final class StudentsByUniqueCourseCombination implements Runnable {
             for (final RawStcourse stc : this.registrations) {
                 if (studentId.equals(stc.stuId)) {
                     if (RawRecordConstants.M117.equals(stc.course)
-                            || RawRecordConstants.MATH117.equals(stc.course)) {
+                        || RawRecordConstants.MATH117.equals(stc.course)) {
                         has117 = true;
                     } else if (RawRecordConstants.M118.equals(stc.course)
-                            || RawRecordConstants.MATH118.equals(stc.course)) {
+                               || RawRecordConstants.MATH118.equals(stc.course)) {
                         has118 = true;
                     } else if (RawRecordConstants.M124.equals(stc.course)
-                            || RawRecordConstants.MATH124.equals(stc.course)) {
+                               || RawRecordConstants.MATH124.equals(stc.course)) {
                         has124 = true;
                     } else if (RawRecordConstants.M125.equals(stc.course)
-                            || RawRecordConstants.MATH125.equals(stc.course)) {
+                               || RawRecordConstants.MATH125.equals(stc.course)) {
                         has125 = true;
                     } else if (RawRecordConstants.M126.equals(stc.course)
-                            || RawRecordConstants.MATH126.equals(stc.course)) {
+                               || RawRecordConstants.MATH126.equals(stc.course)) {
                         has126 = true;
                     }
                 }
@@ -192,6 +183,7 @@ final class StudentsByUniqueCourseCombination implements Runnable {
      */
     public static void main(final String... args) {
 
+        DbConnection.registerDrivers();
         new StudentsByUniqueCourseCombination().run();
     }
 }

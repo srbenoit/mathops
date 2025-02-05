@@ -2,6 +2,7 @@ package dev.mathops.dbjobs.report;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.DbConnection;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.text.builder.HtmlBuilder;
 
@@ -1252,17 +1253,17 @@ public final class FaceToFaceSimulation {
          * Constructs a new {@code Section}.
          *
          * @param theCourse           the course ID
-         * @param theSectionNumbner   the section number
+         * @param theSectionNumber   the section number
          * @param theBlockMeetingTime the meeting time
          * @param theCapacity         the capacity
          * @param theEnrollment       the enrollment
          */
-        private Section(final String theCourse, final int theSectionNumbner,
+        private Section(final String theCourse, final int theSectionNumber,
                         final BlockMeetingTime theBlockMeetingTime, final int theCapacity,
                         final int theEnrollment) {
 
             this.course = theCourse;
-            this.sectionNumber = theSectionNumbner;
+            this.sectionNumber = theSectionNumber;
             this.blockMeetingTime = theBlockMeetingTime;
             this.capacity = theCapacity;
             this.enrollment = theEnrollment;
@@ -1276,6 +1277,7 @@ public final class FaceToFaceSimulation {
      */
     public static void main(final String... args) {
 
+        DbConnection.registerDrivers();
         new FaceToFaceSimulation().go();
     }
 }

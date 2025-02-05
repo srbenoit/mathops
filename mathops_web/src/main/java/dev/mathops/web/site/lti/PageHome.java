@@ -15,7 +15,6 @@ import dev.mathops.web.site.html.unitexam.UnitExamSessionStore;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 /**
@@ -87,7 +86,7 @@ enum PageHome {
                     unitNum = 4;
                 }
 
-                final StudentCourseStatus courseStatus = new StudentCourseStatus(site.getDbProfile());
+                final StudentCourseStatus courseStatus = new StudentCourseStatus(site.site.profile);
                 courseStatus.gatherData(cache, session, session.getEffectiveUserId(), course, false, false);
 
                 final boolean unitAvail = courseStatus.isProctoredExamAvailable(unitNum);
@@ -108,7 +107,7 @@ enum PageHome {
                         Log.info("Starting unit exam for session ", session.loginSessionId, " user ",
                                 session.getEffectiveUserId(), " exam ", exam);
 
-                        us = new UnitExamSession(cache, site.siteProfile, session.loginSessionId,
+                        us = new UnitExamSession(cache, site.site, session.loginSessionId,
                                 session.getEffectiveUserId(), course, exam, redirect);
                         store.setUnitExamSession(us);
                     } else {

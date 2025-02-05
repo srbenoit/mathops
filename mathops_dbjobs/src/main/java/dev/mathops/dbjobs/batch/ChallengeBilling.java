@@ -5,10 +5,8 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.old.rawlogic.RawChallengeFeeLogic;
 import dev.mathops.db.old.rawlogic.RawParametersLogic;
 import dev.mathops.db.old.rawlogic.RawStchallengeLogic;
@@ -87,81 +85,90 @@ public enum ChallengeBilling {
      */
     public static void execute(final Cache cache) throws SQLException {
 
-        final LocalDateTime now = LocalDateTime.now();
-        final HtmlBuilder report = new HtmlBuilder(1000);
-        final HtmlBuilder upload = new HtmlBuilder(1000);
-        final HtmlBuilder errors = new HtmlBuilder(100);
-
-        final RawParameters params = gatherParams(cache, errors);
-
-        if (params != null) {
-            writeReportHeader(params, report, now);
-
-            final int count = runJob(cache, params, report, upload, errors);
-
-            if (count > 0) {
-
-                final File hardcopyFile = new File("/opt/zircon/reports/challenge_fee_hardcopy.txt");
-
-                if (hardcopyFile.exists()) {
-                    boolean hit = true;
-                    File bakFile = null;
-                    int bak = 1;
-                    while (hit) {
-                        final String bakName = "challenge_fee_hardcopy.bak" + bak;
-                        bakFile = new File(hardcopyFile.getParentFile(), bakName);
-                        hit = bakFile.exists();
-                        ++bak;
-                    }
-                    if (!hardcopyFile.renameTo(bakFile)) {
-                        Log.warning("Failed to move hardcopy file to bak");
-                    }
-                }
-
-                try (final FileWriter fw = new FileWriter(hardcopyFile, StandardCharsets.UTF_8)) {
-                    fw.write(report.toString());
-                    Log.info("Hardcopy report complete, written to: ", hardcopyFile.getAbsolutePath());
-                } catch (final IOException ex) {
-                    Log.warning(ex);
-                }
-
-                final File uploadFile = new File("/opt/zircon/reports/challenge_fee_upload.txt");
-
-                if (uploadFile.exists()) {
-                    boolean hit = true;
-                    File bakFile = null;
-                    int bak = 1;
-                    while (hit) {
-                        final String bakName = "challenge_fee_upload.bak" + bak;
-                        bakFile = new File(uploadFile.getParentFile(), bakName);
-                        hit = bakFile.exists();
-                        ++bak;
-                    }
-                    if (!uploadFile.renameTo(bakFile)) {
-                        Log.warning("Failed to move upload file to bak");
-                    }
-                }
-
-                try (final FileWriter fw = new FileWriter(uploadFile, StandardCharsets.UTF_8)) {
-                    fw.write(upload.toString());
-                    Log.info("Upload file complete, written to: ", uploadFile.getAbsolutePath());
-                } catch (final IOException ex) {
-                    Log.warning(ex);
-                }
-            } else {
-                Log.info("No challenge exams found.");
-            }
+        File dir = new File("/opt/zircon/reports/");
+        if (!dir.exists()) {
+            dir = new File("C:\\opt\\zircon\\reports\\");
         }
 
-        if (errors.length() > 0) {
-            final File errFile = new File("/opt/zircon/reports/challenge_fee_errors.txt");
+        if (dir.exists() && dir.isDirectory()) {
+            final LocalDateTime now = LocalDateTime.now();
+            final HtmlBuilder report = new HtmlBuilder(1000);
+            final HtmlBuilder upload = new HtmlBuilder(1000);
+            final HtmlBuilder errors = new HtmlBuilder(100);
 
-            try (final FileWriter fw = new FileWriter(errFile, StandardCharsets.UTF_8)) {
-                fw.write(errors.toString());
-                Log.info("Error report written to: ", errFile.getAbsolutePath());
-            } catch (final IOException ex) {
-                Log.warning(ex);
+            final RawParameters params = gatherParams(cache, errors);
+
+            if (params != null) {
+                writeReportHeader(params, report, now);
+
+                final int count = runJob(cache, params, report, upload, errors);
+
+                if (count > 0) {
+
+                    final File hardcopyFile = new File(dir, "challenge_fee_hardcopy.txt");
+
+                    if (hardcopyFile.exists()) {
+                        boolean hit = true;
+                        File bakFile = null;
+                        int bak = 1;
+                        while (hit) {
+                            final String bakName = "challenge_fee_hardcopy.bak" + bak;
+                            bakFile = new File(dir, bakName);
+                            hit = bakFile.exists();
+                            ++bak;
+                        }
+                        if (!hardcopyFile.renameTo(bakFile)) {
+                            Log.warning("Failed to move hardcopy file to bak");
+                        }
+                    }
+
+                    try (final FileWriter fw = new FileWriter(hardcopyFile, StandardCharsets.UTF_8)) {
+                        fw.write(report.toString());
+                        Log.info("Hardcopy report complete, written to: ", hardcopyFile.getAbsolutePath());
+                    } catch (final IOException ex) {
+                        Log.warning(ex);
+                    }
+
+                    final File uploadFile = new File(dir, "challenge_fee_upload.txt");
+
+                    if (uploadFile.exists()) {
+                        boolean hit = true;
+                        File bakFile = null;
+                        int bak = 1;
+                        while (hit) {
+                            final String bakName = "challenge_fee_upload.bak" + bak;
+                            bakFile = new File(dir, bakName);
+                            hit = bakFile.exists();
+                            ++bak;
+                        }
+                        if (!uploadFile.renameTo(bakFile)) {
+                            Log.warning("Failed to move upload file to bak");
+                        }
+                    }
+
+                    try (final FileWriter fw = new FileWriter(uploadFile, StandardCharsets.UTF_8)) {
+                        fw.write(upload.toString());
+                        Log.info("Upload file complete, written to: ", uploadFile.getAbsolutePath());
+                    } catch (final IOException ex) {
+                        Log.warning(ex);
+                    }
+                } else {
+                    Log.info("No challenge exams found.");
+                }
             }
+
+            if (errors.length() > 0) {
+                final File errFile = new File("/opt/zircon/reports/challenge_fee_errors.txt");
+
+                try (final FileWriter fw = new FileWriter(errFile, StandardCharsets.UTF_8)) {
+                    fw.write(errors.toString());
+                    Log.info("Error report written to: ", errFile.getAbsolutePath());
+                } catch (final IOException ex) {
+                    Log.warning(ex);
+                }
+            }
+        } else {
+            throw new SQLException("Unable to locate directory in which to write reports.");
         }
     }
 
@@ -241,7 +248,7 @@ public enum ChallengeBilling {
             final String pass = record.passed;
 
             if (("Y".equals(pass) || "N".equals(pass))
-                    && billIfNotAlreadyBilled(cache, record.stuId, record.course, record.examDt, params,
+                && billIfNotAlreadyBilled(cache, record.stuId, record.course, record.examDt, params,
                     report, upload, errors)) {
                 ++numExams;
             }
@@ -381,8 +388,8 @@ public enum ChallengeBilling {
         }
         sb.append(".00");
         sb.append("                                                                 "
-                + "                                                                     "
-                + "                                                                   ");
+                  + "                                                                     "
+                  + "                                                                   ");
 
         return sb.toString();
     }
@@ -416,19 +423,14 @@ public enum ChallengeBilling {
      */
     public static void main(final String... args) {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-        final DbProfile dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
-        final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        DbConnection.registerDrivers();
+
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        final Profile profile = config.getCodeProfile(Contexts.BATCH_PATH);
+        final Cache cache = new Cache(profile);
 
         try {
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(dbProfile, conn);
-
-            try {
-                execute(cache);
-            } finally {
-                ctx.checkInConnection(conn);
-            }
+            execute(cache);
         } catch (final SQLException ex) {
             Log.warning(ex);
         }

@@ -7,6 +7,8 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawrecord.RawClientPc;
 import dev.mathops.session.scramsha256.ScramClientStub;
@@ -233,7 +235,9 @@ public final class TopPanelTesting extends JPanel implements ActionListener {
      */
     void disableStations(final String[] stationIds) {
 
-        try (final Statement stmt = this.cache.conn.createStatement()) {
+        final DbConnection conn = this.cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
 
             for (final String id : stationIds) {
 
@@ -249,9 +253,11 @@ public final class TopPanelTesting extends JPanel implements ActionListener {
                 stmt.executeUpdate(sql2);
             }
 
-            this.cache.conn.commit();
+            conn.commit();
         } catch (final SQLException ex) {
             Log.warning(ex);
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         this.mapCard.refresh();
@@ -265,7 +271,9 @@ public final class TopPanelTesting extends JPanel implements ActionListener {
      */
     void enableStations(final String[] stationIds) {
 
-        try (final Statement stmt = this.cache.conn.createStatement()) {
+        final DbConnection conn = this.cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
 
             for (final String id : stationIds) {
 
@@ -281,9 +289,11 @@ public final class TopPanelTesting extends JPanel implements ActionListener {
                 stmt.executeUpdate(sql2);
             }
 
-            this.cache.conn.commit();
+            conn.commit();
         } catch (final SQLException ex) {
             Log.warning(ex);
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         this.mapCard.refresh();

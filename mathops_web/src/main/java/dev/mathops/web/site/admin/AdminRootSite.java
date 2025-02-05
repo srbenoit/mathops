@@ -2,8 +2,8 @@ package dev.mathops.web.site.admin;
 
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.db.Cache;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.db.logic.ELiveRefreshes;
-import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.BasicCss;
@@ -32,12 +32,12 @@ public final class AdminRootSite extends AbstractSite {
     /**
      * Constructs a new {@code AdminRootSite}.
      *
-     * @param theSiteProfile the context under which this site is accessed
-     * @param theSessions    the singleton user session repository
+     * @param theSite     the context under which this site is accessed
+     * @param theSessions the singleton user session repository
      */
-    public AdminRootSite(final WebSiteProfile theSiteProfile, final ISessionManager theSessions) {
+    public AdminRootSite(final Site theSite, final ISessionManager theSessions) {
 
-        super(theSiteProfile, theSessions);
+        super(theSite, theSessions);
     }
 
     /**

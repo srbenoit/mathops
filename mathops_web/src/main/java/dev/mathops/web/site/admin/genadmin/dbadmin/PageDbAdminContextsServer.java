@@ -3,8 +3,8 @@ package dev.mathops.web.site.admin.genadmin.dbadmin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.LoginConfig;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
@@ -26,7 +26,7 @@ import java.util.Map;
 public enum PageDbAdminContextsServer {
     ;
 
-    /** Suffix for fields containing user names. */
+    /** Suffix for fields containing usernames. */
     private static final String USERNAME_SUFFIX = "pOjFsohF4z";
 
     /** Suffix for fields containing passwords. */
@@ -55,10 +55,10 @@ public enum PageDbAdminContextsServer {
             Log.warning("  driver='", driver, "'");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
-            final ContextMap map = ContextMap.getDefaultInstance();
-            final LoginConfig cfg = map.getLogin(driver);
+            final DatabaseConfig map = DatabaseConfig.getDefault();
+            final Login login = map.getLogin(driver);
 
-            if (cfg == null) {
+            if (login == null) {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             } else {
                 final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
@@ -68,12 +68,13 @@ public enum PageDbAdminContextsServer {
                 Connection jdbc = GenAdminSubsite.getConnection(session.loginSessionId, driver);
 
                 if (jdbc == null) {
-                    final String username = cfg.user;
-                    final String password = cfg.password;
+                    final String username = login.user;
+                    final String password = login.password;
 
                     if (username != null && password != null) {
+                        final Login newLogin = login.newLogin(username, password);
                         try {
-                            jdbc = cfg.openConnection(username, password);
+                            jdbc = newLogin.openConnection();
                             GenAdminSubsite.addConnection(session.loginSessionId, driver, jdbc);
                         } catch (final SQLException ex) {
                             Log.warning(ex);
@@ -82,19 +83,19 @@ public enum PageDbAdminContextsServer {
                 }
 
                 if (jdbc == null) {
-                    emitLoginForm(htm, cfg, error);
+                    emitLoginForm(htm, login, error);
                 } else {
                     try {
                         if (jdbc.isClosed()) {
                             GenAdminSubsite.removeConnection(session.loginSessionId, driver);
-                            emitLoginForm(htm, cfg, error);
+                            emitLoginForm(htm, login, error);
                         } else {
-                            emitServerAdminPage(htm, cfg);
+                            emitServerAdminPage(htm, login);
                         }
                     } catch (final SQLException ex) {
                         Log.warning(ex);
                         GenAdminSubsite.removeConnection(session.loginSessionId, driver);
-                        emitLoginForm(htm, cfg, error);
+                        emitLoginForm(htm, login, error);
                     }
                 }
 
@@ -111,7 +112,7 @@ public enum PageDbAdminContextsServer {
      * @param cfg   the driver configuration
      * @param error an optional error message
      */
-    private static void emitLoginForm(final HtmlBuilder htm, final LoginConfig cfg,
+    private static void emitLoginForm(final HtmlBuilder htm, final Login cfg,
                                       final String error) {
 
         final String uid = CoreConstants.newId(10) + USERNAME_SUFFIX;
@@ -157,26 +158,26 @@ public enum PageDbAdminContextsServer {
      * @param htm the {@code HtmlBuilder} to which to append
      * @param cfg the driver configuration
      */
-    private static void emitServerAdminPage(final HtmlBuilder htm, final LoginConfig cfg) {
+    private static void emitServerAdminPage(final HtmlBuilder htm, final Login cfg) {
 
         final String query = "driver=" + cfg.id;
 
         PageDbAdmin.emitDisconnectLink(htm, query);
         PageDbAdmin.emitCfgInfoTable(htm, cfg);
 
-        switch (cfg.db.use) {
-            case LIVE:
-                PageDbAdmin.emitLiveNavMenu(htm, null, query);
-                break;
-
-            case PROD:
-            case DEV:
-            case TEST:
-            case ODS:
-            default:
-                PageDbAdmin.emitProdNavMenu(htm, null, query);
-                break;
-        }
+//        switch (cfg.db.use) {
+//            case LIVE:
+//                PageDbAdmin.emitLiveNavMenu(htm, null, query);
+//                break;
+//
+//            case PROD:
+//            case DEV:
+//            case TEST:
+//            case ODS:
+//            default:
+//                PageDbAdmin.emitProdNavMenu(htm, null, query);
+//                break;
+//        }
 
         htm.div("vgap");
     }
@@ -217,14 +218,15 @@ public enum PageDbAdminContextsServer {
         } else if (driver == null || username == null || password == null) {
             doGet(cache, site, req, resp, session, "Invalid login");
         } else {
-            final ContextMap map = ContextMap.getDefaultInstance();
-            final LoginConfig cfg = map.getLogin(driver);
+            final DatabaseConfig map = DatabaseConfig.getDefault();
+            final Login login = map.getLogin(driver);
 
-            if (cfg == null) {
+            if (login == null) {
                 doGet(cache, site, req, resp, session, "Invalid login");
             } else {
+                final Login newLogin = login.newLogin(username, password);
                 try {
-                    final Connection jdbc = cfg.openConnection(username, password);
+                    final Connection jdbc = newLogin.openConnection();
 
                     GenAdminSubsite.addConnection(session.loginSessionId, driver, jdbc);
                     doGet(cache, site, req, resp, session, null);

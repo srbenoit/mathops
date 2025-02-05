@@ -13,7 +13,6 @@ import dev.mathops.web.site.html.reviewexam.ReviewExamSessionStore;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 /**
@@ -50,7 +49,7 @@ enum PageHtmlReviewExam {
             ReviewExamSession hs = store.getReviewExamSession(session.loginSessionId, examId);
 
             if (hs == null) {
-                hs = new ReviewExamSession(cache, site.siteProfile, session.loginSessionId,
+                hs = new ReviewExamSession(cache, site.site, session.loginSessionId,
                         session.getEffectiveUserId(), examId, false, "tutorial.html");
                 store.setReviewExamSession(hs);
             }

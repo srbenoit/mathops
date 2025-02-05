@@ -3,10 +3,10 @@ package dev.mathops.dbjobs.report.analytics.longitudinal.datacollection;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Profile;
 
 import java.io.File;
 import java.sql.SQLException;
@@ -35,14 +35,14 @@ public enum RetrieveLongitudinalData {
 
         if (dir.exists() || dir.mkdirs()) {
 
-            final ContextMap contextMap = ContextMap.getDefaultInstance();
-            final DbProfile dbProfile = contextMap.getCodeProfile(Contexts.BATCH_PATH);
-            final DbContext odsCtx = dbProfile.getDbContext(ESchemaUse.ODS);
+            final DatabaseConfig databaseConfig = DatabaseConfig.getDefault();
+            final Profile profile = databaseConfig.getCodeProfile(Contexts.BATCH_PATH);
+            final Login odsLogin = profile.getLogin(ESchema.ODS);
 
-            if (odsCtx == null) {
-                Log.warning("Unable to create ODS database context.");
+            if (odsLogin == null) {
+                Log.warning("Unable to locate login for ODS database.");
             } else {
-                final DbConnection odsConn = odsCtx.checkOutConnection();
+                final DbConnection odsConn = odsLogin.checkOutConnection();
 
                 try {
                     final File majorsProgramsFile = new File(dir, "majors_programs.json");
@@ -77,7 +77,7 @@ public enum RetrieveLongitudinalData {
                 } catch (final SQLException ex) {
                     Log.warning("Failed to query ODS.", ex);
                 } finally {
-                    odsCtx.checkInConnection(odsConn);
+                    odsLogin.checkInConnection(odsConn);
                 }
             }
         }

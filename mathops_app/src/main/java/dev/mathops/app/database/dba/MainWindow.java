@@ -1,12 +1,8 @@
 package dev.mathops.app.database.dba;
 
-import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
-import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.Profile;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -14,7 +10,6 @@ import javax.swing.JPanel;
 import javax.swing.border.Border;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -50,22 +45,16 @@ final class MainWindow extends JFrame {
      *
      * @param theProfiles the database profiles (each with a distinct login)
      */
-    MainWindow(final Collection<DbProfile> theProfiles) {
+    MainWindow(final Collection<Profile> theProfiles) {
 
         super("Math Database Administrator");
 
         final int numLogins = theProfiles.size();
         this.caches = new ArrayList<>(numLogins);
 
-        for (final DbProfile profile : theProfiles) {
-            try {
-                final DbContext primary = profile.getDbContext(ESchemaUse.PRIMARY);
-                final DbConnection conn = primary.checkOutConnection();
-                final Cache cache = new Cache(profile, conn);
-                this.caches.add(cache);
-            } catch (final SQLException ex) {
-                Log.warning("Failed to connect to ", ex);
-            }
+        for (final Profile profile : theProfiles) {
+            final Cache cache = new Cache(profile);
+            this.caches.add(cache);
         }
 
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);

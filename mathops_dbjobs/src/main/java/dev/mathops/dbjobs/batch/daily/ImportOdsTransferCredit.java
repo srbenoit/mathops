@@ -5,10 +5,10 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.rawlogic.RawFfrTrnsLogic;
 import dev.mathops.db.old.rawrecord.RawFfrTrns;
@@ -29,24 +29,15 @@ import java.util.List;
 public final class ImportOdsTransferCredit {
 
     /** The database profile through which to access the database. */
-    private final DbProfile dbProfile;
-
-    /** The database context. */
-    private final DbContext odsCtx;
-
-    /** The database context. */
-    private final DbContext primaryCtx;
+    private final Profile profile;
 
     /**
      * Constructs a new {@code ImportOdsTransferCredit}.
      */
     public ImportOdsTransferCredit() {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-
-        this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
-        this.odsCtx = this.dbProfile.getDbContext(ESchemaUse.ODS);
-        this.primaryCtx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        this.profile = config.getCodeProfile(Contexts.BATCH_PATH);
     }
 
     /**
@@ -58,52 +49,46 @@ public final class ImportOdsTransferCredit {
 
         final Collection<String> report = new ArrayList<>(10);
 
-        if (this.dbProfile == null) {
-            report.add("Unable to create production context.");
-        } else if (this.odsCtx == null) {
-            report.add("Unable to create ODS database context.");
+        if (this.profile == null) {
+            report.add("Unable to create production profile.");
         } else {
+            final Cache cache = new Cache(this.profile);
+
             try {
-                final DbConnection primaryConn = this.primaryCtx.checkOutConnection();
-                final Cache cache = new Cache(this.dbProfile, primaryConn);
+                final TermRec active = cache.getSystemData().getActiveTerm();
+
+                final Login odsLogin = this.profile.getLogin(ESchema.ODS);
+                final DbConnection odsConn = odsLogin.checkOutConnection();
 
                 try {
-                    final TermRec active = cache.getSystemData().getActiveTerm();
+                    List<TransferRecord> list = null;
 
-                    final DbConnection odsConn = this.odsCtx.checkOutConnection();
-
-                    try {
-                        List<TransferRecord> list = null;
-
-                        if (active == null) {
-                            report.add("Failed to query the active term.");
-                        } else if (active.term.name == ETermName.SPRING) {
-                            report.add("Processing under the SPRING term");
-                            list = queryOdsSpring(odsConn, report);
-                        } else if (active.term.name == ETermName.SUMMER) {
-                            report.add("Processing under the SUMMER term");
-                            list = queryOdsSummer(odsConn, report);
-                        } else if (active.term.name == ETermName.FALL) {
-                            report.add("Processing under the FALL term");
-                            list = queryOdsFall(odsConn, report);
-                        } else {
-                            report.add("Active term has invalid term name:" + active.term.name);
-                        }
-
-                        if (list != null) {
-                            report.add("Found " + list.size() + " rows.");
-                            processList(cache, list, report);
-                            report.add("Job completed");
-                        }
-
-                    } catch (final SQLException ex) {
-                        Log.warning(ex);
-                        report.add("Unable to perform query");
-                    } finally {
-                        this.odsCtx.checkInConnection(odsConn);
+                    if (active == null) {
+                        report.add("Failed to query the active term.");
+                    } else if (active.term.name == ETermName.SPRING) {
+                        report.add("Processing under the SPRING term");
+                        list = queryOdsSpring(odsConn, report);
+                    } else if (active.term.name == ETermName.SUMMER) {
+                        report.add("Processing under the SUMMER term");
+                        list = queryOdsSummer(odsConn, report);
+                    } else if (active.term.name == ETermName.FALL) {
+                        report.add("Processing under the FALL term");
+                        list = queryOdsFall(odsConn, report);
+                    } else {
+                        report.add("Active term has invalid term name:" + active.term.name);
                     }
+
+                    if (list != null) {
+                        report.add("Found " + list.size() + " rows.");
+                        processList(cache, list, report);
+                        report.add("Job completed");
+                    }
+
+                } catch (final SQLException ex) {
+                    Log.warning(ex);
+                    report.add("Unable to perform query");
                 } finally {
-                    this.primaryCtx.checkInConnection(primaryConn);
+                    odsLogin.checkInConnection(odsConn);
                 }
             } catch (final SQLException ex) {
                 Log.warning(ex);
@@ -137,32 +122,32 @@ public final class ImportOdsTransferCredit {
         try (final Statement stmt = conn.createStatement()) {
 
             final String sql = "SELECT A.ID x, B.COURSE_IDENTIFICATION y "
-                            + "FROM CSUBAN.CSUS_SECTION_INFO_SPR A, ODSMGR.STUDENT_COURSE B "
-                            + "WHERE A.PERSON_UID = B.PERSON_UID "
-                            + " AND ((B.COURSE_IDENTIFICATION='MATH002'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH117'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH118'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH120'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH124'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH125'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH126'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH127'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH141'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH155'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH156'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH157'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH160'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH161'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH229')"
-                            + "  AND (A.COURSE_IDENTIFICATION='MATH002'"
-                            + "    OR A.COURSE_IDENTIFICATION='MATH117'"
-                            + "    OR A.COURSE_IDENTIFICATION='MATH118'"
-                            + "    OR A.COURSE_IDENTIFICATION='MATH120'"
-                            + "    OR A.COURSE_IDENTIFICATION='MATH124'"
-                            + "    OR A.COURSE_IDENTIFICATION='MATH125'"
-                            + "    OR A.COURSE_IDENTIFICATION='MATH126'"
-                            + "    OR A.COURSE_IDENTIFICATION='MATH127')"
-                            + "  AND (B.TRANSFER_COURSE_IND='Y'))";
+                               + "FROM CSUBAN.CSUS_SECTION_INFO_SPR A, ODSMGR.STUDENT_COURSE B "
+                               + "WHERE A.PERSON_UID = B.PERSON_UID "
+                               + " AND ((B.COURSE_IDENTIFICATION='MATH002'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH117'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH118'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH120'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH124'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH125'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH126'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH127'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH141'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH155'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH156'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH157'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH160'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH161'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH229')"
+                               + "  AND (A.COURSE_IDENTIFICATION='MATH002'"
+                               + "    OR A.COURSE_IDENTIFICATION='MATH117'"
+                               + "    OR A.COURSE_IDENTIFICATION='MATH118'"
+                               + "    OR A.COURSE_IDENTIFICATION='MATH120'"
+                               + "    OR A.COURSE_IDENTIFICATION='MATH124'"
+                               + "    OR A.COURSE_IDENTIFICATION='MATH125'"
+                               + "    OR A.COURSE_IDENTIFICATION='MATH126'"
+                               + "    OR A.COURSE_IDENTIFICATION='MATH127')"
+                               + "  AND (B.TRANSFER_COURSE_IND='Y'))";
 
             try (final ResultSet rs = stmt.executeQuery(sql)) {
                 while (rs.next()) {
@@ -205,31 +190,31 @@ public final class ImportOdsTransferCredit {
         try (final Statement stmt = conn.createStatement()) {
 
             final String sql = "SELECT A.ID x, B.COURSE_IDENTIFICATION y "
-                            + "FROM CSUBAN.CSUS_SECTION_INFO_SMR A, ODSMGR.STUDENT_COURSE B "
-                            + "WHERE A.PERSON_UID = B.PERSON_UID "
-                            + " AND ((B.COURSE_IDENTIFICATION='MATH002'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH117'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH118'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH120'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH124'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH125'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH126'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH127'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH141'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH155'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH156'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH157'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH160'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH161'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH229')"
-                            + "  AND (A.COURSE_IDENTIFICATION='MATH117'"
-                            + "    OR A.COURSE_IDENTIFICATION='MATH118'"
-                            + "    OR A.COURSE_IDENTIFICATION='MATH120'"
-                            + "    OR A.COURSE_IDENTIFICATION='MATH124'"
-                            + "    OR A.COURSE_IDENTIFICATION='MATH125'"
-                            + "    OR A.COURSE_IDENTIFICATION='MATH126'"
-                            + "    OR A.COURSE_IDENTIFICATION='MATH127')"
-                            + "  AND (B.TRANSFER_COURSE_IND='Y'))";
+                               + "FROM CSUBAN.CSUS_SECTION_INFO_SMR A, ODSMGR.STUDENT_COURSE B "
+                               + "WHERE A.PERSON_UID = B.PERSON_UID "
+                               + " AND ((B.COURSE_IDENTIFICATION='MATH002'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH117'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH118'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH120'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH124'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH125'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH126'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH127'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH141'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH155'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH156'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH157'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH160'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH161'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH229')"
+                               + "  AND (A.COURSE_IDENTIFICATION='MATH117'"
+                               + "    OR A.COURSE_IDENTIFICATION='MATH118'"
+                               + "    OR A.COURSE_IDENTIFICATION='MATH120'"
+                               + "    OR A.COURSE_IDENTIFICATION='MATH124'"
+                               + "    OR A.COURSE_IDENTIFICATION='MATH125'"
+                               + "    OR A.COURSE_IDENTIFICATION='MATH126'"
+                               + "    OR A.COURSE_IDENTIFICATION='MATH127')"
+                               + "  AND (B.TRANSFER_COURSE_IND='Y'))";
 
             try (final ResultSet rs = stmt.executeQuery(sql)) {
                 while (rs.next()) {
@@ -272,31 +257,31 @@ public final class ImportOdsTransferCredit {
         try (final Statement stmt = conn.createStatement()) {
 
             final String sql = "SELECT A.ID x, B.COURSE_IDENTIFICATION y "
-                            + "FROM CSUBAN.CSUS_SECTION_INFO_FAL A, ODSMGR.STUDENT_COURSE B "
-                            + "WHERE A.PERSON_UID = B.PERSON_UID "
-                            + " AND ((B.COURSE_IDENTIFICATION='MATH002'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH117'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH118'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH120'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH124'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH125'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH126'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH127'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH141'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH155'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH156'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH157'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH160'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH161'"
-                            + "    OR B.COURSE_IDENTIFICATION='MATH229')"
-                            + "  AND (A.COURSE_IDENTIFICATION='MATH117'"
-                            + "    OR A.COURSE_IDENTIFICATION='MATH118'"
-                            + "    OR A.COURSE_IDENTIFICATION='MATH120'"
-                            + "    OR A.COURSE_IDENTIFICATION='MATH124'"
-                            + "    OR A.COURSE_IDENTIFICATION='MATH125'"
-                            + "    OR A.COURSE_IDENTIFICATION='MATH126'"
-                            + "    OR A.COURSE_IDENTIFICATION='MATH127')"
-                            + "  AND (B.TRANSFER_COURSE_IND='Y'))";
+                               + "FROM CSUBAN.CSUS_SECTION_INFO_FAL A, ODSMGR.STUDENT_COURSE B "
+                               + "WHERE A.PERSON_UID = B.PERSON_UID "
+                               + " AND ((B.COURSE_IDENTIFICATION='MATH002'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH117'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH118'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH120'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH124'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH125'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH126'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH127'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH141'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH155'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH156'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH157'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH160'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH161'"
+                               + "    OR B.COURSE_IDENTIFICATION='MATH229')"
+                               + "  AND (A.COURSE_IDENTIFICATION='MATH117'"
+                               + "    OR A.COURSE_IDENTIFICATION='MATH118'"
+                               + "    OR A.COURSE_IDENTIFICATION='MATH120'"
+                               + "    OR A.COURSE_IDENTIFICATION='MATH124'"
+                               + "    OR A.COURSE_IDENTIFICATION='MATH125'"
+                               + "    OR A.COURSE_IDENTIFICATION='MATH126'"
+                               + "    OR A.COURSE_IDENTIFICATION='MATH127')"
+                               + "  AND (B.TRANSFER_COURSE_IND='Y'))";
 
             try (final ResultSet rs = stmt.executeQuery(sql)) {
                 while (rs.next()) {

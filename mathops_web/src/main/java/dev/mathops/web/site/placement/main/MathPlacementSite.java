@@ -5,8 +5,8 @@ import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.db.logic.ELiveRefreshes;
-import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
@@ -15,11 +15,11 @@ import dev.mathops.web.site.AbstractPageSite;
 import dev.mathops.web.site.EProctoringType;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -37,12 +37,12 @@ public final class MathPlacementSite extends AbstractPageSite {
     /**
      * Constructs a new {@code MathPlacementSite}.
      *
-     * @param theSiteProfile the context under which this site is accessed
-     * @param theSessions    the singleton user session repository
+     * @param theSite     the context under which this site is accessed
+     * @param theSessions the singleton user session repository
      */
-    public MathPlacementSite(final WebSiteProfile theSiteProfile, final ISessionManager theSessions) {
+    public MathPlacementSite(final Site theSite, final ISessionManager theSessions) {
 
-        super(theSiteProfile, theSessions);
+        super(theSite, theSessions);
 
         this.footer = new WelcomeFooter();
     }
@@ -83,11 +83,11 @@ public final class MathPlacementSite extends AbstractPageSite {
      * Processes a GET request. Before this method is called, the request will have been verified to be secure and have
      * a session ID.
      *
-     * @param cache    the data cache
-     * @param subpath  the portion of the path beyond that which was used to select this site
-     * @param type the site type
-     * @param req      the request
-     * @param resp     the response
+     * @param cache   the data cache
+     * @param subpath the portion of the path beyond that which was used to select this site
+     * @param type    the site type
+     * @param req     the request
+     * @param resp    the response
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
@@ -191,11 +191,11 @@ public final class MathPlacementSite extends AbstractPageSite {
      * Processes a POST request. Before this method is called, the request will have been verified to be secure and have
      * a session ID.
      *
-     * @param cache    the data cache
-     * @param subpath  the portion of the path beyond that which was used to select this site
-     * @param type the site type
-     * @param req      the request
-     * @param resp     the response
+     * @param cache   the data cache
+     * @param subpath the portion of the path beyond that which was used to select this site
+     * @param type    the site type
+     * @param req     the request
+     * @param resp    the response
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
@@ -224,9 +224,9 @@ public final class MathPlacementSite extends AbstractPageSite {
         } else if ("plan_start.html".equals(subpath)) {
             PagePlanStart.doPost(cache, this, req, resp, session);
         } else if ("plan_majors1.html".equals(subpath)) {
-            PagePlanMajors1.doPost(cache, this, this.siteProfile, req, resp, session);
+            PagePlanMajors1.doPost(cache, this, this.site, req, resp, session);
         } else if ("plan_majors2.html".equals(subpath)) {
-            PagePlanMajors2.doPost(cache, this, this.siteProfile, req, resp, session);
+            PagePlanMajors2.doPost(cache, this, this.site, req, resp, session);
         } else if ("plan_view.html".equals(subpath)) {
             PagePlanView.doPost(cache, this, req, resp, session);
         } else if ("plan_next.html".equals(subpath)) {
@@ -357,7 +357,7 @@ public final class MathPlacementSite extends AbstractPageSite {
             resp.addCookie(cook);
         }
 
-        final String path = this.siteProfile.path;
+        final String path = this.site.path;
         final String redirect = path + (path.endsWith(Contexts.ROOT_PATH) //
                 ? target : CoreConstants.SLASH + target);
 

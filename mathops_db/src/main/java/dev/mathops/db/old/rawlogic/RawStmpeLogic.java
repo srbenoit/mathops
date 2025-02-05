@@ -4,6 +4,7 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawStmpe;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -160,7 +161,7 @@ public enum RawStmpeLogic {
             // Adjust serial number if needed to avoid collision with existing record
             if (record.serialNbr != null) {
                 for (int i = 0; i < 1000; ++i) {
-                    final Integer existing = LogicUtils.executeSimpleIntQuery(cache.conn,
+                    final Integer existing = LogicUtils.executeSimpleIntQuery(cache,
                             "SELECT COUNT(*) FROM stmpe WHERE serial_nbr=" + record.serialNbr);
 
                     if (existing == null || existing.longValue() == 0L) {
@@ -194,14 +195,18 @@ public enum RawStmpeLogic {
                     LogicUtils.sqlStringValue(record.placed), ",",
                     LogicUtils.sqlStringValue(record.howValidated), ")");
 
-            try (final Statement stmt = cache.conn.createStatement()) {
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement()) {
                 result = stmt.executeUpdate(sql) == 1;
 
                 if (result) {
-                    cache.conn.commit();
+                    conn.commit();
                 } else {
-                    cache.conn.rollback();
+                    conn.rollback();
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -224,17 +229,21 @@ public enum RawStmpeLogic {
                 " AND exam_dt=", LogicUtils.sqlDateValue(record.examDt),
                 " AND finish_time=", LogicUtils.sqlIntegerValue(record.finishTime));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
 
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -262,7 +271,7 @@ public enum RawStmpeLogic {
      */
     public static List<RawStmpe> queryAll(final Cache cache) throws SQLException {
 
-        return executeQuery(cache.conn, "SELECT * FROM stmpe");
+        return executeQuery(cache, "SELECT * FROM stmpe");
     }
 
     /**
@@ -283,7 +292,7 @@ public enum RawStmpeLogic {
             final String sql = SimpleBuilder.concat("SELECT * FROM stmpe ",
                     "WHERE stu_id=", LogicUtils.sqlStringValue(stuId));
 
-            return executeQuery(cache.conn, sql);
+            return executeQuery(cache, sql);
         }
 
         return result;
@@ -308,7 +317,7 @@ public enum RawStmpeLogic {
                     "WHERE stu_id=", LogicUtils.sqlStringValue(stuId),
                     " AND (placed='Y' OR placed='N')");
 
-            return executeQuery(cache.conn, sql);
+            return executeQuery(cache, sql);
         }
 
         return result;
@@ -624,6 +633,8 @@ public enum RawStmpeLogic {
         if (stuId.startsWith("99")) {
             result = countTestStudentLegalAttempts(stuId, version);
         } else {
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
             // Count legal unproctored attempts
             final String sql1 = SimpleBuilder.concat("SELECT COUNT(*) FROM stmpe ",
                     " WHERE stu_id=", LogicUtils.sqlStringValue(stuId),
@@ -632,7 +643,7 @@ public enum RawStmpeLogic {
                     " AND ((how_validated!='P' AND how_validated!='C') ",
                     "  OR how_validated IS NULL)");
 
-            final int numOnline = executeIntQuery(cache.conn, sql1);
+            final int numOnline = executeIntQuery(cache, sql1);
 
             // Count legal proctored attempts
             final String sql2 = SimpleBuilder.concat("SELECT COUNT(*) FROM stmpe ",
@@ -641,7 +652,7 @@ public enum RawStmpeLogic {
                     " AND (placed='Y' OR placed='N') ",
                     " AND (how_validated='P' OR how_validated='C')");
 
-            final int numProctored = executeIntQuery(cache.conn, sql2);
+            final int numProctored = executeIntQuery(cache, sql2);
 
             result = new int[]{numOnline, numProctored};
         }
@@ -763,20 +774,22 @@ public enum RawStmpeLogic {
         final String sql = SimpleBuilder.concat("SELECT * FROM stmpe WHERE exam_dt>=",
                 LogicUtils.sqlDateValue(earliest), " AND (placed='Y' OR placed='N')");
 
-        return executeQuery(cache.conn, sql);
+        return executeQuery(cache, sql);
     }
 
     /**
      * Executes a query that returns a list of records.
      *
-     * @param conn the database connection, checked out to this thread
-     * @param sql  the SQL to execute
+     * @param cache the data cache
+     * @param sql   the SQL to execute
      * @return the list of matching records
      * @throws SQLException if there is an error accessing the database
      */
-    private static List<RawStmpe> executeQuery(final DbConnection conn, final String sql) throws SQLException {
+    private static List<RawStmpe> executeQuery(final Cache cache, final String sql) throws SQLException {
 
         final List<RawStmpe> result = new ArrayList<>(50);
+
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
         try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
@@ -784,6 +797,8 @@ public enum RawStmpeLogic {
             while (rs.next()) {
                 result.add(RawStmpe.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -792,14 +807,16 @@ public enum RawStmpeLogic {
     /**
      * Executes a query that returns an integer.
      *
-     * @param conn the database connection, checked out to this thread
-     * @param sql  the SQL to execute
+     * @param cache the data cache
+     * @param sql   the SQL to execute
      * @return the result; 0 if query returned no records
      * @throws SQLException if there is an error accessing the database
      */
-    private static int executeIntQuery(final DbConnection conn, final String sql) throws SQLException {
+    private static int executeIntQuery(final Cache cache, final String sql) throws SQLException {
 
         int result = 0;
+
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
         try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
@@ -807,6 +824,8 @@ public enum RawStmpeLogic {
             if (rs.next()) {
                 result = rs.getInt(1);
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;

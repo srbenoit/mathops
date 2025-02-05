@@ -6,6 +6,8 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawlogic.RawResourceLogic;
 import dev.mathops.db.old.rawlogic.RawStresourceLogic;
@@ -77,7 +79,7 @@ final class ReturnCard extends AdmPanelBase implements ActionListener {
     /**
      * Constructs a new {@code ReturnCard}.
      *
-     * @param theCache         the data cache
+     * @param theCache the data cache
      */
     ReturnCard(final Cache theCache) {
 
@@ -267,98 +269,83 @@ final class ReturnCard extends AdmPanelBase implements ActionListener {
             final String sql1 = "SELECT resource_type FROM resource WHERE resource_id=?";
 
             String foundType = null;
-            try (final PreparedStatement ps = this.cache.conn.prepareStatement(sql1)) {
-                ps.setString(1, cleanRes);
 
-                try (final ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        foundType = rs.getString(1);
+            final DbConnection conn = this.cache.checkOutConnection(ESchema.LEGACY);
 
-                        BufferedImage icon = null;
-                        final String type;
+            try {
 
-                        switch (foundType) {
-                            case RawResource.TYPE_INHOUSE_CALC -> {
-                                icon = FileLoader.loadFileAsImage(LendCard.class, "TI84-icon.png", false);
-                                type = "TI-84 calculator";
-                            }
-                            case RawResource.TYPE_OFFICE_CALC -> {
-                                icon = FileLoader.loadFileAsImage(LendCard.class, "TI84-icon.png", false);
-                                type = "Office TI-84 calculator";
-                            }
-                            case RawResource.TYPE_RENTAL_CALC -> {
-                                icon = FileLoader.loadFileAsImage(LendCard.class, "TI84-icon.png", false);
-                                type = "*** RENTAL *** TI-84 calculator (SHOULD NOT LEND)";
-                            }
-                            case RawResource.TYPE_RENTAL_MANUAL -> {
-                                icon = FileLoader.loadFileAsImage(LendCard.class, "TI84-book-icon.png", false);
-                                type = "TI-84 calculator manual";
-                            }
-                            case RawResource.TYPE_INHOUSE_IPAD -> {
-                                icon = FileLoader.loadFileAsImage(LendCard.class, "ipad-icon.png", false);
-                                type = "iPad tablet";
-                            }
-                            case RawResource.TYPE_INHOUSE_NOTEBOOK -> {
-                                icon = FileLoader.loadFileAsImage(LendCard.class, "laptop-icon.png", false);
-                                type = "Windows notebook";
-                            }
-                            case RawResource.TYPE_INHOUSE_TEXT -> {
-                                icon = FileLoader.loadFileAsImage(LendCard.class, "textbook-icon.png", false);
-                                type = "In-house textbook";
-                            }
-                            case RawResource.TYPE_OVERNIGHT_TEXT -> {
-                                icon = FileLoader.loadFileAsImage(LendCard.class, "textbook-icon.png", false);
-                                type = "Overnight textbook";
-                            }
-                            case RawResource.TYPE_INHOUSE_HEADSET -> {
-                                icon = FileLoader.loadFileAsImage(LendCard.class, "headphones-icon.png", false);
-                                type = "Headphones";
-                            }
-                            case RawResource.TYPE_INHOUSE_LOCK -> {
-                                icon = FileLoader.loadFileAsImage(LendCard.class, "lock-icon.png", false);
-                                type = "Padlock";
-                            }
-                            case RawResource.TYPE_TUTOR_TABLET -> {
-                                icon = FileLoader.loadFileAsImage(LendCard.class, "tablet-icon.png", false);
-                                type = "Tutor Tablet";
-                            }
-                            case null, default -> type = "*** Unknown resource type ***";
-                        }
+                try (final PreparedStatement ps = conn.prepareStatement(sql1)) {
+                    ps.setString(1, cleanRes);
 
-                        if (icon == null) {
-                            this.resourceTypeDisplay.setIcon(null);
-                        } else {
-                            this.resourceTypeDisplay.setIcon(new ImageIcon(icon));
-                        }
-                        this.resourceTypeDisplay.setText(type);
-
-                        this.resourceIdField.setBackground(Skin.FIELD_BG);
-                    } else {
-                        this.resourceIdField.setBackground(Skin.FIELD_ERROR_BG);
-                    }
-                }
-            } catch (final SQLException ex) {
-                this.error1.setText("Error querying resource table:");
-                if (ex.getMessage() == null) {
-                    this.error2.setText(ex.getClass().getSimpleName());
-                } else {
-                    this.error2.setText(ex.getMessage());
-                }
-            }
-
-            if (foundType != null) {
-                final String sql2 = "SELECT stu_id FROM stresource WHERE resource_id=? AND return_dt IS NULL";
-
-                String foundStu = null;
-                try (final PreparedStatement ps2 = this.cache.conn.prepareStatement(sql2)) {
-                    ps2.setString(1, cleanRes);
-                    try (final ResultSet rs = ps2.executeQuery()) {
+                    try (final ResultSet rs = ps.executeQuery()) {
                         if (rs.next()) {
-                            foundStu = rs.getString(1);
+                            foundType = rs.getString(1);
+
+                            BufferedImage icon = null;
+                            final String type;
+
+                            switch (foundType) {
+                                case RawResource.TYPE_INHOUSE_CALC -> {
+                                    icon = FileLoader.loadFileAsImage(LendCard.class, "TI84-icon.png", false);
+                                    type = "TI-84 calculator";
+                                }
+                                case RawResource.TYPE_OFFICE_CALC -> {
+                                    icon = FileLoader.loadFileAsImage(LendCard.class, "TI84-icon.png", false);
+                                    type = "Office TI-84 calculator";
+                                }
+                                case RawResource.TYPE_RENTAL_CALC -> {
+                                    icon = FileLoader.loadFileAsImage(LendCard.class, "TI84-icon.png", false);
+                                    type = "*** RENTAL *** TI-84 calculator (SHOULD NOT LEND)";
+                                }
+                                case RawResource.TYPE_RENTAL_MANUAL -> {
+                                    icon = FileLoader.loadFileAsImage(LendCard.class, "TI84-book-icon.png", false);
+                                    type = "TI-84 calculator manual";
+                                }
+                                case RawResource.TYPE_INHOUSE_IPAD -> {
+                                    icon = FileLoader.loadFileAsImage(LendCard.class, "ipad-icon.png", false);
+                                    type = "iPad tablet";
+                                }
+                                case RawResource.TYPE_INHOUSE_NOTEBOOK -> {
+                                    icon = FileLoader.loadFileAsImage(LendCard.class, "laptop-icon.png", false);
+                                    type = "Windows notebook";
+                                }
+                                case RawResource.TYPE_INHOUSE_TEXT -> {
+                                    icon = FileLoader.loadFileAsImage(LendCard.class, "textbook-icon.png", false);
+                                    type = "In-house textbook";
+                                }
+                                case RawResource.TYPE_OVERNIGHT_TEXT -> {
+                                    icon = FileLoader.loadFileAsImage(LendCard.class, "textbook-icon.png", false);
+                                    type = "Overnight textbook";
+                                }
+                                case RawResource.TYPE_INHOUSE_HEADSET -> {
+                                    icon = FileLoader.loadFileAsImage(LendCard.class, "headphones-icon.png", false);
+                                    type = "Headphones";
+                                }
+                                case RawResource.TYPE_INHOUSE_LOCK -> {
+                                    icon = FileLoader.loadFileAsImage(LendCard.class, "lock-icon.png", false);
+                                    type = "Padlock";
+                                }
+                                case RawResource.TYPE_TUTOR_TABLET -> {
+                                    icon = FileLoader.loadFileAsImage(LendCard.class, "tablet-icon.png", false);
+                                    type = "Tutor Tablet";
+                                }
+                                case null, default -> type = "*** Unknown resource type ***";
+                            }
+
+                            if (icon == null) {
+                                this.resourceTypeDisplay.setIcon(null);
+                            } else {
+                                this.resourceTypeDisplay.setIcon(new ImageIcon(icon));
+                            }
+                            this.resourceTypeDisplay.setText(type);
+
+                            this.resourceIdField.setBackground(Skin.FIELD_BG);
+                        } else {
+                            this.resourceIdField.setBackground(Skin.FIELD_ERROR_BG);
                         }
                     }
                 } catch (final SQLException ex) {
-                    this.error1.setText("Error querying stresource table:");
+                    this.error1.setText("Error querying resource table:");
                     if (ex.getMessage() == null) {
                         this.error2.setText(ex.getClass().getSimpleName());
                     } else {
@@ -366,65 +353,88 @@ final class ReturnCard extends AdmPanelBase implements ActionListener {
                     }
                 }
 
-                if (foundStu == null) {
-                    this.error1.setText("This item is not checked out.");
-                    this.error2.setText("Check that item barcode was entered correctly.");
-                } else {
-                    final RawStudent stu;
-                    try {
-                        stu = RawStudentLogic.query(this.cache, foundStu, false);
+                if (foundType != null) {
+                    final String sql2 = "SELECT stu_id FROM stresource WHERE resource_id=? AND return_dt IS NULL";
 
-                        if (stu == null) {
-                            this.studentNameDisplay.setText("Student " + foundStu + " (not in database!)");
-                        } else {
-                            final String first = stu.firstName == null ? CoreConstants.EMPTY : stu.firstName;
-                            final String last = stu.lastName == null ? CoreConstants.EMPTY : stu.lastName;
-
-                            this.studentNameDisplay.setText(
-                                    "Item was checked out to: " + first + CoreConstants.SPC + last);
-
-                            // Process the return...
-                            final LocalDate today = LocalDate.now();
-
-                            final String sql4 = "UPDATE stresource set return_dt=?, finish_time=? "
-                                    + "WHERE stu_id=? AND resource_id=? AND return_dt IS NULL";
-
-                            final LocalTime now = LocalTime.now();
-                            final int finish = now.getHour() * 60 + now.getMinute();
-
-                            try (final PreparedStatement ps = this.cache.conn.prepareStatement(sql4)) {
-                                ps.setDate(1, Date.valueOf(today));
-                                ps.setInt(2, finish);
-                                ps.setString(3, foundStu);
-                                ps.setString(4, cleanRes);
-
-                                final int numRows = ps.executeUpdate();
-
-                                if (numRows == 1) {
-                                    this.cache.conn.commit();
-                                    this.error1.setText("Item has been returned.");
-                                } else {
-                                    this.error1.setText("Error updating stresource table:");
-                                }
-                            } catch (final SQLException ex) {
-                                this.error1.setText("Error updating stresource table:");
-                                if (ex.getMessage() == null) {
-                                    this.error2.setText(ex.getClass().getSimpleName());
-                                } else {
-                                    this.error2.setText(ex.getMessage());
-                                }
+                    String foundStu = null;
+                    try (final PreparedStatement ps2 = conn.prepareStatement(sql2)) {
+                        ps2.setString(1, cleanRes);
+                        try (final ResultSet rs = ps2.executeQuery()) {
+                            if (rs.next()) {
+                                foundStu = rs.getString(1);
                             }
-
-                            // See if there are any holds that can be removed
-                            recalculateHolds(stu);
                         }
-                    } catch (final SQLException ex1) {
-                        this.error1.setText("Failed to query student record");
-                        this.error2.setText(ex1.getMessage());
+                    } catch (final SQLException ex) {
+                        this.error1.setText("Error querying stresource table:");
+                        if (ex.getMessage() == null) {
+                            this.error2.setText(ex.getClass().getSimpleName());
+                        } else {
+                            this.error2.setText(ex.getMessage());
+                        }
                     }
 
-                    this.doneBtn.requestFocus();
+                    if (foundStu == null) {
+                        this.error1.setText("This item is not checked out.");
+                        this.error2.setText("Check that item barcode was entered correctly.");
+                    } else {
+                        final RawStudent stu;
+                        try {
+                            stu = RawStudentLogic.query(this.cache, foundStu, false);
+
+                            if (stu == null) {
+                                this.studentNameDisplay.setText("Student " + foundStu + " (not in database!)");
+                            } else {
+                                final String first = stu.firstName == null ? CoreConstants.EMPTY : stu.firstName;
+                                final String last = stu.lastName == null ? CoreConstants.EMPTY : stu.lastName;
+
+                                this.studentNameDisplay.setText(
+                                        "Item was checked out to: " + first + CoreConstants.SPC + last);
+
+                                // Process the return...
+                                final LocalDate today = LocalDate.now();
+
+                                final String sql4 = "UPDATE stresource set return_dt=?, finish_time=? "
+                                                    + "WHERE stu_id=? AND resource_id=? AND return_dt IS NULL";
+
+                                final LocalTime now = LocalTime.now();
+                                final int finish = now.getHour() * 60 + now.getMinute();
+
+                                try (final PreparedStatement ps = conn.prepareStatement(sql4)) {
+                                    ps.setDate(1, Date.valueOf(today));
+                                    ps.setInt(2, finish);
+                                    ps.setString(3, foundStu);
+                                    ps.setString(4, cleanRes);
+
+                                    final int numRows = ps.executeUpdate();
+
+                                    if (numRows == 1) {
+                                        conn.commit();
+                                        this.error1.setText("Item has been returned.");
+                                    } else {
+                                        this.error1.setText("Error updating stresource table:");
+                                    }
+                                } catch (final SQLException ex) {
+                                    this.error1.setText("Error updating stresource table:");
+                                    if (ex.getMessage() == null) {
+                                        this.error2.setText(ex.getClass().getSimpleName());
+                                    } else {
+                                        this.error2.setText(ex.getMessage());
+                                    }
+                                }
+
+                                // See if there are any holds that can be removed
+                                recalculateHolds(stu);
+                            }
+                        } catch (final SQLException ex1) {
+                            this.error1.setText("Failed to query student record");
+                            this.error2.setText(ex1.getMessage());
+                        }
+
+                        this.doneBtn.requestFocus();
+                    }
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
     }

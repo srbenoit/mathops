@@ -3,6 +3,7 @@ package dev.mathops.db.old.rawlogic;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawStcuobjective;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -65,14 +66,18 @@ public enum RawStcuobjectiveLogic {
                     LogicUtils.sqlIntegerValue(record.seed), ",",
                     LogicUtils.sqlIntegerValue(record.lastComponentFinished), ")");
 
-            try (final Statement stmt = cache.conn.createStatement()) {
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement()) {
                 result = stmt.executeUpdate(sql) == 1;
 
                 if (result) {
-                    cache.conn.commit();
+                    conn.commit();
                 } else {
-                    cache.conn.rollback();
+                    conn.rollback();
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -97,14 +102,18 @@ public enum RawStcuobjectiveLogic {
                 "  AND unit=", LogicUtils.sqlIntegerValue(record.unit),
                 "  AND objective=", LogicUtils.sqlIntegerValue(record.objective));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -162,7 +171,7 @@ public enum RawStcuobjectiveLogic {
                 " AND unit=", LogicUtils.sqlIntegerValue(unit),
                 " AND objective=", LogicUtils.sqlIntegerValue(objective));
 
-        return doSingleQuery(cache.conn, sql);
+        return doSingleQuery(cache, sql);
     }
 
     /**
@@ -229,14 +238,18 @@ public enum RawStcuobjectiveLogic {
                         " AND objective=", LogicUtils.sqlIntegerValue(objective));
             }
 
-            try (final Statement stmt = cache.conn.createStatement()) {
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement()) {
                 result = stmt.executeUpdate(sql) == 1;
 
                 if (result) {
-                    cache.conn.commit();
+                    conn.commit();
                 } else {
-                    cache.conn.rollback();
+                    conn.rollback();
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -246,14 +259,16 @@ public enum RawStcuobjectiveLogic {
     /**
      * Executes a query that returns a single records.
      *
-     * @param conn the database connection, checked out to this thread
-     * @param sql  the SQL to execute
+     * @param cache the data cache
+     * @param sql   the SQL to execute
      * @return the list of matching records
      * @throws SQLException if there is an error accessing the database
      */
-    private static RawStcuobjective doSingleQuery(final DbConnection conn, final String sql) throws SQLException {
+    private static RawStcuobjective doSingleQuery(final Cache cache, final String sql) throws SQLException {
 
         RawStcuobjective result = null;
+
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
         try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
@@ -261,6 +276,8 @@ public enum RawStcuobjectiveLogic {
             if (rs.next()) {
                 result = RawStcuobjective.fromResultSet(rs);
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -278,12 +295,16 @@ public enum RawStcuobjectiveLogic {
 
         final List<RawStcuobjective> result = new ArrayList<>(50);
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 result.add(RawStcuobjective.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;

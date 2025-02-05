@@ -3,7 +3,9 @@ package dev.mathops.db.reclogic;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
 import dev.mathops.db.EDbProduct;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.rec.StudentHoldRec;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.builder.SimpleBuilder;
@@ -537,12 +539,16 @@ public abstract class StudentHoldLogic implements IRecLogic<StudentHoldRec> {
 
                 result = new ArrayList<>(10);
 
-                try (final Statement stmt = cache.conn.createStatement();
+                final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+                try (final Statement stmt = conn.createStatement();
                      final ResultSet rs = stmt.executeQuery(sql)) {
 
                     while (rs.next()) {
                         result.add(fromResultSet(rs));
                     }
+                } finally {
+                    Cache.checkInConnection(conn);
                 }
             }
 
@@ -570,12 +576,16 @@ public abstract class StudentHoldLogic implements IRecLogic<StudentHoldRec> {
                 sql.add("SELECT * FROM admin_hold WHERE stu_id=", sqlStringValue(stuId),
                         "   AND hold_id=", sqlStringValue(holdId));
 
-                try (final Statement stmt = cache.conn.createStatement();
+                final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+                try (final Statement stmt = conn.createStatement();
                      final ResultSet rs = stmt.executeQuery(sql.toString())) {
 
                     if (rs.next()) {
                         result = fromResultSet(rs);
                     }
+                } finally {
+                    Cache.checkInConnection(conn);
                 }
             }
 
@@ -599,12 +609,16 @@ public abstract class StudentHoldLogic implements IRecLogic<StudentHoldRec> {
 
             boolean result = false;
 
-            try (final Statement stmt = cache.conn.createStatement();
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement();
                  final ResultSet rs = stmt.executeQuery(sql.toString())) {
 
                 if (rs.next()) {
                     result = rs.getInt(1) > 0;
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
 
             return result;
@@ -624,10 +638,14 @@ public abstract class StudentHoldLogic implements IRecLogic<StudentHoldRec> {
 
             sql.add("DELETE FROM admin_hold WHERE hold_id=", sqlStringValue(holdId));
 
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
             final int count;
-            try (final Statement stmt = cache.conn.createStatement()) {
+            try (final Statement stmt = conn.createStatement()) {
                 count = stmt.executeUpdate(sql.toString());
-                cache.conn.commit();
+                conn.commit();
+            } finally {
+                Cache.checkInConnection(conn);
             }
 
             return count;
@@ -761,7 +779,9 @@ public abstract class StudentHoldLogic implements IRecLogic<StudentHoldRec> {
         @Override
         public List<StudentHoldRec> queryAll(final Cache cache) throws SQLException {
 
-            final String sql = SimpleBuilder.concat("SELECT * FROM ", cache.termSchemaName, ".admin_hold");
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
+
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".admin_hold");
 
             return doListQuery(cache, sql);
         }
@@ -786,12 +806,16 @@ public abstract class StudentHoldLogic implements IRecLogic<StudentHoldRec> {
 
                 result = new ArrayList<>(10);
 
-                try (final Statement stmt = cache.conn.createStatement();
+                final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+                try (final Statement stmt = conn.createStatement();
                      final ResultSet rs = stmt.executeQuery(sql)) {
 
                     while (rs.next()) {
                         result.add(fromResultSet(rs));
                     }
+                } finally {
+                    Cache.checkInConnection(conn);
                 }
             }
 
@@ -819,12 +843,16 @@ public abstract class StudentHoldLogic implements IRecLogic<StudentHoldRec> {
                 sql.add("SELECT * FROM admin_hold WHERE stu_id=", sqlStringValue(stuId),
                         "   AND hold_id=", sqlStringValue(holdId));
 
-                try (final Statement stmt = cache.conn.createStatement();
+                final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+                try (final Statement stmt = conn.createStatement();
                      final ResultSet rs = stmt.executeQuery(sql.toString())) {
 
                     if (rs.next()) {
                         result = fromResultSet(rs);
                     }
+                } finally {
+                    Cache.checkInConnection(conn);
                 }
             }
 
@@ -848,12 +876,16 @@ public abstract class StudentHoldLogic implements IRecLogic<StudentHoldRec> {
 
             boolean result = false;
 
-            try (final Statement stmt = cache.conn.createStatement();
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement();
                  final ResultSet rs = stmt.executeQuery(sql.toString())) {
 
                 if (rs.next()) {
                     result = rs.getInt(1) > 0;
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
 
             return result;
@@ -873,10 +905,14 @@ public abstract class StudentHoldLogic implements IRecLogic<StudentHoldRec> {
 
             sql.add("DELETE FROM admin_hold WHERE hold_id=", sqlStringValue(holdId));
 
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
             final int count;
-            try (final Statement stmt = cache.conn.createStatement()) {
+            try (final Statement stmt = conn.createStatement()) {
                 count = stmt.executeUpdate(sql.toString());
-                cache.conn.commit();
+                conn.commit();
+            } finally {
+                Cache.checkInConnection(conn);
             }
 
             return count;

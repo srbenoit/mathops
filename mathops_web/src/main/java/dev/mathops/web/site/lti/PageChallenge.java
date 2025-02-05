@@ -11,7 +11,6 @@ import dev.mathops.web.site.html.challengeexam.ChallengeExamSessionStore;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 /**
@@ -64,7 +63,7 @@ enum PageChallenge {
 
                     Log.info("Starting challenge exam for user ", stu, " exam ", exam);
 
-                    cs = new ChallengeExamSession(cache, site.siteProfile, pwd, stu, exam, redirect);
+                    cs = new ChallengeExamSession(cache, site.site, pwd, stu, exam, redirect);
                     store.setChallengeExamSession(cs);
                 } else {
                     Log.info("Found existing unit exam for student ", stu, " exam ", exam);

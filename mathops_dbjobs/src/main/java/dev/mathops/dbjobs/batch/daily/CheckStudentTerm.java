@@ -5,10 +5,8 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawSttermLogic;
@@ -38,16 +36,15 @@ public final class CheckStudentTerm {
     private static final boolean DEBUG = false;
 
     /** The database profile through which to access the database. */
-    private final DbProfile dbProfile;
+    private final Profile profile;
 
     /**
      * Constructs a new {@code CheckStudentTerm}.
      */
     public CheckStudentTerm() {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-
-        this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        this.profile = config.getCodeProfile(Contexts.BATCH_PATH);
     }
 
     /**
@@ -59,105 +56,99 @@ public final class CheckStudentTerm {
 
         final Collection<String> report = new ArrayList<>(10);
 
-        if (this.dbProfile == null) {
-            report.add("Unable to create production context.");
+        if (this.profile == null) {
+            report.add("Unable to create production profile.");
         } else {
-            final DbContext ctx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
-            try {
-                final DbConnection conn = ctx.checkOutConnection();
-                final Cache cache = new Cache(this.dbProfile, conn);
+            final Cache cache = new Cache(this.profile);
 
+            try {
                 final TermRec active = cache.getSystemData().getActiveTerm();
                 report.add("Active term is " + active.term.longString + ".");
 
-                try {
-                    final List<RawStcourse> allRegs = RawStcourseLogic.queryByTerm(cache, active.term, false, false);
-                    report.add("Queried " + allRegs.size() + " active registrations.");
+                final List<RawStcourse> allRegs = RawStcourseLogic.queryByTerm(cache, active.term, false, false);
+                report.add("Queried " + allRegs.size() + " active registrations.");
 
-                    final Map<String, List<RawStcourse>> stuRegs =
-                            new HashMap<>(allRegs.size() / 2);
-                    for (final RawStcourse reg : allRegs) {
-                        // Remove non-counted incompletes and "ignored"
-                        if ("G".equals(reg.openStatus) || ("Y".equals(reg.iInProgress) && "N".equals(reg.iCounted))) {
-                            continue;
-                        }
-
-                        final String studentId = reg.stuId;
-                        final List<RawStcourse> inner = stuRegs.computeIfAbsent(studentId, s -> new ArrayList<>(5));
-                        inner.add(reg);
+                final Map<String, List<RawStcourse>> stuRegs =
+                        new HashMap<>(allRegs.size() / 2);
+                for (final RawStcourse reg : allRegs) {
+                    // Remove non-counted incompletes and "ignored"
+                    if ("G".equals(reg.openStatus) || ("Y".equals(reg.iInProgress) && "N".equals(reg.iCounted))) {
+                        continue;
                     }
-                    report.add("Found " + stuRegs.size() + " distinct students with registrations.");
 
-                    final List<RawStterm> allStTerms = RawSttermLogic.queryAllByTerm(cache, active.term);
+                    final String studentId = reg.stuId;
+                    final List<RawStcourse> inner = stuRegs.computeIfAbsent(studentId, s -> new ArrayList<>(5));
+                    inner.add(reg);
+                }
+                report.add("Found " + stuRegs.size() + " distinct students with registrations.");
 
-                    report.add("Queried " + allStTerms.size() + " student term records.");
-                    report.add(CoreConstants.EMPTY);
+                final List<RawStterm> allStTerms = RawSttermLogic.queryAllByTerm(cache, active.term);
 
-                    // For all students that have registrations, check their record
-                    for (final Map.Entry<String, List<RawStcourse>> entry : stuRegs.entrySet()) {
-                        final String studentId = entry.getKey();
-                        final List<RawStcourse> regs = entry.getValue();
+                report.add("Queried " + allStTerms.size() + " student term records.");
+                report.add(CoreConstants.EMPTY);
 
-                        final int pace = PaceTrackLogic.determinePace(regs);
-                        final String track = PaceTrackLogic.determinePaceTrack(regs, pace);
-                        final String first = PaceTrackLogic.determineFirstCourse(regs);
+                // For all students that have registrations, check their record
+                for (final Map.Entry<String, List<RawStcourse>> entry : stuRegs.entrySet()) {
+                    final String studentId = entry.getKey();
+                    final List<RawStcourse> regs = entry.getValue();
 
-                        RawStterm existing = null;
-                        for (final RawStterm test : allStTerms) {
-                            if (test.stuId.equals(studentId)) {
-                                existing = test;
-                                break;
-                            }
-                        }
+                    final int pace = PaceTrackLogic.determinePace(regs);
+                    final String track = PaceTrackLogic.determinePaceTrack(regs, pace);
+                    final String first = PaceTrackLogic.determineFirstCourse(regs);
 
-                        if (existing == null) {
-                            report.add(STUDENT + studentId + " did not have an STTERM record - adding.");
-
-                            if (!DEBUG) {
-                                final RawStterm newRec = new RawStterm(active.term, studentId, Integer.valueOf(pace),
-                                        track, first, null, null, null);
-                                RawSttermLogic.insert(cache, newRec);
-                            }
-                        } else {
-                            boolean diff = false;
-
-                            if (pace != existing.pace.intValue()) {
-                                report.add(STUDENT + studentId + " had incorrect pace (was " + existing.pace
-                                        + ", changing to " + pace + ").");
-                                diff = true;
-                            }
-                            if (!track.equals(existing.paceTrack)) {
-                                report.add(STUDENT + studentId + " had incorrect pace track (was "
-                                        + existing.paceTrack + ", changing to " + track + ").");
-                                diff = true;
-                            }
-                            if (!Objects.equals(first, existing.firstCourse)) {
-                                report.add(STUDENT + studentId + " had incorrect first course (was "
-                                        + existing.firstCourse + ", changing to " + first + ").");
-                                diff = true;
-                            }
-
-                            if (diff && !DEBUG) {
-                                RawSttermLogic.updatePaceTrackFirstCourse(cache, studentId, active.term, pace,
-                                        track, first);
-                            }
-
-                            allStTerms.remove(existing);
+                    RawStterm existing = null;
+                    for (final RawStterm test : allStTerms) {
+                        if (test.stuId.equals(studentId)) {
+                            existing = test;
+                            break;
                         }
                     }
 
-                    // At this point, all records will have been removed from "allStTerms" that
-                    // matched students with current-term registrations. Everything that remains in
-                    // "allStTerms" should be deleted.
+                    if (existing == null) {
+                        report.add(STUDENT + studentId + " did not have an STTERM record - adding.");
 
-                    for (final RawStterm toDelete : allStTerms) {
                         if (!DEBUG) {
-                            RawSttermLogic.delete(cache, toDelete);
+                            final RawStterm newRec = new RawStterm(active.term, studentId, Integer.valueOf(pace),
+                                    track, first, null, null, null);
+                            RawSttermLogic.insert(cache, newRec);
                         }
-                        report.add(STUDENT + toDelete.stuId + " STTERM record deleted.");
+                    } else {
+                        boolean diff = false;
+
+                        if (pace != existing.pace.intValue()) {
+                            report.add(STUDENT + studentId + " had incorrect pace (was " + existing.pace
+                                       + ", changing to " + pace + ").");
+                            diff = true;
+                        }
+                        if (!track.equals(existing.paceTrack)) {
+                            report.add(STUDENT + studentId + " had incorrect pace track (was "
+                                       + existing.paceTrack + ", changing to " + track + ").");
+                            diff = true;
+                        }
+                        if (!Objects.equals(first, existing.firstCourse)) {
+                            report.add(STUDENT + studentId + " had incorrect first course (was "
+                                       + existing.firstCourse + ", changing to " + first + ").");
+                            diff = true;
+                        }
+
+                        if (diff && !DEBUG) {
+                            RawSttermLogic.updatePaceTrackFirstCourse(cache, studentId, active.term, pace,
+                                    track, first);
+                        }
+
+                        allStTerms.remove(existing);
                     }
-                } finally {
-                    ctx.checkInConnection(conn);
+                }
+
+                // At this point, all records will have been removed from "allStTerms" that
+                // matched students with current-term registrations. Everything that remains in
+                // "allStTerms" should be deleted.
+
+                for (final RawStterm toDelete : allStTerms) {
+                    if (!DEBUG) {
+                        RawSttermLogic.delete(cache, toDelete);
+                    }
+                    report.add(STUDENT + toDelete.stuId + " STTERM record deleted.");
                 }
             } catch (final SQLException ex) {
                 Log.warning(ex);
@@ -179,6 +170,7 @@ public final class CheckStudentTerm {
      */
     public static void main(final String... args) {
 
+        DbConnection.registerDrivers();
         final CheckStudentTerm job = new CheckStudentTerm();
 
         Log.fine(job.execute());

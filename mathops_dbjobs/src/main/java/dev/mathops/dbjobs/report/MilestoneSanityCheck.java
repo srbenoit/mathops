@@ -2,14 +2,12 @@ package dev.mathops.dbjobs.report;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawrecord.RawMilestone;
 import dev.mathops.db.rec.TermRec;
 
@@ -32,28 +30,22 @@ public enum MilestoneSanityCheck {
      */
     private static void runReport() {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-        final DbProfile profile = map.getCodeProfile(Contexts.REPORT_PATH);
-        final DbContext ctx = profile.getDbContext(ESchemaUse.PRIMARY);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        final Profile profile = config.getCodeProfile(Contexts.REPORT_PATH);
+        final Cache cache = new Cache(profile);
+
+        final SystemData systemData = cache.getSystemData();
 
         try {
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(profile, conn);
-
-            final SystemData systemData = cache.getSystemData();
             final TermRec active = systemData.getActiveTerm();
 
-            try {
-                final Collection<String> report = new ArrayList<>(100);
-                final List<RawMilestone> milestones = systemData.getMilestones(active.term);
+            final Collection<String> report = new ArrayList<>(100);
+            final List<RawMilestone> milestones = systemData.getMilestones(active.term);
 
-                runTests(milestones, active, report);
+            runTests(milestones, active, report);
 
-                for (final String s : report) {
-                    Log.fine(s);
-                }
-            } finally {
-                ctx.checkInConnection(conn);
+            for (final String s : report) {
+                Log.fine(s);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
@@ -82,12 +74,12 @@ public enum MilestoneSanityCheck {
             if (date.isBefore(start)) {
                 report.add("    ERROR: Milestone falls before start of term:");
                 report.add("           Pace " + test.pace + " track " + test.paceTrack + " number "
-                        + test.msNbr + " type " + test.msType);
+                           + test.msNbr + " type " + test.msType);
                 goodDates = false;
             } else if (date.isAfter(end)) {
                 report.add("    ERROR: Milestone falls after end of term:");
                 report.add("           Pace " + test.pace + " track " + test.paceTrack + " number "
-                        + test.msNbr + " type " + test.msType);
+                           + test.msNbr + " type " + test.msType);
                 goodDates = false;
             }
         }
@@ -148,14 +140,14 @@ public enum MilestoneSanityCheck {
         gatherMilestonesForCourse(milestones, 5, 5, "A", track5A, report);
 
         if (track1A.size() == 32
-                && track1B.size() == 32
-                && track1C.size() == 32
-                && track2A.size() == 63
-                && track2B.size() == 63
-                && track2C.size() == 63
-                && track3A.size() == 94
-                && track4A.size() == 125
-                && track5A.size() == 156) {
+            && track1B.size() == 32
+            && track1C.size() == 32
+            && track2A.size() == 63
+            && track2B.size() == 63
+            && track2C.size() == 63
+            && track3A.size() == 94
+            && track4A.size() == 125
+            && track5A.size() == 156) {
 
             report.add("    All expected milestones were found.");
         }
@@ -166,21 +158,21 @@ public enum MilestoneSanityCheck {
             report.add("    ERROR: Extra milestone records were found:");
             for (final RawMilestone extra : milestones) {
                 report.add("           Pace " + extra.pace + " track " + extra.paceTrack
-                        + " number " + extra.msNbr + " type " + extra.msType);
+                           + " number " + extra.msNbr + " type " + extra.msType);
             }
         }
 
         report.add(CoreConstants.EMPTY);
         report.add("TEST 3: Checking that dates within each track are in proper order:");
         final boolean goodSequence = checkSequence(track1A, report)
-                && checkSequence(track1B, report)
-                && checkSequence(track1C, report)
-                && checkSequence(track2A, report)
-                && checkSequence(track2B, report)
-                && checkSequence(track2C, report)
-                && checkSequence(track3A, report)
-                && checkSequence(track4A, report)
-                && checkSequence(track5A, report);
+                                     && checkSequence(track1B, report)
+                                     && checkSequence(track1C, report)
+                                     && checkSequence(track2A, report)
+                                     && checkSequence(track2B, report)
+                                     && checkSequence(track2C, report)
+                                     && checkSequence(track3A, report)
+                                     && checkSequence(track4A, report)
+                                     && checkSequence(track5A, report);
         if (goodSequence) {
             report.add("    All milestone sequences are sensible.");
         }
@@ -296,7 +288,7 @@ public enum MilestoneSanityCheck {
         while (iter.hasNext()) {
             final RawMilestone test = iter.next();
             if (pace == test.pace.intValue() && track.equals(test.paceTrack)
-                    && number == test.msNbr.intValue() && type.equals(test.msType)) {
+                && number == test.msNbr.intValue() && type.equals(test.msType)) {
                 result = test;
                 iter.remove();
                 break;
@@ -305,7 +297,7 @@ public enum MilestoneSanityCheck {
 
         if (result == null) {
             report.add("    ERROR: Milestone " + number + " record not found for pace " + pace + " track " + track
-                    + " type " + type);
+                       + " type " + type);
         }
 
         return result;
@@ -330,8 +322,8 @@ public enum MilestoneSanityCheck {
                 prior = test;
             } else if (test.msDate.isBefore(prior.msDate)) {
                 report.add("    ERROR: Milestone " + test.msNbr + " for pace " + test.pace
-                        + " track " + test.paceTrack + " type " + test.msType
-                        + " has date that precedes milestone " + prior.msNbr + " type " + prior.msType);
+                           + " track " + test.paceTrack + " type " + test.msType
+                           + " has date that precedes milestone " + prior.msNbr + " type " + prior.msType);
 
                 good = false;
             }
@@ -347,6 +339,7 @@ public enum MilestoneSanityCheck {
      */
     public static void main(final String... args) {
 
+        DbConnection.registerDrivers();
         runReport();
     }
 }

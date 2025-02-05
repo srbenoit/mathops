@@ -2,7 +2,6 @@ package dev.mathops.app.ops;
 
 import com.formdev.flatlaf.FlatLightLaf;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.cfg.ContextMap;
 
 import javax.swing.SwingUtilities;
 
@@ -32,7 +31,6 @@ final class Operations {
 
         FlatLightLaf.setup();
 
-        ContextMap.getDefaultInstance();
         DbConnection.registerDrivers();
 
         String username = null;

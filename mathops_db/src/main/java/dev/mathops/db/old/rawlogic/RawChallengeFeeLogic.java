@@ -1,6 +1,8 @@
 package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawChallengeFee;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -49,16 +51,20 @@ public enum RawChallengeFeeLogic {
                 LogicUtils.sqlDateValue(record.examDt), ",",
                 LogicUtils.sqlDateValue(record.billDt), ")");
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -76,16 +82,20 @@ public enum RawChallengeFeeLogic {
                 "WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
                 "  AND course=", LogicUtils.sqlStringValue(record.course));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -144,12 +154,16 @@ public enum RawChallengeFeeLogic {
 
         final List<RawChallengeFee> result = new ArrayList<>(50);
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 result.add(RawChallengeFee.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -163,17 +177,20 @@ public enum RawChallengeFeeLogic {
      * @return the record
      * @throws SQLException if there is an error accessing the database
      */
-    private static RawChallengeFee executeSingleQuery(final Cache cache, final String sql)
-            throws SQLException {
+    private static RawChallengeFee executeSingleQuery(final Cache cache, final String sql) throws SQLException {
 
         RawChallengeFee result = null;
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
 
             if (rs.next()) {
                 result = RawChallengeFee.fromResultSet(rs);
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;

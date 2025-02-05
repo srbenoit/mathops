@@ -7,10 +7,9 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.WebSiteProfile;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.SessionManager;
 import dev.mathops.text.builder.HtmlBuilder;
@@ -44,7 +43,7 @@ import dev.mathops.web.site.scheduling.SchedulingSite;
 import dev.mathops.web.site.testing.TestingCenterSite;
 import dev.mathops.web.site.tutorial.elm.ElmTutorialSite;
 import dev.mathops.web.site.tutorial.precalc.PrecalcTutorialSite;
-import dev.mathops.web.site.txn.Site;
+import dev.mathops.web.site.txn.TxnSite;
 import dev.mathops.web.site.video.VideoSite;
 import dev.mathops.web.webservice.WebServiceSite;
 import jakarta.servlet.ServletConfig;
@@ -59,7 +58,6 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -128,60 +126,59 @@ public final class WebMidController implements IMidController {
         PathList.init(baseDir);
 
         // Initialize the context map
-        final ContextMap map = ContextMap.getDefaultInstance();
+        final DatabaseConfig dbConfig = DatabaseConfig.getDefault();
         DbConnection.registerDrivers();
 
         // Initialize the session manager
         this.sessions = SessionManager.getInstance();
 
-        final String[] hosts = map.getWebHosts();
-        final List<String> webHosts = Arrays.asList(hosts);
+        final List<String> webHosts = dbConfig.getWebHosts();
 
         // Create and register the sites
 
         if (webHosts.contains(Contexts.PACE_HOST)) {
-            add(map, Contexts.PACE_HOST, Contexts.ROOT_PATH, RedirectToPrecalcSite.class);
-            add(map, Contexts.PACE_HOST, Contexts.INSTRUCTION_PATH, RedirectToPrecalcSite.class);
+            add(dbConfig, Contexts.PACE_HOST, Contexts.ROOT_PATH, RedirectToPrecalcSite.class);
+            add(dbConfig, Contexts.PACE_HOST, Contexts.INSTRUCTION_PATH, RedirectToPrecalcSite.class);
         }
 
         if (webHosts.contains(Contexts.PRECALC_HOST)) {
-            add(map, Contexts.PRECALC_HOST, Contexts.ROOT_PATH, PrecalcRootSite.class);
-            add(map, Contexts.PRECALC_HOST, Contexts.INSTRUCTION_PATH, CourseSite.class);
-            add(map, Contexts.PRECALC_HOST, Contexts.WELCOME_PATH, LandingSite.class);
-            add(map, Contexts.PRECALC_HOST, Contexts.CANVAS_PATH, CanvasSite.class);
+            add(dbConfig, Contexts.PRECALC_HOST, Contexts.ROOT_PATH, PrecalcRootSite.class);
+            add(dbConfig, Contexts.PRECALC_HOST, Contexts.INSTRUCTION_PATH, CourseSite.class);
+            add(dbConfig, Contexts.PRECALC_HOST, Contexts.WELCOME_PATH, LandingSite.class);
+            add(dbConfig, Contexts.PRECALC_HOST, Contexts.CANVAS_PATH, CanvasSite.class);
         }
 
         if (webHosts.contains(Contexts.PLACEMENT_HOST)) {
-            add(map, Contexts.PLACEMENT_HOST, Contexts.ROOT_PATH, PlacementRedirector.class);
-            add(map, Contexts.PLACEMENT_HOST, Contexts.ELM_TUTORIAL_PATH, ElmTutorialSite.class);
-            add(map, Contexts.PLACEMENT_HOST, Contexts.PRECALC_TUTORIAL_PATH, PrecalcTutorialSite.class);
-            add(map, Contexts.PLACEMENT_HOST, Contexts.WELCOME_PATH, MathPlacementSite.class);
+            add(dbConfig, Contexts.PLACEMENT_HOST, Contexts.ROOT_PATH, PlacementRedirector.class);
+            add(dbConfig, Contexts.PLACEMENT_HOST, Contexts.ELM_TUTORIAL_PATH, ElmTutorialSite.class);
+            add(dbConfig, Contexts.PLACEMENT_HOST, Contexts.PRECALC_TUTORIAL_PATH, PrecalcTutorialSite.class);
+            add(dbConfig, Contexts.PLACEMENT_HOST, Contexts.WELCOME_PATH, MathPlacementSite.class);
         }
 
         if (webHosts.contains(Contexts.COURSE_HOST)) {
-            add(map, Contexts.COURSE_HOST, Contexts.ROOT_PATH, EmptyRootSite.class);
-            add(map, Contexts.COURSE_HOST, Contexts.HELP_PATH, HelpSite.class);
-            add(map, Contexts.COURSE_HOST, Contexts.LTI_PATH, LtiSite.class);
-            add(map, Contexts.COURSE_HOST, Contexts.CSU_MATH_COURSE_MGR_PATH, CanvasCourseSite.class);
-            add(map, Contexts.COURSE_HOST, Contexts.MPS_PATH, ProctoringSite.class);
-            add(map, Contexts.COURSE_HOST, Contexts.VIDEO_PATH, VideoSite.class);
-            add(map, Contexts.COURSE_HOST, Contexts.CFM_PATH, CfmSite.class);
+            add(dbConfig, Contexts.COURSE_HOST, Contexts.ROOT_PATH, EmptyRootSite.class);
+            add(dbConfig, Contexts.COURSE_HOST, Contexts.HELP_PATH, HelpSite.class);
+            add(dbConfig, Contexts.COURSE_HOST, Contexts.LTI_PATH, LtiSite.class);
+            add(dbConfig, Contexts.COURSE_HOST, Contexts.CSU_MATH_COURSE_MGR_PATH, CanvasCourseSite.class);
+            add(dbConfig, Contexts.COURSE_HOST, Contexts.MPS_PATH, ProctoringSite.class);
+            add(dbConfig, Contexts.COURSE_HOST, Contexts.VIDEO_PATH, VideoSite.class);
+            add(dbConfig, Contexts.COURSE_HOST, Contexts.CFM_PATH, CfmSite.class);
         }
 
         if (webHosts.contains(Contexts.TESTING_HOST)) {
-            add(map, Contexts.TESTING_HOST, Contexts.ROOT_PATH, AdminRootSite.class);
-            add(map, Contexts.TESTING_HOST, Contexts.ADMINSYS_PATH, AdminSite.class);
-            add(map, Contexts.TESTING_HOST, Contexts.TESTING_CENTER_PATH, TestingCenterSite.class);
-            add(map, Contexts.TESTING_HOST, Contexts.RAMWORK_PATH, RamWorkSite.class);
-            add(map, Contexts.TESTING_HOST, Contexts.REPORTING_PATH, ReportingSite.class);
-            add(map, Contexts.TESTING_HOST, Contexts.SCHEDULING_PATH, SchedulingSite.class);
-            add(map, Contexts.TESTING_HOST, Contexts.TXN_PATH, Site.class);
-            add(map, Contexts.TESTING_HOST, Contexts.WEBSVC_PATH, WebServiceSite.class);
+            add(dbConfig, Contexts.TESTING_HOST, Contexts.ROOT_PATH, AdminRootSite.class);
+            add(dbConfig, Contexts.TESTING_HOST, Contexts.ADMINSYS_PATH, AdminSite.class);
+            add(dbConfig, Contexts.TESTING_HOST, Contexts.TESTING_CENTER_PATH, TestingCenterSite.class);
+            add(dbConfig, Contexts.TESTING_HOST, Contexts.RAMWORK_PATH, RamWorkSite.class);
+            add(dbConfig, Contexts.TESTING_HOST, Contexts.REPORTING_PATH, ReportingSite.class);
+            add(dbConfig, Contexts.TESTING_HOST, Contexts.SCHEDULING_PATH, SchedulingSite.class);
+            add(dbConfig, Contexts.TESTING_HOST, Contexts.TXN_PATH, TxnSite.class);
+            add(dbConfig, Contexts.TESTING_HOST, Contexts.WEBSVC_PATH, WebServiceSite.class);
         }
 
         if (webHosts.contains(Contexts.NIBBLER_HOST)) {
-            add(map, Contexts.NIBBLER_HOST, Contexts.ROOT_PATH, EmptyRootSite.class);
-            add(map, Contexts.NIBBLER_HOST, Contexts.MPSMEDIA_PATH, ProctoringMediaSite.class);
+            add(dbConfig, Contexts.NIBBLER_HOST, Contexts.ROOT_PATH, EmptyRootSite.class);
+            add(dbConfig, Contexts.NIBBLER_HOST, Contexts.MPSMEDIA_PATH, ProctoringMediaSite.class);
         }
 
         // Load any sessions persisted from a prior shutdown
@@ -207,24 +204,24 @@ public final class WebMidController implements IMidController {
      * Adds a site by creating the website profile for a specified host and port, then creating an instance of a site
      * from its class and registering it with the controller.
      *
-     * @param map  the context map
-     * @param host the host
-     * @param path the path
-     * @param cls  the site class
+     * @param dbConfig the context map
+     * @param host     the host
+     * @param path     the path
+     * @param cls      the site class
      */
-    private void add(final ContextMap map, final String host, final String path,
+    private void add(final DatabaseConfig dbConfig, final String host, final String path,
                      final Class<? extends AbstractSite> cls) {
 
-        final WebSiteProfile profile = map.getWebSiteProfile(host, path);
+        final Site site = dbConfig.getSite(host, path);
 
-        if (profile == null) {
+        if (site == null) {
             Log.warning("No web profile for ", host, CoreConstants.COLON, path);
         } else {
             final Constructor<? extends AbstractSite> constr;
             try {
-                constr = cls.getConstructor(WebSiteProfile.class, ISessionManager.class);
-                final AbstractSite site = constr.newInstance(profile, this.sessions);
-                regSite(site);
+                constr = cls.getConstructor(Site.class, ISessionManager.class);
+                final AbstractSite webSite = constr.newInstance(site, this.sessions);
+                regSite(webSite);
             } catch (final NoSuchMethodException | SecurityException | InstantiationException
                            | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                 Log.warning("Failed to create web site for ", host, CoreConstants.COLON, path, ex);
@@ -240,9 +237,9 @@ public final class WebMidController implements IMidController {
      */
     private void regSite(final AbstractSite site) {
 
-        final String host = site.siteProfile.host;
+        final String host = site.site.getHost();
         final SortedMap<String, AbstractSite> map = this.sites.computeIfAbsent(host, s -> new TreeMap<>());
-        final String path = site.siteProfile.path;
+        final String path = site.site.path;
 
 //        Log.info("Registering site for host '", host, "' path '", path, "'");
 
@@ -290,72 +287,64 @@ public final class WebMidController implements IMidController {
         } else {
 //            Log.info(site.getClass().getSimpleName() + " handling " + req.getMethod());
 
-            final DbContext ctx = site.getPrimaryDbContext();
-
             try {
                 final long timerStart = System.currentTimeMillis();
 
-                final DbConnection conn = ctx.checkOutConnection();
-                final DbProfile siteProfile = site.getDbProfile();
+                final Profile siteProfile = site.site.profile;
+                final Cache cache = new Cache(siteProfile);
 
-                // The lifetime of this cache should be the page request only.
-                final Cache cache = new Cache(siteProfile, conn);
+                if (timerStart > this.lastPurge + PURGE_INTERVAL) {
 
-                try {
-                    if (timerStart > this.lastPurge + PURGE_INTERVAL) {
+                    Log.info("Purging expired HTML sessions");
 
-                        Log.info("Purging expired HTML sessions");
+                    ChallengeExamSessionStore.getInstance().purgeExpired(cache);
+                    PlacementExamSessionStore.getInstance().purgeExpired(cache);
+                    UnitExamSessionStore.getInstance().purgeExpired(cache);
+                    ReviewExamSessionStore.getInstance().purgeExpired(cache);
+                    HomeworkSessionStore.getInstance().purgeExpired();
+                    PastExamSessionStore.getInstance().purgeExpired();
 
-                        ChallengeExamSessionStore.getInstance().purgeExpired(cache);
-                        PlacementExamSessionStore.getInstance().purgeExpired(cache);
-                        UnitExamSessionStore.getInstance().purgeExpired(cache);
-                        ReviewExamSessionStore.getInstance().purgeExpired(cache);
-                        HomeworkSessionStore.getInstance().purgeExpired();
-                        PastExamSessionStore.getInstance().purgeExpired();
+                    this.lastPurge = timerStart;
+                }
 
-                        this.lastPurge = timerStart;
+                final int pathLen = site.site.path.length();
+                String subpath = reqPath.substring(pathLen);
+
+                if (req.isSecure()) {
+
+                    if (!subpath.isEmpty() && (int) subpath.charAt(0) == SLASH) {
+                        subpath = subpath.substring(1);
                     }
 
-                    final int pathLen = site.siteProfile.path.length();
-                    String subpath = reqPath.substring(pathLen);
+                    final long start = System.currentTimeMillis();
+                    final String reqMethod = req.getMethod();
 
-                    if (req.isSecure()) {
-
-                        if (!subpath.isEmpty() && (int) subpath.charAt(0) == SLASH) {
-                            subpath = subpath.substring(1);
-                        }
-
-                        final long start = System.currentTimeMillis();
-                        final String reqMethod = req.getMethod();
-
-                        if ("GET".equals(reqMethod)) {
-                            site.doGet(cache, subpath, type, req, resp);
-                        } else if ("POST".equals(reqMethod)) {
-                            site.doPost(cache, subpath, type, req, resp);
-                        } else {
-                            resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
-                        }
-                        final long elapsed = System.currentTimeMillis() - start;
-                        this.timer.recordAccess(siteProfile, subpath, elapsed);
-                    } else if (Contexts.TESTING_HOST.equals(reqHost) || Contexts.ONLINE_HOST.equals(reqHost)
-                                                                        && reqPath.startsWith(Contexts.TESTING_CENTER_PATH)) {
-
-                        if (!subpath.isEmpty() && (int) subpath.charAt(0) == SLASH) {
-                            subpath = subpath.substring(1);
-                        }
-
-                        final long start = System.currentTimeMillis();
+                    if ("GET".equals(reqMethod)) {
+                        site.doGet(cache, subpath, type, req, resp);
+                    } else if ("POST".equals(reqMethod)) {
                         site.doPost(cache, subpath, type, req, resp);
-                        final long elapsed = System.currentTimeMillis() - start;
-                        this.timer.recordAccess(siteProfile, subpath, elapsed);
                     } else {
-                        // Site requires secure connections
-                        final String loc = "https://" + req.getServerName() + req.getServletPath();
-                        resp.setHeader("Location", loc);
-                        resp.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
+                        resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
                     }
-                } finally {
-                    ctx.checkInConnection(conn);
+                    final long elapsed = System.currentTimeMillis() - start;
+                    this.timer.recordAccess(siteProfile, subpath, elapsed);
+                } else if (Contexts.TESTING_HOST.equals(reqHost) || Contexts.ONLINE_HOST.equals(reqHost)
+                                                                    && reqPath.startsWith(
+                        Contexts.TESTING_CENTER_PATH)) {
+
+                    if (!subpath.isEmpty() && (int) subpath.charAt(0) == SLASH) {
+                        subpath = subpath.substring(1);
+                    }
+
+                    final long start = System.currentTimeMillis();
+                    site.doPost(cache, subpath, type, req, resp);
+                    final long elapsed = System.currentTimeMillis() - start;
+                    this.timer.recordAccess(siteProfile, subpath, elapsed);
+                } else {
+                    // Site requires secure connections
+                    final String loc = "https://" + req.getServerName() + req.getServletPath();
+                    resp.setHeader("Location", loc);
+                    resp.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
                 }
             } catch (final SQLException ex) {
                 Log.warning(ex);
@@ -405,45 +394,38 @@ public final class WebMidController implements IMidController {
             Log.warning("Unrecognized path: ", reqPath);
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
-            final DbContext ctx = site.getPrimaryDbContext();
-
             try {
-                final DbConnection conn = ctx.checkOutConnection();
-                final DbProfile siteProfile = site.getDbProfile();
+                final Profile siteProfile = site.site.profile;
 
                 // The lifetime of this cache should be the page request only.
-                final Cache cache = new Cache(siteProfile, conn);
+                final Cache cache = new Cache(siteProfile);
 
-                try {
-                    if (Contexts.TESTING_HOST.equals(reqHost)) {
+                if (Contexts.TESTING_HOST.equals(reqHost)) {
 
-                        final int pathLen = site.siteProfile.path.length();
-                        String subpath = reqPath.substring(pathLen);
+                    final int pathLen = site.site.path.length();
+                    String subpath = reqPath.substring(pathLen);
 
-                        if (!subpath.isEmpty() && (int) subpath.charAt(0) == SLASH) {
-                            subpath = subpath.substring(1);
-                        }
-
-                        final long start = System.currentTimeMillis();
-                        final String reqMethod = req.getMethod();
-
-                        if ("GET".equals(reqMethod)) {
-                            site.doGet(cache, subpath, type, req, resp);
-                        } else if ("POST".equals(reqMethod)) {
-                            site.doPost(cache, subpath, type, req, resp);
-                        } else {
-                            resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
-                        }
-                        final long elapsed = System.currentTimeMillis() - start;
-                        this.timer.recordAccess(siteProfile, subpath, elapsed);
-                    } else {
-                        // Site requires secure connections
-                        final String loc = "https://" + req.getServerName() + req.getServletPath();
-                        resp.setHeader("Location", loc);
-                        resp.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
+                    if (!subpath.isEmpty() && (int) subpath.charAt(0) == SLASH) {
+                        subpath = subpath.substring(1);
                     }
-                } finally {
-                    ctx.checkInConnection(conn);
+
+                    final long start = System.currentTimeMillis();
+                    final String reqMethod = req.getMethod();
+
+                    if ("GET".equals(reqMethod)) {
+                        site.doGet(cache, subpath, type, req, resp);
+                    } else if ("POST".equals(reqMethod)) {
+                        site.doPost(cache, subpath, type, req, resp);
+                    } else {
+                        resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+                    }
+                    final long elapsed = System.currentTimeMillis() - start;
+                    this.timer.recordAccess(siteProfile, subpath, elapsed);
+                } else {
+                    // Site requires secure connections
+                    final String loc = "https://" + req.getServerName() + req.getServletPath();
+                    resp.setHeader("Location", loc);
+                    resp.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
                 }
             } catch (final SQLException ex) {
                 Log.warning(ex);
@@ -477,7 +459,7 @@ public final class WebMidController implements IMidController {
 
             for (final AbstractSite test : siteList.values()) {
 
-                final String testPath = test.siteProfile.path;
+                final String testPath = test.site.path;
                 final int testPathLen = testPath.length();
 
                 if (testPathLen > len) {
@@ -492,7 +474,7 @@ public final class WebMidController implements IMidController {
             if (site == null) {
                 // Attempt to find a default root site to handle unknown paths
                 for (final AbstractSite test : siteList.values()) {
-                    if (Contexts.ROOT_PATH.equals(test.siteProfile.path)) {
+                    if (Contexts.ROOT_PATH.equals(test.site.path)) {
                         site = test;
                         break;
                     }

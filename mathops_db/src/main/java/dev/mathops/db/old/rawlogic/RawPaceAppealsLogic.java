@@ -1,6 +1,8 @@
 package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawPaceAppeals;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.builder.SimpleBuilder;
@@ -62,7 +64,9 @@ public enum RawPaceAppealsLogic {
                                + "ms_nbr,ms_type,ms_date,new_deadline_dt,nbr_atmpts_allow,circumstances,comment," +
                                "interviewer) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-            try (final PreparedStatement ps = cache.conn.prepareStatement(sql)) {
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final PreparedStatement ps = conn.prepareStatement(sql)) {
                 LogicUtils.setPsString(ps, 1, record.stuId);
                 LogicUtils.setPsString(ps, 2, record.termKey.termCode);
                 LogicUtils.setPsInteger(ps, 3, record.termKey.shortYear);
@@ -82,10 +86,12 @@ public enum RawPaceAppealsLogic {
                 result = ps.executeUpdate() == 1;
 
                 if (result) {
-                    cache.conn.commit();
+                    conn.commit();
                 } else {
-                    cache.conn.rollback();
+                    conn.rollback();
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -116,14 +122,18 @@ public enum RawPaceAppealsLogic {
                 "   AND ms_nbr=", LogicUtils.sqlIntegerValue(record.msNbr),
                 "   AND ms_type=", LogicUtils.sqlStringValue(record.msType));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             result = stmt.executeUpdate(sql.toString()) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -160,16 +170,19 @@ public enum RawPaceAppealsLogic {
                 "   AND ms_type=", LogicUtils.sqlStringValue(record.msType));
 
         final String sqlString = sql.toString();
-//        Log.info(sqlString);
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             result = stmt.executeUpdate(sqlString) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -215,12 +228,16 @@ public enum RawPaceAppealsLogic {
 
         final List<RawPaceAppeals> result = new ArrayList<>(50);
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 result.add(RawPaceAppeals.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;

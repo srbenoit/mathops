@@ -1,6 +1,8 @@
 package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawUserClearance;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -48,8 +50,20 @@ public enum RawUserClearanceLogic {
                 LogicUtils.sqlIntegerValue(record.clearType), ",",
                 LogicUtils.sqlStringValue(record.clearPasswd), ")");
 
-        try (final Statement stmt = cache.conn.createStatement()) {
-            return stmt.executeUpdate(sql) == 1;
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
+            final boolean result = stmt.executeUpdate(sql) == 1;
+
+            if (result) {
+                conn.commit();
+            } else {
+                conn.rollback();
+            }
+
+            return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -67,16 +81,20 @@ public enum RawUserClearanceLogic {
                 "WHERE login=", LogicUtils.sqlStringValue(record.login),
                 "  AND clear_function=", LogicUtils.sqlStringValue(record.clearFunction));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -91,12 +109,16 @@ public enum RawUserClearanceLogic {
 
         final List<RawUserClearance> result = new ArrayList<>(50);
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery("SELECT * FROM user_clearance")) {
 
             while (rs.next()) {
                 result.add(RawUserClearance.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -113,17 +135,21 @@ public enum RawUserClearanceLogic {
     public static List<RawUserClearance> queryAllForLogin(final Cache cache, final String login)
             throws SQLException {
 
-        final String sql = SimpleBuilder.concat("SELECT * FROM user_clearance ",
-                "WHERE login=", LogicUtils.sqlStringValue(login));
+        final String sql = SimpleBuilder.concat("SELECT * FROM user_clearance WHERE login=",
+                LogicUtils.sqlStringValue(login));
 
         final List<RawUserClearance> result = new ArrayList<>(10);
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 result.add(RawUserClearance.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;

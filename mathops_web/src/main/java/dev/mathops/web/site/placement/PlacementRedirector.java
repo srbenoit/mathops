@@ -2,18 +2,18 @@ package dev.mathops.web.site.placement;
 
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.db.Cache;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.db.logic.ELiveRefreshes;
-import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.web.site.AbstractPageSite;
 import dev.mathops.web.site.BasicCss;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.placement.main.MathPlacementSite;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 
 /**
@@ -24,12 +24,12 @@ public final class PlacementRedirector extends AbstractPageSite {
     /**
      * Constructs a new {@code PlacementSite}.
      *
-     * @param theSiteProfile the site profile under which this site is accessed
+     * @param theSite the site profile under which this site is accessed
      * @param theSessions    the singleton user session repository
      */
-    public PlacementRedirector(final WebSiteProfile theSiteProfile, final ISessionManager theSessions) {
+    public PlacementRedirector(final Site theSite, final ISessionManager theSessions) {
 
-        super(theSiteProfile, theSessions);
+        super(theSite, theSessions);
     }
 
     /**

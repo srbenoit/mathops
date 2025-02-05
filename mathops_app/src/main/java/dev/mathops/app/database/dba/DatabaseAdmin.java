@@ -3,7 +3,7 @@ package dev.mathops.app.database.dba;
 import com.formdev.flatlaf.FlatLightLaf;
 import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.cfg.ContextMap;
+import dev.mathops.db.cfg.DatabaseConfig;
 
 import javax.swing.SwingUtilities;
 
@@ -26,9 +26,9 @@ public final class DatabaseAdmin implements Runnable {
 
         DbConnection.registerDrivers();
 
-        final ContextMap map = ContextMap.getDefaultInstance();
+        final DatabaseConfig databaseConfig = DatabaseConfig.getDefault();
 
-        final DatabasePicker picker = new DatabasePicker(map);
+        final DatabasePicker picker = new DatabasePicker(databaseConfig);
         picker.init();
         UIUtilities.packAndCenter(picker);
         picker.setVisible(true);

@@ -2,13 +2,13 @@ package dev.mathops.dbjobs.batch.daily;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.Contexts;
 import dev.mathops.db.Cache;
+import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.old.rawlogic.RawFfrTrnsLogic;
 import dev.mathops.db.old.rawrecord.RawFfrTrns;
 import dev.mathops.text.builder.HtmlBuilder;
@@ -27,24 +27,15 @@ import java.util.List;
 public final class ImportOdsPastCourses {
 
     /** The database profile through which to access the database. */
-    private final DbProfile dbProfile;
-
-    /** The database context. */
-    private final DbContext odsCtx;
-
-    /** The database context. */
-    private final DbContext primaryCtx;
+    private final Profile profile;
 
     /**
      * Constructs a new {@code ImportOdsPastCourses}.
      */
     public ImportOdsPastCourses() {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-
-        this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
-        this.odsCtx = this.dbProfile.getDbContext(ESchemaUse.ODS);
-        this.primaryCtx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        this.profile = config.getCodeProfile(Contexts.BATCH_PATH);
     }
 
     /**
@@ -56,38 +47,28 @@ public final class ImportOdsPastCourses {
 
         final Collection<String> report = new ArrayList<>(10);
 
-        if (this.dbProfile == null) {
-            report.add("Unable to create production context.");
-        } else if (this.odsCtx == null) {
-            report.add("Unable to create ODS database context.");
+        if (this.profile == null) {
+            report.add("Unable to create production profile.");
         } else {
+            final Cache cache = new Cache(this.profile);
+
+            final Login odsLogin = this.profile.getLogin(ESchema.ODS);
+
+            final DbConnection odsConn = odsLogin.checkOutConnection();
+
             try {
-                final DbConnection primaryConn = this.primaryCtx.checkOutConnection();
-                final Cache cache = new Cache(this.dbProfile, primaryConn);
+                report.add("Processing");
+                final List<TransferRecord> list = queryOds(odsConn, report);
 
-                try {
-                    final DbConnection odsConn = this.odsCtx.checkOutConnection();
+                report.add("Found " + list.size() + " rows.");
+                processList(cache, list, report);
+                report.add("Job completed");
 
-                    try {
-                        report.add("Processing");
-                        final List<TransferRecord> list = queryOds(odsConn, report);
-
-                        report.add("Found " + list.size() + " rows.");
-                        processList(cache, list, report);
-                        report.add("Job completed");
-
-                    } catch (final SQLException ex) {
-                        Log.warning(ex);
-                        report.add("Unable to perform query");
-                    } finally {
-                        this.odsCtx.checkInConnection(odsConn);
-                    }
-                } finally {
-                    this.primaryCtx.checkInConnection(primaryConn);
-                }
             } catch (final SQLException ex) {
                 Log.warning(ex);
-                report.add("Unable to obtain connection to ODS database");
+                report.add("Unable to perform query");
+            } finally {
+                odsLogin.checkInConnection(odsConn);
             }
         }
 
@@ -117,9 +98,9 @@ public final class ImportOdsPastCourses {
         try (final Statement stmt = conn.createStatement()) {
 
             final String sql = "SELECT ID, COURSE_IDENTIFICATION, FINAL_GRADE FROM ODSMGR.STUDENT_COURSE "
-                    + " WHERE (COURSE_IDENTIFICATION='MATH120' OR COURSE_IDENTIFICATION='MATH127')"
-                    + "   AND (FINAL_GRADE = 'A' OR FINAL_GRADE = 'B' OR FINAL_GRADE = 'C' OR"
-                    + "        FINAL_GRADE = 'D' OR FINAL_GRADE = 'S')";
+                               + " WHERE (COURSE_IDENTIFICATION='MATH120' OR COURSE_IDENTIFICATION='MATH127')"
+                               + "   AND (FINAL_GRADE = 'A' OR FINAL_GRADE = 'B' OR FINAL_GRADE = 'C' OR"
+                               + "        FINAL_GRADE = 'D' OR FINAL_GRADE = 'S')";
 
             try (final ResultSet rs = stmt.executeQuery(sql)) {
                 while (rs.next()) {
@@ -191,6 +172,7 @@ public final class ImportOdsPastCourses {
      */
     public static void main(final String... args) {
 
+        DbConnection.registerDrivers();
         final ImportOdsPastCourses job = new ImportOdsPastCourses();
 
         Log.fine(job.execute());

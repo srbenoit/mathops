@@ -1,17 +1,14 @@
 package dev.mathops.web.site;
 
 import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.installation.EPath;
 import dev.mathops.commons.installation.PathList;
-import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.db.logic.ELiveRefreshes;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
-import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
@@ -67,8 +64,8 @@ public abstract class AbstractSite {
     /** The date and time when the site was deployed. */
     final String buildDatetime;
 
-    /** The database profile under which this site is accessed. */
-    public final WebSiteProfile siteProfile;
+    /** The site database configuration. */
+    public final Site site;
 
     /** The directory from which VTT are loaded. */
     private final File vttDir;
@@ -82,19 +79,19 @@ public abstract class AbstractSite {
     /**
      * Constructs a new {@code AbstractSite}.
      *
-     * @param theSiteProfile the website profile under which this site is accessed
-     * @param theSessions    the singleton user session repository
+     * @param theSite     the site  under which this site is accessed
+     * @param theSessions the singleton user session repository
      */
-    protected AbstractSite(final WebSiteProfile theSiteProfile, final ISessionManager theSessions) {
+    protected AbstractSite(final Site theSite, final ISessionManager theSessions) {
 
-        if (theSiteProfile == null) {
-            throw new IllegalArgumentException("Database profile may not be null");
+        if (theSite == null) {
+            throw new IllegalArgumentException("web context may not be null");
         }
         if (theSessions == null) {
             throw new IllegalArgumentException("Session manager may not be null");
         }
 
-        this.siteProfile = theSiteProfile;
+        this.site = theSite;
 
         final File baseDir = PathList.getInstance().getBaseDir();
 
@@ -122,19 +119,9 @@ public abstract class AbstractSite {
      *
      * @return the database profile
      */
-    public final DbProfile getDbProfile() {
+    public final Site getSite() {
 
-        return this.siteProfile.dbProfile;
-    }
-
-    /**
-     * Gets the primary database context under which this site should be accessed.
-     *
-     * @return the primary database context
-     */
-    protected final DbContext getPrimaryDbContext() {
-
-        return this.siteProfile.dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        return this.site;
     }
 
     /**
@@ -294,7 +281,7 @@ public abstract class AbstractSite {
             }
 
             if (failPage != null) {
-                final String path = this.siteProfile.path;
+                final String path = this.site.path;
                 resp.sendRedirect(path + (path.endsWith(Contexts.ROOT_PATH) ? failPage
                         : CoreConstants.SLASH + failPage));
             }
@@ -631,10 +618,10 @@ public abstract class AbstractSite {
     /**
      * Tests whether a single context is in maintenance mode.
      *
-     * @param theSiteProfile the site profile to test
+     * @param theSite the site profile to test
      * @return the maintenance message if the context is in maintenance mode; {@code null} if not
      */
-    public static String isMaintenance(final WebSiteProfile theSiteProfile) {
+    public static String isMaintenance(final Site theSite) {
 
         final Properties props = new Properties();
 
@@ -648,7 +635,8 @@ public abstract class AbstractSite {
             }
         }
 
-        final String key = theSiteProfile.host + theSiteProfile.path.replace(CoreConstants.SLASH, "~");
+        final String host = theSite.getHost();
+        final String key = host + theSite.path.replace(CoreConstants.SLASH, "~");
 
         final String maint = props.getProperty(key + "_maintenance");
 
@@ -657,7 +645,7 @@ public abstract class AbstractSite {
         if ("true".equalsIgnoreCase(maint)) {
             result = props.getProperty(key + "_msg");
             if (result == null || result.trim().isEmpty()) {
-                result = props.getProperty(theSiteProfile.host + "_default_msg");
+                result = props.getProperty(host + "_default_msg");
 
                 if (result == null) {
                     // Still should be in maintenance mode, so return non-null result

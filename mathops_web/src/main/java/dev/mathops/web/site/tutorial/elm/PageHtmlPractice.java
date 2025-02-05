@@ -13,7 +13,6 @@ import dev.mathops.web.site.html.hw.HomeworkSessionStore;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 /**
@@ -54,7 +53,7 @@ enum PageHtmlPractice {
             HomeworkSession hs = store.getHomeworkSession(session.loginSessionId, assignmentId);
 
             if (hs == null) {
-                hs = new HomeworkSession(cache, site.siteProfile, session.loginSessionId,
+                hs = new HomeworkSession(cache, site.site, session.loginSessionId,
                         session.getEffectiveUserId(), assignmentId, true, "tutorial.html");
                 store.setHomeworkSession(hs);
             }

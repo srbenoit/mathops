@@ -15,7 +15,6 @@ import dev.mathops.app.adm.office.student.StuInfoPanel;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.DbContext;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -56,12 +55,10 @@ final class CardPopulationDetail extends JPanel implements ActionListener {
     /**
      * Constructs a new {@code CardPopulationDetail}.
      *
-     * @param theCache         the data cache
-     * @param liveContext      the database context used to access live data
-     * @param theFixed         the fixed data
+     * @param theCache the data cache
+     * @param theFixed the fixed data
      */
-    CardPopulationDetail(final Cache theCache, final DbContext liveContext,
-                         final UserData theFixed) {
+    CardPopulationDetail(final Cache theCache, final UserData theFixed) {
 
         super(new BorderLayout(5, 5));
         setPreferredSize(MainWindow.PREF_SIZE);
@@ -69,7 +66,7 @@ final class CardPopulationDetail extends JPanel implements ActionListener {
         // The fixed data.
 
         setBackground(Color.WHITE);
-        setBorder(BorderFactory.createCompoundBorder( BorderFactory.createEtchedBorder(),
+        setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEtchedBorder(),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
 
         // Top - [Pick] button and selected student name/ID
@@ -168,7 +165,7 @@ final class CardPopulationDetail extends JPanel implements ActionListener {
         final StuHoldsPanel holdsPanel = new StuHoldsPanel(theCache, theFixed);
         tabs.addTab("Holds", holdsPanel);
 
-        final CourseExamsPanel examsPanel = new CourseExamsPanel(theCache, liveContext, theFixed);
+        final CourseExamsPanel examsPanel = new CourseExamsPanel(theCache, theFixed);
         tabs.addTab("Exams", examsPanel);
 
         final PlacementToolPanel mptPanel = new PlacementToolPanel();

@@ -9,21 +9,18 @@ import java.util.Locale;
  */
 final class TestRes extends ResBundle {
 
-    /** An incrementing index for resource keys. */
-    private static int index = 1;
-
     // Used by multiple classes
 
     /** A resource key. */
-    private static final String ERR_NO_TEST_PROFILE = key(index++);
+    private static final String ERR_NO_TEST_PROFILE = key(1);
 
     /** A resource key. */
-    private static final String ERR_NO_PRIMARY_CONTEXT = key(index++);
+    private static final String ERR_NO_PRIMARY_CONTEXT = key(2);
 
     // Used by IvtPlacementLogic
 
     /** A resource key. */
-    static final String PLC_ERR_NO_CHECKIN_PROFILE = key(index++);
+    static final String PLC_ERR_NO_CHECKIN_PROFILE = key(3);
 
     //
 

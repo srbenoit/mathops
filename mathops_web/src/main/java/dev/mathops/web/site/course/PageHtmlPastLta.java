@@ -13,7 +13,6 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 /**
@@ -62,7 +61,7 @@ enum PageHtmlPastLta {
             if (pes == null) {
                 final String redirect = "course_text_module.html?course=" + course + "&module=" + unit + "&mode="
                         + mode;
-                pes = new PastLtaSession(cache, site.siteProfile, session.loginSessionId, exam, xml,
+                pes = new PastLtaSession(cache, site.site, session.loginSessionId, exam, xml,
                         session.getEffectiveUserId(), redirect);
                 store.setPastLtaSession(pes);
             }

@@ -4,10 +4,10 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -26,20 +26,25 @@ import java.util.Collection;
 final class BannerDataDictionary {
 
     /** The database profile through which to access the database. */
-    private final DbProfile dbProfile;
+    private final Profile profile;
 
-    /** The Banner database context. */
-    private final DbContext liveCtx;
+    /** The login for the Live schema in the batch profile. */
+    private final Login liveLogin;
 
     /**
      * Constructs a new {@code OdsDataDictionary}.
      */
     private BannerDataDictionary() {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        this.profile = config.getCodeProfile(Contexts.BATCH_PATH);
 
-        this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
-        this.liveCtx = this.dbProfile.getDbContext(ESchemaUse.LIVE);
+        Login theLogin = null;
+        if (this.profile != null) {
+            theLogin = this.profile.getLogin(ESchema.LIVE);
+        }
+
+        this.liveLogin = theLogin;
     }
 
     /**
@@ -51,10 +56,10 @@ final class BannerDataDictionary {
 
         final Collection<String> report = new ArrayList<>(100);
 
-        if (this.dbProfile == null) {
-            report.add("Unable to create production context.");
-        } else if (this.liveCtx == null) {
-            report.add("Unable to create Banner database context.");
+        if (this.profile == null) {
+            report.add("Unable to locate batch profile.");
+        } else if (this.liveLogin == null) {
+            report.add("Unable to locate LIVE database login.");
         } else {
             execute(report);
         }
@@ -74,7 +79,7 @@ final class BannerDataDictionary {
      */
     private void execute(final Collection<? super String> report) {
 
-        final DbConnection odsConn = this.liveCtx.checkOutConnection();
+        final DbConnection odsConn = this.liveLogin.checkOutConnection();
 
         try {
             queryBannerFields(odsConn, report);
@@ -82,7 +87,7 @@ final class BannerDataDictionary {
             Log.warning(ex);
             report.add("Unable to perform query: " + ex.getMessage());
         } finally {
-            this.liveCtx.checkInConnection(odsConn);
+            this.liveLogin.checkInConnection(odsConn);
         }
     }
 

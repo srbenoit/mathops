@@ -60,7 +60,7 @@ enum PageHtmlPastExam {
                     redirect = "course_status.html?course=" + course;
                 }
 
-                pes = new PastExamSession(cache, site.siteProfile, session.loginSessionId, exam, xml,
+                pes = new PastExamSession(cache, site.site, session.loginSessionId, exam, xml,
                         session.getEffectiveUserId(), redirect);
                 store.setPastExamSession(pes);
             }

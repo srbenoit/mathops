@@ -2,6 +2,8 @@ package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawTestingCenter;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -53,9 +55,8 @@ public enum RawTestingCenterLogic {
             throw new SQLException("Null value in primary key field.");
         }
 
-        final String sql = SimpleBuilder.concat( //
-                "INSERT INTO testing_centers (",
-                "testing_center_id,tc_name,addres_1,addres_2,addres_3,city,state,",
+        final String sql = SimpleBuilder.concat(
+                "INSERT INTO testing_centers (testing_center_id,tc_name,addres_1,addres_2,addres_3,city,state,",
                 "zip_code,active,dtime_created,dtime_approved,dtime_denied,",
                 "dtime_revoked,is_remote,is_proctored) VALUES (",
                 LogicUtils.sqlStringValue(record.testingCenterId), ",",
@@ -74,16 +75,20 @@ public enum RawTestingCenterLogic {
                 LogicUtils.sqlStringValue(record.isRemote), ",",
                 LogicUtils.sqlStringValue(record.isProctored), ")");
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -97,19 +102,23 @@ public enum RawTestingCenterLogic {
      */
     public static boolean delete(final Cache cache, final RawTestingCenter record) throws SQLException {
 
-        final String sql = SimpleBuilder.concat("DELETE FROM testing_centers ",
-                "WHERE testing_center_id=", LogicUtils.sqlStringValue(record.testingCenterId));
+        final String sql = SimpleBuilder.concat("DELETE FROM testing_centers WHERE testing_center_id=",
+                LogicUtils.sqlStringValue(record.testingCenterId));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -124,12 +133,16 @@ public enum RawTestingCenterLogic {
 
         final List<RawTestingCenter> result = new ArrayList<>(10);
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery("SELECT * FROM testing_centers")) {
 
             while (rs.next()) {
                 result.add(RawTestingCenter.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -152,7 +165,9 @@ public enum RawTestingCenterLogic {
                 "SELECT * FROM testing_centers WHERE testing_center_id=",
                 LogicUtils.sqlStringValue(testingCenterId));
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
 
             if (rs.next()) {
@@ -161,6 +176,8 @@ public enum RawTestingCenterLogic {
                     Log.warning("Multiple testing center records with id ", testingCenterId);
                 }
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;

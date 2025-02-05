@@ -3,11 +3,8 @@ package dev.mathops.dbjobs.batch.daily;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.old.rawlogic.RawPendingExamLogic;
 import dev.mathops.db.old.rawrecord.RawPendingExam;
 
@@ -20,20 +17,15 @@ import java.util.List;
 public final class CleanPending {
 
     /** The database profile through which to access the database. */
-    private final DbProfile dbProfile;
-
-    /** The Primary database context. */
-    private final DbContext primaryCtx;
+    private final Profile profile;
 
     /**
      * Constructs a new {@code CleanPending}.
      */
     public CleanPending() {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-
-        this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
-        this.primaryCtx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        this.profile = config.getCodeProfile(Contexts.BATCH_PATH);
     }
 
     /**
@@ -41,23 +33,17 @@ public final class CleanPending {
      */
     public void execute() {
 
-        if (this.dbProfile == null) {
-            Log.warning("Unable to create production context.");
-        } else if (this.primaryCtx == null) {
-            Log.warning("Unable to create PRIMARY database context.");
+        if (this.profile == null) {
+            Log.warning("Unable to create production profile.");
         } else {
+            final Cache cache = new Cache(this.profile);
+
+            Log.info("Running CLEAN_PENDING job");
             try {
-                final DbConnection conn = this.primaryCtx.checkOutConnection();
-                final Cache cache = new Cache(this.dbProfile, conn);
-                try {
-                    Log.info("Running CLEAN_PENDING job");
-                    final List<RawPendingExam> all = RawPendingExamLogic.queryAll(cache);
-                    for (final RawPendingExam row : all) {
-                        Log.info("    CLEAN_PENDING deleting row for student ", row.stuId);
-                        RawPendingExamLogic.delete(cache, row);
-                    }
-                } finally {
-                    this.primaryCtx.checkInConnection(conn);
+                final List<RawPendingExam> all = RawPendingExamLogic.queryAll(cache);
+                for (final RawPendingExam row : all) {
+                    Log.info("    CLEAN_PENDING deleting row for student ", row.stuId);
+                    RawPendingExamLogic.delete(cache, row);
                 }
             } catch (final SQLException ex) {
                 Log.warning("EXCEPTION: " + ex.getMessage());

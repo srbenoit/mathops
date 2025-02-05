@@ -1,6 +1,8 @@
 package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawDiscipline;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.builder.SimpleBuilder;
@@ -58,7 +60,9 @@ public enum RawDisciplineLogic {
         final String sql = "INSERT INTO discipline (stu_id,dt_incident,incident_type,course,unit,cheat_desc,"
                 + "action_type,action_comment,interviewer,proctor) VALUES (?,?,?,?,?,?,?,?,?,?)";
 
-        try (final PreparedStatement ps = cache.conn.prepareStatement(sql)) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final PreparedStatement ps = conn.prepareStatement(sql)) {
             LogicUtils.setPsString(ps, 1, record.stuId);
             LogicUtils.setPsDate(ps, 2, record.dtIncident);
             LogicUtils.setPsString(ps, 3, record.incidentType);
@@ -73,10 +77,12 @@ public enum RawDisciplineLogic {
             result = ps.executeUpdate() == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -103,14 +109,18 @@ public enum RawDisciplineLogic {
                 " AND course=", LogicUtils.sqlStringValue(record.course),
                 " AND unit=", LogicUtils.sqlIntegerValue(record.unit));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             result = stmt.executeUpdate(sql.toString()) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -174,12 +184,16 @@ public enum RawDisciplineLogic {
 
         final List<RawDiscipline> result = new ArrayList<>(50);
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 result.add(RawDiscipline.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;

@@ -2,6 +2,7 @@ package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawStsurveyqa;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -61,14 +62,18 @@ public enum RawStsurveyqaLogic {
                 LogicUtils.sqlStringValue(record.stuAnswer), ",",
                 LogicUtils.sqlIntegerValue(record.finishTime), ")");
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -93,14 +98,18 @@ public enum RawStsurveyqaLogic {
                 "  AND finish_time=", LogicUtils.sqlIntegerValue(record.finishTime),
                 "  AND survey_nbr=", LogicUtils.sqlIntegerValue(record.surveyNbr));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -115,7 +124,7 @@ public enum RawStsurveyqaLogic {
      */
     public static List<RawStsurveyqa> queryAll(final Cache cache) throws SQLException {
 
-        return executeListQuery(cache.conn, "SELECT * FROM stsurveyqa");
+        return executeListQuery(cache, "SELECT * FROM stsurveyqa");
     }
 
     /**
@@ -131,7 +140,7 @@ public enum RawStsurveyqaLogic {
         final String sql = SimpleBuilder.concat("SELECT * FROM stsurveyqa ",
                 "WHERE stu_id=", LogicUtils.sqlStringValue(stuId));
 
-        final List<RawStsurveyqa> all = executeListQuery(cache.conn, sql);
+        final List<RawStsurveyqa> all = executeListQuery(cache, sql);
 
         // Filter for only the most recent response for each question
         final Map<Integer, RawStsurveyqa> questions = new TreeMap<>();
@@ -164,7 +173,7 @@ public enum RawStsurveyqaLogic {
                 "WHERE stu_id=", LogicUtils.sqlStringValue(stuId),
                 "  AND version=", LogicUtils.sqlStringValue(version));
 
-        final List<RawStsurveyqa> all = executeListQuery(cache.conn, sql);
+        final List<RawStsurveyqa> all = executeListQuery(cache, sql);
 
         // Filter for only the most recent response for each question
         final Map<Integer, RawStsurveyqa> questions = new TreeMap<>();
@@ -183,14 +192,16 @@ public enum RawStsurveyqaLogic {
     /**
      * Executes a query that returns a list of records.
      *
-     * @param conn the database connection, checked out to this thread
-     * @param sql  the SQL to execute
+     * @param cache the data cache
+     * @param sql   the SQL to execute
      * @return the list of matching records
      * @throws SQLException if there is an error accessing the database
      */
-    private static List<RawStsurveyqa> executeListQuery(final DbConnection conn, final String sql) throws SQLException {
+    private static List<RawStsurveyqa> executeListQuery(final Cache cache, final String sql) throws SQLException {
 
         final List<RawStsurveyqa> result = new ArrayList<>(20);
+
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
         try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
@@ -198,6 +209,8 @@ public enum RawStsurveyqaLogic {
             while (rs.next()) {
                 result.add(RawStsurveyqa.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;

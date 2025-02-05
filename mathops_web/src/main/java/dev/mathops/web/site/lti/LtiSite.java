@@ -5,8 +5,8 @@ import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.db.logic.ELiveRefreshes;
-import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -26,7 +26,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.Enumeration;
 
@@ -41,13 +40,12 @@ public final class LtiSite extends CourseSite {
     /**
      * Constructs a new {@code LtiSite}.
      *
-     * @param theSiteProfile the site profile under which this site is accessed
-     * @param theSessions    the singleton user session repository
+     * @param theSite     the site profile under which this site is accessed
+     * @param theSessions the singleton user session repository
      */
-    public LtiSite(final WebSiteProfile theSiteProfile,
-                   final ISessionManager theSessions) {
+    public LtiSite(final Site theSite, final ISessionManager theSessions) {
 
-        super(theSiteProfile, theSessions);
+        super(theSite, theSessions);
     }
 
     /**
@@ -203,7 +201,7 @@ public final class LtiSite extends CourseSite {
             }
 
             if (failPage != null) {
-                final String path = this.siteProfile.path;
+                final String path = this.site.path;
                 resp.sendRedirect(path + (path.endsWith(Contexts.ROOT_PATH) ? failPage
                         : CoreConstants.SLASH + failPage));
             }

@@ -1,14 +1,12 @@
 package dev.mathops.dbjobs.batch;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
@@ -43,20 +41,15 @@ final class StillNeeds54Points {
     private static final LocalDate DAY_AFTER_DROP_SECT_2 = LocalDate.of(2025, 4, 2);
 
     /** The database profile through which to access the database. */
-    private final DbProfile dbProfile;
-
-    /** The data database context. */
-    private final DbContext dbCtx;
+    private final Profile profile;
 
     /**
      * Constructs a new {@code StillNeeds54Points}.
      */
     private StillNeeds54Points() {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-
-        this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
-        this.dbCtx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        this.profile = config.getCodeProfile(Contexts.BATCH_PATH);
     }
 
     /**
@@ -64,20 +57,12 @@ final class StillNeeds54Points {
      */
     private void execute() {
 
-        if (this.dbProfile == null) {
-            Log.warning("Unable to create production context.");
-        } else if (this.dbCtx == null) {
-            Log.warning("Unable to create database context.");
+        if (this.profile == null) {
+            Log.warning("Unable to create production profile.");
         } else {
             try {
-                final DbConnection conn = this.dbCtx.checkOutConnection();
-                final Cache cache = new Cache(this.dbProfile, conn);
-
-                try {
-                    exec(cache);
-                } finally {
-                    this.dbCtx.checkInConnection(conn);
-                }
+                final Cache cache = new Cache(this.profile);
+                exec(cache);
             } catch (final SQLException ex) {
                 Log.warning(ex);
             }
@@ -521,6 +506,7 @@ final class StillNeeds54Points {
      */
     public static void main(final String... args) {
 
+        DbConnection.registerDrivers();
         final StillNeeds54Points job = new StillNeeds54Points();
 
         job.execute();

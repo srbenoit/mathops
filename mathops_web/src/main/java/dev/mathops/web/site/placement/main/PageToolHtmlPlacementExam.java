@@ -12,7 +12,6 @@ import dev.mathops.web.site.html.placementexam.PlacementExamSessionStore;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 /**
@@ -57,7 +56,7 @@ enum PageToolHtmlPlacementExam {
         };
 
         if (pes == null) {
-            pes = new PlacementExamSession(cache, site.siteProfile, session.loginSessionId, studentId,
+            pes = new PlacementExamSession(cache, site.site, session.loginSessionId, studentId,
                     proctoring != EProctoringType.NONE, examId, "tool.html");
             store.setPlacementExamSession(pes);
         }

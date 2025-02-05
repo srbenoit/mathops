@@ -7,7 +7,6 @@ import dev.mathops.app.adm.StudentData;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.DbContext;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -85,10 +84,9 @@ public final class TopPanelOffice extends JPanel implements ActionListener {
      * Constructs a new {@code TopPanelOffice}.
      *
      * @param theCache    the data cache
-     * @param liveContext the database context used to access live data
      * @param theFixed    the fixed data
      */
-    public TopPanelOffice(final Cache theCache, final DbContext liveContext, final UserData theFixed) {
+    public TopPanelOffice(final Cache theCache, final UserData theFixed) {
 
         super(new BorderLayout(5, 5));
 
@@ -119,16 +117,16 @@ public final class TopPanelOffice extends JPanel implements ActionListener {
         this.stuDetailButton = btn[0];
         this.stuDetailButton.setEnabled(false);
 
-         //buttonRow.add(new JLabel(" "));
+        //buttonRow.add(new JLabel(" "));
 
-         //final String pickPopLbl = Res.get(Res.PICK_POPULATION);
-         //buttonRow.add(makeTopButton(pickPopLbl, POPULATION_CMD, btn), StackedBorderLayout.WEST);
+        //final String pickPopLbl = Res.get(Res.PICK_POPULATION);
+        //buttonRow.add(makeTopButton(pickPopLbl, POPULATION_CMD, btn), StackedBorderLayout.WEST);
 
-         //final String popDetailLbl = Res.get(Res.POPULATION_DETAIL);
-         //buttonRow.add(makeTopButton(popDetailLbl, CURPOP_CMD, Skin.LT_MAGENTA, btn), StackedBorderLayout.WEST);
+        //final String popDetailLbl = Res.get(Res.POPULATION_DETAIL);
+        //buttonRow.add(makeTopButton(popDetailLbl, CURPOP_CMD, Skin.LT_MAGENTA, btn), StackedBorderLayout.WEST);
 
-         //this.popDetailButton = btn[0];
-         //this.popDetailButton.setEnabled(false);
+        //this.popDetailButton = btn[0];
+        //this.popDetailButton.setEnabled(false);
 
         final String viewLogLbl = Res.get(Res.VIEW_LOG);
         final JButton viewLog = new JButton(viewLogLbl);
@@ -147,13 +145,13 @@ public final class TopPanelOffice extends JPanel implements ActionListener {
         this.cardPickStudent = new CardPickStudent(this, theCache, theFixed);
         this.cardPane.add(this.cardPickStudent, PICK_CMD);
 
-        this.cardStudentDetail = new CardStudentDetail(theCache, liveContext, theFixed);
+        this.cardStudentDetail = new CardStudentDetail(theCache, theFixed);
         this.cardPane.add(this.cardStudentDetail, CURSTU_CMD);
 
         this.cardPopulations = new CardPopulations(theCache);
         this.cardPane.add(this.cardPopulations, POPULATION_CMD);
 
-        this.cardPopulationDetail = new CardPopulationDetail(theCache, liveContext, theFixed);
+        this.cardPopulationDetail = new CardPopulationDetail(theCache, theFixed);
         this.cardPane.add(this.cardPopulationDetail, CURPOP_CMD);
 
         this.cards.show(this.cardPane, PICK_CMD);

@@ -11,8 +11,8 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.WebSiteProfile;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.parser.ParsingException;
 import dev.mathops.text.parser.xml.Attribute;
@@ -382,7 +382,7 @@ public final class PastExamSessionStore {
             throw new IllegalArgumentException("'past-exam-session' was missing 'item'");
         }
 
-        final WebSiteProfile siteProfile = ContextMap.getDefaultInstance().getWebSiteProfile(host, path);
+        final Site siteProfile = DatabaseConfig.getDefault().getSite(host, path);
 
         final PastExamSession sess = new PastExamSession(cache, siteProfile, session, xmlpath, student, redirect,
                 EPastExamState.valueOf(state), error, Integer.parseInt(item), Long.parseLong(timeout), exam);

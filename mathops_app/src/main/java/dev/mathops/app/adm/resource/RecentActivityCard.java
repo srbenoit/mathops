@@ -4,6 +4,8 @@ import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -192,49 +194,17 @@ final class RecentActivityCard extends AdmPanelBase implements ActionListener {
         // Get all resource records and build map from resource ID to resource type
         final Map<String, String> resourceMap = new HashMap<>(100);
 
-        try (final Statement stmt = this.cache.conn.createStatement()) {
-            try (final ResultSet rs = stmt.executeQuery("SELECT resource_id,resource_type FROM resource")) {
-                while (rs.next()) {
-                    resourceMap.put(rs.getString(1), rs.getString(2));
-                }
-            }
-        } catch (final SQLException ex) {
-            this.error1.setText("Error querying resource table:");
-            if (ex.getMessage() == null) {
-                this.error2.setText(ex.getClass().getSimpleName());
-            } else {
-                this.error2.setText(ex.getMessage());
-            }
-        }
+        final DbConnection conn = this.cache.checkOutConnection(ESchema.LEGACY);
 
-        if (!resourceMap.isEmpty()) {
-            final LocalDate today = LocalDate.now();
-            final List<ResourceActivityRow> records = new ArrayList<>(10);
-
-            // Get all loans that occurred today
-
-            final String sql2 = "SELECT stu_id, resource_id, start_time FROM stresource WHERE loan_dt=?";
-
-            try (final PreparedStatement ps = this.cache.conn.prepareStatement(sql2)) {
-                ps.setDate(1, Date.valueOf(today));
-
-                try (final ResultSet rs = ps.executeQuery()) {
+        try {
+            try (final Statement stmt = conn.createStatement()) {
+                try (final ResultSet rs = stmt.executeQuery("SELECT resource_id,resource_type FROM resource")) {
                     while (rs.next()) {
-                        final String stuId = rs.getString(1);
-                        final String resId = rs.getString(2);
-                        final int start = rs.getInt(3);
-
-                        final int lh = start / 60;
-                        final int lm = start % 60;
-                        final LocalDateTime when = LocalDateTime.of(today, LocalTime.of(lh, lm));
-
-                        final String type = resourceMap.get(resId);
-
-                        records.add(new ResourceActivityRow("Loan", stuId, resId, when, type));
+                        resourceMap.put(rs.getString(1), rs.getString(2));
                     }
                 }
             } catch (final SQLException ex) {
-                this.error1.setText("Error querying stresource table:");
+                this.error1.setText("Error querying resource table:");
                 if (ex.getMessage() == null) {
                     this.error2.setText(ex.getClass().getSimpleName());
                 } else {
@@ -242,40 +212,78 @@ final class RecentActivityCard extends AdmPanelBase implements ActionListener {
                 }
             }
 
-            // Get all returns that occurred today
+            if (!resourceMap.isEmpty()) {
+                final LocalDate today = LocalDate.now();
+                final List<ResourceActivityRow> records = new ArrayList<>(10);
 
-            final String sql3 = "SELECT stu_id, resource_id, finish_time FROM stresource WHERE return_dt=?";
+                // Get all loans that occurred today
 
-            try (final PreparedStatement ps = this.cache.conn.prepareStatement(sql3)) {
-                ps.setDate(1, Date.valueOf(today));
+                final String sql2 = "SELECT stu_id, resource_id, start_time FROM stresource WHERE loan_dt=?";
 
-                try (final ResultSet rs = ps.executeQuery()) {
-                    while (rs.next()) {
-                        final String stuId = rs.getString(1);
-                        final String resId = rs.getString(2);
-                        final int finish = rs.getInt(3);
+                try (final PreparedStatement ps = conn.prepareStatement(sql2)) {
+                    ps.setDate(1, Date.valueOf(today));
 
-                        final int lh = finish / 60;
-                        final int lm = finish % 60;
-                        final LocalDateTime when = LocalDateTime.of(today, LocalTime.of(lh, lm));
+                    try (final ResultSet rs = ps.executeQuery()) {
+                        while (rs.next()) {
+                            final String stuId = rs.getString(1);
+                            final String resId = rs.getString(2);
+                            final int start = rs.getInt(3);
 
-                        final String type = resourceMap.get(resId);
+                            final int lh = start / 60;
+                            final int lm = start % 60;
+                            final LocalDateTime when = LocalDateTime.of(today, LocalTime.of(lh, lm));
 
-                        records.add(new ResourceActivityRow("Return", stuId, resId, when, type));
+                            final String type = resourceMap.get(resId);
+
+                            records.add(new ResourceActivityRow("Loan", stuId, resId, when, type));
+                        }
+                    }
+                } catch (final SQLException ex) {
+                    this.error1.setText("Error querying stresource table:");
+                    if (ex.getMessage() == null) {
+                        this.error2.setText(ex.getClass().getSimpleName());
+                    } else {
+                        this.error2.setText(ex.getMessage());
                     }
                 }
-            } catch (final SQLException ex) {
-                this.error1.setText("Error querying stresource table:");
-                if (ex.getMessage() == null) {
-                    this.error2.setText(ex.getClass().getSimpleName());
-                } else {
-                    this.error2.setText(ex.getMessage());
-                }
-            }
 
-            Collections.sort(records);
-            this.table.clear();
-            this.table.addData(records, 2);
+                // Get all returns that occurred today
+
+                final String sql3 = "SELECT stu_id, resource_id, finish_time FROM stresource WHERE return_dt=?";
+
+                try (final PreparedStatement ps = conn.prepareStatement(sql3)) {
+                    ps.setDate(1, Date.valueOf(today));
+
+                    try (final ResultSet rs = ps.executeQuery()) {
+                        while (rs.next()) {
+                            final String stuId = rs.getString(1);
+                            final String resId = rs.getString(2);
+                            final int finish = rs.getInt(3);
+
+                            final int lh = finish / 60;
+                            final int lm = finish % 60;
+                            final LocalDateTime when = LocalDateTime.of(today, LocalTime.of(lh, lm));
+
+                            final String type = resourceMap.get(resId);
+
+                            records.add(new ResourceActivityRow("Return", stuId, resId, when, type));
+                        }
+                    }
+                } catch (final SQLException ex) {
+                    this.error1.setText("Error querying stresource table:");
+                    if (ex.getMessage() == null) {
+                        this.error2.setText(ex.getClass().getSimpleName());
+                    } else {
+                        this.error2.setText(ex.getMessage());
+                    }
+                }
+
+                Collections.sort(records);
+                this.table.clear();
+                this.table.addData(records, 2);
+            }
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 

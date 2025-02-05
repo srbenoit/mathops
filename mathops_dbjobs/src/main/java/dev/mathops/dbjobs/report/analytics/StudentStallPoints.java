@@ -3,11 +3,8 @@ package dev.mathops.dbjobs.report.analytics;
 import dev.mathops.commons.IProgressListener;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
@@ -198,7 +195,7 @@ final class StudentStallPoints {
 
             for (final RawStexam stexam : stexams) {
                 if (latestExam == null || latestExam.examDt.isBefore(stexam.examDt)
-                        || (latestExam.examDt.equals(stexam.examDt)
+                    || (latestExam.examDt.equals(stexam.examDt)
                         && latestExam.finishTime.intValue() < stexam.finishTime.intValue())) {
                     latestExam = stexam;
                     latestWorkDate = stexam.examDt;
@@ -210,7 +207,7 @@ final class StudentStallPoints {
 
                 if (latestWorkDate == null) {
                 } else if (latestWorkDate.isAfter(sthomework.hwDt) || (latestWorkDate.equals(sthomework.hwDt)
-                        && latestWorkTime >= sthomework.finishTime.intValue())) {
+                                                                       && latestWorkTime >= sthomework.finishTime.intValue())) {
                     continue;
                 }
 
@@ -257,30 +254,18 @@ final class StudentStallPoints {
      * @param profile         the profile
      * @param includeSections map from course ID to a list of section numbers to include in the scan
      */
-    private static void executeWithProfile(final DbProfile profile,
-                                           final Map<String, List<String>> includeSections) {
+    private static void executeWithProfile(final Profile profile,
+                                           final Map<String, ? extends List<String>> includeSections) {
 
         if (profile == null) {
             Log.warning("Unable to create production context.");
         } else {
-            final DbContext dbCtx = profile.getDbContext(ESchemaUse.PRIMARY);
+            Log.info("Using profile" + profile.id);
 
-            if (dbCtx == null) {
-                Log.warning("Unable to create database context.");
-            } else {
-                try {
-                    final DbConnection conn = dbCtx.checkOutConnection();
-                    final Cache cache = new Cache(profile, conn);
+            final Cache cache = new Cache(profile);
 
-                    Log.info("Connected to " + profile.id);
-
-                    final StudentStallPoints obj = new StudentStallPoints(cache, null);
-                    obj.calculate(includeSections);
-
-                } catch (final SQLException ex) {
-                    Log.warning(ex);
-                }
-            }
+            final StudentStallPoints obj = new StudentStallPoints(cache, null);
+            obj.calculate(includeSections);
         }
     }
 
@@ -306,8 +291,8 @@ final class StudentStallPoints {
         includeSections.put(RawRecordConstants.M125, sect125);
         includeSections.put(RawRecordConstants.M126, sect126);
 
-        final ContextMap map = ContextMap.getDefaultInstance();
+        final DatabaseConfig databaseConfig = DatabaseConfig.getDefault();
 
-        executeWithProfile(map.getCodeProfile("batch"), includeSections);
+        executeWithProfile(databaseConfig.getCodeProfile("batch"), includeSections);
     }
 }

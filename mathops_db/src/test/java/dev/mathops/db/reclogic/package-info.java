@@ -1,4 +1,4 @@
 /**
- * Test cases for the classes in the {@code edu.colostate.math.db.rawrecord} package.
+ * Test cases for the classes in the {@code dev.mathops.db.reclogic} package.
  */
 package dev.mathops.db.reclogic;

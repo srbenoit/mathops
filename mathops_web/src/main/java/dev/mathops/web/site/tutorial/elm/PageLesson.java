@@ -94,13 +94,13 @@ enum PageLesson {
                                         final ImmutableSessionInfo session, final int unit, final int objective,
                                         final HtmlBuilder htm) throws SQLException {
 
-        final CourseLesson less = new CourseLesson(site.getDbProfile());
+        final CourseLesson less = new CourseLesson(site.site.profile);
         final String studentId = session.getEffectiveUserId();
 
         if (less.gatherData(cache, RawRecordConstants.M100T, Integer.valueOf(unit),
                 Integer.valueOf(objective))) {
 
-            final StudentCourseStatus status = new StudentCourseStatus(site.getDbProfile());
+            final StudentCourseStatus status = new StudentCourseStatus(site.site.profile);
             if (status.gatherData(cache, session, studentId, RawRecordConstants.M100T, false, false)) {
 
                 htm.sH(2, "title").add(" <a name='top'></a>", status.getCourse().courseName).eH(2);

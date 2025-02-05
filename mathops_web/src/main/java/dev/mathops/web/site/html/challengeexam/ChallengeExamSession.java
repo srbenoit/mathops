@@ -29,13 +29,13 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
-import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ESchemaUse;
-import dev.mathops.db.old.cfg.WebSiteProfile;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.db.enums.ERole;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.logic.ChallengeExamLogic;
 import dev.mathops.db.old.logic.ChallengeExamStatus;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
@@ -65,8 +65,8 @@ import dev.mathops.session.txn.messages.GetExamReply;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.parser.xml.XmlEscaper;
 import dev.mathops.web.site.html.HtmlSessionBase;
-
 import jakarta.servlet.ServletRequest;
+
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -116,18 +116,18 @@ public final class ChallengeExamSession extends HtmlSessionBase {
      * exam. It stores data but does not generate the HTML until the page is actually generated.
      *
      * @param cache            the data cache
-     * @param theSiteProfile   the site profile
+     * @param theSite          the site profile
      * @param theSessionId     the session ID
      * @param theStudentId     the student ID
      * @param theExamId        the exam ID being worked on
      * @param theRedirectOnEnd the URL to which to redirect at the end of the exam
      * @throws SQLException if there is an error accessing the database
      */
-    public ChallengeExamSession(final Cache cache, final WebSiteProfile theSiteProfile,
+    public ChallengeExamSession(final Cache cache, final Site theSite,
                                 final String theSessionId, final String theStudentId, final String theExamId,
                                 final String theRedirectOnEnd) throws SQLException {
 
-        super(cache, theSiteProfile, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
+        super(cache, theSite, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
 
         this.state = EChallengeExamState.INITIAL;
         this.currentSect = -1;
@@ -142,7 +142,7 @@ public final class ChallengeExamSession extends HtmlSessionBase {
      * exam. It stores data but does not generate the HTML until the page is actually generated.
      *
      * @param cache            the data cache
-     * @param theSiteProfile   the website profile
+     * @param theSite          the website profile
      * @param theSessionId     the session ID
      * @param theStudentId     the student ID
      * @param theExamId        the exam ID being worked on
@@ -158,13 +158,13 @@ public final class ChallengeExamSession extends HtmlSessionBase {
      * @param theError         the grading error
      * @throws SQLException if there is an error accessing the database
      */
-    ChallengeExamSession(final Cache cache, final WebSiteProfile theSiteProfile,
+    ChallengeExamSession(final Cache cache, final Site theSite,
                          final String theSessionId, final String theStudentId, final String theExamId,
                          final String theRedirectOnEnd, final EChallengeExamState theState, final Integer theScore,
                          final boolean theStarted, final int theSect, final int theItem, final long theTimeout,
                          final long thePurgeTime, final ExamObj theExam, final String theError) throws SQLException {
 
-        super(cache, theSiteProfile, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
+        super(cache, theSite, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
 
         this.state = theState;
         this.score = theScore;
@@ -468,7 +468,7 @@ public final class ChallengeExamSession extends HtmlSessionBase {
 
                         if (prb == null || prb.id == null) {
                             Log.warning("Exam " + ref + " section " + onSect + " problem " + onProb
-                                    + " choice " + i + " getProblem() returned " + prb);
+                                        + " choice " + i + " getProblem() returned " + prb);
                         } else {
                             prb = InstructionalCache.getProblem(prb.id);
 
@@ -696,7 +696,7 @@ public final class ChallengeExamSession extends HtmlSessionBase {
         htm.sDiv(null, "style='display:flex; flex-flow:row wrap; margin:0 6px 12px 6px;'");
 
         htm.sDiv(null, "style='flex: 1 100%; display:block; "
-                + "background-color:AliceBlue; border:1px solid SteelBlue; margin:1px;'");
+                       + "background-color:AliceBlue; border:1px solid SteelBlue; margin:1px;'");
 
         htm.add("<h1 style='text-align:center; font-family:sans-serif; font-size:18pt; ",
                 "font-weight:bold; color:#36648b; text-shadow:2px 1px #ccc; padding:4pt;'>");
@@ -708,7 +708,7 @@ public final class ChallengeExamSession extends HtmlSessionBase {
         htm.addln("<div style='text-align:center;margin-top:2px;'>");
 
         if (this.timeout > 0L && (this.state == EChallengeExamState.INSTRUCTIONS
-                || this.state == EChallengeExamState.SUBMIT_NN || this.state == EChallengeExamState.ITEM_NN)) {
+                                  || this.state == EChallengeExamState.SUBMIT_NN || this.state == EChallengeExamState.ITEM_NN)) {
 
             final long now = System.currentTimeMillis();
 
@@ -910,8 +910,8 @@ public final class ChallengeExamSession extends HtmlSessionBase {
                 }
 
                 if (this.state == EChallengeExamState.ITEM_NN || this.state == EChallengeExamState.INSTRUCTIONS
-                        || this.state == EChallengeExamState.SUBMIT_NN
-                        || this.state == EChallengeExamState.COMPLETED) {
+                    || this.state == EChallengeExamState.SUBMIT_NN
+                    || this.state == EChallengeExamState.COMPLETED) {
                     // When interacting or instructions, mark the ones that have been answered
 
                     if (ep.getSelectedProblem().isAnswered()) {
@@ -1071,10 +1071,10 @@ public final class ChallengeExamSession extends HtmlSessionBase {
                             if (startTimer && this.timeout == 0L && getExam().allowedSeconds != null) {
 
                                 appendExamLog("Starting challenge exam timer, duration is "
-                                        + getExam().allowedSeconds);
+                                              + getExam().allowedSeconds);
 
                                 this.timeout = System.currentTimeMillis()
-                                        + 1000L * getExam().allowedSeconds.longValue();
+                                               + 1000L * getExam().allowedSeconds.longValue();
                             }
                         }
                     }
@@ -1512,7 +1512,7 @@ public final class ChallengeExamSession extends HtmlSessionBase {
                     }
 
                     final String key = subtest.subtestName + CoreConstants.DOT + (id / 100) + (id / 10 % 10)
-                            + (id % 10);
+                                       + (id % 10);
                     stexam.answers.put(key, stanswer);
                 }
             }
@@ -1609,7 +1609,7 @@ public final class ChallengeExamSession extends HtmlSessionBase {
                     break;
                 } else // Insert TRUE boolean parameter if result is PASS
                     if (ExamGradingRule.PASS_FAIL.equals(gradingRuleType)
-                            && result instanceof final Boolean boolResult) {
+                        && result instanceof final Boolean boolResult) {
 
                         pass = boolResult.booleanValue();
 
@@ -1914,10 +1914,10 @@ public final class ChallengeExamSession extends HtmlSessionBase {
 
         if (stu == null) {
             RawMpscorequeueLogic.logActivity("Unable to upload challenge result for student " + stexam.studentId
-                    + ": student record not found");
+                                             + ": student record not found");
         } else if (!stexam.earnedCredit.isEmpty()) {
 
-            final DbContext liveCtx = getDbProfile().getDbContext(ESchemaUse.LIVE);
+            final Login liveCtx = getProfile().getLogin(ESchema.LIVE);
             final DbConnection liveConn = liveCtx.checkOutConnection();
             try {
                 for (final String course : stexam.earnedCredit) {
@@ -1938,7 +1938,7 @@ public final class ChallengeExamSession extends HtmlSessionBase {
 
         if (getExam() != null) {
             xml.addln("<challenge-exam-session>");
-            xml.addln(" <host>", getSiteProfile().host, "</host>");
+            xml.addln(" <host>", getSiteProfile().getHost(), "</host>");
             xml.addln(" <path>", getSiteProfile().path, "</path>");
             xml.addln(" <session>", this.sessionId, "</session>");
             xml.addln(" <student>", this.studentId, "</student>");

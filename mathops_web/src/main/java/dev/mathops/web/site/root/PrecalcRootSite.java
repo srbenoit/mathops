@@ -6,9 +6,9 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
+import dev.mathops.db.cfg.Profile;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.db.logic.ELiveRefreshes;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
@@ -24,7 +24,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,8 +42,7 @@ public final class PrecalcRootSite extends AbstractPageSite {
      * @param theSiteProfile the website profile
      * @param theSessions    the singleton user session repository
      */
-    public PrecalcRootSite(final WebSiteProfile theSiteProfile,
-                           final ISessionManager theSessions) {
+    public PrecalcRootSite(final Site theSiteProfile, final ISessionManager theSessions) {
 
         super(theSiteProfile, theSessions);
     }
@@ -75,7 +73,7 @@ public final class PrecalcRootSite extends AbstractPageSite {
         } else if (subpath.startsWith("images/")) {
             serveImage(subpath.substring(7), req, resp);
         } else if (subpath.startsWith("media/")
-                || subpath.startsWith("math/")) {
+                   || subpath.startsWith("math/")) {
             serveMedia(subpath, req, resp);
         } else if (subpath.endsWith(".vtt")) {
             serveVtt(subpath, req, resp);
@@ -90,7 +88,7 @@ public final class PrecalcRootSite extends AbstractPageSite {
 //        } else if ("orientation.html".equals(subpath)) {
 //            PageOrientation.doGet(cache, this, type, req, resp);
         } else {
-            final String maintMsg = isMaintenance(this.siteProfile);
+            final String maintMsg = isMaintenance(this.site);
 
             if (maintMsg == null) {
                 switch (subpath) {
@@ -110,7 +108,7 @@ public final class PrecalcRootSite extends AbstractPageSite {
                             LogBase.setSessionInfo(session.loginSessionId, session.getEffectiveUserId());
 
                             if ("home.html".equals(subpath)) {
-                                final String path = this.siteProfile.path;
+                                final String path = this.site.path;
                                 resp.sendRedirect(path + (path.endsWith(Contexts.ROOT_PATH) ? "instruction/home.html"
                                         : "/instruction/home.html"));
                             } else {
@@ -142,12 +140,12 @@ public final class PrecalcRootSite extends AbstractPageSite {
                        final HttpServletRequest req, final HttpServletResponse resp)
             throws IOException, SQLException {
 
-        final String maintMsg = isMaintenance(this.siteProfile);
+        final String maintMsg = isMaintenance(this.site);
 
         if (maintMsg == null) {
             Log.warning("Unrecognized request path: ", subpath);
             PageError.doGet(cache, this, req, resp, null, "<p>POST "
-                    + req.getRequestURI() + " (" + subpath + ")</p>");
+                                                          + req.getRequestURI() + " (" + subpath + ")</p>");
         } else {
             PageMaintenance.doGet(cache, this, type, req, resp, maintMsg);
         }
@@ -239,9 +237,9 @@ public final class PrecalcRootSite extends AbstractPageSite {
 
         final Map<String, String> fields = new HashMap<>(1);
         fields.put(TestStudentLoginProcessor.STU_ID, studentId);
-        final DbProfile dbProfile = getDbProfile();
+        final Profile dbProfile = getSite().profile;
 
-        final SessionResult result = mgr.login(new Cache(dbProfile, cache.conn),
+        final SessionResult result = mgr.login(new Cache(dbProfile),
                 mgr.identifyProcessor(TestStudentLoginProcessor.TYPE), fields, getLiveRefreshes());
 
         final ImmutableSessionInfo sess = result.session;
@@ -249,7 +247,7 @@ public final class PrecalcRootSite extends AbstractPageSite {
         if (sess == null) {
             doLoginTestUserPage(cache, siteType, req, resp);
         } else {
-            final String path = this.siteProfile.path;
+            final String path = this.site.path;
             final String successPath = "instruction/home.html";
 
             final String redirect = path + (path.endsWith(CoreConstants.SLASH) ? successPath

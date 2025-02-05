@@ -2,14 +2,13 @@ package dev.mathops.web.webservice;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.db.logic.ELiveRefreshes;
-import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.scramsha256.ScramServerStub;
 import dev.mathops.session.scramsha256.UserCredentials;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.ESiteType;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -31,12 +30,12 @@ public final class WebServiceSite extends AbstractSite {
     /**
      * Constructs a new {@code WebServiceSite}.
      *
-     * @param theSiteProfile the site profile under which this site is accessed
+     * @param theSite the site profile under which this site is accessed
      * @param theSessions    the singleton user session repository
      */
-    public WebServiceSite(final WebSiteProfile theSiteProfile, final ISessionManager theSessions) {
+    public WebServiceSite(final Site theSite, final ISessionManager theSessions) {
 
-        super(theSiteProfile, theSessions);
+        super(theSite, theSessions);
 
         this.sync = new Object();
     }

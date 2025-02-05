@@ -2,8 +2,7 @@ package dev.mathops.session.sitelogic;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.WebSiteProfile;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.data.SiteData;
@@ -33,7 +32,7 @@ public final class CourseSiteLogic {
     private final Cache cache;
 
     /** The site profile. */
-    private final WebSiteProfile siteProfile;
+    private final Profile siteProfile;
 
     /** The session info. */
     public final ImmutableSessionInfo sessionInfo;
@@ -54,7 +53,7 @@ public final class CourseSiteLogic {
      * @param theSiteProfile the site profile
      * @param theSessionInfo the session info
      */
-    public CourseSiteLogic(final Cache theCache, final WebSiteProfile theSiteProfile,
+    public CourseSiteLogic(final Cache theCache, final Profile theSiteProfile,
                            final ImmutableSessionInfo theSessionInfo) {
 
         this.cache = theCache;
@@ -67,7 +66,7 @@ public final class CourseSiteLogic {
      *
      * @return the site profile
      */
-    private WebSiteProfile getSiteProfile() {
+    private Profile getSiteProfile() {
 
         return this.siteProfile;
     }
@@ -110,10 +109,8 @@ public final class CourseSiteLogic {
      */
     public boolean gatherData() {
 
-        final DbProfile profile = getSiteProfile().dbProfile;
-
         final ZonedDateTime now = this.sessionInfo.getNow();
-        final SiteData theData = new SiteData(profile, now);
+        final SiteData theData = new SiteData(this.siteProfile, now);
 
         // First, do all database queries we'll need, so we get as close to a consistent image of the data as we can.
         final boolean success = theData.load(this.cache, this.sessionInfo);

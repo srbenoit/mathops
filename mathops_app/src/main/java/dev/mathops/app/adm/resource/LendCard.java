@@ -7,6 +7,8 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawlogic.RawResourceLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
@@ -102,8 +104,8 @@ final class LendCard extends AdmPanelBase implements ActionListener, FocusListen
     /**
      * Constructs a new {@code LendCard}.
      *
-     * @param theCache         the data cache
-     * @param fixed            the fixed data
+     * @param theCache the data cache
+     * @param fixed    the fixed data
      */
     LendCard(final Cache theCache, final UserData fixed) {
 
@@ -399,7 +401,9 @@ final class LendCard extends AdmPanelBase implements ActionListener, FocusListen
         final String foundLastName;
         final String sql1 = "SELECT first_name, last_name FROM student WHERE stu_id=?";
 
-        try (final PreparedStatement ps = this.cache.conn.prepareStatement(sql1)) {
+        final DbConnection conn = this.cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final PreparedStatement ps = conn.prepareStatement(sql1)) {
             ps.setString(1, cleanStu);
             try (final ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -441,6 +445,8 @@ final class LendCard extends AdmPanelBase implements ActionListener, FocusListen
             this.errorPane.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.RED, 2),
                     BorderFactory.createEmptyBorder(20, 0, 0, 0)));
             this.errorPane.setBackground(Skin.OFF_WHITE_RED);
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -462,7 +468,9 @@ final class LendCard extends AdmPanelBase implements ActionListener, FocusListen
 
             final String sql2 = "SELECT resource_type, days_allowed FROM resource WHERE resource_id=?";
 
-            try (final PreparedStatement ps = this.cache.conn.prepareStatement(sql2)) {
+            final DbConnection conn = this.cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final PreparedStatement ps = conn.prepareStatement(sql2)) {
                 ps.setString(1, cleanRes);
 
                 try (final ResultSet rs = ps.executeQuery()) {
@@ -560,6 +568,8 @@ final class LendCard extends AdmPanelBase implements ActionListener, FocusListen
                         BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.RED, 2),
                                 BorderFactory.createEmptyBorder(20, 0, 0, 0)));
                 this.errorPane.setBackground(Skin.OFF_WHITE_RED);
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
     }
@@ -578,7 +588,9 @@ final class LendCard extends AdmPanelBase implements ActionListener, FocusListen
         final String sql3 = "SELECT stu_id FROM stresource WHERE resource_id=? AND return_dt IS NULL";
 
         String foundStu = null;
-        try (final PreparedStatement ps = this.cache.conn.prepareStatement(sql3)) {
+        final DbConnection conn = this.cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final PreparedStatement ps = conn.prepareStatement(sql3)) {
             ps.setString(1, cleanRes);
             try (final ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -597,6 +609,8 @@ final class LendCard extends AdmPanelBase implements ActionListener, FocusListen
                     BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.RED, 2),
                             BorderFactory.createEmptyBorder(20, 0, 0, 0)));
             this.errorPane.setBackground(Skin.OFF_WHITE_RED);
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         if (foundStu == null) {
@@ -615,7 +629,6 @@ final class LendCard extends AdmPanelBase implements ActionListener, FocusListen
 
                 try {
                     if (RawStresourceLogic.insert(this.cache, record)) {
-                        this.cache.conn.commit();
                         JOptionPane.showMessageDialog(this, "Loan has been recorded.");
                         reset();
                     } else {
@@ -659,8 +672,9 @@ final class LendCard extends AdmPanelBase implements ActionListener, FocusListen
             // TODO: A way to check back in, and immediately check out to new student
             //  (which may remove a hold placed on the old student's account)
 
-            this.errorPane.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.RED, 2),
-                    BorderFactory.createEmptyBorder(20, 0, 0, 0)));
+            this.errorPane.setBorder(
+                    BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.RED, 2),
+                            BorderFactory.createEmptyBorder(20, 0, 0, 0)));
             this.errorPane.setBackground(Skin.OFF_WHITE_RED);
         }
     }

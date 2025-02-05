@@ -6,10 +6,8 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawStmpeLogic;
 import dev.mathops.db.old.rawrecord.RawMpeCredit;
@@ -44,9 +42,9 @@ public enum AnnualPlacementStatistics {
      */
     private static void runReport() {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-        final DbProfile profile = map.getCodeProfile(Contexts.REPORT_PATH);
-        final DbContext ctx = profile.getDbContext(ESchemaUse.PRIMARY);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        final Profile profile = config.getCodeProfile(Contexts.REPORT_PATH);
+        final Cache cache = new Cache(profile);
 
         try {
             final Collection<String> report = new ArrayList<>(100);
@@ -55,14 +53,7 @@ public enum AnnualPlacementStatistics {
             report.add("     Placement Tool Usage and Outcomes - Trends");
             report.add("     Report Date:  " + TemporalUtils.FMT_MDY.format(LocalDate.now()));
 
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(profile, conn);
-
-            try {
-                generate(cache, report);
-            } finally {
-                ctx.checkInConnection(conn);
-            }
+            generate(cache, report);
 
             for (final String s : report) {
                 Log.fine(s);
@@ -103,7 +94,7 @@ public enum AnnualPlacementStatistics {
 
         report.add(CoreConstants.EMPTY);
         report.add("Computing Statistics for " + YEARS_TO_SCAN + " years, beginning "
-                + TemporalUtils.FMT_MDY.format(start) + ".");
+                   + TemporalUtils.FMT_MDY.format(start) + ".");
         report.add(CoreConstants.EMPTY);
 
         // Query from the database.
@@ -153,19 +144,19 @@ public enum AnnualPlacementStatistics {
                     if (RawRecordConstants.M100C.equals(credit.course)) {
                         ++num100C;
                     } else if (RawRecordConstants.M117.equals(credit.course)
-                            || RawRecordConstants.MATH117.equals(credit.course)) {
+                               || RawRecordConstants.MATH117.equals(credit.course)) {
                         ++num117;
                     } else if (RawRecordConstants.M118.equals(credit.course)
-                            || RawRecordConstants.MATH118.equals(credit.course)) {
+                               || RawRecordConstants.MATH118.equals(credit.course)) {
                         ++num118;
                     } else if (RawRecordConstants.M124.equals(credit.course)
-                            || RawRecordConstants.MATH124.equals(credit.course)) {
+                               || RawRecordConstants.MATH124.equals(credit.course)) {
                         ++num124;
                     } else if (RawRecordConstants.M125.equals(credit.course)
-                            || RawRecordConstants.MATH125.equals(credit.course)) {
+                               || RawRecordConstants.MATH125.equals(credit.course)) {
                         ++num125;
                     } else if (RawRecordConstants.M126.equals(credit.course)
-                            || RawRecordConstants.MATH126.equals(credit.course)) {
+                               || RawRecordConstants.MATH126.equals(credit.course)) {
                         ++num126;
                     }
                 }
@@ -333,6 +324,7 @@ public enum AnnualPlacementStatistics {
      */
     public static void main(final String... args) {
 
+        DbConnection.registerDrivers();
         runReport();
     }
 

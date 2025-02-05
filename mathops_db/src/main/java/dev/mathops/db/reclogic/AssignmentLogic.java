@@ -2,6 +2,7 @@ package dev.mathops.db.reclogic;
 
 import dev.mathops.db.Cache;
 import dev.mathops.db.EDbProduct;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.rec.AssignmentRec;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.builder.SimpleBuilder;
@@ -121,7 +122,7 @@ public abstract class AssignmentLogic implements IRecLogic<AssignmentRec> {
                 throw new SQLException("Null value in required field.");
             }
 
-            final String sql = SimpleBuilder.concat( //
+            final String sql = SimpleBuilder.concat(
                     "INSERT INTO homework (version,course,unit,objective,title,",
                     "tree_ref,hw_type,active_dt,pull_dt) VALUES (",
                     sqlStringValue(record.assignmentId), ",",
@@ -291,8 +292,10 @@ public abstract class AssignmentLogic implements IRecLogic<AssignmentRec> {
                 throw new SQLException("Null value in required field.");
             }
 
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
+
             final String sql = SimpleBuilder.concat("INSERT INTO ",
-                    cache.mainSchemaName, ".assignment ",
+                    schemaPrefix, ".assignment ",
                     "(assignment_id,assignment_type,course_id,unit,objective,tree_ref,",
                     "title,when_active,when_pulled) VALUES (",
                     sqlStringValue(record.assignmentId), ",",
@@ -319,7 +322,9 @@ public abstract class AssignmentLogic implements IRecLogic<AssignmentRec> {
         @Override
         public boolean delete(final Cache cache, final AssignmentRec record) throws SQLException {
 
-            final String sql = SimpleBuilder.concat("DELETE FROM ", cache.mainSchemaName,
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
+
+            final String sql = SimpleBuilder.concat("DELETE FROM ", schemaPrefix,
                     ".assignment WHERE assignment_id=", sqlStringValue(record.assignmentId));
 
             return doUpdateOneRow(cache, sql);
@@ -335,7 +340,9 @@ public abstract class AssignmentLogic implements IRecLogic<AssignmentRec> {
         @Override
         public List<AssignmentRec> queryAll(final Cache cache) throws SQLException {
 
-            final String sql = SimpleBuilder.concat("SELECT * FROM ", cache.mainSchemaName, ".assignment");
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
+
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".assignment");
 
             return doListQuery(cache, sql);
         }
@@ -356,7 +363,9 @@ public abstract class AssignmentLogic implements IRecLogic<AssignmentRec> {
 
             final HtmlBuilder sql = new HtmlBuilder(100);
 
-            sql.add("SELECT * FROM ", cache.mainSchemaName, ".assignment WHERE course_id=", sqlStringValue(courseId),
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
+
+            sql.add("SELECT * FROM ", schemaPrefix, ".assignment WHERE course_id=", sqlStringValue(courseId),
                     " AND when_pulled IS NULL");
 
             if (assignmentType != null) {
@@ -377,10 +386,11 @@ public abstract class AssignmentLogic implements IRecLogic<AssignmentRec> {
          * @throws SQLException if there is an error performing the query
          */
         @Override
-        public AssignmentRec query(final Cache cache, final String assignmentId)
-                throws SQLException {
+        public AssignmentRec query(final Cache cache, final String assignmentId) throws SQLException {
 
-            final String sql = SimpleBuilder.concat("SELECT * FROM ", cache.mainSchemaName,
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
+
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".assignment WHERE assignment_id=", sqlStringValue(assignmentId));
 
             return doSingleQuery(cache, sql);

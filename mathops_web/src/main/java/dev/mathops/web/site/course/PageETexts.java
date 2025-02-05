@@ -99,7 +99,7 @@ enum PageETexts {
         htm.sDiv("indent11");
 
         if (count == 0) {
-            final String host = site.siteProfile.host;
+            final String host = site.site.getHost();
 
             final String message;
 

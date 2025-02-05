@@ -21,7 +21,6 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.rawrecord.RawStudent;
 
 import javax.swing.BorderFactory;
@@ -141,10 +140,9 @@ final class CardStudentDetail extends AdmPanelBase implements ActionListener {
      * Constructs a new {@code CardStudentDetail}.
      *
      * @param theCache    the data cache
-     * @param liveContext the database context used to access live data
      * @param theUserData the fixed data
      */
-    CardStudentDetail(final Cache theCache, final DbContext liveContext, final UserData theUserData) {
+    CardStudentDetail(final Cache theCache, final UserData theUserData) {
 
         super();
 
@@ -299,7 +297,7 @@ final class CardStudentDetail extends AdmPanelBase implements ActionListener {
         this.courseActivityPanel = new CourseActivityPanel();
         this.courseRegistrationTabs.addTab("Activity", this.courseActivityPanel);
 
-        this.courseExamsPanel = new CourseExamsPanel(theCache, liveContext, theUserData);
+        this.courseExamsPanel = new CourseExamsPanel(theCache, theUserData);
         this.courseRegistrationTabs.addTab("Exams", this.courseExamsPanel);
     }
 

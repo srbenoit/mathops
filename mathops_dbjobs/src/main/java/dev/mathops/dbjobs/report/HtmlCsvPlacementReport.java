@@ -5,11 +5,8 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.old.rawlogic.RawFfrTrnsLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
@@ -47,16 +44,13 @@ public final class HtmlCsvPlacementReport {
     private final ESortOrder sort;
 
     /** The database profile through which to access the database. */
-    private final DbProfile dbProfile;
-
-    /** The Primary database context. */
-    private final DbContext primaryCtx;
+    private final Profile profile;
 
     /**
      * Constructs a new {@code PlacementReport}.
      *
      * @param theCategory the special_stus category used to select report population
-     * @param theSort the sort order
+     * @param theSort     the sort order
      */
     public HtmlCsvPlacementReport(final String theCategory, final ESortOrder theSort) {
 
@@ -64,26 +58,24 @@ public final class HtmlCsvPlacementReport {
         this.studentIds = null;
         this.sort = theSort;
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-        this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
-        this.primaryCtx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        this.profile = config.getCodeProfile(Contexts.BATCH_PATH);
     }
 
     /**
      * Constructs a new {@code PlacementReport}.
      *
      * @param theStudentIds the list of student IDs on which to report
-     * @param theSort the sort order
+     * @param theSort       the sort order
      */
-    public HtmlCsvPlacementReport( final Collection<String> theStudentIds, final ESortOrder theSort) {
+    public HtmlCsvPlacementReport(final Collection<String> theStudentIds, final ESortOrder theSort) {
 
         this.category = null;
         this.studentIds = theStudentIds;
         this.sort = theSort;
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-        this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
-        this.primaryCtx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        this.profile = config.getCodeProfile(Contexts.BATCH_PATH);
     }
 
     /**
@@ -94,62 +86,56 @@ public final class HtmlCsvPlacementReport {
      */
     public void generate(final Collection<? super String> html, final Collection<? super String> csv) {
 
-        if (this.dbProfile == null) {
-            Log.warning("Unable to create production context.");
-        } else if (this.primaryCtx == null) {
-            Log.warning("Unable to create PRIMARY database context.");
+        if (this.profile == null) {
+            Log.warning("Unable to find production profile.");
         } else {
+            final Cache cache = new Cache(this.profile);
+
             try {
-                final DbConnection conn = this.primaryCtx.checkOutConnection();
-                final Cache cache = new Cache(this.dbProfile, conn);
-                try {
-                    final LocalDate now = LocalDate.now();
+                final LocalDate now = LocalDate.now();
 
-                    html.add("<style>");
-                    html.add(".result-table {font-size:90%;}");
-                    html.add(".result-table tr:nth-child(2n+1) {background-color:#ddd; border-bottom:1px solid gray;}");
-                    html.add(".result-table tr:nth-child(2n+0) {background-color:#eee;}");
-                    html.add(".result-table tr th, td {padding-left: 6px; padding-right: 6px;}");
-                    html.add("</style>");
+                html.add("<style>");
+                html.add(".result-table {font-size:90%;}");
+                html.add(".result-table tr:nth-child(2n+1) {background-color:#ddd; border-bottom:1px solid gray;}");
+                html.add(".result-table tr:nth-child(2n+0) {background-color:#eee;}");
+                html.add(".result-table tr th, td {padding-left: 6px; padding-right: 6px;}");
+                html.add("</style>");
 
-                    html.add("<p style='text-align:center; font-weight:bold;'>");
-                    html.add("** C O N F I D E N T I A L **<br/>");
-                    html.add("Colorado State University<br/>");
-                    html.add("Department of Mathematics<br/>");
-                    html.add("Math Placement Tool Status and Results<br/>");
-                    html.add("Report Date: " + TemporalUtils.FMT_MDY.format(now) + "<br/>");
-                    html.add("</p>");
+                html.add("<p style='text-align:center; font-weight:bold;'>");
+                html.add("** C O N F I D E N T I A L **<br/>");
+                html.add("Colorado State University<br/>");
+                html.add("Department of Mathematics<br/>");
+                html.add("Math Placement Tool Status and Results<br/>");
+                html.add("Report Date: " + TemporalUtils.FMT_MDY.format(now) + "<br/>");
+                html.add("</p>");
 
-                    html.add("<table class='result-table'>");
-                    html.add("<tr> <th>Name:</th> <th>Student ID</th> <th>Attempts:</th> <th>First:</th> "
-                            + "<th>Latest:</th> <th>Results:</th> </tr>");
+                html.add("<table class='result-table'>");
+                html.add("<tr> <th>Name:</th> <th>Student ID</th> <th>Attempts:</th> <th>First:</th> "
+                         + "<th>Latest:</th> <th>Results:</th> </tr>");
 
-                    csv.add("Name," //
-                            + "Student ID," //
-                            + "Applic. Term," //
-                            + "Applic. Year," //
-                            + "MPT Attempts," //
-                            + "First Attempt," //
-                            + "Last Attempt," //
-                            + "OK for 117/127," //
-                            + "Out of 117," //
-                            + "Out of 118," //
-                            + "Out Of 124," //
-                            + "Out Of 125," //
-                            + "Out Of 126," //
-                            + "Eligible for 160");
+                csv.add("Name," //
+                        + "Student ID," //
+                        + "Applic. Term," //
+                        + "Applic. Year," //
+                        + "MPT Attempts," //
+                        + "First Attempt," //
+                        + "Last Attempt," //
+                        + "OK for 117/127," //
+                        + "Out of 117," //
+                        + "Out of 118," //
+                        + "Out Of 124," //
+                        + "Out Of 125," //
+                        + "Out Of 126," //
+                        + "Eligible for 160");
 
-                    // Get the list of students whose status to process (sorted by name)
-                    final List<RawStudent> students = gatherStudents(cache);
+                // Get the list of students whose status to process (sorted by name)
+                final List<RawStudent> students = gatherStudents(cache);
 
-                    for (final RawStudent stu : students) {
-                        processStudent(stu, cache, html, csv);
-                    }
-
-                    html.add("</table>");
-                } finally {
-                    this.primaryCtx.checkInConnection(conn);
+                for (final RawStudent stu : students) {
+                    processStudent(stu, cache, html, csv);
                 }
+
+                html.add("</table>");
             } catch (final SQLException ex) {
                 html.add("EXCEPTION: " + ex.getMessage());
             }
@@ -211,7 +197,7 @@ public final class HtmlCsvPlacementReport {
             final String course = trns.course;
 
             if (RawRecordConstants.M002.equals(course) || "M 055".equals(course) || "M 099".equals(course)
-                    || RawRecordConstants.M100C.equals(course)) {
+                || RawRecordConstants.M100C.equals(course)) {
                 howPlacedInto117 = "By Xfer";
             } else if (RawRecordConstants.M117.equals(course)) {
                 if (how117Satisfied == null) {

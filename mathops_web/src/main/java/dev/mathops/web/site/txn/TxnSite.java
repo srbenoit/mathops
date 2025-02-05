@@ -3,7 +3,6 @@ package dev.mathops.web.site.txn;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.ELiveRefreshes;
-import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.txn.handlers.AbstractHandlerBase;
 import dev.mathops.session.txn.messages.AbstractMessageBase;
@@ -24,17 +23,17 @@ import java.sql.SQLException;
  * A base class for sites that will process some subset of the requests received by the main servlet, based on the
  * leading part of the request path.
  */
-public final class Site extends AbstractSite {
+public final class TxnSite extends AbstractSite {
 
     /**
      * Constructs a new {@code Site}.
      *
-     * @param theSiteProfile the website context
-     * @param theSessions    the singleton user session repository
+     * @param theSite     the website context
+     * @param theSessions the singleton user session repository
      */
-    public Site(final WebSiteProfile theSiteProfile, final ISessionManager theSessions) {
+    public TxnSite(final dev.mathops.db.cfg.Site theSite, final ISessionManager theSessions) {
 
-        super(theSiteProfile, theSessions);
+        super(theSite, theSessions);
     }
 
     /**
@@ -115,7 +114,7 @@ public final class Site extends AbstractSite {
                         } catch (final InterruptedException ex) {
                             Log.warning("Interrupted while reading POST request");
                             throw new IOException("Failed to read POST request: content-len=" + len + ", read "
-                                    + total);
+                                                  + total);
                         }
                     }
                 }

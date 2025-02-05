@@ -6,10 +6,8 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawrecord.RawStcourse;
@@ -79,29 +77,22 @@ final class StudentsByPaceAndCourse implements Runnable {
 
         final HtmlBuilder report = new HtmlBuilder(10000);
 
-        final DbProfile dbProfile =
-                ContextMap.getDefaultInstance().getCodeProfile(Contexts.REPORT_PATH);
-        if (dbProfile == null) {
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        final Profile profile = config.getCodeProfile(Contexts.REPORT_PATH);
+
+        if (profile == null) {
             report.addln("*** ERROR: There is no database code profile named 'report'.");
         } else {
-            Log.info("Using ", dbProfile.id, " profile");
-
-            final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
+            Log.info("Using ", profile.id, " profile");
+            final Cache cache = new Cache(profile);
 
             try {
-                final DbConnection conn = ctx.checkOutConnection();
-                final Cache cache = new Cache(dbProfile, conn);
+                this.registrations = RawStcourseLogic.queryActiveForActiveTerm(cache);
 
-                try {
-                    this.registrations = RawStcourseLogic.queryActiveForActiveTerm(cache);
+                Log.info("Generating report of enrollments in courses at each position in each track...");
 
-                    Log.info("Generating report of enrollments in courses at each position in each track...");
-
-                    compute();
-                    generateReport(report);
-                } finally {
-                    ctx.checkInConnection(conn);
-                }
+                compute();
+                generateReport(report);
             } catch (final SQLException ex) {
                 Log.warning(ex);
             }
@@ -221,6 +212,7 @@ final class StudentsByPaceAndCourse implements Runnable {
      */
     public static void main(final String... args) {
 
+        DbConnection.registerDrivers();
         new StudentsByPaceAndCourse().run();
     }
 }

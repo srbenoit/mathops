@@ -3,14 +3,11 @@ package dev.mathops.web.websocket.proctor;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.ESchemaUse;
-import dev.mathops.db.old.cfg.WebSiteProfile;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.logic.ELMTutorialStatus;
 import dev.mathops.db.old.logic.HoldsStatus;
 import dev.mathops.db.old.logic.PlacementLogic;
@@ -36,13 +33,12 @@ import dev.mathops.session.sitelogic.servlet.FinalExamEligibilityTester;
 import dev.mathops.session.sitelogic.servlet.UnitExamAvailability;
 import dev.mathops.session.sitelogic.servlet.UnitExamEligibilityTester;
 import dev.mathops.text.builder.HtmlBuilder;
-import oracle.jdbc.proxy.annotation.OnError;
-
 import jakarta.websocket.OnClose;
 import jakarta.websocket.OnMessage;
 import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 import jakarta.websocket.server.ServerEndpoint;
+import oracle.jdbc.proxy.annotation.OnError;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -153,7 +149,7 @@ public final class MPSEndpoint {
     private Session session;
 
     /** The site profile. */
-    private final WebSiteProfile siteProfile;
+    private final Profile siteProfile;
 
     /** The session manager. */
     private final MPSSessionManager mgr;
@@ -173,7 +169,7 @@ public final class MPSEndpoint {
 
         this.mgr = MPSSessionManager.getInstance();
 
-        this.siteProfile = ContextMap.getDefaultInstance().getWebSiteProfile(Contexts.COURSE_HOST, Contexts.MPS_PATH);
+        this.siteProfile = DatabaseConfig.getDefault().getWebProfile(Contexts.COURSE_HOST, Contexts.MPS_PATH);
     }
 
     /**
@@ -279,92 +275,85 @@ public final class MPSEndpoint {
         } else {
             final String studentId = result.session.getEffectiveUserId();
 
-            final DbContext ctx = this.siteProfile.dbProfile.getDbContext(ESchemaUse.PRIMARY);
+            final Cache cache = new Cache(this.siteProfile);
 
             try {
-                final DbConnection conn = ctx.checkOutConnection();
-                final Cache cache = new Cache(this.siteProfile.dbProfile, conn);
+                this.student = RawStudentLogic.query(cache, studentId, false);
 
-                try {
-                    this.student = RawStudentLogic.query(cache, studentId, false);
+                if (this.student == null) {
+                    Log.warning(LOG_PREFIX, "Unable to look up student ", studentId);
+                    this.session.getBasicRemote().sendText("ERROR");
+                } else {
+                    this.ps = this.mgr.getSessionForStudent(studentId);
 
-                    if (this.student == null) {
-                        Log.warning(LOG_PREFIX, "Unable to look up student ", studentId);
-                        this.session.getBasicRemote().sendText("ERROR");
-                    } else {
-                        this.ps = this.mgr.getSessionForStudent(studentId);
+                    if (this.ps == null) {
+                        final List<ExamCategory> avail = findAvailableExams(cache, result.session);
 
-                        if (this.ps == null) {
-                            final List<ExamCategory> avail = findAvailableExams(cache, result.session);
+                        final HtmlBuilder msg = new HtmlBuilder(100);
+                        msg.addln("CONNECTED-NO-SESSION{");
+                        msg.addln(" \"categories\" : [");
 
-                            final HtmlBuilder msg = new HtmlBuilder(100);
-                            msg.addln("CONNECTED-NO-SESSION{");
-                            msg.addln(" \"categories\" : [");
+                        final int numCategories = avail.size();
+                        for (int i = 0; i < numCategories; ++i) {
+                            final ExamCategory cat = avail.get(i);
 
-                            final int numCategories = avail.size();
-                            for (int i = 0; i < numCategories; ++i) {
-                                final ExamCategory cat = avail.get(i);
+                            msg.addln("  {");
+                            msg.addln("   \"title\" : \"", cat.name, "\",");
+                            msg.addln("   \"exams\" : [");
 
-                                msg.addln("  {");
-                                msg.addln("   \"title\" : \"", cat.name, "\",");
-                                msg.addln("   \"exams\" : [");
+                            final int numExams = cat.exams.size();
+                            for (int j = 0; j < numExams; ++j) {
+                                final ExamEntry exam = cat.exams.get(j);
 
-                                final int numExams = cat.exams.size();
-                                for (int j = 0; j < numExams; ++j) {
-                                    final ExamEntry exam = cat.exams.get(j);
-
-                                    msg.addln("    {");
-                                    msg.addln("     \"id\" : \"", exam.examId,
-                                            "\",");
-                                    msg.add("     \"label\" : \"", exam.buttonLabel,
-                                            CoreConstants.QUOTE);
-                                    if (exam.note == null) {
-                                        msg.addln();
-                                    } else {
-                                        msg.addln(",");
-                                        msg.addln("     \"note\" : \"", exam.note,
-                                                CoreConstants.QUOTE);
-                                    }
-                                    if (j == numExams - 1) {
-                                        msg.addln("    }");
-                                    } else {
-                                        msg.addln("    },");
-                                    }
-                                }
-                                msg.addln("   ]");
-
-                                if (i == numCategories - 1) {
-                                    msg.addln("  }");
+                                msg.addln("    {");
+                                msg.addln("     \"id\" : \"", exam.examId,
+                                        "\",");
+                                msg.add("     \"label\" : \"", exam.buttonLabel,
+                                        CoreConstants.QUOTE);
+                                if (exam.note == null) {
+                                    msg.addln();
                                 } else {
-                                    msg.addln("  },");
+                                    msg.addln(",");
+                                    msg.addln("     \"note\" : \"", exam.note,
+                                            CoreConstants.QUOTE);
+                                }
+                                if (j == numExams - 1) {
+                                    msg.addln("    }");
+                                } else {
+                                    msg.addln("    },");
                                 }
                             }
-                            msg.addln(" ]");
-                            msg.addln("}");
+                            msg.addln("   ]");
 
-                            Log.info(LOG_PREFIX, "sending '", msg.toString(),
-                                    "'");
-                            this.session.getBasicRemote().sendText(msg.toString());
-
-                        } else {
-                            final HtmlBuilder msg = new HtmlBuilder(100);
-
-                            msg.addln("CONNECTED-SESSION{")
-                                    .addln(" \"psid\" : \"", this.ps.proctoringSessionId, "\",")
-                                    .addln(" \"stuid\" : \"", this.ps.student.stuId, "\",")
-                                    .addln(" \"courseid\" : \"", this.ps.courseId, "\",")
-                                    .addln(" \"examid\" : \"", this.ps.examId, "\",")
-                                    .addln(" \"state\" : \"", this.ps.state.name(), CoreConstants.QUOTE)
-                                    .addln("}");
-
-                            Log.info(LOG_PREFIX, "sending '", msg.toString(),
-                                    "'");
-
-                            this.session.getBasicRemote().sendText(msg.toString());
+                            if (i == numCategories - 1) {
+                                msg.addln("  }");
+                            } else {
+                                msg.addln("  },");
+                            }
                         }
+                        msg.addln(" ]");
+                        msg.addln("}");
+
+                        Log.info(LOG_PREFIX, "sending '", msg.toString(),
+                                "'");
+                        this.session.getBasicRemote().sendText(msg.toString());
+
+                    } else {
+                        final HtmlBuilder msg = new HtmlBuilder(100);
+
+                        msg.addln("CONNECTED-SESSION{")
+                                .addln(" \"psid\" : \"", this.ps.proctoringSessionId, "\",")
+                                .addln(" \"stuid\" : \"", this.ps.student.stuId, "\",")
+                                .addln(" \"courseid\" : \"", this.ps.courseId, "\",")
+                                .addln(" \"examid\" : \"", this.ps.examId, "\",")
+                                .addln(" \"state\" : \"", this.ps.state.name(), CoreConstants.QUOTE)
+                                .addln("}");
+
+                        Log.info(LOG_PREFIX, "sending '", msg.toString(),
+                                "'");
+
+                        this.session.getBasicRemote().sendText(msg.toString());
                     }
-                } finally {
-                    ctx.checkInConnection(conn);
                 }
             } catch (final SQLException ex) {
                 Log.warning(ex);
@@ -520,8 +509,8 @@ public final class MPSEndpoint {
             if ("OT".equals(next.instrnType)) {
                 regIter.remove();
             } else if ((!RawRecordConstants.M117.equals(course) && !RawRecordConstants.M118.equals(course)
-                    && !RawRecordConstants.M124.equals(course) && !RawRecordConstants.M125.equals(course)
-                    && !RawRecordConstants.M126.equals(course))) {
+                        && !RawRecordConstants.M124.equals(course) && !RawRecordConstants.M125.equals(course)
+                        && !RawRecordConstants.M126.equals(course))) {
                 regIter.remove();
             } else if (notRamwork && "RI".equals(next.instrnType)) {
                 regIter.remove();
@@ -671,37 +660,30 @@ public final class MPSEndpoint {
                 Log.warning("Received START request with no student set.");
                 this.session.getBasicRemote().sendText("ERROR");
             } else {
-                final DbContext ctx = this.siteProfile.dbProfile.getDbContext(ESchemaUse.PRIMARY);
+                final Cache cache = new Cache(this.siteProfile);
+                final SystemData systemData = cache.getSystemData();
 
                 try {
-                    final DbConnection conn = ctx.checkOutConnection();
-                    try {
-                        final Cache cache = new Cache(this.siteProfile.dbProfile, conn);
-                        final SystemData systemData = cache.getSystemData();
+                    final RawExam exam = systemData.getActiveExam(examId);
 
-                        final RawExam exam = systemData.getActiveExam(examId);
+                    if (exam == null) {
+                        Log.warning("Received START request with bad exam ID: " + examId);
+                        this.session.getBasicRemote().sendText("ERROR");
+                    } else {
+                        final MPSSession newSession = new MPSSession(psid, this.student);
+                        newSession.courseId = exam.course;
+                        newSession.examId = examId;
+                        newSession.timeout = System.currentTimeMillis() + SESSION_TIMEOUT_MS;
 
-                        if (exam == null) {
-                            Log.warning("Received START request with bad exam ID: " + examId);
-                            this.session.getBasicRemote().sendText("ERROR");
-                        } else {
-                            final MPSSession newSession = new MPSSession(psid, this.student);
-                            newSession.courseId = exam.course;
-                            newSession.examId = examId;
-                            newSession.timeout = System.currentTimeMillis() + SESSION_TIMEOUT_MS;
+                        final LocalDateTime newTimeout = LocalDateTime.ofInstant(
+                                Instant.ofEpochMilli(newSession.timeout), ZoneId.systemDefault());
+                        Log.info("Updating timeout on session ", newSession, " to ",
+                                TemporalUtils.FMT_MDY_HMS.format(newTimeout));
 
-                            final LocalDateTime newTimeout = LocalDateTime.ofInstant(
-                                    Instant.ofEpochMilli(newSession.timeout), ZoneId.systemDefault());
-                            Log.info("Updating timeout on session ", newSession, " to ",
-                                    TemporalUtils.FMT_MDY_HMS.format(newTimeout));
+                        this.mgr.addSession(newSession);
+                        this.ps = newSession;
 
-                            this.mgr.addSession(newSession);
-                            this.ps = newSession;
-
-                            sendSessionInfo();
-                        }
-                    } finally {
-                        ctx.checkInConnection(conn);
+                        sendSessionInfo();
                     }
                 } catch (final SQLException ex) {
                     Log.warning("Failed to connect to the database", ex);
@@ -842,17 +824,10 @@ public final class MPSEndpoint {
             this.ps = null;
         }
 
-        final DbContext ctx = this.siteProfile.dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        final Cache cache = new Cache(this.siteProfile);
 
         try {
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(this.siteProfile.dbProfile, conn);
-
-            try {
-                processTerminate(cache, lsid);
-            } finally {
-                ctx.checkInConnection(conn);
-            }
+            processTerminate(cache, lsid);
         } catch (final SQLException ex) {
             Log.warning(ex);
         }

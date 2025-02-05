@@ -265,12 +265,12 @@ public final class GenAdminSubsite extends AbstractSubsite {
             htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
             htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port,
-                    this.site.siteProfile.path, "'>");
+                    this.site.site.path, "'>");
 
             htm.addln("  <information>");
             htm.addln("    <title>Exam Review Tool</title>");
             htm.addln("    <vendor>Colorado State University</vendor>");
-            htm.addln("    <homepage href='", this.site.siteProfile.path, "/index.html'/>");
+            htm.addln("    <homepage href='", this.site.site.path, "/index.html'/>");
             htm.addln("    <description>Exam Review Tool.</description>");
             htm.addln("  </information>");
 

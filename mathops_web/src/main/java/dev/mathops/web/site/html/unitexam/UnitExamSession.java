@@ -32,13 +32,13 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
-import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ESchemaUse;
-import dev.mathops.db.old.cfg.WebSiteProfile;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.db.enums.ERole;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.logic.CourseLogic;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
@@ -81,7 +81,6 @@ import dev.mathops.text.parser.xml.XmlEscaper;
 import dev.mathops.web.site.html.HtmlSessionBase;
 import dev.mathops.web.site.tutorial.precalc.EEligibility;
 import dev.mathops.web.site.tutorial.precalc.PrecalcExamEligibility;
-
 import jakarta.servlet.ServletRequest;
 
 import java.awt.Font;
@@ -140,7 +139,7 @@ public final class UnitExamSession extends HtmlSessionBase {
      * stores data but does not generate the HTML until the page is actually generated.
      *
      * @param cache            the data cache
-     * @param theSiteProfile   the site profile
+     * @param theSite          the site profile
      * @param theSessionId     the session ID
      * @param theStudentId     the student ID
      * @param theCourseId      the course ID
@@ -148,11 +147,11 @@ public final class UnitExamSession extends HtmlSessionBase {
      * @param theRedirectOnEnd the URL to which to redirect at the end of the exam
      * @throws SQLException if there is an error accessing the database
      */
-    public UnitExamSession(final Cache cache, final WebSiteProfile theSiteProfile,
-                           final String theSessionId, final String theStudentId, final String theCourseId,
-                           final String theExamId, final String theRedirectOnEnd) throws SQLException {
+    public UnitExamSession(final Cache cache, final Site theSite, final String theSessionId,
+                           final String theStudentId, final String theCourseId, final String theExamId,
+                           final String theRedirectOnEnd) throws SQLException {
 
-        super(cache, theSiteProfile, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
+        super(cache, theSite, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
 
         this.courseId = theCourseId;
         this.state = EUnitExamState.INITIAL;
@@ -166,7 +165,7 @@ public final class UnitExamSession extends HtmlSessionBase {
      * stores data but does not generate the HTML until the page is actually generated.
      *
      * @param cache                the data cache
-     * @param theSiteProfile       the context
+     * @param theSite              the context
      * @param theSessionId         the session ID
      * @param theStudentId         the student ID
      * @param theExamId            the exam ID being worked on
@@ -182,14 +181,13 @@ public final class UnitExamSession extends HtmlSessionBase {
      * @param theError             the grading error
      * @throws SQLException if there is an error accessing the database
      */
-    UnitExamSession(final Cache cache, final WebSiteProfile theSiteProfile,
-                    final String theSessionId, final String theStudentId, final String theExamId,
-                    final String theRedirectOnEnd, final EUnitExamState theState, final Integer theScore,
-                    final Integer theMastery, final boolean theStarted, final int theItem,
+    UnitExamSession(final Cache cache, final Site theSite, final String theSessionId, final String theStudentId,
+                    final String theExamId, final String theRedirectOnEnd, final EUnitExamState theState,
+                    final Integer theScore, final Integer theMastery, final boolean theStarted, final int theItem,
                     final long theTimeout, final long theStartInstructTime, final ExamObj theExam,
                     final String theError) throws SQLException {
 
-        super(cache, theSiteProfile, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
+        super(cache, theSite, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
 
         this.state = theState;
         this.score = theScore;
@@ -257,7 +255,7 @@ public final class UnitExamSession extends HtmlSessionBase {
             timedOut = System.currentTimeMillis() >= this.timeout;
         } else {
             timedOut = this.startInstructionsTime > 0L
-                    && System.currentTimeMillis() > this.startInstructionsTime + 3600000L;
+                       && System.currentTimeMillis() > this.startInstructionsTime + 3600000L;
         }
 
         return timedOut;
@@ -359,10 +357,10 @@ public final class UnitExamSession extends HtmlSessionBase {
                     if ("U".equals(type)) {
 
                         if (RawRecordConstants.M1170.equals(this.courseId)
-                                || RawRecordConstants.M1180.equals(this.courseId)
-                                || RawRecordConstants.M1240.equals(this.courseId)
-                                || RawRecordConstants.M1250.equals(this.courseId)
-                                || RawRecordConstants.M1260.equals(this.courseId)) {
+                            || RawRecordConstants.M1180.equals(this.courseId)
+                            || RawRecordConstants.M1240.equals(this.courseId)
+                            || RawRecordConstants.M1250.equals(this.courseId)
+                            || RawRecordConstants.M1260.equals(this.courseId)) {
 
                             final EEligibility elig = PrecalcExamEligibility.isEligible(cache,
                                     session.getEffectiveUserId(), this.courseId);
@@ -409,15 +407,15 @@ public final class UnitExamSession extends HtmlSessionBase {
                         reply.status = GetExamReply.SUCCESS;
 
                         final boolean isCourseExam = RawRecordConstants.M117.equals(this.courseId)
-                                || RawRecordConstants.M118.equals(this.courseId)
-                                || RawRecordConstants.M124.equals(this.courseId)
-                                || RawRecordConstants.M125.equals(this.courseId)
-                                || RawRecordConstants.M126.equals(this.courseId)
-                                || RawRecordConstants.MATH117.equals(this.courseId)
-                                || RawRecordConstants.MATH118.equals(this.courseId)
-                                || RawRecordConstants.MATH124.equals(this.courseId)
-                                || RawRecordConstants.MATH125.equals(this.courseId)
-                                || RawRecordConstants.MATH126.equals(this.courseId);
+                                                     || RawRecordConstants.M118.equals(this.courseId)
+                                                     || RawRecordConstants.M124.equals(this.courseId)
+                                                     || RawRecordConstants.M125.equals(this.courseId)
+                                                     || RawRecordConstants.M126.equals(this.courseId)
+                                                     || RawRecordConstants.MATH117.equals(this.courseId)
+                                                     || RawRecordConstants.MATH118.equals(this.courseId)
+                                                     || RawRecordConstants.MATH124.equals(this.courseId)
+                                                     || RawRecordConstants.MATH125.equals(this.courseId)
+                                                     || RawRecordConstants.MATH126.equals(this.courseId);
 
                         buildPresentedExam(cache, avail.exam.treeRef, serial, reply, this.active, isCourseExam);
 
@@ -436,14 +434,17 @@ public final class UnitExamSession extends HtmlSessionBase {
 
                         // Alter the exam instructions based on section number
                         if (section != null && !section.isEmpty()
-                                && (section.charAt(0) == '8' || section.charAt(0) == '4')) {
+                            && (section.charAt(0) == '8' || section.charAt(0) == '4')) {
 
                             // Instructions for Distance Math courses
                             para = new DocParagraph();
                             para.add(new DocText("This " + singular + " consists of " + getExam().getNumProblems()
-                                    + " questions. Your score will be based on the number of questions answered "
-                                    + "correctly. There is at least one correct response to each question. To "
-                                    + "correctly answer a question on this " + singular + ", you must choose "));
+                                                 + " questions. Your score will be based on the number of questions " +
+                                                 "answered "
+                                                 + "correctly. There is at least one correct response to each " +
+                                                 "question. To "
+                                                 + "correctly answer a question on this " + singular + ", you must " +
+                                                 "choose "));
 
                             final DocWrappingSpan all = new DocWrappingSpan();
                             all.tag = "span";
@@ -458,8 +459,9 @@ public final class UnitExamSession extends HtmlSessionBase {
                             // Instructions for all Resident course unit and final exams
                             para = new DocParagraph();
                             para.add(new DocText("This " + singular
-                                    + " has a time limit.  The time remaining to complete the " + singular
-                                    + " is displayed at the top right hand corner of your computer screen."));
+                                                 + " has a time limit.  The time remaining to complete the " + singular
+                                                 + " is displayed at the top right hand corner of your computer " +
+                                                 "screen."));
                             newInstr.add(para);
 
                             newInstr.add(new DocParagraph());
@@ -473,7 +475,8 @@ public final class UnitExamSession extends HtmlSessionBase {
                             para.add(note);
 
                             text = new DocText(": all " + plural + " taken in the Precalculus Center must be submitted "
-                                    + "by the posted closing time, even if your time limit has not expired.");
+                                               + "by the posted closing time, even if your time limit has not expired" +
+                                               ".");
                             para.add(text);
                             newInstr.add(para);
 
@@ -482,9 +485,12 @@ public final class UnitExamSession extends HtmlSessionBase {
 
                             para = new DocParagraph();
                             para.add(new DocText("This " + singular + " consists of " + getExam().getNumProblems()
-                                    + " questions. Your score will be based on the number of questions answered "
-                                    + "correctly. There is at least one correct response to each question. To "
-                                    + "correctly answer a question on this " + singular + ", you must choose "));
+                                                 + " questions. Your score will be based on the number of questions " +
+                                                 "answered "
+                                                 + "correctly. There is at least one correct response to each " +
+                                                 "question. To "
+                                                 + "correctly answer a question on this " + singular + ", you must " +
+                                                 "choose "));
 
                             final DocWrappingSpan all = new DocWrappingSpan();
                             all.tag = "span";
@@ -516,9 +522,11 @@ public final class UnitExamSession extends HtmlSessionBase {
                             para.add(not);
 
                             para.add(new DocText(" permitted to use reference materials of any kind on this "
-                                    + singular + ". If you are found to be in possession of reference materials while "
-                                    + "working on this " + singular + ", even if unintentional, you will be charged "
-                                    + "with academic misconduct."));
+                                                 + singular + ". If you are found to be in possession of reference " +
+                                                 "materials while "
+                                                 + "working on this " + singular + ", even if unintentional, you will" +
+                                                 " be charged "
+                                                 + "with academic misconduct."));
                         }
                         newInstr.add(para);
 
@@ -650,7 +658,7 @@ public final class UnitExamSession extends HtmlSessionBase {
 
                             if (prb == null || prb.id == null) {
                                 Log.warning("Exam " + ref + " section " + onSect + " problem " + onProb + " choice "
-                                        + i + " getProblem() returned " + prb);
+                                            + i + " getProblem() returned " + prb);
                             } else {
                                 prb = InstructionalCache.getProblem(prb.id);
 
@@ -790,7 +798,7 @@ public final class UnitExamSession extends HtmlSessionBase {
         }
 
         htm.sDiv(null, "style='margin:20pt; padding:20pt; border:1px solid black; "
-                + "background:white; text-align:center; color:Green;'");
+                       + "background:white; text-align:center; color:Green;'");
 
         if (numAnswered == numProblems) {
             htm.sSpan(null, "style='color:green'");
@@ -822,7 +830,7 @@ public final class UnitExamSession extends HtmlSessionBase {
         startMain(htm);
 
         htm.sDiv(null, "style='margin:20pt; padding:20pt; border:1px solid black; "
-                + "background:white; text-align:center; color:Green;'");
+                       + "background:white; text-align:center; color:Green;'");
 
         htm.sSpan(null, "style='color:green;'").add("Exam completed.").br().br();
 
@@ -904,7 +912,7 @@ public final class UnitExamSession extends HtmlSessionBase {
         htm.sDiv(null, "style='display:flex; flex-flow:row wrap; margin:0 6px 12px 6px;'");
 
         htm.sDiv(null, "style='flex: 1 100%; display:block; "
-                + "background-color:AliceBlue; border:1px solid SteelBlue; margin:1px;'");
+                       + "background-color:AliceBlue; border:1px solid SteelBlue; margin:1px;'");
 
         htm.add("<h1 style='text-align:center; font-family:sans-serif; font-size:18pt; ",
                 "font-weight:bold; color:#36648b; text-shadow:2px 1px #ccc; padding:4pt;'>");
@@ -921,7 +929,7 @@ public final class UnitExamSession extends HtmlSessionBase {
         htm.sDiv(null, "style='text-align:center;margin-top:2px;'");
 
         if (this.timeout > 0L && (this.state == EUnitExamState.INSTRUCTIONS
-                || this.state == EUnitExamState.SUBMIT_NN || this.state == EUnitExamState.ITEM_NN)) {
+                                  || this.state == EUnitExamState.SUBMIT_NN || this.state == EUnitExamState.ITEM_NN)) {
 
             final long now = System.currentTimeMillis();
 
@@ -1044,7 +1052,7 @@ public final class UnitExamSession extends HtmlSessionBase {
 
         htm.sDiv(null, "style='padding:8px; min-height:100%; border:1px solid #b3b3b3; ",
                 "background:#f8f8f8; font-family:serif; font-size:"
-                        + AbstractDocObjectTemplate.DEFAULT_BASE_FONT_SIZE + "px;'");
+                + AbstractDocObjectTemplate.DEFAULT_BASE_FONT_SIZE + "px;'");
     }
 
     /**
@@ -1083,7 +1091,7 @@ public final class UnitExamSession extends HtmlSessionBase {
                 "onscroll='navScrolled();'>");
 
         if ((this.state == EUnitExamState.INSTRUCTIONS)
-                || (this.state == EUnitExamState.SOLUTION_NN && this.currentItem == -1)) {
+            || (this.state == EUnitExamState.SOLUTION_NN && this.currentItem == -1)) {
             htm.sDiv(null, "style='background:#7FFF7F;'");
         } else {
             htm.sDiv();
@@ -1109,15 +1117,15 @@ public final class UnitExamSession extends HtmlSessionBase {
             final ExamProblem ep = sect.getPresentedProblem(p);
 
             if (this.currentItem == p && (this.state == EUnitExamState.ITEM_NN
-                    || this.state == EUnitExamState.SOLUTION_NN)) {
+                                          || this.state == EUnitExamState.SOLUTION_NN)) {
                 htm.sDiv(null, "style='background:#7FFF7F;'");
             } else {
                 htm.sDiv();
             }
 
             if (this.state == EUnitExamState.ITEM_NN || this.state == EUnitExamState.INSTRUCTIONS
-                    || this.state == EUnitExamState.SUBMIT_NN
-                    || this.state == EUnitExamState.COMPLETED) {
+                || this.state == EUnitExamState.SUBMIT_NN
+                || this.state == EUnitExamState.COMPLETED) {
                 // When interacting or instructions, mark the ones that have been answered
 
                 if (ep.getSelectedProblem().isAnswered()) {
@@ -1160,7 +1168,7 @@ public final class UnitExamSession extends HtmlSessionBase {
     private static void appendEmptyFooter(final HtmlBuilder htm) {
 
         htm.sDiv(null, "style='flex: 1 100%; display:block; background-color:AliceBlue; "
-                + "border:1px solid SteelBlue; margin:1px; padding:6pt; text-align:center;'");
+                       + "border:1px solid SteelBlue; margin:1px; padding:6pt; text-align:center;'");
 
         htm.eDiv();
 
@@ -1582,7 +1590,7 @@ public final class UnitExamSession extends HtmlSessionBase {
         final List<RawStexam> existing = RawStexamLogic.getExams(cache, this.studentId, crsId, true);
         for (final RawStexam test : existing) {
             if (test.getStartDateTime() != null && test.serialNbr.equals(ser)
-                    && test.getStartDateTime().equals(start)) {
+                && test.getStartDateTime().equals(start)) {
                 return "This exam has already been submitted.";
             }
         }
@@ -1692,15 +1700,15 @@ public final class UnitExamSession extends HtmlSessionBase {
                     // 'TUTOR', 'ADMIN' special student types automatically in section "001"
                     // for 117, 118, 124, 125, 126.
                     if (RawRecordConstants.M117.equals(stexam.course)
-                            || RawRecordConstants.M118.equals(stexam.course)
-                            || RawRecordConstants.M124.equals(stexam.course)
-                            || RawRecordConstants.M125.equals(stexam.course)
-                            || RawRecordConstants.M126.equals(stexam.course)
-                            || RawRecordConstants.MATH117.equals(stexam.course)
-                            || RawRecordConstants.MATH118.equals(stexam.course)
-                            || RawRecordConstants.MATH124.equals(stexam.course)
-                            || RawRecordConstants.MATH125.equals(stexam.course)
-                            || RawRecordConstants.MATH126.equals(stexam.course)) {
+                        || RawRecordConstants.M118.equals(stexam.course)
+                        || RawRecordConstants.M124.equals(stexam.course)
+                        || RawRecordConstants.M125.equals(stexam.course)
+                        || RawRecordConstants.M126.equals(stexam.course)
+                        || RawRecordConstants.MATH117.equals(stexam.course)
+                        || RawRecordConstants.MATH118.equals(stexam.course)
+                        || RawRecordConstants.MATH124.equals(stexam.course)
+                        || RawRecordConstants.MATH125.equals(stexam.course)
+                        || RawRecordConstants.MATH126.equals(stexam.course)) {
 
                         final List<RawSpecialStus> specials = RawSpecialStusLogic.queryActiveByStudent(cache,
                                 this.studentId, now.toLocalDate());
@@ -2295,9 +2303,9 @@ public final class UnitExamSession extends HtmlSessionBase {
 
             if (stu == null) {
                 RawMpscorequeueLogic.logActivity("Unable to upload ELM exam result for student " + stexam.studentId
-                        + ": student record not found");
+                                                 + ": student record not found");
             } else {
-                final DbContext liveCtx = getDbProfile().getDbContext(ESchemaUse.LIVE);
+                final Login liveCtx = getProfile().getLogin(ESchema.LIVE);
                 final DbConnection liveConn = liveCtx.checkOutConnection();
 
                 try {
@@ -2342,9 +2350,9 @@ public final class UnitExamSession extends HtmlSessionBase {
 
             if (stu == null) {
                 RawMpscorequeueLogic.logActivity("Unable to upload placement result for student " + stexam.studentId
-                        + ": student record not found");
+                                                 + ": student record not found");
             } else {
-                final DbContext liveCtx = getDbProfile().getDbContext(ESchemaUse.LIVE);
+                final Login liveCtx = getProfile().getLogin(ESchema.LIVE);
                 final DbConnection liveConn = liveCtx.checkOutConnection();
 
                 try {
@@ -2420,7 +2428,7 @@ public final class UnitExamSession extends HtmlSessionBase {
 
         if (getExam() != null) {
             xml.addln("<unit-exam-session>");
-            xml.addln(" <host>", getSiteProfile().host, "</host>");
+            xml.addln(" <host>", getSiteProfile().getHost(), "</host>");
             xml.addln(" <path>", getSiteProfile().path, "</path>");
             xml.addln(" <session>", this.sessionId, "</session>");
             xml.addln(" <student>", this.studentId, "</student>");

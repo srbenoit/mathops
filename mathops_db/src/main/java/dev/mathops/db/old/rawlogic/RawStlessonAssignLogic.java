@@ -3,6 +3,7 @@ package dev.mathops.db.old.rawlogic;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawStlessonAssign;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -70,14 +71,18 @@ public enum RawStlessonAssignLogic {
                     LogicUtils.sqlDateTimeValue(record.whenFinished), ",",
                     LogicUtils.sqlIntegerValue(record.scoreTenths), ")");
 
-            try (final Statement stmt = cache.conn.createStatement()) {
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement()) {
                 result = stmt.executeUpdate(sql) == 1;
 
                 if (result) {
-                    cache.conn.commit();
+                    conn.commit();
                 } else {
-                    cache.conn.rollback();
+                    conn.rollback();
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -99,16 +104,20 @@ public enum RawStlessonAssignLogic {
                 "  AND course=", LogicUtils.sqlStringValue(record.course),
                 "  AND lesson_id=", LogicUtils.sqlStringValue(record.lessonId));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -121,7 +130,7 @@ public enum RawStlessonAssignLogic {
      */
     public static List<RawStlessonAssign> queryAll(final Cache cache) throws SQLException {
 
-        return executeListQuery(cache.conn, "SELECT * FROM stlesson_assign");
+        return executeListQuery(cache, "SELECT * FROM stlesson_assign");
     }
 
     /**
@@ -137,7 +146,7 @@ public enum RawStlessonAssignLogic {
         final String sql = SimpleBuilder.concat("SELECT * FROM stlesson_assign",
                 " WHERE stu_id=", LogicUtils.sqlStringValue(stuId));
 
-        return executeListQuery(cache.conn, sql);
+        return executeListQuery(cache, sql);
     }
 
     /**
@@ -158,20 +167,22 @@ public enum RawStlessonAssignLogic {
                 " AND course=", LogicUtils.sqlStringValue(course),
                 " AND lessod_id=", LogicUtils.sqlStringValue(lessonId));
 
-        return executeSingleQuery(cache.conn, sql);
+        return executeSingleQuery(cache, sql);
     }
 
     /**
-     * Executes a query that returns a sigle record.
+     * Executes a query that returns a single record.
      *
-     * @param conn the database connection, checked out to this thread
+     * @param cache    the data cache
      * @param sql  the SQL to execute
      * @return the list of matching records
      * @throws SQLException if there is an error accessing the database
      */
-    private static RawStlessonAssign executeSingleQuery(final DbConnection conn, final String sql) throws SQLException {
+    private static RawStlessonAssign executeSingleQuery(final Cache cache, final String sql) throws SQLException {
 
         RawStlessonAssign result = null;
+
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
         try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
@@ -179,6 +190,8 @@ public enum RawStlessonAssignLogic {
             if (rs.next()) {
                 result = RawStlessonAssign.fromResultSet(rs);
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -187,15 +200,16 @@ public enum RawStlessonAssignLogic {
     /**
      * Executes a query that returns a list of records.
      *
-     * @param conn the database connection, checked out to this thread
+     * @param cache    the data cache
      * @param sql  the SQL to execute
      * @return the list of matching records
      * @throws SQLException if there is an error accessing the database
      */
-    private static List<RawStlessonAssign> executeListQuery(final DbConnection conn,
-                                                            final String sql) throws SQLException {
+    private static List<RawStlessonAssign> executeListQuery(final Cache cache, final String sql) throws SQLException {
 
         final List<RawStlessonAssign> result = new ArrayList<>(50);
+
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
         try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
@@ -203,6 +217,8 @@ public enum RawStlessonAssignLogic {
             while (rs.next()) {
                 result.add(RawStlessonAssign.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;

@@ -1,19 +1,17 @@
 package dev.mathops.app.adm;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbUtils;
-import dev.mathops.db.old.rawlogic.RawMilestoneAppealLogic;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
-import dev.mathops.db.old.rawrecord.RawMilestoneAppeal;
-import dev.mathops.db.type.TermKey;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.enums.EDisciplineActionType;
 import dev.mathops.db.enums.EDisciplineIncidentType;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.old.DbUtils;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawlogic.RawChallengeFeeLogic;
 import dev.mathops.db.old.rawlogic.RawFfrTrnsLogic;
+import dev.mathops.db.old.rawlogic.RawMilestoneAppealLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawPaceAppealsLogic;
 import dev.mathops.db.old.rawlogic.RawPlcFeeLogic;
@@ -26,12 +24,14 @@ import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawStmpeLogic;
 import dev.mathops.db.old.rawlogic.RawStqaLogic;
 import dev.mathops.db.old.rawlogic.RawSttermLogic;
+import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rawrecord.RawChallengeFee;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawDiscipline;
 import dev.mathops.db.old.rawrecord.RawFfrTrns;
 import dev.mathops.db.old.rawrecord.RawMilestone;
+import dev.mathops.db.old.rawrecord.RawMilestoneAppeal;
 import dev.mathops.db.old.rawrecord.RawMpeCredit;
 import dev.mathops.db.old.rawrecord.RawPaceAppeals;
 import dev.mathops.db.old.rawrecord.RawPlcFee;
@@ -45,6 +45,7 @@ import dev.mathops.db.old.rawrecord.RawStmpe;
 import dev.mathops.db.old.rawrecord.RawStqa;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.type.TermKey;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -184,7 +185,7 @@ public final class StudentData {
         this.studentPlacementCredit = RawMpeCreditLogic.queryByStudent(cache, stuId);
         this.studentChallengeAttempts = RawStchallengeLogic.queryByStudent(cache, stuId);
 
-        this.studentDisciplines = loadStudentDisciplines(cache.conn, fixed);
+        this.studentDisciplines = loadStudentDisciplines(cache, fixed);
         this.paceAppeals = RawPaceAppealsLogic.queryByStudent(cache, stuId);
         this.milestoneAppeals = RawMilestoneAppealLogic.queryByStudent(cache, stuId);
 
@@ -257,11 +258,11 @@ public final class StudentData {
     /**
      * Loads all "discipline" records for a student.
      *
-     * @param conn  the database connection
+     * @param cache the data cache
      * @param fixed the fixed data
      * @return the list of discipline records
      */
-    private List<RawDiscipline> loadStudentDisciplines(final DbConnection conn, final UserData fixed) {
+    private List<RawDiscipline> loadStudentDisciplines(final Cache cache, final UserData fixed) {
 
         final List<RawDiscipline> result = new ArrayList<>(10);
 
@@ -269,6 +270,8 @@ public final class StudentData {
             final String stuId = this.student.stuId;
 
             final String sql = "SELECT * FROM discipline WHERE stu_id='" + stuId + "'";
+
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
             try (final Statement s = conn.createStatement()) {
                 try (final ResultSet rs = s.executeQuery(sql)) {
@@ -308,6 +311,8 @@ public final class StudentData {
             } catch (final SQLException ex) {
                 Log.warning(ex);
                 this.errorMessages.add("Unable to query 'discipline' table: " + ex.getMessage());
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 

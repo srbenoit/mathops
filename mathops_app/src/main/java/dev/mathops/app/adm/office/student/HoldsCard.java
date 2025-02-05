@@ -1,12 +1,14 @@
 package dev.mathops.app.adm.office.student;
 
-import dev.mathops.app.adm.UserData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
+import dev.mathops.app.adm.UserData;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rawrecord.RawHoldType;
@@ -57,9 +59,9 @@ class HoldsCard extends JPanel implements ActionListener {
     /**
      * Constructs a new {@code HoldsCard}.
      *
-     * @param theCache         the data cache
-     * @param theFixed         the fixed data
-     * @param theListener      the listener to notify when the "Add" button is pressed
+     * @param theCache    the data cache
+     * @param theFixed    the fixed data
+     * @param theListener the listener to notify when the "Add" button is pressed
      */
     HoldsCard(final Cache theCache, final UserData theFixed, final ActionListener theListener) {
 
@@ -305,14 +307,16 @@ class HoldsCard extends JPanel implements ActionListener {
         if (cmd.startsWith(DELETE_CMD) && this.data != null) {
             final String holdId = cmd.substring(DELETE_CMD.length());
 
-            try (final PreparedStatement ps = this.cache.conn.prepareStatement(//
+            final DbConnection conn = this.cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final PreparedStatement ps = conn.prepareStatement(
                     "DELETE FROM admin_hold WHERE stu_id=? AND hold_id=?")) {
                 ps.setString(1, this.data.student.stuId);
                 ps.setString(2, holdId);
 
                 final int numRows = ps.executeUpdate();
                 if (numRows == 1) {
-                    this.cache.conn.commit();
+                    conn.commit();
 
                     final Iterator<RawAdminHold> iter = this.data.studentHolds.iterator();
                     String sev = null;
@@ -338,6 +342,8 @@ class HoldsCard extends JPanel implements ActionListener {
                 }
             } catch (final SQLException ex) {
                 Log.warning("Failed to delete hold", ex);
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
     }
@@ -349,19 +355,23 @@ class HoldsCard extends JPanel implements ActionListener {
      */
     private void updateStudentHoldSeverity(final String severity) {
 
-        try (final PreparedStatement ps = this.cache.conn
+        final DbConnection conn = this.cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final PreparedStatement ps = conn
                 .prepareStatement("UPDATE student SET sev_admin_hold=? WHERE stu_id=?")) {
             ps.setString(1, severity);
             ps.setString(2, this.data.student.stuId);
 
             final int numRows = ps.executeUpdate();
             if (numRows == 1) {
-                this.cache.conn.commit();
+                conn.commit();
             } else {
                 Log.warning("Failed to update 'sev_admin_hold' in student record");
             }
         } catch (final SQLException ex) {
             Log.warning("Failed to update 'sev_admin_hold' in student record", ex);
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 }

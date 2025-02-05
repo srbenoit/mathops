@@ -1,9 +1,9 @@
 package dev.mathops.session.sitelogic.servlet;
 
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.cfg.Profile;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCusection;
 import dev.mathops.db.old.rawrecord.RawPacingStructure;
@@ -33,11 +33,11 @@ public final class StudentInfo extends LogicBase {
     /**
      * Constructs a new {@code StudentInfo}.
      *
-     * @param theDbProfile the database profile under which this site is accessed
+     * @param theProfile the database profile under which this site is accessed
      */
-    public StudentInfo(final DbProfile theDbProfile) {
+    public StudentInfo(final Profile theProfile) {
 
-        super(theDbProfile);
+        super(theProfile);
 
         this.studentId = null;
         this.student = null;

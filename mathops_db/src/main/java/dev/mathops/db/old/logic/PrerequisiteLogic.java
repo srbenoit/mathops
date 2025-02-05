@@ -1,14 +1,12 @@
 package dev.mathops.db.old.logic;
 
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.logic.SystemData;
-import dev.mathops.db.Cache;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.rawlogic.RawFfrTrnsLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
@@ -308,41 +306,33 @@ public final class PrerequisiteLogic {
      */
     public static void main(final String... args) {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
         DbConnection.registerDrivers();
 
-        final DbProfile dbProfile =
-                map.getWebSiteProfile(Contexts.PLACEMENT_HOST, Contexts.ROOT_PATH).dbProfile;
-        final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        final Profile profile = config.getWebProfile(Contexts.PLACEMENT_HOST, Contexts.ROOT_PATH);
+        final Cache cache = new Cache(profile);
 
         try {
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(dbProfile, conn);
+            final PrerequisiteLogic prereq = new PrerequisiteLogic(cache, "837011470");
 
-            try {
-                final PrerequisiteLogic prereq = new PrerequisiteLogic(cache, "837011470");
+            Log.fine("Student: ", prereq.studentId);
 
-                Log.fine("Student: ", prereq.studentId);
+            Log.fine(" OK for 117: " + prereq.hasSatisfiedPrerequisitesFor(RawRecordConstants.M117)
+                     + "; by transfer: " + prereq.hasSatisfiedPrerequisitesByTransferFor(RawRecordConstants.M117));
+            Log.fine(" OK for 118: " + prereq.hasSatisfiedPrerequisitesFor(RawRecordConstants.M118)
+                     + "; by transfer: " + prereq.hasSatisfiedPrerequisitesByTransferFor(RawRecordConstants.M118));
+            Log.fine(" OK for 124: " + prereq.hasSatisfiedPrerequisitesFor(RawRecordConstants.M124)
+                     + "; by transfer: " + prereq.hasSatisfiedPrerequisitesByTransferFor(RawRecordConstants.M124));
+            Log.fine(" OK for 125: " + prereq.hasSatisfiedPrerequisitesFor(RawRecordConstants.M125)
+                     + "; by transfer: " + prereq.hasSatisfiedPrerequisitesByTransferFor(RawRecordConstants.M125));
+            Log.fine(" OK for 126: " + prereq.hasSatisfiedPrerequisitesFor(RawRecordConstants.M126)
+                     + "; by transfer: " + prereq.hasSatisfiedPrerequisitesByTransferFor(RawRecordConstants.M126));
 
-                Log.fine(" OK for 117: " + prereq.hasSatisfiedPrerequisitesFor(RawRecordConstants.M117)
-                         + "; by transfer: " + prereq.hasSatisfiedPrerequisitesByTransferFor(RawRecordConstants.M117));
-                Log.fine(" OK for 118: " + prereq.hasSatisfiedPrerequisitesFor(RawRecordConstants.M118)
-                         + "; by transfer: " + prereq.hasSatisfiedPrerequisitesByTransferFor(RawRecordConstants.M118));
-                Log.fine(" OK for 124: " + prereq.hasSatisfiedPrerequisitesFor(RawRecordConstants.M124)
-                         + "; by transfer: " + prereq.hasSatisfiedPrerequisitesByTransferFor(RawRecordConstants.M124));
-                Log.fine(" OK for 125: " + prereq.hasSatisfiedPrerequisitesFor(RawRecordConstants.M125)
-                         + "; by transfer: " + prereq.hasSatisfiedPrerequisitesByTransferFor(RawRecordConstants.M125));
-                Log.fine(" OK for 126: " + prereq.hasSatisfiedPrerequisitesFor(RawRecordConstants.M126)
-                         + "; by transfer: " + prereq.hasSatisfiedPrerequisitesByTransferFor(RawRecordConstants.M126));
-
-                Log.fine(" Credit for 117: " + prereq.hasCreditFor(RawRecordConstants.M117));
-                Log.fine(" Credit for 118: " + prereq.hasCreditFor(RawRecordConstants.M118));
-                Log.fine(" Credit for 124: " + prereq.hasCreditFor(RawRecordConstants.M124));
-                Log.fine(" Credit for 125: " + prereq.hasCreditFor(RawRecordConstants.M125));
-                Log.fine(" Credit for 126: " + prereq.hasCreditFor(RawRecordConstants.M126));
-            } finally {
-                ctx.checkInConnection(conn);
-            }
+            Log.fine(" Credit for 117: " + prereq.hasCreditFor(RawRecordConstants.M117));
+            Log.fine(" Credit for 118: " + prereq.hasCreditFor(RawRecordConstants.M118));
+            Log.fine(" Credit for 124: " + prereq.hasCreditFor(RawRecordConstants.M124));
+            Log.fine(" Credit for 125: " + prereq.hasCreditFor(RawRecordConstants.M125));
+            Log.fine(" Credit for 126: " + prereq.hasCreditFor(RawRecordConstants.M126));
         } catch (final SQLException ex) {
             Log.warning(ex);
         }

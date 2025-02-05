@@ -5,11 +5,8 @@ import dev.mathops.commons.HexEncoder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.old.rawlogic.RawLoginsLogic;
 import dev.mathops.db.old.rawrecord.RawLogins;
 import dev.mathops.text.parser.Base64;
@@ -117,72 +114,50 @@ final class UserCredentialsManager {
      */
     public static void main(final String... args) {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-        final DbProfile dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
+        final DatabaseConfig databaseConfig = DatabaseConfig.getDefault();
+        final Profile profile = databaseConfig.getCodeProfile(Contexts.BATCH_PATH);
 
-        if (dbProfile == null) {
-            Log.warning("Unable to create production context.");
+        if (profile == null) {
+            Log.warning("Unable to create production profile.");
         } else {
-            final DbContext primaryCtx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
+            final Cache cache = new Cache(profile);
+            final Random rnd = new Random(System.currentTimeMillis());
 
-            if (primaryCtx == null) {
-                Log.warning("Unable to create PRIMARY database context.");
-            } else {
-                try {
-                    final DbConnection conn = primaryCtx.checkOutConnection();
-                    final Cache cache = new Cache(dbProfile, conn);
-                    try {
-                        final Random rnd = new Random(System.currentTimeMillis());
+            // Client gathers username and password, sends client-first to server
+            final String clientUsername = "benoit";
+            final String clientPassword = "testPassword";
+            final ClientFirstMessage clientClientFirst = new ClientFirstMessage(clientUsername, rnd);
 
-                        // Client gathers username and password, sends client-first to server
-                        final String clientUsername = "benoit";
-                        final String clientPassword = "testPassword";
-                        final ClientFirstMessage clientClientFirst =
-                                new ClientFirstMessage(clientUsername, rnd);
-
-                        // Server reads client-first, responds with server-first
-                        final ClientFirstMessage serverClientFirst =
-                                new ClientFirstMessage(clientClientFirst.hex);
-                        if (!serverClientFirst.hex.equals(clientClientFirst.hex)) {
-                            Log.warning("Client-first hex mismatch");
-                        }
-
-                        final UserCredentials cred =
-                                getInstance(cache).credentials
-                                        .get(new String(serverClientFirst.normalizedUsername, StandardCharsets.UTF_8));
-                        final ServerFirstMessage serverServerFirst =
-                                new ServerFirstMessage(serverClientFirst, cred, rnd);
-
-                        // Client reads server-first, responds with client-final
-                        final ServerFirstMessage clientServerFirst =
-                                new ServerFirstMessage(serverServerFirst.hex, clientClientFirst);
-                        if (!clientServerFirst.hex.equals(serverServerFirst.hex)) {
-                            Log.warning("Server-first hex mismatch");
-                        }
-
-                        final ClientFinalMessage clientClientFinal = new ClientFinalMessage(
-                                clientPassword, clientClientFirst, clientServerFirst);
-
-                        // Server reads client-final, responds with server-final
-                        final ClientFinalMessage serverClientFinal = new ClientFinalMessage(
-                                clientClientFinal.hex, serverClientFirst, serverServerFirst, cred);
-                        final String token = CoreConstants.newId(30);
-                        final ServerFinalMessage serverServerFinal =
-                                new ServerFinalMessage(serverClientFinal, cred, token);
-
-                        // Client reads server-final, obtains token
-                        final ServerFinalMessage clientServerFinal =
-                                new ServerFinalMessage(serverServerFinal.hex);
-
-                        Log.info("Negotiated token: ", clientServerFinal.token);
-
-                    } finally {
-                        primaryCtx.checkInConnection(conn);
-                    }
-                } catch (final SQLException ex) {
-                    Log.warning("EXCEPTION: " + ex.getMessage());
-                }
+            // Server reads client-first, responds with server-first
+            final ClientFirstMessage serverClientFirst = new ClientFirstMessage(clientClientFirst.hex);
+            if (!serverClientFirst.hex.equals(clientClientFirst.hex)) {
+                Log.warning("Client-first hex mismatch");
             }
+
+            final UserCredentials cred = getInstance(cache).credentials.get(
+                    new String(serverClientFirst.normalizedUsername, StandardCharsets.UTF_8));
+            final ServerFirstMessage serverServerFirst = new ServerFirstMessage(serverClientFirst, cred, rnd);
+
+            // Client reads server-first, responds with client-final
+            final ServerFirstMessage clientServerFirst = new ServerFirstMessage(serverServerFirst.hex,
+                    clientClientFirst);
+            if (!clientServerFirst.hex.equals(serverServerFirst.hex)) {
+                Log.warning("Server-first hex mismatch");
+            }
+
+            final ClientFinalMessage clientClientFinal = new ClientFinalMessage(clientPassword, clientClientFirst,
+                    clientServerFirst);
+
+            // Server reads client-final, responds with server-final
+            final ClientFinalMessage serverClientFinal = new ClientFinalMessage(clientClientFinal.hex,
+                    serverClientFirst, serverServerFirst, cred);
+            final String token = CoreConstants.newId(30);
+            final ServerFinalMessage serverServerFinal = new ServerFinalMessage(serverClientFinal, cred, token);
+
+            // Client reads server-final, obtains token
+            final ServerFinalMessage clientServerFinal = new ServerFinalMessage(serverServerFinal.hex);
+
+            Log.info("Negotiated token: ", clientServerFinal.token);
         }
     }
 }

@@ -1,7 +1,7 @@
 package dev.mathops.db;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.DbContext;
+import dev.mathops.db.cfg.Login;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -45,8 +45,8 @@ public final class DbConnection {
     /** Flag indicating drivers have been registered. */
     private static boolean unregistered = true;
 
-    /** The database context this connection uses. */
-    final DbContext dbContext;
+    /** The login this connection uses. */
+    final Login login;
 
     /** The currently active JDBC connection. */
     private Connection jdbcConnection;
@@ -54,11 +54,21 @@ public final class DbConnection {
     /**
      * Constructs a new {@code DbConnection}.
      *
-     * @param theDbContext the database context this connection uses
+     * @param theLogin the login context this connection uses
      */
-    public DbConnection(final DbContext theDbContext) {
+    public DbConnection(final Login theLogin) {
 
-        this.dbContext = theDbContext;
+        this.login = theLogin;
+    }
+
+    /**
+     * Gets the type of database product to which this object is connected.
+     *
+     * @return the database product
+     */
+    public EDbProduct getProduct() {
+
+        return this.login.database.server.type;
     }
 
     /**
@@ -100,16 +110,6 @@ public final class DbConnection {
         }
     }
 
-//    /**
-//     * Sets the schema factory this connection uses to build implementation objects.
-//     *
-//     * @param theFactory the factory
-//     */
-//    public void setFactory(final ISchemaBuilder theFactory) {
-//
-//        this.factory = theFactory;
-//    }
-
     /**
      * Gets the currently active JDBC connection, creating a new connection to the database if the active connection has
      * not yet been created or has been closed or has timed out. This action resets the timeout on the connection.
@@ -121,7 +121,7 @@ public final class DbConnection {
 
         if (this.jdbcConnection == null || this.jdbcConnection.isClosed()) {
 
-            this.jdbcConnection = this.dbContext.loginConfig.openConnection();
+            this.jdbcConnection = this.login.openConnection();
             this.jdbcConnection.setAutoCommit(false);
         }
 

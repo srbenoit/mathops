@@ -76,7 +76,7 @@ public enum PageStudentPastExam {
                 if (pes == null) {
                     final String redirect = "student_course_activity.html?stu=" + stu;
 
-                    pes = new PastExamSession(cache, site.siteProfile, session.loginSessionId, exam,
+                    pes = new PastExamSession(cache, site.site, session.loginSessionId, exam,
                             xml, session.getEffectiveUserId(), redirect);
                     store.setPastExamSession(pes);
                 }
@@ -150,7 +150,7 @@ public enum PageStudentPastExam {
                 if (pes == null) {
                     final String redirect = "student_course_activity.html?stu=" + stu;
 
-                    pes = new PastExamSession(cache, site.siteProfile, session.loginSessionId, exam,
+                    pes = new PastExamSession(cache, site.site, session.loginSessionId, exam,
                             xml, session.getEffectiveUserId(), redirect);
                     store.setPastExamSession(pes);
                 }

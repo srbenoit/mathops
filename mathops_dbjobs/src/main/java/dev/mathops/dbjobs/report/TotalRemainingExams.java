@@ -6,10 +6,8 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
@@ -37,7 +35,7 @@ import java.util.Map;
 final class TotalRemainingExams implements Runnable {
 
     /** Date/time formatter for report. */
-    private static final DateTimeFormatter DTTM_FMT = //
+    private static final DateTimeFormatter DTTM_FMT =
             DateTimeFormatter.ofPattern("yyyy'_'MM'_'dd'-'hh'_'mm'_'ss", Locale.US);
 
     /** Flag for review exam 1. */
@@ -108,31 +106,24 @@ final class TotalRemainingExams implements Runnable {
     @Override
     public void run() {
 
-        final DbProfile dbProfile = ContextMap.getDefaultInstance().getCodeProfile(Contexts.REPORT_PATH);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        final Profile profile = config.getCodeProfile(Contexts.REPORT_PATH);
 
         final HtmlBuilder report = new HtmlBuilder(10000);
 
-        if (dbProfile == null) {
+        if (profile == null) {
             report.addln("*** ERROR: There is no database code profile named 'report'.");
         } else {
-            Log.info("Using ", dbProfile.id, " profile");
-
-            final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
+            Log.info("Using ", profile.id, " profile");
+            final Cache cache = new Cache(profile);
 
             try {
-                final DbConnection conn = ctx.checkOutConnection();
-                final Cache cache = new Cache(dbProfile, conn);
+                gatherData(cache);
 
-                try {
-                    gatherData(cache);
+                Log.info("Generating report of total exams remaining to be passed.....please wait.");
 
-                    Log.info("Generating report of total exams remaining to be passed.....please wait.");
-
-                    compute();
-                    generateReport(report);
-                } finally {
-                    ctx.checkInConnection(conn);
-                }
+                compute();
+                generateReport(report);
             } catch (final SQLException ex) {
                 Log.warning(ex);
             }
@@ -202,7 +193,7 @@ final class TotalRemainingExams implements Runnable {
                 studentMap.put(stuId, status);
 
                 status.setRequiredExams(REVIEW_1 | REVIEW_2 | REVIEW_3 | REVIEW_4 | UNIT_1 | UNIT_2 | UNIT_3 | UNIT_4
-                        | FINAL);
+                                        | FINAL);
 
                 for (final RawStexam test : examList) {
                     if (stuId.equals(test.stuId)) {
@@ -378,9 +369,9 @@ final class TotalRemainingExams implements Runnable {
                     numString(counts.getFinalsRemaining()), " remaining.");
 
             final int totalComplete = counts.getReviewsComplete() + counts.getUnitsComplete()
-                    + counts.getMidtermsComplete() + counts.getFinalsComplete();
+                                      + counts.getMidtermsComplete() + counts.getFinalsComplete();
             final int totalRemaining = counts.getReviewsRemaining() + counts.getUnitsRemaining()
-                    + counts.getMidtermsRemaining() + counts.getFinalsRemaining();
+                                       + counts.getMidtermsRemaining() + counts.getFinalsRemaining();
             final int totalTotal = totalComplete + totalRemaining;
 
             report.addln("     Cumulative: ", numString(totalComplete), " out of ",
@@ -435,6 +426,7 @@ final class TotalRemainingExams implements Runnable {
      */
     public static void main(final String... args) {
 
+        DbConnection.registerDrivers();
         new TotalRemainingExams().run();
     }
 

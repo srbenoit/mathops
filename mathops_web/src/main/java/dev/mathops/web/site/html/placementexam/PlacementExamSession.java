@@ -30,14 +30,14 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
-import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
-import dev.mathops.db.old.cfg.WebSiteProfile;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Profile;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.db.enums.ERole;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.logic.PlacementLogic;
 import dev.mathops.db.old.logic.PlacementStatus;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
@@ -72,7 +72,6 @@ import dev.mathops.session.txn.messages.GetExamReply;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.parser.xml.XmlEscaper;
 import dev.mathops.web.site.html.HtmlSessionBase;
-
 import jakarta.servlet.ServletRequest;
 
 import java.sql.SQLException;
@@ -139,7 +138,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
      * exam. It stores data but does not generate the HTML until the page is actually generated.
      *
      * @param cache            the data cache
-     * @param theSiteProfile   the site profile
+     * @param theSite          the site profile
      * @param theSessionId     the session ID
      * @param theStudentId     the student ID
      * @param isProctored      true if the session is proctored
@@ -147,11 +146,11 @@ public final class PlacementExamSession extends HtmlSessionBase {
      * @param theRedirectOnEnd the URL to which to redirect at the end of the exam
      * @throws SQLException if there is an error accessing the database
      */
-    public PlacementExamSession(final Cache cache, final WebSiteProfile theSiteProfile, final String theSessionId,
+    public PlacementExamSession(final Cache cache, final Site theSite, final String theSessionId,
                                 final String theStudentId, final boolean isProctored, final String theExamId,
                                 final String theRedirectOnEnd) throws SQLException {
 
-        super(cache, theSiteProfile, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
+        super(cache, theSite, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
 
         this.proctored = isProctored;
         this.state = EPlacementExamState.INITIAL;
@@ -170,7 +169,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
      * exam. It stores data but does not generate the HTML until the page is actually generated.
      *
      * @param cache            the data cache
-     * @param theSiteProfile   the website profile
+     * @param theSite          the website profile
      * @param theSessionId     the session ID
      * @param theStudentId     the student ID
      * @param isProctored      true if the session is proctored
@@ -189,14 +188,14 @@ public final class PlacementExamSession extends HtmlSessionBase {
      * @param theError         the grading error
      * @throws SQLException if there is an error accessing the database
      */
-    PlacementExamSession(final Cache cache, final WebSiteProfile theSiteProfile, final String theSessionId,
+    PlacementExamSession(final Cache cache, final Site theSite, final String theSessionId,
                          final String theStudentId, final boolean isProctored, final String theExamId,
                          final String theRedirectOnEnd, final EPlacementExamState theState, final Integer theScore,
                          final Integer theMastery, final boolean theStarted, final int theProfilePage,
                          final int theSect, final int theItem, final long theTimeout, final long thePurgeTime,
                          final ExamObj theExam, final String theError) throws SQLException {
 
-        super(cache, theSiteProfile, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
+        super(cache, theSite, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
 
         this.proctored = isProctored;
         this.state = theState;
@@ -2530,127 +2529,120 @@ public final class PlacementExamSession extends HtmlSessionBase {
      */
     private String insertPlacement(final ZonedDateTime now, final StudentExamRec stexam) {
 
-        final DbProfile dbProfile = getDbProfile();
-        final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        final Profile dbProfile = getProfile();
+        final Cache cache = new Cache(dbProfile);
 
         try {
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(dbProfile, conn);
+            final int[] attempts = RawStmpeLogic.countLegalAttempts(cache, stexam.studentId, stexam.examId);
 
-            try {
-                final int[] attempts = RawStmpeLogic.countLegalAttempts(cache, stexam.studentId, stexam.examId);
-
-                boolean deny = false;
-                if (this.proctored) {
-                    if (attempts[1] >= 2) {
-                        Log.info("Max proctored attempts already used, denying");
-                        deny = true;
-                    }
-                } else if (attempts[0] >= 1) {
-                    Log.info("Max unproctored attempts already used, denying");
+            boolean deny = false;
+            if (this.proctored) {
+                if (attempts[1] >= 2) {
+                    Log.info("Max proctored attempts already used, denying");
                     deny = true;
                 }
+            } else if (attempts[0] >= 1) {
+                Log.info("Max unproctored attempts already used, denying");
+                deny = true;
+            }
 
-                if (deny) {
-                    // Attempt was not legal; deny all placement & credit awards. Reason for denial
-                    // now becomes 'I'.
-                    stexam.howValidated = ' ';
-                    stexam.deniedPlacement.replaceAll((s, v) -> "I");
-                    stexam.deniedCredit.replaceAll((s, v) -> "I");
-                    for (final String s : stexam.earnedPlacement) {
-                        stexam.deniedPlacement.put(s, "I");
-                    }
-                    for (final String s : stexam.earnedCredit) {
-                        stexam.deniedCredit.put(s, "I");
-                    }
-                    stexam.earnedPlacement.clear();
-                    stexam.earnedCredit.clear();
-
-                    // Since we have detected an illegal placement exam attempt, we place a hold 18
-                    // on the student account. TODO: Fix hardcode
-                    RawAdminHold hold = RawAdminHoldLogic.query(cache, stexam.studentId, "18");
-
-                    if (hold == null) {
-                        // No hold, so create a new one
-                        hold = new RawAdminHold(stexam.studentId, "18", "F", Integer.valueOf(0), LocalDate.now());
-
-                        if (RawAdminHoldLogic.insert(cache, hold) && !"F".equals(getStudent().sevAdminHold)) {
-                            RawStudentLogic.updateHoldSeverity(cache, getStudent().stuId, "F");
-                        }
-                    } else {
-                        // Already a hold 18, but update its date to now
-                        hold = new RawAdminHold(stexam.studentId, "18", "F", Integer.valueOf(0), LocalDate.now());
-                        RawAdminHoldLogic.updateAdminHoldDate(cache, hold);
-                    }
+            if (deny) {
+                // Attempt was not legal; deny all placement & credit awards. Reason for denial
+                // now becomes 'I'.
+                stexam.howValidated = ' ';
+                stexam.deniedPlacement.replaceAll((s, v) -> "I");
+                stexam.deniedCredit.replaceAll((s, v) -> "I");
+                for (final String s : stexam.earnedPlacement) {
+                    stexam.deniedPlacement.put(s, "I");
                 }
-
-                // Finally, we insert the placement attempt record.
-                if (stexam.finish == null) {
-                    stexam.finish = now.toLocalDateTime();
+                for (final String s : stexam.earnedCredit) {
+                    stexam.deniedCredit.put(s, "I");
                 }
+                stexam.earnedPlacement.clear();
+                stexam.earnedCredit.clear();
 
-                boolean placed = false;
-                final String result;
-                if (!stexam.earnedCredit.isEmpty() || !stexam.earnedPlacement.isEmpty()) {
+                // Since we have detected an illegal placement exam attempt, we place a hold 18
+                // on the student account. TODO: Fix hardcode
+                RawAdminHold hold = RawAdminHoldLogic.query(cache, stexam.studentId, "18");
 
-                    if (deny) {
-                        // Illegal attempt, so store attempt number
-                        result = Integer.toString(attempts[0] + attempts[1] + 1);
-                    } else {
-                        result = "Y";
-                        placed = true;
+                if (hold == null) {
+                    // No hold, so create a new one
+                    hold = new RawAdminHold(stexam.studentId, "18", "F", Integer.valueOf(0), LocalDate.now());
+
+                    if (RawAdminHoldLogic.insert(cache, hold) && !"F".equals(getStudent().sevAdminHold)) {
+                        RawStudentLogic.updateHoldSeverity(cache, getStudent().stuId, "F");
                     }
                 } else {
-                    result = "N";
+                    // Already a hold 18, but update its date to now
+                    hold = new RawAdminHold(stexam.studentId, "18", "F", Integer.valueOf(0), LocalDate.now());
+                    RawAdminHoldLogic.updateAdminHoldDate(cache, hold);
                 }
+            }
 
-                String howValidated = null;
-                if (this.proctored) {
-                    howValidated = "P";
-                } else if (placed && stexam.howValidated != ' ') {
-                    howValidated = Character.toString(stexam.howValidated);
+            // Finally, we insert the placement attempt record.
+            if (stexam.finish == null) {
+                stexam.finish = now.toLocalDateTime();
+            }
+
+            boolean placed = false;
+            final String result;
+            if (!stexam.earnedCredit.isEmpty() || !stexam.earnedPlacement.isEmpty()) {
+
+                if (deny) {
+                    // Illegal attempt, so store attempt number
+                    result = Integer.toString(attempts[0] + attempts[1] + 1);
+                } else {
+                    result = "Y";
+                    placed = true;
                 }
+            } else {
+                result = "N";
+            }
 
-                final RawStmpe attempt = new RawStmpe(stexam.studentId, stexam.examId,
-                        this.active.academicYear, stexam.finish.toLocalDate(),
-                        Integer.valueOf(TemporalUtils.minuteOfDay(stexam.start)),
-                        Integer.valueOf(TemporalUtils.minuteOfDay(stexam.finish)),
-                        getStudent().lastName, getStudent().firstName, getStudent().middleInitial, null,
-                        stexam.serialNumber, stexam.subtestScores.get("A"),
-                        stexam.subtestScores.get("117"),
-                        stexam.subtestScores.get("118"),
-                        stexam.subtestScores.get("124"),
-                        stexam.subtestScores.get("125"),
-                        stexam.subtestScores.get("126"), result, howValidated);
+            String howValidated = null;
+            if (this.proctored) {
+                howValidated = "P";
+            } else if (placed && stexam.howValidated != ' ') {
+                howValidated = Character.toString(stexam.howValidated);
+            }
 
-                for (final StudentExamAnswerRec ansrec : stexam.answers.values()) {
-                    final RawStmpeqa answer =
-                            new RawStmpeqa(attempt.stuId, attempt.version, attempt.examDt, attempt.finishTime,
-                                    Integer.valueOf(ansrec.id), ansrec.studentAnswer, ansrec.correct ? "Y" : "N",
-                                    ansrec.subtest, ansrec.treeRef);
+            final RawStmpe attempt = new RawStmpe(stexam.studentId, stexam.examId,
+                    this.active.academicYear, stexam.finish.toLocalDate(),
+                    Integer.valueOf(TemporalUtils.minuteOfDay(stexam.start)),
+                    Integer.valueOf(TemporalUtils.minuteOfDay(stexam.finish)),
+                    getStudent().lastName, getStudent().firstName, getStudent().middleInitial, null,
+                    stexam.serialNumber, stexam.subtestScores.get("A"),
+                    stexam.subtestScores.get("117"),
+                    stexam.subtestScores.get("118"),
+                    stexam.subtestScores.get("124"),
+                    stexam.subtestScores.get("125"),
+                    stexam.subtestScores.get("126"), result, howValidated);
 
-                    if (!RawStmpeqaLogic.insert(cache, answer)) {
-                        Log.warning("Failed to insert placement attempt answer");
-                    }
+            for (final StudentExamAnswerRec ansrec : stexam.answers.values()) {
+                final RawStmpeqa answer =
+                        new RawStmpeqa(attempt.stuId, attempt.version, attempt.examDt, attempt.finishTime,
+                                Integer.valueOf(ansrec.id), ansrec.studentAnswer, ansrec.correct ? "Y" : "N",
+                                ansrec.subtest, ansrec.treeRef);
+
+                if (!RawStmpeqaLogic.insert(cache, answer)) {
+                    Log.warning("Failed to insert placement attempt answer");
                 }
+            }
 
-                // Update the placement log record
-                final LocalDateTime start = stexam.start;
+            // Update the placement log record
+            final LocalDateTime start = stexam.start;
 
-                final int startTime = TemporalUtils.minuteOfDay(start);
+            final int startTime = TemporalUtils.minuteOfDay(start);
 
-                RawMpeLogLogic.indicateFinished(cache, attempt.stuId, attempt.examDt, Integer.valueOf(startTime),
-                        attempt.examDt, stexam.recovered == null ? null : stexam.recovered.toLocalDate());
+            RawMpeLogLogic.indicateFinished(cache, attempt.stuId, attempt.examDt, Integer.valueOf(startTime),
+                    attempt.examDt, stexam.recovered == null ? null : stexam.recovered.toLocalDate());
 
-                insertPlacementResults(cache, stexam, deny);
+            insertPlacementResults(cache, stexam, deny);
 
-                // Last thing is to insert the actual STMPE row. We do this last so other jobs can know that if they
-                // see a row in this table, the associated data will be present and complete.
-                if (!RawStmpeLogic.insert(cache, attempt)) {
-                    return "Failed to insert student placement exam record";
-                }
-            } finally {
-                ctx.checkInConnection(conn);
+            // Last thing is to insert the actual STMPE row. We do this last so other jobs can know that if they
+            // see a row in this table, the associated data will be present and complete.
+            if (!RawStmpeLogic.insert(cache, attempt)) {
+                return "Failed to insert student placement exam record";
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
@@ -2718,7 +2710,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
                 RawMpscorequeueLogic.logActivity("Unable to upload placement result for student " + stexam.studentId
                                                  + ": student record not found");
             } else {
-                final DbContext liveCtx = getDbProfile().getDbContext(ESchemaUse.LIVE);
+                final Login liveCtx = getProfile().getLogin(ESchema.LIVE);
                 final DbConnection liveConn = liveCtx.checkOutConnection();
                 try {
                     RawMpscorequeueLogic.postPlacementToolResult(cache, liveConn, stu.pidm,
@@ -2741,7 +2733,7 @@ public final class PlacementExamSession extends HtmlSessionBase {
 
         if (getExam() != null) {
             xml.addln("<placement-exam-session>");
-            xml.addln(" <host>", getSiteProfile().host, "</host>");
+            xml.addln(" <host>", getSiteProfile().getHost(), "</host>");
             xml.addln(" <path>", getSiteProfile().path, "</path>");
             xml.addln(" <session>", this.sessionId, "</session>");
             xml.addln(" <student>", this.studentId, "</student>");

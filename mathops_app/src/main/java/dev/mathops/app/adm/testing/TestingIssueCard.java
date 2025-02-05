@@ -11,6 +11,8 @@ import dev.mathops.app.checkin.LogicCheckIn;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.logic.ChallengeExamLogic;
@@ -800,7 +802,9 @@ final class TestingIssueCard extends AdmPanelBase implements ActionListener, Foc
 
         this.studentStatusDisplay.setText(CoreConstants.SPC);
 
-        try (final PreparedStatement ps = this.cache.conn.prepareStatement(sql1)) {
+        final DbConnection conn = this.cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final PreparedStatement ps = conn.prepareStatement(sql1)) {
             ps.setString(1, cleanStu);
             try (final ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -831,6 +835,8 @@ final class TestingIssueCard extends AdmPanelBase implements ActionListener, Foc
             } else {
                 this.studentStatusDisplay.setText("Error querying student table: " + ex.getMessage());
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 

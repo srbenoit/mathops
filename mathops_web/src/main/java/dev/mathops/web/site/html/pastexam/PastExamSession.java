@@ -14,7 +14,7 @@ import dev.mathops.assessment.problem.template.ProblemNumericTemplate;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.cfg.WebSiteProfile;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.txn.messages.GetExamReply;
@@ -24,6 +24,7 @@ import dev.mathops.text.parser.xml.XmlEscaper;
 import dev.mathops.web.site.html.HtmlSessionBase;
 
 import jakarta.servlet.ServletRequest;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -67,7 +68,7 @@ public final class PastExamSession extends HtmlSessionBase {
      * stores data but does not generate the HTML until the page is actually generated.
      *
      * @param cache            the data cache
-     * @param theSiteProfile   the site profile
+     * @param theSite          the site profile
      * @param theSessionId     the session ID
      * @param theExamId        the exam ID
      * @param theXmlFilename   the XML filename
@@ -75,11 +76,11 @@ public final class PastExamSession extends HtmlSessionBase {
      * @param theRedirectOnEnd the URL to which to redirect at the end of the exam
      * @throws SQLException if there is an error accessing the database
      */
-    public PastExamSession(final Cache cache, final WebSiteProfile theSiteProfile,
+    public PastExamSession(final Cache cache, final Site theSite,
                            final String theSessionId, final String theExamId, final String theXmlFilename,
                            final String theStudentId, final String theRedirectOnEnd) throws SQLException {
 
-        super(cache, theSiteProfile, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
+        super(cache, theSite, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
 
         if (theXmlFilename == null) {
             throw new IllegalArgumentException("XML Filename may not be null");
@@ -97,7 +98,7 @@ public final class PastExamSession extends HtmlSessionBase {
      * stores data but does not generate the HTML until the page is actually generated.
      *
      * @param cache            the data cache
-     * @param theSiteProfile   the site profile
+     * @param theSite          the site profile
      * @param theSessionId     the session ID
      * @param theXmlFilename   the XML filename
      * @param theStudentId     the student ID
@@ -109,13 +110,13 @@ public final class PastExamSession extends HtmlSessionBase {
      * @param theExam          the exam
      * @throws SQLException if there is an error accessing the database
      */
-    PastExamSession(final Cache cache, final WebSiteProfile theSiteProfile,
+    PastExamSession(final Cache cache, final Site theSite,
                     final String theSessionId, final String theXmlFilename, final String theStudentId,
                     final String theRedirectOnEnd, final EPastExamState theState, final String theError,
                     final int theCurrentItem, final long theTimeout, final ExamObj theExam)
             throws SQLException {
 
-        super(cache, theSiteProfile, theSessionId, theStudentId, theExam.examVersion,
+        super(cache, theSite, theSessionId, theStudentId, theExam.examVersion,
                 theRedirectOnEnd);
 
         if (theXmlFilename == null) {
@@ -898,7 +899,7 @@ public final class PastExamSession extends HtmlSessionBase {
 
         if (getExam() != null) {
             xml.addln("<past-exam-session>");
-            xml.addln(" <host>", getSiteProfile().host, "</host>");
+            xml.addln(" <host>", getSiteProfile().getHost(), "</host>");
             xml.addln(" <path>", getSiteProfile().path, "</path>");
             xml.addln(" <session>", this.sessionId, "</session>");
             xml.addln(" <xml>", this.xmlFilename, "</xml>");

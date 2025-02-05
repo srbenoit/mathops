@@ -11,8 +11,8 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.WebSiteProfile;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.parser.ParsingException;
 import dev.mathops.text.parser.xml.Attribute;
@@ -102,7 +102,7 @@ public final class PlacementExamSessionStore {
 
         synchronized (this.studentPlacementExams) {
             if (!theSession.isTimedOut()
-                    && !this.studentPlacementExams.containsKey(theSession.studentId)) {
+                && !this.studentPlacementExams.containsKey(theSession.studentId)) {
                 this.studentPlacementExams.put(theSession.studentId, theSession);
             }
         }
@@ -363,7 +363,7 @@ public final class PlacementExamSessionStore {
                                     examProb.setSelectedProblem(selected);
                                 } catch (final ParsingException ex) {
                                     Log.warning(ex);
-                                    throw new IllegalArgumentException( "Unable to parse possible problem", ex);
+                                    throw new IllegalArgumentException("Unable to parse possible problem", ex);
                                 }
                             }
                         }
@@ -372,7 +372,7 @@ public final class PlacementExamSessionStore {
             }
         } else {
             throw new IllegalArgumentException("Expected 'placement-exam-session', found '"
-                    + tagName + "'");
+                                               + tagName + "'");
         }
 
         if (host == null) {
@@ -419,8 +419,7 @@ public final class PlacementExamSessionStore {
             throw new IllegalArgumentException("'placement-exam-session' was missing 'item'");
         }
 
-        final WebSiteProfile siteProfile =
-                ContextMap.getDefaultInstance().getWebSiteProfile(host, path);
+        final Site siteProfile = DatabaseConfig.getDefault().getSite(host, path);
         final Integer scoreInt = score == null ? null : Integer.valueOf(score);
         final Integer minMastery = mastery == null ? null : Integer.valueOf(mastery);
 
@@ -453,7 +452,7 @@ public final class PlacementExamSessionStore {
                 if (sess.isPurgable()) {
                     try {
                         if (sess.getState() == EPlacementExamState.ITEM_NN
-                                || sess.getState() == EPlacementExamState.SUBMIT_NN) {
+                            || sess.getState() == EPlacementExamState.SUBMIT_NN) {
                             // Force-submit
                             sess.scoreAndRecordCompletion(cache, ZonedDateTime.now());
                         } else {

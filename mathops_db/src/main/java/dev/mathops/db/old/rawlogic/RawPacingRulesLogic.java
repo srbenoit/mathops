@@ -1,6 +1,8 @@
 package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rawrecord.RawPacingRules;
 import dev.mathops.text.builder.SimpleBuilder;
@@ -53,16 +55,20 @@ public enum RawPacingRulesLogic {
                 LogicUtils.sqlStringValue(record.activityType), ",",
                 LogicUtils.sqlStringValue(record.requirement), ")");
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -83,16 +89,20 @@ public enum RawPacingRulesLogic {
                 "  AND activity_type=", LogicUtils.sqlStringValue(record.activityType),
                 "  AND requirement=", LogicUtils.sqlStringValue(record.requirement));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -166,10 +176,14 @@ public enum RawPacingRulesLogic {
                 "   AND activity_type=", LogicUtils.sqlStringValue(activityType),
                 "   AND requirement=", LogicUtils.sqlStringValue(requirement));
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
 
             return rs.next();
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -185,12 +199,16 @@ public enum RawPacingRulesLogic {
 
         final List<RawPacingRules> result = new ArrayList<>(20);
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 result.add(RawPacingRules.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;

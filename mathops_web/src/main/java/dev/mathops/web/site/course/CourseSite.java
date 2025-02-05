@@ -5,8 +5,8 @@ import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
 import dev.mathops.db.Cache;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.db.logic.ELiveRefreshes;
-import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.old.rawlogic.RawFfrTrnsLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
@@ -39,12 +39,12 @@ public class CourseSite extends AbstractPageSite {
     /**
      * Constructs a new {@code CourseSite}.
      *
-     * @param theSiteProfile the website profile
-     * @param theSessions    the singleton user session repository
+     * @param theSite     the website profile
+     * @param theSessions the singleton user session repository
      */
-    public CourseSite(final WebSiteProfile theSiteProfile, final ISessionManager theSessions) {
+    public CourseSite(final Site theSite, final ISessionManager theSessions) {
 
-        super(theSiteProfile, theSessions);
+        super(theSite, theSessions);
     }
 
     /**
@@ -66,7 +66,7 @@ public class CourseSite extends AbstractPageSite {
         // Log.info("GET ", subpath);
 
         if (CoreConstants.EMPTY.equals(subpath)) {
-            final String path = this.siteProfile.path;
+            final String path = this.site.path;
             resp.sendRedirect(path + (path.endsWith(CoreConstants.SLASH) ? "index.html" : "/index.html"));
         } else if ("basestyle.css".equals(subpath)) {
             sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
@@ -88,7 +88,7 @@ public class CourseSite extends AbstractPageSite {
         } else if ("favicon.ico".equals(subpath)) {
             serveImage(subpath, req, resp);
         } else {
-            final String maintMsg = isMaintenance(this.siteProfile);
+            final String maintMsg = isMaintenance(this.site);
 
             if (maintMsg == null) {
                 // The pages that follow require the user to be logged in
@@ -98,7 +98,7 @@ public class CourseSite extends AbstractPageSite {
                     switch (subpath) {
                         case "index.html", "login.html" -> {
                             // Send back to the root site
-                            final String path = this.siteProfile.path;
+                            final String path = this.site.path;
                             resp.sendRedirect(path + (path.endsWith(CoreConstants.SLASH) ? "index.html"
                                     : "/index.html"));
                         }
@@ -115,7 +115,7 @@ public class CourseSite extends AbstractPageSite {
 
                     // TODO: Replace all logic with this
 
-                    final CourseSiteLogic logic = new CourseSiteLogic(cache, this.siteProfile, session);
+                    final CourseSiteLogic logic = new CourseSiteLogic(cache, this.site.profile, session);
                     logic.gatherData();
 
                     switch (subpath) {
@@ -169,7 +169,7 @@ public class CourseSite extends AbstractPageSite {
 
                         default -> {
                             Log.warning("Unrecognized GET request path: ", subpath);
-                            final String path = this.siteProfile.path;
+                            final String path = this.site.path;
                             resp.sendRedirect(path + (path.endsWith(CoreConstants.SLASH)
                                     ? "index.html" : "/index.html"));
                         }
@@ -197,7 +197,7 @@ public class CourseSite extends AbstractPageSite {
                        final HttpServletRequest req, final HttpServletResponse resp)
             throws IOException, SQLException {
 
-        final String maintMsg = isMaintenance(this.siteProfile);
+        final String maintMsg = isMaintenance(this.site);
 
         if (maintMsg == null) {
             final ImmutableSessionInfo session = validateSession(req, resp, "index.html");
@@ -205,7 +205,7 @@ public class CourseSite extends AbstractPageSite {
             if (session != null) {
                 LogBase.setSessionInfo(session.loginSessionId, session.getEffectiveUserId());
 
-                final CourseSiteLogic logic = new CourseSiteLogic(cache, this.siteProfile, session);
+                final CourseSiteLogic logic = new CourseSiteLogic(cache, this.site.profile, session);
                 logic.gatherData();
 
                 switch (subpath) {
@@ -235,7 +235,7 @@ public class CourseSite extends AbstractPageSite {
                             PageHtmlUnitExam.updateUnitExam(cache, this, req, resp, session, logic);
                     case null, default -> {
                         Log.warning("Unrecognized POST request path: ", subpath);
-                        final String path = this.siteProfile.path;
+                        final String path = this.site.path;
                         resp.sendRedirect(path + (path.endsWith(CoreConstants.SLASH)
                                 ? "index.html" : "/index.html"));
                     }

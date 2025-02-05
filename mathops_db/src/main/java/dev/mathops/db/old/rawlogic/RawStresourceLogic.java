@@ -2,6 +2,7 @@ package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawStresource;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -62,14 +63,18 @@ public enum RawStresourceLogic {
                 LogicUtils.sqlIntegerValue(record.timesDisplay), ",",
                 LogicUtils.sqlDateValue(record.createDt), ")");
 
-        try (final Statement s = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement s = conn.createStatement()) {
             result = s.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -93,14 +98,18 @@ public enum RawStresourceLogic {
                 "  AND loan_dt=", LogicUtils.sqlDateValue(record.loanDt),
                 "  AND start_time=", LogicUtils.sqlIntegerValue(record.startTime));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -115,7 +124,7 @@ public enum RawStresourceLogic {
      */
     public static List<RawStresource> queryAll(final Cache cache) throws SQLException {
 
-        return executeListQuery(cache.conn, "SELECT * FROM stresource");
+        return executeListQuery(cache, "SELECT * FROM stresource");
     }
 
     /**
@@ -131,7 +140,7 @@ public enum RawStresourceLogic {
         final String sql = SimpleBuilder.concat("SELECT * FROM stresource",
                 " WHERE stu_id=", LogicUtils.sqlStringValue(stuId));
 
-        return executeListQuery(cache.conn, sql);
+        return executeListQuery(cache, sql);
     }
 
     /**
@@ -148,7 +157,7 @@ public enum RawStresourceLogic {
                 " WHERE resource_id=", LogicUtils.sqlStringValue(resourceId),
                 " AND return_dt IS NULL");
 
-        return executeSingleQuery(cache.conn, sql);
+        return executeSingleQuery(cache, sql);
     }
 
     /**
@@ -173,30 +182,36 @@ public enum RawStresourceLogic {
                 "   AND loan_dt=", LogicUtils.sqlDateValue(record.loanDt),
                 "   AND start_time=", LogicUtils.sqlIntegerValue(record.startTime));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
     /**
      * Executes a query that returns a list of records.
      *
-     * @param conn the database connection, checked out to this thread
-     * @param sql  the SQL to execute
+     * @param cache the data cache
+     * @param sql   the SQL to execute
      * @return the list of matching records
      * @throws SQLException if there is an error accessing the database
      */
-    private static List<RawStresource> executeListQuery(final DbConnection conn, final String sql) throws SQLException {
+    private static List<RawStresource> executeListQuery(final Cache cache, final String sql) throws SQLException {
 
         final List<RawStresource> result = new ArrayList<>(20);
+
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
         try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
@@ -204,6 +219,8 @@ public enum RawStresourceLogic {
             while (rs.next()) {
                 result.add(RawStresource.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -212,14 +229,16 @@ public enum RawStresourceLogic {
     /**
      * Executes a query that returns a list of records.
      *
-     * @param conn the database connection, checked out to this thread
-     * @param sql  the SQL to execute
+     * @param cache the data cache
+     * @param sql   the SQL to execute
      * @return the list of matching records
      * @throws SQLException if there is an error accessing the database
      */
-    private static RawStresource executeSingleQuery(final DbConnection conn, final String sql) throws SQLException {
+    private static RawStresource executeSingleQuery(final Cache cache, final String sql) throws SQLException {
 
         RawStresource result = null;
+
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
         try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
@@ -227,6 +246,8 @@ public enum RawStresourceLogic {
             if (rs.next()) {
                 result = RawStresource.fromResultSet(rs);
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;

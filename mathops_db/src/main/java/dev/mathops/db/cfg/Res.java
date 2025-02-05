@@ -53,6 +53,12 @@ final class Res extends ResBundle {
     /** A resource key. */
     static final String LOGIN_NULL_DB_ID_USER = key(30);
 
+    /** A resource key. */
+    static final String LOGIN_MANY_CONNECTIONS = key(31);
+
+    /** A resource key. */
+    static final String LOGIN_NOT_CHECKED_IN = key(32);
+
     // Used by Data
 
     /** A resource key. */
@@ -91,7 +97,7 @@ final class Res extends ResBundle {
     // Used by Site
 
     /** A resource key. */
-    static final String SITE_NULL_PATH_PROFILE = key(80);
+    static final String SITE_NULL_OWNER_PATH_PROFILE = key(80);
 
     // Used by CodeContext
 
@@ -118,6 +124,8 @@ final class Res extends ResBundle {
             {DATABASE_CANT_CONNECT, "Failed to connect to server {0}.{1} ({2}:{3})"},
 
             {LOGIN_NULL_DB_ID_USER, "Login database, ID, and username may not be null"},
+            {LOGIN_MANY_CONNECTIONS, "Pool for login {0} has {1} connections checked out"},
+            {LOGIN_NOT_CHECKED_IN, "Connection checked in that was not checked out"},
 
             {DATA_NULL_DB_ID_SCHEMA_USE, "Data database, ID, schema, and use may not be null"},
             {DATA_PREFIX_BLANK, "Data prefix may not be blank"},
@@ -132,7 +140,7 @@ final class Res extends ResBundle {
 
             {WEB_CONTEXT_NULL_HOST, "Web context host may not be null"},
 
-            {SITE_NULL_PATH_PROFILE, "Site path and profile may not be null"},
+            {SITE_NULL_OWNER_PATH_PROFILE, "Site owner, path, and profile may not be null"},
 
             {CODE_CONTEXT_NULL_ID_PROFILE, "Code context ID and profile may not be null"},
 

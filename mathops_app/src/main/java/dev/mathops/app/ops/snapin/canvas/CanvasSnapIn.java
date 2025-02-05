@@ -1,8 +1,8 @@
 package dev.mathops.app.ops.snapin.canvas;
 
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.DbContext;
 import dev.mathops.app.ops.snapin.AbstractSnapIn;
+import dev.mathops.db.cfg.Facet;
 
 import javax.swing.JFrame;
 
@@ -23,15 +23,15 @@ public final class CanvasSnapIn extends AbstractSnapIn {
     /**
      * Constructs a new {@code CanvasSnapIn}.
      *
-     * @param theContext     the database context
-     * @param theLiveContext the live database context
-     * @param theCache       the data cache
-     * @param theFrame       the owning frame
+     * @param theSchema     the database schema
+     * @param theLiveSchema the live database schema
+     * @param theCache      the data cache
+     * @param theFrame      the owning frame
      */
-    public CanvasSnapIn(final DbContext theContext, final DbContext theLiveContext, final Cache theCache,
+    public CanvasSnapIn(final Facet theSchema, final Facet theLiveSchema, final Cache theCache,
                         final JFrame theFrame) {
 
-        super(theContext, theLiveContext, theCache);
+        super(theSchema, theLiveSchema, theCache);
 
         this.thumbnail = new CanvasThumbnail();
         this.dashboardTile = new CanvasDashboard();

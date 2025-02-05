@@ -1,6 +1,6 @@
 package dev.mathops.web.site;
 
-import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.cfg.Profile;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -22,7 +22,7 @@ final class ServletTimer {
     private final Object synch;
 
     /** Map from database profile to map from location name to counters. */
-    private final Map<DbProfile, Map<String, ServletTimerCounters>> map;
+    private final Map<Profile, Map<String, ServletTimerCounters>> map;
 
     /**
      * Private constructor to prevent direct instantiation.
@@ -52,15 +52,15 @@ final class ServletTimer {
     /**
      * Records access to a location within a context.
      *
-     * @param dbProfile the database profile under which the access was made
-     * @param location  the location being called
-     * @param elapsed   the elapsed time
+     * @param profile  the database profile under which the access was made
+     * @param location the location being called
+     * @param elapsed  the elapsed time
      */
-    void recordAccess(final DbProfile dbProfile, final String location, final long elapsed) {
+    void recordAccess(final Profile profile, final String location, final long elapsed) {
 
-        if (dbProfile != null && location != null) {
+        if (profile != null && location != null) {
             synchronized (this.synch) {
-                final Map<String, ServletTimerCounters> submap = this.map.computeIfAbsent(dbProfile,
+                final Map<String, ServletTimerCounters> submap = this.map.computeIfAbsent(profile,
                         s -> new TreeMap<>());
 
                 final ServletTimerCounters counters = submap.computeIfAbsent(location, k -> new ServletTimerCounters());

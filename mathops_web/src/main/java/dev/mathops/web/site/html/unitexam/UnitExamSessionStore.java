@@ -11,8 +11,8 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.WebSiteProfile;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
 import dev.mathops.text.builder.HtmlBuilder;
@@ -506,7 +506,7 @@ public final class UnitExamSessionStore {
             throw new IllegalArgumentException("'unit-exam-session' was missing 'item'");
         }
 
-        final WebSiteProfile siteProfile = ContextMap.getDefaultInstance().getWebSiteProfile(host, path);
+        final Site siteProfile = DatabaseConfig.getDefault().getSite(host, path);
 
         final Integer scoreInt = score == null ? null : Integer.valueOf(score);
         final Integer minMastery = mastery == null ? null : Integer.valueOf(mastery);
@@ -542,7 +542,7 @@ public final class UnitExamSessionStore {
                     if (sess.isPurgable()) {
                         try {
                             if (sess.getState() == EUnitExamState.ITEM_NN
-                                    || sess.getState() == EUnitExamState.SUBMIT_NN) {
+                                || sess.getState() == EUnitExamState.SUBMIT_NN) {
                                 // Force-submit
                                 sess.scoreAndRecordCompletion(cache, ZonedDateTime.now());
                             } else {

@@ -18,7 +18,6 @@ import dev.mathops.web.websocket.proctor.MPSSessionManager;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -69,7 +68,7 @@ enum PagePlacementExam {
                 if (pes == null) {
                     Log.info("Starting proctored placement exam session for student ", studentId, " exam MPTRW");
 
-                    pes = new PlacementExamSession(cache, site.siteProfile, session.loginSessionId, studentId, true,
+                    pes = new PlacementExamSession(cache, site.site, session.loginSessionId, studentId, true,
                             "MPTRW", "placement_done.html");
                     store.setPlacementExamSession(pes);
                 }

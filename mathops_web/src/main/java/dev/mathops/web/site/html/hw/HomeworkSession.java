@@ -10,9 +10,9 @@ import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
@@ -82,7 +82,7 @@ public final class HomeworkSession extends HtmlSessionBase {
      * stores data but does not generate the HTML until the page is actually generated.
      *
      * @param cache            the data cache
-     * @param theSiteProfile   the site profile
+     * @param theSite   the site profile
      * @param theSessionId     the session ID
      * @param theStudentId     the student ID
      * @param theExamId        the exam ID being worked on
@@ -90,11 +90,11 @@ public final class HomeworkSession extends HtmlSessionBase {
      * @param theRedirectOnEnd the URL to which to redirect at the end of the assignment
      * @throws SQLException if there is an error accessing the database
      */
-    public HomeworkSession(final Cache cache, final WebSiteProfile theSiteProfile, final String theSessionId,
+    public HomeworkSession(final Cache cache, final Site theSite, final String theSessionId,
                            final String theStudentId, final String theExamId, final boolean isPractice,
                            final String theRedirectOnEnd) throws SQLException {
 
-        super(cache, theSiteProfile, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
+        super(cache, theSite, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
 
         this.practice = isPractice;
         this.state = EHomeworkState.INITIAL;
@@ -107,7 +107,7 @@ public final class HomeworkSession extends HtmlSessionBase {
      * stores data but does not generate the HTML until the page is actually generated.
      *
      * @param cache            the data cache
-     * @param theSiteProfile   the site profile
+     * @param theSite   the site profile
      * @param theSessionId     the session ID
      * @param theStudentId     the student ID
      * @param theExamId        the exam ID being worked on
@@ -122,14 +122,14 @@ public final class HomeworkSession extends HtmlSessionBase {
      * @param theHomework      the homework
      * @throws SQLException if there is an error accessing the database
      */
-    HomeworkSession(final Cache cache, final WebSiteProfile theSiteProfile,
+    HomeworkSession(final Cache cache, final Site theSite,
                     final String theSessionId, final String theStudentId, final String theExamId,
                     final boolean isPractice, final String theRedirectOnEnd, final EHomeworkState theState,
                     final int theSect, final Integer theMinMoveOn, final Integer theMinMastery,
                     final long theTimeout, final int theIncorrect, final ExamObj theHomework)
             throws SQLException {
 
-        super(cache, theSiteProfile, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
+        super(cache, theSite, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
 
         this.practice = isPractice;
         this.state = theState;
@@ -1335,7 +1335,7 @@ public final class HomeworkSession extends HtmlSessionBase {
 
         if (getExam() != null) {
             xml.addln("<homework-session>");
-            xml.addln(" <host>", getSiteProfile().host, "</host>");
+            xml.addln(" <host>", getSiteProfile().getHost(), "</host>");
             xml.addln(" <path>", getSiteProfile().path, "</path>");
             xml.addln(" <session>", this.sessionId, "</session>");
             xml.addln(" <student>", this.studentId, "</student>");

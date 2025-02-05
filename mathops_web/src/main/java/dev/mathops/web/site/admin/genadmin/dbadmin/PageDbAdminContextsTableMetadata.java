@@ -3,14 +3,13 @@ package dev.mathops.web.site.admin.genadmin.dbadmin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.LoginConfig;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.admin.AdminSite;
-import dev.mathops.web.site.admin.genadmin.EAdmSubtopic;
 import dev.mathops.web.site.admin.genadmin.GenAdminPage;
 import dev.mathops.web.site.admin.genadmin.GenAdminSubsite;
 import jakarta.servlet.ServletRequest;
@@ -57,8 +56,8 @@ public enum PageDbAdminContextsTableMetadata {
             Log.warning("  table='", table, "'");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
-            final ContextMap map = ContextMap.getDefaultInstance();
-            final LoginConfig cfg = map.getLogin(driver);
+            final DatabaseConfig map = DatabaseConfig.getDefault();
+            final Login cfg = map.getLogin(driver);
 
             if (cfg == null) {
                 PageDbAdminContextsServer.doGet(cache, site, req, resp, session, "Invalid database");
@@ -77,22 +76,22 @@ public enum PageDbAdminContextsTableMetadata {
 
                         final String query = "driver=" + cfg.id;
 
-                        switch (cfg.db.use) {
-                            case LIVE:
-                                PageDbAdmin.emitLiveNavMenu(htm, EAdmSubtopic.DB_META, query);
-                                break;
-
-                            case ODS:
-                                PageDbAdmin.emitOdsNavMenu(htm, EAdmSubtopic.DB_META, query);
-                                break;
-
-                            case PROD:
-                            case DEV:
-                            case TEST:
-                            default:
-                                PageDbAdmin.emitProdNavMenu(htm, EAdmSubtopic.DB_META, query);
-                                break;
-                        }
+//                        switch (cfg.database.use) {
+//                            case LIVE:
+//                                PageDbAdmin.emitLiveNavMenu(htm, EAdmSubtopic.DB_META, query);
+//                                break;
+//
+//                            case ODS:
+//                                PageDbAdmin.emitOdsNavMenu(htm, EAdmSubtopic.DB_META, query);
+//                                break;
+//
+//                            case PROD:
+//                            case DEV:
+//                            case TEST:
+//                            default:
+//                                PageDbAdmin.emitProdNavMenu(htm, EAdmSubtopic.DB_META, query);
+//                                break;
+//                        }
 
                         htm.div("vgap");
 

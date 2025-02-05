@@ -2,11 +2,11 @@ package dev.mathops.app.ops.snapin.activity;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.DbContext;
 import dev.mathops.app.ops.snapin.AbstractDashboardPanel;
 import dev.mathops.app.ops.snapin.AbstractFullPanel;
 import dev.mathops.app.ops.snapin.AbstractSnapIn;
 import dev.mathops.app.ops.snapin.AbstractThumbnailButton;
+import dev.mathops.db.cfg.Facet;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -33,14 +33,13 @@ public final class SystemActivitySnapIn extends AbstractSnapIn {
     /**
      * Constructs a new {@code SystemActivitySnapIn}.
      *
-     * @param theContext     the database context
-     * @param theLiveContext the live database context
-     * @param theCache       the data cache
+     * @param theSchema     the database schema
+     * @param theLiveSchema the live database schema
+     * @param theCache      the data cache
      */
-    public SystemActivitySnapIn(final DbContext theContext, final DbContext theLiveContext,
-                                final Cache theCache) {
+    public SystemActivitySnapIn(final Facet theSchema, final Facet theLiveSchema, final Cache theCache) {
 
-        super(theContext, theLiveContext, theCache);
+        super(theSchema, theLiveSchema, theCache);
 
         this.thumbnail = new SystemActivityThumbnail();
         this.dashboardTile = new SystemActivityDashboard();

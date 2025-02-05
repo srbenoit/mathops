@@ -1,8 +1,8 @@
 package dev.mathops.web.site;
 
 import dev.mathops.db.Cache;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.db.logic.ELiveRefreshes;
-import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,13 +17,12 @@ public final class RedirectToPrecalcSite extends AbstractSite {
     /**
      * Constructs a new {@code RedirectToPrecalcSite}.
      *
-     * @param theSiteProfile the website profile
+     * @param theSite the website profile
      * @param theSessions    the singleton user session repository
      */
-    public RedirectToPrecalcSite(final WebSiteProfile theSiteProfile,
-                                 final ISessionManager theSessions) {
+    public RedirectToPrecalcSite(final Site theSite, final ISessionManager theSessions) {
 
-        super(theSiteProfile, theSessions);
+        super(theSite, theSessions);
     }
 
     /**

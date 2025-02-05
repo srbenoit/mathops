@@ -8,10 +8,10 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.db.DbConnection;
 import dev.mathops.db.EDbProduct;
-import dev.mathops.db.old.cfg.ContextMap;
 import dev.mathops.db.EDbUse;
-import dev.mathops.db.old.cfg.LoginConfig;
-import dev.mathops.db.old.cfg.ServerConfig;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Server;
 import dev.mathops.text.builder.SimpleBuilder;
 
 import javax.swing.JFileChooser;
@@ -106,11 +106,12 @@ public final class DbImport implements Runnable {
 
         DbConnection.registerDrivers();
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-        final ServerConfig[] servers = map.getServers();
+        final DatabaseConfig databaseConfig = DatabaseConfig.getDefault();
 
-        final List<ServerConfig> pgServers = new ArrayList<>(3);
-        for (final ServerConfig server : servers) {
+        final List<Server> servers = databaseConfig.getServers();
+
+        final List<Server> pgServers = new ArrayList<>(3);
+        for (final Server server : servers) {
             if (server.type == EDbProduct.POSTGRESQL) {
                 pgServers.add(server);
             }
@@ -133,9 +134,13 @@ public final class DbImport implements Runnable {
      * @param schema     the schema into which to import
      * @param dropTables true to drop existing tables in the database before importing
      */
-    void databaseSelected(final LoginConfig login, final EDbUse schema, final boolean dropTables) {
+    void databaseSelected(final Login login, final EDbUse schema, final boolean dropTables) {
 
-        try (final Connection conn = login.openConnection()) {
+        final DbConnection conn = login.checkOutConnection();
+
+        try {
+            final Connection jdbc = conn.getConnection();
+
             Log.info("Connected to PostgreSQL.");
 
             final String schemaName = schema == EDbUse.PROD ? "legacy"
@@ -144,16 +149,16 @@ public final class DbImport implements Runnable {
             final boolean schemaEmpty;
             if (dropTables) {
                 Log.info("Dropping all existing tables in '", schemaName, "' schema.");
-                dropExistingTables(conn, schemaName);
+                dropExistingTables(jdbc, schemaName);
                 schemaEmpty = true;
             } else {
                 Log.info("Checking whether the '", schema, "' schema is empty...");
-                schemaEmpty = isSchemaEmpty(conn, schemaName);
+                schemaEmpty = isSchemaEmpty(jdbc, schemaName);
             }
 
             if (schemaEmpty) {
                 Log.info("Proceeding with import");
-                performImport(conn, schemaName);
+                performImport(jdbc, schemaName);
             } else {
                 Log.info("Schema not empty - unable to import.");
             }
@@ -161,6 +166,8 @@ public final class DbImport implements Runnable {
             Log.warning(ex);
             final String[] msg = {"Unable to connect to PostgreSQL database:", ex.getMessage()};
             JOptionPane.showMessageDialog(null, msg, "Import Database", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            login.checkInConnection(conn);
         }
     }
 

@@ -1,14 +1,13 @@
 package dev.mathops.session.sitelogic.servlet;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
+import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.enums.ERole;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawSttermLogic;
@@ -131,21 +130,21 @@ public final class UnitExamEligibilityTester extends EligibilityTesterBase {
         final ZonedDateTime now = session.getNow();
 
         boolean ok = checkActiveTerm(cache, now, reasons)
-                && validateStudent(cache, now, reasons, holds, true)
-                && gatherSectionInfo(cache, reasons, avail.course, avail.unit, true);
+                     && validateStudent(cache, now, reasons, holds, true)
+                     && gatherSectionInfo(cache, reasons, avail.course, avail.unit, true);
 
         if (ok) {
             if ("Y".equals(this.studentCourse.iInProgress)) {
                 ok = checkIncompleteDeadline(session, reasons)
-                        && checkPassedReview(cache, session, reasons, avail)
-                        && checkNumAttempts(cache, session, reasons, avail)
-                        && checkCourseRegistration(reasons);
+                     && checkPassedReview(cache, session, reasons, avail)
+                     && checkNumAttempts(cache, session, reasons, avail)
+                     && checkCourseRegistration(reasons);
             } else {
                 ok = checkPassedReview(cache, session, reasons, avail)
-                        && checkNumAttempts(cache, session, reasons, avail)
-                        && checkCourseRegistration(reasons)
-                        && checkUnitTestingDateRange(session, reasons)
-                        && checkForCourseLockout(cache, session, reasons);
+                     && checkNumAttempts(cache, session, reasons, avail)
+                     && checkCourseRegistration(reasons)
+                     && checkUnitTestingDateRange(session, reasons)
+                     && checkForCourseLockout(cache, session, reasons);
             }
         }
 
@@ -217,7 +216,7 @@ public final class UnitExamEligibilityTester extends EligibilityTesterBase {
                     RawStexam mostRecentPassedRev = passedrev.getFirst();
                     for (final RawStexam test : passedrev) {
                         if (test.getFinishDateTime() != null
-                                && test.getFinishDateTime().isAfter(mostRecentPassedRev.getFinishDateTime())) {
+                            && test.getFinishDateTime().isAfter(mostRecentPassedRev.getFinishDateTime())) {
                             mostRecentPassedRev = test;
                         }
                     }
@@ -232,7 +231,7 @@ public final class UnitExamEligibilityTester extends EligibilityTesterBase {
                             continue;
                         }
                         if (test.getFinishDateTime() != null
-                                && test.getFinishDateTime().isAfter(mostRecentPassedRev.getFinishDateTime())) {
+                            && test.getFinishDateTime().isAfter(mostRecentPassedRev.getFinishDateTime())) {
                             ++count;
                         }
                     }
@@ -333,12 +332,12 @@ public final class UnitExamEligibilityTester extends EligibilityTesterBase {
             final LocalDate today = session.getNow().toLocalDate();
 
             if (this.courseSectionUnit.firstTestDt != null
-                    && this.courseSectionUnit.firstTestDt.isAfter(today)) {
+                && this.courseSectionUnit.firstTestDt.isAfter(today)) {
                 Log.info("Before start of testing window " + this.courseSectionUnit.firstTestDt);
                 reasons.add("Outside testing window.");
                 ok = false;
             } else if (this.courseSectionUnit.lastTestDt != null
-                    && this.courseSectionUnit.lastTestDt.isBefore(today)) {
+                       && this.courseSectionUnit.lastTestDt.isBefore(today)) {
                 Log.info("After end of testing window " + this.courseSectionUnit.lastTestDt);
                 reasons.add("Outside testing window.");
                 ok = false;
@@ -408,7 +407,7 @@ public final class UnitExamEligibilityTester extends EligibilityTesterBase {
                         final int index = ms.getIndex();
 
                         if (unit == 5 && "FE".equals(ms.msType)
-                                && Integer.valueOf(index).equals(this.studentCourse.paceOrder)) {
+                            && Integer.valueOf(index).equals(this.studentCourse.paceOrder)) {
                             deadline = ms.msDate;
                             break;
                         }
@@ -420,7 +419,7 @@ public final class UnitExamEligibilityTester extends EligibilityTesterBase {
                             final int index = ms.getIndex();
 
                             if (unit == 5 && index == this.studentCourse.paceOrder.intValue()
-                                    && "FE".equals(ms.msType)) {
+                                && "FE".equals(ms.msType)) {
                                 deadline = ms.msDate;
                                 // Don't break - student milestones are sorted by due date, and if there are multiple
                                 // matching rows, we want the latest date
@@ -433,8 +432,8 @@ public final class UnitExamEligibilityTester extends EligibilityTesterBase {
                             final int index = ms.getIndex();
 
                             if (unit == 5 && index == this.studentCourse.paceOrder.intValue()
-                                    && "F1".equals(ms.msType)
-                                    && ms.msDate.isAfter(deadline)) {
+                                && "F1".equals(ms.msType)
+                                && ms.msDate.isAfter(deadline)) {
                                 deadline = ms.msDate;
                                 break;
                             }
@@ -445,8 +444,8 @@ public final class UnitExamEligibilityTester extends EligibilityTesterBase {
                             final int index = ms.getIndex();
 
                             if (unit == 5 && index == this.studentCourse.paceOrder.intValue()
-                                    && "F1".equals(ms.msType)
-                                    && ms.msDate.isAfter(deadline)) {
+                                && "F1".equals(ms.msType)
+                                && ms.msDate.isAfter(deadline)) {
                                 deadline = ms.msDate;
                                 // Don't break - student milestones are sorted by due date, and if there are multiple
                                 // matching rows, we want the latest date
@@ -474,37 +473,31 @@ public final class UnitExamEligibilityTester extends EligibilityTesterBase {
 
         DbConnection.registerDrivers();
 
-        final DbProfile dbProfile = ContextMap.getDefaultInstance().getCodeProfile("checkin");
+        final DatabaseConfig databaseConfig = DatabaseConfig.getDefault();
+        final Profile profile = databaseConfig.getCodeProfile(Contexts.CHECKIN_PATH);
 
-        final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        final Cache cache = new Cache(profile);
+
         try {
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(dbProfile, conn);
+            final LiveSessionInfo live = new LiveSessionInfo("abcdef", "Local", ERole.STUDENT);
 
-            try {
-                final LiveSessionInfo live = new LiveSessionInfo("abcdef", "Local", ERole.STUDENT);
+            live.setUserInfo("836624279", "Test", "Student", "Test Student");
 
-                live.setUserInfo("836624279", "Test", "Student", "Test Student");
+            final ImmutableSessionInfo session = new ImmutableSessionInfo(live);
 
-                final ImmutableSessionInfo session = new ImmutableSessionInfo(live);
+            final UnitExamAvailability avail = new UnitExamAvailability(RawRecordConstants.M124, Integer.valueOf(4));
 
-                final UnitExamAvailability avail = new UnitExamAvailability(RawRecordConstants.M124,
-                        Integer.valueOf(4));
+            final UnitExamEligibilityTester tester = new UnitExamEligibilityTester(session.userId);
 
-                final UnitExamEligibilityTester tester = new UnitExamEligibilityTester(session.userId);
+            final Collection<RawAdminHold> holds = new ArrayList<>(2);
+            final HtmlBuilder reason = new HtmlBuilder(100);
+            final boolean ok = tester.isExamEligible(cache, session, avail, reason, holds);
 
-                final Collection<RawAdminHold> holds = new ArrayList<>(2);
-                final HtmlBuilder reason = new HtmlBuilder(100);
-                final boolean ok = tester.isExamEligible(cache, session, avail, reason, holds);
-
-                Log.info("Student  : ", live.getUserId());
-                Log.info("Exam     : ", avail.course, " Unit ", avail.unit);
-                Log.info("Eligible : ", Boolean.toString(ok));
-                if (!ok) {
-                    Log.info("Reason   : ", reason.toString());
-                }
-            } finally {
-                ctx.checkInConnection(conn);
+            Log.info("Student  : ", live.getUserId());
+            Log.info("Exam     : ", avail.course, " Unit ", avail.unit);
+            Log.info("Eligible : ", Boolean.toString(ok));
+            if (!ok) {
+                Log.info("Reason   : ", reason.toString());
             }
         } catch (final SQLException ex) {
             Log.warning(ex);

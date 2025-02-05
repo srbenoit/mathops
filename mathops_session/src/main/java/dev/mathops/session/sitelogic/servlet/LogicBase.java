@@ -1,7 +1,7 @@
 package dev.mathops.session.sitelogic.servlet;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.cfg.Profile;
 
 /**
  * The base class for servlet logic modules, providing storage of the context and database connection, and standardized
@@ -10,7 +10,7 @@ import dev.mathops.db.old.cfg.DbProfile;
 class LogicBase {
 
     /** The context. */
-    private final DbProfile dbProfile;
+    private final Profile profile;
 
     /** Indication that an operation failed. */
     private boolean error;
@@ -19,13 +19,13 @@ class LogicBase {
     private String errorText;
 
     /**
-     * Constructs a new {@code AbstractLogic}.
+     * Constructs a new {@code LogicBase}.
      *
-     * @param theDbProfile the database profile under which the logic will be executed
+     * @param theProfile the database profile under which the logic will be executed
      */
-    LogicBase(final DbProfile theDbProfile) {
+    LogicBase(final Profile theProfile) {
 
-        this.dbProfile = theDbProfile;
+        this.profile = theProfile;
         this.error = false;
         this.errorText = null;
     }
@@ -35,9 +35,9 @@ class LogicBase {
      *
      * @return the database profile
      */
-    public final DbProfile getDbProfile() {
+    public final Profile getProfile() {
 
-        return this.dbProfile;
+        return this.profile;
     }
 
     /**

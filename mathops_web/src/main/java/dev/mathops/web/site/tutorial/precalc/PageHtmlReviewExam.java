@@ -55,7 +55,7 @@ enum PageHtmlReviewExam {
             if (hs == null) {
                 final String redirect = "course.html?course=" + course;
 
-                hs = new ReviewExamSession(cache, site.siteProfile, session.loginSessionId,
+                hs = new ReviewExamSession(cache, site.site, session.loginSessionId,
                         session.getEffectiveUserId(), examId, "practice".equals(mode), redirect);
                 store.setReviewExamSession(hs);
             }

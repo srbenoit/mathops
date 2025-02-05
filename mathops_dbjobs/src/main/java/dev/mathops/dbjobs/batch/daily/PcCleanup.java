@@ -4,10 +4,8 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
 import dev.mathops.db.old.rawrecord.RawClientPc;
 
@@ -23,10 +21,7 @@ import java.util.List;
 public final class PcCleanup {
 
     /** The database profile through which to access the database. */
-    private final DbProfile dbProfile;
-
-    /** The Primary database context. */
-    private final DbContext primaryCtx;
+    private final Profile profile;
 
     /** The station numbers to close. */
     private static final List<String> toReset = Arrays.asList("7", "8", "9", "10", "11", "12", "13", "14",
@@ -38,10 +33,8 @@ public final class PcCleanup {
      */
     public PcCleanup() {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-
-        this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
-        this.primaryCtx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        this.profile = config.getCodeProfile(Contexts.BATCH_PATH);
     }
 
     /**
@@ -49,20 +42,15 @@ public final class PcCleanup {
      */
     public void execute() {
 
-        if (this.dbProfile == null) {
-            Log.warning("Unable to create production context.");
-        } else if (this.primaryCtx == null) {
-            Log.warning("Unable to create PRIMARY database context.");
+        if (this.profile == null) {
+            Log.warning("Unable to create production profile.");
         } else {
+            Log.info("Running PC_CLEANUP job");
+
+            final Cache cache = new Cache(this.profile);
+
             try {
-                final DbConnection conn = this.primaryCtx.checkOutConnection();
-                final Cache cache = new Cache(this.dbProfile, conn);
-                try {
-                    Log.info("Running PC_CLEANUP job");
-                    exec(cache);
-                } finally {
-                    this.primaryCtx.checkInConnection(conn);
-                }
+                exec(cache);
             } catch (final SQLException ex) {
                 Log.warning("EXCEPTION: " + ex.getMessage());
             }
@@ -112,6 +100,7 @@ public final class PcCleanup {
      */
     public static void main(final String... args) {
 
+        DbConnection.registerDrivers();
         final PcCleanup job = new PcCleanup();
 
         job.execute();

@@ -12,7 +12,6 @@ import dev.mathops.web.site.html.unitexam.UnitExamSessionStore;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 /**
@@ -52,7 +51,7 @@ enum PageHtmlUnitExam {
                 Log.info("Starting unit exam for session ", session.loginSessionId, " user ",
                         session.getEffectiveUserId(), " exam ", examId);
 
-                us = new UnitExamSession(cache, site.siteProfile, session.loginSessionId,
+                us = new UnitExamSession(cache, site.site, session.loginSessionId,
                         session.getEffectiveUserId(), course, examId, "tutorial.html");
                 store.setUnitExamSession(us);
             } else {

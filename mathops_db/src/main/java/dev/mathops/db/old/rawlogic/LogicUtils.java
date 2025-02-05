@@ -2,7 +2,9 @@ package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.text.builder.HtmlBuilder;
 
@@ -334,14 +336,16 @@ public enum LogicUtils {
     /**
      * Executes an SQL query that should return a single integer (such as a COUNT or MAX function).
      *
-     * @param conn the database connection, checked out to this thread
-     * @param sql  the SQL to execute
+     * @param cache the data cache
+     * @param sql   the SQL to execute
      * @return the result of the query, or {@code null} if the query returned no record
      * @throws SQLException if there is an error executing the query
      */
-    static Integer executeSimpleIntQuery(final DbConnection conn, final String sql) throws SQLException {
+    static Integer executeSimpleIntQuery(final Cache cache, final String sql) throws SQLException {
 
         Integer result = null;
+
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
         try (final Statement stmt = conn.createStatement();
              final ResultSet rset = stmt.executeQuery(sql)) {
@@ -355,53 +359,26 @@ public enum LogicUtils {
         } catch (final SQLException ex) {
             Log.warning("Query failed: [", sql, "]", ex);
             throw ex;
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
     }
 
-//    /**
-//     * Executes an SQL query that should return a single String.
-//     *
-//     * @param conn the database connection, checked out to this thread
-//     * @param sql  the SQL to execute
-//     * @return the result of the query, or {@code null} if the query returned no record
-//     * @throws SQLException if there is an error executing the query
-//     */
-//    protected static String executeSimpleStringQuery(final DbConnection conn,
-//                                                     final String sql) throws SQLException {
-//
-//        String result = null;
-//
-//        try (final Statement stmt = conn.createStatement();
-//             final ResultSet rset = stmt.executeQuery(sql)) {
-//
-//            if (rset.next()) {
-//                result = rset.getString(1);
-//
-//                if (result != null) {
-//                    result = result.trim();
-//                }
-//            }
-//        } catch (final SQLException ex) {
-//            Log.warning("Query failed: [", sql, "]", ex);
-//            throw ex;
-//        }
-//
-//        return result;
-//    }
-
     /**
      * Executes an SQL query that should return a single LocalDate.
      *
-     * @param conn the database connection, checked out to this thread
-     * @param sql  the SQL to execute
+     * @param cache the data cache
+     * @param sql   the SQL to execute
      * @return the result of the query, or {@code null} if the query returned no record
      * @throws SQLException if there is an error executing the query
      */
-    static LocalDate executeSimpleDateQuery(final DbConnection conn, final String sql) throws SQLException {
+    static LocalDate executeSimpleDateQuery(final Cache cache, final String sql) throws SQLException {
 
         LocalDate result = null;
+
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
         try (final Statement stmt = conn.createStatement();
              final ResultSet rset = stmt.executeQuery(sql)) {
@@ -413,38 +390,12 @@ public enum LogicUtils {
         } catch (final SQLException ex) {
             Log.warning("Query failed: [", sql, "]", ex);
             throw ex;
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
     }
-
-    ///**
-    // * Executes an SQL query that should return a list of strings.
-    // *
-    // * @param conn the database connection, checked out to this thread
-    // * @param sql the SQL to execute
-    // * @return the result of the query, or {@code null} if the query returned no record
-    // * @throws SQLException if there is an error executing the query
-    // */
-    // protected static final List<String> executeSimpleStringListQuery(final DbConnection conn,
-    // final String sql) throws SQLException {
-    //
-    // List<String> result = new ArrayList<>();
-    //
-    // try (Statement stmt = conn.createStatement(); //
-    // ResultSet rset = stmt.executeQuery(sql)) {
-    //
-    // while (rset.next()) {
-    // String s = rset.getString(1);
-    // if (s != null) {
-    // s = s.trim();
-    // }
-    // result.add(s);
-    // }
-    // }
-    //
-    // return result;
-    // }
 
     /**
      * Validates a test student ID that begins with "99PL". There are only certain combinations of remaining digits that

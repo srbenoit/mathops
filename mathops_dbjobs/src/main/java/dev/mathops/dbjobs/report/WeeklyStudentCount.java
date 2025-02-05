@@ -5,10 +5,8 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawrecord.RawStcourse;
@@ -38,7 +36,7 @@ import java.util.TreeMap;
 final class WeeklyStudentCount implements Runnable {
 
     /** Date/time formatter for report. */
-    private static final DateTimeFormatter DTTM_FMT = //
+    private static final DateTimeFormatter DTTM_FMT =
             DateTimeFormatter.ofPattern("yyyy'_'MM'_'dd'-'hh'_'mm'_'ss", Locale.US);
 
     /** The list of registrations. */
@@ -73,30 +71,24 @@ final class WeeklyStudentCount implements Runnable {
     @Override
     public void run() {
 
-        final DbProfile dbProfile = ContextMap.getDefaultInstance().getCodeProfile(Contexts.REPORT_PATH);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        final Profile profile = config.getCodeProfile(Contexts.REPORT_PATH);
 
         final HtmlBuilder report = new HtmlBuilder(10000);
 
-        if (dbProfile == null) {
+        if (profile == null) {
             report.addln("*** ERROR: There is no database code profile named 'report'.");
         } else {
-            Log.info("Using ", dbProfile.id, " profile");
+            Log.info("Using ", profile.id, " profile");
+            final Cache cache = new Cache(profile);
 
-            final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
             try {
-                final DbConnection conn = ctx.checkOutConnection();
-                final Cache cache = new Cache(dbProfile, conn);
+                this.registrations = RawStcourseLogic.queryActiveForActiveTerm(cache);
 
-                try {
-                    this.registrations = RawStcourseLogic.queryActiveForActiveTerm(cache);
+                Log.info("Generating weekly report of student counts by section and track.....please wait.");
 
-                    Log.info("Generating weekly report of student counts by section and track.....please wait.");
-
-                    compute();
-                    generateReport(report);
-                } finally {
-                    ctx.checkInConnection(conn);
-                }
+                compute();
+                generateReport(report);
             } catch (final SQLException ex) {
                 Log.warning(ex);
             }
@@ -281,6 +273,7 @@ final class WeeklyStudentCount implements Runnable {
      */
     public static void main(final String... args) {
 
+        DbConnection.registerDrivers();
         new WeeklyStudentCount().run();
     }
 }

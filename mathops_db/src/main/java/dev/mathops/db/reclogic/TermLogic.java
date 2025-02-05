@@ -2,6 +2,7 @@ package dev.mathops.db.reclogic;
 
 import dev.mathops.db.Cache;
 import dev.mathops.db.EDbProduct;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.rec.TermRec;
 import dev.mathops.db.type.TermKey;
@@ -405,7 +406,9 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
                 throw new SQLException("Null value in required field.");
             }
 
-            final String sql = SimpleBuilder.concat("INSERT INTO ", cache.mainSchemaName, ".term ",
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
+
+            final String sql = SimpleBuilder.concat("INSERT INTO ", schemaPrefix, ".term ",
                     "(term,start_date,end_date,academic_year,active_index,",
                     "drop_deadline,withdraw_deadline) VALUES (",
                     sqlIntegerValue(record.term.toNumeric()), ",",
@@ -430,7 +433,9 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
         @Override
         public boolean delete(final Cache cache, final TermRec record) throws SQLException {
 
-            final String sql = SimpleBuilder.concat("DELETE FROM ", cache.mainSchemaName, ".term WHERE term=",
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
+
+            final String sql = SimpleBuilder.concat("DELETE FROM ", schemaPrefix, ".term WHERE term=",
                     sqlIntegerValue(record.term.toNumeric()));
 
             return doUpdateOneRow(cache, sql);
@@ -446,7 +451,9 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
         @Override
         public List<TermRec> queryAll(final Cache cache) throws SQLException {
 
-            final String sql = SimpleBuilder.concat("SELECT * FROM ", cache.mainSchemaName, ".term");
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
+
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".term");
 
             return doListQuery(cache, sql);
         }
@@ -463,7 +470,9 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
         @Override
         public TermRec queryByIndex(final Cache cache, final int termIndex) throws SQLException {
 
-            final String sql = SimpleBuilder.concat("SELECT * FROM ", cache.mainSchemaName,
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
+
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".term WHERE active_index=", sqlIntegerValue(termIndex));
 
             return doSingleQuery(cache, sql);
@@ -479,7 +488,9 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
         @Override
         public List<TermRec> getFutureTerms(final Cache cache) throws SQLException {
 
-            final String sql = SimpleBuilder.concat("SELECT * FROM ", cache.mainSchemaName,
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
+
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".term WHERE active_index>0");
 
             return doListQuery(cache, sql);
@@ -495,7 +506,9 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
         @Override
         public TermRec queryActive(final Cache cache) throws SQLException {
 
-            final String sql = SimpleBuilder.concat("SELECT * FROM ", cache.mainSchemaName,
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
+
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".term WHERE active_index=0");
 
             return doSingleQuery(cache, sql);
@@ -511,7 +524,9 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
         @Override
         public TermRec queryNext(final Cache cache) throws SQLException {
 
-            final String sql = SimpleBuilder.concat("SELECT * FROM ", cache.mainSchemaName,
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
+
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".term WHERE active_index=1");
 
             return doSingleQuery(cache, sql);
@@ -527,7 +542,9 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
         @Override
         public TermRec queryPrior(final Cache cache) throws SQLException {
 
-            final String sql = SimpleBuilder.concat("SELECT * FROM ", cache.mainSchemaName,
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
+
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".term WHERE active_index=-1");
 
             return doSingleQuery(cache, sql);
@@ -544,7 +561,9 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
         @Override
         public TermRec query(final Cache cache, final TermKey termKey) throws SQLException {
 
-            final String sql = SimpleBuilder.concat("SELECT * FROM ", cache.mainSchemaName, ".term WHERE term=",
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
+
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".term WHERE term=",
                     sqlIntegerValue(termKey.toNumeric()));
 
             return doSingleQuery(cache, sql);

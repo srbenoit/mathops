@@ -122,7 +122,7 @@ enum PageSecureLanding {
 
         if (planCompleted) {
             // Show brief summary of plan outcome
-            final MathPlanLogic logic = new MathPlanLogic(site.getDbProfile());
+            final MathPlanLogic logic = new MathPlanLogic(site.site.profile);
             PagePlanView.showBriefPlan(cache, session, htm, logic);
 
             // Show button to change plan

@@ -2,11 +2,8 @@ package dev.mathops.app.checkin;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.DbConnection;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.logic.SystemData;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.logic.ChallengeExamLogic;
 import dev.mathops.db.old.rawrecord.RawClientPc;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
@@ -105,7 +102,7 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable {
     private final CheckinApp owner;
 
     /** The database profile. */
-    private final DbProfile dbProfile;
+    private final Profile profile;
 
     /** The testing center ID being managed. */
     private final String testingCenterId;
@@ -129,10 +126,10 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable {
      * Constructs a new {@code CenterPanel}.
      *
      * @param theOwner           the application that owns this panel
-     * @param theDbProfile       the database profile
+     * @param theProfile         the database profile
      * @param theTestingCenterId the testing center ID being managed
      */
-    CenterPanel(final CheckinApp theOwner, final DbProfile theDbProfile, final String theTestingCenterId) {
+    CenterPanel(final CheckinApp theOwner, final Profile theProfile, final String theTestingCenterId) {
 
         super();
 
@@ -142,7 +139,7 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable {
         // runs in the AWT thread, so we are safe to do AWT operations.
 
         this.owner = theOwner;
-        this.dbProfile = theDbProfile;
+        this.profile = theProfile;
         this.testingCenterId = theTestingCenterId;
 
         setLayout(null);
@@ -485,7 +482,7 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable {
             final FontMetrics fm = grx.getFontMetrics(font);
 
             if ((double) fm.stringWidth("User's Exam") >= (double) w * 0.8
-                    || (double) fm.getHeight() >= (double) h * 0.8) {
+                || (double) fm.getHeight() >= (double) h * 0.8) {
                 break;
             }
 
@@ -635,66 +632,60 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable {
 
         // NOTE: Runs in the AWT event thread.
 
-        final DbContext ctx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
-        try {
-            final DbConnection conn = ctx.checkOutConnection();
-            try {
-                final Cache cache = new Cache(this.dbProfile, conn);
+        final Cache cache = new Cache(this.profile);
 
-                switch (cmd) {
-                    case USERS -> this.owner.chooseExam(cache, RawRecordConstants.M100U, 1, "L");
-                    case PLACEMENT -> this.owner.chooseExam(cache, RawRecordConstants.M100P, 0, "Q");
-                    case ELM -> this.owner.chooseExam(cache, RawRecordConstants.M100T, 4, "U");
-                    case PRECALC17 -> this.owner.chooseExam(cache, RawRecordConstants.M1170, 4, "U");
-                    case PRECALC18 -> this.owner.chooseExam(cache, RawRecordConstants.M1180, 4, "U");
-                    case PRECALC24 -> this.owner.chooseExam(cache, RawRecordConstants.M1240, 4, "U");
-                    case PRECALC25 -> this.owner.chooseExam(cache, RawRecordConstants.M1250, 4, "U");
-                    case PRECALC26 -> this.owner.chooseExam(cache, RawRecordConstants.M1260, 4, "U");
-                    case ChallengeExamLogic.M117_CHALLENGE_EXAM_ID ->
-                            this.owner.chooseExam(cache, RawRecordConstants.M117, 0, "CH");
-                    case ChallengeExamLogic.M118_CHALLENGE_EXAM_ID ->
-                            this.owner.chooseExam(cache, RawRecordConstants.M118, 0, "CH");
-                    case ChallengeExamLogic.M124_CHALLENGE_EXAM_ID ->
-                            this.owner.chooseExam(cache, RawRecordConstants.M124, 0, "CH");
-                    case ChallengeExamLogic.M125_CHALLENGE_EXAM_ID ->
-                            this.owner.chooseExam(cache, RawRecordConstants.M125, 0, "CH");
-                    case ChallengeExamLogic.M126_CHALLENGE_EXAM_ID ->
-                            this.owner.chooseExam(cache, RawRecordConstants.M126, 0, "CH");
-                    case "117-1" -> this.owner.chooseExam(cache, RawRecordConstants.M117, 1, "U");
-                    case "117-2" -> this.owner.chooseExam(cache, RawRecordConstants.M117, 2, "U");
-                    case "117-3" -> this.owner.chooseExam(cache, RawRecordConstants.M117, 3, "U");
-                    case "117-4" -> this.owner.chooseExam(cache, RawRecordConstants.M117, 4, "U");
-                    case "117-5" -> this.owner.chooseExam(cache, RawRecordConstants.M117, 5, "F");
-                    case "118-1" -> this.owner.chooseExam(cache, RawRecordConstants.M118, 1, "U");
-                    case "118-2" -> this.owner.chooseExam(cache, RawRecordConstants.M118, 2, "U");
-                    case "118-3" -> this.owner.chooseExam(cache, RawRecordConstants.M118, 3, "U");
-                    case "118-4" -> this.owner.chooseExam(cache, RawRecordConstants.M118, 4, "U");
-                    case "118-5" -> this.owner.chooseExam(cache, RawRecordConstants.M118, 5, "F");
-                    case "124-1" -> this.owner.chooseExam(cache, RawRecordConstants.M124, 1, "U");
-                    case "124-2" -> this.owner.chooseExam(cache, RawRecordConstants.M124, 2, "U");
-                    case "124-3" -> this.owner.chooseExam(cache, RawRecordConstants.M124, 3, "U");
-                    case "124-4" -> this.owner.chooseExam(cache, RawRecordConstants.M124, 4, "U");
-                    case "124-5" -> this.owner.chooseExam(cache, RawRecordConstants.M124, 5, "F");
-                    case "125-1" -> this.owner.chooseExam(cache, RawRecordConstants.M125, 1, "U");
-                    case "125-2" -> this.owner.chooseExam(cache, RawRecordConstants.M125, 2, "U");
-                    case "125-3" -> this.owner.chooseExam(cache, RawRecordConstants.M125, 3, "U");
-                    case "125-4" -> this.owner.chooseExam(cache, RawRecordConstants.M125, 4, "U");
-                    case "125-5" -> this.owner.chooseExam(cache, RawRecordConstants.M125, 5, "F");
-                    case "126-1" -> this.owner.chooseExam(cache, RawRecordConstants.M126, 1, "U");
-                    case "126-2" -> this.owner.chooseExam(cache, RawRecordConstants.M126, 2, "U");
-                    case "126-3" -> this.owner.chooseExam(cache, RawRecordConstants.M126, 3, "U");
-                    case "126-4" -> this.owner.chooseExam(cache, RawRecordConstants.M126, 4, "U");
-                    case "126-5" -> this.owner.chooseExam(cache, RawRecordConstants.M126, 5, "F");
-                    case "117-MA" -> this.owner.chooseExam(cache, RawRecordConstants.MATH117, 0, "MA");
-                    case "118-MA" -> this.owner.chooseExam(cache, RawRecordConstants.MATH118, 0, "MA");
-                    case "124-MA" -> this.owner.chooseExam(cache, RawRecordConstants.MATH124, 0, "MA");
-                    case "125-MA" -> this.owner.chooseExam(cache, RawRecordConstants.MATH125, 0, "MA");
-                    case "126-MA" -> this.owner.chooseExam(cache, RawRecordConstants.MATH126, 0, "MA");
-                    case CANCEL -> this.owner.chooseExam(cache, null, 0, null);
-                    case null, default -> Log.warning("Unknown action command: " + cmd);
-                }
-            } finally {
-                ctx.checkInConnection(conn);
+        try {
+            switch (cmd) {
+                case USERS -> this.owner.chooseExam(cache, RawRecordConstants.M100U, 1, "L");
+                case PLACEMENT -> this.owner.chooseExam(cache, RawRecordConstants.M100P, 0, "Q");
+                case ELM -> this.owner.chooseExam(cache, RawRecordConstants.M100T, 4, "U");
+                case PRECALC17 -> this.owner.chooseExam(cache, RawRecordConstants.M1170, 4, "U");
+                case PRECALC18 -> this.owner.chooseExam(cache, RawRecordConstants.M1180, 4, "U");
+                case PRECALC24 -> this.owner.chooseExam(cache, RawRecordConstants.M1240, 4, "U");
+                case PRECALC25 -> this.owner.chooseExam(cache, RawRecordConstants.M1250, 4, "U");
+                case PRECALC26 -> this.owner.chooseExam(cache, RawRecordConstants.M1260, 4, "U");
+                case ChallengeExamLogic.M117_CHALLENGE_EXAM_ID ->
+                        this.owner.chooseExam(cache, RawRecordConstants.M117, 0, "CH");
+                case ChallengeExamLogic.M118_CHALLENGE_EXAM_ID ->
+                        this.owner.chooseExam(cache, RawRecordConstants.M118, 0, "CH");
+                case ChallengeExamLogic.M124_CHALLENGE_EXAM_ID ->
+                        this.owner.chooseExam(cache, RawRecordConstants.M124, 0, "CH");
+                case ChallengeExamLogic.M125_CHALLENGE_EXAM_ID ->
+                        this.owner.chooseExam(cache, RawRecordConstants.M125, 0, "CH");
+                case ChallengeExamLogic.M126_CHALLENGE_EXAM_ID ->
+                        this.owner.chooseExam(cache, RawRecordConstants.M126, 0, "CH");
+                case "117-1" -> this.owner.chooseExam(cache, RawRecordConstants.M117, 1, "U");
+                case "117-2" -> this.owner.chooseExam(cache, RawRecordConstants.M117, 2, "U");
+                case "117-3" -> this.owner.chooseExam(cache, RawRecordConstants.M117, 3, "U");
+                case "117-4" -> this.owner.chooseExam(cache, RawRecordConstants.M117, 4, "U");
+                case "117-5" -> this.owner.chooseExam(cache, RawRecordConstants.M117, 5, "F");
+                case "118-1" -> this.owner.chooseExam(cache, RawRecordConstants.M118, 1, "U");
+                case "118-2" -> this.owner.chooseExam(cache, RawRecordConstants.M118, 2, "U");
+                case "118-3" -> this.owner.chooseExam(cache, RawRecordConstants.M118, 3, "U");
+                case "118-4" -> this.owner.chooseExam(cache, RawRecordConstants.M118, 4, "U");
+                case "118-5" -> this.owner.chooseExam(cache, RawRecordConstants.M118, 5, "F");
+                case "124-1" -> this.owner.chooseExam(cache, RawRecordConstants.M124, 1, "U");
+                case "124-2" -> this.owner.chooseExam(cache, RawRecordConstants.M124, 2, "U");
+                case "124-3" -> this.owner.chooseExam(cache, RawRecordConstants.M124, 3, "U");
+                case "124-4" -> this.owner.chooseExam(cache, RawRecordConstants.M124, 4, "U");
+                case "124-5" -> this.owner.chooseExam(cache, RawRecordConstants.M124, 5, "F");
+                case "125-1" -> this.owner.chooseExam(cache, RawRecordConstants.M125, 1, "U");
+                case "125-2" -> this.owner.chooseExam(cache, RawRecordConstants.M125, 2, "U");
+                case "125-3" -> this.owner.chooseExam(cache, RawRecordConstants.M125, 3, "U");
+                case "125-4" -> this.owner.chooseExam(cache, RawRecordConstants.M125, 4, "U");
+                case "125-5" -> this.owner.chooseExam(cache, RawRecordConstants.M125, 5, "F");
+                case "126-1" -> this.owner.chooseExam(cache, RawRecordConstants.M126, 1, "U");
+                case "126-2" -> this.owner.chooseExam(cache, RawRecordConstants.M126, 2, "U");
+                case "126-3" -> this.owner.chooseExam(cache, RawRecordConstants.M126, 3, "U");
+                case "126-4" -> this.owner.chooseExam(cache, RawRecordConstants.M126, 4, "U");
+                case "126-5" -> this.owner.chooseExam(cache, RawRecordConstants.M126, 5, "F");
+                case "117-MA" -> this.owner.chooseExam(cache, RawRecordConstants.MATH117, 0, "MA");
+                case "118-MA" -> this.owner.chooseExam(cache, RawRecordConstants.MATH118, 0, "MA");
+                case "124-MA" -> this.owner.chooseExam(cache, RawRecordConstants.MATH124, 0, "MA");
+                case "125-MA" -> this.owner.chooseExam(cache, RawRecordConstants.MATH125, 0, "MA");
+                case "126-MA" -> this.owner.chooseExam(cache, RawRecordConstants.MATH126, 0, "MA");
+                case CANCEL -> this.owner.chooseExam(cache, null, 0, null);
+                case null, default -> Log.warning("Unknown action command: " + cmd);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
@@ -710,20 +701,13 @@ final class CenterPanel extends JPanel implements ActionListener, Runnable {
         // Every 5 seconds, query the testing stations.
         while (isVisible()) {
 
-            final DbContext ctx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
+            final Cache cache = new Cache(this.profile);
+            final SystemData systemData = cache.getSystemData();
+
             try {
-                final DbConnection conn = ctx.checkOutConnection();
-                final Cache cache = new Cache(this.dbProfile, conn);
-
-                final SystemData systemData = cache.getSystemData();
-
-                try {
-                    final List<RawClientPc> stations = systemData.getClientPcsByTestingCenter(this.testingCenterId);
-                    this.map.updateTestingStations(stations);
-                    repaint();
-                } finally {
-                    ctx.checkInConnection(conn);
-                }
+                final List<RawClientPc> stations = systemData.getClientPcsByTestingCenter(this.testingCenterId);
+                this.map.updateTestingStations(stations);
+                repaint();
             } catch (final SQLException ex) {
                 Log.warning(ex);
             }

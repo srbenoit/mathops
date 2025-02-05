@@ -4,10 +4,10 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.old.rawlogic.RawNewstuLogic;
 import dev.mathops.db.old.rawrecord.RawNewstu;
 import dev.mathops.text.builder.HtmlBuilder;
@@ -26,24 +26,15 @@ import java.util.Map;
 public final class ImportOdsNewStus {
 
     /** The database profile through which to access the database. */
-    private final DbProfile dbProfile;
-
-    /** The Primary database context. */
-    private final DbContext primaryCtx;
-
-    /** The ODS database context. */
-    private final DbContext odsCtx;
+    private final Profile profile;
 
     /**
      * Constructs a new {@code ImportOdsNewStus}.
      */
     public ImportOdsNewStus() {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-
-        this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
-        this.primaryCtx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
-        this.odsCtx = this.dbProfile.getDbContext(ESchemaUse.ODS);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        this.profile = config.getCodeProfile(Contexts.BATCH_PATH);
     }
 
     /**
@@ -55,26 +46,11 @@ public final class ImportOdsNewStus {
 
         final Collection<String> report = new ArrayList<>(10);
 
-        if (this.dbProfile == null) {
+        if (this.profile == null) {
             report.add("Unable to create production context.");
-        } else if (this.primaryCtx == null) {
-            report.add("Unable to create primary database context.");
-        } else if (this.odsCtx == null) {
-            report.add("Unable to create ODS database context.");
         } else {
-            try {
-                final DbConnection conn = this.primaryCtx.checkOutConnection();
-                final Cache cache = new Cache(this.dbProfile, conn);
-
-                try {
-                    execute(cache, report);
-                } finally {
-                    this.primaryCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                report.add("Unable to obtain connection to ODS database");
-            }
+            final Cache cache = new Cache(this.profile);
+            execute(cache, report);
         }
 
         final HtmlBuilder htm = new HtmlBuilder(1000);
@@ -95,7 +71,9 @@ public final class ImportOdsNewStus {
      */
     private void execute(final Cache cache, final Collection<? super String> report) {
 
-        final DbConnection odsConn = this.odsCtx.checkOutConnection();
+        final Login odsLogin = this.profile.getLogin(ESchema.ODS);
+
+        final DbConnection odsConn = odsLogin.checkOutConnection();
 
         try {
             final Map<String, RawNewstu> newstus = queryOds(odsConn, report);
@@ -109,7 +87,7 @@ public final class ImportOdsNewStus {
             Log.warning(ex);
             report.add("Unable to perform query: " + ex.getMessage());
         } finally {
-            this.odsCtx.checkInConnection(odsConn);
+            odsLogin.checkInConnection(odsConn);
         }
     }
 
@@ -129,7 +107,7 @@ public final class ImportOdsNewStus {
         try (final Statement stmt = conn.createStatement()) {
 
             final String sql = "SELECT CSU_ID, TERM FROM CSUBAN.CSUS_TERM_INFO_FAL "
-                    + "WHERE (STUDENT_LEVEL = 'UG') AND (STUDENT_TYPE = 'N')";
+                               + "WHERE (STUDENT_LEVEL = 'UG') AND (STUDENT_TYPE = 'N')";
 
             try (final ResultSet rs = stmt.executeQuery(sql)) {
                 while (rs.next()) {
@@ -189,6 +167,7 @@ public final class ImportOdsNewStus {
      */
     public static void main(final String... args) {
 
+        DbConnection.registerDrivers();
         final ImportOdsNewStus job = new ImportOdsNewStus();
 
         Log.fine(job.execute());

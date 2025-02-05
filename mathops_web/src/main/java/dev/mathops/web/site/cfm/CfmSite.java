@@ -4,8 +4,8 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.db.logic.ELiveRefreshes;
-import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.ESiteType;
@@ -27,10 +27,10 @@ public final class CfmSite extends AbstractSite {
     /**
      * Constructs a new {@code CfmSite}.
      *
-     * @param theSiteProfile the site profile under which this site is accessed
-     * @param theSessions    the singleton user session repository
+     * @param theSiteProfile     the site profile under which this site is accessed
+     * @param theSessions the singleton user session repository
      */
-    public CfmSite(final WebSiteProfile theSiteProfile, final ISessionManager theSessions) {
+    public CfmSite(final Site theSiteProfile, final ISessionManager theSessions) {
 
         super(theSiteProfile, theSessions);
     }
@@ -90,7 +90,7 @@ public final class CfmSite extends AbstractSite {
 
             case null, default -> {
                 resp.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-                final String path = this.siteProfile.path;
+                final String path = this.site.path;
                 resp.setHeader("Location",
                         path + (path.endsWith(Contexts.ROOT_PATH) ? "index.html" : "/index.html"));
                 sendReply(req, resp, Page.MIME_TEXT_HTML, ZERO_LEN_BYTE_ARR);

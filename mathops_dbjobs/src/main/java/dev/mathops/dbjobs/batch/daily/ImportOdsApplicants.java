@@ -5,20 +5,20 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.rawlogic.RawApplicantLogic;
-import dev.mathops.db.old.rawrecord.RawApplicant;
-import dev.mathops.db.old.schema.csubanner.ImplLiveStudent;
-import dev.mathops.db.type.TermKey;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.ifaces.ILiveStudent;
+import dev.mathops.db.old.rawlogic.RawApplicantLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
+import dev.mathops.db.old.rawrecord.RawApplicant;
 import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.old.schema.csubanner.ImplLiveStudent;
 import dev.mathops.db.rec.LiveStudent;
 import dev.mathops.db.rec.TermRec;
+import dev.mathops.db.type.TermKey;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -43,32 +43,19 @@ public final class ImportOdsApplicants {
     /** Debug flag - set to 'true' to print changes rather than performing them. */
     private static final boolean DEBUG = false;
 
-    /** Flag to enable reconciling with Banner live data (make it VERY slow, >24 hours). */
+    /** Flag to enable reconciling with Banner live data (makes it VERY slow, >24 hours). */
     private static final boolean RECONCILE_WITH_LIVE = false;
 
     /** The database profile through which to access the database. */
-    private final DbProfile dbProfile;
-
-    /** The Primary database context. */
-    private final DbContext primaryCtx;
-
-    /** The ODS database context. */
-    private final DbContext odsCtx;
-
-    /** The live database context. */
-    private final DbContext liveCtx;
+    private final Profile profile;
 
     /**
      * Constructs a new {@code ImportOdsApplicants}.
      */
     public ImportOdsApplicants() {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-
-        this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
-        this.primaryCtx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
-        this.odsCtx = this.dbProfile.getDbContext(ESchemaUse.ODS);
-        this.liveCtx = this.dbProfile.getDbContext(ESchemaUse.LIVE);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        this.profile = config.getCodeProfile(Contexts.BATCH_PATH);
     }
 
     /**
@@ -80,34 +67,22 @@ public final class ImportOdsApplicants {
 
         final Collection<String> report = new ArrayList<>(10);
 
-        if (this.dbProfile == null) {
-            report.add("Unable to create production context.");
-        } else if (this.primaryCtx == null) {
-            report.add("Unable to create primary database context.");
-        } else if (this.odsCtx == null) {
-            report.add("Unable to create ODS database context.");
+        if (this.profile == null) {
+            report.add("Unable to create production profile.");
         } else {
+            final Cache cache = new Cache(this.profile);
+
             try {
-                final DbConnection conn = this.primaryCtx.checkOutConnection();
-                final Cache cache = new Cache(this.dbProfile, conn);
+                final TermRec active = cache.getSystemData().getActiveTerm();
 
-                try {
-                    final TermRec active = cache.getSystemData().getActiveTerm();
-
-                    if (active == null) {
-                        report.add("Failed to query the active term.");
-                    } else {
-                        executeInTerm(cache, active, report);
-                    }
-                } catch (final SQLException ex) {
-                    Log.warning(ex);
-                    report.add("Unable to perform query");
-                } finally {
-                    this.primaryCtx.checkInConnection(conn);
+                if (active == null) {
+                    report.add("Failed to query the active term.");
+                } else {
+                    executeInTerm(cache, active, report);
                 }
             } catch (final SQLException ex) {
                 Log.warning(ex);
-                report.add("Unable to obtain connection to ODS database");
+                report.add("Unable to perform query");
             }
         }
 
@@ -137,10 +112,13 @@ public final class ImportOdsApplicants {
         report.add(msg1);
         Log.info(msg1);
 
-        final DbConnection odsConn = this.odsCtx.checkOutConnection();
+        final Login odsLogin = this.profile.getLogin(ESchema.ODS);
+        final Login liveLogin = this.profile.getLogin(ESchema.LIVE);
+
+        final DbConnection odsConn = odsLogin.checkOutConnection();
 
         try {
-            final DbConnection liveConn = this.liveCtx.checkOutConnection();
+            final DbConnection liveConn = liveLogin.checkOutConnection();
 
             try {
                 Map<String, ApplicantRecord> applicants = null;
@@ -173,13 +151,13 @@ public final class ImportOdsApplicants {
 
                 report.add("Job completed");
             } finally {
-                this.liveCtx.checkInConnection(liveConn);
+                liveLogin.checkInConnection(liveConn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
             report.add("Unable to perform query: " + ex.getMessage());
         } finally {
-            this.odsCtx.checkInConnection(odsConn);
+            odsLogin.checkInConnection(odsConn);
         }
     }
 
@@ -658,7 +636,7 @@ public final class ImportOdsApplicants {
     /**
      * Reconciles the list of applicants from ODS with the list in the local APPLICANTS table.
      *
-     * @param cache      the data cache
+     * @param cache         the data cache
      * @param odsApplicants the applicants list from ODS
      */
     private static void reconcileApplicants(final Cache cache, final Collection<ApplicantRecord> odsApplicants) {
@@ -683,10 +661,6 @@ public final class ImportOdsApplicants {
 
             Log.info("There are " + odsSorted.size() + " admitted records from ODS");
             Log.info("There are " + currentSorted.size() + " records in local APPLICANTS table");
-
-
-
-
 
         } catch (final SQLException ex) {
             Log.warning(ex);

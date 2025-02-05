@@ -4,11 +4,12 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.EDbUse;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Profile;
+import dev.mathops.db.cfg.Facet;
 import dev.mathops.db.rec.StudentCourseMasteryRec;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -77,71 +78,64 @@ final class TestStudentCourseMasteryLogic {
     final class Informix {
 
         /** The Informix database profile. */
-        public static DbProfile informixProfile;
+        static Profile informixProfile;
 
         /** The Informix database context. */
-        public static DbContext informixCtx;
+        static Login informixLogin;
 
         /** Initialize the test class. */
         @BeforeAll
         static void initTests() {
 
-            informixProfile = ContextMap.getDefaultInstance().getCodeProfile(Contexts.INFORMIX_TEST_PATH);
+            final DatabaseConfig config = DatabaseConfig.getDefault();
+            informixProfile = config.getCodeProfile(Contexts.INFORMIX_TEST_PATH);
             if (informixProfile == null) {
                 throw new IllegalArgumentException(TestRes.get(TestRes.ERR_NO_IFXTEST_PROFILE));
             }
-
-            informixCtx = informixProfile.getDbContext(ESchemaUse.PRIMARY);
-            if (informixCtx == null) {
-                throw new IllegalArgumentException(TestRes.get(TestRes.ERR_NO_IFXPRIMARY_CONTEXT));
+            informixLogin = informixProfile.getLogin(ESchema.LEGACY);
+            if (informixLogin == null) {
+                throw new IllegalArgumentException(TestRes.get(TestRes.ERR_NO_PGPRIMARY_CONTEXT));
             }
 
             // Make sure the Informix connection is accessing the TEST database
-            try {
-                final DbConnection conn = informixCtx.checkOutConnection();
-
-                try {
-                    try (final Statement stmt = conn.createStatement();
-                         final ResultSet rs = stmt.executeQuery("SELECT descr FROM which_db")) {
-
-                        if (rs.next()) {
-                            final String which = rs.getString(1);
-                            if (which == null || !"TEST".equals(which.trim())) {
-                                throw new IllegalArgumentException(TestRes.fmt(TestRes.ERR_NOT_CONNECTED_TO_TEST,
-                                        which));
-                            }
-                        } else {
-                            throw new IllegalArgumentException(TestRes.get(TestRes.ERR_CANT_QUERY_WHICH_DB));
-                        }
-                    }
-                } finally {
-                    informixCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                throw new IllegalArgumentException(ex);
+            final Facet facet = informixProfile.getFacet(ESchema.LEGACY);
+            if (facet.data.use != EDbUse.TEST) {
+                throw new IllegalArgumentException(TestRes.fmt(TestRes.ERR_NOT_CONNECTED_TO_TEST, facet.data.use));
             }
 
+            final DbConnection conn = informixLogin.checkOutConnection();
+            final Cache cache = new Cache(informixProfile);
+
             try {
-                final DbConnection conn = informixCtx.checkOutConnection();
+                try (final Statement stmt = conn.createStatement();
+                     final ResultSet rs = stmt.executeQuery("SELECT descr FROM which_db")) {
 
-                try {
-                    try (final Statement stmt = conn.createStatement()) {
-                        stmt.executeUpdate("DELETE FROM stu_course_mastery");
+                    if (rs.next()) {
+                        final String which = rs.getString(1);
+                        if (which == null || !"TEST".equals(which.trim())) {
+                            throw new IllegalArgumentException(TestRes.fmt(TestRes.ERR_NOT_CONNECTED_TO_TEST, which));
+                        }
+                    } else {
+                        throw new IllegalArgumentException(TestRes.get(TestRes.ERR_CANT_QUERY_WHICH_DB));
                     }
-                    conn.commit();
-
-                    final Cache cache = new Cache(informixProfile, conn);
-                    final StudentCourseMasteryLogic logic = StudentCourseMasteryLogic.get(cache);
-
-                    assertTrue(logic.insert(cache, RAW1), "Failed to insert Informix stu_course_mastery");
-                    assertTrue(logic.insert(cache, RAW2), "Failed to insert Informix stu_course_mastery");
-                    assertTrue(logic.insert(cache, RAW3), "Failed to insert Informix stu_course_mastery");
-                } finally {
-                    informixCtx.checkInConnection(conn);
                 }
+
+                try (final Statement stmt = conn.createStatement()) {
+                    stmt.executeUpdate("DELETE FROM stu_course_mastery");
+                }
+                conn.commit();
+
+                final StudentCourseMasteryLogic logic = StudentCourseMasteryLogic.get(cache);
+
+                assertTrue(logic.insert(cache, RAW1), "Failed to insert Informix stu_course_mastery");
+                assertTrue(logic.insert(cache, RAW2), "Failed to insert Informix stu_course_mastery");
+                assertTrue(logic.insert(cache, RAW3), "Failed to insert Informix stu_course_mastery");
             } catch (final SQLException ex) {
                 Log.warning(ex);
                 fail("Exception while initializing Informix 'stu_course_mastery' table: " + ex.getMessage());
+                throw new IllegalArgumentException(ex);
+            } finally {
+                informixLogin.checkInConnection(conn);
             }
         }
 
@@ -150,40 +144,34 @@ final class TestStudentCourseMasteryLogic {
         @DisplayName("Informix queryAll")
         void test0003() {
 
+            final Cache cache = new Cache(informixProfile);
+            final StudentCourseMasteryLogic logic = StudentCourseMasteryLogic.get(cache);
+
             try {
-                final DbConnection conn = informixCtx.checkOutConnection();
-                final Cache cache = new Cache(informixProfile, conn);
-                final StudentCourseMasteryLogic logic = StudentCourseMasteryLogic.get(cache);
+                final List<StudentCourseMasteryRec> all = logic.queryAll(cache);
 
-                try {
-                    final List<StudentCourseMasteryRec> all = logic.queryAll(cache);
+                assertEquals(3, all.size(), "Incorrect record count from Informix queryAll");
 
-                    assertEquals(3, all.size(), "Incorrect record count from Informix queryAll");
+                boolean found1 = false;
+                boolean found2 = false;
+                boolean found3 = false;
 
-                    boolean found1 = false;
-                    boolean found2 = false;
-                    boolean found3 = false;
-
-                    for (final StudentCourseMasteryRec r : all) {
-                        if (RAW1.equals(r)) {
-                            found1 = true;
-                        } else if (RAW2.equals(r)) {
-                            found2 = true;
-                        } else if (RAW3.equals(r)) {
-                            found3 = true;
-                        } else {
-                            printUnexpected(r);
-                            fail("Extra record found");
-                        }
+                for (final StudentCourseMasteryRec r : all) {
+                    if (RAW1.equals(r)) {
+                        found1 = true;
+                    } else if (RAW2.equals(r)) {
+                        found2 = true;
+                    } else if (RAW3.equals(r)) {
+                        found3 = true;
+                    } else {
+                        printUnexpected(r);
+                        fail("Extra record found");
                     }
-
-                    assertTrue(found1, "Informix stu_course_mastery 1 not found");
-                    assertTrue(found2, "Informix stu_course_mastery 2 not found");
-                    assertTrue(found3, "Informix stu_course_mastery 3 not found");
-
-                } finally {
-                    informixCtx.checkInConnection(conn);
                 }
+
+                assertTrue(found1, "Informix stu_course_mastery 1 not found");
+                assertTrue(found2, "Informix stu_course_mastery 2 not found");
+                assertTrue(found3, "Informix stu_course_mastery 3 not found");
             } catch (final SQLException ex) {
                 Log.warning(ex);
                 fail("Exception while querying all Informix 'stu_course_mastery' rows: " + ex.getMessage());
@@ -195,37 +183,31 @@ final class TestStudentCourseMasteryLogic {
         @DisplayName("Informix queryByStudent")
         void test0004() {
 
+            final Cache cache = new Cache(informixProfile);
+            final StudentCourseMasteryLogic logic = StudentCourseMasteryLogic.get(cache);
+
             try {
-                final DbConnection conn = informixCtx.checkOutConnection();
-                final Cache cache = new Cache(informixProfile, conn);
-                final StudentCourseMasteryLogic logic = StudentCourseMasteryLogic.get(cache);
+                final List<StudentCourseMasteryRec> all = logic.queryByStudent(cache,
+                        "111111111");
 
-                try {
-                    final List<StudentCourseMasteryRec> all = logic.queryByStudent(cache,
-                            "111111111");
+                assertEquals(2, all.size(), "Incorrect record count from Informix queryByStudent");
 
-                    assertEquals(2, all.size(), "Incorrect record count from Informix queryByStudent");
+                boolean found1 = false;
+                boolean found2 = false;
 
-                    boolean found1 = false;
-                    boolean found2 = false;
-
-                    for (final StudentCourseMasteryRec r : all) {
-                        if (RAW1.equals(r)) {
-                            found1 = true;
-                        } else if (RAW2.equals(r)) {
-                            found2 = true;
-                        } else {
-                            printUnexpected(r);
-                            fail("Extra record found");
-                        }
+                for (final StudentCourseMasteryRec r : all) {
+                    if (RAW1.equals(r)) {
+                        found1 = true;
+                    } else if (RAW2.equals(r)) {
+                        found2 = true;
+                    } else {
+                        printUnexpected(r);
+                        fail("Extra record found");
                     }
-
-                    assertTrue(found1, "Informix stu_course_mastery 1 not found");
-                    assertTrue(found2, "Informix stu_course_mastery 2 not found");
-
-                } finally {
-                    informixCtx.checkInConnection(conn);
                 }
+
+                assertTrue(found1, "Informix stu_course_mastery 1 not found");
+                assertTrue(found2, "Informix stu_course_mastery 2 not found");
             } catch (final SQLException ex) {
                 Log.warning(ex);
                 fail("Exception while querying Informix 'stu_course_mastery' rows by student: "
@@ -238,22 +220,17 @@ final class TestStudentCourseMasteryLogic {
         @DisplayName("query results")
         void test0005() {
 
+            final Cache cache = new Cache(informixProfile);
+            final StudentCourseMasteryLogic logic = StudentCourseMasteryLogic.get(cache);
+
             try {
-                final DbConnection conn = informixCtx.checkOutConnection();
-                final Cache cache = new Cache(informixProfile, conn);
-                final StudentCourseMasteryLogic logic = StudentCourseMasteryLogic.get(cache);
+                final StudentCourseMasteryRec r = logic.query(cache, "111111111", "M 125");
 
-                try {
-                    final StudentCourseMasteryRec r = logic.query(cache, "111111111", "M 125");
+                assertNotNull(r, "No record returned by query");
 
-                    assertNotNull(r, "No record returned by query");
-
-                    if (!RAW1.equals(r)) {
-                        printUnexpected(r);
-                        fail("Extra record found");
-                    }
-                } finally {
-                    informixCtx.checkInConnection(conn);
+                if (!RAW1.equals(r)) {
+                    printUnexpected(r);
+                    fail("Extra record found");
                 }
             } catch (final SQLException ex) {
                 Log.warning(ex);
@@ -266,26 +243,21 @@ final class TestStudentCourseMasteryLogic {
         @DisplayName("updateMastery results")
         void test0006() {
 
+            final Cache cache = new Cache(informixProfile);
+            final StudentCourseMasteryLogic logic = StudentCourseMasteryLogic.get(cache);
+
             try {
-                final DbConnection conn = informixCtx.checkOutConnection();
-                final Cache cache = new Cache(informixProfile, conn);
-                final StudentCourseMasteryLogic logic = StudentCourseMasteryLogic.get(cache);
+                final boolean result = logic.updateMastery(cache, RAW1, RAW1NEWMASTERY.nbrMasteredH1,
+                        RAW1NEWMASTERY.nbrMasteredH2, RAW1NEWMASTERY.nbrEligible);
+                assertTrue(result, "updateMastery returned false");
 
-                try {
-                    final boolean result = logic.updateMastery(cache, RAW1, RAW1NEWMASTERY.nbrMasteredH1,
-                            RAW1NEWMASTERY.nbrMasteredH2, RAW1NEWMASTERY.nbrEligible);
-                    assertTrue(result, "updateMastery returned false");
+                final StudentCourseMasteryRec r = logic.query(cache, "111111111", "M 125");
 
-                    final StudentCourseMasteryRec r = logic.query(cache, "111111111", "M 125");
+                assertNotNull(r, "No record returned by query");
 
-                    assertNotNull(r, "No record returned by query");
-
-                    if (!RAW1NEWMASTERY.equals(r)) {
-                        printUnexpected(r);
-                        fail("Extra record found");
-                    }
-                } finally {
-                    informixCtx.checkInConnection(conn);
+                if (!RAW1NEWMASTERY.equals(r)) {
+                    printUnexpected(r);
+                    fail("Extra record found");
                 }
             } catch (final SQLException ex) {
                 Log.warning(ex);
@@ -298,25 +270,20 @@ final class TestStudentCourseMasteryLogic {
         @DisplayName("updateScore results")
         void test0008() {
 
+            final Cache cache = new Cache(informixProfile);
+            final StudentCourseMasteryLogic logic = StudentCourseMasteryLogic.get(cache);
+
             try {
-                final DbConnection conn = informixCtx.checkOutConnection();
-                final Cache cache = new Cache(informixProfile, conn);
-                final StudentCourseMasteryLogic logic = StudentCourseMasteryLogic.get(cache);
+                final boolean result = logic.updateScore(cache, RAW1NEWEXP, RAW1NEWSCORE.score);
+                assertTrue(result, "updateScore returned false");
 
-                try {
-                    final boolean result = logic.updateScore(cache, RAW1NEWEXP, RAW1NEWSCORE.score);
-                    assertTrue(result, "updateScore returned false");
+                final StudentCourseMasteryRec r = logic.query(cache, "111111111", "M 125");
 
-                    final StudentCourseMasteryRec r = logic.query(cache, "111111111", "M 125");
+                assertNotNull(r, "No record returned by query");
 
-                    assertNotNull(r, "No record returned by query");
-
-                    if (!RAW1NEWSCORE.equals(r)) {
-                        printUnexpected(r);
-                        fail("Extra record found");
-                    }
-                } finally {
-                    informixCtx.checkInConnection(conn);
+                if (!RAW1NEWSCORE.equals(r)) {
+                    printUnexpected(r);
+                    fail("Extra record found");
                 }
             } catch (final SQLException ex) {
                 Log.warning(ex);
@@ -329,39 +296,33 @@ final class TestStudentCourseMasteryLogic {
         @DisplayName("delete results")
         void test0009() {
 
+            final Cache cache = new Cache(informixProfile);
+            final StudentCourseMasteryLogic logic = StudentCourseMasteryLogic.get(cache);
+
             try {
-                final DbConnection conn = informixCtx.checkOutConnection();
-                final Cache cache = new Cache(informixProfile, conn);
-                final StudentCourseMasteryLogic logic = StudentCourseMasteryLogic.get(cache);
+                final boolean result = logic.delete(cache, RAW2);
+                assertTrue(result, "delete returned false");
 
-                try {
-                    final boolean result = logic.delete(cache, RAW2);
-                    assertTrue(result, "delete returned false");
+                final List<StudentCourseMasteryRec> all = logic.queryAll(cache);
 
-                    final List<StudentCourseMasteryRec> all = logic.queryAll(cache);
+                assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 
-                    assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
+                boolean found1 = false;
+                boolean found3 = false;
 
-                    boolean found1 = false;
-                    boolean found3 = false;
-
-                    for (final StudentCourseMasteryRec r : all) {
-                        if (RAW1NEWSCORE.equals(r)) {
-                            found1 = true;
-                        } else if (RAW3.equals(r)) {
-                            found3 = true;
-                        } else {
-                            printUnexpected(r);
-                            fail("Extra record found");
-                        }
+                for (final StudentCourseMasteryRec r : all) {
+                    if (RAW1NEWSCORE.equals(r)) {
+                        found1 = true;
+                    } else if (RAW3.equals(r)) {
+                        found3 = true;
+                    } else {
+                        printUnexpected(r);
+                        fail("Extra record found");
                     }
-
-                    assertTrue(found1, "stu_course_mastery 1 not found");
-                    assertTrue(found3, "stu_course_mastery 3 not found");
-
-                } finally {
-                    informixCtx.checkInConnection(conn);
                 }
+
+                assertTrue(found1, "stu_course_mastery 1 not found");
+                assertTrue(found3, "stu_course_mastery 3 not found");
             } catch (final SQLException ex) {
                 Log.warning(ex);
                 fail("Exception while deleting stu_course_masterys: " + ex.getMessage());
@@ -372,323 +333,19 @@ final class TestStudentCourseMasteryLogic {
         @AfterAll
         static void cleanUp() {
 
+            final DbConnection conn = informixLogin.checkOutConnection();
+
             try {
-                final DbConnection conn = informixCtx.checkOutConnection();
-
-                try {
-                    try (final Statement stmt = conn.createStatement()) {
-                        stmt.executeUpdate("DELETE FROM stu_course_mastery");
-                    }
-
-                    conn.commit();
-
-                } finally {
-                    informixCtx.checkInConnection(conn);
+                try (final Statement stmt = conn.createStatement()) {
+                    stmt.executeUpdate("DELETE FROM stu_course_mastery");
                 }
+
+                conn.commit();
             } catch (final SQLException ex) {
                 Log.warning(ex);
                 fail("Exception while cleaning tables: " + ex.getMessage());
-            }
-        }
-    }
-
-    /**
-     * Tests for the {@code StudentCourseMasteryLogic} class.
-     */
-    @Nested
-    final class Postgres {
-
-        /** The PostgreSQL database profile. */
-        public static DbProfile postgresProfile;
-
-        /** The PostgreSQL database context. */
-        public static DbContext postgresCtx;
-
-        /** Initialize the test class. */
-        @BeforeAll
-        static void initTests() {
-
-            postgresProfile = ContextMap.getDefaultInstance().getCodeProfile(Contexts.POSTGRES_TEST_PATH);
-            if (postgresProfile == null) {
-                throw new IllegalArgumentException(TestRes.get(TestRes.ERR_NO_PGTEST_PROFILE));
-            }
-
-            postgresCtx = postgresProfile.getDbContext(ESchemaUse.PRIMARY);
-            if (postgresCtx == null) {
-                throw new IllegalArgumentException(TestRes.get(TestRes.ERR_NO_PGPRIMARY_CONTEXT));
-            }
-
-            // Make sure the PostgreSQL connection is using a TEST schema
-            if (postgresCtx.loginConfig.db.use != EDbUse.TEST) {
-                throw new IllegalArgumentException(TestRes.fmt(TestRes.ERR_NOT_CONNECTED_TO_TEST,
-                        postgresCtx.loginConfig.db.use));
-            }
-            try {
-                final DbConnection conn = postgresCtx.checkOutConnection();
-
-                try {
-                    try (final Statement stmt = conn.createStatement()) {
-                        stmt.executeUpdate("DELETE FROM term_t.stu_course_mastery");
-                    }
-                    conn.commit();
-
-                    final Cache cache = new Cache(postgresProfile, conn);
-                    final StudentCourseMasteryLogic logic = StudentCourseMasteryLogic.get(cache);
-
-                    assertTrue(logic.insert(cache, RAW1), "Failed to insert Postgres stu_course_mastery");
-                    assertTrue(logic.insert(cache, RAW2), "Failed to insert Postgres stu_course_mastery");
-                    assertTrue(logic.insert(cache, RAW3), "Failed to insert Postgres stu_course_mastery");
-                } finally {
-                    postgresCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while initializing Postgres 'stu_course_mastery' table: " + ex.getMessage());
-            }
-        }
-
-        /** Test case. */
-        @Test
-        @DisplayName("Postgres queryAll results")
-        void test0003() {
-
-            try {
-                final DbConnection conn = postgresCtx.checkOutConnection();
-                final Cache cache = new Cache(postgresProfile, conn);
-                final StudentCourseMasteryLogic logic = StudentCourseMasteryLogic.get(cache);
-
-                try {
-                    final List<StudentCourseMasteryRec> all = logic.queryAll(cache);
-
-                    assertEquals(3, all.size(), "Incorrect record count from Postgres queryAll");
-
-                    boolean found1 = false;
-                    boolean found2 = false;
-                    boolean found3 = false;
-
-                    for (final StudentCourseMasteryRec r : all) {
-                        if (RAW1.equals(r)) {
-                            found1 = true;
-                        } else if (RAW2.equals(r)) {
-                            found2 = true;
-                        } else if (RAW3.equals(r)) {
-                            found3 = true;
-                        } else {
-                            printUnexpected(r);
-                            fail("Extra record found");
-                        }
-                    }
-
-                    assertTrue(found1, "Postgres stu_course_mastery 1 not found");
-                    assertTrue(found2, "Postgres stu_course_mastery 2 not found");
-                    assertTrue(found3, "Postgres stu_course_mastery 3 not found");
-
-                } finally {
-                    postgresCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while querying all Postgres 'stu_course_mastery' rows: " + ex.getMessage());
-            }
-        }
-
-        /** Test case. */
-        @Test
-        @DisplayName("Postgres queryByStudent results")
-        void test0004() {
-
-            try {
-                final DbConnection conn = postgresCtx.checkOutConnection();
-                final Cache cache = new Cache(postgresProfile, conn);
-                final StudentCourseMasteryLogic logic = StudentCourseMasteryLogic.get(cache);
-
-                try {
-                    final List<StudentCourseMasteryRec> all = logic.queryByStudent(cache, "111111111");
-
-                    assertEquals(2, all.size(), "Incorrect record count from Postgres queryByStudent");
-
-                    boolean found1 = false;
-                    boolean found2 = false;
-
-                    for (final StudentCourseMasteryRec r : all) {
-                        if (RAW1.equals(r)) {
-                            found1 = true;
-                        } else if (RAW2.equals(r)) {
-                            found2 = true;
-                        } else {
-                            printUnexpected(r);
-                            fail("Extra record found");
-                        }
-                    }
-
-                    assertTrue(found1, "Postgres stu_course_mastery 1 not found");
-                    assertTrue(found2, "Postgres stu_course_mastery 2 not found");
-
-                } finally {
-                    postgresCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while querying Postgres 'stu_course_mastery' rows by student: "
-                     + ex.getMessage());
-            }
-        }
-
-        /** Test case. */
-        @Test
-        @DisplayName("query results")
-        void test0005() {
-
-            try {
-                final DbConnection conn = postgresCtx.checkOutConnection();
-                final Cache cache = new Cache(postgresProfile, conn);
-                final StudentCourseMasteryLogic logic = StudentCourseMasteryLogic.get(cache);
-
-                try {
-                    final StudentCourseMasteryRec r = logic.query(cache, "111111111", "M 125");
-
-                    assertNotNull(r, "No record returned by query");
-
-                    if (!RAW1.equals(r)) {
-                        printUnexpected(r);
-                        fail("Extra record found");
-                    }
-                } finally {
-                    postgresCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while querying stu_course_mastery by version: " + ex.getMessage());
-            }
-        }
-
-        /** Test case. */
-        @Test
-        @DisplayName("updateMastery results")
-        void test0006() {
-
-            try {
-                final DbConnection conn = postgresCtx.checkOutConnection();
-                final Cache cache = new Cache(postgresProfile, conn);
-                final StudentCourseMasteryLogic logic = StudentCourseMasteryLogic.get(cache);
-
-                try {
-                    final boolean result = logic.updateMastery(cache, RAW1, RAW1NEWMASTERY.nbrMasteredH1,
-                            RAW1NEWMASTERY.nbrMasteredH2, RAW1NEWMASTERY.nbrEligible);
-                    assertTrue(result, "updateMastery returned false");
-
-                    final StudentCourseMasteryRec r = logic.query(cache, "111111111", "M 125");
-
-                    assertNotNull(r, "No record returned by query");
-
-                    if (!RAW1NEWMASTERY.equals(r)) {
-                        printUnexpected(r);
-                        fail("Extra record found");
-                    }
-                } finally {
-                    postgresCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while updating mastery: " + ex.getMessage());
-            }
-        }
-
-        /** Test case. */
-        @Test
-        @DisplayName("updateScore results")
-        void test0008() {
-
-            try {
-                final DbConnection conn = postgresCtx.checkOutConnection();
-                final Cache cache = new Cache(postgresProfile, conn);
-                final StudentCourseMasteryLogic logic = StudentCourseMasteryLogic.get(cache);
-
-                try {
-                    final boolean result = logic.updateScore(cache, RAW1NEWEXP, RAW1NEWSCORE.score);
-                    assertTrue(result, "updateScore returned false");
-
-                    final StudentCourseMasteryRec r = logic.query(cache, "111111111", "M 125");
-
-                    assertNotNull(r, "No record returned by query");
-
-                    if (!RAW1NEWSCORE.equals(r)) {
-                        printUnexpected(r);
-                        fail("Extra record found");
-                    }
-                } finally {
-                    postgresCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while updating score: " + ex.getMessage());
-            }
-        }
-
-        /** Test case. */
-        @Test
-        @DisplayName("delete results")
-        void test0009() {
-
-            try {
-                final DbConnection conn = postgresCtx.checkOutConnection();
-                final Cache cache = new Cache(postgresProfile, conn);
-                final StudentCourseMasteryLogic logic = StudentCourseMasteryLogic.get(cache);
-
-                try {
-                    final boolean result = logic.delete(cache, RAW2);
-                    assertTrue(result, "delete returned false");
-
-                    final List<StudentCourseMasteryRec> all = logic.queryAll(cache);
-
-                    assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
-
-                    boolean found1 = false;
-                    boolean found3 = false;
-
-                    for (final StudentCourseMasteryRec r : all) {
-                        if (RAW1NEWSCORE.equals(r)) {
-                            found1 = true;
-                        } else if (RAW3.equals(r)) {
-                            found3 = true;
-                        } else {
-                            printUnexpected(r);
-                            fail("Extra record found");
-                        }
-                    }
-
-                    assertTrue(found1, "stu_course_mastery 1 not found");
-                    assertTrue(found3, "stu_course_mastery 3 not found");
-
-                } finally {
-                    postgresCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while deleting stu_course_masterys: " + ex.getMessage());
-            }
-        }
-
-        /** Clean up. */
-        @AfterAll
-        static void cleanUp() {
-
-            try {
-                final DbConnection conn = postgresCtx.checkOutConnection();
-
-                try {
-                    try (final Statement stmt = conn.createStatement()) {
-                        stmt.executeUpdate("DELETE FROM term_t.stu_course_mastery");
-                    }
-
-                    conn.commit();
-
-                } finally {
-                    postgresCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while cleaning tables: " + ex.getMessage());
+            } finally {
+                informixLogin.checkInConnection(conn);
             }
         }
     }

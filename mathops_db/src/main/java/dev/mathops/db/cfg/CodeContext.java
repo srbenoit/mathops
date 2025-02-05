@@ -28,4 +28,35 @@ public final class CodeContext {
         this.id = theId;
         this.profile = theProfile;
     }
+
+    /**
+     * Generates a hash code for the object.
+     *
+     * @return the hash code
+     */
+    public int hashCode() {
+
+        return this.id.hashCode() + this.profile.hashCode();
+    }
+
+    /**
+     * Tests whether this object is equal to another.
+     *
+     * @param o the other object
+     * @return true if the objects are equal
+     */
+    public boolean equals(final Object o) {
+
+        final boolean equal;
+
+        if (o == this) {
+            equal = true;
+        } else if (o instanceof final CodeContext codeContext) {
+            equal = this.id.equals(codeContext.id) && this.profile.equals(codeContext.profile);
+        } else {
+            equal = false;
+        }
+
+        return equal;
+    }
 }

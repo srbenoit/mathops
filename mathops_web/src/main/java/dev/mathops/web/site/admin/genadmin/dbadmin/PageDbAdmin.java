@@ -2,7 +2,7 @@ package dev.mathops.web.site.admin.genadmin.dbadmin;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.cfg.LoginConfig;
+import dev.mathops.db.cfg.Login;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
@@ -131,8 +131,7 @@ public enum PageDbAdmin {
      */
     static void emitDisconnectLink(final HtmlBuilder htm, final String query) {
 
-        htm.sP().add("<a href='db_admin_server_logout.html?", query,
-                "'>Disconnect</a>").eP();
+        htm.sP().add("<a href='db_admin_server_logout.html?", query, "'>Disconnect</a>").eP();
     }
 
     /**
@@ -141,26 +140,20 @@ public enum PageDbAdmin {
      * @param htm the {@code HtmlBuilder} to which to append
      * @param cfg the driver configuration
      */
-    static void emitCfgInfoTable(final HtmlBuilder htm, final LoginConfig cfg) {
+    static void emitCfgInfoTable(final HtmlBuilder htm, final Login cfg) {
 
         htm.addln("<table class='report'>");
         htm.addln("<tr>");
-        htm.addln("<td>",
-                "Type:<br/><b>", cfg.db.server.type.name, //
-                "</b></td>");
-        htm.addln("<td>",
-                "Host:<br/><b>", cfg.db.server.host, CoreConstants.COLON,
-                Integer.toString(cfg.db.server.port), "</b></td>");
-        if (cfg.db.id != null) {
-            htm.addln("<td>",
-                    "Database:<br/><b>", cfg.db.id, "</b></td>");
+        htm.addln("<td>Type:<br/><b>", cfg.database.server.type.name, "</b></td>");
+        htm.addln("<td>Host:<br/><b>", cfg.database.server.host, CoreConstants.COLON,
+                Integer.toString(cfg.database.server.port), "</b></td>");
+        if (cfg.database.id != null) {
+            htm.addln("<td>Database:<br/><b>", cfg.database.id, "</b></td>");
         }
-        if (cfg.db.server.name != null) {
-            htm.addln("<td>",
-                    "Server:<br/><b>", cfg.db.server.name, "</b></td>");
+        htm.addln("<td>Server:<br/><b>", cfg.database.server.type, "</b></td>");
+        if (cfg.database.instance != null) {
+            htm.addln("<td>Instance:<br/><b>", cfg.database.instance, "</b></td>");
         }
-        htm.addln("<td>",
-                "Use:<br/><b>", cfg.db.use, "</b></td>");
         htm.addln("</tr>");
         htm.addln("</table>");
     }

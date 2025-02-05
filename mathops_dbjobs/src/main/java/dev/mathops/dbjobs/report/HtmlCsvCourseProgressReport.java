@@ -3,15 +3,11 @@ package dev.mathops.dbjobs.report;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.type.TermKey;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
@@ -25,6 +21,7 @@ import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.rec.TermRec;
+import dev.mathops.db.type.TermKey;
 import dev.mathops.text.builder.SimpleBuilder;
 
 import java.sql.SQLException;
@@ -50,10 +47,7 @@ public final class HtmlCsvCourseProgressReport {
     private final String subheader;
 
     /** The database profile through which to access the database. */
-    private final DbProfile dbProfile;
-
-    /** The Primary database context. */
-    private final DbContext primaryCtx;
+    private final Profile profile;
 
     /**
      * Constructs a new {@code HtmlCsvCourseProgressReport} with a list of student Ids and a list of
@@ -61,7 +55,7 @@ public final class HtmlCsvCourseProgressReport {
      * @param theStudentIds the student IDs to include in the report (if null, all students are included)
      * @param theSections   the course/sections to include (only course ID and section number are used; null includes
      *                      all)
-     * @param theSubhead  the sub-header text for the report
+     * @param theSubhead    the sub-header text for the report
      */
     public HtmlCsvCourseProgressReport(final List<String> theStudentIds, final List<RawCsection> theSections,
                                        final String theSubhead) {
@@ -70,10 +64,8 @@ public final class HtmlCsvCourseProgressReport {
         this.sections = theSections == null ? null : new ArrayList<>(theSections);
         this.subheader = theSubhead;
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-
-        this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
-        this.primaryCtx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        this.profile = config.getCodeProfile(Contexts.BATCH_PATH);
     }
 
     /**
@@ -84,19 +76,12 @@ public final class HtmlCsvCourseProgressReport {
      */
     public void generate(final Collection<? super String> report, final Collection<? super String> csv) {
 
-        if (this.dbProfile == null) {
-            Log.warning("Unable to create production context.");
-        } else if (this.primaryCtx == null) {
-            Log.warning("Unable to create PRIMARY database context.");
+        if (this.profile == null) {
+            Log.warning("Unable to find production profile.");
         } else {
+            final Cache cache = new Cache(this.profile);
             try {
-                final DbConnection conn = this.primaryCtx.checkOutConnection();
-                final Cache cache = new Cache(this.dbProfile, conn);
-                try {
-                    execute(cache, report, csv);
-                } finally {
-                    this.primaryCtx.checkInConnection(conn);
-                }
+                execute(cache, report, csv);
             } catch (final SQLException ex) {
                 final String msg = ex.getMessage();
                 report.add("EXCEPTION: " + msg);
@@ -119,12 +104,16 @@ public final class HtmlCsvCourseProgressReport {
 
         html.add("<style>");
         html.add(".result-table {font-size:90%;}");
-        html.add(".result-table tr {display:grid; cursor:pointer; grid-template-columns: repeat(4, 1fr); justify-content: flex-start;}");
+        html.add(
+                ".result-table tr {display:grid; cursor:pointer; grid-template-columns: repeat(4, 1fr); " +
+                "justify-content: flex-start;}");
         html.add(".result-table td:first-child:hover {cursor: default;background-color: #fff;}");
         html.add(".result-table tr:nth-child(2n+1) {background-color:#ddd; border-bottom:1px solid gray;}");
         html.add(".result-table tr:nth-child(2n+0) {background-color:#eee;}");
         html.add(".result-table tr th,td {padding-left: 6px; padding-right: 6px;}");
-        html.add(".expanded-row-content {display: grid; grid-column: 1/-1; justify-content: flex-start; background-color:#fff;}");
+        html.add(
+                ".expanded-row-content {display: grid; grid-column: 1/-1; justify-content: flex-start; " +
+                "background-color:#fff;}");
         html.add(".hide-row {display: none;}");
         html.add("</style>");
 
@@ -167,8 +156,8 @@ public final class HtmlCsvCourseProgressReport {
     }
 
     /**
-     * Based on the specified list of students and sections, identifies the set of student registrations over which
-     * to report.
+     * Based on the specified list of students and sections, identifies the set of student registrations over which to
+     * report.
      *
      * @return a map from student ID to the list of that student's registrations
      * @throws SQLException if there is an error accessing the database
@@ -183,7 +172,7 @@ public final class HtmlCsvCourseProgressReport {
 
         for (final RawStcourse reg : allRegs) {
             if ((this.sections == null || isSectionIncluded(reg))
-                    && (this.studentIds == null || isStudentIncluded(reg))) {
+                && (this.studentIds == null || isStudentIncluded(reg))) {
                 final String stuId = reg.stuId;
                 final List<RawStcourse> inner = registrations.computeIfAbsent(stuId, s -> new ArrayList<>(5));
                 inner.add(reg);
@@ -194,8 +183,8 @@ public final class HtmlCsvCourseProgressReport {
     }
 
     /**
-     * Called when {@code this.sections} is non-null to check whether a single registration matches any of the
-     * specified course sections.
+     * Called when {@code this.sections} is non-null to check whether a single registration matches any of the specified
+     * course sections.
      *
      * @param reg the registration
      * @return true if included; false if not
@@ -318,7 +307,7 @@ public final class HtmlCsvCourseProgressReport {
 
             html.add("<table class='inner-table'>");
             html.add(" <tr><th>Pace</th> <th>Order</th> <th>Course</th> <th>Sect</th> <th>Unit</th> "
-                    + "<th>Item</th> <th>Due</th> <th>Completed</th> <th>On time?</th></tr>");
+                     + "<th>Item</th> <th>Due</th> <th>Completed</th> <th>On time?</th></tr>");
 
             final LocalDate today = LocalDate.now();
             final LocalDate yesterday = today.minusDays(1L);
@@ -345,7 +334,8 @@ public final class HtmlCsvCourseProgressReport {
                     for (final RawStmilestone test : stmilestones) {
                         if (test.msNbr.intValue() == msnbr && "RE".equals(test.msType)) {
                             due = test.msDate;
-                            // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
+                            // Don't break - student milestones are sorted by deadline date, and if there are
+                            // multiple, we want
                             // the later date
                         }
                     }
@@ -353,7 +343,7 @@ public final class HtmlCsvCourseProgressReport {
                     LocalDate done = null;
                     for (final RawStexam stexam : stexams) {
                         if (stexam.course.equals(reg.course) && stexam.unit.intValue() == unit
-                                && "R".equals(stexam.examType) && "Y".equals(stexam.passed)) {
+                            && "R".equals(stexam.examType) && "Y".equals(stexam.passed)) {
                             if (done == null || done.isAfter(stexam.examDt)) {
                                 done = stexam.examDt;
                             }
@@ -380,7 +370,9 @@ public final class HtmlCsvCourseProgressReport {
                     final String orderStr = Integer.toString(order);
                     final String unitStr = Integer.toString(unit);
                     final String dueStr = due == null ? "Unknown" : TemporalUtils.FMT_MDY_COMPACT_FIXED.format(due);
-                    final String doneStr = done == null ? CoreConstants.EMPTY : TemporalUtils.FMT_MDY_COMPACT_FIXED.format(done);
+                    final String doneStr = done == null ? CoreConstants.EMPTY :
+                            TemporalUtils.FMT_MDY_COMPACT_FIXED.format(
+                                    done);
 
                     html.add(SimpleBuilder.concat(
                             " <tr><td>", (i == 0 && unit == 1 ? paceStr : CoreConstants.EMPTY), "</td> <td>",
@@ -404,7 +396,8 @@ public final class HtmlCsvCourseProgressReport {
                 for (final RawStmilestone test : stmilestones) {
                     if (test.msNbr.intValue() == msnbr && "FE".equals(test.msType)) {
                         due = test.msDate;
-                        // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
+                        // Don't break - student milestones are sorted by deadline date, and if there are multiple,
+                        // we want
                         // the later date
                     }
                 }
@@ -412,7 +405,7 @@ public final class HtmlCsvCourseProgressReport {
                 LocalDate done = null;
                 for (final RawStexam stexam : stexams) {
                     if (stexam.course.equals(reg.course) && stexam.unit.intValue() == 5
-                            && "F".equals(stexam.examType) && "Y".equals(stexam.passed)) {
+                        && "F".equals(stexam.examType) && "Y".equals(stexam.passed)) {
                         if (done == null || done.isAfter(stexam.examDt)) {
                             done = stexam.examDt;
                         }
@@ -422,7 +415,7 @@ public final class HtmlCsvCourseProgressReport {
                 String lateMsg = CoreConstants.EMPTY;
                 if (done == null) {
                     if (due != null && today.isAfter(due)) {
-                        lateMsg="DUE!";
+                        lateMsg = "DUE!";
                     }
                 } else if ("Y".equals(reg.completed)) {
                     lateMsg = "passed!";

@@ -3,10 +3,8 @@ package dev.mathops.session.sitelogic.servlet;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
@@ -113,21 +111,21 @@ public class FinalExamEligibilityTester extends EligibilityTesterBase {
         final ZonedDateTime now = session.getNow();
 
         boolean ok = validateStudent(cache, now, reasons, holds, true)
-                && checkActiveTerm(cache, now, reasons)
-                && gatherSectionInfo(cache, reasons, avail.course, avail.unit, true);
+                     && checkActiveTerm(cache, now, reasons)
+                     && gatherSectionInfo(cache, reasons, avail.course, avail.unit, true);
 
         if (ok) {
             if ("Y".equals(this.studentCourse.iInProgress)) {
                 ok = checkIncompleteDeadline(session, reasons)
-                        && checkPassedUnit(cache, session, reasons, avail)
-                        && checkNumAttempts(cache, session, reasons, avail)
-                        && checkCourseRegistration(reasons);
+                     && checkPassedUnit(cache, session, reasons, avail)
+                     && checkNumAttempts(cache, session, reasons, avail)
+                     && checkCourseRegistration(reasons);
             } else {
                 ok = checkPassedUnit(cache, session, reasons, avail)
-                        && checkNumAttempts(cache, session, reasons, avail)
-                        && checkCourseRegistration(reasons)
-                        && checkUnitTestingDateRange(session, reasons)
-                        && checkForCourseLockout(cache, session.getNow(), reasons);
+                     && checkNumAttempts(cache, session, reasons, avail)
+                     && checkCourseRegistration(reasons)
+                     && checkUnitTestingDateRange(session, reasons)
+                     && checkForCourseLockout(cache, session.getNow(), reasons);
             }
         }
 
@@ -299,37 +297,33 @@ public class FinalExamEligibilityTester extends EligibilityTesterBase {
 
         DbConnection.registerDrivers();
 
-        final DbProfile dbProfile = ContextMap.getDefaultInstance().getCodeProfile("checkin");
-        final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        final DatabaseConfig databaseConfig = DatabaseConfig.getDefault();
+        final Profile profile = databaseConfig.getCodeProfile("checkin");
+
+        final Cache cache = new Cache(profile);
+
         try {
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(dbProfile, conn);
+            final LiveSessionInfo live = new LiveSessionInfo("abcdef", "Local", ERole.STUDENT);
 
-            try {
-                final LiveSessionInfo live = new LiveSessionInfo("abcdef", "Local", ERole.STUDENT);
+            live.setUserInfo("833155611", "Test", "Student", "Test Student");
 
-                live.setUserInfo("833155611", "Test", "Student", "Test Student");
+            final ImmutableSessionInfo session = new ImmutableSessionInfo(live);
 
-                final ImmutableSessionInfo session = new ImmutableSessionInfo(live);
+            final FinalExamAvailability avail = new FinalExamAvailability(RawRecordConstants.M117,
+                    Integer.valueOf(5));
 
-                final FinalExamAvailability avail = new FinalExamAvailability(RawRecordConstants.M117,
-                        Integer.valueOf(5));
+            final FinalExamEligibilityTester tester = new FinalExamEligibilityTester(session.userId);
 
-                final FinalExamEligibilityTester tester = new FinalExamEligibilityTester(session.userId);
+            final Collection<RawAdminHold> holds = new ArrayList<>(2);
 
-                final Collection<RawAdminHold> holds = new ArrayList<>(2);
+            final HtmlBuilder reason = new HtmlBuilder(100);
+            final boolean ok = tester.isExamEligible(cache, session, avail, reason, holds);
 
-                final HtmlBuilder reason = new HtmlBuilder(100);
-                final boolean ok = tester.isExamEligible(cache, session, avail, reason, holds);
-
-                Log.info("Student  : ", live.getUserId());
-                Log.info("Exam     : ", avail.course, " Unit ", avail.unit);
-                Log.info("Eligible : ", Boolean.toString(ok));
-                if (!ok) {
-                    Log.info("Reason   : ", reason.toString());
-                }
-            } finally {
-                ctx.checkInConnection(conn);
+            Log.info("Student  : ", live.getUserId());
+            Log.info("Exam     : ", avail.course, " Unit ", avail.unit);
+            Log.info("Eligible : ", Boolean.toString(ok));
+            if (!ok) {
+                Log.info("Reason   : ", reason.toString());
             }
         } catch (final SQLException ex) {
             Log.warning(ex);

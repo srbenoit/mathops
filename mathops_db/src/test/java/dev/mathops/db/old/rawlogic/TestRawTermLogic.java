@@ -4,29 +4,28 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.type.TermKey;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
-import dev.mathops.db.reclogic.TermLogic;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.rec.TermRec;
-
+import dev.mathops.db.reclogic.TermLogic;
+import dev.mathops.db.type.TermKey;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Tests for the {@code RawTermLogic} class.
@@ -79,74 +78,55 @@ final class TestRawTermLogic {
     private static final LocalDate date12 = LocalDate.of(2022, 4, 17);
 
     /** The database profile. */
-    private static DbProfile dbProfile = null;
-
-    /** The database context. */
-    private static DbContext ctx = null;
+    private static Profile profile = null;
 
     /** Initialize the test class. */
     @BeforeAll
     static void initTests() {
 
-        dbProfile = ContextMap.getDefaultInstance().getCodeProfile(Contexts.INFORMIX_TEST_PATH);
-        if (dbProfile == null) {
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        profile = config.getCodeProfile(Contexts.INFORMIX_TEST_PATH);
+        if (profile == null) {
             throw new IllegalArgumentException(TestRes.get(TestRes.ERR_NO_TEST_PROFILE));
         }
 
-        ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
-        if (ctx == null) {
-            throw new IllegalArgumentException(TestRes.get(TestRes.ERR_NO_PRIMARY_CONTEXT));
-        }
+        final Login login = profile.getLogin(ESchema.LEGACY);
+        final DbConnection conn = login.checkOutConnection();
+        final Cache cache = new Cache(profile);
 
         // Make sure we're in the TEST database
         try {
-            final DbConnection conn = ctx.checkOutConnection();
+            try (final Statement stmt = conn.createStatement();
+                 final ResultSet rs = stmt.executeQuery("SELECT descr FROM which_db")) {
 
-            try {
-                try (final Statement stmt = conn.createStatement();
-                     final ResultSet rs = stmt.executeQuery("SELECT descr FROM which_db")) {
-
-                    if (rs.next()) {
-                        final String which = rs.getString(1);
-                        if (which != null && !"TEST".equals(which.trim())) {
-                            throw new IllegalArgumentException(
-                                    TestRes.fmt(TestRes.ERR_NOT_CONNECTED_TO_TEST, which));
-                        }
-                    } else {
-                        throw new IllegalArgumentException(TestRes.get(TestRes.ERR_CANT_QUERY_WHICH_DB));
+                if (rs.next()) {
+                    final String which = rs.getString(1);
+                    if (which != null && !"TEST".equals(which.trim())) {
+                        throw new IllegalArgumentException(
+                                TestRes.fmt(TestRes.ERR_NOT_CONNECTED_TO_TEST, which));
                     }
+                } else {
+                    throw new IllegalArgumentException(TestRes.get(TestRes.ERR_CANT_QUERY_WHICH_DB));
                 }
-            } finally {
-                ctx.checkInConnection(conn);
             }
-        } catch (final SQLException ex) {
-            throw new IllegalArgumentException(ex);
-        }
 
-        try {
-            final DbConnection conn = ctx.checkOutConnection();
-
-            try {
-                try (final Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("DELETE FROM term");
-                }
-                conn.commit();
-
-                final Cache cache = new Cache(dbProfile, conn);
-
-                final TermRec raw1 = new TermRec(termFA21, date1, date2, "2122", Integer.valueOf(0), date3, date4);
-                final TermRec raw2 = new TermRec(termSM21, date5, date6, "2122", Integer.valueOf(-1), date7, date8);
-                final TermRec raw3 = new TermRec(termSP22, date9, date10, "2122", Integer.valueOf(1), date11, date12);
-
-                assertTrue(TermLogic.get(cache).insert(cache, raw1), "Failed to insert term");
-                assertTrue(TermLogic.get(cache).insert(cache, raw2), "Failed to insert term");
-                assertTrue(TermLogic.get(cache).insert(cache, raw3), "Failed to insert term");
-            } finally {
-                ctx.checkInConnection(conn);
+            try (final Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate("DELETE FROM term");
             }
+            conn.commit();
+
+            final TermRec raw1 = new TermRec(termFA21, date1, date2, "2122", Integer.valueOf(0), date3, date4);
+            final TermRec raw2 = new TermRec(termSM21, date5, date6, "2122", Integer.valueOf(-1), date7, date8);
+            final TermRec raw3 = new TermRec(termSP22, date9, date10, "2122", Integer.valueOf(1), date11, date12);
+
+            assertTrue(TermLogic.get(cache).insert(cache, raw1), "Failed to insert term");
+            assertTrue(TermLogic.get(cache).insert(cache, raw2), "Failed to insert term");
+            assertTrue(TermLogic.get(cache).insert(cache, raw3), "Failed to insert term");
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while initializing tables: " + ex.getMessage());
+        } finally {
+            login.checkInConnection(conn);
         }
     }
 
@@ -155,69 +135,63 @@ final class TestRawTermLogic {
     @DisplayName("queryAll results")
     void test0003() {
 
+        final Cache cache = new Cache(profile);
+
         try {
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(dbProfile, conn);
+            final List<TermRec> all = TermLogic.get(cache).queryAll(cache);
 
-            try {
-                final List<TermRec> all = TermLogic.get(cache).queryAll(cache);
+            assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
-                assertEquals(3, all.size(), "Incorrect record count from queryAll");
+            boolean found1 = false;
+            boolean found2 = false;
+            boolean found3 = false;
 
-                boolean found1 = false;
-                boolean found2 = false;
-                boolean found3 = false;
+            for (final TermRec test : all) {
 
-                for (final TermRec test : all) {
+                if (termFA21.equals(test.term)
+                    && date1.equals(test.startDate)
+                    && date2.equals(test.endDate)
+                    && "2122".equals(test.academicYear)
+                    && Integer.valueOf(0).equals(test.activeIndex)
+                    && date3.equals(test.dropDeadline)
+                    && date4.equals(test.withdrawDeadline)) {
 
-                    if (termFA21.equals(test.term)
-                            && date1.equals(test.startDate)
-                            && date2.equals(test.endDate)
-                            && "2122".equals(test.academicYear)
-                            && Integer.valueOf(0).equals(test.activeIndex)
-                            && date3.equals(test.dropDeadline)
-                            && date4.equals(test.withdrawDeadline)) {
+                    found1 = true;
 
-                        found1 = true;
+                } else if (termSM21.equals(test.term)
+                           && date5.equals(test.startDate)
+                           && date6.equals(test.endDate)
+                           && "2122".equals(test.academicYear)
+                           && Integer.valueOf(-1).equals(test.activeIndex)
+                           && date7.equals(test.dropDeadline)
+                           && date8.equals(test.withdrawDeadline)) {
 
-                    } else if (termSM21.equals(test.term)
-                            && date5.equals(test.startDate)
-                            && date6.equals(test.endDate)
-                            && "2122".equals(test.academicYear)
-                            && Integer.valueOf(-1).equals(test.activeIndex)
-                            && date7.equals(test.dropDeadline)
-                            && date8.equals(test.withdrawDeadline)) {
+                    found2 = true;
 
-                        found2 = true;
+                } else if (termSP22.equals(test.term)
+                           && date9.equals(test.startDate)
+                           && date10.equals(test.endDate)
+                           && "2122".equals(test.academicYear)
+                           && Integer.valueOf(1).equals(test.activeIndex)
+                           && date11.equals(test.dropDeadline)
+                           && date12.equals(test.withdrawDeadline)) {
 
-                    } else if (termSP22.equals(test.term)
-                            && date9.equals(test.startDate)
-                            && date10.equals(test.endDate)
-                            && "2122".equals(test.academicYear)
-                            && Integer.valueOf(1).equals(test.activeIndex)
-                            && date11.equals(test.dropDeadline)
-                            && date12.equals(test.withdrawDeadline)) {
+                    found3 = true;
 
-                        found3 = true;
-
-                    } else {
-                        Log.warning("Unexpected termKey ", test.term);
-                        Log.warning("Unexpected startDt ", test.startDate);
-                        Log.warning("Unexpected endDt ", test.endDate);
-                        Log.warning("Unexpected academicYr ", test.academicYear);
-                        Log.warning("Unexpected activeIndex ", test.activeIndex);
-                        Log.warning("Unexpected dropDeadline ", test.dropDeadline);
-                        Log.warning("Unexpected wDropDt ", test.withdrawDeadline);
-                    }
+                } else {
+                    Log.warning("Unexpected termKey ", test.term);
+                    Log.warning("Unexpected startDt ", test.startDate);
+                    Log.warning("Unexpected endDt ", test.endDate);
+                    Log.warning("Unexpected academicYr ", test.academicYear);
+                    Log.warning("Unexpected activeIndex ", test.activeIndex);
+                    Log.warning("Unexpected dropDeadline ", test.dropDeadline);
+                    Log.warning("Unexpected wDropDt ", test.withdrawDeadline);
                 }
-
-                assertTrue(found1, "Term 1 not found");
-                assertTrue(found2, "Term 2 not found");
-                assertTrue(found3, "Term 3 not found");
-
-            } finally {
-                ctx.checkInConnection(conn);
             }
+
+            assertTrue(found1, "Term 1 not found");
+            assertTrue(found2, "Term 2 not found");
+            assertTrue(found3, "Term 3 not found");
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying all term rows: " + ex.getMessage());
@@ -229,27 +203,22 @@ final class TestRawTermLogic {
     @DisplayName("queryActive results")
     void test0004() {
 
+        final Cache cache = new Cache(profile);
+
         try {
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(dbProfile, conn);
+            final TermRec test = TermLogic.get(cache).queryActive(cache);
 
-            try {
-                final TermRec test = TermLogic.get(cache).queryActive(cache);
+            assertNotNull(test, "queryActive by term returned no record");
 
-                assertNotNull(test, "queryActive by term returned no record");
+            final boolean found = termFA21.equals(test.term)
+                                  && date1.equals(test.startDate)
+                                  && date2.equals(test.endDate)
+                                  && "2122".equals(test.academicYear)
+                                  && Integer.valueOf(0).equals(test.activeIndex)
+                                  && date3.equals(test.dropDeadline)
+                                  && date4.equals(test.withdrawDeadline);
 
-                final boolean found = termFA21.equals(test.term)
-                        && date1.equals(test.startDate)
-                        && date2.equals(test.endDate)
-                        && "2122".equals(test.academicYear)
-                        && Integer.valueOf(0).equals(test.activeIndex)
-                        && date3.equals(test.dropDeadline)
-                        && date4.equals(test.withdrawDeadline);
-
-                assertTrue(found, "Active term not found");
-            } finally {
-                ctx.checkInConnection(conn);
-            }
+            assertTrue(found, "Active term not found");
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying active term: " + ex.getMessage());
@@ -261,27 +230,22 @@ final class TestRawTermLogic {
     @DisplayName("queryPrior results")
     void test0005() {
 
+        final Cache cache = new Cache(profile);
+
         try {
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(dbProfile, conn);
+            final TermRec test = TermLogic.get(cache).queryPrior(cache);
 
-            try {
-                final TermRec test = TermLogic.get(cache).queryPrior(cache);
+            assertNotNull(test, "queryPrior by term returned no record");
 
-                assertNotNull(test, "queryPrior by term returned no record");
+            final boolean found = termSM21.equals(test.term)
+                                  && date5.equals(test.startDate)
+                                  && date6.equals(test.endDate)
+                                  && "2122".equals(test.academicYear)
+                                  && Integer.valueOf(-1).equals(test.activeIndex)
+                                  && date7.equals(test.dropDeadline)
+                                  && date8.equals(test.withdrawDeadline);
 
-                final boolean found = termSM21.equals(test.term)
-                        && date5.equals(test.startDate)
-                        && date6.equals(test.endDate)
-                        && "2122".equals(test.academicYear)
-                        && Integer.valueOf(-1).equals(test.activeIndex)
-                        && date7.equals(test.dropDeadline)
-                        && date8.equals(test.withdrawDeadline);
-
-                assertTrue(found, "Prior term not found");
-            } finally {
-                ctx.checkInConnection(conn);
-            }
+            assertTrue(found, "Prior term not found");
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying prior term: " + ex.getMessage());
@@ -293,27 +257,22 @@ final class TestRawTermLogic {
     @DisplayName("queryNext results")
     void test0006() {
 
+        final Cache cache = new Cache(profile);
+
         try {
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(dbProfile, conn);
+            final TermRec test = TermLogic.get(cache).queryNext(cache);
 
-            try {
-                final TermRec test = TermLogic.get(cache).queryNext(cache);
+            assertNotNull(test, "queryNext by term returned no record");
 
-                assertNotNull(test, "queryNext by term returned no record");
+            final boolean found = termSP22.equals(test.term)
+                                  && date9.equals(test.startDate)
+                                  && date10.equals(test.endDate)
+                                  && "2122".equals(test.academicYear)
+                                  && Integer.valueOf(1).equals(test.activeIndex)
+                                  && date11.equals(test.dropDeadline)
+                                  && date12.equals(test.withdrawDeadline);
 
-                final boolean found = termSP22.equals(test.term)
-                        && date9.equals(test.startDate)
-                        && date10.equals(test.endDate)
-                        && "2122".equals(test.academicYear)
-                        && Integer.valueOf(1).equals(test.activeIndex)
-                        && date11.equals(test.dropDeadline)
-                        && date12.equals(test.withdrawDeadline);
-
-                assertTrue(found, "Next term not found");
-            } finally {
-                ctx.checkInConnection(conn);
-            }
+            assertTrue(found, "Next term not found");
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying next term: " + ex.getMessage());
@@ -325,27 +284,22 @@ final class TestRawTermLogic {
     @DisplayName("query results")
     void test0007() {
 
+        final Cache cache = new Cache(profile);
+
         try {
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(dbProfile, conn);
+            final TermRec test = TermLogic.get(cache).query(cache, termSM21);
 
-            try {
-                final TermRec test = TermLogic.get(cache).query(cache, termSM21);
+            assertNotNull(test, "query by term returned no record");
 
-                assertNotNull(test, "query by term returned no record");
+            final boolean found = termSM21.equals(test.term)
+                                  && date5.equals(test.startDate)
+                                  && date6.equals(test.endDate)
+                                  && "2122".equals(test.academicYear)
+                                  && Integer.valueOf(-1).equals(test.activeIndex)
+                                  && date7.equals(test.dropDeadline)
+                                  && date8.equals(test.withdrawDeadline);
 
-                final boolean found = termSM21.equals(test.term)
-                        && date5.equals(test.startDate)
-                        && date6.equals(test.endDate)
-                        && "2122".equals(test.academicYear)
-                        && Integer.valueOf(-1).equals(test.activeIndex)
-                        && date7.equals(test.dropDeadline)
-                        && date8.equals(test.withdrawDeadline);
-
-                assertTrue(found, "Queried term not found");
-            } finally {
-                ctx.checkInConnection(conn);
-            }
+            assertTrue(found, "Queried term not found");
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying term: " + ex.getMessage());
@@ -357,27 +311,22 @@ final class TestRawTermLogic {
     @DisplayName("queryByIndex results")
     void test0008() {
 
+        final Cache cache = new Cache(profile);
+
         try {
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(dbProfile, conn);
+            final TermRec test = TermLogic.get(cache).queryByIndex(cache, -1);
 
-            try {
-                final TermRec test = TermLogic.get(cache).queryByIndex(cache, -1);
+            assertNotNull(test, "queryByIndex returned no record");
 
-                assertNotNull(test, "queryByIndex returned no record");
+            final boolean found = termSM21.equals(test.term)
+                                  && date5.equals(test.startDate)
+                                  && date6.equals(test.endDate)
+                                  && "2122".equals(test.academicYear)
+                                  && Integer.valueOf(-1).equals(test.activeIndex)
+                                  && date7.equals(test.dropDeadline)
+                                  && date8.equals(test.withdrawDeadline);
 
-                final boolean found = termSM21.equals(test.term)
-                        && date5.equals(test.startDate)
-                        && date6.equals(test.endDate)
-                        && "2122".equals(test.academicYear)
-                        && Integer.valueOf(-1).equals(test.activeIndex)
-                        && date7.equals(test.dropDeadline)
-                        && date8.equals(test.withdrawDeadline);
-
-                assertTrue(found, "Queried index term not found");
-            } finally {
-                ctx.checkInConnection(conn);
-            }
+            assertTrue(found, "Queried index term not found");
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying term by index: " + ex.getMessage());
@@ -389,37 +338,31 @@ final class TestRawTermLogic {
     @DisplayName("getFutureTerms results")
     void test0009() {
 
+        final Cache cache = new Cache(profile);
+
         try {
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(dbProfile, conn);
+            final List<TermRec> all = TermLogic.get(cache).getFutureTerms(cache);
 
-            try {
-                final List<TermRec> all = TermLogic.get(cache).getFutureTerms(cache);
+            assertEquals(1, all.size(), "Incorrect record count from getFutureTerms");
 
-                assertEquals(1, all.size(), "Incorrect record count from getFutureTerms");
+            boolean found3 = false;
 
-                boolean found3 = false;
+            for (final TermRec test : all) {
 
-                for (final TermRec test : all) {
+                if (termSP22.equals(test.term)
+                    && date9.equals(test.startDate)
+                    && date10.equals(test.endDate)
+                    && "2122".equals(test.academicYear)
+                    && Integer.valueOf(1).equals(test.activeIndex)
+                    && date11.equals(test.dropDeadline)
+                    && date12.equals(test.withdrawDeadline)) {
 
-                    if (termSP22.equals(test.term)
-                            && date9.equals(test.startDate)
-                            && date10.equals(test.endDate)
-                            && "2122".equals(test.academicYear)
-                            && Integer.valueOf(1).equals(test.activeIndex)
-                            && date11.equals(test.dropDeadline)
-                            && date12.equals(test.withdrawDeadline)) {
-
-                        found3 = true;
-                        break;
-                    }
+                    found3 = true;
+                    break;
                 }
-
-                assertTrue(found3, "Term 3 not found");
-
-            } finally {
-                ctx.checkInConnection(conn);
             }
+
+            assertTrue(found3, "Term 3 not found");
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying all future term rows: " + ex.getMessage());
@@ -431,62 +374,56 @@ final class TestRawTermLogic {
     @DisplayName("delete results")
     void test0010() {
 
+        final Cache cache = new Cache(profile);
+
         try {
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(dbProfile, conn);
+            final TermRec raw2 = new TermRec(termSM21, date5, date6, "2122", Integer.valueOf(-1), date7, date8);
 
-            try {
-                final TermRec raw2 = new TermRec(termSM21, date5, date6, "2122", Integer.valueOf(-1), date7, date8);
+            final boolean result = TermLogic.get(cache).delete(cache, raw2);
+            assertTrue(result, "delete returned false");
 
-                final boolean result = TermLogic.get(cache).delete(cache, raw2);
-                assertTrue(result, "delete returned false");
+            final List<TermRec> all = TermLogic.get(cache).queryAll(cache);
 
-                final List<TermRec> all = TermLogic.get(cache).queryAll(cache);
+            assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 
-                assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
+            boolean found1 = false;
+            boolean found3 = false;
 
-                boolean found1 = false;
-                boolean found3 = false;
+            for (final TermRec test : all) {
 
-                for (final TermRec test : all) {
+                if (termFA21.equals(test.term)
+                    && date1.equals(test.startDate)
+                    && date2.equals(test.endDate)
+                    && "2122".equals(test.academicYear)
+                    && Integer.valueOf(0).equals(test.activeIndex)
+                    && date3.equals(test.dropDeadline)
+                    && date4.equals(test.withdrawDeadline)) {
 
-                    if (termFA21.equals(test.term)
-                            && date1.equals(test.startDate)
-                            && date2.equals(test.endDate)
-                            && "2122".equals(test.academicYear)
-                            && Integer.valueOf(0).equals(test.activeIndex)
-                            && date3.equals(test.dropDeadline)
-                            && date4.equals(test.withdrawDeadline)) {
+                    found1 = true;
 
-                        found1 = true;
+                } else if (termSP22.equals(test.term)
+                           && date9.equals(test.startDate)
+                           && date10.equals(test.endDate)
+                           && "2122".equals(test.academicYear)
+                           && Integer.valueOf(1).equals(test.activeIndex)
+                           && date11.equals(test.dropDeadline)
+                           && date12.equals(test.withdrawDeadline)) {
 
-                    } else if (termSP22.equals(test.term)
-                            && date9.equals(test.startDate)
-                            && date10.equals(test.endDate)
-                            && "2122".equals(test.academicYear)
-                            && Integer.valueOf(1).equals(test.activeIndex)
-                            && date11.equals(test.dropDeadline)
-                            && date12.equals(test.withdrawDeadline)) {
+                    found3 = true;
 
-                        found3 = true;
-
-                    } else {
-                        Log.warning("Unexpected termKey ", test.term);
-                        Log.warning("Unexpected startDt ", test.startDate);
-                        Log.warning("Unexpected endDt ", test.endDate);
-                        Log.warning("Unexpected academicYr ", test.academicYear);
-                        Log.warning("Unexpected activeIndex ", test.activeIndex);
-                        Log.warning("Unexpected dropDeadline ", test.dropDeadline);
-                        Log.warning("Unexpected wDropDt ", test.withdrawDeadline);
-                    }
+                } else {
+                    Log.warning("Unexpected termKey ", test.term);
+                    Log.warning("Unexpected startDt ", test.startDate);
+                    Log.warning("Unexpected endDt ", test.endDate);
+                    Log.warning("Unexpected academicYr ", test.academicYear);
+                    Log.warning("Unexpected activeIndex ", test.activeIndex);
+                    Log.warning("Unexpected dropDeadline ", test.dropDeadline);
+                    Log.warning("Unexpected wDropDt ", test.withdrawDeadline);
                 }
-
-                assertTrue(found1, "Term 1 not found");
-                assertTrue(found3, "Term 3 not found");
-
-            } finally {
-                ctx.checkInConnection(conn);
             }
+
+            assertTrue(found1, "Term 1 not found");
+            assertTrue(found3, "Term 3 not found");
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while deleting term: " + ex.getMessage());
@@ -497,22 +434,20 @@ final class TestRawTermLogic {
     @AfterAll
     static void cleanUp() {
 
+        final Login login = profile.getLogin(ESchema.LEGACY);
+        final DbConnection conn = login.checkOutConnection();
+
         try {
-            final DbConnection conn = ctx.checkOutConnection();
-
-            try {
-                try (final Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("DELETE FROM term");
-                }
-
-                conn.commit();
-
-            } finally {
-                ctx.checkInConnection(conn);
+            try (final Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate("DELETE FROM term");
             }
+
+            conn.commit();
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while cleaning tables: " + ex.getMessage());
+        } finally {
+            login.checkInConnection(conn);
         }
     }
 }

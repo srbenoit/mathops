@@ -5,7 +5,7 @@ import dev.mathops.commons.installation.EPath;
 import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.cfg.ContextMap;
+import dev.mathops.db.cfg.DatabaseConfig;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.parser.xml.XmlEscaper;
@@ -15,15 +15,15 @@ import dev.mathops.web.site.admin.AdminSite;
 import dev.mathops.web.site.admin.genadmin.EAdmSubtopic;
 import dev.mathops.web.site.admin.genadmin.EAdminTopic;
 import dev.mathops.web.site.admin.genadmin.GenAdminPage;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -44,8 +44,8 @@ public enum PageServerAdminMaintenance {
     ;
 
     /**
-     * Generates a page that shows the global maintenance message and a list of websites. Maintenance mode can be
-     * turned on or off on each site, and an optional override maintenance message can be provided per site.
+     * Generates a page that shows the global maintenance message and a list of websites. Maintenance mode can be turned
+     * on or off on each site, and an optional override maintenance message can be provided per site.
      *
      * @param cache   the data cache
      * @param site    the owning site
@@ -99,7 +99,7 @@ public enum PageServerAdminMaintenance {
      */
     private static void storeMaintenanceFile(final Properties props) {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
+        final DatabaseConfig dbConfig = DatabaseConfig.getDefault();
 
         final File cfg = PathList.getInstance().get(EPath.CFG_PATH);
         final File file = new File(cfg, AbstractSite.MAINT_FILE);
@@ -117,8 +117,8 @@ public enum PageServerAdminMaintenance {
         builder.addln("################################################################################");
         builder.addln();
 
-        final String[] hosts = map.getWebHosts();
-        Arrays.sort(hosts);
+        final List<String> hosts = dbConfig.getWebHosts();
+        hosts.sort(null);
 
         for (final String host : hosts) {
             builder.addln('#');
@@ -132,9 +132,9 @@ public enum PageServerAdminMaintenance {
             builder.addln(defMsg == null ? CoreConstants.EMPTY : defMsg);
             builder.addln();
 
-            final String[] hostPaths = map.getWebSites(host);
+            final List<String> hostPaths = dbConfig.getWebSites(host);
             if (hostPaths != null) {
-                Arrays.sort(hostPaths);
+                hostPaths.sort(null);
 
                 for (final String hPath : hostPaths) {
                     if (hPath.isEmpty() || hPath.charAt(0) != '/') {
@@ -172,7 +172,7 @@ public enum PageServerAdminMaintenance {
      */
     private static void doMaintenanceModeList(final HtmlBuilder htm) {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
+        final DatabaseConfig dbConfig = DatabaseConfig.getDefault();
 
         // Maintenance Mode
         htm.sDiv("indent1");
@@ -180,8 +180,8 @@ public enum PageServerAdminMaintenance {
 
         final Properties props = AbstractSite.loadMaintenanceFile();
 
-        final String[] hosts = map.getWebHosts();
-        Arrays.sort(hosts);
+        final List<String> hosts = dbConfig.getWebHosts();
+        hosts.sort(null);
 
         for (final String host : hosts) {
             htm.sH(4).add("Hostname: <code class='green'>", host, "</code>").eH(4);
@@ -197,9 +197,9 @@ public enum PageServerAdminMaintenance {
             htm.addln(" </textarea>");
 
             // Display the paths within the hostname, and each path's maintenance status
-            final String[] hostPaths = map.getWebSites(host);
+            final List<String> hostPaths = dbConfig.getWebSites(host);
             if (hostPaths != null) {
-                Arrays.sort(hostPaths);
+                hostPaths.sort(null);
 
                 htm.addln(" <table>");
                 htm.addln("  <tr>");
@@ -260,11 +260,11 @@ public enum PageServerAdminMaintenance {
     public static void doMaintenanceModeUpdate(final ServletRequest req,
                                                final HttpServletResponse resp) throws IOException {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
+        final DatabaseConfig dbConfig = DatabaseConfig.getDefault();
 
         final Properties props = AbstractSite.loadMaintenanceFile();
 
-        final String[] hosts = map.getWebHosts();
+        final List<String> hosts = dbConfig.getWebHosts();
 
         // Update the properties object based on field values
         boolean changed = false;
@@ -287,7 +287,7 @@ public enum PageServerAdminMaintenance {
                 changed = true;
             }
 
-            final String[] hostPaths = map.getWebSites(host);
+            final List<String> hostPaths = dbConfig.getWebSites(host);
             if (hostPaths != null) {
                 for (final String hPath : hostPaths) {
                     if (hPath.isEmpty() || hPath.charAt(0) != '/') {

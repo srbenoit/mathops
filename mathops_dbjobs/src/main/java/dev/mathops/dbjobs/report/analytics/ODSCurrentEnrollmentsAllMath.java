@@ -5,10 +5,10 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.old.schema.AbstractImpl;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.builder.SimpleBuilder;
@@ -41,13 +41,7 @@ final class ODSCurrentEnrollmentsAllMath {
             DateTimeFormatter.ofPattern("yyyy'_'MM'_'dd'-'hh'_'mm'_'ss", Locale.US);
 
     /** The database profile through which to access the database. */
-    private final DbProfile dbProfile;
-
-    /** The database context for the "Primary" schema. */
-    private final DbContext primaryCtx;
-
-    /** The live data database context. */
-    private final DbContext odsCtx;
+    private final Profile profile;
 
     /** A container for the data about a single course registration. */
     private record RegData(int pidm, String csuId, String subject, String course, String college, String dept,
@@ -59,11 +53,8 @@ final class ODSCurrentEnrollmentsAllMath {
      */
     private ODSCurrentEnrollmentsAllMath() {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-
-        this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
-        this.primaryCtx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
-        this.odsCtx = this.dbProfile.getDbContext(ESchemaUse.ODS);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        this.profile = config.getCodeProfile(Contexts.BATCH_PATH);
     }
 
     /**
@@ -74,12 +65,8 @@ final class ODSCurrentEnrollmentsAllMath {
         final Collection<String> report = new ArrayList<>(200);
         final Collection<String> csv = new ArrayList<>(200);
 
-        if (this.dbProfile == null) {
-            Log.warning("Unable to create production context.");
-        } else if (this.primaryCtx == null) {
-            report.add("Unable to create production context.");
-        } else if (this.odsCtx == null) {
-            Log.warning("Unable to create ODS database context.");
+        if (this.profile == null) {
+            Log.warning("Unable to create production profile.");
         } else {
             generateReport(report, csv);
         }
@@ -118,14 +105,18 @@ final class ODSCurrentEnrollmentsAllMath {
      *
      * @param report a list of strings to which to add report output lines
      * @param csv    a list of strings to which to add CSV report lines
-     * @throws SQLException if there is an error accessing the database
      */
     private void generateReport(final Collection<? super String> report, final Collection<? super String> csv) {
 
         final LocalDate today = LocalDate.now();
-        report.add(SimpleBuilder.concat("MATH Enrollment Report as of ", TemporalUtils.FMT_MDY.format(today)));
+        final String dateStr = TemporalUtils.FMT_MDY.format(today);
+        final String reportHeader = SimpleBuilder.concat("MATH Enrollment Report as of ", dateStr);
 
-        final DbConnection odsConn = this.odsCtx.checkOutConnection();
+        report.add(reportHeader);
+
+        final Login login = this.profile.getLogin(ESchema.ODS);
+
+        final DbConnection odsConn = login.checkOutConnection();
 
         try {
             final List<RegData> regs = new ArrayList<>(3500);
@@ -144,7 +135,7 @@ final class ODSCurrentEnrollmentsAllMath {
             Log.warning(ex);
             report.add("Unable to perform query: " + ex.getMessage());
         } finally {
-            this.odsCtx.checkInConnection(odsConn);
+            login.checkInConnection(odsConn);
         }
     }
 
@@ -262,7 +253,7 @@ final class ODSCurrentEnrollmentsAllMath {
                     final String coll = collegeEntry.getKey();
                     report.add(SimpleBuilder.concat("      College [", coll, "] ", collegeCountStr,
                             " enrollments (" + num1 + " Fr., " + num2 + " So., " + num3 + " Jr., " + num4
-                                    + " Sr.)"));
+                            + " Sr.)"));
 
                     // Organize by Department
                     deptRegs.clear();
@@ -297,7 +288,7 @@ final class ODSCurrentEnrollmentsAllMath {
                         final String dept = deptEntry.getKey();
                         report.add(SimpleBuilder.concat("          Dept [", dept, "] ", deptCountStr,
                                 " enrollments (" + numd1 + " Fr., " + numd2 + " So., " + numd3 + " Jr., " + numd4
-                                        + " Sr.)"));
+                                + " Sr.)"));
 
                         final String cleaned = dept.replace(",", "");
 

@@ -6,6 +6,8 @@ import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
 
 import javax.swing.JPanel;
@@ -56,8 +58,8 @@ public class StuHoldsPanel extends AdmPanelBase implements ActionListener {
     /**
      * Constructs a new {@code AdminHoldsPanel}.
      *
-     * @param theCache         the data cache
-     * @param theFixed         the fixed data
+     * @param theCache the data cache
+     * @param theFixed the fixed data
      */
     public StuHoldsPanel(final Cache theCache, final UserData theFixed) {
 
@@ -156,85 +158,90 @@ public class StuHoldsPanel extends AdmPanelBase implements ActionListener {
 
         String error = null;
 
-        final String sql = "INSERT INTO admin_hold "
-                + "(stu_id,hold_id,sev_admin_hold,create_dt) VALUES (?,?,?,?)";
+        final String sql = "INSERT INTO admin_hold (stu_id,hold_id,sev_admin_hold,create_dt) VALUES (?,?,?,?)";
 
-        try (final PreparedStatement ps = this.cache.conn.prepareStatement(sql)) {
-            ps.setString(1, rec.stuId);
-            ps.setString(2, rec.holdId);
-            ps.setString(3, rec.sevAdminHold);
-            ps.setDate(4, Date.valueOf(rec.createDt));
+        final DbConnection conn = this.cache.checkOutConnection(ESchema.LEGACY);
 
-            final int numRows = ps.executeUpdate();
-            if (numRows == 1) {
-                this.cache.conn.commit();
-            } else {
-                error = "Unable to insert record";
-                this.cache.conn.rollback();
+        try {
+            try (final PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, rec.stuId);
+                ps.setString(2, rec.holdId);
+                ps.setString(3, rec.sevAdminHold);
+                ps.setDate(4, Date.valueOf(rec.createDt));
+
+                final int numRows = ps.executeUpdate();
+                if (numRows == 1) {
+                    conn.commit();
+                } else {
+                    error = "Unable to insert record";
+                    conn.rollback();
+                }
+            } catch (final SQLException ex) {
+                Log.warning(ex);
+                error = "Unable to insert record: " + ex.getMessage();
             }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            error = "Unable to insert record: " + ex.getMessage();
-        }
 
-        if (error == null) {
-            String newSeverity = rec.sevAdminHold;
+            if (error == null) {
+                String newSeverity = rec.sevAdminHold;
 
-            if ("F".equals(rec.sevAdminHold)) {
-                if (!"F".equals(this.currentStudentData.student.sevAdminHold)) {
+                if ("F".equals(rec.sevAdminHold)) {
+                    if (!"F".equals(this.currentStudentData.student.sevAdminHold)) {
+
+                        // TODO: Update the student table
+                        final String sql2 = "UPDATE student SET sev_admin_hold='F' "
+                                            + "WHERE stu_id='" + rec.stuId + "'";
+
+                        try (final Statement s = conn.createStatement()) {
+                            final int numRows = s.executeUpdate(sql2);
+                            if (numRows == 1) {
+                                conn.commit();
+                                newSeverity = "F";
+                            } else {
+                                error = "Unable to update 'sev_admin_hold' on student record";
+                                conn.rollback();
+                            }
+                        } catch (final SQLException ex) {
+                            Log.warning(ex);
+                            error = "Unable to update 'sev_admin_hold' on student record: "
+                                    + ex.getMessage();
+                        }
+                    }
+                } else if ("N".equals(rec.sevAdminHold)
+                           && this.currentStudentData.student.sevAdminHold == null) {
 
                     // TODO: Update the student table
-                    final String sql2 = "UPDATE student SET sev_admin_hold='F' "
-                            + "WHERE stu_id='" + rec.stuId + "'";
+                    final String sql2 = "UPDATE student SET sev_admin_hold='N' "
+                                        + "WHERE stu_id='" + rec.stuId + "'";
 
-                    try (final Statement s = this.cache.conn.createStatement()) {
+                    try (final Statement s = conn.createStatement()) {
                         final int numRows = s.executeUpdate(sql2);
                         if (numRows == 1) {
-                            this.cache.conn.commit();
-                            newSeverity = "F";
+                            conn.commit();
+                            newSeverity = "N";
                         } else {
                             error = "Unable to update 'sev_admin_hold' on student record";
-                            this.cache.conn.rollback();
+                            conn.rollback();
                         }
                     } catch (final SQLException ex) {
                         Log.warning(ex);
-                        error = "Unable to update 'sev_admin_hold' on student record: "
-                                + ex.getMessage();
+                        error =
+                                "Unable to update 'sev_admin_hold' on student record: " + ex.getMessage();
                     }
                 }
-            } else if ("N".equals(rec.sevAdminHold)
-                    && this.currentStudentData.student.sevAdminHold == null) {
 
-                // TODO: Update the student table
-                final String sql2 = "UPDATE student SET sev_admin_hold='N' "
-                        + "WHERE stu_id='" + rec.stuId + "'";
-
-                try (final Statement s = this.cache.conn.createStatement()) {
-                    final int numRows = s.executeUpdate(sql2);
-                    if (numRows == 1) {
-                        this.cache.conn.commit();
-                        newSeverity = "N";
-                    } else {
-                        error = "Unable to update 'sev_admin_hold' on student record";
-                        this.cache.conn.rollback();
-                    }
-                } catch (final SQLException ex) {
-                    Log.warning(ex);
-                    error =
-                            "Unable to update 'sev_admin_hold' on student record: " + ex.getMessage();
+                if (!Objects.equals(newSeverity, rec.sevAdminHold)) {
+                    this.currentStudentData.student.sevAdminHold = newSeverity;
                 }
-            }
 
-            if (!Objects.equals(newSeverity, rec.sevAdminHold)) {
-                this.currentStudentData.student.sevAdminHold = newSeverity;
+                // Add the new record and re-populate the list display
+                this.currentStudentData.studentHolds.add(rec);
+                this.holdsCard.clear();
+                this.holdsCard.populateDisplay(this.currentStudentData);
+                this.addHoldCard.reset();
+                this.cards.show(this.cardPane, SHOW_CMD);
             }
-
-            // Add the new record and re-populate the list display
-            this.currentStudentData.studentHolds.add(rec);
-            this.holdsCard.clear();
-            this.holdsCard.populateDisplay(this.currentStudentData);
-            this.addHoldCard.reset();
-            this.cards.show(this.cardPane, SHOW_CMD);
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return error;

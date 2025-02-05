@@ -11,8 +11,8 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.WebSiteProfile;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.parser.ParsingException;
 import dev.mathops.text.parser.xml.Attribute;
@@ -458,7 +458,7 @@ public final class HomeworkSessionStore {
             throw new IllegalArgumentException("'homework-session' was missing 'exam'");
         }
 
-        final WebSiteProfile siteProfile = ContextMap.getDefaultInstance().getWebSiteProfile(host, path);
+        final Site siteProfile = DatabaseConfig.getDefault().getSite(host, path);
         final Integer minMoveon = moveon == null ? null : Integer.valueOf(moveon);
         final Integer minMastery = mastery == null ? null : Integer.valueOf(mastery);
 

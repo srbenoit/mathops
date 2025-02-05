@@ -53,7 +53,7 @@ enum PageHtmlUnitExam {
                 Log.info("Starting unit exam for session ", session.loginSessionId, " user ",
                         session.getEffectiveUserId(), " exam ", examId);
 
-                us = new UnitExamSession(cache, site.siteProfile, session.loginSessionId,
+                us = new UnitExamSession(cache, site.site, session.loginSessionId,
                         session.getEffectiveUserId(), course, examId, redirect);
                 store.setUnitExamSession(us);
             } else {

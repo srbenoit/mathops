@@ -4,13 +4,11 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.IProgressListener;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.DbConnection;
+import dev.mathops.db.Contexts;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.logic.SystemData;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
@@ -410,7 +408,7 @@ final class UrgencyHistoryAnalysis {
             LocalDate day = week.startDate;
             while (!day.isAfter(week.endDate)) {
                 if (day.getDayOfWeek() == DayOfWeek.SUNDAY
-                        || day.getDayOfWeek() == DayOfWeek.SATURDAY || holidays.contains(day)) {
+                    || day.getDayOfWeek() == DayOfWeek.SATURDAY || holidays.contains(day)) {
                     day = day.plusDays(1L);
                     continue;
                 }
@@ -448,7 +446,7 @@ final class UrgencyHistoryAnalysis {
                 iter.remove();
             }
             if ("D".equals(row.openStatus) && row.lastClassRollDt != null
-                    && row.lastClassRollDt.isBefore(day)) {
+                && row.lastClassRollDt.isBefore(day)) {
                 iter.remove();
             }
             row.paceOrder = null;
@@ -464,28 +462,28 @@ final class UrgencyHistoryAnalysis {
         LocalDate first126 = null;
         for (final RawStexam stexam : stexams) {
             if (RawRecordConstants.M117.equals(stexam.course)
-                    || RawRecordConstants.MATH117.equals(stexam.course)) {
+                || RawRecordConstants.MATH117.equals(stexam.course)) {
                 if (first117 == null || first117.isAfter(stexam.examDt)) {
                     first117 = stexam.examDt;
                 }
             } else if (RawRecordConstants.M118.equals(stexam.course)
-                    || RawRecordConstants.MATH118.equals(stexam.course)) {
+                       || RawRecordConstants.MATH118.equals(stexam.course)) {
                 if (first118 == null || first118.isAfter(stexam.examDt)) {
                     first118 = stexam.examDt;
                 }
             } else if (RawRecordConstants.M124.equals(stexam.course)
-                    || RawRecordConstants.MATH124.equals(stexam.course)) {
+                       || RawRecordConstants.MATH124.equals(stexam.course)) {
                 if (first124 == null || first124.isAfter(stexam.examDt)) {
                     first124 = stexam.examDt;
                 }
             } else if (RawRecordConstants.M125.equals(stexam.course)
-                    || RawRecordConstants.MATH125.equals(stexam.course)) {
+                       || RawRecordConstants.MATH125.equals(stexam.course)) {
                 if (first125 == null || first125.isAfter(stexam.examDt)) {
                     first125 = stexam.examDt;
                 }
             } else if (RawRecordConstants.M126.equals(stexam.course)
-                    || RawRecordConstants.MATH126.equals(stexam.course)
-                    && (first126 == null || first126.isAfter(stexam.examDt))) {
+                       || RawRecordConstants.MATH126.equals(stexam.course)
+                          && (first126 == null || first126.isAfter(stexam.examDt))) {
                 first126 = stexam.examDt;
             }
         }
@@ -638,8 +636,8 @@ final class UrgencyHistoryAnalysis {
 
         for (final RawStexam row : stexams) {
             if (row.stuId.equals(reg.stuId) && row.course.equals(reg.course)
-                    && row.unit.intValue() == unit && "R".equals(row.examType)
-                    && "Y".equals(row.passed) && !row.examDt.isAfter(date)) {
+                && row.unit.intValue() == unit && "R".equals(row.examType)
+                && "Y".equals(row.passed) && !row.examDt.isAfter(date)) {
 
                 passedByDate = true;
                 break;
@@ -668,7 +666,7 @@ final class UrgencyHistoryAnalysis {
 
         for (final RawMilestone test : this.milestones) {
             if (test.pace.intValue() == pace && test.paceTrack.equals(track)
-                    && test.msNbr.intValue() == msNbr && "RE".equals(test.msType)) {
+                && test.msNbr.intValue() == msNbr && "RE".equals(test.msType)) {
                 result = test.msDate;
                 break;
             }
@@ -676,11 +674,11 @@ final class UrgencyHistoryAnalysis {
 
         if (result == null) {
             Log.warning("Cannot find due date for RE " + unit + " for course " + index + " in pace " + pace
-                    + " track" + track);
+                        + " track" + track);
         } else {
             for (final RawStmilestone test : effStMilestones) {
                 if (test.paceTrack.equals(track) && test.msNbr.intValue() == msNbr
-                        && "RE".equals(test.msType) && test.msDate.isAfter(result)) {
+                    && "RE".equals(test.msType) && test.msDate.isAfter(result)) {
                     result = test.msDate;
                     // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
                     // the later date
@@ -751,30 +749,17 @@ final class UrgencyHistoryAnalysis {
      * @param profile           the profile
      * @param incCourseSections map from course ID to a list of section numbers to include in the scan
      */
-    private static void executeWithProfile(final DbProfile profile,
+    private static void executeWithProfile(final Profile profile,
                                            final Map<String, ? extends List<String>> incCourseSections) {
 
         if (profile == null) {
             Log.warning("Unable to create production context.");
         } else {
-            final DbContext dbCtx = profile.getDbContext(ESchemaUse.PRIMARY);
+            final Cache cache = new Cache(profile);
+            Log.info("Connected to " + profile.id);
 
-            if (dbCtx == null) {
-                Log.warning("Unable to create database context.");
-            } else {
-                try {
-                    final DbConnection conn = dbCtx.checkOutConnection();
-                    final Cache cache = new Cache(profile, conn);
-
-                    Log.info("Connected to " + profile.id);
-
-                    final UrgencyHistoryAnalysis obj = new UrgencyHistoryAnalysis(cache, null);
-                    obj.calculate(incCourseSections);
-
-                } catch (final SQLException ex) {
-                    Log.warning(ex);
-                }
-            }
+            final UrgencyHistoryAnalysis obj = new UrgencyHistoryAnalysis(cache, null);
+            obj.calculate(incCourseSections);
         }
     }
 
@@ -800,33 +785,9 @@ final class UrgencyHistoryAnalysis {
         incCourseSections.put(RawRecordConstants.M125, sect125);
         incCourseSections.put(RawRecordConstants.M126, sect126);
 
-        final ContextMap map = ContextMap.getDefaultInstance();
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        final Profile profile = config.getCodeProfile(Contexts.BATCH_PATH);
 
-        // executeWithProfile(map.getCodeProfile("FA15"), includeCourseSections);
-        // executeWithProfile(map.getCodeProfile("FA16"), includeCourseSections);
-        // executeWithProfile(map.getCodeProfile("FA17"), includeCourseSections);
-        // executeWithProfile(map.getCodeProfile("FA18"), includeCourseSections);
-        // executeWithProfile(map.getCodeProfile("FA19"), includeCourseSections);
-        // executeWithProfile(map.getCodeProfile("FA20"), includeCourseSections);
-        // executeWithProfile(map.getCodeProfile("FA21"), includeCourseSections);
-        executeWithProfile(map.getCodeProfile("batch"), incCourseSections);
-
-        // executeWithProfile(map.getCodeProfile("SM15"), includeCourseSections);
-        // executeWithProfile(map.getCodeProfile("SM16"), includeCourseSections);
-        // executeWithProfile(map.getCodeProfile("SM17"), includeCourseSections);
-        // executeWithProfile(map.getCodeProfile("SM18"), includeCourseSections);
-        // executeWithProfile(map.getCodeProfile("SM19"), includeCourseSections);
-        // executeWithProfile(map.getCodeProfile("SM20"), includeCourseSections);
-        // executeWithProfile(map.getCodeProfile("SM21"), includeCourseSections);
-        // executeWithProfile(map.getCodeProfile("SM22"), includeCourseSections);
-
-        // executeWithProfile(map.getCodeProfile("SP15"), includeCourseSections);
-        // executeWithProfile(map.getCodeProfile("SP16"), includeCourseSections);
-        // executeWithProfile(map.getCodeProfile("SP17"), includeCourseSections);
-        // executeWithProfile(map.getCodeProfile("SP18"), includeCourseSections);
-        // executeWithProfile(map.getCodeProfile("SP19"), includeCourseSections);
-        // executeWithProfile(map.getCodeProfile("SP20"), includeCourseSections);
-        // executeWithProfile(map.getCodeProfile("SP21"), includeCourseSections);
-        // executeWithProfile(map.getCodeProfile("SP22"), includeCourseSections);
+        executeWithProfile(profile, incCourseSections);
     }
 }

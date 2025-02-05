@@ -3,7 +3,7 @@ package dev.mathops.session.sitelogic.data;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.session.ImmutableSessionInfo;
 
 import java.sql.SQLException;
@@ -16,7 +16,7 @@ import java.time.ZonedDateTime;
 public final class SiteData {
 
     /** The database profile. */
-    private final DbProfile dbProfile;
+    private final Profile profile;
 
     /** The date/time to consider "now". */
     public final ZonedDateTime now;
@@ -45,13 +45,13 @@ public final class SiteData {
     /**
      * Constructs a new {@code SiteData}.
      *
-     * @param theDbProfile the database profile (host, path, and DbProfile)
-     * @param theNow       the date/time to consider now
+     * @param theprofile the database profile (host, path, and DbProfile)
+     * @param theNow     the date/time to consider now
      */
-    public SiteData(final DbProfile theDbProfile, final ZonedDateTime theNow) {
+    public SiteData(final Profile theprofile, final ZonedDateTime theNow) {
 
         this.now = theNow;
-        this.dbProfile = theDbProfile;
+        this.profile = theprofile;
 
         this.studentData = new SiteDataStudent(this);
         this.registrationData = new SiteDataRegistration(this);
@@ -120,7 +120,7 @@ public final class SiteData {
         if (success) {
             final long end = System.currentTimeMillis();
             Log.info("SiteData took " + (end - start) + " ms. to gather: " + session.getEffectiveUserId()
-                    + CoreConstants.SPC + session.getEffectiveScreenName());
+                     + CoreConstants.SPC + session.getEffectiveScreenName());
         }
 
         return success;

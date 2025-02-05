@@ -11,8 +11,8 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.WebSiteProfile;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.parser.ParsingException;
 import dev.mathops.text.parser.xml.Attribute;
@@ -101,7 +101,7 @@ public final class ChallengeExamSessionStore {
 
         synchronized (this.studentChallengeExams) {
             if (!theSession.isTimedOut()
-                    && !this.studentChallengeExams.containsKey(theSession.studentId)) {
+                && !this.studentChallengeExams.containsKey(theSession.studentId)) {
                 this.studentChallengeExams.put(theSession.studentId, theSession);
                 result = true;
             }
@@ -327,7 +327,7 @@ public final class ChallengeExamSessionStore {
                         if (sectNum < 0 || sectNum >= exam.getNumSections()) {
                             throw new IllegalArgumentException(//
                                     "Invalid section number in problem: "
-                                            + sectAttr.value);
+                                    + sectAttr.value);
                         }
                         if (probNum < 0) {
                             throw new IllegalArgumentException("Invalid problem number in problem: " + probAttr.value);
@@ -410,7 +410,7 @@ public final class ChallengeExamSessionStore {
             throw new IllegalArgumentException("'challenge-exam-session' was missing 'item'");
         }
 
-        final WebSiteProfile siteProfile = ContextMap.getDefaultInstance().getWebSiteProfile(host, path);
+        final Site siteProfile = DatabaseConfig.getDefault().getSite(host, path);
         final Integer scoreInt = score == null ? null : Integer.valueOf(score);
 
         final ChallengeExamSession sess = new ChallengeExamSession(cache, siteProfile, session, student, assign,
@@ -443,7 +443,7 @@ public final class ChallengeExamSessionStore {
                     Log.info("Purging expired HTML challenge exam session " + session.sessionId);
                     try {
                         if (session.getState() == EChallengeExamState.ITEM_NN
-                                || session.getState() == EChallengeExamState.SUBMIT_NN) {
+                            || session.getState() == EChallengeExamState.SUBMIT_NN) {
                             // Force-submit
                             session.scoreAndRecordCompletion(cache);
                         } else {

@@ -1,6 +1,8 @@
 package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawMsg;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -52,7 +54,9 @@ public enum RawMsgLogic {
 
         // Normal SQL cannot insert into "Text" field - need a Prepared Statement
 
-        try (final PreparedStatement ps = cache.conn.prepareStatement(sql)) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, record.termKey.termCode);
             ps.setInt(2, record.termKey.shortYear.intValue());
@@ -64,12 +68,14 @@ public enum RawMsgLogic {
             final boolean result = ps.executeUpdate() == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -89,16 +95,20 @@ public enum RawMsgLogic {
                 "  AND touch_point=", LogicUtils.sqlStringValue(record.touchPoint),
                 "  AND msg_code=", LogicUtils.sqlStringValue(record.msgCode));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -115,12 +125,16 @@ public enum RawMsgLogic {
 
         final List<RawMsg> result = new ArrayList<>(100);
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 result.add(RawMsg.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;

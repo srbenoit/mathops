@@ -2,10 +2,10 @@ package dev.mathops.app.database.dbimport;
 
 import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
-import dev.mathops.db.old.cfg.DbConfig;
 import dev.mathops.db.EDbUse;
-import dev.mathops.db.old.cfg.LoginConfig;
-import dev.mathops.db.old.cfg.ServerConfig;
+import dev.mathops.db.cfg.Database;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Server;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -31,7 +31,7 @@ import java.util.List;
 final class PgDatabasePicker extends JFrame implements ActionListener {
 
     /** A zero-length server config array used to convert a list to an array. */
-    private static final ServerConfig[] ZERO_LEN_SERVER_CONFIG_ARRAY = new ServerConfig[0];
+    private static final Server[] ZERO_LEN_SERVER_CONFIG_ARRAY = new Server[0];
 
     /** An action command. */
     private static final String SERVER_CMD = "SERVER";
@@ -52,13 +52,13 @@ final class PgDatabasePicker extends JFrame implements ActionListener {
     private static final String[] PROD_DEV_TEST = {"Production", "Development", "Test"};
 
     /** The list of servers. */
-    private final List<ServerConfig> servers;
+    private final List<Server> servers;
 
     /** The {@code DbImport} process to invoke when the user makes a selection. */
     private final DbImport callback;
 
     /** The server picker. */
-    private final JComboBox<ServerConfig> serverPicker;
+    private final JComboBox<Server> serverPicker;
 
     /** The data model for the database picker. */
     private final DefaultComboBoxModel<String> databaseModel;
@@ -87,7 +87,7 @@ final class PgDatabasePicker extends JFrame implements ActionListener {
      * @param theServers  the list of servers
      * @param theCallback the {@code DbImport} process to invoke when the user makes a selection
      */
-    PgDatabasePicker(final List<ServerConfig> theServers, final DbImport theCallback) {
+    PgDatabasePicker(final List<Server> theServers, final DbImport theCallback) {
 
         super("Select PostgreSQL Database");
 
@@ -115,7 +115,7 @@ final class PgDatabasePicker extends JFrame implements ActionListener {
                 new JLabel("Schema:")};
         UIUtilities.makeLabelsSameSizeRightAligned(labels);
 
-        final ServerConfig[] serverArray = theServers.toArray(ZERO_LEN_SERVER_CONFIG_ARRAY);
+        final Server[] serverArray = theServers.toArray(ZERO_LEN_SERVER_CONFIG_ARRAY);
         this.serverPicker = new JComboBox<>(serverArray);
         this.serverPicker.setActionCommand(SERVER_CMD);
 
@@ -172,7 +172,7 @@ final class PgDatabasePicker extends JFrame implements ActionListener {
         cancelButton.addActionListener(this);
 
         if (this.servers.size() == 1) {
-            final ServerConfig first = this.servers.getFirst();
+            final Server first = this.servers.getFirst();
             pickServer(first);
         }
     }
@@ -197,9 +197,9 @@ final class PgDatabasePicker extends JFrame implements ActionListener {
             final boolean dropTables = this.deleteExisting.isSelected();
 
             if (serverIndex >= 0 && dbIndex >= 0 && loginIndex >= 0) {
-                final ServerConfig server = this.servers.get(serverIndex);
-                final DbConfig db = server.getDatabases().get(dbIndex);
-                final LoginConfig login = db.getLogins().get(loginIndex);
+                final Server server = this.servers.get(serverIndex);
+                final Database db = server.getDatabases().get(dbIndex);
+                final Login login = db.getLogins().get(loginIndex);
 
                 final int whichSchema = this.schemaPicker.getSelectedIndex();
                 final EDbUse use = whichSchema == 0 ? EDbUse.PROD : (whichSchema == 1 ? EDbUse.DEV : EDbUse.TEST);
@@ -229,7 +229,7 @@ final class PgDatabasePicker extends JFrame implements ActionListener {
 
                 final int serverIndex = this.serverPicker.getSelectedIndex();
                 if (serverIndex >= 0) {
-                    final ServerConfig server = this.servers.get(serverIndex);
+                    final Server server = this.servers.get(serverIndex);
                     pickServer(server);
                 }
             } else if (DB_CMD.equals(cmd)) {
@@ -237,10 +237,10 @@ final class PgDatabasePicker extends JFrame implements ActionListener {
 
                 final int serverIndex = this.serverPicker.getSelectedIndex();
                 if (serverIndex >= 0) {
-                    final ServerConfig picked = this.servers.get(serverIndex);
+                    final Server picked = this.servers.get(serverIndex);
                     final int dbIndex = this.databasePicker.getSelectedIndex();
                     if (dbIndex >= 0) {
-                        final DbConfig db = picked.getDatabases().get(dbIndex);
+                        final Database db = picked.getDatabases().get(dbIndex);
                         pickDatabase(db);
                     }
                 }
@@ -255,12 +255,12 @@ final class PgDatabasePicker extends JFrame implements ActionListener {
      *
      * @param server the selected server
      */
-    private void pickServer(final ServerConfig server) {
-        final List<DbConfig> databases = server.getDatabases();
+    private void pickServer(final Server server) {
+        final List<Database> databases = server.getDatabases();
 
         final int size = databases.size();
         final Collection<String> ids = new ArrayList<>(size);
-        for (final DbConfig database : databases) {
+        for (final Database database : databases) {
             ids.add(database.id);
         }
         this.databaseModel.addAll(ids);
@@ -275,12 +275,12 @@ final class PgDatabasePicker extends JFrame implements ActionListener {
      *
      * @param database the selected server
      */
-    private void pickDatabase(final DbConfig database) {
-        final List<LoginConfig> logins = database.getLogins();
+    private void pickDatabase(final Database database) {
+        final List<Login> logins = database.getLogins();
 
         final int size = logins.size();
         final Collection<String> ids = new ArrayList<>(size);
-        for (final LoginConfig login : logins) {
+        for (final Login login : logins) {
             ids.add(login.id);
         }
         this.loginModel.addAll(ids);

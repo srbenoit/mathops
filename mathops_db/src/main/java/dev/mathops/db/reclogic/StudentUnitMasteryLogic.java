@@ -2,6 +2,7 @@ package dev.mathops.db.reclogic;
 
 import dev.mathops.db.Cache;
 import dev.mathops.db.EDbProduct;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.rec.StudentUnitMasteryRec;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -484,8 +485,10 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
                 throw new SQLException("Null value in primary key or required field.");
             }
 
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
+
             final String sql = SimpleBuilder.concat("INSERT INTO ",
-                    cache.termSchemaName, ".stu_unit_mastery (stu_id,course_id,unit,",
+                    schemaPrefix, ".stu_unit_mastery (stu_id,course_id,unit,",
                     "score,sr_status,s1_status,s2_status,s3_status) VALUES (",
                     sqlStringValue(record.stuId), ",",
                     sqlStringValue(record.courseId), ",",
@@ -508,11 +511,12 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
          * @throws SQLException if there is an error accessing the database
          */
         @Override
-        public boolean delete(final Cache cache, final StudentUnitMasteryRec record)
-                throws SQLException {
+        public boolean delete(final Cache cache, final StudentUnitMasteryRec record) throws SQLException {
+
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
 
             final String sql = SimpleBuilder.concat("DELETE FROM ",
-                    cache.termSchemaName, ".stu_unit_mastery ",
+                    schemaPrefix, ".stu_unit_mastery ",
                     "WHERE stu_id=", sqlStringValue(record.stuId),
                     " AND course_id=", sqlStringValue(record.courseId),
                     " AND unit=", sqlIntegerValue(record.unit));
@@ -530,8 +534,10 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
         @Override
         public List<StudentUnitMasteryRec> queryAll(final Cache cache) throws SQLException {
 
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
+
             final String sql = SimpleBuilder.concat("SELECT * FROM ",
-                    cache.termSchemaName, ".stu_unit_mastery");
+                    schemaPrefix, ".stu_unit_mastery");
 
             return doListQuery(cache, sql);
         }
@@ -549,8 +555,10 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
         public boolean updateScore(final Cache cache, final StudentUnitMasteryRec record,
                                    final Integer newScore) throws SQLException {
 
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
+
             final String sql = SimpleBuilder.concat("UPDATE ",
-                    cache.termSchemaName, ".stu_unit_mastery ",
+                    schemaPrefix, ".stu_unit_mastery ",
                     "SET score=", sqlIntegerValue(newScore),
                     " WHERE stu_id=", sqlStringValue(record.stuId),
                     " AND course_id=", sqlStringValue(record.courseId),
@@ -572,8 +580,10 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
         public boolean updateSrStatus(final Cache cache, final StudentUnitMasteryRec record,
                                       final String newSrStatus) throws SQLException {
 
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
+
             final String sql = SimpleBuilder.concat("UPDATE ",
-                    cache.termSchemaName, ".stu_unit_mastery ",
+                    schemaPrefix, ".stu_unit_mastery ",
                     "SET sr_status=", sqlStringValue(newSrStatus),
                     " WHERE stu_id=", sqlStringValue(record.stuId),
                     " AND course_id=", sqlStringValue(record.courseId),
@@ -595,8 +605,10 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
         public boolean updateS1Status(final Cache cache, final StudentUnitMasteryRec record,
                                       final String newS1Status) throws SQLException {
 
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
+
             final String sql = SimpleBuilder.concat("UPDATE ",
-                    cache.termSchemaName, ".stu_unit_mastery ",
+                    schemaPrefix, ".stu_unit_mastery ",
                     "SET s1_status=", sqlStringValue(newS1Status),
                     " WHERE stu_id=", sqlStringValue(record.stuId),
                     " AND course_id=", sqlStringValue(record.courseId),
@@ -618,8 +630,10 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
         public boolean updateS2Status(final Cache cache, final StudentUnitMasteryRec record,
                                       final String newS2Status) throws SQLException {
 
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
+
             final String sql = SimpleBuilder.concat("UPDATE ",
-                    cache.termSchemaName, ".stu_unit_mastery ",
+                    schemaPrefix, ".stu_unit_mastery ",
                     "SET s2_status=", sqlStringValue(newS2Status),
                     " WHERE stu_id=", sqlStringValue(record.stuId),
                     " AND course_id=", sqlStringValue(record.courseId),
@@ -641,8 +655,10 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
         public boolean updateS3Status(final Cache cache, final StudentUnitMasteryRec record,
                                       final String newS3Status) throws SQLException {
 
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
+
             final String sql = SimpleBuilder.concat("UPDATE ",
-                    cache.termSchemaName, ".stu_unit_mastery ",
+                    schemaPrefix, ".stu_unit_mastery ",
                     "SET s3_status=", sqlStringValue(newS3Status),
                     " WHERE stu_id=", sqlStringValue(record.stuId),
                     " AND course_id=", sqlStringValue(record.courseId),
@@ -660,11 +676,12 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
          * @throws SQLException if there is an error performing the query
          */
         @Override
-        public List<StudentUnitMasteryRec> queryByStudent(final Cache cache, final String stuId)
-                throws SQLException {
+        public List<StudentUnitMasteryRec> queryByStudent(final Cache cache, final String stuId) throws SQLException {
+
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
 
             final String sql = SimpleBuilder.concat("SELECT * FROM ",
-                    cache.termSchemaName, ".stu_unit_mastery ",
+                    schemaPrefix, ".stu_unit_mastery ",
                     "WHERE stu_id=", sqlStringValue(stuId));
 
             return doListQuery(cache, sql);
@@ -680,11 +697,13 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
          * @throws SQLException if there is an error performing the query
          */
         @Override
-        public List<StudentUnitMasteryRec> queryByStudentCourse(final Cache cache,
-                                                                final String stuId, final String courseId) throws SQLException {
+        public List<StudentUnitMasteryRec> queryByStudentCourse(final Cache cache, final String stuId,
+                                                                final String courseId) throws SQLException {
+
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
 
             final String sql = SimpleBuilder.concat("SELECT * FROM ",
-                    cache.termSchemaName, ".stu_unit_mastery ",
+                    schemaPrefix, ".stu_unit_mastery ",
                     "WHERE stu_id=", sqlStringValue(stuId),
                     " AND course_id=", sqlStringValue(courseId));
 
@@ -702,11 +721,13 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
          * @throws SQLException if there is an error performing the query
          */
         @Override
-        public StudentUnitMasteryRec query(final Cache cache, final String stuId,
-                                           final String courseId, final Integer unit) throws SQLException {
+        public StudentUnitMasteryRec query(final Cache cache, final String stuId, final String courseId,
+                                           final Integer unit) throws SQLException {
+
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
 
             final String sql = SimpleBuilder.concat("SELECT * FROM ",
-                    cache.termSchemaName, ".stu_unit_mastery ",
+                    schemaPrefix, ".stu_unit_mastery ",
                     "WHERE stu_id=", sqlStringValue(stuId),
                     " AND course_id=", sqlStringValue(courseId),
                     " AND unit=", sqlIntegerValue(unit));

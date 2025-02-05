@@ -182,7 +182,7 @@ public enum PageStudentCourseStatus {
                 htm.sP(null, "style='margin-left:20px;'")
                         .add("(student has no registrations this term)").eP();
             } else {
-                final StudentCourseStatus stat = new StudentCourseStatus(site.getDbProfile());
+                final StudentCourseStatus stat = new StudentCourseStatus(site.getSite().profile);
 
                 for (final RawStcourse reg : allPastAndCurrent) {
                     if (!reg.termKey.equals(active.term)) {

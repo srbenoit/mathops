@@ -65,7 +65,7 @@ enum PageHtmlLta {
                         + coursemode;
 
                 final String effectiveUserId = session.getEffectiveUserId();
-                lta = new LtaSession(cache, site.siteProfile, session.loginSessionId, effectiveUserId, assignmentId,
+                lta = new LtaSession(cache, site.site, session.loginSessionId, effectiveUserId, assignmentId,
                         redirect);
                 store.setLtaSession(lta);
             }

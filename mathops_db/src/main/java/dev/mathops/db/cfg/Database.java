@@ -18,7 +18,7 @@ import java.util.Properties;
 /**
  * A "database" object from the database configuration file.
  */
-public final class Database {
+public final class Database implements Comparable<Database> {
 
     /** A string used to construct JDBC URLs. */
     private static final String CLIENT_LOCALE = "CLIENT_LOCALE";
@@ -159,5 +159,49 @@ public final class Database {
             final String msg = Res.fmt(Res.DATABASE_CANT_CONNECT, this.id, this.instance, this.server.host, portStr);
             throw new SQLException(msg, ex);
         }
+    }
+
+    /**
+     * Generates a hash code for the object.
+     *
+     * @return the hash code
+     */
+    public int hashCode() {
+
+        return this.server.hashCode() + this.id.hashCode();
+    }
+
+    /**
+     * Tests whether this object is equal to another.
+     *
+     * @param o the other object
+     * @return true if the objects are equal
+     */
+    public boolean equals(final Object o) {
+
+        final boolean equal;
+
+        if (o == this) {
+            equal = true;
+        } else if (o instanceof final Database database) {
+            equal = this.id.equals(database.id) && this.server.equals(database.server);
+        } else {
+            equal = false;
+        }
+
+        return equal;
+    }
+
+    /**
+     * Compares two databases for order.  Comparison is based only on the database ID.
+     *
+     * @param o the object to be compared
+     * @return 0 if this object is equal to {@code o}; -1 if this object precedes {@code o}; +1 if this object succeeds
+     *         {@code o}
+     */
+    @Override
+    public int compareTo(final Database o) {
+
+        return this.id.compareTo(o.id);
     }
 }

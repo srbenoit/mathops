@@ -4,11 +4,8 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.old.rawlogic.RawParametersLogic;
 import dev.mathops.db.old.rawlogic.RawPlcFeeLogic;
 import dev.mathops.db.old.rawlogic.RawStmpeLogic;
@@ -78,7 +75,7 @@ public enum PlacementBilling {
             final String ver = record.version;
 
             if (("Y".equals(plc) || "N".equals(plc)) && ver != null
-                    && (!ver.isEmpty() && ver.charAt(0) == 'P' || ver.startsWith("MPT"))) {
+                && (!ver.isEmpty() && ver.charAt(0) == 'P' || ver.startsWith("MPT"))) {
 
                 final RawPlcFee existing = RawPlcFeeLogic.queryByStudent(cache, record.stuId);
                 if (existing == null) {
@@ -126,7 +123,7 @@ public enum PlacementBilling {
                         int bak = 1;
                         while (hit) {
                             final String bakName = "plc_fee_hardcopy.bak" + bak;
-                            bakFile = new File(hardcopyFile.getParentFile(), bakName);
+                            bakFile = new File(dir, bakName);
                             hit = bakFile.exists();
                             ++bak;
                         }
@@ -150,7 +147,7 @@ public enum PlacementBilling {
                         int bak = 1;
                         while (hit) {
                             final String bakName = "plc_fee_upload.bak" + bak;
-                            bakFile = new File(uploadFile.getParentFile(), bakName);
+                            bakFile = new File(dir, bakName);
                             hit = bakFile.exists();
                             ++bak;
                         }
@@ -277,7 +274,7 @@ public enum PlacementBilling {
             final String ver = record.version;
 
             if (("Y".equals(plc) || "N".equals(plc)) && ver != null
-                    && (!ver.isEmpty() && ver.charAt(0) == 'P' || ver.startsWith("MPT"))) {
+                && (!ver.isEmpty() && ver.charAt(0) == 'P' || ver.startsWith("MPT"))) {
 
                 if (billIfNotAlreadyBilled(cache, record.stuId, record.examDt, params, report,
                         upload, errors)) {
@@ -416,8 +413,8 @@ public enum PlacementBilling {
         }
         sb.append(".00");
         sb.append("                                                                 "
-                + "                                                                     "
-                + "                                                                   ");
+                  + "                                                                     "
+                  + "                                                                   ");
 
         return sb.toString();
     }
@@ -452,19 +449,13 @@ public enum PlacementBilling {
      */
     public static void main(final String... args) {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-        final DbProfile dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
-        final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        final Profile profile = config.getCodeProfile(Contexts.BATCH_PATH);
 
         try {
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(dbProfile, conn);
+            final Cache cache = new Cache(profile);
 
-            try {
-                execute(cache);
-            } finally {
-                ctx.checkInConnection(conn);
-            }
+            execute(cache);
         } catch (final SQLException ex) {
             Log.warning(ex);
         }

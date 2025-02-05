@@ -3,6 +3,7 @@ package dev.mathops.db.old.rawlogic;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawEtextCourse;
 import dev.mathops.db.old.rawrecord.RawStetext;
 import dev.mathops.text.builder.SimpleBuilder;
@@ -70,14 +71,18 @@ public enum RawStetextLogic {
                     LogicUtils.sqlDateValue(record.refundDt), ",",
                     LogicUtils.sqlStringValue(record.refundReason), ")");
 
-            try (final Statement stmt = cache.conn.createStatement()) {
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement()) {
                 result = stmt.executeUpdate(sql) == 1;
 
                 if (result) {
-                    cache.conn.commit();
+                    conn.commit();
                 } else {
-                    cache.conn.rollback();
+                    conn.rollback();
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -101,14 +106,18 @@ public enum RawStetextLogic {
                 "   AND etext_id=", LogicUtils.sqlStringValue(record.etextId),
                 "   AND active_dt=", LogicUtils.sqlDateValue(record.activeDt));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -123,7 +132,7 @@ public enum RawStetextLogic {
      */
     public static List<RawStetext> queryAll(final Cache cache) throws SQLException {
 
-        return executeQuery(cache.conn, "SELECT * FROM stetext");
+        return executeQuery(cache, "SELECT * FROM stetext");
     }
 
     /**
@@ -147,7 +156,7 @@ public enum RawStetextLogic {
                 " AND (expiration_dt IS NULL OR expiration_dt>=",
                 LogicUtils.sqlDateValue(now.toLocalDate()), ")");
 
-        return executeQuery(cache.conn, sql);
+        return executeQuery(cache, sql);
     }
 
     /**
@@ -165,7 +174,7 @@ public enum RawStetextLogic {
                 "SELECT * FROM stetext WHERE stu_id=", LogicUtils.sqlStringValue(studentId),
                 " ORDER BY etext_id");
 
-        return executeQuery(cache.conn, sql);
+        return executeQuery(cache, sql);
     }
 
     /**
@@ -182,7 +191,7 @@ public enum RawStetextLogic {
                 "SELECT * FROM stetext WHERE etext_key=", LogicUtils.sqlStringValue(key),
                 "   AND refund_dt IS NULL");
 
-        return executeQuery(cache.conn, sql);
+        return executeQuery(cache, sql);
     }
 
     /**
@@ -266,14 +275,18 @@ public enum RawStetextLogic {
                     "   AND etext_id=", LogicUtils.sqlStringValue(rec.etextId),
                     "   AND active_dt=", LogicUtils.sqlDateValue(rec.activeDt));
 
-            try (final Statement stmt = cache.conn.createStatement()) {
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement()) {
                 result = stmt.executeUpdate(sql) == 1;
 
                 if (result) {
-                    cache.conn.commit();
+                    conn.commit();
                 } else {
-                    cache.conn.rollback();
+                    conn.rollback();
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -309,14 +322,18 @@ public enum RawStetextLogic {
                     "   AND etext_id=", LogicUtils.sqlStringValue(eTextId),
                     "   AND active_dt=", LogicUtils.sqlDateValue(whenActive));
 
-            try (final Statement stmt = cache.conn.createStatement()) {
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement()) {
                 result = stmt.executeUpdate(sql) > 0;
 
                 if (result) {
-                    cache.conn.commit();
+                    conn.commit();
                 } else {
-                    cache.conn.rollback();
+                    conn.rollback();
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -353,14 +370,18 @@ public enum RawStetextLogic {
                     "   AND etext_id=", LogicUtils.sqlStringValue(etextId),
                     "   AND active_dt=", LogicUtils.sqlDateValue(activeDt));
 
-            try (final Statement stmt = cache.conn.createStatement()) {
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement()) {
                 result = stmt.executeUpdate(sql) > 0;
 
                 if (result) {
-                    cache.conn.commit();
+                    conn.commit();
                 } else {
-                    cache.conn.rollback();
+                    conn.rollback();
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -370,14 +391,16 @@ public enum RawStetextLogic {
     /**
      * Executes a query that returns a list of records.
      *
-     * @param conn the database connection, checked out to this thread
-     * @param sql  the SQL to execute
+     * @param cache the data cache
+     * @param sql   the SQL to execute
      * @return the list of matching records
      * @throws SQLException if there is an error accessing the database
      */
-    private static List<RawStetext> executeQuery(final DbConnection conn, final String sql) throws SQLException {
+    private static List<RawStetext> executeQuery(final Cache cache, final String sql) throws SQLException {
 
         final List<RawStetext> result = new ArrayList<>(10);
+
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
         try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
@@ -385,6 +408,8 @@ public enum RawStetextLogic {
             while (rs.next()) {
                 result.add(RawStetext.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;

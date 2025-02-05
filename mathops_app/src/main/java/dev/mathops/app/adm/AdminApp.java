@@ -4,12 +4,14 @@ import com.formdev.flatlaf.FlatLightLaf;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LoggingSubsystem;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.cfg.ContextMap;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.DatabaseConfigXml;
 import dev.mathops.text.parser.ParsingException;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import java.io.File;
+import java.io.IOException;
 
 /**
  * A launcher class that executes the admin app (by creating its login window).
@@ -39,24 +41,24 @@ final class AdminApp implements Runnable {
 
         final String path = System.getProperty("user.dir");
         final File dir = new File(path);
-        final File cfgFile = new File(dir, "db-config.xml");
+        final File cfgFile = new File(dir, DatabaseConfigXml.FILENAME);
 
-        ContextMap contextMap;
+        DatabaseConfig databaseConfig;
         if (cfgFile.exists()) {
             try {
-                contextMap = ContextMap.load(dir);
-            } catch (final ParsingException ex) {
-                contextMap = ContextMap.getDefaultInstance();
+                databaseConfig = DatabaseConfigXml.load(dir);
+            } catch (final IOException | ParsingException ex) {
+                databaseConfig = DatabaseConfig.getDefault();
                 Log.warning(ex);
             }
         } else {
-            contextMap = ContextMap.getDefaultInstance();
+            databaseConfig = DatabaseConfig.getDefault();
         }
 
-        if (contextMap == null) {
+        if (databaseConfig == null) {
             JOptionPane.showMessageDialog(null, "Failed to load database configuration");
         } else {
-            final LoginWindow login = new LoginWindow(contextMap, this.username, this.password);
+            final LoginWindow login = new LoginWindow(databaseConfig, this.username, this.password);
             login.setVisible(true);
         }
     }

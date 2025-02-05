@@ -9,20 +9,20 @@ import java.util.Map;
 /**
  * A "profile" object from the database configuration file.
  */
-public final class Profile {
+public final class Profile implements Comparable<Profile> {
 
     /** The profile ID. */
     public final String id;
 
-    /** A map from schema type to the profile schema in this profile. */
-    private final Map<ESchema, Schema> schemas;
+    /** A map from schema type to the corresponding facet. */
+    private final Map<ESchema, Facet> facets;
 
     /**
      * Constructs a new {@code Profile}.
      *
      * @param theId the profile ID
      */
-    Profile(final String theId) {
+    public Profile(final String theId) {
 
         if (theId == null || theId.isBlank()) {
             final String msg = Res.get(Res.PROFILE_NULL_ID);
@@ -30,29 +30,39 @@ public final class Profile {
         }
 
         this.id = theId;
-        this.schemas = new EnumMap<>(ESchema.class);
+        this.facets = new EnumMap<>(ESchema.class);
     }
 
     /**
-     * Adds a {@code ProfileSchema}.
+     * Adds a {@code facet}.
      *
-     * @param schema        the schema with which the {@code ProfileSchema} is associated
-     * @param profileSchema the {@code ProfileSchema}
+     * @param facet the {@code Facet}
      */
-    void add(final ESchema schema, final Schema profileSchema) {
+    public void addFacet(final Facet facet) {
 
-        this.schemas.put(schema, profileSchema);
+        this.facets.put(facet.data.schema, facet);
     }
 
     /**
-     * Gets the profile schema to use for a specified {@code ESchema}.
+     * Gets the facet to use for a specified {@code ESchema}.
      *
      * @param which the {@code ESchema}
-     * @return the schema configuration
+     * @return the facet; null if none is defined in this profile
      */
-    public Schema getSchema(final ESchema which) {
+    public Facet getFacet(final ESchema which) {
 
-        return this.schemas.get(which);
+        return this.facets.get(which);
+    }
+
+    /**
+     * Gets the login to use for a specified {@code ESchema}.
+     *
+     * @param which the {@code ESchema}
+     * @return the login
+     */
+    public Login getLogin(final ESchema which) {
+
+        return this.facets.get(which).login;
     }
 
     /**
@@ -70,7 +80,7 @@ public final class Profile {
         int analytics = 0;
         int term = 0;
 
-        for (final ESchema type : this.schemas.keySet()) {
+        for (final ESchema type : this.facets.keySet()) {
             switch (type) {
                 case SYSTEM -> ++system;
                 case MAIN -> ++main;
@@ -132,5 +142,49 @@ public final class Profile {
         }
 
         return error;
+    }
+
+    /**
+     * Generates a hash code for the object.
+     *
+     * @return the hash code
+     */
+    public int hashCode() {
+
+        return this.id.hashCode();
+    }
+
+    /**
+     * Tests whether this object is equal to another.
+     *
+     * @param o the other object
+     * @return true if the objects are equal
+     */
+    public boolean equals(final Object o) {
+
+        final boolean equal;
+
+        if (o == this) {
+            equal = true;
+        } else if (o instanceof final Profile profile) {
+            equal = this.id.equals(profile.id);
+        } else {
+            equal = false;
+        }
+
+        return equal;
+    }
+
+    /**
+     * Compares two profiles for order.  Comparison is based only on ID.
+     *
+     * @param o the object to be compared
+     * @return 0 if this object is equal to {@code o}; -1 if this object precedes {@code o}; +1 if this object succeeds
+     *         {@code o}
+     */
+    @Override
+    public int compareTo(final Profile o) {
+
+        return this.id.compareTo(o.id);
     }
 }

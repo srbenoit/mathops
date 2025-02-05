@@ -1,6 +1,8 @@
 package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawTreePath;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -45,24 +47,28 @@ public enum RawTreePathLogic {
             throw new SQLException("Null value in primary key or required field.");
         }
 
-        final String sql = SimpleBuilder.concat("INSERT INTO tree_path ",
-                "(ident,parent_ident,depth,sort_order,label) VALUES (",
+        final String sql = SimpleBuilder.concat(
+                "INSERT INTO tree_path (ident,parent_ident,depth,sort_order,label) VALUES (",
                 LogicUtils.sqlStringValue(record.ident), ",",
                 LogicUtils.sqlStringValue(record.parentIdent), ",",
                 LogicUtils.sqlIntegerValue(record.depth), ",",
                 LogicUtils.sqlIntegerValue(record.sortOrder), ",",
                 LogicUtils.sqlStringValue(record.label), ")");
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -74,24 +80,27 @@ public enum RawTreePathLogic {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    public static boolean delete(final Cache cache, final RawTreePath record)
-            throws SQLException {
+    public static boolean delete(final Cache cache, final RawTreePath record) throws SQLException {
 
-        final String sql = SimpleBuilder.concat("DELETE FROM tree_path ",
-                "WHERE ident=", LogicUtils.sqlStringValue(record.ident),
+        final String sql = SimpleBuilder.concat("DELETE FROM tree_path WHERE ident=",
+                LogicUtils.sqlStringValue(record.ident),
                 "  AND parent_ident=", LogicUtils.sqlStringValue(record.parentIdent),
                 "  AND depth=", LogicUtils.sqlIntegerValue(record.depth));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -119,9 +128,8 @@ public enum RawTreePathLogic {
     public static List<RawTreePath> queryByDepthAndParent(final Cache cache, final int theDepth,
                                                           final String theParentIdent) throws SQLException {
 
-        final String sql = SimpleBuilder.concat(//
-                "SELECT * FROM tree_path",
-                " WHERE depth=", Integer.toString(theDepth),
+        final String sql = SimpleBuilder.concat(
+                "SELECT * FROM tree_path WHERE depth=", Integer.toString(theDepth),
                 "   AND parent_ident=", LogicUtils.sqlStringValue(theParentIdent),
                 " ORDER BY sort_order");
 
@@ -145,15 +153,13 @@ public enum RawTreePathLogic {
 
         if (theDepth == 0 || theParentIdent == null) {
             sql = SimpleBuilder.concat(
-                    "SELECT * FROM tree_path",
-                    " WHERE ident=", LogicUtils.sqlStringValue(theIdent),
+                    "SELECT * FROM tree_path WHERE ident=", LogicUtils.sqlStringValue(theIdent),
                     "   AND depth=", Integer.toString(theDepth),
                     "   AND parent_ident IS NULL",
                     " ORDER BY sort_order");
         } else {
             sql = SimpleBuilder.concat(
-                    "SELECT * FROM tree_path",
-                    " WHERE ident=", LogicUtils.sqlStringValue(theIdent),
+                    "SELECT * FROM tree_path WHERE ident=", LogicUtils.sqlStringValue(theIdent),
                     "   AND depth=", Integer.toString(theDepth),
                     "   AND parent_ident=", LogicUtils.sqlStringValue(theParentIdent),
                     " ORDER BY sort_order");
@@ -199,7 +205,7 @@ public enum RawTreePathLogic {
             }
 
             final boolean match = (parentNode == null && row.parentIdent == null)
-                    || (parentNode != null && parentNode.treePath.ident.equals(row.parentIdent));
+                                  || (parentNode != null && parentNode.treePath.ident.equals(row.parentIdent));
 
             if (match) {
                 iter.remove();
@@ -231,28 +237,32 @@ public enum RawTreePathLogic {
         final String sql;
 
         if (toUpdate.parentIdent == null) {
-            sql = SimpleBuilder.concat("UPDATE tree_path",
-                    " SET sort_order=", LogicUtils.sqlIntegerValue(theSortOrder),
+            sql = SimpleBuilder.concat("UPDATE tree_path SET sort_order=", LogicUtils.sqlIntegerValue(theSortOrder),
                     " WHERE ident=", LogicUtils.sqlStringValue(toUpdate.ident),
                     "   AND depth=", LogicUtils.sqlIntegerValue(toUpdate.depth),
                     "   AND parent_ident IS NULL");
         } else {
-            sql = SimpleBuilder.concat("UPDATE tree_path",
-                    " SET sort_order=", LogicUtils.sqlIntegerValue(theSortOrder),
+            sql = SimpleBuilder.concat("UPDATE tree_path SET sort_order=", LogicUtils.sqlIntegerValue(theSortOrder),
                     " WHERE ident=", LogicUtils.sqlStringValue(toUpdate.ident),
                     "   AND depth=", LogicUtils.sqlIntegerValue(toUpdate.depth),
                     "   AND parent_ident=", LogicUtils.sqlStringValue(toUpdate.parentIdent));
         }
 
-        final boolean result = executeSimpleUpdate(cache, sql) == 1;
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
-        if (result) {
-            cache.conn.commit();
-        } else {
-            cache.conn.rollback();
+        try (final Statement stmt = conn.createStatement()) {
+            final boolean result = stmt.executeUpdate(sql) == 1;
+
+            if (result) {
+                conn.commit();
+            } else {
+                conn.rollback();
+            }
+
+            return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
-
-        return result;
     }
 
     /**
@@ -270,28 +280,32 @@ public enum RawTreePathLogic {
         final String sql;
 
         if (toUpdate.parentIdent == null) {
-            sql = SimpleBuilder.concat("UPDATE tree_path",
-                    " SET label=", LogicUtils.sqlStringValue(theLabel),
+            sql = SimpleBuilder.concat("UPDATE tree_path SET label=", LogicUtils.sqlStringValue(theLabel),
                     " WHERE ident=", LogicUtils.sqlStringValue(toUpdate.ident),
                     "   AND depth=", LogicUtils.sqlIntegerValue(toUpdate.depth),
                     "   AND parent_ident IS NULL");
         } else {
-            sql = SimpleBuilder.concat("UPDATE tree_path",
-                    " SET label=", LogicUtils.sqlStringValue(theLabel),
+            sql = SimpleBuilder.concat("UPDATE tree_path SET label=", LogicUtils.sqlStringValue(theLabel),
                     " WHERE ident=", LogicUtils.sqlStringValue(toUpdate.ident),
                     "   AND depth=", LogicUtils.sqlIntegerValue(toUpdate.depth),
                     "   AND parent_ident=", LogicUtils.sqlStringValue(toUpdate.parentIdent));
         }
 
-        final boolean result = executeSimpleUpdate(cache, sql) == 1;
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
-        if (result) {
-            cache.conn.commit();
-        } else {
-            cache.conn.rollback();
+        try (final Statement stmt = conn.createStatement()) {
+            final boolean result = stmt.executeUpdate(sql) == 1;
+
+            if (result) {
+                conn.commit();
+            } else {
+                conn.rollback();
+            }
+
+            return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
-
-        return result;
     }
 
     /**
@@ -306,12 +320,16 @@ public enum RawTreePathLogic {
 
         final List<RawTreePath> result = new ArrayList<>(50);
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 result.add(RawTreePath.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -329,29 +347,18 @@ public enum RawTreePathLogic {
 
         RawTreePath result = null;
 
-        try (final Statement stmt = cache.conn.createStatement(); //
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
 
             if (rs.next()) {
                 result = RawTreePath.fromResultSet(rs);
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
-    }
-
-    /**
-     * Executes an SQL update.
-     *
-     * @param cache the data cache
-     * @param sql   the SQL to execute
-     * @return the number of rows updated
-     * @throws SQLException if there is an error accessing the database
-     */
-    private static int executeSimpleUpdate(final Cache cache, final String sql) throws SQLException {
-
-        try (final Statement stmt = cache.conn.createStatement()) {
-            return stmt.executeUpdate(sql);
-        }
     }
 }

@@ -4,10 +4,8 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
@@ -357,29 +355,21 @@ public class PrecalcTutorialLogic {
      */
     public static void main(final String... args) {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
         DbConnection.registerDrivers();
 
-        final DbProfile dbProfile = map.getWebSiteProfile(Contexts.PLACEMENT_HOST, Contexts.ROOT_PATH).dbProfile;
-
-        final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        final Profile profile = config.getWebProfile(Contexts.PLACEMENT_HOST, Contexts.ROOT_PATH);
+        final Cache cache = new Cache(profile);
 
         try {
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(dbProfile, conn);
+            final LocalDate today = LocalDate.now();
+            final String stuId = "837165351";
 
-            try {
-                final LocalDate today = LocalDate.now();
-                final String stuId = "837165351";
+            final RawStudent student = RawStudentLogic.query(cache, stuId, false);
+            final PrerequisiteLogic prereq = new PrerequisiteLogic(cache, stuId);
+            final PrecalcTutorialLogic logic = new PrecalcTutorialLogic(cache, stuId, today, prereq);
 
-                final RawStudent student = RawStudentLogic.query(cache, stuId, false);
-                final PrerequisiteLogic prereq = new PrerequisiteLogic(cache, stuId);
-                final PrecalcTutorialLogic logic = new PrecalcTutorialLogic(cache, stuId, today, prereq);
-
-                mainPrintStatus(student, logic.status);
-            } finally {
-                ctx.checkInConnection(conn);
-            }
+            mainPrintStatus(student, logic.status);
         } catch (final SQLException ex) {
             Log.warning(ex);
         }

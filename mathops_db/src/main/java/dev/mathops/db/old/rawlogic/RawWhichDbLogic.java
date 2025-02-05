@@ -2,6 +2,8 @@ package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawWhichDb;
 
 import java.sql.ResultSet;
@@ -34,7 +36,9 @@ public enum RawWhichDbLogic {
 
         RawWhichDb result = null;
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery("SELECT * FROM which_db")) {
 
             if (rs.next()) {
@@ -43,6 +47,8 @@ public enum RawWhichDbLogic {
                     Log.warning("Multiple 'which_db' rows found!");
                 }
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;

@@ -38,7 +38,7 @@ enum PrecalcRootMenu {
      */
     private static void buildMenuContent(final PrecalcRootSite site, final ESiteType type, final HtmlBuilder htm) {
 
-        final String maintenanceMsg = AbstractSite.isMaintenance(site.siteProfile);
+        final String maintenanceMsg = AbstractSite.isMaintenance(site.site);
 
         htm.add("<a href='index.html' class='ulink'>Home</a>");
         htm.div("vgap0").hr().div("vgap0");

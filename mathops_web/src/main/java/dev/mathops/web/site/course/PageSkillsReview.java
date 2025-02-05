@@ -52,7 +52,7 @@ enum PageSkillsReview {
             Log.warning("  mode='", mode, "'");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
-            final StudentCourseStatus courseStatus = new StudentCourseStatus(site.getDbProfile());
+            final StudentCourseStatus courseStatus = new StudentCourseStatus(site.site.profile);
 
             courseStatus.gatherData(cache, session, session.getEffectiveUserId(), course, false,
                     !"course".equals(mode));

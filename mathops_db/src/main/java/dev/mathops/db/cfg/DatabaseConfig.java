@@ -1,6 +1,12 @@
 package dev.mathops.db.cfg;
 
+import dev.mathops.commons.log.Log;
+import dev.mathops.text.parser.ParsingException;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +15,9 @@ import java.util.Map;
  * A "database config" container to store all information read from the database configuration file.
  */
 public class DatabaseConfig {
+
+    /** The default database configuration. */
+    private final static DatabaseConfig DEFAULT = loadDefault();
 
     /** A list of server definitions. */
     private final List<Server> servers;
@@ -42,6 +51,36 @@ public class DatabaseConfig {
     }
 
     /**
+     * Loads the default database configuration.
+     *
+     * @return the loaded configuration (empty if loading failed; never null)
+     */
+    public static DatabaseConfig loadDefault() {
+
+        DatabaseConfig config;
+
+        final File source = DatabaseConfigXml.getDefaultFile();
+        try {
+            config = DatabaseConfigXml.load(source);
+        } catch (final IOException | ParsingException ex) {
+            Log.warning(ex);
+            config = new DatabaseConfig();
+        }
+
+        return config;
+    }
+
+    /**
+     * Gets the default database configuration.
+     *
+     * @return the default configuration (empty if loading failed; never null)
+     */
+    public static DatabaseConfig getDefault() {
+
+        return DEFAULT;
+    }
+
+    /**
      * Adds a server definition.
      *
      * @param server the server definition
@@ -49,6 +88,16 @@ public class DatabaseConfig {
     void addServer(final Server server) {
 
         this.servers.add(server);
+    }
+
+    /**
+     * Gets the list of servers.
+     *
+     * @return the list of servers
+     */
+    public List<Server> getServers() {
+
+        return this.servers;
     }
 
     /**
@@ -72,12 +121,22 @@ public class DatabaseConfig {
     }
 
     /**
+     * Gets the list of all login IDs.
+     *
+     * @return the list of login IDs
+     */
+    public List<String> getLoginIds() {
+
+        return new ArrayList<>(this.logins.keySet());
+    }
+
+    /**
      * Gets the {@code Login} with a specified ID.
      *
      * @param loginId the login ID
      * @return the {@code Login} object; null if none found
      */
-    Login getLogin(final String loginId) {
+    public Login getLogin(final String loginId) {
 
         return this.logins.get(loginId);
     }
@@ -104,6 +163,18 @@ public class DatabaseConfig {
     }
 
     /**
+     * Gets the list of profiles.
+     *
+     * @return the list of profiles
+     */
+    public List<Profile> getProfiles() {
+
+        final Collection<Profile> values = this.profiles.values();
+
+        return new ArrayList<>(values);
+    }
+
+    /**
      * Gets the {@code Profile} with a specified ID.
      *
      * @param profileId the profile ID
@@ -125,6 +196,57 @@ public class DatabaseConfig {
     }
 
     /**
+     * Gets the {@code Profile} for the site with a specified path within the web context with a specified host.
+     *
+     * @param host the web context host
+     * @param path the site path
+     * @return the {@code Profile} object; null if none found
+     */
+    public Site getSite(final String host, final String path) {
+
+        final WebContext context = this.webContexts.get(host);
+
+        return context == null ? null : context.getSite(path);
+    }
+
+    /**
+     * Gets the {@code Profile} for the site with a specified path within the web context with a specified host.
+     *
+     * @param host the web context host
+     * @param path the site path
+     * @return the {@code Profile} object; null if none found
+     */
+    public Profile getWebProfile(final String host, final String path) {
+
+        final WebContext context = this.webContexts.get(host);
+        final Site site = context == null ? null : context.getSite(path);
+
+        return site == null ? null : site.profile;
+    }
+
+    /**
+     * Gets the list of web hosts.
+     *
+     * @return the list of hosts
+     */
+    public List<String> getWebHosts() {
+
+        return new ArrayList<>(this.webContexts.keySet());
+    }
+
+    /**
+     * Gets the list of sites within a host.
+     *
+     * @return the list of sites
+     */
+    public List<String> getWebSites(final String host) {
+
+        final WebContext context = this.webContexts.get(host);
+
+        return context.getSites();
+    }
+
+    /**
      * Adds a web context definition.
      *
      * @param codeContext the web context definition
@@ -132,5 +254,18 @@ public class DatabaseConfig {
     void addCodeContext(final CodeContext codeContext) {
 
         this.codeContexts.put(codeContext.id, codeContext);
+    }
+
+    /**
+     * Gets the {@code Profile} for the code context with a specified ID.
+     *
+     * @param codeContextId the code context ID
+     * @return the {@code Profile} object; null if none found
+     */
+    public Profile getCodeProfile(final String codeContextId) {
+
+        final CodeContext context = this.codeContexts.get(codeContextId);
+
+        return context == null ? null : context.profile;
     }
 }

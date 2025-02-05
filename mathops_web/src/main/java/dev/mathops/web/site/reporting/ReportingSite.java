@@ -6,8 +6,8 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.db.logic.ELiveRefreshes;
-import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
@@ -37,12 +37,12 @@ public final class ReportingSite extends AbstractSite {
     /**
      * Constructs a new {@code ReportingSite}.
      *
-     * @param theSiteProfile the site profile under which this site is accessed
-     * @param theSessions    the singleton user session repository
+     * @param theSite     the site profile under which this site is accessed
+     * @param theSessions the singleton user session repository
      */
-    public ReportingSite(final WebSiteProfile theSiteProfile, final ISessionManager theSessions) {
+    public ReportingSite(final Site theSite, final ISessionManager theSessions) {
 
-        super(theSiteProfile, theSessions);
+        super(theSite, theSessions);
     }
 
     /**
@@ -99,7 +99,7 @@ public final class ReportingSite extends AbstractSite {
                 final ImmutableSessionInfo session = validateSession(req, resp, null);
 
                 final boolean showLanding = CoreConstants.EMPTY.equals(subpath) || "index.html".equals(subpath)
-                        || "login.html".equals(subpath);
+                                            || "login.html".equals(subpath);
 
                 if (session == null) {
                     if (showLanding) {
@@ -108,7 +108,7 @@ public final class ReportingSite extends AbstractSite {
                         doShibbolethLogin(cache, req, resp, null);
                     } else {
                         resp.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-                        final String path = this.siteProfile.path;
+                        final String path = this.site.path;
                         resp.setHeader("Location",
                                 path + (path.endsWith(Contexts.ROOT_PATH) ? "index.html" : "/index.html"));
                         sendReply(req, resp, Page.MIME_TEXT_HTML, ZERO_LEN_BYTE_ARR);
@@ -198,7 +198,7 @@ public final class ReportingSite extends AbstractSite {
             switch (subpath) {
                 case "placement_by_category.html" -> PagePlacementByCategory.showPage(cache, this, req, resp, session);
                 case "placement_by_students.html" -> PagePlacementByStudents.showPage(cache, this, req, resp, session);
-                case "precalc_by_course.html" -> PagePrecalcStatusBySections.showPage(cache, this, req, resp,session);
+                case "precalc_by_course.html" -> PagePrecalcStatusBySections.showPage(cache, this, req, resp, session);
                 case "precalc_by_students.html" -> PagePrecalcStatusByStudents.showPage(cache, this, req, resp,
                         session);
 
@@ -263,7 +263,7 @@ public final class ReportingSite extends AbstractSite {
             sess = processShibbolethLogin(cache, req);
         }
 
-        final String path = this.siteProfile.path;
+        final String path = this.site.path;
         final String redirect;
         if (sess == null) {
             redirect = path + (path.endsWith(CoreConstants.SLASH) ? "login.html" : "/login.html");
@@ -286,7 +286,6 @@ public final class ReportingSite extends AbstractSite {
         resp.setHeader("Location", redirect);
     }
 
-
     /**
      * Attempts to extract student IDs from a submitted text list.
      *
@@ -306,7 +305,7 @@ public final class ReportingSite extends AbstractSite {
                 final char ch = idlist.charAt(index);
 
                 if (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r' || ch == '\f' || ch == ',' || ch == ';'
-                        || ch == '.' || ch == '|' || ch == ':' || ch == '"' || ch == '\'') {
+                    || ch == '.' || ch == '|' || ch == ':' || ch == '"' || ch == '\'') {
                     if (start < index) {
                         final String id = idlist.substring(start, index).trim();
                         if (!id.isBlank()) {
@@ -340,7 +339,7 @@ public final class ReportingSite extends AbstractSite {
         final int len = stuId.length();
         final HtmlBuilder cleaned = new HtmlBuilder(len);
 
-        for (int i= 0; i < len; ++i) {
+        for (int i = 0; i < len; ++i) {
             final char ch = stuId.charAt(i);
             if (ch >= '0' && ch <= '9') {
                 cleaned.add(ch);

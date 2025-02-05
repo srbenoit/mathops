@@ -1,19 +1,20 @@
 package dev.mathops.app.checkin;
 
 import com.formdev.flatlaf.FlatLightLaf;
+import dev.mathops.app.TempFileCleaner;
 import dev.mathops.app.ui.FrameToFront;
 import dev.mathops.app.ui.PopupPanel;
-import dev.mathops.app.TempFileCleaner;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Profile;
+import dev.mathops.db.cfg.Facet;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
 import dev.mathops.db.old.rawlogic.RawStvisitLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
@@ -86,7 +87,7 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
     private final String centerId;
 
     /** The database profile to use. */
-    private DbProfile dbProfile;
+    private Profile profile;
 
     /** The main frame for the application. */
     private JFrame frame;
@@ -135,99 +136,92 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
      */
     private void runCheckInApplication(final ZonedDateTime now, final boolean fullScreen) {
 
-        this.dbProfile = ContextMap.getDefaultInstance().getCodeProfile(Contexts.CHECKIN_PATH);
-        if (this.dbProfile == null) {
+        final DatabaseConfig databaseConfig = DatabaseConfig.getDefault();
+        this.profile = databaseConfig.getCodeProfile(Contexts.CHECKIN_PATH);
+        if (this.profile == null) {
             throw new IllegalArgumentException("No 'checkin' code profile configured");
         }
 
-        final DbContext ctx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
-
         long nextStatusUpdate = 0L;
 
+        final Cache cache = new Cache(this.profile);
+
+        // Clear out old Java font files from the temporary directory.
+        TempFileCleaner.clean();
+
         try {
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
+            // Force the person starting the checkin application to log in with a username and password before
+            // starting the application, and create the backing store connection to the database using this login
+            // information.
+            doStartupLogin();
 
-            try {
-                // Clear out old Java font files from the temporary directory.
-                TempFileCleaner.clean();
+            // Before we begin, we initialize checkin logic. This provides a quick validation that our database
+            // connection is working.
+            final LogicCheckIn logic = new LogicCheckIn(cache, now);
 
-                // Force the person starting the checkin application to log in with a username and password before
-                // starting the application, and create the backing store connection to the database using this login
-                // information.
-                doStartupLogin();
+            // Now, we create a full-screen, top-level window and activate a thread that will keep it on top of
+            // everything else on the desktop. All windows this application creates will be children of this
+            // window, so they will not be obscured, but the desktop will not be available.
+            if (logic.isInitialized()) {
+                createBlockingWindow(fullScreen);
 
-                // Before we begin, we initialize checkin logic. This provides a quick validation that our database
-                // connection is working.
-                final LogicCheckIn logic = new LogicCheckIn(cache, now);
+                final LocalTime closing = determineClosing(cache);
 
-                // Now, we create a full-screen, top-level window and activate a thread that will keep it on top of
-                // everything else on the desktop. All windows this application creates will be children of this
-                // window, so they will not be obscured, but the desktop will not be available.
-                if (logic.isInitialized()) {
-                    createBlockingWindow(fullScreen);
+                this.bottom.setMessage("CHECK IN");
+                this.bottom.setClosingTime(closing);
 
-                    final LocalTime closing = determineClosing(cache);
+                // Start the thread to keep the window on top
+                new Thread(this).start();
 
-                    this.bottom.setMessage("CHECK IN");
-                    this.bottom.setClosingTime(closing);
+                // Enter an infinite loop, waiting for checkins. Each checkin consists of scanning/typing a student
+                // ID, displaying the courses or special exams the student could possibly take, and allowing the
+                // staff member to select the exam to assign to the student.
+                while (this.frame.isVisible()) {
 
-                    // Start the thread to keep the window on top
-                    new Thread(this).start();
+                    // Make sure we have focus, so we get keyboard & mouse events.
+                    this.top.grabFocus();
 
-                    // Enter an infinite loop, waiting for checkins. Each checkin consists of scanning/typing a student
-                    // ID, displaying the courses or special exams the student could possibly take, and allowing the
-                    // staff member to select the exam to assign to the student.
-                    while (this.frame.isVisible()) {
+                    // Prompt for the student ID
+                    this.state = AWAIT_STUDENT;
+                    this.studentId = null;
+                    this.info = null;
+                    this.top.setMessage("Student ID: ");
+                    this.top.setFieldValue(9, CoreConstants.EMPTY);
+                    this.top.repaint();
 
-                        // Make sure we have focus, so we get keyboard & mouse events.
-                        this.top.grabFocus();
+                    this.frame.invalidate();
+                    this.frame.repaint();
 
-                        // Prompt for the student ID
-                        this.state = AWAIT_STUDENT;
-                        this.studentId = null;
-                        this.info = null;
-                        this.top.setMessage("Student ID: ");
-                        this.top.setFieldValue(9, CoreConstants.EMPTY);
-                        this.top.repaint();
+                    // Wait for an ID to be submitted.
+                    while (this.frame.isVisible() && this.state == AWAIT_STUDENT) {
 
-                        this.frame.invalidate();
-                        this.frame.repaint();
-
-                        // Wait for an ID to be submitted.
-                        while (this.frame.isVisible() && this.state == AWAIT_STUDENT) {
-
-                            final long timestamp = System.currentTimeMillis();
-                            if (timestamp > nextStatusUpdate) {
-                                this.bottom.refresh();
-                                updateClientStatus();
-                                nextStatusUpdate = timestamp + 5000L;
-                            }
-
-                            try {
-                                Thread.sleep(50L);
-                            } catch (final InterruptedException ex) {
-                                Thread.currentThread().interrupt();
-                            }
+                        final long timestamp = System.currentTimeMillis();
+                        if (timestamp > nextStatusUpdate) {
+                            this.bottom.refresh();
+                            updateClientStatus();
+                            nextStatusUpdate = timestamp + 5000L;
                         }
 
-                        if (this.frame.isVisible()) {
-                            if (this.state != ANALYZE_STUDENT) {
-                                if (this.state == BAD_STUDENT_ID) {
-                                    PopupPanel.showPopupMessage(this, this.center, "Invalid student ID.", null, null,
-                                            PopupPanel.STYLE_OK);
-                                }
-
-                                continue;
-                            }
-
-                            // We have a 9-digit student ID, so attempt to process it.
-                            processStudentCheckin(cache, logic);
+                        try {
+                            Thread.sleep(50L);
+                        } catch (final InterruptedException ex) {
+                            Thread.currentThread().interrupt();
                         }
                     }
+
+                    if (this.frame.isVisible()) {
+                        if (this.state != ANALYZE_STUDENT) {
+                            if (this.state == BAD_STUDENT_ID) {
+                                PopupPanel.showPopupMessage(this, this.center, "Invalid student ID.", null, null,
+                                        PopupPanel.STYLE_OK);
+                            }
+                            continue;
+                        }
+
+                        // We have a 9-digit student ID, so attempt to process it.
+                        processStudentCheckin(cache, logic);
+                    }
                 }
-            } finally {
-                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.severe(ex);
@@ -263,7 +257,7 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
 
                 String end = null;
                 if ("Monday - Thursday".equals(row.weekdays1)
-                        && (weekday == DayOfWeek.MONDAY || weekday == DayOfWeek.TUESDAY
+                    && (weekday == DayOfWeek.MONDAY || weekday == DayOfWeek.TUESDAY
                         || weekday == DayOfWeek.WEDNESDAY || weekday == DayOfWeek.THURSDAY)) {
                     end = row.closeTime1;
                 } else if ("Monday - Friday".equals(row.weekdays1)) {
@@ -312,32 +306,22 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
      */
     private void updateClientStatus() {
 
-        final DbContext ctx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        final Cache cache = new Cache(this.profile);
 
         try {
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(this.dbProfile, conn);
-            try {
-                final List<RawClientPc> clients = RawClientPcLogic.queryByTestingCenter(cache, this.centerId);
+            final List<RawClientPc> clients = RawClientPcLogic.queryByTestingCenter(cache, this.centerId);
 
-                for (final RawClientPc client : clients) {
-                    final String usage = client.pcUsage;
+            for (final RawClientPc client : clients) {
+                final String usage = client.pcUsage;
 
-                    if (RawClientPc.USAGE_PAPER.equals(usage)) {
-                        if (RawClientPc.STATUS_LOCKED.equals(client.currentStatus)) {
-
-                            RawClientPcLogic.updateCurrentStatus(cache, client.computerId,
-                                    RawClientPc.STATUS_PAPER_ONLY);
-                        }
-                    } else if ((RawClientPc.USAGE_ONLINE.equals(usage) || RawClientPc.USAGE_BOTH.equals(usage))
-                            && RawClientPc.STATUS_PAPER_ONLY.equals(client.currentStatus)) {
-
-                        RawClientPcLogic.updateCurrentStatus(cache, client.computerId,
-                                RawClientPc.STATUS_LOCKED);
+                if (RawClientPc.USAGE_PAPER.equals(usage)) {
+                    if (RawClientPc.STATUS_LOCKED.equals(client.currentStatus)) {
+                        RawClientPcLogic.updateCurrentStatus(cache, client.computerId, RawClientPc.STATUS_PAPER_ONLY);
                     }
+                } else if ((RawClientPc.USAGE_ONLINE.equals(usage) || RawClientPc.USAGE_BOTH.equals(usage))
+                           && RawClientPc.STATUS_PAPER_ONLY.equals(client.currentStatus)) {
+                    RawClientPcLogic.updateCurrentStatus(cache, client.computerId, RawClientPc.STATUS_LOCKED);
                 }
-            } finally {
-                ctx.checkInConnection(conn);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
@@ -349,9 +333,9 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
      */
     private void doStartupLogin() {
 
-        final DbContext dbctx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        final Facet facet = this.profile.getFacet(ESchema.LEGACY);
 
-        final LoginDialog dlg = new LoginDialog(dbctx.loginConfig.id, dbctx.loginConfig.user);
+        final LoginDialog dlg = new LoginDialog(facet.data.use.name(), facet.login.user);
 
         // Present a login dialog to gather username, password
         for (; ; ) {
@@ -359,19 +343,18 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
                 final String username = dlg.getUsername();
                 final char[] passwordChars = dlg.getPassword();
                 final String password = String.valueOf(passwordChars);
-                dbctx.loginConfig.setLogin(username, password);
+
+                // Replace the original schema with a new one with the entered login credentials
+                final Login newLogin = new Login(facet.login.database, "CHECKIN_LOGIN", username, password);
+                final Facet newFacet = new Facet(facet.data, newLogin);
+                this.profile.addFacet(newFacet);
+
+                final Cache cache = new Cache(this.profile);
 
                 try {
-                    final DbConnection conn = dbctx.checkOutConnection();
-                    final Cache cache = new Cache(this.dbProfile, conn);
-
-                    try {
-                        cache.getSystemData().getActiveTerm();
-                        dlg.close();
-                        break;
-                    } finally {
-                        dbctx.checkInConnection(conn);
-                    }
+                    cache.getSystemData().getActiveTerm();
+                    dlg.close();
+                    break;
                 } catch (final SQLException ex) {
                     Log.warning(ex);
                     JOptionPane.showMessageDialog(null, "Unable to connect to database");
@@ -391,7 +374,7 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
     private void createBlockingWindow(final boolean fullScreen) {
 
         // Construct the window in the AWT dispatcher thread.
-        final BlockingWindowBuilder builder = new BlockingWindowBuilder(this, this.dbProfile, this.centerId,
+        final BlockingWindowBuilder builder = new BlockingWindowBuilder(this, this.profile, this.centerId,
                 fullScreen);
 
         try {
@@ -549,7 +532,7 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
      * Given a selected course/unit for a proctored exam, determines a free seat within the testing center that can
      * support that exam, if any seats are free which can accommodate the selected exam.
      *
-     * @param cache      the data cache
+     * @param cache the data cache
      * @return {@code true} if a seat was reserved, {@code false} if it could not be
      * @throws SQLException if there is an error accessing the database
      */
@@ -578,15 +561,15 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
 
             // If the seat already has this student ID, it's an error
             if (client.currentStuId != null && client.currentStuId.equals(this.studentId)
-                    && client.currentStatus != null) {
+                && client.currentStatus != null) {
 
                 final Integer status = client.currentStatus;
 
                 if (RawClientPc.STATUS_AWAIT_STUDENT.equals(status)
-                        || RawClientPc.STATUS_TAKING_EXAM.equals(status)
-                        || RawClientPc.STATUS_FORCE_SUBMIT.equals(status)
-                        || RawClientPc.STATUS_CANCEL_EXAM.equals(status)
-                        || RawClientPc.STATUS_LOGIN_NOCHECK.equals(status)) {
+                    || RawClientPc.STATUS_TAKING_EXAM.equals(status)
+                    || RawClientPc.STATUS_FORCE_SUBMIT.equals(status)
+                    || RawClientPc.STATUS_CANCEL_EXAM.equals(status)
+                    || RawClientPc.STATUS_LOGIN_NOCHECK.equals(status)) {
                     PopupPanel.showPopupMessage(this, this.center, "Student already at seat " + client.stationNbr,
                             null, null, PopupPanel.STYLE_OK);
                     Log.info("Student ", this.studentId, " already at seat ", client.stationNbr);
@@ -620,8 +603,8 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
                 // If the exams are different units and each exam is below unit 5 (the final), then
                 // they aren't "similar" and can be seated near each other.
                 if (test.currentUnit != null && client.currentUnit != null
-                        && test.currentUnit.intValue() < 5 && client.currentUnit.intValue() < 5
-                        && client.currentUnit.intValue() != test.currentUnit.intValue()) {
+                    && test.currentUnit.intValue() < 5 && client.currentUnit.intValue() < 5
+                    && client.currentUnit.intValue() != test.currentUnit.intValue()) {
                     continue;
                 }
 
@@ -637,7 +620,7 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
                     final double dx = clientX - testX;
                     final double dy = clientY - testY;
 
-                    final double distSq = dx * dx + dy *dy;
+                    final double distSq = dx * dx + dy * dy;
                     final double dist = Math.sqrt(distSq);
 
                     if (dist < min) {
@@ -657,7 +640,7 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
 
         for (int i = 0; i < numClients; i++) {
             if (RawClientPc.USAGE_WHEELCHAIR.equals(clients.get(i).pcUsage) && distances[i] != null
-                    && distances[i].doubleValue() >= min) {
+                && distances[i].doubleValue() >= min) {
                 min = distances[i].doubleValue();
             }
         }
@@ -753,8 +736,8 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
                     this.info.selections.reservedSeat.stationNbr);
             warn = "TELL STUDENT $20 FEE WILL BE BILLED TO ACCOUNT!";
         } else if (RawRecordConstants.M117.equals(course) || RawRecordConstants.M118.equals(course)
-                || RawRecordConstants.M124.equals(course) || RawRecordConstants.M125.equals(course)
-                || RawRecordConstants.M126.equals(course)) {
+                   || RawRecordConstants.M124.equals(course) || RawRecordConstants.M125.equals(course)
+                   || RawRecordConstants.M126.equals(course)) {
             htm.add("Assigning ", course, CoreConstants.SPC, this.info.selections.exam.buttonLabel, " at station ",
                     this.info.selections.reservedSeat.stationNbr);
         } else {
@@ -881,7 +864,6 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
                         Log.info("Exam version is ", this.info.selections.exam.version);
                     }
 
-
                 } else {
                     this.info.selections.exam = systemData.getActiveExamByCourseUnitType(course, unitObj, type);
                     if (this.info.selections.exam == null) {
@@ -949,12 +931,12 @@ final class CheckinApp extends KeyAdapter implements Runnable, ActionListener {
             }
         }
 
-        ContextMap.getDefaultInstance();
         DbConnection.registerDrivers();
 
         final CheckinApp app = new CheckinApp(centerId);
         final ZonedDateTime now = ZonedDateTime.now();
-        app.runCheckInApplication(now, fullScreen);    }
+        app.runCheckInApplication(now, fullScreen);
+    }
 }
 
 /**
@@ -968,7 +950,7 @@ final class BlockingWindowBuilder implements Runnable {
     private final CheckinApp listener;
 
     /** The database profile. */
-    private final DbProfile dbProfile;
+    private final Profile profile;
 
     /** The ID of the testing center being managed. */
     private final String testingCenterId;
@@ -991,16 +973,16 @@ final class BlockingWindowBuilder implements Runnable {
     /**
      * Constructs a new {@code BlockingWindowBuilder}.
      *
-     * @param theListener  the key listener to install on all panels
-     * @param theDbProfile the database profile
-     * @param centerId     the ID of the testing center being managed
-     * @param fullScreen   {@code true} to build screen in full-screen mode
+     * @param theListener the key listener to install on all panels
+     * @param theProfile  the database profile
+     * @param centerId    the ID of the testing center being managed
+     * @param fullScreen  {@code true} to build screen in full-screen mode
      */
-    BlockingWindowBuilder(final CheckinApp theListener, final DbProfile theDbProfile, final String centerId,
+    BlockingWindowBuilder(final CheckinApp theListener, final Profile theProfile, final String centerId,
                           final boolean fullScreen) {
 
         this.listener = theListener;
-        this.dbProfile = theDbProfile;
+        this.profile = theProfile;
         this.testingCenterId = centerId;
         this.full = fullScreen;
     }
@@ -1073,7 +1055,7 @@ final class BlockingWindowBuilder implements Runnable {
 
         this.topPanel = new FieldPanel(screen, this.listener, "TopField");
         content.add(this.topPanel, BorderLayout.PAGE_START);
-        this.centerPanel = new CenterPanel(this.listener, this.dbProfile, this.testingCenterId);
+        this.centerPanel = new CenterPanel(this.listener, this.profile, this.testingCenterId);
         content.add(this.centerPanel, BorderLayout.CENTER);
         this.bottomPanel = new BottomPanel(screen);
         content.add(this.bottomPanel, BorderLayout.PAGE_END);
@@ -1100,7 +1082,7 @@ final class BlockingWindowBuilder implements Runnable {
 
         final String fullStr = Boolean.toString(this.full);
 
-        return SimpleBuilder.concat("BlockingWindowBuilder{listener=", this.listener, ", dbProfile=", this.dbProfile,
+        return SimpleBuilder.concat("BlockingWindowBuilder{listener=", this.listener, ", dbProfile=", this.profile,
                 ", testingCenterId='", this.testingCenterId, "', full=", fullStr, ", builderFrame=", this.builderFrame,
                 ", topPanel=", this.topPanel, ", bottomPanel=", this.bottomPanel, ", centerPanel=", this.centerPanel,
                 "}");

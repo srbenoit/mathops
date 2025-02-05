@@ -2,9 +2,8 @@ package dev.mathops.web.site.admin.genadmin.dbadmin;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.EDbUse;
-import dev.mathops.db.old.cfg.LoginConfig;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
@@ -50,12 +49,11 @@ public enum PageDbAdminContextsProdViews {
             Log.warning("  view='", view, "'");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
-            final ContextMap map = ContextMap.getDefaultInstance();
-            final LoginConfig cfg = map.getLogin(driver);
+            final DatabaseConfig map = DatabaseConfig.getDefault();
+            final Login cfg = map.getLogin(driver);
 
             if (cfg == null) {
-                PageDbAdminContextsServer.doGet(cache, site, req, resp, session,
-                        "Invalid database");
+                PageDbAdminContextsServer.doGet(cache, site, req, resp, session, "Invalid database");
             } else {
                 final Connection jdbc = GenAdminSubsite.getConnection(session.loginSessionId, driver);
 
@@ -73,22 +71,22 @@ public enum PageDbAdminContextsProdViews {
                     PageDbAdmin.emitCfgInfoTable(htm, cfg);
                     PageDbAdmin.emitProdNavMenu(htm, EAdmSubtopic.DB_PROD_VIEWS, query);
 
-                    if (cfg.db.use == EDbUse.PROD) {
-                        htm.addln("<nav>");
-                        htm.add("<button");
-                        if ("remote_mpe".equals(view)) {
-                            htm.add(" class='nav8 selected'");
-                        } else {
-                            htm.add(" class='nav8'");
-                        }
-                        htm.addln("</nav>");
-
-                        htm.hr().div("vgap");
-                    } else {
-                        htm.addln("<nav>");
-                        // TODO: DEV views
-                        htm.addln("</nav>");
-                    }
+//                    if (cfg.database.use == EDbUse.PROD) {
+//                        htm.addln("<nav>");
+//                        htm.add("<button");
+//                        if ("remote_mpe".equals(view)) {
+//                            htm.add(" class='nav8 selected'");
+//                        } else {
+//                            htm.add(" class='nav8'");
+//                        }
+//                        htm.addln("</nav>");
+//
+//                        htm.hr().div("vgap");
+//                    } else {
+//                        htm.addln("<nav>");
+//                        // TODO: DEV views
+//                        htm.addln("</nav>");
+//                    }
 
                     Page.endOrdinaryPage(cache, site, htm, true);
                     AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);

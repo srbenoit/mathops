@@ -5,9 +5,9 @@ import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
 import dev.mathops.db.Cache;
-import dev.mathops.db.logic.ELiveRefreshes;
-import dev.mathops.db.old.cfg.WebSiteProfile;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.db.enums.ERole;
+import dev.mathops.db.logic.ELiveRefreshes;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
@@ -26,11 +26,11 @@ import dev.mathops.web.site.help.tutor.PageTutorHome;
 import dev.mathops.web.site.help.tutor.PageTutorLiveHelp;
 import dev.mathops.web.skin.IServletSkin;
 import dev.mathops.web.skin.colostate.CSUSkin;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -50,7 +50,7 @@ public final class HelpSite extends AbstractSite {
      * @param theSiteProfile the site profile under which this site is accessed
      * @param theSessions    the singleton user session repository
      */
-    public HelpSite(final WebSiteProfile theSiteProfile, final ISessionManager theSessions) {
+    public HelpSite(final Site theSiteProfile, final ISessionManager theSessions) {
 
         super(theSiteProfile, theSessions);
 
@@ -317,7 +317,7 @@ public final class HelpSite extends AbstractSite {
      */
     private void redirectTo(final String relativePath, final HttpServletResponse resp) {
 
-        final String path = this.siteProfile.path;
+        final String path = this.site.path;
         final String redirect;
 
         redirect = path + (path.endsWith(CoreConstants.SLASH) ? relativePath

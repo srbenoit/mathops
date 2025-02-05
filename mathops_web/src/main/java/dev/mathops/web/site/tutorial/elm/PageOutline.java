@@ -22,7 +22,6 @@ import dev.mathops.web.site.Page;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.Map;
 
@@ -82,7 +81,7 @@ enum PageOutline {
             throws SQLException {
 
         final String studentId = session.getEffectiveUserId();
-        final StudentCourseStatus courseStatus = new StudentCourseStatus(site.getDbProfile());
+        final StudentCourseStatus courseStatus = new StudentCourseStatus(site.site.profile);
 
         if (courseStatus.gatherData(cache, session, studentId, RawRecordConstants.M100T, false,
                 false) && courseStatus.getCourse().courseName != null) {
@@ -251,7 +250,7 @@ enum PageOutline {
                                          final boolean told) throws SQLException {
 
         final int count = courseStatus.getNumLessons(unit);
-        final CourseLesson less = new CourseLesson(site.getDbProfile());
+        final CourseLesson less = new CourseLesson(site.site.profile);
         final String courseId = courseStatus.getCourse().course;
 
         htm.sDiv("indent33");

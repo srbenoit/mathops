@@ -5,6 +5,7 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStchallenge;
 import dev.mathops.db.old.rawrecord.RawStexam;
@@ -91,7 +92,7 @@ public enum RawStexamLogic {
             // Adjust serial number if needed to avoid collision with existing record
             Long ser = record.serialNbr;
             for (int i = 0; i < 1000; ++i) {
-                final Integer existing = LogicUtils.executeSimpleIntQuery(cache.conn,
+                final Integer existing = LogicUtils.executeSimpleIntQuery(cache,
                         "SELECT COUNT(*) FROM stexam WHERE serial_nbr=" + ser);
 
                 if (existing == null || existing.longValue() == 0L) {
@@ -143,14 +144,18 @@ public enum RawStexamLogic {
                     LogicUtils.sqlStringValue(record.examSource), ",",
                     LogicUtils.sqlStringValue(record.calcNbr), ")");
 
-            try (final Statement stmt = cache.conn.createStatement()) {
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement()) {
                 result = stmt.executeUpdate(sql) == 1;
 
                 if (result) {
-                    cache.conn.commit();
+                    conn.commit();
                 } else {
-                    cache.conn.rollback();
+                    conn.rollback();
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -172,16 +177,20 @@ public enum RawStexamLogic {
                 " AND version=", LogicUtils.sqlStringValue(record.version),
                 " AND stu_id=", LogicUtils.sqlStringValue(record.stuId));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -194,7 +203,7 @@ public enum RawStexamLogic {
      */
     public static List<RawStexam> queryAll(final Cache cache) throws SQLException {
 
-        return executeQuery(cache.conn, "SELECT * FROM stexam");
+        return executeQuery(cache, "SELECT * FROM stexam");
     }
 
     /**
@@ -220,7 +229,7 @@ public enum RawStexamLogic {
                     (all ? CoreConstants.EMPTY : " AND (passed='Y' OR passed='N')"),
                     " ORDER BY exam_dt,finish_time");
 
-            result = executeQuery(cache.conn, sql);
+            result = executeQuery(cache, sql);
         }
 
         return result;
@@ -252,7 +261,7 @@ public enum RawStexamLogic {
                     (all ? CoreConstants.EMPTY : " AND (passed='Y' OR passed='N')"),
                     " ORDER BY exam_dt,finish_time");
 
-            result = executeQuery(cache.conn, sql);
+            result = executeQuery(cache, sql);
         }
 
         return result;
@@ -276,7 +285,7 @@ public enum RawStexamLogic {
                 (includeAll ? CoreConstants.EMPTY : " AND (passed='Y' OR passed='N')"),
                 " ORDER BY exam_dt,finish_time");
 
-        return executeQuery(cache.conn, sql);
+        return executeQuery(cache, sql);
     }
 
     /**
@@ -318,7 +327,7 @@ public enum RawStexamLogic {
         sql.add(" AND exam_dt>=", LogicUtils.sqlDateValue(earliest),
                 " ORDER BY exam_dt,finish_time");
 
-        final List<RawStexam> all = executeQuery(cache.conn, sql.toString());
+        final List<RawStexam> all = executeQuery(cache, sql.toString());
         all.sort(new RawStexam.FinishDateTimeComparator());
 
         // Log.info("Found " + all.size() + " records for " + courseId + " since " + earliest);
@@ -380,7 +389,7 @@ public enum RawStexamLogic {
 
         sql.add(" ORDER BY exam_dt,finish_time");
 
-        return executeQuery(cache.conn, sql.toString());
+        return executeQuery(cache, sql.toString());
     }
 
     /**
@@ -424,7 +433,7 @@ public enum RawStexamLogic {
 
         sql.add(" ORDER BY exam_dt,finish_time");
 
-        return executeQuery(cache.conn, sql.toString());
+        return executeQuery(cache, sql.toString());
     }
 
     /**
@@ -471,7 +480,7 @@ public enum RawStexamLogic {
 
         sql.add(" ORDER BY exam_dt,finish_time");
 
-        return executeQuery(cache.conn, sql.toString());
+        return executeQuery(cache, sql.toString());
     }
 
     /**
@@ -501,7 +510,7 @@ public enum RawStexamLogic {
 
         sql.add(" ORDER BY exam_dt,finish_time");
 
-        return executeQuery(cache.conn, sql.toString());
+        return executeQuery(cache, sql.toString());
     }
 
     /**
@@ -528,12 +537,16 @@ public enum RawStexamLogic {
 
         RawStexam result = null;
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
 
             if (rs.next()) {
                 result = RawStexam.fromResultSet(rs);
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -598,14 +611,18 @@ public enum RawStexamLogic {
                     " AND version=", LogicUtils.sqlStringValue(rec.version),
                     " AND stu_id=", LogicUtils.sqlStringValue(rec.stuId));
 
-            try (final Statement stmt = cache.conn.createStatement()) {
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement()) {
                 result = stmt.executeUpdate(sql) > 0;
 
                 if (result) {
-                    cache.conn.commit();
+                    conn.commit();
                 } else {
-                    cache.conn.rollback();
+                    conn.rollback();
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -640,14 +657,18 @@ public enum RawStexamLogic {
                     " AND version=", LogicUtils.sqlStringValue(rec.version),
                     " AND stu_id=", LogicUtils.sqlStringValue(rec.stuId));
 
-            try (final Statement stmt = cache.conn.createStatement()) {
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement()) {
                 result = stmt.executeUpdate(sql) > 0;
 
                 if (result) {
-                    cache.conn.commit();
+                    conn.commit();
                 } else {
-                    cache.conn.rollback();
+                    conn.rollback();
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -676,12 +697,16 @@ public enum RawStexamLogic {
                     " AND version=", LogicUtils.sqlStringValue(rec.version),
                     " AND stu_id=", LogicUtils.sqlStringValue(rec.stuId));
 
-            try (final Statement stmt = cache.conn.createStatement()) {
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement()) {
                 if (stmt.executeUpdate(sql) > 0) {
-                    cache.conn.commit();
+                    conn.commit();
                 } else {
-                    cache.conn.rollback();
+                    conn.rollback();
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -716,14 +741,18 @@ public enum RawStexamLogic {
                     " AND version=", LogicUtils.sqlStringValue(rec.version),
                     " AND stu_id=", LogicUtils.sqlStringValue(rec.stuId));
 
-            try (final Statement stmt = cache.conn.createStatement()) {
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement()) {
                 result = stmt.executeUpdate(sql) > 0;
 
                 if (result) {
-                    cache.conn.commit();
+                    conn.commit();
                 } else {
-                    cache.conn.rollback();
+                    conn.rollback();
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -751,12 +780,16 @@ public enum RawStexamLogic {
                     " AND version=", LogicUtils.sqlStringValue(rec.version),
                     " AND stu_id=", LogicUtils.sqlStringValue(rec.stuId));
 
-            try (final Statement stmt = cache.conn.createStatement()) {
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement()) {
                 if (stmt.executeUpdate(sql) > 0) {
-                    cache.conn.commit();
+                    conn.commit();
                 } else {
-                    cache.conn.rollback();
+                    conn.rollback();
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
     }
@@ -782,12 +815,16 @@ public enum RawStexamLogic {
                     " AND version=", LogicUtils.sqlStringValue(rec.version),
                     " AND stu_id=", LogicUtils.sqlStringValue(rec.stuId));
 
-            try (final Statement stmt = cache.conn.createStatement()) {
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement()) {
                 if (stmt.executeUpdate(sql) > 0) {
-                    cache.conn.commit();
+                    conn.commit();
                 } else {
-                    cache.conn.rollback();
+                    conn.rollback();
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
     }
@@ -994,14 +1031,16 @@ public enum RawStexamLogic {
     /**
      * Executes a query that returns a list of records.
      *
-     * @param conn the database connection, checked out to this thread
+     * @param cache the data cache the database connection, checked out to this thread
      * @param sql  the SQL to execute
      * @return the list of matching records
      * @throws SQLException if there is an error accessing the database
      */
-    private static List<RawStexam> executeQuery(final DbConnection conn, final String sql) throws SQLException {
+    private static List<RawStexam> executeQuery(final Cache cache, final String sql) throws SQLException {
 
         final List<RawStexam> result = new ArrayList<>(50);
+
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
         try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
@@ -1009,6 +1048,8 @@ public enum RawStexamLogic {
             while (rs.next()) {
                 result.add(RawStexam.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;

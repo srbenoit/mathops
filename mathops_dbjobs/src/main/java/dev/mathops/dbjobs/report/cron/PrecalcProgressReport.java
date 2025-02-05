@@ -3,15 +3,11 @@ package dev.mathops.dbjobs.report.cron;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.type.TermKey;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
@@ -26,6 +22,7 @@ import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.rec.TermRec;
+import dev.mathops.db.type.TermKey;
 import dev.mathops.text.builder.HtmlBuilder;
 
 import java.io.File;
@@ -54,10 +51,7 @@ public final class PrecalcProgressReport {
     private final String subheader;
 
     /** The database profile through which to access the database. */
-    private final DbProfile dbProfile;
-
-    /** The Primary database context. */
-    private final DbContext primaryCtx;
+    private final Profile profile;
 
     /**
      * Constructs a new {@code PrecalcProgressReport}.
@@ -72,10 +66,8 @@ public final class PrecalcProgressReport {
         this.category = theCategory;
         this.subheader = theSubheader;
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-
-        this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
-        this.primaryCtx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        this.profile = config.getCodeProfile(Contexts.BATCH_PATH);
     }
 
     /**
@@ -85,19 +77,13 @@ public final class PrecalcProgressReport {
 
         final Collection<String> report = new ArrayList<>(10);
 
-        if (this.dbProfile == null) {
+        if (this.profile == null) {
             Log.warning("Unable to create production context.");
-        } else if (this.primaryCtx == null) {
-            Log.warning("Unable to create PRIMARY database context.");
         } else {
+            final Cache cache = new Cache(this.profile);
+
             try {
-                final DbConnection conn = this.primaryCtx.checkOutConnection();
-                final Cache cache = new Cache(this.dbProfile, conn);
-                try {
-                    execute(cache, report);
-                } finally {
-                    this.primaryCtx.checkInConnection(conn);
-                }
+                execute(cache, report);
             } catch (final SQLException ex) {
                 report.add("EXCEPTION: " + ex.getMessage());
             }
@@ -168,7 +154,7 @@ public final class PrecalcProgressReport {
 
         // Remove "forfeit" courses and Incomplete courses not counted in pace
         regs.removeIf(next -> "G".equals(next.openStatus) || ("Y".equals(next.iInProgress)
-                && "N".equals(next.iCounted)));
+                                                              && "N".equals(next.iCounted)));
 
         // Order them by "pace order" if present, by course number if not
         final List<RawStcourse> ordered = new ArrayList<>(regs.size());
@@ -266,7 +252,7 @@ public final class PrecalcProgressReport {
                     LocalDate completed = null;
                     for (final RawStexam stexam : stexams) {
                         if (stexam.course.equals(reg.course) && stexam.unit.intValue() == unit
-                                && "R".equals(stexam.examType) && "Y".equals(stexam.passed)) {
+                            && "R".equals(stexam.examType) && "Y".equals(stexam.passed)) {
                             if (completed == null || completed.isAfter(stexam.examDt)) {
                                 completed = stexam.examDt;
                             }
@@ -324,7 +310,7 @@ public final class PrecalcProgressReport {
                 LocalDate completed = null;
                 for (final RawStexam stexam : stexams) {
                     if (stexam.course.equals(reg.course) && stexam.unit.intValue() == 5
-                            && "F".equals(stexam.examType) && "Y".equals(stexam.passed)) {
+                        && "F".equals(stexam.examType) && "Y".equals(stexam.passed)) {
                         if (completed == null || completed.isAfter(stexam.examDt)) {
                             completed = stexam.examDt;
                         }
@@ -400,8 +386,8 @@ public final class PrecalcProgressReport {
      */
     public static void main(final String... args) {
 
-         final PrecalcProgressReport job = new PrecalcProgressReport("athletes_summary",
-         "ATHLETE", "PRECALCULUS PROGRESS REPORT FOR REGISTERED STUDENT ATHLETES");
+        final PrecalcProgressReport job = new PrecalcProgressReport("athletes_summary",
+                "ATHLETE", "PRECALCULUS PROGRESS REPORT FOR REGISTERED STUDENT ATHLETES");
 
 //        final PrecalcProgressReport job =
 //                new PrecalcProgressReport("engineering_summary", "ENGRSTU",

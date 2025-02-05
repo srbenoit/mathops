@@ -11,7 +11,6 @@ import java.util.Objects;
 /**
  * A raw "admin_hold" record.
  */
-@Deprecated
 public final class RawAdminHold extends RecBase implements Comparable<RawAdminHold> {
 
     /** The table name. */

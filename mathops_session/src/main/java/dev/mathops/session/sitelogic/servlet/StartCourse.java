@@ -3,10 +3,9 @@ package dev.mathops.session.sitelogic.servlet;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
-import dev.mathops.db.type.TermKey;
-import dev.mathops.db.old.cfg.DbProfile;
+import dev.mathops.db.cfg.Profile;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCsection;
@@ -14,6 +13,7 @@ import dev.mathops.db.old.rawrecord.RawPacingStructure;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.rec.TermRec;
+import dev.mathops.db.type.TermKey;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -28,11 +28,11 @@ public final class StartCourse extends LogicBase {
     /**
      * Constructs a new {@code StartCourse}.
      *
-     * @param theDbProfile the database profile under which this site is accessed
+     * @param theProfile the database profile under which this site is accessed
      */
-    public StartCourse(final DbProfile theDbProfile) {
+    public StartCourse(final Profile theProfile) {
 
-        super(theDbProfile);
+        super(theProfile);
     }
 
     /**

@@ -1,6 +1,8 @@
 package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawZipCode;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -34,29 +36,31 @@ public enum RawZipCodeLogic {
      * @return {@code true} if successful; {@code false} otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    public static boolean insert(final Cache cache, final RawZipCode record)
-            throws SQLException {
+    public static boolean insert(final Cache cache, final RawZipCode record) throws SQLException {
 
         if (record.zipCode == null || record.city == null || record.state == null) {
             throw new SQLException("Null value in primary key or required field.");
         }
 
-        final String sql = SimpleBuilder.concat("INSERT INTO zip_code ",
-                "(zip_code,city,state) VALUES (",
+        final String sql = SimpleBuilder.concat("INSERT INTO zip_code (zip_code,city,state) VALUES (",
                 LogicUtils.sqlStringValue(record.zipCode), ",",
                 LogicUtils.sqlStringValue(record.city), ",",
                 LogicUtils.sqlStringValue(record.state), ")");
 
-        try (final Statement stmt = cache.conn.createStatement()) { //
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -68,25 +72,26 @@ public enum RawZipCodeLogic {
      * @return {@code true} if successful; {@code false} otherwise
      * @throws SQLException if there is an error accessing the database
      */
-    public static boolean delete(final Cache cache, final RawZipCode record)
-            throws SQLException {
+    public static boolean delete(final Cache cache, final RawZipCode record) throws SQLException {
 
-        final boolean result;
+        final String sql = SimpleBuilder.concat("DELETE FROM zip_code WHERE zip_code=",
+                LogicUtils.sqlStringValue(record.zipCode));
 
-        final String sql = SimpleBuilder.concat("DELETE FROM zip_code ",
-                "WHERE zip_code=", LogicUtils.sqlStringValue(record.zipCode));
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
-        try (final Statement stmt = cache.conn.createStatement()) {
-            result = stmt.executeUpdate(sql) == 1;
+        try (final Statement stmt = conn.createStatement()) {
+            final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
-        }
 
-        return result;
+            return result;
+        } finally {
+            Cache.checkInConnection(conn);
+        }
     }
 
     /**
@@ -100,12 +105,16 @@ public enum RawZipCodeLogic {
 
         final List<RawZipCode> result = new ArrayList<>(500);
 
-        try (final Statement stmt = cache.conn.createStatement(); //
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery("SELECT * FROM zip_code")) {
 
             while (rs.next()) {
                 result.add(RawZipCode.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;

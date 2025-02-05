@@ -5,11 +5,8 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStmpeLogic;
@@ -47,10 +44,7 @@ public final class PlacementReport {
     private final Collection<String> studentIds;
 
     /** The database profile through which to access the database. */
-    private final DbProfile dbProfile;
-
-    /** The Primary database context. */
-    private final DbContext primaryCtx;
+    private final Profile profile;
 
     /**
      * Constructs a new {@code PlacementReport}.
@@ -64,9 +58,8 @@ public final class PlacementReport {
         this.category = theCategory;
         this.studentIds = null;
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-        this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
-        this.primaryCtx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        this.profile = config.getCodeProfile(Contexts.BATCH_PATH);
     }
 
     /**
@@ -103,51 +96,46 @@ public final class PlacementReport {
 
     /**
      * Generates the report content.
+     *
      * @param report a collection to which to add report lines
-     * @param csv a collection to which to add comma-separated values lines
+     * @param csv    a collection to which to add comma-separated values lines
      */
     public void generate(final Collection<String> report, final Collection<String> csv) {
 
-        if (this.dbProfile == null) {
+        if (this.profile == null) {
             Log.warning("Unable to create production context.");
-        } else if (this.primaryCtx == null) {
-            Log.warning("Unable to create PRIMARY database context.");
         } else {
+            final Cache cache = new Cache(this.profile);
+
             try {
-                final DbConnection conn = this.primaryCtx.checkOutConnection();
-                final Cache cache = new Cache(this.dbProfile, conn);
-                try {
-                    final LocalDate now = LocalDate.now();
+                final LocalDate now = LocalDate.now();
 
-                    report.add("                      ** C O N F I D E N T I A L **");
-                    report.add("                        COLORADO STATE UNIVERSITY");
-                    report.add("                        DEPARTMENT OF MATHEMATICS");
-                    report.add("                      MATHEMATICS PLACEMENT RESULTS");
-                    report.add("                         Report Date:   " + TemporalUtils.FMT_MDY.format(now));
-                    report.add(CoreConstants.EMPTY);
-                    report.add(CoreConstants.EMPTY);
-                    report.add("NAME                  STUDENT ID  RESULTS");
-                    report.add("---------------       ----------  ------------------------------------------");
+                report.add("                      ** C O N F I D E N T I A L **");
+                report.add("                        COLORADO STATE UNIVERSITY");
+                report.add("                        DEPARTMENT OF MATHEMATICS");
+                report.add("                      MATHEMATICS PLACEMENT RESULTS");
+                report.add("                         Report Date:   " + TemporalUtils.FMT_MDY.format(now));
+                report.add(CoreConstants.EMPTY);
+                report.add(CoreConstants.EMPTY);
+                report.add("NAME                  STUDENT ID  RESULTS");
+                report.add("---------------       ----------  ------------------------------------------");
 
-                    csv.add("Name," //
-                            + "Student ID," //
-                            + "MPT Attempts," //
-                            + "OK for 117/127," //
-                            + "Out of 117," //
-                            + "Out of 118," //
-                            + "Out Of 124," //
-                            + "Out Of 125," //
-                            + "Out Of 126," //
-                            + "Ready for 160");
+                csv.add("Name," //
+                        + "Student ID," //
+                        + "MPT Attempts," //
+                        + "OK for 117/127," //
+                        + "Out of 117," //
+                        + "Out of 118," //
+                        + "Out Of 124," //
+                        + "Out Of 125," //
+                        + "Out Of 126," //
+                        + "Ready for 160");
 
-                    // Get the list of students whose status to process (sorted by name)
-                    final List<RawStudent> students = gatherStudents(cache);
+                // Get the list of students whose status to process (sorted by name)
+                final List<RawStudent> students = gatherStudents(cache);
 
-                    for (final RawStudent stu : students) {
-                        processStudent(stu, cache, report, csv);
-                    }
-                } finally {
-                    this.primaryCtx.checkInConnection(conn);
+                for (final RawStudent stu : students) {
+                    processStudent(stu, cache, report, csv);
                 }
             } catch (final SQLException ex) {
                 report.add("EXCEPTION: " + ex.getMessage());

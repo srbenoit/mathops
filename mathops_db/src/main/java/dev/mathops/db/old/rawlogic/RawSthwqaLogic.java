@@ -3,6 +3,7 @@ package dev.mathops.db.old.rawlogic;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.old.rawrecord.RawSthwqa;
 import dev.mathops.text.builder.SimpleBuilder;
@@ -67,14 +68,18 @@ public enum RawSthwqaLogic {
                     LogicUtils.sqlDateValue(record.hwDt), ",",
                     LogicUtils.sqlIntegerValue(record.finishTime), ")");
 
-            try (final Statement stmt = cache.conn.createStatement()) {
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement()) {
                 result = stmt.executeUpdate(sql) == 1;
 
                 if (result) {
-                    cache.conn.commit();
+                    conn.commit();
                 } else {
-                    cache.conn.rollback();
+                    conn.rollback();
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -96,16 +101,20 @@ public enum RawSthwqaLogic {
                 " AND question_nbr=", LogicUtils.sqlIntegerValue(record.questionNbr),
                 " AND answer_nbr=", LogicUtils.sqlIntegerValue(record.answerNbr));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -118,7 +127,7 @@ public enum RawSthwqaLogic {
      */
     public static List<RawSthwqa> queryAll(final Cache cache) throws SQLException {
 
-        return executeQuery(cache.conn, "SELECT * FROM sthwqa");
+        return executeQuery(cache, "SELECT * FROM sthwqa");
     }
 
     /**
@@ -133,7 +142,7 @@ public enum RawSthwqaLogic {
 
         final String sql = SimpleBuilder.concat("SELECT * FROM sthwqa WHERE stu_id=", LogicUtils.sqlStringValue(stuId));
 
-        return executeQuery(cache.conn, sql);
+        return executeQuery(cache, sql);
     }
 
     /**
@@ -149,7 +158,7 @@ public enum RawSthwqaLogic {
         final String sql = SimpleBuilder.concat("SELECT * FROM sthwqa WHERE serial_nbr=",
                 LogicUtils.sqlLongValue(serial));
 
-        return executeQuery(cache.conn, sql);
+        return executeQuery(cache, sql);
     }
 
     /**
@@ -167,25 +176,32 @@ public enum RawSthwqaLogic {
         final String sql = SimpleBuilder.concat("DELETE FROM sthwqa ",
                 "WHERE serial_nbr=", LogicUtils.sqlLongValue(record.serialNbr));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             stmt.executeUpdate(sql);
-            cache.conn.commit();
-            return true;
+            conn.commit();
+        } finally {
+            Cache.checkInConnection(conn);
         }
+
+        return true;
     }
 
     /**
      * Executes a query that returns a list of records.
      *
-     * @param conn the database connection, checked out to this thread
-     * @param sql  the SQL to execute
+     * @param cache the data cache
+     * @param sql   the SQL to execute
      * @return the list of matching records
      * @throws SQLException if there is an error accessing the database
      */
-    private static List<RawSthwqa> executeQuery(final DbConnection conn, final String sql)
+    private static List<RawSthwqa> executeQuery(final Cache cache, final String sql)
             throws SQLException {
 
         final List<RawSthwqa> result = new ArrayList<>(50);
+
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
         try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
@@ -193,6 +209,8 @@ public enum RawSthwqaLogic {
             while (rs.next()) {
                 result.add(RawSthwqa.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;

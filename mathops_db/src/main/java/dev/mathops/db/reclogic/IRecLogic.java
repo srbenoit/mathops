@@ -1,10 +1,11 @@
 package dev.mathops.db.reclogic;
 
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.cfg.DbConfig;
+import dev.mathops.db.DbConnection;
 import dev.mathops.db.EDbProduct;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.Profile;
+import dev.mathops.db.cfg.Facet;
 import dev.mathops.db.rec.RecBase;
 import dev.mathops.text.builder.HtmlBuilder;
 
@@ -39,10 +40,10 @@ public interface IRecLogic<T extends RecBase> {
      */
     static EDbProduct getDbType(final Cache cache) {
 
-        final DbProfile dbProfile = cache.getDbProfile();
-        final DbConfig db = dbProfile.getDbContext(ESchemaUse.PRIMARY).loginConfig.db;
+        final Profile profile = cache.getProfile();
+        final Facet facet = profile.getFacet(ESchema.LEGACY);
 
-        return db.server.type;
+        return facet.login.database.server.type;
     }
 
     /**
@@ -400,16 +401,20 @@ public interface IRecLogic<T extends RecBase> {
      */
     default boolean doUpdateOneRow(final Cache cache, final String sql) throws SQLException {
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -425,12 +430,16 @@ public interface IRecLogic<T extends RecBase> {
 
         T result = null;
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
 
             if (rs.next()) {
                 result = fromResultSet(rs);
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -448,12 +457,16 @@ public interface IRecLogic<T extends RecBase> {
 
         final List<T> result = new ArrayList<>(10);
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 result.add(fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;

@@ -75,7 +75,7 @@ enum PageHtmlPastExam {
                     redirect = "course.html?course=" + course + "&mode=" + mode;
                 }
 
-                pes = new PastExamSession(cache, site.siteProfile, session.loginSessionId, exam,
+                pes = new PastExamSession(cache, site.site, session.loginSessionId, exam,
                         xml, session.getEffectiveUserId(), redirect);
                 store.setPastExamSession(pes);
             }

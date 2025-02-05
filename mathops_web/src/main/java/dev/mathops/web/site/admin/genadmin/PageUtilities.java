@@ -85,7 +85,7 @@ enum PageUtilities {
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
-        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.siteProfile.path,
+        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.site.path,
                 "'>");
 
         htm.addln("  <information>");
@@ -144,7 +144,7 @@ enum PageUtilities {
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
-        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.siteProfile.path,
+        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.site.path,
                 "'>");
 
         htm.addln("  <information>");
@@ -196,7 +196,7 @@ enum PageUtilities {
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
-        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.siteProfile.path,
+        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.site.path,
                 "'>");
 
         htm.addln("  <information>");
@@ -249,7 +249,7 @@ enum PageUtilities {
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
-        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.siteProfile.path,
+        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.site.path,
                 "'>");
 
         htm.addln("  <information>");
@@ -303,7 +303,7 @@ enum PageUtilities {
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
-        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.siteProfile.path,
+        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.site.path,
                 "'>");
 
         htm.addln("  <information>");
@@ -359,7 +359,7 @@ enum PageUtilities {
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
-        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.siteProfile.path,
+        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.site.path,
                 "'>");
 
         htm.addln("  <information>");
@@ -413,7 +413,7 @@ enum PageUtilities {
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
-        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.siteProfile.path,
+        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.site.path,
                 "'>");
 
         htm.addln("  <information>");
@@ -468,7 +468,7 @@ enum PageUtilities {
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
-        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.siteProfile.path,
+        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.site.path,
                 "'>");
 
         htm.addln("  <information>");
@@ -522,7 +522,7 @@ enum PageUtilities {
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
-        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.siteProfile.path,
+        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.site.path,
                 "'>");
 
         htm.addln("  <information>");
@@ -575,7 +575,7 @@ enum PageUtilities {
 
         htm.addln("<?xml version='1.0' encoding='utf-8'?>");
 
-        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.siteProfile.path,
+        htm.addln("<jnlp spec='6.0+' codebase='", scheme, "://", host, CoreConstants.COLON, port, site.site.path,
                 "'>");
 
         htm.addln("  <information>");

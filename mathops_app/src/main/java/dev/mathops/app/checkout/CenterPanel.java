@@ -3,10 +3,7 @@ package dev.mathops.app.checkout;
 import dev.mathops.app.checkin.TestingCenterMap;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
 import dev.mathops.db.old.rawrecord.RawClientPc;
 import dev.mathops.font.BundledFontManager;
@@ -22,8 +19,8 @@ import java.sql.SQLException;
 import java.util.List;
 
 /**
- * A panel to appear in the center of the check-in application. This panel displays a map of the testing center,
- * showing the status of all stations, and is used for buttons when selecting course/unit for exams.
+ * A panel to appear in the center of the check-in application. This panel displays a map of the testing center, showing
+ * the status of all stations, and is used for buttons when selecting course/unit for exams.
  */
 final class CenterPanel extends JPanel implements Runnable {
 
@@ -35,7 +32,7 @@ final class CenterPanel extends JPanel implements Runnable {
     private static final String VERSION = "v2.3.6 (May 13, 2024)";
 
     /** The database profile. */
-    private final DbProfile dbProfile;
+    private final Profile profile;
 
     /** The testing center ID being managed. */
     private final String testingCenterId;
@@ -49,17 +46,17 @@ final class CenterPanel extends JPanel implements Runnable {
     /**
      * Constructs a new {@code CenterPanel}.
      *
-     * @param theDbProfile       the database profile
+     * @param theProfile         the database profile
      * @param theTestingCenterId the testing center ID being managed
      */
-    CenterPanel(final DbProfile theDbProfile, final String theTestingCenterId) {
+    CenterPanel(final Profile theProfile, final String theTestingCenterId) {
 
         super();
 
         // NOTE: This constructor is called from the GUI builder in the main application, which
         // runs in the AWT thread, so we are safe to do AWT operations.
 
-        this.dbProfile = theDbProfile;
+        this.profile = theProfile;
         this.testingCenterId = theTestingCenterId;
 
         setLayout(null);
@@ -102,23 +99,16 @@ final class CenterPanel extends JPanel implements Runnable {
     @Override
     public void run() {
 
-
         // Every 5 seconds, query the testing stations
         while (isVisible()) {
 
-            final DbContext ctx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
-            try {
-                final DbConnection conn = ctx.checkOutConnection();
-                final Cache cache = new Cache(this.dbProfile, conn);
+            final Cache cache = new Cache(this.profile);
 
-                try {
-                    final List<RawClientPc> stations = RawClientPcLogic.queryByTestingCenter(cache,
-                            this.testingCenterId);
-                    this.map.updateTestingStations(stations);
-                    repaint();
-                } finally {
-                    ctx.checkInConnection(conn);
-                }
+            try {
+                final List<RawClientPc> stations = RawClientPcLogic.queryByTestingCenter(cache,
+                        this.testingCenterId);
+                this.map.updateTestingStations(stations);
+                repaint();
             } catch (final SQLException ex) {
                 Log.warning(ex);
             }

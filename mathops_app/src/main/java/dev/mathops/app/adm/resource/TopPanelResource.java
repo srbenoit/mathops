@@ -169,7 +169,7 @@ public final class TopPanelResource extends JPanel implements ActionListener {
         // Card 4: View Outstanding Items
 
         if (fixed.getClearanceLevel("RES_OUTST") != null) {
-            this.outstandingCard = new OutstandingResourceCard(theCache.conn);
+            this.outstandingCard = new OutstandingResourceCard(theCache);
             this.cardPane.add(this.outstandingCard, OUTSTANDING_CMD);
         } else {
             this.outstandingCard = null;

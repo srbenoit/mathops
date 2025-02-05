@@ -2,13 +2,13 @@ package dev.mathops.dbjobs.batch;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.Contexts;
 import dev.mathops.db.Cache;
+import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
 import dev.mathops.db.old.logic.mathplan.MathPlanPlacementStatus;
 import dev.mathops.db.old.rawlogic.RawMpscorequeueLogic;
@@ -161,24 +161,15 @@ public final class BulkUpdateMPLTestScores {
     private static final Integer ONE = Integer.valueOf(1);
 
     /** The database profile through which to access the database. */
-    private final DbProfile dbProfile;
-
-    /** The Primary database context. */
-    private final DbContext primaryCtx;
-
-    /** The live data database context. */
-    private final DbContext liveCtx;
+    private final Profile profile;
 
     /**
      * Constructs a new {@code BulkUpdateMPLTestScores}.
      */
     public BulkUpdateMPLTestScores() {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-
-        this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
-        this.primaryCtx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
-        this.liveCtx = this.dbProfile.getDbContext(ESchemaUse.LIVE);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        this.profile = config.getCodeProfile(Contexts.BATCH_PATH);
     }
 
     /**
@@ -190,27 +181,15 @@ public final class BulkUpdateMPLTestScores {
 
         final Collection<String> report = new ArrayList<>(10);
 
-        if (this.dbProfile == null) {
-            final String msg = "Unable to create production context.";
-            Log.warning(msg);
-            report.add(msg);
-        } else if (this.primaryCtx == null) {
-            final String msg = "Unable to create PRIMARY database context.";
-            Log.warning(msg);
-            report.add(msg);
-        } else if (this.liveCtx == null) {
-            final String msg = "Unable to create LIVE database context.";
+        if (this.profile == null) {
+            final String msg = "Unable to create production profile.";
             Log.warning(msg);
             report.add(msg);
         } else {
+            final Cache cache = new Cache(this.profile);
+
             try {
-                final DbConnection conn = this.primaryCtx.checkOutConnection();
-                final Cache cache = new Cache(this.dbProfile, conn);
-                try {
-                    execute(cache, report);
-                } finally {
-                    this.primaryCtx.checkInConnection(conn);
-                }
+                execute(cache, report);
             } catch (final SQLException ex) {
                 final String exMsg = ex.getMessage();
                 final String msg = HtmlBuilder.concat("EXCEPTION: ", exMsg);
@@ -293,7 +272,9 @@ public final class BulkUpdateMPLTestScores {
         Log.fine(msg5);
         report.add(msg5);
 
-        final DbConnection liveConn = this.liveCtx.checkOutConnection();
+        final Login login = this.profile.getLogin(ESchema.LIVE);
+
+        final DbConnection liveConn = login.checkOutConnection();
         final LocalDateTime now = LocalDateTime.now();
         try {
             int count1 = 0;
@@ -350,7 +331,9 @@ public final class BulkUpdateMPLTestScores {
                     if (wantValue == null) {
                         if (mostRecent != null) {
                             final String msg = HtmlBuilder.concat("Student ", stuId, " who has not completed " +
-                                    "MathPlan" + " has a MPL score of ", mostRecent.testScore);
+                                                                                     "MathPlan" + " has a MPL score " +
+                                                                                     "of ",
+                                    mostRecent.testScore);
                             Log.warning(msg);
                             report.add(msg);
                         }
@@ -403,7 +386,7 @@ public final class BulkUpdateMPLTestScores {
             Log.fine(msg7);
             report.add(msg7);
         } finally {
-            this.liveCtx.checkInConnection(liveConn);
+            login.checkInConnection(liveConn);
         }
     }
 
@@ -426,30 +409,30 @@ public final class BulkUpdateMPLTestScores {
         } else if (MAJORS_NEEDING_MORE.contains(programCode)) {
             auccOnly = false;
         } else if (programCode.endsWith("-GR")
-                || programCode.endsWith("-MS")
-                || programCode.endsWith("-MA")
-                || programCode.endsWith("-MFA")
-                || programCode.endsWith("-CT")
-                || programCode.endsWith("-SI")
-                || programCode.endsWith("-MAS")
-                || programCode.endsWith("-ME")
-                || programCode.endsWith("-MBA")
-                || programCode.endsWith("-DVM")
-                || programCode.endsWith("-MTM")
-                || programCode.endsWith("-MCS")
-                || programCode.endsWith("-MAGR")
-                || programCode.endsWith("-MPSM")
-                || programCode.endsWith("-MACC")
-                || programCode.endsWith("-MCIS")
-                || programCode.endsWith("-MCMM")
-                || programCode.endsWith("-MPPA")
-                || programCode.endsWith("-MFIN")
-                || programCode.endsWith("-MIOP")
-                || programCode.endsWith("-MSW")
-                || programCode.endsWith("-MED")
-                || programCode.endsWith("-DOT")
-                || programCode.endsWith("-MCL")
-                || programCode.endsWith("-PHD")) {
+                   || programCode.endsWith("-MS")
+                   || programCode.endsWith("-MA")
+                   || programCode.endsWith("-MFA")
+                   || programCode.endsWith("-CT")
+                   || programCode.endsWith("-SI")
+                   || programCode.endsWith("-MAS")
+                   || programCode.endsWith("-ME")
+                   || programCode.endsWith("-MBA")
+                   || programCode.endsWith("-DVM")
+                   || programCode.endsWith("-MTM")
+                   || programCode.endsWith("-MCS")
+                   || programCode.endsWith("-MAGR")
+                   || programCode.endsWith("-MPSM")
+                   || programCode.endsWith("-MACC")
+                   || programCode.endsWith("-MCIS")
+                   || programCode.endsWith("-MCMM")
+                   || programCode.endsWith("-MPPA")
+                   || programCode.endsWith("-MFIN")
+                   || programCode.endsWith("-MIOP")
+                   || programCode.endsWith("-MSW")
+                   || programCode.endsWith("-MED")
+                   || programCode.endsWith("-DOT")
+                   || programCode.endsWith("-MCL")
+                   || programCode.endsWith("-PHD")) {
             // Don't force grad students through the placement tool...
             auccOnly = true;
         } else {
@@ -488,6 +471,7 @@ public final class BulkUpdateMPLTestScores {
      */
     public static void main(final String... args) {
 
+        DbConnection.registerDrivers();
         final BulkUpdateMPLTestScores job = new BulkUpdateMPLTestScores();
 
         final String log = job.execute();

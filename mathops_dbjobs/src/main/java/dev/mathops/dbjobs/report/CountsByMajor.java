@@ -1,15 +1,12 @@
 package dev.mathops.dbjobs.report;
 
-
 import dev.mathops.commons.EqualityTests;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.old.rawlogic.RawSttermLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStterm;
@@ -31,8 +28,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * Generates a report that all distinct majors for students enrolled in courses in the active term, with a count
- * of the number of students in that major.
+ * Generates a report that all distinct majors for students enrolled in courses in the active term, with a count of the
+ * number of students in that major.
  */
 final class CountsByMajor implements Runnable {
 
@@ -61,31 +58,21 @@ final class CountsByMajor implements Runnable {
     @Override
     public void run() {
 
-        final DbProfile dbProfile = ContextMap.getDefaultInstance().getCodeProfile(Contexts.REPORT_PATH);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        final Profile profile = config.getCodeProfile(Contexts.REPORT_PATH);
 
         final HtmlBuilder report = new HtmlBuilder(10000);
 
-        if (dbProfile == null) {
+        if (profile == null) {
             report.addln("*** ERROR: There is no database code profile named 'report'.");
         } else {
-            Log.info("Using ", dbProfile.id, " profile");
+            Log.info("Using ", profile.id, " profile");
+            final Cache cache = new Cache(profile);
 
-            final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
-            try {
-                final DbConnection conn = ctx.checkOutConnection();
-                final Cache cache = new Cache(dbProfile, conn);
+            Log.info("Generating count of registrations by program.....please wait.");
 
-                try {
-                    Log.info("Generating count of registrations by program.....please wait.");
-
-                    compute(cache);
-                    generateReport(report);
-                } finally {
-                    ctx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-            }
+            compute(cache);
+            generateReport(report);
         }
 
         final LocalDateTime now = LocalDateTime.now();
@@ -120,14 +107,14 @@ final class CountsByMajor implements Runnable {
                     if (currentCount == null) {
                         this.counts.put(code, Integer.valueOf(1));
                     } else {
-                        this.counts.put(code, Integer.valueOf(currentCount.intValue()+1));
+                        this.counts.put(code, Integer.valueOf(currentCount.intValue() + 1));
                     }
 
                     final Integer currentAggregate = this.aggregate.get(prefix);
                     if (currentAggregate == null) {
                         this.aggregate.put(prefix, Integer.valueOf(1));
                     } else {
-                        this.aggregate.put(prefix, Integer.valueOf(currentAggregate.intValue()+1));
+                        this.aggregate.put(prefix, Integer.valueOf(currentAggregate.intValue() + 1));
                     }
                 }
             }
@@ -203,6 +190,7 @@ final class CountsByMajor implements Runnable {
      */
     public static void main(final String... args) {
 
+        DbConnection.registerDrivers();
         new CountsByMajor().run();
     }
 }

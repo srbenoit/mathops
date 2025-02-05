@@ -6,8 +6,8 @@ import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
 import dev.mathops.db.Cache;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.db.logic.ELiveRefreshes;
-import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
@@ -36,12 +36,12 @@ public final class PrecalcTutorialSite extends AbstractPageSite {
     /**
      * Constructs a new {@code PrecalcTutorialSite}.
      *
-     * @param theSiteProfile the website profile
-     * @param theSessions    the singleton user session repository
+     * @param theSite     the website profile
+     * @param theSessions the singleton user session repository
      */
-    public PrecalcTutorialSite(final WebSiteProfile theSiteProfile, final ISessionManager theSessions) {
+    public PrecalcTutorialSite(final Site theSite, final ISessionManager theSessions) {
 
-        super(theSiteProfile, theSessions);
+        super(theSite, theSessions);
     }
 
     /**
@@ -73,7 +73,7 @@ public final class PrecalcTutorialSite extends AbstractPageSite {
             throws IOException, SQLException {
 
         if (CoreConstants.EMPTY.equals(subpath)) {
-            final String path = this.siteProfile.path;
+            final String path = this.site.path;
             resp.sendRedirect(path + (path.endsWith(CoreConstants.SLASH) ? "index.html" : "/index.html"));
         } else if ("basestyle.css".equals(subpath)) {
             sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
@@ -92,7 +92,7 @@ public final class PrecalcTutorialSite extends AbstractPageSite {
         } else if ("favicon.ico".equals(subpath)) {
             serveImage(subpath, req, resp);
         } else {
-            final String maintenanceMsg = isMaintenance(this.siteProfile);
+            final String maintenanceMsg = isMaintenance(this.site);
 
             if (maintenanceMsg == null) {
                 if ("index.html".equals(subpath) || "login.html".equals(subpath)) {
@@ -106,7 +106,7 @@ public final class PrecalcTutorialSite extends AbstractPageSite {
                             doShibbolethLogin(cache, req, resp, null, "home.html");
                         } else {
                             Log.warning("Unrecognized GET request path: ", subpath);
-                            final String path = this.siteProfile.path;
+                            final String path = this.site.path;
                             resp.sendRedirect(path + (path.endsWith(CoreConstants.SLASH)
                                     ? "index.html" : "/index.html"));
                         }
@@ -161,7 +161,7 @@ public final class PrecalcTutorialSite extends AbstractPageSite {
                                     PageSchedulePrecalcPu.doGet(cache, this, req, resp, session, logic);
                             default -> {
                                 Log.warning("Unrecognized GET request path: ", subpath);
-                                final String path = this.siteProfile.path;
+                                final String path = this.site.path;
                                 resp.sendRedirect(path + (path.endsWith(CoreConstants.SLASH)
                                         ? "index.html" : "/index.html"));
                             }
@@ -190,7 +190,7 @@ public final class PrecalcTutorialSite extends AbstractPageSite {
     public void doPost(final Cache cache, final String subpath, final ESiteType type, final HttpServletRequest req,
                        final HttpServletResponse resp) throws IOException, SQLException {
 
-        final String maintenanceMsg = isMaintenance(this.siteProfile);
+        final String maintenanceMsg = isMaintenance(this.site);
 
         if (maintenanceMsg == null) {
             if ("login.html".equals(subpath)) {
@@ -218,8 +218,9 @@ public final class PrecalcTutorialSite extends AbstractPageSite {
                         case "process_proctor_login.html" -> doProcessProctorLogin(req, resp);
                         case null, default -> {
                             Log.warning("Unrecognized POST request path: ", subpath);
-                            final String path = this.siteProfile.path;
-                            resp.sendRedirect(path + (path.endsWith(CoreConstants.SLASH) ? "index.html" : "/index.html"));
+                            final String path = this.site.path;
+                            resp.sendRedirect(
+                                    path + (path.endsWith(CoreConstants.SLASH) ? "index.html" : "/index.html"));
                         }
                     }
 

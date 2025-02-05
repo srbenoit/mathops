@@ -3,15 +3,12 @@ package dev.mathops.web.site.course;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.logic.MilestoneLogic;
-import dev.mathops.db.old.rawrecord.RawStterm;
-import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.type.TermKey;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.enums.EProctoringOption;
 import dev.mathops.db.enums.ERole;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.old.logic.MilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
@@ -28,7 +25,10 @@ import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
+import dev.mathops.db.old.rawrecord.RawStterm;
+import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.rec.TermRec;
+import dev.mathops.db.type.TermKey;
 import dev.mathops.session.ExamWriter;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
@@ -47,7 +47,6 @@ import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.html.unitexam.UnitExamSessionStore;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -224,12 +223,15 @@ enum PageOutline {
                                 msg = SimpleBuilder.concat("You had an extension of ", availableStr,
                                         " days available for the Unit ", unit, " ", typeStr,
                                         " based on your accommodation, but there were only ", grantedStr,
-                                        " days before the end of the term, so we moved your deadline to the end of the ",
-                                        "term.  If you cannot finish the course by the end of the term, please stop in to ",
+                                        " days before the end of the term, so we moved your deadline to the end of " +
+                                        "the ",
+                                        "term.  If you cannot finish the course by the end of the term, please stop " +
+                                        "in to ",
                                         "the Precalculus Center (Weber 137) or send an email to ",
                                         "precalc_math@colostate.edu to discuss your situation.");
                             } else if (days > 0 || days == -1) {
-                                msg = SimpleBuilder.concat("Your accommodation extension on the Unit ", unit, " ", typeStr,
+                                msg = SimpleBuilder.concat("Your accommodation extension on the Unit ", unit, " ",
+                                        typeStr,
                                         " has been applied.");
                             }
                         }
@@ -432,7 +434,7 @@ enum PageOutline {
                         "'>All Course Media</a>").eP();
             }
         } else {
-            final StudentCourseStatus courseStatus = new StudentCourseStatus(site.getDbProfile());
+            final StudentCourseStatus courseStatus = new StudentCourseStatus(site.site.profile);
 
             if (courseStatus.gatherData(cache, session, userId, courseId, false, isPractice)
                 && courseStatus.getCourse().courseName != null) {
@@ -1849,7 +1851,7 @@ enum PageOutline {
                                          final String skillsReviewCourse) throws SQLException {
 
         final int count = courseStatus.getNumLessons(unit);
-        final DbProfile dbProfile = site.getDbProfile();
+        final Profile dbProfile = site.site.profile;
         final CourseLesson less = new CourseLesson(dbProfile);
         final String courseId = courseStatus.getCourse().course;
         boolean newTold = told;

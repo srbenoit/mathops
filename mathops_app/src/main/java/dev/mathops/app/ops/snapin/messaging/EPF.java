@@ -1,15 +1,11 @@
 package dev.mathops.app.ops.snapin.messaging;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.type.TermKey;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.logic.PaceTrackLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
@@ -22,6 +18,7 @@ import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.rec.TermRec;
+import dev.mathops.db.type.TermKey;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -774,7 +771,7 @@ public enum EPF {
 
         for (final RawStexam exam : exams) {
             if (exam.unit.intValue() == unit && course.equals(exam.course) && "R".equals(exam.examType)
-                    && "Y".equals(exam.passed)) {
+                && "Y".equals(exam.passed)) {
                 missing = false;
                 break;
             }
@@ -844,54 +841,41 @@ public enum EPF {
      */
     public static void main(final String... args) {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
+        final DatabaseConfig dbConfig = DatabaseConfig.getDefault();
+        final Profile profile = dbConfig.getCodeProfile(Contexts.BATCH_PATH);
 
-        final DbProfile dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
-
-        if (dbProfile == null) {
+        if (profile == null) {
             Log.warning("Unable to create production context.");
         } else {
-            final DbContext dbCtx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
+            final Cache cache = new Cache(profile);
 
-            if (dbCtx == null) {
-                Log.warning("Unable to create database context.");
-            } else {
-                try {
-                    final DbConnection conn = dbCtx.checkOutConnection();
-                    final Cache cache = new Cache(dbProfile, conn);
+            final Map<String, List<String>> incCourseSections = new HashMap<>(10);
 
-                    final Map<String, List<String>> incCourseSections = new HashMap<>(10);
+//            final String[] sections = {"001", "401", "801", "809"};
+            final String[] sections = {"002"};
+            final List<String> sect117 = Arrays.asList(sections);
+            final List<String> sect118 = Arrays.asList(sections);
+            final List<String> sect124 = Arrays.asList(sections);
+            final List<String> sect125 = Arrays.asList(sections);
+            final List<String> sect126 = Arrays.asList(sections);
 
-//                    final String[] sections = {"001", "401", "801", "809"};
-                    final String[] sections = {"002"};
-                    final List<String> sect117 = Arrays.asList(sections);
-                    final List<String> sect118 = Arrays.asList(sections);
-                    final List<String> sect124 = Arrays.asList(sections);
-                    final List<String> sect125 = Arrays.asList(sections);
-                    final List<String> sect126 = Arrays.asList(sections);
+            incCourseSections.put(RawRecordConstants.M117, sect117);
+            incCourseSections.put(RawRecordConstants.M118, sect118);
+            incCourseSections.put(RawRecordConstants.M124, sect124);
+            incCourseSections.put(RawRecordConstants.M125, sect125);
+            incCourseSections.put(RawRecordConstants.M126, sect126);
 
-                    incCourseSections.put(RawRecordConstants.M117, sect117);
-                    incCourseSections.put(RawRecordConstants.M118, sect118);
-                    incCourseSections.put(RawRecordConstants.M124, sect124);
-                    incCourseSections.put(RawRecordConstants.M125, sect125);
-                    incCourseSections.put(RawRecordConstants.M126, sect126);
+            final Map<Integer, List<String>> result = calculate(cache, incCourseSections);
 
-                    final Map<Integer, List<String>> result = calculate(cache, incCourseSections);
+            for (final Map.Entry<Integer, List<String>> entry : result.entrySet()) {
+                Log.info(entry.getKey(), ": ", Integer.toString(entry.getValue().size()), " students");
+            }
 
-                    for (final Map.Entry<Integer, List<String>> entry : result.entrySet()) {
-                        Log.info(entry.getKey(), ": ", Integer.toString(entry.getValue().size()), " students");
-                    }
-
-                    final List<String> late = studentsNDaysLate(result, 10);
-                    Log.info("There are ", Integer.toString(late.size()),
-                            " students who are 10 days or more late, or have not yet started");
-                    for (final String id : late) {
-                        Log.fine(id);
-                    }
-
-                } catch (final SQLException ex) {
-                    Log.warning(ex);
-                }
+            final List<String> late = studentsNDaysLate(result, 10);
+            Log.info("There are ", Integer.toString(late.size()),
+                    " students who are 10 days or more late, or have not yet started");
+            for (final String id : late) {
+                Log.fine(id);
             }
         }
     }

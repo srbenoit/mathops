@@ -1,6 +1,8 @@
 package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawPendingExam;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -49,15 +51,14 @@ public enum RawPendingExamLogic {
     public static boolean insert(final Cache cache, final RawPendingExam record) throws SQLException {
 
         if (record.serialNbr == null || record.version == null || record.stuId == null
-                || record.examDt == null || record.startTime == null || record.course == null
-                || record.unit == null || record.examType == null) {
+            || record.examDt == null || record.startTime == null || record.course == null
+            || record.unit == null || record.examType == null) {
             throw new SQLException("Null value in primary key field.");
         }
 
         final String sql = SimpleBuilder.concat(
-                "INSERT INTO pending_exam (serial_nbr,version,stu_id,exam_dt,exam_score,",
-                "start_time,finish_time,time_ok,passed,seq_nbr,course,unit,exam_type,",
-                "timelimit_factor,stu_type) VALUES (",
+                "INSERT INTO pending_exam (serial_nbr,version,stu_id,exam_dt,exam_score,start_time,finish_time,",
+                "time_ok,passed,seq_nbr,course,unit,exam_type,timelimit_factor,stu_type) VALUES (",
                 LogicUtils.sqlLongValue(record.serialNbr), ",",
                 LogicUtils.sqlStringValue(record.version), ",",
                 LogicUtils.sqlStringValue(record.stuId), ",",
@@ -74,16 +75,20 @@ public enum RawPendingExamLogic {
                 LogicUtils.sqlFloatValue(record.timelimitFactor), ",",
                 LogicUtils.sqlStringValue(record.stuType), ")");
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -101,16 +106,20 @@ public enum RawPendingExamLogic {
                 " WHERE serial_nbr=", LogicUtils.sqlLongValue(record.serialNbr),
                 "   AND stu_id=", LogicUtils.sqlStringValue(record.stuId));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -129,16 +138,20 @@ public enum RawPendingExamLogic {
                 " WHERE serial_nbr=", LogicUtils.sqlLongValue(serialNbr),
                 "   AND stu_id=", LogicUtils.sqlStringValue(stuId));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -153,12 +166,16 @@ public enum RawPendingExamLogic {
 
         final List<RawPendingExam> result = new ArrayList<>(100);
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery("SELECT * FROM pending_exam")) {
 
             while (rs.next()) {
                 result.add(RawPendingExam.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -179,12 +196,16 @@ public enum RawPendingExamLogic {
 
         final String sql = "SELECT * FROM pending_exam WHERE stu_id=" + LogicUtils.sqlStringValue(stuId);
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 result.add(RawPendingExam.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;

@@ -185,7 +185,7 @@ enum PageStudentInfo {
                 htm.sP(null, "style='margin-left:20px;'")
                         .add("(student has no registrations this term)").eP();
             } else {
-                final StudentCourseStatus stat = new StudentCourseStatus(site.getDbProfile());
+                final StudentCourseStatus stat = new StudentCourseStatus(site.site.profile);
 
                 for (final RawStcourse reg : allPastAndCurrent) {
                     if (!reg.termKey.equals(active.term)) {
@@ -246,8 +246,8 @@ enum PageStudentInfo {
                             htm.addln("</summary>");
 
                             htm.sDiv(null, "style='background:#ffffe4;margin:0 0 15px 0;line-height:140%;"
-                                    + "padding:3px;border-width:0 1px 1px 1px;border-color:#888;"
-                                    + "border-style:solid;font-size:13px;text-align:left;min-width:688px;'");
+                                           + "padding:3px;border-width:0 1px 1px 1px;border-color:#888;"
+                                           + "border-style:solid;font-size:13px;text-align:left;min-width:688px;'");
 
                             final String pre = reg.prereqSatis;
                             boolean status = false;
@@ -494,7 +494,7 @@ enum PageStudentInfo {
             if (cunit == null || "SR".equals(cunit.unitType)) {
                 htm.sTd("ctr", "style='padding:2px 1px;'");
                 if ((systemData.getActiveExamByCourseUnitType(reg.course, Integer.valueOf(unit), "R") != null)
-                        && stat.isReviewPassed(unit)) {
+                    && stat.isReviewPassed(unit)) {
                     final boolean ontime = stat.isReviewPassedOnTime(unit);
                     final Integer pts = ontime ? cusect.rePointsOntime : null;
                     final int ptsInt = pts == null ? 0 : pts.intValue();
@@ -767,7 +767,7 @@ enum PageStudentInfo {
                 override = null;
                 for (final StudentStandardMilestoneRec test : overrides) {
                     if (test.paceIndex.equals(ms.paceIndex) && test.unit.equals(ms.unit)
-                            && test.objective.equals(ms.objective) && test.msType.equals(ms.msType)) {
+                        && test.objective.equals(ms.objective) && test.msType.equals(ms.msType)) {
                         override = test;
                         break;
                     }
@@ -797,7 +797,7 @@ enum PageStudentInfo {
                                     whenAttempted = attempt.whenFinished;
                                 }
                                 if ("Y".equals(attempt.passed) &&
-                                        (whenPassed == null || whenPassed.isAfter(attempt.whenFinished))) {
+                                    (whenPassed == null || whenPassed.isAfter(attempt.whenFinished))) {
                                     whenPassed = attempt.whenFinished;
                                 }
                             }

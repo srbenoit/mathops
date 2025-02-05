@@ -5,8 +5,8 @@ import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
 import dev.mathops.db.Cache;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.db.logic.ELiveRefreshes;
-import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
@@ -58,12 +58,12 @@ public final class CanvasSite extends AbstractSite {
     /**
      * Constructs a new {@code CanvasSite}.
      *
-     * @param theSiteProfile the website profile
-     * @param theSessions    the singleton user session repository
+     * @param theSite     the website profile
+     * @param theSessions the singleton user session repository
      */
-    public CanvasSite(final WebSiteProfile theSiteProfile, final ISessionManager theSessions) {
+    public CanvasSite(final Site theSite, final ISessionManager theSessions) {
 
-        super(theSiteProfile, theSessions);
+        super(theSite, theSessions);
     }
 
     /**
@@ -81,7 +81,7 @@ public final class CanvasSite extends AbstractSite {
     public void doGet(final Cache cache, final String subpath, final ESiteType type, final HttpServletRequest req,
                       final HttpServletResponse resp) throws IOException, SQLException {
 
-        final String path = this.siteProfile.path;
+        final String path = this.site.path;
 
         Log.info("GET ", subpath, " within ", path);
 
@@ -117,9 +117,9 @@ public final class CanvasSite extends AbstractSite {
     private void doPageGet(final Cache cache, final String subpath, final HttpServletRequest req,
                            final HttpServletResponse resp) throws IOException, SQLException {
 
-        final String path = this.siteProfile.path;
+        final String path = this.site.path;
 
-        final String maintenanceMsg = isMaintenance(this.siteProfile);
+        final String maintenanceMsg = isMaintenance(this.site);
 
         if (maintenanceMsg == null) {
             // The pages that follow require the user to be logged in
@@ -176,11 +176,11 @@ public final class CanvasSite extends AbstractSite {
     public void doPost(final Cache cache, final String subpath, final ESiteType type, final HttpServletRequest req,
                        final HttpServletResponse resp) throws IOException, SQLException {
 
-        final String path = this.siteProfile.path;
+        final String path = this.site.path;
 
         Log.info("POST ", subpath, " within ", path);
 
-        final String maintenanceMsg = isMaintenance(this.siteProfile);
+        final String maintenanceMsg = isMaintenance(this.site);
 
         if (maintenanceMsg == null) {
             final ImmutableSessionInfo session = validateSession(req, resp, LOGIN_PAGE);
@@ -310,7 +310,7 @@ public final class CanvasSite extends AbstractSite {
 
         final String result;
 
-        final String path = this.siteProfile.path;
+        final String path = this.site.path;
         final boolean endsWithSlash = path.endsWith(CoreConstants.SLASH);
         final String fixedPage = endsWithSlash ? page : ("/" + page);
 

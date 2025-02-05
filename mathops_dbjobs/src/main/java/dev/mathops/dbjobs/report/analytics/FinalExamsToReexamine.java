@@ -2,11 +2,9 @@ package dev.mathops.dbjobs.report.analytics;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.Contexts;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawStqaLogic;
@@ -101,7 +99,7 @@ final class FinalExamsToReexamine {
 
         if (scored14OnFinal && finalNotPassed) {
             Log.fine("Student " + reg.stuId + " in course " + reg.course + " has " + toReview.size()
-                    + " exams to review:");
+                     + " exams to review:");
 
             // Map from item number incorrect to number of times that item was answered correctly.
             final Map<Integer, Integer> incorrect = new HashMap<>(6);
@@ -162,30 +160,17 @@ final class FinalExamsToReexamine {
      */
     public static void main(final String... args) {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-        final DbProfile profile = map.getCodeProfile("batch");
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        final Profile profile = config.getCodeProfile(Contexts.BATCH_PATH);
 
         if (profile == null) {
-            Log.warning("Unable to create production context.");
+            Log.warning("Unable to create production profile.");
         } else {
-            final DbContext dbCtx = profile.getDbContext(ESchemaUse.PRIMARY);
+            final Cache cache = new Cache(profile);
+            Log.info("Connected to " + profile.id);
 
-            if (dbCtx == null) {
-                Log.warning("Unable to create database context.");
-            } else {
-                try {
-                    final DbConnection conn = dbCtx.checkOutConnection();
-                    final Cache cache = new Cache(profile, conn);
-
-                    Log.info("Connected to " + profile.id);
-
-                    final FinalExamsToReexamine obj = new FinalExamsToReexamine(cache);
-                    obj.calculate();
-
-                } catch (final SQLException ex) {
-                    Log.warning(ex);
-                }
-            }
+            final FinalExamsToReexamine obj = new FinalExamsToReexamine(cache);
+            obj.calculate();
         }
     }
 }

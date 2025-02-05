@@ -4,11 +4,12 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.EDbUse;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Profile;
+import dev.mathops.db.cfg.Facet;
 import dev.mathops.db.rec.StandardMilestoneRec;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -83,74 +84,68 @@ final class TestStandardMilestoneLogic {
     final class Informix {
 
         /** The Informix database profile. */
-        public static DbProfile informixProfile;
+        public static Profile informixProfile;
 
         /** The Informix database context. */
-        public static DbContext informixCtx;
+        public static Login informixLogin;
 
         /** Initialize the test class. */
         @BeforeAll
         static void initTests() {
 
-            informixProfile = ContextMap.getDefaultInstance().getCodeProfile(Contexts.INFORMIX_TEST_PATH);
+            final DatabaseConfig config = DatabaseConfig.getDefault();
+            informixProfile = config.getCodeProfile(Contexts.INFORMIX_TEST_PATH);
             if (informixProfile == null) {
                 throw new IllegalArgumentException(TestRes.get(TestRes.ERR_NO_IFXTEST_PROFILE));
             }
-
-            informixCtx = informixProfile.getDbContext(ESchemaUse.PRIMARY);
-            if (informixCtx == null) {
-                throw new IllegalArgumentException(TestRes.get(TestRes.ERR_NO_IFXPRIMARY_CONTEXT));
+            informixLogin = informixProfile.getLogin(ESchema.LEGACY);
+            if (informixLogin == null) {
+                throw new IllegalArgumentException(TestRes.get(TestRes.ERR_NO_PGPRIMARY_CONTEXT));
             }
 
             // Make sure the Informix connection is accessing the TEST database
-            try {
-                final DbConnection conn = informixCtx.checkOutConnection();
-
-                try {
-                    try (final Statement stmt = conn.createStatement();
-                         final ResultSet rs = stmt.executeQuery("SELECT descr FROM which_db")) {
-
-                        if (rs.next()) {
-                            final String which = rs.getString(1);
-                            if (which == null || !"TEST".equals(which.trim())) {
-                                throw new IllegalArgumentException(TestRes.fmt(TestRes.ERR_NOT_CONNECTED_TO_TEST,
-                                        which));
-                            }
-                        } else {
-                            throw new IllegalArgumentException(TestRes.get(TestRes.ERR_CANT_QUERY_WHICH_DB));
-                        }
-                    }
-                } finally {
-                    informixCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                throw new IllegalArgumentException(ex);
+            final Facet facet = informixProfile.getFacet(ESchema.LEGACY);
+            if (facet.data.use != EDbUse.TEST) {
+                throw new IllegalArgumentException(TestRes.fmt(TestRes.ERR_NOT_CONNECTED_TO_TEST, facet.data.use));
             }
 
+            final DbConnection conn = informixLogin.checkOutConnection();
+            final Cache cache = new Cache(informixProfile);
+
             try {
-                final DbConnection conn = informixCtx.checkOutConnection();
+                try (final Statement stmt = conn.createStatement();
+                     final ResultSet rs = stmt.executeQuery("SELECT descr FROM which_db")) {
 
-                try {
-                    try (final Statement stmt = conn.createStatement()) {
-                        stmt.executeUpdate("DELETE FROM std_milestone");
+                    if (rs.next()) {
+                        final String which = rs.getString(1);
+                        if (which == null || !"TEST".equals(which.trim())) {
+                            throw new IllegalArgumentException(TestRes.fmt(TestRes.ERR_NOT_CONNECTED_TO_TEST,
+                                    which));
+                        }
+                    } else {
+                        throw new IllegalArgumentException(TestRes.get(TestRes.ERR_CANT_QUERY_WHICH_DB));
                     }
-                    conn.commit();
-
-                    final Cache cache = new Cache(informixProfile, conn);
-                    final StandardMilestoneLogic logic = StandardMilestoneLogic.get(cache);
-
-                    assertTrue(logic.insert(cache, RAW1), "Failed to insert Informix std_milestone");
-                    assertTrue(logic.insert(cache, RAW2), "Failed to insert Informix std_milestone");
-                    assertTrue(logic.insert(cache, RAW3), "Failed to insert Informix std_milestone");
-                    assertTrue(logic.insert(cache, RAW4), "Failed to insert Informix std_milestone");
-                    assertTrue(logic.insert(cache, RAW5), "Failed to insert Informix std_milestone");
-                    assertTrue(logic.insert(cache, RAW6), "Failed to insert Informix std_milestone");
-                } finally {
-                    informixCtx.checkInConnection(conn);
                 }
+
+                try (final Statement stmt = conn.createStatement()) {
+                    stmt.executeUpdate("DELETE FROM std_milestone");
+                }
+                conn.commit();
+
+                final StandardMilestoneLogic logic = StandardMilestoneLogic.get(cache);
+
+                assertTrue(logic.insert(cache, RAW1), "Failed to insert Informix std_milestone");
+                assertTrue(logic.insert(cache, RAW2), "Failed to insert Informix std_milestone");
+                assertTrue(logic.insert(cache, RAW3), "Failed to insert Informix std_milestone");
+                assertTrue(logic.insert(cache, RAW4), "Failed to insert Informix std_milestone");
+                assertTrue(logic.insert(cache, RAW5), "Failed to insert Informix std_milestone");
+                assertTrue(logic.insert(cache, RAW6), "Failed to insert Informix std_milestone");
             } catch (final SQLException ex) {
                 Log.warning(ex);
                 fail("Exception while initializing Informix 'std_milestone' table: " + ex.getMessage());
+                throw new IllegalArgumentException(ex);
+            } finally {
+                informixLogin.checkInConnection(conn);
             }
         }
 
@@ -159,52 +154,47 @@ final class TestStandardMilestoneLogic {
         @DisplayName("Informix queryAll results")
         void test0003() {
 
+            final Cache cache = new Cache(informixProfile);
+
+            final StandardMilestoneLogic logic = StandardMilestoneLogic.get(cache);
+
             try {
-                final DbConnection conn = informixCtx.checkOutConnection();
-                final Cache cache = new Cache(informixProfile, conn);
-                final StandardMilestoneLogic logic = StandardMilestoneLogic.get(cache);
+                final List<StandardMilestoneRec> all = logic.queryAll(cache);
 
-                try {
-                    final List<StandardMilestoneRec> all = logic.queryAll(cache);
+                assertEquals(6, all.size(), "Incorrect record count from Informix queryAll");
 
-                    assertEquals(6, all.size(), "Incorrect record count from Informix queryAll");
+                boolean found1 = false;
+                boolean found2 = false;
+                boolean found3 = false;
+                boolean found4 = false;
+                boolean found5 = false;
+                boolean found6 = false;
 
-                    boolean found1 = false;
-                    boolean found2 = false;
-                    boolean found3 = false;
-                    boolean found4 = false;
-                    boolean found5 = false;
-                    boolean found6 = false;
-
-                    for (final StandardMilestoneRec r : all) {
-                        if (RAW1.equals(r)) {
-                            found1 = true;
-                        } else if (RAW2.equals(r)) {
-                            found2 = true;
-                        } else if (RAW3.equals(r)) {
-                            found3 = true;
-                        } else if (RAW4.equals(r)) {
-                            found4 = true;
-                        } else if (RAW5.equals(r)) {
-                            found5 = true;
-                        } else if (RAW6.equals(r)) {
-                            found6 = true;
-                        } else {
-                            printUnexpected(r);
-                            fail("Extra record found");
-                        }
+                for (final StandardMilestoneRec r : all) {
+                    if (RAW1.equals(r)) {
+                        found1 = true;
+                    } else if (RAW2.equals(r)) {
+                        found2 = true;
+                    } else if (RAW3.equals(r)) {
+                        found3 = true;
+                    } else if (RAW4.equals(r)) {
+                        found4 = true;
+                    } else if (RAW5.equals(r)) {
+                        found5 = true;
+                    } else if (RAW6.equals(r)) {
+                        found6 = true;
+                    } else {
+                        printUnexpected(r);
+                        fail("Extra record found");
                     }
-
-                    assertTrue(found1, "Informix std_milestone 1 not found");
-                    assertTrue(found2, "Informix std_milestone 2 not found");
-                    assertTrue(found3, "Informix std_milestone 3 not found");
-                    assertTrue(found4, "Informix std_milestone 4 not found");
-                    assertTrue(found5, "Informix std_milestone 5 not found");
-                    assertTrue(found6, "Informix std_milestone 6 not found");
-
-                } finally {
-                    informixCtx.checkInConnection(conn);
                 }
+
+                assertTrue(found1, "Informix std_milestone 1 not found");
+                assertTrue(found2, "Informix std_milestone 2 not found");
+                assertTrue(found3, "Informix std_milestone 3 not found");
+                assertTrue(found4, "Informix std_milestone 4 not found");
+                assertTrue(found5, "Informix std_milestone 5 not found");
+                assertTrue(found6, "Informix std_milestone 6 not found");
             } catch (final SQLException ex) {
                 Log.warning(ex);
                 fail("Exception while querying all Informix 'std_milestone' rows: " + ex.getMessage());
@@ -216,44 +206,38 @@ final class TestStandardMilestoneLogic {
         @DisplayName("Informix queryByPaceTrackPace results")
         void test0004() {
 
+            final Cache cache = new Cache(informixProfile);
+            final StandardMilestoneLogic logic = StandardMilestoneLogic.get(cache);
+
             try {
-                final DbConnection conn = informixCtx.checkOutConnection();
-                final Cache cache = new Cache(informixProfile, conn);
-                final StandardMilestoneLogic logic = StandardMilestoneLogic.get(cache);
+                final List<StandardMilestoneRec> all = logic.queryByPaceTrackPace(cache, "A", Integer.valueOf(5));
 
-                try {
-                    final List<StandardMilestoneRec> all = logic.queryByPaceTrackPace(cache, "A", Integer.valueOf(5));
+                assertEquals(4, all.size(), "Incorrect record count from Informix queryByPaceTrackPace");
 
-                    assertEquals(4, all.size(), "Incorrect record count from Informix queryByPaceTrackPace");
+                boolean found1 = false;
+                boolean found2 = false;
+                boolean found3 = false;
+                boolean found4 = false;
 
-                    boolean found1 = false;
-                    boolean found2 = false;
-                    boolean found3 = false;
-                    boolean found4 = false;
-
-                    for (final StandardMilestoneRec r : all) {
-                        if (RAW1.equals(r)) {
-                            found1 = true;
-                        } else if (RAW2.equals(r)) {
-                            found2 = true;
-                        } else if (RAW3.equals(r)) {
-                            found3 = true;
-                        } else if (RAW4.equals(r)) {
-                            found4 = true;
-                        } else {
-                            printUnexpected(r);
-                            fail("Extra record found");
-                        }
+                for (final StandardMilestoneRec r : all) {
+                    if (RAW1.equals(r)) {
+                        found1 = true;
+                    } else if (RAW2.equals(r)) {
+                        found2 = true;
+                    } else if (RAW3.equals(r)) {
+                        found3 = true;
+                    } else if (RAW4.equals(r)) {
+                        found4 = true;
+                    } else {
+                        printUnexpected(r);
+                        fail("Extra record found");
                     }
-
-                    assertTrue(found1, "Informix std_milestone 1 not found");
-                    assertTrue(found2, "Informix std_milestone 2 not found");
-                    assertTrue(found3, "Informix std_milestone 3 not found");
-                    assertTrue(found4, "Informix std_milestone 4 not found");
-
-                } finally {
-                    informixCtx.checkInConnection(conn);
                 }
+
+                assertTrue(found1, "Informix std_milestone 1 not found");
+                assertTrue(found2, "Informix std_milestone 2 not found");
+                assertTrue(found3, "Informix std_milestone 3 not found");
+                assertTrue(found4, "Informix std_milestone 4 not found");
             } catch (final SQLException ex) {
                 Log.warning(ex);
                 fail("Exception while querying Informix 'std_milestone' rows by track and pace: "
@@ -266,40 +250,34 @@ final class TestStandardMilestoneLogic {
         @DisplayName("Informix queryByPaceTrackPaceIndex results")
         void test0005() {
 
+            final Cache cache = new Cache(informixProfile);
+            final StandardMilestoneLogic logic = StandardMilestoneLogic.get(cache);
+
             try {
-                final DbConnection conn = informixCtx.checkOutConnection();
-                final Cache cache = new Cache(informixProfile, conn);
-                final StandardMilestoneLogic logic = StandardMilestoneLogic.get(cache);
+                final List<StandardMilestoneRec> all = logic.queryByPaceTrackPaceIndex(cache, "A",
+                        Integer.valueOf(5), Integer.valueOf(3));
+                assertEquals(3, all.size(), "Incorrect record count from Informix queryByPaceTrackPaceIndex");
 
-                try {
-                    final List<StandardMilestoneRec> all = logic.queryByPaceTrackPaceIndex(cache, "A",
-                            Integer.valueOf(5), Integer.valueOf(3));
-                    assertEquals(3, all.size(), "Incorrect record count from Informix queryByPaceTrackPaceIndex");
+                boolean found1 = false;
+                boolean found2 = false;
+                boolean found3 = false;
 
-                    boolean found1 = false;
-                    boolean found2 = false;
-                    boolean found3 = false;
-
-                    for (final StandardMilestoneRec r : all) {
-                        if (RAW1.equals(r)) {
-                            found1 = true;
-                        } else if (RAW2.equals(r)) {
-                            found2 = true;
-                        } else if (RAW3.equals(r)) {
-                            found3 = true;
-                        } else {
-                            printUnexpected(r);
-                            fail("Extra record found");
-                        }
+                for (final StandardMilestoneRec r : all) {
+                    if (RAW1.equals(r)) {
+                        found1 = true;
+                    } else if (RAW2.equals(r)) {
+                        found2 = true;
+                    } else if (RAW3.equals(r)) {
+                        found3 = true;
+                    } else {
+                        printUnexpected(r);
+                        fail("Extra record found");
                     }
-
-                    assertTrue(found1, "Informix std_milestone 1 not found");
-                    assertTrue(found2, "Informix std_milestone 2 not found");
-                    assertTrue(found3, "Informix std_milestone 3 not found");
-
-                } finally {
-                    informixCtx.checkInConnection(conn);
                 }
+
+                assertTrue(found1, "Informix std_milestone 1 not found");
+                assertTrue(found2, "Informix std_milestone 2 not found");
+                assertTrue(found3, "Informix std_milestone 3 not found");
             } catch (final SQLException ex) {
                 Log.warning(ex);
                 fail("Exception while querying Informix 'std_milestone' rows by track, pace, index: "
@@ -312,23 +290,18 @@ final class TestStandardMilestoneLogic {
         @DisplayName("query results")
         void test0006() {
 
+            final Cache cache = new Cache(informixProfile);
+            final StandardMilestoneLogic logic = StandardMilestoneLogic.get(cache);
+
             try {
-                final DbConnection conn = informixCtx.checkOutConnection();
-                final Cache cache = new Cache(informixProfile, conn);
-                final StandardMilestoneLogic logic = StandardMilestoneLogic.get(cache);
+                final StandardMilestoneRec r = logic.query(cache, "A", Integer.valueOf(5), Integer.valueOf(3),
+                        Integer.valueOf(8), Integer.valueOf(1), "OP");
 
-                try {
-                    final StandardMilestoneRec r = logic.query(cache, "A", Integer.valueOf(5), Integer.valueOf(3),
-                            Integer.valueOf(8), Integer.valueOf(1), "OP");
+                assertNotNull(r, "No record returned by query");
 
-                    assertNotNull(r, "No record returned by query");
-
-                    if (!RAW1.equals(r)) {
-                        printUnexpected(r);
-                        fail("Extra record found");
-                    }
-                } finally {
-                    informixCtx.checkInConnection(conn);
+                if (!RAW1.equals(r)) {
+                    printUnexpected(r);
+                    fail("Extra record found");
                 }
             } catch (final SQLException ex) {
                 Log.warning(ex);
@@ -341,26 +314,21 @@ final class TestStandardMilestoneLogic {
         @DisplayName("updateDate results")
         void test0007() {
 
+            final Cache cache = new Cache(informixProfile);
+            final StandardMilestoneLogic logic = StandardMilestoneLogic.get(cache);
+
             try {
-                final DbConnection conn = informixCtx.checkOutConnection();
-                final Cache cache = new Cache(informixProfile, conn);
-                final StandardMilestoneLogic logic = StandardMilestoneLogic.get(cache);
+                final boolean result = logic.updateDate(cache, RAW1, RAW1NEWDATE.msDate);
+                assertTrue(result, "updateDate returned false");
 
-                try {
-                    final boolean result = logic.updateDate(cache, RAW1, RAW1NEWDATE.msDate);
-                    assertTrue(result, "updateDate returned false");
+                final StandardMilestoneRec r = logic.query(cache, "A", Integer.valueOf(5), Integer.valueOf(3),
+                        Integer.valueOf(8), Integer.valueOf(1), "OP");
 
-                    final StandardMilestoneRec r = logic.query(cache, "A", Integer.valueOf(5), Integer.valueOf(3),
-                            Integer.valueOf(8), Integer.valueOf(1), "OP");
+                assertNotNull(r, "No record returned by query");
 
-                    assertNotNull(r, "No record returned by query");
-
-                    if (!RAW1NEWDATE.equals(r)) {
-                        printUnexpected(r);
-                        fail("Extra record found");
-                    }
-                } finally {
-                    informixCtx.checkInConnection(conn);
+                if (!RAW1NEWDATE.equals(r)) {
+                    printUnexpected(r);
+                    fail("Extra record found");
                 }
             } catch (final SQLException ex) {
                 Log.warning(ex);
@@ -373,51 +341,45 @@ final class TestStandardMilestoneLogic {
         @DisplayName("delete results")
         void test0008() {
 
+            final Cache cache = new Cache(informixProfile);
+            final StandardMilestoneLogic logic = StandardMilestoneLogic.get(cache);
+
             try {
-                final DbConnection conn = informixCtx.checkOutConnection();
-                final Cache cache = new Cache(informixProfile, conn);
-                final StandardMilestoneLogic logic = StandardMilestoneLogic.get(cache);
+                final boolean result = logic.delete(cache, RAW5);
+                assertTrue(result, "delete returned false");
 
-                try {
-                    final boolean result = logic.delete(cache, RAW5);
-                    assertTrue(result, "delete returned false");
+                final List<StandardMilestoneRec> all = logic.queryAll(cache);
 
-                    final List<StandardMilestoneRec> all = logic.queryAll(cache);
+                assertEquals(5, all.size(), "Incorrect record count from queryAll after delete");
 
-                    assertEquals(5, all.size(), "Incorrect record count from queryAll after delete");
+                boolean found1 = false;
+                boolean found2 = false;
+                boolean found3 = false;
+                boolean found4 = false;
+                boolean found6 = false;
 
-                    boolean found1 = false;
-                    boolean found2 = false;
-                    boolean found3 = false;
-                    boolean found4 = false;
-                    boolean found6 = false;
-
-                    for (final StandardMilestoneRec r : all) {
-                        if (RAW1NEWDATE.equals(r)) {
-                            found1 = true;
-                        } else if (RAW2.equals(r)) {
-                            found2 = true;
-                        } else if (RAW3.equals(r)) {
-                            found3 = true;
-                        } else if (RAW4.equals(r)) {
-                            found4 = true;
-                        } else if (RAW6.equals(r)) {
-                            found6 = true;
-                        } else {
-                            printUnexpected(r);
-                            fail("Extra record found");
-                        }
+                for (final StandardMilestoneRec r : all) {
+                    if (RAW1NEWDATE.equals(r)) {
+                        found1 = true;
+                    } else if (RAW2.equals(r)) {
+                        found2 = true;
+                    } else if (RAW3.equals(r)) {
+                        found3 = true;
+                    } else if (RAW4.equals(r)) {
+                        found4 = true;
+                    } else if (RAW6.equals(r)) {
+                        found6 = true;
+                    } else {
+                        printUnexpected(r);
+                        fail("Extra record found");
                     }
-
-                    assertTrue(found1, "std_milestone 1 not found");
-                    assertTrue(found2, "std_milestone 2 not found");
-                    assertTrue(found3, "std_milestone 3 not found");
-                    assertTrue(found4, "std_milestone 4 not found");
-                    assertTrue(found6, "std_milestone 6 not found");
-
-                } finally {
-                    informixCtx.checkInConnection(conn);
                 }
+
+                assertTrue(found1, "std_milestone 1 not found");
+                assertTrue(found2, "std_milestone 2 not found");
+                assertTrue(found3, "std_milestone 3 not found");
+                assertTrue(found4, "std_milestone 4 not found");
+                assertTrue(found6, "std_milestone 6 not found");
             } catch (final SQLException ex) {
                 Log.warning(ex);
                 fail("Exception while deleting std_milestones: " + ex.getMessage());
@@ -429,7 +391,7 @@ final class TestStandardMilestoneLogic {
         static void cleanUp() {
 
             try {
-                final DbConnection conn = informixCtx.checkOutConnection();
+                final DbConnection conn = informixLogin.checkOutConnection();
 
                 try {
                     try (final Statement stmt = conn.createStatement()) {
@@ -439,360 +401,7 @@ final class TestStandardMilestoneLogic {
                     conn.commit();
 
                 } finally {
-                    informixCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while cleaning tables: " + ex.getMessage());
-            }
-        }
-    }
-
-    /**
-     * Tests for the {@code StandardMilestoneLogic} class.
-     */
-    @Nested
-    final class Postgres {
-
-        /** The PostgreSQL database profile. */
-        public static DbProfile postgresProfile;
-
-        /** The PostgreSQL database context. */
-        public static DbContext postgresCtx;
-
-        /** Initialize the test class. */
-        @BeforeAll
-        static void initTests() {
-
-            postgresProfile = ContextMap.getDefaultInstance().getCodeProfile(Contexts.POSTGRES_TEST_PATH);
-            if (postgresProfile == null) {
-                throw new IllegalArgumentException(TestRes.get(TestRes.ERR_NO_PGTEST_PROFILE));
-            }
-
-            postgresCtx = postgresProfile.getDbContext(ESchemaUse.PRIMARY);
-            if (postgresCtx == null) {
-                throw new IllegalArgumentException(TestRes.get(TestRes.ERR_NO_PGPRIMARY_CONTEXT));
-            }
-
-            // Make sure the PostgreSQL connection is using a TEST schema
-            if (postgresCtx.loginConfig.db.use != EDbUse.TEST) {
-                throw new IllegalArgumentException(TestRes.fmt(TestRes.ERR_NOT_CONNECTED_TO_TEST,
-                        postgresCtx.loginConfig.db.use));
-            }
-            try {
-                final DbConnection conn = postgresCtx.checkOutConnection();
-
-                try {
-                    try (final Statement stmt = conn.createStatement()) {
-                        stmt.executeUpdate("DELETE FROM term_t.std_milestone");
-                    }
-                    conn.commit();
-
-                    final Cache cache = new Cache(postgresProfile, conn);
-                    final StandardMilestoneLogic logic = StandardMilestoneLogic.get(cache);
-
-                    assertTrue(logic.insert(cache, RAW1), "Failed to insert Postgres std_milestone");
-                    assertTrue(logic.insert(cache, RAW2), "Failed to insert Postgres std_milestone");
-                    assertTrue(logic.insert(cache, RAW3), "Failed to insert Postgres std_milestone");
-                    assertTrue(logic.insert(cache, RAW4), "Failed to insert Postgres std_milestone");
-                    assertTrue(logic.insert(cache, RAW5), "Failed to insert Postgres std_milestone");
-                    assertTrue(logic.insert(cache, RAW6), "Failed to insert Postgres std_milestone");
-                } finally {
-                    postgresCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while initializing Postgres 'term_t.std_milestone' table: " + ex.getMessage());
-            }
-        }
-
-        /** Test case. */
-        @Test
-        @DisplayName("Postgres queryAll results")
-        void test0003() {
-
-            try {
-                final DbConnection conn = postgresCtx.checkOutConnection();
-                final Cache cache = new Cache(postgresProfile, conn);
-                final StandardMilestoneLogic logic = StandardMilestoneLogic.get(cache);
-
-                try {
-                    final List<StandardMilestoneRec> all = logic.queryAll(cache);
-
-                    assertEquals(6, all.size(), "Incorrect record count from Postgres queryAll");
-
-                    boolean found1 = false;
-                    boolean found2 = false;
-                    boolean found3 = false;
-                    boolean found4 = false;
-                    boolean found5 = false;
-                    boolean found6 = false;
-
-                    for (final StandardMilestoneRec r : all) {
-                        if (RAW1.equals(r)) {
-                            found1 = true;
-                        } else if (RAW2.equals(r)) {
-                            found2 = true;
-                        } else if (RAW3.equals(r)) {
-                            found3 = true;
-                        } else if (RAW4.equals(r)) {
-                            found4 = true;
-                        } else if (RAW5.equals(r)) {
-                            found5 = true;
-                        } else if (RAW6.equals(r)) {
-                            found6 = true;
-                        } else {
-                            printUnexpected(r);
-                            fail("Extra record found");
-                        }
-                    }
-
-                    assertTrue(found1, "Postgres std_milestone 1 not found");
-                    assertTrue(found2, "Postgres std_milestone 2 not found");
-                    assertTrue(found3, "Postgres std_milestone 3 not found");
-                    assertTrue(found4, "Postgres std_milestone 4 not found");
-                    assertTrue(found5, "Postgres std_milestone 5 not found");
-                    assertTrue(found6, "Postgres std_milestone 6 not found");
-
-                } finally {
-                    postgresCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while querying all Postgres 'std_milestone' rows: " + ex.getMessage());
-            }
-        }
-
-        /** Test case. */
-        @Test
-        @DisplayName("Postgres queryByPaceTrackPace results")
-        void test0004() {
-
-            try {
-                final DbConnection conn = postgresCtx.checkOutConnection();
-                final Cache cache = new Cache(postgresProfile, conn);
-                final StandardMilestoneLogic logic = StandardMilestoneLogic.get(cache);
-
-                try {
-                    final List<StandardMilestoneRec> all = logic.queryByPaceTrackPace(cache, "A", Integer.valueOf(5));
-
-                    assertEquals(4, all.size(), "Incorrect record count from Postgres queryByPaceTrackPace");
-
-                    boolean found1 = false;
-                    boolean found2 = false;
-                    boolean found3 = false;
-                    boolean found4 = false;
-
-                    for (final StandardMilestoneRec r : all) {
-                        if (RAW1.equals(r)) {
-                            found1 = true;
-                        } else if (RAW2.equals(r)) {
-                            found2 = true;
-                        } else if (RAW3.equals(r)) {
-                            found3 = true;
-                        } else if (RAW4.equals(r)) {
-                            found4 = true;
-                        } else {
-                            printUnexpected(r);
-                            fail("Extra record found");
-                        }
-                    }
-
-                    assertTrue(found1, "Postgres std_milestone 1 not found");
-                    assertTrue(found2, "Postgres std_milestone 2 not found");
-                    assertTrue(found3, "Postgres std_milestone 3 not found");
-                    assertTrue(found4, "Postgres std_milestone 4 not found");
-
-                } finally {
-                    postgresCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while querying Postgres 'std_milestone' rows by track and pace: "
-                     + ex.getMessage());
-            }
-        }
-
-        /** Test case. */
-        @Test
-        @DisplayName("Postgres queryByPaceTrackPaceIndex results")
-        void test0005() {
-
-            try {
-                final DbConnection conn = postgresCtx.checkOutConnection();
-                final Cache cache = new Cache(postgresProfile, conn);
-                final StandardMilestoneLogic logic = StandardMilestoneLogic.get(cache);
-
-                try {
-                    final List<StandardMilestoneRec> all = logic.queryByPaceTrackPaceIndex(cache, "A",
-                            Integer.valueOf(5), Integer.valueOf(3));
-
-                    assertEquals(3, all.size(), "Incorrect record count from Postgres queryByPaceTrackPaceIndex");
-
-                    boolean found1 = false;
-                    boolean found2 = false;
-                    boolean found3 = false;
-
-                    for (final StandardMilestoneRec r : all) {
-                        if (RAW1.equals(r)) {
-                            found1 = true;
-                        } else if (RAW2.equals(r)) {
-                            found2 = true;
-                        } else if (RAW3.equals(r)) {
-                            found3 = true;
-                        } else {
-                            printUnexpected(r);
-                            fail("Extra record found");
-                        }
-                    }
-
-                    assertTrue(found1, "Postgres std_milestone 1 not found");
-                    assertTrue(found2, "Postgres std_milestone 2 not found");
-                    assertTrue(found3, "Postgres std_milestone 3 not found");
-
-                } finally {
-                    postgresCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while querying Postgres 'std_milestone' rows by track, pace, index: "
-                     + ex.getMessage());
-            }
-        }
-
-        /** Test case. */
-        @Test
-        @DisplayName("query results")
-        void test0006() {
-
-            try {
-                final DbConnection conn = postgresCtx.checkOutConnection();
-                final Cache cache = new Cache(postgresProfile, conn);
-                final StandardMilestoneLogic logic = StandardMilestoneLogic.get(cache);
-
-                try {
-                    final StandardMilestoneRec r = logic.query(cache, "A", Integer.valueOf(5), Integer.valueOf(3),
-                            Integer.valueOf(8), Integer.valueOf(1), "OP");
-
-                    assertNotNull(r, "No record returned by query");
-
-                    if (!RAW1.equals(r)) {
-                        printUnexpected(r);
-                        fail("Extra record found");
-                    }
-                } finally {
-                    postgresCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while querying std_milestone: " + ex.getMessage());
-            }
-        }
-
-        /** Test case. */
-        @Test
-        @DisplayName("updateDate results")
-        void test0007() {
-
-            try {
-                final DbConnection conn = postgresCtx.checkOutConnection();
-                final Cache cache = new Cache(postgresProfile, conn);
-                final StandardMilestoneLogic logic = StandardMilestoneLogic.get(cache);
-
-                try {
-                    final boolean result = logic.updateDate(cache, RAW1, RAW1NEWDATE.msDate);
-                    assertTrue(result, "updateDate returned false");
-
-                    final StandardMilestoneRec r = logic.query(cache, "A", Integer.valueOf(5), Integer.valueOf(3),
-                            Integer.valueOf(8), Integer.valueOf(1), "OP");
-
-                    assertNotNull(r, "No record returned by query");
-
-                    if (!RAW1NEWDATE.equals(r)) {
-                        printUnexpected(r);
-                        fail("Extra record found");
-                    }
-                } finally {
-                    postgresCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while updating date: " + ex.getMessage());
-            }
-        }
-
-        /** Test case. */
-        @Test
-        @DisplayName("delete results")
-        void test0008() {
-
-            try {
-                final DbConnection conn = postgresCtx.checkOutConnection();
-                final Cache cache = new Cache(postgresProfile, conn);
-                final StandardMilestoneLogic logic = StandardMilestoneLogic.get(cache);
-
-                try {
-                    final boolean result = logic.delete(cache, RAW5);
-                    assertTrue(result, "delete returned false");
-
-                    final List<StandardMilestoneRec> all = logic.queryAll(cache);
-
-                    assertEquals(5, all.size(), "Incorrect record count from queryAll after delete");
-
-                    boolean found1 = false;
-                    boolean found2 = false;
-                    boolean found3 = false;
-                    boolean found4 = false;
-                    boolean found6 = false;
-
-                    for (final StandardMilestoneRec r : all) {
-                        if (RAW1NEWDATE.equals(r)) {
-                            found1 = true;
-                        } else if (RAW2.equals(r)) {
-                            found2 = true;
-                        } else if (RAW3.equals(r)) {
-                            found3 = true;
-                        } else if (RAW4.equals(r)) {
-                            found4 = true;
-                        } else if (RAW6.equals(r)) {
-                            found6 = true;
-                        } else {
-                            printUnexpected(r);
-                            fail("Extra record found");
-                        }
-                    }
-
-                    assertTrue(found1, "std_milestone 1 not found");
-                    assertTrue(found2, "std_milestone 2 not found");
-                    assertTrue(found3, "std_milestone 3 not found");
-                    assertTrue(found4, "std_milestone 4 not found");
-                    assertTrue(found6, "std_milestone 6 not found");
-
-                } finally {
-                    postgresCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while deleting std_milestones: " + ex.getMessage());
-            }
-        }
-
-        /** Clean up. */
-        @AfterAll
-        static void cleanUp() {
-
-            try {
-                final DbConnection conn = postgresCtx.checkOutConnection();
-
-                try {
-                    try (final Statement stmt = conn.createStatement()) {
-                        stmt.executeUpdate("DELETE FROM term_t.std_milestone");
-                    }
-
-                    conn.commit();
-
-                } finally {
-                    postgresCtx.checkInConnection(conn);
+                    informixLogin.checkInConnection(conn);
                 }
             } catch (final SQLException ex) {
                 Log.warning(ex);

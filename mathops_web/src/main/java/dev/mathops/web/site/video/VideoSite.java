@@ -3,8 +3,8 @@ package dev.mathops.web.site.video;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.db.logic.ELiveRefreshes;
-import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.text.builder.HtmlBuilder;
@@ -29,12 +29,12 @@ public final class VideoSite extends AbstractSite {
     /**
      * Constructs a new {@code VideoSite}.
      *
-     * @param theSiteProfile the site profile under which this site is accessed
-     * @param theSessions    the singleton user session repository
+     * @param theSite     the site profile under which this site is accessed
+     * @param theSessions the singleton user session repository
      */
-    public VideoSite(final WebSiteProfile theSiteProfile, final ISessionManager theSessions) {
+    public VideoSite(final Site theSite, final ISessionManager theSessions) {
 
-        super(theSiteProfile, theSessions);
+        super(theSite, theSessions);
     }
 
     /**

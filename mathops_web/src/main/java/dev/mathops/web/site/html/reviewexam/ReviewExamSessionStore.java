@@ -11,8 +11,8 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.WebSiteProfile;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.parser.ParsingException;
 import dev.mathops.text.parser.xml.Attribute;
@@ -142,7 +142,7 @@ public final class ReviewExamSessionStore {
         synchronized (this.activeReviewExams) {
             try {
                 Log.info("Review exam session store persisting to "
-                        + dir.getAbsolutePath());
+                         + dir.getAbsolutePath());
 
                 for (final Map<String, ReviewExamSession> maps : this.activeReviewExams.values()) {
                     for (final ReviewExamSession session : maps.values()) {
@@ -339,7 +339,7 @@ public final class ReviewExamSessionStore {
 
                         final ExamSection examSect = exam.getSection(sectNum);
                         if (probNum >= examSect.getNumProblems()) {
-                            throw new IllegalArgumentException("Invalid problem number in problem: "  + probAttr.value);
+                            throw new IllegalArgumentException("Invalid problem number in problem: " + probAttr.value);
                         }
 
                         final List<INode> problems = child.getChildrenAsList();
@@ -365,7 +365,7 @@ public final class ReviewExamSessionStore {
                                     examProb.setSelectedProblem(selected);
                                 } catch (final ParsingException ex) {
                                     Log.warning(ex);
-                                    throw new IllegalArgumentException( "Unable to parse possible problem");
+                                    throw new IllegalArgumentException("Unable to parse possible problem");
                                 }
                             }
                         }
@@ -407,7 +407,7 @@ public final class ReviewExamSessionStore {
             throw new IllegalArgumentException("'review-exam-session' was missing 'item'");
         }
 
-        final WebSiteProfile siteProfile = ContextMap.getDefaultInstance().getWebSiteProfile(host, path);
+        final Site siteProfile = DatabaseConfig.getDefault().getSite(host, path);
         final Integer scoreInt = score == null ? null : Integer.valueOf(score);
         final Integer minMastery = mastery == null ? null : Integer.valueOf(mastery);
 
@@ -445,7 +445,7 @@ public final class ReviewExamSessionStore {
                             final EReviewExamState state = sess.getState();
 
                             if (state == EReviewExamState.ITEM_NN
-                                    || state == EReviewExamState.SUBMIT_NN) {
+                                || state == EReviewExamState.SUBMIT_NN) {
                                 Log.info("Review exam was started but abandoned - auto-submit it");
 
                                 try {
@@ -455,7 +455,7 @@ public final class ReviewExamSessionStore {
                                 }
                             } else {
                                 Log.info("Purging expired HTML review exam session "
-                                        + sess.sessionId);
+                                         + sess.sessionId);
                             }
                             innerIter.remove();
                         }

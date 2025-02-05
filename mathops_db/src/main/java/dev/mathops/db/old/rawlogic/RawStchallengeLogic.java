@@ -3,6 +3,7 @@ package dev.mathops.db.old.rawlogic;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.logic.ChallengeExamLogic;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStchallenge;
@@ -95,16 +96,20 @@ public enum RawStchallengeLogic {
                 LogicUtils.sqlStringValue(record.passed), ",",
                 LogicUtils.sqlStringValue(record.howValidated), ")");
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -124,16 +129,20 @@ public enum RawStchallengeLogic {
                 "  AND exam_dt=", LogicUtils.sqlDateValue(record.examDt),
                 "  AND finish_time=", LogicUtils.sqlIntegerValue(record.finishTime));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -160,7 +169,7 @@ public enum RawStchallengeLogic {
      */
     public static List<RawStchallenge> queryAll(final Cache cache) throws SQLException {
 
-        return executeQuery(cache.conn, "SELECT * FROM stchallenge");
+        return executeQuery(cache, "SELECT * FROM stchallenge");
     }
 
     /**
@@ -190,12 +199,16 @@ public enum RawStchallengeLogic {
         } else {
             final String sql = "SELECT * FROM stchallenge WHERE stu_id=" + LogicUtils.sqlStringValue(stuId);
 
-            try (final Statement stmt = cache.conn.createStatement();
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement();
                  final ResultSet rs = stmt.executeQuery(sql)) {
 
                 while (rs.next()) {
                     result.add(RawStchallenge.fromResultSet(rs));
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -233,12 +246,16 @@ public enum RawStchallengeLogic {
             final String sql = "SELECT * FROM stchallenge WHERE stu_id="
                     + LogicUtils.sqlStringValue(stuId) + " AND course=" + LogicUtils.sqlStringValue(course);
 
-            try (final Statement stmt = cache.conn.createStatement();
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement();
                  final ResultSet rs = stmt.executeQuery(sql)) {
 
                 while (rs.next()) {
                     result.add(RawStchallenge.fromResultSet(rs));
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
         return result;
@@ -374,7 +391,7 @@ public enum RawStchallengeLogic {
             final String sql1 = "SELECT COUNT(*) FROM stchallenge WHERE stu_id=" + LogicUtils.sqlStringValue(stuId)
                     + " AND course=" + LogicUtils.sqlStringValue(course) + " AND (passed='Y' OR passed='N')";
 
-            result = LogicUtils.executeSimpleIntQuery(cache.conn, sql1).intValue();
+            result = LogicUtils.executeSimpleIntQuery(cache, sql1).intValue();
         }
 
         return result;
@@ -443,20 +460,22 @@ public enum RawStchallengeLogic {
         final String sql = SimpleBuilder.concat("SELECT * FROM stchallenge WHERE exam_dt>=",
                 LogicUtils.sqlDateValue(earliest));
 
-        return executeQuery(cache.conn, sql);
+        return executeQuery(cache, sql);
     }
 
     /**
      * Executes a query that returns a list of records.
      *
-     * @param conn the database connection, checked out to this thread
+     * @param cache    the data cache
      * @param sql  the SQL to execute
      * @return the list of matching records
      * @throws SQLException if there is an error accessing the database
      */
-    private static List<RawStchallenge> executeQuery(final DbConnection conn, final String sql) throws SQLException {
+    private static List<RawStchallenge> executeQuery(final Cache cache, final String sql) throws SQLException {
 
         final List<RawStchallenge> result = new ArrayList<>(50);
+
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
         try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
@@ -464,6 +483,8 @@ public enum RawStchallengeLogic {
             while (rs.next()) {
                 result.add(RawStchallenge.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;

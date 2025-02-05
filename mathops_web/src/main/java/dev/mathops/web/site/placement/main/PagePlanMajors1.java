@@ -3,18 +3,17 @@ package dev.mathops.web.site.placement.main;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.WebSiteProfile;
-import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
-import dev.mathops.db.old.rawrecord.RawStmathplan;
-import dev.mathops.session.ImmutableSessionInfo;
+import dev.mathops.db.cfg.Profile;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
 import dev.mathops.db.old.logic.mathplan.data.Major;
 import dev.mathops.db.old.logic.mathplan.data.MajorMathRequirement;
+import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
 import dev.mathops.db.old.logic.mathplan.data.MathPlanStudentData;
+import dev.mathops.db.old.rawrecord.RawStmathplan;
+import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.Page;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -48,8 +47,8 @@ enum PagePlanMajors1 {
                       final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final DbProfile dbProfile = site.getDbProfile();
-        final MathPlanLogic logic = new MathPlanLogic(dbProfile);
+        final Profile profile = site.site.profile;
+        final MathPlanLogic logic = new MathPlanLogic(profile);
 
         final String stuId = session.getEffectiveUserId();
         final ZonedDateTime now = session.getNow();
@@ -417,10 +416,10 @@ enum PagePlanMajors1 {
      * @throws SQLException if there is an error accessing the database
      */
     static void doPost(final Cache cache, final MathPlacementSite site,
-                       final WebSiteProfile siteProfile, final ServletRequest req,
+                       final Site siteProfile, final ServletRequest req,
                        final HttpServletResponse resp, final ImmutableSessionInfo session) throws SQLException {
 
-        final MathPlanLogic logic = new MathPlanLogic(site.getDbProfile());
+        final MathPlanLogic logic = new MathPlanLogic(site.site.profile);
 
         final String stuId = session.getEffectiveUserId();
         final MathPlanStudentData data = stuId == null ? null : logic.getStudentData(cache, stuId, session.getNow(),

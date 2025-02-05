@@ -3,6 +3,7 @@ package dev.mathops.db.old.rawlogic;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.text.builder.SimpleBuilder;
@@ -77,14 +78,18 @@ public enum RawSttermLogic {
                     LogicUtils.sqlIntegerValue(record.urgency), ",",
                     LogicUtils.sqlStringValue(record.doNotDisturb), ")");
 
-            try (final Statement stmt = cache.conn.createStatement()) {
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement()) {
                 result = stmt.executeUpdate(sql) == 1;
 
                 if (result) {
-                    cache.conn.commit();
+                    conn.commit();
                 } else {
-                    cache.conn.rollback();
+                    conn.rollback();
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -106,16 +111,20 @@ public enum RawSttermLogic {
                 "  AND term=", LogicUtils.sqlStringValue(record.termKey.termCode),
                 "  AND term_yr=", LogicUtils.sqlIntegerValue(record.termKey.shortYear));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -128,7 +137,7 @@ public enum RawSttermLogic {
      */
     public static List<RawStterm> queryAll(final Cache cache) throws SQLException {
 
-        return executeListQuery(cache.conn, "SELECT * FROM stterm");
+        return executeListQuery(cache, "SELECT * FROM stterm");
     }
 
     /**
@@ -145,7 +154,7 @@ public enum RawSttermLogic {
                 " WHERE term=", LogicUtils.sqlStringValue(termKey.termCode),
                 "   AND term_yr=", LogicUtils.sqlIntegerValue(termKey.shortYear));
 
-        return executeListQuery(cache.conn, sql);
+        return executeListQuery(cache, sql);
     }
 
     /**
@@ -161,7 +170,7 @@ public enum RawSttermLogic {
         final String sql = SimpleBuilder.concat("SELECT * FROM stterm",
                 " WHERE stu_id=", LogicUtils.sqlStringValue(stuId));
 
-        return executeListQuery(cache.conn, sql);
+        return executeListQuery(cache, sql);
     }
 
     /**
@@ -180,7 +189,7 @@ public enum RawSttermLogic {
                 "  AND term=", LogicUtils.sqlStringValue(termKey.termCode),
                 "  AND term_yr=", LogicUtils.sqlIntegerValue(termKey.shortYear));
 
-        return executeSingleQuery(cache.conn, sql);
+        return executeSingleQuery(cache, sql);
     }
 
     /**
@@ -208,16 +217,20 @@ public enum RawSttermLogic {
                 "  AND term=", LogicUtils.sqlStringValue(termKey.termCode),
                 "  AND term_yr=", LogicUtils.sqlIntegerValue(termKey.shortYear));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -240,16 +253,20 @@ public enum RawSttermLogic {
                 "  AND term=", LogicUtils.sqlStringValue(termKey.termCode),
                 "  AND term_yr=", LogicUtils.sqlIntegerValue(termKey.shortYear));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -272,16 +289,20 @@ public enum RawSttermLogic {
                 "  AND term=", LogicUtils.sqlStringValue(termKey.termCode),
                 "  AND term_yr=", LogicUtils.sqlIntegerValue(termKey.shortYear));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -305,30 +326,36 @@ public enum RawSttermLogic {
                 "  AND term=", LogicUtils.sqlStringValue(termKey.termCode),
                 "  AND term_yr=", LogicUtils.sqlIntegerValue(termKey.shortYear));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
     /**
      * Executes a query that returns a list of records.
      *
-     * @param conn the database connection, checked out to this thread
-     * @param sql  the SQL to execute
+     * @param cache the data cache
+     * @param sql   the SQL to execute
      * @return the list of matching records
      * @throws SQLException if there is an error accessing the database
      */
-    private static List<RawStterm> executeListQuery(final DbConnection conn, final String sql) throws SQLException {
+    private static List<RawStterm> executeListQuery(final Cache cache, final String sql) throws SQLException {
 
         final List<RawStterm> result = new ArrayList<>(10);
+
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
         try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
@@ -336,6 +363,8 @@ public enum RawSttermLogic {
             while (rs.next()) {
                 result.add(RawStterm.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -344,14 +373,16 @@ public enum RawSttermLogic {
     /**
      * Executes a query that returns a single record.
      *
-     * @param conn the database connection, checked out to this thread
-     * @param sql  the SQL to execute
+     * @param cache the data cache
+     * @param sql   the SQL to execute
      * @return the matching record
      * @throws SQLException if there is an error accessing the database
      */
-    private static RawStterm executeSingleQuery(final DbConnection conn, final String sql) throws SQLException {
+    private static RawStterm executeSingleQuery(final Cache cache, final String sql) throws SQLException {
 
         RawStterm result = null;
+
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
         try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
@@ -359,6 +390,8 @@ public enum RawSttermLogic {
             if (rs.next()) {
                 result = RawStterm.fromResultSet(rs);
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;

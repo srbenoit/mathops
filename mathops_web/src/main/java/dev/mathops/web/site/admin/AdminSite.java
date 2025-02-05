@@ -6,8 +6,8 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.db.logic.ELiveRefreshes;
-import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.site.AbstractPageSite;
@@ -55,13 +55,12 @@ public final class AdminSite extends AbstractPageSite {
     /**
      * Constructs a new {@code AdminSite}.
      *
-     * @param theSiteProfile the site profile under which this site is accessed
-     * @param theSessions    the singleton user session repository
+     * @param theSite     the site profile under which this site is accessed
+     * @param theSessions the singleton user session repository
      */
-    public AdminSite(final WebSiteProfile theSiteProfile,
-                     final ISessionManager theSessions) {
+    public AdminSite(final Site theSite, final ISessionManager theSessions) {
 
-        super(theSiteProfile, theSessions);
+        super(theSite, theSessions);
 
         this.general = new GenAdminSubsite(this);
         this.office = new OfficeSubsite(this);
@@ -107,7 +106,7 @@ public final class AdminSite extends AbstractPageSite {
                       final HttpServletResponse resp) throws IOException, SQLException {
 
         if (CoreConstants.EMPTY.equals(subpath)) {
-            final String path = this.siteProfile.path;
+            final String path = this.site.path;
             final boolean trailingSlash = path.endsWith(Contexts.ROOT_PATH);
             resp.sendRedirect(path + (trailingSlash ? "login.html" : "/login.html"));
         } else if ("login.html".equals(subpath)) {
@@ -132,7 +131,7 @@ public final class AdminSite extends AbstractPageSite {
                 if ("secure/shibboleth.html".equals(subpath)) {
                     doShibbolethLogin(cache, req, resp, null, "home.html");
                 } else {
-                    final String path = this.siteProfile.path;
+                    final String path = this.site.path;
                     final boolean trailingSlash = path.endsWith(Contexts.ROOT_PATH);
                     resp.sendRedirect(path + (trailingSlash ? "login.html" : "/login.html"));
                 }
@@ -143,7 +142,7 @@ public final class AdminSite extends AbstractPageSite {
                 if ("home.html".equals(subpath)) {
                     PageHome.doGet(cache, this, req, resp, session);
                 } else if ("secure/shibboleth.html".equals(subpath)) {
-                    final String path = this.siteProfile.path;
+                    final String path = this.site.path;
                     final boolean trailingSlash = path.endsWith(Contexts.ROOT_PATH);
                     resp.sendRedirect(path + (trailingSlash ? "home.html" : "/home.html"));
                 } else if (subpath.startsWith("genadmin/")) {

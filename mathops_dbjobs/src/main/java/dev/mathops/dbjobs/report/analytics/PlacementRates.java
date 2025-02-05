@@ -3,12 +3,11 @@ package dev.mathops.dbjobs.report.analytics;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.rawlogic.RawFfrTrnsLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawPrereqLogic;
@@ -62,28 +61,19 @@ final class PlacementRates {
      * @param term            the term for which the SPECIAL_STUS records were generated
      * @param specialCategory the SPECIAL_STUS category used to identify a list of students
      */
-    private static void executeWithProfile(final DbProfile profile, final TermKey term, final String specialCategory) {
+    private static void executeWithProfile(final Profile profile, final TermKey term, final String specialCategory) {
 
         if (profile == null) {
-            Log.warning("Unable to create production context.");
+            Log.warning("Unable to create production profile.");
         } else {
-            final DbContext dbCtx = profile.getDbContext(ESchemaUse.PRIMARY);
+            final Cache cache = new Cache(profile);
+            Log.info("Connected to " + profile.id);
 
-            if (dbCtx == null) {
-                Log.warning("Unable to create database context.");
-            } else {
-                try {
-                    final DbConnection conn = dbCtx.checkOutConnection();
-                    final Cache cache = new Cache(profile, conn);
-
-                    Log.info("Connected to " + profile.id);
-
-                    final PlacementRates obj = new PlacementRates(cache);
-                    obj.calculate(term, specialCategory);
-
-                } catch (final SQLException ex) {
-                    Log.warning(ex);
-                }
+            try {
+                final PlacementRates obj = new PlacementRates(cache);
+                obj.calculate(term, specialCategory);
+            } catch (final SQLException ex) {
+                Log.warning(ex);
             }
         }
     }
@@ -777,8 +767,9 @@ final class PlacementRates {
      */
     public static void main(final String... args) {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-        final DbProfile profile = map.getCodeProfile("batch");
+        DbConnection.registerDrivers();
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        final Profile profile = config.getCodeProfile(Contexts.BATCH_PATH);
 
         final TermKey term = new TermKey(ETermName.SUMMER, 2023);
 

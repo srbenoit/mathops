@@ -4,10 +4,10 @@ import dev.mathops.app.adm.IZTableCommandListener;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
 import dev.mathops.db.old.logic.CourseLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawMpscorequeueLogic;
@@ -72,9 +72,6 @@ class ExamDetailsCard extends JPanel implements ActionListener, IZTableCommandLi
     /** The data cache. */
     private final Cache cache;
 
-    /** The database context used to access live data. */
-    private final DbContext liveContext;
-
     /** The exam date field. */
     private final JTextField examDate;
 
@@ -119,17 +116,14 @@ class ExamDetailsCard extends JPanel implements ActionListener, IZTableCommandLi
      *
      * @param theOwner          the owning discipline panel
      * @param theCache          the data cache
-     * @param theLiveContext    the database context used to access live data
      * @param allowChangeAnswer true to allow the user to change exam answers
      */
-    ExamDetailsCard(final CourseExamsPanel theOwner, final Cache theCache, final DbContext theLiveContext,
-                    final boolean allowChangeAnswer) {
+    ExamDetailsCard(final CourseExamsPanel theOwner, final Cache theCache, final boolean allowChangeAnswer) {
 
         super(new BorderLayout(10, 10));
         setBackground(Skin.WHITE);
 
         this.owner = theOwner;
-        this.liveContext = theLiveContext;
         this.cache = theCache;
 
         final JPanel west = new JPanel(new BorderLayout());
@@ -299,7 +293,7 @@ class ExamDetailsCard extends JPanel implements ActionListener, IZTableCommandLi
         center.add(this.answersScroll, BorderLayout.WEST);
 
         final int prefWidth = this.answersTable.getPreferredSize().width
-                + this.answersScroll.getVerticalScrollBar().getPreferredSize().width + 10;
+                              + this.answersScroll.getVerticalScrollBar().getPreferredSize().width + 10;
 
         this.answersScroll.setPreferredSize(new Dimension(prefWidth, Integer.MAX_VALUE));
 
@@ -407,7 +401,7 @@ class ExamDetailsCard extends JPanel implements ActionListener, IZTableCommandLi
         this.answersTable.setData(record.answers);
 
         final int prefWidth = this.answersTable.getPreferredSize().width
-                + this.answersScroll.getVerticalScrollBar().getPreferredSize().width + 10;
+                              + this.answersScroll.getVerticalScrollBar().getPreferredSize().width + 10;
 
         this.answersScroll.setPreferredSize(new Dimension(prefWidth, Integer.MAX_VALUE));
     }
@@ -530,10 +524,10 @@ class ExamDetailsCard extends JPanel implements ActionListener, IZTableCommandLi
                     final String crs = match.course;
 
                     if (RawRecordConstants.M117.equals(crs) //
-                            || RawRecordConstants.M118.equals(crs)
-                            || RawRecordConstants.M124.equals(crs)
-                            || RawRecordConstants.M125.equals(crs)
-                            || RawRecordConstants.M126.equals(crs)) {
+                        || RawRecordConstants.M118.equals(crs)
+                        || RawRecordConstants.M124.equals(crs)
+                        || RawRecordConstants.M125.equals(crs)
+                        || RawRecordConstants.M126.equals(crs)) {
 
                         if (reg == null) {
                             final String[] message = new String[3];
@@ -546,11 +540,11 @@ class ExamDetailsCard extends JPanel implements ActionListener, IZTableCommandLi
                             courseExamConsequences(reg);
                         }
                     } else if (RawRecordConstants.M1170.equals(crs)
-                            || RawRecordConstants.M1180.equals(crs)
-                            || RawRecordConstants.M1240.equals(crs)
-                            || RawRecordConstants.M1250.equals(crs)
-                            || RawRecordConstants.M1260.equals(crs)
-                            || RawRecordConstants.M100T.equals(crs)) {
+                               || RawRecordConstants.M1180.equals(crs)
+                               || RawRecordConstants.M1240.equals(crs)
+                               || RawRecordConstants.M1250.equals(crs)
+                               || RawRecordConstants.M1260.equals(crs)
+                               || RawRecordConstants.M100T.equals(crs)) {
 
                         tutorialExamConsequences(match);
                     } else if (RawRecordConstants.M100U.equals(crs)) {
@@ -614,10 +608,10 @@ class ExamDetailsCard extends JPanel implements ActionListener, IZTableCommandLi
                     Log.warning("Unable to lookup cusection record.");
                     mastery = guessMasteryScore(exam);
                 } else if ((RawStexam.REVIEW_EXAM.equals(type) && cusect.reMasteryScore != null)
-                        || (RawStexam.QUALIFYING_EXAM.equals(type) && cusect.reMasteryScore != null)) {
+                           || (RawStexam.QUALIFYING_EXAM.equals(type) && cusect.reMasteryScore != null)) {
                     mastery = cusect.reMasteryScore.intValue();
                 } else if ((RawStexam.UNIT_EXAM.equals(type) && cusect.ueMasteryScore != null)
-                        || (RawStexam.FINAL_EXAM.equals(type) && cusect.ueMasteryScore != null)) {
+                           || (RawStexam.FINAL_EXAM.equals(type) && cusect.ueMasteryScore != null)) {
                     mastery = cusect.ueMasteryScore.intValue();
                 } else {
                     Log.warning("No score data in cusection.");
@@ -702,7 +696,7 @@ class ExamDetailsCard extends JPanel implements ActionListener, IZTableCommandLi
                 boolean isPassed = false;
                 for (final RawStexam test : exams) {
                     if (RawStexam.UNIT_EXAM.equals(test.examType) && stexam.unit.equals(test.unit)
-                            && "Y".equals(test.passed)) {
+                        && "Y".equals(test.passed)) {
                         isPassed = true;
                         break;
                     }
@@ -752,48 +746,45 @@ class ExamDetailsCard extends JPanel implements ActionListener, IZTableCommandLi
      * @param theCourse the course in which there should be a "placed out" result
      * @throws SQLException if there is an error accessing the database
      */
-    private void ensurePlacement(final RawStexam stexam, final String theCourse)
-            throws SQLException {
+    private void ensurePlacement(final RawStexam stexam, final String theCourse) throws SQLException {
 
         final String stuId = stexam.stuId;
         final List<RawMpeCredit> allCredit = RawMpeCreditLogic.queryByStudent(this.cache, stuId);
 
         boolean found = false;
         for (final RawMpeCredit test : allCredit) {
-            if (test.course.equals(theCourse) && ("P".equals(test.examPlaced)
-                    || "C".equals(test.examPlaced))) {
+            if (test.course.equals(theCourse) && ("P".equals(test.examPlaced) || "C".equals(test.examPlaced))) {
                 found = true;
                 break;
             }
         }
 
         if (!found) {
-            Log.info("*** Recording placement in '", theCourse,
-                    "' for ", stuId);
+            Log.info("*** Recording placement in '", theCourse, "' for ", stuId);
 
-            final RawMpeCredit newRow = new RawMpeCredit(stuId, theCourse, "P",
-                    stexam.examDt, null, stexam.serialNbr, stexam.version, stexam.examSource);
+            final RawMpeCredit newRow = new RawMpeCredit(stuId, theCourse, "P", stexam.examDt, null, stexam.serialNbr,
+                    stexam.version, stexam.examSource);
             RawMpeCreditLogic.apply(this.cache, newRow);
 
             // Send results to BANNER, or store in queue table
             final RawStudent stu = RawStudentLogic.query(this.cache, stuId, false);
 
             if (stu == null) {
-                RawMpscorequeueLogic.logActivity(//
-                        "Unable to upload placement result for student "
-                                + stuId + ": student record not found");
+                RawMpscorequeueLogic.logActivity(
+                        "Unable to upload placement result for student " + stuId + ": student record not found");
             } else {
-                final DbConnection liveConn = this.liveContext.checkOutConnection();
+                final DbConnection liveConn = this.cache.checkOutConnection(ESchema.LIVE);
+
                 try {
                     if (RawRecordConstants.M100C.equals(theCourse)) {
-                        RawMpscorequeueLogic.postELMTutorialResult(this.cache, liveConn,
-                                stu.pidm, stexam.getFinishDateTime());
+                        RawMpscorequeueLogic.postELMTutorialResult(this.cache, liveConn, stu.pidm,
+                                stexam.getFinishDateTime());
                     } else {
-                        RawMpscorequeueLogic.postPrecalcTutorialResult(this.cache,
-                                liveConn, stu.pidm, theCourse, stexam.getFinishDateTime());
+                        RawMpscorequeueLogic.postPrecalcTutorialResult(this.cache, liveConn, stu.pidm, theCourse,
+                                stexam.getFinishDateTime());
                     }
                 } finally {
-                    this.liveContext.checkInConnection(liveConn);
+                    Cache.checkInConnection(liveConn);
                 }
             }
         }
@@ -814,7 +805,7 @@ class ExamDetailsCard extends JPanel implements ActionListener, IZTableCommandLi
         boolean found = false;
         for (final RawMpeCredit test : allCredit) {
             if (test.course.equals(theCourse) && ("P".equals(test.examPlaced)
-                    || "C".equals(test.examPlaced))) {
+                                                  || "C".equals(test.examPlaced))) {
                 found = true;
                 break;
             }

@@ -1,8 +1,8 @@
 package dev.mathops.db.reclogic;
 
-import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.EDbProduct;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.rec.MasteryAttemptRec;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -173,8 +173,6 @@ public abstract class MasteryAttemptLogic implements IRecLogic<MasteryAttemptRec
 
             final String sql = SimpleBuilder.concat("DELETE FROM mastery_attempt WHERE serial_nbr=",
                     sqlIntegerValue(record.serialNbr), " AND exam_id=", sqlStringValue(record.examId));
-
-            Log.info(sql);
 
             return doUpdateOneRow(cache, sql);
         }
@@ -354,7 +352,9 @@ public abstract class MasteryAttemptLogic implements IRecLogic<MasteryAttemptRec
                 throw new SQLException("Null value in required field.");
             }
 
-            final String sql = SimpleBuilder.concat("INSERT INTO ", cache.termSchemaName,
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
+
+            final String sql = SimpleBuilder.concat("INSERT INTO ", schemaPrefix,
                     ".mastery_attempt (serial_nbr,exam_id,stu_id,when_started,when_finished,exam_score,mastery_score,",
                     "passed,is_first_passed,exam_source) VALUES (",
                     sqlIntegerValue(record.serialNbr), ",",
@@ -382,7 +382,9 @@ public abstract class MasteryAttemptLogic implements IRecLogic<MasteryAttemptRec
         @Override
         public boolean delete(final Cache cache, final MasteryAttemptRec record) throws SQLException {
 
-            final String sql = SimpleBuilder.concat("DELETE FROM ", cache.termSchemaName,
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
+
+            final String sql = SimpleBuilder.concat("DELETE FROM ", schemaPrefix,
                     ".mastery_attempt WHERE serial_nbr=", sqlIntegerValue(record.serialNbr),
                     " AND exam_id=", sqlStringValue(record.examId));
 
@@ -399,7 +401,9 @@ public abstract class MasteryAttemptLogic implements IRecLogic<MasteryAttemptRec
         @Override
         public List<MasteryAttemptRec> queryAll(final Cache cache) throws SQLException {
 
-            final String sql = SimpleBuilder.concat("SELECT * FROM ", cache.termSchemaName, ".mastery_attempt");
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
+
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".mastery_attempt");
 
             return doListQuery(cache, sql);
         }
@@ -415,7 +419,9 @@ public abstract class MasteryAttemptLogic implements IRecLogic<MasteryAttemptRec
         @Override
         public List<MasteryAttemptRec> queryByStudent(final Cache cache, final String stuId) throws SQLException {
 
-            final String sql = SimpleBuilder.concat("SELECT * FROM ", cache.termSchemaName,
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
+
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".mastery_attempt WHERE stu_id=", sqlStringValue(stuId));
 
             return doListQuery(cache, sql);
@@ -432,7 +438,9 @@ public abstract class MasteryAttemptLogic implements IRecLogic<MasteryAttemptRec
         @Override
         public List<MasteryAttemptRec> queryByExam(final Cache cache, final String examId) throws SQLException {
 
-            final String sql = SimpleBuilder.concat("SELECT * FROM ", cache.termSchemaName,
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
+
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".mastery_attempt WHERE exam_id=", sqlStringValue(examId));
 
             return doListQuery(cache, sql);
@@ -454,11 +462,13 @@ public abstract class MasteryAttemptLogic implements IRecLogic<MasteryAttemptRec
 
             final String sql;
 
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
+
             if (passedOnly) {
-                sql = SimpleBuilder.concat("SELECT * FROM ", cache.termSchemaName, ".mastery_attempt WHERE stu_id=",
+                sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".mastery_attempt WHERE stu_id=",
                         sqlStringValue(stuId), " AND exam_id=", sqlStringValue(examId), " AND passed='Y'");
             } else {
-                sql = SimpleBuilder.concat("SELECT * FROM ", cache.termSchemaName, ".mastery_attempt WHERE stu_id=",
+                sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".mastery_attempt WHERE stu_id=",
                         sqlStringValue(stuId), " AND exam_id=", sqlStringValue(examId));
             }
 
@@ -478,7 +488,9 @@ public abstract class MasteryAttemptLogic implements IRecLogic<MasteryAttemptRec
         public MasteryAttemptRec query(final Cache cache, final Integer serialNbr,
                                        final String examId) throws SQLException {
 
-            final String sql = SimpleBuilder.concat("SELECT * FROM ", cache.termSchemaName,
+            final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
+
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".mastery_attempt WHERE serial_nbr=", sqlIntegerValue(serialNbr),
                     " AND exam_id=", sqlStringValue(examId));
 

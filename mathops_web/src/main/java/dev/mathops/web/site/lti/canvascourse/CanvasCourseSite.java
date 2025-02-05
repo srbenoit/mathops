@@ -3,8 +3,8 @@ package dev.mathops.web.site.lti.canvascourse;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.db.logic.ELiveRefreshes;
-import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.ESiteType;
@@ -48,12 +48,12 @@ public final class CanvasCourseSite extends CourseSite {
     /**
      * Constructs a new {@code CanvasCourseSite}.
      *
-     * @param theSiteProfile the site profile under which this site is accessed
+     * @param theSite the site profile under which this site is accessed
      * @param theSessions    the singleton user session repository
      */
-    public CanvasCourseSite(final WebSiteProfile theSiteProfile, final ISessionManager theSessions) {
+    public CanvasCourseSite(final Site theSite, final ISessionManager theSessions) {
 
-        super(theSiteProfile, theSessions);
+        super(theSite, theSessions);
     }
 
     /**

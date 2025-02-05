@@ -3,14 +3,12 @@ package dev.mathops.dbjobs.report;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCsection;
@@ -39,28 +37,21 @@ public enum SpecialOpenReport {
      */
     private static void runReport() {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-        final DbProfile profile = map.getCodeProfile(Contexts.REPORT_PATH);
-        final DbContext ctx = profile.getDbContext(ESchemaUse.PRIMARY);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        final Profile profile = config.getCodeProfile(Contexts.REPORT_PATH);
+        final Cache cache = new Cache(profile);
 
         try {
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(profile, conn);
+            final Collection<String> report = new ArrayList<>(100);
 
-            try {
-                final Collection<String> report = new ArrayList<>(100);
+            report.add(CoreConstants.EMPTY);
+            report.add("     Students with special open_status flags in STCOURSE");
+            report.add("     Report Date:  " + TemporalUtils.FMT_MDY.format(LocalDate.now()));
 
-                report.add(CoreConstants.EMPTY);
-                report.add("     Students with special open_status flags in STCOURSE");
-                report.add("     Report Date:  " + TemporalUtils.FMT_MDY.format(LocalDate.now()));
+            generate(cache, report);
 
-                generate(cache, report);
-
-                for (final String s : report) {
-                    Log.fine(s);
-                }
-            } finally {
-                ctx.checkInConnection(conn);
+            for (final String s : report) {
+                Log.fine(s);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
@@ -297,6 +288,7 @@ public enum SpecialOpenReport {
      */
     public static void main(final String... args) {
 
+        DbConnection.registerDrivers();
         runReport();
     }
 }

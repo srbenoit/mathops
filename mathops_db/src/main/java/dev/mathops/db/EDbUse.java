@@ -19,8 +19,14 @@ public enum EDbUse {
     /** Live registration database. */
     LIVE,
 
+    /** Live registration database, development instance. */
+    LIVE_DEV,
+
     /** Operational data store. */
-    ODS;
+    ODS,
+
+    /** Operational data store, development instance. */
+    ODS_DEV;
 
     /**
      * Finds the {@code EDbUse} with a particular name.

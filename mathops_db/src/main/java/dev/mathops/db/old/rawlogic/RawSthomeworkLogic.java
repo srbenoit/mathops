@@ -4,6 +4,7 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.builder.SimpleBuilder;
@@ -61,10 +62,10 @@ public enum RawSthomeworkLogic {
     public static boolean insert(final Cache cache, final RawSthomework record) throws SQLException {
 
         if (record.serialNbr == null || record.version == null || record.stuId == null
-                || record.hwDt == null || record.hwScore == null || record.startTime == null
-                || record.finishTime == null || record.timeOk == null || record.passed == null
-                || record.hwType == null || record.course == null || record.sect == null
-                || record.unit == null || record.objective == null || record.hwCoupon == null) {
+            || record.hwDt == null || record.hwScore == null || record.startTime == null
+            || record.finishTime == null || record.timeOk == null || record.passed == null
+            || record.hwType == null || record.course == null || record.sect == null
+            || record.unit == null || record.objective == null || record.hwCoupon == null) {
             throw new SQLException("Null value in primary key or required field.");
         }
 
@@ -110,14 +111,18 @@ public enum RawSthomeworkLogic {
                     LogicUtils.sqlDateValue(record.usedDt), ",",
                     LogicUtils.sqlLongValue(record.usedSerialNbr), ")");
 
-            try (final Statement stmt = cache.conn.createStatement()) {
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement()) {
                 result = stmt.executeUpdate(sql) == 1;
 
                 if (result) {
-                    cache.conn.commit();
+                    conn.commit();
                 } else {
-                    cache.conn.rollback();
+                    conn.rollback();
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -139,16 +144,20 @@ public enum RawSthomeworkLogic {
                 " AND version=", LogicUtils.sqlStringValue(record.version),
                 " AND stu_id=", LogicUtils.sqlStringValue(record.stuId));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -161,7 +170,7 @@ public enum RawSthomeworkLogic {
      */
     public static List<RawSthomework> queryAll(final Cache cache) throws SQLException {
 
-        return executeQuery(cache.conn, "SELECT * FROM sthomework");
+        return executeQuery(cache, "SELECT * FROM sthomework");
     }
 
     /**
@@ -181,7 +190,7 @@ public enum RawSthomeworkLogic {
                 LogicUtils.sqlStringValue(stuId), (all ? CoreConstants.EMPTY : " AND (passed='Y' OR passed='N')"),
                 " ORDER BY hw_dt,finish_time");
 
-        return executeQuery(cache.conn, sql);
+        return executeQuery(cache, sql);
     }
 
     /**
@@ -205,7 +214,7 @@ public enum RawSthomeworkLogic {
                 (all ? CoreConstants.EMPTY : " AND (passed='Y' OR passed='N')"),
                 " ORDER BY hw_dt,finish_time");
 
-        return executeQuery(cache.conn, sql);
+        return executeQuery(cache, sql);
     }
 
     /**
@@ -232,7 +241,7 @@ public enum RawSthomeworkLogic {
                 (all ? CoreConstants.EMPTY : " AND (passed='Y' OR passed='N')"),
                 " ORDER BY hw_dt,finish_time");
 
-        return executeQuery(cache.conn, sql);
+        return executeQuery(cache, sql);
     }
 
     /**
@@ -262,7 +271,7 @@ public enum RawSthomeworkLogic {
                 (all ? CoreConstants.EMPTY : " AND (passed='Y' OR passed='N')"),
                 " ORDER BY hw_dt,finish_time");
 
-        return executeQuery(cache.conn, sql);
+        return executeQuery(cache, sql);
     }
 
     /**
@@ -386,7 +395,7 @@ public enum RawSthomeworkLogic {
 
         sql.add(" AND hw_dt>=", LogicUtils.sqlDateValue(earliest), " ORDER BY hw_dt,finish_time");
 
-        final List<RawSthomework> all = executeQuery(cache.conn, sql.toString());
+        final List<RawSthomework> all = executeQuery(cache, sql.toString());
         all.sort(new RawSthomework.FinishDateTimeComparator());
 
         int start = 0;
@@ -434,32 +443,36 @@ public enum RawSthomeworkLogic {
                 "   AND version=", LogicUtils.sqlStringValue(version),
                 "   AND stu_id=", LogicUtils.sqlStringValue(stuId));
 
-        // Log.info(sql);
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
     /**
      * Executes a query that returns a list of records.
      *
-     * @param conn the database connection, checked out to this thread
-     * @param sql  the SQL to execute
+     * @param cache the data cache
+     * @param sql   the SQL to execute
      * @return the list of matching records
      * @throws SQLException if there is an error accessing the database
      */
-    private static List<RawSthomework> executeQuery(final DbConnection conn, final String sql) throws SQLException {
+    private static List<RawSthomework> executeQuery(final Cache cache, final String sql) throws SQLException {
 
         final List<RawSthomework> result = new ArrayList<>(50);
+
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
         try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
@@ -467,6 +480,8 @@ public enum RawSthomeworkLogic {
             while (rs.next()) {
                 result.add(RawSthomework.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;

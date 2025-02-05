@@ -9,37 +9,26 @@ import java.util.Locale;
  */
 final class TestRes extends ResBundle {
 
-    /** An incrementing index for resource keys. */
-    private static int index = 1;
-
     // Used by multiple classes
 
     /** A resource key. */
-    static final String ERR_NO_IFXTEST_PROFILE = key(index++);
+    static final String ERR_NO_IFXTEST_PROFILE = key(1);
 
     /** A resource key. */
-    static final String ERR_NO_PGTEST_PROFILE = key(index++);
+    static final String ERR_NO_PGPRIMARY_CONTEXT = key(2);
 
     /** A resource key. */
-    static final String ERR_NO_IFXPRIMARY_CONTEXT = key(index++);
+    static final String ERR_CANT_QUERY_WHICH_DB = key(3);
 
     /** A resource key. */
-    static final String ERR_NO_PGPRIMARY_CONTEXT = key(index++);
-
-    /** A resource key. */
-    static final String ERR_CANT_QUERY_WHICH_DB = key(index++);
-
-    /** A resource key. */
-    static final String ERR_NOT_CONNECTED_TO_TEST = key(index++);
+    static final String ERR_NOT_CONNECTED_TO_TEST = key(4);
 
     //
 
     /** The resources - an array of key-values pairs. */
-    private static final String[][] EN_US = { //
+    private static final String[][] EN_US = {
 
             {ERR_NO_IFXTEST_PROFILE, "No 'ifxtest' code profile configured."},
-            {ERR_NO_PGTEST_PROFILE, "No 'pgtest' code profile configured."},
-            {ERR_NO_IFXPRIMARY_CONTEXT, "No primary context in the 'ifxtest' code profile."},
             {ERR_NO_PGPRIMARY_CONTEXT, "No primary context in the 'pgtest' code profile."},
             {ERR_CANT_QUERY_WHICH_DB, "Can't query which_db"},
             {ERR_NOT_CONNECTED_TO_TEST, "Connected to {0}rather than TEST database"},

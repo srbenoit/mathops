@@ -158,7 +158,7 @@ enum PageStudentSchedule {
     private static void emitStudentSchedule(final Cache cache, final AdminSite site, final HtmlBuilder htm,
                                             final RawStudent student) throws SQLException {
 
-        final SiteData data = new SiteData(site.getDbProfile(), ZonedDateTime.now());
+        final SiteData data = new SiteData(site.site.profile, ZonedDateTime.now());
 
         final LiveSessionInfo live =
                 new LiveSessionInfo(CoreConstants.newId(ISessionManager.SESSION_ID_LEN), "none", ERole.STUDENT);
@@ -195,10 +195,10 @@ enum PageStudentSchedule {
             for (final RawStcourse sc : regs) {
                 final String courseId = sc.course;
                 if (RawRecordConstants.MATH117.equals(courseId)
-                        || RawRecordConstants.MATH118.equals(courseId)
-                        || RawRecordConstants.MATH124.equals(courseId)
-                        || RawRecordConstants.MATH125.equals(courseId)
-                        || RawRecordConstants.MATH126.equals(courseId)) {
+                    || RawRecordConstants.MATH118.equals(courseId)
+                    || RawRecordConstants.MATH124.equals(courseId)
+                    || RawRecordConstants.MATH125.equals(courseId)
+                    || RawRecordConstants.MATH126.equals(courseId)) {
                     newCourses = true;
                 }
                 if (sc.paceOrder == null) {
@@ -553,7 +553,7 @@ enum PageStudentSchedule {
                 override = null;
                 for (final StudentStandardMilestoneRec test : overrides) {
                     if (test.paceIndex.equals(ms.paceIndex) && test.unit.equals(ms.unit)
-                            && test.objective.equals(ms.objective) && test.msType.equals(ms.msType)) {
+                        && test.objective.equals(ms.objective) && test.msType.equals(ms.msType)) {
                         override = test;
                         break;
                     }
@@ -573,7 +573,7 @@ enum PageStudentSchedule {
                     MasteryExamRec masteryExam = null;
                     for (final MasteryExamRec rec : allMastery) {
                         if (rec.courseId.equals(reg.course) && rec.unit.equals(ms.unit)
-                                && rec.objective.equals(ms.objective)) {
+                            && rec.objective.equals(ms.objective)) {
                             masteryExam = rec;
                             break;
                         }
@@ -589,7 +589,7 @@ enum PageStudentSchedule {
                                     whenAttempted = attempt.whenFinished;
                                 }
                                 if ("Y".equals(attempt.passed) &&
-                                        (whenPassed == null || whenPassed.isAfter(attempt.whenFinished))) {
+                                    (whenPassed == null || whenPassed.isAfter(attempt.whenFinished))) {
                                     whenPassed = attempt.whenFinished;
                                 }
                             }
@@ -714,8 +714,8 @@ enum PageStudentSchedule {
         final String origDate = req.getParameter("x");
 
         if (AbstractSite.isParamInvalid(course) || AbstractSite.isParamInvalid(pace)
-                || AbstractSite.isParamInvalid(track) || AbstractSite.isParamInvalid(order)
-                || AbstractSite.isParamInvalid(milestone) || AbstractSite.isParamInvalid(type)) {
+            || AbstractSite.isParamInvalid(track) || AbstractSite.isParamInvalid(order)
+            || AbstractSite.isParamInvalid(milestone) || AbstractSite.isParamInvalid(type)) {
             Log.warning("Invalid request parameters - possible attack:");
             Log.warning("  c='", course, "'");
             Log.warning("  p='", pace, "'");
@@ -884,8 +884,8 @@ enum PageStudentSchedule {
         final String iv = req.getParameter("iv");
 
         if (AbstractSite.isParamInvalid(pace) || AbstractSite.isParamInvalid(track)
-                || AbstractSite.isParamInvalid(order) || AbstractSite.isParamInvalid(milestone)
-                || AbstractSite.isParamInvalid(type) || AbstractSite.isParamInvalid(dl)) {
+            || AbstractSite.isParamInvalid(order) || AbstractSite.isParamInvalid(milestone)
+            || AbstractSite.isParamInvalid(type) || AbstractSite.isParamInvalid(dl)) {
             Log.warning("Invalid request parameters - possible attack:");
             Log.warning("  p='", pace, "'");
             Log.warning("  t='", track, "'");
@@ -897,7 +897,7 @@ enum PageStudentSchedule {
             Log.warning("  iv='", iv, "'");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else if (studentId == null || pace == null || track == null || order == null || milestone == null
-                || type == null) {
+                   || type == null) {
             doGet(cache, site, req, resp, session);
         } else {
             final SystemData systemData = cache.getSystemData();

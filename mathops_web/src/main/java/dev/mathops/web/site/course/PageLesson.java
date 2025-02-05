@@ -4,9 +4,9 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.logic.SystemData;
-import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStcuobjectiveLogic;
 import dev.mathops.db.old.rawrecord.RawLessonComponent;
@@ -118,8 +118,8 @@ enum PageLesson {
                                               final int objective, final String mode, final String skillsReviewCourse,
                                               final HtmlBuilder htm) throws SQLException {
 
-        final DbProfile dbProfile = site.getDbProfile();
-        final CourseLesson less = new CourseLesson(dbProfile);
+        final Profile profile = site.site.profile;
+        final CourseLesson less = new CourseLesson(profile);
         final String studentId = session.getEffectiveUserId();
 
         // find the rule set under which the student is working
@@ -134,7 +134,7 @@ enum PageLesson {
 
         if (less.gatherData(cache, courseId, Integer.valueOf(unit), Integer.valueOf(objective))) {
 
-            final StudentCourseStatus status = new StudentCourseStatus(dbProfile);
+            final StudentCourseStatus status = new StudentCourseStatus(profile);
             if (status.gatherData(cache, session, studentId, courseId, false, !"course".equals(mode))) {
 
                 final int count = less.getNumComponents();
@@ -160,7 +160,7 @@ enum PageLesson {
                         htm.add("Return to the Course Outline");
                         htm.addln("</em></a>");
                     } else {
-                        final StudentCourseStatus reviewStatus = new StudentCourseStatus(dbProfile);
+                        final StudentCourseStatus reviewStatus = new StudentCourseStatus(profile);
                         reviewStatus.gatherData(cache, session, skillsReviewCourse, studentId, true,
                                 !"course".equals(mode));
 
@@ -266,7 +266,7 @@ enum PageLesson {
                                      final String assignId, final String pacing, final HtmlBuilder htm)
             throws SQLException {
 
-        final StudentCourseStatus courseStatus = new StudentCourseStatus(site.getDbProfile());
+        final StudentCourseStatus courseStatus = new StudentCourseStatus(site.site.profile);
 
         if (courseStatus.gatherData(cache, session, session.getEffectiveUserId(), courseId, false,
                 !"course".equals(assignmentMode))) {

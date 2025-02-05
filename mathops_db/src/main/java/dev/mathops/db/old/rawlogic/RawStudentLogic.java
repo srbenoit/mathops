@@ -1,11 +1,10 @@
 package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.ifaces.ILiveStudent;
 import dev.mathops.db.old.ifaces.ILiveTransferCredit;
 import dev.mathops.db.old.rawrecord.RawFfrTrns;
@@ -272,16 +271,16 @@ public enum RawStudentLogic {
     public static boolean insert(final Cache cache, final RawStudent record) throws SQLException {
 
         if (record.stuId == null || record.discipHistory == null || record.licensed == null
-                || record.orderEnforce == null) {
+            || record.orderEnforce == null) {
             throw new SQLException("Null value in primary key or required field.");
         }
 
-        final String sql = SimpleBuilder.concat("INSERT INTO student ",
-                "(stu_id,pidm,last_name,first_name,pref_name,middle_initial,apln_term,class,college,dept,program_code,",
-                "minor,est_graduation,tr_credits,hs_code,hs_gpa,hs_class_rank,hs_size_class,act_score,sat_score,",
-                "ap_score,resident,birthdate,ethnicity,gender,discip_history,discip_status,sev_admin_hold,",
-                "timelimit_factor,licensed,campus,stu_email,adviser_email,password,admit_type,order_enforce,",
-                "pacing_structure,create_dt) VALUES (",
+        final String sql = SimpleBuilder.concat(
+                "INSERT INTO student (stu_id,pidm,last_name,first_name,pref_name,middle_initial,apln_term,class,",
+                "college,dept,program_code,minor,est_graduation,tr_credits,hs_code,hs_gpa,hs_class_rank,hs_size_class,",
+                "act_score,sat_score,ap_score,resident,birthdate,ethnicity,gender,discip_history,discip_status,",
+                "sev_admin_hold,timelimit_factor,licensed,campus,stu_email,adviser_email,password,admit_type,",
+                "order_enforce,pacing_structure,create_dt) VALUES (",
                 LogicUtils.sqlStringValue(record.stuId), ",",
                 LogicUtils.sqlIntegerValue(record.pidm), ",",
                 LogicUtils.sqlStringValue(record.lastName), ",",
@@ -321,16 +320,20 @@ public enum RawStudentLogic {
                 LogicUtils.sqlStringValue(record.pacingStructure), ",",
                 LogicUtils.sqlDateValue(record.createDt), ")");
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -371,16 +374,20 @@ public enum RawStudentLogic {
         final String sql = SimpleBuilder.concat("DELETE FROM student WHERE stu_id=",
                 LogicUtils.sqlStringValue(record.stuId));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -416,12 +423,16 @@ public enum RawStudentLogic {
             final String sql = SimpleBuilder.concat("SELECT * FROM student WHERE stu_id=",
                     LogicUtils.sqlStringValue(stuId));
 
-            try (final Statement stmt = cache.conn.createStatement();
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement();
                  final ResultSet rs = stmt.executeQuery(sql)) {
 
                 if (rs.next()) {
                     result = RawStudent.fromResultSet(rs);
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -553,15 +564,20 @@ public enum RawStudentLogic {
             Log.info(STU_ID, studentId);
             result = false;
         } else {
-            final String sql = "UPDATE student SET pidm=" + internalId
-                    + " WHERE stu_id='" + studentId + "'";
+            final String sql = "UPDATE student SET pidm=" + internalId + " WHERE stu_id='" + studentId + "'";
 
-            result = executeSimpleUpdate(cache, sql) == 1;
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
-            if (result) {
-                cache.conn.commit();
-            } else {
-                cache.conn.rollback();
+            try (final Statement stmt = conn.createStatement()) {
+                result = stmt.executeUpdate(sql) == 1;
+
+                if (result) {
+                    conn.commit();
+                } else {
+                    conn.rollback();
+                }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -596,19 +612,25 @@ public enum RawStudentLogic {
             check(prefName);
             check(middleInitial);
 
-            final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET last_name=", LogicUtils.sqlStringValue(lastName),
+            final String sql = SimpleBuilder.concat(
+                    "UPDATE student SET last_name=", LogicUtils.sqlStringValue(lastName),
                     ", first_name=", LogicUtils.sqlStringValue(firstName),
                     ", pref_name=", LogicUtils.sqlStringValue(prefName),
                     ", middle_initial=", LogicUtils.sqlStringValue(middleInitial),
                     " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
-            result = executeSimpleUpdate(cache, sql) == 1;
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
-            if (result) {
-                cache.conn.commit();
-            } else {
-                cache.conn.rollback();
+            try (final Statement stmt = conn.createStatement()) {
+                result = stmt.executeUpdate(sql) == 1;
+
+                if (result) {
+                    conn.commit();
+                } else {
+                    conn.rollback();
+                }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -634,16 +656,22 @@ public enum RawStudentLogic {
             Log.info(STU_ID, studentId);
             result = false;
         } else {
-            final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET apln_term=", LogicUtils.sqlTermValue(newApplicationTerm),
+            final String sql = SimpleBuilder.concat("UPDATE student SET apln_term=",
+                    LogicUtils.sqlTermValue(newApplicationTerm),
                     " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
-            result = executeSimpleUpdate(cache, sql) == 1;
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
-            if (result) {
-                cache.conn.commit();
-            } else {
-                cache.conn.rollback();
+            try (final Statement stmt = conn.createStatement()) {
+                result = stmt.executeUpdate(sql) == 1;
+
+                if (result) {
+                    conn.commit();
+                } else {
+                    conn.rollback();
+                }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -669,16 +697,22 @@ public enum RawStudentLogic {
             Log.info(STU_ID, studentId);
             result = false;
         } else {
-            final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET class=", LogicUtils.sqlStringValue(newClassLevel),
+            final String sql = SimpleBuilder.concat(
+                    "UPDATE student SET class=", LogicUtils.sqlStringValue(newClassLevel),
                     " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
-            result = executeSimpleUpdate(cache, sql) == 1;
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
-            if (result) {
-                cache.conn.commit();
-            } else {
-                cache.conn.rollback();
+            try (final Statement stmt = conn.createStatement()) {
+                result = stmt.executeUpdate(sql) == 1;
+
+                if (result) {
+                    conn.commit();
+                } else {
+                    conn.rollback();
+                }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -708,19 +742,25 @@ public enum RawStudentLogic {
             Log.info(STU_ID, studentId);
             result = false;
         } else {
-            final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET college=", LogicUtils.sqlStringValue(newCollege),
+            final String sql = SimpleBuilder.concat(
+                    "UPDATE student SET college=", LogicUtils.sqlStringValue(newCollege),
                     ", dept=", LogicUtils.sqlStringValue(newDepartment),
                     ", program_code=", LogicUtils.sqlStringValue(newProgramCode),
                     ", minor=", LogicUtils.sqlStringValue(newMinor),
                     " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
-            result = executeSimpleUpdate(cache, sql) == 1;
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
-            if (result) {
-                cache.conn.commit();
-            } else {
-                cache.conn.rollback();
+            try (final Statement stmt = conn.createStatement()) {
+                result = stmt.executeUpdate(sql) == 1;
+
+                if (result) {
+                    conn.commit();
+                } else {
+                    conn.rollback();
+                }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -746,16 +786,22 @@ public enum RawStudentLogic {
             Log.info(STU_ID, studentId);
             result = false;
         } else {
-            final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET est_graduation=", LogicUtils.sqlTermValue(newGraduationTerm),
+            final String sql = SimpleBuilder.concat(
+                    "UPDATE student SET est_graduation=", LogicUtils.sqlTermValue(newGraduationTerm),
                     " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
-            result = executeSimpleUpdate(cache, sql) == 1;
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
-            if (result) {
-                cache.conn.commit();
-            } else {
-                cache.conn.rollback();
+            try (final Statement stmt = conn.createStatement()) {
+                result = stmt.executeUpdate(sql) == 1;
+
+                if (result) {
+                    conn.commit();
+                } else {
+                    conn.rollback();
+                }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -781,16 +827,22 @@ public enum RawStudentLogic {
             Log.info(STU_ID, studentId);
             result = false;
         } else {
-            final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET tr_credits=", LogicUtils.sqlStringValue(newNumXferCredits),
+            final String sql = SimpleBuilder.concat(
+                    "UPDATE student SET tr_credits=", LogicUtils.sqlStringValue(newNumXferCredits),
                     " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
-            result = executeSimpleUpdate(cache, sql) == 1;
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
-            if (result) {
-                cache.conn.commit();
-            } else {
-                cache.conn.rollback();
+            try (final Statement stmt = conn.createStatement()) {
+                result = stmt.executeUpdate(sql) == 1;
+
+                if (result) {
+                    conn.commit();
+                } else {
+                    conn.rollback();
+                }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -820,19 +872,25 @@ public enum RawStudentLogic {
             Log.info(STU_ID, studentId);
             result = false;
         } else {
-            final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET hs_code=", LogicUtils.sqlStringValue(newHighSchoolCode),
+            final String sql = SimpleBuilder.concat(
+                    "UPDATE student SET hs_code=", LogicUtils.sqlStringValue(newHighSchoolCode),
                     ", hs_gpa=", LogicUtils.sqlStringValue(newHichSchoolGpa),
                     ", hs_class_rank=", LogicUtils.sqlIntegerValue(newHSClassRank),
                     ", hs_size_class=", LogicUtils.sqlIntegerValue(newHSClassSize),
                     " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
-            result = executeSimpleUpdate(cache, sql) == 1;
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
-            if (result) {
-                cache.conn.commit();
-            } else {
-                cache.conn.rollback();
+            try (final Statement stmt = conn.createStatement()) {
+                result = stmt.executeUpdate(sql) == 1;
+
+                if (result) {
+                    conn.commit();
+                } else {
+                    conn.rollback();
+                }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -860,18 +918,24 @@ public enum RawStudentLogic {
             Log.info(STU_ID, studentId);
             result = false;
         } else {
-            final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET act_score=", LogicUtils.sqlIntegerValue(newAct),
+            final String sql = SimpleBuilder.concat(
+                    "UPDATE student SET act_score=", LogicUtils.sqlIntegerValue(newAct),
                     ", sat_score=", LogicUtils.sqlIntegerValue(newSat),
                     ", ap_score=", LogicUtils.sqlStringValue(newAp),
                     " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
-            result = executeSimpleUpdate(cache, sql) == 1;
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
-            if (result) {
-                cache.conn.commit();
-            } else {
-                cache.conn.rollback();
+            try (final Statement stmt = conn.createStatement()) {
+                result = stmt.executeUpdate(sql) == 1;
+
+                if (result) {
+                    conn.commit();
+                } else {
+                    conn.rollback();
+                }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -897,16 +961,22 @@ public enum RawStudentLogic {
             Log.info(STU_ID, studentId);
             result = false;
         } else {
-            final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET resident=", LogicUtils.sqlStringValue(newResidency),
+            final String sql = SimpleBuilder.concat(
+                    "UPDATE student SET resident=", LogicUtils.sqlStringValue(newResidency),
                     " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
-            result = executeSimpleUpdate(cache, sql) == 1;
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
-            if (result) {
-                cache.conn.commit();
-            } else {
-                cache.conn.rollback();
+            try (final Statement stmt = conn.createStatement()) {
+                result = stmt.executeUpdate(sql) == 1;
+
+                if (result) {
+                    conn.commit();
+                } else {
+                    conn.rollback();
+                }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -932,16 +1002,22 @@ public enum RawStudentLogic {
             Log.info(STU_ID, studentId);
             result = false;
         } else {
-            final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET birthdate=", LogicUtils.sqlDateValue(newBirthDate),
+            final String sql = SimpleBuilder.concat(
+                    "UPDATE student SET birthdate=", LogicUtils.sqlDateValue(newBirthDate),
                     " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
-            result = executeSimpleUpdate(cache, sql) == 1;
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
-            if (result) {
-                cache.conn.commit();
-            } else {
-                cache.conn.rollback();
+            try (final Statement stmt = conn.createStatement()) {
+                result = stmt.executeUpdate(sql) == 1;
+
+                if (result) {
+                    conn.commit();
+                } else {
+                    conn.rollback();
+                }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -967,16 +1043,22 @@ public enum RawStudentLogic {
             Log.info(STU_ID, studentId);
             result = false;
         } else {
-            final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET gender=", LogicUtils.sqlStringValue(newGender),
+            final String sql = SimpleBuilder.concat(
+                    "UPDATE student SET gender=", LogicUtils.sqlStringValue(newGender),
                     " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
-            result = executeSimpleUpdate(cache, sql) == 1;
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
-            if (result) {
-                cache.conn.commit();
-            } else {
-                cache.conn.rollback();
+            try (final Statement stmt = conn.createStatement()) {
+                result = stmt.executeUpdate(sql) == 1;
+
+                if (result) {
+                    conn.commit();
+                } else {
+                    conn.rollback();
+                }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -1002,16 +1084,22 @@ public enum RawStudentLogic {
             Log.info(STU_ID, studentId);
             result = false;
         } else {
-            final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET sev_admin_hold=", LogicUtils.sqlStringValue(newHoldSeverity),
+            final String sql = SimpleBuilder.concat(
+                    "UPDATE student SET sev_admin_hold=", LogicUtils.sqlStringValue(newHoldSeverity),
                     " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
-            result = executeSimpleUpdate(cache, sql) == 1;
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
-            if (result) {
-                cache.conn.commit();
-            } else {
-                cache.conn.rollback();
+            try (final Statement stmt = conn.createStatement()) {
+                result = stmt.executeUpdate(sql) == 1;
+
+                if (result) {
+                    conn.commit();
+                } else {
+                    conn.rollback();
+                }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -1037,16 +1125,22 @@ public enum RawStudentLogic {
             Log.info(STU_ID, studentId);
             result = false;
         } else {
-            final String sql = "UPDATE student SET timelimit_factor="
-                    + newTimeLimitFactor + " WHERE stu_id='" + studentId
-                    + "'";
+            final String sql = SimpleBuilder.concat("UPDATE student SET timelimit_factor=",
+                    LogicUtils.sqlFloatValue(newTimeLimitFactor), " WHERE stu_id=",
+                    LogicUtils.sqlStringValue(studentId));
 
-            result = executeSimpleUpdate(cache, sql) == 1;
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
-            if (result) {
-                cache.conn.commit();
-            } else {
-                cache.conn.rollback();
+            try (final Statement stmt = conn.createStatement()) {
+                result = stmt.executeUpdate(sql) == 1;
+
+                if (result) {
+                    conn.commit();
+                } else {
+                    conn.rollback();
+                }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -1072,16 +1166,22 @@ public enum RawStudentLogic {
             Log.info(STU_ID, studentId);
             result = false;
         } else {
-            final String sql = "UPDATE student SET extension_days="
-                    + newExtensionDays + " WHERE stu_id='" + studentId
-                    + "'";
+            final String sql = SimpleBuilder.concat("UPDATE student SET extension_days=",
+                    LogicUtils.sqlIntegerValue(newExtensionDays), " WHERE stu_id='",
+                    LogicUtils.sqlStringValue(studentId), "'");
 
-            result = executeSimpleUpdate(cache, sql) == 1;
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
-            if (result) {
-                cache.conn.commit();
-            } else {
-                cache.conn.rollback();
+            try (final Statement stmt = conn.createStatement()) {
+                result = stmt.executeUpdate(sql) == 1;
+
+                if (result) {
+                    conn.commit();
+                } else {
+                    conn.rollback();
+                }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -1107,16 +1207,22 @@ public enum RawStudentLogic {
             Log.info(STU_ID, studentId);
             result = false;
         } else {
-            final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET licensed=", LogicUtils.sqlStringValue(newLicensed),
+            final String sql = SimpleBuilder.concat(
+                    "UPDATE student SET licensed=", LogicUtils.sqlStringValue(newLicensed),
                     " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
-            result = executeSimpleUpdate(cache, sql) == 1;
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
-            if (result) {
-                cache.conn.commit();
-            } else {
-                cache.conn.rollback();
+            try (final Statement stmt = conn.createStatement()) {
+                result = stmt.executeUpdate(sql) == 1;
+
+                if (result) {
+                    conn.commit();
+                } else {
+                    conn.rollback();
+                }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -1146,12 +1252,18 @@ public enum RawStudentLogic {
                     "SET campus=", LogicUtils.sqlStringValue(newCampus),
                     " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
-            result = executeSimpleUpdate(cache, sql) == 1;
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
-            if (result) {
-                cache.conn.commit();
-            } else {
-                cache.conn.rollback();
+            try (final Statement stmt = conn.createStatement()) {
+                result = stmt.executeUpdate(sql) == 1;
+
+                if (result) {
+                    conn.commit();
+                } else {
+                    conn.rollback();
+                }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -1181,17 +1293,25 @@ public enum RawStudentLogic {
             check(newStudentEmail);
             check(newAdviserEmail);
 
-            final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET stu_email=", LogicUtils.sqlStringValue(newStudentEmail),
+            final String sql = SimpleBuilder.concat(
+                    "UPDATE student SET stu_email=", LogicUtils.sqlStringValue(newStudentEmail),
                     ", adviser_email=", LogicUtils.sqlStringValue(newAdviserEmail),
                     " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
-            result = executeSimpleUpdate(cache, sql) == 1;
+            // TODO: Make the following commonly used block "executeOneRowUpdate" method
 
-            if (result) {
-                cache.conn.commit();
-            } else {
-                cache.conn.rollback();
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement()) {
+                result = stmt.executeUpdate(sql) == 1;
+
+                if (result) {
+                    conn.commit();
+                } else {
+                    conn.rollback();
+                }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -1217,16 +1337,22 @@ public enum RawStudentLogic {
             Log.info(STU_ID, studentId);
             result = false;
         } else {
-            final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET admit_type=", LogicUtils.sqlStringValue(newAdmitType),
+            final String sql = SimpleBuilder.concat(
+                    "UPDATE student SET admit_type=", LogicUtils.sqlStringValue(newAdmitType),
                     " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
-            result = executeSimpleUpdate(cache, sql) == 1;
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
-            if (result) {
-                cache.conn.commit();
-            } else {
-                cache.conn.rollback();
+            try (final Statement stmt = conn.createStatement()) {
+                result = stmt.executeUpdate(sql) == 1;
+
+                if (result) {
+                    conn.commit();
+                } else {
+                    conn.rollback();
+                }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -1252,16 +1378,22 @@ public enum RawStudentLogic {
             Log.info(STU_ID, studentId);
             result = false;
         } else {
-            final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET order_enforce=", LogicUtils.sqlStringValue(newCourseOrder),
+            final String sql = SimpleBuilder.concat(
+                    "UPDATE student SET order_enforce=", LogicUtils.sqlStringValue(newCourseOrder),
                     " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
-            result = executeSimpleUpdate(cache, sql) == 1;
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
-            if (result) {
-                cache.conn.commit();
-            } else {
-                cache.conn.rollback();
+            try (final Statement stmt = conn.createStatement()) {
+                result = stmt.executeUpdate(sql) == 1;
+
+                if (result) {
+                    conn.commit();
+                } else {
+                    conn.rollback();
+                }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -1287,16 +1419,22 @@ public enum RawStudentLogic {
             Log.info(STU_ID, studentId);
             result = false;
         } else {
-            final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET pacing_structure=", LogicUtils.sqlStringValue(newPacingStructure),
+            final String sql = SimpleBuilder.concat(
+                    "UPDATE student SET pacing_structure=", LogicUtils.sqlStringValue(newPacingStructure),
                     " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
-            result = executeSimpleUpdate(cache, sql) == 1;
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
-            if (result) {
-                cache.conn.commit();
-            } else {
-                cache.conn.rollback();
+            try (final Statement stmt = conn.createStatement()) {
+                result = stmt.executeUpdate(sql) == 1;
+
+                if (result) {
+                    conn.commit();
+                } else {
+                    conn.rollback();
+                }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -1318,14 +1456,20 @@ public enum RawStudentLogic {
             Log.info(SKIPPING_UPDATE);
             Log.info(STU_ID, studentId);
         } else {
-            final String sql = SimpleBuilder.concat("UPDATE student ",
-                    "SET canvas_id=", LogicUtils.sqlStringValue(newCanvasId),
+            final String sql = SimpleBuilder.concat(
+                    "UPDATE student SET canvas_id=", LogicUtils.sqlStringValue(newCanvasId),
                     " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
-            if (executeSimpleUpdate(cache, sql) == 1) {
-                cache.conn.commit();
-            } else {
-                cache.conn.rollback();
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement()) {
+                if (stmt.executeUpdate(sql) == 1) {
+                    conn.commit();
+                } else {
+                    conn.rollback();
+                }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -1343,12 +1487,16 @@ public enum RawStudentLogic {
 
         final List<RawStudent> result = new ArrayList<>(50);
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 result.add(RawStudent.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -1366,31 +1514,19 @@ public enum RawStudentLogic {
 
         RawStudent result = null;
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
 
             if (rs.next()) {
                 result = RawStudent.fromResultSet(rs);
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
-    }
-
-    /**
-     * Executes an SQL update.
-     *
-     * @param cache the data cache
-     * @param sql   the SQL to execute
-     * @return the number of rows updated
-     * @throws SQLException if there is an error accessing the database
-     */
-    private static int executeSimpleUpdate(final Cache cache, final String sql)
-            throws SQLException {
-
-        try (final Statement stmt = cache.conn.createStatement()) {
-            return stmt.executeUpdate(sql);
-        }
     }
 
     /**
@@ -1421,21 +1557,18 @@ public enum RawStudentLogic {
 
         RawStudent result = null;
 
+        final DbConnection bannerConn = cache.checkOutConnection(ESchema.LIVE);
+
         try {
-            final DbContext banner = cache.dbProfile.getDbContext(ESchemaUse.LIVE);
-            final DbConnection bannerConn = banner.checkOutConnection();
+            final ILiveStudent impl1 = ImplLiveStudent.INSTANCE;
+            final ILiveTransferCredit impl2 = ImplLiveTransferCredit.INSTANCE;
 
-            try {
-                final ILiveStudent impl1 = ImplLiveStudent.INSTANCE;
-                final ILiveTransferCredit impl2 = ImplLiveTransferCredit.INSTANCE;
-
-                result = fetchLiveStudent(cache, bannerConn, studentId, impl1, impl2);
-            } finally {
-                banner.checkInConnection(bannerConn);
-            }
+            result = fetchLiveStudent(cache, bannerConn, studentId, impl1, impl2);
         } catch (final SQLException ex) {
             LogicUtils.indicateBannerDown();
             Log.warning(ex);
+        } finally {
+            Cache.checkInConnection(bannerConn);
         }
 
         return result;
@@ -1562,86 +1695,83 @@ public enum RawStudentLogic {
 
         final String stuId = existing.stuId;
 
+        final DbConnection bannerConn = cache.checkOutConnection(ESchema.LIVE);
+
         try {
-            final DbContext banner = cache.dbProfile.getDbContext(ESchemaUse.LIVE);
-            final DbConnection bannerConn = banner.checkOutConnection();
+            final ILiveStudent impl1 = ImplLiveStudent.INSTANCE;
 
-            try {
-                final ILiveStudent impl1 = ImplLiveStudent.INSTANCE;
+            final List<LiveStudent> liveList = impl1.query(bannerConn, stuId);
 
-                final List<LiveStudent> liveList = impl1.query(bannerConn, stuId);
+            if (liveList.isEmpty()) {
+                Log.warning("No live student record for ", stuId);
+            } else {
+                final LiveStudent liveStudent = liveList.getFirst();
 
-                if (liveList.isEmpty()) {
-                    Log.warning("No live student record for ", stuId);
-                } else {
-                    final LiveStudent liveStudent = liveList.getFirst();
-
-                    if (liveStudent.admitTerm != null && isDifferent(existing.aplnTerm, liveStudent.admitTerm)) {
-                        updateApplicationTerm(cache, stuId, liveStudent.admitTerm);
-                        existing.aplnTerm = liveStudent.admitTerm;
-                    }
-
-                    boolean programUpdate = liveStudent.collegeCode != null
-                            && isDifferent(existing.college, liveStudent.collegeCode);
-
-                    if (liveStudent.departmentCode != null && isDifferent(existing.dept, liveStudent.departmentCode)) {
-                        programUpdate = true;
-                    }
-                    if (liveStudent.programCode != null && isDifferent(existing.programCode, liveStudent.programCode)) {
-                        programUpdate = true;
-                    }
-                    if (liveStudent.minorCode != null
-                            && isDifferent(existing.minor, liveStudent.minorCode)) {
-                        programUpdate = true;
-                    }
-
-                    if (programUpdate) {
-                        updateProgram(cache, stuId, liveStudent.collegeCode, liveStudent.departmentCode,
-                                liveStudent.programCode, liveStudent.minorCode);
-
-                        existing.college = liveStudent.collegeCode;
-                        existing.dept = liveStudent.departmentCode;
-                        existing.programCode = liveStudent.programCode;
-                        existing.minor = liveStudent.minorCode;
-                    }
-
-                    boolean testScoresUpdate = false;
-
-                    final Integer sat = liveStudent.satrScore == null ? liveStudent.satScore : liveStudent.satrScore;
-
-                    if (liveStudent.actScore != null && isDifferent(existing.actScore, liveStudent.actScore)) {
-                        testScoresUpdate = true;
-                    }
-                    if (sat != null && isDifferent(existing.satScore, sat)) {
-                        testScoresUpdate = true;
-                    }
-
-                    if (testScoresUpdate) {
-                        updateTestScores(cache, stuId, liveStudent.actScore, sat, existing.apScore);
-                        existing.actScore = liveStudent.actScore;
-                        existing.satScore = sat;
-                    }
-
-                    boolean emailUpdate = liveStudent.email != null
-                            && isDifferent(existing.stuEmail, liveStudent.email);
-
-                    if (liveStudent.adviserEmail != null
-                            && isDifferent(existing.adviserEmail, liveStudent.adviserEmail)) {
-                        emailUpdate = true;
-                    }
-
-                    if (emailUpdate) {
-                        updateEmail(cache, stuId, liveStudent.email, liveStudent.adviserEmail);
-                        existing.stuEmail = liveStudent.email;
-                        existing.adviserEmail = liveStudent.adviserEmail;
-                    }
+                if (liveStudent.admitTerm != null && isDifferent(existing.aplnTerm, liveStudent.admitTerm)) {
+                    updateApplicationTerm(cache, stuId, liveStudent.admitTerm);
+                    existing.aplnTerm = liveStudent.admitTerm;
                 }
-            } finally {
-                banner.checkInConnection(bannerConn);
+
+                boolean programUpdate = liveStudent.collegeCode != null
+                                        && isDifferent(existing.college, liveStudent.collegeCode);
+
+                if (liveStudent.departmentCode != null && isDifferent(existing.dept, liveStudent.departmentCode)) {
+                    programUpdate = true;
+                }
+                if (liveStudent.programCode != null && isDifferent(existing.programCode, liveStudent.programCode)) {
+                    programUpdate = true;
+                }
+                if (liveStudent.minorCode != null
+                    && isDifferent(existing.minor, liveStudent.minorCode)) {
+                    programUpdate = true;
+                }
+
+                if (programUpdate) {
+                    updateProgram(cache, stuId, liveStudent.collegeCode, liveStudent.departmentCode,
+                            liveStudent.programCode, liveStudent.minorCode);
+
+                    existing.college = liveStudent.collegeCode;
+                    existing.dept = liveStudent.departmentCode;
+                    existing.programCode = liveStudent.programCode;
+                    existing.minor = liveStudent.minorCode;
+                }
+
+                boolean testScoresUpdate = false;
+
+                final Integer sat = liveStudent.satrScore == null ? liveStudent.satScore : liveStudent.satrScore;
+
+                if (liveStudent.actScore != null && isDifferent(existing.actScore, liveStudent.actScore)) {
+                    testScoresUpdate = true;
+                }
+                if (sat != null && isDifferent(existing.satScore, sat)) {
+                    testScoresUpdate = true;
+                }
+
+                if (testScoresUpdate) {
+                    updateTestScores(cache, stuId, liveStudent.actScore, sat, existing.apScore);
+                    existing.actScore = liveStudent.actScore;
+                    existing.satScore = sat;
+                }
+
+                boolean emailUpdate = liveStudent.email != null
+                                      && isDifferent(existing.stuEmail, liveStudent.email);
+
+                if (liveStudent.adviserEmail != null
+                    && isDifferent(existing.adviserEmail, liveStudent.adviserEmail)) {
+                    emailUpdate = true;
+                }
+
+                if (emailUpdate) {
+                    updateEmail(cache, stuId, liveStudent.email, liveStudent.adviserEmail);
+                    existing.stuEmail = liveStudent.email;
+                    existing.adviserEmail = liveStudent.adviserEmail;
+                }
             }
         } catch (final SQLException ex) {
             LogicUtils.indicateBannerDown();
             Log.warning(ex);
+        } finally {
+            Cache.checkInConnection(bannerConn);
         }
     }
 
@@ -1686,7 +1816,7 @@ public enum RawStudentLogic {
         }
 
         if (mismatch(liveReg.college, record.college)
-                || mismatch(liveReg.department, record.dept)) {
+            || mismatch(liveReg.department, record.dept)) {
             result = result && updateProgram(cache, record.stuId, liveReg.college,
                     liveReg.department, record.programCode, record.minor);
         }
@@ -1708,8 +1838,8 @@ public enum RawStudentLogic {
         }
 
         if (mismatch(liveReg.highSchoolCode, record.hsCode) || mismatch(newGpa, record.hsGpa)
-                || mismatch(liveReg.highSchoolClassRank, record.hsClassRank)
-                || mismatch(liveReg.highSchoolClassSize, record.hsSizeClass)) {
+            || mismatch(liveReg.highSchoolClassRank, record.hsClassRank)
+            || mismatch(liveReg.highSchoolClassSize, record.hsSizeClass)) {
 
             result = result && updateHighSchool(cache, record.stuId, liveReg.highSchoolCode,
                     newGpa, liveReg.highSchoolClassRank, liveReg.highSchoolClassSize);
@@ -1718,7 +1848,7 @@ public enum RawStudentLogic {
         final Integer sat = liveReg.satrScore == null ? liveReg.satScore : liveReg.satrScore;
 
         if (mismatch(liveReg.actScore, record.actScore) || mismatch(sat, record.satScore)
-                || mismatch(liveReg.apScore, record.apScore)) {
+            || mismatch(liveReg.apScore, record.apScore)) {
             result = result && updateTestScores(cache, record.stuId, liveReg.actScore, sat, liveReg.apScore);
         }
 
@@ -1735,7 +1865,7 @@ public enum RawStudentLogic {
         }
 
         if (mismatch(liveReg.email, record.stuEmail)
-                || mismatch(liveReg.adviserEmail, record.adviserEmail)) {
+            || mismatch(liveReg.adviserEmail, record.adviserEmail)) {
             result = result && updateEmail(cache, record.stuId, liveReg.email, liveReg.adviserEmail);
         }
 

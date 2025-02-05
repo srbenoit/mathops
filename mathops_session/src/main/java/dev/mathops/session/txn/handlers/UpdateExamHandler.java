@@ -25,11 +25,11 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.Login;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.logic.SystemData;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ESchemaUse;
 import dev.mathops.db.old.logic.ChallengeExamLogic;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
@@ -74,9 +74,9 @@ import dev.mathops.db.old.rawrecord.RawUsers;
 import dev.mathops.db.rec.MasteryAttemptQaRec;
 import dev.mathops.db.rec.MasteryAttemptRec;
 import dev.mathops.db.rec.MasteryExamRec;
+import dev.mathops.db.rec.TermRec;
 import dev.mathops.db.reclogic.MasteryAttemptLogic;
 import dev.mathops.db.reclogic.MasteryAttemptQaLogic;
-import dev.mathops.db.rec.TermRec;
 import dev.mathops.session.ExamWriter;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -326,7 +326,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
             // the client, then adjust for the server's clock
             if (req.getAnswers()[0][2] != null && req.getAnswers()[0][3] != null) {
                 final long duration = ((Long) req.getAnswers()[0][3]).longValue()
-                        - ((Long) req.getAnswers()[0][2]).longValue();
+                                      - ((Long) req.getAnswers()[0][2]).longValue();
 
                 if (duration >= 0L && duration < 43200L) {
                     presented.presentationTime = System.currentTimeMillis() - duration;
@@ -367,10 +367,10 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
                 }
             }
         } else if (ChallengeExamLogic.M117_CHALLENGE_EXAM_ID.equals(presented.examVersion)
-                || ChallengeExamLogic.M118_CHALLENGE_EXAM_ID.equals(presented.examVersion)
-                || ChallengeExamLogic.M124_CHALLENGE_EXAM_ID.equals(presented.examVersion)
-                || ChallengeExamLogic.M125_CHALLENGE_EXAM_ID.equals(presented.examVersion)
-                || ChallengeExamLogic.M126_CHALLENGE_EXAM_ID.equals(presented.examVersion)) {
+                   || ChallengeExamLogic.M118_CHALLENGE_EXAM_ID.equals(presented.examVersion)
+                   || ChallengeExamLogic.M124_CHALLENGE_EXAM_ID.equals(presented.examVersion)
+                   || ChallengeExamLogic.M125_CHALLENGE_EXAM_ID.equals(presented.examVersion)
+                   || ChallengeExamLogic.M126_CHALLENGE_EXAM_ID.equals(presented.examVersion)) {
 
             final List<RawStchallenge> existing = RawStchallengeLogic.queryByStudentCourse(cache, student.stuId,
                     presented.course);
@@ -386,7 +386,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
                 }
 
                 if (test.serialNbr != null && test.serialNbr.equals(ser) && testStart != null
-                        && testStart.equals(start)) {
+                    && testStart.equals(start)) {
                     Log.warning("Submitted challenge exam for student ", student.stuId, ", exam ",
                             presented.examVersion, ": serial=", test.serialNbr, " submitted a second time - ignoring");
                     return;
@@ -430,7 +430,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
                 final int min = tm.getHour() * 60 + tm.getMinute();
 
                 if (obj.serialNbr != null && obj.examDt != null && obj.startTime != null &&
-                        obj.examDt.equals(realized.toLocalDate()) && obj.startTime.intValue() == min) {
+                    obj.examDt.equals(realized.toLocalDate()) && obj.startTime.intValue() == min) {
                     Log.warning("Forced to recover serial number from pending exam");
                 }
             }
@@ -718,15 +718,15 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
                     // 'TUTOR', 'ADMIN' special student types automatically in section
                     // "001" for 117, 118, 124, 125, 126.
                     if (RawRecordConstants.M117.equals(stexam.course)
-                            || RawRecordConstants.M118.equals(stexam.course)
-                            || RawRecordConstants.M124.equals(stexam.course)
-                            || RawRecordConstants.M125.equals(stexam.course)
-                            || RawRecordConstants.M126.equals(stexam.course)
-                            || RawRecordConstants.MATH117.equals(stexam.course)
-                            || RawRecordConstants.MATH118.equals(stexam.course)
-                            || RawRecordConstants.MATH124.equals(stexam.course)
-                            || RawRecordConstants.MATH125.equals(stexam.course)
-                            || RawRecordConstants.MATH126.equals(stexam.course)) {
+                        || RawRecordConstants.M118.equals(stexam.course)
+                        || RawRecordConstants.M124.equals(stexam.course)
+                        || RawRecordConstants.M125.equals(stexam.course)
+                        || RawRecordConstants.M126.equals(stexam.course)
+                        || RawRecordConstants.MATH117.equals(stexam.course)
+                        || RawRecordConstants.MATH118.equals(stexam.course)
+                        || RawRecordConstants.MATH124.equals(stexam.course)
+                        || RawRecordConstants.MATH125.equals(stexam.course)
+                        || RawRecordConstants.MATH126.equals(stexam.course)) {
 
                         final List<RawSpecialStus> specials = RawSpecialStusLogic
                                 .queryActiveByStudent(cache, student.stuId, now.toLocalDate());
@@ -1063,7 +1063,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
 
                     final String key =
                             subtest.subtestName + CoreConstants.DOT + id / 100
-                                    + id / 10 % 10 + id % 10;
+                            + id / 10 % 10 + id % 10;
                     stexam.answers.put(key, stanswer);
                 }
             }
@@ -1174,7 +1174,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
                     break;
                 } else // Insert TRUE boolean parameter if result is PASS
                     if (ExamGradingRule.PASS_FAIL.equals(rule.getGradingRuleType())
-                            && result instanceof final Boolean boolResult) {
+                        && result instanceof final Boolean boolResult) {
                         pass = boolResult.booleanValue();
 
                         if (pass) {
@@ -1435,17 +1435,17 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
         if (RawRecordConstants.M100P.equals(stexam.course)) {
             rc = insertPlacement(cache, now, stexam);
         } else if (ChallengeExamLogic.M117_CHALLENGE_EXAM_ID.equals(stexam.examId)
-                || ChallengeExamLogic.M118_CHALLENGE_EXAM_ID.equals(stexam.examId)
-                || ChallengeExamLogic.M124_CHALLENGE_EXAM_ID.equals(stexam.examId)
-                || ChallengeExamLogic.M125_CHALLENGE_EXAM_ID.equals(stexam.examId)
-                || ChallengeExamLogic.M126_CHALLENGE_EXAM_ID.equals(stexam.examId)) {
+                   || ChallengeExamLogic.M118_CHALLENGE_EXAM_ID.equals(stexam.examId)
+                   || ChallengeExamLogic.M124_CHALLENGE_EXAM_ID.equals(stexam.examId)
+                   || ChallengeExamLogic.M125_CHALLENGE_EXAM_ID.equals(stexam.examId)
+                   || ChallengeExamLogic.M126_CHALLENGE_EXAM_ID.equals(stexam.examId)) {
             rc = insertChallenge(cache, now, stexam);
         } else if (RawRecordConstants.M100T.equals(stexam.course)
-                || RawRecordConstants.M1170.equals(stexam.course)
-                || RawRecordConstants.M1180.equals(stexam.course)
-                || RawRecordConstants.M1240.equals(stexam.course)
-                || RawRecordConstants.M1250.equals(stexam.course)
-                || RawRecordConstants.M1260.equals(stexam.course)) {
+                   || RawRecordConstants.M1170.equals(stexam.course)
+                   || RawRecordConstants.M1180.equals(stexam.course)
+                   || RawRecordConstants.M1240.equals(stexam.course)
+                   || RawRecordConstants.M1250.equals(stexam.course)
+                   || RawRecordConstants.M1260.equals(stexam.course)) {
             rc = insertExam(cache, stexam);
 
             if (rc) {
@@ -1775,10 +1775,10 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
 
         if (student == null) {
             RawMpscorequeueLogic.logActivity("Unable to upload placement result for student " + stexam.studentId
-                    + ": student record not found");
+                                             + ": student record not found");
         } else {
-            final DbContext liveCtx = cache.dbProfile.getDbContext(ESchemaUse.LIVE);
-            final DbConnection liveConn = liveCtx.checkOutConnection();
+            final Login liveLogin = cache.profile.getLogin(ESchema.LIVE);
+            final DbConnection liveConn = liveLogin.checkOutConnection();
 
             try {
                 if (RawRecordConstants.M100P.equals(stexam.course)) {
@@ -1814,7 +1814,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
                     }
                 }
             } finally {
-                liveCtx.checkInConnection(liveConn);
+                liveLogin.checkInConnection(liveConn);
             }
         }
 
@@ -2032,7 +2032,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
         }
 
         if (("F".equals(stexam.examType) || "U".equals(stexam.examType))
-                && Boolean.TRUE.equals(passedVal) && stexam.unit != null) {
+            && Boolean.TRUE.equals(passedVal) && stexam.unit != null) {
             checkForCourseCompleted(cache, stexam.studentId, stexam.course);
         }
 
@@ -2118,6 +2118,6 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
         final ImmutableSessionInfo session = new ImmutableSessionInfo(live);
 
         // The following call calculates the score and updates COMPLETED if needed
-        new StudentCourseStatus(cache.dbProfile).gatherData(cache, session, studentId, courseId, false, false);
+        new StudentCourseStatus(cache.profile).gatherData(cache, session, studentId, courseId, false, false);
     }
 }

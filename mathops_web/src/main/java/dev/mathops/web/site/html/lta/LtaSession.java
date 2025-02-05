@@ -16,9 +16,9 @@ import dev.mathops.assessment.variable.VariableBoolean;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.cfg.WebSiteProfile;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
@@ -109,18 +109,18 @@ public final class LtaSession extends HtmlSessionBase {
      * stores data but does not generate the HTML until the page is actually generated.
      *
      * @param cache            the data cache
-     * @param theSiteProfile   the site profile
+     * @param theSite   the site profile
      * @param theSessionId     the session ID
      * @param theStudentId     the student ID
      * @param theExamId        the assignment ID being worked on
      * @param theRedirectOnEnd the URL to which to redirect at the end of the assignment
      * @throws SQLException if there is an error accessing the database
      */
-    public LtaSession(final Cache cache, final WebSiteProfile theSiteProfile, final String theSessionId,
+    public LtaSession(final Cache cache, final Site theSite, final String theSessionId,
                       final String theStudentId, final String theExamId, final String theRedirectOnEnd)
             throws SQLException {
 
-        super(cache, theSiteProfile, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
+        super(cache, theSite, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
 
         this.state = ELtaState.INITIAL;
         this.currentSection = -1;
@@ -134,7 +134,7 @@ public final class LtaSession extends HtmlSessionBase {
      * Constructs a new {@code LtaSession}. This method is used during parsing of persisted sessions.
      *
      * @param cache            the data cache
-     * @param theSiteProfile   the site profile
+     * @param theSite   the site profile
      * @param theSessionId     the session ID
      * @param theStudentId     the student ID
      * @param theExamId        the assignment ID being worked on
@@ -148,14 +148,14 @@ public final class LtaSession extends HtmlSessionBase {
      * @param theHomework      the homework
      * @throws SQLException if there is an error accessing the database
      */
-    LtaSession(final Cache cache, final WebSiteProfile theSiteProfile, final String theSessionId,
+    LtaSession(final Cache cache, final Site theSite, final String theSessionId,
                final String theStudentId, final String theExamId, final String theRedirectOnEnd,
                final ELtaState theState, final int theSection, final int theItem, final Integer theMinMastery,
                final long theTimeout, final boolean theStarted, final Integer theScore, final String theError,
                final ExamObj theHomework)
             throws SQLException {
 
-        super(cache, theSiteProfile, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
+        super(cache, theSite, theSessionId, theStudentId, theExamId, theRedirectOnEnd);
 
         this.state = theState;
         this.currentSection = theSection;
@@ -1345,10 +1345,10 @@ public final class LtaSession extends HtmlSessionBase {
     void appendXml(final HtmlBuilder xml) {
 
         if (getExam() != null) {
-            final WebSiteProfile siteProfile = getSiteProfile();
+            final Site siteProfile = getSiteProfile();
 
             xml.addln("<lta-session>");
-            xml.addln(" <host>", siteProfile.host, "</host>");
+            xml.addln(" <host>", siteProfile.getHost(), "</host>");
             xml.addln(" <path>", siteProfile.path, "</path>");
             xml.addln(" <session>", this.sessionId, "</session>");
             xml.addln(" <student>", this.studentId, "</student>");

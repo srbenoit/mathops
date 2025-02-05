@@ -91,7 +91,7 @@ enum PageCourseStatus {
                                  final HtmlBuilder htm) throws SQLException {
 
         final String userId = session.getEffectiveUserId();
-        final StudentCourseStatus courseStatus = new StudentCourseStatus(site.getDbProfile());
+        final StudentCourseStatus courseStatus = new StudentCourseStatus(site.site.profile);
 
         if (courseStatus.gatherData(cache, session, userId, courseId, false, false)
                 && courseStatus.getCourse().courseName != null) {

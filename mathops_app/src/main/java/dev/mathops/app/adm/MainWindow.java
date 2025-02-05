@@ -2,12 +2,16 @@ package dev.mathops.app.adm;
 
 import dev.mathops.app.adm.instructor.TopPanelInstructor;
 import dev.mathops.app.adm.management.TopPanelManagement;
-import dev.mathops.app.adm.resource.TopPanelResource;
 import dev.mathops.app.adm.office.TopPanelOffice;
+import dev.mathops.app.adm.resource.TopPanelResource;
 import dev.mathops.app.adm.testing.TopPanelTesting;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.DbContext;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.Data;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Profile;
+import dev.mathops.db.cfg.Facet;
 import dev.mathops.text.builder.HtmlBuilder;
 
 import javax.swing.BorderFactory;
@@ -36,11 +40,8 @@ public final class MainWindow extends JFrame implements WindowListener, ChangeLi
     /** The preferred size for panes. */
     public static final Dimension PREF_SIZE = new Dimension(1200, 800);
 
-    /** The live database context. */
-    private final DbContext liveContext;
-
     /** The Informix data cache. */
-    private final Cache ifxCache;
+    private final Cache cache;
 
     /** The server site URL to use when constructing a ScramClientStub. */
     private final String serverSiteUrl;
@@ -72,23 +73,19 @@ public final class MainWindow extends JFrame implements WindowListener, ChangeLi
     /**
      * Constructs a new {@code MainWindow}
      *
-     * @param theUsername    the username
-     * @param theIfxContext  the Informix database context
-     * @param theIfxCache    the Informix data cache
-     * @param theLiveContext the live data database context
+     * @param theUsername the username
+     * @param theProfile  the database profile
      * @throws SQLException if there is an error accessing the database
      */
-    MainWindow(final String theUsername, final DbContext theIfxContext, final Cache theIfxCache,
-               final DbContext theLiveContext, final Object theRenderingHint) throws SQLException {
+    MainWindow(final String theUsername, final Profile theProfile, final Object theRenderingHint) throws SQLException {
 
         // Called on the AWT event thread.
 
         super();
 
-        this.ifxCache = theIfxCache;
-        this.liveContext = theLiveContext;
+        this.cache = new Cache(theProfile);
 
-        this.fixed = new UserData(this.ifxCache, theUsername);
+        this.fixed = new UserData(this.cache, theUsername);
         this.renderingHint = theRenderingHint;
 
         if ("math".equals(theUsername)
@@ -113,13 +110,17 @@ public final class MainWindow extends JFrame implements WindowListener, ChangeLi
         content.setBackground(Skin.WHITE);
         setContentPane(content);
 
-        final String ifxDbName = theIfxContext.loginConfig.db.id;
-        final String ifxServer = theIfxContext.loginConfig.db.server.name;
+        final Facet legacyFacet = theProfile.getFacet(ESchema.LEGACY);
+        final Login legacyLogin = legacyFacet.login;
+        final Data legacyData = legacyFacet.data;
+
+        final String ifxDbName = legacyLogin.database.id;
+        final String ifxServer = legacyLogin.database.server.host;
         final String username = this.fixed.username;
 
         final HtmlBuilder windowTitle = new HtmlBuilder(100);
-        windowTitle.add("Connected to Informix [", ifxDbName, "] on [", ifxServer, "] (",
-                theIfxContext.loginConfig.db.use, ")  as  [", username, "]");
+        windowTitle.add("Connected to Informix [", ifxDbName, "] on [", ifxServer, "] (", legacyData.use, ")  as  [",
+                username, "]");
 
         final String windowTitleStr = windowTitle.toString();
         setTitle(windowTitleStr);
@@ -132,31 +133,31 @@ public final class MainWindow extends JFrame implements WindowListener, ChangeLi
         content.add(this.tabs, BorderLayout.CENTER);
 
         if (this.fixed.getClearanceLevel("STU_MENU") != null) {
-            this.officePane = new TopPanelOffice(this.ifxCache, this.liveContext, this.fixed);
+            this.officePane = new TopPanelOffice(this.cache, this.fixed);
             final String tabTitle = Res.get(Res.OFFICE_TAB);
             this.tabs.addTab(tabTitle, this.officePane);
         }
 
         if (this.fixed.getClearanceLevel("STU_MENU") != null) {
-            this.instructorPane = new TopPanelInstructor(this.ifxCache, this.fixed);
+            this.instructorPane = new TopPanelInstructor(this.cache, this.fixed);
             final String tabTitle = Res.get(Res.INSTRUCTOR_TAB);
             this.tabs.addTab(tabTitle, this.instructorPane);
         }
 
         if (this.fixed.getClearanceLevel("RES_MENU") != null) {
-            this.resourcePane = new TopPanelResource(this.ifxCache, this.fixed);
+            this.resourcePane = new TopPanelResource(this.cache, this.fixed);
             final String tabTitle = Res.get(Res.RESOURCE_TAB);
             this.tabs.addTab(tabTitle, this.resourcePane);
         }
 
         if (this.fixed.getClearanceLevel("TST_MENU") != null) {
-            this.testingPane = new TopPanelTesting(this.ifxCache, this.serverSiteUrl, this.fixed, this);
+            this.testingPane = new TopPanelTesting(this.cache, this.serverSiteUrl, this.fixed, this);
             final String tabTitle = Res.get(Res.TESTING_TAB);
             this.tabs.addTab(tabTitle, this.testingPane);
         }
 
         if (this.fixed.getClearanceLevel("MGT_MENU") != null) {
-            this.managementPane = new TopPanelManagement(this.ifxCache, this.renderingHint);
+            this.managementPane = new TopPanelManagement(this.cache, this.renderingHint);
             final String tabTitle = Res.get(Res.MGT_TAB);
             this.tabs.addTab(tabTitle, this.managementPane);
         }

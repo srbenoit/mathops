@@ -3,6 +3,7 @@ package dev.mathops.db.old.rawlogic;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -52,16 +53,20 @@ public enum RawSpecialStusLogic {
                 LogicUtils.sqlDateValue(record.startDt), ",",
                 LogicUtils.sqlDateValue(record.endDt), ")");
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -79,16 +84,20 @@ public enum RawSpecialStusLogic {
                 " WHERE stu_id=", LogicUtils.sqlStringValue(record.stuId),
                 "   AND stu_type=", LogicUtils.sqlStringValue(record.stuType));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
 
             return result;
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -101,7 +110,7 @@ public enum RawSpecialStusLogic {
      */
     public static List<RawSpecialStus> queryAll(final Cache cache) throws SQLException {
 
-        return executeQuery(cache.conn, "SELECT * FROM special_stus");
+        return executeQuery(cache, "SELECT * FROM special_stus");
     }
 
     /**
@@ -123,7 +132,7 @@ public enum RawSpecialStusLogic {
                     "SELECT * FROM special_stus WHERE stu_id=",
                     LogicUtils.sqlStringValue(stuId));
 
-            result = executeQuery(cache.conn, sql);
+            result = executeQuery(cache, sql);
         }
 
         return result;
@@ -172,20 +181,22 @@ public enum RawSpecialStusLogic {
         final String sql = SimpleBuilder.concat("SELECT * FROM special_stus WHERE stu_type=",
                 LogicUtils.sqlStringValue(stuType));
 
-        return executeQuery(cache.conn, sql);
+        return executeQuery(cache, sql);
     }
 
     /**
      * Executes a query that returns a list of records.
      *
-     * @param conn the database connection, checked out to this thread
+     * @param cache   the data cache
      * @param sql  the SQL to execute
      * @return the list of matching records
      * @throws SQLException if there is an error accessing the database
      */
-    private static List<RawSpecialStus> executeQuery(final DbConnection conn, final String sql) throws SQLException {
+    private static List<RawSpecialStus> executeQuery(final Cache cache, final String sql) throws SQLException {
 
         final List<RawSpecialStus> result = new ArrayList<>(10);
+
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
         try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
@@ -193,6 +204,8 @@ public enum RawSpecialStusLogic {
             while (rs.next()) {
                 result.add(RawSpecialStus.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;

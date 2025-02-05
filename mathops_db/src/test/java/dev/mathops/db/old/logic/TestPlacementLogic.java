@@ -3,26 +3,22 @@ package dev.mathops.db.old.logic;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.type.TermKey;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.enums.ETermName;
-
+import dev.mathops.db.type.TermKey;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.sql.SQLException;
+import java.time.ZonedDateTime;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.sql.SQLException;
-import java.time.ZonedDateTime;
-import java.util.Set;
 
 /**
  * Tests for the {@code PlacementLogic} and {@code PlacementStatus} classes.
@@ -42,8 +38,10 @@ final class TestPlacementLogic {
     @BeforeAll
     static void initAll() {
 
-        final DbProfile dbProfile = ContextMap.getDefaultInstance().getCodeProfile(Contexts.CHECKIN_PATH);
-        if (dbProfile == null) {
+        final DatabaseConfig databaseConfig = DatabaseConfig.getDefault();
+        final Profile profile = databaseConfig.getCodeProfile(Contexts.CHECKIN_PATH);
+
+        if (profile == null) {
             throw new IllegalArgumentException(TestRes.get(TestRes.PLC_ERR_NO_CHECKIN_PROFILE));
         }
 
@@ -52,25 +50,14 @@ final class TestPlacementLogic {
         PlacementStatus logic000 = null;
         PlacementStatus logic001 = null;
 
-        final DbContext ctx = dbProfile.getDbContext(ESchemaUse.PRIMARY);
+        final Cache cache = new Cache(profile);
 
         try {
-            final DbConnection conn = ctx.checkOutConnection();
-            try {
-                final Cache cache = new Cache(dbProfile, conn);
+            // 99CIMP000: Has not taken MPT/MPE, not eligible for unproctored
+            logic000 = new PlacementLogic(cache, "99CIMP000", new TermKey(ETermName.FALL, 2021), now).status;
 
-                try {
-                    // 99CIMP000: Has not taken MPT/MPE, not eligible for unproctored
-                    logic000 = new PlacementLogic(cache, "99CIMP000", new TermKey(ETermName.FALL, 2021), now).status;
-
-                    // 99CIMP001: Has not taken MPT/MPE, eligible for unproctored by Application Term
-                    logic001 = new PlacementLogic(cache, "99CIMP001", new TermKey(ETermName.FALL, 2021), now).status;
-                } catch (final SQLException ex) {
-                    Log.warning(ex);
-                }
-            } finally {
-                ctx.checkInConnection(conn);
-            }
+            // 99CIMP001: Has not taken MPT/MPE, eligible for unproctored by Application Term
+            logic001 = new PlacementLogic(cache, "99CIMP001", new TermKey(ETermName.FALL, 2021), now).status;
         } catch (final SQLException ex) {
             Log.warning(ex);
         }

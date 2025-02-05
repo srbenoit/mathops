@@ -7,7 +7,6 @@ import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.DbContext;
 
 import javax.swing.JPanel;
 import java.awt.CardLayout;
@@ -43,11 +42,10 @@ public final class CourseExamsPanel extends AdmPanelBase implements IZTableComma
     /**
      * Constructs a new {@code AdminExamsPanel}.
      *
-     * @param theCache    the data cache
-     * @param liveContext the database context used to access live data
-     * @param theFixed    the fixed data
+     * @param theCache the data cache
+     * @param theFixed the fixed data
      */
-    public CourseExamsPanel(final Cache theCache, final DbContext liveContext, final UserData theFixed) {
+    public CourseExamsPanel(final Cache theCache, final UserData theFixed) {
 
         super();
         setBackground(Skin.WHITE);
@@ -68,7 +66,7 @@ public final class CourseExamsPanel extends AdmPanelBase implements IZTableComma
 
         // Card to show details of one exam
         final boolean allowUpdate = theFixed.getClearanceLevel("EXM_CHANS") != null;
-        this.examDetailsCard = new ExamDetailsCard(this, theCache, liveContext, allowUpdate);
+        this.examDetailsCard = new ExamDetailsCard(this, theCache, allowUpdate);
 
         this.cardPane.add(this.examsCard, LIST_CMD);
         this.cardPane.add(this.examDetailsCard, DETAIL_CMD);

@@ -1,17 +1,19 @@
 package dev.mathops.app.adm.office;
 
 import dev.mathops.app.adm.AdmPanelBase;
-import dev.mathops.app.adm.UserData;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
+import dev.mathops.app.adm.UserData;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.type.TermKey;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.rec.TermRec;
+import dev.mathops.db.type.TermKey;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -306,7 +308,9 @@ final class CardPickStudent extends AdmPanelBase implements ActionListener, Mous
             }
         }
 
-        try (final PreparedStatement ps = this.cache.conn.prepareStatement("SELECT * FROM student WHERE stu_id=?")) {
+        final DbConnection conn = this.cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final PreparedStatement ps = conn.prepareStatement("SELECT * FROM student WHERE stu_id=?")) {
             final String actualStr = actual.toString();
             ps.setString(1, actualStr);
 
@@ -326,6 +330,8 @@ final class CardPickStudent extends AdmPanelBase implements ActionListener, Mous
             final String exMsg = ex.getMessage();
             final String msg = SimpleBuilder.concat("Query failed: ", exMsg);
             this.error.setText(msg);
+        } finally {
+            Cache.checkInConnection(conn);
         }
     }
 
@@ -361,7 +367,7 @@ final class CardPickStudent extends AdmPanelBase implements ActionListener, Mous
 
                     // Try "Billy Bob Van Beethoven", then "John Q. Van Beethoven", then "Billy Bob Q Public"
                     if (!queryByLastAndFirstName(test23, test01) && !queryByLastAndFirstName(test23, parts[0])
-                            && !queryByLastAndFirstName(parts[3], test01)) {
+                        && !queryByLastAndFirstName(parts[3], test01)) {
                         // Try "John Q R Public"
                         queryByLastAndFirstName(parts[3], parts[0]);
                     }
@@ -372,8 +378,8 @@ final class CardPickStudent extends AdmPanelBase implements ActionListener, Mous
 
                     // Try "John Q R S T Public", then "Billy Bob Q R S T Public", then "John Q R S T Van Beethoven"
                     if (!queryByLastAndFirstName(parts[parts.length - 1], parts[0])
-                            && !queryByLastAndFirstName(parts[parts.length - 1], test01)
-                            && !queryByLastAndFirstName(testLast, parts[0])) {
+                        && !queryByLastAndFirstName(parts[parts.length - 1], test01)
+                        && !queryByLastAndFirstName(testLast, parts[0])) {
                         // Try "Billy Bob Q R S T U Van Beethoven"
                         queryByLastAndFirstName(testLast, test01);
                     }
@@ -403,8 +409,9 @@ final class CardPickStudent extends AdmPanelBase implements ActionListener, Mous
         if (trimmed.isBlank() || "\\".equals(trimmed) || "*".equals(trimmed) || "?".equals(trimmed)) {
             this.error.setText("Student not found");
         } else {
+            final DbConnection conn = this.cache.checkOutConnection(ESchema.LEGACY);
 
-            try (final PreparedStatement ps = this.cache.conn.prepareStatement(
+            try (final PreparedStatement ps = conn.prepareStatement(
                     "SELECT * FROM student WHERE lower(last_name) like ?")) {
                 final String lowerCase = trimmed.toLowerCase(Locale.US);
                 ps.setString(1, lowerCase);
@@ -436,6 +443,8 @@ final class CardPickStudent extends AdmPanelBase implements ActionListener, Mous
                 final String exMsg = ex.getMessage();
                 final String msg = SimpleBuilder.concat("Query failed: ", exMsg);
                 this.error.setText(msg);
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -453,9 +462,11 @@ final class CardPickStudent extends AdmPanelBase implements ActionListener, Mous
 
         boolean ok = false;
 
-        try (final PreparedStatement ps = this.cache.conn.prepareStatement(
+        final DbConnection conn = this.cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final PreparedStatement ps = conn.prepareStatement(
                 "SELECT * FROM student WHERE lower(last_name) like ? "
-                        + "AND (lower(first_name) like ? OR lower(pref_name) like ?)")) {
+                + "AND (lower(first_name) like ? OR lower(pref_name) like ?)")) {
             final String lowerCase = last.trim().toLowerCase(Locale.US);
             ps.setString(1, lowerCase);
 
@@ -488,12 +499,13 @@ final class CardPickStudent extends AdmPanelBase implements ActionListener, Mous
                     ok = true;
                 }
             }
-
         } catch (final SQLException ex) {
             Log.warning(ex);
             final String exMsg = ex.getMessage();
             final String msg = SimpleBuilder.concat("Query failed: ", exMsg);
             this.error.setText(msg);
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return ok;

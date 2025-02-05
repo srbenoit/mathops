@@ -3,11 +3,8 @@ package dev.mathops.dbjobs.batch.daily;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawMpeLogLogic;
@@ -75,41 +72,34 @@ public enum DeleteTestUserData {
      */
     public static void execute() {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-        final DbProfile profile = map.getCodeProfile(Contexts.BATCH_PATH);
-        final DbContext ctx = profile.getDbContext(ESchemaUse.PRIMARY);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        final Profile profile = config.getCodeProfile(Contexts.BATCH_PATH);
+        final Cache cache = new Cache(profile);
+
+        Log.info("Running DELETE_TEST_USER_DATA job");
 
         try {
-            final DbConnection conn = ctx.checkOutConnection();
-            try {
-                final Cache cache = new Cache(profile, conn);
-
-                Log.info("Running DELETE_TEST_USER_DATA job");
-
-                cleanAdminHold(cache);
-                cleanMpeCredit(cache);
-                cleanMpecrDenied(cache);
-                cleanMpeLog(cache);
-                cleanPaceApeals(cache);
-                cleanPendingExam(cache);
-                cleanStchallenge(cache);
-                cleanStcourse(cache);
-                cleanStcuobjective(cache);
-                cleanStetext(cache);
-                cleanStexam(cache);
-                cleanSthomework(cache);
-                cleanStmathplan(cache);
-                cleanStmilestone(cache);
-                cleanStmpe(cache);
-                cleanStmsg(cache);
-                cleanStresource(cache);
-                cleanStsurveyqa(cache);
-                cleanStterm(cache);
-                cleanUsers(cache);
-                resetStudent(cache);
-            } finally {
-                ctx.checkInConnection(conn);
-            }
+            cleanAdminHold(cache);
+            cleanMpeCredit(cache);
+            cleanMpecrDenied(cache);
+            cleanMpeLog(cache);
+            cleanPaceApeals(cache);
+            cleanPendingExam(cache);
+            cleanStchallenge(cache);
+            cleanStcourse(cache);
+            cleanStcuobjective(cache);
+            cleanStetext(cache);
+            cleanStexam(cache);
+            cleanSthomework(cache);
+            cleanStmathplan(cache);
+            cleanStmilestone(cache);
+            cleanStmpe(cache);
+            cleanStmsg(cache);
+            cleanStresource(cache);
+            cleanStsurveyqa(cache);
+            cleanStterm(cache);
+            cleanUsers(cache);
+            resetStudent(cache);
         } catch (final SQLException ex) {
             Log.warning(ex);
         }

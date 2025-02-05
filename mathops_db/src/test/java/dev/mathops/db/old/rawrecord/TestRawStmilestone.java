@@ -1,15 +1,14 @@
 package dev.mathops.db.old.rawrecord;
 
-import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ETermName;
 import dev.mathops.db.rec.RecBase;
-
+import dev.mathops.db.type.TermKey;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.time.LocalDate;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Tests for the {@code RawStmilestone} class.
@@ -48,8 +47,7 @@ final class TestRawStmilestone {
             "ms_nbr=111",
             "ms_type=RE",
             "ms_date=2023-01-02",
-            "nbr_atmpts_allow=1",
-            "ext_type=ACC");
+            "nbr_atmpts_allow=1");
 
     /**
      * Constructs a new {@code IvtRawStmilestone}.

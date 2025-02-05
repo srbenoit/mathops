@@ -57,7 +57,7 @@ enum PageStudentPick {
         }
 
         if (stu == null || stu.isEmpty()) {
-            final String path = site.siteProfile.path;
+            final String path = site.site.path;
             resp.sendRedirect(path + (path.endsWith(Contexts.ROOT_PATH) //
                     ? "home.html" : "/home.html"));
         } else {
@@ -123,7 +123,7 @@ enum PageStudentPick {
                     }
                 }
             } else {
-                final String path = site.siteProfile.path;
+                final String path = site.site.path;
                 resp.sendRedirect(path + (path.endsWith(Contexts.ROOT_PATH)
                         ? "office/student_info.html?stu=" + student.stuId
                         : "/office/student_info.html?stu=" + student.stuId));

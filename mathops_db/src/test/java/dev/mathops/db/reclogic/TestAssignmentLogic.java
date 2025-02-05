@@ -4,11 +4,12 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
 import dev.mathops.db.EDbUse;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Profile;
+import dev.mathops.db.cfg.Facet;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.rec.AssignmentRec;
 import org.junit.jupiter.api.AfterAll;
@@ -78,73 +79,66 @@ final class TestAssignmentLogic {
     final class Informix {
 
         /** The Informix database profile. */
-        public static DbProfile informixProfile;
+        static Profile informixProfile;
 
-        /** The Informix database context. */
-        public static DbContext informixCtx;
+        /** The Informix database login. */
+        static Login informixLogin;
 
         /** Initialize the test class. */
         @BeforeAll
         static void initTests() {
 
-            informixProfile = ContextMap.getDefaultInstance().getCodeProfile(Contexts.INFORMIX_TEST_PATH);
+            final DatabaseConfig config = DatabaseConfig.getDefault();
+            informixProfile = config.getCodeProfile(Contexts.INFORMIX_TEST_PATH);
             if (informixProfile == null) {
                 throw new IllegalArgumentException(TestRes.get(TestRes.ERR_NO_IFXTEST_PROFILE));
             }
-
-            informixCtx = informixProfile.getDbContext(ESchemaUse.PRIMARY);
-            if (informixCtx == null) {
-                throw new IllegalArgumentException(TestRes.get(TestRes.ERR_NO_IFXPRIMARY_CONTEXT));
+            informixLogin = informixProfile.getLogin(ESchema.LEGACY);
+            if (informixLogin == null) {
+                throw new IllegalArgumentException(TestRes.get(TestRes.ERR_NO_PGPRIMARY_CONTEXT));
             }
 
             // Make sure the Informix connection is accessing the TEST database
-            try {
-                final DbConnection conn = informixCtx.checkOutConnection();
-
-                try {
-                    try (final Statement stmt = conn.createStatement();
-                         final ResultSet rs = stmt.executeQuery("SELECT descr FROM which_db")) {
-
-                        if (rs.next()) {
-                            final String which = rs.getString(1);
-                            if (which == null || !"TEST".equals(which.trim())) {
-                                throw new IllegalArgumentException(TestRes.fmt(TestRes.ERR_NOT_CONNECTED_TO_TEST,
-                                        which));
-                            }
-                        } else {
-                            throw new IllegalArgumentException(TestRes.get(TestRes.ERR_CANT_QUERY_WHICH_DB));
-                        }
-                    }
-                } finally {
-                    informixCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                throw new IllegalArgumentException(ex);
+            final Facet facet = informixProfile.getFacet(ESchema.LEGACY);
+            if (facet.data.use != EDbUse.TEST) {
+                throw new IllegalArgumentException(TestRes.fmt(TestRes.ERR_NOT_CONNECTED_TO_TEST, facet.data.use));
             }
 
+            final DbConnection conn = informixLogin.checkOutConnection();
+
             try {
-                final DbConnection conn = informixCtx.checkOutConnection();
+                try (final Statement stmt = conn.createStatement();
+                     final ResultSet rs = stmt.executeQuery("SELECT descr FROM which_db")) {
 
-                try {
-                    try (final Statement stmt = conn.createStatement()) {
-                        stmt.executeUpdate("DELETE FROM homework");
+                    if (rs.next()) {
+                        final String which = rs.getString(1);
+                        if (which == null || !"TEST".equals(which.trim())) {
+                            throw new IllegalArgumentException(TestRes.fmt(TestRes.ERR_NOT_CONNECTED_TO_TEST, which));
+                        }
+                    } else {
+                        throw new IllegalArgumentException(TestRes.get(TestRes.ERR_CANT_QUERY_WHICH_DB));
                     }
-                    conn.commit();
-
-                    final Cache cache = new Cache(informixProfile, conn);
-                    final AssignmentLogic logic = AssignmentLogic.get(cache);
-
-                    assertTrue(logic.insert(cache, RAW1), "Failed to insert Informix homework");
-                    assertTrue(logic.insert(cache, RAW2), "Failed to insert Informix homework");
-                    assertTrue(logic.insert(cache, RAW3), "Failed to insert Informix homework");
-                    assertTrue(logic.insert(cache, RAW4), "Failed to insert Informix homework");
-                    assertTrue(logic.insert(cache, RAW5), "Failed to insert Informix homework");
-                } finally {
-                    informixCtx.checkInConnection(conn);
                 }
+
+                try (final Statement stmt = conn.createStatement()) {
+                    stmt.executeUpdate("DELETE FROM homework");
+                }
+                conn.commit();
+
+                final Cache cache = new Cache(informixProfile);
+                final AssignmentLogic logic = AssignmentLogic.get(cache);
+
+                assertTrue(logic.insert(cache, RAW1), "Failed to insert Informix homework");
+                assertTrue(logic.insert(cache, RAW2), "Failed to insert Informix homework");
+                assertTrue(logic.insert(cache, RAW3), "Failed to insert Informix homework");
+                assertTrue(logic.insert(cache, RAW4), "Failed to insert Informix homework");
+                assertTrue(logic.insert(cache, RAW5), "Failed to insert Informix homework");
             } catch (final SQLException ex) {
                 Log.warning(ex);
                 fail("Exception while initializing Informix 'homework' table: " + ex.getMessage());
+                throw new IllegalArgumentException(ex);
+            } finally {
+                informixLogin.checkInConnection(conn);
             }
         }
 
@@ -153,48 +147,42 @@ final class TestAssignmentLogic {
         @DisplayName("Informix queryAll results")
         void test0003() {
 
+            final Cache cache = new Cache(informixProfile);
+            final AssignmentLogic logic = AssignmentLogic.get(cache);
+
             try {
-                final DbConnection conn = informixCtx.checkOutConnection();
-                final Cache cache = new Cache(informixProfile, conn);
-                final AssignmentLogic logic = AssignmentLogic.get(cache);
+                final List<AssignmentRec> all = logic.queryAll(cache);
 
-                try {
-                    final List<AssignmentRec> all = logic.queryAll(cache);
+                assertEquals(5, all.size(), "Incorrect record count from Informix queryAll");
 
-                    assertEquals(5, all.size(), "Incorrect record count from Informix queryAll");
+                boolean found1 = false;
+                boolean found2 = false;
+                boolean found3 = false;
+                boolean found4 = false;
+                boolean found5 = false;
 
-                    boolean found1 = false;
-                    boolean found2 = false;
-                    boolean found3 = false;
-                    boolean found4 = false;
-                    boolean found5 = false;
-
-                    for (final AssignmentRec r : all) {
-                        if (RAW1.equals(r)) {
-                            found1 = true;
-                        } else if (RAW2.equals(r)) {
-                            found2 = true;
-                        } else if (RAW3.equals(r)) {
-                            found3 = true;
-                        } else if (RAW4.equals(r)) {
-                            found4 = true;
-                        } else if (RAW5.equals(r)) {
-                            found5 = true;
-                        } else {
-                            printUnexpected(r);
-                            fail("Extra record found");
-                        }
+                for (final AssignmentRec r : all) {
+                    if (RAW1.equals(r)) {
+                        found1 = true;
+                    } else if (RAW2.equals(r)) {
+                        found2 = true;
+                    } else if (RAW3.equals(r)) {
+                        found3 = true;
+                    } else if (RAW4.equals(r)) {
+                        found4 = true;
+                    } else if (RAW5.equals(r)) {
+                        found5 = true;
+                    } else {
+                        printUnexpected(r);
+                        fail("Extra record found");
                     }
-
-                    assertTrue(found1, "Informix homework 1 not found");
-                    assertTrue(found2, "Informix homework 2 not found");
-                    assertTrue(found3, "Informix homework 3 not found");
-                    assertTrue(found4, "Informix homework 4 not found");
-                    assertTrue(found5, "Informix homework 5 not found");
-
-                } finally {
-                    informixCtx.checkInConnection(conn);
                 }
+
+                assertTrue(found1, "Informix homework 1 not found");
+                assertTrue(found2, "Informix homework 2 not found");
+                assertTrue(found3, "Informix homework 3 not found");
+                assertTrue(found4, "Informix homework 4 not found");
+                assertTrue(found5, "Informix homework 5 not found");
             } catch (final SQLException ex) {
                 Log.warning(ex);
                 fail("Exception while querying all Informix 'homework' rows: " + ex.getMessage());
@@ -206,44 +194,38 @@ final class TestAssignmentLogic {
         @DisplayName("Informix queryActiveByCourse results")
         void test0004() {
 
+            final Cache cache = new Cache(informixProfile);
+            final AssignmentLogic logic = AssignmentLogic.get(cache);
+
             try {
-                final DbConnection conn = informixCtx.checkOutConnection();
-                final Cache cache = new Cache(informixProfile, conn);
-                final AssignmentLogic logic = AssignmentLogic.get(cache);
+                final List<AssignmentRec> all = logic.queryActiveByCourse(cache, RawRecordConstants.M117, null);
 
-                try {
-                    final List<AssignmentRec> all = logic.queryActiveByCourse(cache, RawRecordConstants.M117, null);
+                assertEquals(4, all.size(), "Incorrect record count from Informix queryActiveByCourse");
 
-                    assertEquals(4, all.size(), "Incorrect record count from Informix queryActiveByCourse");
+                boolean found1 = false;
+                boolean found2 = false;
+                boolean found3 = false;
+                boolean found4 = false;
 
-                    boolean found1 = false;
-                    boolean found2 = false;
-                    boolean found3 = false;
-                    boolean found4 = false;
-
-                    for (final AssignmentRec r : all) {
-                        if (RAW1.equals(r)) {
-                            found1 = true;
-                        } else if (RAW2.equals(r)) {
-                            found2 = true;
-                        } else if (RAW3.equals(r)) {
-                            found3 = true;
-                        } else if (RAW4.equals(r)) {
-                            found4 = true;
-                        } else {
-                            printUnexpected(r);
-                            fail("Extra record found");
-                        }
+                for (final AssignmentRec r : all) {
+                    if (RAW1.equals(r)) {
+                        found1 = true;
+                    } else if (RAW2.equals(r)) {
+                        found2 = true;
+                    } else if (RAW3.equals(r)) {
+                        found3 = true;
+                    } else if (RAW4.equals(r)) {
+                        found4 = true;
+                    } else {
+                        printUnexpected(r);
+                        fail("Extra record found");
                     }
-
-                    assertTrue(found1, "Informix homework 1 not found");
-                    assertTrue(found2, "Informix homework 2 not found");
-                    assertTrue(found3, "Informix homework 3 not found");
-                    assertTrue(found4, "Informix homework 4 not found");
-
-                } finally {
-                    informixCtx.checkInConnection(conn);
                 }
+
+                assertTrue(found1, "Informix homework 1 not found");
+                assertTrue(found2, "Informix homework 2 not found");
+                assertTrue(found3, "Informix homework 3 not found");
+                assertTrue(found4, "Informix homework 4 not found");
             } catch (final SQLException ex) {
                 Log.warning(ex);
                 fail("Exception while querying Informix 'homework' rows by course: " + ex.getMessage());
@@ -255,22 +237,17 @@ final class TestAssignmentLogic {
         @DisplayName("query results")
         void test0008() {
 
+            final Cache cache = new Cache(informixProfile);
+            final AssignmentLogic logic = AssignmentLogic.get(cache);
+
             try {
-                final DbConnection conn = informixCtx.checkOutConnection();
-                final Cache cache = new Cache(informixProfile, conn);
-                final AssignmentLogic logic = AssignmentLogic.get(cache);
+                final AssignmentRec r = logic.query(cache, "1718H");
 
-                try {
-                    final AssignmentRec r = logic.query(cache, "1718H");
+                assertNotNull(r, "No record returned by Informix query");
 
-                    assertNotNull(r, "No record returned by Informix query");
-
-                    if (!RAW1.equals(r)) {
-                        printUnexpected(r);
-                        fail("Extra record found");
-                    }
-                } finally {
-                    informixCtx.checkInConnection(conn);
+                if (!RAW1.equals(r)) {
+                    printUnexpected(r);
+                    fail("Extra record found");
                 }
             } catch (final SQLException ex) {
                 Log.warning(ex);
@@ -283,47 +260,41 @@ final class TestAssignmentLogic {
         @DisplayName("delete results")
         void test0009() {
 
+            final Cache cache = new Cache(informixProfile);
+            final AssignmentLogic logic = AssignmentLogic.get(cache);
+
             try {
-                final DbConnection conn = informixCtx.checkOutConnection();
-                final Cache cache = new Cache(informixProfile, conn);
-                final AssignmentLogic logic = AssignmentLogic.get(cache);
+                final boolean result = logic.delete(cache, RAW2);
+                assertTrue(result, "delete returned false");
 
-                try {
-                    final boolean result = logic.delete(cache, RAW2);
-                    assertTrue(result, "delete returned false");
+                final List<AssignmentRec> all = logic.queryAll(cache);
 
-                    final List<AssignmentRec> all = logic.queryAll(cache);
+                assertEquals(4, all.size(), "Incorrect record count from queryAll after delete");
 
-                    assertEquals(4, all.size(), "Incorrect record count from queryAll after delete");
+                boolean found1 = false;
+                boolean found3 = false;
+                boolean found4 = false;
+                boolean found5 = false;
 
-                    boolean found1 = false;
-                    boolean found3 = false;
-                    boolean found4 = false;
-                    boolean found5 = false;
-
-                    for (final AssignmentRec r : all) {
-                        if (RAW1.equals(r)) {
-                            found1 = true;
-                        } else if (RAW3.equals(r)) {
-                            found3 = true;
-                        } else if (RAW4.equals(r)) {
-                            found4 = true;
-                        } else if (RAW5.equals(r)) {
-                            found5 = true;
-                        } else {
-                            printUnexpected(r);
-                            fail("Extra record found");
-                        }
+                for (final AssignmentRec r : all) {
+                    if (RAW1.equals(r)) {
+                        found1 = true;
+                    } else if (RAW3.equals(r)) {
+                        found3 = true;
+                    } else if (RAW4.equals(r)) {
+                        found4 = true;
+                    } else if (RAW5.equals(r)) {
+                        found5 = true;
+                    } else {
+                        printUnexpected(r);
+                        fail("Extra record found");
                     }
-
-                    assertTrue(found1, "homework 1 not found");
-                    assertTrue(found3, "homework 3 not found");
-                    assertTrue(found4, "homework 4 not found");
-                    assertTrue(found5, "homework 5 not found");
-
-                } finally {
-                    informixCtx.checkInConnection(conn);
                 }
+
+                assertTrue(found1, "homework 1 not found");
+                assertTrue(found3, "homework 3 not found");
+                assertTrue(found4, "homework 4 not found");
+                assertTrue(found5, "homework 5 not found");
             } catch (final SQLException ex) {
                 Log.warning(ex);
                 fail("Exception while deleting homeworks: " + ex.getMessage());
@@ -335,7 +306,7 @@ final class TestAssignmentLogic {
         static void cleanUp() {
 
             try {
-                final DbConnection conn = informixCtx.checkOutConnection();
+                final DbConnection conn = informixLogin.checkOutConnection();
 
                 try {
                     try (final Statement stmt = conn.createStatement()) {
@@ -343,272 +314,8 @@ final class TestAssignmentLogic {
                     }
 
                     conn.commit();
-
                 } finally {
-                    informixCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while cleaning tables: " + ex.getMessage());
-            }
-        }
-    }
-
-    /**
-     * Tests for the {@code AssignmentLogic} class.
-     */
-    @Nested
-    final class Postgres {
-
-        /** The PostgreSQL database profile. */
-        public static DbProfile postgresProfile;
-
-        /** The PostgreSQL database context. */
-        public static DbContext postgresCtx;
-
-        /** Initialize the test class. */
-        @BeforeAll
-        static void initTests() {
-
-            postgresProfile = ContextMap.getDefaultInstance().getCodeProfile(Contexts.POSTGRES_TEST_PATH);
-            if (postgresProfile == null) {
-                throw new IllegalArgumentException(TestRes.get(TestRes.ERR_NO_PGTEST_PROFILE));
-            }
-
-            postgresCtx = postgresProfile.getDbContext(ESchemaUse.PRIMARY);
-            if (postgresCtx == null) {
-                throw new IllegalArgumentException(TestRes.get(TestRes.ERR_NO_PGPRIMARY_CONTEXT));
-            }
-
-            // Make sure the PostgreSQL connection is using a TEST schema
-            if (postgresCtx.loginConfig.db.use != EDbUse.TEST) {
-                throw new IllegalArgumentException(TestRes.fmt(TestRes.ERR_NOT_CONNECTED_TO_TEST,
-                        postgresCtx.loginConfig.db.use));
-            }
-            try {
-                final DbConnection conn = postgresCtx.checkOutConnection();
-
-                try {
-                    try (final Statement stmt = conn.createStatement()) {
-                        stmt.executeUpdate("DELETE FROM main_t.assignment");
-                    }
-                    conn.commit();
-
-                    final Cache cache = new Cache(postgresProfile, conn);
-                    final AssignmentLogic logic = AssignmentLogic.get(cache);
-
-                    assertTrue(logic.insert(cache, RAW1), "Failed to insert PostgreSQL assignment");
-                    assertTrue(logic.insert(cache, RAW2), "Failed to insert PostgreSQL assignment");
-                    assertTrue(logic.insert(cache, RAW3), "Failed to insert PostgreSQL assignment");
-                    assertTrue(logic.insert(cache, RAW4), "Failed to insert PostgreSQL assignment");
-                    assertTrue(logic.insert(cache, RAW5), "Failed to insert PostgreSQL assignment");
-                } finally {
-                    postgresCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while initializing Postgres 'main_t.assignment' table: " + ex.getMessage());
-            }
-        }
-
-        /** Test case. */
-        @Test
-        @DisplayName("PostgreSQL queryAll results")
-        void test0003() {
-
-            try {
-                final DbConnection conn = postgresCtx.checkOutConnection();
-                final Cache cache = new Cache(postgresProfile, conn);
-                final AssignmentLogic logic = AssignmentLogic.get(cache);
-
-                try {
-                    final List<AssignmentRec> all = logic.queryAll(cache);
-
-                    assertEquals(5, all.size(), "Incorrect record count from PostgreSQL queryAll");
-
-                    boolean found1 = false;
-                    boolean found2 = false;
-                    boolean found3 = false;
-                    boolean found4 = false;
-                    boolean found5 = false;
-
-                    for (final AssignmentRec r : all) {
-                        if (RAW1.equals(r)) {
-                            found1 = true;
-                        } else if (RAW2.equals(r)) {
-                            found2 = true;
-                        } else if (RAW3.equals(r)) {
-                            found3 = true;
-                        } else if (RAW4.equals(r)) {
-                            found4 = true;
-                        } else if (RAW5.equals(r)) {
-                            found5 = true;
-                        } else {
-                            printUnexpected(r);
-                            fail("Extra record found");
-                        }
-                    }
-
-                    assertTrue(found1, "PostgreSQL assignment 1 not found");
-                    assertTrue(found2, "PostgreSQL assignment 2 not found");
-                    assertTrue(found3, "PostgreSQL assignment 3 not found");
-                    assertTrue(found4, "PostgreSQL assignment 4 not found");
-                    assertTrue(found5, "PostgreSQL assignment 5 not found");
-
-                } finally {
-                    postgresCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while querying all PostgreSQL 'assignment' rows: " + ex.getMessage());
-            }
-        }
-
-        /** Test case. */
-        @Test
-        @DisplayName("PostgreSQL queryActiveByCourse results")
-        void test0004() {
-
-            try {
-                final DbConnection conn = postgresCtx.checkOutConnection();
-                final Cache cache = new Cache(postgresProfile, conn);
-                final AssignmentLogic logic = AssignmentLogic.get(cache);
-
-                try {
-                    final List<AssignmentRec> all = logic.queryActiveByCourse(cache, RawRecordConstants.M117, null);
-
-                    assertEquals(4, all.size(), "Incorrect record count from PostgreSQL queryActiveByCourse");
-
-                    boolean found1 = false;
-                    boolean found2 = false;
-                    boolean found3 = false;
-                    boolean found4 = false;
-
-                    for (final AssignmentRec r : all) {
-                        if (RAW1.equals(r)) {
-                            found1 = true;
-                        } else if (RAW2.equals(r)) {
-                            found2 = true;
-                        } else if (RAW3.equals(r)) {
-                            found3 = true;
-                        } else if (RAW4.equals(r)) {
-                            found4 = true;
-                        } else {
-                            printUnexpected(r);
-                            fail("Extra record found");
-                        }
-                    }
-
-                    assertTrue(found1, "PostgreSQL assignment 1 not found");
-                    assertTrue(found2, "PostgreSQL assignment 2 not found");
-                    assertTrue(found3, "PostgreSQL assignment 3 not found");
-                    assertTrue(found4, "PostgreSQL assignment 4 not found");
-
-                } finally {
-                    postgresCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while querying PostgreSQL 'assignment' rows by course: " + ex.getMessage());
-            }
-        }
-
-        /** Test case. */
-        @Test
-        @DisplayName("PostgreSQL query results")
-        void test0008() {
-
-            try {
-                final DbConnection conn = postgresCtx.checkOutConnection();
-                final Cache cache = new Cache(postgresProfile, conn);
-                final AssignmentLogic logic = AssignmentLogic.get(cache);
-
-                try {
-                    final AssignmentRec r = logic.query(cache, "1718H");
-
-                    assertNotNull(r, "No record returned by PostgreSQL query");
-
-                    if (!RAW1.equals(r)) {
-                        printUnexpected(r);
-                        fail("Extra record found");
-                    }
-                } finally {
-                    postgresCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while querying PostgreSQL 'assignment' by assignmentId: " + ex.getMessage());
-            }
-        }
-
-        /** Test case. */
-        @Test
-        @DisplayName("PostgreSQL delete results")
-        void test0009() {
-
-            try {
-                final DbConnection conn = postgresCtx.checkOutConnection();
-                final Cache cache = new Cache(postgresProfile, conn);
-                final AssignmentLogic logic = AssignmentLogic.get(cache);
-
-                try {
-                    final boolean result = logic.delete(cache, RAW2);
-                    assertTrue(result, "PostgreSQL delete returned false");
-
-                    final List<AssignmentRec> all = logic.queryAll(cache);
-
-                    assertEquals(4, all.size(), "Incorrect record count from queryAll after PostgreSQL delete");
-
-                    boolean found1 = false;
-                    boolean found3 = false;
-                    boolean found4 = false;
-                    boolean found5 = false;
-
-                    for (final AssignmentRec r : all) {
-                        if (RAW1.equals(r)) {
-                            found1 = true;
-                        } else if (RAW3.equals(r)) {
-                            found3 = true;
-                        } else if (RAW4.equals(r)) {
-                            found4 = true;
-                        } else if (RAW5.equals(r)) {
-                            found5 = true;
-                        } else {
-                            printUnexpected(r);
-                            fail("Extra record found");
-                        }
-                    }
-
-                    assertTrue(found1, "PostgreSQL assignment 1 not found");
-                    assertTrue(found3, "PostgreSQL assignment 3 not found");
-                    assertTrue(found4, "PostgreSQL assignment 4 not found");
-                    assertTrue(found5, "PostgreSQL assignment 5 not found");
-
-                } finally {
-                    postgresCtx.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while deleting PostgreSQL 'assignment' row: " + ex.getMessage());
-            }
-        }
-
-        /** Clean up. */
-        @AfterAll
-        static void cleanUp() {
-
-            try {
-                final DbConnection conn = postgresCtx.checkOutConnection();
-
-                try {
-                    try (final Statement stmt = conn.createStatement()) {
-                        stmt.executeUpdate("DELETE FROM main_t.assignment");
-                    }
-
-                    conn.commit();
-
-                } finally {
-                    postgresCtx.checkInConnection(conn);
+                    informixLogin.checkInConnection(conn);
                 }
             } catch (final SQLException ex) {
                 Log.warning(ex);

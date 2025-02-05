@@ -5,10 +5,8 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawrecord.RawStcourse;
@@ -39,53 +37,46 @@ public enum NotStartedButHasWork {
      */
     private static void runReport() {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-        final DbProfile profile = map.getCodeProfile(Contexts.REPORT_PATH);
-        final DbContext ctx = profile.getDbContext(ESchemaUse.PRIMARY);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        final Profile profile = config.getCodeProfile(Contexts.REPORT_PATH);
+        final Cache cache = new Cache(profile);
 
         try {
-            final DbConnection conn = ctx.checkOutConnection();
-            final Cache cache = new Cache(profile, conn);
+            final Collection<String> report = new ArrayList<>(100);
 
-            try {
-                final Collection<String> report = new ArrayList<>(100);
+            report.add(CoreConstants.EMPTY);
+            report.add("STCOURSE rows with open_status = NULL but with work on record");
+            report.add(CoreConstants.EMPTY);
 
-                report.add(CoreConstants.EMPTY);
-                report.add("STCOURSE rows with open_status = NULL but with work on record");
-                report.add(CoreConstants.EMPTY);
+            generate1(cache, report);
 
-                generate1(cache, report);
+            report.add(CoreConstants.EMPTY);
+            report.add(CoreConstants.EMPTY);
+            report.add("STCOURSE rows with last_class_roll_dt after 7/22 with a dropped match");
+            report.add(CoreConstants.EMPTY);
 
-                report.add(CoreConstants.EMPTY);
-                report.add(CoreConstants.EMPTY);
-                report.add("STCOURSE rows with last_class_roll_dt after 7/22 with a dropped match");
-                report.add(CoreConstants.EMPTY);
+            generate2(cache, report);
 
-                generate2(cache, report);
+            report.add(CoreConstants.EMPTY);
+            report.add(CoreConstants.EMPTY);
+            report.add("STCOURSE rows that are started but with no pace order");
+            report.add(CoreConstants.EMPTY);
 
-                report.add(CoreConstants.EMPTY);
-                report.add(CoreConstants.EMPTY);
-                report.add("STCOURSE rows that are started but with no pace order");
-                report.add(CoreConstants.EMPTY);
+            generate3(cache, report);
 
-                generate3(cache, report);
+            for (final String s : report) {
+                Log.fine(s);
+            }
 
-                for (final String s : report) {
-                    Log.fine(s);
-                }
+            report.add(CoreConstants.EMPTY);
+            report.add(CoreConstants.EMPTY);
+            report.add("STCOURSE where order of exams does not match pace order");
+            report.add(CoreConstants.EMPTY);
 
-                report.add(CoreConstants.EMPTY);
-                report.add(CoreConstants.EMPTY);
-                report.add("STCOURSE where order of exams does not match pace order");
-                report.add(CoreConstants.EMPTY);
+            generate4(cache, report);
 
-                generate4(cache, report);
-
-                for (final String s : report) {
-                    Log.fine(s);
-                }
-            } finally {
-                ctx.checkInConnection(conn);
+            for (final String s : report) {
+                Log.fine(s);
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
@@ -294,13 +285,13 @@ public enum NotStartedButHasWork {
 
                 if (test.openStatus == null) {
                     report.add("open_status null on STCOURSE with work for " + test.stuId + " in "
-                            + test.course + "/" + test.sect);
+                               + test.course + "/" + test.sect);
                 }
 
                 if (test.paceOrder == null || test.paceOrder.intValue() != expect) {
                     report.add("Unexpected pace_order on STCOURSE for " + test.stuId + " in "
-                            + test.course + "/" + test.sect + " (expected " + expect + ", but found "
-                            + test.paceOrder);
+                               + test.course + "/" + test.sect + " (expected " + expect + ", but found "
+                               + test.paceOrder);
                 }
                 ++expect;
             }
@@ -314,6 +305,7 @@ public enum NotStartedButHasWork {
      */
     public static void main(final String... args) {
 
+        DbConnection.registerDrivers();
         runReport();
     }
 }

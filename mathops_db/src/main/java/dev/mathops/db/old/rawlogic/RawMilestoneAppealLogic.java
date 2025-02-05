@@ -2,6 +2,8 @@ package dev.mathops.db.old.rawlogic;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawMilestoneAppeal;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.builder.SimpleBuilder;
@@ -63,7 +65,9 @@ public enum RawMilestoneAppealLogic {
                                + "pace_track,ms_nbr,ms_type,prior_ms_dt,new_ms_dt,attempts_allowed,circumstances,"
                                + "comment,interviewer) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-            try (final PreparedStatement ps = cache.conn.prepareStatement(sql)) {
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final PreparedStatement ps = conn.prepareStatement(sql)) {
                 LogicUtils.setPsString(ps, 1, record.stuId);
                 LogicUtils.setPsString(ps, 2, record.termKey.termCode);
                 LogicUtils.setPsInteger(ps, 3, record.termKey.shortYear);
@@ -83,10 +87,12 @@ public enum RawMilestoneAppealLogic {
                 result = ps.executeUpdate() == 1;
 
                 if (result) {
-                    cache.conn.commit();
+                    conn.commit();
                 } else {
-                    cache.conn.rollback();
+                    conn.rollback();
                 }
+            } finally {
+                Cache.checkInConnection(conn);
             }
         }
 
@@ -113,14 +119,18 @@ public enum RawMilestoneAppealLogic {
                 "   AND term_yr=", LogicUtils.sqlIntegerValue(record.termKey.shortYear),
                 "   AND appeal_date_time=", LogicUtils.sqlDateTimeValue(record.appealDateTime));
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             result = stmt.executeUpdate(sql.toString()) == 1;
 
             if (result) {
-                cache.conn.commit();
+                conn.commit();
             } else {
-                cache.conn.rollback();
+                conn.rollback();
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -158,19 +168,22 @@ public enum RawMilestoneAppealLogic {
                 "   AND appeal_date_time=", LogicUtils.sqlDateTimeValue(record.appealDateTime));
 
         final String sqlString = sql.toString();
-//        Log.info(sqlString);
 
-        try (final Statement stmt = cache.conn.createStatement()) {
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement()) {
             final int count = stmt.executeUpdate(sqlString);
 
             if (count == 1) {
                 result = true;
-                cache.conn.commit();
+                conn.commit();
             } else {
                 result = false;
-                cache.conn.rollback();
+                conn.rollback();
                 Log.warning("Update to milestone_appeal indicated " + count + " rows would be changed - rolling back");
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;
@@ -216,12 +229,16 @@ public enum RawMilestoneAppealLogic {
 
         final List<RawMilestoneAppeal> result = new ArrayList<>(50);
 
-        try (final Statement stmt = cache.conn.createStatement();
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 result.add(RawMilestoneAppeal.fromResultSet(rs));
             }
+        } finally {
+            Cache.checkInConnection(conn);
         }
 
         return result;

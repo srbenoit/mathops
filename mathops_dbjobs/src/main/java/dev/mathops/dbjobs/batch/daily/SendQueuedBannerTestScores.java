@@ -4,10 +4,10 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.DbContext;
-import dev.mathops.db.old.cfg.ContextMap;
-import dev.mathops.db.old.cfg.DbProfile;
-import dev.mathops.db.old.cfg.ESchemaUse;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.old.rawlogic.LogicUtils;
 import dev.mathops.db.old.rawlogic.RawMpscorequeueLogic;
 import dev.mathops.db.old.rawrecord.RawMpscorequeue;
@@ -25,24 +25,15 @@ import java.util.List;
 public final class SendQueuedBannerTestScores {
 
     /** The database profile through which to access the database. */
-    private final DbProfile dbProfile;
-
-    /** The primary database context. */
-    private final DbContext primaryCtx;
-
-    /** The live database context. */
-    private final DbContext liveCtx;
+    private final Profile profile;
 
     /**
      * Constructs a new {@code SendQueuedBannerTestScores}.
      */
     public SendQueuedBannerTestScores() {
 
-        final ContextMap map = ContextMap.getDefaultInstance();
-
-        this.dbProfile = map.getCodeProfile(Contexts.BATCH_PATH);
-        this.primaryCtx = this.dbProfile.getDbContext(ESchemaUse.PRIMARY);
-        this.liveCtx = this.dbProfile.getDbContext(ESchemaUse.LIVE);
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        this.profile = config.getCodeProfile(Contexts.BATCH_PATH);
     }
 
     /**
@@ -54,36 +45,32 @@ public final class SendQueuedBannerTestScores {
 
         final Collection<String> report = new ArrayList<>(10);
 
-        if (this.primaryCtx == null || this.liveCtx == null) {
-            report.add("Unable to create database contexts.");
+        if (this.profile == null) {
+            report.add("Unable to create database profile.");
         } else if (LogicUtils.isBannerDown()) {
             report.add("BANNER currently down; skipping queued test score scan");
         } else {
+            final Cache cache = new Cache(this.profile);
+
             try {
-                final DbConnection conn = this.primaryCtx.checkOutConnection();
-                final Cache cache = new Cache(this.dbProfile, conn);
+                final Login liveLogin = this.profile.getLogin(ESchema.LIVE);
+                final DbConnection liveConn = liveLogin.checkOutConnection();
 
                 try {
-                    final DbConnection liveConn = this.liveCtx.checkOutConnection();
+                    final List<RawMpscorequeue> queued = RawMpscorequeueLogic.queryAll(cache);
+                    report.add("Number of queued test scores: " + queued.size());
 
-                    try {
-                        final List<RawMpscorequeue> queued = RawMpscorequeueLogic.queryAll(cache);
-                        report.add("Number of queued test scores: " + queued.size());
+                    for (final RawMpscorequeue toProcess : queued) {
+                        report.add("Posting queued test score to BANNER: [" + toProcess + "]");
 
-                        for (final RawMpscorequeue toProcess : queued) {
-                            report.add("Posting queued test score to BANNER: [" + toProcess + "]");
-
-                            if (RawMpscorequeueLogic.insertSORTEST(liveConn, toProcess)) {
-                                RawMpscorequeueLogic.delete(cache, toProcess);
-                            } else {
-                                report.add("Failed to post queued test score to BANNER");
-                            }
+                        if (RawMpscorequeueLogic.insertSORTEST(liveConn, toProcess)) {
+                            RawMpscorequeueLogic.delete(cache, toProcess);
+                        } else {
+                            report.add("Failed to post queued test score to BANNER");
                         }
-                    } finally {
-                        this.liveCtx.checkInConnection(liveConn);
                     }
                 } finally {
-                    this.primaryCtx.checkInConnection(conn);
+                    liveLogin.checkInConnection(liveConn);
                 }
             } catch (final SQLException ex) {
                 report.add("*** Exception while sending queued scores to Banner: " + ex.getMessage());
@@ -107,6 +94,7 @@ public final class SendQueuedBannerTestScores {
      */
     public static void main(final String... args) {
 
+        DbConnection.registerDrivers();
         final SendQueuedBannerTestScores job = new SendQueuedBannerTestScores();
 
         Log.fine(job.execute());
