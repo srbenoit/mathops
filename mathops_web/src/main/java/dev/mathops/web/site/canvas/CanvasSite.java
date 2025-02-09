@@ -15,6 +15,17 @@ import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.UserInfoBar;
+import dev.mathops.web.site.canvas.courses.PageAccount;
+import dev.mathops.web.site.canvas.courses.PageAnnouncements;
+import dev.mathops.web.site.canvas.courses.PageAssignments;
+import dev.mathops.web.site.canvas.courses.PageCourse;
+import dev.mathops.web.site.canvas.courses.PageGrades;
+import dev.mathops.web.site.canvas.courses.PageHelp;
+import dev.mathops.web.site.canvas.courses.PageModules;
+import dev.mathops.web.site.canvas.courses.PageNavigating;
+import dev.mathops.web.site.canvas.courses.PageStartHere;
+import dev.mathops.web.site.canvas.courses.PageSurvey;
+import dev.mathops.web.site.canvas.courses.PageSyllabus;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,25 +43,52 @@ import java.sql.SQLException;
 public final class CanvasSite extends AbstractSite {
 
     /** A page. */
-    private static final String HOME_PAGE = "home.html";
+    private static final String ROOT_PAGE = "home.html";
 
     /** A page. */
     private static final String LOGIN_PAGE = "login.html";
 
     /** A page. */
-    private static final String COURSE_PAGE = "course.html";
+    private static final String ACCOUNT_PAGE = "account.html";
 
     /** A page. */
-    private static final String COURSE_TEXT_PAGE = "course_text.html";
+    public static final String COURSE_HOME_PAGE = "course.html";
 
     /** A page. */
-    private static final String COURSE_TEXT_MODULE_PAGE = "course_text_module.html";
+    private static final String SYLLABUS_PAGE = "syllabus.html";
+
+    /** A page. */
+    private static final String ANNOUNCEMENTS_PAGE = "announcements.html";
+
+    /** A page. */
+    private static final String MODULES_PAGE = "modules.html";
+
+    /** A page. */
+    private static final String ASSIGNMENTS_PAGE = "assignments.html";
+
+    /** A page. */
+    private static final String HELP_PAGE = "help.html";
+
+    /** A page. */
+    private static final String GRADES_PAGE = "grades.html";
+
+    /** A page. */
+    private static final String SURVEY_PAGE = "survey.html";
+
+    /** A page. */
+    private static final String START_HERE_PAGE = "start_here.html";
+
+    /** A page. */
+    private static final String NAVIGATING_PAGE = "navigating.html";
 
     /** A CSS filename. */
     private static final String BASE_STYLE_CSS = "basestyle.css";
 
     /** A CSS filename. */
     private static final String STYLE_CSS = "style.css";
+
+    /** A CSS filename. */
+    private static final String FAVICON_ICO = "favicon.ico";
 
     /** A web page. */
     private static final String SHIBBOLETH_PAGE = "secure/shibboleth.html";
@@ -89,24 +127,24 @@ public final class CanvasSite extends AbstractSite {
 
         final String path = this.site.path;
 
-        Log.info("GET ", subpath, " within ", path);
+        if (subpath == null || subpath.isEmpty()) {
+            final String homePath = makeRootPath(ROOT_PAGE);
+            resp.sendRedirect(homePath);
+        } else {
+            final String maintenanceMsg = isMaintenance(this.site);
 
-        switch (subpath) {
-            case BASE_STYLE_CSS -> serveCss(req, resp, Page.class, BASE_STYLE_CSS);
-            case STYLE_CSS -> serveCss(req, resp, CanvasSite.class, STYLE_CSS);
-            case "favicon.ico" -> serveImage(subpath, req, resp);
+            if (maintenanceMsg == null) {
+                Log.info("GET ", subpath, " within ", path);
 
-            case null -> {
-                final String homePath = makePagePath(HOME_PAGE, null);
-                resp.sendRedirect(homePath);
+                switch (subpath) {
+                    case BASE_STYLE_CSS -> serveCss(req, resp, Page.class, BASE_STYLE_CSS);
+                    case STYLE_CSS -> serveCss(req, resp, CanvasSite.class, STYLE_CSS);
+                    case FAVICON_ICO -> serveImage(subpath, req, resp);
+                    default -> doPageGet(cache, subpath, req, resp);
+                }
+            } else {
+                PageMaintenance.doGet(cache, this, req, resp, maintenanceMsg);
             }
-
-            case CoreConstants.EMPTY -> {
-                final String homePath = makePagePath(HOME_PAGE, null);
-                resp.sendRedirect(homePath);
-            }
-
-            default -> doPageGet(cache, subpath, req, resp);
         }
     }
 
@@ -115,7 +153,7 @@ public final class CanvasSite extends AbstractSite {
      * secure and have a session ID.
      *
      * @param cache   the data cache
-     * @param subpath the portion of the path beyond that which was used to select this site
+     * @param subpath the portion of the path beyond that which was used to select this site (not null or empty)
      * @param req     the request
      * @param resp    the response
      * @throws IOException if there is an error writing the response
@@ -123,49 +161,92 @@ public final class CanvasSite extends AbstractSite {
     private void doPageGet(final Cache cache, final String subpath, final HttpServletRequest req,
                            final HttpServletResponse resp) throws IOException, SQLException {
 
-        final String path = this.site.path;
+        final ImmutableSessionInfo session = validateSession(req, resp, null);
 
-        final String maintenanceMsg = isMaintenance(this.site);
+        if (session == null) {
+            switch (subpath) {
+                case LOGIN_PAGE -> PageLogin.doGet(cache, this, req, resp);
+                case SHIBBOLETH_PAGE -> doShibbolethLogin(cache, req, resp, null);
 
-        if (maintenanceMsg == null) {
-            // The pages that follow require the user to be logged in
-            final ImmutableSessionInfo session = validateSession(req, resp, null);
+                default -> {
+                    Log.warning("Unrecognized GET request path: ", subpath);
+                    // TODO: How to make login jump to a specified course once completed?
+                    final String homePath = makeRootPath(LOGIN_PAGE);
+                    resp.sendRedirect(homePath);
+                }
+            }
+        } else {
+            final String userId = session.getEffectiveUserId();
+            LogBase.setSessionInfo(session.loginSessionId, userId);
 
-            if (session == null) {
-                switch (subpath) {
-                    case LOGIN_PAGE -> PageLogin.doGet(cache, this, req, resp);
-                    case SHIBBOLETH_PAGE -> doShibbolethLogin(cache, req, resp, null);
+            if (subpath.startsWith("courses/")) {
+                final int nextSlash = subpath.indexOf('/', 8);
+                if (nextSlash == -1) {
+                    final String homePath = makeRootPath(ROOT_PAGE);
+                    resp.sendRedirect(homePath);
+                } else {
+                    final String courseId = subpath.substring(8, nextSlash);
+                    final String pathWithinCourse = subpath.substring(nextSlash + 1);
 
-                    case null, default -> {
-                        Log.warning("Unrecognized GET request path: ", subpath);
-                        final String selectedCourse = req.getParameter(COURSE_PARAM);
-                        final String homePath = makePagePath(LOGIN_PAGE, selectedCourse);
-                        resp.sendRedirect(homePath);
-                    }
+                    Log.info("GET '", pathWithinCourse, " within ", courseId, " course");
+
+                    serveCoursePage(cache, courseId, pathWithinCourse, req, resp, session);
                 }
             } else {
-                final String userId = session.getEffectiveUserId();
-                LogBase.setSessionInfo(session.loginSessionId, userId);
+                // TODO: Other top-level domains before user has selected a course
 
                 switch (subpath) {
-                    case LOGIN_PAGE -> PageLogin.doGet(cache, this, req, resp);
-                    case SHIBBOLETH_PAGE -> doShibbolethLogin(cache, req, resp, session);
-                    case HOME_PAGE -> PageHome.doGet(cache, this, req, resp, session);
-                    case COURSE_PAGE -> PageCourse.doGet(cache, this, req, resp, session);
-                    case COURSE_TEXT_PAGE -> PageCourseText.doGet(cache, this, req, resp, session);
-                    case COURSE_TEXT_MODULE_PAGE -> PageCourseModule.doGet(cache, this, req, resp, session);
+                    case ROOT_PAGE -> PageRoot.doGet(cache, this, req, resp, session);
 
-                    case null, default -> {
+                    default -> {
                         Log.warning("Unrecognized GET request path: ", subpath);
                         final String selectedCourse = req.getParameter(COURSE_PARAM);
-                        final String homePath = selectedCourse == null ? makePagePath(HOME_PAGE, null)
-                                : makePagePath(COURSE_PAGE, selectedCourse);
+                        final String homePath = selectedCourse == null ? makeRootPath(ROOT_PAGE)
+                                : makeCoursePath(COURSE_HOME_PAGE, selectedCourse);
                         resp.sendRedirect(homePath);
                     }
                 }
             }
-        } else {
-            PageMaintenance.doGet(cache, this, req, resp, maintenanceMsg);
+        }
+    }
+
+    /**
+     * Serves a page below "/courses/COURSE_ID/".
+     *
+     * @param cache    the data cache
+     * @param courseId the course ID
+     * @param subpath  the subpath (after "/courses/COURSE_ID/")
+     * @param req      the request
+     * @param resp     the response
+     * @param session  the login session
+     * @throws IOException  if there is an error writing the response
+     * @throws SQLException if there is an error accessing the database
+     */
+    private void serveCoursePage(final Cache cache, final String courseId, final String subpath,
+                                 final HttpServletRequest req, final HttpServletResponse resp,
+                                 final ImmutableSessionInfo session) throws IOException, SQLException {
+
+        switch (subpath) {
+            case ACCOUNT_PAGE -> PageAccount.doGet(cache, this, courseId, req, resp, session);
+            case COURSE_HOME_PAGE -> PageCourse.doGet(cache, this, courseId, req, resp, session);
+            case SYLLABUS_PAGE -> PageSyllabus.doGet(cache, this, courseId, req, resp, session);
+            case ANNOUNCEMENTS_PAGE -> PageAnnouncements.doGet(cache, this, courseId, req, resp, session);
+            case MODULES_PAGE -> PageModules.doGet(cache, this, courseId, req, resp, session);
+            case ASSIGNMENTS_PAGE -> PageAssignments.doGet(cache, this, courseId, req, resp, session);
+            case HELP_PAGE -> PageHelp.doGet(cache, this, courseId, req, resp, session);
+            case GRADES_PAGE -> PageGrades.doGet(cache, this, courseId, req, resp, session);
+            case SURVEY_PAGE -> PageSurvey.doGet(cache, this, courseId, req, resp, session);
+
+            case START_HERE_PAGE -> PageStartHere.doGet(cache, this, courseId, req, resp, session);
+            case NAVIGATING_PAGE -> PageNavigating.doGet(cache, this, courseId, req, resp, session);
+
+            default -> {
+                Log.warning("Unrecognized GET request path: ", subpath);
+                final String selectedCourse = req.getParameter(COURSE_PARAM);
+                final String homePath = selectedCourse == null ? makeRootPath(ROOT_PAGE)
+                        : makeCoursePath(COURSE_HOME_PAGE, selectedCourse);
+                resp.sendRedirect(homePath);
+            }
         }
     }
 
@@ -186,31 +267,36 @@ public final class CanvasSite extends AbstractSite {
 
         final String path = this.site.path;
 
-        Log.info("POST ", subpath, " within ", path);
+        if (subpath == null || subpath.isEmpty()) {
+            final String homePath = makeRootPath(ROOT_PAGE);
+            resp.sendRedirect(homePath);
+        } else {
+            Log.info("POST ", subpath, " within ", path);
 
-        final String maintenanceMsg = isMaintenance(this.site);
+            final String maintenanceMsg = isMaintenance(this.site);
 
-        if (maintenanceMsg == null) {
-            final ImmutableSessionInfo session = validateSession(req, resp, LOGIN_PAGE);
+            if (maintenanceMsg == null) {
+                final ImmutableSessionInfo session = validateSession(req, resp, LOGIN_PAGE);
 
-            if (session != null) {
-                final String userId = session.getEffectiveUserId();
-                LogBase.setSessionInfo(session.loginSessionId, userId);
+                if (session != null) {
+                    final String userId = session.getEffectiveUserId();
+                    LogBase.setSessionInfo(session.loginSessionId, userId);
 
-                switch (subpath) {
-                    case "rolecontrol.html" -> processRoleControls(cache, req, resp, session);
+                    switch (subpath) {
+                        case "rolecontrol.html" -> processRoleControls(cache, req, resp, session);
 
-                    case null, default -> {
-                        Log.warning("Unrecognized POST request path: ", subpath);
-                        final String selectedCourse = req.getParameter(COURSE_PAGE);
-                        final String homePath = selectedCourse == null ? makePagePath(HOME_PAGE, null)
-                                : makePagePath(COURSE_PAGE, selectedCourse);
-                        resp.sendRedirect(homePath);
+                        default -> {
+                            Log.warning("Unrecognized POST request path: ", subpath);
+                            final String selectedCourse = req.getParameter(COURSE_HOME_PAGE);
+                            final String homePath = selectedCourse == null ? makeRootPath(ROOT_PAGE)
+                                    : makeCoursePath(COURSE_HOME_PAGE, selectedCourse);
+                            resp.sendRedirect(homePath);
+                        }
                     }
                 }
+            } else {
+                PageMaintenance.doGet(cache, this, req, resp, maintenanceMsg);
             }
-        } else {
-            PageMaintenance.doGet(cache, this, req, resp, maintenanceMsg);
         }
     }
 
@@ -223,7 +309,7 @@ public final class CanvasSite extends AbstractSite {
      * @param filename the CSS file name
      * @throws IOException if there is an error writing the response
      */
-    private static void serveCss(final HttpServletRequest req, final HttpServletResponse resp, final Class<?> cls,
+    private static void serveCss(final ServletRequest req, final HttpServletResponse resp, final Class<?> cls,
                                  final String filename) throws IOException {
 
         final byte[] cssBytes = FileLoader.loadFileAsBytes(cls, filename, true);
@@ -286,10 +372,11 @@ public final class CanvasSite extends AbstractSite {
         final String redirect;
         if (sess == null) {
             // Login failed - return to login page
-            redirect = makePagePath(LOGIN_PAGE, selectedCourse);
+            // TODO: How to make login jump to a specified course once completed?
+            redirect = makeRootPath(LOGIN_PAGE);
         } else {
-            redirect = selectedCourse == null ? makePagePath(HOME_PAGE, null)
-                    : makePagePath(COURSE_PAGE, selectedCourse);
+            redirect = selectedCourse == null ? makeRootPath(ROOT_PAGE) :
+                    makeCoursePath(COURSE_HOME_PAGE, selectedCourse);
 
             // Install the session ID cookie in the response
             final String serverName = req.getServerName();
@@ -308,25 +395,46 @@ public final class CanvasSite extends AbstractSite {
     }
 
     /**
-     * Given the path of this site, generates the path of a page.
+     * Given the path of this site, generates the path of a "root-level" page.
      *
-     * @param page           the page, like "home.html"
-     * @param selectedCourse the course ID to add as a parameter (null to skip adding parameter)
-     * @return the index file path
+     * @param page the page, like "home.html"
+     * @return the path
      */
-    String makePagePath(final String page, final String selectedCourse) {
+    public String makeRootPath(final String page) {
 
         final String result;
 
         final String path = this.site.path;
         final boolean endsWithSlash = path.endsWith(CoreConstants.SLASH);
-        final String fixedPage = endsWithSlash ? page : ("/" + page);
 
-        if (selectedCourse == null) {
-            result = SimpleBuilder.concat(path, fixedPage);
+        if (endsWithSlash) {
+            result = SimpleBuilder.concat(path, page);
         } else {
-            final String encoded = URLEncoder.encode(selectedCourse, StandardCharsets.UTF_8);
-            result = SimpleBuilder.concat(path, fixedPage, "?", COURSE_PARAM, "=", encoded);
+            result = SimpleBuilder.concat(path, "/", page);
+        }
+
+        return result;
+    }
+
+    /**
+     * Given the path of this site, generates the path of a page.
+     *
+     * @param page     the page, like "home.html"
+     * @param courseId the course ID
+     * @return the path
+     */
+    public String makeCoursePath(final String page, final String courseId) {
+
+        final String result;
+
+        final String path = this.site.path;
+        final boolean endsWithSlash = path.endsWith(CoreConstants.SLASH);
+
+        final String urlCourse = URLEncoder.encode(courseId, StandardCharsets.UTF_8);
+        if (endsWithSlash) {
+            result = SimpleBuilder.concat(path, "courses/", urlCourse, "/", page);
+        } else {
+            result = SimpleBuilder.concat(path, "/courses/", urlCourse, "/", page);
         }
 
         return result;

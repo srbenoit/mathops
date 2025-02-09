@@ -10,12 +10,10 @@ import dev.mathops.session.sitelogic.CourseSiteLogic;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -201,7 +199,7 @@ enum PagePlacementReport {
                     htm.sP("indent33");
                     htm.add("Alternatively, to become eligible to register for additional mathematics courses, ",
                             "including MATH 117, MATH 120, or MATH 127, you could use the ",
-                            "<a class='ulink' href='https://placement.", Contexts.DOMAIN, "/mpe-review/index.html' ",
+                            "<a class='ulink' href='https://placement.", Contexts.DOMAIN, "/welcome/placement.html' ",
                             "class='ulink'>Math Placement Review materials</a> to study, and try the Math ",
                             "Placement Tool again.");
                 } else {

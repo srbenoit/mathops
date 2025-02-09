@@ -1,4 +1,4 @@
-package dev.mathops.web.site.canvas;
+package dev.mathops.web.site.canvas.courses;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
@@ -21,6 +21,9 @@ import dev.mathops.session.sitelogic.servlet.LtaEligibilityTester;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
+import dev.mathops.web.site.canvas.CanvasSite;
+import dev.mathops.web.site.canvas.PageError;
+import dev.mathops.web.site.canvas.StdsMasteryStatus;
 import dev.mathops.web.site.course.data.CourseData;
 import dev.mathops.web.site.course.data.ExampleBlock;
 import dev.mathops.web.site.course.data.ExampleData;

@@ -199,7 +199,7 @@ enum PagePlacementReport {
                     htm.sP("indent33");
                     htm.add("Alternatively, to become eligible to register for additional mathematics courses, ",
                             "including MATH 117, MATH 120, or MATH 127, you could use the ",
-                            "<a href='https://placement.", Contexts.DOMAIN, "/mpe-review/index.html' class='ulink'>",
+                            "<a href='https://placement.", Contexts.DOMAIN, "/welcome/placement.html' class='ulink'>",
                             "Math Placement Review materials</a> to study, and try the Math Placement Tool again.");
                 } else {
                     htm.sP("indent33");

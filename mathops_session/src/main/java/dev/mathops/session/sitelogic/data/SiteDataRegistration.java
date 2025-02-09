@@ -584,7 +584,10 @@ public final class SiteDataRegistration {
                 continue;
             }
 
+            Log.info("Checking prereqs in ", stcourse.course);
             if (logic.hasSatisfiedPrerequisitesFor(stcourse.course)) {
+                Log.info("Marking prereq as cleared in ", stcourse.course);
+
                 if (RawStcourseLogic.updatePrereqSatisfied(cache, stcourse.stuId, stcourse.course,
                         stcourse.sect, stcourse.termKey, "Y")) {
                     stcourse.prereqSatis = "Y";

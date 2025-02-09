@@ -211,7 +211,7 @@ public abstract class AbstractSite {
         final String reply = replyBuilder.toString();
         final byte[] replyBytes = reply.getBytes(StandardCharsets.UTF_8);
 
-        AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, replyBytes);
+        sendReply(req, resp, contentType, replyBytes);
     }
 
     /**

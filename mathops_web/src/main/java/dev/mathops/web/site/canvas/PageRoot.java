@@ -21,11 +21,11 @@ import java.sql.SQLException;
 import java.util.List;
 
 /**
- * A page that presents the set of courses in which the student is enrolled, the date range in the current semester that
- * each course occupies, and all due dates associated with each course.  Students can then select a course, which
- * redirects to "course.html?course=ID".
+ * A "root" page that presents the set of courses in which the student is enrolled, the date range in the current
+ * semester that each course occupies, and all due dates associated with each course.  Students can then select a
+ * course, which redirects to "{SITE_PATH}/courses/COURSE_ID/course.html".
  */
-enum PageHome {
+enum PageRoot {
     ;
 
     /**
@@ -53,11 +53,9 @@ enum PageHome {
         final String studentName = student.getScreenName();
         htm.sH(2).add("Welcome ", studentName).eH(2);
 
-        // TODO: If the student has not yet set up their account, present account setup...
-
         emitProgramAnnouncements(cache, htm);
         emitHolds(cache, stuId, htm);
-        emitEnrolledCourses(cache, stuId, htm);
+        emitEnrolledCourses(cache, site, stuId, htm);
         emitSemesterCalendar(cache, stuId, htm);
         emitUpcoming(cache, stuId, htm);
         emitInformation(cache, stuId, htm);
@@ -120,7 +118,8 @@ enum PageHome {
      * @param htm   the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitEnrolledCourses(final Cache cache, final String stuId, final HtmlBuilder htm) throws SQLException {
+    private static void emitEnrolledCourses(final Cache cache, final CanvasSite site, final String stuId,
+                                            final HtmlBuilder htm) throws SQLException {
 
         htm.sH(3).add("My Precalculus Courses").eH(3);
 
@@ -149,7 +148,8 @@ enum PageHome {
             htm.sP();
             for (final RawStcourse reg : registrations.inPace()) {
                 final String enc = URLEncoder.encode(reg.course, StandardCharsets.UTF_8);
-                htm.add("<a href='course.html?course=", enc, "' class='smallbtn'>", reg.course, "</a> &nbsp; ");
+                final String href = site.makeCoursePath(CanvasSite.COURSE_HOME_PAGE, reg.course);
+                htm.add("<a href='", href, "' class='smallbtn'>", reg.course, "</a> &nbsp; ");
                 hasCourse = true;
             }
             htm.eP();

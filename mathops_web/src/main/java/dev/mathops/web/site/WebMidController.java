@@ -30,7 +30,6 @@ import dev.mathops.web.site.html.reviewexam.ReviewExamSessionStore;
 import dev.mathops.web.site.html.unitexam.UnitExamSessionStore;
 import dev.mathops.web.site.landing.LandingSite;
 import dev.mathops.web.site.lti.LtiSite;
-import dev.mathops.web.site.lti.canvascourse.CanvasCourseSite;
 import dev.mathops.web.site.placement.PlacementRedirector;
 import dev.mathops.web.site.placement.main.MathPlacementSite;
 import dev.mathops.web.site.proctoring.media.ProctoringMediaSite;
@@ -159,7 +158,7 @@ public final class WebMidController implements IMidController {
             add(dbConfig, Contexts.COURSE_HOST, Contexts.ROOT_PATH, EmptyRootSite.class);
             add(dbConfig, Contexts.COURSE_HOST, Contexts.HELP_PATH, HelpSite.class);
             add(dbConfig, Contexts.COURSE_HOST, Contexts.LTI_PATH, LtiSite.class);
-            add(dbConfig, Contexts.COURSE_HOST, Contexts.CSU_MATH_COURSE_MGR_PATH, CanvasCourseSite.class);
+//            add(dbConfig, Contexts.COURSE_HOST, Contexts.CSU_MATH_COURSE_MGR_PATH, CanvasCourseSite.class);
             add(dbConfig, Contexts.COURSE_HOST, Contexts.MPS_PATH, ProctoringSite.class);
             add(dbConfig, Contexts.COURSE_HOST, Contexts.VIDEO_PATH, VideoSite.class);
             add(dbConfig, Contexts.COURSE_HOST, Contexts.CFM_PATH, CfmSite.class);
@@ -169,11 +168,11 @@ public final class WebMidController implements IMidController {
             add(dbConfig, Contexts.TESTING_HOST, Contexts.ROOT_PATH, AdminRootSite.class);
             add(dbConfig, Contexts.TESTING_HOST, Contexts.ADMINSYS_PATH, AdminSite.class);
             add(dbConfig, Contexts.TESTING_HOST, Contexts.TESTING_CENTER_PATH, TestingCenterSite.class);
-            add(dbConfig, Contexts.TESTING_HOST, Contexts.RAMWORK_PATH, RamWorkSite.class);
-            add(dbConfig, Contexts.TESTING_HOST, Contexts.REPORTING_PATH, ReportingSite.class);
-            add(dbConfig, Contexts.TESTING_HOST, Contexts.SCHEDULING_PATH, SchedulingSite.class);
-            add(dbConfig, Contexts.TESTING_HOST, Contexts.TXN_PATH, TxnSite.class);
             add(dbConfig, Contexts.TESTING_HOST, Contexts.WEBSVC_PATH, WebServiceSite.class);
+            add(dbConfig, Contexts.TESTING_HOST, Contexts.RAMWORK_PATH, RamWorkSite.class);
+            add(dbConfig, Contexts.TESTING_HOST, Contexts.SCHEDULING_PATH, SchedulingSite.class);
+            add(dbConfig, Contexts.TESTING_HOST, Contexts.REPORTING_PATH, ReportingSite.class);
+            add(dbConfig, Contexts.TESTING_HOST, Contexts.TXN_PATH, TxnSite.class);
         }
 
         if (webHosts.contains(Contexts.NIBBLER_HOST)) {

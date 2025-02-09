@@ -93,6 +93,11 @@ public final class PrerequisiteLogic {
         final List<String> m126Prerequisites = systemData.getPrerequisitesByCourse(RawRecordConstants.M126);
         scanPrerequisites(cache, RawRecordConstants.M126, m126Prerequisites);
 
+        final List<String> math125Prerequisites = systemData.getPrerequisitesByCourse(RawRecordConstants.MATH125);
+        scanPrerequisites(cache, RawRecordConstants.MATH125, math125Prerequisites);
+        final List<String> math126Prerequisites = systemData.getPrerequisitesByCourse(RawRecordConstants.MATH126);
+        scanPrerequisites(cache, RawRecordConstants.MATH126, math126Prerequisites);
+
         this.creditFor = new ArrayList<>(5);
         if (checkCredit(RawRecordConstants.M117)) {
             this.creditFor.add(RawRecordConstants.M117);
@@ -107,6 +112,12 @@ public final class PrerequisiteLogic {
             this.creditFor.add(RawRecordConstants.M125);
         }
         if (checkCredit(RawRecordConstants.M126)) {
+            this.creditFor.add(RawRecordConstants.M126);
+        }
+        if (checkCredit(RawRecordConstants.MATH125)) {
+            this.creditFor.add(RawRecordConstants.M125);
+        }
+        if (checkCredit(RawRecordConstants.MATH126)) {
             this.creditFor.add(RawRecordConstants.M126);
         }
     }
@@ -313,7 +324,7 @@ public final class PrerequisiteLogic {
         final Cache cache = new Cache(profile);
 
         try {
-            final PrerequisiteLogic prereq = new PrerequisiteLogic(cache, "837011470");
+            final PrerequisiteLogic prereq = new PrerequisiteLogic(cache, "837069087");
 
             Log.fine("Student: ", prereq.studentId);
 
@@ -327,6 +338,11 @@ public final class PrerequisiteLogic {
                      + "; by transfer: " + prereq.hasSatisfiedPrerequisitesByTransferFor(RawRecordConstants.M125));
             Log.fine(" OK for 126: " + prereq.hasSatisfiedPrerequisitesFor(RawRecordConstants.M126)
                      + "; by transfer: " + prereq.hasSatisfiedPrerequisitesByTransferFor(RawRecordConstants.M126));
+
+            Log.fine(" OK for MATH 125: " + prereq.hasSatisfiedPrerequisitesFor(RawRecordConstants.MATH125)
+                     + "; by transfer: " + prereq.hasSatisfiedPrerequisitesByTransferFor(RawRecordConstants.MATH125));
+            Log.fine(" OK for MATH 126: " + prereq.hasSatisfiedPrerequisitesFor(RawRecordConstants.MATH126)
+                     + "; by transfer: " + prereq.hasSatisfiedPrerequisitesByTransferFor(RawRecordConstants.MATH126));
 
             Log.fine(" Credit for 117: " + prereq.hasCreditFor(RawRecordConstants.M117));
             Log.fine(" Credit for 118: " + prereq.hasCreditFor(RawRecordConstants.M118));

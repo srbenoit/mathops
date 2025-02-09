@@ -37,7 +37,7 @@ public final class CanvasCourseSite extends CourseSite {
     /** Developer Key. */
     static final String DEV_KEY = "c2bNHX2Lh33RVp4ADfvTjJllpwghuLVV9kQb0YfeRV2WHUITj7h8Bcnc7sOgC7I2";
 
-    /** Shared secret. */
+    /** Client identifier. */
     static final String CLIENT_ID = "10000000000008";
 
     // Name: CSU Math Refresher

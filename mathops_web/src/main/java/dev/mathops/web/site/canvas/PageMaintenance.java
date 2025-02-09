@@ -3,7 +3,6 @@ package dev.mathops.web.site.canvas;
 import dev.mathops.db.Cache;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
-import dev.mathops.web.site.Page;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -33,7 +32,7 @@ enum PageMaintenance {
         final HtmlBuilder htm = new HtmlBuilder(2000);
         final String siteTitle = site.getTitle();
 
-        Page.startOrdinaryPage(htm, siteTitle, null, true, Page.ADMIN_BAR | Page.USER_DATE_BAR, null, false, true);
+        CanvasPageUtils.startPage(htm, siteTitle);
 
         htm.div("vgap2");
 
@@ -49,7 +48,7 @@ enum PageMaintenance {
         htm.eDiv(); // center
         htm.eDiv(); // vgap2
 
-        Page.endOrdinaryPage(cache, site, htm, true);
+        CanvasPageUtils.endPage(htm);
 
         AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm);
     }

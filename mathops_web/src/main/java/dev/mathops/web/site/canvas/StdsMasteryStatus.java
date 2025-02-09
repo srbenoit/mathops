@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
-final class StdsMasteryStatus {
+public final class StdsMasteryStatus {
 
     /** The number of units. */
     private static final int NUM_UNITS = 8;
@@ -48,19 +48,19 @@ final class StdsMasteryStatus {
     private static final int MASTERED_ON_TIME = 3;
 
     /** The course data based on the student's registration. */
-    final SiteDataCfgCourse courseData;
+    public final SiteDataCfgCourse courseData;
 
     /** True if the user should have tutor access to assignments. */
     final boolean tutor;
 
     /** Status in 8 Skills Reviews (0=not tried, 1=tried, 2=passed). */
-    final int[] skillsReviewStatus;
+    public final int[] skillsReviewStatus;
 
     /** Status in 24 assignments (0=not tried, 1=tried, 2=passed). */
-    final int[] assignmentStatus;
+    public final int[] assignmentStatus;
 
     /** Status in 24 standards (0=not tried, 1=tried, 2=mastered late, 3=mastered on time). */
-    final int[] standardStatus;
+    public final int[] standardStatus;
 
     /** Dates when each standard was first mastered. */
     final LocalDate[] standardFirstMastered;
@@ -69,7 +69,7 @@ final class StdsMasteryStatus {
     final LocalDate[] masteryDeadlines;
 
     /** The number of standards that are "pending" (assignment passed but not mastered). */
-    int numStandardsPending;
+    public int numStandardsPending;
 
     /** The number of standards that are "pending" in the first half of the course. */
     int numStandardsPendingFirstHalf;
@@ -93,8 +93,8 @@ final class StdsMasteryStatus {
      * @param reg           the course registration for which to generate status
      * @param isTutor       true if the user should have TUTOR access to assignments
      */
-    StdsMasteryStatus(final Cache cache, final SiteDataCfgCourse theCourseData, final int pace, final String paceTrack,
-                      final RawStcourse reg, final boolean isTutor) {
+    public StdsMasteryStatus(final Cache cache, final SiteDataCfgCourse theCourseData, final int pace, final String paceTrack,
+                             final RawStcourse reg, final boolean isTutor) {
 
         this.courseData = theCourseData;
         this.tutor = isTutor;
@@ -273,7 +273,7 @@ final class StdsMasteryStatus {
      *
      * @return the number mastered in the first half
      */
-    int getNbrMasteredInFirstHalf() {
+    public int getNbrMasteredInFirstHalf() {
 
         int count = 0;
 
@@ -292,7 +292,7 @@ final class StdsMasteryStatus {
      *
      * @return the number mastered in the second half
      */
-    int getNbrMasteredInSecondHalf() {
+    public int getNbrMasteredInSecondHalf() {
 
         int count = 0;
 
