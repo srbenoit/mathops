@@ -107,7 +107,7 @@ public enum PageSyllabus {
 
             htm.sDiv("flexmain");
 
-            htm.sH(1).add("Syllabus").eH(1);
+            htm.sH(2).add("Syllabus").eH(2);
             htm.hr();
 
             CanvasPageUtils.endPage(htm);

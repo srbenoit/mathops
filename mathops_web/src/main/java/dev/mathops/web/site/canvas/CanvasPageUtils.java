@@ -7,8 +7,6 @@ import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.text.builder.HtmlBuilder;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 /**
@@ -66,7 +64,8 @@ public enum CanvasPageUtils {
      * @param course   the course record
      * @param csection the course section record
      */
-    public static void emitCourseTitleAndSection(final HtmlBuilder htm, final RawCourse course, final RawCsection csection) {
+    public static void emitCourseTitleAndSection(final HtmlBuilder htm, final RawCourse course,
+                                                 final RawCsection csection) {
 
         htm.sDiv(null, "style='margin:0 24px; border-bottom:1px solid #C7CDD1;'");
         htm.sH(1, "title");
@@ -87,36 +86,34 @@ public enum CanvasPageUtils {
      */
     public static void emitLeftSideMenu(final HtmlBuilder htm, final String selectedCourse, final ECanvasPanel panel) {
 
-        final String urlCourse = URLEncoder.encode(selectedCourse, StandardCharsets.UTF_8);
-
         htm.sDiv("flexmenu");
 
         htm.addln("<a class='", (panel == ECanvasPanel.ACCOUNT ? "menubtnactive" : "menubtn"),
-                "' href='account.html?course=", urlCourse, "'>Account</a>");
+                "' href='account.html'>Account</a>");
 
         htm.addln("<a class='", (panel == ECanvasPanel.HOME ? "menubtnactive" : "menubtn"),
-                "' href='course.html?course=", urlCourse, "'>Home</a>");
+                "' href='course.html'>Home</a>");
 
         htm.addln("<a class='", (panel == ECanvasPanel.SYLLABUS ? "menubtnactive" : "menubtn"),
-                "' href='syllabus.html?course=", urlCourse, "'>Syllabus</a>");
+                "' href='syllabus.html'>Syllabus</a>");
 
         htm.addln("<a class='", (panel == ECanvasPanel.ANNOUNCEMENTS ? "menubtnactive" : "menubtn"),
-                "' href='announcements.html?course=", urlCourse, "'>Announcements</a>");
+                "' href='announcements.html'>Announcements</a>");
 
         htm.addln("<a class='", (panel == ECanvasPanel.MODULES ? "menubtnactive" : "menubtn"),
-                "' href='modules.html?course=", urlCourse, "'>Modules</a>");
+                "' href='modules.html'>Modules</a>");
 
         htm.addln("<a class='", (panel == ECanvasPanel.ASSIGNMENTS ? "menubtnactive" : "menubtn"),
-                "' href='assignments.html?course=", urlCourse, "'>Assignments</a>");
+                "' href='assignments.html'>Assignments</a>");
 
         htm.addln("<a class='", (panel == ECanvasPanel.GETTING_HELP ? "menubtnactive" : "menubtn"),
-                "' href='help.html?course=", urlCourse, "'>Getting Help</a>");
+                "' href='help.html'>Getting Help</a>");
 
         htm.addln("<a class='", (panel == ECanvasPanel.GRADES ? "menubtnactive" : "menubtn"),
-                "' href='grades.html?course=", urlCourse, "'>Grades</a>");
+                "' href='grades.html'>Grades</a>");
 
         htm.addln("<a class='", (panel == ECanvasPanel.COURSE_SURVEY ? "menubtnactive" : "menubtn"),
-                "' href='survey.html?course=", urlCourse, "'>Course Survey</a>");
+                "' href='survey.html'>Course Survey</a>");
 
         htm.eDiv(); // flexmenu
     }

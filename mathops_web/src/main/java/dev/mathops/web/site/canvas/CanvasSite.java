@@ -32,8 +32,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 /**
@@ -185,7 +183,7 @@ public final class CanvasSite extends AbstractSite {
                     final String homePath = makeRootPath(ROOT_PAGE);
                     resp.sendRedirect(homePath);
                 } else {
-                    final String courseId = subpath.substring(8, nextSlash);
+                    final String courseId = subpath.substring(8, nextSlash).replace('_', ' ');
                     final String pathWithinCourse = subpath.substring(nextSlash + 1);
 
                     Log.info("GET '", pathWithinCourse, " within ", courseId, " course");
@@ -227,6 +225,10 @@ public final class CanvasSite extends AbstractSite {
                                  final ImmutableSessionInfo session) throws IOException, SQLException {
 
         switch (subpath) {
+            case BASE_STYLE_CSS -> serveCss(req, resp, Page.class, BASE_STYLE_CSS);
+            case STYLE_CSS -> serveCss(req, resp, CanvasSite.class, STYLE_CSS);
+            case FAVICON_ICO -> serveImage(subpath, req, resp);
+
             case ACCOUNT_PAGE -> PageAccount.doGet(cache, this, courseId, req, resp, session);
             case COURSE_HOME_PAGE -> PageCourse.doGet(cache, this, courseId, req, resp, session);
             case SYLLABUS_PAGE -> PageSyllabus.doGet(cache, this, courseId, req, resp, session);
@@ -430,7 +432,7 @@ public final class CanvasSite extends AbstractSite {
         final String path = this.site.path;
         final boolean endsWithSlash = path.endsWith(CoreConstants.SLASH);
 
-        final String urlCourse = URLEncoder.encode(courseId, StandardCharsets.UTF_8);
+        final String urlCourse = courseId.replace(' ', '_');
         if (endsWithSlash) {
             result = SimpleBuilder.concat(path, "courses/", urlCourse, "/", page);
         } else {

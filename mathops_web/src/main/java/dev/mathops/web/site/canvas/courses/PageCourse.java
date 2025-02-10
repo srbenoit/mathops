@@ -186,6 +186,7 @@ public enum PageCourse {
         }
         htm.add("<span style='color:#D9782D'>", course.courseName, "</span>");
         htm.eH(2);
+        htm.hr();
     }
 
     /**
@@ -252,11 +253,8 @@ public enum PageCourse {
                 htm.div("vgap0");
 
                 final String urlCourse = URLEncoder.encode(reg.course, StandardCharsets.UTF_8);
-                htm.sP().add("To get started, go to ",
-                        "<a class='ulink' href='modules.html?course=", urlCourse, "'><b>Modules</b></a> ",
-                        "and read the ",
-                        "<a class='ulink' href='start_here.html?course=", urlCourse, "'><b>Start Here</b></a> ",
-                        "page.").eP();
+                htm.sP().add("To get started, go to <a class='ulink' href='modules.html'><b>Modules</b></a> ",
+                        "and read the <a class='ulink' href='start_here.html'><b>Start Here</b></a> page.").eP();
             }
         }
     }

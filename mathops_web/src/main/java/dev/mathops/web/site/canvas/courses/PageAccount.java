@@ -107,7 +107,7 @@ public enum PageAccount {
 
             htm.sDiv("flexmain");
 
-            htm.sH(1).add("Account Preferences").eH(1);
+            htm.sH(2).add("Account Preferences").eH(2);
             htm.hr();
 
             CanvasPageUtils.endPage(htm);

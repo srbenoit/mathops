@@ -15,8 +15,6 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -135,7 +133,7 @@ enum PageRoot {
             htm.sH(4).add("Incomplete Courses from a prior Semester").eH(4);
             htm.sP();
             for (final RawStcourse reg : registrations.uncountedIncompletes()) {
-                final String enc = URLEncoder.encode(reg.course, StandardCharsets.UTF_8);
+                final String enc = reg.course.replace(' ', '_');
                 htm.add("<a href='course.html?course=", enc, "' class='smallbtn'>", reg.course, "</a> &nbsp; ");
                 hasCourse = true;
             }
@@ -147,7 +145,7 @@ enum PageRoot {
             htm.sH(4).add("Current Courses").eH(4);
             htm.sP();
             for (final RawStcourse reg : registrations.inPace()) {
-                final String enc = URLEncoder.encode(reg.course, StandardCharsets.UTF_8);
+                final String enc = reg.course.replace(' ', '_');
                 final String href = site.makeCoursePath(CanvasSite.COURSE_HOME_PAGE, reg.course);
                 htm.add("<a href='", href, "' class='smallbtn'>", reg.course, "</a> &nbsp; ");
                 hasCourse = true;

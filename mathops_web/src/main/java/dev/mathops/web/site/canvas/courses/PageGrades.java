@@ -107,7 +107,7 @@ public enum PageGrades {
 
             htm.sDiv("flexmain");
 
-            htm.sH(1).add("Course Grades").eH(1);
+            htm.sH(2).add("Grades").eH(2);
             htm.hr();
 
             htm.sDiv().add("The requirements to pass the course are that you:").eDiv();

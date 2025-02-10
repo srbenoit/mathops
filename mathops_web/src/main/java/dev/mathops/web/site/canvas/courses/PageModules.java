@@ -115,6 +115,9 @@ public enum PageModules {
 
             htm.sDiv("flexmain");
 
+            htm.sH(2).add("Modules").eH(2);
+            htm.hr();
+
             final String courseId = registration.course;
 
             // TODO: Make modules data-driven
@@ -351,6 +354,6 @@ public enum PageModules {
      * @param label   the label
      * @param checked true if the checkbox is checked (the item has been completed)
      */
-    private record ModuleItemChecklistEntry(String label, boolean checked) {
+    record ModuleItemChecklistEntry(String label, boolean checked) {
     }
 }

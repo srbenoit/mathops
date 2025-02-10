@@ -107,8 +107,57 @@ public enum PageHelp {
 
             htm.sDiv("flexmain");
 
-            htm.sH(1).add("Getting Help").eH(1);
+            htm.sH(2).add("Getting Help").eH(2);
             htm.hr();
+
+            htm.sH(3).add("In-Person Help").eH(3);
+
+            htm.sP().add("The Precalculus Center has a staff of trained learning assistants who can provide help with ",
+                    "the math content of MATH 117 through MATH 126 in our Learning Center, Weber 136.").eP();
+
+            htm.sH(4).add("In-Person Help Hours in the Precalculus Center").eH(4);
+
+            htm.addln("<ul>");
+            htm.addln("<li> January 21 through May 9, 2025").br()
+                    .add("&nbsp; 10:00 am - 4:00 pm, Monday").br()
+                    .add("&nbsp; 10:00 am - 8:00 pm, Tuesday - Thursday").br()
+                    .add("10:00 am - 4:00 pm, Friday").br()
+                    .add("Noon - 4:00 pm, Sunday</li>");
+            htm.addln("</ul>");
+
+            htm.sP().add("The Precalculus Center will be closed March 15 through 23.").eP();
+            htm.hr();
+
+            htm.sH(3).add("Online Help").eH(3);
+
+            htm.sH(4).add("Online Help Hours via an open Microsoft Teams meeting").eH(4);
+
+            htm.addln("<ul>");
+            htm.addln("<li> January 28 through May 9, 2025 (except closure dates noted above)").br()
+                    .add("&nbsp; Monday  10:00 am - noon   and   1:00 pm - 4:00 pm").br()
+                    .add("&nbsp; Tuesday  10:00 am - 7:00 pm").br()
+                    .add("&nbsp; Wednesday  1:00 pm - 3:00 pm   and   5:00 pm - 8:00 pm").br()
+                    .add("&nbsp; Thursday  10:00 am - noon   and   1:00 pm - 5:00 pm").br()
+                    .add("&nbsp; Friday  10:00 am - 1:00 pm</li>");
+            htm.addln("</ul>");
+
+            htm.sP().add(
+                    "<a href='https://teams.microsoft" +
+                    ".com/l/meetup-join/19%3ameeting_NWZmZGQ4OTctZmJhMC00NmQ1LWFjMjUtOWZiNTk1ZjdmODhi%40thread" +
+                    ".v2/0?context=%7b%22Tid%22%3a%22afb58802-ff7a-4bb1-ab21-367ff2ecfc8b%22%2c%22Oid%22%3a" +
+                    "%22ebcdd035-78e6-465a-9538-ad4f39aefb65%22%7d'>Join Microsoft Teams Meeting</a>").eP();
+            htm.hr();
+
+            htm.sH(3).add("In - Person Help in the Adult Learners and Veteran Services Office").eH(3);
+
+            htm.sH(4).add("In - Person Help Hours in the ALVS Office (LSC 282)").eH(4);
+
+            htm.addln("<ul>");
+            htm.addln("<li> January 28 through May 9, 2025 (except closure dates noted above)").br()
+                    .add("&nbsp; 2:00 pm - 4:00 pm, Monday").br()
+                    .add("&nbsp; Noon - 2:00 pm, Tuesday").br()
+                    .add("&nbsp; 11:00 am - 1:00 pm, Thursday/li>");
+            htm.addln("</ul>");
 
             CanvasPageUtils.endPage(htm);
 

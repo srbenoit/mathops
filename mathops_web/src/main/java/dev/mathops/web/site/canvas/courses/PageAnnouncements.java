@@ -107,7 +107,7 @@ public enum PageAnnouncements {
 
             htm.sDiv("flexmain");
 
-            htm.sH(1).add("Announcements").eH(1);
+            htm.sH(2).add("Announcements").eH(2);
             htm.hr();
 
             CanvasPageUtils.endPage(htm);

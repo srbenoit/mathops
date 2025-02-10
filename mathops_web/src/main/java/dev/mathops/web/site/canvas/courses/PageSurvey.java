@@ -107,7 +107,7 @@ public enum PageSurvey {
 
             htm.sDiv("flexmain");
 
-            htm.sH(1).add("Course Survey").eH(1);
+            htm.sH(2).add("Course Survey").eH(2);
             htm.hr();
 
             CanvasPageUtils.endPage(htm);

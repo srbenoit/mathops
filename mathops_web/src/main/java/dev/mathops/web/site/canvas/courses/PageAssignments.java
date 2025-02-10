@@ -107,12 +107,73 @@ public enum PageAssignments {
 
             htm.sDiv("flexmain");
 
-            htm.sH(1).add("Assignments").eH(1);
+            htm.sH(2).add("Assignments").eH(2);
             htm.hr();
+
+            startModule(htm, "Overdue Assignments");
+            emitAssignment(htm, "homework.html", "Learning Target 2 Homework");
+            emitAssignment(htm, "exam.html", "Learning Target 2 Exam");
+            endModule(htm);
+
+            startModule(htm, "Upcoming Assignments");
+            emitAssignment(htm, "homework.html", "Learning Target 3 Homework");
+            emitAssignment(htm, "exam.html", "Learning Target 3 Exam");
+            emitAssignment(htm, "homework.html", "Learning Target 4 Homework");
+            emitAssignment(htm, "exam.html", "Learning Target 4 Exam");
+            endModule(htm);
+
+            startModule(htm, "Completed Assignments");
+            emitAssignment(htm, "homework.html", "Learning Target 1 Homework");
+            emitAssignment(htm, "exam.html", "Learning Target 1 Exam");
+            endModule(htm);
 
             CanvasPageUtils.endPage(htm);
 
             AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm);
         }
+    }
+
+    /**
+     * Emits the HTML to start a module.
+     *
+     * @param htm   the {@code HtmlBuilder} to which to append
+     * @param title the module title
+     */
+    private static void startModule(final HtmlBuilder htm, final String title) {
+
+        htm.addln("<details open class='module'>");
+        htm.addln("  <summary class='module-summary'>", title, "</summary>");
+    }
+
+    /**
+     * Emits the HTML to end a module.
+     *
+     * @param htm the {@code HtmlBuilder} to which to append
+     */
+    private static void endModule(final HtmlBuilder htm) {
+
+        htm.addln("</details>");
+    }
+
+    /**
+     * Emits an assignment item.
+     *
+     * @param htm   the {@code HtmlBuilder} to which to append
+     * @param href  the link reference
+     * @param title the item title
+     */
+    private static void emitAssignment(final HtmlBuilder htm, final String href, final String title) {
+
+        htm.sDiv("module-item");
+
+        htm.addln("<img class='assignment-icon' src='/www/images/etext/video_icon22.png' alt=''/>");
+
+        htm.sDiv("assignment-title");
+        htm.addln("<a class='ulink2' href='", href, "'><b>", title, "</b></a>");
+        htm.br();
+        htm.add("<small><b>Due</b> Date and Time | ##/20 pts</small>");
+        htm.eDiv();
+
+        htm.eDiv();
     }
 }
