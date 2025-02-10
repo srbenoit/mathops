@@ -17,9 +17,6 @@ import dev.mathops.web.site.BasicCss;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.course.CourseSite;
-import dev.mathops.web.site.lti.canvascourse.PageCourseAdmin;
-import dev.mathops.web.site.lti.canvascourse.PageCourseConfig;
-import dev.mathops.web.site.lti.canvascourse.PageCourseContent;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -79,7 +76,6 @@ public final class LtiSite extends CourseSite {
 
         if ("lti13_dynamic_registration.html".equals(subpath)) {
             PageDynamicRegistration.doDynamicRegistration(req, resp);
-
         } else if ("lti13_dev_key_configuration.json".equals(subpath)) {
             PageLTI13.doGetDevKeyConfigurationJson(req, resp);
 
@@ -96,8 +92,10 @@ public final class LtiSite extends CourseSite {
         } else if (CoreConstants.EMPTY.equals(subpath) || "index.html".equals(subpath)) {
             PageIndex.showPage(req, resp);
         } else if ("onlineproctor.html".equals(subpath)) {
+            // This is linked from the admin website
             PageOnlineProctor.showPage(req, resp, null, null);
         } else if ("onlineproctorchallenge.html".equals(subpath)) {
+            // This is linked from the admin website
             PageOnlineProctorChallenge.showPage(req, resp, null, null);
         } else if ("home.html".equals(subpath)) {
             PageHome.showPage(cache, this, req, resp);
@@ -111,9 +109,6 @@ public final class LtiSite extends CourseSite {
             PageLTI.doGetLaunch(req, resp);
         } else if ("endp.html".equals(subpath)) {
             PageLTI.doGetEndpoint(req, resp);
-        } else if ("video.html".equals(subpath)) {
-            // Used by MATH 101 course videos
-            doVideo(req, resp);
         } else {
             Log.info("GET request to unrecognized URL: ", subpath);
 
@@ -149,6 +144,8 @@ public final class LtiSite extends CourseSite {
         // TODO: Honor maintenance mode.
 
         switch (subpath) {
+
+            // THe next three are used by the online Teams proctoring process
             case "gainaccess.html" -> PageIndex.processAccessCode(cache, this, req, resp);
             case "beginproctor.html" -> PageOnlineProctor.processBeginProctor(req, resp);
             case "beginproctorchallenge.html" -> PageOnlineProctorChallenge.processBeginProctor(cache, req, resp);
@@ -156,9 +153,6 @@ public final class LtiSite extends CourseSite {
             case "challenge.html" -> PageChallenge.showPage(cache, this, req, resp);
             case "update_unit_exam.html" -> PageHome.updateUnitExam(cache, req, resp);
             case "update_challenge_exam.html" -> PageChallenge.updateChallengeExam(cache, req, resp);
-            case "course_content.html" -> PageCourseContent.doGet(req, resp);
-            case "course_config.html" -> PageCourseConfig.doPost(req, resp);
-            case "course_admin.html" -> PageCourseAdmin.doPost(req, resp);
             case null, default -> {
 
                 Log.info("POST request to unrecognized URL: ", subpath);

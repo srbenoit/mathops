@@ -220,12 +220,12 @@ enum OAuth1 {
 
         // Next is HMAC-SHA1
         if ("HMAC-SHA1".equals(sigMethod)) {
-            final String key = percentEncode(CanvasCourseSite.SHARED_SECRET) + "&";
+            final String key = percentEncode(OAuth2Response.SHARED_SECRET) + "&";
             final byte[] sigBytes = HmacSha1.hmacSha1(key.getBytes(StandardCharsets.UTF_8),
                     baseString.getBytes(StandardCharsets.UTF_8));
             sig = Base64.encode(sigBytes).trim();
         } else if ("PLAINTEXT".equals(sigMethod)) {
-            sig = percentEncode(CanvasCourseSite.SHARED_SECRET) + "&";
+            sig = percentEncode(OAuth2Response.SHARED_SECRET) + "&";
         } else {
             Log.warning("Unsupported signature method: ", sigMethod);
             sig = CoreConstants.EMPTY;

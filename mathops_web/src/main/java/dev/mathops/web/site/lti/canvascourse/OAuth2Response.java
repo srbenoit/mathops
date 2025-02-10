@@ -18,6 +18,24 @@ import java.util.Map;
 enum OAuth2Response {
     ;
 
+    /** LMS host running Canvas. */
+    static final String LMS_HOST = "frobenius.natsci.colostate.edu";
+
+    /** Host - change to toggle between DEV and PROD. */
+    static final String HOST = "coursedev.math.colostate.edu";
+
+    // /** Consumer key. */
+    // static final String CONSUMER_KEY = "c4w0958w30jraodsf";
+
+    /** Shared secret. */
+    static final String SHARED_SECRET = "sDar_otmGeolh~SADSge";
+
+    /** Developer Key. */
+    static final String DEV_KEY = "c2bNHX2Lh33RVp4ADfvTjJllpwghuLVV9kQb0YfeRV2WHUITj7h8Bcnc7sOgC7I2";
+
+    /** Client identifier. */
+    static final String CLIENT_ID = "10000000000008";
+
     /**
      * Responds to a GET of "oauth2response.html".
      *
@@ -72,8 +90,7 @@ enum OAuth2Response {
         } else {
             htm.addln("<script>");
             htm.addln("  const xhr = new XMLHttpRequest();");
-            htm.addln("  xhr.open('POST', 'https://",
-                    CanvasCourseSite.LMS_HOST, "/login/oauth2/token', true);");
+            htm.addln("  xhr.open('POST', 'https://", LMS_HOST, "/login/oauth2/token', true);");
             htm.addln("  xhr.setRequestHeader('Content-Type', ",
                     "'application/x-www-form-urlencoded');");
 
@@ -83,27 +100,12 @@ enum OAuth2Response {
             htm.addln("    }");
             htm.addln("  }");
             htm.addln("  xhr.send('grant_type=authorization_code",
-                    "&client_id=", CanvasCourseSite.CLIENT_ID,
-                    "&client_secret=", CanvasCourseSite.DEV_KEY,
-                    "&redirect_uri=https://", CanvasCourseSite.HOST,
+                    "&client_id=", CLIENT_ID,
+                    "&client_secret=", DEV_KEY,
+                    "&redirect_uri=https://", HOST,
                     "/csu_math_course_mgr/oauth2response.html",
                     "&code=", code, "');");
             htm.addln("</script>");
-
-            // htm.addln("<form method='post' action='https://",
-            // CanvasCourseSite.LMSHOST, "/login/oauth2/token'>");
-            // htm.addln("<input type='hidden' name='grant_type' ",
-            // "value='authorization_code'/>");
-            // htm.addln("<input type='hidden' name='client_id' value='",
-            // CanvasCourseSite.CLIENT_ID, "'/>");
-            // htm.addln("<input type='hidden' name='client_secret' value='",
-            // CanvasCourseSite.DEV_KEY, "'/>");
-            // htm.addln("<input type='hidden' name='redirect_uri' value='https://",
-            // CanvasCourseSite.HOST, "/csu_math_course_mgr/oauth2response.html'>");
-            // htm.addln("<input type='hidden' name='code' value='", code,
-            // "'/>");
-            // htm.addln("<input type='submit' value='Acquire access token'/>");
-            // htm.addln("</form>");
         }
 
         final Map<String, List<String>> params = new HashMap<>(40);
