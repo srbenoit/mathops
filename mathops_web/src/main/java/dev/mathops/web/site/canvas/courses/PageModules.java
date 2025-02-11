@@ -181,47 +181,55 @@ public enum PageModules {
 
         startModule(htm, "Module 1:&nbsp; Angles and Triangles");
         emitModuleItem(htm, "/www/images/etext/skills_review.png", "A brain made of connected shapes",
-                "skills_review.html", "Skills Review");
+                "review_M01.html", "Skills Review");
 
         emitModuleItem(htm, "/www/images/etext/c41-thumb.png", "A wooden architectural feature with angles",
-                "topic.html", "Topic 1:&nbsp; <span style='color:#D9782D'>Angles</span>",
+                "topic_M01_T01.html",
+                "Topic 1:&nbsp; <span style='color:#D9782D'>Angles</span>",
                 new ModuleItemChecklistEntry("Homeworks", false),
                 new ModuleItemChecklistEntry("Complete Learning Targets", false));
 
         emitModuleItem(htm, "/www/images/etext/triangles_thumb.png", "A structure made of triangles",
-                "topic.html", "Topic 2:&nbsp; <span style='color:#D9782D'>Triangles</span>",
+                "topic_M01_T02.html",
+                "Topic 2:&nbsp; <span style='color:#D9782D'>Triangles</span>",
                 new ModuleItemChecklistEntry("Homeworks", false),
                 new ModuleItemChecklistEntry("Complete Learning Targets", false));
         endModule(htm);
 
         startModule(htm, "Module 2:&nbsp; The Unit Circle and Trigonometric Functions");
         emitModuleItem(htm, "/www/images/etext/skills_review.png", "A brain made of connected shapes",
-                "skills_review.html", "Skills Review");
+                "review_M02.html", "Skills Review");
         emitModuleItem(htm, "/www/images/etext/c42-thumb.png",
                 "A person standing in a circle painted on pavement with shadow extending from its center",
-                "topic.html", "Topic 3:&nbsp; <span style='color:#D9782D'>The Unit Circle</span>");
+                "topic_M02_T03.html",
+                "Topic 3:&nbsp; <span style='color:#D9782D'>The Unit Circle</span>");
         emitModuleItem(htm, "/www/images/etext/c43-thumb.png",
                 "A woman exercising with a heavy rope in a wave shape ",
-                "topic.html", "Topic 4:&nbsp; <span style='color:#D9782D'>The Trigonometric Functions</span>");
+                "topic_M02_T04.html",
+                "Topic 4:&nbsp; <span style='color:#D9782D'>The Trigonometric Functions</span>");
         endModule(htm);
 
         startModule(htm, "Module 3:&nbsp; Transformations, Modeling, and Right Triangle Relationships");
         emitModuleItem(htm, "/www/images/etext/skills_review.png", "A brain made of connected shapes",
-                "skills_review.html", "Skills Review");
-        emitModuleItem(htm, "/www/images/etext/c44-thumb.png", "Copper strips in wave shapes", "topic.html",
+                "review_M03.html", "Skills Review");
+        emitModuleItem(htm, "/www/images/etext/c44-thumb.png", "Copper strips in wave shapes",
+                "topic_M03_T05.html",
                 "Topic 5:&nbsp; <span style='color:#D9782D'>Modeling with Trigonometric Functions</span>");
-        emitModuleItem(htm, "/www/images/etext/c46-thumb.png", "A truss made up of right triangles", "topic.html",
+        emitModuleItem(htm, "/www/images/etext/c46-thumb.png", "A truss made up of right triangles",
+                "topic_M03_T06.html",
                 "Topic 6:&nbsp; <span style='color:#D9782D'>Right Triangle Relationships</span>");
         endModule(htm);
 
         startModule(htm, "Module 4:&nbsp; Solving Problems with Triangles");
         emitModuleItem(htm, "/www/images/etext/skills_review.png", "A brain made of connected shapes",
-                "skills_review.html", "Skills Review");
+                "review_M04.html", "Skills Review");
         emitModuleItem(htm, "/www/images/etext/c47-thumb.png",
-                "A scene with a glass sphere that inverts the image of what lies behind it", "topic.html",
+                "A scene with a glass sphere that inverts the image of what lies behind it",
+                "topic_M04_T07.html",
                 "Topic 7:&nbsp; <span style='color:#D9782D'>Inverse Trigonometric Functions</span>");
         emitModuleItem(htm, "/www/images/etext/c48-thumb.png",
-                "An indoor space with triangular architecture", "topic.html",
+                "An indoor space with triangular architecture",
+                "topic_M04_T08.html",
                 "Topic 8:&nbsp; <span style='color:#D9782D'>The Law of Sines and the Law of Cosines</span>");
         endModule(htm);
     }

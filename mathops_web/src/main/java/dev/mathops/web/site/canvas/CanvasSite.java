@@ -23,9 +23,11 @@ import dev.mathops.web.site.canvas.courses.PageGrades;
 import dev.mathops.web.site.canvas.courses.PageHelp;
 import dev.mathops.web.site.canvas.courses.PageModules;
 import dev.mathops.web.site.canvas.courses.PageNavigating;
+import dev.mathops.web.site.canvas.courses.PageReview;
 import dev.mathops.web.site.canvas.courses.PageStartHere;
 import dev.mathops.web.site.canvas.courses.PageSurvey;
 import dev.mathops.web.site.canvas.courses.PageSyllabus;
+import dev.mathops.web.site.canvas.courses.PageTopic;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -243,13 +245,80 @@ public final class CanvasSite extends AbstractSite {
             case NAVIGATING_PAGE -> PageNavigating.doGet(cache, this, courseId, req, resp, session);
 
             default -> {
-                Log.warning("Unrecognized GET request path: ", subpath);
-                final String selectedCourse = req.getParameter(COURSE_PARAM);
-                final String homePath = selectedCourse == null ? makeRootPath(ROOT_PAGE)
-                        : makeCoursePath(COURSE_HOME_PAGE, selectedCourse);
-                resp.sendRedirect(homePath);
+                final int reviewModule = getReviewModule(subpath);
+
+                if (reviewModule == -1) {
+                    final int moduleTopic = getTopic(subpath);
+
+                    if (moduleTopic == -1) {
+                        Log.warning("Unrecognized GET request path: ", subpath);
+                        final String selectedCourse = req.getParameter(COURSE_PARAM);
+                        final String homePath = selectedCourse == null ? makeRootPath(ROOT_PAGE)
+                                : makeCoursePath(COURSE_HOME_PAGE, selectedCourse);
+                        resp.sendRedirect(homePath);
+                    } else {
+                        final int module = moduleTopic / 1000;
+                        final int topic = moduleTopic % 1000;
+                        PageTopic.doGet(cache, this, courseId, module, topic, req, resp, session);
+                    }
+                } else {
+                    PageReview.doGet(cache, this, courseId, reviewModule, req, resp, session);
+                }
             }
         }
+    }
+
+    /**
+     * Tests if the page represents a Skills Review for a module.
+     *
+     * @return the module number if the subpath is a module Skills Review; -1 if not
+     */
+    private static int getReviewModule(final String subpath) {
+
+        int result = -1;
+
+        if (subpath.startsWith("review_M")) {
+            final int extension = subpath.indexOf(".html");
+            if (extension > 0) {
+                final String moduleStr = subpath.substring(9, extension);
+                try {
+                    result = Integer.parseInt(moduleStr);
+                } catch (final NumberFormatException ex) {
+                    Log.warning("Invalid module number in ", subpath, ex);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Tests if the page represents a Topic for a module.
+     *
+     * @return the (module number times 1000) plus the topic number if the subpath is a module Topic; -1 if not
+     */
+    private static int getTopic(final String subpath) {
+
+        int result = -1;
+
+        if (subpath.startsWith("topic_M")) {
+            final int delim = subpath.indexOf("_T");
+            final int extension = subpath.indexOf(".html");
+
+            if (delim > 0 && extension > delim) {
+                final String moduleStr = subpath.substring(7, delim);
+                final String topicStr = subpath.substring(delim + 2, extension);
+                try {
+                    final int module = Integer.parseInt(moduleStr);
+                    final int topic = Integer.parseInt(topicStr);
+                    result = module * 1000 + topic;
+                } catch (final NumberFormatException ex) {
+                    Log.warning("Invalid module/topic number in ", subpath, ex);
+                }
+            }
+        }
+
+        return result;
     }
 
     /**
