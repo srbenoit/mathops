@@ -46,7 +46,7 @@ final class AdminApp implements Runnable {
         DatabaseConfig databaseConfig;
         if (cfgFile.exists()) {
             try {
-                databaseConfig = DatabaseConfigXml.load(dir);
+                databaseConfig = DatabaseConfigXml.load(cfgFile);
             } catch (final IOException | ParsingException ex) {
                 databaseConfig = DatabaseConfig.getDefault();
                 Log.warning(ex);

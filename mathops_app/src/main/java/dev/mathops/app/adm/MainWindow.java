@@ -228,10 +228,18 @@ public final class MainWindow extends JFrame implements WindowListener, ChangeLi
         if (JOptionPane.showConfirmDialog(this, "Close the application?", title, JOptionPane.YES_NO_OPTION)
             == JOptionPane.YES_OPTION) {
 
-            this.officePane.clearDisplay();
-            this.resourcePane.clearDisplay();
-            this.testingPane.clearDisplay();
-            this.managementPane.clearDisplay();
+            if (this.officePane != null) {
+                this.officePane.clearDisplay();
+            }
+            if (this.resourcePane != null) {
+                this.resourcePane.clearDisplay();
+            }
+            if (this.testingPane != null) {
+                this.testingPane.clearDisplay();
+            }
+            if (this.managementPane != null) {
+                this.managementPane.clearDisplay();
+            }
 
             setVisible(false);
             dispose();

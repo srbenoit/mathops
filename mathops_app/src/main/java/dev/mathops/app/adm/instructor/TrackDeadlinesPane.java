@@ -50,13 +50,13 @@ final class TrackDeadlinesPane extends JPanel implements ActionListener {
     private final List<LocalDate> holidays;
 
     /** The original milestones, to allow up to detect which ones the user has changed. */
-    private final Map<Integer, RawMilestone> original;
+    private final Map<String, RawMilestone> original;
 
     /** The date choosers associated with each milestone. */
-    private final Map<Integer, JDateChooser> choosers;
+    private final Map<String, JDateChooser> choosers;
 
     /** The "changed" label associated with each milestone. */
-    private final Map<Integer, JLabel> changedLabel;
+    private final Map<String, JLabel> changedLabel;
 
     /**
      * Constructs a new {@code TrackDeadlinesPane}.
@@ -148,8 +148,9 @@ final class TrackDeadlinesPane extends JPanel implements ActionListener {
         final Border topLine = BorderFactory.createMatteBorder(1, 0, 0, 0, Skin.MEDIUM);
 
         for (final RawMilestone ms : milestones) {
+            final String key = ms.msNbr.toString() + ms.msType;
 
-            this.original.put(ms.msNbr, ms);
+            this.original.put(key, ms);
 
             final int course = ms.getIndex();
             if (course != currentCourse) {
@@ -179,10 +180,10 @@ final class TrackDeadlinesPane extends JPanel implements ActionListener {
 
             final Font font = getFont();
             final JDateChooser dateChooser = new JDateChooser(ms.msDate, this.holidays, font);
-            dateChooser.setActionCommand(ms.msNbr.toString());
+            dateChooser.setActionCommand(key);
             dateChooser.addActionListener(this);
 
-            this.choosers.put(ms.msNbr, dateChooser);
+            this.choosers.put(key, dateChooser);
 
             if ("RE".equals(ms.msType)) {
                 final int unit = ms.getUnit();
@@ -210,7 +211,7 @@ final class TrackDeadlinesPane extends JPanel implements ActionListener {
 
             final JLabel changed = new JLabel(CoreConstants.SPC);
             changed.setForeground(Skin.ERROR_COLOR);
-            this.changedLabel.put(ms.msNbr, changed);
+            this.changedLabel.put(key, changed);
 
             flow.add(changed);
 
@@ -237,12 +238,17 @@ final class TrackDeadlinesPane extends JPanel implements ActionListener {
             doApply();
         } else {
             try {
-                final Integer msNbr = Integer.valueOf(cmd);
-                final JDateChooser chooser = this.choosers.get(msNbr);
-                final RawMilestone orig = this.original.get(msNbr);
-                final JLabel changeLabel = this.changedLabel.get(msNbr);
+                final JDateChooser chooser = this.choosers.get(cmd);
+                final RawMilestone orig = this.original.get(cmd);
+                final JLabel changeLabel = this.changedLabel.get(cmd);
 
-                if (chooser != null && orig != null && changeLabel != null) {
+                if (chooser == null) {
+                    Log.info("No date chooser for ", cmd);
+                } else if (orig == null) {
+                    Log.info("No original milestone for ", cmd);
+                } else if (changeLabel == null) {
+                    Log.info("No change label milestone for ", cmd);
+                } else {
                     if (chooser.getCurrentDate().equals(orig.msDate)) {
                         changeLabel.setText(CoreConstants.SPC);
                     } else {
@@ -261,20 +267,20 @@ final class TrackDeadlinesPane extends JPanel implements ActionListener {
      */
     private void doApply() {
 
-        for (final Map.Entry<Integer, RawMilestone> entry : this.original.entrySet()) {
-            final Integer msNbr = entry.getKey();
+        for (final Map.Entry<String, RawMilestone> entry : this.original.entrySet()) {
+            final String key = entry.getKey();
             final RawMilestone origValue = entry.getValue();
 
-            final JDateChooser dateChooser = this.choosers.get(msNbr);
+            final JDateChooser dateChooser = this.choosers.get(key);
             if (dateChooser != null) {
                 final LocalDate newDate = dateChooser.getCurrentDate();
                 if (!newDate.equals(origValue.msDate)) {
-                    Log.info("Updating milestone ", msNbr);
+                    Log.info("Updating milestone ", key);
 
                     try {
                         if (RawMilestoneLogic.updateMsDate(this.cache, origValue, newDate)) {
                             origValue.msDate = newDate;
-                            final JLabel lbl = this.changedLabel.get(msNbr);
+                            final JLabel lbl = this.changedLabel.get(key);
                             if (lbl != null) {
                                 lbl.setText(CoreConstants.SPC);
                             }

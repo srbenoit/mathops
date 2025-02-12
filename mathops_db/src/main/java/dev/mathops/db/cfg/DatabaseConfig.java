@@ -55,16 +55,30 @@ public class DatabaseConfig {
      *
      * @return the loaded configuration (empty if loading failed; never null)
      */
-    public static DatabaseConfig loadDefault() {
+    private static DatabaseConfig loadDefault() {
 
         DatabaseConfig config;
 
         final File source = DatabaseConfigXml.getDefaultFile();
-        try {
-            config = DatabaseConfigXml.load(source);
-        } catch (final IOException | ParsingException ex) {
-            Log.warning(ex);
-            config = new DatabaseConfig();
+
+        if (source == null) {
+            final String path = System.getProperty("user.dir");
+            final File dir = new File(path);
+            final File cfgFile = new File(dir, DatabaseConfigXml.FILENAME);
+            Log.info("Loading default database config from ", cfgFile.getAbsolutePath());
+            try {
+                config = DatabaseConfigXml.load(cfgFile);
+            } catch (final IOException | ParsingException ex) {
+                Log.warning(ex);
+                config = new DatabaseConfig();
+            }
+        } else {
+            try {
+                config = DatabaseConfigXml.load(source);
+            } catch (final IOException | ParsingException ex) {
+                Log.warning(ex);
+                config = new DatabaseConfig();
+            }
         }
 
         return config;
