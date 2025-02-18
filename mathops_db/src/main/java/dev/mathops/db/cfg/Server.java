@@ -107,4 +107,15 @@ public final class Server implements Comparable<Server> {
 
         return result;
     }
+
+    /**
+     * Generates a string representation of the object.
+     *
+     * @return the string representation
+     */
+    @Override
+    public String toString() {
+
+        return this.host + ":" + this.port;
+    }
 }

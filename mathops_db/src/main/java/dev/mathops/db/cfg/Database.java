@@ -204,4 +204,16 @@ public final class Database implements Comparable<Database> {
 
         return this.id.compareTo(o.id);
     }
+
+    /**
+     * Generates a string representation of the object.
+     *
+     * @return the string representation
+     */
+    @Override
+    public String toString() {
+
+        return this.instance == null ? (this.id + " on " + this.server)
+                : (this.id + " (" + this.instance + ") on " + this.server);
+    }
 }

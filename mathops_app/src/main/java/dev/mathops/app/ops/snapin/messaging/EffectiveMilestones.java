@@ -196,41 +196,59 @@ public class EffectiveMilestones {
         if (this.r1 == null) {
             Log.warning("No R1 milestone for pace " + pace + " track " + context.track);
         } else {
-            r1Index = daysOfTerm.indexOf(this.r1);
+            r1Index = indexOf(daysOfTerm, this.r1);
+            if (r1Index == -1) {
+                Log.warning("Unable to find day index of R1=", this.r1);
+            }
         }
 
         this.r2 = findDate(ms, stuMs, RawMilestone.UNIT_REVIEW_EXAM, unit2);
         if (this.r2 == null) {
             Log.warning("No R2 milestone for pace " + pace + " track " + context.track);
         } else {
-            r2Index = daysOfTerm.indexOf(this.r2);
+            r2Index = indexOf(daysOfTerm, this.r2);
+            if (r2Index == -1) {
+                Log.warning("Unable to find day index of R2=", this.r2);
+            }
         }
 
         this.r3 = findDate(ms, stuMs, RawMilestone.UNIT_REVIEW_EXAM, unit3);
         if (this.r3 == null) {
             Log.warning("No R3 milestone for pace " + pace + " track " + context.track);
         } else {
-            r3Index = daysOfTerm.indexOf(this.r3);
+            r3Index = indexOf(daysOfTerm, this.r3);
+            if (r3Index == -1) {
+                Log.warning("Unable to find day index of R3=", this.r3);
+            }
         }
 
         this.r4 = findDate(ms, stuMs, RawMilestone.UNIT_REVIEW_EXAM, unit4);
         if (this.r4 == null) {
             Log.warning("No R4 milestone for pace " + pace + " track " + context.track);
         } else {
-            r4Index = daysOfTerm.indexOf(this.r4);
+            r4Index = indexOf(daysOfTerm, this.r4);
+            if (r4Index == -1) {
+                Log.warning("Unable to find day index of R4=", this.r4);
+            }
         }
 
         this.fin = findDate(ms, stuMs, RawMilestone.FINAL_EXAM, unit5);
         if (this.fin == null) {
             Log.warning("No FE milestone for pace " + pace + " track " + context.track);
         } else {
-            feIndex = daysOfTerm.indexOf(this.fin);
+            feIndex = indexOf(daysOfTerm, this.fin);
+            if (feIndex == -1) {
+                Log.warning("Unable to find day index of FE=", this.fin);
+            }
         }
 
         this.last = findDate(ms, stuMs, RawMilestone.FINAL_LAST_TRY, unit5);
         if (this.last == null) {
             Log.warning("No F1 milestone for pace " + pace + " track " + context.track);
         }
+
+//        Log.info("Pace ", context.pace, " Track ", context.track,
+//                " R1=", r1Index, ", R2=", r2Index, ", R3=", r3Index, ", R4=", r4Index, ", FE=", feIndex);
 
         //
 
@@ -469,7 +487,7 @@ public class EffectiveMilestones {
         Integer tries = null;
         for (final RawMilestone msRow : ms) {
             if (msRow.msType.equals(RawMilestone.FINAL_LAST_TRY) && msRow.msNbr.intValue() == unit5
-                    && msRow.nbrAtmptsAllow != null) {
+                && msRow.nbrAtmptsAllow != null) {
                 tries = msRow.nbrAtmptsAllow;
             }
         }
@@ -477,7 +495,7 @@ public class EffectiveMilestones {
         if (tries != null) {
             for (final RawStmilestone stuMsRow : stuMs) {
                 if (stuMsRow.msType.equals(RawMilestone.FINAL_LAST_TRY)
-                        && stuMsRow.msNbr.intValue() == unit5 && stuMsRow.nbrAtmptsAllow != null) {
+                    && stuMsRow.msNbr.intValue() == unit5 && stuMsRow.nbrAtmptsAllow != null) {
                     tries = stuMsRow.nbrAtmptsAllow;
                     // Don't break - student milestones are sorted by deadline date, and if there are multiple, we want
                     // the later date
@@ -486,6 +504,33 @@ public class EffectiveMilestones {
         }
 
         this.lastTryCount = tries == null ? 0 : tries.intValue();
+    }
+
+    /**
+     * Finds the index of the first day of the term that falls on or after a date.
+     *
+     * @param daysOfTerm the list of days of the term
+     * @param date       the date to test
+     * @return the index (the index of the day after the last day of the term if the given date falls after every date
+     *         in the list)
+     */
+    private static int indexOf(final List<LocalDate> daysOfTerm, final LocalDate date) {
+
+        int index = daysOfTerm.indexOf(date);
+
+        if (index == -1) {
+            final int count = daysOfTerm.size();
+
+            index = count;
+            for (int i = 0; i < count; ++i) {
+                if (!daysOfTerm.get(i).isBefore(date)) {
+                    index = i;
+                    break;
+                }
+            }
+        }
+
+        return index;
     }
 
     /**

@@ -81,7 +81,7 @@ final class EPFStudents {
      * Executes the job.
      *
      * @param incCourseSections map from course ID to a list of section numbers to include in the scan
-     * @param epf                   map from student ID to report row for that EPF student
+     * @param epf               map from student ID to report row for that EPF student
      */
     void calculate(final Map<String, ? extends List<String>> incCourseSections,
                    final Map<String, ? super MessageToSend> epf) {
@@ -298,8 +298,9 @@ final class EPFStudents {
                 final int pace = PaceTrackLogic.determinePace(regs);
                 final String track = PaceTrackLogic.determinePaceTrack(regs, pace);
 
-                // NOTE: don't message the face-to-face sections (tracks D and E)
-                if (!"D".equals(track) && !"E".equals(track)) {
+                // NOTE: don't message the face-to-face sections (alter this for late-start EPF run)
+//                if ("A".equals(track) || "B".equals(track) || "C".equals(track)) {
+                if ("A".equals(track) || "B".equals(track)) {
 
                     final Integer paceInt = Integer.valueOf(pace);
                     final List<RawMilestone> milestones = msMap.get(paceInt).get(track);
