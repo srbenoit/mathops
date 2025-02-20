@@ -314,19 +314,45 @@ final class CardStudentDetail extends AdmPanelBase implements ActionListener {
      */
     void clearDisplay() {
 
-        this.studentSummaryPanel.clearDisplay();
-        this.stuInfoPanel.clearDisplay();
-        this.courseRegistrationsPanel.clearDisplay();
-        this.courseHistoryPanel.clearDisplay();
-        this.courseDeadlinesPanel.clearDisplay();
-        this.courseActivityPanel.clearDisplay();
-        this.stuDisciplinePanel.clearDisplay();
-        this.stuHoldsPanel.clearDisplay();
-        this.stuAppealsPanel.clearDisplay();
-        this.courseExamsPanel.clearDisplay();
-        this.placementToolPanel.clearDisplay();
-        this.placementMathPlanPanel.clearDisplay();
-        this.placementTransferPanel.clearDisplay();
+        if (Objects.nonNull(this.studentSummaryPanel)) {
+            this.studentSummaryPanel.clearDisplay();
+        }
+        if (Objects.nonNull(this.stuInfoPanel)) {
+            this.stuInfoPanel.clearDisplay();
+        }
+        if (Objects.nonNull(this.courseRegistrationsPanel)) {
+            this.courseRegistrationsPanel.clearDisplay();
+        }
+        if (Objects.nonNull(this.courseHistoryPanel)) {
+            this.courseHistoryPanel.clearDisplay();
+        }
+        if (Objects.nonNull(this.courseDeadlinesPanel)) {
+            this.courseDeadlinesPanel.clearDisplay();
+        }
+        if (Objects.nonNull(this.courseActivityPanel)) {
+            this.courseActivityPanel.clearDisplay();
+        }
+        if (Objects.nonNull(this.stuDisciplinePanel)) {
+            this.stuDisciplinePanel.clearDisplay();
+        }
+        if (Objects.nonNull(this.stuHoldsPanel)) {
+            this.stuHoldsPanel.clearDisplay();
+        }
+        if (Objects.nonNull(this.stuAppealsPanel)) {
+            this.stuAppealsPanel.clearDisplay();
+        }
+        if (Objects.nonNull(this.courseExamsPanel)) {
+            this.courseExamsPanel.clearDisplay();
+        }
+        if (Objects.nonNull(this.placementToolPanel)) {
+            this.placementToolPanel.clearDisplay();
+        }
+        if (Objects.nonNull(this.placementMathPlanPanel)) {
+            this.placementMathPlanPanel.clearDisplay();
+        }
+        if (Objects.nonNull(this.placementTransferPanel)) {
+            this.placementTransferPanel.clearDisplay();
+        }
     }
 
     /**
@@ -337,23 +363,47 @@ final class CardStudentDetail extends AdmPanelBase implements ActionListener {
      */
     void setStudent(final Cache cache, final StudentData theData) {
 
-        this.studentSummaryPanel.setSelectedStudent(theData);
-        this.stuInfoPanel.setSelectedStudent(theData);
-        this.courseRegistrationsPanel.setSelectedStudent(theData);
-        this.courseHistoryPanel.setSelectedStudent(theData);
-        this.courseDeadlinesPanel.setSelectedStudent(theData);
-        this.courseActivityPanel.setSelectedStudent(cache, theData);
+        if (Objects.nonNull(this.studentSummaryPanel)) {
+            this.studentSummaryPanel.setSelectedStudent(theData);
+        }
+        if (Objects.nonNull(this.stuInfoPanel)) {
+            this.stuInfoPanel.setSelectedStudent(theData);
+        }
+        if (Objects.nonNull(this.courseRegistrationsPanel)) {
+            this.courseRegistrationsPanel.setSelectedStudent(theData);
+        }
+        if (Objects.nonNull(this.courseHistoryPanel)) {
+            this.courseHistoryPanel.setSelectedStudent(theData);
+        }
+        if (Objects.nonNull(this.courseDeadlinesPanel)) {
+            this.courseDeadlinesPanel.setSelectedStudent(theData);
+        }
+        if (Objects.nonNull(this.courseActivityPanel)) {
+            this.courseActivityPanel.setSelectedStudent(cache, theData);
+        }
         if (Objects.nonNull(this.stuDisciplinePanel)) {
             this.stuDisciplinePanel.setSelectedStudent(theData);
         }
-        this.stuHoldsPanel.setSelectedStudent(theData);
-        this.stuAppealsPanel.setSelectedStudent(theData);
-        this.courseExamsPanel.setSelectedStudent(theData);
-        this.placementToolPanel.setSelectedStudent(theData);
-        this.placementTransferPanel.setSelectedStudent(theData);
+        if (Objects.nonNull(this.stuHoldsPanel)) {
+            this.stuHoldsPanel.setSelectedStudent(theData);
+        }
+        if (Objects.nonNull(this.stuAppealsPanel)) {
+            this.stuAppealsPanel.setSelectedStudent(theData);
+        }
+        if (Objects.nonNull(this.courseExamsPanel)) {
+            this.courseExamsPanel.setSelectedStudent(theData);
+        }
+        if (Objects.nonNull(this.placementToolPanel)) {
+            this.placementToolPanel.setSelectedStudent(theData);
+        }
+        if (Objects.nonNull(this.placementTransferPanel)) {
+            this.placementTransferPanel.setSelectedStudent(theData);
+        }
 
         if (theData == null) {
-            this.placementMathPlanPanel.setSelectedStudent(cache, null);
+            if (Objects.nonNull(this.placementMathPlanPanel)) {
+                this.placementMathPlanPanel.setSelectedStudent(cache, null);
+            }
 
             this.selectedStudentName.setText(CoreConstants.EMPTY);
             this.selectedStudentId.setText(CoreConstants.EMPTY);
@@ -361,7 +411,9 @@ final class CardStudentDetail extends AdmPanelBase implements ActionListener {
             this.placementRelatedTabs.setEnabled(false);
             this.courseRegistrationTabs.setEnabled(false);
         } else {
-            this.placementMathPlanPanel.setSelectedStudent(cache, theData.student.stuId);
+            if (Objects.nonNull(this.placementMathPlanPanel)) {
+                this.placementMathPlanPanel.setSelectedStudent(cache, theData.student.stuId);
+            }
 
             final RawStudent student = theData.student;
 

@@ -564,7 +564,8 @@ public enum RawStudentLogic {
             Log.info(STU_ID, studentId);
             result = false;
         } else {
-            final String sql = "UPDATE student SET pidm=" + internalId + " WHERE stu_id='" + studentId + "'";
+            final String sql = SimpleBuilder.concat("UPDATE student SET pidm=", LogicUtils.sqlIntegerValue(internalId),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(studentId));
 
             final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
@@ -1167,8 +1168,8 @@ public enum RawStudentLogic {
             result = false;
         } else {
             final String sql = SimpleBuilder.concat("UPDATE student SET extension_days=",
-                    LogicUtils.sqlIntegerValue(newExtensionDays), " WHERE stu_id='",
-                    LogicUtils.sqlStringValue(studentId), "'");
+                    LogicUtils.sqlIntegerValue(newExtensionDays), " WHERE stu_id=",
+                    LogicUtils.sqlStringValue(studentId));
 
             final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 

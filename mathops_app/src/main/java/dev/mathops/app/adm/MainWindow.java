@@ -138,7 +138,7 @@ public final class MainWindow extends JFrame implements WindowListener, ChangeLi
             this.tabs.addTab(tabTitle, this.officePane);
         }
 
-        if (this.fixed.getClearanceLevel("STU_MENU") != null) {
+        if (this.fixed.getClearanceLevel("INS_MENU") != null) {
             this.instructorPane = new TopPanelInstructor(this.cache, this.fixed);
             final String tabTitle = Res.get(Res.INSTRUCTOR_TAB);
             this.tabs.addTab(tabTitle, this.instructorPane);

@@ -83,8 +83,8 @@ public final class TopPanelOffice extends JPanel implements ActionListener {
     /**
      * Constructs a new {@code TopPanelOffice}.
      *
-     * @param theCache    the data cache
-     * @param theFixed    the fixed data
+     * @param theCache the data cache
+     * @param theFixed the fixed data
      */
     public TopPanelOffice(final Cache theCache, final UserData theFixed) {
 
@@ -260,9 +260,17 @@ public final class TopPanelOffice extends JPanel implements ActionListener {
      */
     public void clearDisplay() {
 
-        this.cardPickStudent.clearDisplay();
-        this.cardPopulations.clearDisplay();
-        this.cardStudentDetail.clearDisplay();
-        this.cardPopulationDetail.clearDisplay();
+        if (this.cardPickStudent != null) {
+            this.cardPickStudent.clearDisplay();
+        }
+        if (this.cardPopulations != null) {
+            this.cardPopulations.clearDisplay();
+        }
+        if (this.cardStudentDetail != null) {
+            this.cardStudentDetail.clearDisplay();
+        }
+        if (this.cardPopulationDetail != null) {
+            this.cardPopulationDetail.clearDisplay();
+        }
     }
 }
