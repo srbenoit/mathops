@@ -122,6 +122,12 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
     /** The label for the Y axis. */
     String yAxisLabel = "y";
 
+    /** The y coordinate at which to draw the x-axis (default is zero). */
+    Number xAxisY;
+
+    /** The x coordinate at which to draw the y-axis (default is zero). */
+    Number yAxisX;
+
     static {
         format = new DecimalFormat();
         format.setMaximumFractionDigits(3);
@@ -343,12 +349,10 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
         } else {
             g2d.setColor(Color.white);
         }
-
         g2d.fillRect(bounds.x, bounds.y, bounds.width + 1, bounds.height + 1);
 
         // Draw the border if configured
         g2d.setColor(this.borderColor);
-
         for (int i = 0; i < this.borderWidth; i++) {
             g2d.drawRect(bounds.x + i, bounds.y + i, bounds.width - (i << 1) - 1, bounds.height - (i << 1) - 1);
         }
@@ -370,9 +374,13 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
         final double maxX = window.getRightX().doubleValue();
         final double maxY = window.getTopY().doubleValue();
 
-        int x = (int) ((double) bounds.width * (-minX) / (maxX - minX));
+        final double actualYAxisX = this.yAxisX == null ? 0.0 : this.yAxisX.doubleValue();
+        final double actualXAxisY = this.xAxisY == null ? 0.0 : this.xAxisY.doubleValue();
+
+        int x = (int) ((double) bounds.width * (actualYAxisX - minX) / (maxX - minX));
         final int axisX = ((x > 0) && (x < bounds.width)) ? x : -1;
-        int y = (int) ((double) bounds.height * (-minY) / (maxY - minY));
+
+        int y = (int) ((double) bounds.height * (actualXAxisY - minY) / (maxY - minY));
         final int axisY = ((y > 0) && (y < bounds.height)) ? y : -1;
 
         // Draw the grid and tick marks if configured
@@ -451,8 +459,10 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
         final double minY = window.getBottomY().doubleValue();
         final double maxX = window.getRightX().doubleValue();
         final double maxY = window.getTopY().doubleValue();
+        final double actualXAxisY = this.xAxisY == null ? 0.0 : this.xAxisY.doubleValue();
+        final double actualYAxisX = this.yAxisX == null ? 0.0 : this.yAxisX.doubleValue();
 
-        final int axisYOffset = (int) ((double) bounds.height * (-minY) / (maxY - minY));
+        final int axisYOffset = (int) ((double) bounds.height * (actualXAxisY - minY) / (maxY - minY));
         final int axisY = ((axisYOffset > 0) && (axisYOffset < bounds.height)) ? bounds.y + axisYOffset : -1;
 
         if (actualXTickInterval != 0.0 && (this.gridWidth > 0 || this.tickWidth > 0)) {
@@ -479,7 +489,7 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
                     priorXStep = curXStep;
 
                     // If we are drawing axes, then omit the grid lines and tick marks at the axis crossing.
-                    if (this.axisWidth > 0 && Math.abs(dx) < (actualXTickInterval / 10)) {
+                    if (this.axisWidth > 0 && Math.abs(dx - actualYAxisX) < (actualXTickInterval / 10)) {
                         continue;
                     }
 
@@ -607,8 +617,10 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
         final double minY = window.getBottomY().doubleValue();
         final double maxX = window.getRightX().doubleValue();
         final double maxY = window.getTopY().doubleValue();
+        final double actualXAxisY = this.xAxisY == null ? 0.0 : this.xAxisY.doubleValue();
+        final double actualYAxisX = this.yAxisX == null ? 0.0 : this.yAxisX.doubleValue();
 
-        final int axisXOffset = (int) ((double) bounds.width * (-minX) / (maxX - minX));
+        final int axisXOffset = (int) ((double) bounds.width * (actualYAxisX - minX) / (maxX - minX));
         final int axisX = ((axisXOffset > 0) && (axisXOffset < bounds.width)) ? bounds.x + axisXOffset : -1;
 
         if (actualYTickInterval != 0.0 && (this.gridWidth > 0 || this.tickWidth > 0)) {
@@ -633,7 +645,7 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
                     priorYStep = curYStep;
 
                     // If we are drawing axes, then omit the grid line and tick mark at the axis crossing.
-                    if (this.axisWidth > 0 && Math.abs(dy) < (actualYTickInterval / 10)) {
+                    if (this.axisWidth > 0 && Math.abs(dy - actualXAxisY) < (actualYTickInterval / 10)) {
                         continue;
                     }
 
@@ -898,6 +910,14 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
             xml.add(" alt='", XmlEscaper.escape(alt), "'");
         }
 
+        if (this.yAxisX != null) {
+            xml.add(" yaxisx='", this.yAxisX, "'");
+        }
+
+        if (this.xAxisY != null) {
+            xml.add(" xaxisy='", this.xAxisY, "'");
+        }
+
         xml.add('>');
 
         appendPrimitivesXml(xml, indent + 1);
@@ -954,6 +974,8 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
                + this.tickLabelSize
                + Objects.hashCode(this.xAxisLabel)
                + Objects.hashCode(this.yAxisLabel)
+               + Objects.hashCode(this.yAxisX)
+               + Objects.hashCode(this.xAxisY)
                + Objects.hashCode(getPrimitives());
     }
 
@@ -989,6 +1011,8 @@ public final class DocGraphXY extends AbstractDocPrimitiveContainer {
                     && this.tickLabelSize == graph.tickLabelSize
                     && Objects.equals(this.xAxisLabel, graph.xAxisLabel)
                     && Objects.equals(this.yAxisLabel, graph.yAxisLabel)
+                    && Objects.equals(this.yAxisX, graph.yAxisX)
+                    && Objects.equals(this.xAxisY, graph.xAxisY)
                     && Objects.equals(getPrimitives(), graph.getPrimitives());
         } else {
             equal = false;

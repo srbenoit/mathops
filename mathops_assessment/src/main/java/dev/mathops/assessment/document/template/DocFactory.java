@@ -12,7 +12,6 @@ import dev.mathops.assessment.variable.AbstractVariable;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.assessment.variable.VariableInputReal;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.ColorNames;
 import dev.mathops.font.BundledFontManager;
 import dev.mathops.text.builder.HtmlBuilder;
@@ -270,6 +269,12 @@ public enum DocFactory {
 
     /** A commonly-used string. */
     private static final String Y_AXIS_LABEL = "yaxislabel";
+
+    /** A commonly-used string. */
+    private static final String X_AXIS_Y = "xaxisy";
+
+    /** A commonly-used string. */
+    private static final String Y_AXIS_X = "yaxisx";
 
     /** A commonly-used string. */
     private static final String TYPE = "type";
@@ -2315,6 +2320,14 @@ public enum DocFactory {
         final String xaxislabelStr = elem.getStringAttr(X_AXIS_LABEL);
         final String yaxislabelStr = elem.getStringAttr(Y_AXIS_LABEL);
         final String valignStr = elem.getStringAttr(VALIGN);
+        final String xAxisYStr = elem.getStringAttr(X_AXIS_Y);
+        final String yAxisXStr = elem.getStringAttr(Y_AXIS_X);
+
+        /** The y coordinate at which to draw the x-axis (default is zero). */
+        Number xAxisY;
+
+        /** The x coordinate at which to draw the y-axis (default is zero). */
+        Number yAxisX;
 
         int width = 0;
         if (widthStr == null) {
@@ -2511,6 +2524,24 @@ public enum DocFactory {
                 valign = EVAlign.TOP;
             } else {
                 elem.logError("<image> element has invalid value in '' attribute.");
+            }
+        }
+
+        if (xAxisYStr != null) {
+            try {
+                graph.xAxisY = NumberParser.parse(xAxisYStr);
+            } catch (final NumberFormatException e) {
+                elem.logError("Invalid 'xaxisy' attribute value (must be a number).");
+                valid = false;
+            }
+        }
+
+        if (yAxisXStr != null) {
+            try {
+                graph.yAxisX = NumberParser.parse(yAxisXStr);
+            } catch (final NumberFormatException e) {
+                elem.logError("Invalid 'yaxisx' attribute value (must be a number).");
+                valid = false;
             }
         }
 
