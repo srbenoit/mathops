@@ -2,6 +2,8 @@ package dev.mathops.web.site.canvas;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.file.FileLoader;
+import dev.mathops.commons.installation.EPath;
+import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
 import dev.mathops.db.Cache;
@@ -15,6 +17,7 @@ import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.UserInfoBar;
+import dev.mathops.web.site.canvas.courses.Metadata;
 import dev.mathops.web.site.canvas.courses.PageAccount;
 import dev.mathops.web.site.canvas.courses.PageAnnouncements;
 import dev.mathops.web.site.canvas.courses.PageAssignments;
@@ -33,6 +36,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -52,7 +56,7 @@ public final class CanvasSite extends AbstractSite {
     private static final String ACCOUNT_PAGE = "account.html";
 
     /** A page. */
-    public static final String COURSE_HOME_PAGE = "course.html";
+    static final String COURSE_HOME_PAGE = "course.html";
 
     /** A page. */
     private static final String SYLLABUS_PAGE = "syllabus.html";
@@ -96,8 +100,23 @@ public final class CanvasSite extends AbstractSite {
     /** A request parameter name. */
     private static final String TARGET_PARAM = "target";
 
+    /** The interval (ms) between checks of the metadata file. */
+    private static final long FILE_SCAN_INTERVAL = 10000L;
+
     /** A request parameter name. */
     static final String COURSE_PARAM = "course";
+
+    /** The file from which to load metadata. */
+    private final File metadataFile;
+
+    /** Timestamp of last loaded metadata file. */
+    private long metadataDate = 0L;
+
+    /** Timestamp when metadata should next be scanned. */
+    private long nextMetadataCheck = 0L;
+
+    /** Course metadata. */
+    private Metadata metadata = null;
 
     /**
      * Constructs a new {@code CanvasSite}.
@@ -108,6 +127,23 @@ public final class CanvasSite extends AbstractSite {
     public CanvasSite(final Site theSite, final ISessionManager theSessions) {
 
         super(theSite, theSessions);
+
+        final File www = PathList.getInstance().get(EPath.WWW_PATH);
+        this.metadataFile = new File(www.getParentFile(), "media");
+
+        scanMetadata();
+        this.nextMetadataCheck = System.currentTimeMillis() + FILE_SCAN_INTERVAL;
+    }
+
+    /**
+     * Scans the metadata file, reloading it if the file has changed.
+     */
+    private void scanMetadata() {
+
+        if (this.metadataFile.exists()) {
+            this.metadataDate = this.metadataFile.lastModified();
+            this.metadata = new Metadata(this.metadataFile);
+        }
     }
 
     /**
@@ -124,6 +160,14 @@ public final class CanvasSite extends AbstractSite {
     @Override
     public void doGet(final Cache cache, final String subpath, final ESiteType type, final HttpServletRequest req,
                       final HttpServletResponse resp) throws IOException, SQLException {
+
+        Log.info("GET ", subpath);
+
+        final long now = System.currentTimeMillis();
+        if (now > this.nextMetadataCheck) {
+            scanMetadata();
+            this.nextMetadataCheck = now + FILE_SCAN_INTERVAL;
+        }
 
         final String path = this.site.path;
 
@@ -196,7 +240,7 @@ public final class CanvasSite extends AbstractSite {
                 // TODO: Other top-level domains before user has selected a course
 
                 switch (subpath) {
-                    case ROOT_PAGE -> PageRoot.doGet(cache, this, req, resp, session);
+                    case ROOT_PAGE -> PageRoot.doGet(cache, this, req, resp, session, this.metadata);
 
                     default -> {
                         Log.warning("Unrecognized GET request path: ", subpath);
@@ -231,14 +275,15 @@ public final class CanvasSite extends AbstractSite {
             case STYLE_CSS -> serveCss(req, resp, CanvasSite.class, STYLE_CSS);
             case FAVICON_ICO -> serveImage(subpath, req, resp);
 
-            case ACCOUNT_PAGE -> PageAccount.doGet(cache, this, courseId, req, resp, session);
-            case COURSE_HOME_PAGE -> PageCourse.doGet(cache, this, courseId, req, resp, session);
+            case ACCOUNT_PAGE -> PageAccount.doGet(cache, this, courseId, req, resp, session, this.metadata);
+            case COURSE_HOME_PAGE -> PageCourse.doGet(cache, this, courseId, req, resp, session, this.metadata);
             case SYLLABUS_PAGE -> PageSyllabus.doGet(cache, this, courseId, req, resp, session);
-            case ANNOUNCEMENTS_PAGE -> PageAnnouncements.doGet(cache, this, courseId, req, resp, session);
+            case ANNOUNCEMENTS_PAGE -> PageAnnouncements.doGet(cache, this, courseId, req, resp, session,
+                    this.metadata);
             case MODULES_PAGE -> PageModules.doGet(cache, this, courseId, req, resp, session);
-            case ASSIGNMENTS_PAGE -> PageAssignments.doGet(cache, this, courseId, req, resp, session);
+            case ASSIGNMENTS_PAGE -> PageAssignments.doGet(cache, this, courseId, req, resp, session, this.metadata);
             case HELP_PAGE -> PageHelp.doGet(cache, this, courseId, req, resp, session);
-            case GRADES_PAGE -> PageGrades.doGet(cache, this, courseId, req, resp, session);
+            case GRADES_PAGE -> PageGrades.doGet(cache, this, courseId, req, resp, session, this.metadata);
             case SURVEY_PAGE -> PageSurvey.doGet(cache, this, courseId, req, resp, session);
 
             case START_HERE_PAGE -> PageStartHere.doGet(cache, this, courseId, req, resp, session);

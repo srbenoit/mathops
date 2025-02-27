@@ -2,10 +2,10 @@ package dev.mathops.web.site.canvas;
 
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.logic.RegistrationsLogic;
-import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.web.site.canvas.courses.MetadataCourse;
 
 import java.sql.SQLException;
 
@@ -60,20 +60,17 @@ public enum CanvasPageUtils {
     /**
      * Emits the course number, title, and section number.
      *
-     * @param htm      the {@code HtmlBuilder} to which to append
-     * @param course   the course record
-     * @param csection the course section record
+     * @param htm        the {@code HtmlBuilder} to which to append
+     * @param metaCourse the course metadata object
+     * @param csection   the course section record
      */
-    public static void emitCourseTitleAndSection(final HtmlBuilder htm, final RawCourse course,
+    public static void emitCourseTitleAndSection(final HtmlBuilder htm, final MetadataCourse metaCourse,
                                                  final RawCsection csection) {
 
         htm.sDiv(null, "style='margin:0 24px; border-bottom:1px solid #C7CDD1;'");
         htm.sH(1, "title");
-        if ("Y".equals(csection.courseLabelShown)) {
-            htm.add(course.courseLabel);
-            htm.add(": ");
-        }
-        htm.add("<span style='color:#D9782D'>", course.courseName, "</span>");
+        htm.add(metaCourse.id, ": ");
+        htm.add("<span style='color:#D9782D'>", metaCourse.title, "</span>");
         htm.br().add("<small>Section ", csection.sect, "</small>");
         htm.eDiv();
     }

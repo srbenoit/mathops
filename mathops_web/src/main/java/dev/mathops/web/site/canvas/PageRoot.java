@@ -11,6 +11,7 @@ import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
+import dev.mathops.web.site.canvas.courses.Metadata;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -29,16 +30,18 @@ enum PageRoot {
     /**
      * Generates the page.
      *
-     * @param cache   the data cache
-     * @param site    the owning site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the login session
+     * @param cache    the data cache
+     * @param site     the owning site
+     * @param req      the request
+     * @param resp     the response
+     * @param session  the login session
+     * @param metadata metadata object with list of courses configured on this site
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
     static void doGet(final Cache cache, final CanvasSite site, final ServletRequest req,
-                      final HttpServletResponse resp, final ImmutableSessionInfo session) throws IOException,
+                      final HttpServletResponse resp, final ImmutableSessionInfo session,
+                      final Metadata metadata) throws IOException,
             SQLException {
 
         final String stuId = session.getEffectiveUserId();
@@ -53,7 +56,7 @@ enum PageRoot {
 
         emitProgramAnnouncements(cache, htm);
         emitHolds(cache, stuId, htm);
-        emitEnrolledCourses(cache, site, stuId, htm);
+        emitEnrolledCourses(cache, site, stuId, metadata, htm);
         emitSemesterCalendar(cache, stuId, htm);
         emitUpcoming(cache, stuId, htm);
         emitInformation(cache, stuId, htm);
@@ -111,43 +114,56 @@ enum PageRoot {
      * Emits a block with a link button for each course in which a student is enrolled.  Below each course button is a
      * short display of student status/progress in each course.
      *
-     * @param cache the data cache
-     * @param stuId the student ID
-     * @param htm   the {@code HtmlBuilder} to which to append
+     * @param cache    the data cache
+     * @param stuId    the student ID
+     * @param metadata metadata object with list of courses configured on this site
+     * @param htm      the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
     private static void emitEnrolledCourses(final Cache cache, final CanvasSite site, final String stuId,
-                                            final HtmlBuilder htm) throws SQLException {
+                                            final Metadata metadata, final HtmlBuilder htm) throws SQLException {
 
         htm.sH(3).add("My Precalculus Courses").eH(3);
 
         final RegistrationsLogic.ActiveTermRegistrations registrations =
                 RegistrationsLogic.gatherActiveTermRegistrations(cache, stuId);
 
-        if (!registrations.warnings().isEmpty()) {
+        final List<String> warnings = registrations.warnings();
+        if (!warnings.isEmpty()) {
             // TODO: Show the warnings to the student - make sure we are using student-facing language
         }
 
         boolean hasCourse = false;
-        if (!registrations.uncountedIncompletes().isEmpty()) {
+
+        final List<RawStcourse> uncountedInc = registrations.uncountedIncompletes();
+        if (!uncountedInc.isEmpty()) {
             htm.sH(4).add("Incomplete Courses from a prior Semester").eH(4);
             htm.sP();
-            for (final RawStcourse reg : registrations.uncountedIncompletes()) {
+            for (final RawStcourse reg : uncountedInc) {
                 final String enc = reg.course.replace(' ', '_');
-                htm.add("<a href='course.html?course=", enc, "' class='smallbtn'>", reg.course, "</a> &nbsp; ");
+                if (metadata.hasCourse(reg.course)) {
+                    htm.add("<a href='course.html?course=", enc, "' class='smallbtn'>", reg.course, "</a> &nbsp; ");
+                } else {
+                    htm.add(reg.course, " &nbsp; ");
+                }
                 hasCourse = true;
             }
             htm.eP();
             // TODO: Show deadline date for Incomplete, course progress meter
         }
 
-        if (!registrations.inPace().isEmpty()) {
+        final List<RawStcourse> inPace = registrations.inPace();
+
+        if (!inPace.isEmpty()) {
             htm.sH(4).add("Current Courses").eH(4);
             htm.sP();
-            for (final RawStcourse reg : registrations.inPace()) {
-                final String enc = reg.course.replace(' ', '_');
+            for (final RawStcourse reg : inPace) {
                 final String href = site.makeCoursePath(CanvasSite.COURSE_HOME_PAGE, reg.course);
-                htm.add("<a href='", href, "' class='smallbtn'>", reg.course, "</a> &nbsp; ");
+                if (metadata.hasCourse(reg.course)) {
+                    htm.add("<a href='", href, "' class='smallbtn'>", reg.course, "</a> &nbsp; ");
+                } else {
+                    htm.add(reg.course, "&nbsp; ");
+                }
                 hasCourse = true;
             }
             htm.eP();

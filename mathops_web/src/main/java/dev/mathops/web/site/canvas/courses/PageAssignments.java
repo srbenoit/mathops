@@ -1,9 +1,7 @@
 package dev.mathops.web.site.canvas.courses;
 
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawlogic.RawCourseLogic;
 import dev.mathops.db.old.rawlogic.RawCsectionLogic;
-import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.rec.TermRec;
@@ -36,11 +34,13 @@ public enum PageAssignments {
      * @param req      the request
      * @param resp     the response
      * @param session  the user's login session information
+     * @param metadata the metadata object with course structure data
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
     public static void doGet(final Cache cache, final CanvasSite site, final String courseId, final ServletRequest req,
-                             final HttpServletResponse resp, final ImmutableSessionInfo session) throws IOException,
+                             final HttpServletResponse resp, final ImmutableSessionInfo session,
+                             final Metadata metadata) throws IOException,
             SQLException {
 
         final String stuId = session.getEffectiveUserId();
@@ -50,7 +50,14 @@ public enum PageAssignments {
             final String homePath = site.makeRootPath("home.html");
             resp.sendRedirect(homePath);
         } else {
-            presentAssignments(cache, site, req, resp, session, registration);
+            final MetadataCourse metaCourse = metadata.getCourse(registration.course);
+            if (metaCourse == null) {
+                // TODO: Error display, course not part of this system rather than a redirect to Home
+                final String homePath = site.makeRootPath("home.htm");
+                resp.sendRedirect(homePath);
+            } else {
+                presentAssignments(cache, site, req, resp, session, registration, metaCourse);
+            }
         }
     }
 
@@ -63,16 +70,17 @@ public enum PageAssignments {
      * @param resp         the response
      * @param session      the login session
      * @param registration the student's registration record
+     * @param metaCourse   the metadata object with course structure data
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
     static void presentAssignments(final Cache cache, final CanvasSite site, final ServletRequest req,
                                    final HttpServletResponse resp, final ImmutableSessionInfo session,
-                                   final RawStcourse registration) throws IOException, SQLException {
+                                   final RawStcourse registration, final MetadataCourse metaCourse)
+            throws IOException, SQLException {
 
         final TermRec active = TermLogic.get(cache).queryActive(cache);
         final List<RawCsection> csections = RawCsectionLogic.queryByTerm(cache, active.term);
-        final List<RawCourse> courses = RawCourseLogic.queryAll(cache);
 
         RawCsection csection = null;
         for (final RawCsection test : csections) {
@@ -81,15 +89,8 @@ public enum PageAssignments {
                 break;
             }
         }
-        RawCourse course = null;
-        for (final RawCourse test : courses) {
-            if (registration.course.equals(test.course)) {
-                course = test;
-                break;
-            }
-        }
 
-        if (csection == null || course == null) {
+        if (csection == null) {
             final String homePath = site.makeRootPath("home.html");
             resp.sendRedirect(homePath);
         } else {
@@ -99,11 +100,11 @@ public enum PageAssignments {
             CanvasPageUtils.startPage(htm, siteTitle);
 
             // Emit the course number and section at the top
-            CanvasPageUtils.emitCourseTitleAndSection(htm, course, csection);
+            CanvasPageUtils.emitCourseTitleAndSection(htm, metaCourse, csection);
 
             htm.sDiv("pagecontainer");
 
-            CanvasPageUtils.emitLeftSideMenu(htm, course.course, ECanvasPanel.ASSIGNMENTS);
+            CanvasPageUtils.emitLeftSideMenu(htm, metaCourse.id, ECanvasPanel.ASSIGNMENTS);
 
             htm.sDiv("flexmain");
 

@@ -46,21 +46,30 @@ public enum PageCourse {
      * @param req      the request
      * @param resp     the response
      * @param session  the login session
+     * @param metadata the metadata object with course structure data
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
     public static void doGet(final Cache cache, final CanvasSite site, final String courseId, final ServletRequest req,
-                             final HttpServletResponse resp, final ImmutableSessionInfo session)
-            throws IOException, SQLException {
+                             final HttpServletResponse resp, final ImmutableSessionInfo session,
+                             final Metadata metadata) throws IOException, SQLException {
 
         final String stuId = session.getEffectiveUserId();
+
         final RawStcourse registration = CanvasPageUtils.confirmRegistration(cache, stuId, courseId);
 
         if (registration == null) {
             final String homePath = site.makeRootPath("home.htm");
             resp.sendRedirect(homePath);
         } else {
-            presentCoursePage(cache, site, req, resp, session, registration);
+            final MetadataCourse metaCourse = metadata.getCourse(registration.course);
+            if (metaCourse == null) {
+                // TODO: Error display, course not part of this system rather than a redirect to Home
+                final String homePath = site.makeRootPath("home.htm");
+                resp.sendRedirect(homePath);
+            } else {
+                presentCoursePage(cache, site, req, resp, session, registration, metaCourse);
+            }
         }
     }
 
@@ -73,12 +82,14 @@ public enum PageCourse {
      * @param resp         the response
      * @param session      the login session
      * @param registration the student's registration record
+     * @param metaCourse   the metadata object with course structure data
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
     static void presentCoursePage(final Cache cache, final CanvasSite site, final ServletRequest req,
                                   final HttpServletResponse resp, final ImmutableSessionInfo session,
-                                  final RawStcourse registration) throws IOException, SQLException {
+                                  final RawStcourse registration, final MetadataCourse metaCourse)
+            throws IOException, SQLException {
 
         final TermRec active = TermLogic.get(cache).queryActive(cache);
         final List<RawCsection> csections = RawCsectionLogic.queryByTerm(cache, active.term);
@@ -109,7 +120,7 @@ public enum PageCourse {
             CanvasPageUtils.startPage(htm, siteTitle);
 
             // Emit the course number and section at the top
-            CanvasPageUtils.emitCourseTitleAndSection(htm, course, csection);
+            CanvasPageUtils.emitCourseTitleAndSection(htm, metaCourse, csection);
 
             htm.sDiv("pagecontainer");
 
@@ -234,9 +245,10 @@ public enum PageCourse {
 
                 htm.sP();
                 htm.addln("To pass this course, you must complete at least <b>18</b> (out of 24) learning targets ",
-                        "(including all  of the <strong>essential</strong> learning targets).  Your grade will then ",
-                        "be based on total points earned.");
+                        "(including <strong>all</strong>  of the <strong>essential</strong> learning targets).  ",
+                        "Your grade will then be based on total points earned.");
                 htm.eP();
+                htm.div("vgap0");
 
                 final String targetsReachedStr = Integer.toString(targetsReachedTotal);
                 htm.sP();

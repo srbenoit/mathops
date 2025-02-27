@@ -1,0 +1,75 @@
+package dev.mathops.web.site.canvas.courses;
+
+import dev.mathops.commons.log.Log;
+import dev.mathops.text.parser.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * A container for metadata relating to a single course.
+ *
+ * <p>
+ * The format of a course object in the metadata.json file in the root directory is as follows:
+ *
+ * <pre>
+ * {
+ *   "id":      "MATH 125",
+ *   "title":   "Numerical Trigonometry",
+ *   "modules":
+ *   [
+ *     ( see {@code MetadataModule} for the format of each module object )
+ *   ]
+ * }
+ * </pre>
+ */
+public class MetadataCourse {
+
+    /** The course ID. */
+    public final String id;
+
+    /** The course title. */
+    public final String title;
+
+    /** A map from course ID to course metadata object. */
+    private final List<MetadataModule> modules;
+
+    /**
+     * Constructs a new {@code MetadataCourse} from a JSON Object.
+     *
+     * @param json the JSON object from which to extract data
+     */
+    MetadataCourse(final JSONObject json) {
+
+        this.id = json.getStringProperty("id");
+        if (this.id == null) {
+            Log.warning("'course' object in 'metadata.json' missing 'id' field.");
+        }
+
+        this.title = json.getStringProperty("title");
+        if (this.title == null) {
+            Log.warning("'course' object in 'metadata.json' missing 'title' field.");
+        }
+
+        this.modules = new ArrayList<>(10);
+
+        final Object modulesField = json.getProperty("modules");
+
+        if (modulesField != null) {
+            if (modulesField instanceof final Object[] modulesArray) {
+                for (final Object o : modulesArray) {
+                    if (o instanceof final JSONObject jsonCourse) {
+                        final MetadataModule module = new MetadataModule(jsonCourse);
+                        if (module.title != null) {
+                            this.modules.add(module);
+                        }
+                    } else {
+                        Log.warning("Entry in 'modules' array in 'metadata.json' is not JSON object.");
+                    }
+                }
+            } else {
+                Log.warning("'modules' field in 'metadata.json' top-level object is not an array.");
+            }
+        }
+    }
+}
