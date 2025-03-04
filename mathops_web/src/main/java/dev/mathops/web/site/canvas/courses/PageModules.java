@@ -1,15 +1,20 @@
 package dev.mathops.web.site.canvas.courses;
 
+import dev.mathops.commons.file.FileLoader;
+import dev.mathops.commons.installation.EPath;
+import dev.mathops.commons.installation.PathList;
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawlogic.RawCourseLogic;
 import dev.mathops.db.old.rawlogic.RawCsectionLogic;
-import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.rec.TermRec;
 import dev.mathops.db.reclogic.TermLogic;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.ParsingException;
+import dev.mathops.text.parser.json.JSONObject;
+import dev.mathops.text.parser.json.JSONParser;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.canvas.CanvasPageUtils;
 import dev.mathops.web.site.canvas.CanvasSite;
@@ -17,9 +22,8 @@ import dev.mathops.web.site.canvas.ECanvasPanel;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.io.File;
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -89,7 +93,6 @@ public enum PageModules {
 
         final TermRec active = TermLogic.get(cache).queryActive(cache);
         final List<RawCsection> csections = RawCsectionLogic.queryByTerm(cache, active.term);
-        final List<RawCourse> courses = RawCourseLogic.queryAll(cache);
 
         RawCsection csection = null;
         for (final RawCsection test : csections) {
@@ -120,28 +123,7 @@ public enum PageModules {
             htm.sH(2).add("Modules").eH(2);
             htm.hr();
 
-            final String urlCourse = URLEncoder.encode(registration.course, StandardCharsets.UTF_8);
-
-            emitIntroModule(htm, urlCourse);
-
-            for (final MetadataModule metaModule : metaCourse.modules) {
-
-                startModule(htm, metaModule.title);
-
-                emitModuleItem(htm, "/www/images/etext/skills_review.png", "A brain made of connected shapes",
-                        "review_M01.html", "Skills Review");
-
-                for (final MetadataTopic metaTopic : metaModule.topics) {
-
-                    emitModuleItem(htm, "/www/images/etext/c41-thumb.png", "A wooden architectural feature with angles",
-                            "topic_M01_T01.html",
-                            "Topic 1:&nbsp; <span style='color:#D9782D'>" + metaTopic.title + "</span>",
-                            new ModuleItemChecklistEntry("Homeworks", false),
-                            new ModuleItemChecklistEntry("Complete Learning Targets", false));
-                }
-
-                endModule(htm);
-            }
+            emitCourseModules(htm, registration, metaCourse);
 
             htm.eDiv(); // flexmain
             htm.eDiv(); // pagecontainer
@@ -153,21 +135,80 @@ public enum PageModules {
     }
 
     /**
+     * Emits all course modules, including an introductory module.
+     *
+     * @param htm          the {@code HtmlBuilder} to which to append
+     * @param registration the student's registration record
+     * @param metaCourse   the metadata object with course structure data
+     */
+    private static void emitCourseModules(final HtmlBuilder htm, final RawStcourse registration,
+                                          final MetadataCourse metaCourse) {
+
+        emitIntroModule(htm);
+
+        final File wwwPath = PathList.getInstance().get(EPath.WWW_PATH);
+        final File publicPath = wwwPath.getParentFile();
+        final File mediaPath = new File(publicPath, "media");
+
+        for (final MetadataModule metaModule : metaCourse.modules) {
+
+            startModule(htm, metaModule.heading, metaModule.title);
+
+            // The Skills review for a module with ID "M01" lives at "M01/review.html"
+            final String reviewPath = metaModule.id + "/review.html";
+
+            emitModuleItem(htm, "/www/images/etext/skills_review.png", "A brain made of connected shapes", reviewPath,
+                    "Skills Review");
+
+            for (final MetadataModuleTopic metaTopic : metaModule.topics) {
+
+                final File topicDir = new File(mediaPath, metaTopic.directory);
+                final File topicMetaFile = new File(topicDir, "metadata.json");
+                if (topicDir.exists() && topicMetaFile.exists()) {
+                    final MetadataTopic meta = loadTopicMetadata(topicMetaFile);
+
+                    final String titleStr;
+                    if (metaTopic.heading == null) {
+                        titleStr = "<span style='color:#D9782D'>" + meta.title + "</span>";
+                    } else {
+                        titleStr = metaTopic.heading + ":&nbsp;<span style='color:#D9782D'>" + meta.title + "</span>";
+                    }
+
+                    // The topic module with ID "T01" lives at "T01/topic.html"
+                    final String topicPath = metaTopic.id + "/topic.html";
+
+                    if (meta.thumbnailFile == null) {
+                        emitModuleItem(htm, null, null, topicPath, titleStr,
+                                new ModuleItemChecklistEntry("Homeworks", false),
+                                new ModuleItemChecklistEntry("Complete Learning Targets", false));
+                    } else {
+                        final String imageUrl = "/media/" + metaTopic.directory + "/" + meta.thumbnailFile;
+
+                        emitModuleItem(htm, imageUrl, meta.thumbnailAltText, topicPath, titleStr,
+                                new ModuleItemChecklistEntry("Homeworks", false),
+                                new ModuleItemChecklistEntry("Complete Learning Targets", false));
+                    }
+                }
+            }
+
+            endModule(htm);
+        }
+    }
+
+    /**
      * Emits the "Introduction" module with the "Start Here" and "How to Successfully Navigate this Course" items.
      *
-     * @param htm       the {@code HtmlBuilder} to which to append
-     * @param urlCourse the course ID in a form that can be used in a URL parameter
+     * @param htm the {@code HtmlBuilder} to which to append
      */
-    private static void emitIntroModule(final HtmlBuilder htm, final String urlCourse) {
+    private static void emitIntroModule(final HtmlBuilder htm) {
 
-        startModule(htm, "Introduction");
+        startModule(htm, null, "Introduction");
 
-        emitModuleItem(htm, "/www/images/etext/start-thumb.png", "Starting line of race track",
-                "start_here.html?course=" + urlCourse, "Start Here",
-                new ModuleItemChecklistEntry("Set Account Preferences", true));
+        emitModuleItem(htm, "/www/images/etext/start-thumb.png", "Starting line of race track", "start_here.html",
+                "Start Here", new ModuleItemChecklistEntry("Set Account Preferences", true));
 
-        emitModuleItem(htm, "/www/images/etext/navigation-thumb.png", "Man at wheel of ship at sea",
-                "navigating.html?course=" + urlCourse, "How to Successfully Navigate this Course",
+        emitModuleItem(htm, "/www/images/etext/navigation-thumb.png", "Man at wheel of ship at sea", "navigating.html",
+                "How to Successfully Navigate this Course",
                 new ModuleItemChecklistEntry("Syllabus Quiz", false));
 
         endModule(htm);
@@ -176,13 +217,19 @@ public enum PageModules {
     /**
      * Emits the HTML to start a module.
      *
-     * @param htm   the {@code HtmlBuilder} to which to append
-     * @param title the module title
+     * @param htm     the {@code HtmlBuilder} to which to append
+     * @param heading the heading
+     * @param title   the title
      */
-    private static void startModule(final HtmlBuilder htm, final String title) {
+    private static void startModule(final HtmlBuilder htm, final String heading, final String title) {
 
         htm.addln("<details class='module'>");
-        htm.addln("  <summary class='module-summary'>", title, "</summary>");
+        if (heading == null) {
+            htm.addln("  <summary class='module-summary'>", title, "</summary>");
+        } else {
+            htm.addln("  <summary class='module-summary'>", heading, ": <span style='color:#D9782D'>", title,
+                    "</span></summary>");
+        }
     }
 
     /**
@@ -239,5 +286,31 @@ public enum PageModules {
      * @param checked true if the checkbox is checked (the item has been completed)
      */
     private record ModuleItemChecklistEntry(String label, boolean checked) {
+    }
+
+    /**
+     * Loads the topic metadata.
+     *
+     * @param file the file to load
+     * @return the metadata object if successful; {@code null} if not
+     */
+    private static MetadataTopic loadTopicMetadata(final File file) {
+
+        MetadataTopic result = null;
+
+        final String fileData = FileLoader.loadFileAsString(file, true);
+        try {
+            final Object parsedObj = JSONParser.parseJSON(fileData);
+
+            if (parsedObj instanceof final JSONObject parsedJson) {
+                result = new MetadataTopic(parsedJson);
+            } else {
+                Log.warning("Top-level object in parsed 'metadata.json' is not JSON Object.");
+            }
+        } catch (final ParsingException ex) {
+            Log.warning("Failed to parse 'metadata.json' file data.", ex);
+        }
+
+        return result;
     }
 }

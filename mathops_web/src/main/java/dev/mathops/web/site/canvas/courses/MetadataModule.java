@@ -14,7 +14,9 @@ import java.util.List;
  *
  * <pre>
  * {
- *   "title":   "Module 1: Angles and Triangles",
+ *   "id":      "M01",
+ *   "heading": "Module 1",
+ *   "title":   "Angles and Triangles",
  *   "topics":
  *   [
  *     ( see {@code MetadataTopic} for the format of each topic object )
@@ -24,11 +26,17 @@ import java.util.List;
  */
 class MetadataModule {
 
+    /** The module ID. */
+    final String id;
+
+    /** The heading. */
+    final String heading;
+
     /** The module title. */
     final String title;
 
     /** A list of topics in the module. */
-    final List<MetadataTopic> topics;
+    final List<MetadataModuleTopic> topics;
 
     /**
      * Constructs a new {@code MetadataModule} from a JSON Object.
@@ -36,6 +44,13 @@ class MetadataModule {
      * @param json the JSON object from which to extract data
      */
     MetadataModule(final JSONObject json) {
+
+        this.id = json.getStringProperty("id");
+        if (this.id == null) {
+            Log.warning("'module' object in 'metadata.json' missing 'id' field.");
+        }
+
+        this.heading = json.getStringProperty("heading");
 
         this.title = json.getStringProperty("title");
         if (this.title == null) {
@@ -50,7 +65,7 @@ class MetadataModule {
             if (topicsField instanceof final Object[] topicsArray) {
                 for (final Object o : topicsArray) {
                     if (o instanceof final JSONObject jsonCourse) {
-                        final MetadataTopic topic = new MetadataTopic(jsonCourse);
+                        final MetadataModuleTopic topic = new MetadataModuleTopic(jsonCourse);
                         if (topic.isValid()) {
                             this.topics.add(topic);
                         }

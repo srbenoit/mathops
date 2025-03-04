@@ -21,8 +21,11 @@ public final class MetadataTopic {
     /** The topic title. */
     public final String title;
 
-    /** The topic directory. */
-    public final String directory;
+    /** The thumbnail filename. */
+    public final String thumbnailFile;
+
+    /** The thumbnail alt-text. */
+    public final String thumbnailAltText;
 
     /**
      * Constructs a new {@code MetadataTopic} from a JSON Object.
@@ -36,10 +39,8 @@ public final class MetadataTopic {
             Log.warning("'topic' object in 'metadata.json' missing 'title' field.");
         }
 
-        this.directory = json.getStringProperty("directory");
-        if (this.directory == null) {
-            Log.warning("'topic' object in 'metadata.json' missing 'directory' field.");
-        }
+        this.thumbnailFile = json.getStringProperty("thumb-file");
+        this.thumbnailAltText = json.getStringProperty("thumb-alt");
     }
 
     /**
@@ -49,6 +50,6 @@ public final class MetadataTopic {
      */
     boolean isValid() {
 
-        return this.title != null && this.directory != null;
+        return this.title != null;
     }
 }

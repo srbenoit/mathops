@@ -270,44 +270,49 @@ public final class CanvasSite extends AbstractSite {
                                  final HttpServletRequest req, final HttpServletResponse resp,
                                  final ImmutableSessionInfo session) throws IOException, SQLException {
 
-        switch (subpath) {
-            case BASE_STYLE_CSS -> serveCss(req, resp, Page.class, BASE_STYLE_CSS);
-            case STYLE_CSS -> serveCss(req, resp, CanvasSite.class, STYLE_CSS);
-            case FAVICON_ICO -> serveImage(subpath, req, resp);
+        if (subpath.endsWith(BASE_STYLE_CSS)) {
+            serveCss(req, resp, Page.class, BASE_STYLE_CSS);
+        } else if (subpath.endsWith(STYLE_CSS)) {
+            serveCss(req, resp, CanvasSite.class, STYLE_CSS);
+        } else if (subpath.endsWith(FAVICON_ICO)) {
+            serveImage(FAVICON_ICO, req, resp);
+        } else {
+            switch (subpath) {
+                case ACCOUNT_PAGE -> PageAccount.doGet(cache, this, courseId, req, resp, session, this.metadata);
+                case COURSE_HOME_PAGE -> PageCourse.doGet(cache, this, courseId, req, resp, session, this.metadata);
+                case SYLLABUS_PAGE -> PageSyllabus.doGet(cache, this, courseId, req, resp, session, this.metadata);
+                case ANNOUNCEMENTS_PAGE -> PageAnnouncements.doGet(cache, this, courseId, req, resp, session,
+                        this.metadata);
+                case MODULES_PAGE -> PageModules.doGet(cache, this, courseId, req, resp, session, this.metadata);
+                case ASSIGNMENTS_PAGE ->
+                        PageAssignments.doGet(cache, this, courseId, req, resp, session, this.metadata);
+                case HELP_PAGE -> PageHelp.doGet(cache, this, courseId, req, resp, session, this.metadata);
+                case GRADES_PAGE -> PageGrades.doGet(cache, this, courseId, req, resp, session, this.metadata);
+                case SURVEY_PAGE -> PageSurvey.doGet(cache, this, courseId, req, resp, session, this.metadata);
 
-            case ACCOUNT_PAGE -> PageAccount.doGet(cache, this, courseId, req, resp, session, this.metadata);
-            case COURSE_HOME_PAGE -> PageCourse.doGet(cache, this, courseId, req, resp, session, this.metadata);
-            case SYLLABUS_PAGE -> PageSyllabus.doGet(cache, this, courseId, req, resp, session, this.metadata);
-            case ANNOUNCEMENTS_PAGE -> PageAnnouncements.doGet(cache, this, courseId, req, resp, session,
-                    this.metadata);
-            case MODULES_PAGE -> PageModules.doGet(cache, this, courseId, req, resp, session, this.metadata);
-            case ASSIGNMENTS_PAGE -> PageAssignments.doGet(cache, this, courseId, req, resp, session, this.metadata);
-            case HELP_PAGE -> PageHelp.doGet(cache, this, courseId, req, resp, session, this.metadata);
-            case GRADES_PAGE -> PageGrades.doGet(cache, this, courseId, req, resp, session, this.metadata);
-            case SURVEY_PAGE -> PageSurvey.doGet(cache, this, courseId, req, resp, session, this.metadata);
+                case START_HERE_PAGE -> PageStartHere.doGet(cache, this, courseId, req, resp, session, this.metadata);
+                case NAVIGATING_PAGE -> PageNavigating.doGet(cache, this, courseId, req, resp, session, this.metadata);
 
-            case START_HERE_PAGE -> PageStartHere.doGet(cache, this, courseId, req, resp, session, this.metadata);
-            case NAVIGATING_PAGE -> PageNavigating.doGet(cache, this, courseId, req, resp, session, this.metadata);
+                default -> {
+                    final int reviewModule = getReviewModule(subpath);
 
-            default -> {
-                final int reviewModule = getReviewModule(subpath);
+                    if (reviewModule == -1) {
+                        final int moduleTopic = getTopic(subpath);
 
-                if (reviewModule == -1) {
-                    final int moduleTopic = getTopic(subpath);
-
-                    if (moduleTopic == -1) {
-                        Log.warning("Unrecognized GET request path: ", subpath);
-                        final String selectedCourse = req.getParameter(COURSE_PARAM);
-                        final String homePath = selectedCourse == null ? makeRootPath(ROOT_PAGE)
-                                : makeCoursePath(COURSE_HOME_PAGE, selectedCourse);
-                        resp.sendRedirect(homePath);
+                        if (moduleTopic == -1) {
+                            Log.warning("Unrecognized GET request path: ", subpath);
+                            final String selectedCourse = req.getParameter(COURSE_PARAM);
+                            final String homePath = selectedCourse == null ? makeRootPath(ROOT_PAGE)
+                                    : makeCoursePath(COURSE_HOME_PAGE, selectedCourse);
+                            resp.sendRedirect(homePath);
+                        } else {
+                            final int module = moduleTopic / 1000;
+                            final int topic = moduleTopic % 1000;
+                            PageTopic.doGet(cache, this, courseId, module, topic, req, resp, session, this.metadata);
+                        }
                     } else {
-                        final int module = moduleTopic / 1000;
-                        final int topic = moduleTopic % 1000;
-                        PageTopic.doGet(cache, this, courseId, module, topic, req, resp, session, this.metadata);
+                        PageReview.doGet(cache, this, courseId, reviewModule, req, resp, session, this.metadata);
                     }
-                } else {
-                    PageReview.doGet(cache, this, courseId, reviewModule, req, resp, session, this.metadata);
                 }
             }
         }
@@ -322,10 +327,10 @@ public final class CanvasSite extends AbstractSite {
 
         int result = -1;
 
-        if (subpath.startsWith("review_M")) {
-            final int extension = subpath.indexOf(".html");
-            if (extension > 0) {
-                final String moduleStr = subpath.substring(9, extension);
+        if (subpath.startsWith("M") && subpath.endsWith("/review.html")) {
+            final int slash = subpath.indexOf('/');
+            if (slash > 0) {
+                final String moduleStr = subpath.substring(1, slash);
                 try {
                     result = Integer.parseInt(moduleStr);
                 } catch (final NumberFormatException ex) {
@@ -340,23 +345,18 @@ public final class CanvasSite extends AbstractSite {
     /**
      * Tests if the page represents a Topic for a module.
      *
-     * @return the (module number times 1000) plus the topic number if the subpath is a module Topic; -1 if not
+     * @return the topic number if the subpath is a module Topic; -1 if not
      */
     private static int getTopic(final String subpath) {
 
         int result = -1;
 
-        if (subpath.startsWith("topic_M")) {
-            final int delim = subpath.indexOf("_T");
-            final int extension = subpath.indexOf(".html");
-
-            if (delim > 0 && extension > delim) {
-                final String moduleStr = subpath.substring(7, delim);
-                final String topicStr = subpath.substring(delim + 2, extension);
+        if (subpath.startsWith("T") && subpath.endsWith("/topic.html")) {
+            final int slash = subpath.indexOf('/');
+            if (slash > 0) {
+                final String topicStr = subpath.substring(1, slash);
                 try {
-                    final int module = Integer.parseInt(moduleStr);
-                    final int topic = Integer.parseInt(topicStr);
-                    result = module * 1000 + topic;
+                    result = Integer.parseInt(topicStr);
                 } catch (final NumberFormatException ex) {
                     Log.warning("Invalid module/topic number in ", subpath, ex);
                 }
