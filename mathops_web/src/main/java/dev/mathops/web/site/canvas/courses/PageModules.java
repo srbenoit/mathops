@@ -5,7 +5,6 @@ import dev.mathops.db.old.rawlogic.RawCourseLogic;
 import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawCsection;
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.rec.TermRec;
 import dev.mathops.db.reclogic.TermLogic;
@@ -44,12 +43,13 @@ public enum PageModules {
      * @param req      the request
      * @param resp     the response
      * @param session  the user's login session information
+     * @param metadata the metadata object with course structure data
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
     public static void doGet(final Cache cache, final CanvasSite site, final String courseId, final ServletRequest req,
-                             final HttpServletResponse resp, final ImmutableSessionInfo session) throws IOException,
-            SQLException {
+                             final HttpServletResponse resp, final ImmutableSessionInfo session,
+                             final Metadata metadata) throws IOException, SQLException {
 
         final String stuId = session.getEffectiveUserId();
         final RawStcourse registration = CanvasPageUtils.confirmRegistration(cache, stuId, courseId);
@@ -58,7 +58,14 @@ public enum PageModules {
             final String homePath = site.makeRootPath("home.html");
             resp.sendRedirect(homePath);
         } else {
-            presentModulesPage(cache, site, req, resp, session, registration);
+            final MetadataCourse metaCourse = metadata.getCourse(registration.course);
+            if (metaCourse == null) {
+                // TODO: Error display, course not part of this system rather than a redirect to Home
+                final String homePath = site.makeRootPath("home.htm");
+                resp.sendRedirect(homePath);
+            } else {
+                presentModulesPage(cache, site, req, resp, session, registration, metaCourse);
+            }
         }
     }
 
@@ -71,12 +78,14 @@ public enum PageModules {
      * @param resp         the response
      * @param session      the login session
      * @param registration the student's registration record
+     * @param metaCourse   the metadata object with course structure data
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
     static void presentModulesPage(final Cache cache, final CanvasSite site, final ServletRequest req,
                                    final HttpServletResponse resp, final ImmutableSessionInfo session,
-                                   final RawStcourse registration) throws IOException, SQLException {
+                                   final RawStcourse registration, final MetadataCourse metaCourse)
+            throws IOException, SQLException {
 
         final TermRec active = TermLogic.get(cache).queryActive(cache);
         final List<RawCsection> csections = RawCsectionLogic.queryByTerm(cache, active.term);
@@ -89,15 +98,8 @@ public enum PageModules {
                 break;
             }
         }
-        RawCourse course = null;
-        for (final RawCourse test : courses) {
-            if (registration.course.equals(test.course)) {
-                course = test;
-                break;
-            }
-        }
 
-        if (csection == null || course == null) {
+        if (csection == null) {
             final String homePath = site.makeRootPath("home.html");
             resp.sendRedirect(homePath);
         } else {
@@ -107,27 +109,38 @@ public enum PageModules {
             CanvasPageUtils.startPage(htm, siteTitle);
 
             // Emit the course number and section at the top
-            CanvasPageUtils.emitCourseTitleAndSection(htm, course, csection);
+            CanvasPageUtils.emitCourseTitleAndSection(htm, metaCourse, csection);
 
             htm.sDiv("pagecontainer");
 
-            CanvasPageUtils.emitLeftSideMenu(htm, course.course, ECanvasPanel.MODULES);
+            CanvasPageUtils.emitLeftSideMenu(htm, metaCourse, ECanvasPanel.MODULES);
 
             htm.sDiv("flexmain");
 
             htm.sH(2).add("Modules").eH(2);
             htm.hr();
 
-            final String courseId = registration.course;
+            final String urlCourse = URLEncoder.encode(registration.course, StandardCharsets.UTF_8);
 
-            // TODO: Make modules data-driven
+            emitIntroModule(htm, urlCourse);
 
-            if (RawRecordConstants.MATH122.equals(courseId)) {
-                presentMATH122Modules(cache, site, req, resp, session, registration, htm);
-            } else if (RawRecordConstants.MATH125.equals(courseId)) {
-                presentMATH125Modules(cache, site, req, resp, session, registration, htm);
-            } else if (RawRecordConstants.MATH126.equals(courseId)) {
-                presentMATH126Modules(cache, site, req, resp, session, registration, htm);
+            for (final MetadataModule metaModule : metaCourse.modules) {
+
+                startModule(htm, metaModule.title);
+
+                emitModuleItem(htm, "/www/images/etext/skills_review.png", "A brain made of connected shapes",
+                        "review_M01.html", "Skills Review");
+
+                for (final MetadataTopic metaTopic : metaModule.topics) {
+
+                    emitModuleItem(htm, "/www/images/etext/c41-thumb.png", "A wooden architectural feature with angles",
+                            "topic_M01_T01.html",
+                            "Topic 1:&nbsp; <span style='color:#D9782D'>" + metaTopic.title + "</span>",
+                            new ModuleItemChecklistEntry("Homeworks", false),
+                            new ModuleItemChecklistEntry("Complete Learning Targets", false));
+                }
+
+                endModule(htm);
             }
 
             htm.eDiv(); // flexmain
@@ -137,143 +150,6 @@ public enum PageModules {
 
             AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm);
         }
-    }
-
-    /**
-     * Presents the list of course modules for MATH 122.
-     *
-     * @param cache        the data cache
-     * @param site         the owning site
-     * @param req          the request
-     * @param resp         the response
-     * @param session      the login session
-     * @param registration the student's registration record
-     * @throws SQLException if there is an error accessing the database
-     */
-    static void presentMATH122Modules(final Cache cache, final CanvasSite site, final ServletRequest req,
-                                      final HttpServletResponse resp, final ImmutableSessionInfo session,
-                                      final RawStcourse registration, final HtmlBuilder htm) throws SQLException {
-
-        final String urlCourse = URLEncoder.encode(registration.course, StandardCharsets.UTF_8);
-
-        emitIntroModule(htm, urlCourse);
-
-    }
-
-    /**
-     * Presents the list of course modules for MATH 125.
-     *
-     * @param cache        the data cache
-     * @param site         the owning site
-     * @param req          the request
-     * @param resp         the response
-     * @param session      the login session
-     * @param registration the student's registration record
-     * @throws SQLException if there is an error accessing the database
-     */
-    static void presentMATH125Modules(final Cache cache, final CanvasSite site, final ServletRequest req,
-                                      final HttpServletResponse resp, final ImmutableSessionInfo session,
-                                      final RawStcourse registration, final HtmlBuilder htm) throws SQLException {
-
-        final String urlCourse = URLEncoder.encode(registration.course, StandardCharsets.UTF_8);
-
-        emitIntroModule(htm, urlCourse);
-
-        startModule(htm, "Module 1:&nbsp; Angles and Triangles");
-        emitModuleItem(htm, "/www/images/etext/skills_review.png", "A brain made of connected shapes",
-                "review_M01.html", "Skills Review");
-
-        emitModuleItem(htm, "/www/images/etext/c41-thumb.png", "A wooden architectural feature with angles",
-                "topic_M01_T01.html",
-                "Topic 1:&nbsp; <span style='color:#D9782D'>Angles</span>",
-                new ModuleItemChecklistEntry("Homeworks", false),
-                new ModuleItemChecklistEntry("Complete Learning Targets", false));
-
-        emitModuleItem(htm, "/www/images/etext/triangles_thumb.png", "A structure made of triangles",
-                "topic_M01_T02.html",
-                "Topic 2:&nbsp; <span style='color:#D9782D'>Triangles</span>",
-                new ModuleItemChecklistEntry("Homeworks", false),
-                new ModuleItemChecklistEntry("Complete Learning Targets", false));
-        endModule(htm);
-
-        startModule(htm, "Module 2:&nbsp; The Unit Circle and Trigonometric Functions");
-        emitModuleItem(htm, "/www/images/etext/skills_review.png", "A brain made of connected shapes",
-                "review_M02.html", "Skills Review");
-        emitModuleItem(htm, "/www/images/etext/c42-thumb.png",
-                "A person standing in a circle painted on pavement with shadow extending from its center",
-                "topic_M02_T03.html",
-                "Topic 3:&nbsp; <span style='color:#D9782D'>The Unit Circle</span>");
-        emitModuleItem(htm, "/www/images/etext/c43-thumb.png",
-                "A woman exercising with a heavy rope in a wave shape ",
-                "topic_M02_T04.html",
-                "Topic 4:&nbsp; <span style='color:#D9782D'>The Trigonometric Functions</span>");
-        endModule(htm);
-
-        startModule(htm, "Module 3:&nbsp; Transformations, Modeling, and Right Triangle Relationships");
-        emitModuleItem(htm, "/www/images/etext/skills_review.png", "A brain made of connected shapes",
-                "review_M03.html", "Skills Review");
-        emitModuleItem(htm, "/www/images/etext/c44-thumb.png", "Copper strips in wave shapes",
-                "topic_M03_T05.html",
-                "Topic 5:&nbsp; <span style='color:#D9782D'>Modeling with Trigonometric Functions</span>");
-        emitModuleItem(htm, "/www/images/etext/c46-thumb.png", "A truss made up of right triangles",
-                "topic_M03_T06.html",
-                "Topic 6:&nbsp; <span style='color:#D9782D'>Right Triangle Relationships</span>");
-        endModule(htm);
-
-        startModule(htm, "Module 4:&nbsp; Solving Problems with Triangles");
-        emitModuleItem(htm, "/www/images/etext/skills_review.png", "A brain made of connected shapes",
-                "review_M04.html", "Skills Review");
-        emitModuleItem(htm, "/www/images/etext/c47-thumb.png",
-                "A scene with a glass sphere that inverts the image of what lies behind it",
-                "topic_M04_T07.html",
-                "Topic 7:&nbsp; <span style='color:#D9782D'>Inverse Trigonometric Functions</span>");
-        emitModuleItem(htm, "/www/images/etext/c48-thumb.png",
-                "An indoor space with triangular architecture",
-                "topic_M04_T08.html",
-                "Topic 8:&nbsp; <span style='color:#D9782D'>The Law of Sines and the Law of Cosines</span>");
-        endModule(htm);
-    }
-
-    /**
-     * Presents the list of course modules for MATH 126.
-     *
-     * @param cache        the data cache
-     * @param site         the owning site
-     * @param req          the request
-     * @param resp         the response
-     * @param session      the login session
-     * @param registration the student's registration record
-     * @throws SQLException if there is an error accessing the database
-     */
-    static void presentMATH126Modules(final Cache cache, final CanvasSite site, final ServletRequest req,
-                                      final HttpServletResponse resp, final ImmutableSessionInfo session,
-                                      final RawStcourse registration, final HtmlBuilder htm) throws SQLException {
-
-        final String urlCourse = URLEncoder.encode(registration.course, StandardCharsets.UTF_8);
-
-        emitIntroModule(htm, urlCourse);
-
-    }
-
-    /**
-     * Emits the course number, title, and section number.
-     *
-     * @param htm      the {@code HtmlBuilder} to which to append
-     * @param course   the course record
-     * @param csection the course section record
-     */
-    private static void emitCourseTitleAndSection(final HtmlBuilder htm, final RawCourse course,
-                                                  final RawCsection csection) {
-
-        htm.sDiv(null, "style='margin:0 24px; border-bottom:1px solid #C7CDD1;'");
-        htm.sH(1, "title");
-        if ("Y".equals(csection.courseLabelShown)) {
-            htm.add(course.courseLabel);
-            htm.add(": ");
-        }
-        htm.add("<span style='color:#D9782D'>", course.courseName, "</span>");
-        htm.br().add("<small>Section ", csection.sect, "</small>");
-        htm.eDiv();
     }
 
     /**
@@ -362,6 +238,6 @@ public enum PageModules {
      * @param label   the label
      * @param checked true if the checkbox is checked (the item has been completed)
      */
-    record ModuleItemChecklistEntry(String label, boolean checked) {
+    private record ModuleItemChecklistEntry(String label, boolean checked) {
     }
 }

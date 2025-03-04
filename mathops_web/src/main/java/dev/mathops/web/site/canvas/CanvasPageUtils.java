@@ -79,9 +79,12 @@ public enum CanvasPageUtils {
      * Emits a left-side menu with links for [Account], [Home], [Syllabus], [Announcements], [Modules], [Assignments],
      * [Getting Help], [Grades], and [Course Survey].
      *
-     * @param htm the {@code HtmlBuilder} to which to append
+     * @param htm        the {@code HtmlBuilder} to which to append
+     * @param metaCourse the metadata object with course structure data
+     * @param panel      the panel to display as selected
      */
-    public static void emitLeftSideMenu(final HtmlBuilder htm, final String selectedCourse, final ECanvasPanel panel) {
+    public static void emitLeftSideMenu(final HtmlBuilder htm, final MetadataCourse metaCourse,
+                                        final ECanvasPanel panel) {
 
         htm.sDiv("flexmenu");
 

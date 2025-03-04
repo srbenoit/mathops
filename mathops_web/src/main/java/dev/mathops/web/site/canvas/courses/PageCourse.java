@@ -4,9 +4,7 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.logic.PaceTrackLogic;
-import dev.mathops.db.old.rawlogic.RawCourseLogic;
 import dev.mathops.db.old.rawlogic.RawCsectionLogic;
-import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.rec.TermRec;
@@ -93,7 +91,6 @@ public enum PageCourse {
 
         final TermRec active = TermLogic.get(cache).queryActive(cache);
         final List<RawCsection> csections = RawCsectionLogic.queryByTerm(cache, active.term);
-        final List<RawCourse> courses = RawCourseLogic.queryAll(cache);
 
         RawCsection csection = null;
         for (final RawCsection test : csections) {
@@ -102,15 +99,8 @@ public enum PageCourse {
                 break;
             }
         }
-        RawCourse course = null;
-        for (final RawCourse test : courses) {
-            if (registration.course.equals(test.course)) {
-                course = test;
-                break;
-            }
-        }
 
-        if (csection == null || course == null) {
+        if (csection == null) {
             final String homePath = site.makeRootPath("home.html");
             resp.sendRedirect(homePath);
         } else {
@@ -124,14 +114,14 @@ public enum PageCourse {
 
             htm.sDiv("pagecontainer");
 
-            CanvasPageUtils.emitLeftSideMenu(htm, course.course, ECanvasPanel.HOME);
+            CanvasPageUtils.emitLeftSideMenu(htm, metaCourse, ECanvasPanel.HOME);
 
             htm.sDiv("maincontainer");
             htm.sDiv("flexmain");
 
             emitCourseAnnouncements(cache, htm);
 
-            emitCourseImageAndWelcome(htm, course, csection);
+            emitCourseImageAndWelcome(htm, metaCourse, csection);
 
             final CourseSiteLogic logic = new CourseSiteLogic(cache, site.getSite().profile, session);
             logic.gatherData();
@@ -184,18 +174,19 @@ public enum PageCourse {
     /**
      * Emits the course image and welcome content.
      *
-     * @param htm    the {@code HtmlBuilder} to which to append
-     * @param course the course record
+     * @param htm        the {@code HtmlBuilder} to which to append
+     * @param metaCourse the metadata object with course structure data
+     * @param csection   the course section record
      */
-    private static void emitCourseImageAndWelcome(final HtmlBuilder htm, final RawCourse course,
+    private static void emitCourseImageAndWelcome(final HtmlBuilder htm, final MetadataCourse metaCourse,
                                                   final RawCsection csection) {
 
         htm.sH(2).add("Welcome to ");
         if ("Y".equals(csection.courseLabelShown)) {
-            htm.add(course.courseLabel);
+            htm.add(metaCourse.id);
             htm.add(": ");
         }
-        htm.add("<span style='color:#D9782D'>", course.courseName, "</span>");
+        htm.add("<span style='color:#D9782D'>", metaCourse.title, "</span>");
         htm.eH(2);
         htm.hr();
     }

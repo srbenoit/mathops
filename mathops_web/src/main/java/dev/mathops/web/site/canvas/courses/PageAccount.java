@@ -105,7 +105,7 @@ public enum PageAccount {
 
             htm.sDiv("pagecontainer");
 
-            CanvasPageUtils.emitLeftSideMenu(htm, metaCourse.id, ECanvasPanel.ACCOUNT);
+            CanvasPageUtils.emitLeftSideMenu(htm, metaCourse, ECanvasPanel.ACCOUNT);
 
             htm.sDiv("flexmain");
 

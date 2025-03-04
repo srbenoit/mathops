@@ -2550,7 +2550,7 @@ public enum DocFactory {
                 final String childTag = nonempty.getTagName();
 
                 if (FORMULA.equalsIgnoreCase(childTag) || FUNCTION_PLOT.equalsIgnoreCase(childTag)) {
-                    valid = valid && extractGraphFormula(evalContext, nonempty, graph, mode);
+                    valid = valid && extractGraphFunctionPlot(evalContext, nonempty, graph, mode);
                 } else if (LINE.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveLine(evalContext, nonempty, graph, mode);
                 } else if (ARC.equalsIgnoreCase(childTag)) {
@@ -2622,16 +2622,16 @@ public enum DocFactory {
      * @param mode        the parser mode
      * @return true if loading successful; false otherwise
      */
-    private static boolean extractGraphFormula(final EvalContext evalContext, final NonemptyElement elem,
-                                               final DocGraphXY graph, final EParserMode mode) {
+    private static boolean extractGraphFunctionPlot(final EvalContext evalContext, final NonemptyElement elem,
+                                                    final DocGraphXY graph, final EParserMode mode) {
 
         boolean valid = true;
 
-        final String domainVarStr = elem.getStringAttr(DOMAIN_VAR);
+        final String strokeWidthStr = elem.getStringAttr(STROKE_WIDTH);
         final String colorStr = elem.getStringAttr(COLOR);
         final String minxStr = elem.getStringAttr(MIN_X);
         final String maxxStr = elem.getStringAttr(MAX_X);
-        final String strokeWidthStr = elem.getStringAttr(STROKE_WIDTH);
+        final String domainVarStr = elem.getStringAttr(DOMAIN_VAR);
 
         Color color = Color.BLACK;
         if (colorStr != null) {

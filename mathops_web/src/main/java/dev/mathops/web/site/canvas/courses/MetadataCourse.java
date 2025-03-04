@@ -32,7 +32,7 @@ public class MetadataCourse {
     public final String title;
 
     /** A map from course ID to course metadata object. */
-    private final List<MetadataModule> modules;
+    final List<MetadataModule> modules;
 
     /**
      * Constructs a new {@code MetadataCourse} from a JSON Object.

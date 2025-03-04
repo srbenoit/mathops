@@ -277,17 +277,17 @@ public final class CanvasSite extends AbstractSite {
 
             case ACCOUNT_PAGE -> PageAccount.doGet(cache, this, courseId, req, resp, session, this.metadata);
             case COURSE_HOME_PAGE -> PageCourse.doGet(cache, this, courseId, req, resp, session, this.metadata);
-            case SYLLABUS_PAGE -> PageSyllabus.doGet(cache, this, courseId, req, resp, session);
+            case SYLLABUS_PAGE -> PageSyllabus.doGet(cache, this, courseId, req, resp, session, this.metadata);
             case ANNOUNCEMENTS_PAGE -> PageAnnouncements.doGet(cache, this, courseId, req, resp, session,
                     this.metadata);
-            case MODULES_PAGE -> PageModules.doGet(cache, this, courseId, req, resp, session);
+            case MODULES_PAGE -> PageModules.doGet(cache, this, courseId, req, resp, session, this.metadata);
             case ASSIGNMENTS_PAGE -> PageAssignments.doGet(cache, this, courseId, req, resp, session, this.metadata);
-            case HELP_PAGE -> PageHelp.doGet(cache, this, courseId, req, resp, session);
+            case HELP_PAGE -> PageHelp.doGet(cache, this, courseId, req, resp, session, this.metadata);
             case GRADES_PAGE -> PageGrades.doGet(cache, this, courseId, req, resp, session, this.metadata);
-            case SURVEY_PAGE -> PageSurvey.doGet(cache, this, courseId, req, resp, session);
+            case SURVEY_PAGE -> PageSurvey.doGet(cache, this, courseId, req, resp, session, this.metadata);
 
-            case START_HERE_PAGE -> PageStartHere.doGet(cache, this, courseId, req, resp, session);
-            case NAVIGATING_PAGE -> PageNavigating.doGet(cache, this, courseId, req, resp, session);
+            case START_HERE_PAGE -> PageStartHere.doGet(cache, this, courseId, req, resp, session, this.metadata);
+            case NAVIGATING_PAGE -> PageNavigating.doGet(cache, this, courseId, req, resp, session, this.metadata);
 
             default -> {
                 final int reviewModule = getReviewModule(subpath);
@@ -304,10 +304,10 @@ public final class CanvasSite extends AbstractSite {
                     } else {
                         final int module = moduleTopic / 1000;
                         final int topic = moduleTopic % 1000;
-                        PageTopic.doGet(cache, this, courseId, module, topic, req, resp, session);
+                        PageTopic.doGet(cache, this, courseId, module, topic, req, resp, session, this.metadata);
                     }
                 } else {
-                    PageReview.doGet(cache, this, courseId, reviewModule, req, resp, session);
+                    PageReview.doGet(cache, this, courseId, reviewModule, req, resp, session, this.metadata);
                 }
             }
         }
@@ -513,7 +513,7 @@ public final class CanvasSite extends AbstractSite {
     /**
      * Given the path of this site, generates the path of a "root-level" page.
      *
-     * @param page the page, like "home.html"
+     * @param page the page, like "something.html"
      * @return the path
      */
     public String makeRootPath(final String page) {
@@ -535,7 +535,7 @@ public final class CanvasSite extends AbstractSite {
     /**
      * Given the path of this site, generates the path of a page.
      *
-     * @param page     the page, like "home.html"
+     * @param page     the page, like "something.html"
      * @param courseId the course ID
      * @return the path
      */

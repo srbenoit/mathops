@@ -232,8 +232,9 @@ public final class ExamPrinterApp extends ClientBase {
      *
      * @param largeFonts       true to generate larger fonts
      * @param includeSolutions true to include solutions
+     * @param numVersions      the number of versions to generate
      */
-    void printExam(final boolean largeFonts, final boolean includeSolutions) {
+    void printExam(final boolean largeFonts, final boolean includeSolutions, final int numVersions) {
 
         final String title = Res.get(Res.PRINTING);
         this.frame = new ProgressFrame(APP_TITLE, title);
@@ -285,42 +286,44 @@ public final class ExamPrinterApp extends ClientBase {
                     }
                 }
 
-                final String randomizingMsg = Res.get(Res.RANDOMIZING);
-                this.frame.updateStatus(40, randomizingMsg);
+                for (int i = 0; i < numVersions; ++i) {
+                    final String randomizingMsg = Res.get(Res.RANDOMIZING);
+                    this.frame.updateStatus(40, randomizingMsg);
 
-                final long ser = AbstractHandlerBase.generateSerialNumber(false);
+                    final long ser = AbstractHandlerBase.generateSerialNumber(false);
 
-                this.exam.getEvalContext().setPrintTarget(true);
+                    this.exam.getEvalContext().setPrintTarget(true);
 
-                if (this.exam.realize(false, false, ser)) {
+                    if (this.exam.realize(false, false, ser)) {
 
-                    final String layoutMsg = Res.get(Res.LAYING_OUT);
-                    this.frame.updateStatus(60, layoutMsg);
+                        final String layoutMsg = Res.get(Res.LAYING_OUT);
+                        this.frame.updateStatus(60, layoutMsg);
 
-                    // Now we have a randomized exam with known answers.
-                    final String startingMsg = Res.get(Res.STARTING_PRINT);
-                    this.frame.updateStatus(70, startingMsg);
-                    final PrintJob job = Toolkit.getDefaultToolkit().getPrintJob(this.frame,
-                            this.exam.examName, null);
+                        // Now we have a randomized exam with known answers.
+                        final String startingMsg = Res.get(Res.STARTING_PRINT);
+                        this.frame.updateStatus(70, startingMsg);
+                        final PrintJob job = Toolkit.getDefaultToolkit().getPrintJob(this.frame,
+                                this.exam.examName, null);
 
-                    if (job != null) {
-                        final String printingMsg = Res.get(Res.PRINTING_EXAM);
-                        this.frame.updateStatus(80, printingMsg);
-                        doPrintExam(job, largeFonts);
-                        final String printingAnsMsg = Res.get(Res.PRINTING_ANSWERS);
-                        this.frame.updateStatus(90, printingAnsMsg);
-                        doPrintAnswerKey(job, largeFonts);
-                        if (includeSolutions) {
-                            doPrintSolutions(job, largeFonts);
+                        if (job != null) {
+                            final String printingMsg = Res.get(Res.PRINTING_EXAM);
+                            this.frame.updateStatus(80, printingMsg);
+                            doPrintExam(job, largeFonts);
+                            final String printingAnsMsg = Res.get(Res.PRINTING_ANSWERS);
+                            this.frame.updateStatus(90, printingAnsMsg);
+                            doPrintAnswerKey(job, largeFonts);
+                            if (includeSolutions) {
+                                doPrintSolutions(job, largeFonts);
+                            }
+                            job.end();
                         }
-                        job.end();
-                    }
 
-                    final String completeMsg = Res.get(Res.COMPLETE);
-                    this.frame.updateStatus(100, completeMsg);
-                } else {
-                    final String failMsg = Res.get(Res.RANDOMIZING_FAILED);
-                    JOptionPane.showMessageDialog(null, failMsg, APP_TITLE, JOptionPane.ERROR_MESSAGE);
+                        final String completeMsg = Res.get(Res.COMPLETE);
+                        this.frame.updateStatus(100, completeMsg);
+                    } else {
+                        final String failMsg = Res.get(Res.RANDOMIZING_FAILED);
+                        JOptionPane.showMessageDialog(null, failMsg, APP_TITLE, JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             }
         } catch (final ParsingException ex) {
@@ -333,8 +336,12 @@ public final class ExamPrinterApp extends ClientBase {
 
     /**
      * Generate LaTeX output from the exam.
+     *
+     * @param largeFonts       true to generate larger fonts
+     * @param includeSolutions true to include solutions
+     * @param numVersions      the number of versions to generate
      */
-    void latexExam(final boolean largeFonts, final boolean includeSolutions) {
+    void latexExam(final boolean largeFonts, final boolean includeSolutions, final int numVersions) {
 
         final String theHeader = Res.get(Res.GENERATING_LATEX);
         this.frame = new ProgressFrame(APP_TITLE, theHeader);
@@ -392,36 +399,38 @@ public final class ExamPrinterApp extends ClientBase {
                         }
                     }
 
-                    final String randomizingMsg = Res.get(Res.RANDOMIZING);
-                    this.frame.updateStatus(40, randomizingMsg);
+                    for (int i = 0; i < numVersions; ++i) {
+                        final String randomizingMsg = Res.get(Res.RANDOMIZING);
+                        this.frame.updateStatus(40, randomizingMsg);
 
-                    final long ser = AbstractHandlerBase.generateSerialNumber(false);
+                        final long ser = AbstractHandlerBase.generateSerialNumber(false);
 
-                    if (this.exam.realize(false, false, ser)) {
-                        final int[] fileIndex = {0};
-                        final boolean[] overwriteAll = {false};
+                        if (this.exam.realize(false, false, ser)) {
+                            final int[] fileIndex = {0};
+                            final boolean[] overwriteAll = {false};
 
-                        final String layoutMsg = Res.get(Res.LAYING_OUT);
-                        this.frame.updateStatus(60, layoutMsg);
+                            final String layoutMsg = Res.get(Res.LAYING_OUT);
+                            this.frame.updateStatus(60, layoutMsg);
 
-                        final String examTexMsg = Res.get(Res.GENERTING_EXAM_TEX);
-                        this.frame.updateStatus(70, examTexMsg);
-                        if (doLaTeXExam(dir, fileIndex, overwriteAll)) {
-                            final String answerTexMsg = Res.get(Res.GENERTING_ANSWER_TEX);
-                            this.frame.updateStatus(80, answerTexMsg);
-                            doLaTeXAnswerKey(dir, fileIndex, overwriteAll);
-                            if (includeSolutions) {
-                                final String solutionTexMsg = Res.get(Res.GENERTING_SOLUTION_TEX);
-                                this.frame.updateStatus(90, solutionTexMsg);
-                                doLaTeXSolutions(dir, fileIndex, overwriteAll);
+                            final String examTexMsg = Res.get(Res.GENERTING_EXAM_TEX);
+                            this.frame.updateStatus(70, examTexMsg);
+                            if (doLaTeXExam(dir, fileIndex, overwriteAll)) {
+                                final String answerTexMsg = Res.get(Res.GENERTING_ANSWER_TEX);
+                                this.frame.updateStatus(80, answerTexMsg);
+                                doLaTeXAnswerKey(dir, fileIndex, overwriteAll);
+                                if (includeSolutions) {
+                                    final String solutionTexMsg = Res.get(Res.GENERTING_SOLUTION_TEX);
+                                    this.frame.updateStatus(90, solutionTexMsg);
+                                    doLaTeXSolutions(dir, fileIndex, overwriteAll);
+                                }
+
+                                final String completeMsg = Res.get(Res.COMPLETE);
+                                this.frame.updateStatus(100, completeMsg);
                             }
-
-                            final String completeMsg = Res.get(Res.COMPLETE);
-                            this.frame.updateStatus(100, completeMsg);
+                        } else {
+                            final String failedMsg = Res.get(Res.RANDOMIZING_FAILED);
+                            JOptionPane.showMessageDialog(null, failedMsg, APP_TITLE, JOptionPane.ERROR_MESSAGE);
                         }
-                    } else {
-                        final String failedMsg = Res.get(Res.RANDOMIZING_FAILED);
-                        JOptionPane.showMessageDialog(null, failedMsg, APP_TITLE, JOptionPane.ERROR_MESSAGE);
                     }
                 }
             } catch (final ParsingException ex) {
@@ -487,11 +496,40 @@ public final class ExamPrinterApp extends ClientBase {
         int x = res; // 1" left margin
         int y = res; // 1" top margin
 
+        // Print the name/CSU ID/Date/start/end time block
+        final int blockLeft = size.width - 9 * res / 2;
+        final int blockRight = size.width - res;
+        final int blockMid = blockLeft + (blockRight - blockLeft) * 3 / 5;
+
+        Font font = new Font("Serif", Font.PLAIN, largeFonts ? 15 : 12);
+        grx.setFont(font);
+        FontMetrics fm = grx.getFontMetrics();
+        int lineY = y - fm.getHeight();
+        final int lineStep = fm.getHeight() * 4 / 3;
+        grx.drawString("Name:", blockLeft, lineY);
+        final int w1 = fm.stringWidth("Name:  ");
+        grx.drawLine(blockLeft + w1, lineY, blockRight, lineY);
+        lineY += lineStep;
+        grx.drawString("CSU ID #:", blockLeft, lineY);
+        final int w2 = fm.stringWidth("CSU ID #:  ");
+        grx.drawLine(blockLeft + w2, lineY, blockRight, lineY);
+        lineY += lineStep;
+        grx.drawString("Date:", blockLeft, lineY);
+        final int w3 = fm.stringWidth("Date:  ");
+        grx.drawLine(blockLeft + w3, lineY, blockRight, lineY);
+        lineY += lineStep;
+        grx.drawString("Time (start):", blockLeft, lineY);
+        final int w4 = fm.stringWidth("Time (start):  ");
+        grx.drawLine(blockLeft + w4, lineY, blockMid - 4, lineY);
+        grx.drawString("(end):", blockMid, lineY);
+        final int w5 = fm.stringWidth("(end):  ");
+        grx.drawLine(blockMid + w5, lineY, blockRight, lineY);
+
         // Print the exam title
-        Font font = new Font("Serif", Font.BOLD, largeFonts ? 22 : 16);
+        font = new Font("Serif", Font.BOLD, largeFonts ? 22 : 16);
         grx.setFont(font);
 
-        FontMetrics fm = grx.getFontMetrics();
+        fm = grx.getFontMetrics();
         grx.drawString(this.exam.examName, x, y + fm.getAscent());
         y += fm.getHeight() + fm.getLeading();
 
@@ -545,14 +583,14 @@ public final class ExamPrinterApp extends ClientBase {
             }
 
             grx.drawString(tmlimit.toString(), x, y + fm.getAscent());
+            y += fm.getHeight() + fm.getLeading();
         }
 
-        x = size.width / 2;
-        grx.drawString(Res.get(Res.SERIAL) + " P" + this.exam.serialNumber, x, y + fm.getAscent());
         x = res;
+        grx.drawString(Res.get(Res.SERIAL) + " P" + this.exam.serialNumber, x, y + fm.getAscent());
         y += fm.getHeight() + fm.getLeading();
 
-        y += res / 4; // .25" space before instructions
+        y = Math.min(y, lineY) + res / 4; // .25" space before instructions
 
         grx.drawLine(x, y, size.width - x, y);
 

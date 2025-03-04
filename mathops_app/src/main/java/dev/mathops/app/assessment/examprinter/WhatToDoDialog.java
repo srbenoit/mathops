@@ -9,6 +9,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
 import javax.swing.border.Border;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -33,6 +34,9 @@ public final class WhatToDoDialog extends JFrame implements ActionListener {
 
     /** A checkbox to select "include solutions". */
     private final JCheckBox includeSolutions;
+
+    /** A spinner to select the number to generate. */
+    private final JSpinner numberToGenerate;
 
     /**
      * Constructs a new {@code WhatToDoDialog}.
@@ -74,6 +78,15 @@ public final class WhatToDoDialog extends JFrame implements ActionListener {
         this.includeSolutions = new JCheckBox("Include solutions");
         content.add(this.includeSolutions, StackedBorderLayout.NORTH);
 
+        this.numberToGenerate = new JSpinner();
+        this.numberToGenerate.setValue(Integer.valueOf(1));
+
+        final JPanel flow = new JPanel(new FlowLayout());
+        final JLabel numToGenerateLbl = new JLabel("Versions to generate: ");
+        flow.add(numToGenerateLbl);
+        flow.add(this.numberToGenerate);
+        content.add(flow, StackedBorderLayout.NORTH);
+
         printButton.addActionListener(this);
         latexButton.addActionListener(this);
 
@@ -92,13 +105,18 @@ public final class WhatToDoDialog extends JFrame implements ActionListener {
 
         final boolean large = this.largeFont.isSelected();
         final boolean solutions = this.includeSolutions.isSelected();
+        final Object spinnerValue = this.numberToGenerate.getValue();
+        int toGen = 1;
+        if (spinnerValue instanceof final Integer spinnerInt) {
+            toGen = spinnerInt.intValue();
+        }
 
         if (PRINT_CMD.equals(cmd)) {
-            this.owner.printExam(large, solutions);
+            this.owner.printExam(large, solutions, toGen);
             setVisible(false);
             dispose();
         } else if (LATEX_CMD.equals(cmd)) {
-            this.owner.latexExam(large, solutions);
+            this.owner.latexExam(large, solutions, toGen);
             setVisible(false);
             dispose();
         }

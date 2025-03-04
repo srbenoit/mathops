@@ -1,5 +1,6 @@
 package dev.mathops.web.site.canvas;
 
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.logic.RegistrationsLogic;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
@@ -140,10 +141,11 @@ enum PageRoot {
             htm.sH(4).add("Incomplete Courses from a prior Semester").eH(4);
             htm.sP();
             for (final RawStcourse reg : uncountedInc) {
-                final String enc = reg.course.replace(' ', '_');
+                final String href = site.makeCoursePath(CanvasSite.COURSE_HOME_PAGE, reg.course);
                 if (metadata.hasCourse(reg.course)) {
-                    htm.add("<a href='course.html?course=", enc, "' class='smallbtn'>", reg.course, "</a> &nbsp; ");
+                    htm.add("<a href='", href, "' class='smallbtn'>", reg.course, "</a> &nbsp; ");
                 } else {
+                    Log.warning("Metadata does not include ", reg.course);
                     htm.add(reg.course, " &nbsp; ");
                 }
                 hasCourse = true;
@@ -162,11 +164,13 @@ enum PageRoot {
                 if (metadata.hasCourse(reg.course)) {
                     htm.add("<a href='", href, "' class='smallbtn'>", reg.course, "</a> &nbsp; ");
                 } else {
+                    Log.warning("Metadata does not include ", reg.course);
                     htm.add(reg.course, "&nbsp; ");
                 }
                 hasCourse = true;
             }
             htm.eP();
+
             // TODO: Show course status, progress meter
         }
 

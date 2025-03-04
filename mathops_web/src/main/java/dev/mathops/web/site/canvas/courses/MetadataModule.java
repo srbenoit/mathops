@@ -25,10 +25,10 @@ import java.util.List;
 class MetadataModule {
 
     /** The module title. */
-    public final String title;
+    final String title;
 
     /** A list of topics in the module. */
-    private final List<MetadataTopic> topics;
+    final List<MetadataTopic> topics;
 
     /**
      * Constructs a new {@code MetadataModule} from a JSON Object.
