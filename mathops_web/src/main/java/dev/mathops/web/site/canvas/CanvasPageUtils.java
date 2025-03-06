@@ -81,41 +81,44 @@ public enum CanvasPageUtils {
      *
      * @param htm        the {@code HtmlBuilder} to which to append
      * @param metaCourse the metadata object with course structure data
+     * @param path       if not null, this is included in the URL path before the page (for example if this is "../",
+     *                   the page URL would be something like "../account.html" rather than just "account.html")
      * @param panel      the panel to display as selected
      */
     public static void emitLeftSideMenu(final HtmlBuilder htm, final MetadataCourse metaCourse,
-                                        final ECanvasPanel panel) {
+                                        final String path, final ECanvasPanel panel) {
 
         htm.sDiv("flexmenu");
 
-        htm.addln("<a class='", (panel == ECanvasPanel.ACCOUNT ? "menubtnactive" : "menubtn"),
-                "' href='account.html'>Account</a>");
+        emitMenuLink(htm, panel == ECanvasPanel.ACCOUNT, path, "account.html", "Account");
+        emitMenuLink(htm, panel == ECanvasPanel.HOME, path, "course.html", "Home");
+        emitMenuLink(htm, panel == ECanvasPanel.SYLLABUS, path, "syllabus.html", "Syllabus");
+        emitMenuLink(htm, panel == ECanvasPanel.ANNOUNCEMENTS, path, "announcements.html", "Announcements");
+        emitMenuLink(htm, panel == ECanvasPanel.MODULES, path, "modules.html", "Modules");
+        emitMenuLink(htm, panel == ECanvasPanel.ASSIGNMENTS, path, "assignments.html", "Assignments");
+        emitMenuLink(htm, panel == ECanvasPanel.GETTING_HELP, path, "help.html", "Getting Help");
+        emitMenuLink(htm, panel == ECanvasPanel.GRADES, path, "grades.html", "Grades");
+        emitMenuLink(htm, panel == ECanvasPanel.COURSE_SURVEY, path, "survey.html", "Course Survey");
 
-        htm.addln("<a class='", (panel == ECanvasPanel.HOME ? "menubtnactive" : "menubtn"),
-                "' href='course.html'>Home</a>");
+        htm.eDiv();
+    }
 
-        htm.addln("<a class='", (panel == ECanvasPanel.SYLLABUS ? "menubtnactive" : "menubtn"),
-                "' href='syllabus.html'>Syllabus</a>");
+    /**
+     * Emits a single link in the left-side menu.
+     *
+     * @param htm      the {@code HtmlBuilder} to which to append
+     * @param active   true if this link is "active" or currently selected
+     * @param path     if not null, this is included in the URL path before the page (for example if this is "../", the
+     *                 page URL would be something like "../account.html" rather than just "account.html")
+     * @param pageName the page name, like "account.html"
+     * @param label    the menu link label, like "Account"
+     */
+    private static void emitMenuLink(final HtmlBuilder htm, final boolean active, final String path,
+                                     final String pageName, final String label) {
 
-        htm.addln("<a class='", (panel == ECanvasPanel.ANNOUNCEMENTS ? "menubtnactive" : "menubtn"),
-                "' href='announcements.html'>Announcements</a>");
+        final String href = path == null ? pageName : (path + pageName);
 
-        htm.addln("<a class='", (panel == ECanvasPanel.MODULES ? "menubtnactive" : "menubtn"),
-                "' href='modules.html'>Modules</a>");
-
-        htm.addln("<a class='", (panel == ECanvasPanel.ASSIGNMENTS ? "menubtnactive" : "menubtn"),
-                "' href='assignments.html'>Assignments</a>");
-
-        htm.addln("<a class='", (panel == ECanvasPanel.GETTING_HELP ? "menubtnactive" : "menubtn"),
-                "' href='help.html'>Getting Help</a>");
-
-        htm.addln("<a class='", (panel == ECanvasPanel.GRADES ? "menubtnactive" : "menubtn"),
-                "' href='grades.html'>Grades</a>");
-
-        htm.addln("<a class='", (panel == ECanvasPanel.COURSE_SURVEY ? "menubtnactive" : "menubtn"),
-                "' href='survey.html'>Course Survey</a>");
-
-        htm.eDiv(); // flexmenu
+        htm.addln("<a class='", (active ? "menubtnactive" : "menubtn"), "' href='", href, "'>", label, "</a>");
     }
 
     /**

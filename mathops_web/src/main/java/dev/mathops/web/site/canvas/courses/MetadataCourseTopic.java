@@ -4,20 +4,22 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.text.parser.json.JSONObject;
 
 /**
- * A container for metadata relating to a topic within a module, as configured for a course.
+ * A container for metadata relating to a topic within a course.
  *
  * <p>
  * The format of a topic object in the metadata.json file in the root directory is as follows:
  *
  * <pre>
  * {
- *   "id":       "T1",
- *   "heading":  "Topic 1",
+ *   "id":        "T1",
+ *   "heading":   "Topic 1",
  *   "directory": "05_trig/01_angles"
  * }
  * </pre>
+ * <p>
+ * Additional data needed to present the topic is taken from the topic directory.
  */
-public final class MetadataModuleTopic {
+final class MetadataCourseTopic {
 
     /** The topic id. */
     public final String id;
@@ -33,7 +35,7 @@ public final class MetadataModuleTopic {
      *
      * @param json the JSON object from which to extract data
      */
-    MetadataModuleTopic(final JSONObject json) {
+    MetadataCourseTopic(final JSONObject json) {
 
         this.id = json.getStringProperty("id");
         if (this.id == null) {

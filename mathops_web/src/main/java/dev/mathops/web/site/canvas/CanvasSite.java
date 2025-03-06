@@ -26,11 +26,10 @@ import dev.mathops.web.site.canvas.courses.PageGrades;
 import dev.mathops.web.site.canvas.courses.PageHelp;
 import dev.mathops.web.site.canvas.courses.PageModules;
 import dev.mathops.web.site.canvas.courses.PageNavigating;
-import dev.mathops.web.site.canvas.courses.PageReview;
 import dev.mathops.web.site.canvas.courses.PageStartHere;
 import dev.mathops.web.site.canvas.courses.PageSurvey;
 import dev.mathops.web.site.canvas.courses.PageSyllabus;
-import dev.mathops.web.site.canvas.courses.PageTopic;
+import dev.mathops.web.site.canvas.courses.PageTopicModule;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -294,24 +293,16 @@ public final class CanvasSite extends AbstractSite {
                 case NAVIGATING_PAGE -> PageNavigating.doGet(cache, this, courseId, req, resp, session, this.metadata);
 
                 default -> {
-                    final int reviewModule = getReviewModule(subpath);
+                    final String topicId = getTopicModuleId(subpath);
 
-                    if (reviewModule == -1) {
-                        final int moduleTopic = getTopic(subpath);
-
-                        if (moduleTopic == -1) {
-                            Log.warning("Unrecognized GET request path: ", subpath);
-                            final String selectedCourse = req.getParameter(COURSE_PARAM);
-                            final String homePath = selectedCourse == null ? makeRootPath(ROOT_PAGE)
-                                    : makeCoursePath(COURSE_HOME_PAGE, selectedCourse);
-                            resp.sendRedirect(homePath);
-                        } else {
-                            final int module = moduleTopic / 1000;
-                            final int topic = moduleTopic % 1000;
-                            PageTopic.doGet(cache, this, courseId, module, topic, req, resp, session, this.metadata);
-                        }
+                    if (topicId == null) {
+                        Log.warning("Unrecognized GET request path: ", subpath);
+                        final String selectedCourse = req.getParameter(COURSE_PARAM);
+                        final String homePath = selectedCourse == null ? makeRootPath(ROOT_PAGE)
+                                : makeCoursePath(COURSE_HOME_PAGE, selectedCourse);
+                        resp.sendRedirect(homePath);
                     } else {
-                        PageReview.doGet(cache, this, courseId, reviewModule, req, resp, session, this.metadata);
+                        PageTopicModule.doGet(cache, this, courseId, topicId, req, resp, session, this.metadata);
                     }
                 }
             }
@@ -319,47 +310,18 @@ public final class CanvasSite extends AbstractSite {
     }
 
     /**
-     * Tests if the page represents a Skills Review for a module.
+     * Tests whether the page represents a topic module page.
      *
-     * @return the module number if the subpath is a module Skills Review; -1 if not
+     * @return the topic module ID if the subpath is a topic module page; null if not
      */
-    private static int getReviewModule(final String subpath) {
+    private static String getTopicModuleId(final String subpath) {
 
-        int result = -1;
+        String result = null;
 
-        if (subpath.startsWith("M") && subpath.endsWith("/review.html")) {
+        if (subpath.startsWith("M") && subpath.endsWith("/module.html")) {
             final int slash = subpath.indexOf('/');
             if (slash > 0) {
-                final String moduleStr = subpath.substring(1, slash);
-                try {
-                    result = Integer.parseInt(moduleStr);
-                } catch (final NumberFormatException ex) {
-                    Log.warning("Invalid module number in ", subpath, ex);
-                }
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * Tests if the page represents a Topic for a module.
-     *
-     * @return the topic number if the subpath is a module Topic; -1 if not
-     */
-    private static int getTopic(final String subpath) {
-
-        int result = -1;
-
-        if (subpath.startsWith("T") && subpath.endsWith("/topic.html")) {
-            final int slash = subpath.indexOf('/');
-            if (slash > 0) {
-                final String topicStr = subpath.substring(1, slash);
-                try {
-                    result = Integer.parseInt(topicStr);
-                } catch (final NumberFormatException ex) {
-                    Log.warning("Invalid module/topic number in ", subpath, ex);
-                }
+                result = subpath.substring(0, slash);
             }
         }
 

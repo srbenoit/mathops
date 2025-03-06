@@ -31,8 +31,8 @@ public class MetadataCourse {
     /** The course title. */
     public final String title;
 
-    /** A map from course ID to course metadata object. */
-    final List<MetadataModule> modules;
+    /** A map from course ID to course topic object. */
+    final List<MetadataCourseTopic> topics;
 
     /**
      * Constructs a new {@code MetadataCourse} from a JSON Object.
@@ -51,25 +51,27 @@ public class MetadataCourse {
             Log.warning("'course' object in 'metadata.json' missing 'title' field.");
         }
 
-        this.modules = new ArrayList<>(10);
+        this.topics = new ArrayList<>(10);
 
-        final Object modulesField = json.getProperty("modules");
+        final Object topicsField = json.getProperty("topics");
 
-        if (modulesField != null) {
-            if (modulesField instanceof final Object[] modulesArray) {
-                for (final Object o : modulesArray) {
-                    if (o instanceof final JSONObject jsonCourse) {
-                        final MetadataModule module = new MetadataModule(jsonCourse);
-                        if (module.title != null) {
-                            this.modules.add(module);
-                        }
-                    } else {
-                        Log.warning("Entry in 'modules' array in 'metadata.json' is not JSON object.");
+        if (topicsField == null) {
+            Log.warning("Missing required 'topics' field in course object in 'metadata.json'.");
+        } else if (topicsField instanceof final Object[] topicsArray) {
+            for (final Object o : topicsArray) {
+                if (o instanceof final JSONObject jsonTopic) {
+                    final MetadataCourseTopic topic = new MetadataCourseTopic(jsonTopic);
+                    Log.info("Found topic with ID ", topic.id, " and directory ", topic.directory);
+
+                    if (topic.id != null && topic.directory != null) {
+                        this.topics.add(topic);
                     }
+                } else {
+                    Log.warning("Entry in 'topics' array in 'metadata.json' is not JSON object.");
                 }
-            } else {
-                Log.warning("'modules' field in 'metadata.json' top-level object is not an array.");
             }
+        } else {
+            Log.warning("'topics' field in 'metadata.json' top-level object is not an array.");
         }
     }
 }

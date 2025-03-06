@@ -103,7 +103,7 @@ public enum PageSyllabus {
 
             htm.sDiv("pagecontainer");
 
-            CanvasPageUtils.emitLeftSideMenu(htm, metaCourse, ECanvasPanel.SYLLABUS);
+            CanvasPageUtils.emitLeftSideMenu(htm, metaCourse, null, ECanvasPanel.SYLLABUS);
 
             htm.sDiv("flexmain");
 

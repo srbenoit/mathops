@@ -104,7 +104,7 @@ public enum PageAssignments {
 
             htm.sDiv("pagecontainer");
 
-            CanvasPageUtils.emitLeftSideMenu(htm, metaCourse, ECanvasPanel.ASSIGNMENTS);
+            CanvasPageUtils.emitLeftSideMenu(htm, metaCourse, null, ECanvasPanel.ASSIGNMENTS);
 
             htm.sDiv("flexmain");
 

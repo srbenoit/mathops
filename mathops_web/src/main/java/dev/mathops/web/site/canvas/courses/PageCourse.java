@@ -114,7 +114,7 @@ public enum PageCourse {
 
             htm.sDiv("pagecontainer");
 
-            CanvasPageUtils.emitLeftSideMenu(htm, metaCourse, ECanvasPanel.HOME);
+            CanvasPageUtils.emitLeftSideMenu(htm, metaCourse, null, ECanvasPanel.HOME);
 
             htm.sDiv("maincontainer");
             htm.sDiv("flexmain");

@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * This page shows the outline and E-text content for a single standards-based course. This is an outline page with a
@@ -116,7 +117,7 @@ public enum PageModules {
 
             htm.sDiv("pagecontainer");
 
-            CanvasPageUtils.emitLeftSideMenu(htm, metaCourse, ECanvasPanel.MODULES);
+            CanvasPageUtils.emitLeftSideMenu(htm, metaCourse, null, ECanvasPanel.MODULES);
 
             htm.sDiv("flexmain");
 
@@ -150,48 +151,25 @@ public enum PageModules {
         final File publicPath = wwwPath.getParentFile();
         final File mediaPath = new File(publicPath, "media");
 
-        for (final MetadataModule metaModule : metaCourse.modules) {
+        for (final MetadataCourseTopic metaCourseTopic : metaCourse.topics) {
+            final File topicDir = new File(mediaPath, metaCourseTopic.directory);
+            final File topicMetaFile = new File(topicDir, "metadata.json");
 
-            startModule(htm, metaModule.heading, metaModule.title);
-
-            // The Skills review for a module with ID "M01" lives at "M01/review.html"
-            final String reviewPath = metaModule.id + "/review.html";
-
-            emitModuleItem(htm, "/www/images/etext/skills_review.png", "A brain made of connected shapes", reviewPath,
-                    "Skills Review");
-
-            for (final MetadataModuleTopic metaTopic : metaModule.topics) {
-
-                final File topicDir = new File(mediaPath, metaTopic.directory);
-                final File topicMetaFile = new File(topicDir, "metadata.json");
-                if (topicDir.exists() && topicMetaFile.exists()) {
+            if (topicDir.exists()) {
+                if (topicMetaFile.exists()) {
                     final MetadataTopic meta = loadTopicMetadata(topicMetaFile);
 
-                    final String titleStr;
-                    if (metaTopic.heading == null) {
-                        titleStr = "<span style='color:#D9782D'>" + meta.title + "</span>";
-                    } else {
-                        titleStr = metaTopic.heading + ":&nbsp;<span style='color:#D9782D'>" + meta.title + "</span>";
+                    if (Objects.nonNull(meta.title)) {
+                        emitTopicModule(htm, metaCourseTopic, meta, mediaPath);
                     }
-
-                    // The topic module with ID "T01" lives at "T01/topic.html"
-                    final String topicPath = metaTopic.id + "/topic.html";
-
-                    if (meta.thumbnailFile == null) {
-                        emitModuleItem(htm, null, null, topicPath, titleStr,
-                                new ModuleItemChecklistEntry("Homeworks", false),
-                                new ModuleItemChecklistEntry("Complete Learning Targets", false));
-                    } else {
-                        final String imageUrl = "/media/" + metaTopic.directory + "/" + meta.thumbnailFile;
-
-                        emitModuleItem(htm, imageUrl, meta.thumbnailAltText, topicPath, titleStr,
-                                new ModuleItemChecklistEntry("Homeworks", false),
-                                new ModuleItemChecklistEntry("Complete Learning Targets", false));
-                    }
+                } else {
+                    final String topicMetaFilePath = topicMetaFile.getAbsolutePath();
+                    Log.warning("Topic metadata file (", topicMetaFilePath, ") does not exist");
                 }
+            } else {
+                final String topicDirPath = topicDir.getAbsolutePath();
+                Log.warning("Topic directory (", topicDirPath, ") does not exist");
             }
-
-            endModule(htm);
         }
     }
 
@@ -204,12 +182,61 @@ public enum PageModules {
 
         startModule(htm, null, "Introduction");
 
-        emitModuleItem(htm, "/www/images/etext/start-thumb.png", "Starting line of race track", "start_here.html",
+        emitChecklistModuleItem(htm, "/www/images/etext/start-thumb.png", "Starting line of race track",
+                "start_here.html",
                 "Start Here", new ModuleItemChecklistEntry("Set Account Preferences", true));
 
-        emitModuleItem(htm, "/www/images/etext/navigation-thumb.png", "Man at wheel of ship at sea", "navigating.html",
+        emitChecklistModuleItem(htm, "/www/images/etext/navigation-thumb.png", "Man at wheel of ship at sea",
+                "navigating.html",
                 "How to Successfully Navigate this Course",
                 new ModuleItemChecklistEntry("Syllabus Quiz", false));
+
+        endModule(htm);
+    }
+
+    /**
+     * Emits a single topic module.
+     *
+     * @param htm             the {@code HtmlBuilder} to which to append
+     * @param metaCourseTopic the metadata describing the topic within the course
+     * @param meta            the topic module metadata object
+     * @param topicDir        the root directory in which to find topic media files
+     */
+    private static void emitTopicModule(final HtmlBuilder htm, final MetadataCourseTopic metaCourseTopic,
+                                        final MetadataTopic meta, final File topicDir) {
+
+        startModule(htm, metaCourseTopic.heading, meta.title);
+
+        // The top-level Topic Module object in the web page has three items:
+        // - E-Text Chapter: [title]
+        // - Module Assignments (with completion status)
+        // - Learning Target Exams (with completion status)
+
+        // The topic module with ID "M01" lives at "M01/module.html"
+        final String modulePath = metaCourseTopic.id + "/module.html";
+
+        if (meta.thumbnailFile == null) {
+            emitChapterItem(htm, null, null, modulePath, meta.title);
+        } else {
+            final String imageUrl = "/media/" + metaCourseTopic.directory + "/" + meta.thumbnailFile;
+            emitChapterItem(htm, imageUrl, meta.thumbnailAltText, modulePath, meta.title);
+        }
+
+        // Required assignments, with status
+        final String assignmentsPath = metaCourseTopic.id + "/assignments.html";
+        emitChecklistModuleItem(htm, "/www/images/etext/required_assignment_thumb.png", "A student doing homework.",
+                assignmentsPath, "Module Assignments",
+                new ModuleItemChecklistEntry("Assignment 1", false),
+                new ModuleItemChecklistEntry("Assignment 2", false),
+                new ModuleItemChecklistEntry("Assignment 3", false));
+
+        // Learning Target Exams, with status
+        final String examsPath = metaCourseTopic.id + "/targets.html";
+        emitChecklistModuleItem(htm, "/www/images/etext/target_thumb.png", "A dartboard with several magnetic darts",
+                examsPath, "Learning Targets",
+                new ModuleItemChecklistEntry("Target 1", false),
+                new ModuleItemChecklistEntry("Target 2", false),
+                new ModuleItemChecklistEntry("Target 3", false));
 
         endModule(htm);
     }
@@ -224,12 +251,15 @@ public enum PageModules {
     private static void startModule(final HtmlBuilder htm, final String heading, final String title) {
 
         htm.addln("<details class='module'>");
+        htm.add("  <summary class='module-summary'>");
+
         if (heading == null) {
-            htm.addln("  <summary class='module-summary'>", title, "</summary>");
+            htm.add(title);
         } else {
-            htm.addln("  <summary class='module-summary'>", heading, ": <span style='color:#D9782D'>", title,
-                    "</span></summary>");
+            htm.add(heading, ": <span style='color:#D9782D'>", title, "</span>");
         }
+
+        htm.addln("</summary>");
     }
 
     /**
@@ -243,7 +273,39 @@ public enum PageModules {
     }
 
     /**
-     * Emits a module item.
+     * Emits a module item with a heading and title.
+     *
+     * @param htm           the {@code HtmlBuilder} to which to append
+     * @param thumbImage    the thumbnail image
+     * @param thumbImageAlt the ALT text for the thumbnail image
+     * @param href          the link reference
+     * @param title         the item title
+     */
+    private static void emitChapterItem(final HtmlBuilder htm, final String thumbImage, final String thumbImageAlt,
+                                        final String href, final String title) {
+
+        htm.sDiv("module-item");
+
+        if (thumbImage != null) {
+            htm.addln("<a href='", href, "'><img class='module-thumb' src='", thumbImage, "' alt='", thumbImageAlt,
+                    "'/></a>");
+        }
+
+        htm.sDiv("module-title");
+        if (title == null) {
+            htm.addln("<span style='color:#D9782D'><a class='ulink2' href='", href, "'>Textbook Chapter</a></span>");
+        } else {
+            htm.addln("Textbook Chapter:").br();
+            htm.addln("<div style='color:#D9782D; margin-top:4px; margin-left:20px'>",
+                    "<a class='ulink2' href='", href, "'>", title, "</a></div>");
+        }
+        htm.eDiv();
+
+        htm.eDiv();
+    }
+
+    /**
+     * Emits a module item with a checklist.
      *
      * @param htm           the {@code HtmlBuilder} to which to append
      * @param thumbImage    the thumbnail image
@@ -252,26 +314,27 @@ public enum PageModules {
      * @param title         the item title
      * @param checklist     an option list of checklist items
      */
-    private static void emitModuleItem(final HtmlBuilder htm, final String thumbImage, final String thumbImageAlt,
-                                       final String href, final String title,
-                                       final ModuleItemChecklistEntry... checklist) {
+    private static void emitChecklistModuleItem(final HtmlBuilder htm, final String thumbImage,
+                                                final String thumbImageAlt, final String href, final String title,
+                                                final ModuleItemChecklistEntry... checklist) {
 
         htm.sDiv("module-item");
 
         if (thumbImage != null) {
-            htm.addln("<img class='module-thumb' src='", thumbImage, "' alt='", thumbImageAlt, "'/>");
+            htm.addln("<a href='", href, "'><img class='module-thumb' src='", thumbImage, "' alt='", thumbImageAlt,
+                    "'/></a>");
         }
 
         htm.sDiv("module-title");
         htm.addln("<a class='ulink2' href='", href, "'>", title, "</a>");
         if (checklist != null && checklist.length > 0) {
             htm.br();
-            htm.add("<div style='display:inline-block; width:20px; height:2px;'></div>");
             for (final ModuleItemChecklistEntry entry : checklist) {
+                htm.add("<div style='display:inline-block; width:20px; height:2px;'></div>");
                 htm.add("<img class='module-item-checkbox' src='/www/images/etext/",
-                        (entry.checked() ? "box_checked_26.png" : "box_unchecked_26.png"),
-                        "'/> ", entry.label());
-                htm.add("<div style='display:inline-block; width:15px; height:1px;'></div>");
+                        (entry.checked() ? "box_checked_18.png" : "box_unchecked_18.png"),
+                        "'/>", entry.label());
+                htm.br();
             }
         }
         htm.eDiv();
@@ -294,7 +357,7 @@ public enum PageModules {
      * @param file the file to load
      * @return the metadata object if successful; {@code null} if not
      */
-    private static MetadataTopic loadTopicMetadata(final File file) {
+    static MetadataTopic loadTopicMetadata(final File file) {
 
         MetadataTopic result = null;
 

@@ -104,7 +104,7 @@ public enum PageGrades {
 
             htm.sDiv("pagecontainer");
 
-            CanvasPageUtils.emitLeftSideMenu(htm, metaCourse, ECanvasPanel.GRADES);
+            CanvasPageUtils.emitLeftSideMenu(htm, metaCourse, null, ECanvasPanel.GRADES);
 
             htm.sDiv("flexmain");
 

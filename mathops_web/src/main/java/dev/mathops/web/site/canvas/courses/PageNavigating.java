@@ -115,7 +115,7 @@ public enum PageNavigating {
 
             htm.sDiv("pagecontainer");
 
-            CanvasPageUtils.emitLeftSideMenu(htm, metaCourse, ECanvasPanel.MODULES);
+            CanvasPageUtils.emitLeftSideMenu(htm, metaCourse,null,  ECanvasPanel.MODULES);
 
             htm.sDiv("flexmain");
 

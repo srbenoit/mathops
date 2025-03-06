@@ -103,7 +103,7 @@ public enum PageHelp {
 
             htm.sDiv("pagecontainer");
 
-            CanvasPageUtils.emitLeftSideMenu(htm, metaCourse, ECanvasPanel.GETTING_HELP);
+            CanvasPageUtils.emitLeftSideMenu(htm, metaCourse, null, ECanvasPanel.GETTING_HELP);
 
             htm.sDiv("flexmain");
 

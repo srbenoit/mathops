@@ -103,7 +103,7 @@ public enum PageSurvey {
 
             htm.sDiv("pagecontainer");
 
-            CanvasPageUtils.emitLeftSideMenu(htm, metaCourse, ECanvasPanel.COURSE_SURVEY);
+            CanvasPageUtils.emitLeftSideMenu(htm, metaCourse, null, ECanvasPanel.COURSE_SURVEY);
 
             htm.sDiv("flexmain");
 
