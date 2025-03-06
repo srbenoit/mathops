@@ -1,0 +1,19 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="mathops">
+    <output-path>$PROJECT_DIR$/out/libs</output-path>
+    <root id="archive" name="mathops.jar">
+      <element id="module-output" name="mathops.mathops_app.main" />
+      <element id="module-output" name="mathops.mathops_assessment.main" />
+      <element id="module-output" name="mathops.mathops_db.main" />
+      <element id="module-output" name="mathops.mathops_dbjobs.main" />
+      <element id="module-output" name="mathops.mathops_font.main" />
+      <element id="module-output" name="mathops.mathops_session.main" />
+      <element id="module-output" name="mathops.mathops_web.main" />
+      <element id="dir-copy" path="$PROJECT_DIR$/mathops_app/src/main/resources" />
+      <element id="dir-copy" path="$PROJECT_DIR$/mathops_assessment/src/main/resources" />
+      <element id="dir-copy" path="$PROJECT_DIR$/mathops_font/src/main/resources" />
+      <element id="dir-copy" path="$PROJECT_DIR$/mathops_session/src/main/resources" />
+      <element id="dir-copy" path="$PROJECT_DIR$/mathops_web/src/main/resources" />
+    </root>
+  </artifact>
+</component>
