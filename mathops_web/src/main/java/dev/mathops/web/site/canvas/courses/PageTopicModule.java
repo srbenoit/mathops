@@ -1,7 +1,5 @@
 package dev.mathops.web.site.canvas.courses;
 
-import dev.mathops.commons.installation.EPath;
-import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawCsectionLogic;
@@ -22,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * This page shows a module Topic.
@@ -84,10 +81,10 @@ public enum PageTopicModule {
                     resp.sendRedirect(homePath);
                 } else {
                     boolean seeking = true;
-                    for (final MetadataCourseTopic metaCourseTopic : metaCourse.topics) {
-                        if (topicId.equals(metaCourseTopic.id)) {
+                    for (final MetadataCourseModule metaCourseModule : metaCourse.modules) {
+                        if (topicId.equals(metaCourseModule.id)) {
                             presentTopicPage(cache, site, req, resp, registration, csection, metaCourse,
-                                    metaCourseTopic);
+                                    metaCourseModule);
                             seeking = false;
                             break;
                         }
@@ -105,44 +102,27 @@ public enum PageTopicModule {
     /**
      * Presents  a course and module.
      *
-     * @param cache           the data cache
-     * @param site            the owning site
-     * @param req             the request
-     * @param resp            the response
-     * @param registration    the student registration record
-     * @param csection        the course section configuration record
-     * @param metaCourse      metadata related to the course
-     * @param metaCourseTopic metadata related to the topic within the course
+     * @param cache            the data cache
+     * @param site             the owning site
+     * @param req              the request
+     * @param resp             the response
+     * @param registration     the student registration record
+     * @param csection         the course section configuration record
+     * @param metaCourse       metadata related to the course
+     * @param metaCourseModule metadata related to the topic module within the course
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
     static void presentTopicPage(final Cache cache, final CanvasSite site, final ServletRequest req,
                                  final HttpServletResponse resp, final RawStcourse registration,
                                  final RawCsection csection, final MetadataCourse metaCourse,
-                                 final MetadataCourseTopic metaCourseTopic) throws IOException, SQLException {
+                                 final MetadataCourseModule metaCourseModule) throws IOException, SQLException {
 
-        final File wwwPath = PathList.getInstance().get(EPath.WWW_PATH);
-        final File publicPath = wwwPath.getParentFile();
-        final File mediaPath = new File(publicPath, "media");
+        final MetadataTopic meta = metaCourseModule.topicMetadata;
 
-        final File topicDir = new File(mediaPath, metaCourseTopic.directory);
-        final File topicMetaFile = new File(topicDir, "metadata.json");
-
-        if (topicDir.exists()) {
-            if (topicMetaFile.exists()) {
-                final MetadataTopic meta = PageModules.loadTopicMetadata(topicMetaFile);
-
-                if (Objects.nonNull(meta.title)) {
-                    emitTopicModule(cache, site, req, resp, registration, csection, metaCourse, metaCourseTopic,
-                            meta, topicDir);
-                }
-            } else {
-                final String topicMetaFilePath = topicMetaFile.getAbsolutePath();
-                Log.warning("Topic metadata file (", topicMetaFilePath, ") does not exist");
-            }
-        } else {
-            final String topicDirPath = topicDir.getAbsolutePath();
-            Log.warning("Topic directory (", topicDirPath, ") does not exist");
+        if (meta.isValid()) {
+            emitTopicModule(cache, site, req, resp, registration, csection, metaCourse, metaCourseModule,
+                    meta, metaCourseModule.topicModuleDir);
         }
     }
 
@@ -165,7 +145,7 @@ public enum PageTopicModule {
     private static void emitTopicModule(final Cache cache, final CanvasSite site, final ServletRequest req,
                                         final HttpServletResponse resp, final RawStcourse registration,
                                         final RawCsection csection, final MetadataCourse metaCourse,
-                                        final MetadataCourseTopic metaCourseTopic, final MetadataTopic meta,
+                                        final MetadataCourseModule metaCourseTopic, final MetadataTopic meta,
                                         final File topicDir) throws IOException, SQLException {
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
@@ -253,12 +233,37 @@ public enum PageTopicModule {
         if (dir.exists() && dir.isDirectory()) {
 
             htm.addln("<details class='module'>");
-            htm.add("  <summary class='module-summary'>");
-            htm.add("Skills Review");
-            htm.addln("</summary>");
+            htm.add("  <summary class='module-summary'>Skills Review</summary>");
+            htm.sDiv("module-item");
 
-            // TODO: Emit Skills Review content
+            htm.sDiv("left");
+            htm.addln("<img class='module-thumb' src='/www/images/etext/skills_review.png' ",
+                    "alt='A set of connected links in the shape of a brain.'/>");
+            htm.eDiv();
 
+            htm.addln("The <span style='color:#D9782D'>Skills Review</span> provides a refresher of Algebra skills ",
+                    "that we use in this chapter.  Using this review is optional, but if you need it, it's here.");
+
+            htm.sDiv("clear").eDiv();
+            htm.sDiv(null, "style='margin-left:92px; margin-top:8px;'");
+
+            final MetadataSkillsReview meta = new MetadataSkillsReview(dir);
+            if (!meta.topicTitles.isEmpty()) {
+                htm.addln("Review Topics:");
+
+                htm.addln("<ul style='font-weight:300; margin-top:6px;'>");
+                for (final String title : meta.topicTitles) {
+                    htm.addln("  <li>", title, "</li>");
+                }
+                htm.addln("</ul>");
+            }
+            htm.eDiv(); // Indented 92px
+
+            htm.sDiv("center");
+            htm.addln("<a class='btn' href='review.html'>Open the Skills Review...</a>");
+            htm.eDiv();
+
+            htm.eDiv(); // module-item
             htm.addln("</details>");
         }
     }
@@ -283,7 +288,7 @@ public enum PageTopicModule {
                 htm.add("Learning Target " + i);
                 htm.addln("</summary>");
 
-                // TODO: Emit standard content
+                // TODO: Emit standard content (learning objectives, student status)
 
                 htm.addln("</details>");
                 ++count;

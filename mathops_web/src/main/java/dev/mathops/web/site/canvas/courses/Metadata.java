@@ -35,42 +35,47 @@ public class Metadata {
      * Constructs metadata object for a directory by loading a "metadata.json" file in that directory and using its
      * contents to find and load related metadata files.
      *
-     * @param dir the directory in which to find the root metadata
+     * @param rootDir the directory in which to find the root metadata
      */
-    public Metadata(final File dir) {
+    public Metadata(final File rootDir) {
 
         this.courses = new HashMap<>(10);
 
-        final File rootMetadata = new File(dir, "metadata.json");
+        final File rootMetadata = new File(rootDir, "metadata.json");
         final String fileData = FileLoader.loadFileAsString(rootMetadata, true);
-        try {
-            final Object parsedObj = JSONParser.parseJSON(fileData);
 
-            if (parsedObj instanceof final JSONObject parsedJson) {
-                final Object coursesField = parsedJson.getProperty("courses");
+        if (fileData == null) {
+            Log.warning("Unable to load Top-level 'metadata.json'.");
+        } else {
+            try {
+                final Object parsedObj = JSONParser.parseJSON(fileData);
 
-                if (coursesField != null) {
-                    if (coursesField instanceof final Object[] coursesArray) {
-                        for (final Object o : coursesArray) {
-                            if (o instanceof final JSONObject jsonCourse) {
-                                final MetadataCourse course = new MetadataCourse(jsonCourse);
-                                if (course.id != null) {
-                                    // If ID is null, a warning will have already been logged
-                                    this.courses.put(course.id, course);
+                if (parsedObj instanceof final JSONObject parsedJson) {
+                    final Object coursesField = parsedJson.getProperty("courses");
+
+                    if (coursesField != null) {
+                        if (coursesField instanceof final Object[] coursesArray) {
+                            for (final Object o : coursesArray) {
+                                if (o instanceof final JSONObject jsonCourse) {
+                                    final MetadataCourse course = new MetadataCourse(jsonCourse, rootDir);
+                                    if (course.id != null) {
+                                        // If ID is null, a warning will have already been logged
+                                        this.courses.put(course.id, course);
+                                    }
+                                } else {
+                                    Log.warning("Entry in 'courses' array in 'metadata.json' is not JSON object.");
                                 }
-                            } else {
-                                Log.warning("Entry in 'courses' array in 'metadata.json' is not JSON object.");
                             }
+                        } else {
+                            Log.warning("'courses' field in 'metadata.json' top-level object is not an array.");
                         }
-                    } else {
-                        Log.warning("'courses' field in 'metadata.json' top-level object is not an array.");
                     }
+                } else {
+                    Log.warning("Top-level object in parsed 'metadata.json' is not JSON Object.");
                 }
-            } else {
-                Log.warning("Top-level object in parsed 'metadata.json' is not JSON Object.");
+            } catch (final ParsingException ex) {
+                Log.warning("Failed to parse 'metadata.json' file data.", ex);
             }
-        } catch (final ParsingException ex) {
-            Log.warning("Failed to parse 'metadata.json' file data.", ex);
         }
     }
 

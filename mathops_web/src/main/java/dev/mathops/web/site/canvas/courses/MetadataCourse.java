@@ -3,6 +3,7 @@ package dev.mathops.web.site.canvas.courses;
 import dev.mathops.commons.log.Log;
 import dev.mathops.text.parser.json.JSONObject;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,15 +32,16 @@ public class MetadataCourse {
     /** The course title. */
     public final String title;
 
-    /** A map from course ID to course topic object. */
-    final List<MetadataCourseTopic> topics;
+    /** A map from course ID to course modules object. */
+    final List<MetadataCourseModule> modules;
 
     /**
      * Constructs a new {@code MetadataCourse} from a JSON Object.
      *
-     * @param json the JSON object from which to extract data
+     * @param json    the JSON object from which to extract data
+     * @param rootDir the directory relative to which topic directories are specified
      */
-    MetadataCourse(final JSONObject json) {
+    MetadataCourse(final JSONObject json, final File rootDir) {
 
         this.id = json.getStringProperty("id");
         if (this.id == null) {
@@ -51,27 +53,26 @@ public class MetadataCourse {
             Log.warning("'course' object in 'metadata.json' missing 'title' field.");
         }
 
-        this.topics = new ArrayList<>(10);
+        this.modules = new ArrayList<>(10);
 
-        final Object topicsField = json.getProperty("topics");
+        final Object modulesField = json.getProperty("modules");
 
-        if (topicsField == null) {
-            Log.warning("Missing required 'topics' field in course object in 'metadata.json'.");
-        } else if (topicsField instanceof final Object[] topicsArray) {
+        if (modulesField == null) {
+            Log.warning("Missing required 'modules' field in course object in 'metadata.json'.");
+        } else if (modulesField instanceof final Object[] topicsArray) {
             for (final Object o : topicsArray) {
                 if (o instanceof final JSONObject jsonTopic) {
-                    final MetadataCourseTopic topic = new MetadataCourseTopic(jsonTopic);
-                    Log.info("Found topic with ID ", topic.id, " and directory ", topic.directory);
+                    final MetadataCourseModule module = new MetadataCourseModule(jsonTopic, rootDir);
 
-                    if (topic.id != null && topic.directory != null) {
-                        this.topics.add(topic);
+                    if (module.id != null && module.directory != null) {
+                        this.modules.add(module);
                     }
                 } else {
-                    Log.warning("Entry in 'topics' array in 'metadata.json' is not JSON object.");
+                    Log.warning("Entry in 'modules' array in 'metadata.json' is not JSON object.");
                 }
             }
         } else {
-            Log.warning("'topics' field in 'metadata.json' top-level object is not an array.");
+            Log.warning("'modules' field in 'metadata.json' top-level object is not an array.");
         }
     }
 }

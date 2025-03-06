@@ -1,9 +1,7 @@
 package dev.mathops.web.site.canvas.courses;
 
-import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.installation.EPath;
 import dev.mathops.commons.installation.PathList;
-import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawrecord.RawCsection;
@@ -12,9 +10,6 @@ import dev.mathops.db.rec.TermRec;
 import dev.mathops.db.reclogic.TermLogic;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
-import dev.mathops.text.parser.ParsingException;
-import dev.mathops.text.parser.json.JSONObject;
-import dev.mathops.text.parser.json.JSONParser;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.canvas.CanvasPageUtils;
 import dev.mathops.web.site.canvas.CanvasSite;
@@ -26,7 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * This page shows the outline and E-text content for a single standards-based course. This is an outline page with a
@@ -151,24 +145,10 @@ public enum PageModules {
         final File publicPath = wwwPath.getParentFile();
         final File mediaPath = new File(publicPath, "media");
 
-        for (final MetadataCourseTopic metaCourseTopic : metaCourse.topics) {
-            final File topicDir = new File(mediaPath, metaCourseTopic.directory);
-            final File topicMetaFile = new File(topicDir, "metadata.json");
-
-            if (topicDir.exists()) {
-                if (topicMetaFile.exists()) {
-                    final MetadataTopic meta = loadTopicMetadata(topicMetaFile);
-
-                    if (Objects.nonNull(meta.title)) {
-                        emitTopicModule(htm, metaCourseTopic, meta, mediaPath);
-                    }
-                } else {
-                    final String topicMetaFilePath = topicMetaFile.getAbsolutePath();
-                    Log.warning("Topic metadata file (", topicMetaFilePath, ") does not exist");
-                }
-            } else {
-                final String topicDirPath = topicDir.getAbsolutePath();
-                Log.warning("Topic directory (", topicDirPath, ") does not exist");
+        for (final MetadataCourseModule metaCourseTopic : metaCourse.modules) {
+            final MetadataTopic meta = metaCourseTopic.topicMetadata;
+            if (meta.isValid()) {
+                emitTopicModule(htm, metaCourseTopic, meta, mediaPath);
             }
         }
     }
@@ -202,7 +182,7 @@ public enum PageModules {
      * @param meta            the topic module metadata object
      * @param topicDir        the root directory in which to find topic media files
      */
-    private static void emitTopicModule(final HtmlBuilder htm, final MetadataCourseTopic metaCourseTopic,
+    private static void emitTopicModule(final HtmlBuilder htm, final MetadataCourseModule metaCourseTopic,
                                         final MetadataTopic meta, final File topicDir) {
 
         startModule(htm, metaCourseTopic.heading, meta.title);
@@ -349,31 +329,5 @@ public enum PageModules {
      * @param checked true if the checkbox is checked (the item has been completed)
      */
     private record ModuleItemChecklistEntry(String label, boolean checked) {
-    }
-
-    /**
-     * Loads the topic metadata.
-     *
-     * @param file the file to load
-     * @return the metadata object if successful; {@code null} if not
-     */
-    static MetadataTopic loadTopicMetadata(final File file) {
-
-        MetadataTopic result = null;
-
-        final String fileData = FileLoader.loadFileAsString(file, true);
-        try {
-            final Object parsedObj = JSONParser.parseJSON(fileData);
-
-            if (parsedObj instanceof final JSONObject parsedJson) {
-                result = new MetadataTopic(parsedJson);
-            } else {
-                Log.warning("Top-level object in parsed 'metadata.json' is not JSON Object.");
-            }
-        } catch (final ParsingException ex) {
-            Log.warning("Failed to parse 'metadata.json' file data.", ex);
-        }
-
-        return result;
     }
 }

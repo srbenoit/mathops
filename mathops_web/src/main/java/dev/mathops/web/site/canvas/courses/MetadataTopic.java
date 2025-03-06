@@ -3,6 +3,8 @@ package dev.mathops.web.site.canvas.courses;
 import dev.mathops.commons.log.Log;
 import dev.mathops.text.parser.json.JSONObject;
 
+import java.io.File;
+
 /**
  * A container for metadata relating to a topic within a module.
  *
@@ -18,21 +20,27 @@ import dev.mathops.text.parser.json.JSONObject;
  */
 public final class MetadataTopic {
 
+    /** The topic directory. */
+    final File topicDir;
+
     /** The topic title. */
     public final String title;
 
     /** The thumbnail filename. */
-    public final String thumbnailFile;
+    final String thumbnailFile;
 
     /** The thumbnail alt-text. */
-    public final String thumbnailAltText;
+    final String thumbnailAltText;
 
     /**
      * Constructs a new {@code MetadataTopic} from a JSON Object.
      *
-     * @param json the JSON object from which to extract data
+     * @param json        the JSON object from which to extract data
+     * @param theTopicDir the topic directory
      */
-    MetadataTopic(final JSONObject json) {
+    MetadataTopic(final JSONObject json, final File theTopicDir) {
+
+        this.topicDir = theTopicDir;
 
         this.title = json.getStringProperty("title");
         if (this.title == null) {
@@ -50,6 +58,6 @@ public final class MetadataTopic {
      */
     boolean isValid() {
 
-        return this.title != null;
+        return this.topicDir != null && this.title != null;
     }
 }

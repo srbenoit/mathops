@@ -30,6 +30,7 @@ import dev.mathops.web.site.canvas.courses.PageStartHere;
 import dev.mathops.web.site.canvas.courses.PageSurvey;
 import dev.mathops.web.site.canvas.courses.PageSyllabus;
 import dev.mathops.web.site.canvas.courses.PageTopicModule;
+import dev.mathops.web.site.canvas.courses.PageTopicSkillsReview;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -293,16 +294,23 @@ public final class CanvasSite extends AbstractSite {
                 case NAVIGATING_PAGE -> PageNavigating.doGet(cache, this, courseId, req, resp, session, this.metadata);
 
                 default -> {
-                    final String topicId = getTopicModuleId(subpath);
+                    final String moduleId = getTopicModuleId(subpath);
 
-                    if (topicId == null) {
-                        Log.warning("Unrecognized GET request path: ", subpath);
-                        final String selectedCourse = req.getParameter(COURSE_PARAM);
-                        final String homePath = selectedCourse == null ? makeRootPath(ROOT_PAGE)
-                                : makeCoursePath(COURSE_HOME_PAGE, selectedCourse);
-                        resp.sendRedirect(homePath);
+                    if (moduleId == null) {
+                        final String reviewId = getReviewModuleId(subpath);
+
+                        if (reviewId == null) {
+                            Log.warning("Unrecognized GET request path: ", subpath);
+                            final String selectedCourse = req.getParameter(COURSE_PARAM);
+                            final String homePath = selectedCourse == null ? makeRootPath(ROOT_PAGE)
+                                    : makeCoursePath(COURSE_HOME_PAGE, selectedCourse);
+                            resp.sendRedirect(homePath);
+                        } else {
+                            PageTopicSkillsReview.doGet(cache, this, courseId, reviewId, req, resp, session,
+                                    this.metadata);
+                        }
                     } else {
-                        PageTopicModule.doGet(cache, this, courseId, topicId, req, resp, session, this.metadata);
+                        PageTopicModule.doGet(cache, this, courseId, moduleId, req, resp, session, this.metadata);
                     }
                 }
             }
@@ -319,6 +327,25 @@ public final class CanvasSite extends AbstractSite {
         String result = null;
 
         if (subpath.startsWith("M") && subpath.endsWith("/module.html")) {
+            final int slash = subpath.indexOf('/');
+            if (slash > 0) {
+                result = subpath.substring(0, slash);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Tests whether the page represents a topic module Skills Review page.
+     *
+     * @return the topic module ID if the subpath is a topic module Skills Review page; null if not
+     */
+    private static String getReviewModuleId(final String subpath) {
+
+        String result = null;
+
+        if (subpath.startsWith("M") && subpath.endsWith("/review.html")) {
             final int slash = subpath.indexOf('/');
             if (slash > 0) {
                 result = subpath.substring(0, slash);
