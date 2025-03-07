@@ -19,6 +19,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -182,7 +183,7 @@ public enum PageTopicModule {
         htm.eH(2);
 
         doModuleIntroLessons(htm, topicDir);
-        doModulekillsReview(htm, topicDir);
+        doModuleSkillsReview(htm, topicDir);
         doModuleStandards(htm, metaCourseTopic.directory, topicDir);
         doModuleExplorations(htm, topicDir);
         doModuleApplications(htm, topicDir);
@@ -230,7 +231,7 @@ public enum PageTopicModule {
      * @param htm      the {@code HtmlBuilder} to which to append
      * @param topicDir the directory in which to locate topic media
      */
-    private static void doModulekillsReview(final HtmlBuilder htm, final File topicDir) {
+    private static void doModuleSkillsReview(final HtmlBuilder htm, final File topicDir) {
 
         final File dir = new File(topicDir, "10_skills_review");
 
@@ -301,7 +302,7 @@ public enum PageTopicModule {
             final File dir = new File(topicDir, dirName);
 
             if (dir.exists() && dir.isDirectory()) {
-                emitStandard(htm, path, i, dir);
+                emitStandard(htm, path + "/" + dirName, i, dir);
                 ++count;
             } else {
                 break;
@@ -314,7 +315,7 @@ public enum PageTopicModule {
                 final File dir = new File(topicDir, dirName);
 
                 if (dir.exists() && dir.isDirectory()) {
-                    emitStandard(htm, path, i, dir);
+                    emitStandard(htm, path + "/" + dirName, i, dir);
                 } else {
                     break;
                 }
@@ -334,9 +335,9 @@ public enum PageTopicModule {
                                      final File standardDir) {
 
         htm.addln("<details class='module'>");
-        htm.add("  <summary class='module-summary'>");
-        htm.add("Learning Target " + number);
-        htm.addln("</summary>");
+        final String numberStr = Integer.toString(number);
+        htm.add("  <summary class='module-summary'>Learning Target ", numberStr, "</summary>");
+        htm.sDiv("module-item");
 
         // Emit any introductory lessons found
         for (int i = 1; i < 10; ++i) {
@@ -346,7 +347,7 @@ public enum PageTopicModule {
                 if (i == 1) {
                     htm.sH(4).add("Introductory Lessons").eH(4);
                 }
-                emitStandardLesson(htm, path, i, introDir);
+                emitLesson(htm, path + "/" + introName, i, introDir);
             } else {
                 break;
             }
@@ -357,10 +358,7 @@ public enum PageTopicModule {
             final String objName = i + "_objective_" + MetadataSkillsReview.SUFFIXES.substring(i, i + 1);
             final File objectiveDir = new File(standardDir, objName);
             if (objectiveDir.exists() && objectiveDir.isDirectory()) {
-                if (i == 11) {
-                    htm.sH(4).add("Objectives").eH(4);
-                }
-                emitStandardObjective(htm, objectiveDir);
+                emitStandardObjective(htm, path + "/" + objName, i - 10, objectiveDir);
             } else {
                 break;
             }
@@ -386,12 +384,13 @@ public enum PageTopicModule {
                 if (i == 1) {
                     htm.sH(4).add("Concluding Lessons").eH(4);
                 }
-                emitStandardLesson(htm, path, i, conclusionDir);
+                emitLesson(htm, path + "/" + conclusionName, i, conclusionDir);
             } else {
                 break;
             }
         }
 
+        htm.eDiv(); // module-item
         htm.addln("</details>");
     }
 
@@ -403,16 +402,18 @@ public enum PageTopicModule {
      * @param number    a lesson number
      * @param lessonDir the directory in which to locate lesson media
      */
-    private static void emitStandardLesson(final HtmlBuilder htm, final String path, final int number,
-                                           final File lessonDir) {
+    private static void emitLesson(final HtmlBuilder htm, final String path, final int number, final File lessonDir) {
 
         final File finalVideo = new File(lessonDir, "final.mp4");
         final File finalVtt = new File(lessonDir, "final.vtt");
         final File finalTxt = new File(lessonDir, "final.txt");
 
         if (finalVideo.exists()) {
+            final String numberStr = Integer.toString(number);
+            htm.sP().add("<strong>Lesson ", numberStr, "</strong>");
+
             htm.sDiv("indent2");
-            htm.addln("<video class='lesson' controls='controls' autoplay='autoplay'>");
+            htm.addln("<video class='lesson' controls>");
             htm.addln("  <source type='video/mp4' src='", VIDEO_URL, "/", path, "/final.mp4'/>");
             if (finalVtt.exists()) {
                 htm.addln("  <track kind='subtitles' srclang='en' label='English' default src='", WEB_URL, "/", path,
@@ -432,14 +433,89 @@ public enum PageTopicModule {
     }
 
     /**
+     * Emits an example.
+     *
+     * @param htm        the {@code HtmlBuilder} to which to append
+     * @param path       the relative path to example files
+     * @param exampleDir the directory in which to locate example media
+     */
+    private static void emitExample(final HtmlBuilder htm, final String path, final File exampleDir) {
+
+        final File finalVideo = new File(exampleDir, "final.mp4");
+        final File finalVtt = new File(exampleDir, "final.vtt");
+        final File finalTxt = new File(exampleDir, "final.txt");
+
+        if (finalVideo.exists()) {
+            htm.sP().add("<strong>Example</strong>");
+
+            htm.addln("<video class='lesson' controls>");
+            htm.addln("  <source type='video/mp4' src='", VIDEO_URL, "/", path, "/final.mp4'/>");
+            if (finalVtt.exists()) {
+                htm.addln("  <track kind='subtitles' srclang='en' label='English' default src='", WEB_URL, "/", path,
+                        "/final.vtt'/>");
+            }
+            htm.addln("  Your browser does not support inline video.");
+            htm.addln("</video>");
+
+            if (finalTxt.exists()) {
+                htm.addln("<a href='", WEB_URL, "/", path,
+                        "/final.txt'>Access a plain-text transcript for screen-readers.</a>");
+            }
+        }
+    }
+
+    /**
      * Emits an objective.
      *
      * @param htm          the {@code HtmlBuilder} to which to append
+     * @param path         the relative path to lesson files
+     * @param number       the objective number
      * @param objectiveDir the directory in which to locate objective media
      */
-    private static void emitStandardObjective(final HtmlBuilder htm, final File objectiveDir) {
+    private static void emitStandardObjective(final HtmlBuilder htm, final String path, final int number,
+                                              final File objectiveDir) {
 
-        // TODO:
+        final String numberStr = Integer.toString(number);
+        htm.sH(4).add("Objective ", numberStr).eH(4);
+
+        // Emit any objective lessons found
+        for (int i = 1; i < 10; ++i) {
+            final String introName = "1" + i + "_lesson_" + i;
+            final File introDir = new File(objectiveDir, introName);
+            if (introDir.exists() && introDir.isDirectory()) {
+                emitLesson(htm, path + "/" + introName, i, introDir);
+            } else {
+                break;
+            }
+        }
+
+        // Emit any examples found
+        final File examplesDir = new File(objectiveDir, "30_examples");
+        if (examplesDir.exists() && examplesDir.isDirectory()) {
+            final File[] dirs = examplesDir.listFiles();
+            if (dirs != null) {
+                final List<File> dirList = Arrays.asList(dirs);
+                dirList.sort(null);
+
+                for (final File dir : dirList) {
+                    if (dir.isDirectory()) {
+                        emitExample(htm, path + "/" + objectiveDir.getName() + "/30_examples/" + dir.getName(), dir);
+                    }
+                }
+            }
+        }
+
+        final File explorationsDir = new File(objectiveDir, "40_explorations");
+        if (explorationsDir.exists() && explorationsDir.isDirectory()) {
+
+            // TODO: emit explorations
+        }
+
+        final File applicationsDir = new File(objectiveDir, "41_applications");
+        if (applicationsDir.exists() && applicationsDir.isDirectory()) {
+
+            // TODO: emit applications
+        }
     }
 
     /**
