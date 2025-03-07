@@ -1,12 +1,18 @@
 package dev.mathops.web.site.canvas;
 
+import dev.mathops.commons.file.FileLoader;
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.logic.RegistrationsLogic;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.ParsingException;
+import dev.mathops.text.parser.json.JSONObject;
+import dev.mathops.text.parser.json.JSONParser;
 import dev.mathops.web.site.canvas.courses.MetadataCourse;
 
+import java.io.File;
 import java.sql.SQLException;
 
 /**
@@ -152,5 +158,41 @@ public enum CanvasPageUtils {
         }
 
         return registration;
+    }
+
+    /**
+     * Attempts to load a "metadata.json" file and parse it into a JSON object.
+     *
+     * @param dir the directory in which to find the "metadata.json" file
+     * @return the parsed JSON object; {@code null} if the file could not be read or parsed
+     */
+    public static JSONObject loadMetadata(final File dir) {
+
+        final File metadataFile = new File(dir, "metadata.json");
+
+        JSONObject result = null;
+
+        final String fileData = FileLoader.loadFileAsString(metadataFile, true);
+
+        if (fileData == null) {
+            final String metaPath = metadataFile.getAbsolutePath();
+            Log.warning("Unable to load ", metaPath);
+        } else {
+            try {
+                final Object parsedObj = JSONParser.parseJSON(fileData);
+
+                if (parsedObj instanceof final JSONObject parsedJson) {
+                    result = parsedJson;
+                } else {
+                    final String metaPath = metadataFile.getAbsolutePath();
+                    Log.warning("Top-level object in ", metaPath, " is not JSON Object.");
+                }
+            } catch (final ParsingException ex) {
+                final String metaPath = metadataFile.getAbsolutePath();
+                Log.warning("Failed to parse " + metaPath, ex);
+            }
+        }
+
+        return result;
     }
 }

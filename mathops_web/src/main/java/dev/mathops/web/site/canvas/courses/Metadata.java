@@ -1,10 +1,8 @@
 package dev.mathops.web.site.canvas.courses;
 
-import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
-import dev.mathops.text.parser.ParsingException;
 import dev.mathops.text.parser.json.JSONObject;
-import dev.mathops.text.parser.json.JSONParser;
+import dev.mathops.web.site.canvas.CanvasPageUtils;
 
 import java.io.File;
 import java.util.HashMap;
@@ -41,40 +39,27 @@ public class Metadata {
 
         this.courses = new HashMap<>(10);
 
-        final File rootMetadata = new File(rootDir, "metadata.json");
-        final String fileData = FileLoader.loadFileAsString(rootMetadata, true);
+        final JSONObject loadedJson = CanvasPageUtils.loadMetadata(rootDir);
 
-        if (fileData == null) {
-            Log.warning("Unable to load Top-level 'metadata.json'.");
-        } else {
-            try {
-                final Object parsedObj = JSONParser.parseJSON(fileData);
+        if (loadedJson != null) {
+            final Object coursesField = loadedJson.getProperty("courses");
 
-                if (parsedObj instanceof final JSONObject parsedJson) {
-                    final Object coursesField = parsedJson.getProperty("courses");
-
-                    if (coursesField != null) {
-                        if (coursesField instanceof final Object[] coursesArray) {
-                            for (final Object o : coursesArray) {
-                                if (o instanceof final JSONObject jsonCourse) {
-                                    final MetadataCourse course = new MetadataCourse(jsonCourse, rootDir);
-                                    if (course.id != null) {
-                                        // If ID is null, a warning will have already been logged
-                                        this.courses.put(course.id, course);
-                                    }
-                                } else {
-                                    Log.warning("Entry in 'courses' array in 'metadata.json' is not JSON object.");
-                                }
+            if (coursesField != null) {
+                if (coursesField instanceof final Object[] coursesArray) {
+                    for (final Object o : coursesArray) {
+                        if (o instanceof final JSONObject jsonCourse) {
+                            final MetadataCourse course = new MetadataCourse(jsonCourse, rootDir);
+                            if (course.id != null) {
+                                // If ID is null, a warning will have already been logged
+                                this.courses.put(course.id, course);
                             }
                         } else {
-                            Log.warning("'courses' field in 'metadata.json' top-level object is not an array.");
+                            Log.warning("Entry in 'courses' array in 'metadata.json' is not JSON object.");
                         }
                     }
                 } else {
-                    Log.warning("Top-level object in parsed 'metadata.json' is not JSON Object.");
+                    Log.warning("'courses' field in 'metadata.json' top-level object is not an array.");
                 }
-            } catch (final ParsingException ex) {
-                Log.warning("Failed to parse 'metadata.json' file data.", ex);
             }
         }
     }

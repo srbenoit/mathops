@@ -8,15 +8,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A container for metadata relating to a Skills Review for a topic.
+ * A container for metadata relating to a standard.
  */
-final class MetadataSkillsReview {
+final class MetadataStandard {
 
     /** Suffixes for objective paths. */
-    static final String SUFFIXES = "-----------ABCDEFGHIJKLMNOPQRS";
+    private static final String SUFFIXES = "-----------ABCDEFGHIJKLMNOPQRS";
 
-    /** The Skills Review directory. */
-    final File skillsReviewDir;
+    /** The standard directory. */
+    final File standardDir;
+
+    /** The title from the metadata file. */
+    final String title;
 
     /** The description from the metadata file. */
     final String description;
@@ -25,25 +28,27 @@ final class MetadataSkillsReview {
     final List<MetadataObjective> objectives;
 
     /**
-     * Constructs a new {@code MetadataSkillsReview} from a JSON Object.
+     * Constructs a new {@code MetadataStandard} from a JSON Object.
      *
-     * @param theSkillsReviewDir the Skills Review directory
+     * @param theStandardDir the standard directory
      */
-    MetadataSkillsReview(final File theSkillsReviewDir) {
+    MetadataStandard(final File theStandardDir) {
 
-        this.skillsReviewDir = theSkillsReviewDir;
+        this.standardDir = theStandardDir;
         this.objectives = new ArrayList<>(10);
 
-        final JSONObject loadedJson = CanvasPageUtils.loadMetadata(theSkillsReviewDir);
+        final JSONObject loadedJson = CanvasPageUtils.loadMetadata(theStandardDir);
         if (loadedJson == null) {
+            this.title = null;
             this.description = null;
         } else {
+            this.title = loadedJson.getStringProperty("title");
             this.description = loadedJson.getStringProperty("description");
         }
 
         for (int i = 11; i < 30; ++i) {
             final String objectiveDirName = i + "_objective_" + SUFFIXES.substring(i, i + 1);
-            final File objectiveDir = new File(theSkillsReviewDir, objectiveDirName);
+            final File objectiveDir = new File(theStandardDir, objectiveDirName);
 
             if (objectiveDir.exists() && objectiveDir.isDirectory()) {
                 final MetadataObjective objectiveMeta = new MetadataObjective(objectiveDir);

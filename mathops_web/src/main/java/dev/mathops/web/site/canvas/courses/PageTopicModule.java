@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * This page shows a module Topic.
@@ -29,6 +30,9 @@ public enum PageTopicModule {
 
     /** The URL prefix for the video server. */
     private static final String VIDEO_URL = "https://nibbler.math.colostate.edu/media/";
+
+    /** The URL prefix for the web server. */
+    private static final String WEB_URL = "/media/";
 
     /**
      * Starts the page that shows the course outline with student progress.
@@ -177,12 +181,12 @@ public enum PageTopicModule {
         htm.eDiv();
         htm.eH(2);
 
-        presentIntroductoryLessons(htm, topicDir);
-        presentSkillsReview(htm, topicDir);
-        presentLearningTargets(htm, topicDir);
-        presentExplorations(htm, topicDir);
-        presentApplications(htm, topicDir);
-        presentConcludingLessons(htm, topicDir);
+        doModuleIntroLessons(htm, topicDir);
+        doModulekillsReview(htm, topicDir);
+        doModuleStandards(htm, metaCourseTopic.directory, topicDir);
+        doModuleExplorations(htm, topicDir);
+        doModuleApplications(htm, topicDir);
+        doModuleConcludingLessons(htm, topicDir);
 
         htm.eDiv(); // flexmain
         htm.eDiv(); // pagecontainer
@@ -198,7 +202,7 @@ public enum PageTopicModule {
      * @param htm      the {@code HtmlBuilder} to which to append
      * @param topicDir the directory in which to locate topic media
      */
-    private static void presentIntroductoryLessons(final HtmlBuilder htm, final File topicDir) {
+    private static void doModuleIntroLessons(final HtmlBuilder htm, final File topicDir) {
 
         for (int i = 1; i < 9; ++i) {
             final String dirName = "0" + i + "_intro_" + i;
@@ -226,11 +230,12 @@ public enum PageTopicModule {
      * @param htm      the {@code HtmlBuilder} to which to append
      * @param topicDir the directory in which to locate topic media
      */
-    private static void presentSkillsReview(final HtmlBuilder htm, final File topicDir) {
+    private static void doModulekillsReview(final HtmlBuilder htm, final File topicDir) {
 
         final File dir = new File(topicDir, "10_skills_review");
 
         if (dir.exists() && dir.isDirectory()) {
+            final MetadataSkillsReview meta = new MetadataSkillsReview(dir);
 
             htm.addln("<details class='module'>");
             htm.add("  <summary class='module-summary'>Skills Review</summary>");
@@ -241,19 +246,32 @@ public enum PageTopicModule {
                     "alt='A set of connected links in the shape of a brain.'/>");
             htm.eDiv();
 
-            htm.addln("The <span style='color:#D9782D'>Skills Review</span> provides a refresher of Algebra skills ",
-                    "that we use in this chapter.  Using this review is optional, but if you need it, it's here.");
+            if (meta.description == null) {
+                htm.addln("The <span style='color:#D9782D'>Skills Review</span> provides a refresher of skills from ",
+                        "prior courses that we use in this chapter.  Using this review is optional, but if you need ",
+                        "it, it's here.");
+            } else {
+                final int index = meta.description.toLowerCase(Locale.ROOT).indexOf(" skills review ");
+                if (index == -1) {
+                    htm.addln(meta.description);
+                } else {
+                    htm.add(meta.description.substring(0, index + 1));
+                    htm.add("<span style='color:#D9782D'>");
+                    htm.add(meta.description.substring(index + 1, index + 14));
+                    htm.add("</span>");
+                    htm.addln(meta.description.substring(index + 14));
+                }
+            }
 
             htm.sDiv("clear").eDiv();
             htm.sDiv(null, "style='margin-left:92px; margin-top:8px;'");
 
-            final MetadataSkillsReview meta = new MetadataSkillsReview(dir);
-            if (!meta.topicTitles.isEmpty()) {
+            if (!meta.objectives.isEmpty()) {
                 htm.addln("Review Topics:");
 
                 htm.addln("<ul style='font-weight:300; margin-top:6px;'>");
-                for (final String title : meta.topicTitles) {
-                    htm.addln("  <li>", title, "</li>");
+                for (final MetadataObjective metaObjective : meta.objectives) {
+                    htm.addln("  <li>", metaObjective.title, "</li>");
                 }
                 htm.addln("</ul>");
             }
@@ -272,9 +290,10 @@ public enum PageTopicModule {
      * Presents the module learning targets.
      *
      * @param htm      the {@code HtmlBuilder} to which to append
+     * @param path     the relative path to lesson files
      * @param topicDir the directory in which to locate topic media
      */
-    private static void presentLearningTargets(final HtmlBuilder htm, final File topicDir) {
+    private static void doModuleStandards(final HtmlBuilder htm, final String path, final File topicDir) {
 
         int count = 0;
         for (int i = 1; i < 9; ++i) {
@@ -282,15 +301,7 @@ public enum PageTopicModule {
             final File dir = new File(topicDir, dirName);
 
             if (dir.exists() && dir.isDirectory()) {
-
-                htm.addln("<details class='module'>");
-                htm.add("  <summary class='module-summary'>");
-                htm.add("Learning Target " + i);
-                htm.addln("</summary>");
-
-                // TODO: Emit standard content (learning objectives, student status)
-
-                htm.addln("</details>");
+                emitStandard(htm, path, i, dir);
                 ++count;
             } else {
                 break;
@@ -303,16 +314,7 @@ public enum PageTopicModule {
                 final File dir = new File(topicDir, dirName);
 
                 if (dir.exists() && dir.isDirectory()) {
-
-                    htm.addln("<details class='module'>");
-                    htm.add("  <summary class='module-summary'>");
-                    htm.add("Learning Target " + i);
-                    htm.addln("</summary>");
-
-                    // TODO: Emit standard content
-
-                    htm.addln("</details>");
-                    ++count;
+                    emitStandard(htm, path, i, dir);
                 } else {
                     break;
                 }
@@ -321,12 +323,154 @@ public enum PageTopicModule {
     }
 
     /**
+     * Presents the content of a single standard.
+     *
+     * @param htm         the {@code HtmlBuilder} to which to append
+     * @param path        the relative path to lesson files
+     * @param number      the standard number
+     * @param standardDir the directory in which to locate standard media
+     */
+    private static void emitStandard(final HtmlBuilder htm, final String path, final int number,
+                                     final File standardDir) {
+
+        htm.addln("<details class='module'>");
+        htm.add("  <summary class='module-summary'>");
+        htm.add("Learning Target " + number);
+        htm.addln("</summary>");
+
+        // Emit any introductory lessons found
+        for (int i = 1; i < 10; ++i) {
+            final String introName = "0" + i + "_intro_" + i;
+            final File introDir = new File(standardDir, introName);
+            if (introDir.exists() && introDir.isDirectory()) {
+                if (i == 1) {
+                    htm.sH(4).add("Introductory Lessons").eH(4);
+                }
+                emitStandardLesson(htm, path, i, introDir);
+            } else {
+                break;
+            }
+        }
+
+        // Emit objectives
+        for (int i = 11; i < 30; ++i) {
+            final String objName = i + "_objective_" + MetadataSkillsReview.SUFFIXES.substring(i, i + 1);
+            final File objectiveDir = new File(standardDir, objName);
+            if (objectiveDir.exists() && objectiveDir.isDirectory()) {
+                if (i == 11) {
+                    htm.sH(4).add("Objectives").eH(4);
+                }
+                emitStandardObjective(htm, objectiveDir);
+            } else {
+                break;
+            }
+        }
+
+        // Emit explorations
+        final File explorationsDir = new File(standardDir, "40_explorations");
+        if (explorationsDir.exists() && explorationsDir.isDirectory()) {
+            emitStandardExplorations(htm, explorationsDir);
+        }
+
+        // Emit applications
+        final File applicationsDir = new File(standardDir, "41_applications");
+        if (applicationsDir.exists() && applicationsDir.isDirectory()) {
+            emitStandardApplications(htm, applicationsDir);
+        }
+
+        // Emit any concluding lessons found
+        for (int i = 1; i < 10; ++i) {
+            final String conclusionName = "9" + i + "_conclusion_" + i;
+            final File conclusionDir = new File(standardDir, conclusionName);
+            if (conclusionDir.exists() && conclusionDir.isDirectory()) {
+                if (i == 1) {
+                    htm.sH(4).add("Concluding Lessons").eH(4);
+                }
+                emitStandardLesson(htm, path, i, conclusionDir);
+            } else {
+                break;
+            }
+        }
+
+        htm.addln("</details>");
+    }
+
+    /**
+     * Emits a lesson.
+     *
+     * @param htm       the {@code HtmlBuilder} to which to append
+     * @param path      the relative path to lesson files
+     * @param number    a lesson number
+     * @param lessonDir the directory in which to locate lesson media
+     */
+    private static void emitStandardLesson(final HtmlBuilder htm, final String path, final int number,
+                                           final File lessonDir) {
+
+        final File finalVideo = new File(lessonDir, "final.mp4");
+        final File finalVtt = new File(lessonDir, "final.vtt");
+        final File finalTxt = new File(lessonDir, "final.txt");
+
+        if (finalVideo.exists()) {
+            htm.sDiv("indent2");
+            htm.addln("<video class='lesson' controls='controls' autoplay='autoplay'>");
+            htm.addln("  <source type='video/mp4' src='", VIDEO_URL, "/", path, "/final.mp4'/>");
+            if (finalVtt.exists()) {
+                htm.addln("  <track kind='subtitles' srclang='en' label='English' default src='", WEB_URL, "/", path,
+                        "/final.vtt'/>");
+            }
+            htm.addln("  Your browser does not support inline video.");
+            htm.addln("</video>");
+            htm.eDiv(); // indent2
+
+            if (finalTxt.exists()) {
+                htm.sDiv("indent2");
+                htm.addln("<a href='", WEB_URL, "/", path,
+                        "/final.txt'>Access a plain-text transcript for screen-readers.</a>");
+                htm.eDiv(); // indent2
+            }
+        }
+    }
+
+    /**
+     * Emits an objective.
+     *
+     * @param htm          the {@code HtmlBuilder} to which to append
+     * @param objectiveDir the directory in which to locate objective media
+     */
+    private static void emitStandardObjective(final HtmlBuilder htm, final File objectiveDir) {
+
+        // TODO:
+    }
+
+    /**
+     * Emits explorations for a standard.
+     *
+     * @param htm             the {@code HtmlBuilder} to which to append
+     * @param explorationsDir the directory in which to locate explorations
+     */
+    private static void emitStandardExplorations(final HtmlBuilder htm, final File explorationsDir) {
+
+        // TODO:
+    }
+
+    /**
+     * Emits applications for a standard.
+     *
+     * @param htm             the {@code HtmlBuilder} to which to append
+     * @param applicationsDir the directory in which to locate explorations
+     */
+    private static void emitStandardApplications(final HtmlBuilder htm, final File applicationsDir) {
+
+        // TODO:
+    }
+
+    /**
      * Presents all module-level explorations found.
      *
      * @param htm      the {@code HtmlBuilder} to which to append
      * @param topicDir the directory in which to locate topic media
      */
-    private static void presentExplorations(final HtmlBuilder htm, final File topicDir) {
+    private static void doModuleExplorations(final HtmlBuilder htm, final File topicDir) {
 
         final File dir = new File(topicDir, "40_explorations");
 
@@ -349,7 +493,7 @@ public enum PageTopicModule {
      * @param htm      the {@code HtmlBuilder} to which to append
      * @param topicDir the directory in which to locate topic media
      */
-    private static void presentApplications(final HtmlBuilder htm, final File topicDir) {
+    private static void doModuleApplications(final HtmlBuilder htm, final File topicDir) {
 
         final File dir = new File(topicDir, "41_applications");
 
@@ -372,7 +516,7 @@ public enum PageTopicModule {
      * @param htm      the {@code HtmlBuilder} to which to append
      * @param topicDir the directory in which to locate topic media
      */
-    private static void presentConcludingLessons(final HtmlBuilder htm, final File topicDir) {
+    private static void doModuleConcludingLessons(final HtmlBuilder htm, final File topicDir) {
 
         for (int i = 1; i < 9; ++i) {
             final String dirName = "9" + i + "_conclusion_" + i;

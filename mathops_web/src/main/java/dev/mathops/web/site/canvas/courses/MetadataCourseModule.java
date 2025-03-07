@@ -1,10 +1,8 @@
 package dev.mathops.web.site.canvas.courses;
 
-import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
-import dev.mathops.text.parser.ParsingException;
 import dev.mathops.text.parser.json.JSONObject;
-import dev.mathops.text.parser.json.JSONParser;
+import dev.mathops.web.site.canvas.CanvasPageUtils;
 
 import java.io.File;
 
@@ -64,27 +62,9 @@ final class MetadataCourseModule {
             this.topicModuleDir = null;
         } else {
             this.topicModuleDir = new File(rootDir, this.directory);
-
-            final File rootMetadata = new File(this.topicModuleDir, "metadata.json");
-            final String fileData = FileLoader.loadFileAsString(rootMetadata, true);
-
-            if (fileData == null) {
-                final String metaPath = rootMetadata.getAbsolutePath();
-                Log.warning("Unable to load ", metaPath);
-            } else {
-                try {
-                    final Object parsedObj = JSONParser.parseJSON(fileData);
-
-                    if (parsedObj instanceof final JSONObject parsedJson) {
-                        loadedTopicMeta = new MetadataTopic(parsedJson, this.topicModuleDir);
-                    } else {
-                        final String metaPath = rootMetadata.getAbsolutePath();
-                        Log.warning("Top-level object in ", metaPath, " is not JSON Object.");
-                    }
-                } catch (final ParsingException ex) {
-                    final String metaPath = rootMetadata.getAbsolutePath();
-                    Log.warning("Failed to parse " + metaPath, ex);
-                }
+            final JSONObject loadedJson = CanvasPageUtils.loadMetadata(this.topicModuleDir);
+            if (loadedJson != null) {
+                loadedTopicMeta = new MetadataTopic(loadedJson, this.topicModuleDir);
             }
         }
 

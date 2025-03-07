@@ -286,3 +286,38 @@ table.grades tbody tr:nth-child(even)  {
   text-decoration: none;
   white-space:nowrap;
 }
+
+video.lesson {
+  width: 320;
+  height: 180;
+}
+@media (min-width: 780px) {
+  video.lesson {
+    width: 480;
+    height: 270;
+  }
+}
+@media (min-width: 940px) {
+  video.lesson {
+    width: 640;
+    height: 480;
+  }
+}
+@media (min-width: 1100px) {
+  video.lesson {
+    width: 800;
+    height: 450;
+  }
+}
+@media (min-width: 1260px) {
+  video.lesson {
+    width: 960;
+    height: 540;
+  }
+}
+@media (min-width: 1580px) {
+  video.lesson {
+    width: 1280;
+    height: 720;
+  }
+}
