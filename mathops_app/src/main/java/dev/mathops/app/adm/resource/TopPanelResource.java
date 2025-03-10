@@ -75,8 +75,8 @@ public final class TopPanelResource extends JPanel implements ActionListener {
     /**
      * Constructs a new {@code TopPanelResource}.
      *
-     * @param theCache         the data cache
-     * @param fixed            the fixed data
+     * @param theCache the data cache
+     * @param fixed    the fixed data
      */
     public TopPanelResource(final Cache theCache, final UserData fixed) {
 
@@ -142,7 +142,7 @@ public final class TopPanelResource extends JPanel implements ActionListener {
         // Card 1: Loan Item
 
         if (fixed.getClearanceLevel("RES_LOAN") != null) {
-            this.loanCard = new LendCard(theCache, fixed);
+            this.loanCard = new LendCard(theCache, fixed, this);
             this.cardPane.add(this.loanCard, LEND_CMD);
         } else {
             this.loanCard = null;
@@ -151,7 +151,7 @@ public final class TopPanelResource extends JPanel implements ActionListener {
         // Card 2: Return Item
 
         if (fixed.getClearanceLevel("RES_RETRN") != null) {
-            this.returnCard = new ReturnCard(theCache);
+            this.returnCard = new ReturnCard(theCache, this);
             this.cardPane.add(this.returnCard, RETURN_CMD);
         } else {
             this.returnCard = null;
@@ -200,9 +200,9 @@ public final class TopPanelResource extends JPanel implements ActionListener {
     /**
      * Creates a button for the top of the pane.
      *
-     * @param title            the button title
-     * @param command          the action command
-     * @param background       the background color
+     * @param title      the button title
+     * @param command    the action command
+     * @param background the background color
      * @return the button panel
      */
     private JPanel makeTopButton(final String title, final String command, final Color background) {
@@ -259,6 +259,30 @@ public final class TopPanelResource extends JPanel implements ActionListener {
     public void clearDisplay() {
 
         // No action
+    }
+
+    /**
+     * Jumps to the "Return" card.
+     */
+    void goToLend() {
+
+        if (this.loanCard != null) {
+            this.cards.show(this.cardPane, LEND_CMD);
+            this.showing = LEND_CMD;
+            this.loanCard.reset();
+        }
+    }
+
+    /**
+     * Jumps to the "Return" card.
+     */
+    void goToReturn() {
+
+        if (this.returnCard != null) {
+            this.cards.show(this.cardPane, RETURN_CMD);
+            this.showing = RETURN_CMD;
+            this.returnCard.reset();
+        }
     }
 
     /**

@@ -68,6 +68,9 @@ final class LendCard extends AdmPanelBase implements ActionListener, FocusListen
     /** The data cache. */
     private final Cache cache;
 
+    /** The owning resource pane. */
+    private final TopPanelResource owner;
+
     /** The student ID field. */
     private final JTextField studentIdField;
 
@@ -107,9 +110,11 @@ final class LendCard extends AdmPanelBase implements ActionListener, FocusListen
      * @param theCache the data cache
      * @param fixed    the fixed data
      */
-    LendCard(final Cache theCache, final UserData fixed) {
+    LendCard(final Cache theCache, final UserData fixed, final TopPanelResource theOwner) {
 
         super();
+
+        this.owner = theOwner;
 
         final JPanel panel = new JPanel(new BorderLayout(5, 5));
         panel.setBackground(getBackground());
@@ -394,59 +399,67 @@ final class LendCard extends AdmPanelBase implements ActionListener, FocusListen
 
         final String stuId = this.studentIdField.getText();
 
-        final String cleanStu = stuId.trim().replace(CoreConstants.SPC, CoreConstants.EMPTY)
-                .replace(CoreConstants.DASH, CoreConstants.EMPTY);
+        if ("R".equals(stuId) || "r".equals(stuId)) {
+            this.owner.goToReturn();
+        } else if ("L".equals(stuId) || "l".equals(stuId)) {
+            // No action
+            this.studentIdField.setText(CoreConstants.EMPTY);
+        } else {
+            final String cleanStu = stuId.trim().replace(CoreConstants.SPC, CoreConstants.EMPTY)
+                    .replace(CoreConstants.DASH, CoreConstants.EMPTY);
 
-        final String foundFirstName;
-        final String foundLastName;
-        final String sql1 = "SELECT first_name, last_name FROM student WHERE stu_id=?";
+            final String foundFirstName;
+            final String foundLastName;
+            final String sql1 = "SELECT first_name, last_name FROM student WHERE stu_id=?";
 
-        final DbConnection conn = this.cache.checkOutConnection(ESchema.LEGACY);
+            final DbConnection conn = this.cache.checkOutConnection(ESchema.LEGACY);
 
-        try (final PreparedStatement ps = conn.prepareStatement(sql1)) {
-            ps.setString(1, cleanStu);
-            try (final ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    foundFirstName = rs.getString(1);
-                    foundLastName = rs.getString(2);
-                    this.studentIdField.setBackground(Skin.FIELD_BG);
+            try (final PreparedStatement ps = conn.prepareStatement(sql1)) {
+                ps.setString(1, cleanStu);
+                try (final ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        foundFirstName = rs.getString(1);
+                        foundLastName = rs.getString(2);
+                        this.studentIdField.setBackground(Skin.FIELD_BG);
 
-                    this.cleanedStudentId = cleanStu;
+                        this.cleanedStudentId = cleanStu;
 
-                    final String first = foundFirstName == null ? CoreConstants.EMPTY : foundFirstName.trim();
-                    final String last = foundLastName == null ? CoreConstants.EMPTY : foundLastName.trim();
+                        final String first = foundFirstName == null ? CoreConstants.EMPTY : foundFirstName.trim();
+                        final String last = foundLastName == null ? CoreConstants.EMPTY : foundLastName.trim();
 
-                    this.studentNameDisplay.setText(first + CoreConstants.SPC + last);
+                        this.studentNameDisplay.setText(first + CoreConstants.SPC + last);
 
-                    this.resourceIdField.setEnabled(true);
-                    this.resourceIdField.requestFocus();
-                } else {
-                    this.error1.setText("Student not found.");
-                    this.error2.setText(CoreConstants.SPC);
+                        this.resourceIdField.setEnabled(true);
+                        this.resourceIdField.requestFocus();
+                    } else {
+                        this.error1.setText("Student not found.");
+                        this.error2.setText(CoreConstants.SPC);
 
-                    this.errorPane.setBorder(BorderFactory.createCompoundBorder(
-                            BorderFactory.createLineBorder(Color.RED, 2),
-                            BorderFactory.createEmptyBorder(20, 0, 0, 0)));
-                    this.errorPane.setBackground(Skin.OFF_WHITE_RED);
+                        this.errorPane.setBorder(BorderFactory.createCompoundBorder(
+                                BorderFactory.createLineBorder(Color.RED, 2),
+                                BorderFactory.createEmptyBorder(20, 0, 0, 0)));
+                        this.errorPane.setBackground(Skin.OFF_WHITE_RED);
 
-                    this.studentIdField.setBackground(Skin.FIELD_ERROR_BG);
-                    this.resourceIdField.setEnabled(false);
-                    this.lendBtn.setEnabled(false);
+                        this.studentIdField.setBackground(Skin.FIELD_ERROR_BG);
+                        this.resourceIdField.setEnabled(false);
+                        this.lendBtn.setEnabled(false);
+                    }
                 }
-            }
-        } catch (final SQLException ex) {
-            this.error1.setText("Error querying student table:");
-            if (ex.getMessage() == null) {
-                this.error2.setText(ex.getClass().getSimpleName());
-            } else {
-                this.error2.setText(ex.getMessage());
-            }
+            } catch (final SQLException ex) {
+                this.error1.setText("Error querying student table:");
+                if (ex.getMessage() == null) {
+                    this.error2.setText(ex.getClass().getSimpleName());
+                } else {
+                    this.error2.setText(ex.getMessage());
+                }
 
-            this.errorPane.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.RED, 2),
-                    BorderFactory.createEmptyBorder(20, 0, 0, 0)));
-            this.errorPane.setBackground(Skin.OFF_WHITE_RED);
-        } finally {
-            Cache.checkInConnection(conn);
+                this.errorPane.setBorder(
+                        BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.RED, 2),
+                                BorderFactory.createEmptyBorder(20, 0, 0, 0)));
+                this.errorPane.setBackground(Skin.OFF_WHITE_RED);
+            } finally {
+                Cache.checkInConnection(conn);
+            }
         }
     }
 

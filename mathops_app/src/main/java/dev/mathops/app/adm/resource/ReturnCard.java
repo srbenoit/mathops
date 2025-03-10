@@ -58,6 +58,9 @@ final class ReturnCard extends AdmPanelBase implements ActionListener {
     /** The data cache. */
     private final Cache cache;
 
+    /** The owning resource pane. */
+    private final TopPanelResource owner;
+
     /** The resource ID field. */
     private final JTextField resourceIdField;
 
@@ -81,9 +84,11 @@ final class ReturnCard extends AdmPanelBase implements ActionListener {
      *
      * @param theCache the data cache
      */
-    ReturnCard(final Cache theCache) {
+    ReturnCard(final Cache theCache, final TopPanelResource theOwner) {
 
         super();
+
+        this.owner = theOwner;
 
         final JPanel panel = new JPanel(new BorderLayout(5, 5));
         panel.setBackground(Skin.OFF_WHITE_RED);
@@ -262,6 +267,11 @@ final class ReturnCard extends AdmPanelBase implements ActionListener {
 
         if (resId == null || resId.isEmpty()) {
             this.resourceIdField.setBackground(Skin.FIELD_ERROR_BG);
+        } else if ("L".equals(resId) || "l".equals(resId)) {
+            this.owner.goToLend();
+        } else if ("R".equals(resId) || "r".equals(resId)) {
+            // No action
+            this.resourceIdField.setText(CoreConstants.EMPTY);
         } else {
             final String cleanRes = resId.trim().replace(CoreConstants.SPC, CoreConstants.EMPTY)
                     .replace(CoreConstants.DASH, CoreConstants.EMPTY);
