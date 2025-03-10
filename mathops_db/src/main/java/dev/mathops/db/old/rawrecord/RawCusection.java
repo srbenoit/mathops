@@ -325,25 +325,25 @@ public final class RawCusection extends RawTermRecordBase implements Comparable<
     public int hashCode() {
 
         return Objects.hashCode(this.termKey)
-                + Objects.hashCode(this.course)
-                + Objects.hashCode(this.sect)
-                + Objects.hashCode(this.unit)
-                + Objects.hashCode(this.timeout)
-                + Objects.hashCode(this.reMasteryScore)
-                + Objects.hashCode(this.ueMasteryScore)
-                + Objects.hashCode(this.hwMasteryScore)
-                + Objects.hashCode(this.hwMoveonScore)
-                + Objects.hashCode(this.nbrAtmptsAllow)
-                + Objects.hashCode(this.atmptsPerReview)
-                + Objects.hashCode(this.firstTestDt)
-                + Objects.hashCode(this.lastTestDt)
-                + Objects.hashCode(this.beginTestPeriod)
-                + Objects.hashCode(this.endTestPeriod)
-                + Objects.hashCode(this.couponCost)
-                + Objects.hashCode(this.lastCouponDt)
-                + Objects.hashCode(this.showTestWindow)
-                + Objects.hashCode(this.unproctoredExam)
-                + Objects.hashCode(this.rePointsOntime);
+               + Objects.hashCode(this.course)
+               + Objects.hashCode(this.sect)
+               + Objects.hashCode(this.unit)
+               + Objects.hashCode(this.timeout)
+               + Objects.hashCode(this.reMasteryScore)
+               + Objects.hashCode(this.ueMasteryScore)
+               + Objects.hashCode(this.hwMasteryScore)
+               + Objects.hashCode(this.hwMoveonScore)
+               + Objects.hashCode(this.nbrAtmptsAllow)
+               + Objects.hashCode(this.atmptsPerReview)
+               + Objects.hashCode(this.firstTestDt)
+               + Objects.hashCode(this.lastTestDt)
+               + Objects.hashCode(this.beginTestPeriod)
+               + Objects.hashCode(this.endTestPeriod)
+               + Objects.hashCode(this.couponCost)
+               + Objects.hashCode(this.lastCouponDt)
+               + Objects.hashCode(this.showTestWindow)
+               + Objects.hashCode(this.unproctoredExam)
+               + Objects.hashCode(this.rePointsOntime);
     }
 
     /**
@@ -386,6 +386,7 @@ public final class RawCusection extends RawTermRecordBase implements Comparable<
 
         return equal;
     }
+
     /**
      * Generate the topmatter associated with a record (FIXME: this is a hardcode until the possible score fields exist
      * in the database).
@@ -467,7 +468,6 @@ public final class RawCusection extends RawTermRecordBase implements Comparable<
         return topmatter;
     }
 
-
     /**
      * Generates the topmatter to have a single PDF file link labeled "Unit Video Problems".
      *
@@ -502,7 +502,14 @@ public final class RawCusection extends RawTermRecordBase implements Comparable<
         top.eP();
 
         top.sP("indent33");
-        top.addln(" The best way to review for the <b>Final Exam</b> is to  practice the <b>Review Exams</b>.");
+        top.addln(" The best way to review for the <b>Final Exam</b> is to practice the <b>Review Exams</b>.");
+        top.eP();
+
+        top.sP("indent33");
+        top.addln(" Remember that you have <strong>unlimited attempts</strong> on the Final Exam until its deadline. ",
+                "If you don't pass the Final Exam by its deadline, but were eligible for the Final Exam on the ",
+                "deadline, you get one extra attempt the next day the Center is open.  Once you pass the Final Exam, ",
+                "you can continue re-taking it to try to raise your score until the last day of classes.");
         top.eP();
 
         return top.toString();
