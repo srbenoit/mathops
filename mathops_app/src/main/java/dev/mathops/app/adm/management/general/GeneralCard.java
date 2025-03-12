@@ -1,4 +1,4 @@
-package dev.mathops.app.adm.management;
+package dev.mathops.app.adm.management.general;
 
 import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
@@ -15,7 +15,7 @@ import java.io.Serial;
 /**
  * A card with general system data.
  */
-class GeneralCard extends AdmPanelBase implements ActionListener {
+public class GeneralCard extends AdmPanelBase implements ActionListener {
 
     /** An action command. */
     private static final String REFRESH = "REFRESH";
@@ -32,7 +32,7 @@ class GeneralCard extends AdmPanelBase implements ActionListener {
      *
      * @param theCache the data cache
      */
-    GeneralCard(final Cache theCache) {
+    public GeneralCard(final Cache theCache) {
 
         super();
 
@@ -82,7 +82,7 @@ class GeneralCard extends AdmPanelBase implements ActionListener {
     /**
      * Resets the card to accept data for a new loan.
      */
-    void refresh() {
+    public void refresh() {
 
         this.facilities.refreshStatus();
     }

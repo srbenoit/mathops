@@ -44,7 +44,7 @@ public class AdmPanelBase extends JPanel {
      * @param borderAbove true to include a border with extra space above
      * @return the label
      */
-    protected static JLabel makeHeader(final String str, final boolean borderAbove) {
+    public static JLabel makeHeader(final String str, final boolean borderAbove) {
 
         final JLabel result = new JLabel(str);
 
@@ -91,6 +91,22 @@ public class AdmPanelBase extends JPanel {
         final JLabel result = new JLabel(str);
 
         result.setFont(Skin.MEDIUM_15_FONT);
+        result.setForeground(Skin.LABEL_COLOR);
+
+        return result;
+    }
+
+    /**
+     * Creates a label.
+     *
+     * @param str the label string
+     * @return the label
+     */
+    public static JLabel makeLabelMedium2(final String str) {
+
+        final JLabel result = new JLabel(str);
+
+        result.setFont(Skin.MEDIUM_18_FONT);
         result.setForeground(Skin.LABEL_COLOR);
 
         return result;

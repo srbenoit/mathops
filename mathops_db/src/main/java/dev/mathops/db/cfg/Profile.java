@@ -80,6 +80,10 @@ public final class Profile implements Comparable<Profile> {
         int analytics = 0;
         int term = 0;
 
+        int allowedMain = 1;
+        int allowedSystem = 1;
+        int allowedTerm = 1;
+
         for (final ESchema type : this.facets.keySet()) {
             switch (type) {
                 case SYSTEM -> ++system;
@@ -91,6 +95,9 @@ public final class Profile implements Comparable<Profile> {
                     ++system;
                     ++main;
                     ++term;
+                    allowedMain = 2;
+                    allowedSystem = 2;
+                    allowedTerm = 2;
                 }
             }
         }
@@ -117,7 +124,7 @@ public final class Profile implements Comparable<Profile> {
             final String end = Res.get(Res.PROFILE_MSG_END);
             builder.append(end);
             error = builder.toString();
-        } else if (system > 1 || main > 1 || extern > 1 || analytics > 1 || term > 1) {
+        } else if (system > allowedSystem || main > allowedMain || extern > 1 || analytics > 1 || term > allowedTerm) {
             final StringBuilder builder = new StringBuilder(50);
             final String start = Res.get(Res.PROFILE_DUP_START);
             builder.append(start);

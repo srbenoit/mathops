@@ -1,5 +1,6 @@
 package dev.mathops.db.reclogic.main;
 
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.ESchema;
 import dev.mathops.db.rec.main.FacilityClosureRec;
@@ -10,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -79,15 +81,23 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
-        final String sql = SimpleBuilder.concat("INSERT INTO ", schemaPrefix, ".facility_closure (facility,",
-                "closure_dt,closure_type,start_time,end_time) VALUES (",
-                sqlStringValue(record.facility), ",",
-                sqlDateValue(record.closureDt), ",",
-                sqlStringValue(record.closureType), ",",
-                sqlTimeValue(record.startTime), ",",
-                sqlTimeValue(record.endTime), ")");
+        final boolean result;
+        if (schemaPrefix == null) {
+            Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
+            result = false;
+        } else {
+            final String sql = SimpleBuilder.concat("INSERT INTO ", schemaPrefix, ".facility_closure (facility,",
+                    "closure_dt,closure_type,start_time,end_time) VALUES (",
+                    sqlStringValue(record.facility), ",",
+                    sqlDateValue(record.closureDt), ",",
+                    sqlStringValue(record.closureType), ",",
+                    sqlTimeValue(record.startTime), ",",
+                    sqlTimeValue(record.endTime), ")");
 
-        return doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, sql);
+        }
+
+        return result;
     }
 
     /**
@@ -103,11 +113,19 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
-        final String sql = SimpleBuilder.concat("DELETE FROM ", schemaPrefix, ".facility_closure WHERE facility=",
-                sqlStringValue(record.facility), " AND closure_dt=",
-                sqlDateValue(record.closureDt));
+        final boolean result;
+        if (schemaPrefix == null) {
+            Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
+            result = false;
+        } else {
+            final String sql = SimpleBuilder.concat("DELETE FROM ", schemaPrefix, ".facility_closure WHERE facility=",
+                    sqlStringValue(record.facility), " AND closure_dt=",
+                    sqlDateValue(record.closureDt));
 
-        return doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, sql);
+        }
+
+        return result;
     }
 
     /**
@@ -122,9 +140,17 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
-        final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".facility_closure");
+        final List<FacilityClosureRec> result;
+        if (schemaPrefix == null) {
+            Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
+            result = new ArrayList<>(0);
+        } else {
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".facility_closure");
 
-        return doListQuery(cache, sql);
+            result = doListQuery(cache, sql);
+        }
+
+        return result;
     }
 
     /**
@@ -139,10 +165,18 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
-        final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".facility_closure WHERE facility=",
-                sqlStringValue(facility));
+        final List<FacilityClosureRec> result;
+        if (schemaPrefix == null) {
+            Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
+            result = new ArrayList<>(0);
+        } else {
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".facility_closure WHERE facility=",
+                    sqlStringValue(facility));
 
-        return doListQuery(cache, sql);
+            result = doListQuery(cache, sql);
+        }
+
+        return result;
     }
 
     /**
@@ -157,14 +191,22 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
-        final String sql = SimpleBuilder.concat("UPDATE ", schemaPrefix, ".facility_closure SET closure_type=",
-                sqlStringValue(record.closureType), ",start_time=",
-                sqlTimeValue(record.startTime), ",end_time=",
-                sqlTimeValue(record.endTime), " WHERE facility=",
-                sqlStringValue(record.facility), " AND closure_dt=",
-                sqlDateValue(record.closureDt));
+        final boolean result;
+        if (schemaPrefix == null) {
+            Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
+            result = false;
+        } else {
+            final String sql = SimpleBuilder.concat("UPDATE ", schemaPrefix, ".facility_closure SET closure_type=",
+                    sqlStringValue(record.closureType), ",start_time=",
+                    sqlTimeValue(record.startTime), ",end_time=",
+                    sqlTimeValue(record.endTime), " WHERE facility=",
+                    sqlStringValue(record.facility), " AND closure_dt=",
+                    sqlDateValue(record.closureDt));
 
-        return doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, sql);
+        }
+
+        return result;
     }
 
     /**

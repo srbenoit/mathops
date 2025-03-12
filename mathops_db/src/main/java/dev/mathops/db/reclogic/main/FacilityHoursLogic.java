@@ -1,5 +1,6 @@
 package dev.mathops.db.reclogic.main;
 
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.ESchema;
 import dev.mathops.db.rec.main.FacilityHoursRec;
@@ -10,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -95,19 +97,28 @@ public final class FacilityHoursLogic implements IRecLogic<FacilityHoursRec> {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
-        final String sql = SimpleBuilder.concat("INSERT INTO ", schemaPrefix, ".facility_hours (facility,",
-                "display_index,weekdays,start_dt,end_dt,open_time_1,close_time_1,open_time_2,close_time_2) VALUES (",
-                sqlStringValue(record.facility), ",",
-                sqlIntegerValue(record.displayIndex), ",",
-                sqlIntegerValue(record.weekdays), ",",
-                sqlDateValue(record.startDt), ",",
-                sqlDateValue(record.endDt), ",",
-                sqlTimeValue(record.openTime1), ",",
-                sqlTimeValue(record.closeTime1), ",",
-                sqlTimeValue(record.openTime2), ",",
-                sqlTimeValue(record.closeTime2), ")");
+        final boolean result;
+        if (schemaPrefix == null) {
+            Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
+            result = false;
+        } else {
+            final String sql = SimpleBuilder.concat("INSERT INTO ", schemaPrefix,
+                    ".facility_hours (facility,display_index,weekdays,start_dt,end_dt,open_time_1,close_time_1,",
+                    "open_time_2,close_time_2) VALUES (",
+                    sqlStringValue(record.facility), ",",
+                    sqlIntegerValue(record.displayIndex), ",",
+                    sqlIntegerValue(record.weekdays), ",",
+                    sqlDateValue(record.startDt), ",",
+                    sqlDateValue(record.endDt), ",",
+                    sqlTimeValue(record.openTime1), ",",
+                    sqlTimeValue(record.closeTime1), ",",
+                    sqlTimeValue(record.openTime2), ",",
+                    sqlTimeValue(record.closeTime2), ")");
 
-        return doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, sql);
+        }
+
+        return result;
     }
 
     /**
@@ -123,11 +134,19 @@ public final class FacilityHoursLogic implements IRecLogic<FacilityHoursRec> {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
-        final String sql = SimpleBuilder.concat("DELETE FROM ", schemaPrefix, ".facility_hours WHERE facility=",
-                sqlStringValue(record.facility), " AND display_index=",
-                sqlIntegerValue(record.displayIndex));
+        final boolean result;
+        if (schemaPrefix == null) {
+            Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
+            result = false;
+        } else {
+            final String sql = SimpleBuilder.concat("DELETE FROM ", schemaPrefix, ".facility_hours WHERE facility=",
+                    sqlStringValue(record.facility), " AND display_index=",
+                    sqlIntegerValue(record.displayIndex));
 
-        return doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, sql);
+        }
+
+        return result;
     }
 
     /**
@@ -142,9 +161,17 @@ public final class FacilityHoursLogic implements IRecLogic<FacilityHoursRec> {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
-        final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".facility_hours");
+        final List<FacilityHoursRec> result;
+        if (schemaPrefix == null) {
+            Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
+            result = new ArrayList<>(0);
+        } else {
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".facility_hours");
 
-        return doListQuery(cache, sql);
+            result = doListQuery(cache, sql);
+        }
+
+        return result;
     }
 
     /**
@@ -159,10 +186,18 @@ public final class FacilityHoursLogic implements IRecLogic<FacilityHoursRec> {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
-        final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".facility_hours WHERE facility=",
-                sqlStringValue(facility));
+        final List<FacilityHoursRec> result;
+        if (schemaPrefix == null) {
+            Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
+            result = new ArrayList<>(0);
+        } else {
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".facility_hours WHERE facility=",
+                    sqlStringValue(facility));
 
-        return doListQuery(cache, sql);
+            result = doListQuery(cache, sql);
+        }
+
+        return result;
     }
 
     /**
@@ -177,18 +212,26 @@ public final class FacilityHoursLogic implements IRecLogic<FacilityHoursRec> {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
-        final String sql = SimpleBuilder.concat("UPDATE ", schemaPrefix, ".facility_hours SET weekdays=",
-                sqlIntegerValue(record.weekdays), ",start_dt=",
-                sqlDateValue(record.startDt), ",end_dt=",
-                sqlDateValue(record.endDt), ",open_time_1=",
-                sqlTimeValue(record.openTime1), ",close_time_1=",
-                sqlTimeValue(record.closeTime1), ",open_time_2=",
-                sqlTimeValue(record.openTime2), ",close_Time_2=",
-                sqlTimeValue(record.closeTime2), " WHERE facility=",
-                sqlStringValue(record.facility), " AND display_index=",
-                sqlIntegerValue(record.displayIndex));
+        final boolean result;
+        if (schemaPrefix == null) {
+            Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
+            result = false;
+        } else {
+            final String sql = SimpleBuilder.concat("UPDATE ", schemaPrefix, ".facility_hours SET weekdays=",
+                    sqlIntegerValue(record.weekdays), ",start_dt=",
+                    sqlDateValue(record.startDt), ",end_dt=",
+                    sqlDateValue(record.endDt), ",open_time_1=",
+                    sqlTimeValue(record.openTime1), ",close_time_1=",
+                    sqlTimeValue(record.closeTime1), ",open_time_2=",
+                    sqlTimeValue(record.openTime2), ",close_Time_2=",
+                    sqlTimeValue(record.closeTime2), " WHERE facility=",
+                    sqlStringValue(record.facility), " AND display_index=",
+                    sqlIntegerValue(record.displayIndex));
 
-        return doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, sql);
+        }
+
+        return result;
     }
 
     /**

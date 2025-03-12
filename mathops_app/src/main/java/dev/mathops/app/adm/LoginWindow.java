@@ -475,7 +475,22 @@ final class LoginWindow extends JFrame implements ActionListener {
                                 final Facet facet = new Facet(data, login);
                                 profile.addFacet(facet);
                                 foundExtern = true;
-                            } else if (data.schema == ESchema.ANALYTICS && data.use == dbUse) {
+                            } else if (data.schema == ESchema.MAIN && data.use == dbUse
+                                       && server.type == EDbProduct.POSTGRESQL) {
+                                final List<Login> logins = database.getLogins();
+                                final Login login = logins.getFirst();
+                                final Facet facet = new Facet(data, login);
+                                profile.addFacet(facet);
+                                foundExtern = true;
+                            } else if (data.schema == ESchema.SYSTEM && data.use == dbUse
+                                       && server.type == EDbProduct.POSTGRESQL) {
+                                final List<Login> logins = database.getLogins();
+                                final Login login = logins.getFirst();
+                                final Facet facet = new Facet(data, login);
+                                profile.addFacet(facet);
+                                foundExtern = true;
+                            } else if (data.schema == ESchema.ANALYTICS && data.use == dbUse
+                                       && server.type == EDbProduct.POSTGRESQL) {
                                 final List<Login> logins = database.getLogins();
                                 final Login login = logins.getFirst();
                                 final Facet facet = new Facet(data, login);

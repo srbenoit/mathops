@@ -241,6 +241,6 @@ public final class Cache {
 
         final Facet facet = this.profile.getFacet(which);
 
-        return facet.data.prefix;
+        return facet == null ? null : facet.data.prefix;
     }
 }

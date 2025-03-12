@@ -2,6 +2,7 @@ package dev.mathops.app.adm.management;
 
 import dev.mathops.app.adm.MainWindow;
 import dev.mathops.app.adm.Skin;
+import dev.mathops.app.adm.management.general.GeneralCard;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.Cache;
 

@@ -1,5 +1,6 @@
 package dev.mathops.db.reclogic.main;
 
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.ESchema;
 import dev.mathops.db.rec.main.FacilityRec;
@@ -8,6 +9,7 @@ import dev.mathops.text.builder.SimpleBuilder;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -73,14 +75,23 @@ public final class FacilityLogic implements IRecLogic<FacilityRec> {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
-        final String sql = SimpleBuilder.concat("INSERT INTO ", schemaPrefix,
-                ".facility (facility,name,building,room) VALUES (",
-                sqlStringValue(record.facility), ",",
-                sqlStringValue(record.name), ",",
-                sqlStringValue(record.building), ",",
-                sqlStringValue(record.room), ")");
+        final boolean result;
+        if (schemaPrefix == null) {
+            Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
+            result = false;
+        } else {
+            final String sql = SimpleBuilder.concat("INSERT INTO ", schemaPrefix,
+                    ".facility (facility,name,building,room) VALUES (",
+                    sqlStringValue(record.facility), ",",
+                    sqlStringValue(record.name), ",",
+                    sqlStringValue(record.building), ",",
+                    sqlStringValue(record.room), ")");
 
-        return doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, sql);
+
+        }
+
+        return result;
     }
 
     /**
@@ -96,10 +107,18 @@ public final class FacilityLogic implements IRecLogic<FacilityRec> {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
-        final String sql = SimpleBuilder.concat("DELETE FROM ", schemaPrefix, ".facility WHERE facility=",
-                sqlStringValue(record.facility));
+        final boolean result;
+        if (schemaPrefix == null) {
+            Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
+            result = false;
+        } else {
+            final String sql = SimpleBuilder.concat("DELETE FROM ", schemaPrefix, ".facility WHERE facility=",
+                    sqlStringValue(record.facility));
 
-        return doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, sql);
+        }
+
+        return result;
     }
 
     /**
@@ -114,9 +133,17 @@ public final class FacilityLogic implements IRecLogic<FacilityRec> {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
-        final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".facility");
+        final List<FacilityRec> result;
+        if (schemaPrefix == null) {
+            Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
+            result = new ArrayList<>(0);
+        } else {
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".facility");
 
-        return doListQuery(cache, sql);
+            result = doListQuery(cache, sql);
+        }
+
+        return result;
     }
 
     /**
@@ -131,10 +158,18 @@ public final class FacilityLogic implements IRecLogic<FacilityRec> {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
-        final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".facility WHERE facility=",
-                sqlStringValue(facility));
+        final FacilityRec result;
+        if (schemaPrefix == null) {
+            Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
+            result = null;
+        } else {
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".facility WHERE facility=",
+                    sqlStringValue(facility));
 
-        return doSingleQuery(cache, sql);
+            return doSingleQuery(cache, sql);
+        }
+
+        return result;
     }
 
     /**
@@ -149,12 +184,20 @@ public final class FacilityLogic implements IRecLogic<FacilityRec> {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
-        final String sql = SimpleBuilder.concat("UPDATE ", schemaPrefix, ".facility SET name=",
-                sqlStringValue(record.name), ",building=", sqlStringValue(record.building), ",room=",
-                sqlStringValue(record.room), " WHERE facility=",
-                sqlStringValue(record.facility));
+        final boolean result;
+        if (schemaPrefix == null) {
+            Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
+            result = false;
+        } else {
+            final String sql = SimpleBuilder.concat("UPDATE ", schemaPrefix, ".facility SET name=",
+                    sqlStringValue(record.name), ",building=", sqlStringValue(record.building), ",room=",
+                    sqlStringValue(record.room), " WHERE facility=",
+                    sqlStringValue(record.facility));
 
-        return doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, sql);
+        }
+
+        return result;
     }
 
     /**
