@@ -3,6 +3,8 @@ package dev.mathops.db.rec.main;
 import dev.mathops.db.rec.RecBase;
 import dev.mathops.text.builder.HtmlBuilder;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Objects;
 
 /**
@@ -22,56 +24,113 @@ import java.util.Objects;
 public final class FacilityHoursRec extends RecBase implements Comparable<FacilityHoursRec> {
 
     /** The table name for serialization of records. */
-    public static final String TABLE_NAME = "facility";
+    public static final String TABLE_NAME = "facility_hours";
 
     /** A field name for serialization of records. */
     private static final String FLD_FACILITY = "facility";
 
     /** A field name for serialization of records. */
-    private static final String FLD_NAME = "name";
+    private static final String FLD_DISPLAY_INDEX = "display_index";
 
     /** A field name for serialization of records. */
-    private static final String FLD_BUILDING = "building";
+    private static final String FLD_WEEKDAYS = "weekdays";
 
     /** A field name for serialization of records. */
-    private static final String FLD_ROOM = "room";
+    private static final String FLD_START_DT = "start_dt";
+
+    /** A field name for serialization of records. */
+    private static final String FLD_END_DT = "end_dt";
+
+    /** A field name for serialization of records. */
+    private static final String FLD_OPEN_TIME_1 = "open_time_1";
+
+    /** A field name for serialization of records. */
+    private static final String FLD_CLOSE_TIME_1 = "close_time_1";
+
+    /** A field name for serialization of records. */
+    private static final String FLD_OPEN_TIME_2 = "open_time_2";
+
+    /** A field name for serialization of records. */
+    private static final String FLD_CLOSE_TIME_2 = "close_time_2";
 
     /** The 'facility' field value. */
     public final String facility;
 
-    /** The 'name' field value. */
-    public final String name;
+    /** The 'display_index' field value. */
+    public final Integer displayIndex;
 
-    /** The 'building' field value. */
-    public final String building;
+    /** The 'weekdays' field value. */
+    public final Integer weekdays;
 
-    /** The 'room' field value. */
-    public final String room;
+    /** The 'start_dt' field value. */
+    public final LocalDate startDt;
+
+    /** The 'end_dt' field value. */
+    public final LocalDate endDt;
+
+    /** The 'open_time_1' field value. */
+    public final LocalTime openTime1;
+
+    /** The 'close_time_1' field value. */
+    public final LocalTime closeTime1;
+
+    /** The 'open_time_2' field value. */
+    public final LocalTime openTime2;
+
+    /** The 'close_time_2' field value. */
+    public final LocalTime closeTime2;
 
     /**
      * Constructs a new {@code FacilityHoursRec}.
      *
-     * @param theFacility the facility ID
-     * @param theName     the facility name
-     * @param theBuilding the building ID (null if the facility is virtual)
-     * @param theRoom     the room number (null if facility is virtual)
+     * @param theFacility     the facility ID
+     * @param theDisplayIndex the display index
+     * @param theWeekdays     the weekdays for which this record applies
+     * @param theStartDt      the start date
+     * @param theEndDt        the end date
+     * @param theOpenTime1    the first opening time
+     * @param theCloseTime1   the first closing time
+     * @param theOpenTime2    the second opening time
+     * @param theCloseTime2   the second closing time
      */
-    public FacilityHoursRec(final String theFacility, final String theName,
-                            final String theBuilding, final String theRoom) {
+    public FacilityHoursRec(final String theFacility, final Integer theDisplayIndex, final Integer theWeekdays,
+                            final LocalDate theStartDt, final LocalDate theEndDt,
+                            final LocalTime theOpenTime1, final LocalTime theCloseTime1,
+                            final LocalTime theOpenTime2, final LocalTime theCloseTime2) {
 
         super();
 
         if (theFacility == null) {
             throw new IllegalArgumentException("Facility ID may not be null");
         }
-        if (theName == null) {
-            throw new IllegalArgumentException("Facility name may not be null");
+        if (theDisplayIndex == null) {
+            throw new IllegalArgumentException("Display index may not be null");
+        }
+        if (theWeekdays == null) {
+            throw new IllegalArgumentException("Weekdays may not be null");
+        }
+        if (theStartDt == null) {
+            throw new IllegalArgumentException("Start date may not be null");
+        }
+        if (theEndDt == null) {
+            throw new IllegalArgumentException("End date may not be null");
+        }
+        if (theOpenTime1 == null) {
+            throw new IllegalArgumentException("First opening time may not be null");
+        }
+        if (theCloseTime1 == null) {
+            throw new IllegalArgumentException("First closing time may not be null");
         }
 
         this.facility = theFacility;
-        this.name = theName;
-        this.building = theBuilding;
-        this.room = theRoom;
+        this.displayIndex = theDisplayIndex;
+        this.weekdays = theWeekdays;
+        this.startDt = theStartDt;
+        this.endDt = theEndDt;
+        this.openTime1 = theOpenTime1;
+        this.closeTime1 = theCloseTime1;
+        this.openTime2 = theOpenTime2;
+        this.closeTime2 = theCloseTime2;
     }
 
     /**
@@ -84,7 +143,22 @@ public final class FacilityHoursRec extends RecBase implements Comparable<Facili
     @Override
     public int compareTo(final FacilityHoursRec o) {
 
-        return this.facility.compareTo(o.facility);
+        int result = this.facility.compareTo(o.facility);
+
+        if (result == 0) {
+            result = this.startDt.compareTo(o.startDt);
+            if (result == 0) {
+                result = this.endDt.compareTo(o.endDt);
+                if (result == 0) {
+                    result = this.openTime1.compareTo(o.openTime1);
+                    if (result == 0) {
+                        result = this.closeTime1.compareTo(o.closeTime1);
+                    }
+                }
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -100,11 +174,21 @@ public final class FacilityHoursRec extends RecBase implements Comparable<Facili
 
         appendField(htm, FLD_FACILITY, this.facility);
         htm.add(DIVIDER);
-        appendField(htm, FLD_NAME, this.name);
+        appendField(htm, FLD_DISPLAY_INDEX, this.displayIndex);
         htm.add(DIVIDER);
-        appendField(htm, FLD_BUILDING, this.building);
+        appendField(htm, FLD_WEEKDAYS, this.weekdays);
         htm.add(DIVIDER);
-        appendField(htm, FLD_ROOM, this.room);
+        appendField(htm, FLD_START_DT, this.startDt);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_START_DT, this.endDt);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_START_DT, this.openTime1);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_START_DT, this.closeTime1);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_START_DT, this.openTime2);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_START_DT, this.closeTime2);
 
         return htm.toString();
     }
@@ -118,9 +202,14 @@ public final class FacilityHoursRec extends RecBase implements Comparable<Facili
     public int hashCode() {
 
         return this.facility.hashCode()
-               + this.name.hashCode()
-               + Objects.hashCode(this.building)
-               + Objects.hashCode(this.room);
+               + this.displayIndex.hashCode()
+               + this.weekdays.hashCode()
+               + this.startDt.hashCode()
+               + this.endDt.hashCode()
+               + this.openTime1.hashCode()
+               + this.closeTime1.hashCode()
+               + Objects.hashCode(this.openTime2)
+               + Objects.hashCode(this.closeTime2);
     }
 
     /**
@@ -138,9 +227,14 @@ public final class FacilityHoursRec extends RecBase implements Comparable<Facili
             equal = true;
         } else if (obj instanceof final FacilityHoursRec rec) {
             equal = this.facility.equals(rec.facility)
-                    && this.name.equals(rec.name)
-                    && Objects.equals(this.building, rec.building)
-                    && Objects.equals(this.room, rec.room);
+                    && this.displayIndex.equals(rec.displayIndex)
+                    && this.weekdays.equals(rec.weekdays)
+                    && this.startDt.equals(rec.startDt)
+                    && this.endDt.equals(rec.endDt)
+                    && this.openTime1.equals(rec.openTime1)
+                    && this.closeTime1.equals(rec.closeTime1)
+                    && Objects.equals(this.openTime2, rec.openTime2)
+                    && Objects.equals(this.closeTime2, rec.closeTime2);
         } else {
             equal = false;
         }
