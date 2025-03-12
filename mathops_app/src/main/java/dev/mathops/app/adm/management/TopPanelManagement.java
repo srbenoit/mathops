@@ -152,7 +152,7 @@ public class TopPanelManagement extends JPanel implements ActionListener {
         add(this.cardPane, BorderLayout.CENTER);
 
         // Card 1: General
-        this.generalCard = new GeneralCard();
+        this.generalCard = new GeneralCard(theCache);
         this.cardPane.add(this.generalCard, GENERAL_CMD);
 
         // Card 2: Terms
@@ -238,7 +238,7 @@ public class TopPanelManagement extends JPanel implements ActionListener {
 
         if (GENERAL_CMD.equals(cmd)) {
             this.cards.show(this.cardPane, GENERAL_CMD);
-            this.generalCard.reset();
+            this.generalCard.refresh();
         } else if (TERMS_CMD.equals(cmd)) {
             this.cards.show(this.cardPane, TERMS_CMD);
             this.termCard.reset();

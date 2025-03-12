@@ -2,9 +2,11 @@ package dev.mathops.app.adm.management;
 
 import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
+import dev.mathops.db.Cache;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -22,10 +24,15 @@ class GeneralCard extends AdmPanelBase implements ActionListener {
     @Serial
     private static final long serialVersionUID = -4680085824616561014L;
 
+    /** The panel that shows all configured facilities with their operating hours and closures. */
+    private final GeneralFacilitiesPanel facilities;
+
     /**
      * Constructs a new {@code GeneralCard}.
+     *
+     * @param theCache the data cache
      */
-    GeneralCard() {
+    GeneralCard(final Cache theCache) {
 
         super();
 
@@ -40,9 +47,13 @@ class GeneralCard extends AdmPanelBase implements ActionListener {
 
         panel.add(makeHeader("General Configuration", false), BorderLayout.NORTH);
 
-        final JPanel center = new JPanel(new BorderLayout(10, 10));
-        center.setBackground(Skin.OFF_WHITE_GREEN);
-        panel.add(center, BorderLayout.CENTER);
+        final JTabbedPane tabs = new JTabbedPane();
+        tabs.setFont(Skin.BIG_BUTTON_16_FONT);
+        tabs.setBackground(Skin.OFF_WHITE_GREEN);
+        panel.add(tabs, BorderLayout.CENTER);
+
+        this.facilities = new GeneralFacilitiesPanel(theCache);
+        tabs.addTab("Facilities", this.facilities);
     }
 
     /**
@@ -56,7 +67,7 @@ class GeneralCard extends AdmPanelBase implements ActionListener {
         final String cmd = e.getActionCommand();
 
         if (REFRESH.equals(cmd)) {
-            processRefresh();
+            refresh();
         }
     }
 
@@ -71,16 +82,8 @@ class GeneralCard extends AdmPanelBase implements ActionListener {
     /**
      * Resets the card to accept data for a new loan.
      */
-    void reset() {
+    void refresh() {
 
-        // TODO:
-    }
-
-    /**
-     * Called when the "Refresh" button is pressed.
-     */
-    private void processRefresh() {
-
-        reset();
+        this.facilities.refreshStatus();
     }
 }
