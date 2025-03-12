@@ -13,9 +13,11 @@ import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -190,28 +192,28 @@ public interface IRecLogic<T extends RecBase> {
         return value > 9 ? Integer.toString(value) : ("0" + value);
     }
 
-//    /**
-//     * Returns the string needed to include a time in an SQL statement.
-//     *
-//     * @param tm the time
-//     * @return the SQL string, in the form "'23:59:58'".
-//     */
-//    default String sqlTimeValue(final LocalTime tm) {
-//
-//        final String result;
-//
-//        if (tm == null) {
-//            result = "null";
-//        } else {
-//            final int hh = tm.getHour();
-//            final int mm = tm.getMinute();
-//            final int ss = tm.getSecond();
-//
-//            result = "'" + hh + ":" + mm + ":" + ss + "')";
-//        }
-//
-//        return result;
-//    }
+    /**
+     * Returns the string needed to include a time in an SQL statement.
+     *
+     * @param tm the time
+     * @return the SQL string, in the form "'23:59:58'".
+     */
+    default String sqlTimeValue(final LocalTime tm) {
+
+        final String result;
+
+        if (tm == null) {
+            result = "null";
+        } else {
+            final int hh = tm.getHour();
+            final int mm = tm.getMinute();
+            final int ss = tm.getSecond();
+
+            result = "'" + hh + ":" + mm + ":" + ss + "')";
+        }
+
+        return result;
+    }
 
     /**
      * Returns the string needed to include a date/time in an SQL statement.
@@ -344,6 +346,23 @@ public interface IRecLogic<T extends RecBase> {
         final Date tmp = rs.getDate(name);
 
         return tmp == null ? null : tmp.toLocalDate();
+    }
+
+    /**
+     * Retrieves a LocalDate field value from a result set, returning null if the result set indicates a null value was
+     * present.
+     *
+     * @param rs   the result set
+     * @param name the field name
+     * @return the value
+     * @throws SQLException if there is an error retrieving the value
+     */
+    default LocalTime getTimeField(final ResultSet rs, final String name)
+            throws SQLException {
+
+        final Time tmp = rs.getTime(name);
+
+        return tmp == null ? null : tmp.toLocalTime();
     }
 
     /**

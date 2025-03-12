@@ -12,6 +12,16 @@ import java.util.List;
 
 /**
  * A utility class to work with "facility" records.
+ *
+ * <pre>
+ * CREATE TABLE IF NOT EXISTS main.facility (
+ *   facility       CHAR(10)     NOT NULL,
+ *   name           VARCHAR(100) NOT NULL,
+ *   building       VARCHAR(40),
+ *   room           VARCHAR(20),
+ *   CONSTRAINT facility_pk PRIMARY KEY (facility)
+ * ) TABLESPACE primary_ts;
+ * </pre>
  */
 public final class FacilityLogic implements IRecLogic<FacilityRec> {
 
