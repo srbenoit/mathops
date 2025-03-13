@@ -177,9 +177,37 @@ public final class FacilityHoursLogic implements IRecLogic<FacilityHoursRec> {
     /**
      * Queries for all facility hours records for a single facility.
      *
+     * @param cache        the data cache
+     * @param facility     the facility ID for which to query
+     * @param displayIndex the display index for which to query
+     * @return the facility hours record; {@code null} if not found
+     * @throws SQLException if there is an error performing the query
+     */
+    public FacilityHoursRec query(final Cache cache, final String facility, final Integer displayIndex)
+            throws SQLException {
+
+        final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
+
+        final FacilityHoursRec result;
+        if (schemaPrefix == null) {
+            Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
+            result = null;
+        } else {
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".facility_hours WHERE facility=",
+                    sqlStringValue(facility), " AND display_index=", sqlIntegerValue(displayIndex));
+
+            result = doSingleQuery(cache, sql);
+        }
+
+        return result;
+    }
+
+    /**
+     * Queries for all facility hours records for a single facility.
+     *
      * @param cache    the data cache
      * @param facility the facility ID for which to query
-     * @return the facility; {@code null} if not found
+     * @return the list of facility hours records (could be empty)
      * @throws SQLException if there is an error performing the query
      */
     public List<FacilityHoursRec> queryByFacility(final Cache cache, final String facility) throws SQLException {
