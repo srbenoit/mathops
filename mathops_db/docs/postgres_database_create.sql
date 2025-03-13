@@ -47,26 +47,9 @@ CREATE ROLE math WITH LOGIN CREATEDB CREATEROLE INHERIT PASSWORD '**41**!';
 
 CREATE DATABASE math WITH OWNER = math ENCODING = 'UTF8';
 
-CREATE TABLESPACE main_tbl OWNER math LOCATION '/opt/pg_tblspc/pgdata-main-tblspc';
-CREATE TABLESPACE main_idx OWNER math LOCATION '/opt/pg_tblspc/pgdata-main-index';
-
-CREATE TABLESPACE dev_tbl OWNER math LOCATION '/opt/pg_tblspc/pgdata-dev-tblspc';
-CREATE TABLESPACE dev_idx OWNER math LOCATION '/opt/pg_tblspc/pgdata-dev-index';
-
-CREATE TABLESPACE anlyt_tbl OWNER math LOCATION '/opt/pg_tblspc/pgdata-anlyt-tblspc';
-CREATE TABLESPACE anlyt_idx OWNER math LOCATION '/opt/pg_tblspc/pgdata-anlyt-index';
-
-CREATE TABLESPACE test OWNER math LOCATION '/opt/pg_tblspc/pgdata-test-tblspc';
-
-CREATE TABLESPACE sp24_tbl OWNER math LOCATION '/opt/pg_tblspc/pgdata-sp24-tblspc';
-CREATE TABLESPACE sp24_idx OWNER math LOCATION '/opt/pg_tblspc/pgdata-sp24-index';
-
-CREATE TABLESPACE fa23_tbl OWNER math LOCATION '/opt/pg_tblspc/pgdata-fa23-tblspc';
-CREATE TABLESPACE fa23_idx OWNER math LOCATION '/opt/pg_tblspc/pgdata-fa23-index';
-
-CREATE TABLESPACE sp23_tbl OWNER math LOCATION '/opt/pg_tblspc/pgdata-sp23-tblspc';
-CREATE TABLESPACE sp23_idx OWNER math LOCATION '/opt/pg_tblspc/pgdata-sp23-index';
-
+CREATE TABLESPACE primary_ts OWNER math LOCATION '/opt/pgsql17/pgschemas/primary';
+CREATE TABLESPACE analytics_ts OWNER math LOCATION '/opt/pgsql17/pgschemas/analytics';
+CREATE TABLESPACE term_ts OWNER math LOCATION '/opt/pgsql17/pgschemas/term';
 
 -- To connect as 'math':
 -- /opt/postgresql/bin/psql -d math -U math

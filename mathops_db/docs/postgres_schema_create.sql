@@ -9,24 +9,239 @@
 
 -- Create the schemas in the "math" database.
 
-CREATE SCHEMA IF NOT EXISTS main AUTHORIZATION math;      -- Production main
-CREATE SCHEMA IF NOT EXISTS main_d AUTHORIZATION math;    -- Development main
-CREATE SCHEMA IF NOT EXISTS main_t AUTHORIZATION math;    -- Test main
-CREATE SCHEMA IF NOT EXISTS term_d AUTHORIZATION math;    -- Development term
-CREATE SCHEMA IF NOT EXISTS term_t AUTHORIZATION math;    -- Test term
-CREATE SCHEMA IF NOT EXISTS anlyt AUTHORIZATION math;     -- Production analytics
-CREATE SCHEMA IF NOT EXISTS anlyt_t AUTHORIZATION math;   -- Test analytics
-CREATE SCHEMA IF NOT EXISTS term_sm24 AUTHORIZATION math; -- SP24 term
-CREATE SCHEMA IF NOT EXISTS term_sp24 AUTHORIZATION math; -- SP24 term
-CREATE SCHEMA IF NOT EXISTS term_fa23 AUTHORIZATION math; -- FA23 term
-CREATE SCHEMA IF NOT EXISTS term_sm23 AUTHORIZATION math; -- SM23 term
-CREATE SCHEMA IF NOT EXISTS sterm_p23 AUTHORIZATION math; -- SP23 term
+CREATE SCHEMA IF NOT EXISTS mathops AUTHORIZATION math;         -- Production mathops
+CREATE SCHEMA IF NOT EXISTS mathops_dev AUTHORIZATION math;     -- Development mathops
+CREATE SCHEMA IF NOT EXISTS mathops_test AUTHORIZATION math;    -- Test mathops
 
+CREATE SCHEMA IF NOT EXISTS main AUTHORIZATION math;            -- Production main
+CREATE SCHEMA IF NOT EXISTS main_dev AUTHORIZATION math;        -- Development main
+CREATE SCHEMA IF NOT EXISTS main_test AUTHORIZATION math;       -- Test main
 
+CREATE SCHEMA IF NOT EXISTS legacy AUTHORIZATION math;          -- Production legacy
+CREATE SCHEMA IF NOT EXISTS legacy_dev AUTHORIZATION math;      -- Development legacy
+CREATE SCHEMA IF NOT EXISTS legacy_test AUTHORIZATION math;     -- Test legacy
+
+CREATE SCHEMA IF NOT EXISTS extern AUTHORIZATION math;          -- Production extern
+CREATE SCHEMA IF NOT EXISTS extern_dev AUTHORIZATION math;      -- Development extern
+CREATE SCHEMA IF NOT EXISTS extern_test AUTHORIZATION math;     -- Test extern
+
+CREATE SCHEMA IF NOT EXISTS analytics AUTHORIZATION math;       -- Production analytics
+CREATE SCHEMA IF NOT EXISTS analytics_dev AUTHORIZATION math;   -- Development analytics
+CREATE SCHEMA IF NOT EXISTS analytics_test AUTHORIZATION math;  -- Test analytics
+
+CREATE SCHEMA IF NOT EXISTS term_dev AUTHORIZATION math;        -- Development term
+CREATE SCHEMA IF NOT EXISTS term_test AUTHORIZATION math;       -- Test term
+
+CREATE SCHEMA IF NOT EXISTS term_202410 AUTHORIZATION math;     -- Spring 2024 term
+CREATE SCHEMA IF NOT EXISTS term_202460 AUTHORIZATION math;     -- Summer 2024 term
+CREATE SCHEMA IF NOT EXISTS term_202490 AUTHORIZATION math;     -- Fall 2024 term
+CREATE SCHEMA IF NOT EXISTS term_202510 AUTHORIZATION math;     -- Spring 2025 term
+CREATE SCHEMA IF NOT EXISTS term_202560 AUTHORIZATION math;     -- Summer 2025 term
+CREATE SCHEMA IF NOT EXISTS term_202590 AUTHORIZATION math;     -- Fall 2025 term
 
 -- ================================================================================================
--- Create schema objects within the 'main', 'main_d', and 'main_t' schemas. 
+-- Create schema objects within the 'main', 'main_dev', and 'main_test' schemas.
 -- ================================================================================================
+
+-- ------------------------------------------------------------------------------------------------
+-- TABLE: which_db
+--
+--   Allows client code to ensure the prefix it is using to access tables is providing the expected
+--   data context (production, development, or test).
+--
+--   USAGE: Single record.
+--   EST. RECORDS: 1
+--   RETENTION: Stored in MAIN schema, retained.
+--   EST. RECORD SIZE: 4 bytes
+-- ------------------------------------------------------------------------------------------------
+
+-- DROP TABLE IF EXISTS main.which_db;
+CREATE TABLE IF NOT EXISTS main.which_db (
+    descr               char(4)        NOT NULL,  -- 'PROD' or 'DEV' or 'TEST'
+    PRIMARY KEY (descr)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main.which_db OWNER to math;
+INSERT INTO main.which_db (descr) values ('PROD');
+
+-- DROP TABLE IF EXISTS main_dev.which_db;
+CREATE TABLE IF NOT EXISTS main_dev.which_db (
+    descr               char(4)        NOT NULL,
+    PRIMARY KEY (descr)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main_dev.which_db OWNER to math;
+INSERT INTO main_dev.which_db (descr) values ('DEV');
+
+-- DROP TABLE IF EXISTS main_test.which_db;
+CREATE TABLE IF NOT EXISTS main_test.which_db (
+    descr               char(4)        NOT NULL,
+    PRIMARY KEY (descr)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main_test.which_db OWNER to math;
+INSERT INTO main_test.which_db (descr) values ('TEST');
+
+-- ------------------------------------------------------------------------------------------------
+-- TABLE: facility
+--
+--   Each record defines a facility that provides services to students.  Facilities have operating
+--   hours that can be displayed and may have scheduled closures.  Facilities can be physical, like
+--   a classroom or office, or virtual, like online help hours or a proctoring service.
+--
+--   USAGE: One record per facility.
+--   EST. RECORDS: 10
+--   RETENTION: Stored in MAIN schema, retained.
+--   EST. RECORD SIZE: 100 bytes
+--   EST. TOTAL SPACE: 1 KB
+-- ------------------------------------------------------------------------------------------------
+
+-- DROP TABLE IF EXISTS main.facility;
+CREATE TABLE IF NOT EXISTS main.facility (
+    facility             char(10)        NOT NULL,  -- A unique ID for each facility (not visible)
+    name                 varchar(100)    NOT NULL,  -- The facility name (visible)
+    building             varchar(40),               -- Building name, null if virtual
+    room                 varchar(20),               -- Room number, null if virtual
+    PRIMARY KEY (facility)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main.facility OWNER to math;
+
+-- DROP TABLE IF EXISTS main_dev.facility;
+CREATE TABLE IF NOT EXISTS main_dev.facility (
+    facility             char(10)        NOT NULL,
+    name                 varchar(100)    NOT NULL,
+    building             varchar(40),
+    room                 varchar(20),
+    PRIMARY KEY (facility)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main_dev.facility OWNER to math;
+
+-- DROP TABLE IF EXISTS main_test.facility;
+CREATE TABLE IF NOT EXISTS main_test.facility (
+    facility             char(10)        NOT NULL,
+    name                 varchar(100)    NOT NULL,
+    building             varchar(40),
+    room                 varchar(20),
+    PRIMARY KEY (facility)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main_test.facility OWNER to math;
+
+-- ------------------------------------------------------------------------------------------------
+-- TABLE: facility_hours
+--
+--   Each record defines block of hours/weekdays that the facility operates or is available to
+--   students.  Rows have a well-defined display order to drive website presentations of hours,
+--   and should be non-overlapping.
+--
+--   USAGE: One record per block, where a block specifies some range of hours over some set of.
+--          weekdays between a starting and an ending date.
+--   EST. RECORDS: 4 per facility x 10 facilities = 40
+--   RETENTION: Stored in MAIN schema, retained.
+--   EST. RECORD SIZE: 200 bytes
+--   EST. TOTAL SPACE: 2 KB
+-- ------------------------------------------------------------------------------------------------
+
+-- DROP TABLE IF EXISTS main.facility_hours;
+CREATE TABLE IF NOT EXISTS main.facility_hours (
+    facility             char(10)        NOT NULL,  -- The facility ID (references facility table)
+    display_index        smallint        NOT NULL,  -- The display index (rows display in order)
+    weekdays             smallint        NOT NULL,  -- Weekday (logical OR of 1=Sun, 2=Mon, 4=Tue,
+                                                    --  8=Wed, 16=Thu, 32=Fri, 64=Sat)
+    start_dt             date            NOT NULL,  -- The first date the facility is open
+    end_dt               date            NOT NULL,  -- The last date the facility is open
+    open_time_1          time            NOT NULL,  -- The time the facility opens
+    close_time_1         time            NOT NULL,  -- The time the facility closes
+    open_time_2          time,                      -- The time the facility re-opens
+    close_time_2         time,                      -- The time the facility closes after re-opening
+    PRIMARY KEY (facility, display_index)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main.facility_hours OWNER to math;
+
+-- DROP TABLE IF EXISTS main_dev.facility_hours;
+CREATE TABLE IF NOT EXISTS main_dev.facility_hours (
+    facility             char(10)        NOT NULL,
+    display_index        smallint        NOT NULL,
+    weekdays             smallint        NOT NULL,
+    start_dt             date            NOT NULL,
+    end_dt               date            NOT NULL,
+    open_time_1          time            NOT NULL,
+    close_time_1         time            NOT NULL,
+    open_time_2          time,
+    close_time_2         time,
+    PRIMARY KEY (facility, display_index)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main_dev.facility_hours OWNER to math;
+
+-- DROP TABLE IF EXISTS main_test.facility_hours;
+CREATE TABLE IF NOT EXISTS main_test.facility_hours (
+    facility             char(10)        NOT NULL,
+    display_index        smallint        NOT NULL,
+    weekdays             smallint        NOT NULL,
+    start_dt             date            NOT NULL,
+    end_dt               date            NOT NULL,
+    open_time_1          time            NOT NULL,
+    close_time_1         time            NOT NULL,
+    open_time_2          time,
+    close_time_2         time,
+    PRIMARY KEY (facility, display_index)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main_test.facility_hours OWNER to math;
+
+-- ------------------------------------------------------------------------------------------------
+-- TABLE: facility_closure
+--
+--   Each record represents a closure of a facility on a single day.  Examples are holidays,
+--   semester breaks, and ad-hoc closures due to weather, natural disaster, etc.  Storing closures
+--   separately from operating hours avoids having to define (and display) a large number of ranges
+--   of operating hours.  Hours can be displayed by showing all the operating hours, then a note
+--   that the facility is closed on the closure dates/times.
+--
+--   USAGE: One record per closure.
+--   EST. RECORDS: 8 per facility x 10 facilities = 80
+--   RETENTION: Stored in MAIN schema, retained, but updated over time.
+--   EST. RECORD SIZE: 200 bytes
+--   EST. TOTAL SPACE: 2 KB
+-- ------------------------------------------------------------------------------------------------
+
+-- DROP TABLE IF EXISTS main.facility_closure;
+CREATE TABLE IF NOT EXISTS main.facility_closure (
+    facility             char(10)        NOT NULL,  -- The facility ID (references facility table)
+    closure_dt           date            NOT NULL,  -- The date of the closure
+    closure_type         char(10)        NOT NULL,  -- The type of closure ('HOLIDAY, 'SP_BREAK',
+                                                    --  'FA_BREAK', 'WEATHER', 'EMERGENCY', 'MAINT',
+                                                    --  'EVENT')
+    start_time           time,                      -- Start time, or null if all day
+    end_time             time,                      -- End time, or null if all day
+    PRIMARY KEY (facility,closure_dt)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main.facility_closure OWNER to math;
+
+-- DROP TABLE IF EXISTS main_dev.facility_closure;
+CREATE TABLE IF NOT EXISTS main_dev.facility_closure (
+    facility             char(10)        NOT NULL,
+    closure_dt           date            NOT NULL,
+    closure_type         char(10)        NOT NULL,
+    start_time           time,
+    end_time             time,
+    PRIMARY KEY (facility,closure_dt)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main_dev.facility_closure OWNER to math;
+
+-- DROP TABLE IF EXISTS main_test.facility_closure;
+CREATE TABLE IF NOT EXISTS main_test.facility_closure (
+    facility             char(10)        NOT NULL,
+    closure_dt           date            NOT NULL,
+    closure_type         char(10)        NOT NULL,
+    start_time           time,
+    end_time             time,
+    PRIMARY KEY (facility,closure_dt)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main_test.facility_closure OWNER to math;
+
+
+
+
+
+
+
+
 
 -- ------------------------------------------------------------------------------------------------
 -- SERVICE: "Term"

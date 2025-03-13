@@ -180,15 +180,15 @@ public final class FacilityHoursRec extends RecBase implements Comparable<Facili
         htm.add(DIVIDER);
         appendField(htm, FLD_START_DT, this.startDt);
         htm.add(DIVIDER);
-        appendField(htm, FLD_START_DT, this.endDt);
+        appendField(htm, FLD_END_DT, this.endDt);
         htm.add(DIVIDER);
-        appendField(htm, FLD_START_DT, this.openTime1);
+        appendField(htm, FLD_OPEN_TIME_1, this.openTime1);
         htm.add(DIVIDER);
-        appendField(htm, FLD_START_DT, this.closeTime1);
+        appendField(htm, FLD_CLOSE_TIME_1, this.closeTime1);
         htm.add(DIVIDER);
-        appendField(htm, FLD_START_DT, this.openTime2);
+        appendField(htm, FLD_OPEN_TIME_2, this.openTime2);
         htm.add(DIVIDER);
-        appendField(htm, FLD_START_DT, this.closeTime2);
+        appendField(htm, FLD_CLOSE_TIME_2, this.closeTime2);
 
         return htm.toString();
     }
