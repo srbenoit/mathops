@@ -10,7 +10,7 @@ import dev.mathops.db.cfg.DatabaseConfig;
 import dev.mathops.db.cfg.Facet;
 import dev.mathops.db.cfg.Login;
 import dev.mathops.db.cfg.Profile;
-import dev.mathops.db.rec.main.FacilityHoursRec;
+import dev.mathops.db.rec.main.FacilityClosureRec;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -30,99 +30,60 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * Tests for the {@code FacilityHoursLogic} class.
+ * Tests for the {@code FacilityClosureLogic} class.
  */
-final class TestFacilityHoursLogic {
+final class TestFacilityClosureLogic {
 
-    /** A display index. */
-    private static final Integer ONE = Integer.valueOf(1);
+    /** A closure date. */
+    private static final LocalDate HOLIDAY_1 = LocalDate.of(2025, 1, 20);
 
-    /** A display index. */
-    private static final Integer TWO = Integer.valueOf(2);
+    /** A closure date. */
+    private static final LocalDate SNOW = LocalDate.of(2025, 2, 28);
 
-    /** A set of weekdays. */
-    private static final Integer WEEDKDAYS_MTWRF = Integer.valueOf(62);
-
-    /** A set of weekdays. */
-    private static final Integer WEEDKDAYS_SMTWRF = Integer.valueOf(63);
-
-    /** A set of weekdays. */
-    private static final Integer WEEDKDAYS_S = Integer.valueOf(1);
+    /** A closure date. */
+    private static final LocalDate BREAK_1 = LocalDate.of(2025, 3, 16);
 
     /** A start date. */
-    private static final LocalDate START_1 = LocalDate.of(2025, 1, 21);
-
-    /** A display index. */
-    private static final LocalDate END_1 = LocalDate.of(2025, 5, 9);
+    private static final LocalTime START_1 = LocalTime.of(12, 30);
 
     /** A start date. */
-    private static final LocalDate START_2 = LocalDate.of(2025, 1, 22);
-
-    /** A display index. */
-    private static final LocalDate END_2 = LocalDate.of(2025, 5, 8);
-
-    /** A start date. */
-    private static final LocalTime OPEN_1 = LocalTime.of(10, 0);
-
-    /** A display index. */
-    private static final LocalTime CLOSE_1 = LocalTime.of(16, 0);
-
-    /** A start date. */
-    private static final LocalTime OPEN_2 = LocalTime.of(17, 30);
-
-    /** A display index. */
-    private static final LocalTime CLOSE_2 = LocalTime.of(20, 15);
-
-    /** A start date. */
-    private static final LocalTime OPEN_3 = LocalTime.of(12, 0);
-
-    /** A display index. */
-    private static final LocalTime CLOSE_3 = LocalTime.of(15, 0);
+    private static final LocalTime END_1 = LocalTime.of(17, 30);
 
     /** A raw test record. */
-    private static final FacilityHoursRec RAW1 =
-            new FacilityHoursRec("PRECALC_TC", ONE, WEEDKDAYS_MTWRF, START_1, END_1, OPEN_1, CLOSE_1, OPEN_2, CLOSE_2);
+    private static final FacilityClosureRec RAW1 =
+            new FacilityClosureRec("PRECALC_TC", HOLIDAY_1, FacilityClosureRec.HOLIDAY, null, null);
+
+//    public FacilityClosureRec(final String theFacility, final LocalDate theClosureDt, final String theClosureType,
+//                              final LocalTime theStartTime, final LocalTime theEndTime) {
 
     /** A raw test record. */
-    private static final FacilityHoursRec RAW2 =
-            new FacilityHoursRec("PRECALC_LC", ONE, WEEDKDAYS_MTWRF, START_1, END_1, OPEN_1, CLOSE_1, OPEN_2, CLOSE_2);
+    private static final FacilityClosureRec RAW2 =
+            new FacilityClosureRec("PRECALC_LC", SNOW, FacilityClosureRec.WEATHER, START_1, END_1);
 
     /** A raw test record. */
-    private static final FacilityHoursRec RAW3 =
-            new FacilityHoursRec("PRECALC_LC", TWO, WEEDKDAYS_S, START_1, END_1, OPEN_3, CLOSE_3, null, null);
+    private static final FacilityClosureRec RAW3 =
+            new FacilityClosureRec("PRECALC_LC", BREAK_1, FacilityClosureRec.SP_BREAK, null, null);
 
     /** A raw test record. */
-    private static final FacilityHoursRec RAW4 =
-            new FacilityHoursRec("HELP_TEAMS", ONE, WEEDKDAYS_SMTWRF, START_1, END_1, OPEN_1, CLOSE_3, null, null);
-
-    /** A raw test record. */
-    private static final FacilityHoursRec RAW5 =
-            new FacilityHoursRec("HELP_TEAMS", TWO, WEEDKDAYS_MTWRF, START_1, END_1, OPEN_2, CLOSE_2, null, null);
-
-    /** A raw test record. */
-    private static final FacilityHoursRec UPD5 =
-            new FacilityHoursRec("HELP_TEAMS", TWO, WEEDKDAYS_S, START_2, END_2, OPEN_3, CLOSE_3, null, null);
+    private static final FacilityClosureRec UPD3 =
+            new FacilityClosureRec("PRECALC_LC", BREAK_1, FacilityClosureRec.EVENT, START_1, END_1);
 
     /**
      * Prints an indication of an unexpected record.
      *
      * @param r the unexpected record
      */
-    private static void printUnexpected(final FacilityHoursRec r) {
+    private static void printUnexpected(final FacilityClosureRec r) {
 
         Log.warning("Unexpected facility ", r.facility);
-        Log.warning("Unexpected displayIndex ", r.displayIndex);
-        Log.warning("Unexpected weekdays ", r.weekdays);
-        Log.warning("Unexpected startDt ", r.startDt);
-        Log.warning("Unexpected endDt ", r.endDt);
-        Log.warning("Unexpected openTime1 ", r.openTime1);
-        Log.warning("Unexpected closeTime1 ", r.closeTime1);
-        Log.warning("Unexpected openTime2 ", r.openTime2);
-        Log.warning("Unexpected closeTime2 ", r.closeTime2);
+        Log.warning("Unexpected closureDt ", r.closureDt);
+        Log.warning("Unexpected closureType ", r.closureType);
+        Log.warning("Unexpected startTime ", r.startTime);
+        Log.warning("Unexpected endTime ", r.endTime);
     }
 
     /**
-     * Tests for the {@code FacilityHoursLogic} class.
+     * Tests for the {@code FacilityClosureLogic} class.
      */
     @Nested
     final class Postgres {
@@ -178,20 +139,18 @@ final class TestFacilityHoursLogic {
                 }
 
                 try (final Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("DELETE FROM " + prefix + ".facility_hours");
+                    stmt.executeUpdate("DELETE FROM " + prefix + ".facility_closure");
                 }
                 conn.commit();
 
-                final FacilityHoursLogic logic = FacilityHoursLogic.get(cache);
+                final FacilityClosureLogic logic = FacilityClosureLogic.get(cache);
 
-                assertTrue(logic.insert(cache, RAW1), "Failed to insert PostgreSQL facility_hours");
-                assertTrue(logic.insert(cache, RAW2), "Failed to insert PostgreSQL facility_hours");
-                assertTrue(logic.insert(cache, RAW3), "Failed to insert PostgreSQL facility_hours");
-                assertTrue(logic.insert(cache, RAW4), "Failed to insert PostgreSQL facility_hours");
-                assertTrue(logic.insert(cache, RAW5), "Failed to insert PostgreSQL facility_hours");
+                assertTrue(logic.insert(cache, RAW1), "Failed to insert PostgreSQL facility_closure");
+                assertTrue(logic.insert(cache, RAW2), "Failed to insert PostgreSQL facility_closure");
+                assertTrue(logic.insert(cache, RAW3), "Failed to insert PostgreSQL facility_closure");
             } catch (final SQLException ex) {
                 Log.warning(ex);
-                fail("Exception while initializing PostgreSQL 'facility_hours' table: " + ex.getMessage());
+                fail("Exception while initializing PostgreSQL 'facility_closure' table: " + ex.getMessage());
                 throw new IllegalArgumentException(ex);
             } finally {
                 postgresLogin.checkInConnection(conn);
@@ -204,44 +163,36 @@ final class TestFacilityHoursLogic {
         void test0001() {
 
             final Cache cache = new Cache(postgresProfile);
-            final FacilityHoursLogic logic = FacilityHoursLogic.get(cache);
+            final FacilityClosureLogic logic = FacilityClosureLogic.get(cache);
 
             try {
-                final List<FacilityHoursRec> all = logic.queryAll(cache);
+                final List<FacilityClosureRec> all = logic.queryAll(cache);
 
-                assertEquals(5, all.size(), "Incorrect record count from PostgreSQL queryAll");
+                assertEquals(3, all.size(), "Incorrect record count from PostgreSQL queryAll");
 
                 boolean found1 = false;
                 boolean found2 = false;
                 boolean found3 = false;
-                boolean found4 = false;
-                boolean found5 = false;
 
-                for (final FacilityHoursRec r : all) {
+                for (final FacilityClosureRec r : all) {
                     if (RAW1.equals(r)) {
                         found1 = true;
                     } else if (RAW2.equals(r)) {
                         found2 = true;
                     } else if (RAW3.equals(r)) {
                         found3 = true;
-                    } else if (RAW4.equals(r)) {
-                        found4 = true;
-                    } else if (RAW5.equals(r)) {
-                        found5 = true;
                     } else {
                         printUnexpected(r);
                         fail("Extra record found");
                     }
                 }
 
-                assertTrue(found1, "PostgreSQL facility_hours 1 not found");
-                assertTrue(found2, "PostgreSQL facility_hours 2 not found");
-                assertTrue(found3, "PostgreSQL facility_hours 3 not found");
-                assertTrue(found4, "PostgreSQL facility_hours 4 not found");
-                assertTrue(found5, "PostgreSQL facility_hours 5 not found");
+                assertTrue(found1, "PostgreSQL facility_closure 1 not found");
+                assertTrue(found2, "PostgreSQL facility_closure 2 not found");
+                assertTrue(found3, "PostgreSQL facility_closure 3 not found");
             } catch (final SQLException ex) {
                 Log.warning(ex);
-                fail("Exception while querying all PostgreSQL 'facility_hours' rows: " + ex.getMessage());
+                fail("Exception while querying all PostgreSQL 'facility_closure' rows: " + ex.getMessage());
             }
         }
 
@@ -251,19 +202,17 @@ final class TestFacilityHoursLogic {
         void test0002() {
 
             final Cache cache = new Cache(postgresProfile);
-            final FacilityHoursLogic logic = FacilityHoursLogic.get(cache);
+            final FacilityClosureLogic logic = FacilityClosureLogic.get(cache);
 
             try {
-                final FacilityHoursRec r = logic.query(cache, RAW3.facility, RAW3.displayIndex);
+                final FacilityClosureRec r = logic.query(cache, RAW2.facility, RAW2.closureDt);
 
                 assertNotNull(r, "No record returned by query");
-                if (!RAW3.equals(r)) {
-                    printUnexpected(r);
-                    fail("Incorrect results after update of facility");
-                }
+                assertEquals(RAW2, r, "Incorrect record returned by query");
+
             } catch (final SQLException ex) {
                 Log.warning(ex);
-                fail("Exception while querying facility_hours: " + ex.getMessage());
+                fail("Exception while querying facility_closure: " + ex.getMessage());
             }
         }
 
@@ -273,17 +222,17 @@ final class TestFacilityHoursLogic {
         void test0003() {
 
             final Cache cache = new Cache(postgresProfile);
-            final FacilityHoursLogic logic = FacilityHoursLogic.get(cache);
+            final FacilityClosureLogic logic = FacilityClosureLogic.get(cache);
 
             try {
-                final List<FacilityHoursRec> all = logic.queryByFacility(cache, "PRECALC_LC");
+                final List<FacilityClosureRec> all = logic.queryByFacility(cache, "PRECALC_LC");
 
                 assertEquals(2, all.size(), "Incorrect record count from PostgreSQL queryByFacility");
 
                 boolean found2 = false;
                 boolean found3 = false;
 
-                for (final FacilityHoursRec r : all) {
+                for (final FacilityClosureRec r : all) {
                     if (RAW2.equals(r)) {
                         found2 = true;
                     } else if (RAW3.equals(r)) {
@@ -294,11 +243,11 @@ final class TestFacilityHoursLogic {
                     }
                 }
 
-                assertTrue(found2, "PostgreSQL facility_hours 2 not found");
-                assertTrue(found3, "PostgreSQL facility_hours 3 not found");
+                assertTrue(found2, "PostgreSQL facility_closure 2 not found");
+                assertTrue(found3, "PostgreSQL facility_closure 3 not found");
             } catch (final SQLException ex) {
                 Log.warning(ex);
-                fail("Exception while querying facility_hours by facility: " + ex.getMessage());
+                fail("Exception while querying facility_closure by facility: " + ex.getMessage());
             }
         }
 
@@ -308,25 +257,25 @@ final class TestFacilityHoursLogic {
         void test0004() {
 
             final Cache cache = new Cache(postgresProfile);
-            final FacilityHoursLogic logic = FacilityHoursLogic.get(cache);
+            final FacilityClosureLogic logic = FacilityClosureLogic.get(cache);
 
             try {
-                if (logic.update(cache, UPD5)) {
+                if (logic.update(cache, UPD3)) {
 
-                    final FacilityHoursRec r = logic.query(cache, UPD5.facility, UPD5.displayIndex);
+                    final FacilityClosureRec r = logic.query(cache, UPD3.facility, UPD3.closureDt);
 
                     assertNotNull(r, "No record returned by PostgreSQL query after update");
 
-                    if (!UPD5.equals(r)) {
+                    if (!UPD3.equals(r)) {
                         printUnexpected(r);
-                        fail("Incorrect results after update of facility_hours");
+                        fail("Incorrect results after update of facility_closure");
                     }
                 } else {
-                    fail("Failed to update facility_hours row");
+                    fail("Failed to update facility_closure row");
                 }
             } catch (final SQLException ex) {
                 Log.warning(ex);
-                fail("Exception while updating facility_hours: " + ex.getMessage());
+                fail("Exception while updating facility_closure: " + ex.getMessage());
             }
         }
 
@@ -336,43 +285,35 @@ final class TestFacilityHoursLogic {
         void test0005() {
 
             final Cache cache = new Cache(postgresProfile);
-            final FacilityHoursLogic logic = FacilityHoursLogic.get(cache);
+            final FacilityClosureLogic logic = FacilityClosureLogic.get(cache);
 
             try {
                 final boolean result = logic.delete(cache, RAW2);
                 assertTrue(result, "delete returned false");
 
-                final List<FacilityHoursRec> all = logic.queryAll(cache);
+                final List<FacilityClosureRec> all = logic.queryAll(cache);
 
-                assertEquals(4, all.size(), "Incorrect record count from queryAll after delete");
+                assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 
                 boolean found1 = false;
                 boolean found3 = false;
-                boolean found4 = false;
-                boolean found5 = false;
 
-                for (final FacilityHoursRec r : all) {
+                for (final FacilityClosureRec r : all) {
                     if (RAW1.equals(r)) {
                         found1 = true;
-                    } else if (RAW3.equals(r)) {
+                    } else if (UPD3.equals(r)) {
                         found3 = true;
-                    } else if (RAW4.equals(r)) {
-                        found4 = true;
-                    } else if (UPD5.equals(r)) {
-                        found5 = true;
                     } else {
                         printUnexpected(r);
                         fail("Extra record found");
                     }
                 }
 
-                assertTrue(found1, "facility_hours 1 not found");
-                assertTrue(found3, "facility_hours 3 not found");
-                assertTrue(found4, "facility_hours 4 not found");
-                assertTrue(found5, "facility_hours 5 not found");
+                assertTrue(found1, "facility_closure 1 not found");
+                assertTrue(found3, "facility_closure 3 not found");
             } catch (final SQLException ex) {
                 Log.warning(ex);
-                fail("Exception while deleting facility_hours: " + ex.getMessage());
+                fail("Exception while deleting facility_closure: " + ex.getMessage());
             }
         }
 
@@ -407,7 +348,7 @@ final class TestFacilityHoursLogic {
                     }
 
                     try (final Statement stmt = conn.createStatement()) {
-                        stmt.executeUpdate("DELETE FROM " + prefix + ".facility_hours");
+                        stmt.executeUpdate("DELETE FROM " + prefix + ".facility_closure");
                     }
 
                     conn.commit();

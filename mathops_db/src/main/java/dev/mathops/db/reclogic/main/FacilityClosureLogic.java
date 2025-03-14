@@ -154,6 +154,33 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
     }
 
     /**
+     * Queries for all facility closure records for a single facility closure.
+     *
+     * @param cache     the data cache
+     * @param facility  the facility ID for which to query
+     * @param closureDt the closure date
+     * @return the facility; {@code null} if not found
+     * @throws SQLException if there is an error performing the query
+     */
+    public FacilityClosureRec query(final Cache cache, final String facility, final LocalDate closureDt) throws SQLException {
+
+        final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
+
+        final FacilityClosureRec result;
+        if (schemaPrefix == null) {
+            Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
+            result = null;
+        } else {
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".facility_closure WHERE facility=",
+                    sqlStringValue(facility), " AND closure_dt=", sqlDateValue(closureDt));
+
+            result = doSingleQuery(cache, sql);
+        }
+
+        return result;
+    }
+
+    /**
      * Queries for all facility hours records for a single facility.
      *
      * @param cache    the data cache

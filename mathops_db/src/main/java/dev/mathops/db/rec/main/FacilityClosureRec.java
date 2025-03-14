@@ -23,6 +23,27 @@ import java.util.Objects;
  */
 public final class FacilityClosureRec extends RecBase implements Comparable<FacilityClosureRec> {
 
+    /** A defined closure type. */
+    public static final String HOLIDAY = "HOLIDAY";
+
+    /** A defined closure type. */
+    public static final String SP_BREAK = "SP_BREAK";
+
+    /** A defined closure type. */
+    public static final String FA_BREAK = "FA_BREAK";
+
+    /** A defined closure type. */
+    public static final String WEATHER = "WEATHER";
+
+    /** A defined closure type. */
+    public static final String EMERGENCY = "EMERGENCY";
+
+    /** A defined closure type. */
+    public static final String MAINT = "MAINT";
+
+    /** A defined closure type. */
+    public static final String EVENT = "EVENT";
+
     /** The table name for serialization of records. */
     public static final String TABLE_NAME = "facility_closure";
 

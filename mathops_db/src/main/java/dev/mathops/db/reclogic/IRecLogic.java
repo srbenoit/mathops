@@ -209,7 +209,7 @@ public interface IRecLogic<T extends RecBase> {
             final int mm = tm.getMinute();
             final int ss = tm.getSecond();
 
-            result = "'" + hh + ":" + mm + ":" + ss + "')";
+            result = "'" + padTo2(hh) + ":" + padTo2(mm) + ":" + padTo2(ss) + "'";
         }
 
         return result;

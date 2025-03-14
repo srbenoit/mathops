@@ -23,6 +23,30 @@ import java.util.Objects;
  */
 public final class FacilityHoursRec extends RecBase implements Comparable<FacilityHoursRec> {
 
+    /** Integer weekday constant - 'weekdays' field is a logical OR of these constants. */
+    public static final int SUN = 1;
+
+    /** Integer weekday constant - 'weekdays' field is a logical OR of these constants. */
+    public static final int MON = 2;
+
+    /** Integer weekday constant - 'weekdays' field is a logical OR of these constants. */
+    public static final int TUE = 4;
+
+    /** Integer weekday constant - 'weekdays' field is a logical OR of these constants. */
+    public static final int WED = 8;
+
+    /** Integer weekday constant - 'weekdays' field is a logical OR of these constants. */
+    public static final int THU = 16;
+
+    /** Integer weekday constant - 'weekdays' field is a logical OR of these constants. */
+    public static final int FRI = 32;
+
+    /** Integer weekday constant - 'weekdays' field is a logical OR of these constants. */
+    public static final int MON_TO_FRI = MON + TUE + WED + THU + FRI;
+
+    /** Integer weekday constant - 'weekdays' field is a logical OR of these constants. */
+    public static final int SAT = 64;
+
     /** The table name for serialization of records. */
     public static final String TABLE_NAME = "facility_hours";
 
