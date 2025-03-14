@@ -8,6 +8,7 @@ import dev.mathops.db.Cache;
 import dev.mathops.db.rec.main.FacilityRec;
 import dev.mathops.db.reclogic.main.FacilityLogic;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -18,17 +19,21 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * A panel that supports management of special student populations.
  */
-final class GeneralFacilitiesPanel extends AdmPanelBase implements ActionListener {
+final class FacilitiesPanel extends AdmPanelBase implements ActionListener {
 
     /** An action command. */
     private static final String CMD_ADD_FACILITY = "ADD_FACILITY";
 
     /** The data cache. */
     private final Cache cache;
+
+    /** The model backing the facility list. */
+    private final DefaultListModel<String> facilityListModel;
 
     /** The list of all facilities. */
     private final JList<String> facilityList;
@@ -37,11 +42,11 @@ final class GeneralFacilitiesPanel extends AdmPanelBase implements ActionListene
     private AddFacilityDialog addDialog = null;
 
     /**
-     * Constructs a new {@code GeneralFacilitiesPanel}.
+     * Constructs a new {@code FacilitiesPanel}.
      *
      * @param theCache the data cache
      */
-    GeneralFacilitiesPanel(final Cache theCache) {
+    FacilitiesPanel(final Cache theCache) {
 
         super();
 
@@ -58,7 +63,8 @@ final class GeneralFacilitiesPanel extends AdmPanelBase implements ActionListene
 
         col1.add(makeLabelMedium2("Defined Facilities"), BorderLayout.PAGE_START);
 
-        this.facilityList = new JList<>();
+        this.facilityListModel = new DefaultListModel<>();
+        this.facilityList = new JList<>(this.facilityListModel);
         final JScrollPane scroll = new JScrollPane(this.facilityList);
         col1.add(scroll, BorderLayout.CENTER);
 
@@ -74,14 +80,26 @@ final class GeneralFacilitiesPanel extends AdmPanelBase implements ActionListene
         add(tabs, StackedBorderLayout.CENTER);
 
         addFacility.addActionListener(this);
+        refreshStatus();
     }
 
     /**
      * Refreshes the billing status display.
      */
-    public void refreshStatus() {
+    void refreshStatus() {
 
-        // TODO
+        final FacilityLogic logic = FacilityLogic.get(this.cache);
+        try {
+            final List<FacilityRec> allRows = logic.queryAll(this.cache);
+
+            this.facilityListModel.removeAllElements();
+            for (final FacilityRec rec : allRows) {
+                this.facilityListModel.addElement(rec.facility);
+            }
+
+        } catch (final SQLException ex) {
+            Log.warning("Failed to query existing facilities", ex);
+        }
     }
 
     /**
@@ -116,7 +134,9 @@ final class GeneralFacilitiesPanel extends AdmPanelBase implements ActionListene
         String[] error = null;
 
         try {
-            if (!FacilityLogic.get(this.cache).insert(this.cache, rec)) {
+            if (FacilityLogic.get(this.cache).insert(this.cache, rec)) {
+                refreshStatus();
+            } else {
                 error = new String[]{"Failed to insert new facility record."};
             }
         } catch (final SQLException ex) {

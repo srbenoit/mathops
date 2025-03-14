@@ -25,7 +25,7 @@ public class GeneralCard extends AdmPanelBase implements ActionListener {
     private static final long serialVersionUID = -4680085824616561014L;
 
     /** The panel that shows all configured facilities with their operating hours and closures. */
-    private final GeneralFacilitiesPanel facilities;
+    private final FacilitiesPanel facilities;
 
     /**
      * Constructs a new {@code GeneralCard}.
@@ -52,7 +52,7 @@ public class GeneralCard extends AdmPanelBase implements ActionListener {
         tabs.setBackground(Skin.OFF_WHITE_GREEN);
         panel.add(tabs, BorderLayout.CENTER);
 
-        this.facilities = new GeneralFacilitiesPanel(theCache);
+        this.facilities = new FacilitiesPanel(theCache);
         tabs.addTab("Facilities", this.facilities);
     }
 

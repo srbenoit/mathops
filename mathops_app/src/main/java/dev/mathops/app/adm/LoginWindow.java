@@ -400,7 +400,6 @@ final class LoginWindow extends JFrame implements ActionListener {
         String err = null;
 
         if (LOGIN_CMD.equals(cmd)) {
-
             this.error.setText(CoreConstants.SPC);
 
             int good = 0;
@@ -451,9 +450,13 @@ final class LoginWindow extends JFrame implements ActionListener {
                 // Find login/data combinations for non-LEGACY schemas and add those to the profile
                 boolean foundLive = false;
                 boolean foundOds = false;
-                boolean foundExtern = false;
-                boolean foundAnalytic = false;
+
                 Data legacyData = null;
+                Data systemData = null;
+                Data mainData = null;
+                Data externData = null;
+                Data analyticData = null;
+
                 for (final Server server : this.dbConfig.getServers()) {
                     for (final Database database : server.getDatabases()) {
                         for (final Data data : database.getData()) {
@@ -469,33 +472,33 @@ final class LoginWindow extends JFrame implements ActionListener {
                                 final Facet facet = new Facet(data, login);
                                 profile.addFacet(facet);
                                 foundOds = true;
-                            } else if (data.schema == ESchema.EXTERN && data.use == dbUse) {
-                                final List<Login> logins = database.getLogins();
-                                final Login login = logins.getFirst();
-                                final Facet facet = new Facet(data, login);
-                                profile.addFacet(facet);
-                                foundExtern = true;
-                            } else if (data.schema == ESchema.MAIN && data.use == dbUse
-                                       && server.type == EDbProduct.POSTGRESQL) {
-                                final List<Login> logins = database.getLogins();
-                                final Login login = logins.getFirst();
-                                final Facet facet = new Facet(data, login);
-                                profile.addFacet(facet);
-                                foundExtern = true;
                             } else if (data.schema == ESchema.SYSTEM && data.use == dbUse
                                        && server.type == EDbProduct.POSTGRESQL) {
                                 final List<Login> logins = database.getLogins();
                                 final Login login = logins.getFirst();
                                 final Facet facet = new Facet(data, login);
                                 profile.addFacet(facet);
-                                foundExtern = true;
+                                systemData = data;
+                            } else if (data.schema == ESchema.MAIN && data.use == dbUse
+                                       && server.type == EDbProduct.POSTGRESQL) {
+                                final List<Login> logins = database.getLogins();
+                                final Login login = logins.getFirst();
+                                final Facet facet = new Facet(data, login);
+                                profile.addFacet(facet);
+                                mainData = data;
+                            } else if (data.schema == ESchema.EXTERN && data.use == dbUse) {
+                                final List<Login> logins = database.getLogins();
+                                final Login login = logins.getFirst();
+                                final Facet facet = new Facet(data, login);
+                                profile.addFacet(facet);
+                                externData = data;
                             } else if (data.schema == ESchema.ANALYTICS && data.use == dbUse
                                        && server.type == EDbProduct.POSTGRESQL) {
                                 final List<Login> logins = database.getLogins();
                                 final Login login = logins.getFirst();
                                 final Facet facet = new Facet(data, login);
                                 profile.addFacet(facet);
-                                foundAnalytic = true;
+                                analyticData = data;
                             } else if (data.schema == ESchema.LEGACY && data.use == dbUse
                                        && server.type == EDbProduct.INFORMIX) {
                                 legacyData = data;
@@ -504,17 +507,38 @@ final class LoginWindow extends JFrame implements ActionListener {
                     }
                 }
 
-                if (foundLive && foundOds && foundExtern && foundAnalytic && legacyData != null) {
+                if (foundLive && foundOds && legacyData != null && systemData != null && mainData != null
+                    && externData != null && analyticData != null) {
 
-                    // Find a legacy server/database/data combination
-                    final Login login = new Login(legacyData.database, "ADMIN_LOGIN_ID", usr, pwd);
-                    final Facet facet = new Facet(legacyData, login);
-                    profile.addFacet(facet);
+                    // Create synthetic facets with the entered login credentials
+
+                    final Login legacyLogin = new Login(legacyData.database, "LEGACY_LOGIN_ID", usr, pwd);
+                    final Facet legacyFacet = new Facet(legacyData, legacyLogin);
+                    profile.addFacet(legacyFacet);
+
+                    final Login systemLogin = new Login(systemData.database, "SYSTEM_LOGIN_ID", usr, pwd);
+                    final Facet systemFacet = new Facet(systemData, systemLogin);
+                    profile.addFacet(systemFacet);
+
+                    final Login mainLogin = new Login(mainData.database, "MAIN_LOGIN_ID", usr, pwd);
+                    final Facet mainFacet = new Facet(mainData, mainLogin);
+                    profile.addFacet(mainFacet);
+
+                    final Login externLogin = new Login(externData.database, "EXTERN_LOGIN_ID", usr, pwd);
+                    final Facet externFacet = new Facet(externData, externLogin);
+                    profile.addFacet(externFacet);
+
+                    final Login analyticLogin = new Login(analyticData.database, "ANALYTIC_LOGIN_ID", usr, pwd);
+                    final Facet analyticFacet = new Facet(analyticData, analyticLogin);
+                    profile.addFacet(analyticFacet);
 
                     try {
                         // Attempt to make a connection to see if login credentials are invalid
-                        final DbConnection conn = login.checkOutConnection();
-                        login.checkInConnection(conn);
+                        final DbConnection legacyConn = legacyLogin.checkOutConnection();
+                        legacyLogin.checkInConnection(legacyConn);
+
+                        final DbConnection mainConn = mainLogin.checkOutConnection();
+                        mainLogin.checkInConnection(mainConn);
 
                         Object renderingHint = null;
                         int pref = -1;

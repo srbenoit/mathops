@@ -33,7 +33,7 @@ final class AddFacilityDialog extends JFrame implements ActionListener {
     private static final String CANCEL_CMD = "CANCEL";
 
     /** The owning panel to notify on "Submit". */
-    private final GeneralFacilitiesPanel owner;
+    private final FacilitiesPanel owner;
 
     /** A field to enter the facility ID. */
     private final TextField id;
@@ -52,7 +52,7 @@ final class AddFacilityDialog extends JFrame implements ActionListener {
      *
      * @param theOwner the owning panel to notify on "Submit".
      */
-    AddFacilityDialog(final GeneralFacilitiesPanel theOwner) {
+    AddFacilityDialog(final FacilitiesPanel theOwner) {
 
         super("Create new Facility");
 
@@ -86,7 +86,7 @@ final class AddFacilityDialog extends JFrame implements ActionListener {
         notes2.setFont(Skin.BODY_12_FONT);
         add(notes2, StackedBorderLayout.NORTH);
 
-        this.id = new TextField(7);
+        this.id = new TextField(10);
         this.id.setFont(Skin.BODY_12_FONT);
 
         this.name = new TextField(30);
