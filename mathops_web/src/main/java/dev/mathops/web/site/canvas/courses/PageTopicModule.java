@@ -412,7 +412,7 @@ public enum PageTopicModule {
             final String numberStr = Integer.toString(number);
             htm.sP().add("<strong>Lesson ", numberStr, "</strong>");
 
-            htm.sDiv("indent2");
+            htm.sDiv("indent");
             htm.addln("<video class='lesson' controls>");
             htm.addln("  <source type='video/mp4' src='", VIDEO_URL, "/", path, "/final.mp4'/>");
             if (finalVtt.exists()) {
@@ -421,13 +421,13 @@ public enum PageTopicModule {
             }
             htm.addln("  Your browser does not support inline video.");
             htm.addln("</video>");
-            htm.eDiv(); // indent2
+            htm.eDiv(); // indent
 
             if (finalTxt.exists()) {
-                htm.sDiv("indent2");
+                htm.sDiv("indent");
                 htm.addln("<a href='", WEB_URL, "/", path,
                         "/final.txt'>Access a plain-text transcript for screen-readers.</a>");
-                htm.eDiv(); // indent2
+                htm.eDiv(); // indent
             }
         }
     }
@@ -448,6 +448,7 @@ public enum PageTopicModule {
         if (finalVideo.exists()) {
             htm.sP().add("<strong>Example</strong>");
 
+            htm.sDiv("indent");
             htm.addln("<video class='lesson' controls>");
             htm.addln("  <source type='video/mp4' src='", VIDEO_URL, "/", path, "/final.mp4'/>");
             if (finalVtt.exists()) {
@@ -456,10 +457,13 @@ public enum PageTopicModule {
             }
             htm.addln("  Your browser does not support inline video.");
             htm.addln("</video>");
+            htm.eDiv(); // indent
 
             if (finalTxt.exists()) {
+                htm.sDiv("indent");
                 htm.addln("<a href='", WEB_URL, "/", path,
                         "/final.txt'>Access a plain-text transcript for screen-readers.</a>");
+                htm.eDiv(); // indent
             }
         }
     }
@@ -516,6 +520,8 @@ public enum PageTopicModule {
 
             // TODO: emit applications
         }
+
+        htm.div("vgap2");
     }
 
     /**

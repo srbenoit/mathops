@@ -104,6 +104,7 @@ details.module-first {
 details.module {
   margin-bottom: 24px;
   font-weight: bold;
+  min-width: 352px;
 }
 
 summary.module-summary {
@@ -291,31 +292,31 @@ video.lesson {
   width: 320px;
   height: 180px;
 }
-@media (min-width: 780px) {
+@media (min-width: 820px) {
   video.lesson {
     width: 480px;
     height: 270px;
   }
 }
-@media (min-width: 940px) {
+@media (min-width: 980px) {
   video.lesson {
     width: 640px;
-    height: 480px;
+    height: 360px;
   }
 }
-@media (min-width: 1100px) {
+@media (min-width: 1140px) {
   video.lesson {
     width: 800px;
     height: 450px;
   }
 }
-@media (min-width: 1260px) {
+@media (min-width: 1300px) {
   video.lesson {
     width: 960px;
     height: 540px;
   }
 }
-@media (min-width: 1580px) {
+@media (min-width: 1620px) {
   video.lesson {
     width: 1280px;
     height: 720px;
