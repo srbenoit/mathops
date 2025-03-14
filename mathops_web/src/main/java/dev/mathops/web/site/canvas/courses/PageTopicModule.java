@@ -334,23 +334,57 @@ public enum PageTopicModule {
     private static void emitStandard(final HtmlBuilder htm, final String path, final int number,
                                      final File standardDir) {
 
+        final MetadataStandard meta = new MetadataStandard(standardDir);
+
         htm.addln("<details class='module'>");
         final String numberStr = Integer.toString(number);
-        htm.add("  <summary class='module-summary'>Learning Target ", numberStr, "</summary>");
-        htm.sDiv("module-item");
+        htm.add("  <summary class='module-summary'>");
+        if (meta.title == null || meta.title.isBlank()) {
+            htm.add("Learning Target ", numberStr);
+        } else {
+            htm.add("Learning Target ", numberStr, ": <span style='color:#D9782D'>", meta.title, "</span>");
+        }
+        htm.addln("</summary>");
+
+        if (!(meta.description == null || meta.description.isBlank())) {
+            htm.sDiv("module-item");
+
+            htm.sDiv("indent0");
+            htm.add("After completing this learning target, I will be able to ");
+            htm.eDiv();
+
+            htm.sDiv("indent", "style='color:#D9782D;margin-top:6px;'");
+            htm.addln(meta.description);
+            htm.eDiv();
+
+            htm.eDiv(); // module-item
+        }
 
         // Emit any introductory lessons found
+        boolean foundIntro = false;
         for (int i = 1; i < 10; ++i) {
             final String introName = "0" + i + "_intro_" + i;
             final File introDir = new File(standardDir, introName);
             if (introDir.exists() && introDir.isDirectory()) {
                 if (i == 1) {
-                    htm.sH(4).add("Introductory Lessons").eH(4);
+                    htm.sDiv("module-item");
+                    htm.addln("<details class='module'>");
+                    htm.add("  <summary class='module-summary'>");
+                    htm.add("Introductory Lessons");
+                    htm.addln("</summary>");
+
+                    // TODO: Emit lesson media
+
+                    foundIntro = true;
                 }
                 emitLesson(htm, path + "/" + introName, i, introDir);
             } else {
                 break;
             }
+        }
+        if (foundIntro) {
+            htm.addln("</details>");
+            htm.eDiv(); // module-item
         }
 
         // Emit objectives
@@ -358,7 +392,14 @@ public enum PageTopicModule {
             final String objName = i + "_objective_" + MetadataSkillsReview.SUFFIXES.substring(i, i + 1);
             final File objectiveDir = new File(standardDir, objName);
             if (objectiveDir.exists() && objectiveDir.isDirectory()) {
-                emitStandardObjective(htm, path + "/" + objName, i - 10, objectiveDir);
+
+                final int index = i - 11;
+                MetadataObjective objectiveMeta = null;
+                if (meta.objectives.size() > index) {
+                    objectiveMeta = meta.objectives.get(index);
+                }
+
+                emitStandardObjective(htm, path + "/" + objName, i - 10, objectiveDir, objectiveMeta);
             } else {
                 break;
             }
@@ -367,30 +408,43 @@ public enum PageTopicModule {
         // Emit explorations
         final File explorationsDir = new File(standardDir, "40_explorations");
         if (explorationsDir.exists() && explorationsDir.isDirectory()) {
+            htm.sDiv("module-item");
             emitStandardExplorations(htm, explorationsDir);
+            htm.eDiv(); // module-item
         }
 
         // Emit applications
         final File applicationsDir = new File(standardDir, "41_applications");
         if (applicationsDir.exists() && applicationsDir.isDirectory()) {
+            htm.sDiv("module-item");
             emitStandardApplications(htm, applicationsDir);
+            htm.eDiv(); // module-item
         }
 
         // Emit any concluding lessons found
+        boolean foundConclusion = false;
         for (int i = 1; i < 10; ++i) {
             final String conclusionName = "9" + i + "_conclusion_" + i;
             final File conclusionDir = new File(standardDir, conclusionName);
             if (conclusionDir.exists() && conclusionDir.isDirectory()) {
                 if (i == 1) {
-                    htm.sH(4).add("Concluding Lessons").eH(4);
+                    htm.sDiv("module-item");
+                    htm.addln("<details class='module'>");
+                    htm.add("  <summary class='module-summary'>");
+                    htm.add("Concluding Lessons");
+                    htm.addln("</summary>");
+                    foundConclusion = true;
                 }
                 emitLesson(htm, path + "/" + conclusionName, i, conclusionDir);
             } else {
                 break;
             }
         }
+        if (foundConclusion) {
+            htm.addln("</details>");
+            htm.eDiv(); // module-item
+        }
 
-        htm.eDiv(); // module-item
         htm.addln("</details>");
     }
 
@@ -414,7 +468,7 @@ public enum PageTopicModule {
 
             htm.sDiv("indent");
             htm.addln("<video class='lesson' controls>");
-            htm.addln("  <source type='video/mp4' src='", VIDEO_URL, "/", path, "/final.mp4'/>");
+            htm.addln("  <source type='video/mp4' src='", VIDEO_URL, path, "/final.mp4'/>");
             if (finalVtt.exists()) {
                 htm.addln("  <track kind='subtitles' srclang='en' label='English' default src='", WEB_URL, "/", path,
                         "/final.vtt'/>");
@@ -425,7 +479,7 @@ public enum PageTopicModule {
 
             if (finalTxt.exists()) {
                 htm.sDiv("indent");
-                htm.addln("<a href='", WEB_URL, "/", path,
+                htm.addln("<a href='", WEB_URL, path,
                         "/final.txt'>Access a plain-text transcript for screen-readers.</a>");
                 htm.eDiv(); // indent
             }
@@ -441,12 +495,18 @@ public enum PageTopicModule {
      */
     private static void emitExample(final HtmlBuilder htm, final String path, final File exampleDir) {
 
+        final File examplePdf = new File(exampleDir, "example.pdf");
         final File finalVideo = new File(exampleDir, "final.mp4");
         final File finalVtt = new File(exampleDir, "final.vtt");
         final File finalTxt = new File(exampleDir, "final.txt");
 
         if (finalVideo.exists()) {
             htm.sP().add("<strong>Example</strong>");
+
+            if (examplePdf.exists()) {
+                htm.addln(" <a target='_blank' href='", VIDEO_URL, "/", path,
+                        "/example.pdf'> (Open PDF Example Document).</a>");
+            }
 
             htm.sDiv("indent");
             htm.addln("<video class='lesson' controls>");
@@ -461,7 +521,7 @@ public enum PageTopicModule {
 
             if (finalTxt.exists()) {
                 htm.sDiv("indent");
-                htm.addln("<a href='", WEB_URL, "/", path,
+                htm.addln("<a target='_blank' href='", VIDEO_URL, "/", path,
                         "/final.txt'>Access a plain-text transcript for screen-readers.</a>");
                 htm.eDiv(); // indent
             }
@@ -471,16 +531,25 @@ public enum PageTopicModule {
     /**
      * Emits an objective.
      *
-     * @param htm          the {@code HtmlBuilder} to which to append
-     * @param path         the relative path to lesson files
-     * @param number       the objective number
-     * @param objectiveDir the directory in which to locate objective media
+     * @param htm           the {@code HtmlBuilder} to which to append
+     * @param path          the relative path to lesson files
+     * @param number        the objective number
+     * @param objectiveDir  the directory in which to locate objective media
+     * @param objectiveMeta objective metadata
      */
     private static void emitStandardObjective(final HtmlBuilder htm, final String path, final int number,
-                                              final File objectiveDir) {
+                                              final File objectiveDir, final MetadataObjective objectiveMeta) {
 
         final String numberStr = Integer.toString(number);
-        htm.sH(4).add("Objective ", numberStr).eH(4);
+
+        htm.sDiv("module-item");
+        htm.addln("<details class='module'>");
+        htm.add("  <summary class='module-summary'>");
+        htm.add("Objective ", numberStr);
+        if (!(objectiveMeta.title == null || objectiveMeta.title.isBlank())) {
+            htm.add(": <span style='color:#D9782D;'>", objectiveMeta.title, "</span>");
+        }
+        htm.addln("</summary>");
 
         // Emit any objective lessons found
         for (int i = 1; i < 10; ++i) {
@@ -503,7 +572,7 @@ public enum PageTopicModule {
 
                 for (final File dir : dirList) {
                     if (dir.isDirectory()) {
-                        emitExample(htm, path + "/" + objectiveDir.getName() + "/30_examples/" + dir.getName(), dir);
+                        emitExample(htm, path + "/30_examples/" + dir.getName(), dir);
                     }
                 }
             }
@@ -520,8 +589,8 @@ public enum PageTopicModule {
 
             // TODO: emit applications
         }
-
-        htm.div("vgap2");
+        htm.addln("</details>");
+        htm.eDiv(); // module-item
     }
 
     /**

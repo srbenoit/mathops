@@ -289,36 +289,37 @@ table.grades tbody tr:nth-child(even)  {
 }
 
 video.lesson {
-  width: 320px;
-  height: 180px;
+  width: 322px;
+  height: 182px;
+  border: 1px solid gray;
 }
 @media (min-width: 820px) {
   video.lesson {
-    width: 480px;
-    height: 270px;
+    width: 482px;
+    height: 272px;
   }
 }
 @media (min-width: 980px) {
   video.lesson {
-    width: 640px;
-    height: 360px;
+    width: 642px;
+    height: 362px;
   }
 }
 @media (min-width: 1140px) {
   video.lesson {
-    width: 800px;
-    height: 450px;
+    width: 802px;
+    height: 452px;
   }
 }
 @media (min-width: 1300px) {
   video.lesson {
-    width: 960px;
-    height: 540px;
+    width: 962px;
+    height: 542px;
   }
 }
 @media (min-width: 1620px) {
   video.lesson {
-    width: 1280px;
-    height: 720px;
+    width: 1282px;
+    height: 722px;
   }
 }
