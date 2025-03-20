@@ -7,7 +7,6 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.SystemData;
-import dev.mathops.db.old.rawlogic.RawClientPcLogic;
 import dev.mathops.db.old.rawrecord.RawClientPc;
 import dev.mathops.session.scramsha256.ScramClientStub;
 
@@ -151,7 +150,7 @@ final class TestingManageCard extends AdmPanelBase implements ActionListener {
                 doPowerDown();
             }
         } else if (REFRESH.equals(cmd)) {
-            this.managePane.refresh();
+            refresh();
         }
     }
 
@@ -328,8 +327,11 @@ final class TestingManageCard extends AdmPanelBase implements ActionListener {
         synchronized (this.clients) {
             this.clients.clear();
 
+            final SystemData systemData = this.cache.getSystemData();
+            systemData.forgetClientPcs();
+
             try {
-                final List<RawClientPc> stations = RawClientPcLogic.queryAll(this.cache);
+                final List<RawClientPc> stations = systemData.getClientPcs();
 
                 for (final RawClientPc station : stations) {
                     final String center = station.testingCenterId;

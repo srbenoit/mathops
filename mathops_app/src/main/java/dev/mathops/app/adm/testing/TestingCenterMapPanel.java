@@ -1,6 +1,7 @@
 package dev.mathops.app.adm.testing;
 
 import dev.mathops.app.adm.Skin;
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.rawrecord.RawClientPc;
 
 import javax.swing.JPanel;
@@ -126,6 +127,9 @@ final class TestingCenterMapPanel extends JPanel {
      */
     @Override
     public void paintComponent(final Graphics g) {
+
+
+        Log.info("paintComponent");
 
         super.paintComponent(g);
 
@@ -464,7 +468,6 @@ final class TestingCenterMapPanel extends JPanel {
                     switch (client.powerStatus) {
                         case RawClientPc.POWER_REPORTING_ON -> g2d.setColor(this.onColor);
                         case RawClientPc.POWER_OFF -> g2d.setColor(this.offColor);
-                        case RawClientPc.POWER_TURNING_ON -> g2d.setColor(this.poweringColor);
                         case null, default -> g2d.setColor(this.poweringColor);
                     }
 

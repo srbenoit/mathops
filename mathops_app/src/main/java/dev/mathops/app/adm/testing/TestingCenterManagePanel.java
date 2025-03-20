@@ -3,6 +3,7 @@ package dev.mathops.app.adm.testing;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.file.FileLoader;
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.old.rawrecord.RawClientPc;
 
 import javax.swing.ImageIcon;
@@ -650,6 +651,7 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
      */
     @Override
     public void paintComponent(final Graphics g) {
+
 
         synchronized (this.clients) {
             final int count = this.clients.size();
@@ -1325,7 +1327,6 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
                 switch (client.powerStatus) {
                     case RawClientPc.POWER_REPORTING_ON -> g2d.setColor(this.onColor);
                     case RawClientPc.POWER_OFF -> g2d.setColor(this.offColor);
-                    case RawClientPc.POWER_TURNING_ON -> g2d.setColor(this.poweringColor);
                     case null, default -> g2d.setColor(this.poweringColor);
                 }
 

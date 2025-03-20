@@ -103,8 +103,6 @@ final class TestingMapCard extends AdmPanelBase implements ActionListener {
      */
     void refresh() {
 
-        Log.info("refresh map");
-
         loadClients();
         this.map.refresh();
     }
