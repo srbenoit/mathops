@@ -3,9 +3,17 @@ package dev.mathops.web.site.canvas.courses;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawCsectionLogic;
+import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawStcourse;
+import dev.mathops.db.old.rawrecord.RawSthomework;
+import dev.mathops.db.rec.AssignmentRec;
+import dev.mathops.db.rec.MasteryAttemptRec;
+import dev.mathops.db.rec.MasteryExamRec;
 import dev.mathops.db.rec.TermRec;
+import dev.mathops.db.reclogic.AssignmentLogic;
+import dev.mathops.db.reclogic.MasteryAttemptLogic;
+import dev.mathops.db.reclogic.MasteryExamLogic;
 import dev.mathops.db.reclogic.TermLogic;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
@@ -157,11 +165,134 @@ public enum PageTopicTargets {
         htm.sH(3).add("Module Learning Targets").eH(3);
         htm.sDiv("clear").eDiv();
 
+        htm.sP("indent").add("Each Learning Target has a two-question exam.  You need to answer both ",
+                "questions correctly on this exam to complete the learning target.").eP();
+
+        htm.sP("indent").add("Learning Target exams are locked until you pass the homework assignment for the ",
+                "Learning Target.").eP();
+
+        htm.sP("indent").add("Once you have passed the learning target homework assignment, you have unlimited ",
+                "attempts on Learning Target exam.").eP();
+
+        htm.sP("indent").add("If you answer one of the two questions correctly twice, but still need to get the ",
+                "other question correct, you will not have to keep re-doing the question you got correct twice (it ",
+                "will be removed from the exam).").eP();
+
+        htm.div("vgap");
+
+        try {
+            final Integer unit = Integer.parseInt(metaCourseModule.id.substring(1));
+
+            final List<AssignmentRec> assignments = AssignmentLogic.get(cache).queryActiveByCourse(cache,
+                    registration.course, "ST");
+
+            final List<RawSthomework> sthw = RawSthomeworkLogic.getHomeworks(cache, registration.stuId,
+                    registration.course, false, "ST");
+
+            final List<MasteryExamRec> exams = MasteryExamLogic.get(cache).queryActiveByCourse(cache,
+                    registration.course);
+
+            final List<MasteryAttemptRec> stexams = MasteryAttemptLogic.get(cache).queryByStudent(cache,
+                    registration.stuId);
+
+            for (final MasteryExamRec exam : exams) {
+                if (unit.equals(exam.unit) && exam.objective.intValue() > 0) {
+
+                    // Find the corresponding homework assignment
+                    for (final AssignmentRec assignment : assignments) {
+
+                        if (assignment.unit.equals(exam.unit) && assignment.objective.equals(exam.objective)) {
+                            presentTarget(htm, exam, stexams, assignment, sthw);
+                        }
+                    }
+                }
+            }
+            htm.hr();
+        } catch (final NumberFormatException ex) {
+            Log.warning(ex);
+            htm.sP().add("Error: Unable to load homework assignments for module ", metaCourseModule.id).eP();
+        }
+
+
+        htm.sP();
+        htm.add("All Learning Target exams can be taken in the <strong>Precalculus Center</strong> (Weber 238).");
+        htm.eP();
+
         htm.eDiv(); // flexmain
         htm.eDiv(); // pagecontainer
 
         CanvasPageUtils.endPage(htm);
 
         AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm);
+    }
+
+    /**
+     * Presents a single homework assignment.
+     *
+     * @param htm        the {@code HtmlBuilder} to which to append
+     * @param exam       the mastery exam
+     * @param stexam     the set of all submitted student exams in this course
+     * @param assignment the corresponding assignment
+     * @param sthw       the set of all submitted student assignments in this course
+     */
+    private static void presentTarget(final HtmlBuilder htm, final MasteryExamRec exam,
+                                      final List<MasteryAttemptRec> stexam, final AssignmentRec assignment,
+                                      final List<RawSthomework> sthw) {
+
+        htm.hr();
+        htm.sH(4).add("Learning Target Exam: ", exam.title).eH(4);
+
+        int numAttempts = 0;
+        int topScore = 0;
+        boolean passed = false;
+        for (final MasteryAttemptRec attempt : stexam) {
+            if (attempt.examId.equals(exam.examId)) {
+                if ("Y".equals(attempt.passed)) {
+                    passed = true;
+                    ++numAttempts;
+                    topScore = Math.max(topScore, attempt.examScore.intValue());
+                } else if ("N".equals(attempt.passed)) {
+                    ++numAttempts;
+                    topScore = Math.max(topScore, attempt.examScore.intValue());
+                }
+                // Other values for "passed" indicate an "ignored" attempt
+            }
+        }
+
+        htm.sP("indent");
+        if (passed) {
+            htm.add("<img src='/www/images/etext/box_checked_18.png' alt='Box with check mark'/> &nbsp; ",
+                    "You have Completed this Learning Target.");
+        } else {
+            // See of the exam is "unlocked"
+            boolean unlocked = false;
+            for (final RawSthomework attempt : sthw) {
+                if (attempt.version.equals(assignment.assignmentId)) {
+                    if ("Y".equals(attempt.passed)) {
+                        unlocked = true;
+                        break;
+                    }
+                }
+            }
+
+            if (unlocked) {
+                if (numAttempts == 0) {
+                    htm.add("<img src='/www/images/etext/box_unchecked_18.png' alt='Empty box'/> &nbsp; ",
+                            "You have not yet taken this Learning Target Exam.");
+                } else if (numAttempts == 1) {
+                    htm.add("<img src='/www/images/etext/box_unchecked_18.png' alt='Empty box'/> &nbsp; ",
+                            "You have attempted this Learning Target Exam 1 time.");
+                } else {
+                    final String count = Integer.toString(numAttempts);
+                    htm.add("<img src='/www/images/etext/box_unchecked_18.png' alt='Empty box'/> &nbsp; ",
+                            "You have attempted this Learning Target Exam ", count, " times.");
+                }
+            } else {
+                htm.add("<img src='/www/images/etext/box_unchecked_18.png' alt='Empty box'/> &nbsp; ",
+                        "You need to pass the ", assignment.title, " homework assignment to unlock the ",
+                        exam.title, " Learning Target Exam");
+            }
+        }
+        htm.eP();
     }
 }

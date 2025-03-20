@@ -14,7 +14,7 @@ import java.io.File;
  *
  * <pre>
  * {
- *   "id":        "T1",
+ *   "id":        "M1",
  *   "heading":   "Topic 1",
  *   "directory": "05_trig/01_angles"
  * }
@@ -24,7 +24,7 @@ import java.io.File;
  */
 final class MetadataCourseModule {
 
-    /** The topic id. */
+    /** The module id. */
     public final String id;
 
     /** The topic heading. */

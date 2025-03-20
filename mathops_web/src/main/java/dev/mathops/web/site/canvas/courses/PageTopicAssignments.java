@@ -3,9 +3,13 @@ package dev.mathops.web.site.canvas.courses;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawCsectionLogic;
+import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawStcourse;
+import dev.mathops.db.old.rawrecord.RawSthomework;
+import dev.mathops.db.rec.AssignmentRec;
 import dev.mathops.db.rec.TermRec;
+import dev.mathops.db.reclogic.AssignmentLogic;
 import dev.mathops.db.reclogic.TermLogic;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
@@ -157,6 +161,32 @@ public enum PageTopicAssignments {
         htm.sH(3).add("Module Homework Assignments").eH(3);
         htm.sDiv("clear").eDiv();
 
+        htm.sP("indent").add("There is one homework assignment for each Learning Target in the module.").eP();
+
+        htm.sP("indent").add("You have unlimited attempts on each assignment, but you must pass each assignment to ",
+                "unlock the Learning Target exam questions so you can complete the Learning Target.").eP();
+
+        htm.div("vgap");
+
+        try {
+            final Integer unit = Integer.parseInt(metaCourseModule.id.substring(1));
+
+            final List<AssignmentRec> assignments = AssignmentLogic.get(cache).queryActiveByCourse(cache,
+                    registration.course, "ST");
+
+            final List<RawSthomework> sthw = RawSthomeworkLogic.getHomeworks(cache, registration.stuId,
+                    registration.course, false, "ST");
+
+            for (final AssignmentRec assignment : assignments) {
+                if (unit.equals(assignment.unit) && assignment.objective.intValue() > 0) {
+                    presentAssignment(htm, assignment, sthw);
+                }
+            }
+            htm.hr();
+        } catch (final NumberFormatException ex) {
+            Log.warning(ex);
+            htm.sP().add("Error: Unable to load homework assignments for module ", metaCourseModule.id).eP();
+        }
 
         htm.eDiv(); // flexmain
         htm.eDiv(); // pagecontainer
@@ -164,5 +194,58 @@ public enum PageTopicAssignments {
         CanvasPageUtils.endPage(htm);
 
         AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm);
+    }
+
+    /**
+     * Presents a single homework assignment.
+     *
+     * @param htm        the {@code HtmlBuilder} to which to append
+     * @param assignment the assignment
+     * @param sthw       the set of all submitted student assignments in this course
+     */
+    private static void presentAssignment(final HtmlBuilder htm, final AssignmentRec assignment,
+                                          final List<RawSthomework> sthw) {
+
+        htm.hr();
+        htm.sH(4).add("Homework Assignment: ", assignment.title).eH(4);
+
+        int numAttempts = 0;
+        boolean passed = false;
+        for (final RawSthomework attempt : sthw) {
+            if (attempt.version.equals(assignment.assignmentId)) {
+                if ("Y".equals(attempt.passed)) {
+                    passed = true;
+                    ++numAttempts;
+                } else if ("N".equals(attempt.passed)) {
+                    ++numAttempts;
+                }
+                // Other values for "passed" indicate an "ignored" attempt
+            }
+        }
+
+        htm.sP("indent");
+        if (passed) {
+            htm.add("<img src='/www/images/etext/box_checked_18.png' alt='Box with check mark'/> &nbsp; ",
+                    "You have PASSED this assignment.");
+        } else if (numAttempts == 0) {
+            htm.add("<img src='/www/images/etext/box_unchecked_18.png' alt='Empty box'/> &nbsp; ",
+                    "You have not yet attempted this assignment.");
+        } else if (numAttempts == 1) {
+            htm.add("<img src='/www/images/etext/box_unchecked_18.png' alt='Empty box'/> &nbsp; ",
+                    "You have attempted this assignment 1 time.");
+        } else {
+            final String count = Integer.toString(numAttempts);
+            htm.add("<img src='/www/images/etext/box_unchecked_18.png' alt='Empty box'/> &nbsp; ",
+                    "You have attempted this assignment ", count, " times.");
+        }
+        htm.eP();
+
+        htm.sP("indent2");
+        if (passed) {
+            htm.add("<a class='smallbtn' href=''>Continue to practice this assignment...</a>");
+        } else {
+            htm.add("<a class='smallbtn' href=''>Attempt this assignment...</a>");
+        }
+        htm.eP();
     }
 }
