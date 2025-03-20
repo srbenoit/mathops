@@ -29,8 +29,10 @@ import dev.mathops.web.site.canvas.courses.PageNavigating;
 import dev.mathops.web.site.canvas.courses.PageStartHere;
 import dev.mathops.web.site.canvas.courses.PageSurvey;
 import dev.mathops.web.site.canvas.courses.PageSyllabus;
+import dev.mathops.web.site.canvas.courses.PageTopicAssignments;
 import dev.mathops.web.site.canvas.courses.PageTopicModule;
 import dev.mathops.web.site.canvas.courses.PageTopicSkillsReview;
+import dev.mathops.web.site.canvas.courses.PageTopicTargets;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -294,23 +296,36 @@ public final class CanvasSite extends AbstractSite {
                 case NAVIGATING_PAGE -> PageNavigating.doGet(cache, this, courseId, req, resp, session, this.metadata);
 
                 default -> {
-                    final String moduleId = getTopicModuleId(subpath);
+                    final String moduleId = getModuleId(subpath);
 
                     if (moduleId == null) {
-                        final String reviewId = getReviewModuleId(subpath);
+                        Log.warning("Unrecognized GET request path: ", subpath);
+                        final String selectedCourse = req.getParameter(COURSE_PARAM);
+                        final String homePath = selectedCourse == null ? makeRootPath(ROOT_PAGE)
+                                : makeCoursePath(COURSE_HOME_PAGE, selectedCourse);
+                        resp.sendRedirect(homePath);
+                    } else {
+                        final String modulePath = subpath.substring(moduleId.length() + 1);
 
-                        if (reviewId == null) {
+                        Log.info("Module subpath is ", modulePath);
+
+                        if ("module.html".equals(modulePath)) {
+                            PageTopicModule.doGet(cache, this, courseId, moduleId, req, resp, session, this.metadata);
+                        } else if ("review.html".equals(modulePath)) {
+                            PageTopicSkillsReview.doGet(cache, this, courseId, moduleId, req, resp, session,
+                                    this.metadata);
+                        } else if ("assignments.html".equals(modulePath)) {
+                            PageTopicAssignments.doGet(cache, this, courseId, moduleId, req, resp, session,
+                                    this.metadata);
+                        } else if ("targets.html".equals(modulePath)) {
+                            PageTopicTargets.doGet(cache, this, courseId, moduleId, req, resp, session, this.metadata);
+                        } else {
                             Log.warning("Unrecognized GET request path: ", subpath);
                             final String selectedCourse = req.getParameter(COURSE_PARAM);
                             final String homePath = selectedCourse == null ? makeRootPath(ROOT_PAGE)
                                     : makeCoursePath(COURSE_HOME_PAGE, selectedCourse);
                             resp.sendRedirect(homePath);
-                        } else {
-                            PageTopicSkillsReview.doGet(cache, this, courseId, reviewId, req, resp, session,
-                                    this.metadata);
                         }
-                    } else {
-                        PageTopicModule.doGet(cache, this, courseId, moduleId, req, resp, session, this.metadata);
                     }
                 }
             }
@@ -348,6 +363,25 @@ public final class CanvasSite extends AbstractSite {
         if (subpath.startsWith("M") && subpath.endsWith("/review.html")) {
             final int slash = subpath.indexOf('/');
             if (slash > 0) {
+                result = subpath.substring(0, slash);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Tests whether the page starts with a module number designator like "M5/"
+     *
+     * @return the topic module ID if so; null if not.
+     */
+    private static String getModuleId(final String subpath) {
+
+        String result = null;
+
+        if (subpath.startsWith("M")) {
+            final int slash = subpath.indexOf('/');
+            if (slash > 1) {
                 result = subpath.substring(0, slash);
             }
         }

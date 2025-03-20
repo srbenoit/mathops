@@ -179,6 +179,8 @@ public enum PageTopicModule {
         htm.sDiv("module-title");
         htm.add(metaCourseTopic.heading, " Textbook Chapter").br();
         htm.addln("<div style='color:#D9782D; margin-top:6px;'>", meta.title, "</div>");
+        htm.addln("<a class='smallbtn' href='assignments.html'>Go to Homework Assignments</a> &nbsp;");
+        htm.addln("<a class='smallbtn' href='targets.html'>Go to Learning Targets</a>");
         htm.eDiv();
         htm.eH(2);
 
@@ -336,13 +338,13 @@ public enum PageTopicModule {
 
         final MetadataStandard meta = new MetadataStandard(standardDir);
 
-        htm.addln("<details class='module'>");
+        htm.addln("<details class='standard'>");
         final String numberStr = Integer.toString(number);
-        htm.add("  <summary class='module-summary'>");
-        if (meta.title == null || meta.title.isBlank()) {
-            htm.add("Learning Target ", numberStr);
-        } else {
-            htm.add("Learning Target ", numberStr, ": <span style='color:#D9782D'>", meta.title, "</span>");
+        htm.add("  <summary class='standard-summary'>");
+        htm.add("Learning Target ", numberStr);
+        if (!(meta.title == null || meta.title.isBlank())) {
+            htm.addln(":");
+            htm.sDiv("summary-subtitle").add(meta.title).eDiv();
         }
         htm.addln("</summary>");
 
@@ -501,7 +503,13 @@ public enum PageTopicModule {
         final File finalTxt = new File(exampleDir, "final.txt");
 
         if (finalVideo.exists()) {
-            htm.sP().add("<strong>Example</strong>");
+
+            htm.addln("<details class='example'>");
+            htm.add("  <summary class='example-summary'>");
+            htm.add("Worked Example");
+            htm.addln("</summary>");
+
+            htm.sDiv("module-item");
 
             if (examplePdf.exists()) {
                 htm.addln(" <a target='_blank' href='", VIDEO_URL, "/", path,
@@ -525,6 +533,9 @@ public enum PageTopicModule {
                         "/final.txt'>Access a plain-text transcript for screen-readers.</a>");
                 htm.eDiv(); // indent
             }
+
+            htm.eDiv(); // module-item
+            htm.addln("</details>");
         }
     }
 
@@ -543,11 +554,12 @@ public enum PageTopicModule {
         final String numberStr = Integer.toString(number);
 
         htm.sDiv("module-item");
-        htm.addln("<details class='module'>");
-        htm.add("  <summary class='module-summary'>");
+        htm.addln("<details class='objective'>");
+        htm.add("  <summary class='objective-summary'>");
         htm.add("Objective ", numberStr);
         if (!(objectiveMeta.title == null || objectiveMeta.title.isBlank())) {
-            htm.add(": <span style='color:#D9782D;'>", objectiveMeta.title, "</span>");
+            htm.addln(":");
+            htm.sDiv("summary-subtitle").add(objectiveMeta.title).eDiv();
         }
         htm.addln("</summary>");
 
@@ -589,6 +601,7 @@ public enum PageTopicModule {
 
             // TODO: emit applications
         }
+
         htm.addln("</details>");
         htm.eDiv(); // module-item
     }

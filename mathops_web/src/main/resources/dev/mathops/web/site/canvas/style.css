@@ -101,6 +101,7 @@ details.module-first {
   font-weight: bold;
 }
 
+
 details.module {
   margin-bottom: 24px;
   font-weight: bold;
@@ -112,6 +113,50 @@ summary.module-summary {
   padding: 20px 6px;
   border: 1px solid #C7CDD1;
 }
+
+
+details.standard {
+  margin-bottom: 24px;
+  font-weight: bold;
+  min-width: 352px;
+}
+
+summary.standard-summary {
+  background: #F0FAF0;
+  padding: 16px 6px;
+  border: 1px solid #C7CDD1;
+}
+
+details.objective {
+  font-weight: bold;
+  min-width: 352px;
+}
+
+summary.objective-summary {
+  background: #FAFAEA;
+  padding: 16px 6px;
+  border: 1px solid #C7CDD1;
+}
+
+div.summary-subtitle {
+  color:#bc6c22;
+  margin-left:18px;
+  padding-top:6px;
+}
+
+
+details.example {
+  margin-top: 10px;
+  font-weight: bold;
+  min-width: 352px;
+}
+
+summary.example-summary {
+  background: #F5F5F5;
+  padding: 16px 6px;
+  border: 1px solid #C7CDD1;
+}
+
 
 div.module-item {
   padding: 10px 6px;
@@ -293,33 +338,40 @@ video.lesson {
   height: 182px;
   border: 1px solid gray;
 }
-@media (min-width: 820px) {
+@media (min-width: 830px) {
   video.lesson {
     width: 482px;
     height: 272px;
   }
 }
-@media (min-width: 980px) {
+@media (min-width: 990px) {
   video.lesson {
     width: 642px;
     height: 362px;
   }
 }
-@media (min-width: 1140px) {
+@media (min-width: 1150px) {
   video.lesson {
     width: 802px;
     height: 452px;
   }
 }
-@media (min-width: 1300px) {
+@media (min-width: 1310px) {
   video.lesson {
     width: 962px;
     height: 542px;
   }
 }
-@media (min-width: 1620px) {
+@media (min-width: 1630px) {
   video.lesson {
     width: 1282px;
     height: 722px;
   }
 }
+
+
+
+
+
+
+

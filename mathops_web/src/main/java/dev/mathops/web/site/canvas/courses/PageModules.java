@@ -180,6 +180,7 @@ public enum PageModules {
      * @param htm             the {@code HtmlBuilder} to which to append
      * @param metaCourseTopic the metadata describing the topic within the course
      * @param meta            the topic module metadata object
+     * @param metaCourseTopic metadata related to the course topic
      * @param topicDir        the root directory in which to find topic media files
      */
     private static void emitTopicModule(final HtmlBuilder htm, final MetadataCourseModule metaCourseTopic,
@@ -189,7 +190,7 @@ public enum PageModules {
 
         // The top-level Topic Module object in the web page has three items:
         // - E-Text Chapter: [title]
-        // - Module Assignments (with completion status)
+        // - Module Homework Assignments (with completion status)
         // - Learning Target Exams (with completion status)
 
         // The topic module with ID "M01" lives at "M01/module.html"
@@ -205,7 +206,7 @@ public enum PageModules {
         // Required assignments, with status
         final String assignmentsPath = metaCourseTopic.id + "/assignments.html";
         emitChecklistModuleItem(htm, "/www/images/etext/required_assignment_thumb.png", "A student doing homework.",
-                assignmentsPath, "Module Assignments",
+                assignmentsPath, "Module Homework Assignments",
                 new ModuleItemChecklistEntry("Assignment 1", false),
                 new ModuleItemChecklistEntry("Assignment 2", false),
                 new ModuleItemChecklistEntry("Assignment 3", false));
@@ -213,10 +214,10 @@ public enum PageModules {
         // Learning Target Exams, with status
         final String examsPath = metaCourseTopic.id + "/targets.html";
         emitChecklistModuleItem(htm, "/www/images/etext/target_thumb.png", "A dartboard with several magnetic darts",
-                examsPath, "Learning Targets",
-                new ModuleItemChecklistEntry("Target 1", false),
-                new ModuleItemChecklistEntry("Target 2", false),
-                new ModuleItemChecklistEntry("Target 3", false));
+                examsPath, "Module Learning Targets",
+                new ModuleItemChecklistEntry("Learning Target 1", false),
+                new ModuleItemChecklistEntry("Learning Target 2", false),
+                new ModuleItemChecklistEntry("Learning Target 3", false));
 
         endModule(htm);
     }
