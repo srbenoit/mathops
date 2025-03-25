@@ -144,9 +144,10 @@ public enum PageTopicAssignments {
             }
         }
         htm.sDiv("module-title");
-        htm.add(metaCourseModule.heading).br();
+        htm.add(metaCourseModule.heading, " Homework Assignments").br();
         htm.addln("<div style='color:#D9782D; margin-top:6px;'>", meta.title, "</div>");
-        htm.addln("<a class='smallbtn' href='module.html'>Open Textbook Chapter</a>");
+        htm.addln("<a class='smallbtn' href='module.html'>Open Textbook Chapter</a> &nbsp;");
+        htm.addln("<a class='smallbtn' href='targets.html'>Go to Learning Target Exams</a>");
         htm.eDiv();
         htm.eH(2);
 
@@ -164,7 +165,7 @@ public enum PageTopicAssignments {
         htm.sP("indent").add("There is one homework assignment for each Learning Target in the module.").eP();
 
         htm.sP("indent").add("You have unlimited attempts on each assignment, but you must pass each assignment to ",
-                "unlock the Learning Target exam questions so you can complete the Learning Target.").eP();
+                "unlock the Learning Target Exam so you can complete the Learning Target.").eP();
 
         htm.div("vgap");
 
@@ -225,18 +226,21 @@ public enum PageTopicAssignments {
 
         htm.sP("indent");
         if (passed) {
-            htm.add("<img src='/www/images/etext/box_checked_18.png' alt='Box with check mark'/> &nbsp; ",
-                    "You have PASSED this assignment.");
-        } else if (numAttempts == 0) {
-            htm.add("<img src='/www/images/etext/box_unchecked_18.png' alt='Empty box'/> &nbsp; ",
-                    "You have not yet attempted this assignment.");
-        } else if (numAttempts == 1) {
-            htm.add("<img src='/www/images/etext/box_unchecked_18.png' alt='Empty box'/> &nbsp; ",
-                    "You have attempted this assignment 1 time.");
+            htm.add("<img style='position:relative; top:3px;' src='/www/images/etext/box_checked_18.png' ",
+                    "alt='Box with check mark'/>&nbsp; ");
+            htm.add("You have PASSED this assignment.");
         } else {
-            final String count = Integer.toString(numAttempts);
-            htm.add("<img src='/www/images/etext/box_unchecked_18.png' alt='Empty box'/> &nbsp; ",
-                    "You have attempted this assignment ", count, " times.");
+            htm.add("<img style='position:relative; top:3px;' src='/www/images/etext/box_unchecked_18.png' ",
+                    "alt='Empty box'/>&nbsp; ");
+
+            if (numAttempts == 0) {
+                htm.add("You have not yet attempted this assignment.");
+            } else if (numAttempts == 1) {
+                htm.add("You have attempted this assignment 1 time.");
+            } else {
+                final String count = Integer.toString(numAttempts);
+                htm.add("You have attempted this assignment ", count, " times.");
+            }
         }
         htm.eP();
 

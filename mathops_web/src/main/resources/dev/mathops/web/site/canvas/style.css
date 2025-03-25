@@ -188,6 +188,11 @@ img.module-item-checkbox {
   vertical-align: -4px;
 }
 
+div.module-item-block {
+  display: inline-block;
+  padding-right: 20px;
+}
+
 
 
 details.review {
@@ -237,6 +242,7 @@ div.thumb-text {
 div.assignment-title {
   display: inline-block;
   font-weight: 300;
+  padding-right: 20px;
 }
 
 img.assignment-icon {

@@ -179,8 +179,8 @@ public enum PageTopicModule {
         htm.sDiv("module-title");
         htm.add(metaCourseTopic.heading, " Textbook Chapter").br();
         htm.addln("<div style='color:#D9782D; margin-top:6px;'>", meta.title, "</div>");
-        htm.addln("<a class='smallbtn' href='assignments.html'>Go to Homework Assignments</a> &nbsp;");
-        htm.addln("<a class='smallbtn' href='targets.html'>Go to Learning Targets</a>");
+        htm.addln("<a class='smallbtn' href='assignments.html'>Go to Homework Assignments</a> &nbsp; ");
+        htm.addln("<a class='smallbtn' href='targets.html'>Go to Learning Target Exams</a>");
         htm.eDiv();
         htm.eH(2);
 

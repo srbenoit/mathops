@@ -3,6 +3,8 @@ across schema objects.
 
 
 
+a_min_score         SMALLINT        -- The minimum score needed to earn an A grade
+
 academic_year       CHAR(4)         -- An academic year, such as "2324" for 2023/2024.
                                     --     This example would include SM23, FA23, SP24
 
@@ -11,17 +13,24 @@ active_index        SMALLINT        -- The index of a term with respect to the a
                                     --     1 for the next future term, 2 for the term after that
                                     --     -1 for the prior term, -2 for the term before that
 
-assignment_id       VARCHAR(20)     -- The unique ID of an assignment
+allow_lend          INTEGER         -- A bitwise OR of codes for resources that can be lent to students in a course:
+                                    --     1 = Textbook
+                                    --     2 = Calculator and associated manual
+                                    --     4 = Laptop
+                                    --     8 = Headphones
+
+aries_start_date    DATE            -- The official start date of a course
+
+aries_end_date      DATE            -- The official end date of a course
+
+assignment_id       VARCHAR(20)     -- The unique ID of an assignment (not visible to students)
                                     --     'version' in the old 'homework' table
                                     --     Versions like '1711H' for old courses
-                                    --     IDs like 'C41_SR' for Skills Review in new courses, where
-                                    --         C41 indicates chapter, SR indicates Skills Review
-                                    --     IDs like 'C41_LT1_P' for Learning Target practice sets
-                                    --         in new courses, where C41 indicates chapter, LT1
-                                    --         indicates Learning Target 1, P indicates practice 
-                                    --     IDs like 'C4145_EX_1' for Explorations in new courses,
-                                    --         where C4145 indicates chapter range explored, and
-                                    --         numeric index allows for multiple assignments
+                                    --     IDs like 'TR01_SR' for Skills Review in new courses, where TR01 indicates
+                                    --         Trigonometry topic 1, SR indicates Skills Review
+                                    --     IDs like 'TR01_ST1_HW' for Homework Assignments in new courses, where TR01
+                                    --         indicates Trigonometry topic 1, ST1 indicates Standard 1, and HW
+                                    --         indicates homework
 
 assignment_type     CHAR(2)         -- An assignment type (codes defined in EAssignmentType)
                                     --     'HW' for a homework/practice set
@@ -29,28 +38,58 @@ assignment_type     CHAR(2)         -- An assignment type (codes defined in EAss
                                     --     'EX' for an exploration
                                     --     'DI' for a discussion posting
 
-button_label        VARCHAR(50)     -- The label for a button to access some object.
+b_min_score         SMALLINT        -- The minimum score needed to earn a B grade
+
+building_name       VARCHAR(40)     -- The name of a building (visible to students)
+
+button_label        VARCHAR(50)     -- The label for a button to access some object (visible to students)
+
+c_min_score         SMALLINT        -- The minimum score needed to earn a C grade
+
+canvas_id           VARCHAR(40)     -- The ID of an object in the Canvas LMS that corresponds to a database record
+
+close_time          TIME            -- The time a facility opens (close_time_1, close_time_2, etc. if multiple)
+
+closure_date        DATE            -- The date of a closure
+
+closure_type        CHAR(10)        -- A type code for a closure:
+                                    --     'HOLIDAY'   for a university holiday
+                                    --     'SP_BREAK'  for Spring break
+                                    --     'FA_BREAK'  for Fall break
+                                    --     'WEATHER'   for a weather-related closure
+                                    --     'EMERGENCY' for an emergency closure
+                                    --     'MAINT'     for a scheduled maintenance procedure
+                                    --     'EVENT'     for a university event that requires a closure
 
 correct             CHAR(1)         -- A correctness indicator:
                                     --     'Y' if correct
                                     --     'N' if not
 
-course_id           CHAR(10)        -- The unique ID of a course, like "M 125"
+course_id           CHAR(10)        -- The unique ID of a course, like "M 125" (should match Catalog)
+
+course_title        VARCHAR(50)     -- The course title.
+
+crn                 CHAR(6)         -- A section CRN number (not visible)
+
+d_min_score         SMALLINT        -- The minimum score needed to earn a D grade
+
+display_index       SMALLINT        -- A display index to control the order in which items are displayed (lowest first)
 
 drop_deadline       DATE            -- The last data a student can drop
 
 end_date            DATE            -- The last date included in a date range
 
-exam_id             VARCHAR(20)     -- The unique ID of an exam
+end_time            TIME            -- The end time of a time interval
+
+exam_id             VARCHAR(20)     -- The unique ID of an exam (not visible to students)
                                     --     'version' in the old 'exam' table
                                     --     Versions like '171RE' for old courses
-                                    --     IDs like 'C41_LT1_M' for Learning Target mastery exams
-                                    --         in new courses, where C41 indicates chapter, LT1
-                                    --         indicates Learning Target 1, M indicates mastery
+                                    --     IDs like 'TR01_ST1_MA' for Mastery Exams in new courses, where TR01 indicates
+                                    --         Trigonometry topic 1, ST1 indicates Standard 1, and HW indicates homework
 
 exam_type           CHAR(2)         -- An exam type (codes defined in EExamType)
-                                    --     'CH' for a challenge exam
                                     --     'MA' for a standard mastery exam in a new course
+                                    --     'CH' for a challenge exam
                                     --     'F' for a final exam in an old course
                                     --     'U' for a unit exam in an old course
                                     --     'R' for a review exam in an old course
@@ -59,19 +98,20 @@ exam_type           CHAR(2)         -- An exam type (codes defined in EExamType)
 exam_score          SMALLINT        -- An score on an exam attempt
 
 exam_source         CHAR(2)         -- The source of an exam attempt, if known
-                                    --   "TC" if from a testing center
-                                    --   "RM" if remote
-                                    --   "HG" if hand-graded
+                                    --     'TC' if from a testing center
+                                    --     'RM' if remote
+                                    --     'HG' if hand-graded
 
-explor_1_status     CHAR(2)         -- A student's status in exploration 1 of a course
-                                    --   NULL if not yet attempted
-                                    --   "M" if mastered on time (10 points)
-                                    --   "M1" if mastered 1 day late (9 points)
-                                    --   "ML" if mastered late (8 points)
-                                    --   "A" if attempted on time (5 points)
-                                    --   "AL" if attempted late (4 points)
+facility_id         CHAR(10)        -- The unique ID of a "facility" like a classroom, testing center, or online help
+                                    -- with hours of availability and possible closures (not visible to students)
 
-explor_2_status     CHAR(2)         -- A student's status in exploration 2 (see explor_1_status)
+facility_name       VARCHAR(100)    -- The name of a facility (visible to students)
+
+first_class_date    DATE            -- The first date a course is available to students
+
+homework_pts        SMALLINT        -- The points awarded for passing a homework assignment
+
+instructor          VARCHAR(30)     -- The instructor assigned to a section of a course
 
 is_first_passed     CHAR(1)         -- A flag on an assessment attempt:
                                     --     'Y' if this is the student's first passed attempt
@@ -79,19 +119,31 @@ is_first_passed     CHAR(1)         -- A flag on an assessment attempt:
                                     -- This should be 'Y' on at most one record for a specific exam
                                     -- for a student.
 
+last_class_date     DATE            -- The first date a course is available to students
+
+late_mastery_pts    SMALLINT        -- The points awarded for mastering a standard late
+
 mastery_score       SMALLINT        -- The score required to demonstrate mastery
+
+module_nbr          SMALLINT        -- A module number (1 for the first module in a course)
+
+nbr_credits         SMALLINT        -- The number of credits a course carries
 
 nbr_eligible        SMALLINT        -- The number of standards that are available but not mastered
 
-nbr_mastered_h1     SMALLINT        -- The number of standards mastered in the half 1 of a course
+nbr_modules         SMALLINT        -- The number of modules in a course
 
-nbr_mastered_h2     SMALLINT        -- The number of standards mastered in the half 2 of a course
+nbr_standards       SMALLINT        -- The number of standards in a module
 
 objective           SMALLINT        -- An objective number within a unit
                                     --     Old courses have objectives 1-5 in units 1-4
                                     --     New courses have objective 0-3 in Modules, corresponding
                                     --         to Skills Review (0), and Learning Targets (1-3),
                                     --         and objective 1 and 2 in an Explorations unit
+
+on_time_mastery_pts SMALLINT        -- The points awarded for mastering a standard on time
+
+open_time           TIME            -- The time a facility opens (open_time_1, open_time_2, etc. if multiple)
 
 passed              CHAR(1)         -- The result of an exam
                                     --     'Y' if exam was passed
@@ -103,7 +155,11 @@ passed              CHAR(1)         -- The result of an exam
 
 question_nbr        SMALLINT        -- A question number on an assessment (first question is 1)
 
+room_nbr            VARCHAR(20)     -- A room number within a building (visible to students)
+
 score               SMALLINT        -- An earned score or point total
+
+section_nbr         CHAR(4)         -- A section number, like "001" (visible)
 
 serial_nbr          INTEGER         -- The unique serial number of an exam session, generated from
                                     -- the date and time the exam was realized as follows:
@@ -117,21 +173,20 @@ sr_status           CHAR(2)         -- A student's status on a Skills Review ass
                                     --   Digits with the number of questions finished so far
                                     --   'P' if passed
 
+standard_nbr        SMALLINT        -- A standard number (1 for the first standard in a module)
+
 start_date          DATE            -- The first date included in a date range
 
-s1_status           CHAR(3)         -- A student's status on Standard 1 within a unit
-                                    --   NULL if not yet eligible
-                                    --   'E' if eligible but not yet attempted
-                                    --   'A##' if attempted - digits are number of times each
-                                    --     question has been answered correctly so far
-                                    --   'M' if mastered on time (5 points)
-                                    --   'ML' if mastered late (4 points)
-                                    
-s2_status           CHAR(3)         -- A student's status on Standard 2 (see s1_status)
+start_time          TIME            -- The start time of a time interval
 
-s3_status           CHAR(3)         -- A student's status on Standard 3 (see s1_status)
+student_id          CHAR(9)         -- A student ID (CSU IDs are numeric, beginning with '8')
 
-stu_id              CHAR(9)         -- A student ID (CSU IDs are numeric, beginning with '8')
+subterm             CHAR(5)         -- A portion of a term
+                                    --     'FULL' for the full term
+                                    --     'HALF1' for first half, 'HALF2' for second half
+                                    --     'NN:MM' for week NN to week MM (like "01:04", "05:08", "09:12")
+
+survey_id           CHAR(5)         -- The unique ID of a student survey (not visible)
 
 term                SMALLIKNT       -- A term number such as 202390 (10-Spring, 60-Summer, 90=Fall)
 
@@ -142,8 +197,8 @@ tree_ref            VARCHAR(250)    -- A tree location, like 'math.04-trig.01-an
 
 unit                SMALLINT        -- A unit number within a course
                                     --   Old courses have unit 0-5 (0 = Skills Review, 5 = Final)
-                                    --   New courses have unit 0-11 (0 = Introduction,
-                                    --     1-10 = Modules, 11 = Explorations)
+
+weekdays            SMALLINT        -- A set of weekdays (OR of 1=Sun, 2=Mon, 4=Tue, 8=Wed, 16=Thu, 32=Fri, 64=Sat)
 
 when_active         TIMESTAMP(0)    -- The date/time (to the second) when an object was activated
 

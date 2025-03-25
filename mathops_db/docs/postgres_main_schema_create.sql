@@ -1,4 +1,4 @@
--- postgres_schema_create.sql
+-- postgres_main_schema_create.sql
 -- (this script is designed to be run under the 'math' database owner)
 -- /opt/postgresql/bin/psql -d math -U math
 
@@ -28,16 +28,6 @@ CREATE SCHEMA IF NOT EXISTS extern_test AUTHORIZATION math;     -- Test extern
 CREATE SCHEMA IF NOT EXISTS analytics AUTHORIZATION math;       -- Production analytics
 CREATE SCHEMA IF NOT EXISTS analytics_dev AUTHORIZATION math;   -- Development analytics
 CREATE SCHEMA IF NOT EXISTS analytics_test AUTHORIZATION math;  -- Test analytics
-
-CREATE SCHEMA IF NOT EXISTS term_dev AUTHORIZATION math;        -- Development term
-CREATE SCHEMA IF NOT EXISTS term_test AUTHORIZATION math;       -- Test term
-
-CREATE SCHEMA IF NOT EXISTS term_202410 AUTHORIZATION math;     -- Spring 2024 term
-CREATE SCHEMA IF NOT EXISTS term_202460 AUTHORIZATION math;     -- Summer 2024 term
-CREATE SCHEMA IF NOT EXISTS term_202490 AUTHORIZATION math;     -- Fall 2024 term
-CREATE SCHEMA IF NOT EXISTS term_202510 AUTHORIZATION math;     -- Spring 2025 term
-CREATE SCHEMA IF NOT EXISTS term_202560 AUTHORIZATION math;     -- Summer 2025 term
-CREATE SCHEMA IF NOT EXISTS term_202590 AUTHORIZATION math;     -- Fall 2025 term
 
 -- ================================================================================================
 -- Create schema objects within the 'main', 'main_dev', and 'main_test' schemas.
@@ -95,31 +85,31 @@ INSERT INTO main_test.which_db (descr) values ('TEST');
 
 -- DROP TABLE IF EXISTS main.facility;
 CREATE TABLE IF NOT EXISTS main.facility (
-    facility             char(10)        NOT NULL,  -- A unique ID for each facility (not visible)
-    name                 varchar(100)    NOT NULL,  -- The facility name (visible)
-    building             varchar(40),               -- Building name, null if virtual
-    room                 varchar(20),               -- Room number, null if virtual
-    PRIMARY KEY (facility)
+    facility_id          char(10)        NOT NULL,  -- A unique ID for each facility (not visible)
+    facility_name        varchar(100)    NOT NULL,  -- The facility name (visible)
+    building_name        varchar(40),               -- Building name, null if virtual
+    room_nbr             varchar(20),               -- Room number, null if virtual
+    PRIMARY KEY (facility_id)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main.facility OWNER to math;
 
 -- DROP TABLE IF EXISTS main_dev.facility;
 CREATE TABLE IF NOT EXISTS main_dev.facility (
-    facility             char(10)        NOT NULL,
-    name                 varchar(100)    NOT NULL,
-    building             varchar(40),
-    room                 varchar(20),
-    PRIMARY KEY (facility)
+    facility_id          char(10)        NOT NULL,
+    facility_name        varchar(100)    NOT NULL,
+    building_name        varchar(40),
+    room_nbr             varchar(20),
+    PRIMARY KEY (facility_id)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main_dev.facility OWNER to math;
 
 -- DROP TABLE IF EXISTS main_test.facility;
 CREATE TABLE IF NOT EXISTS main_test.facility (
-    facility             char(10)        NOT NULL,
-    name                 varchar(100)    NOT NULL,
-    building             varchar(40),
-    room                 varchar(20),
-    PRIMARY KEY (facility)
+    facility_id          char(10)        NOT NULL,
+    facility_name        varchar(100)    NOT NULL,
+    building_name        varchar(40),
+    room_nbr             varchar(20),
+    PRIMARY KEY (facility_id)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main_test.facility OWNER to math;
 
@@ -140,47 +130,47 @@ ALTER TABLE IF EXISTS main_test.facility OWNER to math;
 
 -- DROP TABLE IF EXISTS main.facility_hours;
 CREATE TABLE IF NOT EXISTS main.facility_hours (
-    facility             char(10)        NOT NULL,  -- The facility ID (references facility table)
+    facility_id          char(10)        NOT NULL,  -- The facility ID (references facility table)
     display_index        smallint        NOT NULL,  -- The display index (rows display in order)
     weekdays             smallint        NOT NULL,  -- Weekday (logical OR of 1=Sun, 2=Mon, 4=Tue,
                                                     --  8=Wed, 16=Thu, 32=Fri, 64=Sat)
-    start_dt             date            NOT NULL,  -- The first date the facility is open
-    end_dt               date            NOT NULL,  -- The last date the facility is open
+    start_date           date            NOT NULL,  -- The first date the facility is open
+    end_date             date            NOT NULL,  -- The last date the facility is open
     open_time_1          time            NOT NULL,  -- The time the facility opens
     close_time_1         time            NOT NULL,  -- The time the facility closes
     open_time_2          time,                      -- The time the facility re-opens
     close_time_2         time,                      -- The time the facility closes after re-opening
-    PRIMARY KEY (facility, display_index)
+    PRIMARY KEY (facility_id, display_index)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main.facility_hours OWNER to math;
 
 -- DROP TABLE IF EXISTS main_dev.facility_hours;
 CREATE TABLE IF NOT EXISTS main_dev.facility_hours (
-    facility             char(10)        NOT NULL,
+    facility_id          char(10)        NOT NULL,
     display_index        smallint        NOT NULL,
     weekdays             smallint        NOT NULL,
-    start_dt             date            NOT NULL,
-    end_dt               date            NOT NULL,
+    start_date           date            NOT NULL,
+    end_date             date            NOT NULL,
     open_time_1          time            NOT NULL,
     close_time_1         time            NOT NULL,
     open_time_2          time,
     close_time_2         time,
-    PRIMARY KEY (facility, display_index)
+    PRIMARY KEY (facility_id, display_index)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main_dev.facility_hours OWNER to math;
 
 -- DROP TABLE IF EXISTS main_test.facility_hours;
 CREATE TABLE IF NOT EXISTS main_test.facility_hours (
-    facility             char(10)        NOT NULL,
+    facility_id          char(10)        NOT NULL,
     display_index        smallint        NOT NULL,
     weekdays             smallint        NOT NULL,
-    start_dt             date            NOT NULL,
-    end_dt               date            NOT NULL,
+    start_date           date            NOT NULL,
+    end_date             date            NOT NULL,
     open_time_1          time            NOT NULL,
     close_time_1         time            NOT NULL,
     open_time_2          time,
     close_time_2         time,
-    PRIMARY KEY (facility, display_index)
+    PRIMARY KEY (facility_id, display_index)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main_test.facility_hours OWNER to math;
 
@@ -202,38 +192,251 @@ ALTER TABLE IF EXISTS main_test.facility_hours OWNER to math;
 
 -- DROP TABLE IF EXISTS main.facility_closure;
 CREATE TABLE IF NOT EXISTS main.facility_closure (
-    facility             char(10)        NOT NULL,  -- The facility ID (references facility table)
-    closure_dt           date            NOT NULL,  -- The date of the closure
+    facility_id          char(10)        NOT NULL,  -- The facility ID (references facility table)
+    closure_date         date            NOT NULL,  -- The date of the closure
     closure_type         char(10)        NOT NULL,  -- The type of closure ('HOLIDAY, 'SP_BREAK',
                                                     --  'FA_BREAK', 'WEATHER', 'EMERGENCY', 'MAINT',
                                                     --  'EVENT')
     start_time           time,                      -- Start time, or null if all day
     end_time             time,                      -- End time, or null if all day
-    PRIMARY KEY (facility,closure_dt)
+    PRIMARY KEY (facility_id, closure_date)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main.facility_closure OWNER to math;
 
 -- DROP TABLE IF EXISTS main_dev.facility_closure;
 CREATE TABLE IF NOT EXISTS main_dev.facility_closure (
-    facility             char(10)        NOT NULL,
-    closure_dt           date            NOT NULL,
+    facility_id          char(10)        NOT NULL,
+    closure_date         date            NOT NULL,
     closure_type         char(10)        NOT NULL,
     start_time           time,
     end_time             time,
-    PRIMARY KEY (facility,closure_dt)
+    PRIMARY KEY (facility_id, closure_date)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main_dev.facility_closure OWNER to math;
 
 -- DROP TABLE IF EXISTS main_test.facility_closure;
 CREATE TABLE IF NOT EXISTS main_test.facility_closure (
-    facility             char(10)        NOT NULL,
-    closure_dt           date            NOT NULL,
+    facility_id          char(10)        NOT NULL,
+    closure_date         date            NOT NULL,
     closure_type         char(10)        NOT NULL,
     start_time           time,
     end_time             time,
-    PRIMARY KEY (facility,closure_dt)
+    PRIMARY KEY (facility_id, closure_date)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main_test.facility_closure OWNER to math;
+
+
+
+
+
+-- ------------------------------------------------------------------------------------------------
+-- TABLE: standards_course
+--
+--   Each record defines a standards-based course.
+--
+--   USAGE: One record per course.
+--   EST. RECORDS: 5
+--   RETENTION: Stored in MAIN schema, retained.
+--   EST. RECORD SIZE: 80 bytes
+--   EST. TOTAL SPACE: 1 KB
+-- ------------------------------------------------------------------------------------------------
+
+-- DROP TABLE IF EXISTS main.standards_course;
+CREATE TABLE IF NOT EXISTS main.standards_course (
+    course_id            char(10)        NOT NULL,  -- The unique course ID
+    course_title         varchar(50)     NOT NULL,  -- The course title
+    nbr_modules          smallint        NOT NULL,  -- The number of modules in the course
+    nbr_credits          smallint        NOT NULL,  -- The number of credits the course carries
+    allow_lend           integer         NOT NULL,  -- Bitwise OR of resource type identifiers (1=Textbook,
+                                                    -- 2 = Calculator/manual, 4=Laptop, 8=Headphones)
+    metadata_path        varchar(50),               -- For metadata-based courses, the relative path of metadata,
+                                                    -- like "05_trig/MATH_125.json"
+    PRIMARY KEY (course_id)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main.standards_course OWNER to math;
+
+-- DROP TABLE IF EXISTS main_dev.standards_course;
+CREATE TABLE IF NOT EXISTS main_dev.standards_course (
+    course_id            char(10)        NOT NULL,
+    course_title         varchar(50)     NOT NULL,
+    nbr_modules          smallint        NOT NULL,
+    nbr_credits          smallint        NOT NULL,
+    allow_lend           integer         NOT NULL,
+    metadata_path        varchar(50),
+    PRIMARY KEY (course_id)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main_dev.standards_course OWNER to math;
+
+-- DROP TABLE IF EXISTS main_test.standards_course;
+CREATE TABLE IF NOT EXISTS main_test.standards_course (
+    course_id            char(10)        NOT NULL,
+    course_title         varchar(50)     NOT NULL,
+    nbr_modules          smallint        NOT NULL,
+    nbr_credits          smallint        NOT NULL,
+    allow_lend           integer         NOT NULL,
+    metadata_path        varchar(50),
+    PRIMARY KEY (course_id)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main_test.standards_course OWNER to math;
+
+-- ------------------------------------------------------------------------------------------------
+-- TABLE: standards_course_module
+--
+--   Each record defines a single module in a standards-based course.
+--
+--   USAGE: One record per module, 8 per course.
+--   EST. RECORDS: 40
+--   RETENTION: Stored in MAIN schema, retained.
+--   EST. RECORD SIZE: 40 bytes
+--   EST. TOTAL SPACE: 2 KB
+-- ------------------------------------------------------------------------------------------------
+
+-- DROP TABLE IF EXISTS main.standards_course_module;
+CREATE TABLE IF NOT EXISTS main.standards_course_module (
+    course_id            char(10)        NOT NULL,  -- The course ID (references standards_course)
+    module_nbr           smallint        NOT NULL,  -- The module number (1 for the first module)
+    nbr_standards        smallint        NOT NULL,  -- The number of standards in the module
+    module_path          varchar(50),               -- For metadata-based courses, the relative path of the module,
+                                                    -- like "05_trig/01_angles"
+    PRIMARY KEY (course_id, module_nbr)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main.standards_course_module OWNER to math;
+
+-- DROP TABLE IF EXISTS main_dev.standards_course_module;
+CREATE TABLE IF NOT EXISTS main_dev.standards_course_module (
+    course_id            char(10)        NOT NULL,
+    module_nbr           smallint        NOT NULL,
+    nbr_standards        smallint        NOT NULL,
+    module_path          varchar(50),
+    PRIMARY KEY (course_id, module_nbr)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main_dev.standards_course_module OWNER to math;
+
+-- DROP TABLE IF EXISTS main_test.standards_course_module;
+CREATE TABLE IF NOT EXISTS main_test.standards_course_module (
+    course_id            char(10)        NOT NULL,
+    module_nbr           smallint        NOT NULL,
+    nbr_standards        smallint        NOT NULL,
+    module_path          varchar(50),
+    PRIMARY KEY (course_id, module_nbr)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main_test.standards_course_module OWNER to math;
+
+-- ------------------------------------------------------------------------------------------------
+-- TABLE: standard_assignment
+--
+--   Each record defines an assignment associated with a standard in a course module.
+--
+--   USAGE: One record per standard, 24 per course.
+--   EST. RECORDS: 120
+--   RETENTION: Stored in MAIN schema, retained.
+--   EST. RECORD SIZE: 60 bytes
+--   EST. TOTAL SPACE: 8 KB
+-- ------------------------------------------------------------------------------------------------
+
+-- DROP TABLE IF EXISTS main.standard_assignment;
+CREATE TABLE IF NOT EXISTS main.standard_assignment (
+    assignment_id        varchar(20)     NOT NULL,  -- The unique assignment ID
+    assignment_type      char(2)         NOT NULL,  -- The assignment type
+    course_id            char(10)        NOT NULL,  -- The course ID (references standards_course)
+    module_nbr           smallint        NOT NULL,  -- The module number (1 for the first module)
+    standard_nbr         smallint        NOT NULL,  -- The standard number (1 for the first standard in a module)
+    pts_possible         smallint,                  -- The number of points possible
+    min_passing_score    smallint,                  -- The minimum score that is considered "passing"
+    tree_ref             varchar(250)    NOT NULL,  -- For tree reference of the assessment
+    PRIMARY KEY (assignment_id)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main.standard_assignment OWNER to math;
+
+-- DROP TABLE IF EXISTS main_dev.standard_assignment;
+CREATE TABLE IF NOT EXISTS main_dev.standard_assignment (
+    assignment_id        varchar(20)     NOT NULL,
+    assignment_type      char(2)         NOT NULL,
+    course_id            char(10)        NOT NULL,
+    module_nbr           smallint        NOT NULL,
+    standard_nbr         smallint        NOT NULL,
+    pts_possible         smallint,
+    min_passing_score    smallint,
+    tree_ref             varchar(250)    NOT NULL,
+    PRIMARY KEY (assignment_id)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main_dev.standard_assignment OWNER to math;
+
+-- DROP TABLE IF EXISTS main_test.standard_assignment;
+CREATE TABLE IF NOT EXISTS main_test.standard_assignment (
+    assignment_id        varchar(20)     NOT NULL,
+    assignment_type      char(2)         NOT NULL,
+    course_id            char(10)        NOT NULL,
+    module_nbr           smallint        NOT NULL,
+    standard_nbr         smallint        NOT NULL,
+    pts_possible         smallint,
+    min_passing_score    smallint,
+    tree_ref             varchar(250)    NOT NULL,
+    PRIMARY KEY (assignment_id)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main_test.standard_assignment OWNER to math;
+
+-- ------------------------------------------------------------------------------------------------
+-- TABLE: standard_exam
+--
+--   Each record defines an exam associated with a standard in a course module.
+--
+--   USAGE: One record per standard, 24 per course.
+--   EST. RECORDS: 120
+--   RETENTION: Stored in MAIN schema, retained.
+--   EST. RECORD SIZE: 60 bytes
+--   EST. TOTAL SPACE: 8 KB
+-- ------------------------------------------------------------------------------------------------
+
+-- DROP TABLE IF EXISTS main.standard_exam;
+CREATE TABLE IF NOT EXISTS main.standard_exam (
+    exam_id              varchar(20)     NOT NULL,  -- The unique exam ID
+    exam_type            char(2)         NOT NULL,  -- The exam type
+    course_id            char(10)        NOT NULL,  -- The course ID (references standards_course)
+    module_nbr           smallint        NOT NULL,  -- The module number (1 for the first module)
+    standard_nbr         smallint        NOT NULL,  -- The standard number (1 for the first standard in a module)
+    pts_possible         smallint,                  -- The number of points possible
+    min_passing_score    smallint,                  -- The minimum score that is considered "passing"
+    tree_ref             varchar(250)    NOT NULL,  -- For tree reference of the assessment
+    PRIMARY KEY (exam_id)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main.standard_exam OWNER to math;
+
+-- DROP TABLE IF EXISTS main_dev.standard_exam;
+CREATE TABLE IF NOT EXISTS main_dev.standard_exam (
+    exam_id              varchar(20)     NOT NULL,
+    exam_type            char(2)         NOT NULL,
+    course_id            char(10)        NOT NULL,
+    module_nbr           smallint        NOT NULL,
+    standard_nbr         smallint        NOT NULL,
+    pts_possible         smallint,
+    min_passing_score    smallint,
+    tree_ref             varchar(250)    NOT NULL,
+    PRIMARY KEY (exam_id)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main_dev.standard_exam OWNER to math;
+
+-- DROP TABLE IF EXISTS main_test.standard_exam;
+CREATE TABLE IF NOT EXISTS main_test.standard_exam (
+    exam_id              varchar(20)     NOT NULL,
+    exam_type            char(2)         NOT NULL,
+    course_id            char(10)        NOT NULL,
+    module_nbr           smallint        NOT NULL,
+    standard_nbr         smallint        NOT NULL,
+    pts_possible         smallint,
+    min_passing_score    smallint,
+    tree_ref             varchar(250)    NOT NULL,
+    PRIMARY KEY (exam_id)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main_test.standard_exam OWNER to math;
+
+
+
+
+
+
+
+
 
 
 

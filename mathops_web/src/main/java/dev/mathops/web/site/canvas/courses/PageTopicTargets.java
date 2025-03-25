@@ -148,9 +148,10 @@ public enum PageTopicTargets {
             }
         }
         htm.sDiv("module-title");
-        htm.add(metaCourseModule.heading, " Learning Targets").br();
+        htm.add(metaCourseModule.heading, " Learning Target Exams").br();
         htm.addln("<div style='color:#D9782D; margin-top:6px;'>", meta.title, "</div>");
-        htm.addln("<a class='smallbtn' href='module.html'>Open Textbook Chapter</a>");
+        htm.addln("<a class='smallbtn' href='module.html'>Open Textbook Chapter</a> &nbsp; ");
+        htm.addln("<a class='smallbtn' href='assignments.html'>Go to Homework Assignments</a>");
         htm.eDiv();
         htm.eH(2);
 
@@ -162,7 +163,7 @@ public enum PageTopicTargets {
                 "alt='A dartboard with several magnetic darts.'/>");
         htm.eDiv();
 
-        htm.sH(3).add("Module Learning Targets").eH(3);
+        htm.sH(3).add("Learning Target Exams").eH(3);
         htm.sDiv("clear").eDiv();
 
         htm.sP("indent").add("Each Learning Target has a two-question exam.  You need to answer both ",
@@ -213,7 +214,6 @@ public enum PageTopicTargets {
             htm.sP().add("Error: Unable to load homework assignments for module ", metaCourseModule.id).eP();
         }
 
-
         htm.sP();
         htm.add("All Learning Target exams can be taken in the <strong>Precalculus Center</strong> (Weber 238).");
         htm.eP();
@@ -261,9 +261,13 @@ public enum PageTopicTargets {
 
         htm.sP("indent");
         if (passed) {
-            htm.add("<img src='/www/images/etext/box_checked_18.png' alt='Box with check mark'/> &nbsp; ",
-                    "You have Completed this Learning Target.");
+            htm.add("<img style='position:relative; top:3px;' src='/www/images/etext/box_checked_18.png' ",
+                    "alt='Box with check mark'/>&nbsp; ");
+            htm.add("You have Completed this Learning Target.");
         } else {
+            htm.add("<img style='position:relative; top:3px;' src='/www/images/etext/box_unchecked_18.png' ",
+                    "alt='Empty box'/>&nbsp; ");
+
             // See of the exam is "unlocked"
             boolean unlocked = false;
             for (final RawSthomework attempt : sthw) {
@@ -277,19 +281,15 @@ public enum PageTopicTargets {
 
             if (unlocked) {
                 if (numAttempts == 0) {
-                    htm.add("<img src='/www/images/etext/box_unchecked_18.png' alt='Empty box'/> &nbsp; ",
-                            "You have not yet taken this Learning Target Exam.");
+                    htm.add("You have not yet taken this Learning Target Exam.");
                 } else if (numAttempts == 1) {
-                    htm.add("<img src='/www/images/etext/box_unchecked_18.png' alt='Empty box'/> &nbsp; ",
-                            "You have attempted this Learning Target Exam 1 time.");
+                    htm.add("You have attempted this Learning Target Exam 1 time.");
                 } else {
                     final String count = Integer.toString(numAttempts);
-                    htm.add("<img src='/www/images/etext/box_unchecked_18.png' alt='Empty box'/> &nbsp; ",
-                            "You have attempted this Learning Target Exam ", count, " times.");
+                    htm.add("You have attempted this Learning Target Exam ", count, " times.");
                 }
             } else {
-                htm.add("<img src='/www/images/etext/box_unchecked_18.png' alt='Empty box'/> &nbsp; ",
-                        "You need to pass the ", assignment.title, " homework assignment to unlock the ",
+                htm.add("You need to pass the ", assignment.title, " homework assignment to unlock the ",
                         exam.title, " Learning Target Exam");
             }
         }
