@@ -225,6 +225,98 @@ CREATE TABLE IF NOT EXISTS term_test.standards_course_section (
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_test.standards_course_section OWNER to math;
 
+-- ------------------------------------------------------------------------------------------------
+-- TABLE: standard_assignment_attempt
+--
+--   Each record records a student attempt on a homework assignment in a course.
+--
+--   USAGE: One record per attempt.
+--   EST. RECORDS: 6000 students * 2 courses * 24 assignments * 3 attempts each = 864,000
+--   RETENTION: Stored in TERM schema, retained for 15 years
+--   EST. RECORD SIZE: 110 bytes
+--   EST. TOTAL SPACE: 124 KB
+-- ------------------------------------------------------------------------------------------------
+
+-- DROP TABLE IF EXISTS term_202510.standard_assignment_attempt;
+CREATE TABLE IF NOT EXISTS term_202510.standard_assignment_attempt (
+    student_id           char(9)         NOT NULL,  -- The student ID who submitted the attempt
+    serial_nbr           integer         NOT NULL,  -- A unique serial number for the attempt
+    assignment_id        varchar(20)     NOT NULL,  -- The ID of the assignment (references standard_assignment)
+    course_id            char(10)        NOT NULL,  -- The course ID (copied from standard_assignment)
+    module_nbr           smallint        NOT NULL,  -- The module number (copied from standard_assignment)
+    standard_nbr         smallint        NOT NULL,  -- The standard number (copied from standard_assignment)
+    pts_possible         smallint,                  -- The number of points possible (copied from standard_assignment)
+    min_passing_score    smallint,                  -- The minimum passing score (copied from standard_assignment)
+    score                smallint        NOT NULL,  -- The earned score
+    passed               char(1)         NOT NULL,  -- "Y"  if passed, "N" if not passed, "G" to ignore, "P" if passed
+                                                    --     but invalidated (say, for academic misconduct)
+    PRIMARY KEY (student_id, serial_nbr)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS term_202510.standard_assignment_attempt OWNER to math;
+
+-- DROP TABLE IF EXISTS term_202560.standard_assignment_attempt;
+CREATE TABLE IF NOT EXISTS term_202560.standard_assignment_attempt (
+    student_id           char(9)         NOT NULL,
+    serial_nbr           integer         NOT NULL,
+    assignment_id        varchar(20)     NOT NULL,
+    course_id            char(10)        NOT NULL,
+    module_nbr           char(10)        NOT NULL,
+    standard_nbr         smallint        NOT NULL,
+    pts_possible         smallint,
+    min_passing_score    smallint,
+    score                smallint        NOT NULL,
+    passed               char(1)         NOT NULL,
+    PRIMARY KEY (student_id, serial_nbr)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS term_202560.standard_assignment_attempt OWNER to math;
+
+-- DROP TABLE IF EXISTS term_202590.standard_assignment_attempt;
+CREATE TABLE IF NOT EXISTS term_202590.standard_assignment_attempt (
+    student_id           char(9)         NOT NULL,
+    serial_nbr           integer         NOT NULL,
+    assignment_id        varchar(20)     NOT NULL,
+    course_id            char(10)        NOT NULL,
+    module_nbr           char(10)        NOT NULL,
+    standard_nbr         smallint        NOT NULL,
+    pts_possible         smallint,
+    min_passing_score    smallint,
+    score                smallint        NOT NULL,
+    passed               char(1)         NOT NULL,
+    PRIMARY KEY (student_id, serial_nbr)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS term_202590.standard_assignment_attempt OWNER to math;
+
+-- DROP TABLE IF EXISTS term_dev.standard_assignment_attempt;
+CREATE TABLE IF NOT EXISTS term_dev.standard_assignment_attempt (
+    student_id           char(9)         NOT NULL,
+    serial_nbr           integer         NOT NULL,
+    assignment_id        varchar(20)     NOT NULL,
+    course_id            char(10)        NOT NULL,
+    module_nbr           char(10)        NOT NULL,
+    standard_nbr         smallint        NOT NULL,
+    pts_possible         smallint,
+    min_passing_score    smallint,
+    score                smallint        NOT NULL,
+    passed               char(1)         NOT NULL,
+    PRIMARY KEY (student_id, serial_nbr)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS term_dev.standard_assignment_attempt OWNER to math;
+
+-- DROP TABLE IF EXISTS term_test.standard_assignment_attempt;
+CREATE TABLE IF NOT EXISTS term_test.standard_assignment_attempt (
+    student_id           char(9)         NOT NULL,
+    serial_nbr           integer         NOT NULL,
+    assignment_id        varchar(20)     NOT NULL,
+    course_id            char(10)        NOT NULL,
+    module_nbr           char(10)        NOT NULL,
+    standard_nbr         smallint        NOT NULL,
+    pts_possible         smallint,
+    min_passing_score    smallint,
+    score                smallint        NOT NULL,
+    passed               char(1)         NOT NULL,
+    PRIMARY KEY (student_id, serial_nbr)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS term_test.standard_assignment_attempt OWNER to math;
 
 -- ------------------------------------------------------------------------------------------------
 -- TABLE: standard_assignment_attempt
