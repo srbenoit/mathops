@@ -119,6 +119,8 @@ is_first_passed     CHAR(1)         -- A flag on an assessment attempt:
                                     -- This should be 'Y' on at most one record for a specific exam
                                     -- for a student.
 
+item_id             VARCHAR(20)     -- A unique ID for an assessment item.
+
 last_class_date     DATE            -- The first date a course is available to students
 
 late_mastery_pts    SMALLINT        -- The points awarded for mastering a standard late
