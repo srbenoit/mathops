@@ -292,14 +292,18 @@ final class Launch implements Runnable {
         final String path2 = ROOT + this.app.name + "/launch/";
 
         try {
-            final URI updaterUri = new URI(path + "launch/updater.xml");
+            final URI updaterUri = new URI(path2 + "updater.xml");
             final URL updaterUrl = updaterUri.toURL();
 
-            final URI launchUri = new URI(path + "launch/launch.xml");
+            final URI launchUri = new URI(path2 + "launch.xml");
             final URL launchUrl = launchUri.toURL();
 
             final URI appUri = new URI(path + "app.xml");
             final URL appUrl = appUri.toURL();
+
+            FileUtils.log(this.logFile, "    Updater: ", updaterUrl);
+            FileUtils.log(this.logFile, "    Launch:  ", launchUri);
+            FileUtils.log(this.logFile, "    App:     ", appUrl);
 
             final AppDescriptor newUpdater = downloadAppDescriptor(updaterUrl);
             final AppDescriptor newLaunch = downloadAppDescriptor(launchUrl);
@@ -412,18 +416,20 @@ final class Launch implements Runnable {
                         final byte[] computedDigest = computeSHA256(file, sha256);
 
                         if (Arrays.equals(computedDigest, hash)) {
-                            FileUtils.log(this.logFile, "  Downloaded ", fileDescriptor.name, " to '", downloadDst.getName(),
+                            FileUtils.log(this.logFile, "  Downloaded ", fileDescriptor.name, " to '",
+                                    downloadDst.getName(),
                                     "' folder and verified.");
                         } else {
                             FileUtils.log(this.logFile, "  Downloaded file has SHA256 "
-                                                        + HexEncoder.encodeUppercase(computedDigest) + ", XML descriptor says "
+                                                        + HexEncoder.encodeUppercase(
+                                    computedDigest) + ", XML descriptor says "
                                                         + HexEncoder.encodeUppercase(hash));
                             allValid = false;
                             break;
                         }
                     } else {
                         FileUtils.log(this.logFile, "  Downloaded file has size " + file.length()
-                                + ", XML descriptor says " + fileDescriptor.size);
+                                                    + ", XML descriptor says " + fileDescriptor.size);
                         allValid = false;
                         break;
                     }
@@ -491,8 +497,8 @@ final class Launch implements Runnable {
     /**
      * Attempts to download the contents of a URL and store it to a file.
      *
-     * @param url the URL
-     * @param file   the file
+     * @param url  the URL
+     * @param file the file
      * @throws IOException if there is an error reading from the URl or writing to the file
      */
     private static void downloadFile(final URL url, final File file) throws IOException {
