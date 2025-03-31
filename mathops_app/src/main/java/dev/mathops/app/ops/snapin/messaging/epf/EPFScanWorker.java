@@ -23,6 +23,10 @@ import java.util.Map;
  */
 public final class EPFScanWorker extends SwingWorker<Integer, ScannerStatus> implements IProgressListener {
 
+    /** The sections for which to generate EPF reports. */
+//    private static final String[] SECTIONS = {"001", "401", "801", "809"};
+    private static final String[] SECTIONS = {"002"};
+
     /** The scanner. */
     private final EPFStudents scanner;
 
@@ -73,14 +77,11 @@ public final class EPFScanWorker extends SwingWorker<Integer, ScannerStatus> imp
 
         final Map<String, List<String>> incCourseSections = new HashMap<>(10);
 
-        final String[] sections = {"001", "401", "801", "809"};
-//         final String[] sections = {"002"};
-
-        final List<String> sect117 = Arrays.asList(sections);
-        final List<String> sect118 = Arrays.asList(sections);
-        final List<String> sect124 = Arrays.asList(sections);
-        final List<String> sect125 = Arrays.asList(sections);
-        final List<String> sect126 = Arrays.asList(sections);
+        final List<String> sect117 = Arrays.asList(SECTIONS);
+        final List<String> sect118 = Arrays.asList(SECTIONS);
+        final List<String> sect124 = Arrays.asList(SECTIONS);
+        final List<String> sect125 = Arrays.asList(SECTIONS);
+        final List<String> sect126 = Arrays.asList(SECTIONS);
 
         incCourseSections.put(RawRecordConstants.M117, sect117);
         incCourseSections.put(RawRecordConstants.M118, sect118);
@@ -120,7 +121,7 @@ public final class EPFScanWorker extends SwingWorker<Integer, ScannerStatus> imp
 
         if (!chunks.isEmpty()) {
             final ScannerStatus last = chunks.getLast();
-            final int progressValue =  last.totalSteps == 0 ? 1000 : (1000 * last.stepsCompleted / last.totalSteps);
+            final int progressValue = last.totalSteps == 0 ? 1000 : (1000 * last.stepsCompleted / last.totalSteps);
             this.progressBar.setValue(progressValue);
             this.progressBar.setString(last.description);
         }

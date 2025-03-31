@@ -1,6 +1,5 @@
 package dev.mathops.web.site.canvas.courses;
 
-import dev.mathops.commons.TemporalUtils;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
@@ -261,13 +260,13 @@ public enum PageAssignments {
 
             for (int module = 1; module <= 8; ++module) {
 
-                final AssignmentStatus exam1 = examStatus[module][1];
+                final ExamStatus exam1 = examStatus[module][1];
                 classifyExams(counts, exam1);
                 score += exam1.pointsEarned();
                 onTime += counts[0];
                 late += counts[1];
                 if (counts[2] > 0) {
-                    final AssignmentStatus hw1 = hwStatus[module][1];
+                    final HomeworkStatus hw1 = hwStatus[module][1];
                     if (hw1.whenCompleted() == null) {
                         locked += counts[2];
                     } else {
@@ -276,13 +275,13 @@ public enum PageAssignments {
                 }
 
                 Arrays.fill(counts, 0);
-                final AssignmentStatus exam2 = examStatus[module][2];
+                final ExamStatus exam2 = examStatus[module][2];
                 classifyExams(counts, exam2);
                 score += exam2.pointsEarned();
                 onTime += counts[0];
                 late += counts[1];
                 if (counts[2] > 0) {
-                    final AssignmentStatus hw2 = hwStatus[module][2];
+                    final HomeworkStatus hw2 = hwStatus[module][2];
                     if (hw2.whenCompleted() == null) {
                         locked += counts[2];
                     } else {
@@ -291,13 +290,13 @@ public enum PageAssignments {
                 }
 
                 Arrays.fill(counts, 0);
-                final AssignmentStatus exam3 = examStatus[module][3];
+                final ExamStatus exam3 = examStatus[module][3];
                 classifyExams(counts, exam3);
                 score += exam3.pointsEarned();
                 onTime += counts[0];
                 late += counts[1];
                 if (counts[2] > 0) {
-                    final AssignmentStatus hw3 = hwStatus[module][3];
+                    final HomeworkStatus hw3 = hwStatus[module][3];
                     if (hw3.whenCompleted() == null) {
                         locked += counts[2];
                     } else {
@@ -329,9 +328,9 @@ public enum PageAssignments {
 
             for (int module = 1; module <= 8; ++module) {
 
-                final AssignmentStatus exam1 = examStatus[module][1];
-                final AssignmentStatus exam2 = examStatus[module][2];
-                final AssignmentStatus exam3 = examStatus[module][3];
+                final ExamStatus exam1 = examStatus[module][1];
+                final ExamStatus exam2 = examStatus[module][2];
+                final ExamStatus exam3 = examStatus[module][3];
 
                 Arrays.fill(counts, 0);
                 classifyExams(counts, exam1);
@@ -350,36 +349,36 @@ public enum PageAssignments {
                 final LocalDate dueDate = exam1.dueDate() == null ? (exam2.dueDate() == null
                         ? exam3.dueDate() : exam2.dueDate()) : exam1.dueDate();
 
-                if (dueDate == null) {
-                    // A misconfiguration, but try our best...
-                    if (hw.pointsPossible() > 0) {
-                        if (hw.whenCompleted() == null) {
-                            htm.add("--/" + hw.pointsPossible() + " pts");
-                        } else {
-                            htm.add(hw.pointsEarned() + "/" + hw.pointsPossible() + " pts (passed on ",
-                                    TemporalUtils.FMT_MDY.format(hw.whenCompleted()), ")");
-                        }
-                    } else if (hw.whenCompleted() == null) {
-                        htm.add("(not yet passed)");
-                    } else {
-                        htm.add("passed on ", TemporalUtils.FMT_MDY.format(hw.whenCompleted()), ")");
-                    }
-                } else {
-                    htm.add("<b>Due</b> ", TemporalUtils.FMT_MDY.format(dueDate));
-
-                    if (hw.pointsPossible() > 0) {
-                        if (hw.whenCompleted() == null) {
-                            htm.add(" | --/" + hw.pointsPossible() + " pts");
-                        } else {
-                            htm.add(" | ", hw.pointsEarned() + "/" + hw.pointsPossible() + " pts (passed on ",
-                                    TemporalUtils.FMT_MDY.format(hw.whenCompleted()), ")");
-                        }
-                    } else if (hw.whenCompleted() == null) {
-                        htm.add("(not yet passed)");
-                    } else {
-                        htm.add("passed on ", TemporalUtils.FMT_MDY.format(hw.whenCompleted()), ")");
-                    }
-                }
+//                if (dueDate == null) {
+//                    // A misconfiguration, but try our best...
+//                    if (hw.pointsPossible() > 0) {
+//                        if (hw.whenCompleted() == null) {
+//                            htm.add("--/" + hw.pointsPossible() + " pts");
+//                        } else {
+//                            htm.add(hw.pointsEarned() + "/" + hw.pointsPossible() + " pts (passed on ",
+//                                    TemporalUtils.FMT_MDY.format(hw.whenCompleted()), ")");
+//                        }
+//                    } else if (hw.whenCompleted() == null) {
+//                        htm.add("(not yet passed)");
+//                    } else {
+//                        htm.add("passed on ", TemporalUtils.FMT_MDY.format(hw.whenCompleted()), ")");
+//                    }
+//                } else {
+//                    htm.add("<b>Due</b> ", TemporalUtils.FMT_MDY.format(dueDate));
+//
+//                    if (hw.pointsPossible() > 0) {
+//                        if (hw.whenCompleted() == null) {
+//                            htm.add(" | --/" + hw.pointsPossible() + " pts");
+//                        } else {
+//                            htm.add(" | ", hw.pointsEarned() + "/" + hw.pointsPossible() + " pts (passed on ",
+//                                    TemporalUtils.FMT_MDY.format(hw.whenCompleted()), ")");
+//                        }
+//                    } else if (hw.whenCompleted() == null) {
+//                        htm.add("(not yet passed)");
+//                    } else {
+//                        htm.add("passed on ", TemporalUtils.FMT_MDY.format(hw.whenCompleted()), ")");
+//                    }
+//                }
 
                 htm.add("&nbsp;</small>");
                 htm.eDiv();
@@ -405,7 +404,7 @@ public enum PageAssignments {
      *               late, and [2] is the number not yet answered correctly.
      * @param exam   the exam status
      */
-    private static void classifyExams(final int[] counts, final AssignmentStatus exam) {
+    private static void classifyExams(final int[] counts, final ExamStatus exam) {
 
         switch (exam.pointsEarned()) {
             case 6:
@@ -440,7 +439,7 @@ public enum PageAssignments {
      * @param module    the module number
      * @param objective the objective number
      */
-    private static void emitHw(final HtmlBuilder htm, final AssignmentStatus hw, final Integer module,
+    private static void emitHw(final HtmlBuilder htm, final HomeworkStatus hw, final Integer module,
                                final Integer objective) {
 
         htm.addln("<img class='assignment-icon' src='/www/images/etext/video_icon22.png' alt=''/>");
@@ -450,34 +449,34 @@ public enum PageAssignments {
         htm.addln("<a class='ulink2' href='homework.html'><b>Homework ", module, ".", objective, "</b></a>").br();
 
         htm.add("<small>");
-        if (hw.dueDate() == null) {
-            if (hw.pointsPossible() > 0) {
-                if (hw.whenCompleted() == null) {
-                    htm.add("--/" + hw.pointsPossible() + " pts");
-                } else {
-                    htm.add(hw.pointsEarned() + "/" + hw.pointsPossible() + " pts (passed on ",
-                            TemporalUtils.FMT_MDY.format(hw.whenCompleted()), ")");
-                }
-            } else if (hw.whenCompleted() == null) {
-                htm.add("(not yet passed)");
-            } else {
-                htm.add("passed on ", TemporalUtils.FMT_MDY.format(hw.whenCompleted()), ")");
-            }
-        } else {
-            htm.add("<b>Due</b> ", TemporalUtils.FMT_MDY.format(hw.dueDate()));
-            if (hw.pointsPossible() > 0) {
-                if (hw.whenCompleted() == null) {
-                    htm.add(" | --/" + hw.pointsPossible() + " pts");
-                } else {
-                    htm.add(" | ", hw.pointsEarned() + "/" + hw.pointsPossible() + " pts (passed on ",
-                            TemporalUtils.FMT_MDY.format(hw.whenCompleted()), ")");
-                }
-            } else if (hw.whenCompleted() == null) {
-                htm.add("(not yet passed)");
-            } else {
-                htm.add("passed on ", TemporalUtils.FMT_MDY.format(hw.whenCompleted()), ")");
-            }
-        }
+//        if (hw.dueDate() == null) {
+//            if (hw.pointsPossible() > 0) {
+//                if (hw.whenCompleted() == null) {
+//                    htm.add("--/" + hw.pointsPossible() + " pts");
+//                } else {
+//                    htm.add(hw.pointsEarned() + "/" + hw.pointsPossible() + " pts (passed on ",
+//                            TemporalUtils.FMT_MDY.format(hw.whenCompleted()), ")");
+//                }
+//            } else if (hw.whenCompleted() == null) {
+//                htm.add("(not yet passed)");
+//            } else {
+//                htm.add("passed on ", TemporalUtils.FMT_MDY.format(hw.whenCompleted()), ")");
+//            }
+//        } else {
+//            htm.add("<b>Due</b> ", TemporalUtils.FMT_MDY.format(hw.dueDate()));
+//            if (hw.pointsPossible() > 0) {
+//                if (hw.whenCompleted() == null) {
+//                    htm.add(" | --/" + hw.pointsPossible() + " pts");
+//                } else {
+//                    htm.add(" | ", hw.pointsEarned() + "/" + hw.pointsPossible() + " pts (passed on ",
+//                            TemporalUtils.FMT_MDY.format(hw.whenCompleted()), ")");
+//                }
+//            } else if (hw.whenCompleted() == null) {
+//                htm.add("(not yet passed)");
+//            } else {
+//                htm.add("passed on ", TemporalUtils.FMT_MDY.format(hw.whenCompleted()), ")");
+//            }
+//        }
         htm.add("&nbsp;</small>");
         htm.eDiv();
 
@@ -585,16 +584,13 @@ public enum PageAssignments {
                 }
             }
 
-
-
-
 //            private record ExamStatus(Integer unit, Integer objective, LocalDate dueDate, int pointsEarned,
 //                                      int numAnsweredOnTime, int numAnsweredLate, int numUnlocked, int numLocked)
 
-            result = new ExamStatus(unit, objective, dueDate, pointsEarned,
-                    numOnTime, numLate, numUnlocked, numLocked);
-        }
+//            result = new ExamStatus(unit, objective, dueDate, pointsEarned,
+//                    numOnTime, numLate, numUnlocked, numLocked);
 
+        }
         return result;
     }
 
