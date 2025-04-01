@@ -429,3 +429,128 @@ CREATE TABLE IF NOT EXISTS main_test.standard_exam (
     PRIMARY KEY (exam_id)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main_test.standard_exam OWNER to math;
+
+-- ------------------------------------------------------------------------------------------------
+-- TABLE: course_survey
+--
+-- A survey that can be attached to a course section.
+--
+--   USAGE: Created once, updated as needed.
+--   EST. RECORDS: 3 (version for F2F, version for hybrid version for CE, version for
+--   RETENTION: Stored in TERM schema, retained for 15 years
+--   EST. RECORD SIZE: 15 bytes
+--   EST. TOTAL SPACE: 352 MB
+-- ------------------------------------------------------------------------------------------------
+
+-- DROP TABLE IF EXISTS main.course_survey;
+CREATE TABLE IF NOT EXISTS main.course_survey (
+    survey_id           char(10)       NOT NULL,  -- The survey ID
+    open_pct            smallint       NOT NULL,  -- The percentage of course completion when survey opens
+    pref_value          smallint       NOT NULL,  -- The percentage of course completion when survey closes
+    PRIMARY KEY (survey_id)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main.course_survey OWNER to math;
+
+-- DROP TABLE IF EXISTS main_dev.course_survey;
+CREATE TABLE IF NOT EXISTS main_dev.course_survey (
+    survey_id           char(10)       NOT NULL,
+    open_pct            smallint       NOT NULL,
+    pref_value          smallint       NOT NULL,
+    PRIMARY KEY (survey_id)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main_dev.course_survey OWNER to math;
+
+-- DROP TABLE IF EXISTS main_test.course_survey;
+CREATE TABLE IF NOT EXISTS main_test.course_survey (
+    survey_id           char(10)       NOT NULL,
+    open_pct            smallint       NOT NULL,
+    pref_value          smallint       NOT NULL,
+    PRIMARY KEY (survey_id)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main_test.course_survey OWNER to math;
+
+-- ------------------------------------------------------------------------------------------------
+-- TABLE: course_survey_item
+--
+-- A single item on a course survey.
+--
+--   USAGE: Created once, updated as needed.
+--   EST. RECORDS: 3 * 5 = 15
+--   RETENTION: Stored in TERM schema, retained for 15 years
+--   EST. RECORD SIZE: 140 bytes
+--   EST. TOTAL SPACE: 2 KB
+-- ------------------------------------------------------------------------------------------------
+
+-- DROP TABLE IF EXISTS main.course_survey_item;
+CREATE TABLE IF NOT EXISTS main.course_survey_item (
+    survey_id           char(10)       NOT NULL,  -- The survey ID
+    item                smallint       NOT NULL,  -- The item number
+    item_type           smallint       NOT NULL,  -- The item type (1 = M/C, 2 = M/S, 3 = Likert, 4 = Text)
+    prompt_html         varchar(250)   NOT NULL,
+    PRIMARY KEY (survey_id, item)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main.course_survey_item OWNER to math;
+
+-- DROP TABLE IF EXISTS main_dev.course_survey_item;
+CREATE TABLE IF NOT EXISTS main_dev.course_survey_item (
+    survey_id           char(10)       NOT NULL,
+    item                smallint       NOT NULL,
+    item_type           smallint       NOT NULL,
+    prompt_html         varchar(250)   NOT NULL,
+    PRIMARY KEY (survey_id, item)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main_dev.course_survey_item OWNER to math;
+
+-- DROP TABLE IF EXISTS main_test.course_survey_item;
+CREATE TABLE IF NOT EXISTS main_test.course_survey_item (
+    survey_id           char(10)       NOT NULL,
+    item                smallint       NOT NULL,
+    item_type           smallint       NOT NULL,
+    prompt_html         varchar(250)   NOT NULL,
+    PRIMARY KEY (survey_id, item)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main_test.course_survey_item OWNER to math;
+
+-- ------------------------------------------------------------------------------------------------
+-- TABLE: course_survey_item_choice
+--
+-- A single item on a course survey.
+--
+--   USAGE: Created once, updated as needed.
+--   EST. RECORDS: 3 * 3 * 5  = 45
+--   RETENTION: Stored in TERM schema, retained for 15 years
+--   EST. RECORD SIZE: 120 bytes
+--   EST. TOTAL SPACE: 6 KB
+-- ------------------------------------------------------------------------------------------------
+
+-- DROP TABLE IF EXISTS main.course_survey_item_choice;
+CREATE TABLE IF NOT EXISTS main.course_survey_item_choice (
+    survey_id           char(10)       NOT NULL,  -- The survey ID
+    item                smallint       NOT NULL,  -- The item number
+    choice              smallint       NOT NULL,  -- The choice number
+    choice_html         varchar(250)   NOT NULL,
+    PRIMARY KEY (survey_id, item, choice)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main.course_survey_item_choice OWNER to math;
+
+-- DROP TABLE IF EXISTS main_dev.course_survey_item_choice;
+CREATE TABLE IF NOT EXISTS main_dev.course_survey_item_choice (
+    survey_id           char(10)       NOT NULL,  -- The survey ID
+    item                smallint       NOT NULL,  -- The item number
+    choice              smallint       NOT NULL,  -- The choice number
+    choice_html         varchar(250)   NOT NULL,
+    PRIMARY KEY (survey_id, item, choice)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main_dev.course_survey_item_choice OWNER to math;
+
+-- DROP TABLE IF EXISTS main_test.course_survey_item_choice;
+CREATE TABLE IF NOT EXISTS main_test.course_survey_item_choice (
+    survey_id           char(10)       NOT NULL,  -- The survey ID
+    item                smallint       NOT NULL,  -- The item number
+    choice              smallint       NOT NULL,  -- The choice number
+    choice_html         varchar(250)   NOT NULL,
+    PRIMARY KEY (survey_id, item, choice)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main_test.course_survey_item_choice OWNER to math;
+
+
