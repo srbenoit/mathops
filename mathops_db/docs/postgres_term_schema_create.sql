@@ -950,8 +950,6 @@ CREATE TABLE IF NOT EXISTS term_test.course_survey_response (
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_test.course_survey_response OWNER to math;
 
-
-
 -- ------------------------------------------------------------------------------------------------
 -- TABLE: course_survey_response_item_choice
 --
@@ -1008,14 +1006,6 @@ CREATE TABLE IF NOT EXISTS term_test.course_survey_response_item_choice (
     PRIMARY KEY (serial_nbr, item)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_test.course_survey_response_item_choice OWNER to math;
-
-
-
-
-
-
-
-
 
 -- ------------------------------------------------------------------------------------------------
 -- TABLE: course_survey_response_item_text
