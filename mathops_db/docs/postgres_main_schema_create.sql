@@ -225,10 +225,6 @@ CREATE TABLE IF NOT EXISTS main_test.facility_closure (
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main_test.facility_closure OWNER to math;
 
-
-
-
-
 -- ------------------------------------------------------------------------------------------------
 -- TABLE: standards_course
 --
