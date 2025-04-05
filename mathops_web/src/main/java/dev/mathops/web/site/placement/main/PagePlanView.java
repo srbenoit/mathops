@@ -124,8 +124,8 @@ enum PagePlanView {
         htm.add("Read and affirm each statement to access your Math Plan...");
 
         htm.sP().add("<input type='checkbox' id='affirm1' onclick='affirmed();'> &nbsp; <label for='affirm1'>",
-                "I understand that I must satisfy the All-University Core Curriculum requirement in ",
-                "Quantitative Reasoning to graduate from CSU, regardless of the major I choose.</label>").eP();
+                "I understand that I must satisfy the All-University Core Curriculum requirement ",
+                "(Category 1B) to graduate from CSU, regardless of the major I choose.</label>").eP();
         htm.sP().add("<input type='checkbox' id='affirm2' onclick='affirmed();'> &nbsp; <label for='affirm2'>",
                 "I understand that this Math Plan is only a recommendation.  The math requirements ",
                 "for each degree program can change over time, and should be verified with the ",
@@ -302,9 +302,6 @@ enum PagePlanView {
             htm.add("none");
         } else {
             htm.add(declaredMajor.majorName);
-            if (declaredMajor.concentrationName != null) {
-                htm.add(", ", declaredMajor.concentrationName, " Concentration");
-            }
         }
         htm.addln("</strong>").eP();
 
@@ -433,58 +430,29 @@ enum PagePlanView {
 
         htm.addln("<ul style='margin:0 0 10px 0;'>");
 
-        boolean inConcentration = false;
         for (final Map.Entry<Major, MajorMathRequirement> entry : majors.entrySet()) {
             final Major major = entry.getKey();
 
-            if (major.equals(declared) || curResponses.containsKey(major.questionNumber)) {
-
-                if (major.concentrationName == null) {
-                    // This is a top-level major - record the fact we're printing it
-                    printedMajors.add(major.majorName);
-                } else if (!printedMajors.contains(major.majorName)) {
-                    // We're printing a concentration whose top-level major has not been printed,
-                    // so print the top-level major first
-
-                    for (final Major inner : majors.keySet()) {
-                        if (inner.concentrationName == null && inner.majorName.equals(major.majorName)) {
-
-                            htm.add("<li>");
-                            if (inner.catalogUrl == null) {
-                                htm.add(inner.majorName);
-                            } else {
-                                htm.add("<a target='_blank' href='", inner.catalogUrl, "'>");
-                                htm.add(inner.majorName);
-                                htm.addln("</a>");
-                            }
-                            htm.addln("</li>");
-                            break;
-                        }
+            boolean selected = major.equals(declared);
+            if (!selected) {
+                for (final int q : major.questionNumbers) {
+                    final Integer qObj = Integer.valueOf(major.questionNumbers[0]);
+                    if (curResponses.containsKey(qObj)) {
+                        selected = true;
+                        break;
                     }
                 }
+            }
 
-                if (inConcentration && major.concentrationName == null) {
-                    htm.add("</ul>");
-                    inConcentration = false;
-                } else if (!inConcentration && major.concentrationName != null) {
-                    htm.add("<ul>");
-                    inConcentration = true;
-                }
+            if (selected) {
+                printedMajors.add(major.majorName);
 
                 htm.add("<li style='margin-bottom:3px;'>");
                 if (major.catalogUrl == null) {
-                    if (major.concentrationName == null) {
-                        htm.add(major.majorName);
-                    } else {
-                        htm.add(major.concentrationName, " Concentration");
-                    }
+                    htm.add(major.majorName);
                 } else {
                     htm.add("<a target='_blank' href='", major.catalogUrl, "'>");
-                    if (major.concentrationName == null) {
-                        htm.add(major.majorName);
-                    } else {
-                        htm.add(major.concentrationName, " Concentration");
-                    }
+                    htm.add(major.majorName);
                     htm.addln("</a>");
                 }
 
@@ -524,7 +492,7 @@ enum PagePlanView {
 
             final String id = crs.course;
             final boolean isCalc1 = "M 141".equals(id) || "M 155".equals(id) || "M 156".equals(id)
-                    || "M 160".equals(id);
+                                    || "M 160".equals(id);
             final boolean isCalc2 = "M 255".equals(id) || "M 256".equals(id) || "M 161".equals(id);
 
             htm.add("<li>");
@@ -589,11 +557,12 @@ enum PagePlanView {
 
         // Only perform updates if this is not an adviser using "Act As"
         if (session.actAsUserId == null && (MathPlanConstants.EXISTING_PROFILE.equals(cmd)
-                || MathPlanConstants.ONLY_RECOM_PROFILE.equals(cmd))) {
+                                            || MathPlanConstants.ONLY_RECOM_PROFILE.equals(cmd))) {
 
             final String studentId = session.getEffectiveUserId();
             final ZonedDateTime sessNow = session.getNow();
-            final MathPlanStudentData data = logic.getStudentData(cache, studentId, sessNow, session.loginSessionTag, true);
+            final MathPlanStudentData data = logic.getStudentData(cache, studentId, sessNow, session.loginSessionTag,
+                    true);
             final Integer key = Integer.valueOf(1);
 
             final Map<Integer, RawStmathplan> existing = MathPlanLogic.getMathPlanResponses(cache, studentId, cmd);

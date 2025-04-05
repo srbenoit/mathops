@@ -1534,9 +1534,10 @@ public final class MathPlanStudentData {
         }
 
         for (final Map.Entry<Major, MajorMathRequirement> entry : allMajors.entrySet()) {
-            final RawStmathplan curResp = curResponses.get(entry.getKey().questionNumber);
+            final Major major = entry.getKey();
+            final RawStmathplan curResp = curResponses.get(major.questionNumbers[0]);
             final boolean selected = curResp != null && "Y".equals(curResp.stuAnswer);
-            if (selected && !entry.getKey().equals(declaredMajor)) {
+            if (selected && !major.equals(declaredMajor)) {
                 requirements.add(entry.getValue());
             }
         }

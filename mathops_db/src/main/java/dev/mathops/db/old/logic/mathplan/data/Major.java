@@ -1,5 +1,8 @@
 package dev.mathops.db.old.logic.mathplan.data;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * An academic major in which students could express interest for determining potential math requirements. Programs may
  * be "bare" majors or majors with a concentration.
@@ -10,120 +13,34 @@ package dev.mathops.db.old.logic.mathplan.data;
  */
 public final class Major implements Comparable<Major> {
 
-    /** The profile question number. */
-    public final Integer questionNumber;
+    /** The profile question numbers that map to this major ("Canonical" number first). */
+    public final int[] questionNumbers;
 
-    /** The complete program code from CIM. */
-    public final String programCode;
-
-    /** True if concentration should be auto-checked when user checks major. */
-    public Boolean autoCheck = null;
-
-    /**
-     * True if major or concentration can be selected by itself (FALSE for majors in which the student MUST choose a
-     * concentration).
-     */
-    public Boolean checkable = null;
+    /** All program codes from CIM that map to the major ("Canonical" code first). */
+    public final List<String> programCodes;
 
     /** The major name. */
     public final String majorName;
 
-    /** The concentration name. */
-    public String concentrationName = null;
-
     /** The catalog URL. */
     public final String catalogUrl;
 
-    /** Indicates the major is bogus and cannot be selected in the Math Plan. */
-    public final boolean bogus;
-
     /**
      * Constructs a new {@code Program} when the program code is of the form "MAJR-XX", where "XX" is the degree type
      * ("BS", "BA", etc.).
      *
-     * @param theQuestionNumber the profile question number
-     * @param theProgramCode    the program code
-     * @param theCheckable      true if the major or concentration can be selected by itself (FALSE for majors in which
-     *                          the student MUST choose a concentration)
-     * @param theMajorName      the name of the major
-     * @param theCatalogUrl     the catalog URL
-     * @throws IllegalArgumentException if the program code is not in a valid format
+     * @param theQuestionNumbers the profile question numbers that map to this major (canonical number first)
+     * @param theProgramCodes    the program codes that map to this major (canonical code first)
+     * @param theMajorName       the name of the major
+     * @param theCatalogUrl      the catalog URL
      */
-    public Major(final int theQuestionNumber, final String theProgramCode, final Boolean theCheckable,
-                 final String theMajorName, final String theCatalogUrl)
-            throws IllegalArgumentException {
+    public Major(final int[] theQuestionNumbers, final String[] theProgramCodes, final String theMajorName,
+                 final String theCatalogUrl) {
 
-        this(theQuestionNumber, theProgramCode, theCheckable, theMajorName, theCatalogUrl, false);
-    }
-
-    /**
-     * Constructs a new {@code Program} when the program code is of the form "MAJR-XX", where "XX" is the degree type
-     * ("BS", "BA", etc.).
-     *
-     * @param theQuestionNumber the profile question number
-     * @param theProgramCode    the program code
-     * @param theCheckable      true if the major or concentration can be selected by itself (FALSE for majors in which
-     *                          the student MUST choose a concentration)
-     * @param theMajorName      the name of the major
-     * @param theCatalogUrl     the catalog URL
-     * @param isBogus           true if the major is bogus and cannot be selected in the Math Plan
-     * @throws IllegalArgumentException if the program code is not in a valid format
-     */
-    public Major(final int theQuestionNumber, final String theProgramCode, final Boolean theCheckable,
-                 final String theMajorName, final String theCatalogUrl, final boolean isBogus)
-            throws IllegalArgumentException {
-
-        this.questionNumber = Integer.valueOf(theQuestionNumber);
-        this.programCode = theProgramCode;
-        this.checkable = theCheckable;
+        this.questionNumbers = theQuestionNumbers.clone();
+        this.programCodes = Arrays.asList(theProgramCodes);
         this.majorName = theMajorName;
         this.catalogUrl = theCatalogUrl;
-        this.bogus = isBogus;
-    }
-
-    /**
-     * Constructs a new {@code Program} when the program code is of the form "MAJR-CONC-XX", where "XX" is the degree
-     * type ("BS", "BA", etc.).
-     *
-     * @param theQuestionNumber    the profile question number
-     * @param theProgramCode       the program code
-     * @param theAutoCheck         true if the concentration should be automatically checked when the major is checked
-     * @param theMajorName         the name of the major
-     * @param theConcentrationName the concentration name
-     * @param theCatalogUrl        the catalog URL
-     * @throws IllegalArgumentException if the program code is not in a valid format
-     */
-    public Major(final int theQuestionNumber, final String theProgramCode,
-                 final Boolean theAutoCheck, final String theMajorName, final String theConcentrationName,
-                 final String theCatalogUrl) throws IllegalArgumentException {
-
-        this(theQuestionNumber, theProgramCode, theAutoCheck, theMajorName, theConcentrationName, theCatalogUrl, false);
-    }
-
-    /**
-     * Constructs a new {@code Program} when the program code is of the form "MAJR-CONC-XX", where "XX" is the degree
-     * type ("BS", "BA", etc.).
-     *
-     * @param theQuestionNumber    the profile question number
-     * @param theProgramCode       the program code
-     * @param theAutoCheck         true if the concentration should be automatically checked when the major is checked
-     * @param theMajorName         the name of the major
-     * @param theConcentrationName the concentration name
-     * @param theCatalogUrl        the catalog URL
-     * @param isBogus              true if the major is bogus and cannot be selected in the Math Plan
-     * @throws IllegalArgumentException if the program code is not in a valid format
-     */
-    public Major(final int theQuestionNumber, final String theProgramCode,
-                 final Boolean theAutoCheck, final String theMajorName, final String theConcentrationName,
-                 final String theCatalogUrl, final boolean isBogus) throws IllegalArgumentException {
-
-        this.questionNumber = Integer.valueOf(theQuestionNumber);
-        this.programCode = theProgramCode;
-        this.autoCheck = theAutoCheck;
-        this.majorName = theMajorName;
-        this.concentrationName = theConcentrationName;
-        this.catalogUrl = theCatalogUrl;
-        this.bogus = isBogus;
     }
 
     /**
@@ -133,7 +50,7 @@ public final class Major implements Comparable<Major> {
     @Override
     public int hashCode() {
 
-        return this.programCode.hashCode();
+        return this.programCodes.hashCode();
     }
 
     /**
@@ -146,7 +63,7 @@ public final class Major implements Comparable<Major> {
         final boolean equal;
 
         if (obj instanceof final Major major) {
-            equal = this.programCode.equals(major.programCode);
+            equal = this.programCodes.equals(major.programCodes);
         } else {
             equal = false;
         }
@@ -162,8 +79,7 @@ public final class Major implements Comparable<Major> {
     @Override
     public String toString() {
 
-        return (this.concentrationName == null) ? this.majorName
-                : (this.majorName + ": " + this.concentrationName);
+        return this.majorName;
     }
 
     /**
@@ -181,17 +97,9 @@ public final class Major implements Comparable<Major> {
         int result = this.majorName.compareTo(other.majorName);
 
         if (result == 0) {
-            if (this.concentrationName == null) {
-                result = other.concentrationName == null ? 0 : -1;
-            } else if (other.concentrationName == null) {
-                result = 1;
-            } else {
-                result = this.concentrationName.compareTo(other.concentrationName);
-            }
-
-            if (result == 0) {
-                result = this.programCode.compareTo(other.programCode);
-            }
+            final String first = this.programCodes.getFirst();
+            final String otherFirst = other.programCodes.getFirst();
+            result = first.compareTo(otherFirst);
         }
 
         return result;

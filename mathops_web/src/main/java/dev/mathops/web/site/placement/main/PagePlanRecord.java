@@ -17,6 +17,7 @@ import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -116,7 +117,8 @@ enum PagePlanRecord {
      * @param data  the student data
      * @param logic the site logic
      */
-    private static void emitTransferCredit(final HtmlBuilder htm, final MathPlanStudentData data, final MathPlanLogic logic) {
+    private static void emitTransferCredit(final HtmlBuilder htm, final MathPlanStudentData data,
+                                           final MathPlanLogic logic) {
 
         // Query student's transfer credit and print out
         final List<LiveTransferCredit> xfer = data.getLiveTransferCredit();
@@ -311,7 +313,7 @@ enum PagePlanRecord {
 
         final Set<String> set = data.getCanRegisterFor();
         if (set == null || set.isEmpty()) {
-            htm.addln("<li>", catLink("MATH 101"), " or ", catLink("MATH 105"), "</li>");
+            htm.addln("<li>", catLink("MATH 101"), ", ", catLink("MATH 105"), " or ", catLink("MATH 112"), "</li>");
             htm.addln("<li>", catLink("STAT 100"), ", ", catLink("STAT 201"), ", or ", catLink("STAT 204"), "</li>");
         } else {
             // Remove courses for which the student has placement or credit already
@@ -325,18 +327,20 @@ enum PagePlanRecord {
             }
 
             if (set.isEmpty()) {
-                htm.addln("<li>", catLink("MATH 101"), " or ", catLink("MATH 105"), "</li>");
+                htm.addln("<li>", catLink("MATH 101"), ", ", catLink("MATH 105"), " or ", catLink("MATH 112"), "</li>");
                 htm.addln("<li>", catLink("STAT 100"), ", ", catLink("STAT 201"), ", or ", catLink("STAT 204"), "</li" +
-                        ">");
+                                                                                                                ">");
             } else {
                 final List<String> list = new ArrayList<>(set);
                 Collections.sort(list);
                 for (final String course : list) {
                     if ("M 101".equals(course)) {
-                        htm.addln("<li>", catLink("MATH 101"), " or ", catLink("MATH 105"), "</li>");
+                        htm.addln("<li>", catLink("MATH 101"), ", ", catLink("MATH 105"), " or ", catLink("MATH 112"),
+                                "</li>");
                         htm.addln("<li>", catLink("STAT 100"), ", ", catLink("STAT 201"), ", or ", catLink("STAT 204"),
                                 "</li>");
-                    } else if (!"M 105".equals(course)) {
+                    } else if (!("M 105".equals(course) || "M 112".equals(course) || "STAT 100".equals(course)
+                                 || "STAT 201".equals(course) || "STAT 204".equals(course))) {
                         htm.add("<li>");
                         htm.add(catLink(course.replace("M ", "MATH ")));
                         htm.addln("</li>");
@@ -364,6 +368,6 @@ enum PagePlanRecord {
         final String plussed = course.replace(' ', '+');
 
         return SimpleBuilder.concat("<a target='_blank' href='https://catalog.colostate.edu/search/?search=",
-                plussed, "'>", course, "</a>");
+                plussed, "' style='white-space:nowrap;'>", course, "</a>");
     }
 }

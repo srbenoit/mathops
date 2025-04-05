@@ -139,7 +139,7 @@ enum PagePlanStart {
         htm.add("<button class='foursteps' id='first' ",
                 "onclick='pick(\"plan_majors1.html\");'>",
                 "<span class='sr-only'>Step 1:</span>", //
-                "Tell us your<br/>preferred<br/>major(s).</button>");
+                "Tell us what majors<br/>you may be<br/>interested in.</button>");
         htm.add("<button class='foursteps' ");
         if (!doneStep1) {
             htm.add(" disabled");

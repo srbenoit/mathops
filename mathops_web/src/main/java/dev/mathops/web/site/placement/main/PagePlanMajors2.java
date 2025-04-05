@@ -80,9 +80,7 @@ enum PagePlanMajors2 {
             htm.sDiv("folders");
 
             htm.add("<nav class='folderstabs'>");
-            htm.sDiv("tab unsel", "id='first'").add("<a href='plan_majors1.html'>sort majors by math ",
-                    "<span class='hidebelow700'>required</span>",
-                    "<span class='hideabove600'><span class='hidebelow400'>required</span></span></a>").eDiv();
+            htm.sDiv("tab unsel", "id='first'").add("<a href='plan_majors1.html'>group by area of study</a>").eDiv();
             htm.sDiv("tab selected", "id='last'").add("sort majors alphabetically").eDiv();
             htm.add("</nav>");
 
@@ -154,10 +152,7 @@ enum PagePlanMajors2 {
             selectedMajors.add(declaredMajor);
         }
         for (final Major major : allMajors.keySet()) {
-            if (major.bogus) {
-                continue;
-            }
-            final RawStmathplan curResp = curResponses.get(major.questionNumber);
+            final RawStmathplan curResp = curResponses.get(Integer.valueOf(major.questionNumbers[0]));
             if (curResp != null && "Y".equals(curResp.stuAnswer)) {
                 selectedMajors.add(major);
             }
@@ -216,8 +211,8 @@ enum PagePlanMajors2 {
         char letter = 0;
         for (final Major major : allMajors.keySet()) {
 
-            // Get just majors (not concentrations) first
-            if (major.concentrationName != null) {
+            if (major.questionNumbers[0] > 9000) {
+                // Don't emit all the specific Exploratory Studies tracks
                 continue;
             }
 
@@ -228,29 +223,14 @@ enum PagePlanMajors2 {
                 htm.sDiv("alph-letter").add(letter).eDiv();
             }
 
-            final String pcode = major.programCode;
+            final String pcode = major.programCodes.getFirst();
             final String classname = pcode + "-conc";
 
             // Emit the major
             htm.add("<div class='major'>");
             htm.add("<input type='checkbox'");
 
-            if (Boolean.FALSE.equals(major.checkable)) {
-                htm.add(" class='expandcollapse'");
-            }
-
-            // Now display any concentrations associated with the major in a DIV
             boolean selected = selectedMajors.contains(major);
-            if (!selected) {
-                // See if a concentration under the major is selected...
-                for (final Major conc : allMajors.keySet()) {
-                    if (selectedMajors.contains(conc) && conc.concentrationName != null
-                        && conc.majorName.equals(mname)) {
-                        selected = true;
-                        break;
-                    }
-                }
-            }
             if (selected) {
                 htm.add(" checked='checked'");
             }
@@ -260,84 +240,17 @@ enum PagePlanMajors2 {
 
             htm.add("name='", pcode, "' id='", pcode, "' onchange=\"toggleConc(this,'", classname, "');\"/>");
             htm.add("<label for='", pcode, "'>");
-
-            final int lastMSpace = mname.lastIndexOf(' ');
-            if (lastMSpace == -1) {
-                htm.add("<span style='white-space:nowrap;'>");
-                htm.add(mname);
-            } else {
-                htm.add(mname.substring(0, lastMSpace + 1));
-                htm.add("<span style='white-space:nowrap;'>");
-                htm.add(mname.substring(lastMSpace + 1));
-            }
-
+            htm.add(mname);
             if (major.catalogUrl != null) {
                 htm.add("<span style='white-space:nowrap;'>&nbsp;<a target='_blank' href='", major.catalogUrl,
                         "'><img style='position:relative;top:-1px' src='/images/welcome/catalog3.png'/></a></span>");
             }
-
             if (major.equals(declaredMajor)) {
                 htm.add("<strong class='red'> *</strong>");
                 foundDeclared = true;
             }
-
-            htm.add("</span>");
             htm.addln("</label>");
-            if (selected) {
-                htm.addln("<div id='", classname, "' style='margin-left:20px;display:block;'>");
-            } else {
-                htm.addln("<div id='", classname, "' style='margin-left:20px;display:none;'>");
-            }
 
-            for (final Major conc : allMajors.keySet()) {
-                if (conc.concentrationName != null && mname.equals(conc.majorName)) {
-
-                    final String ccode = conc.programCode;
-
-                    htm.sDiv();
-                    htm.add("<input type='checkbox' name='", ccode, "' id='", ccode, "' class='");
-                    if (Boolean.TRUE.equals(conc.autoCheck)) {
-                        htm.add(classname, " autocheck");
-                    } else {
-                        htm.add(classname);
-                    }
-                    htm.add("'");
-
-                    if (selectedMajors.contains(conc)) {
-                        htm.add(" checked='checked'");
-                    }
-                    if (disable) {
-                        htm.add(" disabled='disabled'");
-                    }
-
-                    htm.addln("/>");
-                    htm.add("<label for='", pcode, "'>");
-
-                    // Play game to get icon to not wrap to next line
-                    final String cname = conc.concentrationName;
-                    final int lastCSpace = cname.lastIndexOf(' ');
-                    if (lastCSpace == -1) {
-                        htm.add("<span style='white-space:nowrap;'>");
-                        htm.add(cname);
-                    } else {
-                        htm.add(cname.substring(0, lastCSpace + 1));
-                        htm.add("<span style='white-space:nowrap;'>");
-                        htm.add(cname.substring(lastCSpace + 1));
-                    }
-                    if (conc.catalogUrl != null) {
-                        htm.add("&nbsp;<a target='_blank' href='", conc.catalogUrl,
-                                "'><img style='position:relative;top:-1px' src='/images/welcome/catalog3.png'/></a>");
-                    }
-                    if (conc.equals(declaredMajor)) {
-                        htm.add("<strong class='red'> *</strong>");
-                        foundDeclared = true;
-                    }
-                    htm.add("</span>");
-                    htm.addln("</label>");
-                    htm.eDiv();
-                }
-            }
-            htm.eDiv();
             htm.eDiv();
         }
         htm.eDiv();
@@ -382,16 +295,13 @@ enum PagePlanMajors2 {
             final List<String> answers = new ArrayList<>(1);
 
             for (final Major major : logic.getMajors().keySet()) {
-                if (major.bogus) {
-                    continue;
-                }
 
-                final String programCode = major.programCode;
+                final List<String> programCodes = major.programCodes;
 
                 for (final String key : params.keySet()) {
                     final String test = key.substring(key.indexOf('.') + 1);
-                    if (test.equals(programCode)) {
-                        questions.add(major.questionNumber);
+                    if (programCodes.contains(test)) {
+                        questions.add(Integer.valueOf(major.questionNumbers[0]));
                         answers.add("Y");
                     }
                 }
