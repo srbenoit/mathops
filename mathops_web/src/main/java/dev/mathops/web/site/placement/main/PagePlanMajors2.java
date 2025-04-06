@@ -67,12 +67,14 @@ enum PagePlanMajors2 {
             htm.sDiv("inset2");
 
             htm.sDiv("shaded2left");
-            htm.sP().add("Let us know what majors you think you might choose.  If you're not sure ",
-                    "yet what you want to major in, take your best guess.  You can change ",
+            htm.sP().add("Let us know what majors you think you might choose.  You can change ",
                     "your selections later if you change your mind.").eP();
 
             htm.sP().add("Choosing a major here does not declare it as your actual major - you can ",
                     "try out different majors here and see how they affect your Math Plan.").eP();
+
+            htm.sP().add("If you don't know what majors you might be interested in yet, you can choose ",
+                    "<em>Exploratory Studies</em> and move on.").eP();
             htm.eDiv(); // shaded2left
 
             htm.div("vgap");
