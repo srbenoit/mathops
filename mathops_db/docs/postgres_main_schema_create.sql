@@ -474,30 +474,30 @@ ALTER TABLE IF EXISTS main_test.course_survey_item OWNER to math;
 -- DROP TABLE IF EXISTS main.course_survey_item_choice;
 CREATE TABLE IF NOT EXISTS main.course_survey_item_choice (
     survey_id           char(10)       NOT NULL,  -- The survey ID
-    item                smallint       NOT NULL,  -- The item number
-    choice              smallint       NOT NULL,  -- The choice number
+    item_nbr            smallint       NOT NULL,  -- The item number
+    choice_nbr          smallint       NOT NULL,  -- The choice number
     choice_html         varchar(250)   NOT NULL,
-    PRIMARY KEY (survey_id, item, choice)
+    PRIMARY KEY (survey_id, item_nbr, choice_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main.course_survey_item_choice OWNER to math;
 
 -- DROP TABLE IF EXISTS main_dev.course_survey_item_choice;
 CREATE TABLE IF NOT EXISTS main_dev.course_survey_item_choice (
-    survey_id           char(10)       NOT NULL,  -- The survey ID
-    item                smallint       NOT NULL,  -- The item number
-    choice              smallint       NOT NULL,  -- The choice number
+    survey_id           char(10)       NOT NULL,
+    item_nbr            smallint       NOT NULL,
+    choice_nbr          smallint       NOT NULL,
     choice_html         varchar(250)   NOT NULL,
-    PRIMARY KEY (survey_id, item, choice)
+    PRIMARY KEY (survey_id, item_nbr, choice_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main_dev.course_survey_item_choice OWNER to math;
 
 -- DROP TABLE IF EXISTS main_test.course_survey_item_choice;
 CREATE TABLE IF NOT EXISTS main_test.course_survey_item_choice (
-    survey_id           char(10)       NOT NULL,  -- The survey ID
-    item                smallint       NOT NULL,  -- The item number
-    choice              smallint       NOT NULL,  -- The choice number
+    survey_id           char(10)       NOT NULL,
+    item_nbr            smallint       NOT NULL,
+    choice_nbr          smallint       NOT NULL,
     choice_html         varchar(250)   NOT NULL,
-    PRIMARY KEY (survey_id, item, choice)
+    PRIMARY KEY (survey_id, item_nbr, choice_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main_test.course_survey_item_choice OWNER to math;
 
