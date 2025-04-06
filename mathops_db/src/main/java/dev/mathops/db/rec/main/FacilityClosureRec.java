@@ -1,5 +1,6 @@
 package dev.mathops.db.rec.main;
 
+import dev.mathops.db.DataDict;
 import dev.mathops.db.rec.RecBase;
 import dev.mathops.text.builder.HtmlBuilder;
 
@@ -47,26 +48,11 @@ public final class FacilityClosureRec extends RecBase implements Comparable<Faci
     /** The table name for serialization of records. */
     public static final String TABLE_NAME = "facility_closure";
 
-    /** A field name for serialization of records. */
-    private static final String FLD_FACILITY = "facility";
+    /** The 'facility_id' field value. */
+    public final String facilityId;
 
-    /** A field name for serialization of records. */
-    private static final String FLD_CLOSURE_DT = "closure_dt";
-
-    /** A field name for serialization of records. */
-    private static final String FLD_CLOSURE_TYPE = "closure_type";
-
-    /** A field name for serialization of records. */
-    private static final String FLD_START_TIME = "start_time";
-
-    /** A field name for serialization of records. */
-    private static final String FLD_END_TIME = "end_time";
-
-    /** The 'facility' field value. */
-    public final String facility;
-
-    /** The 'closure_dt' field value. */
-    public final LocalDate closureDt;
+    /** The 'closure_date' field value. */
+    public final LocalDate closureDate;
 
     /** The 'closure_type' field value. */
     public final String closureType;
@@ -80,36 +66,36 @@ public final class FacilityClosureRec extends RecBase implements Comparable<Faci
     /**
      * Constructs a new {@code FacilityClosureRec}.
      *
-     * @param theFacility    the facility ID
-     * @param theClosureDt   the closure date
+     * @param theFacilityId  the facility ID
+     * @param theClosureDate the closure date
      * @param theClosureType the closure type
      * @param theStartTime   the start time (null for a full-day closure)
      * @param theEndTime     the end time (null for a full-day closure)
      */
-    public FacilityClosureRec(final String theFacility, final LocalDate theClosureDt, final String theClosureType,
+    public FacilityClosureRec(final String theFacilityId, final LocalDate theClosureDate, final String theClosureType,
                               final LocalTime theStartTime, final LocalTime theEndTime) {
 
         super();
 
-        if (theFacility == null) {
+        if (theFacilityId == null) {
             throw new IllegalArgumentException("Facility ID may not be null");
         }
-        if (theClosureDt == null) {
+        if (theClosureDate == null) {
             throw new IllegalArgumentException("Closure date may not be null");
         }
         if (theClosureType == null) {
             throw new IllegalArgumentException("Closure type may not be null");
         }
 
-        this.facility = theFacility;
-        this.closureDt = theClosureDt;
+        this.facilityId = theFacilityId;
+        this.closureDate = theClosureDate;
         this.closureType = theClosureType;
         this.startTime = theStartTime;
         this.endTime = theEndTime;
     }
 
     /**
-     * Compares two records for order.
+     * Compares two records for order.  Order is based on facility ID, closure date, then closure type.
      *
      * @param o the object to be compared
      * @return a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than
@@ -118,18 +104,12 @@ public final class FacilityClosureRec extends RecBase implements Comparable<Faci
     @Override
     public int compareTo(final FacilityClosureRec o) {
 
-        int result = this.facility.compareTo(o.facility);
+        int result = this.facilityId.compareTo(o.facilityId);
 
         if (result == 0) {
-            result = this.closureDt.compareTo(o.closureDt);
+            result = this.closureDate.compareTo(o.closureDate);
             if (result == 0) {
-                result = compareAllowingNull(this.startTime, o.startTime);
-                if (result == 0) {
-                    result = this.closureType.compareTo(o.closureType);
-                    if (result == 0) {
-                        result = this.endTime.compareTo(o.endTime);
-                    }
-                }
+                result = this.closureType.compareTo(o.closureType);
             }
         }
 
@@ -147,15 +127,15 @@ public final class FacilityClosureRec extends RecBase implements Comparable<Faci
 
         final HtmlBuilder htm = new HtmlBuilder(40);
 
-        appendField(htm, FLD_FACILITY, this.facility);
+        appendField(htm, DataDict.FLD_FACILITY_ID, this.facilityId);
         htm.add(DIVIDER);
-        appendField(htm, FLD_CLOSURE_DT, this.closureDt);
+        appendField(htm, DataDict.FLD_CLOSURE_DATE, this.closureDate);
         htm.add(DIVIDER);
-        appendField(htm, FLD_CLOSURE_TYPE, this.closureType);
+        appendField(htm, DataDict.FLD_CLOSURE_TYPE, this.closureType);
         htm.add(DIVIDER);
-        appendField(htm, FLD_START_TIME, this.startTime);
+        appendField(htm, DataDict.FLD_START_TIME, this.startTime);
         htm.add(DIVIDER);
-        appendField(htm, FLD_END_TIME, this.endTime);
+        appendField(htm, DataDict.FLD_END_TIME, this.endTime);
 
         return htm.toString();
     }
@@ -168,8 +148,8 @@ public final class FacilityClosureRec extends RecBase implements Comparable<Faci
     @Override
     public int hashCode() {
 
-        return this.facility.hashCode()
-               + this.closureDt.hashCode()
+        return this.facilityId.hashCode()
+               + this.closureDate.hashCode()
                + this.closureType.hashCode()
                + Objects.hashCode(this.startTime)
                + Objects.hashCode(this.endTime);
@@ -189,8 +169,8 @@ public final class FacilityClosureRec extends RecBase implements Comparable<Faci
         if (obj == this) {
             equal = true;
         } else if (obj instanceof final FacilityClosureRec rec) {
-            equal = this.facility.equals(rec.facility)
-                    && this.closureDt.equals(rec.closureDt)
+            equal = this.facilityId.equals(rec.facilityId)
+                    && this.closureDate.equals(rec.closureDate)
                     && this.closureType.equals(rec.closureType)
                     && Objects.equals(this.startTime, rec.startTime)
                     && Objects.equals(this.endTime, rec.endTime);

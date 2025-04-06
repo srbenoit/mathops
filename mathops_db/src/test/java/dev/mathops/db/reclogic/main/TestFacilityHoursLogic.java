@@ -110,11 +110,11 @@ final class TestFacilityHoursLogic {
      */
     private static void printUnexpected(final FacilityHoursRec r) {
 
-        Log.warning("Unexpected facility ", r.facility);
+        Log.warning("Unexpected facility ", r.facilityId);
         Log.warning("Unexpected displayIndex ", r.displayIndex);
         Log.warning("Unexpected weekdays ", r.weekdays);
-        Log.warning("Unexpected startDt ", r.startDt);
-        Log.warning("Unexpected endDt ", r.endDt);
+        Log.warning("Unexpected startDt ", r.startDate);
+        Log.warning("Unexpected endDt ", r.endDate);
         Log.warning("Unexpected openTime1 ", r.openTime1);
         Log.warning("Unexpected closeTime1 ", r.closeTime1);
         Log.warning("Unexpected openTime2 ", r.openTime2);
@@ -254,7 +254,7 @@ final class TestFacilityHoursLogic {
             final FacilityHoursLogic logic = FacilityHoursLogic.get(cache);
 
             try {
-                final FacilityHoursRec r = logic.query(cache, RAW3.facility, RAW3.displayIndex);
+                final FacilityHoursRec r = logic.query(cache, RAW3.facilityId, RAW3.displayIndex);
 
                 assertNotNull(r, "No record returned by query");
                 if (!RAW3.equals(r)) {
@@ -313,7 +313,7 @@ final class TestFacilityHoursLogic {
             try {
                 if (logic.update(cache, UPD5)) {
 
-                    final FacilityHoursRec r = logic.query(cache, UPD5.facility, UPD5.displayIndex);
+                    final FacilityHoursRec r = logic.query(cache, UPD5.facilityId, UPD5.displayIndex);
 
                     assertNotNull(r, "No record returned by PostgreSQL query after update");
 

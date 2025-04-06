@@ -45,10 +45,10 @@ final class TestFacilityRec {
 
         final FacilityRec obj = new FacilityRec(TEST_FACILITY_ID, TEST_NAME, TEST_BUILDING, TEST_ROOM);
 
-        assertEquals(TEST_FACILITY_ID, obj.facility, "Invalid facility value after constructor");
-        assertEquals(TEST_NAME, obj.name, "Invalid name value after constructor");
-        assertEquals(TEST_BUILDING, obj.building, "Invalid building value after constructor");
-        assertEquals(TEST_ROOM, obj.room, "Invalid room value after constructor");
+        assertEquals(TEST_FACILITY_ID, obj.facilityId, "Invalid facility value after constructor");
+        assertEquals(TEST_NAME, obj.facilityName, "Invalid name value after constructor");
+        assertEquals(TEST_BUILDING, obj.buildingName, "Invalid building value after constructor");
+        assertEquals(TEST_ROOM, obj.roomNbr, "Invalid room value after constructor");
     }
 
     /** Test case. */

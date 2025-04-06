@@ -105,11 +105,11 @@ public final class FacilityHoursLogic implements IRecLogic<FacilityHoursRec> {
             final String sql = SimpleBuilder.concat("INSERT INTO ", schemaPrefix,
                     ".facility_hours (facility,display_index,weekdays,start_dt,end_dt,open_time_1,close_time_1,",
                     "open_time_2,close_time_2) VALUES (",
-                    sqlStringValue(record.facility), ",",
+                    sqlStringValue(record.facilityId), ",",
                     sqlIntegerValue(record.displayIndex), ",",
                     sqlIntegerValue(record.weekdays), ",",
-                    sqlDateValue(record.startDt), ",",
-                    sqlDateValue(record.endDt), ",",
+                    sqlDateValue(record.startDate), ",",
+                    sqlDateValue(record.endDate), ",",
                     sqlTimeValue(record.openTime1), ",",
                     sqlTimeValue(record.closeTime1), ",",
                     sqlTimeValue(record.openTime2), ",",
@@ -140,7 +140,7 @@ public final class FacilityHoursLogic implements IRecLogic<FacilityHoursRec> {
             result = false;
         } else {
             final String sql = SimpleBuilder.concat("DELETE FROM ", schemaPrefix, ".facility_hours WHERE facility=",
-                    sqlStringValue(record.facility), " AND display_index=",
+                    sqlStringValue(record.facilityId), " AND display_index=",
                     sqlIntegerValue(record.displayIndex));
 
             result = doUpdateOneRow(cache, sql);
@@ -247,13 +247,13 @@ public final class FacilityHoursLogic implements IRecLogic<FacilityHoursRec> {
         } else {
             final String sql = SimpleBuilder.concat("UPDATE ", schemaPrefix, ".facility_hours SET weekdays=",
                     sqlIntegerValue(record.weekdays), ",start_dt=",
-                    sqlDateValue(record.startDt), ",end_dt=",
-                    sqlDateValue(record.endDt), ",open_time_1=",
+                    sqlDateValue(record.startDate), ",end_dt=",
+                    sqlDateValue(record.endDate), ",open_time_1=",
                     sqlTimeValue(record.openTime1), ",close_time_1=",
                     sqlTimeValue(record.closeTime1), ",open_time_2=",
                     sqlTimeValue(record.openTime2), ",close_Time_2=",
                     sqlTimeValue(record.closeTime2), " WHERE facility=",
-                    sqlStringValue(record.facility), " AND display_index=",
+                    sqlStringValue(record.facilityId), " AND display_index=",
                     sqlIntegerValue(record.displayIndex));
 
             result = doUpdateOneRow(cache, sql);

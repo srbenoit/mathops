@@ -1,5 +1,6 @@
 package dev.mathops.db.rec.main;
 
+import dev.mathops.db.DataDict;
 import dev.mathops.db.rec.RecBase;
 import dev.mathops.text.builder.HtmlBuilder;
 
@@ -50,35 +51,8 @@ public final class FacilityHoursRec extends RecBase implements Comparable<Facili
     /** The table name for serialization of records. */
     public static final String TABLE_NAME = "facility_hours";
 
-    /** A field name for serialization of records. */
-    private static final String FLD_FACILITY = "facility";
-
-    /** A field name for serialization of records. */
-    private static final String FLD_DISPLAY_INDEX = "display_index";
-
-    /** A field name for serialization of records. */
-    private static final String FLD_WEEKDAYS = "weekdays";
-
-    /** A field name for serialization of records. */
-    private static final String FLD_START_DT = "start_dt";
-
-    /** A field name for serialization of records. */
-    private static final String FLD_END_DT = "end_dt";
-
-    /** A field name for serialization of records. */
-    private static final String FLD_OPEN_TIME_1 = "open_time_1";
-
-    /** A field name for serialization of records. */
-    private static final String FLD_CLOSE_TIME_1 = "close_time_1";
-
-    /** A field name for serialization of records. */
-    private static final String FLD_OPEN_TIME_2 = "open_time_2";
-
-    /** A field name for serialization of records. */
-    private static final String FLD_CLOSE_TIME_2 = "close_time_2";
-
-    /** The 'facility' field value. */
-    public final String facility;
+    /** The 'facility_id' field value. */
+    public final String facilityId;
 
     /** The 'display_index' field value. */
     public final Integer displayIndex;
@@ -86,11 +60,11 @@ public final class FacilityHoursRec extends RecBase implements Comparable<Facili
     /** The 'weekdays' field value. */
     public final Integer weekdays;
 
-    /** The 'start_dt' field value. */
-    public final LocalDate startDt;
+    /** The 'start_date' field value. */
+    public final LocalDate startDate;
 
-    /** The 'end_dt' field value. */
-    public final LocalDate endDt;
+    /** The 'end_date' field value. */
+    public final LocalDate endDate;
 
     /** The 'open_time_1' field value. */
     public final LocalTime openTime1;
@@ -107,24 +81,24 @@ public final class FacilityHoursRec extends RecBase implements Comparable<Facili
     /**
      * Constructs a new {@code FacilityHoursRec}.
      *
-     * @param theFacility     the facility ID
+     * @param theFacilityId   the facility ID
      * @param theDisplayIndex the display index
      * @param theWeekdays     the weekdays for which this record applies
-     * @param theStartDt      the start date
-     * @param theEndDt        the end date
+     * @param theStartDate    the start date
+     * @param theEndDate      the end date
      * @param theOpenTime1    the first opening time
      * @param theCloseTime1   the first closing time
      * @param theOpenTime2    the second opening time
      * @param theCloseTime2   the second closing time
      */
-    public FacilityHoursRec(final String theFacility, final Integer theDisplayIndex, final Integer theWeekdays,
-                            final LocalDate theStartDt, final LocalDate theEndDt,
+    public FacilityHoursRec(final String theFacilityId, final Integer theDisplayIndex, final Integer theWeekdays,
+                            final LocalDate theStartDate, final LocalDate theEndDate,
                             final LocalTime theOpenTime1, final LocalTime theCloseTime1,
                             final LocalTime theOpenTime2, final LocalTime theCloseTime2) {
 
         super();
 
-        if (theFacility == null) {
+        if (theFacilityId == null) {
             throw new IllegalArgumentException("Facility ID may not be null");
         }
         if (theDisplayIndex == null) {
@@ -133,10 +107,10 @@ public final class FacilityHoursRec extends RecBase implements Comparable<Facili
         if (theWeekdays == null) {
             throw new IllegalArgumentException("Weekdays may not be null");
         }
-        if (theStartDt == null) {
+        if (theStartDate == null) {
             throw new IllegalArgumentException("Start date may not be null");
         }
-        if (theEndDt == null) {
+        if (theEndDate == null) {
             throw new IllegalArgumentException("End date may not be null");
         }
         if (theOpenTime1 == null) {
@@ -146,11 +120,11 @@ public final class FacilityHoursRec extends RecBase implements Comparable<Facili
             throw new IllegalArgumentException("First closing time may not be null");
         }
 
-        this.facility = theFacility;
+        this.facilityId = theFacilityId;
         this.displayIndex = theDisplayIndex;
         this.weekdays = theWeekdays;
-        this.startDt = theStartDt;
-        this.endDt = theEndDt;
+        this.startDate = theStartDate;
+        this.endDate = theEndDate;
         this.openTime1 = theOpenTime1;
         this.closeTime1 = theCloseTime1;
         this.openTime2 = theOpenTime2;
@@ -158,7 +132,7 @@ public final class FacilityHoursRec extends RecBase implements Comparable<Facili
     }
 
     /**
-     * Compares two records for order.
+     * Compares two records for order.  Order is based on facility ID and display index.
      *
      * @param o the object to be compared
      * @return a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than
@@ -167,19 +141,10 @@ public final class FacilityHoursRec extends RecBase implements Comparable<Facili
     @Override
     public int compareTo(final FacilityHoursRec o) {
 
-        int result = this.facility.compareTo(o.facility);
+        int result = this.facilityId.compareTo(o.facilityId);
 
         if (result == 0) {
-            result = this.startDt.compareTo(o.startDt);
-            if (result == 0) {
-                result = this.endDt.compareTo(o.endDt);
-                if (result == 0) {
-                    result = this.openTime1.compareTo(o.openTime1);
-                    if (result == 0) {
-                        result = this.closeTime1.compareTo(o.closeTime1);
-                    }
-                }
-            }
+            result = this.displayIndex.compareTo(o.displayIndex);
         }
 
         return result;
@@ -196,23 +161,23 @@ public final class FacilityHoursRec extends RecBase implements Comparable<Facili
 
         final HtmlBuilder htm = new HtmlBuilder(40);
 
-        appendField(htm, FLD_FACILITY, this.facility);
+        appendField(htm, DataDict.FLD_FACILITY_ID, this.facilityId);
         htm.add(DIVIDER);
-        appendField(htm, FLD_DISPLAY_INDEX, this.displayIndex);
+        appendField(htm, DataDict.FLD_DISPLAY_INDEX, this.displayIndex);
         htm.add(DIVIDER);
-        appendField(htm, FLD_WEEKDAYS, this.weekdays);
+        appendField(htm, DataDict.FLD_WEEKDAYS, this.weekdays);
         htm.add(DIVIDER);
-        appendField(htm, FLD_START_DT, this.startDt);
+        appendField(htm, DataDict.FLD_START_DATE, this.startDate);
         htm.add(DIVIDER);
-        appendField(htm, FLD_END_DT, this.endDt);
+        appendField(htm, DataDict.FLD_END_DATE, this.endDate);
         htm.add(DIVIDER);
-        appendField(htm, FLD_OPEN_TIME_1, this.openTime1);
+        appendField(htm, DataDict.FLD_OPEN_TIME_1, this.openTime1);
         htm.add(DIVIDER);
-        appendField(htm, FLD_CLOSE_TIME_1, this.closeTime1);
+        appendField(htm, DataDict.FLD_CLOSE_TIME_1, this.closeTime1);
         htm.add(DIVIDER);
-        appendField(htm, FLD_OPEN_TIME_2, this.openTime2);
+        appendField(htm, DataDict.FLD_OPEN_TIME_2, this.openTime2);
         htm.add(DIVIDER);
-        appendField(htm, FLD_CLOSE_TIME_2, this.closeTime2);
+        appendField(htm, DataDict.FLD_CLOSE_TIME_2, this.closeTime2);
 
         return htm.toString();
     }
@@ -225,11 +190,11 @@ public final class FacilityHoursRec extends RecBase implements Comparable<Facili
     @Override
     public int hashCode() {
 
-        return this.facility.hashCode()
+        return this.facilityId.hashCode()
                + this.displayIndex.hashCode()
                + this.weekdays.hashCode()
-               + this.startDt.hashCode()
-               + this.endDt.hashCode()
+               + this.startDate.hashCode()
+               + this.endDate.hashCode()
                + this.openTime1.hashCode()
                + this.closeTime1.hashCode()
                + Objects.hashCode(this.openTime2)
@@ -250,11 +215,11 @@ public final class FacilityHoursRec extends RecBase implements Comparable<Facili
         if (obj == this) {
             equal = true;
         } else if (obj instanceof final FacilityHoursRec rec) {
-            equal = this.facility.equals(rec.facility)
+            equal = this.facilityId.equals(rec.facilityId)
                     && this.displayIndex.equals(rec.displayIndex)
                     && this.weekdays.equals(rec.weekdays)
-                    && this.startDt.equals(rec.startDt)
-                    && this.endDt.equals(rec.endDt)
+                    && this.startDate.equals(rec.startDate)
+                    && this.endDate.equals(rec.endDate)
                     && this.openTime1.equals(rec.openTime1)
                     && this.closeTime1.equals(rec.closeTime1)
                     && Objects.equals(this.openTime2, rec.openTime2)

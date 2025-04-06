@@ -88,8 +88,8 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
         } else {
             final String sql = SimpleBuilder.concat("INSERT INTO ", schemaPrefix, ".facility_closure (facility,",
                     "closure_dt,closure_type,start_time,end_time) VALUES (",
-                    sqlStringValue(record.facility), ",",
-                    sqlDateValue(record.closureDt), ",",
+                    sqlStringValue(record.facilityId), ",",
+                    sqlDateValue(record.closureDate), ",",
                     sqlStringValue(record.closureType), ",",
                     sqlTimeValue(record.startTime), ",",
                     sqlTimeValue(record.endTime), ")");
@@ -119,8 +119,8 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
             result = false;
         } else {
             final String sql = SimpleBuilder.concat("DELETE FROM ", schemaPrefix, ".facility_closure WHERE facility=",
-                    sqlStringValue(record.facility), " AND closure_dt=",
-                    sqlDateValue(record.closureDt));
+                    sqlStringValue(record.facilityId), " AND closure_dt=",
+                    sqlDateValue(record.closureDate));
 
             result = doUpdateOneRow(cache, sql);
         }
@@ -227,8 +227,8 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
                     sqlStringValue(record.closureType), ",start_time=",
                     sqlTimeValue(record.startTime), ",end_time=",
                     sqlTimeValue(record.endTime), " WHERE facility=",
-                    sqlStringValue(record.facility), " AND closure_dt=",
-                    sqlDateValue(record.closureDt));
+                    sqlStringValue(record.facilityId), " AND closure_dt=",
+                    sqlDateValue(record.closureDate));
 
             result = doUpdateOneRow(cache, sql);
         }

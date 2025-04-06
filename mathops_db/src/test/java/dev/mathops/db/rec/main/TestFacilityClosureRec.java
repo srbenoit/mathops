@@ -53,8 +53,8 @@ final class TestFacilityClosureRec {
         final FacilityClosureRec obj = new FacilityClosureRec(TEST_FACILITY_ID, TEST_CLOSURE_DT, TEST_CLOSURE_TYPE,
                 TEST_START_TIME, TEST_END_TIME);
 
-        assertEquals(TEST_FACILITY_ID, obj.facility, "Invalid facility value after constructor");
-        assertEquals(TEST_CLOSURE_DT, obj.closureDt, "Invalid closure_dt value after constructor");
+        assertEquals(TEST_FACILITY_ID, obj.facilityId, "Invalid facility value after constructor");
+        assertEquals(TEST_CLOSURE_DT, obj.closureDate, "Invalid closure_dt value after constructor");
         assertEquals(TEST_CLOSURE_TYPE, obj.closureType, "Invalid closure_type value after constructor");
         assertEquals(TEST_START_TIME, obj.startTime, "Invalid start_time value after constructor");
         assertEquals(TEST_END_TIME, obj.endTime, "Invalid end_time value after constructor");

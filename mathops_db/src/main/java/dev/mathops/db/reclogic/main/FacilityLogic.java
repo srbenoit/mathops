@@ -82,10 +82,10 @@ public final class FacilityLogic implements IRecLogic<FacilityRec> {
         } else {
             final String sql = SimpleBuilder.concat("INSERT INTO ", schemaPrefix,
                     ".facility (facility,name,building,room) VALUES (",
-                    sqlStringValue(record.facility), ",",
-                    sqlStringValue(record.name), ",",
-                    sqlStringValue(record.building), ",",
-                    sqlStringValue(record.room), ")");
+                    sqlStringValue(record.facilityId), ",",
+                    sqlStringValue(record.facilityName), ",",
+                    sqlStringValue(record.buildingName), ",",
+                    sqlStringValue(record.roomNbr), ")");
 
             result = doUpdateOneRow(cache, sql);
 
@@ -113,7 +113,7 @@ public final class FacilityLogic implements IRecLogic<FacilityRec> {
             result = false;
         } else {
             final String sql = SimpleBuilder.concat("DELETE FROM ", schemaPrefix, ".facility WHERE facility=",
-                    sqlStringValue(record.facility));
+                    sqlStringValue(record.facilityId));
 
             result = doUpdateOneRow(cache, sql);
         }
@@ -190,9 +190,9 @@ public final class FacilityLogic implements IRecLogic<FacilityRec> {
             result = false;
         } else {
             final String sql = SimpleBuilder.concat("UPDATE ", schemaPrefix, ".facility SET name=",
-                    sqlStringValue(record.name), ",building=", sqlStringValue(record.building), ",room=",
-                    sqlStringValue(record.room), " WHERE facility=",
-                    sqlStringValue(record.facility));
+                    sqlStringValue(record.facilityName), ",building=", sqlStringValue(record.buildingName), ",room=",
+                    sqlStringValue(record.roomNbr), " WHERE facility=",
+                    sqlStringValue(record.facilityId));
 
             result = doUpdateOneRow(cache, sql);
         }

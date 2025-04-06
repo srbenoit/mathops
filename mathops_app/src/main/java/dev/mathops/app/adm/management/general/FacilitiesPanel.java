@@ -94,7 +94,7 @@ final class FacilitiesPanel extends AdmPanelBase implements ActionListener {
 
             this.facilityListModel.removeAllElements();
             for (final FacilityRec rec : allRows) {
-                this.facilityListModel.addElement(rec.facility);
+                this.facilityListModel.addElement(rec.facilityId);
             }
 
         } catch (final SQLException ex) {

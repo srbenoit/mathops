@@ -194,9 +194,8 @@ ALTER TABLE IF EXISTS main_test.facility_hours OWNER to math;
 CREATE TABLE IF NOT EXISTS main.facility_closure (
     facility_id          char(10)        NOT NULL,  -- The facility ID (references facility table)
     closure_date         date            NOT NULL,  -- The date of the closure
-    closure_type         char(10)        NOT NULL,  -- The type of closure ('HOLIDAY, 'SP_BREAK',
-                                                    --  'FA_BREAK', 'WEATHER', 'EMERGENCY', 'MAINT',
-                                                    --  'EVENT')
+    closure_type         char(10)        NOT NULL,  -- The type of closure ('HOLIDAY, 'SP_BREAK', 'FA_BREAK',
+                                                    --  'WEATHER', 'EMERGENCY', 'MAINT', 'EVENT')
     start_time           time,                      -- Start time, or null if all day
     end_time             time,                      -- End time, or null if all day
     PRIMARY KEY (facility_id, closure_date)
@@ -321,7 +320,8 @@ ALTER TABLE IF EXISTS main_test.standards_course_module OWNER to math;
 -- ------------------------------------------------------------------------------------------------
 -- TABLE: standard_assignment
 --
---   Each record defines an assignment associated with a standard in a course module.
+--   Each record defines an assignment associated with a standard in a course module.  This
+--   includes both homework assignments and mastery exams.
 --
 --   USAGE: One record per standard, 24 per course.
 --   EST. RECORDS: 120
@@ -333,7 +333,7 @@ ALTER TABLE IF EXISTS main_test.standards_course_module OWNER to math;
 -- DROP TABLE IF EXISTS main.standard_assignment;
 CREATE TABLE IF NOT EXISTS main.standard_assignment (
     assignment_id        varchar(20)     NOT NULL,  -- The unique assignment ID
-    assignment_type      char(2)         NOT NULL,  -- The assignment type
+    assignment_type      char(2)         NOT NULL,  -- The assignment type ('HW' homework, 'MA' Mastery Exam)
     course_id            char(10)        NOT NULL,  -- The course ID (references standards_course)
     module_nbr           smallint        NOT NULL,  -- The module number (1 for the first module)
     standard_nbr         smallint        NOT NULL,  -- The standard number (1 for the first standard in a module)
@@ -373,60 +373,6 @@ CREATE TABLE IF NOT EXISTS main_test.standard_assignment (
 ALTER TABLE IF EXISTS main_test.standard_assignment OWNER to math;
 
 -- ------------------------------------------------------------------------------------------------
--- TABLE: standard_exam
---
---   Each record defines an exam associated with a standard in a course module.
---
---   USAGE: One record per standard, 24 per course.
---   EST. RECORDS: 120
---   RETENTION: Stored in MAIN schema, retained.
---   EST. RECORD SIZE: 60 bytes
---   EST. TOTAL SPACE: 8 KB
--- ------------------------------------------------------------------------------------------------
-
--- DROP TABLE IF EXISTS main.standard_exam;
-CREATE TABLE IF NOT EXISTS main.standard_exam (
-    exam_id              varchar(20)     NOT NULL,  -- The unique exam ID
-    exam_type            char(2)         NOT NULL,  -- The exam type
-    course_id            char(10)        NOT NULL,  -- The course ID (references standards_course)
-    module_nbr           smallint        NOT NULL,  -- The module number (1 for the first module)
-    standard_nbr         smallint        NOT NULL,  -- The standard number (1 for the first standard in a module)
-    pts_possible         smallint,                  -- The number of points possible
-    min_passing_score    smallint,                  -- The minimum score that is considered "passing"
-    tree_ref             varchar(250)    NOT NULL,  -- For tree reference of the assessment
-    PRIMARY KEY (exam_id)
-) TABLESPACE primary_ts;
-ALTER TABLE IF EXISTS main.standard_exam OWNER to math;
-
--- DROP TABLE IF EXISTS main_dev.standard_exam;
-CREATE TABLE IF NOT EXISTS main_dev.standard_exam (
-    exam_id              varchar(20)     NOT NULL,
-    exam_type            char(2)         NOT NULL,
-    course_id            char(10)        NOT NULL,
-    module_nbr           smallint        NOT NULL,
-    standard_nbr         smallint        NOT NULL,
-    pts_possible         smallint,
-    min_passing_score    smallint,
-    tree_ref             varchar(250)    NOT NULL,
-    PRIMARY KEY (exam_id)
-) TABLESPACE primary_ts;
-ALTER TABLE IF EXISTS main_dev.standard_exam OWNER to math;
-
--- DROP TABLE IF EXISTS main_test.standard_exam;
-CREATE TABLE IF NOT EXISTS main_test.standard_exam (
-    exam_id              varchar(20)     NOT NULL,
-    exam_type            char(2)         NOT NULL,
-    course_id            char(10)        NOT NULL,
-    module_nbr           smallint        NOT NULL,
-    standard_nbr         smallint        NOT NULL,
-    pts_possible         smallint,
-    min_passing_score    smallint,
-    tree_ref             varchar(250)    NOT NULL,
-    PRIMARY KEY (exam_id)
-) TABLESPACE primary_ts;
-ALTER TABLE IF EXISTS main_test.standard_exam OWNER to math;
-
--- ------------------------------------------------------------------------------------------------
 -- TABLE: course_survey
 --
 -- A survey that can be attached to a course section.
@@ -441,8 +387,10 @@ ALTER TABLE IF EXISTS main_test.standard_exam OWNER to math;
 -- DROP TABLE IF EXISTS main.course_survey;
 CREATE TABLE IF NOT EXISTS main.course_survey (
     survey_id           char(10)       NOT NULL,  -- The survey ID
-    open_pct            smallint       NOT NULL,  -- The percentage of course completion when survey opens
-    pref_value          smallint       NOT NULL,  -- The percentage of course completion when survey closes
+    open_week           smallint,                 -- The week when survey opens (null if opens any time course open)
+    open_day            smallint,                 -- The weekday when the survey opens (at start of day, null if none)
+    close_week          smallint,                 -- The week when the survey closes (null if no closure)
+    close_day           smallint,                 -- The weekday when the survey closes (at end of day, null if none)
     PRIMARY KEY (survey_id)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main.course_survey OWNER to math;
@@ -450,8 +398,10 @@ ALTER TABLE IF EXISTS main.course_survey OWNER to math;
 -- DROP TABLE IF EXISTS main_dev.course_survey;
 CREATE TABLE IF NOT EXISTS main_dev.course_survey (
     survey_id           char(10)       NOT NULL,
-    open_pct            smallint       NOT NULL,
-    pref_value          smallint       NOT NULL,
+    open_week           smallint,
+    open_day            smallint,
+    close_week          smallint,
+    close_day           smallint,
     PRIMARY KEY (survey_id)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main_dev.course_survey OWNER to math;
@@ -459,8 +409,10 @@ ALTER TABLE IF EXISTS main_dev.course_survey OWNER to math;
 -- DROP TABLE IF EXISTS main_test.course_survey;
 CREATE TABLE IF NOT EXISTS main_test.course_survey (
     survey_id           char(10)       NOT NULL,
-    open_pct            smallint       NOT NULL,
-    pref_value          smallint       NOT NULL,
+    open_week           smallint,
+    open_day            smallint,
+    close_week          smallint,
+    close_day           smallint,
     PRIMARY KEY (survey_id)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main_test.course_survey OWNER to math;

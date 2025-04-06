@@ -63,10 +63,10 @@ final class TestFacilityLogic {
      */
     private static void printUnexpected(final FacilityRec r) {
 
-        Log.warning("Unexpected facility ", r.facility);
-        Log.warning("Unexpected name ", r.name);
-        Log.warning("Unexpected building ", r.building);
-        Log.warning("Unexpected room ", r.room);
+        Log.warning("Unexpected facility ", r.facilityId);
+        Log.warning("Unexpected name ", r.facilityName);
+        Log.warning("Unexpected building ", r.buildingName);
+        Log.warning("Unexpected room ", r.roomNbr);
     }
 
     /**
@@ -202,7 +202,7 @@ final class TestFacilityLogic {
             final FacilityLogic logic = FacilityLogic.get(cache);
 
             try {
-                final FacilityRec r = logic.query(cache, RAW1.facility);
+                final FacilityRec r = logic.query(cache, RAW1.facilityId);
 
                 assertNotNull(r, "No record returned by PostgreSQL query");
 
@@ -227,7 +227,7 @@ final class TestFacilityLogic {
             try {
                 if (logic.update(cache, UPD5)) {
 
-                    final FacilityRec r = logic.query(cache, UPD5.facility);
+                    final FacilityRec r = logic.query(cache, UPD5.facilityId);
 
                     assertNotNull(r, "No record returned by PostgreSQL query after update");
 

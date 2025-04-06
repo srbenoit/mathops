@@ -75,8 +75,8 @@ final class TestFacilityClosureLogic {
      */
     private static void printUnexpected(final FacilityClosureRec r) {
 
-        Log.warning("Unexpected facility ", r.facility);
-        Log.warning("Unexpected closureDt ", r.closureDt);
+        Log.warning("Unexpected facility ", r.facilityId);
+        Log.warning("Unexpected closureDt ", r.closureDate);
         Log.warning("Unexpected closureType ", r.closureType);
         Log.warning("Unexpected startTime ", r.startTime);
         Log.warning("Unexpected endTime ", r.endTime);
@@ -205,7 +205,7 @@ final class TestFacilityClosureLogic {
             final FacilityClosureLogic logic = FacilityClosureLogic.get(cache);
 
             try {
-                final FacilityClosureRec r = logic.query(cache, RAW2.facility, RAW2.closureDt);
+                final FacilityClosureRec r = logic.query(cache, RAW2.facilityId, RAW2.closureDate);
 
                 assertNotNull(r, "No record returned by query");
                 assertEquals(RAW2, r, "Incorrect record returned by query");
@@ -262,7 +262,7 @@ final class TestFacilityClosureLogic {
             try {
                 if (logic.update(cache, UPD3)) {
 
-                    final FacilityClosureRec r = logic.query(cache, UPD3.facility, UPD3.closureDt);
+                    final FacilityClosureRec r = logic.query(cache, UPD3.facilityId, UPD3.closureDate);
 
                     assertNotNull(r, "No record returned by PostgreSQL query after update");
 

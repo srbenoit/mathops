@@ -69,11 +69,11 @@ final class TestFacilityHoursRec {
         final FacilityHoursRec obj = new FacilityHoursRec(TEST_FACILITY_ID, TEST_DISPLAY_INDEX, TEST_WEEKDAYS,
                 TEST_START_DT, TEST_END_DT, TEST_OPEN_TIME_1, TEST_CLOSE_TIME_1, TEST_OPEN_TIME_2, TEST_CLOSE_TIME_2);
 
-        assertEquals(TEST_FACILITY_ID, obj.facility, "Invalid facility value after constructor");
+        assertEquals(TEST_FACILITY_ID, obj.facilityId, "Invalid facility value after constructor");
         assertEquals(TEST_DISPLAY_INDEX, obj.displayIndex, "Invalid display_index value after constructor");
         assertEquals(TEST_WEEKDAYS, obj.weekdays, "Invalid weekdays value after constructor");
-        assertEquals(TEST_START_DT, obj.startDt, "Invalid start_dt value after constructor");
-        assertEquals(TEST_END_DT, obj.endDt, "Invalid end_dt value after constructor");
+        assertEquals(TEST_START_DT, obj.startDate, "Invalid start_dt value after constructor");
+        assertEquals(TEST_END_DT, obj.endDate, "Invalid end_dt value after constructor");
         assertEquals(TEST_OPEN_TIME_1, obj.openTime1, "Invalid open_time_1 value after constructor");
         assertEquals(TEST_CLOSE_TIME_1, obj.closeTime1, "Invalid close_time_1 value after constructor");
         assertEquals(TEST_OPEN_TIME_2, obj.openTime2, "Invalid open_time_2 value after constructor");
