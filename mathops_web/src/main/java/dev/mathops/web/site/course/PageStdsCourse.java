@@ -47,17 +47,19 @@ enum PageStdsCourse {
         }
         htm.eH(2).hr();
 
-        emitCourseStatus(cache, logic, reg, csection, htm);
+        if ("888888888".equals(reg.stuId)) {
+            emitCourseStatus(cache, logic, reg, csection, htm);
+        } else {
+            emitCourseStatusOld(cache, logic, reg, csection, htm);
 
-        htm.addln("<a href='course_text.html?course=", course.course,
-                "&mode=course'><img style='width:210px;margin-left:10px;' ",
-                "src='/www/images/etext/textbook.png'/></a><br/>");
+            htm.addln("<a href='course_text.html?course=", course.course,
+                    "&mode=course'><img style='width:210px;margin-left:10px;' ",
+                    "src='/www/images/etext/textbook.png'/></a><br/>");
 
-        htm.addln("<a style='width:202px;margin-left:10px;text-align:center;' ",
-                "class='smallbtn' href='course_text.html?course=", course.course,
-                "&mode=course'>", "Open Textbook", "</a>");
-
-        // TODO: Schedule and next steps...
+            htm.addln("<a style='width:202px;margin-left:10px;text-align:center;' ",
+                    "class='smallbtn' href='course_text.html?course=", course.course,
+                    "&mode=course'>", "Open Textbook", "</a>");
+        }
     }
 
     /**
@@ -68,8 +70,8 @@ enum PageStdsCourse {
      * @param csection the course section record
      * @param htm      the {@code HtmlBuilder} to which to append
      */
-    private static void emitCourseStatus(final Cache cache, final CourseSiteLogic logic, final RawStcourse reg,
-                                         final RawCsection csection, final HtmlBuilder htm) {
+    private static void emitCourseStatusOld(final Cache cache, final CourseSiteLogic logic, final RawStcourse reg,
+                                            final RawCsection csection, final HtmlBuilder htm) {
 
         Log.info("Status reg: " + reg.course, CoreConstants.SPC, reg.sect, CoreConstants.SPC, reg.paceOrder);
 
@@ -107,7 +109,7 @@ enum PageStdsCourse {
 
             htm.sP();
             final String targetsReachedStr = Integer.toString(targetsReachedTotal);
-            htm.addln("Learning Targets Mastered: <b>" , targetsReachedStr, "</b> (out of 24 total)").br();
+            htm.addln("Learning Targets Mastered: <b>", targetsReachedStr, "</b> (out of 24 total)").br();
 
             // Bar chart showing number of standards mastered in each half of the course
             // 3 pixel border all around, 16 pixels per standard plus 1-pixel dividing line
@@ -210,7 +212,6 @@ enum PageStdsCourse {
             final String secondHalfStr = Integer.toString(targetsSecondHalf);
             htm.addln("  <text x='241' y='34' style='font-size:16px;'>", secondHalfStr,
                     " mastered in second half</text>");
-
 
             final String firstHalfStr2 = Integer.toString(masteryStatus.numStandardsPendingFirstHalf);
             htm.addln("  <text x='6' y='55' style='font-size:16px;'>Eligible for ", firstHalfStr2,
@@ -322,6 +323,68 @@ enum PageStdsCourse {
             }
 
             htm.div("vgap0");
+        }
+    }
+
+    /**
+     * Emits a display of the student's status in the course.
+     *
+     * @param cache    the data cache
+     * @param reg      the registration record
+     * @param csection the course section record
+     * @param htm      the {@code HtmlBuilder} to which to append
+     */
+    private static void emitCourseStatus(final Cache cache, final CourseSiteLogic logic, final RawStcourse reg,
+                                         final RawCsection csection, final HtmlBuilder htm) {
+
+        if ("Y".equals(reg.iInProgress)) {
+
+            // TODO: Incomplete status
+
+        } else if (reg.paceOrder == null) {
+            htm.sP();
+            htm.addln("Unable to determine class schedule.");
+            htm.eP();
+        } else {
+            final SiteData data = logic.data;
+            final SiteDataCfgCourse courseData = data.courseData.getCourse(reg.course, reg.sect);
+
+            final List<RawStcourse> paceRegs = logic.data.registrationData.getPaceRegistrations();
+            final int pace = paceRegs == null ? 0 : PaceTrackLogic.determinePace(paceRegs);
+            final String paceTrack = paceRegs == null ? CoreConstants.EMPTY :
+                    PaceTrackLogic.determinePaceTrack(paceRegs, pace);
+
+            final ZonedDateTime now = ZonedDateTime.now();
+            final boolean isTutor = logic.data.studentData.isSpecialType(now, "TUTOR");
+
+            final StdsMasteryStatus masteryStatus = new StdsMasteryStatus(cache, courseData, pace, paceTrack, reg,
+                    isTutor);
+
+            final int targetsFirstHalf = masteryStatus.getNbrMasteredInFirstHalf();
+            final int targetsSecondHalf = masteryStatus.getNbrMasteredInSecondHalf();
+            final int targetsReachedTotal = targetsFirstHalf + targetsSecondHalf;
+
+            htm.sP().add("""
+                    To pass this course, you must complete at least <b>18</b> (out of 24) learning targets (including
+                    <b>all</b> of the <b>essential</b> learning targets). Your grade will then be based on total points
+                    earned.""").eP();
+
+            htm.div("vgap0");
+
+            htm.sDiv("indent");
+            htm.sP().add("Learning Targets Completed: <b>", Integer.toString(targetsReachedTotal),
+                    "</b> (out of 24 total).").eP();
+            htm.eDiv();
+
+            htm.div("vgap0");
+
+            htm.sP().add("To get started, go to <b>Modules</b> and read the <b>Start Here</b> page.").eP();
+
+            htm.div("vgap0");
+
+            htm.sDiv("center");
+            htm.addln("<a class='btn' href='course_text.html?course=", reg.course, "&mode=course'>Modules</a>");
+            htm.eDiv();
         }
     }
 }

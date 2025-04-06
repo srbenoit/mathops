@@ -378,7 +378,7 @@ enum PageOutline {
                           final String skillsReviewCourse, final String preMsg) throws SQLException {
 
         final ZonedDateTime now = session.getNow();
-        final String userId = session.getEffectiveUserId();
+        final String stuId = session.getEffectiveUserId();
 
         final boolean isPractice = !"course".equals(mode);
 
@@ -402,14 +402,14 @@ enum PageOutline {
             }
         }
 
-        RawStcourse studentCourse = RawStcourseLogic.getRegistration(cache, userId, courseId);
+        RawStcourse studentCourse = RawStcourseLogic.getRegistration(cache, stuId, courseId);
         RawCsection csection;
 
         if (studentCourse == null) {
             csection = systemData.getCourseSection(courseId, defaultSect, activeTerm.term);
             if (csection != null) {
                 studentCourse = new RawStcourse();
-                studentCourse.stuId = userId;
+                studentCourse.stuId = stuId;
                 studentCourse.course = courseId;
                 studentCourse.sect = defaultSect;
                 studentCourse.paceOrder = Integer.valueOf(1);
@@ -428,7 +428,7 @@ enum PageOutline {
         if (csection != null && "MAS".equals(csection.gradingStd)) {
             PageStdsCourse.masteryCoursePanel(cache, logic, course, studentCourse, csection, htm);
 
-            if ("888888888".equals(session.getEffectiveUserId())) {
+            if ("888888888".equals(stuId)) {
                 htm.div("vgap");
                 htm.sP().add("<a href='course_media.html?course=", courseId.replace(CoreConstants.SPC, "%20"),
                         "'>All Course Media</a>").eP();
@@ -436,7 +436,7 @@ enum PageOutline {
         } else {
             final StudentCourseStatus courseStatus = new StudentCourseStatus(site.site.profile);
 
-            if (courseStatus.gatherData(cache, session, userId, courseId, false, isPractice)
+            if (courseStatus.gatherData(cache, session, stuId, courseId, false, isPractice)
                 && courseStatus.getCourse().courseName != null) {
 
                 csection = courseStatus.getCourseSection();
@@ -474,7 +474,7 @@ enum PageOutline {
                             doCourseOutline(cache, siteType, site, session, logic, courseStatus, mode, errorExam,
                                     error, htm, null);
                         }
-                    } else if (courseStatus.gatherData(cache, session, userId, courseId, true,
+                    } else if (courseStatus.gatherData(cache, session, stuId, courseId, true,
                             false) && courseStatus.getCourse().courseName != null) {
 
                         // Displaying the course as a Skills Review, so no checks
@@ -1034,7 +1034,7 @@ enum PageOutline {
         }
 
         // Course topmatter
-        doCourseTopmatter(session, courseStatus, mode, htm);
+        doCourseTopMatter(session, courseStatus, mode, htm);
 
         htm.div("clear");
         htm.div("vgap0").hr().div("vgap0");
@@ -1058,7 +1058,8 @@ enum PageOutline {
         if (!media.isEmpty()) {
             for (final Map.Entry<String, Map<String, String>> entry : media.entrySet()) {
                 htm.sDiv("vlines");
-                htm.sH(5).add(entry.getKey()).eH(5);
+                final String title = entry.getKey();
+                htm.sH(5).add(title).eH(5);
 
                 final Map<String, String> values = entry.getValue();
 
@@ -1081,8 +1082,8 @@ enum PageOutline {
                         htm.add("<img src='/images/zip.png' alt=''/>");
                     }
 
-                    htm.addln(" <a class='ulink' href='", url, "'>",
-                            e.getKey(), "</a>").eDiv();
+                    final String name = e.getKey();
+                    htm.addln(" <a class='ulink' href='", url, "'>", name, "</a>").eDiv();
                 }
 
                 htm.eDiv();
@@ -1100,12 +1101,12 @@ enum PageOutline {
      * @param mode         the access mode
      * @param htm          the {@code HtmlBuilder} to which to append the HTML
      */
-    private static void doCourseTopmatter(final ImmutableSessionInfo session,
+    private static void doCourseTopMatter(final ImmutableSessionInfo session,
                                           final StudentCourseStatus courseStatus, final String mode,
                                           final HtmlBuilder htm) {
 
         final RawCsection csection = courseStatus.getCourseSection();
-        final String topmatter = RawCsection.getTopmatter(csection.course);
+        final String topMatter = RawCsection.getTopmatter(csection.course);
 
         if ("practice".equals(mode)) {
 
@@ -1113,38 +1114,28 @@ enum PageOutline {
                 htm.br();
                 htm.sDiv("advice");
                 htm.addln("<strong class='red'>");
-                htm.addln("You have purchased access to this e-text, but since you are not ",
-                        "currently working in the course, exams and assignments will NOT be ",
-                        "recorded.  You may practice objective problems or review exams as often ",
-                        "as you like.");
+                htm.addln("You have purchased access to this e-text, but since you are not currently working in the ",
+                        "course, exams and assignments will NOT be recorded.  You may practice objective problems or ",
+                        "review exams as often as you like.");
                 htm.addln("</strong>");
                 htm.eDiv().br();
                 htm.div("vgap");
             }
-
-            // if (csection.isTrueIsTopmatterInPractice() && topmatter != null) {
-            // htm.sP().add(topmatter).eP();
-            // }
         } else if ("locked".equals(mode)) {
 
             if (session.getEffectiveRole() == ERole.STUDENT) {
                 htm.br();
                 htm.sDiv("advice");
                 htm.addln("<strong class='red'>");
-                htm.addln("You have purchased access to this e-text, but since you are past the ",
-                        "deadline date for finishing the course, exams and assignments will NOT be ",
-                        "recorded.  You may practice objective problems or review exams as often as ",
-                        "you like.");
+                htm.addln("You have purchased access to this e-text, but since you are past the deadline date for ",
+                        "finishing the course, exams and assignments will NOT be recorded.  You may practice ",
+                        "objective problems or review exams as often as you like.");
                 htm.addln("</strong>");
                 htm.eDiv().br();
                 htm.div("vgap");
             }
-
-            // if (csection.isTrueIsTopmatterInPractice() && topmatter != null) {
-            // htm.sP().add(topmatter).eP();
-            // }
-        } else if (topmatter != null) {
-            htm.sP().add(topmatter).eP();
+        } else if (topMatter != null) {
+            htm.sP().add(topMatter).eP();
         }
     }
 
@@ -1247,14 +1238,12 @@ enum PageOutline {
         htm.div("vgap");
 
         // FIXME: Hack here - if a student is in M 117, section 401/801, and prerequisite satisfied
-        // is provisional (as set in RegistrationCache for this population), then we make the
-        // gateway course M 100T to force a larger Skills Review.
+        //  is provisional (as set in RegistrationCache for this population), then we make the
+        //  gateway course M 100T to force a larger Skills Review.
 
         String gwCourse = null;
-        if (RawRecordConstants.M117.equals(stcourse.course) //
-            && ("801".equals(stcourse.sect)
-                || "809".equals(stcourse.sect)
-                || "401".equals(stcourse.sect))
+        if (RawRecordConstants.M117.equals(stcourse.course)
+            && ("801".equals(stcourse.sect) || "809".equals(stcourse.sect) || "401".equals(stcourse.sect))
             && "P".equals(stcourse.prereqSatis)) {
 
             gwCourse = RawRecordConstants.M100T;
@@ -1314,9 +1303,9 @@ enum PageOutline {
                 }
             } else if (examId != null) {
                 htm.sDiv("indent");
-                htm.add("Please try the Skills Review Exam first.  If you pass that exam, you can ",
-                        "move into Unit 1.  If not, review materials will become available so you can ",
-                        "refresh your skills before moving on to the main course content.");
+                htm.add("Please try the Skills Review Exam first.  If you pass that exam, you can move into Unit 1.  ",
+                        "If not, review materials will become available so you can refresh your skills before ",
+                        "moving on to the main course content.");
                 htm.eDiv(); // indent
 
                 htm.sDiv("indent");
@@ -1325,8 +1314,7 @@ enum PageOutline {
                 htm.addln("<input type='hidden' name='mode' value='course'/>");
                 htm.addln("<input type='hidden' name='course' value='", courseId, "'/>");
                 htm.addln("<input type='hidden' name='exam' value='", examId, "'/>");
-                htm.addln("<button class='btn' type='submit'>", examLabel,
-                        "</button> &nbsp;");
+                htm.addln("<button class='btn' type='submit'>", examLabel, "</button> &nbsp;");
                 htm.addln("<span class='why_unavail'>Not Yet Attempted</span>");
                 htm.eDiv();
                 htm.addln("</form>");
@@ -1348,10 +1336,10 @@ enum PageOutline {
                 if (examLabel != null && examLabel.contains("Practice")) {
                     htm.addln("<button class='btn' type='submit'>", examLabel, "</button/> &nbsp;");
                 } else {
-                    htm.addln("<button class='btn' type='submit'>", "Practice ", examLabel, "</button> &nbsp;");
+                    htm.addln("<button class='btn' type='submit'>Practice ", examLabel, "</button> &nbsp;");
                 }
                 if ("locked".equals(mode)) {
-                    htm.addln("<span class='why_unavail'>", "Past final exam deadline, practice only</span>");
+                    htm.addln("<span class='why_unavail'>Past final exam deadline, practice only</span>");
                 }
                 htm.eDiv();
                 htm.addln("</form>");
@@ -1363,8 +1351,8 @@ enum PageOutline {
 
         final TermRec active = cache.getSystemData().getActiveTerm();
 
-        final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId, courseId,
-                gwSecUnit.unit, false, RawStexamLogic.ALL_EXAM_TYPES);
+        final List<RawStexam> exams = RawStexamLogic.getExams(cache, studentId, courseId, gwSecUnit.unit, false,
+                RawStexamLogic.ALL_EXAM_TYPES);
 
         htm.sDiv("indent2");
         if (exams.size() > 5) {
