@@ -123,4 +123,10 @@ public enum DataDict {
     /** A field name for serialization of records. */
     public static final String FLD_PROMPT_HTML = "prompt_html";
 
+    /** A field name for serialization of records. */
+    public static final String FLD_CHOICE_NBR = "choice_nbr";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_CHOICE_HTML = "choice_html";
+
 }

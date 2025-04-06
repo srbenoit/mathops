@@ -5,30 +5,18 @@ import dev.mathops.db.rec.RecBase;
 import dev.mathops.text.builder.HtmlBuilder;
 
 /**
- * An immutable raw "course survey item" record.
+ * An immutable raw "course survey item choice" record.
  *
  * <p>
- * Each record represents a single item on a course survey.
+ * Each record represents a possible choice for a multiple-choice or multiple-selection item on a course survey.
  *
  * <p>
- * The primary key on the underlying table is the survey ID and item number.
+ * The primary key on the underlying table is the survey ID, item number, and choice number.
  */
-public final class CourseSurveyItemRec extends RecBase implements Comparable<CourseSurveyItemRec> {
-
-    /** Integer constant for item type. */
-    public static final int MULTIPLE_CHOICE = 1;
-
-    /** Integer constant for item type. */
-    public static final int MULTIPLE_SELECTION = 2;
-
-    /** Integer constant for item type. */
-    public static final int LIKERT = 3;
-
-    /** Integer constant for item type. */
-    public static final int TEXT = 4;
+public final class CourseSurveyItemChoiceRec extends RecBase implements Comparable<CourseSurveyItemChoiceRec> {
 
     /** The table name for serialization of records. */
-    public static final String TABLE_NAME = "course_survey_item";
+    public static final String TABLE_NAME = "course_survey_item_choice";
 
     /** The 'survey_id' field value. */
     public final String surveyId;
@@ -36,22 +24,22 @@ public final class CourseSurveyItemRec extends RecBase implements Comparable<Cou
     /** The 'item_nbr' field value. */
     public final Integer itemNbr;
 
-    /** The 'item_type' field value. */
-    public final Integer itemType;
+    /** The 'choice_nbr' field value. */
+    public final Integer choiceNbr;
 
-    /** The 'prompt_html' field value. */
-    public final String promptHtml;
+    /** The 'choice_html' field value. */
+    public final String choiceHtml;
 
     /**
-     * Constructs a new {@code CourseSurveyItemRec}.
+     * Constructs a new {@code CourseSurveyItemChoiceRec}.
      *
      * @param theSurveyId   the survey ID
      * @param theItemNbr    the item number
-     * @param theItemType   the item type
-     * @param thePromptHtml the HTML of the prompt
+     * @param theChoiceNbr  the choice number
+     * @param theChoiceHtml the HTML of the choice
      */
-    public CourseSurveyItemRec(final String theSurveyId, final Integer theItemNbr, final Integer theItemType,
-                               final String thePromptHtml) {
+    public CourseSurveyItemChoiceRec(final String theSurveyId, final Integer theItemNbr, final Integer theChoiceNbr,
+                                     final String theChoiceHtml) {
 
         super();
 
@@ -61,33 +49,37 @@ public final class CourseSurveyItemRec extends RecBase implements Comparable<Cou
         if (theItemNbr == null) {
             throw new IllegalArgumentException("Item number may not be null");
         }
-        if (theItemType == null) {
-            throw new IllegalArgumentException("Item type may not be null");
+        if (theChoiceNbr == null) {
+            throw new IllegalArgumentException("Choice number may not be null");
         }
-        if (thePromptHtml == null) {
-            throw new IllegalArgumentException("Prompt HTML may not be null");
+        if (theChoiceHtml == null) {
+            throw new IllegalArgumentException("Choice HTML may not be null");
         }
 
         this.surveyId = theSurveyId;
         this.itemNbr = theItemNbr;
-        this.itemType = theItemType;
-        this.promptHtml = thePromptHtml;
+        this.choiceNbr = theChoiceNbr;
+        this.choiceHtml = theChoiceHtml;
     }
 
     /**
-     * Compares two records for order.  Order is based only on survey ID then item number.
+     * Compares two records for order.  Order is based only on survey ID then item number then choice number.
      *
      * @param o the object to be compared
      * @return a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than
      *         the specified object
      */
     @Override
-    public int compareTo(final CourseSurveyItemRec o) {
+    public int compareTo(final CourseSurveyItemChoiceRec o) {
 
         int result = this.surveyId.compareTo(o.surveyId);
 
         if (result == 0) {
             result = this.itemNbr.compareTo(o.itemNbr);
+
+            if (result == 0) {
+                result = this.choiceNbr.compareTo(o.choiceNbr);
+            }
         }
 
         return result;
@@ -108,9 +100,9 @@ public final class CourseSurveyItemRec extends RecBase implements Comparable<Cou
         htm.add(DIVIDER);
         appendField(htm, DataDict.FLD_ITEM_NBR, this.itemNbr);
         htm.add(DIVIDER);
-        appendField(htm, DataDict.FLD_ITEM_TYPE, this.itemType);
+        appendField(htm, DataDict.FLD_CHOICE_NBR, this.choiceNbr);
         htm.add(DIVIDER);
-        appendField(htm, DataDict.FLD_PROMPT_HTML, this.promptHtml);
+        appendField(htm, DataDict.FLD_CHOICE_HTML, this.choiceHtml);
 
         return htm.toString();
     }
@@ -125,8 +117,8 @@ public final class CourseSurveyItemRec extends RecBase implements Comparable<Cou
 
         return this.surveyId.hashCode()
                + this.itemNbr.hashCode()
-               + this.itemType.hashCode()
-               + this.promptHtml.hashCode();
+               + this.choiceNbr.hashCode()
+               + this.choiceHtml.hashCode();
     }
 
     /**
@@ -142,11 +134,11 @@ public final class CourseSurveyItemRec extends RecBase implements Comparable<Cou
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final CourseSurveyItemRec rec) {
+        } else if (obj instanceof final CourseSurveyItemChoiceRec rec) {
             equal = this.surveyId.equals(rec.surveyId)
                     && this.itemNbr.equals(rec.itemNbr)
-                    && this.itemType.equals(rec.itemType)
-                    && this.promptHtml.equals(rec.promptHtml);
+                    && this.choiceNbr.equals(rec.choiceNbr)
+                    && this.choiceHtml.equals(rec.choiceHtml);
         } else {
             equal = false;
         }

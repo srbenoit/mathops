@@ -231,10 +231,10 @@ ALTER TABLE IF EXISTS term_test.standards_course_section OWNER to math;
 --   Each record records a student attempt on a homework assignment in a course.
 --
 --   USAGE: One record per attempt.
---   EST. RECORDS: 6000 students * 2 courses * 24 assignments * 3 attempts each = 864,000
+--   EST. RECORDS: 6000 students * 2 courses * 48 assignments * 2 attempts each = 1,152,000
 --   RETENTION: Stored in TERM schema, retained for 15 years
 --   EST. RECORD SIZE: 110 bytes
---   EST. TOTAL SPACE: 90 MB
+--   EST. TOTAL SPACE: 120 MB
 -- ------------------------------------------------------------------------------------------------
 
 -- DROP TABLE IF EXISTS term_202510.standard_assignment_attempt;
@@ -324,176 +324,15 @@ ALTER TABLE IF EXISTS term_test.standard_assignment_attempt OWNER to math;
 --   Each record records one answer on a student attempt on a homework assignment in a course.
 --
 --   USAGE: On average, 8 records per attempt.
---   EST. RECORDS: 6000 students * 2 courses * 24 assignments * 3 attempts each * 8 records = 6,912,000
+--   EST. RECORDS: 6000 students * 2 courses * 48 assignments * 2 attempts each * 4 records = 4,608,000
 --   RETENTION: Stored in TERM schema, retained for 15 years
 --   EST. RECORD SIZE: 20 bytes
---   EST. TOTAL SPACE: 132 MB
+--   EST. TOTAL SPACE: 87 MB
 -- ------------------------------------------------------------------------------------------------
 
 -- DROP TABLE IF EXISTS term_202510.standard_assignment_attempt_qa;
 CREATE TABLE IF NOT EXISTS term_202510.standard_assignment_attempt_qa (
     serial_nbr           integer         NOT NULL,  -- The serial number (references standard_assignment_attempt)
-    question_nbr         smallint        NOT NULL,  -- The question number
-    percentage           smallint        NOT NULL,  -- Percentage correct, from 0 to 100
-    item_id              varchar(20),               -- The item ID
-    PRIMARY KEY (serial_nbr, question_nbr)
-) TABLESPACE primary_ts;
-ALTER TABLE IF EXISTS term_202510.standard_assignment_attempt_qa OWNER to math;
-
--- DROP TABLE IF EXISTS term_202560.standard_assignment_attempt_qa;
-CREATE TABLE IF NOT EXISTS term_202560.standard_assignment_attempt_qa (
-    serial_nbr           integer         NOT NULL,
-    question_nbr         smallint        NOT NULL,
-    percentage           smallint        NOT NULL,
-    item_id              varchar(20),
-    PRIMARY KEY (serial_nbr, question_nbr)
-) TABLESPACE primary_ts;
-ALTER TABLE IF EXISTS term_202560.standard_assignment_attempt_qa OWNER to math;
-
--- DROP TABLE IF EXISTS term_202590.standard_assignment_attempt_qa;
-CREATE TABLE IF NOT EXISTS term_202590.standard_assignment_attempt_qa (
-    serial_nbr           integer         NOT NULL,
-    question_nbr         smallint        NOT NULL,
-    percentage           smallint        NOT NULL,
-    item_id              varchar(20),
-    PRIMARY KEY (serial_nbr, question_nbr)
-) TABLESPACE primary_ts;
-ALTER TABLE IF EXISTS term_202590.standard_assignment_attempt_qa OWNER to math;
-
--- DROP TABLE IF EXISTS term_dev.standard_assignment_attempt_qa;
-CREATE TABLE IF NOT EXISTS term_dev.standard_assignment_attempt_qa (
-    serial_nbr           integer         NOT NULL,
-    question_nbr         smallint        NOT NULL,
-    percentage           smallint        NOT NULL,
-    item_id              varchar(20),
-    PRIMARY KEY (serial_nbr, question_nbr)
-) TABLESPACE primary_ts;
-ALTER TABLE IF EXISTS term_dev.standard_assignment_attempt_qa OWNER to math;
-
--- DROP TABLE IF EXISTS term_test.standard_assignment_attempt_qa;
-CREATE TABLE IF NOT EXISTS term_test.standard_assignment_attempt_qa (
-    serial_nbr           integer         NOT NULL,
-    question_nbr         smallint        NOT NULL,
-    percentage           smallint        NOT NULL,
-    item_id              varchar(20),
-    PRIMARY KEY (serial_nbr, question_nbr)
-) TABLESPACE primary_ts;
-ALTER TABLE IF EXISTS term_test.standard_assignment_attempt_qa OWNER to math;
-
--- ------------------------------------------------------------------------------------------------
--- TABLE: standard_exam_attempt
---
---   Each record records a student attempt on a standard exam in a course.  Note that one exam
---   session can include multiple standard exams - there are 24 standard exams per course.
---
---   USAGE: One record per attempt.
---   EST. RECORDS: 6000 students * 2 courses * 24 assignments * 3 attempts each = 864,000
---   RETENTION: Stored in TERM schema, retained for 15 years
---   EST. RECORD SIZE: 112 bytes
---   EST. TOTAL SPACE: 92 MB
--- ------------------------------------------------------------------------------------------------
-
--- DROP TABLE IF EXISTS term_202510.standard_exam_attempt;
-CREATE TABLE IF NOT EXISTS term_202510.standard_exam_attempt (
-    serial_nbr           integer         NOT NULL,  -- A unique serial number for the attempt
-    student_id           char(9)         NOT NULL,  -- The student ID who submitted the attempt
-    exam_id              varchar(20)     NOT NULL,  -- The unique exam ID (references standard_exam)
-    course_id            char(10)        NOT NULL,  -- The course ID (copied from standard_exam)
-    module_nbr           smallint        NOT NULL,  -- The module number (copied from standard_exam)
-    standard_nbr         smallint        NOT NULL,  -- The standard number (copied from standard_exam)
-    pts_possible         smallint,                  -- The number of points possible (copied from standard_exam)
-    min_passing_score    smallint,                  -- The minimum passing score (copied from standard_exam)
-    score                smallint        NOT NULL,  -- The earned score
-    passed               char(1)         NOT NULL,  -- "Y" if passed, "N" if not passed, "G" to ignore, "P" if passed
-                                                    --     but invalidated (say, for academic misconduct)
-    attempt_source       char(2),                   -- "TC" for testing center, "RM" for remote, "PU" for ProctorU
-    PRIMARY KEY (serial_nbr)
-) TABLESPACE primary_ts;
-ALTER TABLE IF EXISTS term_202510.standard_exam_attempt OWNER to math;
-
--- DROP TABLE IF EXISTS term_202560.standard_exam_attempt;
-CREATE TABLE IF NOT EXISTS term_202560.standard_exam_attempt (
-    serial_nbr           integer         NOT NULL,
-    student_id           char(9)         NOT NULL,
-    exam_id              varchar(20)     NOT NULL,
-    course_id            char(10)        NOT NULL,
-    module_nbr           smallint        NOT NULL,
-    standard_nbr         smallint        NOT NULL,
-    pts_possible         smallint,
-    min_passing_score    smallint,
-    score                smallint        NOT NULL,
-    passed               char(1)         NOT NULL,
-    attempt_source       char(2),
-    PRIMARY KEY (serial_nbr)
-) TABLESPACE primary_ts;
-ALTER TABLE IF EXISTS term_202560.standard_exam_attempt OWNER to math;
-
--- DROP TABLE IF EXISTS term_202590.standard_exam_attempt;
-CREATE TABLE IF NOT EXISTS term_202590.standard_exam_attempt (
-    serial_nbr           integer         NOT NULL,
-    student_id           char(9)         NOT NULL,
-    exam_id              varchar(20)     NOT NULL,
-    course_id            char(10)        NOT NULL,
-    module_nbr           smallint        NOT NULL,
-    standard_nbr         smallint        NOT NULL,
-    pts_possible         smallint,
-    min_passing_score    smallint,
-    score                smallint        NOT NULL,
-    passed               char(1)         NOT NULL,
-    attempt_source       char(2),
-    PRIMARY KEY (serial_nbr)
-) TABLESPACE primary_ts;
-ALTER TABLE IF EXISTS term_202590.standard_exam_attempt OWNER to math;
-
--- DROP TABLE IF EXISTS term_dev.standard_exam_attempt;
-CREATE TABLE IF NOT EXISTS term_dev.standard_exam_attempt (
-    serial_nbr           integer         NOT NULL,
-    student_id           char(9)         NOT NULL,
-    exam_id              varchar(20)     NOT NULL,
-    course_id            char(10)        NOT NULL,
-    module_nbr           smallint        NOT NULL,
-    standard_nbr         smallint        NOT NULL,
-    pts_possible         smallint,
-    min_passing_score    smallint,
-    score                smallint        NOT NULL,
-    passed               char(1)         NOT NULL,
-    attempt_source       char(2),
-    PRIMARY KEY (serial_nbr)
-) TABLESPACE primary_ts;
-ALTER TABLE IF EXISTS term_dev.standard_exam_attempt OWNER to math;
-
--- DROP TABLE IF EXISTS term_test.standard_exam_attempt;
-CREATE TABLE IF NOT EXISTS term_test.standard_exam_attempt (
-    serial_nbr           integer         NOT NULL,
-    student_id           char(9)         NOT NULL,
-    exam_id              varchar(20)     NOT NULL,
-    course_id            char(10)        NOT NULL,
-    module_nbr           smallint        NOT NULL,
-    standard_nbr         smallint        NOT NULL,
-    pts_possible         smallint,
-    min_passing_score    smallint,
-    score                smallint        NOT NULL,
-    passed               char(1)         NOT NULL,
-    attempt_source       char(2),
-    PRIMARY KEY (serial_nbr)
-) TABLESPACE primary_ts;
-ALTER TABLE IF EXISTS term_test.standard_exam_attempt OWNER to math;
-
--- ------------------------------------------------------------------------------------------------
--- TABLE: standard_exam_attempt_qa
---
---   Each record records one answer on a student attempt on a standard exam in a course.
---
---   USAGE: 2 records per attempt.
---   EST. RECORDS: 6000 students * 2 courses * 24 assignments * 3 attempts each * 2 records = 1,728,000
---   RETENTION: Stored in TERM schema, retained for 15 years
---   EST. RECORD SIZE: 20 bytes
---   EST. TOTAL SPACE: 33 MB
--- ------------------------------------------------------------------------------------------------
-
--- DROP TABLE IF EXISTS term_202510.standard_assignment_attempt_qa;
-CREATE TABLE IF NOT EXISTS term_202510.standard_assignment_attempt_qa (
-    serial_nbr           integer         NOT NULL,  -- The serial number (references standard_exam_attempt)
     question_nbr         smallint        NOT NULL,  -- The question number
     percentage           smallint        NOT NULL,  -- Percentage correct, from 0 to 100
     item_id              varchar(20),               -- The item ID
@@ -901,7 +740,7 @@ CREATE TABLE IF NOT EXISTS term_202510.course_survey_response (
     survey_id           char(10)       NOT NULL,  -- The survey ID
     student_id          char(9)        NOT NULL,  -- The student ID
     response_date       date           NOT NULL,  -- The response date
-    response_time       date           NOT NULL,  -- The response time
+    response_time       time           NOT NULL,  -- The response time
     PRIMARY KEY (serial_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_202510.course_survey_response OWNER to math;
@@ -912,7 +751,7 @@ CREATE TABLE IF NOT EXISTS term_202560.course_survey_response (
     survey_id           char(10)       NOT NULL,
     student_id          char(9)        NOT NULL,
     response_date       date           NOT NULL,
-    response_time       date           NOT NULL,
+    response_time       time           NOT NULL,
     PRIMARY KEY (serial_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_202560.course_survey_response OWNER to math;
@@ -923,7 +762,7 @@ CREATE TABLE IF NOT EXISTS term_202590.course_survey_response (
     survey_id           char(10)       NOT NULL,
     student_id          char(9)        NOT NULL,
     response_date       date           NOT NULL,
-    response_time       date           NOT NULL,
+    response_time       time           NOT NULL,
     PRIMARY KEY (serial_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_202590.course_survey_response OWNER to math;
@@ -934,7 +773,7 @@ CREATE TABLE IF NOT EXISTS term_dev.course_survey_response (
     survey_id           char(10)       NOT NULL,
     student_id          char(9)        NOT NULL,
     response_date       date           NOT NULL,
-    response_time       date           NOT NULL,
+    response_time       time           NOT NULL,
     PRIMARY KEY (serial_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_dev.course_survey_response OWNER to math;
@@ -945,7 +784,7 @@ CREATE TABLE IF NOT EXISTS term_test.course_survey_response (
     survey_id           char(10)       NOT NULL,
     student_id          char(9)        NOT NULL,
     response_date       date           NOT NULL,
-    response_time       date           NOT NULL,
+    response_time       time           NOT NULL,
     PRIMARY KEY (serial_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_test.course_survey_response OWNER to math;
@@ -965,45 +804,45 @@ ALTER TABLE IF EXISTS term_test.course_survey_response OWNER to math;
 -- DROP TABLE IF EXISTS term_202510.course_survey_response_item_choice;
 CREATE TABLE IF NOT EXISTS term_202510.course_survey_response_item_choice (
     serial_nbr          integer        NOT NULL,  -- A unique serial number for the response
-    item                smallint       NOT NULL,  -- The item number
-    response_choice     smallint       NOT NULL,  -- The selected choice number
-    PRIMARY KEY (serial_nbr, item)
+    item_nbr            smallint       NOT NULL,  -- The item number
+    response_choice_nbr smallint       NOT NULL,  -- The selected choice number
+    PRIMARY KEY (serial_nbr, item_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_202510.course_survey_response_item_choice OWNER to math;
 
 -- DROP TABLE IF EXISTS term_202560.course_survey_response_item_choice;
 CREATE TABLE IF NOT EXISTS term_202560.course_survey_response_item_choice (
     serial_nbr          integer        NOT NULL,
-    item                smallint       NOT NULL,
-    response_choice     smallint       NOT NULL,
-    PRIMARY KEY (serial_nbr, item)
+    item_nbr            smallint       NOT NULL,
+    response_choice_nbr smallint       NOT NULL,
+    PRIMARY KEY (serial_nbr, item_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_202560.course_survey_response_item_choice OWNER to math;
 
 -- DROP TABLE IF EXISTS term_202590.course_survey_response_item_choice;
 CREATE TABLE IF NOT EXISTS term_202590.course_survey_response_item_choice (
     serial_nbr          integer        NOT NULL,
-    item                smallint       NOT NULL,
-    response_choice     smallint       NOT NULL,
-    PRIMARY KEY (serial_nbr, item)
+    item_nbr            smallint       NOT NULL,
+    response_choice_nbr smallint       NOT NULL,
+    PRIMARY KEY (serial_nbr, item_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_202590.course_survey_response_item_choice OWNER to math;
 
 -- DROP TABLE IF EXISTS term_dev.course_survey_response_item_choice;
 CREATE TABLE IF NOT EXISTS term_dev.course_survey_response_item_choice (
     serial_nbr          integer        NOT NULL,
-    item                smallint       NOT NULL,
-    response_choice     smallint       NOT NULL,
-    PRIMARY KEY (serial_nbr, item)
+    item_nbr            smallint       NOT NULL,
+    response_choice_nbr smallint       NOT NULL,
+    PRIMARY KEY (serial_nbr, item_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_dev.course_survey_response_item_choice OWNER to math;
 
 -- DROP TABLE IF EXISTS term_test.course_survey_response_item_choice;
 CREATE TABLE IF NOT EXISTS term_test.course_survey_response_item_choice (
     serial_nbr          integer        NOT NULL,
-    item                smallint       NOT NULL,
-    response_choice     smallint       NOT NULL,
-    PRIMARY KEY (serial_nbr, item)
+    item_nbr            smallint       NOT NULL,
+    response_choice_nbr smallint       NOT NULL,
+    PRIMARY KEY (serial_nbr, item_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_test.course_survey_response_item_choice OWNER to math;
 
@@ -1015,52 +854,52 @@ ALTER TABLE IF EXISTS term_test.course_survey_response_item_choice OWNER to math
 --   USAGE: One record per choice item per student response.
 --   EST. RECORDS: 6000 student * 2 courses * 20% rate * 3 items = 7,200
 --   RETENTION: Stored in TERM schema, retained for 15 years
---   EST. RECORD SIZE: 8 bytes
---   EST. TOTAL SPACE: 58 KB
+--   EST. RECORD SIZE: 250 bytes
+--   EST. TOTAL SPACE: 1800 KB
 -- ------------------------------------------------------------------------------------------------
 
 -- DROP TABLE IF EXISTS term_202510.course_survey_response_item_text;
 CREATE TABLE IF NOT EXISTS term_202510.course_survey_response_item_text (
     serial_nbr          integer        NOT NULL,  -- A unique serial number for the response
-    item                smallint       NOT NULL,  -- The item number
-    response_text       varchar(250)   NOT NULL,  -- The entered text
-    PRIMARY KEY (serial_nbr, item)
+    item_nbr            smallint       NOT NULL,  -- The item number
+    response_text       text           NOT NULL,  -- The entered text
+    PRIMARY KEY (serial_nbr, item_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_202510.course_survey_response_item_text OWNER to math;
 
 -- DROP TABLE IF EXISTS term_202560.course_survey_response_item_text;
 CREATE TABLE IF NOT EXISTS term_202560.course_survey_response_item_text (
     serial_nbr          integer        NOT NULL,
-    item                smallint       NOT NULL,
-    response_text       varchar(250)   NOT NULL,
-    PRIMARY KEY (serial_nbr, item)
+    item_nbr            smallint       NOT NULL,
+    response_text       text           NOT NULL,
+    PRIMARY KEY (serial_nbr, item_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_202560.course_survey_response_item_text OWNER to math;
 
 -- DROP TABLE IF EXISTS term_202590.course_survey_response_item_text;
 CREATE TABLE IF NOT EXISTS term_202590.course_survey_response_item_text (
     serial_nbr          integer        NOT NULL,
-    item                smallint       NOT NULL,
-    response_text       varchar(250)   NOT NULL,
-    PRIMARY KEY (serial_nbr, item)
+    item_nbr            smallint       NOT NULL,
+    response_text       text           NOT NULL,
+    PRIMARY KEY (serial_nbr, item_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_202590.course_survey_response_item_text OWNER to math;
 
 -- DROP TABLE IF EXISTS term_dev.course_survey_response_item_text;
 CREATE TABLE IF NOT EXISTS term_dev.course_survey_response_item_text (
     serial_nbr          integer        NOT NULL,
-    item                smallint       NOT NULL,
-    response_text       varchar(250)   NOT NULL,
-    PRIMARY KEY (serial_nbr, item)
+    item_nbr            smallint       NOT NULL,
+    response_text       text           NOT NULL,
+    PRIMARY KEY (serial_nbr, item_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_dev.course_survey_response_item_text OWNER to math;
 
 -- DROP TABLE IF EXISTS term_test.course_survey_response_item_text;
 CREATE TABLE IF NOT EXISTS term_test.course_survey_response_item_text (
     serial_nbr          integer        NOT NULL,
-    item                smallint       NOT NULL,
-    response_text       varchar(250)   NOT NULL,
-    PRIMARY KEY (serial_nbr, item)
+    item_nbr            smallint       NOT NULL,
+    response_text       text           NOT NULL,
+    PRIMARY KEY (serial_nbr, item_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_test.course_survey_response_item_text OWNER to math;
 
