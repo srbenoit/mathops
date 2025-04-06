@@ -461,46 +461,6 @@ public final class StudentCourseStatus extends LogicBase {
         return this.courseSectionUnits[unit];
     }
 
-//    /**
-//     * Finds and returns the first unit of type FINAL found.
-//     *
-//     * @return the unit or {@code null} if there was not a unit of type FINAL in the course
-//     */
-//    private RawCunit getFinalUnit() {
-//
-//        RawCunit result = null;
-//
-//        for (final RawCunit test : this.courseUnits) {
-//            if (test != null && "FIN".equals(test.unitType)) {
-//                result = test;
-//                break;
-//            }
-//        }
-//
-//        return result;
-//    }
-
-//    /**
-//     * Finds and returns the first unit of type FINAL found.
-//     *
-//     * @return the unit, or {@code null} if there was not a unit of type FINAL in the course
-//     */
-//    public RawCusection getFinalSectionUnit() {
-//
-//        final RawCunit finUnit = getFinalUnit();
-//        RawCusection result = null;
-//
-//        if (finUnit != null) {
-//            final Integer number = finUnit.unit;
-//
-//            if (number != null) {
-//                result = this.courseSectionUnits[number.intValue()];
-//            }
-//        }
-//
-//        return result;
-//    }
-
     /**
      * Finds and returns the course section unit data for the first unit of type GATEWAY found.
      *
@@ -514,7 +474,7 @@ public final class StudentCourseStatus extends LogicBase {
         for (int i = 0; i <= this.maxUnit; ++i) {
 
             // FIXME: in the CSU schema, there is no CUNIT row for a gateway unit, but there is
-            // a section unit row. This is bogus, but we need to override it here.
+            //  a section unit row. This is bogus, but we need to override it here.
 
             if (this.courseUnits[i] == null) {
                 if (this.courseSectionUnits[i] != null) {
@@ -920,56 +880,6 @@ public final class StudentCourseStatus extends LogicBase {
         return this.incompleteInProgress;
     }
 
-//    /**
-//     * Get the term of the incomplete.
-//     *
-//     * @return the incomplete term
-//     */
-//    public TermRec getIncompleteTerm() {
-//
-//        return this.incompleteTerm;
-//    }
-
-//    /**
-//     * Get the deadline date for finishing the incomplete.
-//     *
-//     * @return the incomplete deadline date
-//     */
-//    public LocalDate getIncompleteDeadline() {
-//
-//        return this.incompleteDeadline;
-//    }
-
-//    /**
-//     * See whether the exam delete date for the current term is in the past.
-//     *
-//     * @return {@code true} if the deadline date is in the past
-//     */
-//    public boolean isExamDeleteDateInPast() {
-//
-//        return this.examDeleteDateIsPast;
-//    }
-
-//    /**
-//     * Get the String representing the current and future terms, such as "Spring, 2006".
-//     *
-//     * @return the strings representing the current and future terms
-//     */
-//    public List<String> getTermStrings() {
-//
-//        return this.termStrings;
-//    }
-
-//    /**
-//     * Get the String representing the first current term.
-//     *
-//     * @return the strings representing the first current term
-//     */
-//    public String getFirstTermString() {
-//
-//        return this.termStrings.get(0);
-//    }
-
     /**
      * Clears all stored data.
      */
@@ -1125,12 +1035,22 @@ public final class StudentCourseStatus extends LogicBase {
                     this.media.put("Course Overview", map);
                 } else if (RawRecordConstants.M125.equals(theCourseId)) {
                     final Map<String, String> map = new TreeMap<>();
-                    map.put("Course Outline", STREAM + "M125/125TOC.pdf");
-                    this.media.put("Course Overview", map);
+                    if ("888888888".equals(theStudentId)) {
+                        map.put("Course Outline", STREAM + "05_trig/MATH 125 Outline.pdf");
+                        this.media.put("Course Overview", map);
+                    } else {
+                        map.put("Course Outline", STREAM + "M125/125TOC.pdf");
+                        this.media.put("Course Overview", map);
+                    }
                 } else if (RawRecordConstants.M126.equals(theCourseId)) {
                     final Map<String, String> map = new TreeMap<>();
-                    map.put("Course Outline", STREAM + "M126/126TOC.pdf");
-                    this.media.put("Course Overview", map);
+                    if ("888888888".equals(theStudentId)) {
+                        map.put("Course Outline", STREAM + "05_trig/MATH 126 Outline.pdf");
+                        this.media.put("Course Overview", map);
+                    } else {
+                        map.put("Course Outline", STREAM + "M126/126TOC.pdf");
+                        this.media.put("Course Overview", map);
+                    }
 
                     final Map<String, String> map2 = new TreeMap<>();
                     map2.put("Identities", STREAM + "M126/126Identities.pdf");

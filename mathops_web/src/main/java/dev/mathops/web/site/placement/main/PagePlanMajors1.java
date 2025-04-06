@@ -56,6 +56,35 @@ enum PagePlanMajors1 {
         final MathPlanStudentData data = logic.getStudentData(cache, stuId, now, session.loginSessionTag,
                 session.actAsUserId == null);
 
+        final Map<Integer, RawStmathplan> curResponses = data.getMajorProfileResponses();
+
+        final Major declaredMajor = logic.getMajor(data.student.programCode);
+
+        final Map<Major, MajorMathRequirement> logicMajorsMap = logic.getMajors();
+        final Set<Major> majors = logicMajorsMap.keySet();
+        final Map<Integer, Major> majorMap = new HashMap<>(300);
+        for (final Major major : majors) {
+            for (final int q : major.questionNumbers) {
+                final Integer qObj = Integer.valueOf(q);
+                majorMap.put(qObj, major);
+            }
+        }
+
+        // Gather the set of selected majors and concentrations
+        final Collection<Major> selectedMajors = new HashSet<>(10);
+        if (declaredMajor != null) {
+            selectedMajors.add(declaredMajor);
+        }
+        for (final Major major : majors) {
+            final Integer key = Integer.valueOf(major.questionNumbers[0]);
+            final RawStmathplan curResp = curResponses.get(key);
+            if (curResp != null && "Y".equals(curResp.stuAnswer)) {
+                selectedMajors.add(major);
+            }
+        }
+
+        final boolean disable = session.actAsUserId != null;
+
         final HtmlBuilder htm = new HtmlBuilder(8192);
         final String title = site.getTitle();
         Page.startNofooterPage(htm, title, session, true, Page.NO_BARS, null, false, false);
@@ -66,15 +95,52 @@ enum PagePlanMajors1 {
             MPPage.emitNoStudentDataError(htm);
         } else {
             MathPlacementSite.emitLoggedInAs2(htm, session);
+
+            htm.addln("<script>");
+            htm.addln(" function toggleMajor(input,id) {");
+            htm.addln("  var checked = input.checked;");
+            htm.addln("  var elms = document.getElementsByName(id);");
+            htm.addln("  for (i=0;i<elms.length;i++) {");
+            htm.addln("   elms[i].checked = checked;");
+            htm.addln("  }");
+            htm.addln(" }");
+            htm.addln("</script>");
+
+            htm.add("<form id='moi-form' action='plan_majors1.html' method='post'>");
+
             htm.sDiv("inset2");
 
             htm.sDiv("shaded2left");
-            htm.sP().add("Let us know what majors you think you might choose.  If you're not sure ",
-                    "yet what you want to major in, take your best guess.  You can change ",
-                    "your selections later if you change your mind.").eP();
 
-            htm.sP().add("Choosing a major here does not declare it as your actual major - you can ",
-                    "try out different majors here and see how they affect your Math Plan.").eP();
+            htm.sP().add("Let us know what majors you think you might choose.  You can change your selections later ",
+                    "if you change your mind.").eP();
+
+            htm.sP().add("Choosing a major here does not declare it as your actual major - you can try out different ",
+                    "majors here and see how they affect your Math Plan.").eP();
+
+            final Major exploratory = majorMap.get(Integer.valueOf(9000));
+            final String pcode = exploratory.programCodes.getFirst();
+
+            htm.sDiv("indent center");
+
+            htm.add("<input type='checkbox'");
+            if (selectedMajors.contains(exploratory)) {
+                htm.add(" checked='checked'");
+            }
+            if (disable) {
+                htm.add(" disabled='disabled'");
+            }
+            htm.add("name='", pcode, "' id='", pcode, "' onchange=\"toggleMajor(this,'", pcode, "');\"/>");
+
+            htm.add("<label for='", pcode, "'>");
+            htm.add("I don't know yet what majors I'm interested in - assume <em>Exploratory Studies</em> ");
+            if (exploratory.catalogUrl != null) {
+                htm.add("<span style='white-space:nowrap;'>&nbsp;<a target='_blank' href='", exploratory.catalogUrl,
+                        "'><img style='position:relative;top:-1px' src='/images/welcome/catalog3.png'/></a></span>");
+            }
+            htm.addln("</label>");
+            htm.eDiv(); // center
+
             htm.eDiv(); // shaded2left
 
             htm.div("vgap");
@@ -86,19 +152,18 @@ enum PagePlanMajors1 {
                     .add("group by area of study")
                     .eDiv();
             htm.sDiv("tab unsel", "id='last'")
-                    .add("<a href='plan_majors2.html'>",
-                            "sort majors alphabetically</a>")
+                    .add("<a href='plan_majors2.html'>sort majors alphabetically</a>")
                     .eDiv();
             htm.add("</nav>");
 
             htm.sDiv("folder-content");
-            final Map<Integer, RawStmathplan> majorProfileResponses = data.getMajorProfileResponses();
-            emitMajorsSelectionForm(htm, majorProfileResponses, data, session, logic);
+            emitMajorsSelectionForm(htm, curResponses, data, session, logic);
             htm.eDiv();
 
             htm.eDiv(); // folders
 
             htm.eDiv(); // inset2
+            htm.addln("</form>");
         }
 
         MPPage.emitScripts(htm);
@@ -155,18 +220,6 @@ enum PagePlanMajors1 {
         }
 
         int numSelected = 0;
-
-        htm.addln("<script>");
-        htm.addln(" function toggleMajor(input,id) {");
-        htm.addln("  var checked = input.checked;");
-        htm.addln("  var elms = document.getElementsByName(id);");
-        htm.addln("  for (i=0;i<elms.length;i++) {");
-        htm.addln("   elms[i].checked = checked;");
-        htm.addln("  }");
-        htm.addln(" }");
-        htm.addln("</script>");
-
-        htm.add("<form id='moi-form' action='plan_majors1.html' method='post'>");
 
         htm.addln("<details>");
         htm.addln("<summary class='study-area'>Arts, Humanities, and Design</summary>");
@@ -568,7 +621,6 @@ enum PagePlanMajors1 {
                 Res.get(Res.EXPLORE_MAJORS_BTN), "</a>");
 
         htm.eDiv();
-        htm.addln("</form>");
     }
 
     /**
