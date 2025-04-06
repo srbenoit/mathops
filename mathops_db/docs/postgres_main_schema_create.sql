@@ -432,30 +432,30 @@ ALTER TABLE IF EXISTS main_test.course_survey OWNER to math;
 -- DROP TABLE IF EXISTS main.course_survey_item;
 CREATE TABLE IF NOT EXISTS main.course_survey_item (
     survey_id           char(10)       NOT NULL,  -- The survey ID
-    item                smallint       NOT NULL,  -- The item number
+    item_nbr            smallint       NOT NULL,  -- The item number
     item_type           smallint       NOT NULL,  -- The item type (1 = M/C, 2 = M/S, 3 = Likert, 4 = Text)
     prompt_html         varchar(250)   NOT NULL,
-    PRIMARY KEY (survey_id, item)
+    PRIMARY KEY (survey_id, item_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main.course_survey_item OWNER to math;
 
 -- DROP TABLE IF EXISTS main_dev.course_survey_item;
 CREATE TABLE IF NOT EXISTS main_dev.course_survey_item (
     survey_id           char(10)       NOT NULL,
-    item                smallint       NOT NULL,
+    item_nbr            smallint       NOT NULL,
     item_type           smallint       NOT NULL,
     prompt_html         varchar(250)   NOT NULL,
-    PRIMARY KEY (survey_id, item)
+    PRIMARY KEY (survey_id, item_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main_dev.course_survey_item OWNER to math;
 
 -- DROP TABLE IF EXISTS main_test.course_survey_item;
 CREATE TABLE IF NOT EXISTS main_test.course_survey_item (
     survey_id           char(10)       NOT NULL,
-    item                smallint       NOT NULL,
+    item_nbr            smallint       NOT NULL,
     item_type           smallint       NOT NULL,
     prompt_html         varchar(250)   NOT NULL,
-    PRIMARY KEY (survey_id, item)
+    PRIMARY KEY (survey_id, item_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main_test.course_survey_item OWNER to math;
 

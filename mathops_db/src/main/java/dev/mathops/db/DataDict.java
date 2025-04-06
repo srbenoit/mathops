@@ -113,4 +113,14 @@ public enum DataDict {
 
     /** A field name for serialization of records. */
     public static final String FLD_CLOSE_DAY = "close_day";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_ITEM_NBR = "item_nbr";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_ITEM_TYPE = "item_type";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_PROMPT_HTML = "prompt_html";
+
 }
