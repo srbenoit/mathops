@@ -129,4 +129,73 @@ public enum DataDict {
     /** A field name for serialization of records. */
     public static final String FLD_CHOICE_HTML = "choice_html";
 
+    /** A field name for serialization of records. */
+    public static final String FLD_SECTION_NBR = "section_nbr";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_CRN = "crn";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_ARIES_START_DATE = "aries_start_date";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_ARIES_END_DATE = "aries_end_date";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_FIRST_CLASS_DATE = "first_class_date";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_LAST_CLASS_DATE = "last_class_date";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_INSTRUCTOR = "instructor";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_CAMPUS = "campus";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_A_MIN_SCORE = "a_min_score";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_B_MIN_SCORE = "b_min_score";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_C_MIN_SCORE = "c_min_score";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_D_MIN_SCORE = "d_min_score";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_U_MIN_SCORE = "u_min_score";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_MIN_STANDARDS_FOR_INC = "min_standards_for_inc";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_CANVAS_ID = "canvas_id";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_SUBTERM = "subterm";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_ON_TIME_MASTERY_PTS = "on_time_mastery_pts";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_LATE_MASTERY_PTS = "late_mastery_pts";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_HOMEWORK_PTS = "homework_pts";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_GRADING_SYSTEM_ID = "grading_system_id";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_MIN_STANDARDS = "min_standards";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_NBR_ESSENTIAL_STANDARDS = "nbr_essential_standards";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_MIN_ESSENTIAL_STANDARDS = "min_essential_standards";
+
 }
