@@ -354,7 +354,7 @@ CREATE TABLE IF NOT EXISTS term_202560.standard_assignment_attempt (
     student_id                char(9)         NOT NULL,
     assignment_id             varchar(20)     NOT NULL,
     course_id                 char(10)        NOT NULL,
-    module_nbr                char(10)        NOT NULL,
+    module_nbr                smallint        NOT NULL,
     standard_nbr              smallint        NOT NULL,
     pts_possible              smallint,
     min_passing_score         smallint,
@@ -370,7 +370,7 @@ CREATE TABLE IF NOT EXISTS term_202590.standard_assignment_attempt (
     student_id                char(9)         NOT NULL,
     assignment_id             varchar(20)     NOT NULL,
     course_id                 char(10)        NOT NULL,
-    module_nbr                char(10)        NOT NULL,
+    module_nbr                smallint        NOT NULL,
     standard_nbr              smallint        NOT NULL,
     pts_possible              smallint,
     min_passing_score         smallint,
@@ -386,7 +386,7 @@ CREATE TABLE IF NOT EXISTS term_dev.standard_assignment_attempt (
     student_id                char(9)         NOT NULL,
     assignment_id             varchar(20)     NOT NULL,
     course_id                 char(10)        NOT NULL,
-    module_nbr                char(10)        NOT NULL,
+    module_nbr                smallint        NOT NULL,
     standard_nbr              smallint        NOT NULL,
     pts_possible              smallint,
     min_passing_score         smallint,
@@ -494,7 +494,7 @@ CREATE TABLE IF NOT EXISTS term_202510.standards_milestone (
     pace_index               smallint       NOT NULL,  -- The pace index
     module_nbr               smallint       NOT NULL,  -- The module number
     ms_type                  char(2)        NOT NULL,  -- The milestone type
-    ms_date                  date,                     -- The milestone date
+    ms_date                  date           NOT NULL,  -- The milestone date
     PRIMARY KEY (pace_track, pace, pace_index, module_nbr, ms_type)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_202510.standards_milestone OWNER to math;
@@ -506,7 +506,7 @@ CREATE TABLE IF NOT EXISTS term_202560.standards_milestone (
     pace_index               smallint       NOT NULL,
     module_nbr               smallint       NOT NULL,
     ms_type                  char(2)        NOT NULL,
-    ms_date                  date,
+    ms_date                  date           NOT NULL,
     PRIMARY KEY (pace_track, pace, pace_index, module_nbr, ms_type)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_202560.standards_milestone OWNER to math;
@@ -518,7 +518,7 @@ CREATE TABLE IF NOT EXISTS term_202590.standards_milestone (
     pace_index               smallint       NOT NULL,
     module_nbr               smallint       NOT NULL,
     ms_type                  char(2)        NOT NULL,
-    ms_date                  date,
+    ms_date                  date           NOT NULL,
     PRIMARY KEY (pace_track, pace, pace_index, module_nbr, ms_type)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_202590.standards_milestone OWNER to math;
@@ -530,7 +530,7 @@ CREATE TABLE IF NOT EXISTS term_dev.standards_milestone (
     pace_index               smallint       NOT NULL,
     module_nbr               smallint       NOT NULL,
     ms_type                  char(2)        NOT NULL,
-    ms_date                  date,
+    ms_date                  date           NOT NULL,
     PRIMARY KEY (pace_track, pace, pace_index, module_nbr, ms_type)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_dev.standards_milestone OWNER to math;
@@ -542,7 +542,7 @@ CREATE TABLE IF NOT EXISTS term_test.standards_milestone (
     pace_index               smallint       NOT NULL,
     module_nbr               smallint       NOT NULL,
     ms_type                  char(2)        NOT NULL,
-    ms_date                  date,
+    ms_date                  date           NOT NULL,
     PRIMARY KEY (pace_track, pace, pace_index, module_nbr, ms_type)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_test.standards_milestone OWNER to math;

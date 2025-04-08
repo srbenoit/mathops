@@ -198,4 +198,43 @@ public enum DataDict {
     /** A field name for serialization of records. */
     public static final String FLD_MIN_ESSENTIAL_STANDARDS = "min_essential_standards";
 
+    /** A field name for serialization of records. */
+    public static final String FLD_SERIAL_NBR = "serial_nbr";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_STUDENT_ID = "student_id";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_MIN_PASSING_SCORE = "min_passing_score";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_SCORE = "score";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_PASSED = "passed";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_QUESTION_NBR = "question_nbr";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_PERCENTAGE = "percentage";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_ITEM_ID = "item_id";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_PACE_TRACK = "pace_track";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_PACE = "pace";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_PACE_INDEX = "pace_index";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_MS_TYPE = "ms_type";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_MS_DATE = "ms_date";
+
 }

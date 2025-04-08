@@ -86,18 +86,12 @@ public final class StandardsCourseGradingSystemRec extends RecBase
      *                                 Incomplete if the course was not completed
      */
     public StandardsCourseGradingSystemRec(final String theGradingSystemId, final Integer theNbrStandards,
-                                           final Integer theMinStandards,
-                                           final Integer theNbrEssentialStandards,
-                                           final Integer theMinEssentialStandards,
-                                           final Integer theHomeworkPts,
-                                           final Integer theOnTimeMasteryPts,
-                                           final Integer theLateMasteryPts,
-                                           final Integer theAMinScore,
-                                           final Integer theBMinScore,
-                                           final Integer theCMinScore,
-                                           final Integer theDMinScore,
-                                           final Integer theUMinScore,
-                                           final Integer theMinStandardsForInc) {
+                                           final Integer theMinStandards, final Integer theNbrEssentialStandards,
+                                           final Integer theMinEssentialStandards, final Integer theHomeworkPts,
+                                           final Integer theOnTimeMasteryPts, final Integer theLateMasteryPts,
+                                           final Integer theAMinScore, final Integer theBMinScore,
+                                           final Integer theCMinScore, final Integer theDMinScore,
+                                           final Integer theUMinScore, final Integer theMinStandardsForInc) {
 
         super();
 
