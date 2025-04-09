@@ -2,6 +2,7 @@ package dev.mathops.db.reclogic.main;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.DataDict;
 import dev.mathops.db.ESchema;
 import dev.mathops.db.rec.main.FacilityHoursRec;
 import dev.mathops.db.reclogic.IRecLogic;
@@ -18,17 +19,17 @@ import java.util.List;
  * A utility class to work with "facility_hours" records.
  *
  * <pre>
- * CREATE TABLE IF NOT EXISTS main.facility_hours (
- *   facility       CHAR(10)  NOT NULL,
- *   display_index  SMALLINT  NOT NULL,
- *   weekdays       SMALLINT  NOT NULL,
- *   start_dt       DATE      NOT NULL,
- *   end_dt         DATE      NOT NULL,
- *   open_time_1    TIME      NOT NULL,
- *   close_time_1   TIME      NOT NULL,
- *   open_time_2    TIME,
- *   close_time_2   TIME,
- *   CONSTRAINT facility_hours_pk PRIMARY KEY (facility, display_index)
+ * CREATE TABLE main.facility_hours (
+ *     facility_id              char(10)        NOT NULL,
+ *     display_index            smallint        NOT NULL,
+ *     weekdays                 smallint        NOT NULL,
+ *     start_date               date            NOT NULL,
+ *     end_date                 date            NOT NULL,
+ *     open_time_1              time            NOT NULL,
+ *     close_time_1             time            NOT NULL,
+ *     open_time_2              time,
+ *     close_time_2             time,
+ *     PRIMARY KEY (facility_id, display_index)
  * ) TABLESPACE primary_ts;
  * </pre>
  */
@@ -36,33 +37,6 @@ public final class FacilityHoursLogic implements IRecLogic<FacilityHoursRec> {
 
     /** A single instance. */
     public static final FacilityHoursLogic INSTANCE = new FacilityHoursLogic();
-
-    /** A field name. */
-    private static final String FLD_FACILITY = "facility";
-
-    /** A field name. */
-    private static final String FLD_DISPLAY_INDEX = "display_index";
-
-    /** A field name. */
-    private static final String FLD_WEEKDAYS = "weekdays";
-
-    /** A field name. */
-    private static final String FLD_START_DT = "start_dt";
-
-    /** A field name. */
-    private static final String FLD_END_DT = "end_dt";
-
-    /** A field name. */
-    private static final String FLD_OPEN_TIME_1 = "open_time_1";
-
-    /** A field name. */
-    private static final String FLD_CLOSE_TIME_1 = "close_time_1";
-
-    /** A field name. */
-    private static final String FLD_OPEN_TIME_2 = "open_time_2";
-
-    /** A field name. */
-    private static final String FLD_CLOSE_TIME_2 = "close_time_2";
 
     /**
      * Private constructor to prevent direct instantiation.
@@ -77,7 +51,7 @@ public final class FacilityHoursLogic implements IRecLogic<FacilityHoursRec> {
      * installation type of the MAIN schema configuration in cache's database profile.
      *
      * @param cache the cache
-     * @return the appropriate {@code FacilityLogic} object (null if none found)
+     * @return the appropriate {@code FacilityHoursLogic} object (null if none found)
      */
     public static FacilityHoursLogic get(final Cache cache) {
 
@@ -103,7 +77,7 @@ public final class FacilityHoursLogic implements IRecLogic<FacilityHoursRec> {
             result = false;
         } else {
             final String sql = SimpleBuilder.concat("INSERT INTO ", schemaPrefix,
-                    ".facility_hours (facility,display_index,weekdays,start_dt,end_dt,open_time_1,close_time_1,",
+                    ".facility_hours (facility_id,display_index,weekdays,start_date,end_date,open_time_1,close_time_1,",
                     "open_time_2,close_time_2) VALUES (",
                     sqlStringValue(record.facilityId), ",",
                     sqlIntegerValue(record.displayIndex), ",",
@@ -139,7 +113,7 @@ public final class FacilityHoursLogic implements IRecLogic<FacilityHoursRec> {
             Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
             result = false;
         } else {
-            final String sql = SimpleBuilder.concat("DELETE FROM ", schemaPrefix, ".facility_hours WHERE facility=",
+            final String sql = SimpleBuilder.concat("DELETE FROM ", schemaPrefix, ".facility_hours WHERE facility_id=",
                     sqlStringValue(record.facilityId), " AND display_index=",
                     sqlIntegerValue(record.displayIndex));
 
@@ -178,12 +152,12 @@ public final class FacilityHoursLogic implements IRecLogic<FacilityHoursRec> {
      * Queries for all facility hours records for a single facility.
      *
      * @param cache        the data cache
-     * @param facility     the facility ID for which to query
+     * @param facilityId   the facility ID for which to query
      * @param displayIndex the display index for which to query
      * @return the facility hours record; {@code null} if not found
      * @throws SQLException if there is an error performing the query
      */
-    public FacilityHoursRec query(final Cache cache, final String facility, final Integer displayIndex)
+    public FacilityHoursRec query(final Cache cache, final String facilityId, final Integer displayIndex)
             throws SQLException {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
@@ -193,8 +167,9 @@ public final class FacilityHoursLogic implements IRecLogic<FacilityHoursRec> {
             Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
             result = null;
         } else {
-            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".facility_hours WHERE facility=",
-                    sqlStringValue(facility), " AND display_index=", sqlIntegerValue(displayIndex));
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
+                    ".facility_hours WHERE facility_id=", sqlStringValue(facilityId), " AND display_index=",
+                    sqlIntegerValue(displayIndex));
 
             result = doSingleQuery(cache, sql);
         }
@@ -205,12 +180,12 @@ public final class FacilityHoursLogic implements IRecLogic<FacilityHoursRec> {
     /**
      * Queries for all facility hours records for a single facility.
      *
-     * @param cache    the data cache
-     * @param facility the facility ID for which to query
+     * @param cache      the data cache
+     * @param facilityId the facility ID for which to query
      * @return the list of facility hours records (could be empty)
      * @throws SQLException if there is an error performing the query
      */
-    public List<FacilityHoursRec> queryByFacility(final Cache cache, final String facility) throws SQLException {
+    public List<FacilityHoursRec> queryByFacility(final Cache cache, final String facilityId) throws SQLException {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
@@ -219,8 +194,8 @@ public final class FacilityHoursLogic implements IRecLogic<FacilityHoursRec> {
             Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
             result = new ArrayList<>(0);
         } else {
-            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".facility_hours WHERE facility=",
-                    sqlStringValue(facility));
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
+                    ".facility_hours WHERE facility_id=", sqlStringValue(facilityId));
 
             result = doListQuery(cache, sql);
         }
@@ -246,13 +221,13 @@ public final class FacilityHoursLogic implements IRecLogic<FacilityHoursRec> {
             result = false;
         } else {
             final String sql = SimpleBuilder.concat("UPDATE ", schemaPrefix, ".facility_hours SET weekdays=",
-                    sqlIntegerValue(record.weekdays), ",start_dt=",
-                    sqlDateValue(record.startDate), ",end_dt=",
+                    sqlIntegerValue(record.weekdays), ",start_date=",
+                    sqlDateValue(record.startDate), ",end_date=",
                     sqlDateValue(record.endDate), ",open_time_1=",
                     sqlTimeValue(record.openTime1), ",close_time_1=",
                     sqlTimeValue(record.closeTime1), ",open_time_2=",
                     sqlTimeValue(record.openTime2), ",close_Time_2=",
-                    sqlTimeValue(record.closeTime2), " WHERE facility=",
+                    sqlTimeValue(record.closeTime2), " WHERE facility_id=",
                     sqlStringValue(record.facilityId), " AND display_index=",
                     sqlIntegerValue(record.displayIndex));
 
@@ -272,17 +247,17 @@ public final class FacilityHoursLogic implements IRecLogic<FacilityHoursRec> {
     @Override
     public FacilityHoursRec fromResultSet(final ResultSet rs) throws SQLException {
 
-        final String theFacility = getStringField(rs, FLD_FACILITY);
-        final Integer theDisplayIndex = getIntegerField(rs, FLD_DISPLAY_INDEX);
-        final Integer theWeekdays = getIntegerField(rs, FLD_WEEKDAYS);
-        final LocalDate theStartDt = getDateField(rs, FLD_START_DT);
-        final LocalDate theEndDt = getDateField(rs, FLD_END_DT);
-        final LocalTime theOpenTime1 = getTimeField(rs, FLD_OPEN_TIME_1);
-        final LocalTime theCloseTime1 = getTimeField(rs, FLD_CLOSE_TIME_1);
-        final LocalTime theOpenTime2 = getTimeField(rs, FLD_OPEN_TIME_2);
-        final LocalTime theCloseTime2 = getTimeField(rs, FLD_CLOSE_TIME_2);
+        final String theFacilityId = getStringField(rs, DataDict.FLD_FACILITY_ID);
+        final Integer theDisplayIndex = getIntegerField(rs, DataDict.FLD_DISPLAY_INDEX);
+        final Integer theWeekdays = getIntegerField(rs, DataDict.FLD_WEEKDAYS);
+        final LocalDate theStartDate = getDateField(rs, DataDict.FLD_START_DATE);
+        final LocalDate theEndDate = getDateField(rs, DataDict.FLD_END_DATE);
+        final LocalTime theOpenTime1 = getTimeField(rs, DataDict.FLD_OPEN_TIME_1);
+        final LocalTime theCloseTime1 = getTimeField(rs, DataDict.FLD_CLOSE_TIME_1);
+        final LocalTime theOpenTime2 = getTimeField(rs, DataDict.FLD_OPEN_TIME_2);
+        final LocalTime theCloseTime2 = getTimeField(rs, DataDict.FLD_CLOSE_TIME_2);
 
-        return new FacilityHoursRec(theFacility, theDisplayIndex, theWeekdays, theStartDt, theEndDt, theOpenTime1,
+        return new FacilityHoursRec(theFacilityId, theDisplayIndex, theWeekdays, theStartDate, theEndDate, theOpenTime1,
                 theCloseTime1, theOpenTime2, theCloseTime2);
     }
 }

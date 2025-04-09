@@ -2,6 +2,7 @@ package dev.mathops.db.reclogic.main;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.DataDict;
 import dev.mathops.db.ESchema;
 import dev.mathops.db.rec.main.FacilityClosureRec;
 import dev.mathops.db.reclogic.IRecLogic;
@@ -18,13 +19,13 @@ import java.util.List;
  * A utility class to work with "facility_closure" records.
  *
  * <pre>
- * CREATE TABLE IF NOT EXISTS main.facility_closure (
- *   facility       CHAR(10)  NOT NULL,
- *   closure_dt     DATE      NOT NULL,
- *   closure_type   CHAR(4)   NOT NULL,
- *   start_time     TIME,
- *   end_time       TIME,
- *   CONSTRAINT facility_closures_pk PRIMARY KEY (facility,closure_dt)
+ * CREATE TABLE main.facility_closure (
+ *     facility_id              char(10)        NOT NULL,
+ *     closure_date             date            NOT NULL,
+ *     closure_type             char(10)        NOT NULL,
+ *     start_time               time,
+ *     end_time                 time,
+ *     PRIMARY KEY (facility_id, closure_date)
  * ) TABLESPACE primary_ts;
  * </pre>
  */
@@ -32,21 +33,6 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
 
     /** A single instance. */
     public static final FacilityClosureLogic INSTANCE = new FacilityClosureLogic();
-
-    /** A field name. */
-    private static final String FLD_FACILITY = "facility";
-
-    /** A field name. */
-    private static final String FLD_CLOSURE_DT = "closure_dt";
-
-    /** A field name. */
-    private static final String FLD_CLOSURE_TYPE = "closure_type";
-
-    /** A field name. */
-    private static final String FLD_START_TIME = "start_time";
-
-    /** A field name. */
-    private static final String FLD_END_TIME = "end_time";
 
     /**
      * Private constructor to prevent direct instantiation.
@@ -57,11 +43,11 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
     }
 
     /**
-     * Gets the instance of {@code FacilityHoursLogic} appropriate to a cache. The result will depend on the database
+     * Gets the instance of {@code FacilityClosureLogic} appropriate to a cache. The result will depend on the database
      * installation type of the MAIN schema configuration in cache's database profile.
      *
      * @param cache the cache
-     * @return the appropriate {@code FacilityLogic} object (null if none found)
+     * @return the appropriate {@code FacilityClosureLogic} object (null if none found)
      */
     public static FacilityClosureLogic get(final Cache cache) {
 
@@ -86,8 +72,8 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
             Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
             result = false;
         } else {
-            final String sql = SimpleBuilder.concat("INSERT INTO ", schemaPrefix, ".facility_closure (facility,",
-                    "closure_dt,closure_type,start_time,end_time) VALUES (",
+            final String sql = SimpleBuilder.concat("INSERT INTO ", schemaPrefix, ".facility_closure (facility_id,",
+                    "closure_date,closure_type,start_time,end_time) VALUES (",
                     sqlStringValue(record.facilityId), ",",
                     sqlDateValue(record.closureDate), ",",
                     sqlStringValue(record.closureType), ",",
@@ -118,8 +104,8 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
             Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
             result = false;
         } else {
-            final String sql = SimpleBuilder.concat("DELETE FROM ", schemaPrefix, ".facility_closure WHERE facility=",
-                    sqlStringValue(record.facilityId), " AND closure_dt=",
+            final String sql = SimpleBuilder.concat("DELETE FROM ", schemaPrefix,
+                    ".facility_closure WHERE facility_id=", sqlStringValue(record.facilityId), " AND closure_date=",
                     sqlDateValue(record.closureDate));
 
             result = doUpdateOneRow(cache, sql);
@@ -156,13 +142,14 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
     /**
      * Queries for all facility closure records for a single facility closure.
      *
-     * @param cache     the data cache
-     * @param facility  the facility ID for which to query
-     * @param closureDt the closure date
+     * @param cache       the data cache
+     * @param facilityId  the facility ID for which to query
+     * @param closureDate the closure date
      * @return the facility; {@code null} if not found
      * @throws SQLException if there is an error performing the query
      */
-    public FacilityClosureRec query(final Cache cache, final String facility, final LocalDate closureDt) throws SQLException {
+    public FacilityClosureRec query(final Cache cache, final String facilityId, final LocalDate closureDate)
+            throws SQLException {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
@@ -171,8 +158,9 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
             Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
             result = null;
         } else {
-            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".facility_closure WHERE facility=",
-                    sqlStringValue(facility), " AND closure_dt=", sqlDateValue(closureDt));
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
+                    ".facility_closure WHERE facility_id=", sqlStringValue(facilityId), " AND closure_dt=",
+                    sqlDateValue(closureDate));
 
             result = doSingleQuery(cache, sql);
         }
@@ -183,12 +171,12 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
     /**
      * Queries for all facility hours records for a single facility.
      *
-     * @param cache    the data cache
-     * @param facility the facility ID for which to query
+     * @param cache      the data cache
+     * @param facilityId the facility ID for which to query
      * @return the facility; {@code null} if not found
      * @throws SQLException if there is an error performing the query
      */
-    public List<FacilityClosureRec> queryByFacility(final Cache cache, final String facility) throws SQLException {
+    public List<FacilityClosureRec> queryByFacility(final Cache cache, final String facilityId) throws SQLException {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
@@ -197,8 +185,8 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
             Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
             result = new ArrayList<>(0);
         } else {
-            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".facility_closure WHERE facility=",
-                    sqlStringValue(facility));
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
+                    ".facility_closure WHERE facility_id=", sqlStringValue(facilityId));
 
             result = doListQuery(cache, sql);
         }
@@ -226,8 +214,8 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
             final String sql = SimpleBuilder.concat("UPDATE ", schemaPrefix, ".facility_closure SET closure_type=",
                     sqlStringValue(record.closureType), ",start_time=",
                     sqlTimeValue(record.startTime), ",end_time=",
-                    sqlTimeValue(record.endTime), " WHERE facility=",
-                    sqlStringValue(record.facilityId), " AND closure_dt=",
+                    sqlTimeValue(record.endTime), " WHERE facility_id=",
+                    sqlStringValue(record.facilityId), " AND closure_date=",
                     sqlDateValue(record.closureDate));
 
             result = doUpdateOneRow(cache, sql);
@@ -246,11 +234,11 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
     @Override
     public FacilityClosureRec fromResultSet(final ResultSet rs) throws SQLException {
 
-        final String theFacility = getStringField(rs, FLD_FACILITY);
-        final LocalDate theClosureDt = getDateField(rs, FLD_CLOSURE_DT);
-        final String theClosureType = getStringField(rs, FLD_CLOSURE_TYPE);
-        final LocalTime theStartTime = getTimeField(rs, FLD_START_TIME);
-        final LocalTime theEndTime = getTimeField(rs, FLD_END_TIME);
+        final String theFacility = getStringField(rs, DataDict.FLD_FACILITY_ID);
+        final LocalDate theClosureDt = getDateField(rs, DataDict.FLD_CLOSURE_DATE);
+        final String theClosureType = getStringField(rs, DataDict.FLD_CLOSURE_TYPE);
+        final LocalTime theStartTime = getTimeField(rs, DataDict.FLD_START_TIME);
+        final LocalTime theEndTime = getTimeField(rs, DataDict.FLD_END_TIME);
 
         return new FacilityClosureRec(theFacility, theClosureDt, theClosureType, theStartTime, theEndTime);
     }

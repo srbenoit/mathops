@@ -4,7 +4,7 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DataDict;
 import dev.mathops.db.ESchema;
-import dev.mathops.db.rec.main.FacilityRec;
+import dev.mathops.db.rec.main.StandardsCourseRec;
 import dev.mathops.db.reclogic.IRecLogic;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -14,39 +14,41 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A utility class to work with "facility" records.
+ * A utility class to work with "standards course" records.
  *
  * <pre>
- * CREATE TABLE main.facility (
- *     facility_id              char(10)        NOT NULL,
- *     facility_name            varchar(100)    NOT NULL,
- *     building_name            varchar(40),
- *     room_nbr                 varchar(20),
- *     PRIMARY KEY (facility_id)
- * ) TABLESPACE primary_ts;
+ * CREATE TABLE main.standards_course (
+ *     course_id                char(10)        NOT NULL,
+ *     course_title             varchar(50)     NOT NULL,
+ *     nbr_modules              smallint        NOT NULL,
+ *     nbr_credits              smallint        NOT NULL,
+ *     allow_lend               integer         NOT NULL,
+ *     metadata_path            varchar(50),
+ *     PRIMARY KEY (course_id)
+ * );
  * </pre>
  */
-public final class FacilityLogic implements IRecLogic<FacilityRec> {
+public final class StandardsCourseLogic implements IRecLogic<StandardsCourseRec> {
 
     /** A single instance. */
-    public static final FacilityLogic INSTANCE = new FacilityLogic();
+    public static final StandardsCourseLogic INSTANCE = new StandardsCourseLogic();
 
     /**
      * Private constructor to prevent direct instantiation.
      */
-    private FacilityLogic() {
+    private StandardsCourseLogic() {
 
         super();
     }
 
     /**
-     * Gets the instance of {@code FacilityLogic} appropriate to a cache. The result will depend on the database
+     * Gets the instance of {@code StandardsCourseLogic} appropriate to a cache. The result will depend on the database
      * installation type of the MAIN schema configuration in cache's database profile.
      *
      * @param cache the cache
-     * @return the appropriate {@code FacilityLogic} object (null if none found)
+     * @return the appropriate {@code StandardsCourseLogic} object (null if none found)
      */
-    public static FacilityLogic get(final Cache cache) {
+    public static StandardsCourseLogic get(final Cache cache) {
 
         return INSTANCE;
     }
@@ -60,7 +62,7 @@ public final class FacilityLogic implements IRecLogic<FacilityRec> {
      * @throws SQLException if there is an error accessing the database
      */
     @Override
-    public boolean insert(final Cache cache, final FacilityRec record) throws SQLException {
+    public boolean insert(final Cache cache, final StandardsCourseRec record) throws SQLException {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
@@ -69,15 +71,16 @@ public final class FacilityLogic implements IRecLogic<FacilityRec> {
             Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
             result = false;
         } else {
-            final String sql = SimpleBuilder.concat("INSERT INTO ", schemaPrefix,
-                    ".facility (facility_id,facility_name,building_name,room_nbr) VALUES (",
-                    sqlStringValue(record.facilityId), ",",
-                    sqlStringValue(record.facilityName), ",",
-                    sqlStringValue(record.buildingName), ",",
-                    sqlStringValue(record.roomNbr), ")");
+            final String sql = SimpleBuilder.concat("INSERT INTO ", schemaPrefix, ".standards_course ",
+                    "(course_id,course_title,nbr_modules,nbr_credits,allow_lend,metadata_path) VALUES (",
+                    sqlStringValue(record.courseId), ",",
+                    sqlStringValue(record.courseTitle), ",",
+                    sqlIntegerValue(record.nbrModules), ",",
+                    sqlIntegerValue(record.nbrCredits), ",",
+                    sqlIntegerValue(record.allowLend), ",",
+                    sqlStringValue(record.metadataPath), ")");
 
             result = doUpdateOneRow(cache, sql);
-
         }
 
         return result;
@@ -92,7 +95,7 @@ public final class FacilityLogic implements IRecLogic<FacilityRec> {
      * @throws SQLException if there is an error accessing the database
      */
     @Override
-    public boolean delete(final Cache cache, final FacilityRec record) throws SQLException {
+    public boolean delete(final Cache cache, final StandardsCourseRec record) throws SQLException {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
@@ -101,8 +104,8 @@ public final class FacilityLogic implements IRecLogic<FacilityRec> {
             Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
             result = false;
         } else {
-            final String sql = SimpleBuilder.concat("DELETE FROM ", schemaPrefix, ".facility WHERE facility_id=",
-                    sqlStringValue(record.facilityId));
+            final String sql = SimpleBuilder.concat("DELETE FROM ", schemaPrefix, ".standards_course WHERE course_id=",
+                    sqlStringValue(record.courseId));
 
             result = doUpdateOneRow(cache, sql);
         }
@@ -118,16 +121,16 @@ public final class FacilityLogic implements IRecLogic<FacilityRec> {
      * @throws SQLException if there is an error performing the query
      */
     @Override
-    public List<FacilityRec> queryAll(final Cache cache) throws SQLException {
+    public List<StandardsCourseRec> queryAll(final Cache cache) throws SQLException {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
-        final List<FacilityRec> result;
+        final List<StandardsCourseRec> result;
         if (schemaPrefix == null) {
             Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
             result = new ArrayList<>(0);
         } else {
-            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".facility");
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".standards_course");
 
             result = doListQuery(cache, sql);
         }
@@ -136,24 +139,24 @@ public final class FacilityLogic implements IRecLogic<FacilityRec> {
     }
 
     /**
-     * Queries for a facility by its ID.
+     * Queries for a standards course by its ID.
      *
      * @param cache    the data cache
-     * @param facility the facility ID for which to query
+     * @param courseId the course ID for which to query
      * @return the facility; {@code null} if not found
      * @throws SQLException if there is an error performing the query
      */
-    public FacilityRec query(final Cache cache, final String facility) throws SQLException {
+    public StandardsCourseRec query(final Cache cache, final String courseId) throws SQLException {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
-        final FacilityRec result;
+        final StandardsCourseRec result;
         if (schemaPrefix == null) {
             Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
             result = null;
         } else {
-            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".facility WHERE facility_id=",
-                    sqlStringValue(facility));
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
+                    ".standards_course WHERE course_id=", sqlStringValue(courseId));
 
             result = doSingleQuery(cache, sql);
         }
@@ -169,7 +172,7 @@ public final class FacilityLogic implements IRecLogic<FacilityRec> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    public boolean update(final Cache cache, final FacilityRec record) throws SQLException {
+    public boolean update(final Cache cache, final StandardsCourseRec record) throws SQLException {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
@@ -178,10 +181,13 @@ public final class FacilityLogic implements IRecLogic<FacilityRec> {
             Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
             result = false;
         } else {
-            final String sql = SimpleBuilder.concat("UPDATE ", schemaPrefix, ".facility SET facility_name=",
-                    sqlStringValue(record.facilityName), ",building_name=", sqlStringValue(record.buildingName),
-                    ",room_nbr=", sqlStringValue(record.roomNbr), " WHERE facility_id=",
-                    sqlStringValue(record.facilityId));
+            final String sql = SimpleBuilder.concat("UPDATE ", schemaPrefix,
+                    ".standards_course SET course_title=", sqlStringValue(record.courseTitle),
+                    ",nbr_modules=", sqlIntegerValue(record.nbrModules),
+                    ",nbr_credits=", sqlIntegerValue(record.nbrCredits),
+                    ",allow_lend=", sqlIntegerValue(record.allowLend),
+                    ",metadata_path=", sqlStringValue(record.metadataPath),
+                    " WHERE course_id=", sqlStringValue(record.courseId));
 
             result = doUpdateOneRow(cache, sql);
         }
@@ -197,13 +203,16 @@ public final class FacilityLogic implements IRecLogic<FacilityRec> {
      * @throws SQLException if there is an error accessing the database
      */
     @Override
-    public FacilityRec fromResultSet(final ResultSet rs) throws SQLException {
+    public StandardsCourseRec fromResultSet(final ResultSet rs) throws SQLException {
 
-        final String theFacilityId = getStringField(rs, DataDict.FLD_FACILITY_ID);
-        final String theFacilityName = getStringField(rs, DataDict.FLD_FACILITY_NAME);
-        final String theBuildingName = getStringField(rs, DataDict.FLD_BUILDING_NAME);
-        final String theRoomNbr = getStringField(rs, DataDict.FLD_ROOM_NBR);
+        final String theCourseId = getStringField(rs, DataDict.FLD_COURSE_ID);
+        final String theCourseTitle = getStringField(rs, DataDict.FLD_COURSE_TITLE);
+        final Integer theNbrModules = getIntegerField(rs, DataDict.FLD_NBR_MODULES);
+        final Integer theNbrCredits = getIntegerField(rs, DataDict.FLD_NBR_CREDITS);
+        final Integer theAllowLend = getIntegerField(rs, DataDict.FLD_ALLOW_LEND);
+        final String theMetadataPath = getStringField(rs, DataDict.FLD_METADATA_PATH);
 
-        return new FacilityRec(theFacilityId, theFacilityName, theBuildingName, theRoomNbr);
+        return new StandardsCourseRec(theCourseId, theCourseTitle, theNbrModules, theNbrCredits, theAllowLend,
+                theMetadataPath);
     }
 }
