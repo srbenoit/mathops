@@ -641,10 +641,11 @@ ALTER TABLE IF EXISTS term_test.student_standards_milestone OWNER to math;
 CREATE TABLE IF NOT EXISTS term_202510.student_standard_mastery (
     student_id               char(9)        NOT NULL,  -- The student ID
     course_id                char(10)       NOT NULL,  -- The course ID
+    module_nbr               smallint       NOT NULL,  -- The module number
     standard_nbr             smallint       NOT NULL,  -- The standard number
     score                    smallint       NOT NULL,  -- The current score (1 or 2)
     mastered                 char(1)        NOT NULL,  -- "Y" if mastered; "N" if not
-    PRIMARY KEY (student_id, course_id, standard_nbr)
+    PRIMARY KEY (student_id, course_id, module_nbr, standard_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_202510.student_standard_mastery OWNER to math;
 
@@ -652,10 +653,11 @@ ALTER TABLE IF EXISTS term_202510.student_standard_mastery OWNER to math;
 CREATE TABLE IF NOT EXISTS term_202560.student_standard_mastery (
     student_id               char(9)        NOT NULL,
     course_id                char(10)       NOT NULL,
+    module_nbr               smallint       NOT NULL,
     standard_nbr             smallint       NOT NULL,
     score                    smallint       NOT NULL,
     mastered                 char(1)        NOT NULL,
-    PRIMARY KEY (student_id, course_id, standard_nbr)
+    PRIMARY KEY (student_id, course_id, module_nbr, standard_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_202560.student_standard_mastery OWNER to math;
 
@@ -663,10 +665,11 @@ ALTER TABLE IF EXISTS term_202560.student_standard_mastery OWNER to math;
 CREATE TABLE IF NOT EXISTS term_202590.student_standard_mastery (
     student_id               char(9)        NOT NULL,
     course_id                char(10)       NOT NULL,
+    module_nbr               smallint       NOT NULL,
     standard_nbr             smallint       NOT NULL,
     score                    smallint       NOT NULL,
     mastered                 char(1)        NOT NULL,
-    PRIMARY KEY (student_id, course_id, standard_nbr)
+    PRIMARY KEY (student_id, course_id, module_nbr, standard_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_202590.student_standard_mastery OWNER to math;
 
@@ -674,10 +677,11 @@ ALTER TABLE IF EXISTS term_202590.student_standard_mastery OWNER to math;
 CREATE TABLE IF NOT EXISTS term_dev.student_standard_mastery (
     student_id               char(9)        NOT NULL,
     course_id                char(10)       NOT NULL,
+    module_nbr               smallint       NOT NULL,
     standard_nbr             smallint       NOT NULL,
     score                    smallint       NOT NULL,
     mastered                 char(1)        NOT NULL,
-    PRIMARY KEY (student_id, course_id, standard_nbr)
+    PRIMARY KEY (student_id, course_id, module_nbr, standard_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_dev.student_standard_mastery OWNER to math;
 
@@ -685,10 +689,11 @@ ALTER TABLE IF EXISTS term_dev.student_standard_mastery OWNER to math;
 CREATE TABLE IF NOT EXISTS term_test.student_standard_mastery (
     student_id               char(9)        NOT NULL,
     course_id                char(10)       NOT NULL,
+    module_nbr               smallint       NOT NULL,
     standard_nbr             smallint       NOT NULL,
     score                    smallint       NOT NULL,
     mastered                 char(1)        NOT NULL,
-    PRIMARY KEY (student_id, course_id, standard_nbr)
+    PRIMARY KEY (student_id, course_id, module_nbr, standard_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_test.student_standard_mastery OWNER to math;
 
@@ -709,7 +714,7 @@ CREATE TABLE IF NOT EXISTS term_202510.student_course_mastery (
     student_id               char(9)        NOT NULL,  -- The student ID
     course_id                char(10)       NOT NULL,  -- The course ID
     nbr_completed_hw         smallint       NOT NULL,  -- The number of completed homework sets (of 24)
-    nbr_mastered_stds        smallint       NOT NULL,  -- The number of mastered standards (out of 24)
+    nbr_mastered_standards   smallint       NOT NULL,  -- The number of mastered standards (out of 24)
     score                    smallint       NOT NULL,  -- The current score
     PRIMARY KEY (student_id, course_id)
 ) TABLESPACE primary_ts;
@@ -720,7 +725,7 @@ CREATE TABLE IF NOT EXISTS term_202560.student_course_mastery (
     student_id               char(9)        NOT NULL,
     course_id                char(10)       NOT NULL,
     nbr_completed_hw         smallint       NOT NULL,
-    nbr_mastered_stds        smallint       NOT NULL,
+    nbr_mastered_standards   smallint       NOT NULL,
     score                    smallint       NOT NULL,
     PRIMARY KEY (student_id, course_id)
 ) TABLESPACE primary_ts;
@@ -731,7 +736,7 @@ CREATE TABLE IF NOT EXISTS term_202590.student_course_mastery (
     student_id               char(9)        NOT NULL,
     course_id                char(10)       NOT NULL,
     nbr_completed_hw         smallint       NOT NULL,
-    nbr_mastered_stds        smallint       NOT NULL,
+    nbr_mastered_standards   smallint       NOT NULL,
     score                    smallint       NOT NULL,
     PRIMARY KEY (student_id, course_id)
 ) TABLESPACE primary_ts;
@@ -742,7 +747,7 @@ CREATE TABLE IF NOT EXISTS term_dev.student_course_mastery (
     student_id               char(9)        NOT NULL,
     course_id                char(10)       NOT NULL,
     nbr_completed_hw         smallint       NOT NULL,
-    nbr_mastered_stds        smallint       NOT NULL,
+    nbr_mastered_standards   smallint       NOT NULL,
     score                    smallint       NOT NULL,
     PRIMARY KEY (student_id, course_id)
 ) TABLESPACE primary_ts;
@@ -753,7 +758,7 @@ CREATE TABLE IF NOT EXISTS term_test.student_course_mastery (
     student_id               char(9)        NOT NULL,
     course_id                char(10)       NOT NULL,
     nbr_completed_hw         smallint       NOT NULL,
-    nbr_mastered_stds        smallint       NOT NULL,
+    nbr_mastered_standards   smallint       NOT NULL,
     score                    smallint       NOT NULL,
     PRIMARY KEY (student_id, course_id)
 ) TABLESPACE primary_ts;
@@ -900,7 +905,7 @@ ALTER TABLE IF EXISTS term_test.course_survey_response OWNER to math;
 CREATE TABLE IF NOT EXISTS term_202510.course_survey_response_item_choice (
     serial_nbr               integer        NOT NULL,  -- A unique serial number for the response
     item_nbr                 smallint       NOT NULL,  -- The item number
-    response_choice_nbr      smallint       NOT NULL,  -- The selected choice number
+    response_choice          smallint       NOT NULL,  -- The selected choice value(s)
     PRIMARY KEY (serial_nbr, item_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_202510.course_survey_response_item_choice OWNER to math;
@@ -909,7 +914,7 @@ ALTER TABLE IF EXISTS term_202510.course_survey_response_item_choice OWNER to ma
 CREATE TABLE IF NOT EXISTS term_202560.course_survey_response_item_choice (
     serial_nbr               integer        NOT NULL,
     item_nbr                 smallint       NOT NULL,
-    response_choice_nbr      smallint       NOT NULL,
+    response_choice          smallint       NOT NULL,
     PRIMARY KEY (serial_nbr, item_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_202560.course_survey_response_item_choice OWNER to math;
@@ -918,7 +923,7 @@ ALTER TABLE IF EXISTS term_202560.course_survey_response_item_choice OWNER to ma
 CREATE TABLE IF NOT EXISTS term_202590.course_survey_response_item_choice (
     serial_nbr               integer        NOT NULL,
     item_nbr                 smallint       NOT NULL,
-    response_choice_nbr      smallint       NOT NULL,
+    response_choice          smallint       NOT NULL,
     PRIMARY KEY (serial_nbr, item_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_202590.course_survey_response_item_choice OWNER to math;
@@ -927,7 +932,7 @@ ALTER TABLE IF EXISTS term_202590.course_survey_response_item_choice OWNER to ma
 CREATE TABLE IF NOT EXISTS term_dev.course_survey_response_item_choice (
     serial_nbr               integer        NOT NULL,
     item_nbr                 smallint       NOT NULL,
-    response_choice_nbr      smallint       NOT NULL,
+    response_choice          smallint       NOT NULL,
     PRIMARY KEY (serial_nbr, item_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_dev.course_survey_response_item_choice OWNER to math;
@@ -936,7 +941,7 @@ ALTER TABLE IF EXISTS term_dev.course_survey_response_item_choice OWNER to math;
 CREATE TABLE IF NOT EXISTS term_test.course_survey_response_item_choice (
     serial_nbr               integer        NOT NULL,
     item_nbr                 smallint       NOT NULL,
-    response_choice_nbr      smallint       NOT NULL,
+    response_choice          smallint       NOT NULL,
     PRIMARY KEY (serial_nbr, item_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_test.course_survey_response_item_choice OWNER to math;
