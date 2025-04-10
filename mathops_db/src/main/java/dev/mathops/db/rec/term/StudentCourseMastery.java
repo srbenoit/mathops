@@ -27,8 +27,8 @@ public final class StudentCourseMastery extends RecBase implements Comparable<St
     /** The 'nbr_completed_hw' field value. */
     public final Integer nbrCompletedHw;
 
-    /** The 'nbr_mastered_stds' field value. */
-    public final Integer nbrMasteredStds;
+    /** The 'nbr_mastered_standards' field value. */
+    public final Integer nbrMasteredStandards;
 
     /** The 'score' field value. */
     public final Integer score;
@@ -66,7 +66,7 @@ public final class StudentCourseMastery extends RecBase implements Comparable<St
         this.studentId = theStudentId;
         this.courseId = theCourseId;
         this.nbrCompletedHw = theNbrCompletedHw;
-        this.nbrMasteredStds = theNbrStandardsMastered;
+        this.nbrMasteredStandards = theNbrStandardsMastered;
         this.score = theScore;
     }
 
@@ -106,7 +106,7 @@ public final class StudentCourseMastery extends RecBase implements Comparable<St
         htm.add(DIVIDER);
         appendField(htm, DataDict.FLD_NBR_COMPLETED_HW, this.nbrCompletedHw);
         htm.add(DIVIDER);
-        appendField(htm, DataDict.FLD_NBR_MASTERED_STDS, this.nbrMasteredStds);
+        appendField(htm, DataDict.FLD_NBR_MASTERED_STANDARDS, this.nbrMasteredStandards);
         htm.add(DIVIDER);
         appendField(htm, DataDict.FLD_SCORE, this.score);
 
@@ -124,7 +124,7 @@ public final class StudentCourseMastery extends RecBase implements Comparable<St
         return this.studentId.hashCode()
                + this.courseId.hashCode()
                + this.nbrCompletedHw.hashCode()
-               + this.nbrMasteredStds.hashCode()
+               + this.nbrMasteredStandards.hashCode()
                + this.score.hashCode();
     }
 
@@ -145,7 +145,7 @@ public final class StudentCourseMastery extends RecBase implements Comparable<St
             equal = this.studentId.equals(rec.studentId)
                     && this.courseId.equals(rec.courseId)
                     && this.nbrCompletedHw.equals(rec.nbrCompletedHw)
-                    && this.nbrMasteredStds.equals(rec.nbrMasteredStds)
+                    && this.nbrMasteredStandards.equals(rec.nbrMasteredStandards)
                     && this.score.equals(rec.score);
         } else {
             equal = false;

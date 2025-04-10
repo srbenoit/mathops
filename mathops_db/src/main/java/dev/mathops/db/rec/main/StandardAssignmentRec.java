@@ -133,7 +133,7 @@ public final class StandardAssignmentRec extends RecBase implements Comparable<S
         htm.add(DIVIDER);
         appendField(htm, DataDict.FLD_PTS_POSSIBLE, this.ptsPossible);
         htm.add(DIVIDER);
-        appendField(htm, DataDict.FLD_NUM_PASSING_SCORE, this.minPassingScore);
+        appendField(htm, DataDict.FLD_MIN_PASSING_SCORE, this.minPassingScore);
         htm.add(DIVIDER);
         appendField(htm, DataDict.FLD_TREE_REF, this.treeRef);
 
