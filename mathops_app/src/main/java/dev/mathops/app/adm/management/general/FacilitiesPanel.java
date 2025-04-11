@@ -88,9 +88,8 @@ final class FacilitiesPanel extends AdmPanelBase implements ActionListener {
      */
     void refreshStatus() {
 
-        final FacilityLogic logic = FacilityLogic.get(this.cache);
         try {
-            final List<FacilityRec> allRows = logic.queryAll(this.cache);
+            final List<FacilityRec> allRows = FacilityLogic.INSTANCE.queryAll(this.cache);
 
             this.facilityListModel.removeAllElements();
             for (final FacilityRec rec : allRows) {
@@ -134,7 +133,7 @@ final class FacilitiesPanel extends AdmPanelBase implements ActionListener {
         String[] error = null;
 
         try {
-            if (FacilityLogic.get(this.cache).insert(this.cache, rec)) {
+            if (FacilityLogic.INSTANCE.insert(this.cache, rec)) {
                 refreshStatus();
             } else {
                 error = new String[]{"Failed to insert new facility record."};

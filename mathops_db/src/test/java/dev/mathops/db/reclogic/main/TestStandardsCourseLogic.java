@@ -10,7 +10,7 @@ import dev.mathops.db.cfg.DatabaseConfig;
 import dev.mathops.db.cfg.Facet;
 import dev.mathops.db.cfg.Login;
 import dev.mathops.db.cfg.Profile;
-import dev.mathops.db.rec.main.FacilityClosureRec;
+import dev.mathops.db.rec.main.StandardsCourseRec;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -19,8 +19,6 @@ import org.junit.jupiter.api.Test;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,43 +27,29 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * Tests for the {@code FacilityClosureLogic} class.
+ * Tests for the {@code StandardsCourseLogic} class.
  */
-final class TestFacilityClosureLogic {
-
-    /** A closure date. */
-    private static final LocalDate HOLIDAY_1 = LocalDate.of(2025, 1, 20);
-
-    /** A closure date. */
-    private static final LocalDate SNOW = LocalDate.of(2025, 2, 28);
-
-    /** A closure date. */
-    private static final LocalDate BREAK_1 = LocalDate.of(2025, 3, 16);
-
-    /** A start date. */
-    private static final LocalTime START_1 = LocalTime.of(12, 30);
-
-    /** A start date. */
-    private static final LocalTime END_1 = LocalTime.of(17, 30);
+final class TestStandardsCourseLogic {
 
     /** A raw test record. */
-    private static final FacilityClosureRec RAW1 =
-            new FacilityClosureRec("PRECALC_TC", HOLIDAY_1, FacilityClosureRec.HOLIDAY, null, null);
-
-//    public FacilityClosureRec(final String theFacility, final LocalDate theClosureDt, final String theClosureType,
-//                              final LocalTime theStartTime, final LocalTime theEndTime) {
+    private static final StandardsCourseRec RAW1 =
+            new StandardsCourseRec("MATH 117", "College Algebra I", Integer.valueOf(8), Integer.valueOf(1),
+                    Integer.valueOf(99), "02_alg/MATH_117.metadata");
 
     /** A raw test record. */
-    private static final FacilityClosureRec RAW2 =
-            new FacilityClosureRec("PRECALC_LC", SNOW, FacilityClosureRec.WEATHER, START_1, END_1);
+    private static final StandardsCourseRec RAW2 =
+            new StandardsCourseRec("MATH 101", "Math in the Social Sciences", Integer.valueOf(12), Integer.valueOf(3),
+                    Integer.valueOf(45), "01_gen/MATH_101.metadata");
 
     /** A raw test record. */
-    private static final FacilityClosureRec RAW3 =
-            new FacilityClosureRec("PRECALC_LC", BREAK_1, FacilityClosureRec.SP_BREAK, null, null);
+    private static final StandardsCourseRec RAW3 =
+            new StandardsCourseRec("MATH 160", "Calculus I", Integer.valueOf(16), Integer.valueOf(4),
+                    Integer.valueOf(22), "06_calc/MATH_160.metadata");
 
     /** A raw test record. */
-    private static final FacilityClosureRec UPD3 =
-            new FacilityClosureRec("PRECALC_LC", BREAK_1, FacilityClosureRec.EVENT, START_1, END_1);
+    private static final StandardsCourseRec UPD3 =
+            new StandardsCourseRec("MATH 160", "Calculus for Physical Scientists I", Integer.valueOf(15),
+                    Integer.valueOf(5), Integer.valueOf(23), "07_calc/MATH_160.metadata");
 
     /** The database profile. */
     static Profile profile;
@@ -78,13 +62,14 @@ final class TestFacilityClosureLogic {
      *
      * @param r the unexpected record
      */
-    private static void printUnexpected(final FacilityClosureRec r) {
+    private static void printUnexpected(final StandardsCourseRec r) {
 
-        Log.warning("Unexpected facility ", r.facilityId);
-        Log.warning("Unexpected closureDt ", r.closureDate);
-        Log.warning("Unexpected closureType ", r.closureType);
-        Log.warning("Unexpected startTime ", r.startTime);
-        Log.warning("Unexpected endTime ", r.endTime);
+        Log.warning("Unexpected course ID ", r.courseId);
+        Log.warning("Unexpected course title ", r.courseTitle);
+        Log.warning("Unexpected number of modules ", r.nbrModules);
+        Log.warning("Unexpected number of credits ", r.nbrCredits);
+        Log.warning("Unexpected allowed lends ", r.allowLend);
+        Log.warning("Unexpected metadata path ", r.metadataPath);
     }
 
     /** Initialize the test class. */
@@ -132,16 +117,16 @@ final class TestFacilityClosureLogic {
             }
 
             try (final Statement stmt = conn.createStatement()) {
-                stmt.executeUpdate("DELETE FROM " + prefix + ".facility_closure");
+                stmt.executeUpdate("DELETE FROM " + prefix + ".standards_course");
             }
             conn.commit();
 
-            assertTrue(FacilityClosureLogic.INSTANCE.insert(cache, RAW1), "Failed to insert facility_closure");
-            assertTrue(FacilityClosureLogic.INSTANCE.insert(cache, RAW2), "Failed to insert facility_closure");
-            assertTrue(FacilityClosureLogic.INSTANCE.insert(cache, RAW3), "Failed to insert facility_closure");
+            assertTrue(StandardsCourseLogic.INSTANCE.insert(cache, RAW1), "Failed to insert standards course");
+            assertTrue(StandardsCourseLogic.INSTANCE.insert(cache, RAW2), "Failed to insert standards course");
+            assertTrue(StandardsCourseLogic.INSTANCE.insert(cache, RAW3), "Failed to insert standards course");
         } catch (final SQLException ex) {
             Log.warning(ex);
-            fail("Exception while initializing 'facility_closure' table: " + ex.getMessage());
+            fail("Exception while initializing 'standards_course' table: " + ex.getMessage());
             throw new IllegalArgumentException(ex);
         } finally {
             login.checkInConnection(conn);
@@ -155,7 +140,7 @@ final class TestFacilityClosureLogic {
         final Cache cache = new Cache(profile);
 
         try {
-            final List<FacilityClosureRec> all = FacilityClosureLogic.INSTANCE.queryAll(cache);
+            final List<StandardsCourseRec> all = StandardsCourseLogic.INSTANCE.queryAll(cache);
 
             assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -163,7 +148,7 @@ final class TestFacilityClosureLogic {
             boolean found2 = false;
             boolean found3 = false;
 
-            for (final FacilityClosureRec r : all) {
+            for (final StandardsCourseRec r : all) {
                 if (RAW1.equals(r)) {
                     found1 = true;
                 } else if (RAW2.equals(r)) {
@@ -176,12 +161,12 @@ final class TestFacilityClosureLogic {
                 }
             }
 
-            assertTrue(found1, "facility_closure 1 not found");
-            assertTrue(found2, "facility_closure 2 not found");
-            assertTrue(found3, "facility_closure 3 not found");
+            assertTrue(found1, "standards_course 1 not found");
+            assertTrue(found2, "standards_course 2 not found");
+            assertTrue(found3, "standards_course 3 not found");
         } catch (final SQLException ex) {
             Log.warning(ex);
-            fail("Exception while querying all 'facility_closure' rows: " + ex.getMessage());
+            fail("Exception while querying all 'standards_course' rows: " + ex.getMessage());
         }
     }
 
@@ -192,94 +177,63 @@ final class TestFacilityClosureLogic {
         final Cache cache = new Cache(profile);
 
         try {
-            final FacilityClosureRec r = FacilityClosureLogic.INSTANCE.query(cache, RAW2.facilityId, RAW2.closureDate);
+            final StandardsCourseRec r = StandardsCourseLogic.INSTANCE.query(cache, RAW1.courseId);
 
             assertNotNull(r, "No record returned by query");
-            assertEquals(RAW2, r, "Incorrect record returned by query");
 
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while querying facility_closure: " + ex.getMessage());
-        }
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("queryByFacility results")
-    void test0003() {
-        final Cache cache = new Cache(profile);
-
-        try {
-            final List<FacilityClosureRec> all = FacilityClosureLogic.INSTANCE.queryByFacility(cache, "PRECALC_LC");
-
-            assertEquals(2, all.size(), "Incorrect record count from queryByFacility");
-
-            boolean found2 = false;
-            boolean found3 = false;
-
-            for (final FacilityClosureRec r : all) {
-                if (RAW2.equals(r)) {
-                    found2 = true;
-                } else if (RAW3.equals(r)) {
-                    found3 = true;
-                } else {
-                    printUnexpected(r);
-                    fail("Extra record found");
-                }
+            if (!RAW1.equals(r)) {
+                printUnexpected(r);
+                fail("Extra record found");
             }
-
-            assertTrue(found2, "facility_closure 2 not found");
-            assertTrue(found3, "facility_closure 3 not found");
         } catch (final SQLException ex) {
             Log.warning(ex);
-            fail("Exception while querying facility_closure by facility: " + ex.getMessage());
+            fail("Exception while querying standards_course: " + ex.getMessage());
         }
     }
 
     /** Test case. */
     @Test
     @DisplayName("update results")
-    void test0004() {
+    void test0003() {
         final Cache cache = new Cache(profile);
 
         try {
-            if (FacilityClosureLogic.INSTANCE.update(cache, UPD3)) {
-                final FacilityClosureRec r = FacilityClosureLogic.INSTANCE.query(cache, UPD3.facilityId,
-                        UPD3.closureDate);
+            if (StandardsCourseLogic.INSTANCE.update(cache, UPD3)) {
+                final StandardsCourseRec r = StandardsCourseLogic.INSTANCE.query(cache, UPD3.courseId);
 
                 assertNotNull(r, "No record returned by query after update");
 
                 if (!UPD3.equals(r)) {
                     printUnexpected(r);
-                    fail("Incorrect results after update of facility_closure");
+                    fail("Incorrect results after update of standards_course");
                 }
             } else {
-                fail("Failed to update facility_closure row");
+                fail("Failed to update standards_course row");
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
-            fail("Exception while updating facility_closure: " + ex.getMessage());
+            fail("Exception while updating standards_course: " + ex.getMessage());
         }
     }
 
     /** Test case. */
     @Test
     @DisplayName("delete results")
-    void test0005() {
+    void test0004() {
         final Cache cache = new Cache(profile);
 
         try {
-            final boolean result = FacilityClosureLogic.INSTANCE.delete(cache, RAW2);
+            final boolean result = StandardsCourseLogic.INSTANCE.delete(cache, RAW2);
             assertTrue(result, "delete returned false");
 
-            final List<FacilityClosureRec> all = FacilityClosureLogic.INSTANCE.queryAll(cache);
+            final List<StandardsCourseRec> all = StandardsCourseLogic.INSTANCE.queryAll(cache);
 
             assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 
             boolean found1 = false;
             boolean found3 = false;
 
-            for (final FacilityClosureRec r : all) {
+            for (final StandardsCourseRec r : all) {
                 if (RAW1.equals(r)) {
                     found1 = true;
                 } else if (UPD3.equals(r)) {
@@ -290,11 +244,11 @@ final class TestFacilityClosureLogic {
                 }
             }
 
-            assertTrue(found1, "facility_closure 1 not found");
-            assertTrue(found3, "facility_closure 3 not found");
+            assertTrue(found1, "standards_course 1 not found");
+            assertTrue(found3, "standards_course 3 not found");
         } catch (final SQLException ex) {
             Log.warning(ex);
-            fail("Exception while deleting facility_closure: " + ex.getMessage());
+            fail("Exception while deleting standards_courses: " + ex.getMessage());
         }
     }
 
@@ -329,7 +283,7 @@ final class TestFacilityClosureLogic {
                 }
 
                 try (final Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("DELETE FROM " + prefix + ".facility_closure");
+                    stmt.executeUpdate("DELETE FROM " + prefix + ".standards_course");
                 }
 
                 conn.commit();

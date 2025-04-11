@@ -18,14 +18,16 @@ import java.util.List;
  *
  * <pre>
  * CREATE TABLE main.standards_course (
- *     course_id                char(10)        NOT NULL,
- *     course_title             varchar(50)     NOT NULL,
- *     nbr_modules              smallint        NOT NULL,
- *     nbr_credits              smallint        NOT NULL,
- *     allow_lend               integer         NOT NULL,
- *     metadata_path            varchar(50),
+ *     course_id                char(10)        NOT NULL,  -- The unique course ID
+ *     course_title             varchar(50)     NOT NULL,  -- The course title
+ *     nbr_modules              smallint        NOT NULL,  -- The number of modules in the course
+ *     nbr_credits              smallint        NOT NULL,  -- The number of credits the course carries
+ *     allow_lend               integer         NOT NULL,  -- Bitwise OR of resource type identifiers (1=Textbook,
+ *                                                         -- 2 = Calculator/manual, 4=Laptop, 8=Headphones)
+ *     metadata_path            varchar(50),               -- For metadata-based courses, the relative path of metadata,
+ *                                                         -- like "05_trig/MATH_125.json"
  *     PRIMARY KEY (course_id)
- * );
+ * ) TABLESPACE primary_ts;
  * </pre>
  */
 public final class StandardsCourseLogic implements IRecLogic<StandardsCourseRec> {
@@ -39,18 +41,6 @@ public final class StandardsCourseLogic implements IRecLogic<StandardsCourseRec>
     private StandardsCourseLogic() {
 
         super();
-    }
-
-    /**
-     * Gets the instance of {@code StandardsCourseLogic} appropriate to a cache. The result will depend on the database
-     * installation type of the MAIN schema configuration in cache's database profile.
-     *
-     * @param cache the cache
-     * @return the appropriate {@code StandardsCourseLogic} object (null if none found)
-     */
-    public static StandardsCourseLogic get(final Cache cache) {
-
-        return INSTANCE;
     }
 
     /**

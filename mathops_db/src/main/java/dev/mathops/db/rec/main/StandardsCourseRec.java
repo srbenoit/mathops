@@ -32,7 +32,6 @@ public final class StandardsCourseRec extends RecBase implements Comparable<Stan
     /** The table name for serialization of records. */
     public static final String TABLE_NAME = "standards_course";
 
-
     /** The 'course_id' field value. */
     public final String courseId;
 

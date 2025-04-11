@@ -14,7 +14,6 @@ import dev.mathops.db.rec.main.FacilityHoursRec;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.sql.ResultSet;
@@ -103,6 +102,12 @@ final class TestFacilityHoursLogic {
     private static final FacilityHoursRec UPD5 =
             new FacilityHoursRec("HELP_TEAMS", TWO, WEEDKDAYS_S, START_2, END_2, OPEN_3, CLOSE_3, null, null);
 
+    /** The database profile. */
+    static Profile profile;
+
+    /** The database login. */
+    static Login login;
+
     /**
      * Prints an indication of an unexpected record.
      *
@@ -121,45 +126,248 @@ final class TestFacilityHoursLogic {
         Log.warning("Unexpected closeTime2 ", r.closeTime2);
     }
 
-    /**
-     * Tests for the {@code FacilityHoursLogic} class.
-     */
-    @Nested
-    final class Postgres {
+    /** Initialize the test class. */
+    @BeforeAll
+    static void initTests() {
 
-        /** The PostgreSQL database profile. */
-        static Profile postgresProfile;
+        final DatabaseConfig config = DatabaseConfig.getDefault();
+        profile = config.getCodeProfile(Contexts.POSTGRES_TEST_PATH);
+        if (profile == null) {
+            throw new IllegalArgumentException(TestRes.get(TestRes.ERR_NO_IFXTEST_PROFILE));
+        }
+        login = profile.getLogin(ESchema.LEGACY);
+        if (login == null) {
+            throw new IllegalArgumentException(TestRes.get(TestRes.ERR_NO_PGPRIMARY_CONTEXT));
+        }
 
-        /** The PostgreSQL database login. */
-        static Login postgresLogin;
+        // Make sure the connection is accessing the TEST database
+        final Facet facet = profile.getFacet(ESchema.LEGACY);
+        if (facet.data.use != EDbUse.TEST) {
+            throw new IllegalArgumentException(TestRes.fmt(TestRes.ERR_NOT_CONNECTED_TO_TEST, facet.data.use));
+        }
 
-        /** Initialize the test class. */
-        @BeforeAll
-        static void initTests() {
+        final Cache cache = new Cache(profile);
+        final String prefix = cache.getSchemaPrefix(ESchema.MAIN);
+        if (prefix == null) {
+            fail(TestRes.get(TestRes.ERR_NO_MAIN_PREFIX));
+        }
 
-            final DatabaseConfig config = DatabaseConfig.getDefault();
-            postgresProfile = config.getCodeProfile(Contexts.POSTGRES_TEST_PATH);
-            if (postgresProfile == null) {
-                throw new IllegalArgumentException(TestRes.get(TestRes.ERR_NO_IFXTEST_PROFILE));
+        final DbConnection conn = login.checkOutConnection();
+
+        final String sql = "SELECT descr FROM " + prefix + ".which_db";
+
+        try {
+            try (final Statement stmt = conn.createStatement();
+                 final ResultSet rs = stmt.executeQuery(sql)) {
+
+                if (rs.next()) {
+                    final String which = rs.getString(1);
+                    if (which == null || !"TEST".equals(which.trim())) {
+                        throw new IllegalArgumentException(TestRes.fmt(TestRes.ERR_NOT_CONNECTED_TO_TEST, which));
+                    }
+                } else {
+                    throw new IllegalArgumentException(TestRes.get(TestRes.ERR_CANT_QUERY_WHICH_DB));
+                }
             }
-            postgresLogin = postgresProfile.getLogin(ESchema.LEGACY);
-            if (postgresLogin == null) {
-                throw new IllegalArgumentException(TestRes.get(TestRes.ERR_NO_PGPRIMARY_CONTEXT));
+
+            try (final Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate("DELETE FROM " + prefix + ".facility_hours");
+            }
+            conn.commit();
+
+            assertTrue(FacilityHoursLogic.INSTANCE.insert(cache, RAW1), "Failed to insert facility_hours");
+            assertTrue(FacilityHoursLogic.INSTANCE.insert(cache, RAW2), "Failed to insert facility_hours");
+            assertTrue(FacilityHoursLogic.INSTANCE.insert(cache, RAW3), "Failed to insert facility_hours");
+            assertTrue(FacilityHoursLogic.INSTANCE.insert(cache, RAW4), "Failed to insert facility_hours");
+            assertTrue(FacilityHoursLogic.INSTANCE.insert(cache, RAW5), "Failed to insert facility_hours");
+        } catch (final SQLException ex) {
+            Log.warning(ex);
+            fail("Exception while initializing 'facility_hours' table: " + ex.getMessage());
+            throw new IllegalArgumentException(ex);
+        } finally {
+            login.checkInConnection(conn);
+        }
+    }
+
+    /** Test case. */
+    @Test
+    @DisplayName("queryAll results")
+    void test0001() {
+        final Cache cache = new Cache(profile);
+
+        try {
+            final List<FacilityHoursRec> all = FacilityHoursLogic.INSTANCE.queryAll(cache);
+
+            assertEquals(5, all.size(), "Incorrect record count from queryAll");
+
+            boolean found1 = false;
+            boolean found2 = false;
+            boolean found3 = false;
+            boolean found4 = false;
+            boolean found5 = false;
+
+            for (final FacilityHoursRec r : all) {
+                if (RAW1.equals(r)) {
+                    found1 = true;
+                } else if (RAW2.equals(r)) {
+                    found2 = true;
+                } else if (RAW3.equals(r)) {
+                    found3 = true;
+                } else if (RAW4.equals(r)) {
+                    found4 = true;
+                } else if (RAW5.equals(r)) {
+                    found5 = true;
+                } else {
+                    printUnexpected(r);
+                    fail("Extra record found");
+                }
             }
 
-            // Make sure the PostgreSQL connection is accessing the TEST database
-            final Facet facet = postgresProfile.getFacet(ESchema.LEGACY);
-            if (facet.data.use != EDbUse.TEST) {
-                throw new IllegalArgumentException(TestRes.fmt(TestRes.ERR_NOT_CONNECTED_TO_TEST, facet.data.use));
+            assertTrue(found1, "facility_hours 1 not found");
+            assertTrue(found2, "facility_hours 2 not found");
+            assertTrue(found3, "facility_hours 3 not found");
+            assertTrue(found4, "facility_hours 4 not found");
+            assertTrue(found5, "facility_hours 5 not found");
+        } catch (final SQLException ex) {
+            Log.warning(ex);
+            fail("Exception while querying all 'facility_hours' rows: " + ex.getMessage());
+        }
+    }
+
+    /** Test case. */
+    @Test
+    @DisplayName("query results")
+    void test0002() {
+        final Cache cache = new Cache(profile);
+
+        try {
+            final FacilityHoursRec r = FacilityHoursLogic.INSTANCE.query(cache, RAW3.facilityId, RAW3.displayIndex);
+
+            assertNotNull(r, "No record returned by query");
+            if (!RAW3.equals(r)) {
+                printUnexpected(r);
+                fail("Incorrect results after update of facility");
+            }
+        } catch (final SQLException ex) {
+            Log.warning(ex);
+            fail("Exception while querying facility_hours: " + ex.getMessage());
+        }
+    }
+
+    /** Test case. */
+    @Test
+    @DisplayName("queryByFacility results")
+    void test0003() {
+        final Cache cache = new Cache(profile);
+
+        try {
+            final List<FacilityHoursRec> all = FacilityHoursLogic.INSTANCE.queryByFacility(cache, "PRECALC_LC");
+
+            assertEquals(2, all.size(), "Incorrect record count from queryByFacility");
+
+            boolean found2 = false;
+            boolean found3 = false;
+
+            for (final FacilityHoursRec r : all) {
+                if (RAW2.equals(r)) {
+                    found2 = true;
+                } else if (RAW3.equals(r)) {
+                    found3 = true;
+                } else {
+                    printUnexpected(r);
+                    fail("Extra record found");
+                }
             }
 
-            final Cache cache = new Cache(postgresProfile);
-            final String prefix = cache.getSchemaPrefix(ESchema.MAIN);
-            if (prefix == null) {
-                fail(TestRes.get(TestRes.ERR_NO_MAIN_PREFIX));
+            assertTrue(found2, "facility_hours 2 not found");
+            assertTrue(found3, "facility_hours 3 not found");
+        } catch (final SQLException ex) {
+            Log.warning(ex);
+            fail("Exception while querying facility_hours by facility: " + ex.getMessage());
+        }
+    }
+
+    /** Test case. */
+    @Test
+    @DisplayName("update results")
+    void test0004() {
+        final Cache cache = new Cache(profile);
+
+        try {
+            if (FacilityHoursLogic.INSTANCE.update(cache, UPD5)) {
+                final FacilityHoursRec r = FacilityHoursLogic.INSTANCE.query(cache, UPD5.facilityId, UPD5.displayIndex);
+
+                assertNotNull(r, "No record returned by query after update");
+
+                if (!UPD5.equals(r)) {
+                    printUnexpected(r);
+                    fail("Incorrect results after update of facility_hours");
+                }
+            } else {
+                fail("Failed to update facility_hours row");
+            }
+        } catch (final SQLException ex) {
+            Log.warning(ex);
+            fail("Exception while updating facility_hours: " + ex.getMessage());
+        }
+    }
+
+    /** Test case. */
+    @Test
+    @DisplayName("delete results")
+    void test0005() {
+        final Cache cache = new Cache(profile);
+
+        try {
+            final boolean result = FacilityHoursLogic.INSTANCE.delete(cache, RAW2);
+            assertTrue(result, "delete returned false");
+
+            final List<FacilityHoursRec> all = FacilityHoursLogic.INSTANCE.queryAll(cache);
+
+            assertEquals(4, all.size(), "Incorrect record count from queryAll after delete");
+
+            boolean found1 = false;
+            boolean found3 = false;
+            boolean found4 = false;
+            boolean found5 = false;
+
+            for (final FacilityHoursRec r : all) {
+                if (RAW1.equals(r)) {
+                    found1 = true;
+                } else if (RAW3.equals(r)) {
+                    found3 = true;
+                } else if (RAW4.equals(r)) {
+                    found4 = true;
+                } else if (UPD5.equals(r)) {
+                    found5 = true;
+                } else {
+                    printUnexpected(r);
+                    fail("Extra record found");
+                }
             }
 
-            final DbConnection conn = postgresLogin.checkOutConnection();
+            assertTrue(found1, "facility_hours 1 not found");
+            assertTrue(found3, "facility_hours 3 not found");
+            assertTrue(found4, "facility_hours 4 not found");
+            assertTrue(found5, "facility_hours 5 not found");
+        } catch (final SQLException ex) {
+            Log.warning(ex);
+            fail("Exception while deleting facility_hours: " + ex.getMessage());
+        }
+    }
+
+    /** Clean up. */
+    @AfterAll
+    static void cleanUp() {
+
+        final Cache cache = new Cache(profile);
+        final String prefix = cache.getSchemaPrefix(ESchema.MAIN);
+        if (prefix == null) {
+            fail(TestRes.get(TestRes.ERR_NO_MAIN_PREFIX));
+        }
+
+        try {
+            final DbConnection conn = login.checkOutConnection();
 
             final String sql = "SELECT descr FROM " + prefix + ".which_db";
 
@@ -170,7 +378,8 @@ final class TestFacilityHoursLogic {
                     if (rs.next()) {
                         final String which = rs.getString(1);
                         if (which == null || !"TEST".equals(which.trim())) {
-                            throw new IllegalArgumentException(TestRes.fmt(TestRes.ERR_NOT_CONNECTED_TO_TEST, which));
+                            throw new IllegalArgumentException(
+                                    TestRes.fmt(TestRes.ERR_NOT_CONNECTED_TO_TEST, which));
                         }
                     } else {
                         throw new IllegalArgumentException(TestRes.get(TestRes.ERR_CANT_QUERY_WHICH_DB));
@@ -180,244 +389,14 @@ final class TestFacilityHoursLogic {
                 try (final Statement stmt = conn.createStatement()) {
                     stmt.executeUpdate("DELETE FROM " + prefix + ".facility_hours");
                 }
+
                 conn.commit();
-
-                final FacilityHoursLogic logic = FacilityHoursLogic.get(cache);
-
-                assertTrue(logic.insert(cache, RAW1), "Failed to insert PostgreSQL facility_hours");
-                assertTrue(logic.insert(cache, RAW2), "Failed to insert PostgreSQL facility_hours");
-                assertTrue(logic.insert(cache, RAW3), "Failed to insert PostgreSQL facility_hours");
-                assertTrue(logic.insert(cache, RAW4), "Failed to insert PostgreSQL facility_hours");
-                assertTrue(logic.insert(cache, RAW5), "Failed to insert PostgreSQL facility_hours");
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while initializing PostgreSQL 'facility_hours' table: " + ex.getMessage());
-                throw new IllegalArgumentException(ex);
             } finally {
-                postgresLogin.checkInConnection(conn);
+                login.checkInConnection(conn);
             }
-        }
-
-        /** Test case. */
-        @Test
-        @DisplayName("PostgreSQL queryAll results")
-        void test0001() {
-
-            final Cache cache = new Cache(postgresProfile);
-            final FacilityHoursLogic logic = FacilityHoursLogic.get(cache);
-
-            try {
-                final List<FacilityHoursRec> all = logic.queryAll(cache);
-
-                assertEquals(5, all.size(), "Incorrect record count from PostgreSQL queryAll");
-
-                boolean found1 = false;
-                boolean found2 = false;
-                boolean found3 = false;
-                boolean found4 = false;
-                boolean found5 = false;
-
-                for (final FacilityHoursRec r : all) {
-                    if (RAW1.equals(r)) {
-                        found1 = true;
-                    } else if (RAW2.equals(r)) {
-                        found2 = true;
-                    } else if (RAW3.equals(r)) {
-                        found3 = true;
-                    } else if (RAW4.equals(r)) {
-                        found4 = true;
-                    } else if (RAW5.equals(r)) {
-                        found5 = true;
-                    } else {
-                        printUnexpected(r);
-                        fail("Extra record found");
-                    }
-                }
-
-                assertTrue(found1, "PostgreSQL facility_hours 1 not found");
-                assertTrue(found2, "PostgreSQL facility_hours 2 not found");
-                assertTrue(found3, "PostgreSQL facility_hours 3 not found");
-                assertTrue(found4, "PostgreSQL facility_hours 4 not found");
-                assertTrue(found5, "PostgreSQL facility_hours 5 not found");
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while querying all PostgreSQL 'facility_hours' rows: " + ex.getMessage());
-            }
-        }
-
-        /** Test case. */
-        @Test
-        @DisplayName("query results")
-        void test0002() {
-
-            final Cache cache = new Cache(postgresProfile);
-            final FacilityHoursLogic logic = FacilityHoursLogic.get(cache);
-
-            try {
-                final FacilityHoursRec r = logic.query(cache, RAW3.facilityId, RAW3.displayIndex);
-
-                assertNotNull(r, "No record returned by query");
-                if (!RAW3.equals(r)) {
-                    printUnexpected(r);
-                    fail("Incorrect results after update of facility");
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while querying facility_hours: " + ex.getMessage());
-            }
-        }
-
-        /** Test case. */
-        @Test
-        @DisplayName("queryByFacility results")
-        void test0003() {
-
-            final Cache cache = new Cache(postgresProfile);
-            final FacilityHoursLogic logic = FacilityHoursLogic.get(cache);
-
-            try {
-                final List<FacilityHoursRec> all = logic.queryByFacility(cache, "PRECALC_LC");
-
-                assertEquals(2, all.size(), "Incorrect record count from PostgreSQL queryByFacility");
-
-                boolean found2 = false;
-                boolean found3 = false;
-
-                for (final FacilityHoursRec r : all) {
-                    if (RAW2.equals(r)) {
-                        found2 = true;
-                    } else if (RAW3.equals(r)) {
-                        found3 = true;
-                    } else {
-                        printUnexpected(r);
-                        fail("Extra record found");
-                    }
-                }
-
-                assertTrue(found2, "PostgreSQL facility_hours 2 not found");
-                assertTrue(found3, "PostgreSQL facility_hours 3 not found");
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while querying facility_hours by facility: " + ex.getMessage());
-            }
-        }
-
-        /** Test case. */
-        @Test
-        @DisplayName("update results")
-        void test0004() {
-
-            final Cache cache = new Cache(postgresProfile);
-            final FacilityHoursLogic logic = FacilityHoursLogic.get(cache);
-
-            try {
-                if (logic.update(cache, UPD5)) {
-
-                    final FacilityHoursRec r = logic.query(cache, UPD5.facilityId, UPD5.displayIndex);
-
-                    assertNotNull(r, "No record returned by PostgreSQL query after update");
-
-                    if (!UPD5.equals(r)) {
-                        printUnexpected(r);
-                        fail("Incorrect results after update of facility_hours");
-                    }
-                } else {
-                    fail("Failed to update facility_hours row");
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while updating facility_hours: " + ex.getMessage());
-            }
-        }
-
-        /** Test case. */
-        @Test
-        @DisplayName("delete results")
-        void test0005() {
-
-            final Cache cache = new Cache(postgresProfile);
-            final FacilityHoursLogic logic = FacilityHoursLogic.get(cache);
-
-            try {
-                final boolean result = logic.delete(cache, RAW2);
-                assertTrue(result, "delete returned false");
-
-                final List<FacilityHoursRec> all = logic.queryAll(cache);
-
-                assertEquals(4, all.size(), "Incorrect record count from queryAll after delete");
-
-                boolean found1 = false;
-                boolean found3 = false;
-                boolean found4 = false;
-                boolean found5 = false;
-
-                for (final FacilityHoursRec r : all) {
-                    if (RAW1.equals(r)) {
-                        found1 = true;
-                    } else if (RAW3.equals(r)) {
-                        found3 = true;
-                    } else if (RAW4.equals(r)) {
-                        found4 = true;
-                    } else if (UPD5.equals(r)) {
-                        found5 = true;
-                    } else {
-                        printUnexpected(r);
-                        fail("Extra record found");
-                    }
-                }
-
-                assertTrue(found1, "facility_hours 1 not found");
-                assertTrue(found3, "facility_hours 3 not found");
-                assertTrue(found4, "facility_hours 4 not found");
-                assertTrue(found5, "facility_hours 5 not found");
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while deleting facility_hours: " + ex.getMessage());
-            }
-        }
-
-        /** Clean up. */
-        @AfterAll
-        static void cleanUp() {
-
-            final Cache cache = new Cache(postgresProfile);
-            final String prefix = cache.getSchemaPrefix(ESchema.MAIN);
-            if (prefix == null) {
-                fail(TestRes.get(TestRes.ERR_NO_MAIN_PREFIX));
-            }
-
-            try {
-                final DbConnection conn = postgresLogin.checkOutConnection();
-
-                final String sql = "SELECT descr FROM " + prefix + ".which_db";
-
-                try {
-                    try (final Statement stmt = conn.createStatement();
-                         final ResultSet rs = stmt.executeQuery(sql)) {
-
-                        if (rs.next()) {
-                            final String which = rs.getString(1);
-                            if (which == null || !"TEST".equals(which.trim())) {
-                                throw new IllegalArgumentException(
-                                        TestRes.fmt(TestRes.ERR_NOT_CONNECTED_TO_TEST, which));
-                            }
-                        } else {
-                            throw new IllegalArgumentException(TestRes.get(TestRes.ERR_CANT_QUERY_WHICH_DB));
-                        }
-                    }
-
-                    try (final Statement stmt = conn.createStatement()) {
-                        stmt.executeUpdate("DELETE FROM " + prefix + ".facility_hours");
-                    }
-
-                    conn.commit();
-                } finally {
-                    postgresLogin.checkInConnection(conn);
-                }
-            } catch (final SQLException ex) {
-                Log.warning(ex);
-                fail("Exception while cleaning tables: " + ex.getMessage());
-            }
+        } catch (final SQLException ex) {
+            Log.warning(ex);
+            fail("Exception while cleaning tables: " + ex.getMessage());
         }
     }
 }

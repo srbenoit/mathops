@@ -292,7 +292,7 @@ CREATE TABLE IF NOT EXISTS main.standards_course_module (
     module_nbr               smallint        NOT NULL,  -- The module number (1 for the first module)
     nbr_standards            smallint        NOT NULL,  -- The number of standards in the module
     module_path              varchar(50),               -- For metadata-based courses, the relative path of the module,
-                                                        -- like "05_trig/01_angles"
+                                                        --     like "05_trig/01_angles"
     PRIMARY KEY (course_id, module_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main.standards_course_module OWNER to math;
@@ -304,7 +304,7 @@ CREATE TABLE IF NOT EXISTS main_dev.standards_course_module (
     nbr_standards            smallint        NOT NULL,
     module_path              varchar(50),
     PRIMARY KEY (course_id, module_nbr)
-) TABLESPACE primary_ts;
+) TABLESPACE primary_ts;D
 ALTER TABLE IF EXISTS main_dev.standards_course_module OWNER to math;
 
 -- DROP TABLE IF EXISTS main_test.standards_course_module;

@@ -20,11 +20,12 @@ import java.util.List;
  *
  * <pre>
  * CREATE TABLE main.facility_closure (
- *     facility_id              char(10)        NOT NULL,
- *     closure_date             date            NOT NULL,
- *     closure_type             char(10)        NOT NULL,
- *     start_time               time,
- *     end_time                 time,
+ *     facility_id              char(10)        NOT NULL,  -- The facility ID (references facility table)
+ *     closure_date             date            NOT NULL,  -- The date of the closure
+ *     closure_type             char(10)        NOT NULL,  -- The type of closure ('HOLIDAY, 'SP_BREAK', 'FA_BREAK',
+ *                                                         --  'WEATHER', 'EMERGENCY', 'MAINT', 'EVENT')
+ *     start_time               time,                      -- Start time, or null if all day
+ *     end_time                 time,                      -- End time, or null if all day
  *     PRIMARY KEY (facility_id, closure_date)
  * ) TABLESPACE primary_ts;
  * </pre>
@@ -40,18 +41,6 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
     private FacilityClosureLogic() {
 
         super();
-    }
-
-    /**
-     * Gets the instance of {@code FacilityClosureLogic} appropriate to a cache. The result will depend on the database
-     * installation type of the MAIN schema configuration in cache's database profile.
-     *
-     * @param cache the cache
-     * @return the appropriate {@code FacilityClosureLogic} object (null if none found)
-     */
-    public static FacilityClosureLogic get(final Cache cache) {
-
-        return INSTANCE;
     }
 
     /**
@@ -159,7 +148,7 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
             result = null;
         } else {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
-                    ".facility_closure WHERE facility_id=", sqlStringValue(facilityId), " AND closure_dt=",
+                    ".facility_closure WHERE facility_id=", sqlStringValue(facilityId), " AND closure_date=",
                     sqlDateValue(closureDate));
 
             result = doSingleQuery(cache, sql);

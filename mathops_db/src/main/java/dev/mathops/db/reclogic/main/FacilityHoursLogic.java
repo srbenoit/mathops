@@ -20,15 +20,16 @@ import java.util.List;
  *
  * <pre>
  * CREATE TABLE main.facility_hours (
- *     facility_id              char(10)        NOT NULL,
- *     display_index            smallint        NOT NULL,
- *     weekdays                 smallint        NOT NULL,
- *     start_date               date            NOT NULL,
- *     end_date                 date            NOT NULL,
- *     open_time_1              time            NOT NULL,
- *     close_time_1             time            NOT NULL,
- *     open_time_2              time,
- *     close_time_2             time,
+ *     facility_id              char(10)        NOT NULL,  -- The facility ID (references facility table)
+ *     display_index            smallint        NOT NULL,  -- The display index (rows display in order)
+ *     weekdays                 smallint        NOT NULL,  -- Weekday (logical OR of 1=Sun, 2=Mon, 4=Tue,
+ *                                                         --  8=Wed, 16=Thu, 32=Fri, 64=Sat)
+ *     start_date               date            NOT NULL,  -- The first date the facility is open
+ *     end_date                 date            NOT NULL,  -- The last date the facility is open
+ *     open_time_1              time            NOT NULL,  -- The time the facility opens
+ *     close_time_1             time            NOT NULL,  -- The time the facility closes
+ *     open_time_2              time,                      -- The time the facility re-opens
+ *     close_time_2             time,                      -- The time the facility closes after re-opening
  *     PRIMARY KEY (facility_id, display_index)
  * ) TABLESPACE primary_ts;
  * </pre>
@@ -44,18 +45,6 @@ public final class FacilityHoursLogic implements IRecLogic<FacilityHoursRec> {
     private FacilityHoursLogic() {
 
         super();
-    }
-
-    /**
-     * Gets the instance of {@code FacilityHoursLogic} appropriate to a cache. The result will depend on the database
-     * installation type of the MAIN schema configuration in cache's database profile.
-     *
-     * @param cache the cache
-     * @return the appropriate {@code FacilityHoursLogic} object (null if none found)
-     */
-    public static FacilityHoursLogic get(final Cache cache) {
-
-        return INSTANCE;
     }
 
     /**

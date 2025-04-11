@@ -18,10 +18,10 @@ import java.util.List;
  *
  * <pre>
  * CREATE TABLE main.facility (
- *     facility_id              char(10)        NOT NULL,
- *     facility_name            varchar(100)    NOT NULL,
- *     building_name            varchar(40),
- *     room_nbr                 varchar(20),
+ *     facility_id              char(10)        NOT NULL,  -- A unique ID for each facility (not visible)
+ *     facility_name            varchar(100)    NOT NULL,  -- The facility name (visible)
+ *     building_name            varchar(40),               -- Building name, null if virtual
+ *     room_nbr                 varchar(20),               -- Room number, null if virtual
  *     PRIMARY KEY (facility_id)
  * ) TABLESPACE primary_ts;
  * </pre>
@@ -37,18 +37,6 @@ public final class FacilityLogic implements IRecLogic<FacilityRec> {
     private FacilityLogic() {
 
         super();
-    }
-
-    /**
-     * Gets the instance of {@code FacilityLogic} appropriate to a cache. The result will depend on the database
-     * installation type of the MAIN schema configuration in cache's database profile.
-     *
-     * @param cache the cache
-     * @return the appropriate {@code FacilityLogic} object (null if none found)
-     */
-    public static FacilityLogic get(final Cache cache) {
-
-        return INSTANCE;
     }
 
     /**
