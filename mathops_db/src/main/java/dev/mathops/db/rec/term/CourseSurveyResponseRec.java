@@ -16,7 +16,7 @@ import java.time.LocalTime;
  * <p>
  * The primary key on the underlying table is the serial number of the response.
  */
-public final class CourseSurveyResponse extends RecBase implements Comparable<CourseSurveyResponse> {
+public final class CourseSurveyResponseRec extends RecBase implements Comparable<CourseSurveyResponseRec> {
 
     /** The table name. */
     public static final String TABLE_NAME = "course_survey_response";
@@ -45,8 +45,8 @@ public final class CourseSurveyResponse extends RecBase implements Comparable<Co
      * @param theResponseDate the response date
      * @param theResponseTime the response time
      */
-    public CourseSurveyResponse(final Integer theSerialNbr, final String theSurveyId, final String theStudentId,
-                                final LocalDate theResponseDate, final LocalTime theResponseTime) {
+    public CourseSurveyResponseRec(final Integer theSerialNbr, final String theSurveyId, final String theStudentId,
+                                   final LocalDate theResponseDate, final LocalTime theResponseTime) {
 
         super();
 
@@ -81,7 +81,7 @@ public final class CourseSurveyResponse extends RecBase implements Comparable<Co
      *         the specified object
      */
     @Override
-    public int compareTo(final CourseSurveyResponse o) {
+    public int compareTo(final CourseSurveyResponseRec o) {
 
         return compareAllowingNull(this.serialNbr, o.serialNbr);
     }
@@ -138,7 +138,7 @@ public final class CourseSurveyResponse extends RecBase implements Comparable<Co
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final CourseSurveyResponse rec) {
+        } else if (obj instanceof final CourseSurveyResponseRec rec) {
             equal = this.serialNbr.equals(rec.serialNbr)
                     && this.surveyId.equals(rec.surveyId)
                     && this.studentId.equals(rec.studentId)

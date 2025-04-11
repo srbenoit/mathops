@@ -25,10 +25,10 @@ final class TestFacilityRec {
 
     /** The expected String serialization of a test record. */
     private static final String EXPECT_SER99 = String.join(RecBase.DIVIDER,
-            "facility=PRECALC LC",
-            "name=Precalculus Learning Center",
-            "building=Weber",
-            "room=137");
+            "facility_id=PRECALC LC",
+            "facility_name=Precalculus Learning Center",
+            "building_name=Weber",
+            "room_nbr=137");
 
     /**
      * Constructs a new {@code TestFacilityRec}.

@@ -31,8 +31,8 @@ final class TestFacilityClosureRec {
 
     /** The expected String serialization of a test record. */
     private static final String EXPECT_SER99 = String.join(RecBase.DIVIDER,
-            "facility=PRECALC LC",
-            "closure_dt=2025-03-17",
+            "facility_id=PRECALC LC",
+            "closure_date=2025-03-17",
             "closure_type=SPBR",
             "start_time=10:00",
             "end_time=16:00");

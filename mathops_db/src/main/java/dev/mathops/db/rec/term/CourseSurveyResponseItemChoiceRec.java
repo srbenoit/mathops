@@ -5,18 +5,19 @@ import dev.mathops.db.rec.RecBase;
 import dev.mathops.text.builder.HtmlBuilder;
 
 /**
- * An immutable raw "course survey response item text" record.
+ * An immutable raw "course survey response item choice" record.
  *
  * <p>
- * Each record represents a student's response to a text item on a course survey.
+ * Each record represents a student's response to a multiple-choice or multiple-selection item on a course survey.  Each
+ * choice will have an associated integer value - the response value will be the bitwise OR of the selected choice(s).
  *
  * <p>
  * The primary key on the underlying table is the serial number of the response and the item number.
  */
-public final class CourseSurveyResponseItemText extends RecBase implements Comparable<CourseSurveyResponseItemText> {
+public final class CourseSurveyResponseItemChoiceRec extends RecBase implements Comparable<CourseSurveyResponseItemChoiceRec> {
 
     /** The table name. */
-    public static final String TABLE_NAME = "course_survey_response_item_text";
+    public static final String TABLE_NAME = "course_survey_response_item_choice";
 
     /** The 'serial_nbr' field value. */
     public final Integer serialNbr;
@@ -24,18 +25,18 @@ public final class CourseSurveyResponseItemText extends RecBase implements Compa
     /** The 'item_nbr' field value. */
     public final Integer itemNbr;
 
-    /** The 'response_text' field value. */
-    public final String responseText;
+    /** The 'response_choice' field value. */
+    public final Integer responseChoice;
 
     /**
      * Constructs a new {@code CourseSurveyResponseItemChoice}.
      *
-     * @param theSerialNbr    the student ID
-     * @param theItemNbr      the item number
-     * @param theResponseText the response text
+     * @param theSerialNbr      the student ID
+     * @param theItemNbr        the item number
+     * @param theResponseChoice the response choice (a bitwise OR of values associated with all selected choices)
      */
-    public CourseSurveyResponseItemText(final Integer theSerialNbr, final Integer theItemNbr,
-                                        final String theResponseText) {
+    public CourseSurveyResponseItemChoiceRec(final Integer theSerialNbr, final Integer theItemNbr,
+                                             final Integer theResponseChoice) {
 
         super();
 
@@ -45,13 +46,13 @@ public final class CourseSurveyResponseItemText extends RecBase implements Compa
         if (theItemNbr == null) {
             throw new IllegalArgumentException("Item number may not be null");
         }
-        if (theResponseText == null) {
-            throw new IllegalArgumentException("Response text not be null");
+        if (theResponseChoice == null) {
+            throw new IllegalArgumentException("Response choice not be null");
         }
 
         this.serialNbr = theSerialNbr;
         this.itemNbr = theItemNbr;
-        this.responseText = theResponseText;
+        this.responseChoice = theResponseChoice;
     }
 
     /**
@@ -62,7 +63,7 @@ public final class CourseSurveyResponseItemText extends RecBase implements Compa
      *         the specified object
      */
     @Override
-    public int compareTo(final CourseSurveyResponseItemText o) {
+    public int compareTo(final CourseSurveyResponseItemChoiceRec o) {
 
         int result = this.serialNbr.compareTo(o.serialNbr);
 
@@ -88,7 +89,7 @@ public final class CourseSurveyResponseItemText extends RecBase implements Compa
         htm.add(DIVIDER);
         appendField(htm, DataDict.FLD_ITEM_NBR, this.itemNbr);
         htm.add(DIVIDER);
-        appendField(htm, DataDict.FLD_RESPONSE_TEXT, this.responseText);
+        appendField(htm, DataDict.FLD_RESPONSE_CHOICE, this.responseChoice);
 
         return htm.toString();
     }
@@ -103,7 +104,7 @@ public final class CourseSurveyResponseItemText extends RecBase implements Compa
 
         return this.serialNbr.hashCode()
                + this.itemNbr.hashCode()
-               + this.responseText.hashCode();
+               + this.responseChoice.hashCode();
     }
 
     /**
@@ -119,10 +120,10 @@ public final class CourseSurveyResponseItemText extends RecBase implements Compa
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final CourseSurveyResponseItemText rec) {
+        } else if (obj instanceof final CourseSurveyResponseItemChoiceRec rec) {
             equal = this.serialNbr.equals(rec.serialNbr)
                     && this.itemNbr.equals(rec.itemNbr)
-                    && this.responseText.equals(rec.responseText);
+                    && this.responseChoice.equals(rec.responseChoice);
         } else {
             equal = false;
         }

@@ -27,8 +27,8 @@ public final class StandardAssignmentAttemptQaRec extends RecBase implements Com
     /** The 'question_nbr' field value. */
     public final Integer questionNbr;
 
-    /** The 'percentage' field value. */
-    public final Integer percentage;
+    /** The 'points' field value. */
+    public final Integer points;
 
     /** The 'item_id' field value. */
     public final String itemId;
@@ -38,11 +38,11 @@ public final class StandardAssignmentAttemptQaRec extends RecBase implements Com
      *
      * @param theSerialNbr   the unique serial number for the attempt (negative for practice mode)
      * @param theQuestionNbr the question number
-     * @param thePercentage  the percentage correct
+     * @param thePoints      the points earned
      * @param theItemId      the item ID
      */
     public StandardAssignmentAttemptQaRec(final Integer theSerialNbr, final Integer theQuestionNbr,
-                                          final Integer thePercentage, final String theItemId) {
+                                          final Integer thePoints, final String theItemId) {
 
         super();
 
@@ -52,13 +52,13 @@ public final class StandardAssignmentAttemptQaRec extends RecBase implements Com
         if (theQuestionNbr == null) {
             throw new IllegalArgumentException("Question number may not be null");
         }
-        if (thePercentage == null) {
-            throw new IllegalArgumentException("Percentage may not be null");
+        if (thePoints == null) {
+            throw new IllegalArgumentException("Points may not be null");
         }
 
         this.serialNbr = theSerialNbr;
         this.questionNbr = theQuestionNbr;
-        this.percentage = thePercentage;
+        this.points = thePoints;
         this.itemId = theItemId;
     }
 
@@ -97,7 +97,7 @@ public final class StandardAssignmentAttemptQaRec extends RecBase implements Com
         htm.add(DIVIDER);
         appendField(htm, DataDict.FLD_QUESTION_NBR, this.questionNbr);
         htm.add(DIVIDER);
-        appendField(htm, DataDict.FLD_PERCENTAGE, this.percentage);
+        appendField(htm, DataDict.FLD_POINTS, this.points);
         htm.add(DIVIDER);
         appendField(htm, DataDict.FLD_ITEM_ID, this.itemId);
 
@@ -114,7 +114,7 @@ public final class StandardAssignmentAttemptQaRec extends RecBase implements Com
 
         return this.serialNbr.hashCode()
                + this.questionNbr.hashCode()
-               + this.percentage.hashCode()
+               + this.points.hashCode()
                + Objects.hashCode(this.itemId);
     }
 
@@ -134,7 +134,7 @@ public final class StandardAssignmentAttemptQaRec extends RecBase implements Com
         } else if (obj instanceof final StandardAssignmentAttemptQaRec rec) {
             equal = this.serialNbr.equals(rec.serialNbr)
                     && this.questionNbr.equals(rec.questionNbr)
-                    && this.percentage.equals(rec.percentage)
+                    && this.points.equals(rec.points)
                     && Objects.equals(this.itemId, rec.itemId);
         } else {
             equal = false;

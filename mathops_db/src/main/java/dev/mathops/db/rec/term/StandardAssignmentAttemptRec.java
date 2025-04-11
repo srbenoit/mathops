@@ -4,6 +4,8 @@ import dev.mathops.db.DataDict;
 import dev.mathops.db.rec.RecBase;
 import dev.mathops.text.builder.HtmlBuilder;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Objects;
 
 /**
@@ -28,6 +30,12 @@ public final class StandardAssignmentAttemptRec extends RecBase implements Compa
 
     /** The 'assignment_id' field value. */
     public final String assignmentId;
+
+    /** The 'attempt_date' field value. */
+    public final LocalDate attemptDate;
+
+    /** The 'attempt_time_sec' field value. */
+    public final Integer attemptTimeSec;
 
     /** The 'course_id' field value. */
     public final String courseId;
@@ -56,6 +64,9 @@ public final class StandardAssignmentAttemptRec extends RecBase implements Compa
      * @param theSerialNbr       the unique serial number for the attempt (negative for practice mode)
      * @param theStudentId       the student ID
      * @param theAssignmentId    the assignment ID
+     * @param theAttemptDate     the attempt date
+     * @param theAttemptTimeSec  the attempt time, in seconds of the day  (numbers greater than 86,400 represent
+     *                           assignments accepted on the following day but counted on the attempt date)
      * @param theCourseId        the course ID
      * @param theModuleNbr       the module number within the course
      * @param theStandardNbr     the standard number within the module
@@ -65,7 +76,8 @@ public final class StandardAssignmentAttemptRec extends RecBase implements Compa
      * @param thePassed          "Y" if passed, "N" if not
      */
     public StandardAssignmentAttemptRec(final Integer theSerialNbr, final String theStudentId,
-                                        final String theAssignmentId, final String theCourseId,
+                                        final String theAssignmentId, final LocalDate theAttemptDate,
+                                        final Integer theAttemptTimeSec, final String theCourseId,
                                         final Integer theModuleNbr, final Integer theStandardNbr,
                                         final Integer thePtsPossible, final Integer theMinPassingScore,
                                         final Integer theScore, final String thePassed) {
@@ -80,6 +92,12 @@ public final class StandardAssignmentAttemptRec extends RecBase implements Compa
         }
         if (theAssignmentId == null) {
             throw new IllegalArgumentException("Assignment ID may not be null");
+        }
+        if (theAttemptDate == null) {
+            throw new IllegalArgumentException("Attempt date may not be null");
+        }
+        if (theAttemptTimeSec == null) {
+            throw new IllegalArgumentException("Attempt time in seconds may not be null");
         }
         if (theCourseId == null) {
             throw new IllegalArgumentException("Course ID may not be null");
@@ -100,6 +118,8 @@ public final class StandardAssignmentAttemptRec extends RecBase implements Compa
         this.serialNbr = theSerialNbr;
         this.studentId = theStudentId;
         this.assignmentId = theAssignmentId;
+        this.attemptDate = theAttemptDate;
+        this.attemptTimeSec = theAttemptTimeSec;
         this.courseId = theCourseId;
         this.moduleNbr = theModuleNbr;
         this.standardNbr = theStandardNbr;
@@ -140,6 +160,10 @@ public final class StandardAssignmentAttemptRec extends RecBase implements Compa
         htm.add(DIVIDER);
         appendField(htm, DataDict.FLD_ASSIGNMENT_ID, this.assignmentId);
         htm.add(DIVIDER);
+        appendField(htm, DataDict.FLD_ATTEMPT_DATE, this.attemptDate);
+        htm.add(DIVIDER);
+        appendField(htm, DataDict.FLD_ATTEMPT_TIME_SEC, this.attemptTimeSec);
+        htm.add(DIVIDER);
         appendField(htm, DataDict.FLD_COURSE_ID, this.courseId);
         htm.add(DIVIDER);
         appendField(htm, DataDict.FLD_MODULE_NBR, this.moduleNbr);
@@ -168,6 +192,8 @@ public final class StandardAssignmentAttemptRec extends RecBase implements Compa
         return this.serialNbr.hashCode()
                + this.studentId.hashCode()
                + this.assignmentId.hashCode()
+               + this.attemptDate.hashCode()
+               + this.attemptTimeSec.hashCode()
                + this.courseId.hashCode()
                + this.moduleNbr.hashCode()
                + this.standardNbr.hashCode()
@@ -194,6 +220,8 @@ public final class StandardAssignmentAttemptRec extends RecBase implements Compa
             equal = this.serialNbr.equals(rec.serialNbr)
                     && this.studentId.equals(rec.studentId)
                     && this.assignmentId.equals(rec.assignmentId)
+                    && this.attemptDate.equals(rec.attemptDate)
+                    && this.attemptTimeSec.equals(rec.attemptTimeSec)
                     && this.courseId.equals(rec.courseId)
                     && this.moduleNbr.equals(rec.moduleNbr)
                     && this.standardNbr.equals(rec.standardNbr)

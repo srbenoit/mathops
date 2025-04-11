@@ -4,8 +4,6 @@ import dev.mathops.db.DataDict;
 import dev.mathops.db.rec.RecBase;
 import dev.mathops.text.builder.HtmlBuilder;
 
-import java.time.LocalDate;
-
 /**
  * An immutable raw "student standard mastery" record.
  *
@@ -15,7 +13,7 @@ import java.time.LocalDate;
  * <p>
  * The primary key on the underlying table is the student ID, course ID, module number, and standard number.
  */
-public final class StudentStandardMastery extends RecBase implements Comparable<StudentStandardMastery> {
+public final class StudentStandardMasteryRec extends RecBase implements Comparable<StudentStandardMasteryRec> {
 
     /** The table name. */
     public static final String TABLE_NAME = "student_standard_mastery";
@@ -48,8 +46,8 @@ public final class StudentStandardMastery extends RecBase implements Comparable<
      * @param theScore       the student's current score
      * @param theMastered    "Y" if the standard is mastered; "N" if not
      */
-    public StudentStandardMastery(final String theStudentId, final String theCourseId, final Integer theModuleNbr,
-                                  final Integer theStandardNbr, final Integer theScore, final String theMastered) {
+    public StudentStandardMasteryRec(final String theStudentId, final String theCourseId, final Integer theModuleNbr,
+                                     final Integer theStandardNbr, final Integer theScore, final String theMastered) {
 
         super();
 
@@ -88,7 +86,7 @@ public final class StudentStandardMastery extends RecBase implements Comparable<
      *         the specified object
      */
     @Override
-    public int compareTo(final StudentStandardMastery o) {
+    public int compareTo(final StudentStandardMasteryRec o) {
 
         int result = compareAllowingNull(this.studentId, o.studentId);
 
@@ -160,7 +158,7 @@ public final class StudentStandardMastery extends RecBase implements Comparable<
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final StudentStandardMastery rec) {
+        } else if (obj instanceof final StudentStandardMasteryRec rec) {
             equal = this.studentId.equals(rec.studentId)
                     && this.courseId.equals(rec.courseId)
                     && this.moduleNbr.equals(rec.moduleNbr)

@@ -336,6 +336,13 @@ CREATE TABLE IF NOT EXISTS term_202510.standard_assignment_attempt (
     serial_nbr                integer         NOT NULL,  -- A unique serial number for the attempt
     student_id                char(9)         NOT NULL,  -- The student ID who submitted the attempt
     assignment_id             varchar(20)     NOT NULL,  -- The ID of the assignment (references standard_assignment)
+    attempt_date              date            NOT NULL,  -- The date when the attempt is to be counted (the submission
+                                                         --     date or the day before submission for some assignments
+                                                         --     accepted early the following day)
+    attempt_time_sec          integer         NOT NULL,  -- The time of day when the assignment was submitted, in
+                                                         --     seconds (typically 0 to 86,399, but 86,400 or greater
+                                                         --     if assignment accepted early the following day and
+                                                         --     counted as submitted in prior day)
     course_id                 char(10)        NOT NULL,  -- The course ID (from standard_assignment)
     module_nbr                smallint        NOT NULL,  -- The module number (from standard_assignment)
     standard_nbr              smallint        NOT NULL,  -- The standard number (from standard_assignment)
@@ -353,6 +360,8 @@ CREATE TABLE IF NOT EXISTS term_202560.standard_assignment_attempt (
     serial_nbr                integer         NOT NULL,
     student_id                char(9)         NOT NULL,
     assignment_id             varchar(20)     NOT NULL,
+    attempt_date              date            NOT NULL,
+    attempt_time_sec          integer         NOT NULL,
     course_id                 char(10)        NOT NULL,
     module_nbr                smallint        NOT NULL,
     standard_nbr              smallint        NOT NULL,
@@ -369,6 +378,8 @@ CREATE TABLE IF NOT EXISTS term_202590.standard_assignment_attempt (
     serial_nbr                integer         NOT NULL,
     student_id                char(9)         NOT NULL,
     assignment_id             varchar(20)     NOT NULL,
+    attempt_date              date            NOT NULL,
+    attempt_time_sec          integer         NOT NULL,
     course_id                 char(10)        NOT NULL,
     module_nbr                smallint        NOT NULL,
     standard_nbr              smallint        NOT NULL,
@@ -385,6 +396,8 @@ CREATE TABLE IF NOT EXISTS term_dev.standard_assignment_attempt (
     serial_nbr                integer         NOT NULL,
     student_id                char(9)         NOT NULL,
     assignment_id             varchar(20)     NOT NULL,
+    attempt_date              date            NOT NULL,
+    attempt_time_sec          integer         NOT NULL,
     course_id                 char(10)        NOT NULL,
     module_nbr                smallint        NOT NULL,
     standard_nbr              smallint        NOT NULL,
@@ -401,6 +414,8 @@ CREATE TABLE IF NOT EXISTS term_test.standard_assignment_attempt (
     serial_nbr                integer         NOT NULL,
     student_id                char(9)         NOT NULL,
     assignment_id             varchar(20)     NOT NULL,
+    attempt_date              date            NOT NULL,
+    attempt_time_sec          integer         NOT NULL,
     course_id                 char(10)        NOT NULL,
     module_nbr                char(10)        NOT NULL,
     standard_nbr              smallint        NOT NULL,
@@ -428,7 +443,7 @@ ALTER TABLE IF EXISTS term_test.standard_assignment_attempt OWNER to math;
 CREATE TABLE IF NOT EXISTS term_202510.standard_assignment_attempt_qa (
     serial_nbr                integer         NOT NULL,  -- The serial number (references standard_assignment_attempt)
     question_nbr              smallint        NOT NULL,  -- The question number
-    percentage                smallint        NOT NULL,  -- Percentage correct, from 0 to 100
+    points                    smallint        NOT NULL,  -- Points earned
     item_id                   varchar(20),               -- The item ID
     PRIMARY KEY (serial_nbr, question_nbr)
 ) TABLESPACE primary_ts;
@@ -438,7 +453,7 @@ ALTER TABLE IF EXISTS term_202510.standard_assignment_attempt_qa OWNER to math;
 CREATE TABLE IF NOT EXISTS term_202560.standard_assignment_attempt_qa (
     serial_nbr                integer         NOT NULL,
     question_nbr              smallint        NOT NULL,
-    percentage                smallint        NOT NULL,
+    points                    smallint        NOT NULL,
     item_id                   varchar(20),
     PRIMARY KEY (serial_nbr, question_nbr)
 ) TABLESPACE primary_ts;
@@ -448,7 +463,7 @@ ALTER TABLE IF EXISTS term_202560.standard_assignment_attempt_qa OWNER to math;
 CREATE TABLE IF NOT EXISTS term_202590.standard_assignment_attempt_qa (
     serial_nbr                integer         NOT NULL,
     question_nbr              smallint        NOT NULL,
-    percentage                smallint        NOT NULL,
+    points                    smallint        NOT NULL,
     item_id                   varchar(20),
     PRIMARY KEY (serial_nbr, question_nbr)
 ) TABLESPACE primary_ts;
@@ -458,7 +473,7 @@ ALTER TABLE IF EXISTS term_202590.standard_assignment_attempt_qa OWNER to math;
 CREATE TABLE IF NOT EXISTS term_dev.standard_assignment_attempt_qa (
     serial_nbr                integer         NOT NULL,
     question_nbr              smallint        NOT NULL,
-    percentage                smallint        NOT NULL,
+    points                    smallint        NOT NULL,
     item_id                   varchar(20),
     PRIMARY KEY (serial_nbr, question_nbr)
 ) TABLESPACE primary_ts;
@@ -468,7 +483,7 @@ ALTER TABLE IF EXISTS term_dev.standard_assignment_attempt_qa OWNER to math;
 CREATE TABLE IF NOT EXISTS term_test.standard_assignment_attempt_qa (
     serial_nbr                integer         NOT NULL,
     question_nbr              smallint        NOT NULL,
-    percentage                smallint        NOT NULL,
+    points                    smallint        NOT NULL,
     item_id                   varchar(20),
     PRIMARY KEY (serial_nbr, question_nbr)
 ) TABLESPACE primary_ts;

@@ -4,23 +4,19 @@ import dev.mathops.db.DataDict;
 import dev.mathops.db.rec.RecBase;
 import dev.mathops.text.builder.HtmlBuilder;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-
 /**
- * An immutable raw "course survey response item choice" record.
+ * An immutable raw "course survey response item text" record.
  *
  * <p>
- * Each record represents a student's response to a multiple-choice or multiple-selection item on a course survey.  Each
- * choice will have an associated integer value - the response value will be the bitwise OR of the selected choice(s).
+ * Each record represents a student's response to a text item on a course survey.
  *
  * <p>
  * The primary key on the underlying table is the serial number of the response and the item number.
  */
-public final class CourseSurveyResponseItemChoice extends RecBase implements Comparable<CourseSurveyResponseItemChoice> {
+public final class CourseSurveyResponseItemTextRec extends RecBase implements Comparable<CourseSurveyResponseItemTextRec> {
 
     /** The table name. */
-    public static final String TABLE_NAME = "course_survey_response_item_choice";
+    public static final String TABLE_NAME = "course_survey_response_item_text";
 
     /** The 'serial_nbr' field value. */
     public final Integer serialNbr;
@@ -28,18 +24,18 @@ public final class CourseSurveyResponseItemChoice extends RecBase implements Com
     /** The 'item_nbr' field value. */
     public final Integer itemNbr;
 
-    /** The 'response_choice' field value. */
-    public final Integer responseChoice;
+    /** The 'response_text' field value. */
+    public final String responseText;
 
     /**
      * Constructs a new {@code CourseSurveyResponseItemChoice}.
      *
-     * @param theSerialNbr      the student ID
-     * @param theItemNbr        the item number
-     * @param theResponseChoice the response choice (a bitwise OR of values associated with all selected choices)
+     * @param theSerialNbr    the student ID
+     * @param theItemNbr      the item number
+     * @param theResponseText the response text
      */
-    public CourseSurveyResponseItemChoice(final Integer theSerialNbr, final Integer theItemNbr,
-                                          final Integer theResponseChoice) {
+    public CourseSurveyResponseItemTextRec(final Integer theSerialNbr, final Integer theItemNbr,
+                                           final String theResponseText) {
 
         super();
 
@@ -49,13 +45,13 @@ public final class CourseSurveyResponseItemChoice extends RecBase implements Com
         if (theItemNbr == null) {
             throw new IllegalArgumentException("Item number may not be null");
         }
-        if (theResponseChoice == null) {
-            throw new IllegalArgumentException("Response choice not be null");
+        if (theResponseText == null) {
+            throw new IllegalArgumentException("Response text not be null");
         }
 
         this.serialNbr = theSerialNbr;
         this.itemNbr = theItemNbr;
-        this.responseChoice = theResponseChoice;
+        this.responseText = theResponseText;
     }
 
     /**
@@ -66,7 +62,7 @@ public final class CourseSurveyResponseItemChoice extends RecBase implements Com
      *         the specified object
      */
     @Override
-    public int compareTo(final CourseSurveyResponseItemChoice o) {
+    public int compareTo(final CourseSurveyResponseItemTextRec o) {
 
         int result = this.serialNbr.compareTo(o.serialNbr);
 
@@ -92,7 +88,7 @@ public final class CourseSurveyResponseItemChoice extends RecBase implements Com
         htm.add(DIVIDER);
         appendField(htm, DataDict.FLD_ITEM_NBR, this.itemNbr);
         htm.add(DIVIDER);
-        appendField(htm, DataDict.FLD_RESPONSE_CHOICE, this.responseChoice);
+        appendField(htm, DataDict.FLD_RESPONSE_TEXT, this.responseText);
 
         return htm.toString();
     }
@@ -107,7 +103,7 @@ public final class CourseSurveyResponseItemChoice extends RecBase implements Com
 
         return this.serialNbr.hashCode()
                + this.itemNbr.hashCode()
-               + this.responseChoice.hashCode();
+               + this.responseText.hashCode();
     }
 
     /**
@@ -123,10 +119,10 @@ public final class CourseSurveyResponseItemChoice extends RecBase implements Com
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final CourseSurveyResponseItemChoice rec) {
+        } else if (obj instanceof final CourseSurveyResponseItemTextRec rec) {
             equal = this.serialNbr.equals(rec.serialNbr)
                     && this.itemNbr.equals(rec.itemNbr)
-                    && this.responseChoice.equals(rec.responseChoice);
+                    && this.responseText.equals(rec.responseText);
         } else {
             equal = false;
         }

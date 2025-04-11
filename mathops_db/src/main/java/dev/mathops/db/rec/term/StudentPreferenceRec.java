@@ -13,7 +13,7 @@ import dev.mathops.text.builder.HtmlBuilder;
  * <p>
  * The primary key on the underlying table is the student ID, course ID, module number, and standard number.
  */
-public final class StudentPreference extends RecBase implements Comparable<StudentPreference> {
+public final class StudentPreferenceRec extends RecBase implements Comparable<StudentPreferenceRec> {
 
     /** The table name. */
     public static final String TABLE_NAME = "student_preference";
@@ -34,7 +34,7 @@ public final class StudentPreference extends RecBase implements Comparable<Stude
      * @param thePrefKey   the preference key ID
      * @param thePrefValue the preference value
      */
-    public StudentPreference(final String theStudentId, final String thePrefKey, final Integer thePrefValue) {
+    public StudentPreferenceRec(final String theStudentId, final String thePrefKey, final Integer thePrefValue) {
 
         super();
 
@@ -61,7 +61,7 @@ public final class StudentPreference extends RecBase implements Comparable<Stude
      *         the specified object
      */
     @Override
-    public int compareTo(final StudentPreference o) {
+    public int compareTo(final StudentPreferenceRec o) {
 
         int result = compareAllowingNull(this.studentId, o.studentId);
 
@@ -118,7 +118,7 @@ public final class StudentPreference extends RecBase implements Comparable<Stude
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final StudentPreference rec) {
+        } else if (obj instanceof final StudentPreferenceRec rec) {
             equal = this.studentId.equals(rec.studentId)
                     && this.prefKey.equals(rec.prefKey)
                     && this.prevValue.equals(rec.prevValue);

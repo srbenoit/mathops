@@ -43,11 +43,11 @@ final class TestFacilityHoursRec {
 
     /** The expected String serialization of a test record. */
     private static final String EXPECT_SER99 = String.join(RecBase.DIVIDER,
-            "facility=PRECALC LC",
+            "facility_id=PRECALC LC",
             "display_index=6",
             "weekdays=62",
-            "start_dt=2025-01-21",
-            "end_dt=2025-05-09",
+            "start_date=2025-01-21",
+            "end_date=2025-05-09",
             "open_time_1=10:00",
             "close_time_1=16:00",
             "open_time_2=18:30",

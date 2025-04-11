@@ -13,7 +13,7 @@ import dev.mathops.text.builder.HtmlBuilder;
  * <p>
  * The primary key on the underlying table is the student ID, course ID, module number, and standard number.
  */
-public final class StudentCourseMastery extends RecBase implements Comparable<StudentCourseMastery> {
+public final class StudentCourseMasteryRec extends RecBase implements Comparable<StudentCourseMasteryRec> {
 
     /** The table name. */
     public static final String TABLE_NAME = "student_course_mastery";
@@ -42,8 +42,8 @@ public final class StudentCourseMastery extends RecBase implements Comparable<St
      * @param theNbrStandardsMastered the number of standards mastered
      * @param theScore                the student's current score
      */
-    public StudentCourseMastery(final String theStudentId, final String theCourseId, final Integer theNbrCompletedHw,
-                                final Integer theNbrStandardsMastered, final Integer theScore) {
+    public StudentCourseMasteryRec(final String theStudentId, final String theCourseId, final Integer theNbrCompletedHw,
+                                   final Integer theNbrStandardsMastered, final Integer theScore) {
 
         super();
 
@@ -78,7 +78,7 @@ public final class StudentCourseMastery extends RecBase implements Comparable<St
      *         the specified object
      */
     @Override
-    public int compareTo(final StudentCourseMastery o) {
+    public int compareTo(final StudentCourseMasteryRec o) {
 
         int result = compareAllowingNull(this.studentId, o.studentId);
 
@@ -141,7 +141,7 @@ public final class StudentCourseMastery extends RecBase implements Comparable<St
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final StudentCourseMastery rec) {
+        } else if (obj instanceof final StudentCourseMasteryRec rec) {
             equal = this.studentId.equals(rec.studentId)
                     && this.courseId.equals(rec.courseId)
                     && this.nbrCompletedHw.equals(rec.nbrCompletedHw)

@@ -26,6 +26,12 @@ public enum DataDict {
     /** A field name for serialization of records. */
     public static final String FLD_ASSIGNMENT_TYPE = "assignment_type";
 
+    /** A field name for serialization of records. */
+    public static final String FLD_ATTEMPT_DATE = "attempt_date";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_ATTEMPT_TIME_SEC = "attempt_time_sec";
+
     //
 
     /** A field name for serialization of records. */
@@ -221,7 +227,7 @@ public enum DataDict {
     public static final String FLD_PASSED = "passed";
 
     /** A field name for serialization of records. */
-    public static final String FLD_PERCENTAGE = "percentage";
+    public static final String FLD_POINTS = "points";
 
     /** A field name for serialization of records. */
     public static final String FLD_PREF_KEY = "pref_key";

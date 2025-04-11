@@ -87,7 +87,7 @@ public final class StandardAssignmentRec extends RecBase implements Comparable<S
             throw new IllegalArgumentException("Tree reference may not be null");
         }
 
-        this.assignmentId = theCourseId;
+        this.assignmentId = theAssignmentId;
         this.assignmentType = theAssignmentType;
         this.courseId = theCourseId;
         this.moduleNbr = theModuleNbr;
