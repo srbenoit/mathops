@@ -641,95 +641,36 @@ CREATE TABLE IF NOT EXISTS term_test.student_standards_milestone (
 ALTER TABLE IF EXISTS term_test.student_standards_milestone OWNER to math;
 
 -- ------------------------------------------------------------------------------------------------
--- TABLE: student_standard_mastery
---
--- A student's mastery status in a single standard of a standards-based course.
---
---   USAGE: Created when course is started, updated throughout term as status changes.
---   EST. RECORDS: 6000 student * 2 courses * 24 standards = 288,000
---   RETENTION: Stored in TERM schema, retained for 15 years
---   EST. RECORD SIZE: 24 bytes
---   EST. TOTAL SPACE: 7 MB
--- ------------------------------------------------------------------------------------------------
-
--- DROP TABLE IF EXISTS term_202510.student_standard_mastery;
-CREATE TABLE IF NOT EXISTS term_202510.student_standard_mastery (
-    student_id               char(9)        NOT NULL,  -- The student ID
-    course_id                char(10)       NOT NULL,  -- The course ID
-    module_nbr               smallint       NOT NULL,  -- The module number
-    standard_nbr             smallint       NOT NULL,  -- The standard number
-    score                    smallint       NOT NULL,  -- The current score (1 or 2)
-    mastered                 char(1)        NOT NULL,  -- "Y" if mastered; "N" if not
-    PRIMARY KEY (student_id, course_id, module_nbr, standard_nbr)
-) TABLESPACE primary_ts;
-ALTER TABLE IF EXISTS term_202510.student_standard_mastery OWNER to math;
-
--- DROP TABLE IF EXISTS term_202560.student_standard_mastery;
-CREATE TABLE IF NOT EXISTS term_202560.student_standard_mastery (
-    student_id               char(9)        NOT NULL,
-    course_id                char(10)       NOT NULL,
-    module_nbr               smallint       NOT NULL,
-    standard_nbr             smallint       NOT NULL,
-    score                    smallint       NOT NULL,
-    mastered                 char(1)        NOT NULL,
-    PRIMARY KEY (student_id, course_id, module_nbr, standard_nbr)
-) TABLESPACE primary_ts;
-ALTER TABLE IF EXISTS term_202560.student_standard_mastery OWNER to math;
-
--- DROP TABLE IF EXISTS term_202590.student_standard_mastery;
-CREATE TABLE IF NOT EXISTS term_202590.student_standard_mastery (
-    student_id               char(9)        NOT NULL,
-    course_id                char(10)       NOT NULL,
-    module_nbr               smallint       NOT NULL,
-    standard_nbr             smallint       NOT NULL,
-    score                    smallint       NOT NULL,
-    mastered                 char(1)        NOT NULL,
-    PRIMARY KEY (student_id, course_id, module_nbr, standard_nbr)
-) TABLESPACE primary_ts;
-ALTER TABLE IF EXISTS term_202590.student_standard_mastery OWNER to math;
-
--- DROP TABLE IF EXISTS term_dev.student_standard_mastery;
-CREATE TABLE IF NOT EXISTS term_dev.student_standard_mastery (
-    student_id               char(9)        NOT NULL,
-    course_id                char(10)       NOT NULL,
-    module_nbr               smallint       NOT NULL,
-    standard_nbr             smallint       NOT NULL,
-    score                    smallint       NOT NULL,
-    mastered                 char(1)        NOT NULL,
-    PRIMARY KEY (student_id, course_id, module_nbr, standard_nbr)
-) TABLESPACE primary_ts;
-ALTER TABLE IF EXISTS term_dev.student_standard_mastery OWNER to math;
-
--- DROP TABLE IF EXISTS term_test.student_standard_mastery;
-CREATE TABLE IF NOT EXISTS term_test.student_standard_mastery (
-    student_id               char(9)        NOT NULL,
-    course_id                char(10)       NOT NULL,
-    module_nbr               smallint       NOT NULL,
-    standard_nbr             smallint       NOT NULL,
-    score                    smallint       NOT NULL,
-    mastered                 char(1)        NOT NULL,
-    PRIMARY KEY (student_id, course_id, module_nbr, standard_nbr)
-) TABLESPACE primary_ts;
-ALTER TABLE IF EXISTS term_test.student_standard_mastery OWNER to math;
-
--- ------------------------------------------------------------------------------------------------
 -- TABLE: student_course_mastery
 -- 
--- A student's mastery status in a standards-based course.
+-- A student's mastery status in a standards-based course (it should be possible to calculate the student's score
+-- and course completion status from this record only).
 --
 --   USAGE: Created when course is started, updated throughout term as status changes.
 --   EST. RECORDS: 6000 student * 2 courses = 12,000
 --   RETENTION: Stored in TERM schema, retained for 15 years
---   EST. RECORD SIZE: 24 bytes
---   EST. TOTAL SPACE: 282 KB
+--   EST. RECORD SIZE: 104 bytes
+--   EST. TOTAL SPACE: 1300 KB
 -- ------------------------------------------------------------------------------------------------
 
 -- DROP TABLE IF EXISTS term_202510.student_course_mastery;
 CREATE TABLE IF NOT EXISTS term_202510.student_course_mastery (
     student_id               char(9)        NOT NULL,  -- The student ID
     course_id                char(10)       NOT NULL,  -- The course ID
+    course_structure         varchar(200)   NOT NULL,  -- The course structure in a format like:
+                                                       --     "aAabbbCcc...zzZ", where each letter (a-z) represents a
+                                                       --     module and each repetition of that letter represents a
+                                                       --     standard, lowercase = non-essential, uppercase = essential
+    homework_status          varchar(200)   NOT NULL,  -- The student's status on standard homeworks for each standard
+                                                       --     in a format like "YN---", the same length as the course
+                                                       --     structure, Y=passed, N=attempted, -=not attempted
+    mastery_status           varchar(200)   NOT NULL,  -- The student's mastery status for each standard, in a format
+                                                       --     like "Yyn---", the same length as the course structure,
+                                                       --     Y=mastered on time, y=mastered late, N=attempted,
+                                                       --     -=not attempted
     nbr_completed_hw         smallint       NOT NULL,  -- The number of completed homework sets (of 24)
     nbr_mastered_standards   smallint       NOT NULL,  -- The number of mastered standards (out of 24)
+    completed                char(1)        NOT NULL,  -- "Y" if course is completed, "N" if not.
     score                    smallint       NOT NULL,  -- The current score
     PRIMARY KEY (student_id, course_id)
 ) TABLESPACE primary_ts;
@@ -739,8 +680,10 @@ ALTER TABLE IF EXISTS term_202510.student_course_mastery OWNER to math;
 CREATE TABLE IF NOT EXISTS term_202560.student_course_mastery (
     student_id               char(9)        NOT NULL,
     course_id                char(10)       NOT NULL,
-    nbr_completed_hw         smallint       NOT NULL,
-    nbr_mastered_standards   smallint       NOT NULL,
+    course_structure         varchar(200)   NOT NULL,
+    homework_status          varchar(200)   NOT NULL,
+    mastery_status           varchar(200)   NOT NULL,
+    completed                char(1)        NOT NULL,
     score                    smallint       NOT NULL,
     PRIMARY KEY (student_id, course_id)
 ) TABLESPACE primary_ts;
@@ -750,8 +693,10 @@ ALTER TABLE IF EXISTS term_202560.student_course_mastery OWNER to math;
 CREATE TABLE IF NOT EXISTS term_202590.student_course_mastery (
     student_id               char(9)        NOT NULL,
     course_id                char(10)       NOT NULL,
-    nbr_completed_hw         smallint       NOT NULL,
-    nbr_mastered_standards   smallint       NOT NULL,
+    course_structure         varchar(200)   NOT NULL,
+    homework_status          varchar(200)   NOT NULL,
+    mastery_status           varchar(200)   NOT NULL,
+    completed                char(1)        NOT NULL,
     score                    smallint       NOT NULL,
     PRIMARY KEY (student_id, course_id)
 ) TABLESPACE primary_ts;
@@ -761,8 +706,10 @@ ALTER TABLE IF EXISTS term_202590.student_course_mastery OWNER to math;
 CREATE TABLE IF NOT EXISTS term_dev.student_course_mastery (
     student_id               char(9)        NOT NULL,
     course_id                char(10)       NOT NULL,
-    nbr_completed_hw         smallint       NOT NULL,
-    nbr_mastered_standards   smallint       NOT NULL,
+    course_structure         varchar(200)   NOT NULL,
+    homework_status          varchar(200)   NOT NULL,
+    mastery_status           varchar(200)   NOT NULL,
+    completed                char(1)        NOT NULL,
     score                    smallint       NOT NULL,
     PRIMARY KEY (student_id, course_id)
 ) TABLESPACE primary_ts;
@@ -772,8 +719,10 @@ ALTER TABLE IF EXISTS term_dev.student_course_mastery OWNER to math;
 CREATE TABLE IF NOT EXISTS term_test.student_course_mastery (
     student_id               char(9)        NOT NULL,
     course_id                char(10)       NOT NULL,
-    nbr_completed_hw         smallint       NOT NULL,
-    nbr_mastered_standards   smallint       NOT NULL,
+    course_structure         varchar(200)   NOT NULL,
+    homework_status          varchar(200)   NOT NULL,
+    mastery_status           varchar(200)   NOT NULL,
+    completed                char(1)        NOT NULL,
     score                    smallint       NOT NULL,
     PRIMARY KEY (student_id, course_id)
 ) TABLESPACE primary_ts;

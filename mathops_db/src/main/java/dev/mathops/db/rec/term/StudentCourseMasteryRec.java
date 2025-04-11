@@ -24,11 +24,17 @@ public final class StudentCourseMasteryRec extends RecBase implements Comparable
     /** The 'course_id' field value. */
     public final String courseId;
 
-    /** The 'nbr_completed_hw' field value. */
-    public final Integer nbrCompletedHw;
+    /** The 'course_structure' field value. */
+    public final String courseStructure;
 
-    /** The 'nbr_mastered_standards' field value. */
-    public final Integer nbrMasteredStandards;
+    /** The 'homework_status' field value. */
+    public final String homeworkStatus;
+
+    /** The 'mastery_status' field value. */
+    public final String masteryStatus;
+
+    /** The 'completed' field value. */
+    public final String completed;
 
     /** The 'score' field value. */
     public final Integer score;
@@ -36,14 +42,22 @@ public final class StudentCourseMasteryRec extends RecBase implements Comparable
     /**
      * Constructs a new {@code StudentCourseMastery}.
      *
-     * @param theStudentId            the student ID
-     * @param theCourseId             the course ID
-     * @param theNbrCompletedHw       the number of homework assignments completed
-     * @param theNbrStandardsMastered the number of standards mastered
-     * @param theScore                the student's current score
+     * @param theStudentId       the student ID
+     * @param theCourseId        the course ID
+     * @param theCourseStructure the course structure in a format like: "aAabbbCcc...zzZ", where each letter (a-z)
+     *                           represents a module and each repetition of that letter represents a standard, lowercase
+     *                           = non-essential, uppercase = essential
+     * @param theHomeworkStatus  the student's status on standard homeworks for each standard in a format like "YN---",
+     *                           the same length as the course structure, Y=passed, N=attempted, -=not attempted
+     * @param theMasteryStatus   the student 's mastery status for each standard, in a format like "Yyn---", the same
+     *                           length as the course structure, Y = mastered on time, y = mastered late, N = attempted,
+     *                           -= not attempted
+     * @param theCompleted       "Y" if the minimum requirements to complete the course have been met; "N" if not
+     * @param theScore           the student's current score
      */
-    public StudentCourseMasteryRec(final String theStudentId, final String theCourseId, final Integer theNbrCompletedHw,
-                                   final Integer theNbrStandardsMastered, final Integer theScore) {
+    public StudentCourseMasteryRec(final String theStudentId, final String theCourseId, final String theCourseStructure,
+                                   final String theHomeworkStatus, final String theMasteryStatus,
+                                   final String theCompleted, final Integer theScore) {
 
         super();
 
@@ -53,11 +67,17 @@ public final class StudentCourseMasteryRec extends RecBase implements Comparable
         if (theCourseId == null) {
             throw new IllegalArgumentException("Course ID may not be null");
         }
-        if (theNbrCompletedHw == null) {
-            throw new IllegalArgumentException("Number of homework complete may not be null");
+        if (theCourseStructure == null) {
+            throw new IllegalArgumentException("Course structure may not be null");
         }
-        if (theNbrStandardsMastered == null) {
-            throw new IllegalArgumentException("Number of standards mastered may not be null");
+        if (theHomeworkStatus == null) {
+            throw new IllegalArgumentException("Homework status may not be null");
+        }
+        if (theMasteryStatus == null) {
+            throw new IllegalArgumentException("Mastery status may not be null");
+        }
+        if (theCompleted == null) {
+            throw new IllegalArgumentException("Completed flag may not be null");
         }
         if (theScore == null) {
             throw new IllegalArgumentException("Score may not be null");
@@ -65,8 +85,10 @@ public final class StudentCourseMasteryRec extends RecBase implements Comparable
 
         this.studentId = theStudentId;
         this.courseId = theCourseId;
-        this.nbrCompletedHw = theNbrCompletedHw;
-        this.nbrMasteredStandards = theNbrStandardsMastered;
+        this.courseStructure = theCourseStructure;
+        this.homeworkStatus = theHomeworkStatus;
+        this.masteryStatus = theMasteryStatus;
+        this.completed = theCompleted;
         this.score = theScore;
     }
 
@@ -104,9 +126,13 @@ public final class StudentCourseMasteryRec extends RecBase implements Comparable
         htm.add(DIVIDER);
         appendField(htm, DataDict.FLD_COURSE_ID, this.courseId);
         htm.add(DIVIDER);
-        appendField(htm, DataDict.FLD_NBR_COMPLETED_HW, this.nbrCompletedHw);
+        appendField(htm, DataDict.FLD_COURSE_STRUCTURE, this.courseStructure);
         htm.add(DIVIDER);
-        appendField(htm, DataDict.FLD_NBR_MASTERED_STANDARDS, this.nbrMasteredStandards);
+        appendField(htm, DataDict.FLD_HOMEWORK_STATUS, this.homeworkStatus);
+        htm.add(DIVIDER);
+        appendField(htm, DataDict.FLD_MASTERY_STATUS, this.masteryStatus);
+        htm.add(DIVIDER);
+        appendField(htm, DataDict.FLD_COMPLETED, this.completed);
         htm.add(DIVIDER);
         appendField(htm, DataDict.FLD_SCORE, this.score);
 
@@ -123,8 +149,10 @@ public final class StudentCourseMasteryRec extends RecBase implements Comparable
 
         return this.studentId.hashCode()
                + this.courseId.hashCode()
-               + this.nbrCompletedHw.hashCode()
-               + this.nbrMasteredStandards.hashCode()
+               + this.courseStructure.hashCode()
+               + this.homeworkStatus.hashCode()
+               + this.masteryStatus.hashCode()
+               + this.completed.hashCode()
                + this.score.hashCode();
     }
 
@@ -144,8 +172,10 @@ public final class StudentCourseMasteryRec extends RecBase implements Comparable
         } else if (obj instanceof final StudentCourseMasteryRec rec) {
             equal = this.studentId.equals(rec.studentId)
                     && this.courseId.equals(rec.courseId)
-                    && this.nbrCompletedHw.equals(rec.nbrCompletedHw)
-                    && this.nbrMasteredStandards.equals(rec.nbrMasteredStandards)
+                    && this.courseStructure.equals(rec.courseStructure)
+                    && this.homeworkStatus.equals(rec.homeworkStatus)
+                    && this.masteryStatus.equals(rec.masteryStatus)
+                    && this.completed.equals(rec.completed)
                     && this.score.equals(rec.score);
         } else {
             equal = false;

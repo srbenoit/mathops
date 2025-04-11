@@ -25,7 +25,7 @@ public final class StudentPreferenceRec extends RecBase implements Comparable<St
     public final String prefKey;
 
     /** The 'pref_value' field value. */
-    public final Integer prevValue;
+    public final Integer prefValue;
 
     /**
      * Constructs a new {@code StudentPreference}.
@@ -50,7 +50,7 @@ public final class StudentPreferenceRec extends RecBase implements Comparable<St
 
         this.studentId = theStudentId;
         this.prefKey = thePrefKey;
-        this.prevValue = thePrefValue;
+        this.prefValue = thePrefValue;
     }
 
     /**
@@ -87,7 +87,7 @@ public final class StudentPreferenceRec extends RecBase implements Comparable<St
         htm.add(DIVIDER);
         appendField(htm, DataDict.FLD_PREF_KEY, this.prefKey);
         htm.add(DIVIDER);
-        appendField(htm, DataDict.FLD_PREF_VALUE, this.prevValue);
+        appendField(htm, DataDict.FLD_PREF_VALUE, this.prefValue);
 
         return htm.toString();
     }
@@ -102,7 +102,7 @@ public final class StudentPreferenceRec extends RecBase implements Comparable<St
 
         return this.studentId.hashCode()
                + this.prefKey.hashCode()
-               + this.prevValue.hashCode();
+               + this.prefValue.hashCode();
     }
 
     /**
@@ -121,7 +121,7 @@ public final class StudentPreferenceRec extends RecBase implements Comparable<St
         } else if (obj instanceof final StudentPreferenceRec rec) {
             equal = this.studentId.equals(rec.studentId)
                     && this.prefKey.equals(rec.prefKey)
-                    && this.prevValue.equals(rec.prevValue);
+                    && this.prefValue.equals(rec.prefValue);
         } else {
             equal = false;
         }

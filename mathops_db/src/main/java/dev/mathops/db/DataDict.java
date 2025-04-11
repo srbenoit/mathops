@@ -76,7 +76,13 @@ public enum DataDict {
     public static final String FLD_CLOSURE_TYPE = "closure_type";
 
     /** A field name for serialization of records. */
+    public static final String FLD_COMPLETED = "completed";
+
+    /** A field name for serialization of records. */
     public static final String FLD_COURSE_ID = "course_id";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_COURSE_STRUCTURE = "course_structure";
 
     /** A field name for serialization of records. */
     public static final String FLD_COURSE_TITLE = "course_title";
@@ -121,6 +127,9 @@ public enum DataDict {
     /** A field name for serialization of records. */
     public static final String FLD_HOMEWORK_PTS = "homework_pts";
 
+    /** A field name for serialization of records. */
+    public static final String FLD_HOMEWORK_STATUS = "homework_status";
+
     //
 
     /** A field name for serialization of records. */
@@ -147,6 +156,9 @@ public enum DataDict {
 
     /** A field name for serialization of records. */
     public static final String FLD_MASTERED = "mastered";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_MASTERY_STATUS = "mastery_status";
 
     /** A field name for serialization of records. */
     public static final String FLD_METADATA_PATH = "metadata_path";
@@ -178,16 +190,10 @@ public enum DataDict {
     //
 
     /** A field name for serialization of records. */
-    public static final String FLD_NBR_COMPLETED_HW = "nbr_completed_hw";
-
-    /** A field name for serialization of records. */
     public static final String FLD_NBR_CREDITS = "nbr_credits";
 
     /** A field name for serialization of records. */
     public static final String FLD_NBR_ESSENTIAL_STANDARDS = "nbr_essential_standards";
-
-    /** A field name for serialization of records. */
-    public static final String FLD_NBR_MASTERED_STANDARDS = "nbr_mastered_standards";
 
     /** A field name for serialization of records. */
     public static final String FLD_NBR_MODULES = "nbr_modules";
