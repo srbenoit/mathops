@@ -30,6 +30,10 @@ import dev.mathops.assessment.variable.VariableRandomChoice;
 import dev.mathops.assessment.variable.VariableRandomSimpleAngle;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.builder.SimpleBuilder;
+import dev.mathops.text.parser.ParsingException;
+import dev.mathops.text.parser.xml.XmlContent;
+import dev.mathops.text.parser.xml.XmlContentError;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -145,9 +149,7 @@ enum QualityControlChecks {
         final String relPath = mathIndex == -1 ? absPath : absPath.substring(mathIndex);
 
         if (!relPath.equals(problem.id)) {
-            report.sSpan(null, "style='color:orange;'")
-                    .add("WARNING: &lt;ref-base&gt; was ", problem.id, " but relative path was ", relPath)
-                    .eSpan().br().addln();
+            logOrange(report, "WARNING: &lt;ref-base&gt; was ", problem.id, " but relative path was ", relPath);
             ++count;
         }
 
@@ -232,8 +234,7 @@ enum QualityControlChecks {
                 continue;
             }
 
-            report.sSpan(null, "style='color:orange;'").add("WARNING: Variable {", var.name, "} is never used.")
-                    .eSpan().br().addln();
+            logOrange(report, "WARNING: Variable {", var.name, "} is never used.");
             ++count;
         }
 
@@ -253,22 +254,26 @@ enum QualityControlChecks {
 
         final String initialXml = problem.toXmlString(0);
 
-        final AbstractProblemTemplate parsed = ProblemTemplateFactory.load(initialXml, EParserMode.NORMAL);
-        if (parsed instanceof ProblemDummyTemplate) {
-            report.sSpan(null, "style='color:red;'")
-                    .add("ERROR: Failed to parsed serialized pre-realize problem.").eSpan().br()
-                    .addln();
-            ++count;
-        } else {
+        try {
+            final XmlContent source = new XmlContent(initialXml, false, true);
+            for (final XmlContentError error : source.getAllErrors()) {
+                logRed(report, "Parse error: ", error.msg);
+                ++count;
+            }
+
+            final AbstractProblemTemplate parsed = ProblemTemplateFactory.load(source, EParserMode.NORMAL);
+
             final String finalXml = parsed.toXmlString(0);
 
             if (!finalXml.equals(initialXml)) {
-                report.sSpan(null, "style='color:red;'")
-                        .add("ERROR: serialization of parsed pre-realize problem differs.").eSpan().br()
-                        .addln();
+                logRed(report, "ERROR: serialization of parsed pre-realize problem differs.");
                 logDiff(report, finalXml, initialXml);
                 ++count;
             }
+        } catch (final ParsingException ex) {
+            final String msg = ex.getMessage();
+            logRed(report, "Parse exception: ", msg);
+            ++count;
         }
 
         return count;
@@ -287,7 +292,7 @@ enum QualityControlChecks {
 
         for (int i = 0; i < NUM_REALIZATIONS; ++i) {
             if (!problem.realize(problem.evalContext)) {
-                report.sSpan(null, "style='color:red;'").add("ERROR: Failed to realize problem.").eSpan().br().addln();
+                logRed(report, "ERROR: Failed to realize problem.");
                 ++count;
             }
         }
@@ -310,26 +315,36 @@ enum QualityControlChecks {
 
             final String initialXml = problem.toXmlString(0);
 
-            final AbstractProblemTemplate parsed = ProblemTemplateFactory.load(initialXml, EParserMode.NORMAL);
-
-            // Log.info("Parsed " + parsed.ref + " completed is " + parsed.completionTime);
-
-            if (parsed instanceof ProblemDummyTemplate) {
-                report.sSpan(null, "style='color:red;'")
-                        .add("ERROR: Failed to parsed serialized post-realize problem.").eSpan().br().addln();
-                ++count;
-            } else {
-                final String finalXml = parsed.toXmlString(0);
-
-                if (!finalXml.equals(initialXml)) {
-                    report.sSpan(null, "style='color:red;'")
-                            .add("ERROR: serialization of parsed post-realize problem differs.").eSpan().br().addln();
-                    logDiff(report, finalXml, initialXml);
+            try {
+                final XmlContent source = new XmlContent(initialXml, false, true);
+                for (final XmlContentError error : source.getAllErrors()) {
+                    logRed(report, "Parsing error: ", error.msg);
                     ++count;
                 }
+
+                final AbstractProblemTemplate parsed = ProblemTemplateFactory.load(source, EParserMode.NORMAL);
+
+                // Log.info("Parsed " + parsed.ref + " completed is " + parsed.completionTime);
+
+                if (parsed instanceof ProblemDummyTemplate) {
+                    logRed(report, "ERROR: Failed to parsed serialized post-realize problem.");
+                    ++count;
+                } else {
+                    final String finalXml = parsed.toXmlString(0);
+
+                    if (!finalXml.equals(initialXml)) {
+                        logRed(report, "ERROR: serialization of parsed post-realize problem differs.");
+                        logDiff(report, finalXml, initialXml);
+                        ++count;
+                    }
+                }
+            } catch (final ParsingException ex) {
+                final String msg = ex.getMessage();
+                logRed(report, "Parsing exception: ", msg);
+                ++count;
             }
         } else {
-            report.sSpan(null, "style='color:red;'").add("ERROR: Failed to realize problem.").eSpan().br().addln();
+            logRed(report, "ERROR: Failed to realize problem.");
             ++count;
         }
 
@@ -349,8 +364,7 @@ enum QualityControlChecks {
 
         for (final AbstractVariable var : problem.evalContext.getVariables()) {
             if (var instanceof final VariableDerived derived && derived.getVariableType() == null) {
-                report.sSpan(null, "style='color:orange;'")
-                        .add("WARNING: Variable {", var.name, "} does not specify value type.").eSpan().br().addln();
+                logOrange(report, "WARNING: Variable {", var.name, "} does not specify value type.");
                 ++count;
             }
         }
@@ -433,9 +447,7 @@ enum QualityControlChecks {
                 if (sup != null) {
                     final int percent = Math.round(sup.getFontScale() * 100.0f);
                     if (percent != 75) {
-                        report.sSpan(null, "style='color:orange;'")
-                                .add("WARNING: Font scale of " + percent + "% on Superscript in REL-OFFSET")
-                                .eSpan().br().addln();
+                        logOrange(report, "WARNING: Font scale of " + percent + "% on Superscript in REL-OFFSET");
                         ++count;
                     }
                 }
@@ -444,9 +456,7 @@ enum QualityControlChecks {
                 if (sub != null) {
                     final int percent = Math.round(sub.getFontScale() * 100.0f);
                     if (percent != 75) {
-                        report.sSpan(null, "style='color:orange;'")
-                                .add("WARNING: Font scale of " + percent + "% on Subscript in REL-OFFSET")
-                                .eSpan().br().addln();
+                        logOrange(report, "WARNING: Font scale of " + percent + "% on Subscript in REL-OFFSET");
                         ++count;
                     }
                 }
@@ -455,9 +465,7 @@ enum QualityControlChecks {
                 if (over != null) {
                     final int percent = Math.round(over.getFontScale() * 100.0f);
                     if (percent != 75) {
-                        report.sSpan(null, "style='color:orange;'")
-                                .add("WARNING: Font scale of " + percent + "% on Over in REL-OFFSET")
-                                .eSpan().br().addln();
+                        logOrange(report, "WARNING: Font scale of " + percent + "% on Over in REL-OFFSET");
                         ++count;
                     }
                 }
@@ -466,15 +474,13 @@ enum QualityControlChecks {
                 if (under != null) {
                     final int percent = Math.round(under.getFontScale() * 100.0f);
                     if (percent != 75) {
-                        report.sSpan(null, "style='color:orange;'")
-                                .add("WARNING: Font scale of " + percent + "% on Under in REL-OFFSET")
-                                .eSpan().br().addln();
+                        logOrange(report, "WARNING: Font scale of " + percent + "% on Under in REL-OFFSET");
                         ++count;
                     }
                 }
 
             } else if (obj instanceof final AbstractDocContainer inner) {
-                scan7(report, inner);
+                count += scan7(report, inner);
             }
         }
 
@@ -561,8 +567,7 @@ enum QualityControlChecks {
                 if (root instanceof final AbstractDocContainer rootContainer) {
 
                     if (rootContainer.getChildren().isEmpty()) {
-                        report.sSpan(null, "style='color:orange;'").add("WARNING: Empty ROOT in RADICAL").eSpan()
-                                .br().addln();
+                        logOrange(report, "WARNING: Empty ROOT in RADICAL");
                         ++count;
                     } else {
                         count += scan8(report, rootContainer);
@@ -634,7 +639,8 @@ enum QualityControlChecks {
                     count += scan9(report, span);
                 }
             } else {
-                report.sSpan(null, "style='color:red;'").add("ERROR: Failed to realize problem.").eSpan().br().addln();
+                logRed(report, "ERROR: Failed to realize problem.");
+                ++count;
             }
         }
 
@@ -820,9 +826,7 @@ enum QualityControlChecks {
                 final String post = max == len ? CoreConstants.EMPTY : "...";
                 final String surround = txt.substring(min, max);
 
-                report.sSpan(null, "style='color:orange;'")
-                        .add("WARNING: Possible use of '-' as a minus sign: [", pre, surround, post, "]")
-                        .eSpan().br().addln();
+                logOrange(report, "WARNING: Possible use of '-' as a minus sign: [", pre, surround, post, "]");
                 ++count;
             }
 
@@ -904,16 +908,16 @@ enum QualityControlChecks {
 
             if (obj instanceof final AbstractDocPrimitiveContainer drawing) {
                 if (drawing.getAltText() == null) {
-                    final String typeName = obj.getClass().getSimpleName();
-                    report.sSpan(null, "style='color:orange;'").add("WARNING: Empty ALT in ", typeName).eSpan()
-                            .br().addln();
+                    final Class<? extends AbstractDocObjectTemplate> cls = obj.getClass();
+                    final String typeName = cls.getSimpleName();
+                    logOrange(report, "WARNING: Empty ALT in ", typeName);
                     ++count;
                 }
             } else if (obj instanceof final DocImage img) {
                 if (img.getAltText() == null) {
-                    final String typeName = obj.getClass().getSimpleName();
-                    report.sSpan(null, "style='color:orange;'").add("WARNING: Empty ALT in ", typeName).eSpan()
-                            .br().addln();
+                    final Class<? extends AbstractDocObjectTemplate> cls = obj.getClass();
+                    final String typeName = cls.getSimpleName();
+                    logOrange(report, "WARNING: Empty ALT in ", typeName);
                     ++count;
                 }
             } else if (obj instanceof final AbstractDocContainer inner) {
@@ -975,9 +979,7 @@ enum QualityControlChecks {
         final String relPath = mathIndex == -1 ? absPath : absPath.substring(mathIndex);
 
         if (!relPath.equals(exam.ref)) {
-            report.sSpan(null, "style='color:orange;'")
-                    .add("WARNING: &lt;ref-base&gt; was ", exam.ref, " but relative path was ", relPath)
-                    .eSpan().br().addln();
+            logOrange(report, "WARNING: &lt;ref-base&gt; was ", exam.ref, " but relative path was ", relPath);
             ++count;
         }
 
@@ -1040,6 +1042,30 @@ enum QualityControlChecks {
         if (doc != null) {
             doc.accumulateParameterNames(referenced);
         }
+    }
+
+    /**
+     * Logs a message in "red" color.
+     *
+     * @param report the report to which to log
+     * @param msg    the message string
+     */
+    private static void logRed(final HtmlBuilder report, final Object... msg) {
+
+        final String text = SimpleBuilder.concat(msg);
+        report.sSpan(null, "style='color:red;'").add(text).eSpan().br().addln();
+    }
+
+    /**
+     * Logs a message in "orange" color.
+     *
+     * @param report the report to which to log
+     * @param msg    the message string
+     */
+    private static void logOrange(final HtmlBuilder report, final Object... msg) {
+
+        final String text = SimpleBuilder.concat(msg);
+        report.sSpan(null, "style='color:orange;'").add(text).eSpan().br().addln();
     }
 
     /**

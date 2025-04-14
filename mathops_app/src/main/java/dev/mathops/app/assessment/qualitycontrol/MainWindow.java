@@ -2,6 +2,7 @@ package dev.mathops.app.assessment.qualitycontrol;
 
 import dev.mathops.assessment.EParserMode;
 import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 
@@ -116,7 +117,7 @@ final class MainWindow extends JFrame implements ActionListener {
         this.cancelButton.setEnabled(false);
         buttons.add(this.cancelButton);
 
-        final JLabel lbl = new JLabel("         Maximum number of errors: " );
+        final JLabel lbl = new JLabel("         Maximum number of errors: ");
         buttons.add(lbl);
         this.maxErrorsField = new JTextField("200");
         buttons.add(this.maxErrorsField);
@@ -154,14 +155,15 @@ final class MainWindow extends JFrame implements ActionListener {
      * Updates the UI with progress information. Called on the AWT event thread.
      *
      * @param update the update
+     * @param done true to force the UI to be updated
      */
-    void update(final ProgressUpdate update) {
+    void update(final ProgressUpdate update, final boolean done) {
 
         this.progress.setValue(Math.round(10.0f * update.percentDone));
         this.progress.setString(update.onStep);
 
         final long now = System.currentTimeMillis();
-        if (now > this.nextRefresh) {
+        if (done || now > this.nextRefresh) {
             this.report.setText(update.report);
             this.nextRefresh = now + 500L;
         }
@@ -198,6 +200,7 @@ final class MainWindow extends JFrame implements ActionListener {
             } catch (final NumberFormatException ex) {
                 maxErrors = Integer.MAX_VALUE;
             }
+            Log.info("Maximum errors = " + maxErrors);
 
             this.scanNormalButton.setEnabled(false);
             this.scanAllowDeprButton.setEnabled(false);
@@ -215,6 +218,7 @@ final class MainWindow extends JFrame implements ActionListener {
             } catch (final NumberFormatException ex) {
                 maxErrors = Integer.MAX_VALUE;
             }
+            Log.info("Maximum errors = " + maxErrors);
 
             this.scanNormalButton.setEnabled(false);
             this.scanAllowDeprButton.setEnabled(false);

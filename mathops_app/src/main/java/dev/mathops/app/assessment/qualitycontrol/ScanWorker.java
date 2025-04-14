@@ -1,8 +1,6 @@
 package dev.mathops.app.assessment.qualitycontrol;
 
 import dev.mathops.assessment.EParserMode;
-import dev.mathops.assessment.exam.ExamFactory;
-import dev.mathops.assessment.exam.ExamObj;
 import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
 import dev.mathops.assessment.problem.template.ProblemTemplateFactory;
 import dev.mathops.commons.file.FileLoader;
@@ -65,7 +63,7 @@ final class ScanWorker extends SwingWorker<String, ProgressUpdate> {
         report.add("Scanning <span style='color:blue;'>", dirPath, "</span>").br().addln();
 
         final String reportStr = report.toString();
-        publish(new ProgressUpdate(0.0f, "Determining number of files to scan", reportStr));
+        publish(new ProgressUpdate(0.0f, "Determining number of files to scan", reportStr, 0));
 
         final List<File> problemFiles = new ArrayList<>(1000);
         final List<File> examFiles = new ArrayList<>(200);
@@ -90,7 +88,7 @@ final class ScanWorker extends SwingWorker<String, ProgressUpdate> {
             if (!isCancelled()) {
                 report.sH(3).add("Scanning Problems").eH(3);
                 final String reportText = report.toString();
-                publish(new ProgressUpdate(0.5f, "Scanning Problems...", reportText));
+                publish(new ProgressUpdate(0.5f, "Scanning Problems...", reportText, 0));
                 final int dirLen = dirPath.length();
                 scanProblems(report, dirLen, problemFiles, pct1);
             }
@@ -113,7 +111,7 @@ final class ScanWorker extends SwingWorker<String, ProgressUpdate> {
         }
 
         final String reportText = report.toString();
-        publish(new ProgressUpdate(100.0f, "Scan Finished", reportText));
+        publish(new ProgressUpdate(100.0f, "Scan Finished", reportText, -1));
 
         return null;
     }
@@ -144,7 +142,7 @@ final class ScanWorker extends SwingWorker<String, ProgressUpdate> {
             count += scanProblem(report, dirLen, file);
             pct += step;
 
-            publish(new ProgressUpdate(pct, "Scanning Problems...", report.toString()));
+            publish(new ProgressUpdate(pct, "Scanning Problems...", report.toString(), count));
 
             if (count >= this.maxErrors) {
                 break;
@@ -205,139 +203,139 @@ final class ScanWorker extends SwingWorker<String, ProgressUpdate> {
         return count;
     }
 
-    /**
-     * Scans all exams.
-     *
-     * @param report    the report being constructed
-     * @param examFiles the problem files to scan
-     * @param startPct  the starting completion percentage
-     * @param endPct    the ending completion percentage
-     */
-    private void scanExams(final HtmlBuilder report, final Collection<? extends File> examFiles,
-                           final float startPct, final float endPct) {
+//    /**
+//     * Scans all exams.
+//     *
+//     * @param report    the report being constructed
+//     * @param examFiles the problem files to scan
+//     * @param startPct  the starting completion percentage
+//     * @param endPct    the ending completion percentage
+//     */
+//    private void scanExams(final HtmlBuilder report, final Collection<? extends File> examFiles,
+//                           final float startPct, final float endPct) {
+//
+//        final float step = (endPct - startPct) / (float) examFiles.size();
+//        float pct = startPct;
+//
+//        for (final File file : examFiles) {
+//            if (isCancelled()) {
+//                break;
+//            }
+//            scanExam(report, file);
+//            pct += step;
+//            publish(new ProgressUpdate(pct, "Scanning Exam...", report.toString()));
+//        }
+//    }
 
-        final float step = (endPct - startPct) / (float) examFiles.size();
-        float pct = startPct;
+//    /**
+//     * Scans a single exam.
+//     *
+//     * @param report   the report being constructed
+//     * @param examFile the exam file to scan
+//     */
+//    private void scanExam(final HtmlBuilder report, final File examFile) {
+//
+//        report.addln(examFile.getAbsolutePath()).br();
+//
+//        final String xml = FileLoader.loadFileAsString(examFile, true);
+//        if (xml == null) {
+//            report.sSpan(null, "style='color:red;'").add("ERROR: Unable to read file.").eSpan().br().addln();
+//        } else {
+//            try {
+//                final XmlContent content = new XmlContent(xml, false, true);
+//                final ExamObj exam = ExamFactory.load(content, this.parserMode);
+//                final List<XmlContentError> parseErrors = content.getAllErrors();
+//
+//                if (exam == null) {
+//                    report.sSpan(null, "style='color:red;'").add("ERROR: Unable to parse file.").eSpan().br().addln();
+//                    for (final XmlContentError err : parseErrors) {
+//                        report.add("&nbsp; &bull; ", err).br().addln();
+//                    }
+//                } else {
+//                    if (!parseErrors.isEmpty()) {
+//                        report.sSpan(null, "style='color:red;'").add("WARNING: There were parser warnings:").eSpan()
+//                                .br().addln();
+//                        for (final XmlContentError err : parseErrors) {
+//                            report.add("&nbsp; &bull; ").sSpan(null, "style='color:blue;'").add(err).eSpan().br()
+//                                    .addln();
+//                        }
+//                    }
+//
+//                    QualityControlChecks.examQualityChecks(report, examFile, exam);
+//                }
+//            } catch (final ParsingException ex) {
+//                report.sSpan(null, "style='color:red;'").add("ERROR: Exception while parsing file: ", ex.getMessage())
+//                        .eSpan().br().addln();
+//            }
+//        }
+//    }
 
-        for (final File file : examFiles) {
-            if (isCancelled()) {
-                break;
-            }
-            scanExam(report, file);
-            pct += step;
-            publish(new ProgressUpdate(pct, "Scanning Exam...", report.toString()));
-        }
-    }
+//    /**
+//     * Scans all homeworks.
+//     *
+//     * @param report        the report being constructed
+//     * @param homeworkFiles the homework files to scan
+//     * @param startPct      the starting completion percentage
+//     */
+//    private void scanHomeworks(final HtmlBuilder report, final Collection<? extends File> homeworkFiles,
+//                               final float startPct) {
+//
+//        final float step = (100.0f - startPct) / (float) homeworkFiles.size();
+//        float pct = startPct;
+//
+//        for (final File file : homeworkFiles) {
+//            if (isCancelled()) {
+//                break;
+//            }
+//            scanHomework(report, file);
+//            pct += step;
+//            publish(new ProgressUpdate(pct, "Scanning Homework Set...", report.toString()));
+//        }
+//    }
 
-    /**
-     * Scans a single exam.
-     *
-     * @param report   the report being constructed
-     * @param examFile the exam file to scan
-     */
-    private void scanExam(final HtmlBuilder report, final File examFile) {
-
-        report.addln(examFile.getAbsolutePath()).br();
-
-        final String xml = FileLoader.loadFileAsString(examFile, true);
-        if (xml == null) {
-            report.sSpan(null, "style='color:red;'").add("ERROR: Unable to read file.").eSpan().br().addln();
-        } else {
-            try {
-                final XmlContent content = new XmlContent(xml, false, true);
-                final ExamObj exam = ExamFactory.load(content, this.parserMode);
-                final List<XmlContentError> parseErrors = content.getAllErrors();
-
-                if (exam == null) {
-                    report.sSpan(null, "style='color:red;'").add("ERROR: Unable to parse file.").eSpan().br().addln();
-                    for (final XmlContentError err : parseErrors) {
-                        report.add("&nbsp; &bull; ", err).br().addln();
-                    }
-                } else {
-                    if (!parseErrors.isEmpty()) {
-                        report.sSpan(null, "style='color:red;'").add("WARNING: There were parser warnings:").eSpan()
-                                .br().addln();
-                        for (final XmlContentError err : parseErrors) {
-                            report.add("&nbsp; &bull; ").sSpan(null, "style='color:blue;'").add(err).eSpan().br()
-                                    .addln();
-                        }
-                    }
-
-                    QualityControlChecks.examQualityChecks(report, examFile, exam);
-                }
-            } catch (final ParsingException ex) {
-                report.sSpan(null, "style='color:red;'").add("ERROR: Exception while parsing file: ", ex.getMessage())
-                        .eSpan().br().addln();
-            }
-        }
-    }
-
-    /**
-     * Scans all homeworks.
-     *
-     * @param report        the report being constructed
-     * @param homeworkFiles the homework files to scan
-     * @param startPct      the starting completion percentage
-     */
-    private void scanHomeworks(final HtmlBuilder report, final Collection<? extends File> homeworkFiles,
-                               final float startPct) {
-
-        final float step = (100.0f - startPct) / (float) homeworkFiles.size();
-        float pct = startPct;
-
-        for (final File file : homeworkFiles) {
-            if (isCancelled()) {
-                break;
-            }
-            scanHomework(report, file);
-            pct += step;
-            publish(new ProgressUpdate(pct, "Scanning Homework Set...", report.toString()));
-        }
-    }
-
-    /**
-     * Scans a single homework.
-     *
-     * @param report       the report being constructed
-     * @param homeworkFile the homework file to scan
-     */
-    private void scanHomework(final HtmlBuilder report, final File homeworkFile) {
-
-        report.addln(homeworkFile.getAbsolutePath()).br();
-
-        final String xml = FileLoader.loadFileAsString(homeworkFile, true);
-        if (xml == null) {
-            report.sSpan(null, "style='color:red;'").add("ERROR: Unable to read file.").eSpan().br().addln();
-        } else {
-            try {
-                final XmlContent content = new XmlContent(xml, false, true);
-                final ExamObj exam = ExamFactory.load(content, this.parserMode);
-                final List<XmlContentError> parseErrors = content.getAllErrors();
-
-                if (exam == null) {
-                    report.sSpan(null, "style='color:red;'")
-                            .add("ERROR: Unable to parse file.").eSpan().br().addln();
-                    for (final XmlContentError err : parseErrors) {
-                        report.add("&nbsp; &bull; ", err).br().addln();
-                    }
-                } else {
-                    if (!parseErrors.isEmpty()) {
-                        report.sSpan(null, "style='color:red;'")
-                                .add("WARNING: There were parser warnings:").eSpan().br().addln();
-                        for (final XmlContentError err : parseErrors) {
-                            report.add("&nbsp; &bull; ").sSpan(null, "style='color:blue;'").add(err)
-                                    .eSpan().br().addln();
-                        }
-                    }
-
-                    QualityControlChecks.homeworkQualityChecks(report, homeworkFile, exam);
-                }
-            } catch (final ParsingException ex) {
-                report.sSpan(null, "style='color:red;'").add("ERROR: Exception while parsing file: ", ex.getMessage())
-                        .eSpan().br().addln();
-            }
-        }
-    }
+//    /**
+//     * Scans a single homework.
+//     *
+//     * @param report       the report being constructed
+//     * @param homeworkFile the homework file to scan
+//     */
+//    private void scanHomework(final HtmlBuilder report, final File homeworkFile) {
+//
+//        report.addln(homeworkFile.getAbsolutePath()).br();
+//
+//        final String xml = FileLoader.loadFileAsString(homeworkFile, true);
+//        if (xml == null) {
+//            report.sSpan(null, "style='color:red;'").add("ERROR: Unable to read file.").eSpan().br().addln();
+//        } else {
+//            try {
+//                final XmlContent content = new XmlContent(xml, false, true);
+//                final ExamObj exam = ExamFactory.load(content, this.parserMode);
+//                final List<XmlContentError> parseErrors = content.getAllErrors();
+//
+//                if (exam == null) {
+//                    report.sSpan(null, "style='color:red;'")
+//                            .add("ERROR: Unable to parse file.").eSpan().br().addln();
+//                    for (final XmlContentError err : parseErrors) {
+//                        report.add("&nbsp; &bull; ", err).br().addln();
+//                    }
+//                } else {
+//                    if (!parseErrors.isEmpty()) {
+//                        report.sSpan(null, "style='color:red;'")
+//                                .add("WARNING: There were parser warnings:").eSpan().br().addln();
+//                        for (final XmlContentError err : parseErrors) {
+//                            report.add("&nbsp; &bull; ").sSpan(null, "style='color:blue;'").add(err)
+//                                    .eSpan().br().addln();
+//                        }
+//                    }
+//
+//                    QualityControlChecks.homeworkQualityChecks(report, homeworkFile, exam);
+//                }
+//            } catch (final ParsingException ex) {
+//                report.sSpan(null, "style='color:red;'").add("ERROR: Exception while parsing file: ", ex.getMessage())
+//                        .eSpan().br().addln();
+//            }
+//        }
+//    }
 
     /**
      * Called on the AWT event thread when one or more updates have been published.
@@ -348,7 +346,8 @@ final class ScanWorker extends SwingWorker<String, ProgressUpdate> {
     protected void process(final List<ProgressUpdate> chunks) {
 
         final ProgressUpdate latest = chunks.getLast();
-        this.owner.update(latest);
+        final boolean done = latest.errorsSoFar == -1;
+        this.owner.update(latest, done);
     }
 
     /**

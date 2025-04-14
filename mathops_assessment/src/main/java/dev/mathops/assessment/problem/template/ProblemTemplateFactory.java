@@ -24,6 +24,7 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.text.parser.CharSpan;
 import dev.mathops.text.parser.ICharSpan;
+import dev.mathops.text.parser.ParsingException;
 import dev.mathops.text.parser.xml.CData;
 import dev.mathops.text.parser.xml.IElement;
 import dev.mathops.text.parser.xml.INode;
@@ -108,7 +109,7 @@ public enum ProblemTemplateFactory {
                 Log.warning("    ", err);
             }
 
-        } catch (final Exception ex) {
+        } catch (final ParsingException ex) {
             problem = new ProblemDummyTemplate();
             Log.warning(ex);
         }
