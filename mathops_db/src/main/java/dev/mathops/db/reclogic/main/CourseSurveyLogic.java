@@ -4,7 +4,7 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DataDict;
 import dev.mathops.db.ESchema;
-import dev.mathops.db.rec.main.FacilityRec;
+import dev.mathops.db.rec.main.CourseSurveyRec;
 import dev.mathops.db.reclogic.IRecLogic;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -14,27 +14,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A utility class to work with "facility" records.
+ * A utility class to work with "course survey" records.
  *
  * <pre>
- * CREATE TABLE main.facility (
- *     facility_id              char(10)        NOT NULL,  -- A unique ID for each facility (not visible)
- *     facility_name            varchar(100)    NOT NULL,  -- The facility name (visible)
- *     building_name            varchar(40),               -- Building name, null if virtual
- *     room_nbr                 varchar(20),               -- Room number, null if virtual
- *     PRIMARY KEY (facility_id)
+ * CREATE TABLE main.course_survey (
+ *     survey_id                char(10)       NOT NULL,  -- The survey ID
+ *     open_week                smallint,                 -- The week when survey opens (null if open any time course
+ *                                                        --     open, negative to indicate offset from end of term)
+ *     open_day                 smallint,                 -- The weekday when the survey opens (at day start, null if
+ *                                                        --     none)
+ *     close_week               smallint,                 -- The week when the survey closes (null if no closure,
+ *                                                        --     negative to indicate offset from end of term)
+ *     close_day                smallint,                 -- The weekday when the survey closes (at day end, null if
+ *                                                        --     none)
+ *     PRIMARY KEY (survey_id)
  * ) TABLESPACE primary_ts;
  * </pre>
  */
-public final class FacilityLogic implements IRecLogic<FacilityRec> {
+public final class CourseSurveyLogic implements IRecLogic<CourseSurveyRec> {
 
     /** A single instance. */
-    public static final FacilityLogic INSTANCE = new FacilityLogic();
+    public static final CourseSurveyLogic INSTANCE = new CourseSurveyLogic();
 
     /**
      * Private constructor to prevent direct instantiation.
      */
-    private FacilityLogic() {
+    private CourseSurveyLogic() {
 
         super();
     }
@@ -48,7 +53,7 @@ public final class FacilityLogic implements IRecLogic<FacilityRec> {
      * @throws SQLException if there is an error accessing the database
      */
     @Override
-    public boolean insert(final Cache cache, final FacilityRec record) throws SQLException {
+    public boolean insert(final Cache cache, final CourseSurveyRec record) throws SQLException {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
@@ -58,14 +63,14 @@ public final class FacilityLogic implements IRecLogic<FacilityRec> {
             result = false;
         } else {
             final String sql = SimpleBuilder.concat("INSERT INTO ", schemaPrefix,
-                    ".facility (facility_id,facility_name,building_name,room_nbr) VALUES (",
-                    sqlStringValue(record.facilityId), ",",
-                    sqlStringValue(record.facilityName), ",",
-                    sqlStringValue(record.buildingName), ",",
-                    sqlStringValue(record.roomNbr), ")");
+                    ".course_survey (survey_id,open_week,open_day,close_week,close_day) VALUES (",
+                    sqlStringValue(record.surveyId), ",",
+                    sqlIntegerValue(record.openWeek), ",",
+                    sqlIntegerValue(record.openDay), ",",
+                    sqlIntegerValue(record.closeWeek), ",",
+                    sqlIntegerValue(record.closeDay), ")");
 
             result = doUpdateOneRow(cache, sql);
-
         }
 
         return result;
@@ -80,7 +85,7 @@ public final class FacilityLogic implements IRecLogic<FacilityRec> {
      * @throws SQLException if there is an error accessing the database
      */
     @Override
-    public boolean delete(final Cache cache, final FacilityRec record) throws SQLException {
+    public boolean delete(final Cache cache, final CourseSurveyRec record) throws SQLException {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
@@ -89,8 +94,8 @@ public final class FacilityLogic implements IRecLogic<FacilityRec> {
             Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
             result = false;
         } else {
-            final String sql = SimpleBuilder.concat("DELETE FROM ", schemaPrefix, ".facility WHERE facility_id=",
-                    sqlStringValue(record.facilityId));
+            final String sql = SimpleBuilder.concat("DELETE FROM ", schemaPrefix, ".course_survey WHERE survey_id=",
+                    sqlStringValue(record.surveyId));
 
             result = doUpdateOneRow(cache, sql);
         }
@@ -106,16 +111,16 @@ public final class FacilityLogic implements IRecLogic<FacilityRec> {
      * @throws SQLException if there is an error performing the query
      */
     @Override
-    public List<FacilityRec> queryAll(final Cache cache) throws SQLException {
+    public List<CourseSurveyRec> queryAll(final Cache cache) throws SQLException {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
-        final List<FacilityRec> result;
+        final List<CourseSurveyRec> result;
         if (schemaPrefix == null) {
             Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
             result = new ArrayList<>(0);
         } else {
-            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".facility");
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".course_survey");
 
             result = doListQuery(cache, sql);
         }
@@ -124,24 +129,24 @@ public final class FacilityLogic implements IRecLogic<FacilityRec> {
     }
 
     /**
-     * Queries for a facility by its ID.
+     * Queries for a course survey by its ID.
      *
      * @param cache    the data cache
-     * @param facility the facility ID for which to query
+     * @param surveyId the survey ID for which to query
      * @return the matching record; {@code null} if not found
      * @throws SQLException if there is an error performing the query
      */
-    public FacilityRec query(final Cache cache, final String facility) throws SQLException {
+    public CourseSurveyRec query(final Cache cache, final String surveyId) throws SQLException {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
-        final FacilityRec result;
+        final CourseSurveyRec result;
         if (schemaPrefix == null) {
             Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
             result = null;
         } else {
-            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".facility WHERE facility_id=",
-                    sqlStringValue(facility));
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
+                    ".course_survey WHERE survey_id=", sqlStringValue(surveyId));
 
             result = doSingleQuery(cache, sql);
         }
@@ -157,7 +162,7 @@ public final class FacilityLogic implements IRecLogic<FacilityRec> {
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    public boolean update(final Cache cache, final FacilityRec record) throws SQLException {
+    public boolean update(final Cache cache, final CourseSurveyRec record) throws SQLException {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
@@ -166,10 +171,12 @@ public final class FacilityLogic implements IRecLogic<FacilityRec> {
             Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
             result = false;
         } else {
-            final String sql = SimpleBuilder.concat("UPDATE ", schemaPrefix, ".facility SET facility_name=",
-                    sqlStringValue(record.facilityName), ",building_name=", sqlStringValue(record.buildingName),
-                    ",room_nbr=", sqlStringValue(record.roomNbr), " WHERE facility_id=",
-                    sqlStringValue(record.facilityId));
+            final String sql = SimpleBuilder.concat("UPDATE ", schemaPrefix,
+                    ".course_survey SET open_week=", sqlIntegerValue(record.openWeek),
+                    ",open_day=", sqlIntegerValue(record.openDay),
+                    ",close_week=", sqlIntegerValue(record.closeWeek),
+                    ",close_day=", sqlIntegerValue(record.closeDay),
+                    " WHERE survey_id=", sqlStringValue(record.surveyId));
 
             result = doUpdateOneRow(cache, sql);
         }
@@ -185,13 +192,14 @@ public final class FacilityLogic implements IRecLogic<FacilityRec> {
      * @throws SQLException if there is an error accessing the database
      */
     @Override
-    public FacilityRec fromResultSet(final ResultSet rs) throws SQLException {
+    public CourseSurveyRec fromResultSet(final ResultSet rs) throws SQLException {
 
-        final String theFacilityId = getStringField(rs, DataDict.FLD_FACILITY_ID);
-        final String theFacilityName = getStringField(rs, DataDict.FLD_FACILITY_NAME);
-        final String theBuildingName = getStringField(rs, DataDict.FLD_BUILDING_NAME);
-        final String theRoomNbr = getStringField(rs, DataDict.FLD_ROOM_NBR);
+        final String theSurveyId = getStringField(rs, DataDict.FLD_SURVEY_ID);
+        final Integer theOpenWeek = getIntegerField(rs, DataDict.FLD_OPEN_WEEK);
+        final Integer theOpenDay = getIntegerField(rs, DataDict.FLD_OPEN_DAY);
+        final Integer theCloseWeek = getIntegerField(rs, DataDict.FLD_CLOSE_WEEK);
+        final Integer theCloseDay = getIntegerField(rs, DataDict.FLD_CLOSE_DAY);
 
-        return new FacilityRec(theFacilityId, theFacilityName, theBuildingName, theRoomNbr);
+        return new CourseSurveyRec(theSurveyId, theOpenWeek, theOpenDay, theCloseWeek, theCloseDay);
     }
 }

@@ -10,7 +10,7 @@ import dev.mathops.db.cfg.DatabaseConfig;
 import dev.mathops.db.cfg.Facet;
 import dev.mathops.db.cfg.Login;
 import dev.mathops.db.cfg.Profile;
-import dev.mathops.db.rec.main.StandardsCourseModuleRec;
+import dev.mathops.db.rec.main.CourseSurveyItemRec;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -27,29 +27,25 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * Tests for the {@code StandardsCourseModuleLogic} class.
+ * Tests for the {@code CourseSurveyItemLogic} class.
  */
-final class TestStandardsCourseModuleLogic {
+final class TestCourseSurveyItemLogic {
 
     /** A raw test record. */
-    private static final StandardsCourseModuleRec RAW1 =
-            new StandardsCourseModuleRec("MATH 117", Integer.valueOf(1), Integer.valueOf(3), "02_alg/01_numbers");
+    private static final CourseSurveyItemRec RAW1 =
+            new CourseSurveyItemRec("SURV-1", Integer.valueOf(1), Integer.valueOf(2), "Prompt 1");
 
     /** A raw test record. */
-    private static final StandardsCourseModuleRec RAW2 =
-            new StandardsCourseModuleRec("MATH 101", Integer.valueOf(2), Integer.valueOf(5), "01_gen/02_data");
+    private static final CourseSurveyItemRec RAW2 =
+            new CourseSurveyItemRec("SURV-1", Integer.valueOf(2), Integer.valueOf(3), "Prompt 2");
 
     /** A raw test record. */
-    private static final StandardsCourseModuleRec RAW3 =
-            new StandardsCourseModuleRec("MATH 160", Integer.valueOf(3), Integer.valueOf(4), "06_calc/03_deriv_apps");
+    private static final CourseSurveyItemRec RAW3 =
+            new CourseSurveyItemRec("SURV-2", Integer.valueOf(3), Integer.valueOf(4), "Prompt 3");
 
     /** A raw test record. */
-    private static final StandardsCourseModuleRec RAW4 =
-            new StandardsCourseModuleRec("MATH 160", Integer.valueOf(4), Integer.valueOf(6), "06_calc/04_antidiff");
-
-    /** A raw test record. */
-    private static final StandardsCourseModuleRec UPD4 =
-            new StandardsCourseModuleRec("MATH 160", Integer.valueOf(4), Integer.valueOf(7), "06_calc/04_integrals");
+    private static final CourseSurveyItemRec UPD3 =
+            new CourseSurveyItemRec("SURV-2", Integer.valueOf(3), Integer.valueOf(5), "Prompt 4");
 
     /** The database profile. */
     static Profile profile;
@@ -62,12 +58,12 @@ final class TestStandardsCourseModuleLogic {
      *
      * @param r the unexpected record
      */
-    private static void printUnexpected(final StandardsCourseModuleRec r) {
+    private static void printUnexpected(final CourseSurveyItemRec r) {
 
-        Log.warning("Unexpected course ID ", r.courseId);
-        Log.warning("Unexpected module number ", r.moduleNbr);
-        Log.warning("Unexpected number of standards ", r.nbrStandards);
-        Log.warning("Unexpected module path ", r.modulePath);
+        Log.warning("Unexpected survey ID ", r.surveyId);
+        Log.warning("Unexpected item number ", r.itemNbr);
+        Log.warning("Unexpected item type ", r.itemType);
+        Log.warning("Unexpected prompt HTML ", r.promptHtml);
     }
 
     /** Initialize the test class. */
@@ -115,21 +111,16 @@ final class TestStandardsCourseModuleLogic {
             }
 
             try (final Statement stmt = conn.createStatement()) {
-                stmt.executeUpdate("DELETE FROM " + prefix + ".standards_course_module");
+                stmt.executeUpdate("DELETE FROM " + prefix + ".course_survey_item");
             }
             conn.commit();
 
-            assertTrue(StandardsCourseModuleLogic.INSTANCE.insert(cache, RAW1),
-                    "Failed to insert standards course module");
-            assertTrue(StandardsCourseModuleLogic.INSTANCE.insert(cache, RAW2),
-                    "Failed to insert standards course module");
-            assertTrue(StandardsCourseModuleLogic.INSTANCE.insert(cache, RAW3),
-                    "Failed to insert standards course module");
-            assertTrue(StandardsCourseModuleLogic.INSTANCE.insert(cache, RAW4),
-                    "Failed to insert standards course module");
+            assertTrue(CourseSurveyItemLogic.INSTANCE.insert(cache, RAW1), "Failed to insert course survey item");
+            assertTrue(CourseSurveyItemLogic.INSTANCE.insert(cache, RAW2), "Failed to insert course survey item");
+            assertTrue(CourseSurveyItemLogic.INSTANCE.insert(cache, RAW3), "Failed to insert course survey item");
         } catch (final SQLException ex) {
             Log.warning(ex);
-            fail("Exception while initializing 'standards_course_module' table: " + ex.getMessage());
+            fail("Exception while initializing 'course_survey_item' table: " + ex.getMessage());
             throw new IllegalArgumentException(ex);
         } finally {
             login.checkInConnection(conn);
@@ -143,37 +134,33 @@ final class TestStandardsCourseModuleLogic {
         final Cache cache = new Cache(profile);
 
         try {
-            final List<StandardsCourseModuleRec> all = StandardsCourseModuleLogic.INSTANCE.queryAll(cache);
+            final List<CourseSurveyItemRec> all = CourseSurveyItemLogic.INSTANCE.queryAll(cache);
 
-            assertEquals(4, all.size(), "Incorrect record count from queryAll");
+            assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
             boolean found1 = false;
             boolean found2 = false;
             boolean found3 = false;
-            boolean found4 = false;
 
-            for (final StandardsCourseModuleRec r : all) {
+            for (final CourseSurveyItemRec r : all) {
                 if (RAW1.equals(r)) {
                     found1 = true;
                 } else if (RAW2.equals(r)) {
                     found2 = true;
                 } else if (RAW3.equals(r)) {
                     found3 = true;
-                } else if (RAW4.equals(r)) {
-                    found4 = true;
                 } else {
                     printUnexpected(r);
                     fail("Extra record found");
                 }
             }
 
-            assertTrue(found1, "standards_course_module 1 not found");
-            assertTrue(found2, "standards_course_module 2 not found");
-            assertTrue(found3, "standards_course_module 3 not found");
-            assertTrue(found4, "standards_course_module 4 not found");
+            assertTrue(found1, "course_survey_item 1 not found");
+            assertTrue(found2, "course_survey_item 2 not found");
+            assertTrue(found3, "course_survey_item 3 not found");
         } catch (final SQLException ex) {
             Log.warning(ex);
-            fail("Exception while querying all 'standards_course_module' rows: " + ex.getMessage());
+            fail("Exception while querying all 'course_survey_item' rows: " + ex.getMessage());
         }
     }
 
@@ -184,8 +171,7 @@ final class TestStandardsCourseModuleLogic {
         final Cache cache = new Cache(profile);
 
         try {
-            final StandardsCourseModuleRec r = StandardsCourseModuleLogic.INSTANCE.query(cache, RAW1.courseId,
-                    RAW1.moduleNbr);
+            final CourseSurveyItemRec r = CourseSurveyItemLogic.INSTANCE.query(cache, RAW1.surveyId, RAW1.itemNbr);
 
             assertNotNull(r, "No record returned by query");
 
@@ -195,41 +181,40 @@ final class TestStandardsCourseModuleLogic {
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
-            fail("Exception while querying standards_course_module: " + ex.getMessage());
+            fail("Exception while querying course_survey_item: " + ex.getMessage());
         }
     }
 
     /** Test case. */
     @Test
-    @DisplayName("queryByCourse results")
+    @DisplayName("queryBySurvey results")
     void test0003() {
         final Cache cache = new Cache(profile);
 
         try {
-            final List<StandardsCourseModuleRec> all = StandardsCourseModuleLogic.INSTANCE.queryByCourse(cache,
-                    RAW3.courseId);
+            final List<CourseSurveyItemRec> all = CourseSurveyItemLogic.INSTANCE.queryBySurveyId(cache, RAW1.surveyId);
 
-            assertEquals(2, all.size(), "Incorrect record count from queryByCourse");
+            assertEquals(2, all.size(), "Incorrect record count from queryAll");
 
-            boolean found3 = false;
-            boolean found4 = false;
+            boolean found1 = false;
+            boolean found2 = false;
 
-            for (final StandardsCourseModuleRec r : all) {
-                if (RAW3.equals(r)) {
-                    found3 = true;
-                } else if (RAW4.equals(r)) {
-                    found4 = true;
+            for (final CourseSurveyItemRec r : all) {
+                if (RAW1.equals(r)) {
+                    found1 = true;
+                } else if (RAW2.equals(r)) {
+                    found2 = true;
                 } else {
                     printUnexpected(r);
                     fail("Extra record found");
                 }
             }
 
-            assertTrue(found3, "standards_course_module 3 not found");
-            assertTrue(found4, "standards_course_module 4 not found");
+            assertTrue(found1, "course_survey_item 1 not found");
+            assertTrue(found2, "course_survey_item 2 not found");
         } catch (final SQLException ex) {
             Log.warning(ex);
-            fail("Exception while querying standards_course_module: " + ex.getMessage());
+            fail("Exception while querying all 'course_survey_item' rows: " + ex.getMessage());
         }
     }
 
@@ -240,22 +225,21 @@ final class TestStandardsCourseModuleLogic {
         final Cache cache = new Cache(profile);
 
         try {
-            if (StandardsCourseModuleLogic.INSTANCE.update(cache, UPD4)) {
-                final StandardsCourseModuleRec r = StandardsCourseModuleLogic.INSTANCE.query(cache, UPD4.courseId,
-                        UPD4.moduleNbr);
+            if (CourseSurveyItemLogic.INSTANCE.update(cache, UPD3)) {
+                final CourseSurveyItemRec r = CourseSurveyItemLogic.INSTANCE.query(cache, UPD3.surveyId, UPD3.itemNbr);
 
                 assertNotNull(r, "No record returned by query after update");
 
-                if (!UPD4.equals(r)) {
+                if (!UPD3.equals(r)) {
                     printUnexpected(r);
-                    fail("Incorrect results after update of standards_course_module");
+                    fail("Incorrect results after update of course_survey_item");
                 }
             } else {
-                fail("Failed to update standards_course_module row");
+                fail("Failed to update course_survey_item row");
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
-            fail("Exception while updating standards_course_module: " + ex.getMessage());
+            fail("Exception while updating course_survey_item: " + ex.getMessage());
         }
     }
 
@@ -266,36 +250,32 @@ final class TestStandardsCourseModuleLogic {
         final Cache cache = new Cache(profile);
 
         try {
-            final boolean result = StandardsCourseModuleLogic.INSTANCE.delete(cache, RAW2);
+            final boolean result = CourseSurveyItemLogic.INSTANCE.delete(cache, RAW2);
             assertTrue(result, "delete returned false");
 
-            final List<StandardsCourseModuleRec> all = StandardsCourseModuleLogic.INSTANCE.queryAll(cache);
+            final List<CourseSurveyItemRec> all = CourseSurveyItemLogic.INSTANCE.queryAll(cache);
 
-            assertEquals(3, all.size(), "Incorrect record count from queryAll after delete");
+            assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 
             boolean found1 = false;
             boolean found3 = false;
-            boolean found4 = false;
 
-            for (final StandardsCourseModuleRec r : all) {
+            for (final CourseSurveyItemRec r : all) {
                 if (RAW1.equals(r)) {
                     found1 = true;
-                } else if (RAW3.equals(r)) {
+                } else if (UPD3.equals(r)) {
                     found3 = true;
-                } else if (UPD4.equals(r)) {
-                    found4 = true;
                 } else {
                     printUnexpected(r);
                     fail("Extra record found");
                 }
             }
 
-            assertTrue(found1, "standards_course_module 1 not found");
-            assertTrue(found3, "standards_course_module 3 not found");
-            assertTrue(found4, "standards_course_module 4 not found");
+            assertTrue(found1, "course_survey_item 1 not found");
+            assertTrue(found3, "course_survey_item 3 not found");
         } catch (final SQLException ex) {
             Log.warning(ex);
-            fail("Exception while deleting standards_course_modules: " + ex.getMessage());
+            fail("Exception while deleting course_survey_items: " + ex.getMessage());
         }
     }
 
@@ -330,7 +310,7 @@ final class TestStandardsCourseModuleLogic {
                 }
 
                 try (final Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("DELETE FROM " + prefix + ".standards_course_module");
+                    stmt.executeUpdate("DELETE FROM " + prefix + ".course_survey_item");
                 }
 
                 conn.commit();

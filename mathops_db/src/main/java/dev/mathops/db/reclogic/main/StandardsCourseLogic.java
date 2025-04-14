@@ -133,7 +133,7 @@ public final class StandardsCourseLogic implements IRecLogic<StandardsCourseRec>
      *
      * @param cache    the data cache
      * @param courseId the course ID for which to query
-     * @return the facility; {@code null} if not found
+     * @return the matching record; {@code null} if not found
      * @throws SQLException if there is an error performing the query
      */
     public StandardsCourseRec query(final Cache cache, final String courseId) throws SQLException {

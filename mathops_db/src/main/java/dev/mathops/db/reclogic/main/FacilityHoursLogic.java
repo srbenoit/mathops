@@ -143,7 +143,7 @@ public final class FacilityHoursLogic implements IRecLogic<FacilityHoursRec> {
      * @param cache        the data cache
      * @param facilityId   the facility ID for which to query
      * @param displayIndex the display index for which to query
-     * @return the facility hours record; {@code null} if not found
+     * @return the matching record; {@code null} if not found
      * @throws SQLException if there is an error performing the query
      */
     public FacilityHoursRec query(final Cache cache, final String facilityId, final Integer displayIndex)

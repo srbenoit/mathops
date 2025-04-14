@@ -81,7 +81,7 @@ final class TestFacilityLogic {
         final DatabaseConfig config = DatabaseConfig.getDefault();
         profile = config.getCodeProfile(Contexts.POSTGRES_TEST_PATH);
         if (profile == null) {
-            throw new IllegalArgumentException(TestRes.get(TestRes.ERR_NO_IFXTEST_PROFILE));
+            throw new IllegalArgumentException(TestRes.get(TestRes.ERR_NO_PGTEST_PROFILE));
         }
         login = profile.getLogin(ESchema.LEGACY);
         if (login == null) {

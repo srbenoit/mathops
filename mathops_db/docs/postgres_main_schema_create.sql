@@ -387,9 +387,11 @@ ALTER TABLE IF EXISTS main_test.standard_assignment OWNER to math;
 -- DROP TABLE IF EXISTS main.course_survey;
 CREATE TABLE IF NOT EXISTS main.course_survey (
     survey_id                char(10)       NOT NULL,  -- The survey ID
-    open_week                smallint,                 -- The week when survey opens (null if open any time course open)
+    open_week                smallint,                 -- The week when survey opens (null if open any time course open,
+                                                       --     negative to indicate offset from end of term)
     open_day                 smallint,                 -- The weekday when the survey opens (at day start, null if none)
-    close_week               smallint,                 -- The week when the survey closes (null if no closure)
+    close_week               smallint,                 -- The week when the survey closes (null if no closure, negative
+                                                       --     to indicate offset from end of term)
     close_day                smallint,                 -- The weekday when the survey closes (at day end, null if none)
     PRIMARY KEY (survey_id)
 ) TABLESPACE primary_ts;

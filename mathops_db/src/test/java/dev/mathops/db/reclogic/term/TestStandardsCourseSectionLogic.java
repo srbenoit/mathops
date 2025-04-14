@@ -1,4 +1,4 @@
-package dev.mathops.db.reclogic.main;
+package dev.mathops.db.reclogic.term;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
@@ -10,7 +10,7 @@ import dev.mathops.db.cfg.DatabaseConfig;
 import dev.mathops.db.cfg.Facet;
 import dev.mathops.db.cfg.Login;
 import dev.mathops.db.cfg.Profile;
-import dev.mathops.db.rec.main.StandardsCourseModuleRec;
+import dev.mathops.db.rec.term.StandardsCourseSectionRec;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -19,6 +19,8 @@ import org.junit.jupiter.api.Test;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,29 +29,38 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * Tests for the {@code StandardsCourseModuleLogic} class.
+ * Tests for the {@code StandardsCourseSectionLogic} class.
  */
-final class TestStandardsCourseModuleLogic {
+final class TestStandardsCourseSectionLogic {
 
     /** A raw test record. */
-    private static final StandardsCourseModuleRec RAW1 =
-            new StandardsCourseModuleRec("MATH 117", Integer.valueOf(1), Integer.valueOf(3), "02_alg/01_numbers");
+    private static final StandardsCourseSectionRec RAW1 =
+            new StandardsCourseSectionRec("MATH 117", "001", "665544",
+                    LocalDate.of(2025, Month.JANUARY, 19), LocalDate.of(2025, Month.MAY, 11),
+                    LocalDate.of(2025, Month.JANUARY, 21), LocalDate.of(2025, Month.MAY, 9),
+                    "FULL", "SYS001", "FC", "Canvas.MATH117.001", "John Doe", "Weber", "123", Integer.valueOf(99));
 
     /** A raw test record. */
-    private static final StandardsCourseModuleRec RAW2 =
-            new StandardsCourseModuleRec("MATH 101", Integer.valueOf(2), Integer.valueOf(5), "01_gen/02_data");
+    private static final StandardsCourseSectionRec RAW2 =
+            new StandardsCourseSectionRec("MATH 117", "002", "554433",
+                    LocalDate.of(2025, Month.MARCH, 1), LocalDate.of(2025, Month.MAY, 11),
+                    LocalDate.of(2025, Month.MARCH, 3), LocalDate.of(2025, Month.MAY, 9),
+                    "HALF2", "SYS002", "CE", "Canvas.MATH117.002", "Jane Doe", "Johnson", "222", Integer.valueOf(88));
 
     /** A raw test record. */
-    private static final StandardsCourseModuleRec RAW3 =
-            new StandardsCourseModuleRec("MATH 160", Integer.valueOf(3), Integer.valueOf(4), "06_calc/03_deriv_apps");
+    private static final StandardsCourseSectionRec RAW3 =
+            new StandardsCourseSectionRec("MATH 118", "003", "443322",
+                    LocalDate.of(2025, Month.APRIL, 1), LocalDate.of(2025, Month.APRIL, 27),
+                    LocalDate.of(2025, Month.APRIL, 3), LocalDate.of(2025, Month.APRIL, 25),
+                    "10:13", "SYS003", "ZY", "Canvas.MATH118.003", "Edgar Poe", "Baker", "221B", Integer.valueOf(77));
 
     /** A raw test record. */
-    private static final StandardsCourseModuleRec RAW4 =
-            new StandardsCourseModuleRec("MATH 160", Integer.valueOf(4), Integer.valueOf(6), "06_calc/04_antidiff");
-
-    /** A raw test record. */
-    private static final StandardsCourseModuleRec UPD4 =
-            new StandardsCourseModuleRec("MATH 160", Integer.valueOf(4), Integer.valueOf(7), "06_calc/04_integrals");
+    private static final StandardsCourseSectionRec UPD3 =
+            new StandardsCourseSectionRec("MATH 118", "003", "987654",
+                    LocalDate.of(2025, Month.APRIL, 2), LocalDate.of(2025, Month.APRIL, 28),
+                    LocalDate.of(2025, Month.APRIL, 4), LocalDate.of(2025, Month.APRIL, 26),
+                    "11:14", "SYS004", "XY", "Canvas.MATH118.003.X", "Winston", "Ministry of Truth", "101",
+                    Integer.valueOf(84));
 
     /** The database profile. */
     static Profile profile;
@@ -62,12 +73,23 @@ final class TestStandardsCourseModuleLogic {
      *
      * @param r the unexpected record
      */
-    private static void printUnexpected(final StandardsCourseModuleRec r) {
+    private static void printUnexpected(final StandardsCourseSectionRec r) {
 
         Log.warning("Unexpected course ID ", r.courseId);
-        Log.warning("Unexpected module number ", r.moduleNbr);
-        Log.warning("Unexpected number of standards ", r.nbrStandards);
-        Log.warning("Unexpected module path ", r.modulePath);
+        Log.warning("Unexpected section number ", r.sectionNbr);
+        Log.warning("Unexpected CRN ", r.crn);
+        Log.warning("Unexpected Aries start date ", r.ariesStartDate);
+        Log.warning("Unexpected Aries end date ", r.ariesEndDate);
+        Log.warning("Unexpected first class date ", r.firstClassDate);
+        Log.warning("Unexpected last class date ", r.lastClassDate);
+        Log.warning("Unexpected subterm ", r.subterm);
+        Log.warning("Unexpected grading system ID ", r.gradingSystemId);
+        Log.warning("Unexpected campus ", r.campus);
+        Log.warning("Unexpected Canvas ID ", r.canvasId);
+        Log.warning("Unexpected instructor ", r.instructor);
+        Log.warning("Unexpected building name ", r.buildingName);
+        Log.warning("Unexpected room number ", r.roomNbr);
+        Log.warning("Unexpected weekdays ", r.weekdays);
     }
 
     /** Initialize the test class. */
@@ -91,9 +113,9 @@ final class TestStandardsCourseModuleLogic {
         }
 
         final Cache cache = new Cache(profile);
-        final String prefix = cache.getSchemaPrefix(ESchema.MAIN);
+        final String prefix = cache.getSchemaPrefix(ESchema.TERM);
         if (prefix == null) {
-            fail(TestRes.get(TestRes.ERR_NO_MAIN_PREFIX));
+            fail(TestRes.get(TestRes.ERR_NO_TERM_PREFIX));
         }
 
         final DbConnection conn = login.checkOutConnection();
@@ -115,21 +137,19 @@ final class TestStandardsCourseModuleLogic {
             }
 
             try (final Statement stmt = conn.createStatement()) {
-                stmt.executeUpdate("DELETE FROM " + prefix + ".standards_course_module");
+                stmt.executeUpdate("DELETE FROM " + prefix + ".standards_course_section");
             }
             conn.commit();
 
-            assertTrue(StandardsCourseModuleLogic.INSTANCE.insert(cache, RAW1),
-                    "Failed to insert standards course module");
-            assertTrue(StandardsCourseModuleLogic.INSTANCE.insert(cache, RAW2),
-                    "Failed to insert standards course module");
-            assertTrue(StandardsCourseModuleLogic.INSTANCE.insert(cache, RAW3),
-                    "Failed to insert standards course module");
-            assertTrue(StandardsCourseModuleLogic.INSTANCE.insert(cache, RAW4),
-                    "Failed to insert standards course module");
+            assertTrue(StandardsCourseSectionLogic.INSTANCE.insert(cache, RAW1),
+                    "Failed to insert standards course section");
+            assertTrue(StandardsCourseSectionLogic.INSTANCE.insert(cache, RAW2),
+                    "Failed to insert standards course section");
+            assertTrue(StandardsCourseSectionLogic.INSTANCE.insert(cache, RAW3),
+                    "Failed to insert standards course section");
         } catch (final SQLException ex) {
             Log.warning(ex);
-            fail("Exception while initializing 'standards_course_module' table: " + ex.getMessage());
+            fail("Exception while initializing 'standards_course_section' table: " + ex.getMessage());
             throw new IllegalArgumentException(ex);
         } finally {
             login.checkInConnection(conn);
@@ -143,37 +163,34 @@ final class TestStandardsCourseModuleLogic {
         final Cache cache = new Cache(profile);
 
         try {
-            final List<StandardsCourseModuleRec> all = StandardsCourseModuleLogic.INSTANCE.queryAll(cache);
+            final List<StandardsCourseSectionRec> all = StandardsCourseSectionLogic.INSTANCE.queryAll(
+                    cache);
 
-            assertEquals(4, all.size(), "Incorrect record count from queryAll");
+            assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
             boolean found1 = false;
             boolean found2 = false;
             boolean found3 = false;
-            boolean found4 = false;
 
-            for (final StandardsCourseModuleRec r : all) {
+            for (final StandardsCourseSectionRec r : all) {
                 if (RAW1.equals(r)) {
                     found1 = true;
                 } else if (RAW2.equals(r)) {
                     found2 = true;
                 } else if (RAW3.equals(r)) {
                     found3 = true;
-                } else if (RAW4.equals(r)) {
-                    found4 = true;
                 } else {
                     printUnexpected(r);
                     fail("Extra record found");
                 }
             }
 
-            assertTrue(found1, "standards_course_module 1 not found");
-            assertTrue(found2, "standards_course_module 2 not found");
-            assertTrue(found3, "standards_course_module 3 not found");
-            assertTrue(found4, "standards_course_module 4 not found");
+            assertTrue(found1, "standards_course_section 1 not found");
+            assertTrue(found2, "standards_course_section 2 not found");
+            assertTrue(found3, "standards_course_section 3 not found");
         } catch (final SQLException ex) {
             Log.warning(ex);
-            fail("Exception while querying all 'standards_course_module' rows: " + ex.getMessage());
+            fail("Exception while querying all 'standards_course_section' rows: " + ex.getMessage());
         }
     }
 
@@ -184,8 +201,8 @@ final class TestStandardsCourseModuleLogic {
         final Cache cache = new Cache(profile);
 
         try {
-            final StandardsCourseModuleRec r = StandardsCourseModuleLogic.INSTANCE.query(cache, RAW1.courseId,
-                    RAW1.moduleNbr);
+            final StandardsCourseSectionRec r = StandardsCourseSectionLogic.INSTANCE.query(cache, RAW1.courseId,
+                    RAW1.sectionNbr);
 
             assertNotNull(r, "No record returned by query");
 
@@ -195,107 +212,69 @@ final class TestStandardsCourseModuleLogic {
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
-            fail("Exception while querying standards_course_module: " + ex.getMessage());
-        }
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("queryByCourse results")
-    void test0003() {
-        final Cache cache = new Cache(profile);
-
-        try {
-            final List<StandardsCourseModuleRec> all = StandardsCourseModuleLogic.INSTANCE.queryByCourse(cache,
-                    RAW3.courseId);
-
-            assertEquals(2, all.size(), "Incorrect record count from queryByCourse");
-
-            boolean found3 = false;
-            boolean found4 = false;
-
-            for (final StandardsCourseModuleRec r : all) {
-                if (RAW3.equals(r)) {
-                    found3 = true;
-                } else if (RAW4.equals(r)) {
-                    found4 = true;
-                } else {
-                    printUnexpected(r);
-                    fail("Extra record found");
-                }
-            }
-
-            assertTrue(found3, "standards_course_module 3 not found");
-            assertTrue(found4, "standards_course_module 4 not found");
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while querying standards_course_module: " + ex.getMessage());
+            fail("Exception while querying standards_course_section: " + ex.getMessage());
         }
     }
 
     /** Test case. */
     @Test
     @DisplayName("update results")
-    void test0004() {
+    void test0003() {
         final Cache cache = new Cache(profile);
 
         try {
-            if (StandardsCourseModuleLogic.INSTANCE.update(cache, UPD4)) {
-                final StandardsCourseModuleRec r = StandardsCourseModuleLogic.INSTANCE.query(cache, UPD4.courseId,
-                        UPD4.moduleNbr);
+            if (StandardsCourseSectionLogic.INSTANCE.update(cache, UPD3)) {
+                final StandardsCourseSectionRec r = StandardsCourseSectionLogic.INSTANCE.query(cache, UPD3.courseId,
+                        UPD3.sectionNbr);
 
                 assertNotNull(r, "No record returned by query after update");
 
-                if (!UPD4.equals(r)) {
+                if (!UPD3.equals(r)) {
                     printUnexpected(r);
-                    fail("Incorrect results after update of standards_course_module");
+                    fail("Incorrect results after update of standards_course_section");
                 }
             } else {
-                fail("Failed to update standards_course_module row");
+                fail("Failed to update standards_course_section row");
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
-            fail("Exception while updating standards_course_module: " + ex.getMessage());
+            fail("Exception while updating standards_course_section: " + ex.getMessage());
         }
     }
 
     /** Test case. */
     @Test
     @DisplayName("delete results")
-    void test0005() {
+    void test0004() {
         final Cache cache = new Cache(profile);
 
         try {
-            final boolean result = StandardsCourseModuleLogic.INSTANCE.delete(cache, RAW2);
+            final boolean result = StandardsCourseSectionLogic.INSTANCE.delete(cache, RAW2);
             assertTrue(result, "delete returned false");
 
-            final List<StandardsCourseModuleRec> all = StandardsCourseModuleLogic.INSTANCE.queryAll(cache);
+            final List<StandardsCourseSectionRec> all = StandardsCourseSectionLogic.INSTANCE.queryAll( cache);
 
-            assertEquals(3, all.size(), "Incorrect record count from queryAll after delete");
+            assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 
             boolean found1 = false;
             boolean found3 = false;
-            boolean found4 = false;
 
-            for (final StandardsCourseModuleRec r : all) {
+            for (final StandardsCourseSectionRec r : all) {
                 if (RAW1.equals(r)) {
                     found1 = true;
-                } else if (RAW3.equals(r)) {
+                } else if (UPD3.equals(r)) {
                     found3 = true;
-                } else if (UPD4.equals(r)) {
-                    found4 = true;
                 } else {
                     printUnexpected(r);
                     fail("Extra record found");
                 }
             }
 
-            assertTrue(found1, "standards_course_module 1 not found");
-            assertTrue(found3, "standards_course_module 3 not found");
-            assertTrue(found4, "standards_course_module 4 not found");
+            assertTrue(found1, "standards_course_section 1 not found");
+            assertTrue(found3, "standards_course_section 3 not found");
         } catch (final SQLException ex) {
             Log.warning(ex);
-            fail("Exception while deleting standards_course_modules: " + ex.getMessage());
+            fail("Exception while deleting standards_course_sections: " + ex.getMessage());
         }
     }
 
@@ -304,9 +283,9 @@ final class TestStandardsCourseModuleLogic {
     static void cleanUp() {
 
         final Cache cache = new Cache(profile);
-        final String prefix = cache.getSchemaPrefix(ESchema.MAIN);
+        final String prefix = cache.getSchemaPrefix(ESchema.TERM);
         if (prefix == null) {
-            fail(TestRes.get(TestRes.ERR_NO_MAIN_PREFIX));
+            fail(TestRes.get(TestRes.ERR_NO_TERM_PREFIX));
         }
 
         try {
@@ -330,7 +309,7 @@ final class TestStandardsCourseModuleLogic {
                 }
 
                 try (final Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("DELETE FROM " + prefix + ".standards_course_module");
+                    stmt.executeUpdate("DELETE FROM " + prefix + ".standards_course_section");
                 }
 
                 conn.commit();

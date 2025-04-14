@@ -649,15 +649,13 @@ CREATE TABLE IF NOT EXISTS term_202510.student_course_mastery (
                                                        --     "aAabbbCcc...zzZ", where each letter (a-z) represents a
                                                        --     module and each repetition of that letter represents a
                                                        --     standard, lowercase = non-essential, uppercase = essential
-    homework_status          varchar(200)   NOT NULL,  -- The student's status on standard homeworks for each standard
-                                                       --     in a format like "YN---", the same length as the course
+    homework_status          varchar(200)   NOT NULL,  -- Student status on standard homeworks for each standard in a
+                                                       --     format like "YN---", the same length as the course
                                                        --     structure, Y=passed, N=attempted, -=not attempted
-    mastery_status           varchar(200)   NOT NULL,  -- The student's mastery status for each standard, in a format
-                                                       --     like "Yyn---", the same length as the course structure,
+    mastery_status           varchar(200)   NOT NULL,  -- Student mastery status for each standard, in a format like
+                                                       --     "Yyn---", the same length as the course structure,
                                                        --     Y=mastered on time, y=mastered late, N=attempted,
                                                        --     -=not attempted
-    nbr_completed_hw         smallint       NOT NULL,  -- The number of completed homework sets (of 24)
-    nbr_mastered_standards   smallint       NOT NULL,  -- The number of mastered standards (out of 24)
     completed                char(1)        NOT NULL,  -- "Y" if course is completed, "N" if not.
     score                    smallint       NOT NULL,  -- The current score
     PRIMARY KEY (student_id, course_id)

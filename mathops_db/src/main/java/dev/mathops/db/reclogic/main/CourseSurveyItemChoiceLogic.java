@@ -4,41 +4,37 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DataDict;
 import dev.mathops.db.ESchema;
-import dev.mathops.db.rec.main.FacilityClosureRec;
+import dev.mathops.db.rec.main.CourseSurveyItemChoiceRec;
 import dev.mathops.db.reclogic.IRecLogic;
 import dev.mathops.text.builder.SimpleBuilder;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A utility class to work with "facility_closure" records.
+ * A utility class to work with "course survey item choice" records.
  *
  * <pre>
- * CREATE TABLE main.facility_closure (
- *     facility_id              char(10)        NOT NULL,  -- The facility ID (references facility table)
- *     closure_date             date            NOT NULL,  -- The date of the closure
- *     closure_type             char(10)        NOT NULL,  -- The type of closure ('HOLIDAY, 'SP_BREAK', 'FA_BREAK',
- *                                                         --  'WEATHER', 'EMERGENCY', 'MAINT', 'EVENT')
- *     start_time               time,                      -- Start time, or null if all day
- *     end_time                 time,                      -- End time, or null if all day
- *     PRIMARY KEY (facility_id, closure_date)
+ * CREATE TABLE IF NOT EXISTS main.course_survey_item_choice (
+ *     survey_id                char(10)       NOT NULL,  -- The survey ID
+ *     item_nbr                 smallint       NOT NULL,  -- The item number
+ *     choice_nbr               smallint       NOT NULL,  -- The choice number
+ *     choice_html              varchar(250)   NOT NULL,  -- The HTML of the choice
+ *     PRIMARY KEY (survey_id, item_nbr, choice_nbr)
  * ) TABLESPACE primary_ts;
  * </pre>
  */
-public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec> {
+public final class CourseSurveyItemChoiceLogic implements IRecLogic<CourseSurveyItemChoiceRec> {
 
     /** A single instance. */
-    public static final FacilityClosureLogic INSTANCE = new FacilityClosureLogic();
+    public static final CourseSurveyItemChoiceLogic INSTANCE = new CourseSurveyItemChoiceLogic();
 
     /**
      * Private constructor to prevent direct instantiation.
      */
-    private FacilityClosureLogic() {
+    private CourseSurveyItemChoiceLogic() {
 
         super();
     }
@@ -52,7 +48,7 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
      * @throws SQLException if there is an error accessing the database
      */
     @Override
-    public boolean insert(final Cache cache, final FacilityClosureRec record) throws SQLException {
+    public boolean insert(final Cache cache, final CourseSurveyItemChoiceRec record) throws SQLException {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
@@ -61,13 +57,12 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
             Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
             result = false;
         } else {
-            final String sql = SimpleBuilder.concat("INSERT INTO ", schemaPrefix, ".facility_closure (facility_id,",
-                    "closure_date,closure_type,start_time,end_time) VALUES (",
-                    sqlStringValue(record.facilityId), ",",
-                    sqlDateValue(record.closureDate), ",",
-                    sqlStringValue(record.closureType), ",",
-                    sqlTimeValue(record.startTime), ",",
-                    sqlTimeValue(record.endTime), ")");
+            final String sql = SimpleBuilder.concat("INSERT INTO ", schemaPrefix,
+                    ".course_survey_item_choice (survey_id,item_nbr,choice_nbr,choice_html) VALUES (",
+                    sqlStringValue(record.surveyId), ",",
+                    sqlIntegerValue(record.itemNbr), ",",
+                    sqlIntegerValue(record.choiceNbr), ",",
+                    sqlStringValue(record.choiceHtml), ")");
 
             result = doUpdateOneRow(cache, sql);
         }
@@ -84,7 +79,7 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
      * @throws SQLException if there is an error accessing the database
      */
     @Override
-    public boolean delete(final Cache cache, final FacilityClosureRec record) throws SQLException {
+    public boolean delete(final Cache cache, final CourseSurveyItemChoiceRec record) throws SQLException {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
@@ -94,8 +89,9 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
             result = false;
         } else {
             final String sql = SimpleBuilder.concat("DELETE FROM ", schemaPrefix,
-                    ".facility_closure WHERE facility_id=", sqlStringValue(record.facilityId), " AND closure_date=",
-                    sqlDateValue(record.closureDate));
+                    ".course_survey_item_choice WHERE survey_id=", sqlStringValue(record.surveyId),
+                    " AND item_nbr=", sqlIntegerValue(record.itemNbr),
+                    " AND choice_nbr=", sqlIntegerValue(record.choiceNbr));
 
             result = doUpdateOneRow(cache, sql);
         }
@@ -111,16 +107,16 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
      * @throws SQLException if there is an error performing the query
      */
     @Override
-    public List<FacilityClosureRec> queryAll(final Cache cache) throws SQLException {
+    public List<CourseSurveyItemChoiceRec> queryAll(final Cache cache) throws SQLException {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
-        final List<FacilityClosureRec> result;
+        final List<CourseSurveyItemChoiceRec> result;
         if (schemaPrefix == null) {
             Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
             result = new ArrayList<>(0);
         } else {
-            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".facility_closure");
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".course_survey_item_choice");
 
             result = doListQuery(cache, sql);
         }
@@ -129,27 +125,30 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
     }
 
     /**
-     * Queries for all facility closure records for a single facility closure.
+     * Queries for a course survey item choice by its survey ID and item number.
      *
-     * @param cache       the data cache
-     * @param facilityId  the facility ID for which to query
-     * @param closureDate the closure date
+     * @param cache     the data cache
+     * @param surveyId  the survey ID for which to query
+     * @param itemNbr   the item number
+     * @param choiceNbr the choice number
      * @return the matching record; {@code null} if not found
      * @throws SQLException if there is an error performing the query
      */
-    public FacilityClosureRec query(final Cache cache, final String facilityId, final LocalDate closureDate)
+    public CourseSurveyItemChoiceRec query(final Cache cache, final String surveyId, final Integer itemNbr,
+                                           final Integer choiceNbr)
             throws SQLException {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
-        final FacilityClosureRec result;
+        final CourseSurveyItemChoiceRec result;
         if (schemaPrefix == null) {
             Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
             result = null;
         } else {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
-                    ".facility_closure WHERE facility_id=", sqlStringValue(facilityId), " AND closure_date=",
-                    sqlDateValue(closureDate));
+                    ".course_survey_item_choice  WHERE survey_id=", sqlStringValue(surveyId),
+                    " AND item_nbr=", sqlIntegerValue(itemNbr),
+                    " AND choice_nbr=", sqlIntegerValue(choiceNbr));
 
             result = doSingleQuery(cache, sql);
         }
@@ -158,26 +157,31 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
     }
 
     /**
-     * Queries for all facility hours records for a single facility.
+     * Queries for all course survey item choice records with a specified survey ID and item number.  Results are
+     * ordered by choice number.
      *
-     * @param cache      the data cache
-     * @param facilityId the facility ID for which to query
-     * @return the facility; {@code null} if not found
+     * @param cache    the data cache
+     * @param surveyId the survey ID for which to query
+     * @param itemNbr  the item number for which to query
+     * @return the list of all matching records
      * @throws SQLException if there is an error performing the query
      */
-    public List<FacilityClosureRec> queryByFacility(final Cache cache, final String facilityId) throws SQLException {
+    public List<CourseSurveyItemChoiceRec> queryBySurveyIdAndItemNbr(final Cache cache, final String surveyId,
+                                                                     final Integer itemNbr) throws SQLException {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
-        final List<FacilityClosureRec> result;
+        final List<CourseSurveyItemChoiceRec> result;
         if (schemaPrefix == null) {
             Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
             result = new ArrayList<>(0);
         } else {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
-                    ".facility_closure WHERE facility_id=", sqlStringValue(facilityId));
+                    ".course_survey_item_choice WHERE survey_id=", sqlStringValue(surveyId),
+                    " AND item_nbr=", sqlIntegerValue(itemNbr));
 
             result = doListQuery(cache, sql);
+            result.sort(null);
         }
 
         return result;
@@ -191,7 +195,7 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
      * @return {@code true} if successful; {@code false} if not
      * @throws SQLException if there is an error accessing the database
      */
-    public boolean update(final Cache cache, final FacilityClosureRec record) throws SQLException {
+    public boolean update(final Cache cache, final CourseSurveyItemChoiceRec record) throws SQLException {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
 
@@ -200,12 +204,11 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
             Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
             result = false;
         } else {
-            final String sql = SimpleBuilder.concat("UPDATE ", schemaPrefix, ".facility_closure SET closure_type=",
-                    sqlStringValue(record.closureType), ",start_time=",
-                    sqlTimeValue(record.startTime), ",end_time=",
-                    sqlTimeValue(record.endTime), " WHERE facility_id=",
-                    sqlStringValue(record.facilityId), " AND closure_date=",
-                    sqlDateValue(record.closureDate));
+            final String sql = SimpleBuilder.concat("UPDATE ", schemaPrefix,
+                    ".course_survey_item_choice SET choice_html=", sqlStringValue(record.choiceHtml),
+                    " WHERE survey_id=", sqlStringValue(record.surveyId),
+                    " AND item_nbr=", sqlIntegerValue(record.itemNbr),
+                    " AND choice_nbr=", sqlIntegerValue(record.choiceNbr));
 
             result = doUpdateOneRow(cache, sql);
         }
@@ -221,14 +224,13 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
      * @throws SQLException if there is an error accessing the database
      */
     @Override
-    public FacilityClosureRec fromResultSet(final ResultSet rs) throws SQLException {
+    public CourseSurveyItemChoiceRec fromResultSet(final ResultSet rs) throws SQLException {
 
-        final String theFacility = getStringField(rs, DataDict.FLD_FACILITY_ID);
-        final LocalDate theClosureDt = getDateField(rs, DataDict.FLD_CLOSURE_DATE);
-        final String theClosureType = getStringField(rs, DataDict.FLD_CLOSURE_TYPE);
-        final LocalTime theStartTime = getTimeField(rs, DataDict.FLD_START_TIME);
-        final LocalTime theEndTime = getTimeField(rs, DataDict.FLD_END_TIME);
+        final String theSurveyId = getStringField(rs, DataDict.FLD_SURVEY_ID);
+        final Integer theItemNbr = getIntegerField(rs, DataDict.FLD_ITEM_NBR);
+        final Integer theChoiceNbr = getIntegerField(rs, DataDict.FLD_CHOICE_NBR);
+        final String theChoiceHtml = getStringField(rs, DataDict.FLD_CHOICE_HTML);
 
-        return new FacilityClosureRec(theFacility, theClosureDt, theClosureType, theStartTime, theEndTime);
+        return new CourseSurveyItemChoiceRec(theSurveyId, theItemNbr, theChoiceNbr, theChoiceHtml);
     }
 }

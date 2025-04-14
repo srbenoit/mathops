@@ -1,4 +1,4 @@
-package dev.mathops.db.reclogic.main;
+package dev.mathops.db.reclogic.term;
 
 import dev.mathops.commons.res.ResBundle;
 
@@ -24,7 +24,7 @@ final class TestRes extends ResBundle {
     static final String ERR_NOT_CONNECTED_TO_TEST = key(4);
 
     /** A resource key. */
-    static final String ERR_NO_MAIN_PREFIX = key(5);
+    static final String ERR_NO_TERM_PREFIX = key(5);
 
     //
 
@@ -35,7 +35,7 @@ final class TestRes extends ResBundle {
             {ERR_NO_PGPRIMARY_CONTEXT, "No primary context in the 'pgtest' code profile."},
             {ERR_CANT_QUERY_WHICH_DB, "Can't query which_db"},
             {ERR_NOT_CONNECTED_TO_TEST, "Connected to {0} rather than TEST database"},
-            {ERR_NO_MAIN_PREFIX, "No prefix configured for MAIN schema"},
+            {ERR_NO_TERM_PREFIX, "No prefix configured for TERM schema"},
 
             //
     };
