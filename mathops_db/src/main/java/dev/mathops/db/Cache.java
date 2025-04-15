@@ -5,6 +5,7 @@ import dev.mathops.db.cfg.Login;
 import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.cfg.Facet;
 import dev.mathops.db.logic.ELiveRefreshes;
+import dev.mathops.db.logic.MainData;
 import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
@@ -46,6 +47,9 @@ public final class Cache {
     /** The single system data instance shared by all student data instances. */
     private final SystemData systemData;
 
+    /** The single main data instance shared by all student data instances. */
+    private final MainData mainData;
+
     /** Student data for the logged-in user; null when there is no logged-in user */
     private StudentData loggedInUser = null;
 
@@ -65,6 +69,7 @@ public final class Cache {
 
         this.profile = theProfile;
         this.systemData = new SystemData(this);
+        this.mainData = new MainData(this);
         this.studentData = new HashMap<>(4);
     }
 
@@ -114,6 +119,16 @@ public final class Cache {
     public SystemData getSystemData() {
 
         return this.systemData;
+    }
+
+    /**
+     * Gets the main data object.
+     *
+     * @return the main data object
+     */
+    public MainData getMainData() {
+
+        return this.mainData;
     }
 
     /**

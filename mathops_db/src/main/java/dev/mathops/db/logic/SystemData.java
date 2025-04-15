@@ -173,7 +173,7 @@ public final class SystemData {
     /**
      * Gets the database descriptor for the database to which this object's cache is connected.
      *
-     * @return the active term
+     * @return the database descriptor
      * @throws SQLException if there is an error accessing the database
      */
     public RawWhichDb getWhichDb() throws SQLException {
