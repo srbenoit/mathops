@@ -735,6 +735,7 @@ CREATE TABLE IF NOT EXISTS term_202510.student_preference (
     PRIMARY KEY (student_id, pref_key)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_202510.student_preference OWNER to math;
+CREATE INDEX ON term_202510.student_preference (student_id) TABLESPACE primary_ts;
 
 -- DROP TABLE IF EXISTS term_202560.student_preference;
 CREATE TABLE IF NOT EXISTS term_202560.student_preference (
@@ -744,6 +745,7 @@ CREATE TABLE IF NOT EXISTS term_202560.student_preference (
     PRIMARY KEY (student_id, pref_key)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_202560.student_preference OWNER to math;
+CREATE INDEX ON term_202560.student_preference (student_id) TABLESPACE primary_ts;
 
 -- DROP TABLE IF EXISTS term_202590.student_preference;
 CREATE TABLE IF NOT EXISTS term_202590.student_preference (
@@ -753,6 +755,7 @@ CREATE TABLE IF NOT EXISTS term_202590.student_preference (
     PRIMARY KEY (student_id, pref_key)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_202590.student_preference OWNER to math;
+CREATE INDEX ON term_202590.student_preference (student_id) TABLESPACE primary_ts;
 
 -- DROP TABLE IF EXISTS term_dev.student_preference;
 CREATE TABLE IF NOT EXISTS term_dev.student_preference (
@@ -762,6 +765,7 @@ CREATE TABLE IF NOT EXISTS term_dev.student_preference (
     PRIMARY KEY (student_id, pref_key)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_dev.student_preference OWNER to math;
+CREATE INDEX ON term_dev.student_preference (student_id) TABLESPACE primary_ts;
 
 -- DROP TABLE IF EXISTS term_test.student_preference;
 CREATE TABLE IF NOT EXISTS term_test.student_preference (
@@ -771,6 +775,7 @@ CREATE TABLE IF NOT EXISTS term_test.student_preference (
     PRIMARY KEY (student_id, pref_key)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_test.student_preference OWNER to math;
+CREATE INDEX ON term_test.student_preference (student_id) TABLESPACE primary_ts;
 
 -- ------------------------------------------------------------------------------------------------
 -- TABLE: course_survey_response
