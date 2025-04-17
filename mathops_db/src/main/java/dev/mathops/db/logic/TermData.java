@@ -4,13 +4,11 @@ import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
 import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawWhichDb;
-import dev.mathops.db.rec.main.FacilityHoursRec;
-import dev.mathops.db.rec.main.FacilityRec;
+import dev.mathops.db.rec.term.StandardAssignmentAttemptRec;
 import dev.mathops.db.rec.term.StandardsCourseGradingSystemRec;
 import dev.mathops.db.rec.term.StandardsCourseSectionRec;
 import dev.mathops.db.rec.term.StudentPreferenceRec;
-import dev.mathops.db.reclogic.main.FacilityHoursLogic;
-import dev.mathops.db.reclogic.main.FacilityLogic;
+import dev.mathops.db.reclogic.term.StandardAssignmentAttemptLogic;
 import dev.mathops.db.reclogic.term.StandardsCourseGradingSystemLogic;
 import dev.mathops.db.reclogic.term.StandardsCourseSectionLogic;
 import dev.mathops.db.reclogic.term.StudentPreferenceLogic;
@@ -44,6 +42,9 @@ public final class TermData {
     /** The grading systems defined for standards-based courses. */
     private List<StandardsCourseGradingSystemRec> standardsCourseGradingSystems = null;
 
+    /** A map from student ID to that student's standard assignment attempts. */
+    private final Map<String, List<StandardAssignmentAttemptRec>> standardAssignmentAttempts;
+
     /**
      * Constructs a new {@code TermData} with initial capacities appropriate to queries that will involve 2 students or
      * fewer (a common use-case).  Use the constructor that specifies an initial capacity for other use cases.
@@ -71,6 +72,7 @@ public final class TermData {
         this.cache = theCache;
         this.standardsCourseSections = new HashMap<>(6);
         this.studentPreferences = new HashMap<>(expectedNbrStudents);
+        this.standardAssignmentAttempts = new HashMap<>(expectedNbrStudents);
     }
 
     /**
@@ -249,4 +251,25 @@ public final class TermData {
         this.studentPreferences.remove(studentId);
     }
 
+    /**
+     * Gets all attempts on a standard assignment by a student.
+     *
+     * @param studentId    the student ID for which to query
+     * @param assignmentId the assignment ID for which to query
+     * @return the list of matching records
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<StandardAssignmentAttemptRec> getStandardAssignmentAttempts(final String studentId,
+                                                                            final String assignmentId)
+            throws SQLException {
+
+        List<StandardAssignmentAttemptRec> result = this.standardAssignmentAttempts.get(studentId);
+
+        if (result == null) {
+            result = StandardAssignmentAttemptLogic.INSTANCE.queryByStudent(this.cache, studentId);
+            this.standardAssignmentAttempts.put(studentId, result);
+        }
+
+        return result;
+    }
 }

@@ -130,6 +130,34 @@ public final class StudentPreferenceLogic implements IRecLogic<StudentPreference
      * @return the list of records for the specified student
      * @throws SQLException if there is an error performing the query
      */
+    public StudentPreferenceRec query(final Cache cache, final String studentId, final String prefKey)
+            throws SQLException {
+
+        final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
+
+        final StudentPreferenceRec result;
+        if (schemaPrefix == null) {
+            Log.warning("Cache profile '", cache.getProfile().id, "' does not support the TERM schema");
+            result = null;
+        } else {
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
+                    ".student_preference WHERE student_id=", sqlStringValue(studentId),
+                    " AND pref_key=", sqlStringValue(prefKey));
+
+            result = doSingleQuery(cache, sql);
+        }
+
+        return result;
+    }
+
+    /**
+     * Queries all preference records for a single student.
+     *
+     * @param cache     the data cache
+     * @param studentId the student for which to query
+     * @return the list of records for the specified student
+     * @throws SQLException if there is an error performing the query
+     */
     public List<StudentPreferenceRec> queryByStudent(final Cache cache, final String studentId) throws SQLException {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);

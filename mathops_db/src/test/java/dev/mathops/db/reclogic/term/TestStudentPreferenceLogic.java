@@ -165,19 +165,32 @@ final class TestStudentPreferenceLogic {
 
     /** Test case. */
     @Test
-    @DisplayName("query results")
+    @DisplayName("queryByStudent results")
     void test0002() {
         final Cache cache = new Cache(profile);
 
         try {
-            final StudentPreferenceRec r = StudentPreferenceLogic.INSTANCE.query(cache, RAW1.studentId, RAW1.prefKey);
+            final List<StudentPreferenceRec> list = StudentPreferenceLogic.INSTANCE.queryByStudent(cache,
+                    RAW1.studentId);
 
-            assertNotNull(r, "No record returned by query");
+            assertEquals(2, list.size(), "Incorrect record count from queryByStudent");
 
-            if (!RAW1.equals(r)) {
-                printUnexpected(r);
-                fail("Extra record found");
+            boolean found1 = false;
+            boolean found2 = false;
+
+            for (final StudentPreferenceRec r : list) {
+                if (RAW1.equals(r)) {
+                    found1 = true;
+                } else if (RAW2.equals(r)) {
+                    found2 = true;
+                } else {
+                    printUnexpected(r);
+                    fail("Extra record found");
+                }
             }
+
+            assertTrue(found1, "student_preference 1 not found");
+            assertTrue(found2, "student_preference 2 not found");
         } catch (final SQLException ex) {
             Log.warning(ex);
             fail("Exception while querying student_preference: " + ex.getMessage());
