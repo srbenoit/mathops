@@ -25,27 +25,20 @@ public final class CourseSurveyRec extends RecBase implements Comparable<CourseS
     /** The 'survey_id' field value. */
     public final String surveyId;
 
-    /** The 'open_week' field value. */
-    public final Integer openWeek;
+    /** The 'survey_title' field value. */
+    public final String surveyTitle;
 
-    /** The 'open_day' field value. */
-    public final Integer openDay;
-
-    /** The 'close_week' field value. */
-    public final Integer closeWeek;
-
-    /** The 'close_day' field value. */
-    public final Integer closeDay;
+    /** The 'prompt_html' field value. */
+    public final String promptHtml;
 
     /**
      * Constructs a new {@code CourseSurveyRec}.
      *
-     * @param theSurveyId  the survey ID
-     * @param theOpenWeek  the percentage of the course term when the survey opens
-     * @param theCloseWeek the percentage of the course term when the survey closes
+     * @param theSurveyId    the survey ID
+     * @param theSurveyTitle the survey title
+     * @param thePromptHtml  content to display before the first item
      */
-    public CourseSurveyRec(final String theSurveyId, final Integer theOpenWeek, final Integer theOpenDay,
-                           final Integer theCloseWeek, final Integer theCloseDay) {
+    public CourseSurveyRec(final String theSurveyId, final String theSurveyTitle, final String thePromptHtml) {
 
         super();
 
@@ -54,10 +47,8 @@ public final class CourseSurveyRec extends RecBase implements Comparable<CourseS
         }
 
         this.surveyId = theSurveyId;
-        this.openWeek = theOpenWeek;
-        this.openDay = theOpenDay;
-        this.closeWeek = theCloseWeek;
-        this.closeDay = theCloseDay;
+        this.surveyTitle = theSurveyTitle;
+        this.promptHtml = thePromptHtml;
     }
 
     /**
@@ -86,13 +77,9 @@ public final class CourseSurveyRec extends RecBase implements Comparable<CourseS
 
         appendField(htm, DataDict.FLD_SURVEY_ID, this.surveyId);
         htm.add(DIVIDER);
-        appendField(htm, DataDict.FLD_OPEN_WEEK, this.openWeek);
+        appendField(htm, DataDict.FLD_SURVEY_TITLE, this.surveyTitle);
         htm.add(DIVIDER);
-        appendField(htm, DataDict.FLD_OPEN_DAY, this.openDay);
-        htm.add(DIVIDER);
-        appendField(htm, DataDict.FLD_CLOSE_WEEK, this.closeWeek);
-        htm.add(DIVIDER);
-        appendField(htm, DataDict.FLD_CLOSE_DAY, this.closeDay);
+        appendField(htm, DataDict.FLD_PROMPT_HTML, this.promptHtml);
 
         return htm.toString();
     }
@@ -106,10 +93,8 @@ public final class CourseSurveyRec extends RecBase implements Comparable<CourseS
     public int hashCode() {
 
         return this.surveyId.hashCode()
-               + Objects.hashCode(this.openWeek)
-               + Objects.hashCode(this.openDay)
-               + Objects.hashCode(this.closeWeek)
-               + Objects.hashCode(this.closeDay);
+               + Objects.hashCode(this.surveyTitle)
+               + Objects.hashCode(this.promptHtml);
     }
 
     /**
@@ -127,10 +112,8 @@ public final class CourseSurveyRec extends RecBase implements Comparable<CourseS
             equal = true;
         } else if (obj instanceof final CourseSurveyRec rec) {
             equal = this.surveyId.equals(rec.surveyId)
-                    && Objects.equals(this.openWeek, rec.openWeek)
-                    && Objects.equals(this.openDay, rec.openDay)
-                    && Objects.equals(this.closeWeek, rec.closeWeek)
-                    && Objects.equals(this.closeDay, rec.closeDay);
+                    && Objects.equals(this.surveyTitle, rec.surveyTitle)
+                    && Objects.equals(this.promptHtml, rec.promptHtml);
         } else {
             equal = false;
         }

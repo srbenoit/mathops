@@ -33,21 +33,19 @@ final class TestCourseSurveyLogic {
 
     /** A raw test record. */
     private static final CourseSurveyRec RAW1 =
-            new CourseSurveyRec("SURV-1", Integer.valueOf(4), Integer.valueOf(2), Integer.valueOf(6),
-                    Integer.valueOf(5));
+            new CourseSurveyRec("SURV-1", "Title 1", "Prompt 1");
 
     /** A raw test record. */
     private static final CourseSurveyRec RAW2 =
-            new CourseSurveyRec("SURV-2", Integer.valueOf(11), Integer.valueOf(1), Integer.valueOf(15),
-                    Integer.valueOf(6));
+            new CourseSurveyRec("SURV-2", "Title 2", "Prompt 2");
 
     /** A raw test record. */
     private static final CourseSurveyRec RAW3 =
-            new CourseSurveyRec("SURV-3", Integer.valueOf(-2), Integer.valueOf(3), null, null);
+            new CourseSurveyRec("SURV-3", "Title 3", "Prompt 3");
 
     /** A raw test record. */
     private static final CourseSurveyRec UPD3 =
-            new CourseSurveyRec("SURV-3", null, null, Integer.valueOf(-1), Integer.valueOf(7));
+            new CourseSurveyRec("SURV-3", "Title 3 Revised", "Prompt 3 Revised");
 
     /** The database profile. */
     static Profile profile;
@@ -63,10 +61,8 @@ final class TestCourseSurveyLogic {
     private static void printUnexpected(final CourseSurveyRec r) {
 
         Log.warning("Unexpected survey ID ", r.surveyId);
-        Log.warning("Unexpected open week ", r.openWeek);
-        Log.warning("Unexpected open day ", r.openDay);
-        Log.warning("Unexpected close week ", r.closeWeek);
-        Log.warning("Unexpected close day ", r.closeDay);
+        Log.warning("Unexpected survey title ", r.surveyTitle);
+        Log.warning("Unexpected prompt HTML ", r.promptHtml);
     }
 
     /** Initialize the test class. */

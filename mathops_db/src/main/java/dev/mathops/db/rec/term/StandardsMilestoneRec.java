@@ -18,6 +18,24 @@ import java.time.LocalDate;
  */
 public final class StandardsMilestoneRec extends RecBase implements Comparable<StandardsMilestoneRec> {
 
+    /** A milestone type - the due date for mastery of a standard to earn "on-time" points. */
+    public static final String MS_TYPE_MASTERY = "MA";
+
+    /** A milestone type - the due date for the course to be complete. */
+    public static final String MS_TYPE_COMPLETE = "COMP";
+
+    /** A milestone type - the date the "pre-course" survey opens. */
+    public static final String MS_TYPE_PRE_SURVEY_OPEN = "PREO";
+
+    /** A milestone type - the date the "pre-course" survey closes. */
+    public static final String MS_TYPE_PRE_SURVEY_CLOSE = "PREC";
+
+    /** A milestone type - the date the "pre-course" survey opens. */
+    public static final String MS_TYPE_POST_SURVEY_OPEN = "SRVO";
+
+    /** A milestone type - the date the "pre-course" survey closes. */
+    public static final String MS_TYPE_POST_SURVEY_CLOSE = "SRVC";
+
     /** The table name. */
     public static final String TABLE_NAME = "standards_milestone";
 

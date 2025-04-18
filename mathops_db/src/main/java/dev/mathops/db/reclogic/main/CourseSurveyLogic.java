@@ -19,14 +19,8 @@ import java.util.List;
  * <pre>
  * CREATE TABLE main.course_survey (
  *     survey_id                char(10)       NOT NULL,  -- The survey ID
- *     open_week                smallint,                 -- The week when survey opens (null if open any time course
- *                                                        --     open, negative to indicate offset from end of term)
- *     open_day                 smallint,                 -- The weekday when the survey opens (at day start, null if
- *                                                        --     none)
- *     close_week               smallint,                 -- The week when the survey closes (null if no closure,
- *                                                        --     negative to indicate offset from end of term)
- *     close_day                smallint,                 -- The weekday when the survey closes (at day end, null if
- *                                                        --     none)
+ *     survey_title             text,                     -- The survey title
+ *     prompt_html              text,                     -- Text to display before items
  *     PRIMARY KEY (survey_id)
  * ) TABLESPACE primary_ts;
  * </pre>
@@ -63,12 +57,10 @@ public final class CourseSurveyLogic implements IRecLogic<CourseSurveyRec> {
             result = false;
         } else {
             final String sql = SimpleBuilder.concat("INSERT INTO ", schemaPrefix,
-                    ".course_survey (survey_id,open_week,open_day,close_week,close_day) VALUES (",
+                    ".course_survey (survey_id,survey_title,prompt_html) VALUES (",
                     sqlStringValue(record.surveyId), ",",
-                    sqlIntegerValue(record.openWeek), ",",
-                    sqlIntegerValue(record.openDay), ",",
-                    sqlIntegerValue(record.closeWeek), ",",
-                    sqlIntegerValue(record.closeDay), ")");
+                    sqlStringValue(record.surveyTitle), ",",
+                    sqlStringValue(record.promptHtml), ")");
 
             result = doUpdateOneRow(cache, sql);
         }
@@ -172,10 +164,8 @@ public final class CourseSurveyLogic implements IRecLogic<CourseSurveyRec> {
             result = false;
         } else {
             final String sql = SimpleBuilder.concat("UPDATE ", schemaPrefix,
-                    ".course_survey SET open_week=", sqlIntegerValue(record.openWeek),
-                    ",open_day=", sqlIntegerValue(record.openDay),
-                    ",close_week=", sqlIntegerValue(record.closeWeek),
-                    ",close_day=", sqlIntegerValue(record.closeDay),
+                    ".course_survey SET survey_title=", sqlStringValue(record.surveyTitle),
+                    ",prompt_html=", sqlStringValue(record.promptHtml),
                     " WHERE survey_id=", sqlStringValue(record.surveyId));
 
             result = doUpdateOneRow(cache, sql);
@@ -195,11 +185,9 @@ public final class CourseSurveyLogic implements IRecLogic<CourseSurveyRec> {
     public CourseSurveyRec fromResultSet(final ResultSet rs) throws SQLException {
 
         final String theSurveyId = getStringField(rs, DataDict.FLD_SURVEY_ID);
-        final Integer theOpenWeek = getIntegerField(rs, DataDict.FLD_OPEN_WEEK);
-        final Integer theOpenDay = getIntegerField(rs, DataDict.FLD_OPEN_DAY);
-        final Integer theCloseWeek = getIntegerField(rs, DataDict.FLD_CLOSE_WEEK);
-        final Integer theCloseDay = getIntegerField(rs, DataDict.FLD_CLOSE_DAY);
+        final String theSurveyTitle = getStringField(rs, DataDict.FLD_SURVEY_TITLE);
+        final String thePromptHtml = getStringField(rs, DataDict.FLD_PROMPT_HTML);
 
-        return new CourseSurveyRec(theSurveyId, theOpenWeek, theOpenDay, theCloseWeek, theCloseDay);
+        return new CourseSurveyRec(theSurveyId, theSurveyTitle, thePromptHtml);
     }
 }

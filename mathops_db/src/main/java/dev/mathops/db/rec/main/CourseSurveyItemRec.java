@@ -21,11 +21,14 @@ public final class CourseSurveyItemRec extends RecBase implements Comparable<Cou
     /** Integer constant for item type. */
     public static final int MULTIPLE_SELECTION = 2;
 
-    /** Integer constant for item type. */
-    public static final int LIKERT = 3;
+    /** Integer constant for item type (1=Strongly Disagree, 2=Disagree, 3=No Opinion, 4=Agree, 5=Strongly Agree) */
+    public static final int LIKERT_AGREE = 3;
+
+    /** Integer constant for item type (1=Very good, 2=Pretty good, 3=Not very good, 4=Very bad) */
+    public static final int LIKERT_EFFICAFCY = 4;
 
     /** Integer constant for item type. */
-    public static final int TEXT = 4;
+    public static final int TEXT = 9;
 
     /** The table name for serialization of records. */
     public static final String TABLE_NAME = "course_survey_item";

@@ -486,7 +486,7 @@ ALTER TABLE IF EXISTS term_test.standard_assignment_attempt_qa OWNER to math;
 --   USAGE: Created with each new term.  Updated only for events like weather closures.
 --   EST. RECORDS: 240 (8 per course in a pace/track * 15 pace/index * 2 tracks)
 --   RETENTION: Stored in TERM schema, retained for 15 years
---   EST. RECORD SIZE: 14 bytes
+--   EST. RECORD SIZE: 16 bytes
 --   EST. TOTAL SPACE: 4 KB
 -- ------------------------------------------------------------------------------------------------
 
@@ -496,7 +496,7 @@ CREATE TABLE IF NOT EXISTS term_202510.standards_milestone (
     pace                     smallint       NOT NULL,  -- The pace
     pace_index               smallint       NOT NULL,  -- The pace index
     module_nbr               smallint       NOT NULL,  -- The module number
-    ms_type                  char(2)        NOT NULL,  -- The milestone type
+    ms_type                  char(4)        NOT NULL,  -- The milestone type
     ms_date                  date           NOT NULL,  -- The milestone date
     PRIMARY KEY (pace_track, pace, pace_index, module_nbr, ms_type)
 ) TABLESPACE primary_ts;
@@ -508,7 +508,7 @@ CREATE TABLE IF NOT EXISTS term_202560.standards_milestone (
     pace                     smallint       NOT NULL,
     pace_index               smallint       NOT NULL,
     module_nbr               smallint       NOT NULL,
-    ms_type                  char(2)        NOT NULL,
+    ms_type                  char(4)        NOT NULL,
     ms_date                  date           NOT NULL,
     PRIMARY KEY (pace_track, pace, pace_index, module_nbr, ms_type)
 ) TABLESPACE primary_ts;
@@ -520,7 +520,7 @@ CREATE TABLE IF NOT EXISTS term_202590.standards_milestone (
     pace                     smallint       NOT NULL,
     pace_index               smallint       NOT NULL,
     module_nbr               smallint       NOT NULL,
-    ms_type                  char(2)        NOT NULL,
+    ms_type                  char(4)        NOT NULL,
     ms_date                  date           NOT NULL,
     PRIMARY KEY (pace_track, pace, pace_index, module_nbr, ms_type)
 ) TABLESPACE primary_ts;
@@ -532,7 +532,7 @@ CREATE TABLE IF NOT EXISTS term_dev.standards_milestone (
     pace                     smallint       NOT NULL,
     pace_index               smallint       NOT NULL,
     module_nbr               smallint       NOT NULL,
-    ms_type                  char(2)        NOT NULL,
+    ms_type                  char(4)        NOT NULL,
     ms_date                  date           NOT NULL,
     PRIMARY KEY (pace_track, pace, pace_index, module_nbr, ms_type)
 ) TABLESPACE primary_ts;
@@ -544,7 +544,7 @@ CREATE TABLE IF NOT EXISTS term_test.standards_milestone (
     pace                     smallint       NOT NULL,
     pace_index               smallint       NOT NULL,
     module_nbr               smallint       NOT NULL,
-    ms_type                  char(2)        NOT NULL,
+    ms_type                  char(4)        NOT NULL,
     ms_date                  date           NOT NULL,
     PRIMARY KEY (pace_track, pace, pace_index, module_nbr, ms_type)
 ) TABLESPACE primary_ts;
@@ -559,8 +559,8 @@ ALTER TABLE IF EXISTS term_test.standards_milestone OWNER to math;
 --          extenuating circumstances.
 --   EST. RECORDS: 1000
 --   RETENTION: Stored in TERM schema, retained for 15 years
---   EST. RECORD SIZE: 30 bytes
---   EST. TOTAL SPACE: 30 KB
+--   EST. RECORD SIZE: 32 bytes
+--   EST. TOTAL SPACE: 32 KB
 -- ------------------------------------------------------------------------------------------------
 
 -- DROP TABLE IF EXISTS term_202510.student_standards_milestone;
@@ -570,7 +570,7 @@ CREATE TABLE IF NOT EXISTS term_202510.student_standards_milestone (
     pace                     smallint       NOT NULL,  -- The pace
     pace_index               smallint       NOT NULL,  -- The pace index
     module_nbr               smallint       NOT NULL,  -- The module number
-    ms_type                  char(2)        NOT NULL,  -- The milestone type
+    ms_type                  char(4)        NOT NULL,  -- The milestone type
     ms_date                  date           NOT NULL,  -- The new milestone date
     PRIMARY KEY (student_id, pace_track, pace, pace_index, module_nbr, ms_type)
 ) TABLESPACE primary_ts;
@@ -583,7 +583,7 @@ CREATE TABLE IF NOT EXISTS term_202560.student_standards_milestone (
     pace                     smallint       NOT NULL,
     pace_index               smallint       NOT NULL,
     module_nbr               smallint       NOT NULL,
-    ms_type                  char(2)        NOT NULL,
+    ms_type                  char(4)        NOT NULL,
     ms_date                  date           NOT NULL,
     PRIMARY KEY (student_id, pace_track, pace, pace_index, module_nbr, ms_type)
 ) TABLESPACE primary_ts;
@@ -596,7 +596,7 @@ CREATE TABLE IF NOT EXISTS term_202590.student_standards_milestone (
     pace                     smallint       NOT NULL,
     pace_index               smallint       NOT NULL,
     module_nbr               smallint       NOT NULL,
-    ms_type                  char(2)        NOT NULL,
+    ms_type                  char(4)        NOT NULL,
     ms_date                  date           NOT NULL,
     PRIMARY KEY (student_id, pace_track, pace, pace_index, module_nbr, ms_type)
 ) TABLESPACE primary_ts;
@@ -609,7 +609,7 @@ CREATE TABLE IF NOT EXISTS term_dev.student_standards_milestone (
     pace                     smallint       NOT NULL,
     pace_index               smallint       NOT NULL,
     module_nbr               smallint       NOT NULL,
-    ms_type                  char(2)        NOT NULL,
+    ms_type                  char(4)        NOT NULL,
     ms_date                  date           NOT NULL,
     PRIMARY KEY (student_id, pace_track, pace, pace_index, module_nbr, ms_type)
 ) TABLESPACE primary_ts;
@@ -622,7 +622,7 @@ CREATE TABLE IF NOT EXISTS term_test.student_standards_milestone (
     pace                     smallint       NOT NULL,
     pace_index               smallint       NOT NULL,
     module_nbr               smallint       NOT NULL,
-    ms_type                  char(2)        NOT NULL,
+    ms_type                  char(4)        NOT NULL,
     ms_date                  date           NOT NULL,
     PRIMARY KEY (student_id, pace_track, pace, pace_index, module_nbr, ms_type)
 ) TABLESPACE primary_ts;
@@ -776,6 +776,64 @@ CREATE TABLE IF NOT EXISTS term_test.student_preference (
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_test.student_preference OWNER to math;
 CREATE INDEX ON term_test.student_preference (student_id) TABLESPACE primary_ts;
+
+
+-- ------------------------------------------------------------------------------------------------
+-- TABLE: course_section_survey
+--
+-- An attachment of a course survey to a section.
+--
+--   USAGE: Created once, updated as needed.
+--   EST. RECORDS: 3 (version for F2F, version for hybrid version for CE, version for
+--   RETENTION: Stored in TERM schema, retained for 15 years
+--   EST. RECORD SIZE: 15 bytes
+--   EST. TOTAL SPACE: 352 MB
+-- ------------------------------------------------------------------------------------------------
+
+-- DROP TABLE IF EXISTS term_202510.course_section_survey;
+CREATE TABLE IF NOT EXISTS term_202510.course_section_survey (
+    course_id                 char(10)        NOT NULL,  -- The course ID
+    section_nbr               char(4)         NOT NULL,  -- The section number
+    survey_id                 char(10)        NOT NULL,  -- The survey ID
+    PRIMARY KEY (course_id, section_nbr, survey_id)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS term_202510.course_section_survey OWNER to math;
+
+-- DROP TABLE IF EXISTS term_202560.course_section_survey;
+CREATE TABLE IF NOT EXISTS term_202560.course_section_survey (
+    course_id                 char(10)        NOT NULL,
+    section_nbr               char(4)         NOT NULL,
+    survey_id                 char(10)        NOT NULL,
+    PRIMARY KEY (course_id, section_nbr, survey_id)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS term_202560.course_section_survey OWNER to math;
+
+-- DROP TABLE IF EXISTS term_202590.course_section_survey;
+CREATE TABLE IF NOT EXISTS term_202590.course_section_survey (
+    course_id                 char(10)        NOT NULL,
+    section_nbr               char(4)         NOT NULL,
+    survey_id                 char(10)        NOT NULL,
+    PRIMARY KEY (course_id, section_nbr, survey_id)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS term_202590.course_section_survey OWNER to math;
+
+-- DROP TABLE IF EXISTS term_dev.course_section_survey;
+CREATE TABLE IF NOT EXISTS term_dev.course_section_survey (
+    course_id                 char(10)        NOT NULL,
+    section_nbr               char(4)         NOT NULL,
+    survey_id                 char(10)        NOT NULL,
+    PRIMARY KEY (course_id, section_nbr, survey_id)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS term_dev.course_section_survey OWNER to math;
+
+-- DROP TABLE IF EXISTS term_test.course_section_survey;
+CREATE TABLE IF NOT EXISTS term_test.course_section_survey (
+    course_id                 char(10)        NOT NULL,
+    section_nbr               char(4)         NOT NULL,
+    survey_id                 char(10)        NOT NULL,
+    PRIMARY KEY (course_id, section_nbr, survey_id)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS term_test.course_section_survey OWNER to math;
 
 -- ------------------------------------------------------------------------------------------------
 -- TABLE: course_survey_response

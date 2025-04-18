@@ -342,7 +342,6 @@ CREATE TABLE IF NOT EXISTS main.standard_assignment (
     standard_nbr             smallint        NOT NULL,  -- The standard number (1 for the first standard in a module)
     pts_possible             smallint,                  -- The number of points possible
     min_passing_score        smallint,                  -- The minimum score that is considered "passing"
-    tree_ref                 varchar(250)    NOT NULL,  -- For tree reference of the assessment
     PRIMARY KEY (assignment_id)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main.standard_assignment OWNER to math;
@@ -356,7 +355,6 @@ CREATE TABLE IF NOT EXISTS main_dev.standard_assignment (
     standard_nbr             smallint        NOT NULL,
     pts_possible             smallint,
     min_passing_score        smallint,
-    tree_ref                 varchar(250)    NOT NULL,
     PRIMARY KEY (assignment_id)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main_dev.standard_assignment OWNER to math;
@@ -370,7 +368,6 @@ CREATE TABLE IF NOT EXISTS main_test.standard_assignment (
     standard_nbr             smallint        NOT NULL,
     pts_possible             smallint,
     min_passing_score        smallint,
-    tree_ref                 varchar(250)    NOT NULL,
     PRIMARY KEY (assignment_id)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main_test.standard_assignment OWNER to math;
@@ -381,21 +378,17 @@ ALTER TABLE IF EXISTS main_test.standard_assignment OWNER to math;
 -- A survey that can be attached to a course section.
 --
 --   USAGE: Created once, updated as needed.
---   EST. RECORDS: 3 (version for F2F, version for hybrid version for CE, version for
+--   EST. RECORDS: 3 (version for F2F, version for hybrid, version for CE)
 --   RETENTION: Stored in TERM schema, retained for 15 years
---   EST. RECORD SIZE: 15 bytes
---   EST. TOTAL SPACE: 352 MB
+--   EST. RECORD SIZE: 40 bytes
+--   EST. TOTAL SPACE: 120 B
 -- ------------------------------------------------------------------------------------------------
 
 -- DROP TABLE IF EXISTS main.course_survey;
 CREATE TABLE IF NOT EXISTS main.course_survey (
     survey_id                char(10)       NOT NULL,  -- The survey ID
-    open_week                smallint,                 -- The week when survey opens (null if open any time course open,
-                                                       --     negative to indicate offset from end of term)
-    open_day                 smallint,                 -- The weekday when the survey opens (at day start, null if none)
-    close_week               smallint,                 -- The week when the survey closes (null if no closure, negative
-                                                       --     to indicate offset from end of term)
-    close_day                smallint,                 -- The weekday when the survey closes (at day end, null if none)
+    survey_title             text,                     -- The survey title
+    prompt_html              text,                     -- Text to display before items
     PRIMARY KEY (survey_id)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main.course_survey OWNER to math;
@@ -403,10 +396,8 @@ ALTER TABLE IF EXISTS main.course_survey OWNER to math;
 -- DROP TABLE IF EXISTS main_dev.course_survey;
 CREATE TABLE IF NOT EXISTS main_dev.course_survey (
     survey_id                char(10)       NOT NULL,
-    open_week                smallint,
-    open_day                 smallint,
-    close_week               smallint,
-    close_day                smallint,
+    survey_title             text,
+    prompt_html              text,
     PRIMARY KEY (survey_id)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main_dev.course_survey OWNER to math;
@@ -414,10 +405,8 @@ ALTER TABLE IF EXISTS main_dev.course_survey OWNER to math;
 -- DROP TABLE IF EXISTS main_test.course_survey;
 CREATE TABLE IF NOT EXISTS main_test.course_survey (
     survey_id                char(10)       NOT NULL,
-    open_week                smallint,
-    open_day                 smallint,
-    close_week               smallint,
-    close_day                smallint,
+    survey_title             text,
+    prompt_html              text,
     PRIMARY KEY (survey_id)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main_test.course_survey OWNER to math;
@@ -439,7 +428,7 @@ CREATE TABLE IF NOT EXISTS main.course_survey_item (
     survey_id                char(10)       NOT NULL,  -- The survey ID
     item_nbr                 smallint       NOT NULL,  -- The item number
     item_type                smallint       NOT NULL,  -- The item type (1 = M/C, 2 = M/S, 3 = Likert, 4 = Text)
-    prompt_html              varchar(250)   NOT NULL,  -- The HTML of the prompt
+    prompt_html              text           NOT NULL,  -- The HTML of the prompt
     PRIMARY KEY (survey_id, item_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main.course_survey_item OWNER to math;
@@ -449,7 +438,7 @@ CREATE TABLE IF NOT EXISTS main_dev.course_survey_item (
     survey_id                char(10)       NOT NULL,
     item_nbr                 smallint       NOT NULL,
     item_type                smallint       NOT NULL,
-    prompt_html              varchar(250)   NOT NULL,
+    prompt_html              text           NOT NULL,
     PRIMARY KEY (survey_id, item_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main_dev.course_survey_item OWNER to math;
@@ -459,7 +448,7 @@ CREATE TABLE IF NOT EXISTS main_test.course_survey_item (
     survey_id                char(10)       NOT NULL,
     item_nbr                 smallint       NOT NULL,
     item_type                smallint       NOT NULL,
-    prompt_html              varchar(250)   NOT NULL,
+    prompt_html              text           NOT NULL,
     PRIMARY KEY (survey_id, item_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main_test.course_survey_item OWNER to math;

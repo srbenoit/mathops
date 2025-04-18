@@ -58,16 +58,10 @@ public enum DataDict {
     public static final String FLD_CHOICE_NBR = "choice_nbr";
 
     /** A field name for serialization of records. */
-    public static final String FLD_CLOSE_DAY = "close_day";
-
-    /** A field name for serialization of records. */
     public static final String FLD_CLOSE_TIME_1 = "close_time_1";
 
     /** A field name for serialization of records. */
     public static final String FLD_CLOSE_TIME_2 = "close_time_2";
-
-    /** A field name for serialization of records. */
-    public static final String FLD_CLOSE_WEEK = "close_week";
 
     /** A field name for serialization of records. */
     public static final String FLD_CLOSURE_TYPE = "closure_type";
@@ -204,16 +198,10 @@ public enum DataDict {
     public static final String FLD_ON_TIME_MASTERY_PTS = "on_time_mastery_pts";
 
     /** A field name for serialization of records. */
-    public static final String FLD_OPEN_DAY = "open_day";
-
-    /** A field name for serialization of records. */
     public static final String FLD_OPEN_TIME_1 = "open_time_1";
 
     /** A field name for serialization of records. */
     public static final String FLD_OPEN_TIME_2 = "open_time_2";
-
-    /** A field name for serialization of records. */
-    public static final String FLD_OPEN_WEEK = "open_week";
 
     //
 
@@ -294,6 +282,10 @@ public enum DataDict {
 
     /** A field name for serialization of records. */
     public static final String FLD_SURVEY_ID = "survey_id";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_SURVEY_TITLE = "survey_title";
+
 
     //
 
