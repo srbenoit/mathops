@@ -987,7 +987,7 @@ enum QualityControlChecks {
     }
 
     /**
-     * Accumulates all parameter names referenced by a number orformula (if it is not null).
+     * Accumulates all parameter names referenced by a number or formula (if it is not null).
      *
      * @param numberOrFormula the number or formula
      * @param referenced      the set to which to add all referenced parameter names
