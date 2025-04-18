@@ -19,8 +19,6 @@ import org.junit.jupiter.api.Test;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.LocalDate;
-import java.time.Month;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -158,7 +156,7 @@ final class TestStudentCourseMasteryLogic {
         final Cache cache = new Cache(profile);
 
         try {
-            final List<StudentCourseMasteryRec> all = StudentCourseMasteryLogic.INSTANCE.queryAll( cache);
+            final List<StudentCourseMasteryRec> all = StudentCourseMasteryLogic.INSTANCE.queryAll(cache);
 
             assertEquals(3, all.size(), "Incorrect record count from queryAll");
 
@@ -212,8 +210,42 @@ final class TestStudentCourseMasteryLogic {
 
     /** Test case. */
     @Test
-    @DisplayName("update results")
+    @DisplayName("queryByStudent results")
     void test0003() {
+        final Cache cache = new Cache(profile);
+
+        try {
+            final List<StudentCourseMasteryRec> all = StudentCourseMasteryLogic.INSTANCE.queryByStudent(cache,
+                    RAW1.studentId);
+
+            assertEquals(2, all.size(), "Incorrect record count from queryAll");
+
+            boolean found1 = false;
+            boolean found2 = false;
+
+            for (final StudentCourseMasteryRec r : all) {
+                if (RAW1.equals(r)) {
+                    found1 = true;
+                } else if (RAW2.equals(r)) {
+                    found2 = true;
+                } else {
+                    printUnexpected(r);
+                    fail("Extra record found");
+                }
+            }
+
+            assertTrue(found1, "student_course_mastery 1 not found");
+            assertTrue(found2, "student_course_mastery 2 not found");
+        } catch (final SQLException ex) {
+            Log.warning(ex);
+            fail("Exception while querying all 'student_course_mastery' rows: " + ex.getMessage());
+        }
+    }
+
+    /** Test case. */
+    @Test
+    @DisplayName("update results")
+    void test0004() {
         final Cache cache = new Cache(profile);
 
         try {
@@ -239,7 +271,7 @@ final class TestStudentCourseMasteryLogic {
     /** Test case. */
     @Test
     @DisplayName("delete results")
-    void test0004() {
+    void test0005() {
         final Cache cache = new Cache(profile);
 
         try {

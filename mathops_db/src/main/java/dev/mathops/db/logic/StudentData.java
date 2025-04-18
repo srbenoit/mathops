@@ -66,13 +66,13 @@ import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.old.rawrecord.RawStvisit;
 import dev.mathops.db.old.rawrecord.RawUsers;
 import dev.mathops.db.rec.MasteryAttemptRec;
-import dev.mathops.db.rec.StudentCourseMasteryRec;
-import dev.mathops.db.rec.StudentStandardMilestoneRec;
-import dev.mathops.db.rec.StudentUnitMasteryRec;
+import dev.mathops.db.rec.StuCourseMasteryRec;
+import dev.mathops.db.rec.StuStandardMilestoneRec;
+import dev.mathops.db.rec.StuUnitMasteryRec;
 import dev.mathops.db.reclogic.MasteryAttemptLogic;
-import dev.mathops.db.reclogic.StudentCourseMasteryLogic;
-import dev.mathops.db.reclogic.StudentStandardMilestoneLogic;
-import dev.mathops.db.reclogic.StudentUnitMasteryLogic;
+import dev.mathops.db.reclogic.StuCourseMasteryLogic;
+import dev.mathops.db.reclogic.StuStandardMilestoneLogic;
+import dev.mathops.db.reclogic.StuUnitMasteryLogic;
 import dev.mathops.db.rec.TermRec;
 import dev.mathops.db.type.TermKey;
 
@@ -183,16 +183,16 @@ public final class StudentData {
     private List<MasteryAttemptRec> masteryAttempts = null;
 
     /** The list of student course mastery records for the student. */
-    private List<StudentCourseMasteryRec> studentCourseMastery = null;
+    private List<StuCourseMasteryRec> studentCourseMastery = null;
 
     /** The list of student unit mastery records for the student. */
-    private List<StudentUnitMasteryRec> studentUnitMastery = null;
+    private List<StuUnitMasteryRec> studentUnitMastery = null;
 
     /** The list of all milestone overrides that apply to the student this term. */
     private List<RawStmilestone> studentMilestones = null;
 
     /** The list of all overrides to standards-based milestones for this student this term. */
-    private List<StudentStandardMilestoneRec> studentStandardMilestones = null;
+    private List<StuStandardMilestoneRec> studentStandardMilestones = null;
 
     /** The list of all deadline appeals on record for this student. */
     private List<RawPaceAppeals> deadlineAppeals = null;
@@ -1732,10 +1732,10 @@ public final class StudentData {
      * @return the course mastery status objects
      * @throws SQLException if there is an error accessing the database
      */
-    public List<StudentCourseMasteryRec> getStudentCourseMastery() throws SQLException {
+    public List<StuCourseMasteryRec> getStudentCourseMastery() throws SQLException {
 
         if (this.studentCourseMastery == null) {
-            this.studentCourseMastery = StudentCourseMasteryLogic.get(this.cache).queryByStudent(this.cache,
+            this.studentCourseMastery = StuCourseMasteryLogic.get(this.cache).queryByStudent(this.cache,
                     this.studentId);
         }
 
@@ -1748,10 +1748,10 @@ public final class StudentData {
      * @return the unit mastery status objects
      * @throws SQLException if there is an error accessing the database
      */
-    public List<StudentUnitMasteryRec> getStudentUnitMastery() throws SQLException {
+    public List<StuUnitMasteryRec> getStudentUnitMastery() throws SQLException {
 
         if (this.studentUnitMastery == null) {
-            this.studentUnitMastery = StudentUnitMasteryLogic.get(this.cache).queryByStudent(this.cache,
+            this.studentUnitMastery = StuUnitMasteryLogic.get(this.cache).queryByStudent(this.cache,
                     this.studentId);
         }
 
@@ -1812,10 +1812,10 @@ public final class StudentData {
      * @return the student standard milestone overrides
      * @throws SQLException if there is an error accessing the database
      */
-    public List<StudentStandardMilestoneRec> getStudentStandardMilestones() throws SQLException {
+    public List<StuStandardMilestoneRec> getStudentStandardMilestones() throws SQLException {
 
         if (this.studentStandardMilestones == null) {
-            this.studentStandardMilestones = StudentStandardMilestoneLogic.get(this.cache).queryByStudent(this.cache,
+            this.studentStandardMilestones = StuStandardMilestoneLogic.get(this.cache).queryByStudent(this.cache,
                     this.studentId);
         }
 
@@ -1831,14 +1831,14 @@ public final class StudentData {
      * @return the student standard milestone overrides
      * @throws SQLException if there is an error accessing the database
      */
-    public List<StudentStandardMilestoneRec> getStudentStandardMilestonesForPaceAndTrack(final String paceTrack,
-                                                                                         final Integer pace)
+    public List<StuStandardMilestoneRec> getStudentStandardMilestonesForPaceAndTrack(final String paceTrack,
+                                                                                     final Integer pace)
             throws SQLException {
 
-        final List<StudentStandardMilestoneRec> all = getStudentStandardMilestones();
-        final List<StudentStandardMilestoneRec> result = new ArrayList<>(10);
+        final List<StuStandardMilestoneRec> all = getStudentStandardMilestones();
+        final List<StuStandardMilestoneRec> result = new ArrayList<>(10);
 
-        for (final StudentStandardMilestoneRec test : all) {
+        for (final StuStandardMilestoneRec test : all) {
             if (test.paceTrack.equals(paceTrack) && test.pace.equals(pace)) {
                 result.add(test);
             }

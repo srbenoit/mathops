@@ -23,8 +23,8 @@ import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.rec.StandardMilestoneRec;
-import dev.mathops.db.rec.StudentStandardMilestoneRec;
-import dev.mathops.db.reclogic.StudentStandardMilestoneLogic;
+import dev.mathops.db.rec.StuStandardMilestoneRec;
+import dev.mathops.db.reclogic.StuStandardMilestoneLogic;
 import dev.mathops.db.rec.TermRec;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -634,8 +634,8 @@ final class LogicCheckInCourseExams {
             final Integer paceObj = Integer.valueOf(pace);
             final List<StandardMilestoneRec> allMilestones =
                     systemData.getStandardMilestonesForPaceTrackIndex(paceTrack, paceObj, reg.paceOrder);
-            final List<StudentStandardMilestoneRec> allStMilestones =
-                    StudentStandardMilestoneLogic.get(cache).queryByStuPaceTrackPaceIndex(cache, reg.stuId,
+            final List<StuStandardMilestoneRec> allStMilestones =
+                    StuStandardMilestoneLogic.get(cache).queryByStuPaceTrackPaceIndex(cache, reg.stuId,
                             paceTrack, paceObj, reg.paceOrder);
 
             LocalDate deadline = null;
@@ -644,7 +644,7 @@ final class LogicCheckInCourseExams {
                     deadline = ms.msDate;
                 }
             }
-            for (final StudentStandardMilestoneRec stms : allStMilestones) {
+            for (final StuStandardMilestoneRec stms : allStMilestones) {
                 if (StandardMilestoneRec.MS_TYPE_COURSE_DEADLINE.equals(stms.msType)) {
                     deadline = stms.msDate;
                 }

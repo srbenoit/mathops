@@ -60,7 +60,7 @@ final class TestStudentStandardMilestoneRec {
     @DisplayName("Constructor")
     void test0001() {
 
-        final StudentStandardMilestoneRec obj = new StudentStandardMilestoneRec(TEST_STU_ID, TEST_PACE_TRACK, TEST_PACE,
+        final StuStandardMilestoneRec obj = new StuStandardMilestoneRec(TEST_STU_ID, TEST_PACE_TRACK, TEST_PACE,
                 TEST_PACE_INDEX, TEST_UNIT, TEST_OBJECTIVE, TEST_MS_TYPE, TEST_MS_DATE);
 
         assertEquals(TEST_STU_ID, obj.stuId, "Invalid stu_id value after constructor");
@@ -78,7 +78,7 @@ final class TestStudentStandardMilestoneRec {
     @DisplayName("string serialization")
     void test0098() {
 
-        final StudentStandardMilestoneRec obj = new StudentStandardMilestoneRec(TEST_STU_ID, TEST_PACE_TRACK, TEST_PACE,
+        final StuStandardMilestoneRec obj = new StuStandardMilestoneRec(TEST_STU_ID, TEST_PACE_TRACK, TEST_PACE,
                 TEST_PACE_INDEX, TEST_UNIT, TEST_OBJECTIVE, TEST_MS_TYPE, TEST_MS_DATE);
 
         final String ser = obj.toString();

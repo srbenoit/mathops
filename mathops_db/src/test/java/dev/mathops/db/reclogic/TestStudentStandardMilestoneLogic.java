@@ -10,7 +10,7 @@ import dev.mathops.db.cfg.DatabaseConfig;
 import dev.mathops.db.cfg.Login;
 import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.cfg.Facet;
-import dev.mathops.db.rec.StudentStandardMilestoneRec;
+import dev.mathops.db.rec.StuStandardMilestoneRec;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -34,44 +34,44 @@ import static org.junit.jupiter.api.Assertions.fail;
 final class TestStudentStandardMilestoneLogic {
 
     /** A raw test record. */
-    private static final StudentStandardMilestoneRec RAW1 =
-            new StudentStandardMilestoneRec("111111111", "A", Integer.valueOf(5), Integer.valueOf(3),
+    private static final StuStandardMilestoneRec RAW1 =
+            new StuStandardMilestoneRec("111111111", "A", Integer.valueOf(5), Integer.valueOf(3),
                     Integer.valueOf(8), Integer.valueOf(1),
                     "OP", LocalDate.of(2023, 1, 1));
 
     /** A raw test record. */
-    private static final StudentStandardMilestoneRec RAW2 =
-            new StudentStandardMilestoneRec("111111111", "A", Integer.valueOf(5), Integer.valueOf(3),
+    private static final StuStandardMilestoneRec RAW2 =
+            new StuStandardMilestoneRec("111111111", "A", Integer.valueOf(5), Integer.valueOf(3),
                     Integer.valueOf(8), Integer.valueOf(1),
                     "MA", LocalDate.of(2023, 1, 2));
 
     /** A raw test record. */
-    private static final StudentStandardMilestoneRec RAW3 =
-            new StudentStandardMilestoneRec("111111111", "A", Integer.valueOf(5), Integer.valueOf(3),
+    private static final StuStandardMilestoneRec RAW3 =
+            new StuStandardMilestoneRec("111111111", "A", Integer.valueOf(5), Integer.valueOf(3),
                     Integer.valueOf(8), Integer.valueOf(2),
                     "OP", LocalDate.of(2023, 1, 3));
 
     /** A raw test record. */
-    private static final StudentStandardMilestoneRec RAW4 =
-            new StudentStandardMilestoneRec("111111111", "A", Integer.valueOf(5), Integer.valueOf(4),
+    private static final StuStandardMilestoneRec RAW4 =
+            new StuStandardMilestoneRec("111111111", "A", Integer.valueOf(5), Integer.valueOf(4),
                     Integer.valueOf(7), Integer.valueOf(1),
                     "EX", LocalDate.of(2023, 1, 4));
 
     /** A raw test record. */
-    private static final StudentStandardMilestoneRec RAW5 =
-            new StudentStandardMilestoneRec("111111111", "A", Integer.valueOf(4), Integer.valueOf(3),
+    private static final StuStandardMilestoneRec RAW5 =
+            new StuStandardMilestoneRec("111111111", "A", Integer.valueOf(4), Integer.valueOf(3),
                     Integer.valueOf(6), Integer.valueOf(2),
                     "CD", LocalDate.of(2023, 1, 5));
 
     /** A raw test record. */
-    private static final StudentStandardMilestoneRec RAW6 =
-            new StudentStandardMilestoneRec("222222222", "A", Integer.valueOf(5), Integer.valueOf(1),
+    private static final StuStandardMilestoneRec RAW6 =
+            new StuStandardMilestoneRec("222222222", "A", Integer.valueOf(5), Integer.valueOf(1),
                     Integer.valueOf(5), Integer.valueOf(3),
                     "MA", LocalDate.of(2023, 1, 6));
 
     /** A raw test record. */
-    private static final StudentStandardMilestoneRec RAW1NEWDATE =
-            new StudentStandardMilestoneRec("111111111", "A", Integer.valueOf(5), Integer.valueOf(3),
+    private static final StuStandardMilestoneRec RAW1NEWDATE =
+            new StuStandardMilestoneRec("111111111", "A", Integer.valueOf(5), Integer.valueOf(3),
                     Integer.valueOf(8), Integer.valueOf(1), "OP", LocalDate.of(2023, 12, 10));
 
     /**
@@ -79,7 +79,7 @@ final class TestStudentStandardMilestoneLogic {
      *
      * @param r the unexpected record
      */
-    private static void printUnexpected(final StudentStandardMilestoneRec r) {
+    private static void printUnexpected(final StuStandardMilestoneRec r) {
 
         Log.warning("Unexpected stuId ", r.stuId);
         Log.warning("Unexpected paceTrack ", r.paceTrack);
@@ -145,7 +145,7 @@ final class TestStudentStandardMilestoneLogic {
                 }
                 conn.commit();
 
-                final StudentStandardMilestoneLogic logic = StudentStandardMilestoneLogic.get(cache);
+                final StuStandardMilestoneLogic logic = StuStandardMilestoneLogic.get(cache);
 
                 assertTrue(logic.insert(cache, RAW1), "Failed to insert Informix stu_std_milestone");
                 assertTrue(logic.insert(cache, RAW2), "Failed to insert Informix stu_std_milestone");
@@ -168,10 +168,10 @@ final class TestStudentStandardMilestoneLogic {
         void test0003() {
 
             final Cache cache = new Cache(informixProfile);
-            final StudentStandardMilestoneLogic logic = StudentStandardMilestoneLogic.get(cache);
+            final StuStandardMilestoneLogic logic = StuStandardMilestoneLogic.get(cache);
 
             try {
-                final List<StudentStandardMilestoneRec> all = logic.queryAll(cache);
+                final List<StuStandardMilestoneRec> all = logic.queryAll(cache);
 
                 assertEquals(6, all.size(), "Incorrect record count from Informix queryAll");
 
@@ -182,7 +182,7 @@ final class TestStudentStandardMilestoneLogic {
                 boolean found5 = false;
                 boolean found6 = false;
 
-                for (final StudentStandardMilestoneRec r : all) {
+                for (final StuStandardMilestoneRec r : all) {
                     if (RAW1.equals(r)) {
                         found1 = true;
                     } else if (RAW2.equals(r)) {
@@ -219,10 +219,10 @@ final class TestStudentStandardMilestoneLogic {
         void test0004() {
 
             final Cache cache = new Cache(informixProfile);
-            final StudentStandardMilestoneLogic logic = StudentStandardMilestoneLogic.get(cache);
+            final StuStandardMilestoneLogic logic = StuStandardMilestoneLogic.get(cache);
 
             try {
-                final List<StudentStandardMilestoneRec> all = logic.queryByStuPaceTrackPace(cache, "111111111", "A",
+                final List<StuStandardMilestoneRec> all = logic.queryByStuPaceTrackPace(cache, "111111111", "A",
                         Integer.valueOf(5));
 
                 assertEquals(4, all.size(), "Incorrect record count from Informix queryByStuPaceTrackPace");
@@ -232,7 +232,7 @@ final class TestStudentStandardMilestoneLogic {
                 boolean found3 = false;
                 boolean found4 = false;
 
-                for (final StudentStandardMilestoneRec r : all) {
+                for (final StuStandardMilestoneRec r : all) {
                     if (RAW1.equals(r)) {
                         found1 = true;
                     } else if (RAW2.equals(r)) {
@@ -264,10 +264,10 @@ final class TestStudentStandardMilestoneLogic {
         void test0005() {
 
             final Cache cache = new Cache(informixProfile);
-            final StudentStandardMilestoneLogic logic = StudentStandardMilestoneLogic.get(cache);
+            final StuStandardMilestoneLogic logic = StuStandardMilestoneLogic.get(cache);
 
             try {
-                final List<StudentStandardMilestoneRec> all = logic.queryByStuPaceTrackPaceIndex(cache, "111111111",
+                final List<StuStandardMilestoneRec> all = logic.queryByStuPaceTrackPaceIndex(cache, "111111111",
                         "A", Integer.valueOf(5), Integer.valueOf(3));
                 assertEquals(3, all.size(), "Incorrect record count from Informix queryByStuPaceTrackPaceIndex");
 
@@ -275,7 +275,7 @@ final class TestStudentStandardMilestoneLogic {
                 boolean found2 = false;
                 boolean found3 = false;
 
-                for (final StudentStandardMilestoneRec r : all) {
+                for (final StuStandardMilestoneRec r : all) {
                     if (RAW1.equals(r)) {
                         found1 = true;
                     } else if (RAW2.equals(r)) {
@@ -304,10 +304,10 @@ final class TestStudentStandardMilestoneLogic {
         void test0006() {
 
             final Cache cache = new Cache(informixProfile);
-            final StudentStandardMilestoneLogic logic = StudentStandardMilestoneLogic.get(cache);
+            final StuStandardMilestoneLogic logic = StuStandardMilestoneLogic.get(cache);
 
             try {
-                final StudentStandardMilestoneRec r = logic.query(cache, "111111111", "A", Integer.valueOf(5),
+                final StuStandardMilestoneRec r = logic.query(cache, "111111111", "A", Integer.valueOf(5),
                         Integer.valueOf(3), Integer.valueOf(8), Integer.valueOf(1), "OP");
 
                 assertNotNull(r, "No record returned by query");
@@ -328,13 +328,13 @@ final class TestStudentStandardMilestoneLogic {
         void test0007() {
 
             final Cache cache = new Cache(informixProfile);
-            final StudentStandardMilestoneLogic logic = StudentStandardMilestoneLogic.get(cache);
+            final StuStandardMilestoneLogic logic = StuStandardMilestoneLogic.get(cache);
 
             try {
                 final boolean result = logic.updateDate(cache, RAW1, RAW1NEWDATE.msDate);
                 assertTrue(result, "updateDate returned false");
 
-                final StudentStandardMilestoneRec r = logic.query(cache, "111111111", "A", Integer.valueOf(5),
+                final StuStandardMilestoneRec r = logic.query(cache, "111111111", "A", Integer.valueOf(5),
                         Integer.valueOf(3), Integer.valueOf(8), Integer.valueOf(1), "OP");
 
                 assertNotNull(r, "No record returned by query");
@@ -355,13 +355,13 @@ final class TestStudentStandardMilestoneLogic {
         void test0008() {
 
             final Cache cache = new Cache(informixProfile);
-            final StudentStandardMilestoneLogic logic = StudentStandardMilestoneLogic.get(cache);
+            final StuStandardMilestoneLogic logic = StuStandardMilestoneLogic.get(cache);
 
             try {
                 final boolean result = logic.delete(cache, RAW5);
                 assertTrue(result, "delete returned false");
 
-                final List<StudentStandardMilestoneRec> all = logic.queryAll(cache);
+                final List<StuStandardMilestoneRec> all = logic.queryAll(cache);
 
                 assertEquals(5, all.size(), "Incorrect record count from queryAll after delete");
 
@@ -371,7 +371,7 @@ final class TestStudentStandardMilestoneLogic {
                 boolean found4 = false;
                 boolean found6 = false;
 
-                for (final StudentStandardMilestoneRec r : all) {
+                for (final StuStandardMilestoneRec r : all) {
                     if (RAW1NEWDATE.equals(r)) {
                         found1 = true;
                     } else if (RAW2.equals(r)) {

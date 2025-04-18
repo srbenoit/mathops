@@ -12,13 +12,13 @@ import dev.mathops.db.rec.AssignmentRec;
 import dev.mathops.db.rec.MasteryAttemptRec;
 import dev.mathops.db.rec.MasteryExamRec;
 import dev.mathops.db.rec.StandardMilestoneRec;
-import dev.mathops.db.rec.StudentStandardMilestoneRec;
+import dev.mathops.db.rec.StuStandardMilestoneRec;
 import dev.mathops.db.rec.TermRec;
 import dev.mathops.db.reclogic.AssignmentLogic;
 import dev.mathops.db.reclogic.MasteryAttemptLogic;
 import dev.mathops.db.reclogic.MasteryExamLogic;
 import dev.mathops.db.reclogic.StandardMilestoneLogic;
-import dev.mathops.db.reclogic.StudentStandardMilestoneLogic;
+import dev.mathops.db.reclogic.StuStandardMilestoneLogic;
 import dev.mathops.db.reclogic.TermLogic;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -146,7 +146,7 @@ public enum PageAssignments {
             final List<StandardMilestoneRec> milestones = StandardMilestoneLogic.get(cache).queryByPaceTrackPaceIndex(
                     cache, stterm.paceTrack, stterm.pace, index);
 
-            final List<StudentStandardMilestoneRec> stuMilestones = StudentStandardMilestoneLogic.get(
+            final List<StuStandardMilestoneRec> stuMilestones = StuStandardMilestoneLogic.get(
                     cache).queryByStuPaceTrackPaceIndex(cache, registration.stuId, stterm.paceTrack, stterm.pace,
                     index);
 
@@ -541,7 +541,7 @@ public enum PageAssignments {
                                        final Iterable<MasteryExamRec> exams,
                                        final Iterable<MasteryAttemptRec> stuExams,
                                        final Iterable<StandardMilestoneRec> milestones,
-                                       final Iterable<StudentStandardMilestoneRec> stuMilestones) {
+                                       final Iterable<StuStandardMilestoneRec> stuMilestones) {
 
         MasteryExamRec foundExam = null;
 
@@ -576,7 +576,7 @@ public enum PageAssignments {
                 }
             }
             if (dueDate != null) {
-                for (final StudentStandardMilestoneRec test : stuMilestones) {
+                for (final StuStandardMilestoneRec test : stuMilestones) {
                     if ("MA".equals(test.msType) && unit.equals(test.unit) && objective.equals(test.objective)) {
                         dueDate = test.msDate;
                         break;

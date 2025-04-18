@@ -1,7 +1,7 @@
 package dev.mathops.db.old.logic;
 
 import dev.mathops.db.rec.StandardMilestoneRec;
-import dev.mathops.db.rec.StudentStandardMilestoneRec;
+import dev.mathops.db.rec.StuStandardMilestoneRec;
 
 import java.time.LocalDate;
 
@@ -15,7 +15,7 @@ public final class ResolvedStandardMilestone {
     final StandardMilestoneRec original;
 
     /** The student override, {@code null} if none. */
-    final StudentStandardMilestoneRec override;
+    final StuStandardMilestoneRec override;
 
     /**
      * Constructs a new {@code ResolvedStandardMilestone}.
@@ -23,7 +23,7 @@ public final class ResolvedStandardMilestone {
      * @param theOriginal the original milestone
      * @param theOverride the student override, {@code null} if none
      */
-    ResolvedStandardMilestone(final StandardMilestoneRec theOriginal, final StudentStandardMilestoneRec theOverride) {
+    ResolvedStandardMilestone(final StandardMilestoneRec theOriginal, final StuStandardMilestoneRec theOverride) {
 
         this.original = theOriginal;
         this.override = theOverride;

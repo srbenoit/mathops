@@ -50,7 +50,7 @@ final class TestStudentCourseMasteryRec {
     @DisplayName("Constructor")
     void test0001() {
 
-        final StudentCourseMasteryRec obj = new StudentCourseMasteryRec(TEST_STU_ID, TEST_COURSE_ID, TEST_SCORE,
+        final StuCourseMasteryRec obj = new StuCourseMasteryRec(TEST_STU_ID, TEST_COURSE_ID, TEST_SCORE,
                 TEST_NBR_MASTERED_H1, TEST_NBR_MASTERED_H2, TEST_NBR_ELIGIBLE);
 
         assertEquals(TEST_STU_ID, obj.stuId, "Invalid stu_id value after constructor");
@@ -66,7 +66,7 @@ final class TestStudentCourseMasteryRec {
     @DisplayName("string serialization")
     void test0098() {
 
-        final StudentCourseMasteryRec obj = new StudentCourseMasteryRec(TEST_STU_ID, TEST_COURSE_ID, TEST_SCORE,
+        final StuCourseMasteryRec obj = new StuCourseMasteryRec(TEST_STU_ID, TEST_COURSE_ID, TEST_SCORE,
                 TEST_NBR_MASTERED_H1, TEST_NBR_MASTERED_H2, TEST_NBR_ELIGIBLE);
 
         final String ser = obj.toString();

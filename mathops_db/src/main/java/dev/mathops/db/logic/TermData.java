@@ -7,11 +7,17 @@ import dev.mathops.db.old.rawrecord.RawWhichDb;
 import dev.mathops.db.rec.term.StandardAssignmentAttemptRec;
 import dev.mathops.db.rec.term.StandardsCourseGradingSystemRec;
 import dev.mathops.db.rec.term.StandardsCourseSectionRec;
+import dev.mathops.db.rec.term.StandardsMilestoneRec;
+import dev.mathops.db.rec.term.StudentCourseMasteryRec;
 import dev.mathops.db.rec.term.StudentPreferenceRec;
+import dev.mathops.db.rec.term.StudentStandardsMilestoneRec;
 import dev.mathops.db.reclogic.term.StandardAssignmentAttemptLogic;
 import dev.mathops.db.reclogic.term.StandardsCourseGradingSystemLogic;
 import dev.mathops.db.reclogic.term.StandardsCourseSectionLogic;
+import dev.mathops.db.reclogic.term.StandardsMilestoneLogic;
+import dev.mathops.db.reclogic.term.StudentCourseMasteryLogic;
 import dev.mathops.db.reclogic.term.StudentPreferenceLogic;
+import dev.mathops.db.reclogic.term.StudentStandardsMilestoneLogic;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -45,6 +51,15 @@ public final class TermData {
     /** A map from student ID to that student's standard assignment attempts. */
     private final Map<String, List<StandardAssignmentAttemptRec>> standardAssignmentAttempts;
 
+    /** The list of all defined standards milestones. */
+    private List<StandardsMilestoneRec> standardsMilestones = null;
+
+    /** A map from student ID to that student's standards milestone overrides. */
+    private final Map<String, List<StudentStandardsMilestoneRec>> studentStandardsMilestones;
+
+    /** A map from student ID to that student's course mastery records. */
+    private final Map<String, List<StudentCourseMasteryRec>> studentCourseMasteries;
+
     /**
      * Constructs a new {@code TermData} with initial capacities appropriate to queries that will involve 2 students or
      * fewer (a common use-case).  Use the constructor that specifies an initial capacity for other use cases.
@@ -73,6 +88,8 @@ public final class TermData {
         this.standardsCourseSections = new HashMap<>(6);
         this.studentPreferences = new HashMap<>(expectedNbrStudents);
         this.standardAssignmentAttempts = new HashMap<>(expectedNbrStudents);
+        this.studentStandardsMilestones = new HashMap<>(expectedNbrStudents);
+        this.studentCourseMasteries = new HashMap<>(expectedNbrStudents);
     }
 
     /**
@@ -259,9 +276,8 @@ public final class TermData {
      * @return the list of matching records
      * @throws SQLException if there is an error accessing the database
      */
-    public List<StandardAssignmentAttemptRec> getStandardAssignmentAttempts(final String studentId,
-                                                                            final String assignmentId)
-            throws SQLException {
+    public List<StandardAssignmentAttemptRec> getStandardAssignmentAttempts(
+            final String studentId, final String assignmentId) throws SQLException {
 
         List<StandardAssignmentAttemptRec> result = this.standardAssignmentAttempts.get(studentId);
 
@@ -272,4 +288,181 @@ public final class TermData {
 
         return result;
     }
+
+    /**
+     * Gets all standards-based course milestones.
+     *
+     * @return the list of defined standards milestones
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<StandardsMilestoneRec> getStandardsMilestones() throws SQLException {
+
+        if (this.standardsMilestones == null) {
+            this.standardsMilestones = StandardsMilestoneLogic.INSTANCE.queryAll(this.cache);
+        }
+
+        return this.standardsMilestones;
+    }
+
+    /**
+     * Gets all standards-based course milestones for a specified pace track and pace.
+     *
+     * @param paceTrack the pace track
+     * @param pace      the pace
+     * @return the list of defined standards milestones
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<StandardsMilestoneRec> getStandardsMilestonesByTrackAndPace(final String paceTrack, final Integer pace)
+            throws SQLException {
+
+        final List<StandardsMilestoneRec> result = new ArrayList<>(40);
+
+        final List<StandardsMilestoneRec> all = getStandardsMilestones();
+        for (final StandardsMilestoneRec rec : all) {
+            if (rec.paceTrack.equals(paceTrack) && rec.pace.equals(pace)) {
+                result.add(rec);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets all standards-based course milestones for a specified pace track and pace and pace index.
+     *
+     * @param paceTrack the pace track
+     * @param pace      the pace
+     * @param paceIndex the pace index
+     * @return the list of defined standards milestones
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<StandardsMilestoneRec> getStandardsMilestonesByTrackAndPaceAndIndex(
+            final String paceTrack, final Integer pace, final Integer paceIndex) throws SQLException {
+
+        final List<StandardsMilestoneRec> result = new ArrayList<>(16);
+
+        final List<StandardsMilestoneRec> all = getStandardsMilestones();
+        for (final StandardsMilestoneRec rec : all) {
+            if (rec.paceTrack.equals(paceTrack) && rec.pace.equals(pace) && rec.paceIndex.equals(paceIndex)) {
+                result.add(rec);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets all student standards milestones records for a single student.
+     *
+     * @param studentId the student ID for which to query
+     * @return the list of standards milestones overrides for that student
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<StudentStandardsMilestoneRec> getStudentStandardsMilestones(final String studentId)
+            throws SQLException {
+
+        List<StudentStandardsMilestoneRec> result = this.studentStandardsMilestones.get(studentId);
+
+        if (result == null) {
+            result = StudentStandardsMilestoneLogic.INSTANCE.queryByStudent(this.cache, studentId);
+            this.studentStandardsMilestones.put(studentId, result);
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets all student standards-based course milestones overrides for a specified student, pace track, and pace.
+     *
+     * @param studentId the student ID for which to query
+     * @param paceTrack the pace track
+     * @param pace      the pace
+     * @return the list of defined standards milestones
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<StudentStandardsMilestoneRec> getStudentStandardsMilestonesByTrackAndPace(
+            final String studentId, final String paceTrack, final Integer pace) throws SQLException {
+
+        final List<StudentStandardsMilestoneRec> result = new ArrayList<>(20);
+
+        final List<StudentStandardsMilestoneRec> all = getStudentStandardsMilestones(studentId);
+        for (final StudentStandardsMilestoneRec rec : all) {
+            if (rec.paceTrack.equals(paceTrack) && rec.pace.equals(pace)) {
+                result.add(rec);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets all student standards-based course milestones overrides for a specified student, pace track, pace, and pace
+     * index.
+     *
+     * @param studentId the student ID for which to query
+     * @param paceTrack the pace track
+     * @param pace      the pace
+     * @param paceIndex the pace index
+     * @return the list of defined standards milestones
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<StudentStandardsMilestoneRec> getStudentStandardsMilestonesByTrackAndPaceAndIndex(
+            final String studentId, final String paceTrack, final Integer pace, final Integer paceIndex)
+            throws SQLException {
+
+        final List<StudentStandardsMilestoneRec> result = new ArrayList<>(10);
+
+        final List<StudentStandardsMilestoneRec> all = getStudentStandardsMilestones(studentId);
+        for (final StudentStandardsMilestoneRec rec : all) {
+            if (rec.paceTrack.equals(paceTrack) && rec.pace.equals(pace) && rec.paceIndex.equals(paceIndex)) {
+                result.add(rec);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets all student course mastery records for a single student.
+     *
+     * @param studentId the student ID for which to query
+     * @return the list of course mastery records for that student
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<StudentCourseMasteryRec> getStudentCourseMasteries(final String studentId) throws SQLException {
+
+        List<StudentCourseMasteryRec> result = this.studentCourseMasteries.get(studentId);
+
+        if (result == null) {
+            result = StudentCourseMasteryLogic.INSTANCE.queryByStudent(this.cache, studentId);
+            this.studentCourseMasteries.put(studentId, result);
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets the student course mastery record for student in a course.
+     *
+     * @param studentId the student ID for which to query
+     * @param courseId  the course ID for which to query
+     * @return the course mastery record; null if none found
+     * @throws SQLException if there is an error accessing the database
+     */
+    public StudentCourseMasteryRec getStudentCourseMastery(final String studentId, final String courseId)
+            throws SQLException {
+
+        StudentCourseMasteryRec result = null;
+
+        final List<StudentCourseMasteryRec> all = getStudentCourseMasteries(studentId);
+        for (final StudentCourseMasteryRec rec : all) {
+            if (rec.courseId.equals(courseId)) {
+                result = rec;
+                break;
+            }
+        }
+
+        return result;
+    }
+
 }

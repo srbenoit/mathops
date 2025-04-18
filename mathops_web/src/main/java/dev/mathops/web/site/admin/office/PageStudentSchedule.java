@@ -19,9 +19,9 @@ import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.rec.MasteryAttemptRec;
 import dev.mathops.db.rec.MasteryExamRec;
 import dev.mathops.db.rec.StandardMilestoneRec;
-import dev.mathops.db.rec.StudentStandardMilestoneRec;
+import dev.mathops.db.rec.StuStandardMilestoneRec;
 import dev.mathops.db.reclogic.MasteryAttemptLogic;
-import dev.mathops.db.reclogic.StudentStandardMilestoneLogic;
+import dev.mathops.db.reclogic.StuStandardMilestoneLogic;
 import dev.mathops.db.rec.TermRec;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -528,8 +528,8 @@ enum PageStudentSchedule {
                     stterm.paceTrack, stterm.pace);
             milestones.sort(null);
 
-            final List<StudentStandardMilestoneRec> overrides =
-                    StudentStandardMilestoneLogic.get(cache).queryByStuPaceTrackPace(cache, studentId,
+            final List<StuStandardMilestoneRec> overrides =
+                    StuStandardMilestoneLogic.get(cache).queryByStuPaceTrackPace(cache, studentId,
                             stterm.paceTrack, stterm.pace);
 
             final List<MasteryAttemptRec> allAttempts = MasteryAttemptLogic.get(cache).queryByStudent(cache, studentId);
@@ -545,13 +545,13 @@ enum PageStudentSchedule {
                     .sTh().add("Status").eTh()
                     .sTh().add("Actions").eTh().eTr();
 
-            StudentStandardMilestoneRec override;
+            StuStandardMilestoneRec override;
             for (final StandardMilestoneRec ms : milestones) {
 
                 final String cls = (ms.unit.intValue() & 0x01) == 0x01 ? "odd" : "even";
 
                 override = null;
-                for (final StudentStandardMilestoneRec test : overrides) {
+                for (final StuStandardMilestoneRec test : overrides) {
                     if (test.paceIndex.equals(ms.paceIndex) && test.unit.equals(ms.unit)
                         && test.objective.equals(ms.objective) && test.msType.equals(ms.msType)) {
                         override = test;

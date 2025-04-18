@@ -10,9 +10,9 @@ import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.rec.MasteryAttemptRec;
 import dev.mathops.db.rec.MasteryExamRec;
 import dev.mathops.db.rec.StandardMilestoneRec;
-import dev.mathops.db.rec.StudentStandardMilestoneRec;
+import dev.mathops.db.rec.StuStandardMilestoneRec;
 import dev.mathops.db.reclogic.MasteryAttemptLogic;
-import dev.mathops.db.reclogic.StudentStandardMilestoneLogic;
+import dev.mathops.db.reclogic.StuStandardMilestoneLogic;
 import dev.mathops.session.sitelogic.data.SiteDataCfgCourse;
 
 import java.sql.SQLException;
@@ -121,7 +121,7 @@ final class StdsMasteryStatus {
             try {
                 final List<StandardMilestoneRec> standardMilestones =
                         systemData.getStandardMilestonesForPaceTrack(paceTrack, paceObj);
-                final List<StudentStandardMilestoneRec> studentMilestones = StudentStandardMilestoneLogic
+                final List<StuStandardMilestoneRec> studentMilestones = StuStandardMilestoneLogic
                         .get(cache).queryByStuPaceTrackPace(cache, reg.stuId, paceTrack, paceObj);
                 final List<MasteryExamRec> masteryExams = systemData.getActiveMasteryExamsByCourse(reg.course);
                 final List<MasteryAttemptRec> masteryAttempts = MasteryAttemptLogic.get(cache)
@@ -179,7 +179,7 @@ final class StdsMasteryStatus {
                                 break;
                             }
                         }
-                        for (final StudentStandardMilestoneRec stms : studentMilestones) {
+                        for (final StuStandardMilestoneRec stms : studentMilestones) {
                             if (stms.paceIndex.intValue() == order && stms.unit.intValue() == unit
                                     && stms.objective.intValue() == obj
                                     && StandardMilestoneRec.MS_TYPE_STD_MASTERY.equals(stms.msType)) {

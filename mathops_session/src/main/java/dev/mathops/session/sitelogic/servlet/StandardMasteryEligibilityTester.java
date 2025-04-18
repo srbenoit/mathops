@@ -6,8 +6,8 @@ import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.rec.StudentUnitMasteryRec;
-import dev.mathops.db.reclogic.StudentUnitMasteryLogic;
+import dev.mathops.db.rec.StuUnitMasteryRec;
+import dev.mathops.db.reclogic.StuUnitMasteryLogic;
 import dev.mathops.text.builder.HtmlBuilder;
 
 import java.sql.SQLException;
@@ -58,16 +58,16 @@ public enum StandardMasteryEligibilityTester {
             } else if (unit >= 1 && unit <= 10) {
                 // TODO: The course deadline must not be in the past
 
-                final StudentUnitMasteryLogic masteryLogic = StudentUnitMasteryLogic.get(cache);
+                final StuUnitMasteryLogic masteryLogic = StuUnitMasteryLogic.get(cache);
 
                 // The student must be eligible to demonstrate mastery on the standard
-                StudentUnitMasteryRec unitMastery =
+                StuUnitMasteryRec unitMastery =
                         masteryLogic.query(cache, stu.stuId, reg.course, Integer.valueOf(unit));
 
                 if (unitMastery == null) {
                     // TODO: Should actually query work record and make sure we're inserting accurate data
 
-                    unitMastery = new StudentUnitMasteryRec(stu.stuId, reg.course,
+                    unitMastery = new StuUnitMasteryRec(stu.stuId, reg.course,
                             Integer.valueOf(unit), Integer.valueOf(0), null, null, null, null);
                     masteryLogic.insert(cache, unitMastery);
                 }

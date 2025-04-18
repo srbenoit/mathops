@@ -15,7 +15,7 @@ import dev.mathops.db.old.rawrecord.RawPaceAppeals;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.rec.StandardMilestoneRec;
-import dev.mathops.db.rec.StudentStandardMilestoneRec;
+import dev.mathops.db.rec.StuStandardMilestoneRec;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -486,7 +486,7 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
      * @param stms       the student milestone record
      * @param paceAppeal the pace appeal record
      */
-    private void showStandardEditDialog(final StandardMilestoneRec ms, final StudentStandardMilestoneRec stms,
+    private void showStandardEditDialog(final StandardMilestoneRec ms, final StuStandardMilestoneRec stms,
                                         final RawPaceAppeals paceAppeal) {
 
         // This is a legacy milestone (pace/course/unit)
@@ -523,7 +523,7 @@ public final class CourseDeadlinesPanel extends AdmPanelBase implements ActionLi
      * @param stms     the student milestone record
      * @param msAppeal the milestone appeal record
      */
-    private void showStandardEditDialog(final StandardMilestoneRec ms, final StudentStandardMilestoneRec stms,
+    private void showStandardEditDialog(final StandardMilestoneRec ms, final StuStandardMilestoneRec stms,
                                         final RawMilestoneAppeal msAppeal) {
 
         // This is a legacy milestone (pace/course/unit)

@@ -10,7 +10,7 @@ import dev.mathops.db.cfg.DatabaseConfig;
 import dev.mathops.db.cfg.Login;
 import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.cfg.Facet;
-import dev.mathops.db.rec.StudentCourseMasteryRec;
+import dev.mathops.db.rec.StuCourseMasteryRec;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -33,27 +33,27 @@ import static org.junit.jupiter.api.Assertions.fail;
 final class TestStudentCourseMasteryLogic {
 
     /** A raw test record. */
-    private static final StudentCourseMasteryRec RAW1 = new StudentCourseMasteryRec("111111111", "M 125",
+    private static final StuCourseMasteryRec RAW1 = new StuCourseMasteryRec("111111111", "M 125",
             Integer.valueOf(71), Integer.valueOf(6), Integer.valueOf(7), Integer.valueOf(1));
 
     /** A raw test record. */
-    private static final StudentCourseMasteryRec RAW2 = new StudentCourseMasteryRec("111111111", "M 126",
+    private static final StuCourseMasteryRec RAW2 = new StuCourseMasteryRec("111111111", "M 126",
             Integer.valueOf(72), Integer.valueOf(7), Integer.valueOf(8), Integer.valueOf(2));
 
     /** A raw test record. */
-    private static final StudentCourseMasteryRec RAW3 = new StudentCourseMasteryRec("222222222", "M 125",
+    private static final StuCourseMasteryRec RAW3 = new StuCourseMasteryRec("222222222", "M 125",
             Integer.valueOf(73), Integer.valueOf(8), Integer.valueOf(9), Integer.valueOf(3));
 
     /** A raw test record. */
-    private static final StudentCourseMasteryRec RAW1NEWMASTERY = new StudentCourseMasteryRec("111111111", "M 125",
+    private static final StuCourseMasteryRec RAW1NEWMASTERY = new StuCourseMasteryRec("111111111", "M 125",
             Integer.valueOf(71), Integer.valueOf(16), Integer.valueOf(17), Integer.valueOf(11));
 
     /** A raw test record. */
-    private static final StudentCourseMasteryRec RAW1NEWEXP = new StudentCourseMasteryRec("111111111", "M 125",
+    private static final StuCourseMasteryRec RAW1NEWEXP = new StuCourseMasteryRec("111111111", "M 125",
             Integer.valueOf(71), Integer.valueOf(16), Integer.valueOf(17), Integer.valueOf(11));
 
     /** A raw test record. */
-    private static final StudentCourseMasteryRec RAW1NEWSCORE = new StudentCourseMasteryRec("111111111", "M 125",
+    private static final StuCourseMasteryRec RAW1NEWSCORE = new StuCourseMasteryRec("111111111", "M 125",
             Integer.valueOf(171), Integer.valueOf(16), Integer.valueOf(17), Integer.valueOf(11));
 
     /**
@@ -61,7 +61,7 @@ final class TestStudentCourseMasteryLogic {
      *
      * @param r the unexpected record
      */
-    private static void printUnexpected(final StudentCourseMasteryRec r) {
+    private static void printUnexpected(final StuCourseMasteryRec r) {
 
         Log.warning("Unexpected stuId ", r.stuId);
         Log.warning("Unexpected courseId ", r.courseId);
@@ -125,7 +125,7 @@ final class TestStudentCourseMasteryLogic {
                 }
                 conn.commit();
 
-                final StudentCourseMasteryLogic logic = StudentCourseMasteryLogic.get(cache);
+                final StuCourseMasteryLogic logic = StuCourseMasteryLogic.get(cache);
 
                 assertTrue(logic.insert(cache, RAW1), "Failed to insert Informix stu_course_mastery");
                 assertTrue(logic.insert(cache, RAW2), "Failed to insert Informix stu_course_mastery");
@@ -145,10 +145,10 @@ final class TestStudentCourseMasteryLogic {
         void test0003() {
 
             final Cache cache = new Cache(informixProfile);
-            final StudentCourseMasteryLogic logic = StudentCourseMasteryLogic.get(cache);
+            final StuCourseMasteryLogic logic = StuCourseMasteryLogic.get(cache);
 
             try {
-                final List<StudentCourseMasteryRec> all = logic.queryAll(cache);
+                final List<StuCourseMasteryRec> all = logic.queryAll(cache);
 
                 assertEquals(3, all.size(), "Incorrect record count from Informix queryAll");
 
@@ -156,7 +156,7 @@ final class TestStudentCourseMasteryLogic {
                 boolean found2 = false;
                 boolean found3 = false;
 
-                for (final StudentCourseMasteryRec r : all) {
+                for (final StuCourseMasteryRec r : all) {
                     if (RAW1.equals(r)) {
                         found1 = true;
                     } else if (RAW2.equals(r)) {
@@ -184,10 +184,10 @@ final class TestStudentCourseMasteryLogic {
         void test0004() {
 
             final Cache cache = new Cache(informixProfile);
-            final StudentCourseMasteryLogic logic = StudentCourseMasteryLogic.get(cache);
+            final StuCourseMasteryLogic logic = StuCourseMasteryLogic.get(cache);
 
             try {
-                final List<StudentCourseMasteryRec> all = logic.queryByStudent(cache,
+                final List<StuCourseMasteryRec> all = logic.queryByStudent(cache,
                         "111111111");
 
                 assertEquals(2, all.size(), "Incorrect record count from Informix queryByStudent");
@@ -195,7 +195,7 @@ final class TestStudentCourseMasteryLogic {
                 boolean found1 = false;
                 boolean found2 = false;
 
-                for (final StudentCourseMasteryRec r : all) {
+                for (final StuCourseMasteryRec r : all) {
                     if (RAW1.equals(r)) {
                         found1 = true;
                     } else if (RAW2.equals(r)) {
@@ -221,10 +221,10 @@ final class TestStudentCourseMasteryLogic {
         void test0005() {
 
             final Cache cache = new Cache(informixProfile);
-            final StudentCourseMasteryLogic logic = StudentCourseMasteryLogic.get(cache);
+            final StuCourseMasteryLogic logic = StuCourseMasteryLogic.get(cache);
 
             try {
-                final StudentCourseMasteryRec r = logic.query(cache, "111111111", "M 125");
+                final StuCourseMasteryRec r = logic.query(cache, "111111111", "M 125");
 
                 assertNotNull(r, "No record returned by query");
 
@@ -244,14 +244,14 @@ final class TestStudentCourseMasteryLogic {
         void test0006() {
 
             final Cache cache = new Cache(informixProfile);
-            final StudentCourseMasteryLogic logic = StudentCourseMasteryLogic.get(cache);
+            final StuCourseMasteryLogic logic = StuCourseMasteryLogic.get(cache);
 
             try {
                 final boolean result = logic.updateMastery(cache, RAW1, RAW1NEWMASTERY.nbrMasteredH1,
                         RAW1NEWMASTERY.nbrMasteredH2, RAW1NEWMASTERY.nbrEligible);
                 assertTrue(result, "updateMastery returned false");
 
-                final StudentCourseMasteryRec r = logic.query(cache, "111111111", "M 125");
+                final StuCourseMasteryRec r = logic.query(cache, "111111111", "M 125");
 
                 assertNotNull(r, "No record returned by query");
 
@@ -271,13 +271,13 @@ final class TestStudentCourseMasteryLogic {
         void test0008() {
 
             final Cache cache = new Cache(informixProfile);
-            final StudentCourseMasteryLogic logic = StudentCourseMasteryLogic.get(cache);
+            final StuCourseMasteryLogic logic = StuCourseMasteryLogic.get(cache);
 
             try {
                 final boolean result = logic.updateScore(cache, RAW1NEWEXP, RAW1NEWSCORE.score);
                 assertTrue(result, "updateScore returned false");
 
-                final StudentCourseMasteryRec r = logic.query(cache, "111111111", "M 125");
+                final StuCourseMasteryRec r = logic.query(cache, "111111111", "M 125");
 
                 assertNotNull(r, "No record returned by query");
 
@@ -297,20 +297,20 @@ final class TestStudentCourseMasteryLogic {
         void test0009() {
 
             final Cache cache = new Cache(informixProfile);
-            final StudentCourseMasteryLogic logic = StudentCourseMasteryLogic.get(cache);
+            final StuCourseMasteryLogic logic = StuCourseMasteryLogic.get(cache);
 
             try {
                 final boolean result = logic.delete(cache, RAW2);
                 assertTrue(result, "delete returned false");
 
-                final List<StudentCourseMasteryRec> all = logic.queryAll(cache);
+                final List<StuCourseMasteryRec> all = logic.queryAll(cache);
 
                 assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 
                 boolean found1 = false;
                 boolean found3 = false;
 
-                for (final StudentCourseMasteryRec r : all) {
+                for (final StuCourseMasteryRec r : all) {
                     if (RAW1NEWSCORE.equals(r)) {
                         found1 = true;
                     } else if (RAW3.equals(r)) {

@@ -8,8 +8,8 @@ import java.util.Objects;
 /**
  * A "student standard milestone" record.
  */
-public final class StudentStandardMilestoneRec extends RecBase
-        implements Comparable<StudentStandardMilestoneRec> {
+public final class StuStandardMilestoneRec extends RecBase
+        implements Comparable<StuStandardMilestoneRec> {
 
     /** The table name. */
     public static final String TABLE_NAME = "stu_std_milestone";
@@ -65,7 +65,7 @@ public final class StudentStandardMilestoneRec extends RecBase
     /**
      * Constructs a new {@code StandardMilestoneRec}.
      */
-    public StudentStandardMilestoneRec() {
+    public StuStandardMilestoneRec() {
 
         super();
     }
@@ -82,9 +82,9 @@ public final class StudentStandardMilestoneRec extends RecBase
      * @param theMsType    the milestone type
      * @param theMsDate    the milestone date
      */
-    public StudentStandardMilestoneRec(final String theStuId, final String thePaceTrack, final Integer thePace,
-                                       final Integer thePaceIndex, final Integer theUnit, final Integer theObjective,
-                                       final String theMsType, final LocalDate theMsDate) {
+    public StuStandardMilestoneRec(final String theStuId, final String thePaceTrack, final Integer thePace,
+                                   final Integer thePaceIndex, final Integer theUnit, final Integer theObjective,
+                                   final String theMsType, final LocalDate theMsDate) {
 
         super();
 
@@ -106,7 +106,7 @@ public final class StudentStandardMilestoneRec extends RecBase
      *         the specified object
      */
     @Override
-    public int compareTo(final StudentStandardMilestoneRec o) {
+    public int compareTo(final StuStandardMilestoneRec o) {
 
         int result = compareAllowingNull(this.paceTrack, o.paceTrack);
 
@@ -193,7 +193,7 @@ public final class StudentStandardMilestoneRec extends RecBase
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final StudentStandardMilestoneRec rec) {
+        } else if (obj instanceof final StuStandardMilestoneRec rec) {
             equal = Objects.equals(this.stuId, rec.stuId)
                     && Objects.equals(this.paceTrack, rec.paceTrack)
                     && Objects.equals(this.pace, rec.pace)

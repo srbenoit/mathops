@@ -10,7 +10,6 @@ import dev.mathops.db.cfg.DatabaseConfig;
 import dev.mathops.db.cfg.Facet;
 import dev.mathops.db.cfg.Login;
 import dev.mathops.db.cfg.Profile;
-import dev.mathops.db.rec.term.StandardsMilestoneRec;
 import dev.mathops.db.rec.term.StudentStandardsMilestoneRec;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -223,8 +222,42 @@ final class TestStudentStandardsMilestoneLogic {
 
     /** Test case. */
     @Test
-    @DisplayName("update results")
+    @DisplayName("queryByStudent results")
     void test0003() {
+        final Cache cache = new Cache(profile);
+
+        try {
+            final List<StudentStandardsMilestoneRec> all = StudentStandardsMilestoneLogic.INSTANCE.queryByStudent(cache,
+                    RAW1.studentId);
+
+            assertEquals(2, all.size(), "Incorrect record count from queryByStudent");
+
+            boolean found1 = false;
+            boolean found2 = false;
+
+            for (final StudentStandardsMilestoneRec r : all) {
+                if (RAW1.equals(r)) {
+                    found1 = true;
+                } else if (RAW2.equals(r)) {
+                    found2 = true;
+                } else {
+                    printUnexpected(r);
+                    fail("Extra record found");
+                }
+            }
+
+            assertTrue(found1, "student_standards_milestone 1 not found");
+            assertTrue(found2, "student_standards_milestone 2 not found");
+        } catch (final SQLException ex) {
+            Log.warning(ex);
+            fail("Exception while querying all 'student_standards_milestone' rows: " + ex.getMessage());
+        }
+    }
+
+    /** Test case. */
+    @Test
+    @DisplayName("update results")
+    void test0004() {
         final Cache cache = new Cache(profile);
 
         try {
@@ -250,7 +283,7 @@ final class TestStudentStandardsMilestoneLogic {
     /** Test case. */
     @Test
     @DisplayName("delete results")
-    void test0004() {
+    void test0005() {
         final Cache cache = new Cache(profile);
 
         try {

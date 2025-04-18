@@ -3,7 +3,7 @@ package dev.mathops.db.reclogic;
 import dev.mathops.db.Cache;
 import dev.mathops.db.EDbProduct;
 import dev.mathops.db.ESchema;
-import dev.mathops.db.rec.StudentUnitMasteryRec;
+import dev.mathops.db.rec.StuUnitMasteryRec;
 import dev.mathops.text.builder.SimpleBuilder;
 
 import java.sql.ResultSet;
@@ -13,12 +13,12 @@ import java.util.List;
 /**
  * A utility class to work with stu_unit_mastery records.
  */
-public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMasteryRec> {
+public abstract class StuUnitMasteryLogic implements IRecLogic<StuUnitMasteryRec> {
 
     /**
      * Private constructor to prevent direct instantiation.
      */
-    private StudentUnitMasteryLogic() {
+    private StuUnitMasteryLogic() {
 
         super();
     }
@@ -30,11 +30,11 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
      * @param cache the cache
      * @return the appropriate {@code StudentUnitMasteryLogic} object (null if none found)
      */
-    public static StudentUnitMasteryLogic get(final Cache cache) {
+    public static StuUnitMasteryLogic get(final Cache cache) {
 
         final EDbProduct type = IRecLogic.getDbType(cache);
 
-        StudentUnitMasteryLogic result = null;
+        StuUnitMasteryLogic result = null;
         if (type == EDbProduct.INFORMIX) {
             result = Informix.INSTANCE;
         } else if (type == EDbProduct.POSTGRESQL) {
@@ -53,7 +53,7 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
      * @return true if successful; false if not
      * @throws SQLException if there is an error performing the update
      */
-    public abstract boolean updateScore(Cache cache, StudentUnitMasteryRec record, Integer newScore)
+    public abstract boolean updateScore(Cache cache, StuUnitMasteryRec record, Integer newScore)
             throws SQLException;
 
     /**
@@ -65,7 +65,7 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
      * @return true if successful; false if not
      * @throws SQLException if there is an error performing the update
      */
-    public abstract boolean updateSrStatus(Cache cache, StudentUnitMasteryRec record,
+    public abstract boolean updateSrStatus(Cache cache, StuUnitMasteryRec record,
                                            String newSrStatus) throws SQLException;
 
     /**
@@ -77,7 +77,7 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
      * @return true if successful; false if not
      * @throws SQLException if there is an error performing the update
      */
-    public abstract boolean updateS1Status(Cache cache, StudentUnitMasteryRec record,
+    public abstract boolean updateS1Status(Cache cache, StuUnitMasteryRec record,
                                            String newS1Status) throws SQLException;
 
     /**
@@ -89,7 +89,7 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
      * @return true if successful; false if not
      * @throws SQLException if there is an error performing the update
      */
-    public abstract boolean updateS2Status(Cache cache, StudentUnitMasteryRec record,
+    public abstract boolean updateS2Status(Cache cache, StuUnitMasteryRec record,
                                            String newS2Status) throws SQLException;
 
     /**
@@ -101,7 +101,7 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
      * @return true if successful; false if not
      * @throws SQLException if there is an error performing the update
      */
-    public abstract boolean updateS3Status(Cache cache, StudentUnitMasteryRec record,
+    public abstract boolean updateS3Status(Cache cache, StuUnitMasteryRec record,
                                            String newS3Status) throws SQLException;
 
     /**
@@ -112,7 +112,7 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
      * @return the list of records returned
      * @throws SQLException if there is an error performing the query
      */
-    public abstract List<StudentUnitMasteryRec> queryByStudent(Cache cache, String stuId)
+    public abstract List<StuUnitMasteryRec> queryByStudent(Cache cache, String stuId)
             throws SQLException;
 
     /**
@@ -124,8 +124,8 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
      * @return the list of records returned
      * @throws SQLException if there is an error performing the query
      */
-    public abstract List<StudentUnitMasteryRec> queryByStudentCourse(Cache cache, String stuId,
-                                                                     String courseId) throws SQLException;
+    public abstract List<StuUnitMasteryRec> queryByStudentCourse(Cache cache, String stuId,
+                                                                 String courseId) throws SQLException;
 
     /**
      * Queries for a single unit mastery record by student and unit.
@@ -137,13 +137,13 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
      * @return the record; {@code null} if not found
      * @throws SQLException if there is an error performing the query
      */
-    public abstract StudentUnitMasteryRec query(Cache cache, String stuId, String courseId,
-                                                Integer unit) throws SQLException;
+    public abstract StuUnitMasteryRec query(Cache cache, String stuId, String courseId,
+                                            Integer unit) throws SQLException;
 
     /**
      * A subclass of {@code StudentUnitMasteryLogic} designed for the Informix schema.
      */
-    public static final class Informix extends StudentUnitMasteryLogic {
+    public static final class Informix extends StuUnitMasteryLogic {
 
         /** A single instance. */
         public static final Informix INSTANCE = new Informix();
@@ -181,7 +181,7 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
          * @throws SQLException if there is an error accessing the database
          */
         @Override
-        public boolean insert(final Cache cache, final StudentUnitMasteryRec record) throws SQLException {
+        public boolean insert(final Cache cache, final StuUnitMasteryRec record) throws SQLException {
 
             if (record.stuId == null || record.courseId == null || record.unit == null || record.score == null) {
                 throw new SQLException("Null value in primary key or required field.");
@@ -211,7 +211,7 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
          * @throws SQLException if there is an error accessing the database
          */
         @Override
-        public boolean delete(final Cache cache, final StudentUnitMasteryRec record)
+        public boolean delete(final Cache cache, final StuUnitMasteryRec record)
                 throws SQLException {
 
             final String sql = SimpleBuilder.concat(//
@@ -231,7 +231,7 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
          * @throws SQLException if there is an error performing the query
          */
         @Override
-        public List<StudentUnitMasteryRec> queryAll(final Cache cache) throws SQLException {
+        public List<StuUnitMasteryRec> queryAll(final Cache cache) throws SQLException {
 
             return doListQuery(cache, "SELECT * FROM stu_unit_mastery");
         }
@@ -246,7 +246,7 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
          * @throws SQLException if there is an error performing the update
          */
         @Override
-        public boolean updateScore(final Cache cache, final StudentUnitMasteryRec record,
+        public boolean updateScore(final Cache cache, final StuUnitMasteryRec record,
                                    final Integer newScore) throws SQLException {
 
             final String sql = SimpleBuilder.concat(//
@@ -269,7 +269,7 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
          * @throws SQLException if there is an error performing the update
          */
         @Override
-        public boolean updateSrStatus(final Cache cache, final StudentUnitMasteryRec record,
+        public boolean updateSrStatus(final Cache cache, final StuUnitMasteryRec record,
                                       final String newSrStatus) throws SQLException {
 
             final String sql = SimpleBuilder.concat(//
@@ -292,7 +292,7 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
          * @throws SQLException if there is an error performing the update
          */
         @Override
-        public boolean updateS1Status(final Cache cache, final StudentUnitMasteryRec record,
+        public boolean updateS1Status(final Cache cache, final StuUnitMasteryRec record,
                                       final String newS1Status) throws SQLException {
 
             final String sql = SimpleBuilder.concat(//
@@ -315,7 +315,7 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
          * @throws SQLException if there is an error performing the update
          */
         @Override
-        public boolean updateS2Status(final Cache cache, final StudentUnitMasteryRec record,
+        public boolean updateS2Status(final Cache cache, final StuUnitMasteryRec record,
                                       final String newS2Status) throws SQLException {
 
             final String sql = SimpleBuilder.concat(//
@@ -338,7 +338,7 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
          * @throws SQLException if there is an error performing the update
          */
         @Override
-        public boolean updateS3Status(final Cache cache, final StudentUnitMasteryRec record,
+        public boolean updateS3Status(final Cache cache, final StuUnitMasteryRec record,
                                       final String newS3Status) throws SQLException {
 
             final String sql = SimpleBuilder.concat(//
@@ -360,7 +360,7 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
          * @throws SQLException if there is an error performing the query
          */
         @Override
-        public List<StudentUnitMasteryRec> queryByStudent(final Cache cache, final String stuId)
+        public List<StuUnitMasteryRec> queryByStudent(final Cache cache, final String stuId)
                 throws SQLException {
 
             final String sql = SimpleBuilder.concat("SELECT * FROM stu_unit_mastery ",
@@ -379,8 +379,8 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
          * @throws SQLException if there is an error performing the query
          */
         @Override
-        public List<StudentUnitMasteryRec> queryByStudentCourse(final Cache cache,
-                                                                final String stuId, final String courseId) throws SQLException {
+        public List<StuUnitMasteryRec> queryByStudentCourse(final Cache cache,
+                                                            final String stuId, final String courseId) throws SQLException {
 
             final String sql = SimpleBuilder.concat("SELECT * FROM stu_unit_mastery ",
                     "WHERE stu_id=", sqlStringValue(stuId),
@@ -400,8 +400,8 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
          * @throws SQLException if there is an error performing the query
          */
         @Override
-        public StudentUnitMasteryRec query(final Cache cache, final String stuId,
-                                           final String courseId, final Integer unit) throws SQLException {
+        public StuUnitMasteryRec query(final Cache cache, final String stuId,
+                                       final String courseId, final Integer unit) throws SQLException {
 
             final String sql = SimpleBuilder.concat("SELECT * FROM stu_unit_mastery ",
                     "WHERE stu_id=", sqlStringValue(stuId),
@@ -419,9 +419,9 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
          * @throws SQLException if there is an error accessing the database
          */
         @Override
-        public StudentUnitMasteryRec fromResultSet(final ResultSet rs) throws SQLException {
+        public StuUnitMasteryRec fromResultSet(final ResultSet rs) throws SQLException {
 
-            final StudentUnitMasteryRec result = new StudentUnitMasteryRec();
+            final StuUnitMasteryRec result = new StuUnitMasteryRec();
 
             result.stuId = getStringField(rs, FLD_STU_ID);
             result.courseId = getStringField(rs, FLD_COURSE_ID);
@@ -439,7 +439,7 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
     /**
      * A subclass of {@code StudentUnitMasteryLogic} designed for the PostgreSQL schema.
      */
-    public static final class Postgres extends StudentUnitMasteryLogic {
+    public static final class Postgres extends StuUnitMasteryLogic {
 
         /** A single instance. */
         public static final Postgres INSTANCE = new Postgres();
@@ -477,7 +477,7 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
          * @throws SQLException if there is an error accessing the database
          */
         @Override
-        public boolean insert(final Cache cache, final StudentUnitMasteryRec record)
+        public boolean insert(final Cache cache, final StuUnitMasteryRec record)
                 throws SQLException {
 
             if (record.stuId == null || record.courseId == null || record.unit == null
@@ -511,7 +511,7 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
          * @throws SQLException if there is an error accessing the database
          */
         @Override
-        public boolean delete(final Cache cache, final StudentUnitMasteryRec record) throws SQLException {
+        public boolean delete(final Cache cache, final StuUnitMasteryRec record) throws SQLException {
 
             final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
 
@@ -532,7 +532,7 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
          * @throws SQLException if there is an error performing the query
          */
         @Override
-        public List<StudentUnitMasteryRec> queryAll(final Cache cache) throws SQLException {
+        public List<StuUnitMasteryRec> queryAll(final Cache cache) throws SQLException {
 
             final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
 
@@ -552,7 +552,7 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
          * @throws SQLException if there is an error performing the update
          */
         @Override
-        public boolean updateScore(final Cache cache, final StudentUnitMasteryRec record,
+        public boolean updateScore(final Cache cache, final StuUnitMasteryRec record,
                                    final Integer newScore) throws SQLException {
 
             final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
@@ -577,7 +577,7 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
          * @throws SQLException if there is an error performing the update
          */
         @Override
-        public boolean updateSrStatus(final Cache cache, final StudentUnitMasteryRec record,
+        public boolean updateSrStatus(final Cache cache, final StuUnitMasteryRec record,
                                       final String newSrStatus) throws SQLException {
 
             final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
@@ -602,7 +602,7 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
          * @throws SQLException if there is an error performing the update
          */
         @Override
-        public boolean updateS1Status(final Cache cache, final StudentUnitMasteryRec record,
+        public boolean updateS1Status(final Cache cache, final StuUnitMasteryRec record,
                                       final String newS1Status) throws SQLException {
 
             final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
@@ -627,7 +627,7 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
          * @throws SQLException if there is an error performing the update
          */
         @Override
-        public boolean updateS2Status(final Cache cache, final StudentUnitMasteryRec record,
+        public boolean updateS2Status(final Cache cache, final StuUnitMasteryRec record,
                                       final String newS2Status) throws SQLException {
 
             final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
@@ -652,7 +652,7 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
          * @throws SQLException if there is an error performing the update
          */
         @Override
-        public boolean updateS3Status(final Cache cache, final StudentUnitMasteryRec record,
+        public boolean updateS3Status(final Cache cache, final StuUnitMasteryRec record,
                                       final String newS3Status) throws SQLException {
 
             final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
@@ -676,7 +676,7 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
          * @throws SQLException if there is an error performing the query
          */
         @Override
-        public List<StudentUnitMasteryRec> queryByStudent(final Cache cache, final String stuId) throws SQLException {
+        public List<StuUnitMasteryRec> queryByStudent(final Cache cache, final String stuId) throws SQLException {
 
             final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
 
@@ -697,8 +697,8 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
          * @throws SQLException if there is an error performing the query
          */
         @Override
-        public List<StudentUnitMasteryRec> queryByStudentCourse(final Cache cache, final String stuId,
-                                                                final String courseId) throws SQLException {
+        public List<StuUnitMasteryRec> queryByStudentCourse(final Cache cache, final String stuId,
+                                                            final String courseId) throws SQLException {
 
             final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
 
@@ -721,8 +721,8 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
          * @throws SQLException if there is an error performing the query
          */
         @Override
-        public StudentUnitMasteryRec query(final Cache cache, final String stuId, final String courseId,
-                                           final Integer unit) throws SQLException {
+        public StuUnitMasteryRec query(final Cache cache, final String stuId, final String courseId,
+                                       final Integer unit) throws SQLException {
 
             final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
 
@@ -743,9 +743,9 @@ public abstract class StudentUnitMasteryLogic implements IRecLogic<StudentUnitMa
          * @throws SQLException if there is an error accessing the database
          */
         @Override
-        public StudentUnitMasteryRec fromResultSet(final ResultSet rs) throws SQLException {
+        public StuUnitMasteryRec fromResultSet(final ResultSet rs) throws SQLException {
 
-            final StudentUnitMasteryRec result = new StudentUnitMasteryRec();
+            final StuUnitMasteryRec result = new StuUnitMasteryRec();
 
             result.stuId = getStringField(rs, FLD_STU_ID);
             result.courseId = getStringField(rs, FLD_COURSE_ID);

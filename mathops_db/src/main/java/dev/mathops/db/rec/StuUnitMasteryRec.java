@@ -7,7 +7,7 @@ import java.util.Objects;
 /**
  * A "student unit mastery" record.
  */
-public final class StudentUnitMasteryRec extends RecBase implements Comparable<StudentUnitMasteryRec> {
+public final class StuUnitMasteryRec extends RecBase implements Comparable<StuUnitMasteryRec> {
 
     /** The table name. */
     public static final String TABLE_NAME = "stu_unit_mastery";
@@ -63,7 +63,7 @@ public final class StudentUnitMasteryRec extends RecBase implements Comparable<S
     /**
      * Constructs a new {@code StudentUnitMasteryRec}.
      */
-    public StudentUnitMasteryRec() {
+    public StuUnitMasteryRec() {
 
         super();
     }
@@ -80,9 +80,9 @@ public final class StudentUnitMasteryRec extends RecBase implements Comparable<S
      * @param theS2Status the status of standard 2
      * @param theS3Status the status of standard 3
      */
-    public StudentUnitMasteryRec(final String theStuId, final String theCourseId,
-                                 final Integer theUnit, final Integer theScore, final String theSrStatus,
-                                 final String theS1Status, final String theS2Status, final String theS3Status) {
+    public StuUnitMasteryRec(final String theStuId, final String theCourseId,
+                             final Integer theUnit, final Integer theScore, final String theSrStatus,
+                             final String theS1Status, final String theS2Status, final String theS3Status) {
 
         super();
 
@@ -104,7 +104,7 @@ public final class StudentUnitMasteryRec extends RecBase implements Comparable<S
      *         the specified object
      */
     @Override
-    public int compareTo(final StudentUnitMasteryRec o) {
+    public int compareTo(final StuUnitMasteryRec o) {
 
         int result = compareAllowingNull(this.stuId, o.stuId);
 
@@ -180,7 +180,7 @@ public final class StudentUnitMasteryRec extends RecBase implements Comparable<S
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final StudentUnitMasteryRec rec) {
+        } else if (obj instanceof final StuUnitMasteryRec rec) {
             equal = Objects.equals(this.stuId, rec.stuId)
                     && Objects.equals(this.courseId, rec.courseId)
                     && Objects.equals(this.unit, rec.unit)

@@ -3,7 +3,7 @@ package dev.mathops.db.reclogic;
 import dev.mathops.db.Cache;
 import dev.mathops.db.EDbProduct;
 import dev.mathops.db.ESchema;
-import dev.mathops.db.rec.StudentStandardMilestoneRec;
+import dev.mathops.db.rec.StuStandardMilestoneRec;
 import dev.mathops.text.builder.SimpleBuilder;
 
 import java.sql.ResultSet;
@@ -14,12 +14,12 @@ import java.util.List;
 /**
  * A utility class to work with stu_std_milestone records.
  */
-public abstract class StudentStandardMilestoneLogic implements IRecLogic<StudentStandardMilestoneRec> {
+public abstract class StuStandardMilestoneLogic implements IRecLogic<StuStandardMilestoneRec> {
 
     /**
      * Private constructor to prevent direct instantiation.
      */
-    private StudentStandardMilestoneLogic() {
+    private StuStandardMilestoneLogic() {
 
         super();
     }
@@ -31,11 +31,11 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
      * @param cache the cache
      * @return the appropriate {@code StandardMilestoneLogic} object (null if none found)
      */
-    public static StudentStandardMilestoneLogic get(final Cache cache) {
+    public static StuStandardMilestoneLogic get(final Cache cache) {
 
         final EDbProduct type = IRecLogic.getDbType(cache);
 
-        StudentStandardMilestoneLogic result = null;
+        StuStandardMilestoneLogic result = null;
         if (type == EDbProduct.INFORMIX) {
             result = Informix.INSTANCE;
         } else if (type == EDbProduct.POSTGRESQL) {
@@ -54,7 +54,7 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
      * @return true if successful; false if not
      * @throws SQLException if there is an error performing the update
      */
-    public abstract boolean updateDate(Cache cache, StudentStandardMilestoneRec record,
+    public abstract boolean updateDate(Cache cache, StuStandardMilestoneRec record,
                                        LocalDate newDate) throws SQLException;
 
     /**
@@ -65,7 +65,7 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
      * @return the list of records returned
      * @throws SQLException if there is an error performing the query
      */
-    public abstract List<StudentStandardMilestoneRec> queryByStudent(Cache cache, String stuId) throws SQLException;
+    public abstract List<StuStandardMilestoneRec> queryByStudent(Cache cache, String stuId) throws SQLException;
 
     /**
      * Queries for all student standard milestones for a specified pace track and pace. This will include milestones for
@@ -78,8 +78,8 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
      * @return the list of records returned
      * @throws SQLException if there is an error performing the query
      */
-    public abstract List<StudentStandardMilestoneRec> queryByStuPaceTrackPace(Cache cache, String stuId,
-                                                                              String track, Integer pace)
+    public abstract List<StuStandardMilestoneRec> queryByStuPaceTrackPace(Cache cache, String stuId,
+                                                                          String track, Integer pace)
             throws SQLException;
 
     /**
@@ -93,9 +93,9 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
      * @return the list of records returned
      * @throws SQLException if there is an error performing the query
      */
-    public abstract List<StudentStandardMilestoneRec> queryByStuPaceTrackPaceIndex(Cache cache, String stuId,
-                                                                                   String track, Integer pace,
-                                                                                   Integer paceIndex)
+    public abstract List<StuStandardMilestoneRec> queryByStuPaceTrackPaceIndex(Cache cache, String stuId,
+                                                                               String track, Integer pace,
+                                                                               Integer paceIndex)
             throws SQLException;
 
     /**
@@ -113,15 +113,15 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
      * @return the record; {@code null} if not found
      * @throws SQLException if there is an error performing the query
      */
-    public abstract StudentStandardMilestoneRec query(Cache cache, String stuId, String track,
-                                                      Integer pace, Integer paceIndex, Integer unit,
-                                                      Integer objective, String msType)
+    public abstract StuStandardMilestoneRec query(Cache cache, String stuId, String track,
+                                                  Integer pace, Integer paceIndex, Integer unit,
+                                                  Integer objective, String msType)
             throws SQLException;
 
     /**
      * A subclass of {@code StandardMilestoneLogic} designed for the Informix schema.
      */
-    public static final class Informix extends StudentStandardMilestoneLogic {
+    public static final class Informix extends StuStandardMilestoneLogic {
 
         /** A single instance. */
         public static final Informix INSTANCE = new Informix();
@@ -159,7 +159,7 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
          * @throws SQLException if there is an error accessing the database
          */
         @Override
-        public boolean insert(final Cache cache, final StudentStandardMilestoneRec record)
+        public boolean insert(final Cache cache, final StuStandardMilestoneRec record)
                 throws SQLException {
 
             if (record.stuId == null || record.paceTrack == null || record.pace == null
@@ -191,7 +191,7 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
          * @throws SQLException if there is an error accessing the database
          */
         @Override
-        public boolean delete(final Cache cache, final StudentStandardMilestoneRec record)
+        public boolean delete(final Cache cache, final StuStandardMilestoneRec record)
                 throws SQLException {
 
             final String sql = SimpleBuilder.concat("DELETE FROM stu_std_milestone ",
@@ -214,7 +214,7 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
          * @throws SQLException if there is an error performing the query
          */
         @Override
-        public List<StudentStandardMilestoneRec> queryAll(final Cache cache) throws SQLException {
+        public List<StuStandardMilestoneRec> queryAll(final Cache cache) throws SQLException {
 
             return doListQuery(cache, "SELECT * FROM stu_std_milestone");
         }
@@ -229,7 +229,7 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
          * @throws SQLException if there is an error performing the update
          */
         @Override
-        public boolean updateDate(final Cache cache, final StudentStandardMilestoneRec record,
+        public boolean updateDate(final Cache cache, final StuStandardMilestoneRec record,
                                   final LocalDate newDate) throws SQLException {
 
             final String sql = SimpleBuilder.concat("UPDATE stu_std_milestone ",
@@ -254,8 +254,8 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
          * @throws SQLException if there is an error performing the query
          */
         @Override
-        public List<StudentStandardMilestoneRec> queryByStudent(final Cache cache,
-                                                                final String stuId) throws SQLException {
+        public List<StuStandardMilestoneRec> queryByStudent(final Cache cache,
+                                                            final String stuId) throws SQLException {
 
             final String sql = SimpleBuilder.concat("SELECT * FROM stu_std_milestone ",
                     "WHERE stu_id=", sqlStringValue(stuId));
@@ -275,8 +275,8 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
          * @throws SQLException if there is an error performing the query
          */
         @Override
-        public List<StudentStandardMilestoneRec> queryByStuPaceTrackPace(final Cache cache, final String stuId,
-                                                                         final String track, final Integer pace)
+        public List<StuStandardMilestoneRec> queryByStuPaceTrackPace(final Cache cache, final String stuId,
+                                                                     final String track, final Integer pace)
                 throws SQLException {
 
             final String sql = SimpleBuilder.concat("SELECT * FROM stu_std_milestone ",
@@ -299,9 +299,9 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
          * @throws SQLException if there is an error performing the query
          */
         @Override
-        public List<StudentStandardMilestoneRec> queryByStuPaceTrackPaceIndex(final Cache cache, final String stuId,
-                                                                              final String track, final Integer pace,
-                                                                              final Integer paceIndex)
+        public List<StuStandardMilestoneRec> queryByStuPaceTrackPaceIndex(final Cache cache, final String stuId,
+                                                                          final String track, final Integer pace,
+                                                                          final Integer paceIndex)
                 throws SQLException {
 
             final String sql = SimpleBuilder.concat("SELECT * FROM stu_std_milestone ",
@@ -328,9 +328,9 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
          * @throws SQLException if there is an error performing the query
          */
         @Override
-        public StudentStandardMilestoneRec query(final Cache cache, final String stuId, final String track,
-                                                 final Integer pace, final Integer paceIndex, final Integer unit,
-                                                 final Integer objective, final String msType) throws SQLException {
+        public StuStandardMilestoneRec query(final Cache cache, final String stuId, final String track,
+                                             final Integer pace, final Integer paceIndex, final Integer unit,
+                                             final Integer objective, final String msType) throws SQLException {
 
             final String sql = SimpleBuilder.concat("SELECT * FROM stu_std_milestone ",
                     "WHERE stu_id=", sqlStringValue(stuId),
@@ -352,9 +352,9 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
          * @throws SQLException if there is an error accessing the database
          */
         @Override
-        public StudentStandardMilestoneRec fromResultSet(final ResultSet rs) throws SQLException {
+        public StuStandardMilestoneRec fromResultSet(final ResultSet rs) throws SQLException {
 
-            final StudentStandardMilestoneRec result = new StudentStandardMilestoneRec();
+            final StuStandardMilestoneRec result = new StuStandardMilestoneRec();
 
             result.stuId = getStringField(rs, FLD_STU_ID);
             result.paceTrack = getStringField(rs, FLD_PACE_TRACK);
@@ -372,7 +372,7 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
     /**
      * A subclass of {@code StandardMilestoneLogic} designed for the PostgreSQL schema.
      */
-    public static final class Postgres extends StudentStandardMilestoneLogic {
+    public static final class Postgres extends StuStandardMilestoneLogic {
 
         /** A single instance. */
         public static final Postgres INSTANCE = new Postgres();
@@ -410,7 +410,7 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
          * @throws SQLException if there is an error accessing the database
          */
         @Override
-        public boolean insert(final Cache cache, final StudentStandardMilestoneRec record) throws SQLException {
+        public boolean insert(final Cache cache, final StuStandardMilestoneRec record) throws SQLException {
 
             if (record.stuId == null || record.paceTrack == null || record.pace == null || record.paceIndex == null
                 || record.unit == null || record.objective == null || record.msType == null) {
@@ -442,7 +442,7 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
          * @throws SQLException if there is an error accessing the database
          */
         @Override
-        public boolean delete(final Cache cache, final StudentStandardMilestoneRec record) throws SQLException {
+        public boolean delete(final Cache cache, final StuStandardMilestoneRec record) throws SQLException {
 
             final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
 
@@ -466,7 +466,7 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
          * @throws SQLException if there is an error performing the query
          */
         @Override
-        public List<StudentStandardMilestoneRec> queryAll(final Cache cache) throws SQLException {
+        public List<StuStandardMilestoneRec> queryAll(final Cache cache) throws SQLException {
 
             final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
 
@@ -485,7 +485,7 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
          * @throws SQLException if there is an error performing the update
          */
         @Override
-        public boolean updateDate(final Cache cache, final StudentStandardMilestoneRec record,
+        public boolean updateDate(final Cache cache, final StuStandardMilestoneRec record,
                                   final LocalDate newDate) throws SQLException {
 
             final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
@@ -512,8 +512,8 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
          * @throws SQLException if there is an error performing the query
          */
         @Override
-        public List<StudentStandardMilestoneRec> queryByStudent(final Cache cache,
-                                                                final String stuId) throws SQLException {
+        public List<StuStandardMilestoneRec> queryByStudent(final Cache cache,
+                                                            final String stuId) throws SQLException {
 
             final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
 
@@ -535,8 +535,8 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
          * @throws SQLException if there is an error performing the query
          */
         @Override
-        public List<StudentStandardMilestoneRec> queryByStuPaceTrackPace(final Cache cache, final String stuId,
-                                                                         final String track, final Integer pace)
+        public List<StuStandardMilestoneRec> queryByStuPaceTrackPace(final Cache cache, final String stuId,
+                                                                     final String track, final Integer pace)
                 throws SQLException {
 
             final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
@@ -561,9 +561,9 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
          * @throws SQLException if there is an error performing the query
          */
         @Override
-        public List<StudentStandardMilestoneRec> queryByStuPaceTrackPaceIndex(final Cache cache, final String stuId,
-                                                                              final String track, final Integer pace,
-                                                                              final Integer paceIndex)
+        public List<StuStandardMilestoneRec> queryByStuPaceTrackPaceIndex(final Cache cache, final String stuId,
+                                                                          final String track, final Integer pace,
+                                                                          final Integer paceIndex)
                 throws SQLException {
 
             final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
@@ -592,9 +592,9 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
          * @throws SQLException if there is an error performing the query
          */
         @Override
-        public StudentStandardMilestoneRec query(final Cache cache, final String stuId, final String track,
-                                                 final Integer pace, final Integer paceIndex, final Integer unit,
-                                                 final Integer objective, final String msType) throws SQLException {
+        public StuStandardMilestoneRec query(final Cache cache, final String stuId, final String track,
+                                             final Integer pace, final Integer paceIndex, final Integer unit,
+                                             final Integer objective, final String msType) throws SQLException {
 
             final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
 
@@ -618,9 +618,9 @@ public abstract class StudentStandardMilestoneLogic implements IRecLogic<Student
          * @throws SQLException if there is an error accessing the database
          */
         @Override
-        public StudentStandardMilestoneRec fromResultSet(final ResultSet rs) throws SQLException {
+        public StuStandardMilestoneRec fromResultSet(final ResultSet rs) throws SQLException {
 
-            final StudentStandardMilestoneRec result = new StudentStandardMilestoneRec();
+            final StuStandardMilestoneRec result = new StuStandardMilestoneRec();
 
             result.stuId = getStringField(rs, FLD_STU_ID);
             result.paceTrack = getStringField(rs, FLD_PACE_TRACK);

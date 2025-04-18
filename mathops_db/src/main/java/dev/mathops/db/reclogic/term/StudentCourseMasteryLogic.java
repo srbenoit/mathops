@@ -10,7 +10,6 @@ import dev.mathops.text.builder.SimpleBuilder;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -141,7 +140,33 @@ public final class StudentCourseMasteryLogic implements IRecLogic<StudentCourseM
     }
 
     /**
-     * Queries for a student course mastery by its ID.
+     * Queries for all student course mastery records for a student.
+     *
+     * @param cache     the data cache
+     * @param studentId the student ID for which to query
+     * @return the list of matching records
+     * @throws SQLException if there is an error performing the query
+     */
+    public List<StudentCourseMasteryRec> queryByStudent(final Cache cache, final String studentId) throws SQLException {
+
+        final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
+
+        final List<StudentCourseMasteryRec> result;
+        if (schemaPrefix == null) {
+            Log.warning("Cache profile '", cache.getProfile().id, "' does not support the TERM schema");
+            result = new ArrayList<>(0);
+        } else {
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
+                    ".student_course_mastery WHERE student_id=", sqlStringValue(studentId));
+
+            result = doListQuery(cache, sql);
+        }
+
+        return result;
+    }
+
+    /**
+     * Queries for a student course mastery by student and course ID.
      *
      * @param cache     the data cache
      * @param studentId the student ID for which to query
@@ -149,8 +174,8 @@ public final class StudentCourseMasteryLogic implements IRecLogic<StudentCourseM
      * @return the matching record; {@code null} if not found
      * @throws SQLException if there is an error performing the query
      */
-    public StudentCourseMasteryRec query(final Cache cache, final String studentId, final String courseId)
-            throws SQLException {
+    public StudentCourseMasteryRec query(final Cache cache, final String studentId,
+                                         final String courseId) throws SQLException {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
 

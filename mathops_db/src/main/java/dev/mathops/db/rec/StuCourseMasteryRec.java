@@ -7,8 +7,8 @@ import java.util.Objects;
 /**
  * A "student course mastery" record.
  */
-public final class StudentCourseMasteryRec extends RecBase
-        implements Comparable<StudentCourseMasteryRec> {
+public final class StuCourseMasteryRec extends RecBase
+        implements Comparable<StuCourseMasteryRec> {
 
     /** The table name. */
     public static final String TABLE_NAME = "stu_course_mastery";
@@ -52,7 +52,7 @@ public final class StudentCourseMasteryRec extends RecBase
     /**
      * Constructs a new {@code StudentCourseMasteryRec}.
      */
-    public StudentCourseMasteryRec() {
+    public StuCourseMasteryRec() {
 
         super();
     }
@@ -67,9 +67,9 @@ public final class StudentCourseMasteryRec extends RecBase
      * @param theNbrMasteredH2 the number of standards mastered in half 2 of course
      * @param theNbrEligible   the number of standards eligible but not yet mastered
      */
-    public StudentCourseMasteryRec(final String theStuId, final String theCourseId, final Integer theScore,
-                                   final Integer theNbrMasteredH1, final Integer theNbrMasteredH2,
-                                   final Integer theNbrEligible) {
+    public StuCourseMasteryRec(final String theStuId, final String theCourseId, final Integer theScore,
+                               final Integer theNbrMasteredH1, final Integer theNbrMasteredH2,
+                               final Integer theNbrEligible) {
 
         super();
 
@@ -89,7 +89,7 @@ public final class StudentCourseMasteryRec extends RecBase
      *         the specified object
      */
     @Override
-    public int compareTo(final StudentCourseMasteryRec o) {
+    public int compareTo(final StuCourseMasteryRec o) {
 
         int result = compareAllowingNull(this.stuId, o.stuId);
 
@@ -152,7 +152,7 @@ public final class StudentCourseMasteryRec extends RecBase
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final StudentCourseMasteryRec rec) {
+        } else if (obj instanceof final StuCourseMasteryRec rec) {
             equal = Objects.equals(this.stuId, rec.stuId)
                     && Objects.equals(this.courseId, rec.courseId)
                     && Objects.equals(this.score, rec.score)

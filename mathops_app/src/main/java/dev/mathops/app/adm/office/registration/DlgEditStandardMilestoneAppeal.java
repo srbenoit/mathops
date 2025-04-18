@@ -22,7 +22,7 @@ import dev.mathops.db.old.rawrecord.RawMilestoneAppeal;
 import dev.mathops.db.old.rawrecord.RawPaceAppeals;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.rec.StandardMilestoneRec;
-import dev.mathops.db.rec.StudentStandardMilestoneRec;
+import dev.mathops.db.rec.StuStandardMilestoneRec;
 import dev.mathops.db.rec.TermRec;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.text.builder.SimpleBuilder;
@@ -583,7 +583,7 @@ public final class DlgEditStandardMilestoneAppeal extends JFrame implements Acti
      */
     public void populateDisplay(final UserData userData, final StudentData data,
                                 final StandardMilestoneRec theStdMilestone,
-                                final StudentStandardMilestoneRec theStuStdMilestone,
+                                final StuStandardMilestoneRec theStuStdMilestone,
                                 final RawPaceAppeals theAppeal) {
 
         this.currentStdMilestone = theStdMilestone;
@@ -664,7 +664,7 @@ public final class DlgEditStandardMilestoneAppeal extends JFrame implements Acti
      */
     public void populateDisplay(final UserData userData, final StudentData data,
                                 final StandardMilestoneRec theStdMilestone,
-                                final StudentStandardMilestoneRec theStuStdMilestone,
+                                final StuStandardMilestoneRec theStuStdMilestone,
                                 final RawMilestoneAppeal theAppeal) {
 
         this.currentStdMilestone = theStdMilestone;

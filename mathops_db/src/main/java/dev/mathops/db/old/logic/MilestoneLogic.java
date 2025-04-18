@@ -15,8 +15,8 @@ import dev.mathops.db.old.rawrecord.RawPacingStructure;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.rec.StandardMilestoneRec;
-import dev.mathops.db.rec.StudentStandardMilestoneRec;
-import dev.mathops.db.reclogic.StudentStandardMilestoneLogic;
+import dev.mathops.db.rec.StuStandardMilestoneRec;
+import dev.mathops.db.reclogic.StuStandardMilestoneLogic;
 import dev.mathops.db.rec.TermRec;
 import dev.mathops.db.type.TermKey;
 
@@ -264,11 +264,11 @@ public enum MilestoneLogic {
             }
         }
 
-        final List<StudentStandardMilestoneRec> stmilestones =
-                StudentStandardMilestoneLogic.get(cache).queryByStuPaceTrackPaceIndex(cache, stuId, paceTrack, paceObj,
+        final List<StuStandardMilestoneRec> stmilestones =
+                StuStandardMilestoneLogic.get(cache).queryByStuPaceTrackPaceIndex(cache, stuId, paceTrack, paceObj,
                         indexObj);
 
-        for (final StudentStandardMilestoneRec row : stmilestones) {
+        for (final StuStandardMilestoneRec row : stmilestones) {
             if ("MA".equals(row.msType)) {
                 if (row.unit == null || row.objective == null) {
                     Log.warning("Unexpected student standard milestone of type ", row.msType);
@@ -1270,16 +1270,16 @@ public enum MilestoneLogic {
                                                 final int pace, final int index, final int unit, final int objective,
                                                 final String msType, final LocalDate newDeadline) throws SQLException {
 
-        final StudentStandardMilestoneLogic logic = StudentStandardMilestoneLogic.get(cache);
+        final StuStandardMilestoneLogic logic = StuStandardMilestoneLogic.get(cache);
         final Integer paceObj = Integer.valueOf(pace);
         final Integer indexObj = Integer.valueOf(index);
         final Integer unitObj = Integer.valueOf(unit);
         final Integer objectiveObj = Integer.valueOf(objective);
 
-        final List<StudentStandardMilestoneRec> all = logic.queryByStuPaceTrackPaceIndex(cache, stuId, paceTrack,
+        final List<StuStandardMilestoneRec> all = logic.queryByStuPaceTrackPaceIndex(cache, stuId, paceTrack,
                 paceObj, indexObj);
-        StudentStandardMilestoneRec existing = null;
-        for (final StudentStandardMilestoneRec test : all) {
+        StuStandardMilestoneRec existing = null;
+        for (final StuStandardMilestoneRec test : all) {
             if (Objects.equals(test.unit, unitObj) && Objects.equals(test.objective, objectiveObj)
                 && test.objective.intValue() == objective && test.msType.equals(msType)) {
                 existing = test;
@@ -1289,7 +1289,7 @@ public enum MilestoneLogic {
 
         final boolean result;
         if (existing == null) {
-            final StudentStandardMilestoneRec add = new StudentStandardMilestoneRec(stuId, paceTrack, paceObj,
+            final StuStandardMilestoneRec add = new StuStandardMilestoneRec(stuId, paceTrack, paceObj,
                     indexObj, unitObj, objectiveObj, msType, newDeadline);
             result = logic.insert(cache, add);
         } else {

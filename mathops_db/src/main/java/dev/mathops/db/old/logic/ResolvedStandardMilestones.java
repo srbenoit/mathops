@@ -1,7 +1,7 @@
 package dev.mathops.db.old.logic;
 
 import dev.mathops.db.rec.StandardMilestoneRec;
-import dev.mathops.db.rec.StudentStandardMilestoneRec;
+import dev.mathops.db.rec.StuStandardMilestoneRec;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,15 +23,15 @@ public final class ResolvedStandardMilestones {
      * @param overrides any student milestone overrides for the student's pace and pace track.
      */
     public ResolvedStandardMilestones(final Collection<StandardMilestoneRec> originals,
-                                      final Iterable<StudentStandardMilestoneRec> overrides) {
+                                      final Iterable<StuStandardMilestoneRec> overrides) {
 
         super();
 
         this.resolved = new ArrayList<>(originals.size());
 
         for (final StandardMilestoneRec orig : originals) {
-            StudentStandardMilestoneRec override = null;
-            for (final StudentStandardMilestoneRec over : overrides) {
+            StuStandardMilestoneRec override = null;
+            for (final StuStandardMilestoneRec over : overrides) {
                 if (over.paceIndex.equals(orig.paceIndex) && over.unit.equals(orig.unit)
                         && over.objective.equals(orig.objective) && over.msType.equals(orig.msType)) {
                     override = over;

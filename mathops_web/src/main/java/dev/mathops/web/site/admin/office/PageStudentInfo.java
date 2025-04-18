@@ -19,9 +19,9 @@ import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.rec.MasteryAttemptRec;
 import dev.mathops.db.rec.MasteryExamRec;
 import dev.mathops.db.rec.StandardMilestoneRec;
-import dev.mathops.db.rec.StudentStandardMilestoneRec;
+import dev.mathops.db.rec.StuStandardMilestoneRec;
 import dev.mathops.db.reclogic.MasteryAttemptLogic;
-import dev.mathops.db.reclogic.StudentStandardMilestoneLogic;
+import dev.mathops.db.reclogic.StuStandardMilestoneLogic;
 import dev.mathops.db.rec.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.servlet.StudentCourseScores;
@@ -752,20 +752,20 @@ enum PageStudentInfo {
                     stterm.paceTrack, stterm.pace);
             milestones.sort(null);
 
-            final List<StudentStandardMilestoneRec> overrides =
-                    StudentStandardMilestoneLogic.get(cache).queryByStuPaceTrackPace(cache, reg.stuId,
+            final List<StuStandardMilestoneRec> overrides =
+                    StuStandardMilestoneLogic.get(cache).queryByStuPaceTrackPace(cache, reg.stuId,
                             stterm.paceTrack, stterm.pace);
 
             final List<MasteryExamRec> allMastery = systemData.getActiveMasteryExamsByCourse(reg.course);
             final List<MasteryAttemptRec> allAttempts = MasteryAttemptLogic.get(cache).queryByStudent(cache, reg.stuId);
 
-            StudentStandardMilestoneRec override;
+            StuStandardMilestoneRec override;
             for (final StandardMilestoneRec ms : milestones) {
 
                 final String cls = (ms.unit.intValue() & 0x01) == 0x01 ? "odd" : "even";
 
                 override = null;
-                for (final StudentStandardMilestoneRec test : overrides) {
+                for (final StuStandardMilestoneRec test : overrides) {
                     if (test.paceIndex.equals(ms.paceIndex) && test.unit.equals(ms.unit)
                         && test.objective.equals(ms.objective) && test.msType.equals(ms.msType)) {
                         override = test;
