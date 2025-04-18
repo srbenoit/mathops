@@ -191,8 +191,42 @@ final class TestCourseSurveyResponseItemChoiceLogic {
 
     /** Test case. */
     @Test
-    @DisplayName("update results")
+    @DisplayName("queryBySerialNumber results")
     void test0003() {
+        final Cache cache = new Cache(profile);
+
+        try {
+            final List<CourseSurveyResponseItemChoiceRec> all =
+                    CourseSurveyResponseItemChoiceLogic.INSTANCE.queryBySerialNbr(cache, RAW1.serialNbr);
+
+            assertEquals(2, all.size(), "Incorrect record count from queryBySerialNbr");
+
+            boolean found1 = false;
+            boolean found2 = false;
+
+            for (final CourseSurveyResponseItemChoiceRec r : all) {
+                if (RAW1.equals(r)) {
+                    found1 = true;
+                } else if (RAW2.equals(r)) {
+                    found2 = true;
+                } else {
+                    printUnexpected(r);
+                    fail("Extra record found");
+                }
+            }
+
+            assertTrue(found1, "course_survey_response_item_choice 1 not found");
+            assertTrue(found2, "course_survey_response_item_choice 2 not found");
+        } catch (final SQLException ex) {
+            Log.warning(ex);
+            fail("Exception while querying all 'course_survey_response_item_choice' rows: " + ex.getMessage());
+        }
+    }
+
+    /** Test case. */
+    @Test
+    @DisplayName("update results")
+    void test0004() {
         final Cache cache = new Cache(profile);
 
         try {
@@ -218,7 +252,7 @@ final class TestCourseSurveyResponseItemChoiceLogic {
     /** Test case. */
     @Test
     @DisplayName("delete results")
-    void test0004() {
+    void test0005() {
         final Cache cache = new Cache(profile);
 
         try {

@@ -4,6 +4,9 @@ import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
 import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawWhichDb;
+import dev.mathops.db.rec.term.CourseSurveyResponseItemChoiceRec;
+import dev.mathops.db.rec.term.CourseSurveyResponseItemTextRec;
+import dev.mathops.db.rec.term.CourseSurveyResponseRec;
 import dev.mathops.db.rec.term.StandardAssignmentAttemptRec;
 import dev.mathops.db.rec.term.StandardsCourseGradingSystemRec;
 import dev.mathops.db.rec.term.StandardsCourseSectionRec;
@@ -11,6 +14,9 @@ import dev.mathops.db.rec.term.StandardsMilestoneRec;
 import dev.mathops.db.rec.term.StudentCourseMasteryRec;
 import dev.mathops.db.rec.term.StudentPreferenceRec;
 import dev.mathops.db.rec.term.StudentStandardsMilestoneRec;
+import dev.mathops.db.reclogic.term.CourseSurveyResponseItemChoiceLogic;
+import dev.mathops.db.reclogic.term.CourseSurveyResponseItemTextLogic;
+import dev.mathops.db.reclogic.term.CourseSurveyResponseLogic;
 import dev.mathops.db.reclogic.term.StandardAssignmentAttemptLogic;
 import dev.mathops.db.reclogic.term.StandardsCourseGradingSystemLogic;
 import dev.mathops.db.reclogic.term.StandardsCourseSectionLogic;
@@ -60,6 +66,15 @@ public final class TermData {
     /** A map from student ID to that student's course mastery records. */
     private final Map<String, List<StudentCourseMasteryRec>> studentCourseMasteries;
 
+    /** A map from student ID to that student's course survey responses. */
+    private final Map<String, List<CourseSurveyResponseRec>> courseSurveyResponses;
+
+    /** A map from serial number to the course survey response item choices for that response. */
+    private final Map<Integer, List<CourseSurveyResponseItemChoiceRec>> courseSurveyResponseItemChoices;
+
+    /** A map from serial number to the course survey response item texts for that response. */
+    private final Map<Integer, List<CourseSurveyResponseItemTextRec>> courseSurveyResponseItemTexts;
+
     /**
      * Constructs a new {@code TermData} with initial capacities appropriate to queries that will involve 2 students or
      * fewer (a common use-case).  Use the constructor that specifies an initial capacity for other use cases.
@@ -90,6 +105,9 @@ public final class TermData {
         this.standardAssignmentAttempts = new HashMap<>(expectedNbrStudents);
         this.studentStandardsMilestones = new HashMap<>(expectedNbrStudents);
         this.studentCourseMasteries = new HashMap<>(expectedNbrStudents);
+        this.courseSurveyResponses = new HashMap<>(expectedNbrStudents);
+        this.courseSurveyResponseItemChoices = new HashMap<>(expectedNbrStudents);
+        this.courseSurveyResponseItemTexts = new HashMap<>(expectedNbrStudents);
     }
 
     /**
@@ -465,4 +483,62 @@ public final class TermData {
         return result;
     }
 
+    /**
+     * Gets all course survey responses for a single student.
+     *
+     * @param studentId the student ID for which to query
+     * @return the list of course survey response records for that student
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<CourseSurveyResponseRec> getCourseSurveyResponses(final String studentId) throws SQLException {
+
+        List<CourseSurveyResponseRec> result = this.courseSurveyResponses.get(studentId);
+
+        if (result == null) {
+            result = CourseSurveyResponseLogic.INSTANCE.queryByStudent(this.cache, studentId);
+            this.courseSurveyResponses.put(studentId, result);
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets all course survey response item choices for a response by response serial number
+     *
+     * @param serialNbr the student ID for which to query
+     * @return the list of course survey response item choice records for that student
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<CourseSurveyResponseItemChoiceRec> getCourseSurveyResponseItemChoices(final Integer serialNbr)
+            throws SQLException {
+
+        List<CourseSurveyResponseItemChoiceRec> result = this.courseSurveyResponseItemChoices.get(serialNbr);
+
+        if (result == null) {
+            result = CourseSurveyResponseItemChoiceLogic.INSTANCE.queryBySerialNbr(this.cache, serialNbr);
+            this.courseSurveyResponseItemChoices.put(serialNbr, result);
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets all course survey response item texts for a response by response serial number.
+     *
+     * @param serialNbr the serial number for which to query
+     * @return the list of course survey response item text records for that student
+     * @throws SQLException if there is an error accessing the database
+     */
+    public List<CourseSurveyResponseItemTextRec> getCourseSurveyResponseItemTexts(final Integer serialNbr)
+            throws SQLException {
+
+        List<CourseSurveyResponseItemTextRec> result = this.courseSurveyResponseItemTexts.get(serialNbr);
+
+        if (result == null) {
+            result = CourseSurveyResponseItemTextLogic.INSTANCE.queryBySerialNbr(this.cache, serialNbr);
+            this.courseSurveyResponseItemTexts.put(serialNbr, result);
+        }
+
+        return result;
+    }
 }

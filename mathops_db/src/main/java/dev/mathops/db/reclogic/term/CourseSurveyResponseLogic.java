@@ -5,6 +5,7 @@ import dev.mathops.db.Cache;
 import dev.mathops.db.DataDict;
 import dev.mathops.db.ESchema;
 import dev.mathops.db.rec.term.CourseSurveyResponseRec;
+import dev.mathops.db.rec.term.StudentPreferenceRec;
 import dev.mathops.db.reclogic.IRecLogic;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -148,6 +149,32 @@ public final class CourseSurveyResponseLogic implements IRecLogic<CourseSurveyRe
                     ".course_survey_response WHERE serial_nbr=", sqlIntegerValue(serialNbr));
 
             result = doSingleQuery(cache, sql);
+        }
+
+        return result;
+    }
+
+    /**
+     * Queries all course survey response records for a single student.
+     *
+     * @param cache     the data cache
+     * @param studentId the student for which to query
+     * @return the list of records for the specified student
+     * @throws SQLException if there is an error performing the query
+     */
+    public List<CourseSurveyResponseRec> queryByStudent(final Cache cache, final String studentId) throws SQLException {
+
+        final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
+
+        final List<CourseSurveyResponseRec> result;
+        if (schemaPrefix == null) {
+            Log.warning("Cache profile '", cache.getProfile().id, "' does not support the TERM schema");
+            result = new ArrayList<>(0);
+        } else {
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
+                    ".course_survey_response WHERE student_id=", sqlStringValue(studentId));
+
+            result = doListQuery(cache, sql);
         }
 
         return result;

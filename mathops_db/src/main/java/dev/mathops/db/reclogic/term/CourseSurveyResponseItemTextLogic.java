@@ -4,6 +4,7 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DataDict;
 import dev.mathops.db.ESchema;
+import dev.mathops.db.rec.term.CourseSurveyResponseItemChoiceRec;
 import dev.mathops.db.rec.term.CourseSurveyResponseItemTextRec;
 import dev.mathops.db.reclogic.IRecLogic;
 import dev.mathops.text.builder.SimpleBuilder;
@@ -146,6 +147,33 @@ public final class CourseSurveyResponseItemTextLogic implements IRecLogic<Course
                     " AND item_nbr=", sqlIntegerValue(itemNbr));
 
             result = doSingleQuery(cache, sql);
+        }
+
+        return result;
+    }
+
+    /**
+     * Queries all course survey response item text records for a single serial number.
+     *
+     * @param cache     the data cache
+     * @param serialNbr the serial number for which to query
+     * @return the list of records for the specified student
+     * @throws SQLException if there is an error performing the query
+     */
+    public List<CourseSurveyResponseItemTextRec> queryBySerialNbr(final Cache cache, final Integer serialNbr)
+            throws SQLException {
+
+        final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
+
+        final List<CourseSurveyResponseItemTextRec> result;
+        if (schemaPrefix == null) {
+            Log.warning("Cache profile '", cache.getProfile().id, "' does not support the TERM schema");
+            result = new ArrayList<>(0);
+        } else {
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
+                    ".course_survey_response_item_text WHERE serial_nbr=", sqlIntegerValue(serialNbr));
+
+            result = doListQuery(cache, sql);
         }
 
         return result;

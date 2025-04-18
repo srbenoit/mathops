@@ -198,8 +198,42 @@ final class TestCourseSurveyResponseLogic {
 
     /** Test case. */
     @Test
-    @DisplayName("update results")
+    @DisplayName("queryByStudent results")
     void test0003() {
+        final Cache cache = new Cache(profile);
+
+        try {
+            final List<CourseSurveyResponseRec> all = CourseSurveyResponseLogic.INSTANCE.queryByStudent(cache,
+                    RAW1.studentId);
+
+            assertEquals(2, all.size(), "Incorrect record count from queryByStudent");
+
+            boolean found1 = false;
+            boolean found2 = false;
+
+            for (final CourseSurveyResponseRec r : all) {
+                if (RAW1.equals(r)) {
+                    found1 = true;
+                } else if (RAW2.equals(r)) {
+                    found2 = true;
+                } else {
+                    printUnexpected(r);
+                    fail("Extra record found");
+                }
+            }
+
+            assertTrue(found1, "course_survey_response 1 not found");
+            assertTrue(found2, "course_survey_response 2 not found");
+        } catch (final SQLException ex) {
+            Log.warning(ex);
+            fail("Exception while querying 'course_survey_response' rows for student: " + ex.getMessage());
+        }
+    }
+
+    /** Test case. */
+    @Test
+    @DisplayName("update results")
+    void test0004() {
         final Cache cache = new Cache(profile);
 
         try {
@@ -225,7 +259,7 @@ final class TestCourseSurveyResponseLogic {
     /** Test case. */
     @Test
     @DisplayName("delete results")
-    void test0004() {
+    void test0005() {
         final Cache cache = new Cache(profile);
 
         try {
