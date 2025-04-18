@@ -40,7 +40,10 @@ final class TestFacilityClosureLogic {
     private static final LocalDate SNOW = LocalDate.of(2025, 2, 28);
 
     /** A closure date. */
-    private static final LocalDate BREAK_1 = LocalDate.of(2025, 3, 16);
+    private static final LocalDate BREAK_1_START = LocalDate.of(2025, 3, 16);
+
+    /** A closure date. */
+    private static final LocalDate BREAK_1_END = LocalDate.of(2025, 3, 23);
 
     /** A start date. */
     private static final LocalTime START_1 = LocalTime.of(12, 30);
@@ -50,22 +53,22 @@ final class TestFacilityClosureLogic {
 
     /** A raw test record. */
     private static final FacilityClosureRec RAW1 =
-            new FacilityClosureRec("PRECALC_TC", HOLIDAY_1, FacilityClosureRec.HOLIDAY, null, null);
+            new FacilityClosureRec("PRECALC_TC", HOLIDAY_1, HOLIDAY_1, FacilityClosureRec.HOLIDAY, null, null);
 
 //    public FacilityClosureRec(final String theFacility, final LocalDate theClosureDt, final String theClosureType,
 //                              final LocalTime theStartTime, final LocalTime theEndTime) {
 
     /** A raw test record. */
     private static final FacilityClosureRec RAW2 =
-            new FacilityClosureRec("PRECALC_LC", SNOW, FacilityClosureRec.WEATHER, START_1, END_1);
+            new FacilityClosureRec("PRECALC_LC", SNOW, SNOW, FacilityClosureRec.WEATHER, START_1, END_1);
 
     /** A raw test record. */
     private static final FacilityClosureRec RAW3 =
-            new FacilityClosureRec("PRECALC_LC", BREAK_1, FacilityClosureRec.SP_BREAK, null, null);
+            new FacilityClosureRec("PRECALC_LC", BREAK_1_START, BREAK_1_END, FacilityClosureRec.SP_BREAK, null, null);
 
     /** A raw test record. */
     private static final FacilityClosureRec UPD3 =
-            new FacilityClosureRec("PRECALC_LC", BREAK_1, FacilityClosureRec.EVENT, START_1, END_1);
+            new FacilityClosureRec("PRECALC_LC", BREAK_1_START, BREAK_1_END, FacilityClosureRec.EVENT, START_1, END_1);
 
     /** The database profile. */
     static Profile profile;
@@ -81,7 +84,8 @@ final class TestFacilityClosureLogic {
     private static void printUnexpected(final FacilityClosureRec r) {
 
         Log.warning("Unexpected facility ", r.facilityId);
-        Log.warning("Unexpected closureDt ", r.closureDate);
+        Log.warning("Unexpected startDate ", r.startDate);
+        Log.warning("Unexpected endDate ", r.endDate);
         Log.warning("Unexpected closureType ", r.closureType);
         Log.warning("Unexpected startTime ", r.startTime);
         Log.warning("Unexpected endTime ", r.endTime);
@@ -192,7 +196,7 @@ final class TestFacilityClosureLogic {
         final Cache cache = new Cache(profile);
 
         try {
-            final FacilityClosureRec r = FacilityClosureLogic.INSTANCE.query(cache, RAW2.facilityId, RAW2.closureDate);
+            final FacilityClosureRec r = FacilityClosureLogic.INSTANCE.query(cache, RAW2.facilityId, RAW2.startDate);
 
             assertNotNull(r, "No record returned by query");
             assertEquals(RAW2, r, "Incorrect record returned by query");
@@ -245,7 +249,7 @@ final class TestFacilityClosureLogic {
         try {
             if (FacilityClosureLogic.INSTANCE.update(cache, UPD3)) {
                 final FacilityClosureRec r = FacilityClosureLogic.INSTANCE.query(cache, UPD3.facilityId,
-                        UPD3.closureDate);
+                        UPD3.startDate);
 
                 assertNotNull(r, "No record returned by query after update");
 

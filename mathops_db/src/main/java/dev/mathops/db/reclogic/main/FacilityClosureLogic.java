@@ -61,10 +61,11 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
             Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
             result = false;
         } else {
-            final String sql = SimpleBuilder.concat("INSERT INTO ", schemaPrefix, ".facility_closure (facility_id,",
-                    "closure_date,closure_type,start_time,end_time) VALUES (",
+            final String sql = SimpleBuilder.concat("INSERT INTO ", schemaPrefix,
+                    ".facility_closure (facility_id,start_date,end_date,closure_type,start_time,end_time) VALUES (",
                     sqlStringValue(record.facilityId), ",",
-                    sqlDateValue(record.closureDate), ",",
+                    sqlDateValue(record.startDate), ",",
+                    sqlDateValue(record.endDate), ",",
                     sqlStringValue(record.closureType), ",",
                     sqlTimeValue(record.startTime), ",",
                     sqlTimeValue(record.endTime), ")");
@@ -94,8 +95,8 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
             result = false;
         } else {
             final String sql = SimpleBuilder.concat("DELETE FROM ", schemaPrefix,
-                    ".facility_closure WHERE facility_id=", sqlStringValue(record.facilityId), " AND closure_date=",
-                    sqlDateValue(record.closureDate));
+                    ".facility_closure WHERE facility_id=", sqlStringValue(record.facilityId), " AND start_date=",
+                    sqlDateValue(record.startDate));
 
             result = doUpdateOneRow(cache, sql);
         }
@@ -131,13 +132,13 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
     /**
      * Queries for all facility closure records for a single facility closure.
      *
-     * @param cache       the data cache
-     * @param facilityId  the facility ID for which to query
-     * @param closureDate the closure date
+     * @param cache      the data cache
+     * @param facilityId the facility ID for which to query
+     * @param startDate  the start date
      * @return the matching record; {@code null} if not found
      * @throws SQLException if there is an error performing the query
      */
-    public FacilityClosureRec query(final Cache cache, final String facilityId, final LocalDate closureDate)
+    public FacilityClosureRec query(final Cache cache, final String facilityId, final LocalDate startDate)
             throws SQLException {
 
         final String schemaPrefix = cache.getSchemaPrefix(ESchema.MAIN);
@@ -148,8 +149,8 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
             result = null;
         } else {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
-                    ".facility_closure WHERE facility_id=", sqlStringValue(facilityId), " AND closure_date=",
-                    sqlDateValue(closureDate));
+                    ".facility_closure WHERE facility_id=", sqlStringValue(facilityId), " AND start_date=",
+                    sqlDateValue(startDate));
 
             result = doSingleQuery(cache, sql);
         }
@@ -200,12 +201,13 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
             Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
             result = false;
         } else {
-            final String sql = SimpleBuilder.concat("UPDATE ", schemaPrefix, ".facility_closure SET closure_type=",
-                    sqlStringValue(record.closureType), ",start_time=",
-                    sqlTimeValue(record.startTime), ",end_time=",
-                    sqlTimeValue(record.endTime), " WHERE facility_id=",
-                    sqlStringValue(record.facilityId), " AND closure_date=",
-                    sqlDateValue(record.closureDate));
+            final String sql = SimpleBuilder.concat("UPDATE ", schemaPrefix,
+                    ".facility_closure SET end_date=", sqlDateValue(record.endDate),
+                    ", closure_type=", sqlStringValue(record.closureType),
+                    ",start_time=", sqlTimeValue(record.startTime),
+                    ",end_time=", sqlTimeValue(record.endTime),
+                    " WHERE facility_id=", sqlStringValue(record.facilityId),
+                    " AND start_date=", sqlDateValue(record.startDate));
 
             result = doUpdateOneRow(cache, sql);
         }
@@ -224,11 +226,12 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
     public FacilityClosureRec fromResultSet(final ResultSet rs) throws SQLException {
 
         final String theFacility = getStringField(rs, DataDict.FLD_FACILITY_ID);
-        final LocalDate theClosureDt = getDateField(rs, DataDict.FLD_CLOSURE_DATE);
+        final LocalDate theStartDate = getDateField(rs, DataDict.FLD_START_DATE);
+        final LocalDate theEndDate = getDateField(rs, DataDict.FLD_END_DATE);
         final String theClosureType = getStringField(rs, DataDict.FLD_CLOSURE_TYPE);
         final LocalTime theStartTime = getTimeField(rs, DataDict.FLD_START_TIME);
         final LocalTime theEndTime = getTimeField(rs, DataDict.FLD_END_TIME);
 
-        return new FacilityClosureRec(theFacility, theClosureDt, theClosureType, theStartTime, theEndTime);
+        return new FacilityClosureRec(theFacility, theStartDate, theEndDate, theClosureType, theStartTime, theEndTime);
     }
 }

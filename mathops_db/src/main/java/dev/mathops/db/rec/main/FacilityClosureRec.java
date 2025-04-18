@@ -51,8 +51,11 @@ public final class FacilityClosureRec extends RecBase implements Comparable<Faci
     /** The 'facility_id' field value. */
     public final String facilityId;
 
-    /** The 'closure_date' field value. */
-    public final LocalDate closureDate;
+    /** The 'start_date' field value (the first date of the closure) */
+    public final LocalDate startDate;
+
+    /** The 'end_date' field value (the last date of the closure). */
+    public final LocalDate endDate;
 
     /** The 'closure_type' field value. */
     public final String closureType;
@@ -67,28 +70,33 @@ public final class FacilityClosureRec extends RecBase implements Comparable<Faci
      * Constructs a new {@code FacilityClosureRec}.
      *
      * @param theFacilityId  the facility ID
-     * @param theClosureDate the closure date
+     * @param theStartDate   the closure start date (the first day of the closure)
+     * @param theEndDate     the closure end date (the last date of the closure)
      * @param theClosureType the closure type
      * @param theStartTime   the start time (null for a full-day closure)
      * @param theEndTime     the end time (null for a full-day closure)
      */
-    public FacilityClosureRec(final String theFacilityId, final LocalDate theClosureDate, final String theClosureType,
-                              final LocalTime theStartTime, final LocalTime theEndTime) {
+    public FacilityClosureRec(final String theFacilityId, final LocalDate theStartDate, final LocalDate theEndDate,
+                              final String theClosureType, final LocalTime theStartTime, final LocalTime theEndTime) {
 
         super();
 
         if (theFacilityId == null) {
             throw new IllegalArgumentException("Facility ID may not be null");
         }
-        if (theClosureDate == null) {
-            throw new IllegalArgumentException("Closure date may not be null");
+        if (theStartDate == null) {
+            throw new IllegalArgumentException("Closure start date may not be null");
+        }
+        if (theEndDate == null) {
+            throw new IllegalArgumentException("Closure end date may not be null");
         }
         if (theClosureType == null) {
             throw new IllegalArgumentException("Closure type may not be null");
         }
 
         this.facilityId = theFacilityId;
-        this.closureDate = theClosureDate;
+        this.startDate = theStartDate;
+        this.endDate = theEndDate;
         this.closureType = theClosureType;
         this.startTime = theStartTime;
         this.endTime = theEndTime;
@@ -107,7 +115,7 @@ public final class FacilityClosureRec extends RecBase implements Comparable<Faci
         int result = this.facilityId.compareTo(o.facilityId);
 
         if (result == 0) {
-            result = this.closureDate.compareTo(o.closureDate);
+            result = this.startDate.compareTo(o.startDate);
             if (result == 0) {
                 result = this.closureType.compareTo(o.closureType);
             }
@@ -129,7 +137,9 @@ public final class FacilityClosureRec extends RecBase implements Comparable<Faci
 
         appendField(htm, DataDict.FLD_FACILITY_ID, this.facilityId);
         htm.add(DIVIDER);
-        appendField(htm, DataDict.FLD_CLOSURE_DATE, this.closureDate);
+        appendField(htm, DataDict.FLD_START_DATE, this.startDate);
+        htm.add(DIVIDER);
+        appendField(htm, DataDict.FLD_END_DATE, this.endDate);
         htm.add(DIVIDER);
         appendField(htm, DataDict.FLD_CLOSURE_TYPE, this.closureType);
         htm.add(DIVIDER);
@@ -149,7 +159,8 @@ public final class FacilityClosureRec extends RecBase implements Comparable<Faci
     public int hashCode() {
 
         return this.facilityId.hashCode()
-               + this.closureDate.hashCode()
+               + this.startDate.hashCode()
+               + this.endDate.hashCode()
                + this.closureType.hashCode()
                + Objects.hashCode(this.startTime)
                + Objects.hashCode(this.endTime);
@@ -170,7 +181,8 @@ public final class FacilityClosureRec extends RecBase implements Comparable<Faci
             equal = true;
         } else if (obj instanceof final FacilityClosureRec rec) {
             equal = this.facilityId.equals(rec.facilityId)
-                    && this.closureDate.equals(rec.closureDate)
+                    && this.startDate.equals(rec.startDate)
+                    && this.endDate.equals(rec.endDate)
                     && this.closureType.equals(rec.closureType)
                     && Objects.equals(this.startTime, rec.startTime)
                     && Objects.equals(this.endTime, rec.endTime);

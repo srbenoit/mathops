@@ -50,8 +50,6 @@ canvas_id           VARCHAR(40)     -- The ID of an object in the Canvas LMS tha
 
 close_time          TIME            -- The time a facility opens (close_time_1, close_time_2, etc. if multiple)
 
-closure_date        DATE            -- The date of a closure
-
 closure_type        CHAR(10)        -- A type code for a closure:
                                     --     'HOLIDAY'   for a university holiday
                                     --     'SP_BREAK'  for Spring break

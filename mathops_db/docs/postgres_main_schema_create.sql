@@ -184,43 +184,46 @@ ALTER TABLE IF EXISTS main_test.facility_hours OWNER to math;
 --   that the facility is closed on the closure dates/times.
 --
 --   USAGE: One record per closure.
---   EST. RECORDS: 8 per facility x 10 facilities = 80
+--   EST. RECORDS: 2 per facility x 10 facilities = 20
 --   RETENTION: Stored in MAIN schema, retained, but updated over time.
---   EST. RECORD SIZE: 200 bytes
---   EST. TOTAL SPACE: 2 KB
+--   EST. RECORD SIZE: 40 bytes
+--   EST. TOTAL SPACE: 1 KB
 -- ------------------------------------------------------------------------------------------------
 
 -- DROP TABLE IF EXISTS main.facility_closure;
 CREATE TABLE IF NOT EXISTS main.facility_closure (
     facility_id              char(10)        NOT NULL,  -- The facility ID (references facility table)
-    closure_date             date            NOT NULL,  -- The date of the closure
+    start_date               date            NOT NULL,  -- The start date of the closure
+    end_date                 date            NOT NULL,  -- The end date of the closure
     closure_type             char(10)        NOT NULL,  -- The type of closure ('HOLIDAY, 'SP_BREAK', 'FA_BREAK',
                                                         --  'WEATHER', 'EMERGENCY', 'MAINT', 'EVENT')
     start_time               time,                      -- Start time, or null if all day
     end_time                 time,                      -- End time, or null if all day
-    PRIMARY KEY (facility_id, closure_date)
+    PRIMARY KEY (facility_id, start_date)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main.facility_closure OWNER to math;
 
 -- DROP TABLE IF EXISTS main_dev.facility_closure;
 CREATE TABLE IF NOT EXISTS main_dev.facility_closure (
     facility_id              char(10)        NOT NULL,
-    closure_date             date            NOT NULL,
+    start_date               date            NOT NULL,
+    end_date                 date            NOT NULL,
     closure_type             char(10)        NOT NULL,
     start_time               time,
     end_time                 time,
-    PRIMARY KEY (facility_id, closure_date)
+    PRIMARY KEY (facility_id, start_date)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main_dev.facility_closure OWNER to math;
 
 -- DROP TABLE IF EXISTS main_test.facility_closure;
 CREATE TABLE IF NOT EXISTS main_test.facility_closure (
     facility_id              char(10)        NOT NULL,
-    closure_date             date            NOT NULL,
+    start_date               date            NOT NULL,
+    end_date                 date            NOT NULL,
     closure_type             char(10)        NOT NULL,
     start_time               time,
     end_time                 time,
-    PRIMARY KEY (facility_id, closure_date)
+    PRIMARY KEY (facility_id, start_date)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main_test.facility_closure OWNER to math;
 

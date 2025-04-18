@@ -70,9 +70,6 @@ public enum DataDict {
     public static final String FLD_CLOSE_WEEK = "close_week";
 
     /** A field name for serialization of records. */
-    public static final String FLD_CLOSURE_DATE = "closure_date";
-
-    /** A field name for serialization of records. */
     public static final String FLD_CLOSURE_TYPE = "closure_type";
 
     /** A field name for serialization of records. */

@@ -18,7 +18,10 @@ final class TestFacilityClosureRec {
     private static final String TEST_FACILITY_ID = "PRECALC LC";
 
     /** A field name. */
-    private static final LocalDate TEST_CLOSURE_DT = LocalDate.of(2025, 3, 17);
+    private static final LocalDate TEST_START_DATE = LocalDate.of(2025, 3, 17);
+
+    /** A field name. */
+    private static final LocalDate TEST_END_DATE = LocalDate.of(2025, 3, 23);
 
     /** A field name. */
     private static final String TEST_CLOSURE_TYPE = "SPBR";
@@ -32,7 +35,8 @@ final class TestFacilityClosureRec {
     /** The expected String serialization of a test record. */
     private static final String EXPECT_SER99 = String.join(RecBase.DIVIDER,
             "facility_id=PRECALC LC",
-            "closure_date=2025-03-17",
+            "start_date=2025-03-17",
+            "end_date=2025-03-23",
             "closure_type=SPBR",
             "start_time=10:00",
             "end_time=16:00");
@@ -50,11 +54,12 @@ final class TestFacilityClosureRec {
     @DisplayName("Constructor")
     void test0001() {
 
-        final FacilityClosureRec obj = new FacilityClosureRec(TEST_FACILITY_ID, TEST_CLOSURE_DT, TEST_CLOSURE_TYPE,
-                TEST_START_TIME, TEST_END_TIME);
+        final FacilityClosureRec obj = new FacilityClosureRec(TEST_FACILITY_ID, TEST_START_DATE, TEST_END_DATE,
+                TEST_CLOSURE_TYPE, TEST_START_TIME, TEST_END_TIME);
 
         assertEquals(TEST_FACILITY_ID, obj.facilityId, "Invalid facility value after constructor");
-        assertEquals(TEST_CLOSURE_DT, obj.closureDate, "Invalid closure_dt value after constructor");
+        assertEquals(TEST_START_DATE, obj.startDate, "Invalid start_date value after constructor");
+        assertEquals(TEST_END_DATE, obj.endDate, "Invalid end_date value after constructor");
         assertEquals(TEST_CLOSURE_TYPE, obj.closureType, "Invalid closure_type value after constructor");
         assertEquals(TEST_START_TIME, obj.startTime, "Invalid start_time value after constructor");
         assertEquals(TEST_END_TIME, obj.endTime, "Invalid end_time value after constructor");
@@ -65,8 +70,8 @@ final class TestFacilityClosureRec {
     @DisplayName("string serialization")
     void test0098() {
 
-        final FacilityClosureRec obj = new FacilityClosureRec(TEST_FACILITY_ID, TEST_CLOSURE_DT, TEST_CLOSURE_TYPE,
-                TEST_START_TIME, TEST_END_TIME);
+        final FacilityClosureRec obj = new FacilityClosureRec(TEST_FACILITY_ID, TEST_START_DATE, TEST_END_DATE,
+                TEST_CLOSURE_TYPE, TEST_START_TIME, TEST_END_TIME);
 
         final String ser = obj.toString();
 
