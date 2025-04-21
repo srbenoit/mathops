@@ -8,6 +8,7 @@ import dev.mathops.db.logic.ELiveRefreshes;
 import dev.mathops.db.logic.MainData;
 import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.TermData;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStudent;
 
@@ -50,6 +51,9 @@ public final class Cache {
     /** The single main data instance shared by all student data instances. */
     private final MainData mainData;
 
+    /** The single term data instance shared by all student data instances. */
+    private final TermData termData;
+
     /** Student data for the logged-in user; null when there is no logged-in user */
     private StudentData loggedInUser = null;
 
@@ -70,6 +74,7 @@ public final class Cache {
         this.profile = theProfile;
         this.systemData = new SystemData(this);
         this.mainData = new MainData(this);
+        this.termData = new TermData(this);
         this.studentData = new HashMap<>(4);
     }
 
@@ -129,6 +134,16 @@ public final class Cache {
     public MainData getMainData() {
 
         return this.mainData;
+    }
+
+    /**
+     * Gets the term data object.
+     *
+     * @return the term data object
+     */
+    public TermData getTermData() {
+
+        return this.termData;
     }
 
     /**
@@ -209,7 +224,7 @@ public final class Cache {
     }
 
     /**
-     * Gets the student data object for the "effective" user, which is either the logged in user, or the user as whom
+     * Gets the student data object for the "effective" user, which is either the logged-in user, or the user as whom
      * that logged-in user is currently acting if they are acting.
      *
      * @return the student data object for the effective user

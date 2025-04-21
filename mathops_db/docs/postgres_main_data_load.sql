@@ -1454,57 +1454,122 @@ INSERT INTO main_dev.standard_assignment (assignment_id, assignment_type, course
 -- ------------------------------------------------------------------------------------------------
 
 INSERT INTO main.course_survey (survey_id, survey_title, prompt_html) VALUES (
-  'PC_PRE_F2F', 'Course Personalization Survey',
+  'PC_PRE', 'Course Personalization Survey',
   'This survey lets you tell us how you feel about math, what sorts of things you are interested in, and what math '
   'you need to take for your program of study.  Our course delivery system can use this information to personalize '
   'the course content to try to best suit your needs and goals.');
-INSERT INTO main.course_survey (survey_id, survey_title, prompt_html) VALUES (
-  'PC_PRE_DST', 'Course Personalization Survey',
-  'This survey lets you tell us how you feel about math, what sorts of things you are interested in, and what math '
-  'you need to take for your program of study.  Our course delivery system can use this information to personalize '
-  'the course content to try to best suit your needs and goals.');
-INSERT INTO main.course_survey (survey_id, survey_title, prompt_html) VALUES (
-  'PC_PRE_HYB', 'Course Personalization Survey',
-  'This survey lets you tell us how you feel about math, what sorts of things you are interested in, and what math '
-  'you need to take for your program of study.  Our course delivery system can use this information to personalize '
-  'the course content to try to best suit your needs and goals.');
-INSERT INTO main.course_survey (survey_id, survey_title, prompt_html) VALUES (
-  'PC_SAT_F2F', 'Precalculus Course Satisfaction Survey',
-  'Please give us feedback about this course to help us improve the course in the future.');
-INSERT INTO main.course_survey (survey_id, survey_title, prompt_html) VALUES (
-  'PC_SAT_DST', 'Precalculus Course Satisfaction Survey',
-  'Please give us feedback about this course to help us improve the course in the future.');
-INSERT INTO main.course_survey (survey_id, survey_title, prompt_html) VALUES (
-  'PC_SAT_HYB', 'Precalculus Course Satisfaction Survey',
-  'Please give us feedback about this course to help us improve the course in the future.');
 
 INSERT INTO main_dev.course_survey (survey_id, survey_title, prompt_html) VALUES (
-  'PC_PRE_F2F', 'Course Personalization Survey',
+  'PC_PRE', 'Course Personalization Survey',
   'This survey lets you tell us how you feel about math, what sorts of things you are interested in, and what math '
   'you need to take for your program of study.  Our course delivery system can use this information to personalize '
   'the course content to try to best suit your needs and goals.');
-INSERT INTO main_dev.course_survey (survey_id, survey_title, prompt_html) VALUES (
-  'PC_PRE_DST', 'Course Personalization Survey',
-  'This survey lets you tell us how you feel about math, what sorts of things you are interested in, and what math '
-  'you need to take for your program of study.  Our course delivery system can use this information to personalize '
-  'the course content to try to best suit your needs and goals.');
-INSERT INTO main_dev.course_survey (survey_id, survey_title, prompt_html) VALUES (
-  'PC_PRE_HYB', 'Course Personalization Survey',
-  'This survey lets you tell us how you feel about math, what sorts of things you are interested in, and what math '
-  'you need to take for your program of study.  Our course delivery system can use this information to personalize '
-  'the course content to try to best suit your needs and goals.');
-INSERT INTO main_dev.course_survey (survey_id, survey_title, prompt_html) VALUES (
-  'PC_SAT_F2F', 'Precalculus Course Satisfaction Survey',
-  'Please give us feedback about this course to help us improve the course in the future.');
-INSERT INTO main_dev.course_survey (survey_id, survey_title, prompt_html) VALUES (
-  'PC_SAT_DST', 'Precalculus Course Satisfaction Survey',
-  'Please give us feedback about this course to help us improve the course in the future.');
-INSERT INTO main_dev.course_survey (survey_id, survey_title, prompt_html) VALUES (
-  'PC_SAT_HYB', 'Precalculus Course Satisfaction Survey',
-  'Please give us feedback about this course to help us improve the course in the future.');
 
 -- ------------------------------------------------------------------------------------------------
--- TABLE: course_survey_item TODO: looking for standard/validated questions
+-- TABLE: course_survey_item
 -- ------------------------------------------------------------------------------------------------
+
+INSERT INTO main.course_survey_item (survey_id, item_nbr, item_type, prompt_html) VALUES ('PC_PRE', 1, 2,
+  'Which areas of study are most interesting to you (you may select multiple options):');
+INSERT INTO main.course_survey_item (survey_id, item_nbr, item_type, prompt_html) VALUES ('PC_PRE', 2, 1,
+  'What math courses do you believe you will need to take to complete your program of study?');
+INSERT INTO main.course_survey_item (survey_id, item_nbr, item_type, prompt_html) VALUES ('PC_PRE', 3, 3,
+  'I find mathematics interesting.');
+INSERT INTO main.course_survey_item (survey_id, item_nbr, item_type, prompt_html) VALUES ('PC_PRE', 4, 3,
+  'I enjoy doing mathematics.');
+INSERT INTO main.course_survey_item (survey_id, item_nbr, item_type, prompt_html) VALUES ('PC_PRE', 5, 3,
+  'I am confident in my mathematical abilities.');
+INSERT INTO main.course_survey_item (survey_id, item_nbr, item_type, prompt_html) VALUES ('PC_PRE', 6, 3,
+  'I am able to learn mathematics.');
+INSERT INTO main.course_survey_item (survey_id, item_nbr, item_type, prompt_html) VALUES ('PC_PRE', 7, 4,
+  'When working on mathematics, my anxiety level is usually:');
+
+INSERT INTO main_dev.course_survey_item (survey_id, item_nbr, item_type, prompt_html) VALUES ('PC_PRE', 1, 2,
+  'Which areas of study are most interesting to you (you may select multiple options):');
+INSERT INTO main_dev.course_survey_item (survey_id, item_nbr, item_type, prompt_html) VALUES ('PC_PRE', 2, 1,
+  'What math courses do you believe you will need to take to complete your program of study?');
+INSERT INTO main_dev.course_survey_item (survey_id, item_nbr, item_type, prompt_html) VALUES ('PC_PRE', 3, 3,
+  'I find mathematics interesting.');
+INSERT INTO main_dev.course_survey_item (survey_id, item_nbr, item_type, prompt_html) VALUES ('PC_PRE', 4, 3,
+  'I enjoy doing mathematics.');
+INSERT INTO main_dev.course_survey_item (survey_id, item_nbr, item_type, prompt_html) VALUES ('PC_PRE', 5, 3,
+  'I am confident in my mathematical abilities.');
+INSERT INTO main_dev.course_survey_item (survey_id, item_nbr, item_type, prompt_html) VALUES ('PC_PRE', 6, 3,
+  'I am able to learn mathematics.');
+INSERT INTO main_dev.course_survey_item (survey_id, item_nbr, item_type, prompt_html) VALUES ('PC_PRE', 7, 4,
+  'When working on mathematics, my anxiety level is usually:');
+
+-- ------------------------------------------------------------------------------------------------
+-- TABLE: course_survey_item_choice
+-- ------------------------------------------------------------------------------------------------
+
+INSERT INTO main.course_survey_item_choice (survey_id, item_nbr, choice_nbr, choice_html) VALUES (
+  'PC_PRE', 1, 1, 'Arts, Humanities, and Design');
+INSERT INTO main.course_survey_item_choice (survey_id, item_nbr, choice_nbr, choice_html) VALUES (
+  'PC_PRE', 1, 2, 'Education and Teaching');
+INSERT INTO main.course_survey_item_choice (survey_id, item_nbr, choice_nbr, choice_html) VALUES (
+  'PC_PRE', 1, 3, 'Environmental and Natural Resources');
+INSERT INTO main.course_survey_item_choice (survey_id, item_nbr, choice_nbr, choice_html) VALUES (
+  'PC_PRE', 1, 4, 'Global and Social Sciences');
+INSERT INTO main.course_survey_item_choice (survey_id, item_nbr, choice_nbr, choice_html) VALUES (
+  'PC_PRE', 1, 5, 'Health, Life, and Food Sciences');
+INSERT INTO main.course_survey_item_choice (survey_id, item_nbr, choice_nbr, choice_html) VALUES (
+  'PC_PRE', 1, 6, 'Land, Plant, and Animal Sciences');
+INSERT INTO main.course_survey_item_choice (survey_id, item_nbr, choice_nbr, choice_html) VALUES (
+  'PC_PRE', 1, 7, 'Math, Physical Sciences, and Engineering');
+INSERT INTO main.course_survey_item_choice (survey_id, item_nbr, choice_nbr, choice_html) VALUES (
+  'PC_PRE', 1, 8, 'Organization, Management, and Enterprise');
+INSERT INTO main.course_survey_item_choice (survey_id, item_nbr, choice_nbr, choice_html) VALUES (
+  'PC_PRE', 1, 9, 'Medicine or Veterinary Medicine');
+INSERT INTO main.course_survey_item_choice (survey_id, item_nbr, choice_nbr, choice_html) VALUES (
+  'PC_PRE', 1, 10, 'Law');
+
+INSERT INTO main.course_survey_item_choice (survey_id, item_nbr, choice_nbr, choice_html) VALUES (
+  'PC_PRE', 2, 1, 'I just need to satisfy the core curriculum requirement, but don''t need specific math courses');
+INSERT INTO main.course_survey_item_choice (survey_id, item_nbr, choice_nbr, choice_html) VALUES (
+  'PC_PRE', 2, 2, 'I need to complete College Algebra');
+INSERT INTO main.course_survey_item_choice (survey_id, item_nbr, choice_nbr, choice_html) VALUES (
+  'PC_PRE', 2, 3, 'I need College Algebra and Trigonometry');
+INSERT INTO main.course_survey_item_choice (survey_id, item_nbr, choice_nbr, choice_html) VALUES (
+  'PC_PRE', 2, 4, 'I need a Calculus course');
+INSERT INTO main.course_survey_item_choice (survey_id, item_nbr, choice_nbr, choice_html) VALUES (
+  'PC_PRE', 2, 5, 'I need a sequence of multiple Calculus courses');
+INSERT INTO main.course_survey_item_choice (survey_id, item_nbr, choice_nbr, choice_html) VALUES (
+  'PC_PRE', 2, 6, 'I need courses beyond Calculus (like Differential Equations, Linear Algebra, etc.)');
+
+INSERT INTO main_dev.course_survey_item_choice (survey_id, item_nbr, choice_nbr, choice_html) VALUES (
+  'PC_PRE', 1, 1, 'Arts, Humanities, and Design');
+INSERT INTO main_dev.course_survey_item_choice (survey_id, item_nbr, choice_nbr, choice_html) VALUES (
+  'PC_PRE', 1, 2, 'Education and Teaching');
+INSERT INTO main_dev.course_survey_item_choice (survey_id, item_nbr, choice_nbr, choice_html) VALUES (
+  'PC_PRE', 1, 3, 'Environmental and Natural Resources');
+INSERT INTO main_dev.course_survey_item_choice (survey_id, item_nbr, choice_nbr, choice_html) VALUES (
+  'PC_PRE', 1, 4, 'Global and Social Sciences');
+INSERT INTO main_dev.course_survey_item_choice (survey_id, item_nbr, choice_nbr, choice_html) VALUES (
+  'PC_PRE', 1, 5, 'Health, Life, and Food Sciences');
+INSERT INTO main_dev.course_survey_item_choice (survey_id, item_nbr, choice_nbr, choice_html) VALUES (
+  'PC_PRE', 1, 6, 'Land, Plant, and Animal Sciences');
+INSERT INTO main_dev.course_survey_item_choice (survey_id, item_nbr, choice_nbr, choice_html) VALUES (
+  'PC_PRE', 1, 7, 'Math, Physical Sciences, and Engineering');
+INSERT INTO main_dev.course_survey_item_choice (survey_id, item_nbr, choice_nbr, choice_html) VALUES (
+  'PC_PRE', 1, 8, 'Organization, Management, and Enterprise');
+INSERT INTO main_dev.course_survey_item_choice (survey_id, item_nbr, choice_nbr, choice_html) VALUES (
+  'PC_PRE', 1, 9, 'Medicine or Veterinary Medicine');
+INSERT INTO main_dev.course_survey_item_choice (survey_id, item_nbr, choice_nbr, choice_html) VALUES (
+  'PC_PRE', 1, 10, 'Law');
+
+INSERT INTO main_dev.course_survey_item_choice (survey_id, item_nbr, choice_nbr, choice_html) VALUES (
+  'PC_PRE', 2, 1, 'I just need to satisfy the core curriculum requirement, but don''t need specific math courses');
+INSERT INTO main_dev.course_survey_item_choice (survey_id, item_nbr, choice_nbr, choice_html) VALUES (
+  'PC_PRE', 2, 2, 'I need to complete College Algebra');
+INSERT INTO main_dev.course_survey_item_choice (survey_id, item_nbr, choice_nbr, choice_html) VALUES (
+  'PC_PRE', 2, 3, 'I need College Algebra and Trigonometry');
+INSERT INTO main_dev.course_survey_item_choice (survey_id, item_nbr, choice_nbr, choice_html) VALUES (
+  'PC_PRE', 2, 4, 'I need a Calculus course');
+INSERT INTO main_dev.course_survey_item_choice (survey_id, item_nbr, choice_nbr, choice_html) VALUES (
+  'PC_PRE', 2, 5, 'I need a sequence of multiple Calculus courses');
+INSERT INTO main_dev.course_survey_item_choice (survey_id, item_nbr, choice_nbr, choice_html) VALUES (
+  'PC_PRE', 2, 6, 'I need courses beyond Calculus (like Differential Equations, Linear Algebra, etc.)');
+
 
 

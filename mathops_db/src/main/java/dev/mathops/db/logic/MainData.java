@@ -246,7 +246,7 @@ public final class MainData {
      * Gets all modules in a standards-based course.
      *
      * @param courseId the course ID
-     * @return the list of standards-based courses
+     * @return the list of modules (result will be sorted by module number)
      * @throws SQLException if there is an error accessing the database
      */
     public List<StandardsCourseModuleRec> getStandardsCourseModules(final String courseId) throws SQLException {
@@ -259,6 +259,10 @@ public final class MainData {
                 final List<StandardsCourseModuleRec> inner = this.standardsCourseModules.computeIfAbsent(rec.courseId,
                         x -> new ArrayList<>(10));
                 inner.add(rec);
+            }
+
+            for (final List<StandardsCourseModuleRec> list : this.standardsCourseModules.values()) {
+                list.sort(null);
             }
         }
 

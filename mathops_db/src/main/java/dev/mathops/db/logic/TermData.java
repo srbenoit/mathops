@@ -289,13 +289,12 @@ public final class TermData {
     /**
      * Gets all attempts on a standard assignment by a student.
      *
-     * @param studentId    the student ID for which to query
-     * @param assignmentId the assignment ID for which to query
+     * @param studentId the student ID for which to query
      * @return the list of matching records
      * @throws SQLException if there is an error accessing the database
      */
-    public List<StandardAssignmentAttemptRec> getStandardAssignmentAttempts(
-            final String studentId, final String assignmentId) throws SQLException {
+    public List<StandardAssignmentAttemptRec> getStandardAssignmentAttempts(final String studentId)
+            throws SQLException {
 
         List<StandardAssignmentAttemptRec> result = this.standardAssignmentAttempts.get(studentId);
 

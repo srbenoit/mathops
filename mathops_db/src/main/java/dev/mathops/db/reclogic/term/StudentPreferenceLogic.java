@@ -19,8 +19,7 @@ import java.util.List;
  * <pre>
  * CREATE TABLE term_202510.student_preference (
  *     student_id               char(9)        NOT NULL,  -- The student ID
- *     pref_key                 char(4)        NOT NULL,  -- A key that identifies a preference ('ANXI', 'SELF', 'LEVL',
- *                                                        --     'MESG')
+ *     pref_key                 char(4)        NOT NULL,  -- A key that identifies a preference ('MESG')
  *     pref_value               smallint       NOT NULL,  -- The student's preference setting
  *     PRIMARY KEY (student_id, pref_key)
  * ) TABLESPACE primary_ts;

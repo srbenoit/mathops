@@ -210,7 +210,8 @@ CREATE TABLE IF NOT EXISTS term_202510.standards_course_section (
     aries_end_date            date            NOT NULL,  -- The "official" end date of the course
     first_class_date          date            NOT NULL,  -- The first date the course is available to students
     last_class_date           date            NOT NULL,  -- The last date the course is available to students
-    subterm                   char(5)         NOT NULL,  -- The subterm ('FULL', 'HALF1', 'HALF2', 'NN:MM" for weeks)
+    subterm                   char(5)         NOT NULL,  -- The subterm ('FULL', 'HALF1', 'HALF2', 'NN:MM' for weeks
+                                                         --     NN through MM)
     grading_system_id         char(6)         NOT NULL,  -- The grading system to use for the section
     campus                    char(2),                   -- The campus code
     canvas_id                 varchar(40),               -- The ID of the associated Canvas course

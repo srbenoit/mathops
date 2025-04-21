@@ -427,7 +427,8 @@ ALTER TABLE IF EXISTS main_test.course_survey OWNER to math;
 CREATE TABLE IF NOT EXISTS main.course_survey_item (
     survey_id                char(10)       NOT NULL,  -- The survey ID
     item_nbr                 smallint       NOT NULL,  -- The item number
-    item_type                smallint       NOT NULL,  -- The item type (1 = M/C, 2 = M/S, 3 = Likert, 4 = Text)
+    item_type                smallint       NOT NULL,  -- The item type (1 = M/C, 2 = M/S, 3 = Likert Disagree to Agree,
+                                                       --     4 = Likert Low to High, 5 = Text)
     prompt_html              text           NOT NULL,  -- The HTML of the prompt
     PRIMARY KEY (survey_id, item_nbr)
 ) TABLESPACE primary_ts;

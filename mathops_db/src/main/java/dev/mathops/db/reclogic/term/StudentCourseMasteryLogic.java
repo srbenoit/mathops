@@ -4,8 +4,15 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DataDict;
 import dev.mathops.db.ESchema;
+import dev.mathops.db.logic.MainData;
+import dev.mathops.db.logic.TermData;
+import dev.mathops.db.rec.main.StandardAssignmentRec;
+import dev.mathops.db.rec.main.StandardsCourseModuleRec;
+import dev.mathops.db.rec.main.StandardsCourseRec;
+import dev.mathops.db.rec.term.StandardAssignmentAttemptRec;
 import dev.mathops.db.rec.term.StudentCourseMasteryRec;
 import dev.mathops.db.reclogic.IRecLogic;
+import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.builder.SimpleBuilder;
 
 import java.sql.ResultSet;
@@ -43,6 +50,9 @@ public final class StudentCourseMasteryLogic implements IRecLogic<StudentCourseM
 
     /** A single instance. */
     public static final StudentCourseMasteryLogic INSTANCE = new StudentCourseMasteryLogic();
+
+    /** Characters used to indicate modules within a {@code StudentCourseMasteryRec}. */
+    private static final String STRUCTURE_CHARS = "abcdefghijklmnopqrestuvwxyz";
 
     /**
      * Private constructor to prevent direct instantiation.
@@ -246,5 +256,109 @@ public final class StudentCourseMasteryLogic implements IRecLogic<StudentCourseM
 
         return new StudentCourseMasteryRec(theStudentId, theCourseId, theCourseStructure, theHomeworkStatus,
                 theMasteryStatus, theCompleted, theScore);
+    }
+
+    /**
+     * Constructs the course structure, homework status, and mastery status for a student in a course and either updates
+     * the existing {@code StudentCourseMasteryRec} or inserts a new record if none exists.  Any time new work is
+     * submitted or a deadline is changed, this can be called to ensure the database has accurate status.
+     *
+     * @param cache     the data cache
+     * @param studentId the student ID
+     * @param courseId  the course ID
+     * @return the constructed {@code StudentCourseMasteryRec}; {@code null} if the object could not be constructed
+     * @throws SQLException if there is an error accessing the database
+     */
+    public static StudentCourseMasteryRec buildCourseMastery(final Cache cache, final String studentId,
+                                                             final String courseId) throws SQLException {
+
+        StudentCourseMasteryRec result = null;
+
+        final TermData termData = cache.getTermData();
+        final MainData mainData = cache.getMainData();
+
+        final StandardsCourseRec course = mainData.getStandardsCourse(courseId);
+        boolean ok = true;
+        if (course != null) {
+            final HtmlBuilder structure = new HtmlBuilder(50);
+            final HtmlBuilder homeworkStatus = new HtmlBuilder(50);
+            final HtmlBuilder masteryStatus = new HtmlBuilder(50);
+
+            final List<StandardsCourseModuleRec> modules = mainData.getStandardsCourseModules(courseId);
+            final List<StandardAssignmentRec> assignments = mainData.getStandardAssignments(courseId);
+            final List<StandardAssignmentAttemptRec> attempts = termData.getStandardAssignmentAttempts(studentId);
+
+            final int nbrModules = course.nbrModules.intValue();
+
+            for (int moduleNbr = 1; moduleNbr <= nbrModules; ++moduleNbr) {
+
+                final char structureChar = STRUCTURE_CHARS.charAt(moduleNbr - 1);
+                StandardsCourseModuleRec courseModule = null;
+                for (final StandardsCourseModuleRec rec : modules) {
+                    if (rec.moduleNbr.intValue() == moduleNbr) {
+                        courseModule = rec;
+
+                        break;
+                    }
+                }
+                if (courseModule == null) {
+                    Log.warning("There was no StandardsCourseModuleRec for ", courseId, " module ", moduleNbr);
+                    ok = false;
+                    break;
+                }
+                if (metaCourse.modules.size() < moduleNbr) {
+                    Log.warning("There was no MetadataCourseModule for ", courseId, " module ", moduleNbr);
+                    ok = false;
+                    break;
+                }
+
+                final int nbrStandards = courseModule.nbrStandards.intValue();
+
+                for (int standardNbr = 1; standardNbr <= nbrStandards; ++standardNbr) {
+
+                    StandardAssignmentRec homework = null;
+                    StandardAssignmentRec mastery = null;
+                    boolean homeworkAttempted = false;
+                    boolean homeworkPassed = false;
+                    boolean masteryAttempted = false;
+                    boolean masteredOnTime = false;
+                    boolean masteredLate = false;
+
+                    for (final StandardAssignmentRec rec : assignments) {
+                        if (rec.moduleNbr.intValue() == moduleNbr && rec.standardNbr.intValue() == standardNbr) {
+                            if ("HW".equals(rec.assignmentType)) {
+                                homework = rec;
+                            } else if ("MA".equals(rec.assignmentType)) {
+                                mastery = rec;
+                            }
+                        }
+                    }
+
+                    if (homework != null) {
+                        for (final StandardAssignmentAttemptRec attempt : attempts) {
+                            if (attempt.assignmentId.equals(homework.assignmentId)) {
+                                homeworkAttempted = true;
+                                if ("Y".equals(attempt.passed)) {
+                                    homeworkPassed = true;
+                                }
+                            }
+                        }
+                    }
+
+                    if (mastery != null) {
+                        for (final StandardAssignmentAttemptRec attempt : attempts) {
+                            if (attempt.assignmentId.equals(mastery.assignmentId)) {
+                                masteryAttempted = true;
+                                if ("Y".equals(attempt.passed)) {
+                                    // Need to see if it was passed on time.
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return result;
     }
 }

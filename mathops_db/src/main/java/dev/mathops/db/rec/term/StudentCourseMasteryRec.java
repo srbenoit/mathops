@@ -183,4 +183,174 @@ public final class StudentCourseMasteryRec extends RecBase implements Comparable
 
         return equal;
     }
+
+    /**
+     * Based on the course structure, finds the index in the structure, homework status, and mastery status strings that
+     * corresponds to a particular module and standard.
+     *
+     * <p>
+     * The course structure String is like "aAabbbCcc...zzZ", where each letter(a-z) represents a module and each
+     * repetition of that letter represents a standard, lowercase = non-essential, uppercase = essential.
+     * </p>
+     *
+     * @param module   the module number
+     * @param standard the standard number
+     * @return the index, -1 if the module/standard combination was not found
+     */
+    private int indexOfStandard(final int module, final int standard) {
+
+        int result = -1;
+
+        final int len = Math.min(this.courseStructure.length(),
+                Math.min(this.homeworkStatus.length(), this.masteryStatus.length()));
+
+        if (len > 0) {
+            if (module == 1 && standard == 1) {
+                result = 0;
+            } else {
+                char current = Character.toLowerCase(this.courseStructure.charAt(0));
+                int m = 1;
+                int s = 2;
+
+                for (int i = 1; i < len; ++i) {
+                    char ch = Character.toLowerCase(this.courseStructure.charAt(i));
+
+                    if (ch == current) {
+                        ++s;
+                    } else {
+                        ++m;
+                        s = 1;
+                    }
+                    if (module == m && standard == s) {
+                        result = i;
+                        break;
+                    }
+                    current = ch;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Tests whether a module standard is "essential".
+     *
+     * @param module   the module number
+     * @param standard the standard number
+     * @return true if the standard is marked as "essential"; false if not or if the standard was not found
+     */
+    public boolean isStandardEssential(final int module, final int standard) {
+
+        boolean result = false;
+
+        final int index = indexOfStandard(module, standard);
+        if (index >= 0) {
+            final char ch = this.courseStructure.charAt(index);
+            result = Character.isUpperCase(ch);
+        }
+
+        return result;
+    }
+
+    /**
+     * Tests whether the homework assignment for a module standard has been attempted.
+     *
+     * @param module   the module number
+     * @param standard the standard number
+     * @return true if the homework assignment has been attempted (whether it was passed or not)
+     */
+    public boolean isHomeworkAttempted(final int module, final int standard) {
+
+        boolean result = false;
+
+        final int index = indexOfStandard(module, standard);
+        if (index >= 0) {
+            final int ch = (int) this.homeworkStatus.charAt(index);
+            result = ch == 'Y' || ch == 'N';
+        }
+
+        return result;
+    }
+
+    /**
+     * Tests whether the homework assignment for a module standard has been passed.
+     *
+     * @param module   the module number
+     * @param standard the standard number
+     * @return true if the homework assignment has been passed
+     */
+    public boolean isHomeworkPassed(final int module, final int standard) {
+
+        boolean result = false;
+
+        final int index = indexOfStandard(module, standard);
+        if (index >= 0) {
+            final int ch = (int) this.homeworkStatus.charAt(index);
+            result = ch == 'Y';
+        }
+
+        return result;
+    }
+
+    /**
+     * Tests whether the mastery exam for a module standard has been attempted.
+     *
+     * @param module   the module number
+     * @param standard the standard number
+     * @return true if the mastery exam has been attempted (whether it was passed or not)
+     */
+    public boolean isMasteryExamAttempted(final int module, final int standard) {
+
+        boolean result = false;
+
+        final int index = indexOfStandard(module, standard);
+        if (index >= 0) {
+            final int ch = (int) this.masteryStatus.charAt(index);
+            result = ch == 'Y' || ch == 'y' || ch == 'N';
+        }
+
+        return result;
+    }
+
+    /**
+     * Tests whether the mastery exam for a module standard was passed on time.
+     *
+     * @param module   the module number
+     * @param standard the standard number
+     * @return true if the mastery exam was passed on time
+     */
+    public boolean isMasteryExamPassedOnTime(final int module, final int standard) {
+
+        boolean result = false;
+
+        final int index = indexOfStandard(module, standard);
+        if (index >= 0) {
+            final int ch = (int) this.masteryStatus.charAt(index);
+            result = ch == 'Y';
+        }
+
+        return result;
+    }
+
+    /**
+     * Tests whether the mastery exam for a module standard was passed late.
+     *
+     * @param module   the module number
+     * @param standard the standard number
+     * @return true if the mastery exam was passed late
+     */
+    public boolean isMasteryExamPassedLate(final int module, final int standard) {
+
+        boolean result = false;
+
+        final int index = indexOfStandard(module, standard);
+        if (index >= 0) {
+            final int ch = (int) this.masteryStatus.charAt(index);
+            result = ch == 'y';
+        }
+
+        return result;
+    }
+
 }

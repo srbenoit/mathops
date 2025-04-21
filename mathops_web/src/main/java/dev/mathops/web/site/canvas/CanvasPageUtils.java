@@ -4,8 +4,8 @@ import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.logic.RegistrationsLogic;
-import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawStcourse;
+import dev.mathops.db.rec.term.StandardsCourseSectionRec;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.parser.ParsingException;
 import dev.mathops.text.parser.json.JSONObject;
@@ -68,16 +68,16 @@ public enum CanvasPageUtils {
      *
      * @param htm        the {@code HtmlBuilder} to which to append
      * @param metaCourse the course metadata object
-     * @param csection   the course section record
+     * @param section    the course section record
      */
     public static void emitCourseTitleAndSection(final HtmlBuilder htm, final MetadataCourse metaCourse,
-                                                 final RawCsection csection) {
+                                                 final StandardsCourseSectionRec section) {
 
         htm.sDiv(null, "style='margin:0 24px; border-bottom:1px solid #C7CDD1;'");
         htm.sH(1, "title");
         htm.add(metaCourse.id, ": ");
         htm.add("<span style='color:#D9782D'>", metaCourse.title, "</span>");
-        htm.br().add("<small>Section ", csection.sect, "</small>");
+        htm.br().add("<small>Section ", section.sectionNbr, "</small>");
         htm.eDiv();
     }
 
@@ -138,7 +138,8 @@ public enum CanvasPageUtils {
      * @return the registration record; null if the student is not currently enrolled
      * @throws SQLException if there is an error accessing the database
      */
-    public static RawStcourse confirmRegistration(final Cache cache, final String stuId, final String course) throws SQLException {
+    public static RawStcourse confirmRegistration(final Cache cache, final String stuId, final String course)
+            throws SQLException {
 
         final RegistrationsLogic.ActiveTermRegistrations registrations =
                 RegistrationsLogic.gatherActiveTermRegistrations(cache, stuId);

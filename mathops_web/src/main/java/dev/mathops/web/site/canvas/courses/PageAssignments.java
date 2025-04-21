@@ -1,26 +1,21 @@
 package dev.mathops.web.site.canvas.courses;
 
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
-import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
+import dev.mathops.db.logic.MainData;
+import dev.mathops.db.logic.TermData;
 import dev.mathops.db.old.rawlogic.RawSttermLogic;
-import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawStcourse;
-import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.old.rawrecord.RawStterm;
-import dev.mathops.db.rec.AssignmentRec;
-import dev.mathops.db.rec.MasteryAttemptRec;
-import dev.mathops.db.rec.MasteryExamRec;
-import dev.mathops.db.rec.StandardMilestoneRec;
-import dev.mathops.db.rec.StuStandardMilestoneRec;
 import dev.mathops.db.rec.TermRec;
-import dev.mathops.db.reclogic.AssignmentLogic;
-import dev.mathops.db.reclogic.MasteryAttemptLogic;
-import dev.mathops.db.reclogic.MasteryExamLogic;
-import dev.mathops.db.reclogic.StandardMilestoneLogic;
-import dev.mathops.db.reclogic.StuStandardMilestoneLogic;
+import dev.mathops.db.rec.main.StandardAssignmentRec;
+import dev.mathops.db.rec.main.StandardsCourseModuleRec;
+import dev.mathops.db.rec.term.StandardsCourseGradingSystemRec;
+import dev.mathops.db.rec.term.StandardsCourseSectionRec;
+import dev.mathops.db.rec.term.StandardsMilestoneRec;
+import dev.mathops.db.rec.term.StudentCourseMasteryRec;
+import dev.mathops.db.rec.term.StudentStandardsMilestoneRec;
 import dev.mathops.db.reclogic.TermLogic;
-import dev.mathops.db.type.TermKey;
+import dev.mathops.db.reclogic.term.StudentCourseMasteryLogic;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
@@ -32,8 +27,6 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -73,23 +66,25 @@ public enum PageAssignments {
                 final String homePath = site.makeRootPath("home.htm");
                 resp.sendRedirect(homePath);
             } else {
-                final TermRec active = TermLogic.get(cache).queryActive(cache);
-                final List<RawCsection> csections = RawCsectionLogic.queryByTerm(cache, active.term);
+                final TermData termData = cache.getTermData();
+                final StandardsCourseSectionRec section = termData.getStandardsCourseSection(
+                        registration.course, registration.sect);
 
-                RawCsection csection = null;
-                for (final RawCsection test : csections) {
-                    if (registration.course.equals(test.course) && registration.sect.equals(test.sect)) {
-                        csection = test;
-                        break;
-                    }
-                }
-
-                if (csection == null) {
+                if (section == null) {
+                    // TODO: Error display, section not part of this system rather than a redirect to Home
                     final String homePath = site.makeRootPath("home.html");
                     resp.sendRedirect(homePath);
                 } else {
-                    presentAssignments(cache, site, req, resp, session, registration, active.term, csection,
-                            metaCourse);
+                    final StandardsCourseGradingSystemRec gradingSystem =
+                            termData.getStandardsCourseGradingSystem(section.gradingSystemId);
+                    if (gradingSystem == null) {
+                        // TODO: Error display, section not part of this system rather than a redirect to Home
+                        final String homePath = site.makeRootPath("home.html");
+                        resp.sendRedirect(homePath);
+                    } else {
+                        presentAssignments(cache, site, req, resp, session, registration, section, gradingSystem,
+                                metaCourse);
+                    }
                 }
             }
         }
@@ -104,15 +99,15 @@ public enum PageAssignments {
      * @param resp         the response
      * @param session      the login session
      * @param registration the student's registration record
-     * @param termKey      the term key
-     * @param csection     the course section information
+     * @param section      the course section information
      * @param metaCourse   the metadata object with course structure data
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
     static void presentAssignments(final Cache cache, final CanvasSite site, final ServletRequest req,
                                    final HttpServletResponse resp, final ImmutableSessionInfo session,
-                                   final RawStcourse registration, final TermKey termKey, final RawCsection csection,
+                                   final RawStcourse registration, final StandardsCourseSectionRec section,
+                                   final StandardsCourseGradingSystemRec gradingSystem,
                                    final MetadataCourse metaCourse) throws IOException, SQLException {
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
@@ -121,7 +116,7 @@ public enum PageAssignments {
         CanvasPageUtils.startPage(htm, siteTitle);
 
         // Emit the course number and section at the top
-        CanvasPageUtils.emitCourseTitleAndSection(htm, metaCourse, csection);
+        CanvasPageUtils.emitCourseTitleAndSection(htm, metaCourse, section);
 
         htm.sDiv("pagecontainer");
 
@@ -134,75 +129,48 @@ public enum PageAssignments {
         htm.hr();
 
         // Determine the student's pace and track
-        final RawStterm stterm = RawSttermLogic.query(cache, termKey, registration.stuId);
+        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final RawStterm stterm = RawSttermLogic.query(cache, active.term, registration.stuId);
         final Integer index = registration.paceOrder;
 
         if (stterm == null || index == null) {
             htm.sP().add("Error: Unable to determine your deadline schedule.  Please contact the Precalculus Center ",
                     "at <a class='ulink' href='mailto:precalc_math@colostate.edu'>precalc_math@colostate.edu</a> to ",
-                    "report this error (please include your CSU ID number and the course number).");
+                    "report this error (please include your CSU ID number and the course number).").eP();
         } else {
-            // Load all milestones for the student's pace/track/index and any student overrides
-            final List<StandardMilestoneRec> milestones = StandardMilestoneLogic.get(cache).queryByPaceTrackPaceIndex(
-                    cache, stterm.paceTrack, stterm.pace, index);
+            final MainData mainData = cache.getMainData();
+            final TermData termData = cache.getTermData();
 
-            final List<StuStandardMilestoneRec> stuMilestones = StuStandardMilestoneLogic.get(
-                    cache).queryByStuPaceTrackPaceIndex(cache, registration.stuId, stterm.paceTrack, stterm.pace,
-                    index);
+            // Load all milestones for the student's pace/track/index and any student overrides
+            final List<StandardsMilestoneRec> milestones = termData.getStandardsMilestonesByTrackAndPaceAndIndex(
+                    stterm.paceTrack, stterm.pace, index);
+            final List<StudentStandardsMilestoneRec> stmilestones =
+                    termData.getStudentStandardsMilestonesByTrackAndPaceAndIndex(registration.stuId, stterm.paceTrack,
+                            stterm.pace, index);
 
             // Load all the assignments associated with the course
-            final List<AssignmentRec> assignments = AssignmentLogic.get(cache).queryActiveByCourse(cache,
-                    registration.course, "ST");
+            final List<StandardAssignmentRec> assignments = mainData.getStandardAssignments(registration.course);
 
-            // Load all mastery exams associated with the course
-            final List<MasteryExamRec> exams = MasteryExamLogic.get(cache).queryActiveByCourse(cache,
+            // Get the list of course modules
+            final List<StandardsCourseModuleRec> modules = mainData.getStandardsCourseModules(registration.course);
+
+            StudentCourseMasteryRec courseMastery = termData.getStudentCourseMastery(registration.stuId,
                     registration.course);
-
-            // Load all the student submitted homework
-            final List<RawSthomework> sthw = RawSthomeworkLogic.queryByStudentCourse(cache, registration.stuId,
-                    registration.course, false);
-
-            // Load all mastery exams associated with the course
-            final List<MasteryAttemptRec> stexams = MasteryAttemptLogic.get(cache).queryByStudent(cache,
-                    registration.stuId);
-
-            final Integer o1 = Integer.valueOf(1);
-            final Integer o2 = Integer.valueOf(2);
-            final Integer o3 = Integer.valueOf(3);
-
-            // Gather the status of all exams and homeworks
-
-            final HomeworkStatus[][] hwStatus = new HomeworkStatus[9][4];
-            final ExamStatus[][] examStatus = new ExamStatus[9][4];
-
-            for (int module = 1; module <= 8; ++module) {
-                final Integer m = Integer.valueOf(module);
-
-                hwStatus[module][1] = findHomework(m, o1, assignments, sthw);
-                hwStatus[module][2] = findHomework(m, o2, assignments, sthw);
-                hwStatus[module][3] = findHomework(m, o3, assignments, sthw);
-
-                examStatus[module][1] = findExam(m, o1, hwStatus[module][1], exams, stexams, milestones, stuMilestones);
-                examStatus[module][2] = findExam(m, o2, hwStatus[module][2], exams, stexams, milestones, stuMilestones);
-                examStatus[module][3] = findExam(m, o3, hwStatus[module][3], exams, stexams, milestones, stuMilestones);
+            if (courseMastery == null) {
+                courseMastery = StudentCourseMasteryLogic.buildCourseMastery(cache, registration.stuId,
+                        registration.course);
             }
-
             // Show each module's homework assignments with their status
 
-            for (int module = 1; module <= 8; ++module) {
-                final Integer moduleObj = Integer.valueOf(module);
+            final int nbrModules = modules.size();
+            for (final StandardsCourseModuleRec module : modules) {
+                final int moduleNbr = module.moduleNbr.intValue();
 
-                startModule(htm, "Module " + moduleObj + " Homework Assignments");
+                startModule(htm, "Module " + module.moduleNbr + " Homework Assignments");
 
                 htm.sDiv("module-item");
-                if (hwStatus[module][1] != null) {
-                    emitHw(htm, hwStatus[module][1], moduleObj, o1);
-                }
-                if (hwStatus[module][2] != null) {
-                    emitHw(htm, hwStatus[module][2], moduleObj, o2);
-                }
-                if (hwStatus[module][3] != null) {
-                    emitHw(htm, hwStatus[module][3], moduleObj, o3);
+                for (int standardNbr = 1; standardNbr <= module.nbrStandards; ++standardNbr) {
+                    emitHw(htm, courseMastery, moduleNbr, standardNbr);
                 }
                 htm.eDiv(); // module-item
 
@@ -214,178 +182,66 @@ public enum PageAssignments {
             startModule(htm, "Course Mastery Exam");
 
             htm.sDiv("module-item");
-            htm.sP().add("The Course Mastery Exam has six questions from each of the eight modules, or 48 questions ",
-                    "total.").eP();
+
+            final String nbrModulesStr = Integer.toString(nbrModules);
+            final int totalQuestions = gradingSystem.nbrStandards.intValue() << 1;
+            final String totalQuestionsStr = Integer.toString(totalQuestions);
+            htm.sP().add("The Course Mastery Exam has two questions for each standard in each of the ", nbrModulesStr,
+                    " modules, or ", totalQuestionsStr, " questions total.").eP();
 
             htm.sP().add("There is a <u>deadline date</u> for each module's questions.").eP();
 
-            htm.sP().add("Your score on the Course Mastery Exam is <b>3 points</b> for every question answered ",
-                    "correctly \"on time\" (on or before its deadline), and <b>2 points</b> for every question ",
-                    "answered correctly \"late\" (after its deadline).  ").eP();
+            htm.sP().add("Your score on the Course Mastery Exam is <b>", gradingSystem.onTimeMasteryPts,
+                    " points</b> if you answer both questions for a standard correctly \"on time\" (on or before its ",
+                    "deadline), and <b>", gradingSystem.lateMasteryPts,
+                    " points</b> if get both questions correct \"late\" (after its deadline).").eP();
 
-            htm.sP().add("When a Homework Assignment is passed, the corresponding questions on the Course ",
-                    "Mastery Exam are unlocked.").eP();
+            htm.sP().add("When a Homework Assignment is passed, the corresponding questions on the Course Mastery ",
+                    "Exam are unlocked.").eP();
 
             htm.sP().add("Any time you have questions unlocked, you can ask to take the Course Mastery Exam in the ",
                     "Precalculus Center (Weber 138).  You will be given an exam with all unlocked questions that ",
                     "you have not already answered correctly.").eP();
 
             htm.sP().add("You have unlimited attempts on the Course Mastery Exam, through the last day of ",
-                    "classes.").eP();
+                    "classes, and your score increases as you complete more standards.").eP();
 
-            htm.sP().add("The maximum possible score is 144 points.  Your grade in the course is based only on your ",
-                    "score on this exam.").eP();
+            final int maxScore = gradingSystem.nbrStandards.intValue() * gradingSystem.onTimeMasteryPts.intValue();
+            final String maxScoreStr = Integer.toString(maxScore);
+            htm.sP().add("The maximum possible score is ", maxScoreStr,
+                    " points.  Your grade in the course is based on your score on this exam.").eP();
 
             htm.sTable("grades", "style='margin-left: 20px;'");
             htm.sTr().sTh().add("Score").eTh().sTh().add("Earned Grade").eTh().eTr();
-            htm.sTr().sTd().add("134 - 144").eTh().sTh().add("A").eTh().eTr();
-            htm.sTr().sTd().add("120 - 133").eTh().sTh().add("B").eTh().eTr();
-            htm.sTr().sTd().add("108 - 119").eTh().sTh().add("C").eTh().eTr();
-            htm.sTr().sTd().add("107 or less").eTh().sTh().add("U").eTh().eTr();
-            htm.eTable();
 
-            htm.eDiv(); // module-item
-
-            htm.sDiv("module-item");
-
-            // Show exam statistics
-
-            int score = 0;
-            int onTime = 0;
-            int late = 0;
-            int unlocked = 0;
-            int locked = 0;
-
-            final int[] counts = new int[3];
-
-            for (int module = 1; module <= 8; ++module) {
-
-                final ExamStatus exam1 = examStatus[module][1];
-                classifyExams(counts, exam1);
-                score += exam1.pointsEarned();
-                onTime += counts[0];
-                late += counts[1];
-                if (counts[2] > 0) {
-                    final HomeworkStatus hw1 = hwStatus[module][1];
-                    if (hw1.whenCompleted() == null) {
-                        locked += counts[2];
-                    } else {
-                        unlocked += counts[2];
-                    }
-                }
-
-                Arrays.fill(counts, 0);
-                final ExamStatus exam2 = examStatus[module][2];
-                classifyExams(counts, exam2);
-                score += exam2.pointsEarned();
-                onTime += counts[0];
-                late += counts[1];
-                if (counts[2] > 0) {
-                    final HomeworkStatus hw2 = hwStatus[module][2];
-                    if (hw2.whenCompleted() == null) {
-                        locked += counts[2];
-                    } else {
-                        unlocked += counts[2];
-                    }
-                }
-
-                Arrays.fill(counts, 0);
-                final ExamStatus exam3 = examStatus[module][3];
-                classifyExams(counts, exam3);
-                score += exam3.pointsEarned();
-                onTime += counts[0];
-                late += counts[1];
-                if (counts[2] > 0) {
-                    final HomeworkStatus hw3 = hwStatus[module][3];
-                    if (hw3.whenCompleted() == null) {
-                        locked += counts[2];
-                    } else {
-                        unlocked += counts[2];
-                    }
-                }
+            htm.sTr().sTd().add(gradingSystem.aMinScore, " - ", maxScoreStr).eTh().sTh().add("A").eTh().eTr();
+            int bound = gradingSystem.aMinScore.intValue() - 1;
+            if (gradingSystem.bMinScore != null) {
+                final String boundStr = Integer.toString(bound);
+                htm.sTr().sTd().add(gradingSystem.bMinScore, " - ", boundStr).eTh().sTh().add("B").eTh().eTr();
+                bound = gradingSystem.bMinScore.intValue() - 1;
             }
-
-            // Show exam statistics
-
-            htm.sTable();
-            htm.sTr().sTd().add("Total Points Earned So Far: ").eTd()
-                    .sTd().add(Integer.toString(score)).eTd().eTr();
-            htm.sTr().sTd().add("Questions Answered Correctly On-Time: ").eTd()
-                    .sTd().add(Integer.toString(onTime)).eTd().eTr();
-            htm.sTr().sTd().add("Questions Answered Correctly Late: ").eTd()
-                    .sTd().add(Integer.toString(late)).eTd().eTr();
-            htm.sTr().sTd().add("Questions Currently Unlocked: ").eTd()
-                    .sTd().add(Integer.toString(unlocked)).eTd().eTr();
-            htm.sTr().sTd().add("Questions Still Locked: ").eTd()
-                    .sTd().add(Integer.toString(locked)).eTd().eTr();
-            htm.eTable();
-
-            htm.eDiv(); // module-item
-
-            htm.sDiv("module-item");
-
-            // Show details of each module's questions
-
-            for (int module = 1; module <= 8; ++module) {
-
-                final ExamStatus exam1 = examStatus[module][1];
-                final ExamStatus exam2 = examStatus[module][2];
-                final ExamStatus exam3 = examStatus[module][3];
-
-                Arrays.fill(counts, 0);
-                classifyExams(counts, exam1);
-                classifyExams(counts, exam2);
-                classifyExams(counts, exam3);
-
-                htm.addln("<img class='assignment-icon' src='/www/images/etext/video_icon22.png' alt=''/>");
-                htm.sDiv("assignment-title");
-
-                htm.sDiv("module-item-block");
-                final Integer moduleObj = Integer.valueOf(module);
-                htm.addln("Module ", moduleObj, " Exam Questions:").br();
-
-                htm.add("<small>");
-
-                final LocalDate dueDate = exam1.dueDate() == null ? (exam2.dueDate() == null
-                        ? exam3.dueDate() : exam2.dueDate()) : exam1.dueDate();
-
-//                if (dueDate == null) {
-//                    // A misconfiguration, but try our best...
-//                    if (hw.pointsPossible() > 0) {
-//                        if (hw.whenCompleted() == null) {
-//                            htm.add("--/" + hw.pointsPossible() + " pts");
-//                        } else {
-//                            htm.add(hw.pointsEarned() + "/" + hw.pointsPossible() + " pts (passed on ",
-//                                    TemporalUtils.FMT_MDY.format(hw.whenCompleted()), ")");
-//                        }
-//                    } else if (hw.whenCompleted() == null) {
-//                        htm.add("(not yet passed)");
-//                    } else {
-//                        htm.add("passed on ", TemporalUtils.FMT_MDY.format(hw.whenCompleted()), ")");
-//                    }
-//                } else {
-//                    htm.add("<b>Due</b> ", TemporalUtils.FMT_MDY.format(dueDate));
-//
-//                    if (hw.pointsPossible() > 0) {
-//                        if (hw.whenCompleted() == null) {
-//                            htm.add(" | --/" + hw.pointsPossible() + " pts");
-//                        } else {
-//                            htm.add(" | ", hw.pointsEarned() + "/" + hw.pointsPossible() + " pts (passed on ",
-//                                    TemporalUtils.FMT_MDY.format(hw.whenCompleted()), ")");
-//                        }
-//                    } else if (hw.whenCompleted() == null) {
-//                        htm.add("(not yet passed)");
-//                    } else {
-//                        htm.add("passed on ", TemporalUtils.FMT_MDY.format(hw.whenCompleted()), ")");
-//                    }
-//                }
-
-                htm.add("&nbsp;</small>");
-                htm.eDiv();
-
-                htm.eDiv(); // assignment-title
-
+            if (gradingSystem.cMinScore != null) {
+                final String boundStr = Integer.toString(bound);
+                htm.sTr().sTd().add(gradingSystem.cMinScore, " - ", boundStr).eTh().sTh().add("C").eTh().eTr();
+                bound = gradingSystem.cMinScore.intValue() - 1;
             }
+            if (gradingSystem.dMinScore != null) {
+                final String boundStr = Integer.toString(bound);
+                htm.sTr().sTd().add(gradingSystem.dMinScore, " - ", boundStr).eTh().sTh().add("D").eTh().eTr();
+                bound = gradingSystem.dMinScore.intValue() - 1;
+            }
+            if (gradingSystem.uMinScore != null) {
+                final String boundStr = Integer.toString(bound);
+                htm.sTr().sTd().add(gradingSystem.uMinScore, " - ", boundStr).eTh().sTh().add("D").eTh().eTr();
+                bound = gradingSystem.uMinScore.intValue() - 1;
+                final String boundStr2 = Integer.toString(bound);
+                htm.sTr().sTd().add(boundStr2, " or less").eTh().sTh().add("F").eTh().eTr();
+            } else {
+                final String boundStr = Integer.toString(bound);
+                htm.sTr().sTd().add(boundStr, " or less").eTh().sTh().add("U").eTh().eTr();
+            }
+            htm.eTable();
 
             htm.eDiv(); // module-item
 
@@ -398,200 +254,51 @@ public enum PageAssignments {
     }
 
     /**
-     * Determines how many questions were answered "on time" and how many were answered "late" based on exam scores.
+     * Finds an assignment with a specified module number, standard number, and type iin a list of assignments.
      *
-     * @param counts a 3-int array whose [0] entry is the number answered on time, [1] entry is the number answered
-     *               late, and [2] is the number not yet answered correctly.
-     * @param exam   the exam status
+     * @param moduleNbr   the module number for which to search
+     * @param standardNbr the standard number for which to search
+     * @param type        the assignment type for which to search
+     * @param assignments the list of assignments
+     * @return the matching assignment; {@code null} if none found
      */
-    private static void classifyExams(final int[] counts, final ExamStatus exam) {
+    private static StandardAssignmentRec find(final int moduleNbr, final int standardNbr, final String type,
+                                              final Iterable<StandardAssignmentRec> assignments) {
+        StandardAssignmentRec result = null;
 
-        switch (exam.pointsEarned()) {
-            case 6:
-                counts[0] += 2;
+        for (final StandardAssignmentRec test : assignments) {
+            if (test.moduleNbr.intValue() == moduleNbr && test.standardNbr.intValue() == standardNbr
+                && test.assignmentType.equals(type)) {
+                result = test;
                 break;
-            case 5:
-                ++counts[0];
-                ++counts[1];
-                break;
-            case 4:
-                counts[1] += 2;
-                break;
-            case 3:
-                ++counts[0];
-                ++counts[2];
-                break;
-            case 2:
-                ++counts[1];
-                ++counts[2];
-                break;
-            default:
-                counts[2] += 2;
-                break;
+            }
         }
+
+        return result;
     }
 
     /**
      * Emits an assignment entry for a homework.
      *
-     * @param htm       the {@code HtmlBuilder} to which to append
-     * @param hw        the assignment status
-     * @param module    the module number
-     * @param objective the objective number
+     * @param htm           the {@code HtmlBuilder} to which to append
+     * @param courseMastery the course mastery status
+     * @param moduleNbr     the module number
+     * @param standardNbr   the standard number
      */
-    private static void emitHw(final HtmlBuilder htm, final HomeworkStatus hw, final Integer module,
-                               final Integer objective) {
+    private static void emitHw(final HtmlBuilder htm, final StudentCourseMasteryRec courseMastery,
+                               final int moduleNbr, final int standardNbr) {
 
         htm.addln("<img class='assignment-icon' src='/www/images/etext/video_icon22.png' alt=''/>");
         htm.sDiv("assignment-title");
 
         htm.sDiv("module-item-block");
-        htm.addln("<a class='ulink2' href='homework.html'><b>Homework ", module, ".", objective, "</b></a>").br();
+        htm.addln("<a class='ulink2' href='homework.html'><b>Homework ", moduleNbr, ".", standardNbr, "</b></a>").br();
 
         htm.add("<small>");
-//        if (hw.dueDate() == null) {
-//            if (hw.pointsPossible() > 0) {
-//                if (hw.whenCompleted() == null) {
-//                    htm.add("--/" + hw.pointsPossible() + " pts");
-//                } else {
-//                    htm.add(hw.pointsEarned() + "/" + hw.pointsPossible() + " pts (passed on ",
-//                            TemporalUtils.FMT_MDY.format(hw.whenCompleted()), ")");
-//                }
-//            } else if (hw.whenCompleted() == null) {
-//                htm.add("(not yet passed)");
-//            } else {
-//                htm.add("passed on ", TemporalUtils.FMT_MDY.format(hw.whenCompleted()), ")");
-//            }
-//        } else {
-//            htm.add("<b>Due</b> ", TemporalUtils.FMT_MDY.format(hw.dueDate()));
-//            if (hw.pointsPossible() > 0) {
-//                if (hw.whenCompleted() == null) {
-//                    htm.add(" | --/" + hw.pointsPossible() + " pts");
-//                } else {
-//                    htm.add(" | ", hw.pointsEarned() + "/" + hw.pointsPossible() + " pts (passed on ",
-//                            TemporalUtils.FMT_MDY.format(hw.whenCompleted()), ")");
-//                }
-//            } else if (hw.whenCompleted() == null) {
-//                htm.add("(not yet passed)");
-//            } else {
-//                htm.add("passed on ", TemporalUtils.FMT_MDY.format(hw.whenCompleted()), ")");
-//            }
-//        }
         htm.add("&nbsp;</small>");
         htm.eDiv();
 
         htm.eDiv(); // assignment-title
-    }
-
-    /**
-     * Attempts to find a homework assignment for a unit and objective and construct an assignment status object for
-     * it.
-     *
-     * @param unit           the unit (module number, from 1)
-     * @param objective      the objective (learning target number, from 1)
-     * @param assignments    the list of assignments for the course
-     * @param stuAssignments the list of student assignment submissions so far
-     * @return the constructed assignment status object; {@code null} if the assignment could not be found
-     */
-    private static HomeworkStatus findHomework(final Integer unit, final Integer objective,
-                                               final Iterable<AssignmentRec> assignments,
-                                               final Iterable<RawSthomework> stuAssignments) {
-
-        AssignmentRec foundAssignment = null;
-
-        for (final AssignmentRec test : assignments) {
-            if (unit.equals(test.unit) && objective.equals(test.objective)) {
-                foundAssignment = test;
-                break;
-            }
-        }
-
-        HomeworkStatus result = null;
-
-        if (foundAssignment != null) {
-            LocalDate firstPassed = null;
-            for (final RawSthomework test : stuAssignments) {
-                if ("Y".equals(test.passed) && test.version.equals(foundAssignment.assignmentId)) {
-                    if (firstPassed == null || firstPassed.isAfter(test.hwDt)) {
-                        firstPassed = test.hwDt;
-                    }
-                }
-            }
-
-            result = new HomeworkStatus(unit, objective, firstPassed);
-        }
-
-        return result;
-    }
-
-    /**
-     * Attempts to find a mastery exam for a unit and objective and construct an assignment status object for it.
-     *
-     * @param unit          the unit (module number, from 1)
-     * @param objective     the objective (learning target number, from 1)
-     * @param hwStatus      the homework status for the unit/objective
-     * @param exams         the list of mastery exams for the course
-     * @param stuExams      the list of student mastery attempts so far
-     * @param milestones    the list of milestones in the course
-     * @param stuMilestones the list of student milestone overrides
-     * @return the constructed assignment status object; {@code null} if the assignment could not be found
-     */
-    private static ExamStatus findExam(final Integer unit, final Integer objective,
-                                       final HomeworkStatus hwStatus,
-                                       final Iterable<MasteryExamRec> exams,
-                                       final Iterable<MasteryAttemptRec> stuExams,
-                                       final Iterable<StandardMilestoneRec> milestones,
-                                       final Iterable<StuStandardMilestoneRec> stuMilestones) {
-
-        MasteryExamRec foundExam = null;
-
-        for (final MasteryExamRec test : exams) {
-            if (unit.equals(test.unit) && objective.equals(test.objective)) {
-                foundExam = test;
-                break;
-            }
-        }
-
-        ExamStatus result = null;
-
-        if (foundExam != null) {
-
-            // Determine the first date the exam was passed
-            LocalDate firstPassed = null;
-            for (final MasteryAttemptRec test : stuExams) {
-                if ("Y".equals(test.passed) && test.examId.equals(foundExam.examId)) {
-                    final LocalDate examDate = test.whenFinished.toLocalDate();
-                    if (firstPassed == null || firstPassed.isAfter(examDate)) {
-                        firstPassed = examDate;
-                    }
-                }
-            }
-
-            // Determine the original due date
-            LocalDate dueDate = null;
-            for (final StandardMilestoneRec test : milestones) {
-                if ("MA".equals(test.msType) && unit.equals(test.unit) && objective.equals(test.objective)) {
-                    dueDate = test.msDate;
-                    break;
-                }
-            }
-            if (dueDate != null) {
-                for (final StuStandardMilestoneRec test : stuMilestones) {
-                    if ("MA".equals(test.msType) && unit.equals(test.unit) && objective.equals(test.objective)) {
-                        dueDate = test.msDate;
-                        break;
-                    }
-                }
-            }
-
-//            private record ExamStatus(Integer unit, Integer objective, LocalDate dueDate, int pointsEarned,
-//                                      int numAnsweredOnTime, int numAnsweredLate, int numUnlocked, int numLocked)
-
-//            result = new ExamStatus(unit, objective, dueDate, pointsEarned,
-//                    numOnTime, numLate, numUnlocked, numLocked);
-
-        }
-        return result;
     }
 
     /**
@@ -614,31 +321,5 @@ public enum PageAssignments {
     private static void endModule(final HtmlBuilder htm) {
 
         htm.addln("</details>");
-    }
-
-    /**
-     * A container for a homework assignment.
-     *
-     * @param unit          the unit (module number, from 1)
-     * @param objective     the objective (learning target number, from 1)
-     * @param whenCompleted the date the assignment was completed (null if not yet completed)
-     */
-    private record HomeworkStatus(Integer unit, Integer objective, LocalDate whenCompleted) {
-    }
-
-    /**
-     * A container for a section of the mastery exam.
-     *
-     * @param unit              the unit (module number, from 1)
-     * @param objective         the objective (learning target number, from 1)
-     * @param dueDate           the due date ({@code null} if none)
-     * @param pointsEarned      the number of points earned
-     * @param numAnsweredOnTime the number of questions answered on time
-     * @param numAnsweredLate   the number of questions answered late
-     * @param numUnlocked       the number of questions unlocked
-     * @param numLocked         the number of questions still locked
-     */
-    private record ExamStatus(Integer unit, Integer objective, LocalDate dueDate, int pointsEarned,
-                              int numAnsweredOnTime, int numAnsweredLate, int numUnlocked, int numLocked) {
     }
 }
