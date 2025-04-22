@@ -272,6 +272,30 @@ public final class MainData {
     }
 
     /**
+     * Gets a single module in a standards-based course.
+     *
+     * @param courseId  the course ID
+     * @param moduleNbr the module number
+     * @return the module
+     * @throws SQLException if there is an error accessing the database
+     */
+    public StandardsCourseModuleRec getStandardsCourseModule(final String courseId, final Integer moduleNbr)
+            throws SQLException {
+
+        final List<StandardsCourseModuleRec> all = getStandardsCourseModules(courseId);
+
+        StandardsCourseModuleRec result = null;
+        for (final StandardsCourseModuleRec test : all) {
+            if (test.moduleNbr.equals(moduleNbr)) {
+                result = test;
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Gets all assignments for a standards-based course.
      *
      * @param courseId the course ID

@@ -2,12 +2,14 @@ package dev.mathops.web.site.canvas;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.logic.MainData;
 import dev.mathops.db.old.logic.RegistrationsLogic;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.rec.main.StandardsCourseRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
@@ -30,18 +32,16 @@ enum PageRoot {
     /**
      * Generates the page.
      *
-     * @param cache    the data cache
-     * @param site     the owning site
-     * @param req      the request
-     * @param resp     the response
-     * @param session  the login session
-     * @param metadata metadata object with list of courses configured on this site
+     * @param cache   the data cache
+     * @param site    the owning site
+     * @param req     the request
+     * @param resp    the response
+     * @param session the login session
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
     static void doGet(final Cache cache, final CanvasSite site, final ServletRequest req,
-                      final HttpServletResponse resp, final ImmutableSessionInfo session,
-                      final Metadata metadata) throws IOException,
+                      final HttpServletResponse resp, final ImmutableSessionInfo session) throws IOException,
             SQLException {
 
         final String stuId = session.getEffectiveUserId();
@@ -56,7 +56,7 @@ enum PageRoot {
 
         emitProgramAnnouncements(cache, htm);
         emitHolds(cache, stuId, htm);
-        emitEnrolledCourses(cache, site, stuId, metadata, htm);
+        emitEnrolledCourses(cache, site, stuId, htm);
         emitSemesterCalendar(cache, stuId, htm);
         emitUpcoming(cache, stuId, htm);
         emitInformation(cache, stuId, htm);
@@ -114,14 +114,13 @@ enum PageRoot {
      * Emits a block with a link button for each course in which a student is enrolled.  Below each course button is a
      * short display of student status/progress in each course.
      *
-     * @param cache    the data cache
-     * @param stuId    the student ID
-     * @param metadata metadata object with list of courses configured on this site
-     * @param htm      the {@code HtmlBuilder} to which to append
+     * @param cache the data cache
+     * @param stuId the student ID
+     * @param htm   the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
     private static void emitEnrolledCourses(final Cache cache, final CanvasSite site, final String stuId,
-                                            final Metadata metadata, final HtmlBuilder htm) throws SQLException {
+                                            final HtmlBuilder htm) throws SQLException {
 
         htm.sH(3).add("My Precalculus Courses").eH(3);
 
@@ -133,20 +132,33 @@ enum PageRoot {
             // TODO: Show the warnings to the student - make sure we are using student-facing language
         }
 
+        final MainData mainData = cache.getMainData();
+        final List<StandardsCourseRec> courses = mainData.getStandardsCourses();
+
         boolean hasCourse = false;
 
         final List<RawStcourse> uncountedInc = registrations.uncountedIncompletes();
         if (!uncountedInc.isEmpty()) {
+
             htm.sH(4).add("Incomplete Courses from a prior Semester").eH(4);
             htm.sP();
+
             for (final RawStcourse reg : uncountedInc) {
-                final String href = site.makeCoursePath(CanvasSite.COURSE_HOME_PAGE, reg.course);
-                if (metadata.hasCourse(reg.course)) {
-                    htm.add("<a href='", href, "' class='smallbtn'>", reg.course, "</a> &nbsp; ");
-                } else {
-                    Log.warning("Metadata does not include ", reg.course);
+                boolean seeking = true;
+                for (final StandardsCourseRec course : courses) {
+                    if (course.courseId.equals(reg.course)) {
+                        final String href = site.makeCoursePath(CanvasSite.COURSE_HOME_PAGE, reg.course);
+                        htm.add("<a href='", href, "' class='smallbtn'>", reg.course, "</a> &nbsp; ");
+                        seeking = false;
+                        break;
+                    }
+                }
+
+                if (seeking) {
+                    Log.warning("Course not found: ", reg.course);
                     htm.add(reg.course, " &nbsp; ");
                 }
+
                 hasCourse = true;
             }
             htm.eP();
@@ -158,14 +170,23 @@ enum PageRoot {
         if (!inPace.isEmpty()) {
             htm.sH(4).add("Current Courses").eH(4);
             htm.sP();
+
             for (final RawStcourse reg : inPace) {
-                final String href = site.makeCoursePath(CanvasSite.COURSE_HOME_PAGE, reg.course);
-                if (metadata.hasCourse(reg.course)) {
-                    htm.add("<a href='", href, "' class='smallbtn'>", reg.course, "</a> &nbsp; ");
-                } else {
+                boolean seeking = true;
+                for (final StandardsCourseRec course : courses) {
+                    if (course.courseId.equals(reg.course)) {
+                        final String href = site.makeCoursePath(CanvasSite.COURSE_HOME_PAGE, reg.course);
+                        htm.add("<a href='", href, "' class='smallbtn'>", reg.course, "</a> &nbsp; ");
+                        seeking = false;
+                        break;
+                    }
+                }
+
+                if (seeking) {
                     Log.warning("Metadata does not include ", reg.course);
                     htm.add(reg.course, "&nbsp; ");
                 }
+
                 hasCourse = true;
             }
             htm.eP();
@@ -186,7 +207,8 @@ enum PageRoot {
      * @param htm   the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitSemesterCalendar(final Cache cache, final String stuId, final HtmlBuilder htm) throws SQLException {
+    private static void emitSemesterCalendar(final Cache cache, final String stuId, final HtmlBuilder htm)
+            throws SQLException {
 
         // TODO:
     }
@@ -212,7 +234,8 @@ enum PageRoot {
      * @param htm   the {@code HtmlBuilder} to which to append
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitInformation(final Cache cache, final String stuId, final HtmlBuilder htm) throws SQLException {
+    private static void emitInformation(final Cache cache, final String stuId, final HtmlBuilder htm)
+            throws SQLException {
 
         // TODO:
     }

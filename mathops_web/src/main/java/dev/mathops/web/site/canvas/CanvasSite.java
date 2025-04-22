@@ -107,18 +107,6 @@ public final class CanvasSite extends AbstractSite {
     /** A request parameter name. */
     static final String COURSE_PARAM = "course";
 
-    /** The file from which to load metadata. */
-    private final File metadataFile;
-
-    /** Timestamp of last loaded metadata file. */
-    private long metadataDate = 0L;
-
-    /** Timestamp when metadata should next be scanned. */
-    private long nextMetadataCheck = 0L;
-
-    /** Course metadata. */
-    private Metadata metadata = null;
-
     /**
      * Constructs a new {@code CanvasSite}.
      *
@@ -130,21 +118,6 @@ public final class CanvasSite extends AbstractSite {
         super(theSite, theSessions);
 
         final File www = PathList.getInstance().get(EPath.WWW_PATH);
-        this.metadataFile = new File(www.getParentFile(), "media");
-
-        scanMetadata();
-        this.nextMetadataCheck = System.currentTimeMillis() + FILE_SCAN_INTERVAL;
-    }
-
-    /**
-     * Scans the metadata file, reloading it if the file has changed.
-     */
-    private void scanMetadata() {
-
-        if (this.metadataFile.exists()) {
-            this.metadataDate = this.metadataFile.lastModified();
-            this.metadata = new Metadata(this.metadataFile);
-        }
     }
 
     /**
@@ -163,12 +136,6 @@ public final class CanvasSite extends AbstractSite {
                       final HttpServletResponse resp) throws IOException, SQLException {
 
         Log.info("GET ", subpath);
-
-        final long now = System.currentTimeMillis();
-        if (now > this.nextMetadataCheck) {
-            scanMetadata();
-            this.nextMetadataCheck = now + FILE_SCAN_INTERVAL;
-        }
 
         final String path = this.site.path;
 
@@ -241,7 +208,7 @@ public final class CanvasSite extends AbstractSite {
                 // TODO: Other top-level domains before user has selected a course
 
                 switch (subpath) {
-                    case ROOT_PAGE -> PageRoot.doGet(cache, this, req, resp, session, this.metadata);
+                    case ROOT_PAGE -> PageRoot.doGet(cache, this, req, resp, session);
 
                     default -> {
                         Log.warning("Unrecognized GET request path: ", subpath);
@@ -280,19 +247,17 @@ public final class CanvasSite extends AbstractSite {
         } else {
             switch (subpath) {
                 case ACCOUNT_PAGE -> PageAccount.doGet(cache, this, courseId, req, resp, session);
-                case COURSE_HOME_PAGE -> PageCourse.doGet(cache, this, courseId, req, resp, session, this.metadata);
-                case SYLLABUS_PAGE -> PageSyllabus.doGet(cache, this, courseId, req, resp, session, this.metadata);
-                case ANNOUNCEMENTS_PAGE -> PageAnnouncements.doGet(cache, this, courseId, req, resp, session,
-                        this.metadata);
-                case MODULES_PAGE -> PageModules.doGet(cache, this, courseId, req, resp, session, this.metadata);
-                case ASSIGNMENTS_PAGE ->
-                        PageAssignments.doGet(cache, this, courseId, req, resp, session, this.metadata);
-                case HELP_PAGE -> PageHelp.doGet(cache, this, courseId, req, resp, session, this.metadata);
-                case GRADES_PAGE -> PageGrades.doGet(cache, this, courseId, req, resp, session, this.metadata);
-                case SURVEY_PAGE -> PageSurvey.doGet(cache, this, courseId, req, resp, session, this.metadata);
+                case COURSE_HOME_PAGE -> PageCourse.doGet(cache, this, courseId, req, resp, session);
+                case SYLLABUS_PAGE -> PageSyllabus.doGet(cache, this, courseId, req, resp, session);
+                case ANNOUNCEMENTS_PAGE -> PageAnnouncements.doGet(cache, this, courseId, req, resp, session);
+                case MODULES_PAGE -> PageModules.doGet(cache, this, courseId, req, resp, session);
+                case ASSIGNMENTS_PAGE -> PageAssignments.doGet(cache, this, courseId, req, resp, session);
+                case HELP_PAGE -> PageHelp.doGet(cache, this, courseId, req, resp, session);
+                case GRADES_PAGE -> PageGrades.doGet(cache, this, courseId, req, resp, session);
+                case SURVEY_PAGE -> PageSurvey.doGet(cache, this, courseId, req, resp, session);
 
-                case START_HERE_PAGE -> PageStartHere.doGet(cache, this, courseId, req, resp, session, this.metadata);
-                case NAVIGATING_PAGE -> PageNavigating.doGet(cache, this, courseId, req, resp, session, this.metadata);
+                case START_HERE_PAGE -> PageStartHere.doGet(cache, this, courseId, req, resp, session);
+                case NAVIGATING_PAGE -> PageNavigating.doGet(cache, this, courseId, req, resp, session);
 
                 default -> {
                     final String moduleId = getModuleId(subpath);
@@ -309,15 +274,13 @@ public final class CanvasSite extends AbstractSite {
                         Log.info("Module subpath is ", modulePath);
 
                         if ("module.html".equals(modulePath)) {
-                            PageTopicModule.doGet(cache, this, courseId, moduleId, req, resp, session, this.metadata);
+                            PageTopicModule.doGet(cache, this, courseId, moduleId, req, resp, session);
                         } else if ("review.html".equals(modulePath)) {
-                            PageTopicSkillsReview.doGet(cache, this, courseId, moduleId, req, resp, session,
-                                    this.metadata);
+                            PageTopicSkillsReview.doGet(cache, this, courseId, moduleId, req, resp, session);
                         } else if ("assignments.html".equals(modulePath)) {
-                            PageTopicAssignments.doGet(cache, this, courseId, moduleId, req, resp, session,
-                                    this.metadata);
+                            PageTopicAssignments.doGet(cache, this, courseId, moduleId, req, resp, session);
                         } else if ("targets.html".equals(modulePath)) {
-                            PageTopicTargets.doGet(cache, this, courseId, moduleId, req, resp, session, this.metadata);
+                            PageTopicTargets.doGet(cache, this, courseId, moduleId, req, resp, session);
                         } else {
                             Log.warning("Unrecognized GET request path: ", subpath);
                             final String selectedCourse = req.getParameter(COURSE_PARAM);
