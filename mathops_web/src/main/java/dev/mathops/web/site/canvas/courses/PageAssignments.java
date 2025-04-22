@@ -9,6 +9,7 @@ import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.rec.TermRec;
 import dev.mathops.db.rec.main.StandardAssignmentRec;
 import dev.mathops.db.rec.main.StandardsCourseModuleRec;
+import dev.mathops.db.rec.main.StandardsCourseRec;
 import dev.mathops.db.rec.term.StandardsCourseGradingSystemRec;
 import dev.mathops.db.rec.term.StandardsCourseSectionRec;
 import dev.mathops.db.rec.term.StandardsMilestoneRec;
@@ -60,8 +61,9 @@ public enum PageAssignments {
             final String homePath = site.makeRootPath("home.html");
             resp.sendRedirect(homePath);
         } else {
-            final MetadataCourse metaCourse = metadata.getCourse(registration.course);
-            if (metaCourse == null) {
+            final MainData mainData = cache.getMainData();
+            final StandardsCourseRec course = mainData.getStandardsCourse(registration.course);
+            if (course == null) {
                 // TODO: Error display, course not part of this system rather than a redirect to Home
                 final String homePath = site.makeRootPath("home.htm");
                 resp.sendRedirect(homePath);
@@ -83,7 +85,7 @@ public enum PageAssignments {
                         resp.sendRedirect(homePath);
                     } else {
                         presentAssignments(cache, site, req, resp, session, registration, section, gradingSystem,
-                                metaCourse);
+                                course);
                     }
                 }
             }
@@ -100,7 +102,7 @@ public enum PageAssignments {
      * @param session      the login session
      * @param registration the student's registration record
      * @param section      the course section information
-     * @param metaCourse   the metadata object with course structure data
+     * @param course       the course object
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
@@ -108,7 +110,7 @@ public enum PageAssignments {
                                    final HttpServletResponse resp, final ImmutableSessionInfo session,
                                    final RawStcourse registration, final StandardsCourseSectionRec section,
                                    final StandardsCourseGradingSystemRec gradingSystem,
-                                   final MetadataCourse metaCourse) throws IOException, SQLException {
+                                   final StandardsCourseRec course) throws IOException, SQLException {
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
         final String siteTitle = site.getTitle();
@@ -116,11 +118,11 @@ public enum PageAssignments {
         CanvasPageUtils.startPage(htm, siteTitle);
 
         // Emit the course number and section at the top
-        CanvasPageUtils.emitCourseTitleAndSection(htm, metaCourse, section);
+        CanvasPageUtils.emitCourseTitleAndSection(htm, course, section);
 
         htm.sDiv("pagecontainer");
 
-        CanvasPageUtils.emitLeftSideMenu(htm, metaCourse, null, ECanvasPanel.ASSIGNMENTS);
+        CanvasPageUtils.emitLeftSideMenu(htm, course, null, ECanvasPanel.ASSIGNMENTS);
 
         htm.sDiv("flexmain");
 

@@ -5,12 +5,12 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.logic.RegistrationsLogic;
 import dev.mathops.db.old.rawrecord.RawStcourse;
+import dev.mathops.db.rec.main.StandardsCourseRec;
 import dev.mathops.db.rec.term.StandardsCourseSectionRec;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.parser.ParsingException;
 import dev.mathops.text.parser.json.JSONObject;
 import dev.mathops.text.parser.json.JSONParser;
-import dev.mathops.web.site.canvas.courses.MetadataCourse;
 
 import java.io.File;
 import java.sql.SQLException;
@@ -66,17 +66,17 @@ public enum CanvasPageUtils {
     /**
      * Emits the course number, title, and section number.
      *
-     * @param htm        the {@code HtmlBuilder} to which to append
-     * @param metaCourse the course metadata object
-     * @param section    the course section record
+     * @param htm     the {@code HtmlBuilder} to which to append
+     * @param course  the course object
+     * @param section the course section record
      */
-    public static void emitCourseTitleAndSection(final HtmlBuilder htm, final MetadataCourse metaCourse,
+    public static void emitCourseTitleAndSection(final HtmlBuilder htm, final StandardsCourseRec course,
                                                  final StandardsCourseSectionRec section) {
 
         htm.sDiv(null, "style='margin:0 24px; border-bottom:1px solid #C7CDD1;'");
         htm.sH(1, "title");
-        htm.add(metaCourse.id, ": ");
-        htm.add("<span style='color:#D9782D'>", metaCourse.title, "</span>");
+        htm.add(course.courseId, ": ");
+        htm.add("<span style='color:#D9782D'>", course.courseTitle, "</span>");
         htm.br().add("<small>Section ", section.sectionNbr, "</small>");
         htm.eDiv();
     }
@@ -85,13 +85,13 @@ public enum CanvasPageUtils {
      * Emits a left-side menu with links for [Account], [Home], [Syllabus], [Announcements], [Modules], [Assignments],
      * [Getting Help], [Grades], and [Course Survey].
      *
-     * @param htm        the {@code HtmlBuilder} to which to append
-     * @param metaCourse the metadata object with course structure data
-     * @param path       if not null, this is included in the URL path before the page (for example if this is "../",
-     *                   the page URL would be something like "../account.html" rather than just "account.html")
-     * @param panel      the panel to display as selected
+     * @param htm    the {@code HtmlBuilder} to which to append
+     * @param course the course object
+     * @param path   if not null, this is included in the URL path before the page (for example if this is "../", the
+     *               page URL would be something like "../account.html" rather than just "account.html")
+     * @param panel  the panel to display as selected
      */
-    public static void emitLeftSideMenu(final HtmlBuilder htm, final MetadataCourse metaCourse,
+    public static void emitLeftSideMenu(final HtmlBuilder htm, final StandardsCourseRec course,
                                         final String path, final ECanvasPanel panel) {
 
         htm.sDiv("flexmenu");

@@ -3,12 +3,12 @@ package dev.mathops.web.site.canvas.courses;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.logic.MainData;
+import dev.mathops.db.logic.TermData;
 import dev.mathops.db.old.logic.PaceTrackLogic;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
-import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawStcourse;
-import dev.mathops.db.rec.TermRec;
-import dev.mathops.db.reclogic.TermLogic;
+import dev.mathops.db.rec.main.StandardsCourseRec;
+import dev.mathops.db.rec.term.StandardsCourseSectionRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
 import dev.mathops.session.sitelogic.data.SiteData;
@@ -60,13 +60,14 @@ public enum PageCourse {
             final String homePath = site.makeRootPath("home.htm");
             resp.sendRedirect(homePath);
         } else {
-            final MetadataCourse metaCourse = metadata.getCourse(registration.course);
-            if (metaCourse == null) {
+            final MainData mainData = cache.getMainData();
+            final StandardsCourseRec course = mainData.getStandardsCourse(registration.course);
+            if (course == null) {
                 // TODO: Error display, course not part of this system rather than a redirect to Home
                 final String homePath = site.makeRootPath("home.htm");
                 resp.sendRedirect(homePath);
             } else {
-                presentCoursePage(cache, site, req, resp, session, registration, metaCourse);
+                presentCoursePage(cache, site, req, resp, session, registration, course);
             }
         }
     }
@@ -80,27 +81,20 @@ public enum PageCourse {
      * @param resp         the response
      * @param session      the login session
      * @param registration the student's registration record
-     * @param metaCourse   the metadata object with course structure data
+     * @param course       the course object
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
     static void presentCoursePage(final Cache cache, final CanvasSite site, final ServletRequest req,
                                   final HttpServletResponse resp, final ImmutableSessionInfo session,
-                                  final RawStcourse registration, final MetadataCourse metaCourse)
+                                  final RawStcourse registration, final StandardsCourseRec course)
             throws IOException, SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
-        final List<RawCsection> csections = RawCsectionLogic.queryByTerm(cache, active.term);
+        final TermData termData = cache.getTermData();
+        final StandardsCourseSectionRec section = termData.getStandardsCourseSection(registration.course,
+                registration.sect);
 
-        RawCsection csection = null;
-        for (final RawCsection test : csections) {
-            if (registration.course.equals(test.course) && registration.sect.equals(test.sect)) {
-                csection = test;
-                break;
-            }
-        }
-
-        if (csection == null) {
+        if (section == null) {
             final String homePath = site.makeRootPath("home.html");
             resp.sendRedirect(homePath);
         } else {
@@ -110,23 +104,23 @@ public enum PageCourse {
             CanvasPageUtils.startPage(htm, siteTitle);
 
             // Emit the course number and section at the top
-            CanvasPageUtils.emitCourseTitleAndSection(htm, metaCourse, csection);
+            CanvasPageUtils.emitCourseTitleAndSection(htm, course, section);
 
             htm.sDiv("pagecontainer");
 
-            CanvasPageUtils.emitLeftSideMenu(htm, metaCourse, null, ECanvasPanel.HOME);
+            CanvasPageUtils.emitLeftSideMenu(htm, course, null, ECanvasPanel.HOME);
 
             htm.sDiv("maincontainer");
             htm.sDiv("flexmain");
 
             emitCourseAnnouncements(cache, htm);
 
-            emitCourseImageAndWelcome(htm, metaCourse, csection);
+            emitCourseImageAndWelcome(htm, course, section);
 
             final CourseSiteLogic logic = new CourseSiteLogic(cache, site.getSite().profile, session);
             logic.gatherData();
 
-            emitCourseStatus(cache, logic, registration, csection, htm);
+            emitCourseStatus(cache, logic, registration, section, htm);
 
             htm.eDiv(); // flexmain
 
@@ -174,33 +168,28 @@ public enum PageCourse {
     /**
      * Emits the course image and welcome content.
      *
-     * @param htm        the {@code HtmlBuilder} to which to append
-     * @param metaCourse the metadata object with course structure data
-     * @param csection   the course section record
+     * @param htm     the {@code HtmlBuilder} to which to append
+     * @param course  the course object
+     * @param section the course section record
      */
-    private static void emitCourseImageAndWelcome(final HtmlBuilder htm, final MetadataCourse metaCourse,
-                                                  final RawCsection csection) {
+    private static void emitCourseImageAndWelcome(final HtmlBuilder htm, final StandardsCourseRec course,
+                                                  final StandardsCourseSectionRec section) {
 
-        htm.sH(2).add("Welcome to ");
-        if ("Y".equals(csection.courseLabelShown)) {
-            htm.add(metaCourse.id);
-            htm.add(": ");
-        }
-        htm.add("<span style='color:#D9782D'>", metaCourse.title, "</span>");
-        htm.eH(2);
+        htm.sH(2).add("Welcome to ", course.courseId, ": <span style='color:#D9782D'>", course.courseTitle,
+                "</span>").eH(2);
         htm.hr();
     }
 
     /**
      * Emits a display of the student's status in the course.
      *
-     * @param cache    the data cache
-     * @param reg      the registration record
-     * @param csection the course section record
-     * @param htm      the {@code HtmlBuilder} to which to append
+     * @param cache   the data cache
+     * @param reg     the registration record
+     * @param section the course section record
+     * @param htm     the {@code HtmlBuilder} to which to append
      */
     private static void emitCourseStatus(final Cache cache, final CourseSiteLogic logic, final RawStcourse reg,
-                                         final RawCsection csection, final HtmlBuilder htm) {
+                                         final StandardsCourseSectionRec section, final HtmlBuilder htm) {
 
         Log.info("Status reg: " + reg.course, CoreConstants.SPC, reg.sect, CoreConstants.SPC, reg.paceOrder);
 

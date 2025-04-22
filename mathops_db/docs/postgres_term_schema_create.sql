@@ -213,7 +213,11 @@ CREATE TABLE IF NOT EXISTS term_202510.standards_course_section (
     subterm                   char(5)         NOT NULL,  -- The subterm ('FULL', 'HALF1', 'HALF2', 'NN:MM' for weeks
                                                          --     NN through MM)
     grading_system_id         char(6)         NOT NULL,  -- The grading system to use for the section
-    campus                    char(2),                   -- The campus code
+    campus                    char(2),                   -- The campus code ('FC'=Fort Collins, 'SP'=Spur,
+                                                         --     'CE'=Continuing Ed.)
+    mode                      char(2),                   -- The delivery mode ('RF'=Resident Face-to-Face,
+                                                         --     'RH'=Resident Hybrid, 'RO'=Resident Online,
+                                                         --     'DO'=Distance Online)
     canvas_id                 varchar(40),               -- The ID of the associated Canvas course
     instructor                varchar(30),               -- The name of the instructor assigned to the section
     building_name             varchar(40),               -- The name of the building where class sessions meet

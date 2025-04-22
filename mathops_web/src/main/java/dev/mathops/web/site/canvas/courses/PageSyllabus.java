@@ -1,11 +1,13 @@
 package dev.mathops.web.site.canvas.courses;
 
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
-import dev.mathops.db.old.rawrecord.RawCsection;
+import dev.mathops.db.logic.MainData;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.TermData;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.rec.TermRec;
-import dev.mathops.db.reclogic.TermLogic;
+import dev.mathops.db.rec.main.StandardsCourseRec;
+import dev.mathops.db.rec.term.StandardsCourseSectionRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
@@ -17,7 +19,6 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
 
 /**
  * This page shows the "Syllabus" content.
@@ -34,13 +35,12 @@ public enum PageSyllabus {
      * @param req      the request
      * @param resp     the response
      * @param session  the user's login session information
-     * @param metadata the metadata object with course structure data
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
     public static void doGet(final Cache cache, final CanvasSite site, final String courseId, final ServletRequest req,
-                             final HttpServletResponse resp, final ImmutableSessionInfo session,
-                             final Metadata metadata) throws IOException, SQLException {
+                             final HttpServletResponse resp, final ImmutableSessionInfo session) throws IOException,
+            SQLException {
 
         final String stuId = session.getEffectiveUserId();
         final RawStcourse registration = CanvasPageUtils.confirmRegistration(cache, stuId, courseId);
@@ -49,13 +49,14 @@ public enum PageSyllabus {
             final String homePath = site.makeRootPath("home.html");
             resp.sendRedirect(homePath);
         } else {
-            final MetadataCourse metaCourse = metadata.getCourse(registration.course);
-            if (metaCourse == null) {
+            final MainData mainData = cache.getMainData();
+            final StandardsCourseRec course = mainData.getStandardsCourse(registration.course);
+            if (course == null) {
                 // TODO: Error display, course not part of this system rather than a redirect to Home
                 final String homePath = site.makeRootPath("home.htm");
                 resp.sendRedirect(homePath);
             } else {
-                presentSyllabus(cache, site, req, resp, session, registration, metaCourse);
+                presentSyllabus(cache, site, req, resp, session, registration, course);
             }
         }
     }
@@ -69,30 +70,20 @@ public enum PageSyllabus {
      * @param resp         the response
      * @param session      the login session
      * @param registration the student's registration record
-     * @param metaCourse   the metadata object with course structure data
+     * @param course       the course object
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
     static void presentSyllabus(final Cache cache, final CanvasSite site, final ServletRequest req,
                                 final HttpServletResponse resp, final ImmutableSessionInfo session,
-                                final RawStcourse registration, final MetadataCourse metaCourse)
+                                final RawStcourse registration, final StandardsCourseRec course)
             throws IOException, SQLException {
 
-        RawCsection csection = null;
+        final TermData termData = cache.getTermData();
+        final StandardsCourseSectionRec section = termData.getStandardsCourseSection(registration.course,
+                registration.sect);
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
-        if (active != null) {
-            final List<RawCsection> csections = RawCsectionLogic.queryByTerm(cache, active.term);
-
-            for (final RawCsection test : csections) {
-                if (registration.course.equals(test.course) && registration.sect.equals(test.sect)) {
-                    csection = test;
-                    break;
-                }
-            }
-        }
-
-        if (csection == null) {
+        if (section == null) {
             final String homePath = site.makeRootPath("home.html");
             resp.sendRedirect(homePath);
         } else {
@@ -101,27 +92,30 @@ public enum PageSyllabus {
 
             CanvasPageUtils.startPage(htm, siteTitle);
 
+            final SystemData systemData = cache.getSystemData();
+            final TermRec active = systemData.getActiveTerm();
+
             // Emit the course number and section at the top
-            CanvasPageUtils.emitCourseTitleAndSection(htm, metaCourse, csection);
+            CanvasPageUtils.emitCourseTitleAndSection(htm, course, section);
 
             htm.sDiv("pagecontainer");
 
-            CanvasPageUtils.emitLeftSideMenu(htm, metaCourse, null, ECanvasPanel.SYLLABUS);
+            CanvasPageUtils.emitLeftSideMenu(htm, course, null, ECanvasPanel.SYLLABUS);
 
             htm.sDiv("flexmain");
 
-            emitCommonSyllabusHeader(htm, active, csection);
+            emitCommonSyllabusHeader(htm, active, section);
 
-            if ("Y".equals(csection.online)) {
-                final String sect = csection.sect;
+            if ("Y".equals(section.online)) {
+                final String sect = section.sect;
 
                 if (sect.startsWith("8") || sect.startsWith("4")) {
-                    emitCEOnlineSyllabus(htm, active, csection);
+                    emitCEOnlineSyllabus(htm, active, section);
                 } else {
-                    emitRIOnlineSyllabus(htm, active, csection);
+                    emitRIOnlineSyllabus(htm, active, section);
                 }
             } else {
-                emitFaceToFaceSyllabus(htm, active, csection);
+                emitFaceToFaceSyllabus(htm, active, section);
             }
 
             emitCommonSyllabusTrailer(htm);
@@ -138,7 +132,7 @@ public enum PageSyllabus {
      * @param htm the {@code HtmlBuilder} to which to append
      */
     private static void emitCommonSyllabusHeader(final HtmlBuilder htm, final TermRec active,
-                                                 final RawCsection csection) {
+                                                 final StandardsCourseSectionRec section) {
 
         htm.sH(2).add("Syllabus - ", active.term.longString).eH(2);
         htm.hr();
@@ -201,7 +195,8 @@ public enum PageSyllabus {
         htm.eDiv(); // indent
     }
 
-    private static void emitCEOnlineSyllabus(final HtmlBuilder htm, final TermRec active, final RawCsection csection) {
+    private static void emitCEOnlineSyllabus(final HtmlBuilder htm, final TermRec active,
+                                             final StandardsCourseSectionRec section) {
 
         htm.sH(3).add("Class Meetings and Delivery Mode").eH(3);
 
@@ -228,7 +223,8 @@ public enum PageSyllabus {
         htm.eDiv(); // indent
     }
 
-    private static void emitRIOnlineSyllabus(final HtmlBuilder htm, final TermRec active, final RawCsection csection) {
+    private static void emitRIOnlineSyllabus(final HtmlBuilder htm, final TermRec active,
+                                             final StandardsCourseSectionRec section) {
 
         htm.sH(3).add("Class Meetings and Delivery Mode").eH(3);
 
@@ -256,7 +252,7 @@ public enum PageSyllabus {
     }
 
     private static void emitFaceToFaceSyllabus(final HtmlBuilder htm, final TermRec active,
-                                               final RawCsection csection) {
+                                               final StandardsCourseSectionRec section) {
 
         htm.sH(3).add("Class Meetings and Delivery Mode").eH(3);
 

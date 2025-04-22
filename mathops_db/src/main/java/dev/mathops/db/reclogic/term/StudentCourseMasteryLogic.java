@@ -306,11 +306,11 @@ public final class StudentCourseMasteryLogic implements IRecLogic<StudentCourseM
                     ok = false;
                     break;
                 }
-                if (metaCourse.modules.size() < moduleNbr) {
-                    Log.warning("There was no MetadataCourseModule for ", courseId, " module ", moduleNbr);
-                    ok = false;
-                    break;
-                }
+//                if (metaCourse.modules.size() < moduleNbr) {
+//                    Log.warning("There was no MetadataCourseModule for ", courseId, " module ", moduleNbr);
+//                    ok = false;
+//                    break;
+//                }
 
                 final int nbrStandards = courseModule.nbrStandards.intValue();
 

@@ -17,7 +17,6 @@ import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.UserInfoBar;
-import dev.mathops.web.site.canvas.courses.Metadata;
 import dev.mathops.web.site.canvas.courses.PageAccount;
 import dev.mathops.web.site.canvas.courses.PageAnnouncements;
 import dev.mathops.web.site.canvas.courses.PageAssignments;
@@ -280,7 +279,7 @@ public final class CanvasSite extends AbstractSite {
             serveImage(FAVICON_ICO, req, resp);
         } else {
             switch (subpath) {
-                case ACCOUNT_PAGE -> PageAccount.doGet(cache, this, courseId, req, resp, session, this.metadata);
+                case ACCOUNT_PAGE -> PageAccount.doGet(cache, this, courseId, req, resp, session);
                 case COURSE_HOME_PAGE -> PageCourse.doGet(cache, this, courseId, req, resp, session, this.metadata);
                 case SYLLABUS_PAGE -> PageSyllabus.doGet(cache, this, courseId, req, resp, session, this.metadata);
                 case ANNOUNCEMENTS_PAGE -> PageAnnouncements.doGet(cache, this, courseId, req, resp, session,

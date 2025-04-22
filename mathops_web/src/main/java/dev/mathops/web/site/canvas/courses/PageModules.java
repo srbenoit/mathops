@@ -3,13 +3,15 @@ package dev.mathops.web.site.canvas.courses;
 import dev.mathops.commons.installation.EPath;
 import dev.mathops.commons.installation.PathList;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
-import dev.mathops.db.old.rawrecord.RawCsection;
+import dev.mathops.db.logic.MainData;
+import dev.mathops.db.logic.TermData;
 import dev.mathops.db.old.rawrecord.RawStcourse;
-import dev.mathops.db.rec.TermRec;
-import dev.mathops.db.reclogic.TermLogic;
+import dev.mathops.db.rec.main.StandardsCourseModuleRec;
+import dev.mathops.db.rec.main.StandardsCourseRec;
+import dev.mathops.db.rec.term.StandardsCourseSectionRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.json.JSONObject;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.canvas.CanvasPageUtils;
 import dev.mathops.web.site.canvas.CanvasSite;
@@ -42,13 +44,12 @@ public enum PageModules {
      * @param req      the request
      * @param resp     the response
      * @param session  the user's login session information
-     * @param metadata the metadata object with course structure data
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
     public static void doGet(final Cache cache, final CanvasSite site, final String courseId, final ServletRequest req,
-                             final HttpServletResponse resp, final ImmutableSessionInfo session,
-                             final Metadata metadata) throws IOException, SQLException {
+                             final HttpServletResponse resp, final ImmutableSessionInfo session) throws IOException,
+            SQLException {
 
         final String stuId = session.getEffectiveUserId();
         final RawStcourse registration = CanvasPageUtils.confirmRegistration(cache, stuId, courseId);
@@ -57,13 +58,14 @@ public enum PageModules {
             final String homePath = site.makeRootPath("home.html");
             resp.sendRedirect(homePath);
         } else {
-            final MetadataCourse metaCourse = metadata.getCourse(registration.course);
-            if (metaCourse == null) {
+            final MainData mainData = cache.getMainData();
+            final StandardsCourseRec course = mainData.getStandardsCourse(registration.course);
+            if (course == null) {
                 // TODO: Error display, course not part of this system rather than a redirect to Home
                 final String homePath = site.makeRootPath("home.htm");
                 resp.sendRedirect(homePath);
             } else {
-                presentModulesPage(cache, site, req, resp, session, registration, metaCourse);
+                presentModulesPage(cache, site, req, resp, session, registration, course);
             }
         }
     }
@@ -77,27 +79,20 @@ public enum PageModules {
      * @param resp         the response
      * @param session      the login session
      * @param registration the student's registration record
-     * @param metaCourse   the metadata object with course structure data
+     * @param course       the course object
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
     static void presentModulesPage(final Cache cache, final CanvasSite site, final ServletRequest req,
                                    final HttpServletResponse resp, final ImmutableSessionInfo session,
-                                   final RawStcourse registration, final MetadataCourse metaCourse)
+                                   final RawStcourse registration, final StandardsCourseRec course)
             throws IOException, SQLException {
 
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
-        final List<RawCsection> csections = RawCsectionLogic.queryByTerm(cache, active.term);
+        final TermData termData = cache.getTermData();
+        final StandardsCourseSectionRec section = termData.getStandardsCourseSection(registration.course,
+                registration.sect);
 
-        RawCsection csection = null;
-        for (final RawCsection test : csections) {
-            if (registration.course.equals(test.course) && registration.sect.equals(test.sect)) {
-                csection = test;
-                break;
-            }
-        }
-
-        if (csection == null) {
+        if (section == null) {
             final String homePath = site.makeRootPath("home.html");
             resp.sendRedirect(homePath);
         } else {
@@ -107,18 +102,18 @@ public enum PageModules {
             CanvasPageUtils.startPage(htm, siteTitle);
 
             // Emit the course number and section at the top
-            CanvasPageUtils.emitCourseTitleAndSection(htm, metaCourse, csection);
+            CanvasPageUtils.emitCourseTitleAndSection(htm, course, section);
 
             htm.sDiv("pagecontainer");
 
-            CanvasPageUtils.emitLeftSideMenu(htm, metaCourse, null, ECanvasPanel.MODULES);
+            CanvasPageUtils.emitLeftSideMenu(htm, course, null, ECanvasPanel.MODULES);
 
             htm.sDiv("flexmain");
 
             htm.sH(2).add("Modules").eH(2);
             htm.hr();
 
-            emitCourseModules(htm, registration, metaCourse);
+            emitCourseModules(cache, htm, registration, course);
 
             htm.eDiv(); // flexmain
             htm.eDiv(); // pagecontainer
@@ -132,12 +127,14 @@ public enum PageModules {
     /**
      * Emits all course modules, including an introductory module.
      *
+     * @param cache        the data cache
      * @param htm          the {@code HtmlBuilder} to which to append
      * @param registration the student's registration record
-     * @param metaCourse   the metadata object with course structure data
+     * @param course       the course object
+     * @throws SQLException if there is an error accessing the database
      */
-    private static void emitCourseModules(final HtmlBuilder htm, final RawStcourse registration,
-                                          final MetadataCourse metaCourse) {
+    private static void emitCourseModules(final Cache cache, final HtmlBuilder htm, final RawStcourse registration,
+                                          final StandardsCourseRec course) throws SQLException {
 
         emitIntroModule(htm);
 
@@ -145,10 +142,19 @@ public enum PageModules {
         final File publicPath = wwwPath.getParentFile();
         final File mediaPath = new File(publicPath, "media");
 
-        for (final MetadataCourseModule metaCourseTopic : metaCourse.modules) {
-            final MetadataTopic meta = metaCourseTopic.topicMetadata;
-            if (meta.isValid()) {
-                emitTopicModule(htm, metaCourseTopic, meta, mediaPath);
+        final MainData mainData = cache.getMainData();
+        final List<StandardsCourseModuleRec> modules = mainData.getStandardsCourseModules(course.courseId);
+
+        for (final StandardsCourseModuleRec module : modules) {
+
+            final File moduleDir = new File(mediaPath, module.modulePath);
+            final JSONObject moduleMetaJson = CanvasPageUtils.loadMetadata(moduleDir);
+            if (moduleMetaJson != null) {
+                final MetadataCourseModule meta = new MetadataCourseModule(moduleMetaJson, mediaPath);
+
+                if (meta.isValid()) {
+                    emitTopicModule(htm, module, meta, mediaPath);
+                }
             }
         }
     }
@@ -177,16 +183,15 @@ public enum PageModules {
     /**
      * Emits a single topic module.
      *
-     * @param htm             the {@code HtmlBuilder} to which to append
-     * @param metaCourseTopic the metadata describing the topic within the course
-     * @param meta            the topic module metadata object
-     * @param metaCourseTopic metadata related to the course topic
-     * @param topicDir        the root directory in which to find topic media files
+     * @param htm      the {@code HtmlBuilder} to which to append
+     * @param module   the metadata describing the topic within the course
+     * @param meta     the topic module metadata object
+     * @param topicDir the root directory in which to find topic media files
      */
-    private static void emitTopicModule(final HtmlBuilder htm, final MetadataCourseModule metaCourseTopic,
+    private static void emitTopicModule(final HtmlBuilder htm, final StandardsCourseModuleRec module,
                                         final MetadataTopic meta, final File topicDir) {
 
-        startModule(htm, metaCourseTopic.heading, meta.title);
+        startModule(htm, meta.heading, meta.title);
 
         // The top-level Topic Module object in the web page has three items:
         // - E-Text Chapter: [title]
@@ -194,17 +199,17 @@ public enum PageModules {
         // - Learning Target Exams (with completion status)
 
         // The topic module with ID "M01" lives at "M01/module.html"
-        final String modulePath = metaCourseTopic.id + "/module.html";
+        final String modulePath = module.id + "/module.html";
 
         if (meta.thumbnailFile == null) {
             emitChapterItem(htm, null, null, modulePath, meta.title);
         } else {
-            final String imageUrl = "/media/" + metaCourseTopic.directory + "/" + meta.thumbnailFile;
+            final String imageUrl = "/media/" + module.directory + "/" + meta.thumbnailFile;
             emitChapterItem(htm, imageUrl, meta.thumbnailAltText, modulePath, meta.title);
         }
 
         // Required assignments, with status
-        final String assignmentsPath = metaCourseTopic.id + "/assignments.html";
+        final String assignmentsPath = module.id + "/assignments.html";
         emitChecklistModuleItem(htm, "/www/images/etext/required_assignment_thumb.png", "A student doing homework.",
                 assignmentsPath, "Module Homework Assignments",
                 new ModuleItemChecklistEntry("Assignment 1", false),
@@ -212,7 +217,7 @@ public enum PageModules {
                 new ModuleItemChecklistEntry("Assignment 3", false));
 
         // Learning Target Exams, with status
-        final String examsPath = metaCourseTopic.id + "/targets.html";
+        final String examsPath = module.id + "/targets.html";
         emitChecklistModuleItem(htm, "/www/images/etext/target_thumb.png", "A dartboard with several magnetic darts",
                 examsPath, "Module Learning Targets",
                 new ModuleItemChecklistEntry("Learning Target 1", false),
