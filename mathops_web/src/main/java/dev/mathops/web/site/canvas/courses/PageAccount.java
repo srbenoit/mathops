@@ -1,5 +1,6 @@
 package dev.mathops.web.site.canvas.courses;
 
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.MainData;
 import dev.mathops.db.logic.TermData;
@@ -50,6 +51,7 @@ public enum PageAccount {
             final MainData mainData = cache.getMainData();
             final StandardsCourseRec course = mainData.getStandardsCourse(registration.course);
             if (course == null) {
+                Log.warning("No course record for ", courseId);
                 // TODO: Error display, course not part of this system rather than a redirect to Home
                 final String homePath = site.makeRootPath("home.htm");
                 resp.sendRedirect(homePath);
