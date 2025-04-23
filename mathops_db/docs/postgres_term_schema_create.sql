@@ -213,9 +213,9 @@ CREATE TABLE IF NOT EXISTS term_202510.standards_course_section (
     subterm                   char(5)         NOT NULL,  -- The subterm ('FULL', 'HALF1', 'HALF2', 'NN:MM' for weeks
                                                          --     NN through MM)
     grading_system_id         char(6)         NOT NULL,  -- The grading system to use for the section
-    campus                    char(2),                   -- The campus code ('FC'=Fort Collins, 'SP'=Spur,
+    campus                    char(2)         NOT NULL,  -- The campus code ('FC'=Fort Collins, 'SP'=Spur,
                                                          --     'CE'=Continuing Ed.)
-    mode                      char(2),                   -- The delivery mode ('RF'=Resident Face-to-Face,
+    delivery_mode             char(2)         NOT NULL,  -- The delivery mode ('RF'=Resident Face-to-Face,
                                                          --     'RH'=Resident Hybrid, 'RO'=Resident Online,
                                                          --     'DO'=Distance Online)
     canvas_id                 varchar(40),               -- The ID of the associated Canvas course
@@ -239,7 +239,8 @@ CREATE TABLE IF NOT EXISTS term_202560.standards_course_section (
     last_class_date           date            NOT NULL,
     subterm                   char(5)         NOT NULL,
     grading_system_id         char(6)         NOT NULL,
-    campus                    char(2),
+    campus                    char(2)         NOT NULL,
+    delivery_mode             char(2)         NOT NULL,
     canvas_id                 varchar(40),
     instructor                varchar(30),
     building_name             varchar(40),
@@ -260,7 +261,8 @@ CREATE TABLE IF NOT EXISTS term_202590.standards_course_section (
     last_class_date           date            NOT NULL,
     subterm                   char(5)         NOT NULL,
     grading_system_id         char(6)         NOT NULL,
-    campus                    char(2),
+    campus                    char(2)         NOT NULL,
+    delivery_mode             char(2)         NOT NULL,
     canvas_id                 varchar(40),
     instructor                varchar(30),
     building_name             varchar(40),
@@ -281,7 +283,8 @@ CREATE TABLE IF NOT EXISTS term_dev.standards_course_section (
     last_class_date           date            NOT NULL,
     subterm                   char(5)         NOT NULL,
     grading_system_id         char(6)         NOT NULL,
-    campus                    char(2),
+    campus                    char(2)         NOT NULL,
+    delivery_mode             char(2)         NOT NULL,
     canvas_id                 varchar(40),
     instructor                varchar(30),
     building_name             varchar(40),
@@ -302,7 +305,8 @@ CREATE TABLE IF NOT EXISTS term_test.standards_course_section (
     last_class_date           date            NOT NULL,
     subterm                   char(5)         NOT NULL,
     grading_system_id         char(6)         NOT NULL,
-    campus                    char(2),
+    campus                    char(2)         NOT NULL,
+    delivery_mode             char(2)         NOT NULL,
     canvas_id                 varchar(40),
     instructor                varchar(30),
     building_name             varchar(40),

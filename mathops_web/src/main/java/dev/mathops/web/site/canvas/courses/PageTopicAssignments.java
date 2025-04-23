@@ -8,6 +8,7 @@ import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.rec.AssignmentRec;
+import dev.mathops.db.rec.main.StandardAssignmentRec;
 import dev.mathops.db.rec.main.StandardsCourseModuleRec;
 import dev.mathops.db.rec.main.StandardsCourseRec;
 import dev.mathops.db.rec.term.StandardsCourseSectionRec;
@@ -160,16 +161,13 @@ public enum PageTopicAssignments {
         htm.div("vgap");
 
         try {
-            final Integer unit = Integer.parseInt(metaCourseModule.id.substring(1));
-
-            final List<AssignmentRec> assignments = AssignmentLogic.get(cache).queryActiveByCourse(cache,
-                    registration.course, "ST");
-
+            final List<StandardAssignmentRec> assignments = cache.getMainData().getStandardAssignments(
+                    registration.course);
             final List<RawSthomework> sthw = RawSthomeworkLogic.getHomeworks(cache, registration.stuId,
                     registration.course, false, "ST");
 
-            for (final AssignmentRec assignment : assignments) {
-                if (unit.equals(assignment.unit) && assignment.objective.intValue() > 0) {
+            for (final StandardAssignmentRec assignment : assignments) {
+                if (module.moduleNbr.equals(assignment.moduleNbr)) {
                     presentAssignment(htm, assignment, sthw);
                 }
             }
@@ -194,7 +192,7 @@ public enum PageTopicAssignments {
      * @param assignment the assignment
      * @param sthw       the set of all submitted student assignments in this course
      */
-    private static void presentAssignment(final HtmlBuilder htm, final AssignmentRec assignment,
+    private static void presentAssignment(final HtmlBuilder htm, final StandardAssignmentRec assignment,
                                           final List<RawSthomework> sthw) {
 
         htm.hr();

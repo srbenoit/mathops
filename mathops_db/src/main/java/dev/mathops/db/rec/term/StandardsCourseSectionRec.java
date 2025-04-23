@@ -51,6 +51,9 @@ public final class StandardsCourseSectionRec extends RecBase implements Comparab
     /** The 'campus' field value. */
     public final String campus;
 
+    /** The 'delivery_mode' field value. */
+    public final String deliveryMode;
+
     /** The 'canvas_id' field value. */
     public final String canvasId;
 
@@ -79,6 +82,8 @@ public final class StandardsCourseSectionRec extends RecBase implements Comparab
      * @param theSubterm         the subterm in which the section runs ('FULL', 'HALF1', 'HALF2', or 'NN:MM' for weeks)
      * @param theGradingSystemId the grading system ID
      * @param theCampus          the campus identifier
+     * @param theDeliveryMode    the delivery mode ('RF'=Resident Face-to-Face, 'RH'=Resident Hybrid, 'RO'=Resident
+     *                           Online, 'DO'=Distance Online)
      * @param theCanvasId        the ID of the section in the Canvas LMS
      * @param theInstructor      for instructor name
      * @param theBuildingName    the name of the building where classes meet
@@ -89,8 +94,8 @@ public final class StandardsCourseSectionRec extends RecBase implements Comparab
                                      final LocalDate theAriesStartDate, final LocalDate theAriesEndDate,
                                      final LocalDate theFirstClassDate, final LocalDate theLastClassDate,
                                      final String theSubterm, final String theGradingSystemId, final String theCampus,
-                                     final String theCanvasId, final String theInstructor, final String theBuildingName,
-                                     final String theRoomNbr, final Integer theWeekdays) {
+                                     final String theDeliveryMode, final String theCanvasId, final String theInstructor,
+                                     final String theBuildingName, final String theRoomNbr, final Integer theWeekdays) {
 
         super();
 
@@ -121,6 +126,12 @@ public final class StandardsCourseSectionRec extends RecBase implements Comparab
         if (theGradingSystemId == null) {
             throw new IllegalArgumentException("Grading system ID may not be null");
         }
+        if (theCampus == null) {
+            throw new IllegalArgumentException("Campus may not be null");
+        }
+        if (theDeliveryMode == null) {
+            throw new IllegalArgumentException("Mode may not be null");
+        }
 
         this.courseId = theCourseId;
         this.sectionNbr = theSectionNbr;
@@ -132,6 +143,7 @@ public final class StandardsCourseSectionRec extends RecBase implements Comparab
         this.subterm = theSubterm;
         this.gradingSystemId = theGradingSystemId;
         this.campus = theCampus;
+        this.deliveryMode = theDeliveryMode;
         this.canvasId = theCanvasId;
         this.instructor = theInstructor;
         this.buildingName = theBuildingName;
@@ -189,6 +201,8 @@ public final class StandardsCourseSectionRec extends RecBase implements Comparab
         htm.add(DIVIDER);
         appendField(htm, DataDict.FLD_CAMPUS, this.campus);
         htm.add(DIVIDER);
+        appendField(htm, DataDict.FLD_DELIVERY_MODE, this.deliveryMode);
+        htm.add(DIVIDER);
         appendField(htm, DataDict.FLD_CANVAS_ID, this.canvasId);
         htm.add(DIVIDER);
         appendField(htm, DataDict.FLD_INSTRUCTOR, this.instructor);
@@ -219,7 +233,8 @@ public final class StandardsCourseSectionRec extends RecBase implements Comparab
                + this.lastClassDate.hashCode()
                + this.subterm.hashCode()
                + this.gradingSystemId.hashCode()
-               + Objects.hashCode(this.campus)
+               + this.campus.hashCode()
+               + this.deliveryMode.hashCode()
                + Objects.hashCode(this.canvasId)
                + Objects.hashCode(this.instructor)
                + Objects.hashCode(this.buildingName)
@@ -250,7 +265,8 @@ public final class StandardsCourseSectionRec extends RecBase implements Comparab
                     && this.lastClassDate.equals(rec.lastClassDate)
                     && this.subterm.equals(rec.subterm)
                     && this.gradingSystemId.equals(rec.gradingSystemId)
-                    && Objects.equals(this.campus, rec.campus)
+                    && this.campus.equals(rec.campus)
+                    && this.deliveryMode.equals(rec.deliveryMode)
                     && Objects.equals(this.canvasId, rec.canvasId)
                     && Objects.equals(this.instructor, rec.instructor)
                     && Objects.equals(this.buildingName, rec.buildingName)

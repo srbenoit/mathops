@@ -87,6 +87,9 @@ public enum DataDict {
     public static final String FLD_D_MIN_SCORE = "d_min_score";
 
     /** A field name for serialization of records. */
+    public static final String FLD_DELIVERY_MODE= "delivery_mode";
+
+    /** A field name for serialization of records. */
     public static final String FLD_DISPLAY_INDEX = "display_index";
 
     //

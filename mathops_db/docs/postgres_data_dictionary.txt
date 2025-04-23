@@ -71,6 +71,9 @@ crn                 CHAR(6)         -- A section CRN number (not visible)
 
 d_min_score         SMALLINT        -- The minimum score needed to earn a D grade
 
+delivery_mode       CHAR(2)         -- A delivery mode for a class section ('RF'=Resident Face-to-Face, 'RH'=Resident
+                                    --      Hybrid, 'RO'=Resident Online, 'DO'=Distance Online)
+
 display_index       SMALLINT        -- A display index to control the order in which items are displayed (lowest first)
 
 drop_deadline       DATE            -- The last data a student can drop

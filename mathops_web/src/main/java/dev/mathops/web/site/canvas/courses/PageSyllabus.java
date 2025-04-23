@@ -106,14 +106,11 @@ public enum PageSyllabus {
 
             emitCommonSyllabusHeader(htm, active, section);
 
-            if ("Y".equals(section.online)) {
-                final String sect = section.sect;
-
-                if (sect.startsWith("8") || sect.startsWith("4")) {
-                    emitCEOnlineSyllabus(htm, active, section);
-                } else {
-                    emitRIOnlineSyllabus(htm, active, section);
-                }
+            if ("RF".equals(section.deliveryMode) || "RH".equals(section.deliveryMode)) {
+            } else if ("RO".equals(section.deliveryMode)) {
+                emitRIOnlineSyllabus(htm, active, section);
+            } else if ("DO".equals(section.deliveryMode)) {
+                emitCEOnlineSyllabus(htm, active, section);
             } else {
                 emitFaceToFaceSyllabus(htm, active, section);
             }
@@ -138,8 +135,8 @@ public enum PageSyllabus {
         htm.hr();
 
         htm.sTable("grades indent");
-        if (csection.instructor != null) {
-            htm.sTr().sTh().add("Instructor: ").eTh().sTd().add(csection.instructor).eTd().eTr();
+        if (section.instructor != null) {
+            htm.sTr().sTh().add("Instructor: ").eTh().sTd().add(section.instructor).eTd().eTr();
         }
         htm.sTr().sTh().add("Office: ").eTh().sTd().add("Precalculus Center (Weber 137)").eTd().eTr();
         htm.sTr().sTh().add("Email: ").eTh().sTd().add("precalc_math@colostate.edu").eTd().eTr();
@@ -153,7 +150,7 @@ public enum PageSyllabus {
         // TODO: Make this data-driven
 
         htm.sDiv("indent");
-        if ("MATH 125".equals(csection.course)) {
+        if ("MATH 125".equals(section.courseId)) {
             htm.sP().add("""
                     This course develops foundational Trigonometry beginning with angles and their relationships
                     and units of measure, then examining triangles geometrically, then focusing on right triangles and
@@ -162,7 +159,7 @@ public enum PageSyllabus {
                     models and explore applications.   We develop the right triangle side-angle relationships, introduce
                     inverse trigonometric functions, and develop the laws of sines and cosines, and finish the course
                     with an emphasis on solving application problems with these tools.""").eP();
-        } else if ("MATH 126".equals(csection.course)) {
+        } else if ("MATH 126".equals(section.courseId)) {
             htm.sP().add("""
                     This course develops analytic Trigonometry, starting with a survey of trigonometric identities
                     that will be useful in later Math courses and in applications.  We explore solutions to

@@ -260,27 +260,28 @@ public final class CanvasSite extends AbstractSite {
                 case NAVIGATING_PAGE -> PageNavigating.doGet(cache, this, courseId, req, resp, session);
 
                 default -> {
-                    final String moduleId = getModuleId(subpath);
+                    final Integer moduleNbr = getModuleNbr(subpath);
 
-                    if (moduleId == null) {
+                    if (moduleNbr == null) {
                         Log.warning("Unrecognized GET request path: ", subpath);
                         final String selectedCourse = req.getParameter(COURSE_PARAM);
                         final String homePath = selectedCourse == null ? makeRootPath(ROOT_PAGE)
                                 : makeCoursePath(COURSE_HOME_PAGE, selectedCourse);
                         resp.sendRedirect(homePath);
                     } else {
-                        final String modulePath = subpath.substring(moduleId.length() + 1);
+                        final int slash = subpath.indexOf('/');
+                        final String modulePath = subpath.substring(slash + 1);
 
                         Log.info("Module subpath is ", modulePath);
 
                         if ("module.html".equals(modulePath)) {
-                            PageTopicModule.doGet(cache, this, courseId, moduleId, req, resp, session);
+                            PageTopicModule.doGet(cache, this, courseId, moduleNbr, req, resp, session);
                         } else if ("review.html".equals(modulePath)) {
-                            PageTopicSkillsReview.doGet(cache, this, courseId, moduleId, req, resp, session);
+                            PageTopicSkillsReview.doGet(cache, this, courseId, moduleNbr, req, resp, session);
                         } else if ("assignments.html".equals(modulePath)) {
-                            PageTopicAssignments.doGet(cache, this, courseId, moduleId, req, resp, session);
+                            PageTopicAssignments.doGet(cache, this, courseId, moduleNbr, req, resp, session);
                         } else if ("targets.html".equals(modulePath)) {
-                            PageTopicTargets.doGet(cache, this, courseId, moduleId, req, resp, session);
+                            PageTopicTargets.doGet(cache, this, courseId, moduleNbr, req, resp, session);
                         } else {
                             Log.warning("Unrecognized GET request path: ", subpath);
                             final String selectedCourse = req.getParameter(COURSE_PARAM);
@@ -335,16 +336,21 @@ public final class CanvasSite extends AbstractSite {
     /**
      * Tests whether the page starts with a module number designator like "M5/"
      *
-     * @return the topic module ID if so; null if not.
+     * @return the module number if so; null if not.
      */
-    private static String getModuleId(final String subpath) {
+    private static Integer getModuleNbr(final String subpath) {
 
-        String result = null;
+        Integer result = null;
 
         if (subpath.startsWith("M")) {
             final int slash = subpath.indexOf('/');
             if (slash > 1) {
-                result = subpath.substring(0, slash);
+                final String str = subpath.substring(0, slash);
+                try {
+                    result = Integer.parseInt(str);
+                } catch (final NumberFormatException ex) {
+                    // No action
+                }
             }
         }
 
