@@ -230,7 +230,8 @@ ALTER TABLE IF EXISTS main_test.facility_closure OWNER to math;
 -- ------------------------------------------------------------------------------------------------
 -- TABLE: standards_course
 --
---   Each record defines a standards-based course.
+--   Each record defines a standards-based course.  Records are created when a course is "installed"
+--   from a file structure.
 --
 --   USAGE: One record per course.
 --   EST. RECORDS: 5
@@ -280,7 +281,8 @@ ALTER TABLE IF EXISTS main_test.standards_course OWNER to math;
 -- ------------------------------------------------------------------------------------------------
 -- TABLE: standards_course_module
 --
---   Each record defines a single module in a standards-based course.
+--   Each record defines a single module in a standards-based course.  Records are created when a
+--   course is "installed" from a file structure.
 --
 --   USAGE: One record per module, 8 per course.
 --   EST. RECORDS: 40
@@ -294,8 +296,8 @@ CREATE TABLE IF NOT EXISTS main.standards_course_module (
     course_id                char(10)        NOT NULL,  -- The course ID (references standards_course)
     module_nbr               smallint        NOT NULL,  -- The module number (1 for the first module)
     nbr_standards            smallint        NOT NULL,  -- The number of standards in the module
-    module_path              varchar(50),               -- For metadata-based courses, the relative path of the module,
-                                                        --     like "05_trig/01_angles"
+    nbr_essential            smallint        NOT NULL,  -- The number of "essential" standards in the module
+    module_path              text,                      -- The relative path of the module like "05_trig/01_angles"
     PRIMARY KEY (course_id, module_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main.standards_course_module OWNER to math;
@@ -305,9 +307,10 @@ CREATE TABLE IF NOT EXISTS main_dev.standards_course_module (
     course_id                char(10)        NOT NULL,
     module_nbr               smallint        NOT NULL,
     nbr_standards            smallint        NOT NULL,
-    module_path              varchar(50),
+    nbr_essential            smallint        NOT NULL,
+    module_path              text,
     PRIMARY KEY (course_id, module_nbr)
-) TABLESPACE primary_ts;D
+) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main_dev.standards_course_module OWNER to math;
 
 -- DROP TABLE IF EXISTS main_test.standards_course_module;
@@ -315,10 +318,57 @@ CREATE TABLE IF NOT EXISTS main_test.standards_course_module (
     course_id                char(10)        NOT NULL,
     module_nbr               smallint        NOT NULL,
     nbr_standards            smallint        NOT NULL,
-    module_path              varchar(50),
+    nbr_essential            smallint        NOT NULL,
+    module_path              text,
     PRIMARY KEY (course_id, module_nbr)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main_test.standards_course_module OWNER to math;
+
+-- ------------------------------------------------------------------------------------------------
+-- TABLE: standards_course_standard
+--
+--   Each record defines a single standard within a module in a standards-based course.  Records
+--   are created when a course is "installed" from a file structure.
+--
+--   USAGE: One record per standard, 24 per course.
+--   EST. RECORDS: 120
+--   RETENTION: Stored in MAIN schema, retained.
+--   EST. RECORD SIZE: 40 bytes
+--   EST. TOTAL SPACE: 5 KB
+-- ------------------------------------------------------------------------------------------------
+
+-- DROP TABLE IF EXISTS main.standards_course_standard;
+CREATE TABLE IF NOT EXISTS main.standards_course_standard (
+    course_id                char(10)        NOT NULL,  -- The course ID (references standards_course)
+    module_nbr               smallint        NOT NULL,  -- The module number (1 for the first module)
+    standard_nbr             smallint        NOT NULL,  -- The standard number (1 for the first standard in the module)
+    learning_objective       text            NOT NULL,  -- The learning objective, in "I can ..." form.
+    is_essential             char(1)         NOT NULL,  -- "Y" if essential , "N" if not
+    PRIMARY KEY (course_id, module_nbr, standard_nbr)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main.standards_course_standard OWNER to math;
+
+-- DROP TABLE IF EXISTS main_dev.standards_course_standard;
+CREATE TABLE IF NOT EXISTS main_dev.standards_course_standard (
+    course_id                char(10)        NOT NULL,
+    module_nbr               smallint        NOT NULL,
+    standard_nbr             smallint        NOT NULL,
+    learning_objective       text            NOT NULL,
+    is_essential             char(1)         NOT NULL,
+    PRIMARY KEY (course_id, module_nbr, standard_nbr)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main_dev.standards_course_standard OWNER to math;
+
+-- DROP TABLE IF EXISTS main_test.standards_course_standard;
+CREATE TABLE IF NOT EXISTS main_test.standards_course_standard (
+    course_id                char(10)        NOT NULL,
+    module_nbr               smallint        NOT NULL,
+    standard_nbr             smallint        NOT NULL,
+    learning_objective       text            NOT NULL,
+    is_essential             char(1)         NOT NULL,
+    PRIMARY KEY (course_id, module_nbr, standard_nbr)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main_test.standards_course_standard OWNER to math;
 
 -- ------------------------------------------------------------------------------------------------
 -- TABLE: standard_assignment

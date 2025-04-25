@@ -126,6 +126,8 @@ last_class_date     DATE            -- The first date a course is available to s
 
 late_mastery_pts    SMALLINT        -- The points awarded for mastering a standard late
 
+learning_objective  TEXT            -- A learning objective, in the form "I can ..."
+
 mastery_score       SMALLINT        -- The score required to demonstrate mastery
 
 module_nbr          SMALLINT        -- A module number (1 for the first module in a course)
@@ -133,6 +135,8 @@ module_nbr          SMALLINT        -- A module number (1 for the first module i
 nbr_credits         SMALLINT        -- The number of credits a course carries
 
 nbr_eligible        SMALLINT        -- The number of standards that are available but not mastered
+
+nbr_essential       SMALLINT        -- The number of "essential" standards in a module
 
 nbr_modules         SMALLINT        -- The number of modules in a course
 

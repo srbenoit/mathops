@@ -127,6 +127,8 @@ INSERT INTO main_dev.facility_closure (facility_id, start_date, end_date, closur
 
 -- ------------------------------------------------------------------------------------------------
 -- TABLE: standards_course
+-- NOTE: These records SHOULD be created through the process of "installing" a course from a file
+--       structure.
 -- ------------------------------------------------------------------------------------------------
 
 INSERT INTO main.standards_course (course_id, course_title, nbr_modules, nbr_credits, allow_lend, metadata_path)
@@ -153,177 +155,436 @@ INSERT INTO main_dev.standards_course (course_id, course_title, nbr_modules, nbr
 
 -- ------------------------------------------------------------------------------------------------
 -- TABLE: standards_course_module
+-- NOTE: These records SHOULD be created through the process of "installing" a course from a file
+--       structure.
 -- ------------------------------------------------------------------------------------------------
 
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 117', 1, 3, '03_alg/01_quantities');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 117', 2, 3, '03_alg/02_relations_graphs');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 117', 3, 3, '03_alg/03_functions');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 117', 4, 3, '03_alg/04_linear_fxns');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 117', 5, 3, '03_alg/05_quadratic_fxns');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 117', 6, 3, '03_alg/06_inverse_fxns');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 117', 7, 3, '03_alg/07_rate_of_change');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 117', 8, 3, '03_alg/08_apps_linear_quadratic');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 117', 1, 3, 0, '03_alg/01_quantities');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 117', 2, 3, 0, '03_alg/02_relations_graphs');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 117', 3, 3, 0, '03_alg/03_functions');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 117', 4, 3, 0, '03_alg/04_linear_fxns');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 117', 5, 3, 0, '03_alg/05_quadratic_fxns');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 117', 6, 3, 0, '03_alg/06_inverse_fxns');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 117', 7, 3, 0, '03_alg/07_rate_of_change');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 117', 8, 3, 0, '03_alg/08_apps_linear_quadratic');
 
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 118', 1, 3, '03_alg/09_quantities');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 118', 2, 3, '03_alg/10_polynomial');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 118', 3, 3, '03_alg/11_rational_expr');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 118', 4, 3, '03_alg/12_rational_fxns');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 118', 5, 3, '03_alg/13_variation');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 118', 6, 3, '03_alg/14_apps_functions');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 118', 7, 3, '03_alg/15_systems');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 118', 8, 3, '03_alg/16_solving_systems');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 118', 1, 3, 0, '03_alg/09_piecewise');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 118', 2, 3, 0, '03_alg/10_polynomial');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 118', 3, 3, 0, '03_alg/11_rational_expr');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 118', 4, 3, 0, '03_alg/12_rational_fxns');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 118', 5, 3, 0, '03_alg/13_variation');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 118', 6, 3, 0, '03_alg/14_apps_functions');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 118', 7, 3, 0, '03_alg/15_systems');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 118', 8, 3, 0, '03_alg/16_solving_systems');
 
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 124', 1, 3, '04_logexp/01_discrete');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 124', 2, 3, '04_logexp/02_exp_expr');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 124', 3, 3, '04_logexp/03_exp_fxns');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 124', 4, 3, '04_logexp/04_exp_apps');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 124', 5, 3, '04_logexp/05_logs');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 124', 6, 3, '04_logexp/06_log_fxns');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 124', 7, 3, '04_logexp/07_log_apps');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 124', 8, 3, '04_logexp/08_series');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 124', 1, 3, 0, '04_logexp/01_discrete');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 124', 2, 3, 0, '04_logexp/02_exp_expr');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 124', 3, 3, 0, '04_logexp/03_exp_fxns');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 124', 4, 3, 0, '04_logexp/04_exp_apps');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 124', 5, 3, 0, '04_logexp/05_logs');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 124', 6, 3, 0, '04_logexp/06_log_fxns');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 124', 7, 3, 0, '04_logexp/07_log_apps');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 124', 8, 3, 0, '04_logexp/08_series');
 
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 125', 1, 3, '05_trig/01_angles');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 125', 2, 3, '05_trig/02_triangles');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 125', 3, 3, '05_trig/03_unit_circle');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 125', 4, 3, '05_trig/04_trig_fxns');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 125', 5, 3, '05_trig/05_transform');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 125', 6, 3, '05_trig/06_right_triangle');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 125', 7, 3, '05_trig/07_inv_trig_fxns');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 125', 8, 3, '05_trig/08_law_of_sines_cosines');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 125', 1, 3, 1, '05_trig/01_angles');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 125', 2, 3, 1, '05_trig/02_triangles');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 125', 3, 3, 0, '05_trig/03_unit_circle');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 125', 4, 3, 1, '05_trig/04_trig_fxns');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 125', 5, 3, 0, '05_trig/05_transform');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 125', 6, 3, 2, '05_trig/06_right_triangle');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 125', 7, 3, 1, '05_trig/07_inv_trig_fxns');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 125', 8, 3, 1, '05_trig/08_law_of_sines_cosines');
 
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 126', 1, 3, '05_trig/09_basic_ident');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 126', 2, 3, '05_trig/10_sum_diff_ident');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 126', 3, 3, '05_trig/11_mult_half_angle_ident');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 126', 4, 3, '05_trig/12_trig_eqns');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 126', 5, 3, '05_trig/13_polar_coords');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 126', 6, 3, '05_trig/14_polar_fxns');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 126', 7, 3, '05_trig/15_complex');
-INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 126', 8, 3, '05_trig/16_applications');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 126', 1, 3, 1, '05_trig/09_basic_ident');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 126', 2, 3, 0, '05_trig/10_sum_diff_ident');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 126', 3, 3, 1, '05_trig/11_mult_half_angle_ident');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 126', 4, 3, 1, '05_trig/12_trig_eqns');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 126', 5, 3, 1, '05_trig/13_polar_coords');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 126', 6, 3, 0, '05_trig/14_polar_fxns');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 126', 7, 3, 1, '05_trig/15_complex');
+INSERT INTO main.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 126', 8, 3, 0, '05_trig/16_applications');
 
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 117', 1, 3, '03_alg/01_quantities');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 117', 2, 3, '03_alg/02_relations_graphs');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 117', 3, 3, '03_alg/03_functions');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 117', 4, 3, '03_alg/04_linear_fxns');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 117', 5, 3, '03_alg/05_quadratic_fxns');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 117', 6, 3, '03_alg/06_inverse_fxns');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 117', 7, 3, '03_alg/07_rate_of_change');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 117', 8, 3, '03_alg/08_apps_linear_quadratic');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 117', 1, 3, 0, '03_alg/01_quantities');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 117', 2, 3, 0, '03_alg/02_relations_graphs');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 117', 3, 3, 0, '03_alg/03_functions');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 117', 4, 3, 0, '03_alg/04_linear_fxns');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 117', 5, 3, 0, '03_alg/05_quadratic_fxns');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 117', 6, 3, 0, '03_alg/06_inverse_fxns');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 117', 7, 3, 0, '03_alg/07_rate_of_change');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 117', 8, 3, 0, '03_alg/08_apps_linear_quadratic');
 
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 118', 1, 3, '03_alg/09_quantities');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 118', 2, 3, '03_alg/10_polynomial');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 118', 3, 3, '03_alg/11_rational_expr');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 118', 4, 3, '03_alg/12_rational_fxns');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 118', 5, 3, '03_alg/13_variation');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 118', 6, 3, '03_alg/14_apps_functions');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 118', 7, 3, '03_alg/15_systems');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 118', 8, 3, '03_alg/16_solving_systems');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 118', 1, 3, 0, '03_alg/09_piecewise');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 118', 2, 3, 0, '03_alg/10_polynomial');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 118', 3, 3, 0, '03_alg/11_rational_expr');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 118', 4, 3, 0, '03_alg/12_rational_fxns');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 118', 5, 3, 0, '03_alg/13_variation');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 118', 6, 3, 0, '03_alg/14_apps_functions');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 118', 7, 3, 0, '03_alg/15_systems');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 118', 8, 3, 0, '03_alg/16_solving_systems');
 
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 124', 1, 3, '04_logexp/01_discrete');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 124', 2, 3, '04_logexp/02_exp_expr');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 124', 3, 3, '04_logexp/03_exp_fxns');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 124', 4, 3, '04_logexp/04_exp_apps');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 124', 5, 3, '04_logexp/05_logs');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 124', 6, 3, '04_logexp/06_log_fxns');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 124', 7, 3, '04_logexp/07_log_apps');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 124', 8, 3, '04_logexp/08_series');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 124', 1, 3, 0, '04_logexp/01_discrete');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 124', 2, 3, 0, '04_logexp/02_exp_expr');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 124', 3, 3, 0, '04_logexp/03_exp_fxns');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 124', 4, 3, 0, '04_logexp/04_exp_apps');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 124', 5, 3, 0, '04_logexp/05_logs');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 124', 6, 3, 0, '04_logexp/06_log_fxns');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 124', 7, 3, 0, '04_logexp/07_log_apps');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 124', 8, 3, 0, '04_logexp/08_series');
 
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 125', 1, 3, '05_trig/01_angles');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 125', 2, 3, '05_trig/02_triangles');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 125', 3, 3, '05_trig/03_unit_circle');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 125', 4, 3, '05_trig/04_trig_fxns');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 125', 5, 3, '05_trig/05_transform');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 125', 6, 3, '05_trig/06_right_triangle');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 125', 7, 3, '05_trig/07_inv_trig_fxns');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 125', 8, 3, '05_trig/08_law_of_sines_cosines');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 125', 1, 3, 1, '05_trig/01_angles');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 125', 2, 3, 1, '05_trig/02_triangles');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 125', 3, 3, 0, '05_trig/03_unit_circle');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 125', 4, 3, 1, '05_trig/04_trig_fxns');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 125', 5, 3, 0, '05_trig/05_transform');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 125', 6, 3, 2, '05_trig/06_right_triangle');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 125', 7, 3, 1, '05_trig/07_inv_trig_fxns');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 125', 8, 3, 1, '05_trig/08_law_of_sines_cosines');
 
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 126', 1, 3, '05_trig/09_basic_ident');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 126', 2, 3, '05_trig/10_sum_diff_ident');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 126', 3, 3, '05_trig/11_mult_half_angle_ident');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 126', 4, 3, '05_trig/12_trig_eqns');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 126', 5, 3, '05_trig/13_polar_coords');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 126', 6, 3, '05_trig/14_polar_fxns');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 126', 7, 3, '05_trig/15_complex');
-INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, module_path) VALUES (
-  'MATH 126', 8, 3, '05_trig/16_applications');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 126', 1, 3, 1, '05_trig/09_basic_ident');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 126', 2, 3, 0, '05_trig/10_sum_diff_ident');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 126', 3, 3, 1, '05_trig/11_mult_half_angle_ident');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 126', 4, 3, 1, '05_trig/12_trig_eqns');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 126', 5, 3, 1, '05_trig/13_polar_coords');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 126', 6, 3, 0, '05_trig/14_polar_fxns');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 126', 7, 3, 1, '05_trig/15_complex');
+INSERT INTO main_dev.standards_course_module (course_id, module_nbr, nbr_standards, nbr_essential, module_path) VALUES (
+  'MATH 126', 8, 3, 0, '05_trig/16_applications');
+
+-- ------------------------------------------------------------------------------------------------
+-- TABLE: standards_course_standard
+-- NOTE: These records SHOULD be created through the process of "installing" a course from a file
+--       structure.
+-- ------------------------------------------------------------------------------------------------
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 1, 1, 'I can classify and work with angles.', 'Y');
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 1, 2, 'I can use the geometry of angles to find relationships between angles in a diagram.', 'N');
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 1, 3, 'I can work with angles in the standard position in the Cartesian plane.', 'N');
+
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 2, 1, 'I can classify and work with triangles.', 'N');
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 2, 2, 'I can use relationships between similar triangles to calculate triangle side lengths.',
+          'N');
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 2, 3, 'I can apply the Pythagorean theorem to right triangles.', 'Y');
+
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 3, 1, 'I can locate points on the unit circle.', 'N');
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 3, 2, 'I can interpret angle in terms of arc length.', 'N');
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 3, 3, 'I can work with sector area.', 'N');
+
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 4, 1, 'I can define and interpret the six trigonometric functions.', 'Y');
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 4, 2, 'I can graph and interpret graphs of the six trigonometric functions.', 'N');
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 4, 3, 'I can evaluate trigonometric functions in several contexts.', 'N');
+
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 5, 1,
+  'I can find and interpret shifts and scalings of trigonometric functions, both graphically and algebraically.', 'N');
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 5, 2,
+  'I can determine the algebraic form of a shifted and scaled trigonometric function from its graph.', 'N');
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 5, 3, 'I can model data or real-world phenomena using sine and cosine functions.', 'N');
+
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 6, 1,
+  'I can express the relationships between side lengths of a right triangle using trigonometric functions.', 'Y');
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 6, 2, 'I can use trigonometric functions to calculate side lengths in right triangles.', 'Y');
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 6, 3,
+  'I can use the right triangle relationships for triangles in quadrants 2, 3, and 4 by finding reference angles.',
+  'N');
+
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 7, 1, 'I can work with inverse functions and identify when a function has an inverse.', 'N');
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 7, 2, 'I can work with inverse trigonometric functions.', 'N');
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 7, 3, 'I can apply inverse trigonometric functions to solve problems.', 'Y');
+
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 8, 1, 'I can recall and apply the law of sines.', 'N');
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 8, 2, 'I can recall and apply the law of cosines.', 'N');
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 8, 3, 'I can solve general triangle problems.', 'Y');
+
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 1, 1, 'I can identify and work with identities.', 'N');
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 1, 2, 'I can recall and apply various forms of the fundamental trigonometric identities.', 'N');
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 1, 3, 'I can use fundamental trigonometric identities to rewrite and simplify expressions.', 'Y');
+
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 2, 1, 'I can interpret and apply the sum and difference identities.', 'N');
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 2, 2, 'I can use sum and difference identities to evaluate expressions.', 'N');
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 2, 3, 'I can apply product-to-sum and sum-to-product identities.', 'N');
+
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 3, 1, 'I can interpret and apply double- and multiple-angle identities.', 'N');
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 3, 2, 'I can use half-angle identities.', 'N');
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 3, 3,
+  'I can apply double-, multiple-, and half-angle identities to evaluate expressions and solve application problems.',
+  'Y');
+
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 4, 1, 'I can apply identities to find all solutions to trigonometric equations.', 'N');
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 4, 2, 'I can solve trigonometric equations.', 'Y');
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 4, 3, 'I can evaluate compositions of trigonometric and inverse trigonometric functions.', 'N');
+
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 5, 1, 'I can plot and interpret points represented in polar coordinates.', 'N');
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 5, 2, 'I can convert points in the plane between Cartesian and Polar coordinates.', 'Y');
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 5, 3, 'I can use polar coordinates in application contexts.', 'N');
+
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 6, 1, 'I can evaluate and graph polar functions and interpret polar data', 'N');
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 6, 2,
+   'I can plot and interpret polar equations and inequalities where radius is given as a function of angle.', 'N');
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 6, 3,
+  'I can construct polar functions whose graphs have desired properties or model real-world forms.', 'N');
+
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 7, 1, 'I can work with complex numbers in standard form.', 'Y');
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 7, 2, 'I can work with complex numbers in trigonometric form.', 'N');
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 7, 3, 'I can work with complex numbers in exponential form.', 'N');
+
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 8, 1, 'I can solve application problems that involve fixed or varying angles.', 'N');
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 8, 2, 'I can solve application problems that involve rotation.', 'N');
+INSERT INTO main.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 8, 3, 'I can solve application problems that involve distances, arc length, or sector area.',
+  'N');
+
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 1, 1, 'I can classify and work with angles.', 'Y');
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 1, 2, 'I can use the geometry of angles to find relationships between angles in a diagram.', 'N');
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 1, 3, 'I can work with angles in the standard position in the Cartesian plane.', 'N');
+
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 2, 1, 'I can classify and work with triangles.', 'N');
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 2, 2, 'I can use relationships between similar triangles to calculate triangle side lengths.',
+          'N');
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 2, 3, 'I can apply the Pythagorean theorem to right triangles.', 'Y');
+
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 3, 1, 'I can locate points on the unit circle.', 'N');
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 3, 2, 'I can interpret angle in terms of arc length.', 'N');
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 3, 3, 'I can work with sector area.', 'N');
+
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 4, 1, 'I can define and interpret the six trigonometric functions.', 'Y');
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 4, 2, 'I can graph and interpret graphs of the six trigonometric functions.', 'N');
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 4, 3, 'I can evaluate trigonometric functions in several contexts.', 'N');
+
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 5, 1,
+  'I can find and interpret shifts and scalings of trigonometric functions, both graphically and algebraically.', 'N');
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 5, 2,
+  'I can determine the algebraic form of a shifted and scaled trigonometric function from its graph.', 'N');
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 5, 3, 'I can model data or real-world phenomena using sine and cosine functions.', 'N');
+
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 6, 1,
+  'I can express the relationships between side lengths of a right triangle using trigonometric functions.', 'Y');
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 6, 2, 'I can use trigonometric functions to calculate side lengths in right triangles.', 'Y');
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 6, 3,
+  'I can use the right triangle relationships for triangles in quadrants 2, 3, and 4 by finding reference angles.',
+  'N');
+
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 7, 1, 'I can work with inverse functions and identify when a function has an inverse.', 'N');
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 7, 2, 'I can work with inverse trigonometric functions.', 'N');
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 7, 3, 'I can apply inverse trigonometric functions to solve problems.', 'Y');
+
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 8, 1, 'I can recall and apply the law of sines.', 'N');
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 8, 2, 'I can recall and apply the law of cosines.', 'N');
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 125', 8, 3, 'I can solve general triangle problems.', 'Y');
+
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 1, 1, 'I can identify and work with identities.', 'N');
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 1, 2, 'I can recall and apply various forms of the fundamental trigonometric identities.', 'N');
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 1, 3, 'I can use fundamental trigonometric identities to rewrite and simplify expressions.', 'Y');
+
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 2, 1, 'I can interpret and apply the sum and difference identities.', 'N');
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 2, 2, 'I can use sum and difference identities to evaluate expressions.', 'N');
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 2, 3, 'I can apply product-to-sum and sum-to-product identities.', 'N');
+
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 3, 1, 'I can interpret and apply double- and multiple-angle identities.', 'N');
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 3, 2, 'I can use half-angle identities.', 'N');
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 3, 3,
+  'I can apply double-, multiple-, and half-angle identities to evaluate expressions and solve application problems.',
+  'Y');
+
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 4, 1, 'I can apply identities to find all solutions to trigonometric equations.', 'N');
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 4, 2, 'I can solve trigonometric equations.', 'Y');
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 4, 3, 'I can evaluate compositions of trigonometric and inverse trigonometric functions.', 'N');
+
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 5, 1, 'I can plot and interpret points represented in polar coordinates.', 'N');
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 5, 2, 'I can convert points in the plane between Cartesian and Polar coordinates.', 'Y');
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 5, 3, 'I can use polar coordinates in application contexts.', 'N');
+
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 6, 1, 'I can evaluate and graph polar functions and interpret polar data', 'N');
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 6, 2,
+   'I can plot and interpret polar equations and inequalities where radius is given as a function of angle.', 'N');
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 6, 3,
+  'I can construct polar functions whose graphs have desired properties or model real-world forms.', 'N');
+
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 7, 1, 'I can work with complex numbers in standard form.', 'Y');
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 7, 2, 'I can work with complex numbers in trigonometric form.', 'N');
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 7, 3, 'I can work with complex numbers in exponential form.', 'N');
+
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 8, 1, 'I can solve application problems that involve fixed or varying angles.', 'N');
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 8, 2, 'I can solve application problems that involve rotation.', 'N');
+INSERT INTO main_dev.standards_course_standard (course_id, module_nbr, standard_nbr, learning_objective, is_essential)
+  VALUES ('MATH 126', 8, 3, 'I can solve application problems that involve distances, arc length, or sector area.',
+  'N');
+
+
+
+
+
+
 
 -- ------------------------------------------------------------------------------------------------
 -- TABLE: standard_assignment
