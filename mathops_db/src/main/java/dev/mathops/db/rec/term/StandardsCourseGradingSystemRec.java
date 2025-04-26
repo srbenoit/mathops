@@ -30,11 +30,8 @@ public final class StandardsCourseGradingSystemRec extends RecBase
     /** The 'min_standards' field value. */
     public final Integer minStandards;
 
-    /** The 'nbr_essential_standards' field value. */
-    public final Integer nbrEssentialStandards;
-
-    /** The 'min_essential_standards' field value. */
-    public final Integer minEssentialStandards;
+    /** The 'max_unmastered_essential' field value. */
+    public final Integer maxUnmasteredEssential;
 
     /** The 'homework_pts' field value. */
     public final Integer homeworkPts;
@@ -66,32 +63,31 @@ public final class StandardsCourseGradingSystemRec extends RecBase
     /**
      * Constructs a new {@code StandardsCourseGradingSystemRec}.
      *
-     * @param theGradingSystemId       the grading system ID
-     * @param theNbrStandards          the number of standards in the course
-     * @param theMinStandards          the minimum number of standards that must be mastered to complete the course
-     * @param theNbrEssentialStandards the number of "essential" standards in the course
-     * @param theMinEssentialStandards the minimum number of "essential" standards that must be mastered to complete the
-     *                                 course
-     * @param theHomeworkPts           the number of points awarded for completing a homework assignment
-     * @param theOnTimeMasteryPts      the number of points awarded for mastering a standard by its due date
-     * @param theLateMasteryPts        the number of points awarded for mastering a standard after due date
-     * @param theAMinScore             the minimum score needed to earn an A grade
-     * @param theBMinScore             the minimum score needed to earn a B grade
-     * @param theCMinScore             the minimum score needed to earn a C grade
-     * @param theDMinScore             the minimum score needed to earn a D grade (null if D is not awarded)
-     * @param theUMinScore             the minimum score needed to earn a U grade (null if all scores below letter
-     *                                 grades earn a U grade, non-null if an F grade is given to students who master
-     *                                 fewer than this number of standards)
-     * @param theMinStandardsForInc    the minimum number of standards that must be completed to become eligible for an
-     *                                 Incomplete if the course was not completed
+     * @param theGradingSystemId        the grading system ID
+     * @param theNbrStandards           the number of standards in the course
+     * @param theMinStandards           the minimum number of standards that must be mastered to complete the course
+     * @param theMaxUnmasteredEssential the maximum number of "essential" standards that can be unmastered to complete
+     *                                  the course
+     * @param theHomeworkPts            the number of points awarded for completing a homework assignment
+     * @param theOnTimeMasteryPts       the number of points awarded for mastering a standard by its due date
+     * @param theLateMasteryPts         the number of points awarded for mastering a standard after due date
+     * @param theAMinScore              the minimum score needed to earn an A grade
+     * @param theBMinScore              the minimum score needed to earn a B grade
+     * @param theCMinScore              the minimum score needed to earn a C grade
+     * @param theDMinScore              the minimum score needed to earn a D grade (null if D is not awarded)
+     * @param theUMinScore              the minimum score needed to earn a U grade (null if all scores below letter
+     *                                  grades earn a U grade, non-null if an F grade is given to students who master
+     *                                  fewer than this number of standards)
+     * @param theMinStandardsForInc     the minimum number of standards that must be completed to become eligible for an
+     *                                  Incomplete if the course was not completed
      */
     public StandardsCourseGradingSystemRec(final String theGradingSystemId, final Integer theNbrStandards,
-                                           final Integer theMinStandards, final Integer theNbrEssentialStandards,
-                                           final Integer theMinEssentialStandards, final Integer theHomeworkPts,
-                                           final Integer theOnTimeMasteryPts, final Integer theLateMasteryPts,
-                                           final Integer theAMinScore, final Integer theBMinScore,
-                                           final Integer theCMinScore, final Integer theDMinScore,
-                                           final Integer theUMinScore, final Integer theMinStandardsForInc) {
+                                           final Integer theMinStandards, final Integer theMaxUnmasteredEssential,
+                                           final Integer theHomeworkPts, final Integer theOnTimeMasteryPts,
+                                           final Integer theLateMasteryPts, final Integer theAMinScore,
+                                           final Integer theBMinScore, final Integer theCMinScore,
+                                           final Integer theDMinScore, final Integer theUMinScore,
+                                           final Integer theMinStandardsForInc) {
 
         super();
 
@@ -104,11 +100,8 @@ public final class StandardsCourseGradingSystemRec extends RecBase
         if (theMinStandards == null) {
             throw new IllegalArgumentException("Minimum number of standards to complete may not be null");
         }
-        if (theNbrEssentialStandards == null) {
-            throw new IllegalArgumentException("Number of essential standards may not be null");
-        }
-        if (theMinEssentialStandards == null) {
-            throw new IllegalArgumentException("Minimum number of essential standards to complete may not be null");
+        if (theMaxUnmasteredEssential == null) {
+            throw new IllegalArgumentException("Maximum unmastered essential standards may not be null");
         }
         if (theHomeworkPts == null) {
             throw new IllegalArgumentException("Homework points may not be null");
@@ -132,8 +125,7 @@ public final class StandardsCourseGradingSystemRec extends RecBase
         this.gradingSystemId = theGradingSystemId;
         this.nbrStandards = theNbrStandards;
         this.minStandards = theMinStandards;
-        this.nbrEssentialStandards = theNbrEssentialStandards;
-        this.minEssentialStandards = theMinEssentialStandards;
+        this.maxUnmasteredEssential = theMaxUnmasteredEssential;
         this.homeworkPts = theHomeworkPts;
         this.onTimeMasteryPts = theOnTimeMasteryPts;
         this.lateMasteryPts = theLateMasteryPts;
@@ -175,9 +167,7 @@ public final class StandardsCourseGradingSystemRec extends RecBase
         htm.add(DIVIDER);
         appendField(htm, DataDict.FLD_MIN_STANDARDS, this.minStandards);
         htm.add(DIVIDER);
-        appendField(htm, DataDict.FLD_NBR_ESSENTIAL_STANDARDS, this.nbrEssentialStandards);
-        htm.add(DIVIDER);
-        appendField(htm, DataDict.FLD_MIN_ESSENTIAL_STANDARDS, this.minEssentialStandards);
+        appendField(htm, DataDict.FLD_MAX_UNMASTERED_ESSENTIAL, this.maxUnmasteredEssential);
         htm.add(DIVIDER);
         appendField(htm, DataDict.FLD_HOMEWORK_PTS, this.homeworkPts);
         htm.add(DIVIDER);
@@ -211,8 +201,7 @@ public final class StandardsCourseGradingSystemRec extends RecBase
         return this.gradingSystemId.hashCode()
                + this.nbrStandards.hashCode()
                + this.minStandards.hashCode()
-               + this.nbrEssentialStandards.hashCode()
-               + this.minEssentialStandards.hashCode()
+               + this.maxUnmasteredEssential.hashCode()
                + this.homeworkPts.hashCode()
                + this.onTimeMasteryPts.hashCode()
                + this.lateMasteryPts.hashCode()
@@ -240,8 +229,7 @@ public final class StandardsCourseGradingSystemRec extends RecBase
         } else if (obj instanceof final StandardsCourseGradingSystemRec rec) {
             equal = this.gradingSystemId.equals(rec.gradingSystemId)
                     && this.nbrStandards.equals(rec.nbrStandards)
-                    && this.nbrEssentialStandards.equals(rec.nbrEssentialStandards)
-                    && this.minEssentialStandards.equals(rec.minEssentialStandards)
+                    && this.maxUnmasteredEssential.equals(rec.maxUnmasteredEssential)
                     && this.homeworkPts.equals(rec.homeworkPts)
                     && this.onTimeMasteryPts.equals(rec.onTimeMasteryPts)
                     && this.lateMasteryPts.equals(rec.lateMasteryPts)

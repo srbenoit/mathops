@@ -75,15 +75,14 @@ public final class StandardsCourseGradingSystemLogic implements IRecLogic<Standa
             Log.warning("Cache profile '", cache.getProfile().id, "' does not support the TERM schema");
             result = false;
         } else {
-            final String sql = SimpleBuilder.concat("INSERT INTO ", schemaPrefix, ".standards_course_grading_system ",
-                    "(grading_system_id,nbr_standards,min_standards,nbr_essential_standards,min_essential_standards,",
-                    "homework_pts,on_time_mastery_pts,late_mastery_pts,a_min_score,b_min_score,c_min_score,",
-                    "d_min_score,u_min_score,min_standards_for_inc) VALUES (",
+            final String sql = SimpleBuilder.concat("INSERT INTO ", schemaPrefix,
+                    ".standards_course_grading_system (grading_system_id,nbr_standards,min_standards,",
+                    "max_unmastered_essential,homework_pts,on_time_mastery_pts,late_mastery_pts,a_min_score,",
+                    "b_min_score,c_min_score,d_min_score,u_min_score,min_standards_for_inc) VALUES (",
                     sqlStringValue(record.gradingSystemId), ",",
                     sqlIntegerValue(record.nbrStandards), ",",
                     sqlIntegerValue(record.minStandards), ",",
-                    sqlIntegerValue(record.nbrEssentialStandards), ",",
-                    sqlIntegerValue(record.minEssentialStandards), ",",
+                    sqlIntegerValue(record.maxUnmasteredEssential), ",",
                     sqlIntegerValue(record.homeworkPts), ",",
                     sqlIntegerValue(record.onTimeMasteryPts), ",",
                     sqlIntegerValue(record.lateMasteryPts), ",",
@@ -199,8 +198,7 @@ public final class StandardsCourseGradingSystemLogic implements IRecLogic<Standa
             final String sql = SimpleBuilder.concat("UPDATE ", schemaPrefix,
                     ".standards_course_grading_system SET nbr_standards=", sqlIntegerValue(record.nbrStandards),
                     ",min_standards=", sqlIntegerValue(record.minStandards),
-                    ",nbr_essential_standards=", sqlIntegerValue(record.nbrEssentialStandards),
-                    ",min_essential_standards=", sqlIntegerValue(record.minEssentialStandards),
+                    ",max_unmastered_essential=", sqlIntegerValue(record.maxUnmasteredEssential),
                     ",homework_pts=", sqlIntegerValue(record.homeworkPts),
                     ",on_time_mastery_pts=", sqlIntegerValue(record.onTimeMasteryPts),
                     ",late_mastery_pts=", sqlIntegerValue(record.lateMasteryPts),
@@ -231,8 +229,7 @@ public final class StandardsCourseGradingSystemLogic implements IRecLogic<Standa
         final String theGradingSystemId = getStringField(rs, DataDict.FLD_GRADING_SYSTEM_ID);
         final Integer theNbrStandards = getIntegerField(rs, DataDict.FLD_NBR_STANDARDS);
         final Integer theMinStandards = getIntegerField(rs, DataDict.FLD_MIN_STANDARDS);
-        final Integer theNbrEssentialStandards = getIntegerField(rs, DataDict.FLD_NBR_ESSENTIAL_STANDARDS);
-        final Integer theMinEssentialStandards = getIntegerField(rs, DataDict.FLD_MIN_ESSENTIAL_STANDARDS);
+        final Integer theMaxUnmasteredEssential = getIntegerField(rs, DataDict.FLD_MAX_UNMASTERED_ESSENTIAL);
         final Integer theHomeworkPts = getIntegerField(rs, DataDict.FLD_HOMEWORK_PTS);
         final Integer theOnTimeMasteryPts = getIntegerField(rs, DataDict.FLD_ON_TIME_MASTERY_PTS);
         final Integer theLateMasteryPts = getIntegerField(rs, DataDict.FLD_LATE_MASTERY_PTS);
@@ -244,8 +241,7 @@ public final class StandardsCourseGradingSystemLogic implements IRecLogic<Standa
         final Integer theMinStandardsForInc = getIntegerField(rs, DataDict.FLD_MIN_STANDARDS_FOR_INC);
 
         return new StandardsCourseGradingSystemRec(theGradingSystemId, theNbrStandards, theMinStandards,
-                theNbrEssentialStandards, theMinEssentialStandards, theHomeworkPts, theOnTimeMasteryPts,
-                theLateMasteryPts, theAMinScore, theBMinScore, theCMinScore, theDMinScore, theUMinScore,
-                theMinStandardsForInc);
+                theMaxUnmasteredEssential, theHomeworkPts, theOnTimeMasteryPts, theLateMasteryPts, theAMinScore,
+                theBMinScore, theCMinScore, theDMinScore, theUMinScore, theMinStandardsForInc);
     }
 }

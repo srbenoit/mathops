@@ -89,9 +89,8 @@ CREATE TABLE IF NOT EXISTS term_202510.standards_course_grading_system (
     grading_system_id         CHAR(6)         NOT NULL,  -- A unique ID for the grading system
     nbr_standards             smallint        NOT NULL,  -- The number of standards in the course
     min_standards             smallint        NOT NULL,  -- The minimum number of standards mastered to complete course
-    nbr_essential_standards   smallint        NOT NULL,  -- The number of "essential" standards in the course
-    min_essential_standards   smallint        NOT NULL,  -- The minimum number of "essential" standards mastered to
-                                                         --     complete the course
+    max_unmastered_essential  smallint        NOT NULL,  -- The maximum number of "essential" standards that can be
+                                                         --     unmastered to complete the course
     homework_pts              smallint        NOT NULL,  -- The number of points for completing each homework assignment
     on_time_mastery_pts       smallint        NOT NULL,  -- The number of points for mastering a standard on time
     late_mastery_pts          smallint        NOT NULL,  -- The number of points for mastering a standard late
@@ -114,8 +113,7 @@ CREATE TABLE IF NOT EXISTS term_202560.standards_course_grading_system (
     grading_system_id         CHAR(6)         NOT NULL,
     nbr_standards             smallint        NOT NULL,
     min_standards             smallint        NOT NULL,
-    nbr_essential_standards   smallint        NOT NULL,
-    min_essential_standards   smallint        NOT NULL,
+    max_unmastered_essential  smallint        NOT NULL,
     homework_pts              smallint        NOT NULL,
     on_time_mastery_pts       smallint        NOT NULL,
     late_mastery_pts          smallint        NOT NULL,
@@ -134,8 +132,7 @@ CREATE TABLE IF NOT EXISTS term_202590.standards_course_grading_system (
     grading_system_id         CHAR(6)         NOT NULL,
     nbr_standards             smallint        NOT NULL,
     min_standards             smallint        NOT NULL,
-    nbr_essential_standards   smallint        NOT NULL,
-    min_essential_standards   smallint        NOT NULL,
+    max_unmastered_essential  smallint        NOT NULL,
     homework_pts              smallint        NOT NULL,
     on_time_mastery_pts       smallint        NOT NULL,
     late_mastery_pts          smallint        NOT NULL,
@@ -154,8 +151,7 @@ CREATE TABLE IF NOT EXISTS term_dev.standards_course_grading_system (
     grading_system_id         CHAR(6)         NOT NULL,
     nbr_standards             smallint        NOT NULL,
     min_standards             smallint        NOT NULL,
-    nbr_essential_standards   smallint        NOT NULL,
-    min_essential_standards   smallint        NOT NULL,
+    max_unmastered_essential  smallint        NOT NULL,
     homework_pts              smallint        NOT NULL,
     on_time_mastery_pts       smallint        NOT NULL,
     late_mastery_pts          smallint        NOT NULL,
@@ -174,8 +170,7 @@ CREATE TABLE IF NOT EXISTS term_test.standards_course_grading_system (
     grading_system_id         CHAR(6)         NOT NULL,
     nbr_standards             smallint        NOT NULL,
     min_standards             smallint        NOT NULL,
-    nbr_essential_standards   smallint        NOT NULL,
-    min_essential_standards   smallint        NOT NULL,
+    max_unmastered_essential  smallint        NOT NULL,
     homework_pts              smallint        NOT NULL,
     on_time_mastery_pts       smallint        NOT NULL,
     late_mastery_pts          smallint        NOT NULL,

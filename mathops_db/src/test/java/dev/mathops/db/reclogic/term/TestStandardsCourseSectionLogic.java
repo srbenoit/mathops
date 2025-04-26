@@ -38,28 +38,31 @@ final class TestStandardsCourseSectionLogic {
             new StandardsCourseSectionRec("MATH 117", "001", "665544",
                     LocalDate.of(2025, Month.JANUARY, 19), LocalDate.of(2025, Month.MAY, 11),
                     LocalDate.of(2025, Month.JANUARY, 21), LocalDate.of(2025, Month.MAY, 9),
-                    "FULL", "SYS001", "FC", "Canvas.MATH117.001", "John Doe", "Weber", "123", Integer.valueOf(99));
+                    "FULL", "SYS001", "FC", "RF", "Canvas.MATH117.001", "John Doe", "Weber", "123",
+                    Integer.valueOf(99));
 
     /** A raw test record. */
     private static final StandardsCourseSectionRec RAW2 =
             new StandardsCourseSectionRec("MATH 117", "002", "554433",
                     LocalDate.of(2025, Month.MARCH, 1), LocalDate.of(2025, Month.MAY, 11),
                     LocalDate.of(2025, Month.MARCH, 3), LocalDate.of(2025, Month.MAY, 9),
-                    "HALF2", "SYS002", "CE", "Canvas.MATH117.002", "Jane Doe", "Johnson", "222", Integer.valueOf(88));
+                    "HALF2", "SYS002", "CE", "RH", "Canvas.MATH117.002", "Jane Doe", "Johnson", "222",
+                    Integer.valueOf(88));
 
     /** A raw test record. */
     private static final StandardsCourseSectionRec RAW3 =
             new StandardsCourseSectionRec("MATH 118", "003", "443322",
                     LocalDate.of(2025, Month.APRIL, 1), LocalDate.of(2025, Month.APRIL, 27),
                     LocalDate.of(2025, Month.APRIL, 3), LocalDate.of(2025, Month.APRIL, 25),
-                    "10:13", "SYS003", "ZY", "Canvas.MATH118.003", "Edgar Poe", "Baker", "221B", Integer.valueOf(77));
+                    "10:13", "SYS003", "ZY", "RO", "Canvas.MATH118.003", "Edgar Poe", "Baker", "221B",
+                    Integer.valueOf(77));
 
     /** A raw test record. */
     private static final StandardsCourseSectionRec UPD3 =
             new StandardsCourseSectionRec("MATH 118", "003", "987654",
                     LocalDate.of(2025, Month.APRIL, 2), LocalDate.of(2025, Month.APRIL, 28),
                     LocalDate.of(2025, Month.APRIL, 4), LocalDate.of(2025, Month.APRIL, 26),
-                    "11:14", "SYS004", "XY", "Canvas.MATH118.003.X", "Winston", "Ministry of Truth", "101",
+                    "11:14", "SYS004", "XY", "DO", "Canvas.MATH118.003.X", "Winston", "Ministry of Truth", "101",
                     Integer.valueOf(84));
 
     /** The database profile. */
@@ -85,6 +88,7 @@ final class TestStandardsCourseSectionLogic {
         Log.warning("Unexpected subterm ", r.subterm);
         Log.warning("Unexpected grading system ID ", r.gradingSystemId);
         Log.warning("Unexpected campus ", r.campus);
+        Log.warning("Unexpected delivery mode ", r.deliveryMode);
         Log.warning("Unexpected Canvas ID ", r.canvasId);
         Log.warning("Unexpected instructor ", r.instructor);
         Log.warning("Unexpected building name ", r.buildingName);
@@ -252,7 +256,7 @@ final class TestStandardsCourseSectionLogic {
             final boolean result = StandardsCourseSectionLogic.INSTANCE.delete(cache, RAW2);
             assertTrue(result, "delete returned false");
 
-            final List<StandardsCourseSectionRec> all = StandardsCourseSectionLogic.INSTANCE.queryAll( cache);
+            final List<StandardsCourseSectionRec> all = StandardsCourseSectionLogic.INSTANCE.queryAll(cache);
 
             assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
 

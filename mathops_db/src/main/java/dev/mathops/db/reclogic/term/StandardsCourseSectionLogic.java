@@ -26,9 +26,14 @@ import java.util.List;
  *     aries_end_date            date            NOT NULL,  -- The "official" end date of the course
  *     first_class_date          date            NOT NULL,  -- The first date the course is available to students
  *     last_class_date           date            NOT NULL,  -- The last date the course is available to students
- *     subterm                   char(5)         NOT NULL,  -- The subterm ('FULL', 'HALF1', 'HALF2', 'NN:MM" for weeks)
+ *     subterm                   char(5)         NOT NULL,  -- The subterm ('FULL', 'HALF1', 'HALF2', 'NN:MM' for weeks
+ *                                                          --     NN through MM)
  *     grading_system_id         char(6)         NOT NULL,  -- The grading system to use for the section
- *     campus                    char(2),                   -- The campus code
+ *     campus                    char(2)         NOT NULL,  -- The campus code ('FC'=Fort Collins, 'SP'=Spur,
+ *                                                          --     'CE'=Continuing Ed.)
+ *     delivery_mode             char(2)         NOT NULL,  -- The delivery mode ('RF'=Resident Face-to-Face,
+ *                                                          --     'RH'=Resident Hybrid, 'RO'=Resident Online,
+ *                                                          --     'DO'=Distance Online)
  *     canvas_id                 varchar(40),               -- The ID of the associated Canvas course
  *     instructor                varchar(30),               -- The name of the instructor assigned to the section
  *     building_name             varchar(40),               -- The name of the building where class sessions meet
@@ -70,9 +75,10 @@ public final class StandardsCourseSectionLogic implements IRecLogic<StandardsCou
             Log.warning("Cache profile '", cache.getProfile().id, "' does not support the TERM schema");
             result = false;
         } else {
-            final String sql = SimpleBuilder.concat("INSERT INTO ", schemaPrefix, ".standards_course_section ",
-                    "(course_id,section_nbr,crn,aries_start_date,aries_end_date,first_class_date,last_class_date,",
-                    "subterm,grading_system_id,campus,canvas_id,instructor,building_name,room_nbr,weekdays) VALUES (",
+            final String sql = SimpleBuilder.concat("INSERT INTO ", schemaPrefix,
+                    ".standards_course_section (course_id,section_nbr,crn,aries_start_date,aries_end_date,",
+                    "first_class_date,last_class_date,subterm,grading_system_id,campus,delivery_mode,canvas_id,",
+                    "instructor,building_name,room_nbr,weekdays) VALUES (",
                     sqlStringValue(record.courseId), ",",
                     sqlStringValue(record.sectionNbr), ",",
                     sqlStringValue(record.crn), ",",
@@ -83,6 +89,7 @@ public final class StandardsCourseSectionLogic implements IRecLogic<StandardsCou
                     sqlStringValue(record.subterm), ",",
                     sqlStringValue(record.gradingSystemId), ",",
                     sqlStringValue(record.campus), ",",
+                    sqlStringValue(record.deliveryMode), ",",
                     sqlStringValue(record.canvasId), ",",
                     sqlStringValue(record.instructor), ",",
                     sqlStringValue(record.buildingName), ",",
@@ -203,6 +210,7 @@ public final class StandardsCourseSectionLogic implements IRecLogic<StandardsCou
                     ",subterm=", sqlStringValue(record.subterm),
                     ",grading_system_id=", sqlStringValue(record.gradingSystemId),
                     ",campus=", sqlStringValue(record.campus),
+                    ",delivery_mode=", sqlStringValue(record.deliveryMode),
                     ",canvas_id=", sqlStringValue(record.canvasId),
                     ",instructor=", sqlStringValue(record.instructor),
                     ",building_name=", sqlStringValue(record.buildingName),
@@ -237,6 +245,7 @@ public final class StandardsCourseSectionLogic implements IRecLogic<StandardsCou
         final String theSubterm = getStringField(rs, DataDict.FLD_SUBTERM);
         final String theGradingSystemId = getStringField(rs, DataDict.FLD_GRADING_SYSTEM_ID);
         final String theCampus = getStringField(rs, DataDict.FLD_CAMPUS);
+        final String theDeliveryMode = getStringField(rs, DataDict.FLD_DELIVERY_MODE);
         final String theCanvasId = getStringField(rs, DataDict.FLD_CANVAS_ID);
         final String theInstructor = getStringField(rs, DataDict.FLD_INSTRUCTOR);
         final String theBuildingName = getStringField(rs, DataDict.FLD_BUILDING_NAME);
@@ -244,7 +253,7 @@ public final class StandardsCourseSectionLogic implements IRecLogic<StandardsCou
         final Integer theWeekdays = getIntegerField(rs, DataDict.FLD_WEEKDAYS);
 
         return new StandardsCourseSectionRec(theCourseId, theSectionNbr, theCrn, theAriesStartDate, theAriesEndDate,
-                theFirstClassDate, theLastClassDate, theSubterm, theGradingSystemId, theCampus, theCanvasId,
-                theInstructor, theBuildingName, theRoomNbr, theWeekdays);
+                theFirstClassDate, theLastClassDate, theSubterm, theGradingSystemId, theCampus, theDeliveryMode,
+                theCanvasId, theInstructor, theBuildingName, theRoomNbr, theWeekdays);
     }
 }

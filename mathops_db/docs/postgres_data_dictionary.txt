@@ -130,6 +130,8 @@ learning_objective  TEXT            -- A learning objective, in the form "I can 
 
 mastery_score       SMALLINT        -- The score required to demonstrate mastery
 
+max_unmastered_essential  SMALLINT  -- The maximum number of "essential" standards that can be unmastered to complete the course
+
 module_nbr          SMALLINT        -- A module number (1 for the first module in a course)
 
 nbr_credits         SMALLINT        -- The number of credits a course carries

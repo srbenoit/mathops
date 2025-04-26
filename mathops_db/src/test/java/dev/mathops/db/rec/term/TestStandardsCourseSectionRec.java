@@ -44,6 +44,9 @@ public final class TestStandardsCourseSectionRec {
     private static final String TEST_CAMPUS = "FC";
 
     /** A field name. */
+    private static final String TEST_DELIVERY_MODE = "RF";
+
+    /** A field name. */
     private static final String TEST_CANVAS_ID = "CAN123";
 
     /** A field name. */
@@ -72,6 +75,7 @@ public final class TestStandardsCourseSectionRec {
             "subterm=FULL",
             "grading_system_id=G1",
             "campus=FC",
+            "delivery_mode=RF",
             "canvas_id=CAN123",
             "instructor=John Doe",
             "building_name=Weber",
@@ -93,10 +97,10 @@ public final class TestStandardsCourseSectionRec {
     @DisplayName("Constructor")
     void test0001() {
 
-        final StandardsCourseSectionRec obj = new StandardsCourseSectionRec(TEST_COURSE_ID,
-                TEST_SECTION_NBR, TEST_CRN, TEST_ARIES_START_DATE, TEST_ARIES_END_DATE,
-                TEST_FIRST_CLASS_DATE, TEST_LAST_CLASS_DATE, TEST_SUBTERM, TEST_GRADING_SYSTEM_ID, TEST_CAMPUS,
-                TEST_CANVAS_ID, TEST_INSTRUCTOR, TEST_BUILDING_NAME, TEST_ROOM_NBR, TEST_WEEKDAYS);
+        final StandardsCourseSectionRec obj = new StandardsCourseSectionRec(TEST_COURSE_ID, TEST_SECTION_NBR, TEST_CRN,
+                TEST_ARIES_START_DATE, TEST_ARIES_END_DATE, TEST_FIRST_CLASS_DATE, TEST_LAST_CLASS_DATE, TEST_SUBTERM,
+                TEST_GRADING_SYSTEM_ID, TEST_CAMPUS, TEST_DELIVERY_MODE, TEST_CANVAS_ID, TEST_INSTRUCTOR,
+                TEST_BUILDING_NAME, TEST_ROOM_NBR, TEST_WEEKDAYS);
 
         assertEquals(TEST_COURSE_ID, obj.courseId, "Invalid course ID value after constructor");
         assertEquals(TEST_SECTION_NBR, obj.sectionNbr, "Invalid section number value after constructor");
@@ -108,6 +112,7 @@ public final class TestStandardsCourseSectionRec {
         assertEquals(TEST_SUBTERM, obj.subterm, "Invalid subterm value after constructor");
         assertEquals(TEST_GRADING_SYSTEM_ID, obj.gradingSystemId, "Invalid grading system ID value after constructor");
         assertEquals(TEST_CAMPUS, obj.campus, "Invalid campus value after constructor");
+        assertEquals(TEST_DELIVERY_MODE, obj.deliveryMode, "Invalid delivery mode value after constructor");
         assertEquals(TEST_CANVAS_ID, obj.canvasId, "Invalid canvas ID after constructor");
         assertEquals(TEST_INSTRUCTOR, obj.instructor, "Invalid instructor after constructor");
         assertEquals(TEST_BUILDING_NAME, obj.buildingName, "Invalid building name after constructor");
@@ -122,10 +127,10 @@ public final class TestStandardsCourseSectionRec {
     @DisplayName("string serialization")
     void test0098() {
 
-        final StandardsCourseSectionRec obj = new StandardsCourseSectionRec(TEST_COURSE_ID,
-                TEST_SECTION_NBR, TEST_CRN, TEST_ARIES_START_DATE, TEST_ARIES_END_DATE,
-                TEST_FIRST_CLASS_DATE, TEST_LAST_CLASS_DATE, TEST_SUBTERM, TEST_GRADING_SYSTEM_ID, TEST_CAMPUS,
-                TEST_CANVAS_ID, TEST_INSTRUCTOR, TEST_BUILDING_NAME, TEST_ROOM_NBR, TEST_WEEKDAYS);
+        final StandardsCourseSectionRec obj = new StandardsCourseSectionRec(TEST_COURSE_ID, TEST_SECTION_NBR, TEST_CRN,
+                TEST_ARIES_START_DATE, TEST_ARIES_END_DATE, TEST_FIRST_CLASS_DATE, TEST_LAST_CLASS_DATE, TEST_SUBTERM,
+                TEST_GRADING_SYSTEM_ID, TEST_CAMPUS, TEST_DELIVERY_MODE, TEST_CANVAS_ID, TEST_INSTRUCTOR,
+                TEST_BUILDING_NAME, TEST_ROOM_NBR, TEST_WEEKDAYS);
 
         final String ser = obj.toString();
 

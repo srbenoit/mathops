@@ -29,6 +29,9 @@ public final class StandardsCourseModuleRec extends RecBase implements Comparabl
     /** The 'nbr_standards' field value. */
     public final Integer nbrStandards;
 
+    /** The 'nbr_essential' field value. */
+    public final Integer nbrEssential;
+
     /** The 'module_path' field value. */
     public final String modulePath;
 
@@ -38,10 +41,11 @@ public final class StandardsCourseModuleRec extends RecBase implements Comparabl
      * @param theCourseId     the course ID
      * @param theModuleNbr    the module number
      * @param theNbrStandards the number of standards in the module
-     * @param theModulePath   for metadata-based courses, the relative path of the module, like "05_trig/01_angles"
+     * @param theNbrEssential the number of "essential" standards in the module
+     * @param theModulePath   the relative path of the module, like "05_trig/01_angles"
      */
     public StandardsCourseModuleRec(final String theCourseId, final Integer theModuleNbr, final Integer theNbrStandards,
-                                    final String theModulePath) {
+                                    final Integer theNbrEssential, final String theModulePath) {
 
         super();
 
@@ -54,10 +58,14 @@ public final class StandardsCourseModuleRec extends RecBase implements Comparabl
         if (theNbrStandards == null) {
             throw new IllegalArgumentException("Number of standards may not be null");
         }
+        if (theNbrEssential == null) {
+            throw new IllegalArgumentException("Number of essential standards may not be null");
+        }
 
         this.courseId = theCourseId;
         this.moduleNbr = theModuleNbr;
         this.nbrStandards = theNbrStandards;
+        this.nbrEssential = theNbrEssential;
         this.modulePath = theModulePath;
     }
 
@@ -97,6 +105,8 @@ public final class StandardsCourseModuleRec extends RecBase implements Comparabl
         htm.add(DIVIDER);
         appendField(htm, DataDict.FLD_NBR_STANDARDS, this.nbrStandards);
         htm.add(DIVIDER);
+        appendField(htm, DataDict.FLD_NBR_ESSENTIAL, this.nbrEssential);
+        htm.add(DIVIDER);
         appendField(htm, DataDict.FLD_MODULE_PATH, this.modulePath);
 
         return htm.toString();
@@ -113,6 +123,7 @@ public final class StandardsCourseModuleRec extends RecBase implements Comparabl
         return this.courseId.hashCode()
                + this.moduleNbr.hashCode()
                + this.nbrStandards.hashCode()
+               + this.nbrEssential.hashCode()
                + Objects.hashCode(this.modulePath);
     }
 
@@ -133,6 +144,7 @@ public final class StandardsCourseModuleRec extends RecBase implements Comparabl
             equal = this.courseId.equals(rec.courseId)
                     && this.moduleNbr.equals(rec.moduleNbr)
                     && this.nbrStandards.equals(rec.nbrStandards)
+                    && this.nbrEssential.equals(rec.nbrEssential)
                     && Objects.equals(this.modulePath, rec.modulePath);
         } else {
             equal = false;

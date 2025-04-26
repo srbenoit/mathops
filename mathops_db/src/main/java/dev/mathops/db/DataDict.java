@@ -87,7 +87,7 @@ public enum DataDict {
     public static final String FLD_D_MIN_SCORE = "d_min_score";
 
     /** A field name for serialization of records. */
-    public static final String FLD_DELIVERY_MODE= "delivery_mode";
+    public static final String FLD_DELIVERY_MODE = "delivery_mode";
 
     /** A field name for serialization of records. */
     public static final String FLD_DISPLAY_INDEX = "display_index";
@@ -130,6 +130,9 @@ public enum DataDict {
     public static final String FLD_INSTRUCTOR = "instructor";
 
     /** A field name for serialization of records. */
+    public static final String FLD_IS_ESSENTIAL = "is_essential";
+
+    /** A field name for serialization of records. */
     public static final String FLD_ITEM_ID = "item_id";
 
     /** A field name for serialization of records. */
@@ -146,6 +149,9 @@ public enum DataDict {
     /** A field name for serialization of records. */
     public static final String FLD_LATE_MASTERY_PTS = "late_mastery_pts";
 
+    /** A field name for serialization of records. */
+    public static final String FLD_LEARNING_OBJECTIVE = "learning_objective";
+
     //
 
     /** A field name for serialization of records. */
@@ -155,10 +161,10 @@ public enum DataDict {
     public static final String FLD_MASTERY_STATUS = "mastery_status";
 
     /** A field name for serialization of records. */
-    public static final String FLD_METADATA_PATH = "metadata_path";
+    public static final String FLD_MAX_UNMASTERED_ESSENTIAL = "max_unmastered_essential";
 
     /** A field name for serialization of records. */
-    public static final String FLD_MIN_ESSENTIAL_STANDARDS = "min_essential_standards";
+    public static final String FLD_METADATA_PATH = "metadata_path";
 
     /** A field name for serialization of records. */
     public static final String FLD_MIN_PASSING_SCORE = "min_passing_score";
@@ -187,7 +193,7 @@ public enum DataDict {
     public static final String FLD_NBR_CREDITS = "nbr_credits";
 
     /** A field name for serialization of records. */
-    public static final String FLD_NBR_ESSENTIAL_STANDARDS = "nbr_essential_standards";
+    public static final String FLD_NBR_ESSENTIAL = "nbr_essential";
 
     /** A field name for serialization of records. */
     public static final String FLD_NBR_MODULES = "nbr_modules";
@@ -288,7 +294,6 @@ public enum DataDict {
 
     /** A field name for serialization of records. */
     public static final String FLD_SURVEY_TITLE = "survey_title";
-
 
     //
 

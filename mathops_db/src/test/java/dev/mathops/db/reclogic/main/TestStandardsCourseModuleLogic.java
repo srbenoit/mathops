@@ -33,23 +33,28 @@ final class TestStandardsCourseModuleLogic {
 
     /** A raw test record. */
     private static final StandardsCourseModuleRec RAW1 =
-            new StandardsCourseModuleRec("MATH 117", Integer.valueOf(1), Integer.valueOf(3), "02_alg/01_numbers");
+            new StandardsCourseModuleRec("MATH 117", Integer.valueOf(1), Integer.valueOf(3), Integer.valueOf(2),
+                    "02_alg/01_numbers");
 
     /** A raw test record. */
     private static final StandardsCourseModuleRec RAW2 =
-            new StandardsCourseModuleRec("MATH 101", Integer.valueOf(2), Integer.valueOf(5), "01_gen/02_data");
+            new StandardsCourseModuleRec("MATH 101", Integer.valueOf(2), Integer.valueOf(5), Integer.valueOf(4),
+                    "01_gen/02_data");
 
     /** A raw test record. */
     private static final StandardsCourseModuleRec RAW3 =
-            new StandardsCourseModuleRec("MATH 160", Integer.valueOf(3), Integer.valueOf(4), "06_calc/03_deriv_apps");
+            new StandardsCourseModuleRec("MATH 160", Integer.valueOf(3), Integer.valueOf(4), Integer.valueOf(3),
+                    "06_calc/03_deriv_apps");
 
     /** A raw test record. */
     private static final StandardsCourseModuleRec RAW4 =
-            new StandardsCourseModuleRec("MATH 160", Integer.valueOf(4), Integer.valueOf(6), "06_calc/04_antidiff");
+            new StandardsCourseModuleRec("MATH 160", Integer.valueOf(4), Integer.valueOf(6), Integer.valueOf(5),
+                    "06_calc/04_antidiff");
 
     /** A raw test record. */
     private static final StandardsCourseModuleRec UPD4 =
-            new StandardsCourseModuleRec("MATH 160", Integer.valueOf(4), Integer.valueOf(7), "06_calc/04_integrals");
+            new StandardsCourseModuleRec("MATH 160", Integer.valueOf(4), Integer.valueOf(7), Integer.valueOf(6),
+                    "06_calc/04_integrals");
 
     /** The database profile. */
     static Profile profile;
@@ -67,6 +72,7 @@ final class TestStandardsCourseModuleLogic {
         Log.warning("Unexpected course ID ", r.courseId);
         Log.warning("Unexpected module number ", r.moduleNbr);
         Log.warning("Unexpected number of standards ", r.nbrStandards);
+        Log.warning("Unexpected number of essential standards ", r.nbrEssential);
         Log.warning("Unexpected module path ", r.modulePath);
     }
 

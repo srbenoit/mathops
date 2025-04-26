@@ -4,9 +4,6 @@ import dev.mathops.db.rec.RecBase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
-import java.time.Month;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -24,10 +21,7 @@ public final class TestStandardsCourseGradingSystemRec {
     private static final Integer TEST_MIN_STANDARDS = Integer.valueOf(18);
 
     /** A field name. */
-    private static final Integer TEST_NBR_ESSENTIAL_STANDARDS = Integer.valueOf(6);
-
-    /** A field name. */
-    private static final Integer TEST_MIN_ESSENTIAL_STANDARDS = Integer.valueOf(5);
+    private static final Integer TEST_MAX_UNMASTERED_ESSENTIAL = Integer.valueOf(1);
 
     /** A field name. */
     private static final Integer TEST_HOMEWORK_PTS = Integer.valueOf(0);
@@ -63,8 +57,7 @@ public final class TestStandardsCourseGradingSystemRec {
             "grading_system_id=G1",
             "nbr_standards=24",
             "min_standards=18",
-            "nbr_essential_standards=6",
-            "min_essential_standards=5",
+            "max_unmastered_essential=1",
             "homework_pts=0",
             "on_time_mastery_pts=5",
             "late_mastery_pts=4",
@@ -91,17 +84,15 @@ public final class TestStandardsCourseGradingSystemRec {
     void test0001() {
 
         final StandardsCourseGradingSystemRec obj = new StandardsCourseGradingSystemRec(TEST_GRADING_SYSTEM_ID,
-                TEST_NBR_STANDARDS, TEST_MIN_STANDARDS, TEST_NBR_ESSENTIAL_STANDARDS, TEST_MIN_ESSENTIAL_STANDARDS,
-                TEST_HOMEWORK_PTS, TEST_ON_TIME_MASTERY_PTS, TEST_LATE_MASTERY_PTS, TEST_A_MIN_SCORE, TEST_B_MIN_SCORE,
-                TEST_C_MIN_SCORE, TEST_D_MIN_SCORE, TEST_U_MIN_SCORE, TEST_MIN_STANDARDS_FOR_INC);
+                TEST_NBR_STANDARDS, TEST_MIN_STANDARDS, TEST_MAX_UNMASTERED_ESSENTIAL, TEST_HOMEWORK_PTS,
+                TEST_ON_TIME_MASTERY_PTS, TEST_LATE_MASTERY_PTS, TEST_A_MIN_SCORE, TEST_B_MIN_SCORE, TEST_C_MIN_SCORE,
+                TEST_D_MIN_SCORE, TEST_U_MIN_SCORE, TEST_MIN_STANDARDS_FOR_INC);
 
         assertEquals(TEST_GRADING_SYSTEM_ID, obj.gradingSystemId, "Invalid grading system ID value after constructor");
         assertEquals(TEST_NBR_STANDARDS, obj.nbrStandards, "Invalid number of standards value after constructor");
         assertEquals(TEST_MIN_STANDARDS, obj.minStandards, "Invalid min standards value after constructor");
-        assertEquals(TEST_NBR_ESSENTIAL_STANDARDS, obj.nbrEssentialStandards,
-                "Invalid number of essential standards value after constructor");
-        assertEquals(TEST_MIN_ESSENTIAL_STANDARDS, obj.minEssentialStandards,
-                "Invalid min essential standards value after constructor");
+        assertEquals(TEST_MAX_UNMASTERED_ESSENTIAL, obj.maxUnmasteredEssential,
+                "Invalid maximum unmastered essential value after constructor");
         assertEquals(TEST_HOMEWORK_PTS, obj.homeworkPts, "Invalid homework pts value after constructor");
         assertEquals(TEST_ON_TIME_MASTERY_PTS, obj.onTimeMasteryPts,
                 "Invalid on-time mastery pts value after constructor");
@@ -123,9 +114,9 @@ public final class TestStandardsCourseGradingSystemRec {
     void test0098() {
 
         final StandardsCourseGradingSystemRec obj = new StandardsCourseGradingSystemRec(TEST_GRADING_SYSTEM_ID,
-                TEST_NBR_STANDARDS, TEST_MIN_STANDARDS, TEST_NBR_ESSENTIAL_STANDARDS, TEST_MIN_ESSENTIAL_STANDARDS,
-                TEST_HOMEWORK_PTS, TEST_ON_TIME_MASTERY_PTS, TEST_LATE_MASTERY_PTS, TEST_A_MIN_SCORE, TEST_B_MIN_SCORE,
-                TEST_C_MIN_SCORE, TEST_D_MIN_SCORE, TEST_U_MIN_SCORE, TEST_MIN_STANDARDS_FOR_INC);
+                TEST_NBR_STANDARDS, TEST_MIN_STANDARDS, TEST_MAX_UNMASTERED_ESSENTIAL, TEST_HOMEWORK_PTS,
+                TEST_ON_TIME_MASTERY_PTS, TEST_LATE_MASTERY_PTS, TEST_A_MIN_SCORE, TEST_B_MIN_SCORE, TEST_C_MIN_SCORE,
+                TEST_D_MIN_SCORE, TEST_U_MIN_SCORE, TEST_MIN_STANDARDS_FOR_INC);
 
         final String ser = obj.toString();
 

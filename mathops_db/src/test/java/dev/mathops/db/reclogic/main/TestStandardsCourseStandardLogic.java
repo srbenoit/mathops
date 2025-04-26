@@ -1,4 +1,4 @@
-package dev.mathops.db.reclogic.term;
+package dev.mathops.db.reclogic.main;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
@@ -10,7 +10,7 @@ import dev.mathops.db.cfg.DatabaseConfig;
 import dev.mathops.db.cfg.Facet;
 import dev.mathops.db.cfg.Login;
 import dev.mathops.db.cfg.Profile;
-import dev.mathops.db.rec.term.StandardsCourseGradingSystemRec;
+import dev.mathops.db.rec.main.StandardsCourseStandardRec;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -27,37 +27,34 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * Tests for the {@code StandardsCourseGradingSystemLogic} class.
+ * Tests for the {@code StandardsCourseStandardLogic} class.
  */
-final class TestStandardsCourseGradingSystemLogic {
+final class TestStandardsCourseStandardLogic {
 
     /** A raw test record. */
-    private static final StandardsCourseGradingSystemRec RAW1 =
-            new StandardsCourseGradingSystemRec("SYS001", Integer.valueOf(24), Integer.valueOf(18), Integer.valueOf(1),
-                    Integer.valueOf(0), Integer.valueOf(5), Integer.valueOf(4), Integer.valueOf(108),
-                    Integer.valueOf(96), Integer.valueOf(84), Integer.valueOf(72), Integer.valueOf(12),
-                    Integer.valueOf(3));
+    private static final StandardsCourseStandardRec RAW1 =
+            new StandardsCourseStandardRec("MATH 117", Integer.valueOf(1), Integer.valueOf(3), "I can A.",
+                    "Y");
 
     /** A raw test record. */
-    private static final StandardsCourseGradingSystemRec RAW2 =
-            new StandardsCourseGradingSystemRec("SYS002", Integer.valueOf(48), Integer.valueOf(36), Integer.valueOf(2),
-                    Integer.valueOf(1), Integer.valueOf(10), Integer.valueOf(8), Integer.valueOf(216),
-                    Integer.valueOf(192), Integer.valueOf(168), Integer.valueOf(144), Integer.valueOf(24),
-                    Integer.valueOf(6));
+    private static final StandardsCourseStandardRec RAW2 =
+            new StandardsCourseStandardRec("MATH 101", Integer.valueOf(2), Integer.valueOf(5), "I can B.",
+                    "N");
 
     /** A raw test record. */
-    private static final StandardsCourseGradingSystemRec RAW3 =
-            new StandardsCourseGradingSystemRec("SYS003", Integer.valueOf(12), Integer.valueOf(9), Integer.valueOf(3),
-                    Integer.valueOf(10), Integer.valueOf(100), Integer.valueOf(80), Integer.valueOf(1000),
-                    Integer.valueOf(900), Integer.valueOf(800), Integer.valueOf(700), Integer.valueOf(200),
-                    Integer.valueOf(2));
+    private static final StandardsCourseStandardRec RAW3 =
+            new StandardsCourseStandardRec("MATH 160", Integer.valueOf(3), Integer.valueOf(4), "I can C.",
+                    "A");
 
     /** A raw test record. */
-    private static final StandardsCourseGradingSystemRec UPD3 =
-            new StandardsCourseGradingSystemRec("SYS003", Integer.valueOf(13), Integer.valueOf(10), Integer.valueOf(4),
-                    Integer.valueOf(11), Integer.valueOf(101), Integer.valueOf(81), Integer.valueOf(1001),
-                    Integer.valueOf(901), Integer.valueOf(801), Integer.valueOf(701), Integer.valueOf(201),
-                    Integer.valueOf(3));
+    private static final StandardsCourseStandardRec RAW4 =
+            new StandardsCourseStandardRec("MATH 160", Integer.valueOf(4), Integer.valueOf(6), "I can D.",
+                    "B");
+
+    /** A raw test record. */
+    private static final StandardsCourseStandardRec UPD4 =
+            new StandardsCourseStandardRec("MATH 160", Integer.valueOf(4), Integer.valueOf(7), "I can E.",
+                    "C");
 
     /** The database profile. */
     static Profile profile;
@@ -70,21 +67,13 @@ final class TestStandardsCourseGradingSystemLogic {
      *
      * @param r the unexpected record
      */
-    private static void printUnexpected(final StandardsCourseGradingSystemRec r) {
+    private static void printUnexpected(final StandardsCourseStandardRec r) {
 
-        Log.warning("Unexpected grading system ID ", r.gradingSystemId);
-        Log.warning("Unexpected number of standards ", r.nbrStandards);
-        Log.warning("Unexpected minimum standards ", r.minStandards);
-        Log.warning("Unexpected maximum unmastered essential ", r.maxUnmasteredEssential);
-        Log.warning("Unexpected homework points ", r.homeworkPts);
-        Log.warning("Unexpected on-time mastery points ", r.onTimeMasteryPts);
-        Log.warning("Unexpected mastery points ", r.lateMasteryPts);
-        Log.warning("Unexpected a min score ", r.aMinScore);
-        Log.warning("Unexpected b min score ", r.bMinScore);
-        Log.warning("Unexpected c min score ", r.cMinScore);
-        Log.warning("Unexpected d min score ", r.dMinScore);
-        Log.warning("Unexpected u min score ", r.uMinScore);
-        Log.warning("Unexpected min standards for inc ", r.minStandardsForInc);
+        Log.warning("Unexpected course ID ", r.courseId);
+        Log.warning("Unexpected module number ", r.moduleNbr);
+        Log.warning("Unexpected standard number ", r.standardNbr);
+        Log.warning("Unexpected learning objective ", r.learningObjective);
+        Log.warning("Unexpected essential flag ", r.isEssential);
     }
 
     /** Initialize the test class. */
@@ -108,9 +97,9 @@ final class TestStandardsCourseGradingSystemLogic {
         }
 
         final Cache cache = new Cache(profile);
-        final String prefix = cache.getSchemaPrefix(ESchema.TERM);
+        final String prefix = cache.getSchemaPrefix(ESchema.MAIN);
         if (prefix == null) {
-            fail(TestRes.get(TestRes.ERR_NO_TERM_PREFIX));
+            fail(TestRes.get(TestRes.ERR_NO_MAIN_PREFIX));
         }
 
         final DbConnection conn = login.checkOutConnection();
@@ -132,19 +121,21 @@ final class TestStandardsCourseGradingSystemLogic {
             }
 
             try (final Statement stmt = conn.createStatement()) {
-                stmt.executeUpdate("DELETE FROM " + prefix + ".standards_course_grading_system");
+                stmt.executeUpdate("DELETE FROM " + prefix + ".standards_course_standard");
             }
             conn.commit();
 
-            assertTrue(StandardsCourseGradingSystemLogic.INSTANCE.insert(cache, RAW1),
-                    "Failed to insert standards course GradingSystem");
-            assertTrue(StandardsCourseGradingSystemLogic.INSTANCE.insert(cache, RAW2),
-                    "Failed to insert standards course GradingSystem");
-            assertTrue(StandardsCourseGradingSystemLogic.INSTANCE.insert(cache, RAW3),
-                    "Failed to insert standards course GradingSystem");
+            assertTrue(StandardsCourseStandardLogic.INSTANCE.insert(cache, RAW1),
+                    "Failed to insert standards course standard");
+            assertTrue(StandardsCourseStandardLogic.INSTANCE.insert(cache, RAW2),
+                    "Failed to insert standards course standard");
+            assertTrue(StandardsCourseStandardLogic.INSTANCE.insert(cache, RAW3),
+                    "Failed to insert standards course standard");
+            assertTrue(StandardsCourseStandardLogic.INSTANCE.insert(cache, RAW4),
+                    "Failed to insert standards course standard");
         } catch (final SQLException ex) {
             Log.warning(ex);
-            fail("Exception while initializing 'standards_course_grading_system' table: " + ex.getMessage());
+            fail("Exception while initializing 'standards_course_standard' table: " + ex.getMessage());
             throw new IllegalArgumentException(ex);
         } finally {
             login.checkInConnection(conn);
@@ -158,34 +149,37 @@ final class TestStandardsCourseGradingSystemLogic {
         final Cache cache = new Cache(profile);
 
         try {
-            final List<StandardsCourseGradingSystemRec> all = StandardsCourseGradingSystemLogic.INSTANCE.queryAll(
-                    cache);
+            final List<StandardsCourseStandardRec> all = StandardsCourseStandardLogic.INSTANCE.queryAll(cache);
 
-            assertEquals(3, all.size(), "Incorrect record count from queryAll");
+            assertEquals(4, all.size(), "Incorrect record count from queryAll");
 
             boolean found1 = false;
             boolean found2 = false;
             boolean found3 = false;
+            boolean found4 = false;
 
-            for (final StandardsCourseGradingSystemRec r : all) {
+            for (final StandardsCourseStandardRec r : all) {
                 if (RAW1.equals(r)) {
                     found1 = true;
                 } else if (RAW2.equals(r)) {
                     found2 = true;
                 } else if (RAW3.equals(r)) {
                     found3 = true;
+                } else if (RAW4.equals(r)) {
+                    found4 = true;
                 } else {
                     printUnexpected(r);
                     fail("Extra record found");
                 }
             }
 
-            assertTrue(found1, "standards_course_grading_system 1 not found");
-            assertTrue(found2, "standards_course_grading_system 2 not found");
-            assertTrue(found3, "standards_course_grading_system 3 not found");
+            assertTrue(found1, "standards_course_standard 1 not found");
+            assertTrue(found2, "standards_course_standard 2 not found");
+            assertTrue(found3, "standards_course_standard 3 not found");
+            assertTrue(found4, "standards_course_standard 4 not found");
         } catch (final SQLException ex) {
             Log.warning(ex);
-            fail("Exception while querying all 'standards_course_grading_system' rows: " + ex.getMessage());
+            fail("Exception while querying all 'standards_course_standard' rows: " + ex.getMessage());
         }
     }
 
@@ -196,8 +190,8 @@ final class TestStandardsCourseGradingSystemLogic {
         final Cache cache = new Cache(profile);
 
         try {
-            final StandardsCourseGradingSystemRec r = StandardsCourseGradingSystemLogic.INSTANCE.query(cache,
-                    RAW1.gradingSystemId);
+            final StandardsCourseStandardRec r = StandardsCourseStandardLogic.INSTANCE.query(cache, RAW1.courseId,
+                    RAW1.moduleNbr, RAW1.standardNbr);
 
             assertNotNull(r, "No record returned by query");
 
@@ -207,70 +201,107 @@ final class TestStandardsCourseGradingSystemLogic {
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
-            fail("Exception while querying standards_course_grading_system: " + ex.getMessage());
+            fail("Exception while querying standards_course_standard: " + ex.getMessage());
         }
     }
 
     /** Test case. */
     @Test
-    @DisplayName("update results")
+    @DisplayName("queryByCourse results")
     void test0003() {
         final Cache cache = new Cache(profile);
 
         try {
-            if (StandardsCourseGradingSystemLogic.INSTANCE.update(cache, UPD3)) {
-                final StandardsCourseGradingSystemRec r = StandardsCourseGradingSystemLogic.INSTANCE.query(cache,
-                        UPD3.gradingSystemId);
+            final List<StandardsCourseStandardRec> all = StandardsCourseStandardLogic.INSTANCE.queryByCourse(cache,
+                    RAW3.courseId);
 
-                assertNotNull(r, "No record returned by query after update");
+            assertEquals(2, all.size(), "Incorrect record count from queryByCourse");
 
-                if (!UPD3.equals(r)) {
-                    printUnexpected(r);
-                    fail("Incorrect results after update of standards_course_grading_system");
-                }
-            } else {
-                fail("Failed to update standards_course_grading_system row");
-            }
-        } catch (final SQLException ex) {
-            Log.warning(ex);
-            fail("Exception while updating standards_course_grading_system: " + ex.getMessage());
-        }
-    }
-
-    /** Test case. */
-    @Test
-    @DisplayName("delete results")
-    void test0004() {
-        final Cache cache = new Cache(profile);
-
-        try {
-            final boolean result = StandardsCourseGradingSystemLogic.INSTANCE.delete(cache, RAW2);
-            assertTrue(result, "delete returned false");
-
-            final List<StandardsCourseGradingSystemRec> all = StandardsCourseGradingSystemLogic.INSTANCE.queryAll(
-                    cache);
-
-            assertEquals(2, all.size(), "Incorrect record count from queryAll after delete");
-
-            boolean found1 = false;
             boolean found3 = false;
+            boolean found4 = false;
 
-            for (final StandardsCourseGradingSystemRec r : all) {
-                if (RAW1.equals(r)) {
-                    found1 = true;
-                } else if (UPD3.equals(r)) {
+            for (final StandardsCourseStandardRec r : all) {
+                if (RAW3.equals(r)) {
                     found3 = true;
+                } else if (RAW4.equals(r)) {
+                    found4 = true;
                 } else {
                     printUnexpected(r);
                     fail("Extra record found");
                 }
             }
 
-            assertTrue(found1, "standards_course_grading_system 1 not found");
-            assertTrue(found3, "standards_course_grading_system 3 not found");
+            assertTrue(found3, "standards_course_standard 3 not found");
+            assertTrue(found4, "standards_course_standard 4 not found");
         } catch (final SQLException ex) {
             Log.warning(ex);
-            fail("Exception while deleting standards_course_grading_systems: " + ex.getMessage());
+            fail("Exception while querying standards_course_standard: " + ex.getMessage());
+        }
+    }
+
+    /** Test case. */
+    @Test
+    @DisplayName("update results")
+    void test0004() {
+        final Cache cache = new Cache(profile);
+
+        try {
+            if (StandardsCourseStandardLogic.INSTANCE.update(cache, UPD4)) {
+                final StandardsCourseStandardRec r = StandardsCourseStandardLogic.INSTANCE.query(cache, UPD4.courseId,
+                        UPD4.moduleNbr, UPD4.standardNbr);
+
+                assertNotNull(r, "No record returned by query after update");
+
+                if (!UPD4.equals(r)) {
+                    printUnexpected(r);
+                    fail("Incorrect results after update of standards_course_standard");
+                }
+            } else {
+                fail("Failed to update standards_course_standard row");
+            }
+        } catch (final SQLException ex) {
+            Log.warning(ex);
+            fail("Exception while updating standards_course_standard: " + ex.getMessage());
+        }
+    }
+
+    /** Test case. */
+    @Test
+    @DisplayName("delete results")
+    void test0005() {
+        final Cache cache = new Cache(profile);
+
+        try {
+            final boolean result = StandardsCourseStandardLogic.INSTANCE.delete(cache, RAW2);
+            assertTrue(result, "delete returned false");
+
+            final List<StandardsCourseStandardRec> all = StandardsCourseStandardLogic.INSTANCE.queryAll(cache);
+
+            assertEquals(3, all.size(), "Incorrect record count from queryAll after delete");
+
+            boolean found1 = false;
+            boolean found3 = false;
+            boolean found4 = false;
+
+            for (final StandardsCourseStandardRec r : all) {
+                if (RAW1.equals(r)) {
+                    found1 = true;
+                } else if (RAW3.equals(r)) {
+                    found3 = true;
+                } else if (UPD4.equals(r)) {
+                    found4 = true;
+                } else {
+                    printUnexpected(r);
+                    fail("Extra record found");
+                }
+            }
+
+            assertTrue(found1, "standards_course_standard 1 not found");
+            assertTrue(found3, "standards_course_standard 3 not found");
+            assertTrue(found4, "standards_course_standard 4 not found");
+        } catch (final SQLException ex) {
+            Log.warning(ex);
+            fail("Exception while deleting standards_course_standards: " + ex.getMessage());
         }
     }
 
@@ -279,9 +310,9 @@ final class TestStandardsCourseGradingSystemLogic {
     static void cleanUp() {
 
         final Cache cache = new Cache(profile);
-        final String prefix = cache.getSchemaPrefix(ESchema.TERM);
+        final String prefix = cache.getSchemaPrefix(ESchema.MAIN);
         if (prefix == null) {
-            fail(TestRes.get(TestRes.ERR_NO_TERM_PREFIX));
+            fail(TestRes.get(TestRes.ERR_NO_MAIN_PREFIX));
         }
 
         try {
@@ -305,7 +336,7 @@ final class TestStandardsCourseGradingSystemLogic {
                 }
 
                 try (final Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("DELETE FROM " + prefix + ".standards_course_grading_system");
+                    stmt.executeUpdate("DELETE FROM " + prefix + ".standards_course_standard");
                 }
 
                 conn.commit();

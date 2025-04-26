@@ -340,8 +340,8 @@ ALTER TABLE IF EXISTS main_test.standards_course_module OWNER to math;
 -- DROP TABLE IF EXISTS main.standards_course_standard;
 CREATE TABLE IF NOT EXISTS main.standards_course_standard (
     course_id                char(10)        NOT NULL,  -- The course ID (references standards_course)
-    module_nbr               smallint        NOT NULL,  -- The module number (1 for the first module)
-    standard_nbr             smallint        NOT NULL,  -- The standard number (1 for the first standard in the module)
+    module_nbr               smallint        NOT NULL,  -- The module number (1 for first module)
+    standard_nbr             smallint        NOT NULL,  -- The standard number (1 for first standard in the module)
     learning_objective       text            NOT NULL,  -- The learning objective, in "I can ..." form.
     is_essential             char(1)         NOT NULL,  -- "Y" if essential , "N" if not
     PRIMARY KEY (course_id, module_nbr, standard_nbr)
