@@ -1,14 +1,13 @@
-package dev.mathops.web.site.canvas.courses;
+package dev.mathops.db.course;
 
 import dev.mathops.text.parser.json.JSONObject;
-import dev.mathops.web.site.canvas.CanvasPageUtils;
 
 import java.io.File;
 
 /**
  * A container for metadata relating to an objective, which could exist in a Skills Review or a Standard.
  */
-final class MetadataObjective {
+public final class MetadataObjective {
 
     /** The objective directory. */
     final File objectiveDir;
@@ -28,7 +27,7 @@ final class MetadataObjective {
 
         this.objectiveDir = theStandardDir;
 
-        final JSONObject loadedJson = CanvasPageUtils.loadMetadata(theStandardDir);
+        final JSONObject loadedJson = JSONUtils.loadJsonFile(theStandardDir, "metadata.json");
         if (loadedJson == null) {
             this.title = null;
             this.description = null;

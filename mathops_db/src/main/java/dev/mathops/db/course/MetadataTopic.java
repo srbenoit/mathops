@@ -1,4 +1,4 @@
-package dev.mathops.web.site.canvas.courses;
+package dev.mathops.db.course;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.text.parser.json.JSONObject;

@@ -1,7 +1,6 @@
-package dev.mathops.web.site.canvas.courses;
+package dev.mathops.db.course;
 
 import dev.mathops.text.parser.json.JSONObject;
-import dev.mathops.web.site.canvas.CanvasPageUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -10,7 +9,7 @@ import java.util.List;
 /**
  * A container for metadata relating to a standard.
  */
-final class MetadataStandard {
+public final class MetadataStandard {
 
     /** Suffixes for objective paths. */
     private static final String SUFFIXES = "-----------ABCDEFGHIJKLMNOPQRS";
@@ -37,7 +36,7 @@ final class MetadataStandard {
         this.standardDir = theStandardDir;
         this.objectives = new ArrayList<>(10);
 
-        final JSONObject loadedJson = CanvasPageUtils.loadMetadata(theStandardDir);
+        final JSONObject loadedJson = JSONUtils.loadJsonFile(theStandardDir, "metadata.json");
         if (loadedJson == null) {
             this.title = null;
             this.description = null;

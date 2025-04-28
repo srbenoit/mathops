@@ -2,17 +2,16 @@ package dev.mathops.web.site.canvas.courses;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.course.MetadataTopic;
 import dev.mathops.db.logic.MainData;
 import dev.mathops.db.logic.TermData;
 import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawSthomework;
-import dev.mathops.db.rec.AssignmentRec;
 import dev.mathops.db.rec.main.StandardAssignmentRec;
 import dev.mathops.db.rec.main.StandardsCourseModuleRec;
 import dev.mathops.db.rec.main.StandardsCourseRec;
 import dev.mathops.db.rec.term.StandardsCourseSectionRec;
-import dev.mathops.db.reclogic.AssignmentLogic;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;

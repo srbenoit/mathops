@@ -3,6 +3,7 @@ package dev.mathops.web.site.canvas.courses;
 import dev.mathops.commons.installation.EPath;
 import dev.mathops.commons.installation.PathList;
 import dev.mathops.db.Cache;
+import dev.mathops.db.course.MetadataCourseModule;
 import dev.mathops.db.logic.MainData;
 import dev.mathops.db.logic.TermData;
 import dev.mathops.db.old.rawrecord.RawStcourse;
@@ -146,14 +147,14 @@ public enum PageModules {
         final List<StandardsCourseModuleRec> modules = mainData.getStandardsCourseModules(course.courseId);
 
         for (final StandardsCourseModuleRec module : modules) {
-
             final File moduleDir = new File(mediaPath, module.modulePath);
+
             final JSONObject moduleMetaJson = CanvasPageUtils.loadMetadata(moduleDir);
             if (moduleMetaJson != null) {
                 final MetadataCourseModule meta = new MetadataCourseModule(moduleMetaJson, mediaPath);
 
                 if (meta.isValid()) {
-                    emitTopicModule(htm, module, meta, mediaPath);
+                    emitTopicModule(htm, module, meta, moduleDir);
                 }
             }
         }
@@ -183,13 +184,13 @@ public enum PageModules {
     /**
      * Emits a single topic module.
      *
-     * @param htm      the {@code HtmlBuilder} to which to append
-     * @param module   the metadata describing the topic within the course
-     * @param meta     the topic module metadata object
-     * @param topicDir the root directory in which to find topic media files
+     * @param htm       the {@code HtmlBuilder} to which to append
+     * @param module    the metadata describing the topic within the course
+     * @param meta      loaded module metadata
+     * @param moduleDir the root directory in which to find module files
      */
     private static void emitTopicModule(final HtmlBuilder htm, final StandardsCourseModuleRec module,
-                                        final MetadataTopic meta, final File topicDir) {
+                                        final MetadataCourseModule meta, final File moduleDir) {
 
         startModule(htm, meta.heading, meta.title);
 

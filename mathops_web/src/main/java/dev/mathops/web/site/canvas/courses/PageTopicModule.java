@@ -2,6 +2,9 @@ package dev.mathops.web.site.canvas.courses;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.course.MetadataObjective;
+import dev.mathops.db.course.MetadataSkillsReview;
+import dev.mathops.db.course.MetadataStandard;
 import dev.mathops.db.logic.MainData;
 import dev.mathops.db.logic.TermData;
 import dev.mathops.db.old.rawrecord.RawStcourse;
