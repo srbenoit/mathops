@@ -78,10 +78,6 @@ enum QualityControlChecks {
 
         // TODO: SPAN variables that do not depend on any parameters; candidates for direct substitution in source file
 
-        // TODO: font size on fractions other than 85%
-
-        // TODO: font name usage
-
         // TODO: Graph formula whose domain is graph's window (unneeded minx/maxx)
 
         // TODO: Check for "grouping" usage in formulas
@@ -123,8 +119,6 @@ enum QualityControlChecks {
 
         // TODO: constraints on multiple choice/selection on number of choices shown or min/max correct that are
         //  unnecessary based on the number of choices defined
-
-        // TODO: child elements that replace attributes with an expression, but where that expression is a constant
     }
 
     /**

@@ -2590,6 +2590,10 @@ public enum VariableFactory {
                                     elem.logError("Invalid 'min' formula in {" + varName + "}: " + nonempty.print(0));
                                     valid = false;
                                 } else {
+                                    if (minFormula.isConstant()) {
+                                        elem.logError("Constant 'min' in {" + varName
+                                                      + "} could be specified in attribute?");
+                                    }
                                     min = new NumberOrFormula(minFormula);
                                 }
                             } else {
@@ -2605,6 +2609,10 @@ public enum VariableFactory {
                                     elem.logError("Invalid 'max' formula in {" + varName + "}: " + nonempty.print(0));
                                     valid = false;
                                 } else {
+                                    if (maxFormula.isConstant()) {
+                                        elem.logError("Constant 'max' in {" + varName
+                                                      + "} could be specified in attribute?");
+                                    }
                                     max = new NumberOrFormula(maxFormula);
                                 }
                             } else {
@@ -2836,6 +2844,10 @@ public enum VariableFactory {
                                     elem.logError("Invalid 'min' formula in {" + varName + "}: " + nonempty.print(0));
                                     valid = false;
                                 } else {
+                                    if (minFormula.isConstant()) {
+                                        elem.logError("Constant 'min' in {" + varName
+                                                      + "} could be specified in attribute?");
+                                    }
                                     min = new NumberOrFormula(minFormula);
                                 }
                             } else {
@@ -2851,6 +2863,10 @@ public enum VariableFactory {
                                     elem.logError("Invalid 'max' formula in {" + varName + "}: " + nonempty.print(0));
                                     valid = false;
                                 } else {
+                                    if (maxFormula.isConstant()) {
+                                        elem.logError("Constant 'max' in {" + varName
+                                                      + "} could be specified in attribute?");
+                                    }
                                     max = new NumberOrFormula(maxFormula);
                                 }
                             } else {

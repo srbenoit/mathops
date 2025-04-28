@@ -530,6 +530,10 @@ final class RectangleShapeTemplate {
                             e.logError("Invalid '" + attribute.label + "' formula.");
                             ok = false;
                         } else {
+                            if (theFormula.isConstant()) {
+                                e.logError("Constant '" + attribute.label + "' in {" + e.getTagName()
+                                           + "} could be specified in attribute?");
+                            }
                             result = new NumberOrFormula(theFormula);
                         }
                     }

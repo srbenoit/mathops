@@ -782,6 +782,8 @@ public enum DocFactory {
                             if (heightF == null) {
                                 elem.logError("Invalid 'height' formula.");
                                 valid = false;
+                            } else if (heightF.isConstant()) {
+                                elem.logError("Constant 'height' in {v-space} could be specified in attribute?");
                             }
                         } else {
                             elem.logError("Cannot have multiple height formulas.");
@@ -1714,6 +1716,8 @@ public enum DocFactory {
                             if (widthF == null) {
                                 elem.logError("Invalid 'width' formula.");
                                 valid = false;
+                            } else if (widthF.isConstant()) {
+                                elem.logError("Constant 'width' in {h-space} could be specified in attribute?");
                             }
                         } else {
                             elem.logError("Cannot have multiple width formulas.");
@@ -2226,6 +2230,9 @@ public enum DocFactory {
                         elem.logError("Invalid 'width' formula.");
                         valid = false;
                     } else {
+                        if (theWidth.isConstant()) {
+                            elem.logError("Constant 'width' in {drawing} could be specified in attribute?");
+                        }
                         drawing.setWidthFormula(theWidth);
                     }
                 } else if (HEIGHT.equals(childTag)) {
@@ -2234,6 +2241,9 @@ public enum DocFactory {
                         elem.logError("Invalid 'height' formula.");
                         valid = false;
                     } else {
+                        if (theHeight.isConstant()) {
+                            elem.logError("Constant 'height' in {drawing} could be specified in attribute?");
+                        }
                         drawing.setHeightFormula(theHeight);
                     }
                 } else {
@@ -3521,6 +3531,9 @@ public enum DocFactory {
                         elem.logError("Invalid 'width' formula.");
                         valid = false;
                     } else {
+                        if (theWidth.isConstant()) {
+                            elem.logError("Constant 'width' in {image} could be specified in attribute?");
+                        }
                         width = new NumberOrFormula(theWidth);
                     }
                 } else if (HEIGHT.equals(childTag)) {
@@ -3529,6 +3542,9 @@ public enum DocFactory {
                         elem.logError("Invalid 'height' formula.");
                         valid = false;
                     } else {
+                        if (theHeight.isConstant()) {
+                            elem.logError("Constant 'height' in {image} could be specified in attribute?");
+                        }
                         height = new NumberOrFormula(theHeight);
                     }
                 } else {
@@ -5244,6 +5260,7 @@ public enum DocFactory {
 
         final String fontnameStr = elem.getStringAttr(FONT_NAME);
         if (fontnameStr != null) {
+            elem.logError("Font name should not be needed");
             if (BundledFontManager.getInstance().isFontNameValid(fontnameStr)) {
                 obj.setFontName(fontnameStr);
             } else {
@@ -5254,6 +5271,19 @@ public enum DocFactory {
 
         final String fontsizeStr = elem.getStringAttr(FONT_SIZE);
         if (fontsizeStr != null) {
+            final String tag = elem.getTagName();
+            if ("sub".equals(tag) || "super".equals(tag) || "root".equals(tag)) {
+                if ("75%".equals(fontsizeStr)) {
+                    // Warn of unnecessary specification of default font size
+                    elem.logError("Unnecessary specification of font size (default is '75%').");
+                }
+            } else if ("fraction".equals(tag)) {
+                if (!"85%".equals(fontsizeStr)) {
+                    // Warn of unusual size for a fraction
+                    elem.logError("Unusual font size for a fraction (we recommend no explicit size, or '85%')");
+                }
+            }
+
             final int len = fontsizeStr.length();
             if ((int) fontsizeStr.charAt(len - 1) == '%') {
                 try {
@@ -5287,13 +5317,13 @@ public enum DocFactory {
             }
         }
 
-        final String fontstyleStr = elem.getStringAttr(FONT_STYLE);
+        final String fontStyleStr = elem.getStringAttr(FONT_STYLE);
 
-        if (fontstyleStr != null) {
+        if (fontStyleStr != null) {
             int style = AbstractDocObjectTemplate.PLAIN;
 
-            if (!PLAIN.equalsIgnoreCase(fontstyleStr)) {
-                final String[] split = fontstyleStr.split(CoreConstants.COMMA);
+            if (!PLAIN.equalsIgnoreCase(fontStyleStr)) {
+                final String[] split = fontStyleStr.split(CoreConstants.COMMA);
 
                 for (final String entry : split) {
                     final String trimmed = entry.trim().toLowerCase(Locale.ROOT);

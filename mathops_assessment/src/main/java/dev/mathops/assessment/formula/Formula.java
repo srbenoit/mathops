@@ -211,7 +211,9 @@ public final class Formula extends AbstractFormulaContainer {
     @Override
     public boolean isConstant() {
 
-        return false;
+        final AbstractFormulaObject root = getChild(0);
+
+        return root != null && root.isConstant();
     }
 
     /**
