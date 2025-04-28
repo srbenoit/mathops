@@ -150,9 +150,6 @@ public final class SystemData {
     /** Prerequisites (map from course to the list of prerequisites for that course). */
     private Map<String, List<RawPrereq>> prerequisites = null;
 
-    /** Client PCs. */
-    private List<RawClientPc> clientPCs = null;
-
     /** Testing Centers. */
     private List<RawTestingCenter> testingCenters = null;
 
@@ -1522,7 +1519,7 @@ public final class SystemData {
     /**
      * Gets all e-texts for a course.
      *
-     * @param courseId the course Id
+     * @param courseId the course ID
      * @return the list of e-texts
      * @throws SQLException if there is an error accessing the database
      */
@@ -1789,11 +1786,7 @@ public final class SystemData {
      */
     public List<RawClientPc> getClientPcs() throws SQLException {
 
-        if (this.clientPCs == null) {
-            this.clientPCs = RawClientPcLogic.queryAll(this.cache);
-        }
-
-        return this.clientPCs;
+        return RawClientPcLogic.queryAll(this.cache);
     }
 
     /**
@@ -1805,16 +1798,7 @@ public final class SystemData {
      */
     public List<RawClientPc> getClientPcsByTestingCenter(final String testingCenterId) throws SQLException {
 
-        final List<RawClientPc> all = getClientPcs();
-
-        final List<RawClientPc> result = new ArrayList<>(100);
-        for (final RawClientPc test : all) {
-            if (test.testingCenterId.equals(testingCenterId)) {
-                result.add(test);
-            }
-        }
-
-        return result;
+        return RawClientPcLogic.queryByTestingCenter(this.cache, testingCenterId);
     }
 
     /**
@@ -1826,25 +1810,7 @@ public final class SystemData {
      */
     public RawClientPc getClientPc(final String computerId) throws SQLException {
 
-        final List<RawClientPc> all = getClientPcs();
-
-        RawClientPc result = null;
-        for (final RawClientPc test : all) {
-            if (test.computerId.equals(computerId)) {
-                result = test;
-                break;
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * Forgets the cached list of client PCs, if any, forcing a new query on next access.
-     */
-    public void forgetClientPcs() {
-
-        this.clientPCs = null;
+        return RawClientPcLogic.query(this.cache, computerId);
     }
 
     /**

@@ -1,7 +1,10 @@
 package dev.mathops.web.site.canvas.courses;
 
+import dev.mathops.commons.installation.EPath;
+import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.course.MetadataCourseModule;
 import dev.mathops.db.course.MetadataObjective;
 import dev.mathops.db.course.MetadataSkillsReview;
 import dev.mathops.db.course.MetadataStandard;
@@ -90,7 +93,12 @@ public enum PageTopicModule {
                         final String homePath = site.makeRootPath("home.html");
                         resp.sendRedirect(homePath);
                     } else {
-                        presentModulePage(cache, site, req, resp, registration, course, section, module);
+                        // Locate "media root" which is typically /opt/public/media
+                        final File wwwPath = PathList.getInstance().get(EPath.WWW_PATH);
+                        final File publicPath = wwwPath.getParentFile();
+                        final File mediaRoot = new File(publicPath, "media");
+
+                        presentModulePage(cache, site, req, resp, registration, course, section, module, mediaRoot);
                     }
                 }
             }
@@ -108,13 +116,15 @@ public enum PageTopicModule {
      * @param course       the course object
      * @param section      the course section object
      * @param module       the course module object
+     * @param mediaRoot    the root media directory relative to which the module path is specified
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
     static void presentModulePage(final Cache cache, final CanvasSite site, final ServletRequest req,
                                   final HttpServletResponse resp, final RawStcourse registration,
                                   final StandardsCourseRec course, StandardsCourseSectionRec section,
-                                  StandardsCourseModuleRec module) throws IOException, SQLException {
+                                  StandardsCourseModuleRec module, final File mediaRoot) throws IOException,
+            SQLException {
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
         final String siteTitle = site.getTitle();
@@ -130,29 +140,37 @@ public enum PageTopicModule {
 
         htm.sDiv("flexmain");
 
-        htm.sH(2);
-        if (meta.thumbnailFile != null) {
-            final String imageUrl = "/media/" + metaCourseTopic.directory + "/" + meta.thumbnailFile;
-            if (meta.thumbnailAltText == null) {
-                htm.addln("<img class='module-thumb' src='", imageUrl, "'/>");
-            } else {
-                htm.addln("<img class='module-thumb' src='", imageUrl, "' alt='", meta.thumbnailAltText, "'/>");
-            }
-        }
-        htm.sDiv("module-title");
-        htm.add(metaCourseTopic.heading, " Textbook Chapter").br();
-        htm.addln("<div style='color:#D9782D; margin-top:6px;'>", meta.title, "</div>");
-        htm.addln("<a class='smallbtn' href='assignments.html'>Go to Homework Assignments</a> &nbsp; ");
-        htm.addln("<a class='smallbtn' href='targets.html'>Go to Learning Target Exams</a>");
-        htm.eDiv();
-        htm.eH(2);
+        final MetadataCourseModule meta = new MetadataCourseModule(mediaRoot, module.modulePath, module.moduleNbr);
 
-        doModuleIntroLessons(htm, topicDir);
-        doModuleSkillsReview(htm, topicDir);
-        doModuleStandards(htm, metaCourseTopic.directory, topicDir);
-        doModuleExplorations(htm, topicDir);
-        doModuleApplications(htm, topicDir);
-        doModuleConcludingLessons(htm, topicDir);
+        if (meta.isValid()) {
+
+            htm.sH(2);
+            if (meta.thumbnailFile != null) {
+                final String imageUrl = "/media/" + meta.moduleRelPath + "/" + meta.thumbnailFile;
+                if (meta.thumbnailAltText == null) {
+                    htm.addln("<img class='module-thumb' src='", imageUrl, "'/>");
+                } else {
+                    htm.addln("<img class='module-thumb' src='", imageUrl, "' alt='", meta.thumbnailAltText, "'/>");
+                }
+            }
+            htm.sDiv("module-title");
+            htm.add("Module ", module.moduleNbr, " Textbook Chapter").br();
+            htm.addln("<div style='color:#D9782D; margin-top:6px;'>", meta.title, "</div>");
+            htm.addln("<a class='smallbtn' href='assignments.html'>Go to Homework Assignments</a> &nbsp; ");
+            htm.addln("<a class='smallbtn' href='targets.html'>Go to Learning Target Exams</a>");
+            htm.eDiv();
+            htm.eH(2);
+
+            doModuleIntroLessons(htm, meta);
+            doModuleSkillsReview(htm, meta);
+            doModuleStandards(htm, meta);
+            doModuleExplorations(htm, meta);
+            doModuleApplications(htm, meta);
+            doModuleConcludingLessons(htm, meta);
+
+        } else {
+            htm.sP().add("Error: Unable to load configuration of module ", module.moduleNbr).eP();
+        }
 
         htm.eDiv(); // flexmain
         htm.eDiv(); // pagecontainer
@@ -165,14 +183,14 @@ public enum PageTopicModule {
     /**
      * Presents any introductory lessons found in the topic directory.
      *
-     * @param htm      the {@code HtmlBuilder} to which to append
-     * @param topicDir the directory in which to locate topic media
+     * @param htm  the {@code HtmlBuilder} to which to append
+     * @param meta the metadata describing the module
      */
-    private static void doModuleIntroLessons(final HtmlBuilder htm, final File topicDir) {
+    private static void doModuleIntroLessons(final HtmlBuilder htm, final MetadataCourseModule meta) {
 
         for (int i = 1; i < 9; ++i) {
             final String dirName = "0" + i + "_intro_" + i;
-            final File dir = new File(topicDir, dirName);
+            final File dir = new File(meta.moduleDir, dirName);
 
             if (dir.exists() && dir.isDirectory()) {
 
@@ -193,15 +211,15 @@ public enum PageTopicModule {
     /**
      * Presents the module Skills Review content, if found.
      *
-     * @param htm      the {@code HtmlBuilder} to which to append
-     * @param topicDir the directory in which to locate topic media
+     * @param htm  the {@code HtmlBuilder} to which to append
+     * @param meta the metadata describing the module
      */
-    private static void doModuleSkillsReview(final HtmlBuilder htm, final File topicDir) {
+    private static void doModuleSkillsReview(final HtmlBuilder htm, final MetadataCourseModule meta) {
 
-        final File dir = new File(topicDir, "10_skills_review");
+        final File dir = new File(meta.moduleDir, "10_skills_review");
 
         if (dir.exists() && dir.isDirectory()) {
-            final MetadataSkillsReview meta = new MetadataSkillsReview(dir);
+            final MetadataSkillsReview skillsMeta = new MetadataSkillsReview(dir);
 
             htm.addln("<details class='module'>");
             htm.add("  <summary class='module-summary'>Skills Review</summary>");
@@ -212,31 +230,31 @@ public enum PageTopicModule {
                     "alt='A set of connected links in the shape of a brain.'/>");
             htm.eDiv();
 
-            if (meta.description == null) {
+            if (skillsMeta.description == null) {
                 htm.addln("The <span style='color:#D9782D'>Skills Review</span> provides a refresher of skills from ",
                         "prior courses that we use in this chapter.  Using this review is optional, but if you need ",
                         "it, it's here.");
             } else {
-                final int index = meta.description.toLowerCase(Locale.ROOT).indexOf(" skills review ");
+                final int index = skillsMeta.description.toLowerCase(Locale.ROOT).indexOf(" skills review ");
                 if (index == -1) {
-                    htm.addln(meta.description);
+                    htm.addln(skillsMeta.description);
                 } else {
-                    htm.add(meta.description.substring(0, index + 1));
+                    htm.add(skillsMeta.description.substring(0, index + 1));
                     htm.add("<span style='color:#D9782D'>");
-                    htm.add(meta.description.substring(index + 1, index + 14));
+                    htm.add(skillsMeta.description.substring(index + 1, index + 14));
                     htm.add("</span>");
-                    htm.addln(meta.description.substring(index + 14));
+                    htm.addln(skillsMeta.description.substring(index + 14));
                 }
             }
 
             htm.sDiv("clear").eDiv();
             htm.sDiv(null, "style='margin-left:92px; margin-top:8px;'");
 
-            if (!meta.objectives.isEmpty()) {
+            if (!skillsMeta.objectives.isEmpty()) {
                 htm.addln("Review Topics:");
 
                 htm.addln("<ul style='font-weight:300; margin-top:6px;'>");
-                for (final MetadataObjective metaObjective : meta.objectives) {
+                for (final MetadataObjective metaObjective : skillsMeta.objectives) {
                     htm.addln("  <li>", metaObjective.title, "</li>");
                 }
                 htm.addln("</ul>");
@@ -255,16 +273,16 @@ public enum PageTopicModule {
     /**
      * Presents the module learning targets.
      *
-     * @param htm      the {@code HtmlBuilder} to which to append
-     * @param path     the relative path to lesson files
-     * @param topicDir the directory in which to locate topic media
+     * @param htm  the {@code HtmlBuilder} to which to append
+     * @param meta the metadata describing the module
      */
-    private static void doModuleStandards(final HtmlBuilder htm, final String path, final File topicDir) {
+    private static void doModuleStandards(final HtmlBuilder htm, final MetadataCourseModule meta) {
 
         int count = 0;
         for (int i = 1; i < 9; ++i) {
             final String dirName = "1" + i + "_standard_" + i;
-            final File dir = new File(topicDir, dirName);
+            final File dir = new File(meta.moduleDir, dirName);
+            final String path = meta.moduleRelPath + "/" + dirName;
 
             if (dir.exists() && dir.isDirectory()) {
                 emitStandard(htm, path + "/" + dirName, i, dir);
@@ -277,7 +295,8 @@ public enum PageTopicModule {
         if (count == 9) {
             for (int i = 10; i < 19; ++i) {
                 final String dirName = (10 + i) + "_standard_" + i;
-                final File dir = new File(topicDir, dirName);
+                final File dir = new File(meta.moduleDir, dirName);
+                final String path = meta.moduleRelPath + "/" + dirName;
 
                 if (dir.exists() && dir.isDirectory()) {
                     emitStandard(htm, path + "/" + dirName, i, dir);
@@ -594,12 +613,12 @@ public enum PageTopicModule {
     /**
      * Presents all module-level explorations found.
      *
-     * @param htm      the {@code HtmlBuilder} to which to append
-     * @param topicDir the directory in which to locate topic media
+     * @param htm  the {@code HtmlBuilder} to which to append
+     * @param meta the metadata describing the module
      */
-    private static void doModuleExplorations(final HtmlBuilder htm, final File topicDir) {
+    private static void doModuleExplorations(final HtmlBuilder htm, final MetadataCourseModule meta) {
 
-        final File dir = new File(topicDir, "40_explorations");
+        final File dir = new File(meta.moduleDir, "40_explorations");
 
         if (dir.exists() && dir.isDirectory()) {
 
@@ -617,12 +636,12 @@ public enum PageTopicModule {
     /**
      * Presents all module-level applications found.
      *
-     * @param htm      the {@code HtmlBuilder} to which to append
-     * @param topicDir the directory in which to locate topic media
+     * @param htm  the {@code HtmlBuilder} to which to append
+     * @param meta the metadata describing the module
      */
-    private static void doModuleApplications(final HtmlBuilder htm, final File topicDir) {
+    private static void doModuleApplications(final HtmlBuilder htm, final MetadataCourseModule meta) {
 
-        final File dir = new File(topicDir, "41_applications");
+        final File dir = new File(meta.moduleDir, "41_applications");
 
         if (dir.exists() && dir.isDirectory()) {
 
@@ -640,14 +659,14 @@ public enum PageTopicModule {
     /**
      * Presents any concluding lessons found in the topic directory.
      *
-     * @param htm      the {@code HtmlBuilder} to which to append
-     * @param topicDir the directory in which to locate topic media
+     * @param htm  the {@code HtmlBuilder} to which to append
+     * @param meta the metadata describing the module
      */
-    private static void doModuleConcludingLessons(final HtmlBuilder htm, final File topicDir) {
+    private static void doModuleConcludingLessons(final HtmlBuilder htm, final MetadataCourseModule meta) {
 
         for (int i = 1; i < 9; ++i) {
             final String dirName = "9" + i + "_conclusion_" + i;
-            final File dir = new File(topicDir, dirName);
+            final File dir = new File(meta.moduleDir, dirName);
 
             if (dir.exists() && dir.isDirectory()) {
 

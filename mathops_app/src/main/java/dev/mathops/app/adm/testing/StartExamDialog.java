@@ -212,7 +212,7 @@ final class StartExamDialog extends JDialog implements ActionListener {
      * The top of the panel will display any accommodations the student has. The center of the panel will allow the
      * issuance of a calculator with the exam. The bottom panel will show the time limit for the exam (after any
      * time-limit factor adjustment), and the time remaining before the testing center closes, and will show a warning
-     * if the student does not have full time available).
+     * if the student does not have full time available.
      *
      * @return the panel
      */
@@ -427,7 +427,6 @@ final class StartExamDialog extends JDialog implements ActionListener {
                     if (RawClientPcLogic.updateAllCurrent(this.cache, selected.computerId,
                             this.checkEligibility ? RawClientPc.STATUS_AWAIT_STUDENT : RawClientPc.STATUS_LOGIN_NOCHECK,
                             this.studentId, this.courseId, unitObj, this.examId)) {
-                        systemData.forgetClientPcs();
 
                         setVisible(false);
                         dispose();

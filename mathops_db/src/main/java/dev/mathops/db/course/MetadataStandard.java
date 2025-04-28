@@ -15,23 +15,23 @@ public final class MetadataStandard {
     private static final String SUFFIXES = "-----------ABCDEFGHIJKLMNOPQRS";
 
     /** The standard directory. */
-    final File standardDir;
+    public final File standardDir;
 
     /** The title from the metadata file. */
-    final String title;
+    public final String title;
 
     /** The description from the metadata file. */
-    final String description;
+    public final String description;
 
     /** The list of objectives. */
-    final List<MetadataObjective> objectives;
+    public final List<MetadataObjective> objectives;
 
     /**
      * Constructs a new {@code MetadataStandard} from a JSON Object.
      *
      * @param theStandardDir the standard directory
      */
-    MetadataStandard(final File theStandardDir) {
+    public MetadataStandard(final File theStandardDir) {
 
         this.standardDir = theStandardDir;
         this.objectives = new ArrayList<>(10);

@@ -10,20 +10,20 @@ import java.io.File;
 public final class MetadataObjective {
 
     /** The objective directory. */
-    final File objectiveDir;
+    public final File objectiveDir;
 
     /** The title from the metadata file. */
-    final String title;
+    public final String title;
 
     /** The description from the metadata file. */
-    final String description;
+    public final String description;
 
     /**
      * Constructs a new {@code MetadataObjective} from a JSON Object.
      *
      * @param theStandardDir the objective directory
      */
-    MetadataObjective(final File theStandardDir) {
+    public MetadataObjective(final File theStandardDir) {
 
         this.objectiveDir = theStandardDir;
 

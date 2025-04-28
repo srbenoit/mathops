@@ -12,7 +12,6 @@ import dev.mathops.db.rec.main.StandardsCourseRec;
 import dev.mathops.db.rec.term.StandardsCourseSectionRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
-import dev.mathops.text.parser.json.JSONObject;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.canvas.CanvasPageUtils;
 import dev.mathops.web.site.canvas.CanvasSite;
@@ -114,7 +113,12 @@ public enum PageModules {
             htm.sH(2).add("Modules").eH(2);
             htm.hr();
 
-            emitCourseModules(cache, htm, registration, course);
+            // Locate "media root" which is typically /opt/public/media
+            final File wwwPath = PathList.getInstance().get(EPath.WWW_PATH);
+            final File publicPath = wwwPath.getParentFile();
+            final File mediaRoot = new File(publicPath, "media");
+
+            emitCourseModules(cache, htm, registration, course, mediaRoot);
 
             htm.eDiv(); // flexmain
             htm.eDiv(); // pagecontainer
@@ -132,30 +136,23 @@ public enum PageModules {
      * @param htm          the {@code HtmlBuilder} to which to append
      * @param registration the student's registration record
      * @param course       the course object
+     * @param mediaRoot    the root media directory relative to which the module path is specified
      * @throws SQLException if there is an error accessing the database
      */
     private static void emitCourseModules(final Cache cache, final HtmlBuilder htm, final RawStcourse registration,
-                                          final StandardsCourseRec course) throws SQLException {
+                                          final StandardsCourseRec course, final File mediaRoot) throws SQLException {
 
         emitIntroModule(htm);
-
-        final File wwwPath = PathList.getInstance().get(EPath.WWW_PATH);
-        final File publicPath = wwwPath.getParentFile();
-        final File mediaPath = new File(publicPath, "media");
 
         final MainData mainData = cache.getMainData();
         final List<StandardsCourseModuleRec> modules = mainData.getStandardsCourseModules(course.courseId);
 
         for (final StandardsCourseModuleRec module : modules) {
-            final File moduleDir = new File(mediaPath, module.modulePath);
+            final MetadataCourseModule meta = new MetadataCourseModule(mediaRoot, module.modulePath,
+                    module.moduleNbr);
 
-            final JSONObject moduleMetaJson = CanvasPageUtils.loadMetadata(moduleDir);
-            if (moduleMetaJson != null) {
-                final MetadataCourseModule meta = new MetadataCourseModule(moduleMetaJson, mediaPath);
-
-                if (meta.isValid()) {
-                    emitTopicModule(htm, module, meta, moduleDir);
-                }
+            if (meta.isValid()) {
+                emitModule(htm, module, meta);
             }
         }
     }
@@ -170,12 +167,11 @@ public enum PageModules {
         startModule(htm, null, "Introduction");
 
         emitChecklistModuleItem(htm, "/www/images/etext/start-thumb.png", "Starting line of race track",
-                "start_here.html",
-                "Start Here", new ModuleItemChecklistEntry("Set Account Preferences", true));
+                "start_here.html", "Start Here",
+                new ModuleItemChecklistEntry("Set Account Preferences", true));
 
         emitChecklistModuleItem(htm, "/www/images/etext/navigation-thumb.png", "Man at wheel of ship at sea",
-                "navigating.html",
-                "How to Successfully Navigate this Course",
+                "navigating.html", "How to Successfully Navigate this Course",
                 new ModuleItemChecklistEntry("Syllabus Quiz", false));
 
         endModule(htm);
@@ -184,15 +180,15 @@ public enum PageModules {
     /**
      * Emits a single topic module.
      *
-     * @param htm       the {@code HtmlBuilder} to which to append
-     * @param module    the metadata describing the topic within the course
-     * @param meta      loaded module metadata
-     * @param moduleDir the root directory in which to find module files
+     * @param htm    the {@code HtmlBuilder} to which to append
+     * @param module the metadata describing the topic within the course
+     * @param meta   loaded module metadata
      */
-    private static void emitTopicModule(final HtmlBuilder htm, final StandardsCourseModuleRec module,
-                                        final MetadataCourseModule meta, final File moduleDir) {
+    private static void emitModule(final HtmlBuilder htm, final StandardsCourseModuleRec module,
+                                   final MetadataCourseModule meta) {
 
-        startModule(htm, meta.heading, meta.title);
+        final String heading = "Module " + module.moduleNbr;
+        startModule(htm, heading, meta.title);
 
         // The top-level Topic Module object in the web page has three items:
         // - E-Text Chapter: [title]
@@ -200,17 +196,17 @@ public enum PageModules {
         // - Learning Target Exams (with completion status)
 
         // The topic module with ID "M01" lives at "M01/module.html"
-        final String modulePath = module.id + "/module.html";
+        final String modulePath = "M" + module.moduleNbr + "/module.html";
 
         if (meta.thumbnailFile == null) {
             emitChapterItem(htm, null, null, modulePath, meta.title);
         } else {
-            final String imageUrl = "/media/" + module.directory + "/" + meta.thumbnailFile;
+            final String imageUrl = "/media/" + meta.moduleRelPath + "/" + meta.thumbnailFile;
             emitChapterItem(htm, imageUrl, meta.thumbnailAltText, modulePath, meta.title);
         }
 
         // Required assignments, with status
-        final String assignmentsPath = module.id + "/assignments.html";
+        final String assignmentsPath = "M" + module.moduleNbr + "/assignments.html";
         emitChecklistModuleItem(htm, "/www/images/etext/required_assignment_thumb.png", "A student doing homework.",
                 assignmentsPath, "Module Homework Assignments",
                 new ModuleItemChecklistEntry("Assignment 1", false),
@@ -218,7 +214,7 @@ public enum PageModules {
                 new ModuleItemChecklistEntry("Assignment 3", false));
 
         // Learning Target Exams, with status
-        final String examsPath = module.id + "/targets.html";
+        final String examsPath = "M" + module.moduleNbr + "/targets.html";
         emitChecklistModuleItem(htm, "/www/images/etext/target_thumb.png", "A dartboard with several magnetic darts",
                 examsPath, "Module Learning Targets",
                 new ModuleItemChecklistEntry("Learning Target 1", false),

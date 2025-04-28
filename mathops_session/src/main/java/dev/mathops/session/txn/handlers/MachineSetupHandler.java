@@ -125,7 +125,6 @@ public final class MachineSetupHandler extends AbstractHandlerBase {
                 now, now, null, RawClientPc.POWER_OFF, null, null, null, null, null, null);
 
         if (!RawClientPcLogic.insert(cache, obj)) {
-            systemData.forgetClientPcs();
             code = MachineSetupReply.FAILURE;
             error = "Unable to create client_pc record.";
         }

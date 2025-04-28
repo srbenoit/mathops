@@ -447,7 +447,6 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
         final RawClientPc client = getClient();
         if (client != null) {
             RawClientPcLogic.updateCurrentStatus(cache, client.computerId, RawClientPc.STATUS_EXAM_RESULTS);
-            cache.getSystemData().forgetClientPcs();
         }
     }
 
@@ -847,7 +846,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
     }
 
     /**
-     * Retrieve the student"s ACT and SAT scores and relevant survey answers from the database and store them in the
+     * Retrieve the student's ACT and SAT scores and relevant survey answers from the database and store them in the
      * parameter set as "student-ACT-math", "student-SAT-math", "hours-preparing", "time-since-last-math", and
      * "highest-math-taken", "resources-used-preparing", and "typical-math-grade". If the values are not populated in
      * the database, the parameters will be added with default values.

@@ -1,6 +1,5 @@
 package dev.mathops.db.course;
 
-import dev.mathops.commons.log.Log;
 import dev.mathops.text.parser.json.JSONObject;
 
 import java.io.File;
@@ -44,51 +43,58 @@ import java.io.File;
  */
 public final class MetadataCourseModule {
 
-    /** The module id. */
-    public final String moduleId;
-
-    /** The topic heading. */
-    final String heading;
+    /** The module number. */
+    public final Integer moduleNbr;
 
     /** The (relative) topic directory path, like "05_trig/01_angles". */
-    final String directory;
+    public final String moduleRelPath;
 
     /** The topic module directory. */
-    final File topicModuleDir;
+    public final File moduleDir;
 
-    /** Metadata loaded from the topic directory. */
-    final MetadataTopic topicMetadata;
+    /** The topic title. */
+    public final String title;
+
+    /** The thumbnail filename. */
+    public final String thumbnailFile;
+
+    /** The thumbnail alt-text. */
+    public final String thumbnailAltText;
+
+    /** Flag indicating metadata was loaded successfully and in valid. */
+    final boolean valid;
 
     /**
      * Constructs a new {@code MetadataModuleTopic} from a JSON Object.
      *
-     * @param json    the JSON object from which to extract data
-     * @param rootDir the directory relative to which topic directories are specified
+     * @param mediaRoot        the root media directory relative to which the module path is specified
+     * @param theModuleRelPath the relative path to the module directory, as specified in the course JSON file
+     * @param theModuleNbr     the module number, as specified in the course JSON file
      */
-    public MetadataCourseModule(final JSONObject json, final File rootDir) {
+    public MetadataCourseModule(final File mediaRoot, final String theModuleRelPath, final Integer theModuleNbr) {
 
-        this.moduleId = json.getStringProperty("id");
-        if (this.moduleId == null) {
-            Log.warning("'topic' object in 'metadata.json' missing 'id' field.");
+        this.moduleNbr = theModuleNbr;
+        this.moduleRelPath = theModuleRelPath;
+        this.moduleDir = new File(mediaRoot, theModuleRelPath);
+
+        boolean isValid = false;
+        String theTitle = null;
+        String theThumb = null;
+        String theThumbAlt = null;
+
+        final JSONObject loadedJson = JSONUtils.loadJsonFile(this.moduleDir, "metadata.json");
+        if (loadedJson != null) {
+            theTitle = loadedJson.getStringProperty("title");
+            theThumb = loadedJson.getStringProperty("thumb-file");
+            theThumbAlt = loadedJson.getStringProperty("thumb-alt");
+
+            isValid = theTitle != null;
         }
 
-        this.heading = json.getStringProperty("heading");
-
-        MetadataTopic loadedTopicMeta = null;
-
-        this.directory = json.getStringProperty("directory");
-        if (this.directory == null) {
-            Log.warning("'topic' object in 'metadata.json' missing 'directory' field.");
-            this.topicModuleDir = null;
-        } else {
-            this.topicModuleDir = new File(rootDir, this.directory);
-            final JSONObject loadedJson = JSONUtils.loadJsonFile(this.topicModuleDir, "metadata.json");
-            if (loadedJson != null) {
-                loadedTopicMeta = new MetadataTopic(loadedJson, this.topicModuleDir);
-            }
-        }
-
-        this.topicMetadata = loadedTopicMeta;
+        this.title = theTitle;
+        this.thumbnailFile = theThumb;
+        this.thumbnailAltText = theThumbAlt;
+        this.valid = isValid;
     }
 
     /**
@@ -96,8 +102,8 @@ public final class MetadataCourseModule {
      *
      * @return true if valid; false if not
      */
-    boolean isValid() {
+    public boolean isValid() {
 
-        return this.directory != null;
+        return this.valid;
     }
 }

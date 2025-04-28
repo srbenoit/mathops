@@ -1,8 +1,10 @@
 package dev.mathops.web.site.canvas.courses;
 
+import dev.mathops.commons.installation.EPath;
+import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.course.MetadataTopic;
+import dev.mathops.db.course.MetadataCourseModule;
 import dev.mathops.db.logic.MainData;
 import dev.mathops.db.logic.TermData;
 import dev.mathops.db.old.rawrecord.RawStcourse;
@@ -80,8 +82,13 @@ public enum PageTopicSkillsReview {
                         final String homePath = site.makeRootPath("home.html");
                         resp.sendRedirect(homePath);
                     } else {
-                        presentSkillsReviewPage(cache, site, req, resp, registration, section, course,
-                                module);
+                        // Locate "media root" which is typically /opt/public/media
+                        final File wwwPath = PathList.getInstance().get(EPath.WWW_PATH);
+                        final File publicPath = wwwPath.getParentFile();
+                        final File mediaRoot = new File(publicPath, "media");
+
+                        presentSkillsReviewPage(cache, site, req, resp, registration, section, course, module,
+                                mediaRoot);
                     }
                 }
             }
@@ -99,19 +106,21 @@ public enum PageTopicSkillsReview {
      * @param section      the course section object
      * @param course       the course object
      * @param module       the course module object
+     * @param mediaRoot    the root media directory relative to which the module path is specified
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
     static void presentSkillsReviewPage(final Cache cache, final CanvasSite site, final ServletRequest req,
                                         final HttpServletResponse resp, final RawStcourse registration,
                                         final StandardsCourseSectionRec section, final StandardsCourseRec course,
-                                        final StandardsCourseModuleRec module) throws IOException, SQLException {
+                                        final StandardsCourseModuleRec module, final File mediaRoot)
+            throws IOException, SQLException {
 
-        final MetadataTopic meta = metaCourseModule.topicMetadata;
+        final MetadataCourseModule meta = new MetadataCourseModule(mediaRoot, module.modulePath,
+                module.moduleNbr);
 
         if (meta.isValid()) {
-            emitTopicSkillsReview(cache, site, req, resp, registration, section, course, module,
-                    metaCourseModule.topicModuleDir);
+            emitTopicSkillsReview(cache, site, req, resp, registration, section, course, module, meta);
         }
     }
 
@@ -126,14 +135,14 @@ public enum PageTopicSkillsReview {
      * @param section      the course section object
      * @param course       the course object
      * @param module       the course module object
-     * @param topicDir     the directory in which to locate topic media
+     * @param meta         metadata describing the module
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
     private static void emitTopicSkillsReview(final Cache cache, final CanvasSite site, final ServletRequest req,
                                               final HttpServletResponse resp, final RawStcourse registration,
                                               final StandardsCourseSectionRec section, final StandardsCourseRec course,
-                                              final StandardsCourseModuleRec module, final File topicDir)
+                                              final StandardsCourseModuleRec module, final MetadataCourseModule meta)
             throws IOException, SQLException {
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
@@ -152,7 +161,7 @@ public enum PageTopicSkillsReview {
 
         htm.sH(2);
         if (meta.thumbnailFile != null) {
-            final String imageUrl = "/media/" + metaCourseTopic.directory + "/" + meta.thumbnailFile;
+            final String imageUrl = "/media/" + meta.moduleRelPath + "/" + meta.thumbnailFile;
             if (meta.thumbnailAltText == null) {
                 htm.addln("<img class='module-thumb' src='", imageUrl, "'/>");
             } else {
@@ -160,7 +169,7 @@ public enum PageTopicSkillsReview {
             }
         }
         htm.sDiv("module-title");
-        htm.add(metaCourseTopic.heading, " Textbook Chapter").br();
+        htm.add("Module ", meta.moduleNbr, " Textbook Chapter").br();
         htm.addln("<div style='color:#D9782D; margin-top:6px;'>", meta.title, "</div>");
         htm.eDiv();
         htm.eH(2);
@@ -177,7 +186,7 @@ public enum PageTopicSkillsReview {
         htm.addln("<a class='ulink' href='module.html'>Return to Textbook Chapter</a>");
         htm.sDiv("clear").eDiv();
 
-        final File dir = new File(topicDir, "10_skills_review");
+        final File dir = new File(meta.moduleDir, "10_skills_review");
 
         if (dir.exists() && dir.isDirectory()) {
 

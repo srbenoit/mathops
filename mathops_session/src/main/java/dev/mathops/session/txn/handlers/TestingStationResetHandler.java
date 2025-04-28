@@ -84,7 +84,6 @@ public final class TestingStationResetHandler extends AbstractHandlerBase {
             if (!RawClientPcLogic.updateAllCurrent(cache, pc.computerId, RawClientPc.STATUS_LOCKED,
                     null, null, null, null)) {
                 reply.error = "Failed to reset testing station.";
-                systemData.forgetClientPcs();
             }
         } else {
             reply.error = "Unable to query testing station to perform a reset";

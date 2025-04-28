@@ -1,22 +1,20 @@
 package dev.mathops.web.site.canvas.courses;
 
+import dev.mathops.commons.installation.EPath;
+import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.course.MetadataTopic;
+import dev.mathops.db.course.MetadataCourseModule;
 import dev.mathops.db.logic.MainData;
 import dev.mathops.db.logic.TermData;
-import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
 import dev.mathops.db.old.rawrecord.RawStcourse;
-import dev.mathops.db.old.rawrecord.RawSthomework;
-import dev.mathops.db.rec.AssignmentRec;
-import dev.mathops.db.rec.MasteryAttemptRec;
-import dev.mathops.db.rec.MasteryExamRec;
+import dev.mathops.db.rec.main.StandardAssignmentRec;
 import dev.mathops.db.rec.main.StandardsCourseModuleRec;
 import dev.mathops.db.rec.main.StandardsCourseRec;
+import dev.mathops.db.rec.term.StandardAssignmentAttemptRec;
 import dev.mathops.db.rec.term.StandardsCourseSectionRec;
-import dev.mathops.db.reclogic.AssignmentLogic;
-import dev.mathops.db.reclogic.MasteryAttemptLogic;
-import dev.mathops.db.reclogic.MasteryExamLogic;
+import dev.mathops.db.reclogic.main.StandardAssignmentLogic;
+import dev.mathops.db.reclogic.term.StandardAssignmentAttemptLogic;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
@@ -26,6 +24,7 @@ import dev.mathops.web.site.canvas.ECanvasPanel;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
@@ -85,7 +84,12 @@ public enum PageTopicTargets {
                         final String homePath = site.makeRootPath("home.html");
                         resp.sendRedirect(homePath);
                     } else {
-                        presentTargetsPage(cache, site, req, resp, registration, section, course, module);
+                        // Locate "media root" which is typically /opt/public/media
+                        final File wwwPath = PathList.getInstance().get(EPath.WWW_PATH);
+                        final File publicPath = wwwPath.getParentFile();
+                        final File mediaRoot = new File(publicPath, "media");
+
+                        presentTargetsPage(cache, site, req, resp, registration, section, course, module, mediaRoot);
                     }
                 }
             }
@@ -103,13 +107,15 @@ public enum PageTopicTargets {
      * @param section      the course section object
      * @param course       the course object
      * @param module       the course module object
+     * @param mediaRoot    the root media directory relative to which the module path is specified
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
     static void presentTargetsPage(final Cache cache, final CanvasSite site, final ServletRequest req,
                                    final HttpServletResponse resp, final RawStcourse registration,
                                    final StandardsCourseSectionRec section, final StandardsCourseRec course,
-                                   final StandardsCourseModuleRec module) throws IOException, SQLException {
+                                   final StandardsCourseModuleRec module, final File mediaRoot)
+            throws IOException, SQLException {
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
         final String siteTitle = site.getTitle();
@@ -125,87 +131,87 @@ public enum PageTopicTargets {
 
         htm.sDiv("flexmain");
 
-        final MetadataTopic meta = metaCourseModule.topicMetadata;
+        final MetadataCourseModule meta = new MetadataCourseModule(mediaRoot, module.modulePath,
+                module.moduleNbr);
 
-        htm.sH(2);
-        if (meta.thumbnailFile != null) {
-            final String imageUrl = "/media/" + metaCourseModule.directory + "/" + meta.thumbnailFile;
-            if (meta.thumbnailAltText == null) {
-                htm.addln("<img class='module-thumb' src='", imageUrl, "'/>");
-            } else {
-                htm.addln("<img class='module-thumb' src='", imageUrl, "' alt='", meta.thumbnailAltText, "'/>");
+        if (meta.isValid()) {
+            htm.sH(2);
+            if (meta.thumbnailFile != null) {
+                final String imageUrl = "/media/" + meta.moduleRelPath + "/" + meta.thumbnailFile;
+                if (meta.thumbnailAltText == null) {
+                    htm.addln("<img class='module-thumb' src='", imageUrl, "'/>");
+                } else {
+                    htm.addln("<img class='module-thumb' src='", imageUrl, "' alt='", meta.thumbnailAltText, "'/>");
+                }
             }
-        }
-        htm.sDiv("module-title");
-        htm.add(metaCourseModule.heading, " Learning Target Exams").br();
-        htm.addln("<div style='color:#D9782D; margin-top:6px;'>", meta.title, "</div>");
-        htm.addln("<a class='smallbtn' href='module.html'>Open Textbook Chapter</a> &nbsp; ");
-        htm.addln("<a class='smallbtn' href='assignments.html'>Go to Homework Assignments</a>");
-        htm.eDiv();
-        htm.eH(2);
+            htm.sDiv("module-title");
+            htm.add("Module ", meta.moduleNbr, " Learning Target Exams").br();
+            htm.addln("<div style='color:#D9782D; margin-top:6px;'>", meta.title, "</div>");
+            htm.addln("<a class='smallbtn' href='module.html'>Open Textbook Chapter</a> &nbsp; ");
+            htm.addln("<a class='smallbtn' href='assignments.html'>Go to Homework Assignments</a>");
+            htm.eDiv();
+            htm.eH(2);
 
-        htm.hr();
-        htm.div("vgap0");
+            htm.hr();
+            htm.div("vgap0");
 
-        htm.sDiv("left");
-        htm.addln("<img class='module-thumb' src='/www/images/etext/target_thumb.png' ",
-                "alt='A dartboard with several magnetic darts.'/>");
-        htm.eDiv();
+            htm.sDiv("left");
+            htm.addln("<img class='module-thumb' src='/www/images/etext/target_thumb.png' ",
+                    "alt='A dartboard with several magnetic darts.'/>");
+            htm.eDiv();
 
-        htm.sH(3).add("Learning Target Exams").eH(3);
-        htm.sDiv("clear").eDiv();
+            htm.sH(3).add("Learning Target Exams").eH(3);
+            htm.sDiv("clear").eDiv();
 
-        htm.sP("indent").add("Each Learning Target has a two-question exam.  You need to answer both ",
-                "questions correctly on this exam to complete the learning target.").eP();
+            htm.sP("indent").add("Each Learning Target has a two-question exam.  You need to answer both ",
+                    "questions correctly on this exam to complete the learning target.").eP();
 
-        htm.sP("indent").add("Learning Target exams are locked until you pass the homework assignment for the ",
-                "Learning Target.").eP();
+            htm.sP("indent").add("Learning Target exams are locked until you pass the homework assignment for the ",
+                    "Learning Target.").eP();
 
-        htm.sP("indent").add("Once you have passed the learning target homework assignment, you have unlimited ",
-                "attempts on Learning Target exam.").eP();
+            htm.sP("indent").add("Once you have passed the learning target homework assignment, you have unlimited ",
+                    "attempts on Learning Target exam.").eP();
 
-        htm.sP("indent").add("If you answer one of the two questions correctly twice, but still need to get the ",
-                "other question correct, you will not have to keep re-doing the question you got correct twice (it ",
-                "will be removed from the exam).").eP();
+            htm.sP("indent").add("If you answer one of the two questions correctly twice, but still need to get the ",
+                    "other question correct, you will not have to keep re-doing the question you got correct twice " +
+                    "(it will be removed from the exam).").eP();
 
-        htm.div("vgap");
+            htm.div("vgap");
 
-        try {
-            final Integer unit = Integer.parseInt(metaCourseModule.id.substring(1));
+            try {
+                final List<StandardAssignmentRec> assignments = StandardAssignmentLogic.INSTANCE.queryByCourse(cache,
+                        registration.course);
 
-            final List<AssignmentRec> assignments = AssignmentLogic.get(cache).queryActiveByCourse(cache,
-                    registration.course, "ST");
+                final List<StandardAssignmentAttemptRec> attempts =
+                        StandardAssignmentAttemptLogic.INSTANCE.queryByStudentCourse(cache, registration.stuId,
+                                registration.course);
 
-            final List<RawSthomework> sthw = RawSthomeworkLogic.getHomeworks(cache, registration.stuId,
-                    registration.course, false, "ST");
+                for (final StandardAssignmentRec exam : assignments) {
+                    if (StandardAssignmentRec.MASTERY_EXAM.equals(exam.assignmentType)
+                        && meta.moduleNbr.equals(exam.moduleNbr)) {
 
-            final List<MasteryExamRec> exams = MasteryExamLogic.get(cache).queryActiveByCourse(cache,
-                    registration.course);
-
-            final List<MasteryAttemptRec> stexams = MasteryAttemptLogic.get(cache).queryByStudent(cache,
-                    registration.stuId);
-
-            for (final MasteryExamRec exam : exams) {
-                if (unit.equals(exam.unit) && exam.objective.intValue() > 0) {
-
-                    // Find the corresponding homework assignment
-                    for (final AssignmentRec assignment : assignments) {
-
-                        if (assignment.unit.equals(exam.unit) && assignment.objective.equals(exam.objective)) {
-                            presentTarget(htm, exam, stexams, assignment, sthw);
+                        // Found the mastery exam - find the corresponding homework assignment
+                        for (final StandardAssignmentRec hw : assignments) {
+                            if (StandardAssignmentRec.HOMEWORK.equals(hw.assignmentType)
+                                && exam.moduleNbr.equals(hw.moduleNbr)
+                                && exam.standardNbr.equals(hw.standardNbr)) {
+                                presentTarget(htm, exam, hw, attempts);
+                            }
                         }
                     }
                 }
+                htm.hr();
+            } catch (final NumberFormatException ex) {
+                Log.warning(ex);
+                htm.sP().add("Error: Unable to load homework assignments for module ", meta.moduleNbr).eP();
             }
-            htm.hr();
-        } catch (final NumberFormatException ex) {
-            Log.warning(ex);
-            htm.sP().add("Error: Unable to load homework assignments for module ", metaCourseModule.id).eP();
-        }
 
-        htm.sP();
-        htm.add("All Learning Target exams can be taken in the <strong>Precalculus Center</strong> (Weber 238).");
-        htm.eP();
+            htm.sP();
+            htm.add("All Learning Target exams can be taken in the <strong>Precalculus Center</strong> (Weber 238).");
+            htm.eP();
+        } else {
+            htm.sP().add("Error: Unable to load configuration of module ", module.moduleNbr).eP();
+        }
 
         htm.eDiv(); // flexmain
         htm.eDiv(); // pagecontainer
@@ -218,31 +224,30 @@ public enum PageTopicTargets {
     /**
      * Presents a single homework assignment.
      *
-     * @param htm        the {@code HtmlBuilder} to which to append
-     * @param exam       the mastery exam
-     * @param stexam     the set of all submitted student exams in this course
-     * @param assignment the corresponding assignment
-     * @param sthw       the set of all submitted student assignments in this course
+     * @param htm      the {@code HtmlBuilder} to which to append
+     * @param exam     the mastery exam
+     * @param hw       the corresponding homework
+     * @param attempts the set of all submitted student assignments in this course
      */
-    private static void presentTarget(final HtmlBuilder htm, final MasteryExamRec exam,
-                                      final List<MasteryAttemptRec> stexam, final AssignmentRec assignment,
-                                      final List<RawSthomework> sthw) {
+    private static void presentTarget(final HtmlBuilder htm, final StandardAssignmentRec exam,
+                                      final StandardAssignmentRec hw,
+                                      final List<StandardAssignmentAttemptRec> attempts) {
 
         htm.hr();
-        htm.sH(4).add("Learning Target Exam: ", exam.title).eH(4);
+        htm.sH(4).add("Learning Target ", exam.moduleNbr, ".", exam.standardNbr, " Exam").eH(4);
 
         int numAttempts = 0;
         int topScore = 0;
         boolean passed = false;
-        for (final MasteryAttemptRec attempt : stexam) {
-            if (attempt.examId.equals(exam.examId)) {
+        for (final StandardAssignmentAttemptRec attempt : attempts) {
+            if (attempt.assignmentId.equals(exam.assignmentId)) {
                 if ("Y".equals(attempt.passed)) {
                     passed = true;
                     ++numAttempts;
-                    topScore = Math.max(topScore, attempt.examScore.intValue());
+                    topScore = Math.max(topScore, attempt.score.intValue());
                 } else if ("N".equals(attempt.passed)) {
                     ++numAttempts;
-                    topScore = Math.max(topScore, attempt.examScore.intValue());
+                    topScore = Math.max(topScore, attempt.score.intValue());
                 }
                 // Other values for "passed" indicate an "ignored" attempt
             }
@@ -259,12 +264,10 @@ public enum PageTopicTargets {
 
             // See of the exam is "unlocked"
             boolean unlocked = false;
-            for (final RawSthomework attempt : sthw) {
-                if (attempt.version.equals(assignment.assignmentId)) {
-                    if ("Y".equals(attempt.passed)) {
-                        unlocked = true;
-                        break;
-                    }
+            for (final StandardAssignmentAttemptRec attempt : attempts) {
+                if (attempt.assignmentId.equals(hw.assignmentId) && "Y".equals(attempt.passed)) {
+                    unlocked = true;
+                    break;
                 }
             }
 
@@ -278,8 +281,8 @@ public enum PageTopicTargets {
                     htm.add("You have attempted this Learning Target Exam ", count, " times.");
                 }
             } else {
-                htm.add("You need to pass the ", assignment.title, " homework assignment to unlock the ",
-                        exam.title, " Learning Target Exam");
+                htm.add("You need to pass the Module ", hw.moduleNbr, ".", hw.standardNbr,
+                        " homework assignment to unlock the corresponding Learning Target Exam");
             }
         }
         htm.eP();

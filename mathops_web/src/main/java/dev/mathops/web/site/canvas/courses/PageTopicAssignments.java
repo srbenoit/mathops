@@ -1,17 +1,19 @@
 package dev.mathops.web.site.canvas.courses;
 
+import dev.mathops.commons.installation.EPath;
+import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.course.MetadataTopic;
+import dev.mathops.db.course.MetadataCourseModule;
 import dev.mathops.db.logic.MainData;
 import dev.mathops.db.logic.TermData;
-import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
 import dev.mathops.db.old.rawrecord.RawStcourse;
-import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.rec.main.StandardAssignmentRec;
 import dev.mathops.db.rec.main.StandardsCourseModuleRec;
 import dev.mathops.db.rec.main.StandardsCourseRec;
+import dev.mathops.db.rec.term.StandardAssignmentAttemptRec;
 import dev.mathops.db.rec.term.StandardsCourseSectionRec;
+import dev.mathops.db.reclogic.term.StandardAssignmentAttemptLogic;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
@@ -21,6 +23,7 @@ import dev.mathops.web.site.canvas.ECanvasPanel;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
@@ -81,8 +84,13 @@ public enum PageTopicAssignments {
                         final String homePath = site.makeRootPath("home.html");
                         resp.sendRedirect(homePath);
                     } else {
+                        // Locate "media root" which is typically /opt/public/media
+                        final File wwwPath = PathList.getInstance().get(EPath.WWW_PATH);
+                        final File publicPath = wwwPath.getParentFile();
+                        final File mediaRoot = new File(publicPath, "media");
+
                         presentAssignmentsPage(cache, site, req, resp, registration, section, course,
-                                module);
+                                module, mediaRoot);
                     }
                 }
             }
@@ -100,13 +108,15 @@ public enum PageTopicAssignments {
      * @param section      the course section object
      * @param course       the course object
      * @param module       the module object
+     * @param mediaRoot    the root media directory relative to which the module path is specified
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
     static void presentAssignmentsPage(final Cache cache, final CanvasSite site, final ServletRequest req,
                                        final HttpServletResponse resp, final RawStcourse registration,
                                        final StandardsCourseSectionRec section, final StandardsCourseRec course,
-                                       final StandardsCourseModuleRec module) throws IOException, SQLException {
+                                       final StandardsCourseModuleRec module, final File mediaRoot)
+            throws IOException, SQLException {
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
         final String siteTitle = site.getTitle();
@@ -122,58 +132,65 @@ public enum PageTopicAssignments {
 
         htm.sDiv("flexmain");
 
-        final MetadataTopic meta = metaCourseModule.topicMetadata;
+        final MetadataCourseModule meta = new MetadataCourseModule(mediaRoot, module.modulePath,
+                module.moduleNbr);
 
-        htm.sH(2);
-        if (meta.thumbnailFile != null) {
-            final String imageUrl = "/media/" + metaCourseModule.directory + "/" + meta.thumbnailFile;
-            if (meta.thumbnailAltText == null) {
-                htm.addln("<img class='module-thumb' src='", imageUrl, "'/>");
-            } else {
-                htm.addln("<img class='module-thumb' src='", imageUrl, "' alt='", meta.thumbnailAltText, "'/>");
-            }
-        }
-        htm.sDiv("module-title");
-        htm.add(metaCourseModule.heading, " Homework Assignments").br();
-        htm.addln("<div style='color:#D9782D; margin-top:6px;'>", meta.title, "</div>");
-        htm.addln("<a class='smallbtn' href='module.html'>Open Textbook Chapter</a> &nbsp;");
-        htm.addln("<a class='smallbtn' href='targets.html'>Go to Learning Target Exams</a>");
-        htm.eDiv();
-        htm.eH(2);
-
-        htm.hr();
-        htm.div("vgap0");
-
-        htm.sDiv("left");
-        htm.addln("<img class='module-thumb' src='/www/images/etext/required_assignment_thumb.png' ",
-                "alt='A student doing homework.'/>");
-        htm.eDiv();
-
-        htm.sH(3).add("Module Homework Assignments").eH(3);
-        htm.sDiv("clear").eDiv();
-
-        htm.sP("indent").add("There is one homework assignment for each Learning Target in the module.").eP();
-
-        htm.sP("indent").add("You have unlimited attempts on each assignment, but you must pass each assignment to ",
-                "unlock the Learning Target Exam so you can complete the Learning Target.").eP();
-
-        htm.div("vgap");
-
-        try {
-            final List<StandardAssignmentRec> assignments = cache.getMainData().getStandardAssignments(
-                    registration.course);
-            final List<RawSthomework> sthw = RawSthomeworkLogic.getHomeworks(cache, registration.stuId,
-                    registration.course, false, "ST");
-
-            for (final StandardAssignmentRec assignment : assignments) {
-                if (module.moduleNbr.equals(assignment.moduleNbr)) {
-                    presentAssignment(htm, assignment, sthw);
+        if (meta.isValid()) {
+            htm.sH(2);
+            if (meta.thumbnailFile != null) {
+                final String imageUrl = "/media/" + meta.moduleRelPath + "/" + meta.thumbnailFile;
+                if (meta.thumbnailAltText == null) {
+                    htm.addln("<img class='module-thumb' src='", imageUrl, "'/>");
+                } else {
+                    htm.addln("<img class='module-thumb' src='", imageUrl, "' alt='", meta.thumbnailAltText, "'/>");
                 }
             }
+            htm.sDiv("module-title");
+            htm.add("Module ", module.moduleNbr, " Homework Assignments").br();
+            htm.addln("<div style='color:#D9782D; margin-top:6px;'>", meta.title, "</div>");
+            htm.addln("<a class='smallbtn' href='module.html'>Open Textbook Chapter</a> &nbsp;");
+            htm.addln("<a class='smallbtn' href='targets.html'>Go to Learning Target Exams</a>");
+            htm.eDiv();
+            htm.eH(2);
+
             htm.hr();
-        } catch (final NumberFormatException ex) {
-            Log.warning(ex);
-            htm.sP().add("Error: Unable to load homework assignments for module ", metaCourseModule.id).eP();
+            htm.div("vgap0");
+
+            htm.sDiv("left");
+            htm.addln("<img class='module-thumb' src='/www/images/etext/required_assignment_thumb.png' ",
+                    "alt='A student doing homework.'/>");
+            htm.eDiv();
+
+            htm.sH(3).add("Module Homework Assignments").eH(3);
+            htm.sDiv("clear").eDiv();
+
+            htm.sP("indent").add("There is one homework assignment for each Learning Target in the module.").eP();
+
+            htm.sP("indent").add(
+                    "You have unlimited attempts on each assignment, but you must pass each assignment to ",
+                    "unlock the Learning Target Exam so you can complete the Learning Target.").eP();
+
+            htm.div("vgap");
+
+            try {
+                final List<StandardAssignmentRec> assignments = cache.getMainData().getStandardAssignments(
+                        registration.course);
+                final List<StandardAssignmentAttemptRec> attempts =
+                        StandardAssignmentAttemptLogic.INSTANCE.queryByStudentCourse(cache, registration.stuId,
+                                registration.course);
+
+                for (final StandardAssignmentRec assignment : assignments) {
+                    if (module.moduleNbr.equals(assignment.moduleNbr)) {
+                        presentAssignment(htm, assignment, attempts);
+                    }
+                }
+                htm.hr();
+            } catch (final NumberFormatException ex) {
+                Log.warning(ex);
+                htm.sP().add("Error: Unable to load homework assignments for module ", module.moduleNbr).eP();
+            }
+        } else {
+            htm.sP().add("Error: Unable to load configuration of module ", module.moduleNbr).eP();
         }
 
         htm.eDiv(); // flexmain
@@ -189,18 +206,18 @@ public enum PageTopicAssignments {
      *
      * @param htm        the {@code HtmlBuilder} to which to append
      * @param assignment the assignment
-     * @param sthw       the set of all submitted student assignments in this course
+     * @param attempts   the set of all submitted student assignments (of all types) in this course
      */
     private static void presentAssignment(final HtmlBuilder htm, final StandardAssignmentRec assignment,
-                                          final List<RawSthomework> sthw) {
+                                          final List<StandardAssignmentAttemptRec> attempts) {
 
         htm.hr();
-        htm.sH(4).add("Homework Assignment: ", assignment.title).eH(4);
+        htm.sH(4).add("Homework Assignment ", assignment.moduleNbr, ".", assignment.standardNbr).eH(4);
 
         int numAttempts = 0;
         boolean passed = false;
-        for (final RawSthomework attempt : sthw) {
-            if (attempt.version.equals(assignment.assignmentId)) {
+        for (final StandardAssignmentAttemptRec attempt : attempts) {
+            if (attempt.assignmentId.equals(assignment.assignmentId)) {
                 if ("Y".equals(attempt.passed)) {
                     passed = true;
                     ++numAttempts;

@@ -339,7 +339,6 @@ final class TestingCancelCard extends AdmPanelBase implements ActionListener, Fo
 
                     if (RawClientPcLogic.updateAllCurrent(this.cache, this.found.computerId, RawClientPc.STATUS_LOCKED,
                             null, null, null, null)) {
-                        systemData.forgetClientPcs();
                         this.studentStatusDisplay.setText("Exam Canceled.");
                     } else {
                         this.studentStatusDisplay.setText("Error while canceling exam!");

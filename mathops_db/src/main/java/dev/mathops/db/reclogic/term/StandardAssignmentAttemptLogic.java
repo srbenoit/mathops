@@ -201,6 +201,36 @@ public final class StandardAssignmentAttemptLogic implements IRecLogic<StandardA
     }
 
     /**
+     * Queries for all standard assignment attempts by a student in a course.
+     *
+     * @param cache     the data cache
+     * @param studentId the student ID whose attempts to retrieve
+     * @param courseId  the course ID for which to query
+     * @return the matching records
+     * @throws SQLException if there is an error performing the query
+     */
+    public List<StandardAssignmentAttemptRec> queryByStudentCourse(final Cache cache, final String studentId,
+                                                                   final String courseId)
+            throws SQLException {
+
+        final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
+
+        final List<StandardAssignmentAttemptRec> result;
+        if (schemaPrefix == null) {
+            Log.warning("Cache profile '", cache.getProfile().id, "' does not support the TERM schema");
+            result = null;
+        } else {
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
+                    ".standard_assignment_attempt WHERE student_id=", sqlStringValue(studentId),
+                    " AND course_id=", sqlStringValue(courseId));
+
+            result = doListQuery(cache, sql);
+        }
+
+        return result;
+    }
+
+    /**
      * Updates a record.
      *
      * @param cache  the data cache

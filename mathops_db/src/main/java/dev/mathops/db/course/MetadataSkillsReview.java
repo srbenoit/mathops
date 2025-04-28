@@ -12,23 +12,23 @@ import java.util.List;
 public final class MetadataSkillsReview {
 
     /** Suffixes for objective paths. */
-    static final String SUFFIXES = "-----------ABCDEFGHIJKLMNOPQRS";
+    public static final String SUFFIXES = "-----------ABCDEFGHIJKLMNOPQRS";
 
     /** The Skills Review directory. */
-    final File skillsReviewDir;
+    public final File skillsReviewDir;
 
     /** The description from the metadata file. */
-    final String description;
+    public final String description;
 
     /** The list of objectives. */
-    final List<MetadataObjective> objectives;
+    public final List<MetadataObjective> objectives;
 
     /**
      * Constructs a new {@code MetadataSkillsReview} from a JSON Object.
      *
      * @param theSkillsReviewDir the Skills Review directory
      */
-    MetadataSkillsReview(final File theSkillsReviewDir) {
+    public MetadataSkillsReview(final File theSkillsReviewDir) {
 
         this.skillsReviewDir = theSkillsReviewDir;
         this.objectives = new ArrayList<>(10);

@@ -116,7 +116,6 @@ final class TestingMapCard extends AdmPanelBase implements ActionListener {
             this.clients.clear();
 
             final SystemData systemData = this.cache.getSystemData();
-            systemData.forgetClientPcs();
 
             try {
                 final List<RawClientPc> stations = systemData.getClientPcs();
