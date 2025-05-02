@@ -19,7 +19,7 @@ PAUSE
 SET WORKING=C:\Users\benoit\dev\IDEA\mathops
 SET JARS=%WORKING%\jars
 SET SCP=\bin\winscp /console
-SET HOST=online@nibbler.math.colostate.edu
+SET HOST=online@nibbler
 
 REM ---------------------------------------------------------------------------
 ECHO =
@@ -28,9 +28,10 @@ ECHO =
 REM ---------------------------------------------------------------------------
 
 CD %JARS%
+DEL log.log
 DIR ROOT.*
 
-%SCP% "%HOST%" /command "lcd %JARS%" "cd /imp/online" "put -nopreservetime ROOT.war" "mv ROOT.war /opt/tomcat/webapps/ROOT.war" "exit"
+%SCP% "%HOST%" /console /script=C:\Users\benoit\dev\IDEA\mathops\script\deploy_servlet_script.txt /log=log.log
 
 ECHO.
 PAUSE
