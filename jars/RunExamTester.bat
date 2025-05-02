@@ -1,1 +1,1 @@
-java -cp .\ifxjdbc.jar;.\ojdbc7.jar;.\ADMIN.jar;.\flatlaf-3.0.jar dev.mathops.app.assessment.localtesting.LocalTestingApp
+java -cp .\ifxjdbc.jar;.\ojdbc7.jar;.\postgresql-42.7.4.jar;.\ADMIN.jar;.\flatlaf-3.4.jar dev.mathops.app.assessment.localtesting.LocalTestingApp

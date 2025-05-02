@@ -20,6 +20,15 @@ import java.util.zip.ZipEntry;
  */
 final class AdminJarBuilder {
 
+    /** Directory where the "commons" project is stored. */
+    private final File commonsDir;
+
+    /** Directory where the "text" project is stored. */
+    private final File textDir;
+
+    /** Directory where the "persistence" project is stored. */
+    private final File persistenceDir;
+
     /** Directory where project is stored. */
     private final File projectDir;
 
@@ -32,16 +41,31 @@ final class AdminJarBuilder {
         final File userDir = new File(homePath);
         final File dev = new File(userDir, "dev");
         final File idea = new File(dev, "IDEA");
+        this.commonsDir = new File(idea, "mathops_commons");
+        this.textDir = new File(idea, "mathops_text");
+        this.persistenceDir = new File(idea, "mathops_persistence");
         this.projectDir = new File(idea, "mathops");
     }
 
     /**
      * Builds the Jar file with a specified name and specified main class to run when the file is launched.
      *
-     * @param mainClassName the main class name
+     * @param mainClassName  the main class name
      * @param targetFilename the target filename
      */
     private void build(final String mainClassName, final String targetFilename) {
+
+        final File commonsRoot = new File(this.commonsDir, "build/classes/java/main");
+        final File commonsClasses = new File(commonsRoot, "dev/mathops/commons");
+
+        final File textRoot = new File(this.textDir, "build/classes/java/main");
+        final File textClasses = new File(textRoot, "dev/mathops/text");
+
+        final File textResRoot = new File(this.textDir, "build/resources/main");
+        final File textResClasses = new File(textResRoot, "dev/mathops/text");
+
+        final File persistenceRoot = new File(this.persistenceDir, "build/classes/java/main");
+        final File persistenceClasses = new File(persistenceRoot, "dev/mathops");
 
         final File db = new File(this.projectDir, "mathops_db");
         final File dbRoot = new File(db, "build/classes/java/main");
@@ -79,39 +103,55 @@ final class AdminJarBuilder {
 
                 addManifest(mainClassName, jar);
 
-                final String msg1 = Res.fmt(Res.ADDING_FILES, db);
-                Log.finest(msg1, CoreConstants.CRLF);
+                final String msgCommons = Res.fmt(Res.ADDING_FILES, this.commonsDir);
+                Log.finest(msgCommons, CoreConstants.CRLF);
+                addFiles(commonsRoot, commonsClasses, jar);
+
+                final String msgText = Res.fmt(Res.ADDING_FILES, this.textDir);
+                Log.finest(msgText, CoreConstants.CRLF);
+                addFiles(textRoot, textClasses, jar);
+
+                final String msgTextRes = Res.fmt(Res.ADDING_RES, this.textDir);
+                Log.finest(msgTextRes, CoreConstants.CRLF);
+                addFiles(textResRoot, textResClasses, jar);
+
+                final String msgPersistence = Res.fmt(Res.ADDING_FILES, this.persistenceDir);
+                Log.finest(msgPersistence, CoreConstants.CRLF);
+                addFiles(persistenceRoot, persistenceClasses, jar);
+
+                final String msgDb = Res.fmt(Res.ADDING_FILES, db);
+                Log.finest(msgDb, CoreConstants.CRLF);
                 addFiles(dbRoot, dbClasses, jar);
 
-                final String msg2 = Res.fmt(Res.ADDING_FILES, dbjobs);
-                Log.finest(msg2, CoreConstants.CRLF);
+                final String msgDbJobs = Res.fmt(Res.ADDING_FILES, dbjobs);
+                Log.finest(msgDbJobs, CoreConstants.CRLF);
                 addFiles(dbjobsRoot, dbjobsClasses1, jar);
 
-                final String msg3 = Res.fmt(Res.ADDING_FILES, font);
-                Log.finest(msg3, CoreConstants.CRLF);
+                final String msgFont = Res.fmt(Res.ADDING_FILES, font);
+                Log.finest(msgFont, CoreConstants.CRLF);
                 addFiles(fontRoot, fontClasses, jar);
 
-                final String msg4 = Res.fmt(Res.ADDING_FILES, assessment);
-                Log.finest(msg4, CoreConstants.CRLF);
+                final String msgAssignment = Res.fmt(Res.ADDING_FILES, assessment);
+                Log.finest(msgAssignment, CoreConstants.CRLF);
                 addFiles(assessmentRoot, assessmentClasses, jar);
 
-                final String msg5 = Res.fmt(Res.ADDING_FILES, session);
-                Log.finest(msg5, CoreConstants.CRLF);
+                final String msgSession = Res.fmt(Res.ADDING_FILES, session);
+                Log.finest(msgSession, CoreConstants.CRLF);
                 addFiles(sessionRoot, sessionClasses, jar);
 
-                final String msg6 = Res.fmt(Res.ADDING_FILES, app);
-                Log.finest(msg6, CoreConstants.CRLF);
+                final String msgApp = Res.fmt(Res.ADDING_FILES, app);
+                Log.finest(msgApp, CoreConstants.CRLF);
                 addFiles(appRoot, appClasses, jar);
 
                 jar.finish();
 
                 final String jarPath = jars.getAbsolutePath();
-                final String msg7 = Res.fmt(Res.FILE_CREATED, targetFilename, jarPath);
-                Log.finest(msg7, CoreConstants.CRLF);
+                final String msgDone = Res.fmt(Res.FILE_CREATED, targetFilename, jarPath);
+                Log.finest(msgDone, CoreConstants.CRLF);
 
             } catch (final IOException ex) {
-                final String msg8 = Res.get(Res.JAR_WRITE_FAILED);
-                Log.warning(msg8, ex);
+                final String msgEx = Res.get(Res.JAR_WRITE_FAILED);
+                Log.warning(msgEx, ex);
             }
         }
     }
@@ -124,8 +164,7 @@ final class AdminJarBuilder {
      * @param jar     the jar output stream to which to add entries
      * @throws IOException if an exception occurs while writing
      */
-    private void addFiles(final File rootDir, final File dir, final JarOutputStream jar)
-            throws IOException {
+    private void addFiles(final File rootDir, final File dir, final JarOutputStream jar) throws IOException {
 
         if (!new File(dir, "admin_ignore.txt").exists()) {
 
@@ -179,20 +218,20 @@ final class AdminJarBuilder {
                     continue;
                 }
 
-                // Prepend relative path to the name
-                File parent = file.getParentFile();
-                final HtmlBuilder builder = new HtmlBuilder(100);
-                while (!parent.equals(rootDir)) {
-                    final String parentName = parent.getName();
-                    builder.add(parentName, CoreConstants.SLASH, name);
-                    name = builder.toString();
-                    builder.reset();
-                    parent = parent.getParentFile();
-                }
-
                 if (file.isDirectory()) {
                     addFiles(rootDir, file, jar);
                 } else {
+                    // Prepend relative path to the name
+                    File parent = file.getParentFile();
+                    final HtmlBuilder builder = new HtmlBuilder(100);
+                    while (!parent.equals(rootDir)) {
+                        final String parentName = parent.getName();
+                        builder.add(parentName, CoreConstants.SLASH, name);
+                        name = builder.toString();
+                        builder.reset();
+                        parent = parent.getParentFile();
+                    }
+
                     Log.info("Adding '", name, "'");
                     jar.putNextEntry(new ZipEntry(name));
                     final byte[] bytes = FileLoader.loadFileAsBytes(file, true);
@@ -202,9 +241,9 @@ final class AdminJarBuilder {
                         throw new IOException(msg);
                     }
                     jar.write(bytes);
+                    jar.closeEntry();
                     ++count;
                 }
-                jar.closeEntry();
             }
         }
 
@@ -238,7 +277,7 @@ final class AdminJarBuilder {
      * Adds the manifest file to a jar output stream.
      *
      * @param mainClass the main class name
-     * @param jar the {@code JarOutputStream} to which to add the manifest
+     * @param jar       the {@code JarOutputStream} to which to add the manifest
      * @throws IOException if an exception occurs while writing
      */
     private static void addManifest(final String mainClass, final JarOutputStream jar) throws IOException {

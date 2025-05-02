@@ -65,9 +65,9 @@ public class DatabaseConfig {
             final String path = System.getProperty("user.dir");
             final File dir = new File(path);
             final File cfgFile = new File(dir, DatabaseConfigXml.FILENAME);
-            Log.info("Loading default database config from ", cfgFile.getAbsolutePath());
             try {
                 config = DatabaseConfigXml.load(cfgFile);
+                Log.info("Database configuration loaded from ", cfgFile.getAbsolutePath());
             } catch (final IOException | ParsingException ex) {
                 Log.warning(ex);
                 config = new DatabaseConfig();
@@ -75,6 +75,7 @@ public class DatabaseConfig {
         } else {
             try {
                 config = DatabaseConfigXml.load(source);
+                Log.info("Database configuration loaded from ", source.getAbsolutePath());
             } catch (final IOException | ParsingException ex) {
                 Log.warning(ex);
                 config = new DatabaseConfig();
