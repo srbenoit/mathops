@@ -380,6 +380,35 @@ public final class RawStexam extends RecBase implements Comparable<RawStexam> {
     }
 
     /**
+     * A comparator that can be used to sort a list of {@code RawStexam} by course then unit then finish time.
+     */
+    public static final class CourseUnitComparator implements Comparator<RawStexam> {
+
+        /**
+         * Perform the comparison.
+         */
+        @Override
+        public int compare(final RawStexam o1, final RawStexam o2) {
+
+            int result = compareAllowingNull(o1.course, o2.course);
+            if (result == 0) {
+                result = compareAllowingNull(o1.unit, o2.unit);
+                if (result == 0) {
+                    result = compareAllowingNull(o1.examDt, o2.examDt);
+                    if (result == 0) {
+                        result = compareAllowingNull(o1.finishTime, o2.finishTime);
+                        if (result == 0) {
+                            result = compareAllowingNull(o1.version, o2.version);
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+    }
+
+    /**
      * Generates a string serialization of the record. Each concrete subclass should have a constructor that accepts a
      * single {@code String} to reconstruct the object from this string.
      *
