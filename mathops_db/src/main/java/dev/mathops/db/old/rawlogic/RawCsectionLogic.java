@@ -3,7 +3,6 @@ package dev.mathops.db.old.rawlogic;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
 import dev.mathops.db.ESchema;
-import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.text.builder.SimpleBuilder;
@@ -236,5 +235,31 @@ public enum RawCsectionLogic {
                 " AND sect=", LogicUtils.sqlStringValue(sect));
 
         return executeSingleQuery(cache, sql);
+    }
+    /**
+     * Executes a query that returns a single records.
+     *
+     * @param cache the data cache
+     * @param sql   the query
+     * @return the record found; null if none returned
+     * @throws SQLException if there is an error accessing the database
+     */
+    private static RawCsection executeSingleQuery(final Cache cache, final String sql) throws SQLException {
+
+        RawCsection result = null;
+
+        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+        try (final Statement stmt = conn.createStatement();
+             final ResultSet rs = stmt.executeQuery(sql)) {
+
+            if (rs.next()) {
+                result = RawCsection.fromResultSet(rs);
+            }
+        } finally {
+            Cache.checkInConnection(conn);
+        }
+
+        return result;
     }
 }
