@@ -4,6 +4,7 @@ import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
 import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawrecord.RawStpaceSummary;
+import dev.mathops.db.type.TermKey;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -52,9 +53,9 @@ public enum RawStpaceSummaryLogic {
     public static boolean insert(final Cache cache, final RawStpaceSummary record) throws SQLException {
 
         if (record.stuId == null || record.course == null || record.sect == null
-                || record.termKey == null || record.iInProgress == null || record.pace == null
-                || record.paceOrder == null || record.msNbr == null || record.msUnit == null
-                || record.msDate == null || record.examDt == null || record.rePoints == null) {
+            || record.termKey == null || record.iInProgress == null || record.pace == null
+            || record.paceOrder == null || record.msNbr == null || record.msUnit == null
+            || record.msDate == null || record.examDt == null || record.rePoints == null) {
             throw new SQLException("Null value in primary key or required field.");
         }
 
@@ -147,7 +148,50 @@ public enum RawStpaceSummaryLogic {
 
         final String sql = "SELECT * FROM stpace_summary";
 
-        final List<RawStpaceSummary> result = new ArrayList<>(500);
+        return executeQuery(cache, sql);
+    }
+
+    /**
+     * Gets all records for a particular student, course, and term.
+     *
+     * @param cache   the data cache
+     * @param stuId   the student ID
+     * @param course  the course ID
+     * @param sect    the section number
+     * @param termKey the term key
+     * @return the list of records
+     * @throws SQLException if there is an error accessing the database
+     */
+    public static List<RawStpaceSummary> queryByStudentCourseSectionTerm(final Cache cache, final String stuId,
+                                                                         final String course, final String sect,
+                                                                         final TermKey termKey)
+            throws SQLException {
+
+        final HtmlBuilder builder = new HtmlBuilder(100);
+
+        builder.add("SELECT * FROM stpace_summary ",
+                "WHERE stu_id=", LogicUtils.sqlStringValue(stuId),
+                "  AND course=", LogicUtils.sqlStringValue(course),
+                "  AND sect=", LogicUtils.sqlStringValue(sect),
+                "  AND term=", LogicUtils.sqlStringValue(termKey.termCode),
+                "  AND term_yr=", LogicUtils.sqlIntegerValue(termKey.shortYear));
+
+        final String sql = builder.toString();
+
+        return executeQuery(cache, sql);
+    }
+
+    /**
+     * Executes a query that returns a list of records.
+     *
+     * @param cache the data cache
+     * @param sql   the SQL to execute
+     * @return the list of matching records
+     * @throws SQLException if there is an error accessing the database
+     */
+    private static List<RawStpaceSummary> executeQuery(final Cache cache, final String sql) throws SQLException {
+
+        final List<RawStpaceSummary> result = new ArrayList<>(50);
 
         final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 

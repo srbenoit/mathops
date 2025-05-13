@@ -461,6 +461,50 @@ public enum RawSthomeworkLogic {
     }
 
     /**
+     * Updates the "passed" field of a record. The fields in the record that constitute its primary key are used to
+     * select the record to update. This method does not commit the update.
+     *
+     * @param cache     the data cache
+     * @param rec       the object to update
+     * @param newPassed the new "passed" value
+     * @return true if successful; false if not
+     * @throws SQLException if there is an error updating the record
+     */
+    public static boolean updatePassed(final Cache cache, final RawSthomework rec,
+                                       final String newPassed) throws SQLException {
+
+        final boolean result;
+
+        if (rec.stuId.startsWith("99")) {
+            Log.info("Skipping update of StudentExam for test student:");
+            Log.info("  Student ID: ", rec.stuId);
+            result = false;
+        } else {
+            final String sql = SimpleBuilder.concat("UPDATE sthomework ",
+                    " SET passed=", LogicUtils.sqlStringValue(newPassed),
+                    " WHERE serial_nbr=", LogicUtils.sqlLongValue(rec.serialNbr),
+                    "   AND version=", LogicUtils.sqlStringValue(rec.version),
+                    "   AND stu_id=", LogicUtils.sqlStringValue(rec.stuId));
+
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement()) {
+                result = stmt.executeUpdate(sql) > 0;
+
+                if (result) {
+                    conn.commit();
+                } else {
+                    conn.rollback();
+                }
+            } finally {
+                Cache.checkInConnection(conn);
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Executes a query that returns a list of records.
      *
      * @param cache the data cache

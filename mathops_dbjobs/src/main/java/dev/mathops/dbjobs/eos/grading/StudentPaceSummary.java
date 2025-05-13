@@ -4,28 +4,37 @@ import dev.mathops.commons.ESuccessFailure;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawCsectionLogic;
+import dev.mathops.db.old.rawlogic.RawCusectionLogic;
+import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawPacingStructureLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
+import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
+import dev.mathops.db.old.rawlogic.RawStpaceSummaryLogic;
 import dev.mathops.db.old.rawlogic.RawSttermLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCsection;
+import dev.mathops.db.old.rawrecord.RawCusection;
+import dev.mathops.db.old.rawrecord.RawMilestone;
 import dev.mathops.db.old.rawrecord.RawPacingStructure;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStexam;
+import dev.mathops.db.old.rawrecord.RawStmilestone;
+import dev.mathops.db.old.rawrecord.RawStpaceSummary;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.rec.TermRec;
 import dev.mathops.db.type.TermKey;
+import dev.mathops.dbjobs.EDebugMode;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
- * A utility class to calculate the "STPACE_SUMMARY" record for a student.  This is used for incomplete processing and
- * for final grading.
+ * A utility class to calculate and insert the "STPACE_SUMMARY" record for a student.  This is used for incomplete
+ * processing and for final grading.
  */
 public enum StudentPaceSummary {
     ;
@@ -34,12 +43,14 @@ public enum StudentPaceSummary {
      * Calculates the number of points earned from passing Review Exams by specified deadline dates and populates
      * STPACE_SUMMARY table to give intermediate grading information and help with grade appeals.
      *
-     * @param active the active term
-     * @param reg    the course registration for which to construct the student pace summary
-     * @param cache  the data cache
+     * @param cache     the data cache
+     * @param debugMode the debug mode
+     * @param active    the active term
+     * @param reg       the course registration for which to construct the student pace summary
      * @return Success or failure
      */
-    static ESuccessFailure createStudentPaceSummary(final TermRec active, final RawStcourse reg, final Cache cache) {
+    static ESuccessFailure createStudentPaceSummary(final Cache cache, final EDebugMode debugMode,
+                                                    final TermRec active, final RawStcourse reg) {
 
         ESuccessFailure result = ESuccessFailure.SUCCESS;
 
@@ -56,7 +67,7 @@ public enum StudentPaceSummary {
                 final Integer paceOrder = reg.paceOrder;
 
                 if (paceOrder != null) {
-                    result = buildStudentPaceSummary(cache, reg);
+                    result = buildStudentPaceSummary(cache, debugMode, reg, pace, paceTrack);
                 }
             }
         }
@@ -230,11 +241,16 @@ public enum StudentPaceSummary {
     /**
      * Computes and inserts the student pace summary record for a student.
      *
-     * @param cache the data cache
-     * @param reg   the course registration
+     * @param cache     the data cache
+     * @param debugMode the debug mode
+     * @param reg       the course registration
+     * @param pace      the total number of in-pace registrations
+     * @param paceTrack the student's pace track
      * @return Success of failure
      */
-    private static ESuccessFailure buildStudentPaceSummary(final Cache cache, final RawStcourse reg) {
+    private static ESuccessFailure buildStudentPaceSummary(final Cache cache, final EDebugMode debugMode,
+                                                           final RawStcourse reg, final int pace,
+                                                           final String paceTrack) {
 
         final List<RawStexam> firstPassedReviews = new ArrayList<>(5);
         ESuccessFailure result = gatherFirstPassedReviews(cache, reg, firstPassedReviews);
@@ -243,184 +259,13 @@ public enum StudentPaceSummary {
 
             for (final RawStexam exam : firstPassedReviews) {
                 // For each unit, find point values for the RE exam and determine if it was completed on time
-                if ("Y".equals(reg.iInProgress)) {
-
-//        IF stc_rec.i_in_progress = "Y" THEN
-//        LET countv = NULL
-//        SELECT count(*) INTO countv FROM crsection
-//        WHERE course = stc_rec.course
-//        AND sect = stc_rec.sect
-//        AND unit = stexamv.unit
-//        AND term = stc_rec.i_term
-//        AND term_yr = stc_rec.i_term_yr
-//
-//        IF countv = 0 THEN
-//        CONTINUE FOREACH
-//        END IF
-//
-//        SELECT re_points_ontime, re_points_late INTO pt_ontime,pt_late
-//        FROM crsection
-//        WHERE course = stc_rec.course
-//        AND sect = stc_rec.sect
-//        AND unit = stexamv.unit
-//        AND term = stc_rec.i_term
-//        AND term_yr = stc_rec.i_term_yr
-//
-//      # Calculate ms_nbrv from component parts
-//        IF stc_rec.i_counted = "N" THEN
-//        LET ipacev = NULL
-//        SELECT pace INTO ipacev FROM stterm
-//        WHERE stterm.stu_id = stc_rec.stu_id
-//        AND stterm.term = stc_rec.i_term
-//        AND stterm.term_yr = stc_rec.i_term_yr
-//        LET ms_nbrv = ((ipacev * 100) + (orderv * 10) + stexamv.unit)
-//        ELSE  { ie. when i_in_progress=Y AND i_counted=Y }
-//        LET ms_nbrv = ((total_stc * 100) + (orderv * 10) + stexamv.unit)
-//        END IF
-//
-//        IF stc_rec.i_counted = "N" THEN
-//        SELECT ms_date INTO duev FROM milestone
-//        WHERE pace = ipacev
-//        AND term = stc_rec.i_term
-//        AND term_yr = stc_rec.i_term_yr
-//        AND pace_track = pace_trackv
-//        AND ms_nbr = ms_nbrv
-//        AND ms_type IN ("RE")
-//        ELSE
-//        SELECT ms_date INTO duev FROM milestone
-//        WHERE pace = total_stc
-//        AND term = stc_rec.term
-//        AND term_yr = stc_rec.term_yr
-//        AND pace_track = pace_trackv
-//        AND ms_nbr = ms_nbrv
-//        AND ms_type IN ("RE")
-//        END IF
-//
-//      #determine if student was given an extension for this deadline
-//        LET countv = NULL
-//        IF stc_rec.i_counted = "N" THEN
-//        SELECT count(*) INTO countv FROM stmilestone
-//        WHERE stu_id = stc_rec.stu_id
-//        AND term = stc_rec.i_term
-//        AND term_yr = stc_rec.i_term_yr
-//        AND pace_track = pace_trackv
-//        AND ms_nbr = ms_nbrv
-//        AND ms_type IN ("RE")
-//
-//        IF countv > 0 THEN
-//        SELECT MAX(ms_date) INTO duev FROM stmilestone
-//        WHERE stu_id = stc_rec.stu_id
-//        AND term = stc_rec.i_term
-//        AND term_yr = stc_rec.i_term_yr
-//        AND pace_track = pace_trackv
-//        AND ms_nbr = ms_nbrv
-//        AND ms_type IN ("RE")
-//        LET new_duev = "Y"
-//        ELSE
-//        LET new_duev = null
-//        END IF
-//        ELSE
-//        SELECT count(*) INTO countv FROM stmilestone
-//        WHERE stu_id = stc_rec.stu_id
-//        AND term = stc_rec.term
-//        AND term_yr = stc_rec.term_yr
-//        AND pace_track = pace_trackv
-//        AND ms_nbr = ms_nbrv
-//        AND ms_type IN ("RE")
-//
-//        IF countv > 0 THEN
-//        SELECT MAX(ms_date) INTO duev FROM stmilestone
-//        WHERE stu_id = stc_rec.stu_id
-//        AND term = stc_rec.term
-//        AND term_yr = stc_rec.term_yr
-//        AND pace_track = pace_trackv
-//        AND ms_nbr = ms_nbrv
-//        AND ms_type IN ("RE")
-//        LET new_duev = "Y"
-//        ELSE
-//        LET new_duev = null
-//        END IF
-//        END IF
+                final Integer rePointsOnTime;
+                if ("Y".equals(reg.iInProgress) && reg.iTermKey != null) {
+                    rePointsOnTime = getReviewExamPointsOnTime(cache, reg, exam, reg.iTermKey);
                 } else {
-//        LET countv = NULL
-//        SELECT count(*) INTO countv FROM crsection
-//        WHERE course = stc_rec.course
-//        AND sect = stc_rec.sect
-//        AND unit = stexamv.unit
-//        AND term = stc_rec.term
-//        AND term_yr = stc_rec.term_yr
-//
-//        IF countv = 0 THEN
-//        CONTINUE FOREACH
-//        END IF
-//
-//        SELECT re_points_ontime, re_points_late INTO pt_ontime,pt_late
-//        FROM crsection
-//        WHERE course = stc_rec.course
-//        AND sect = stc_rec.sect
-//        AND unit = stexamv.unit
-//        AND term = stc_rec.term
-//        AND term_yr = stc_rec.term_yr
-//
-//      # Calculate ms_nbrv from component parts
-//        LET ms_nbrv = ((total_stc * 100) + (orderv * 10) + stexamv.unit)
-//
-//        SELECT ms_date INTO duev FROM milestone
-//        WHERE pace = total_stc
-//        AND term = stc_rec.term
-//        AND term_yr = stc_rec.term_yr
-//        AND pace_track = pace_trackv
-//        AND ms_nbr = ms_nbrv
-//        AND ms_type IN ("RE")
-//
-//      #determine if student was given an extension for this deadline
-//        LET countv = NULL
-//        SELECT count(*) INTO countv FROM stmilestone
-//        WHERE stu_id = stc_rec.stu_id
-//        AND term = stc_rec.term
-//        AND term_yr = stc_rec.term_yr
-//        AND pace_track = pace_trackv
-//        AND ms_nbr = ms_nbrv
-//        AND ms_type IN ("RE")
-//
-//        IF countv > 0 THEN
-//        SELECT MAX(ms_date) INTO duev FROM stmilestone
-//        WHERE stu_id = stc_rec.stu_id
-//        AND term = stc_rec.term
-//        AND term_yr = stc_rec.term_yr
-//        AND pace_track = pace_trackv
-//        AND ms_nbr = ms_nbrv
-//        AND ms_type IN ("RE")
-//        LET new_duev = "Y"
-//        ELSE
-//        LET new_duev = null
-//        END IF
-//        END IF { i_in_progress="Y" }
-//
-//        IF duev IS NULL THEN
-//        LET rpt_line = "no due date for stu_id=", stc_rec.stu_id, " course=", stc_rec.course,
-//                " term=", stc_rec.term, " ", stc_rec.term_yr, " track=", pace_trackv, " ms=",
-//                ms_nbrv, "\n"
-//        OUTPUT TO REPORT problems_rpt(rpt_line)
-//
-//                FINISH REPORT problems_rpt
-//        FINISH REPORT incomp_rpt
-//        FINISH REPORT final_grading_rpt
-//        EXIT PROGRAM
-//        END IF
-//
-//        IF duev >= stexamv.exam_dt THEN
-//        INSERT INTO stpace_summary VALUES (stc_rec.stu_id,stc_rec.course,
-//                stc_rec.sect, stc_rec.term,stc_rec.term_yr,stc_rec.i_in_progress,
-//                total_stc,pace_trackv,orderv,ms_nbrv,stexamv.unit,duev,new_duev,
-//                stexamv.exam_dt,pt_ontime)
-//        ELSE
-//        INSERT INTO stpace_summary VALUES (stc_rec.stu_id,stc_rec.course,
-//                stc_rec.sect, stc_rec.term,stc_rec.term_yr,stc_rec.i_in_progress,
-//                total_stc,pace_trackv,orderv,ms_nbrv,stexamv.unit,duev,new_duev,
-//                stexamv.exam_dt,pt_late)
-//        END IF
+                    rePointsOnTime = getReviewExamPointsOnTime(cache, reg, exam, reg.termKey);
                 }
+                result = buildAndInsertStPaceSummary(cache, debugMode, reg, exam, pace, paceTrack, rePointsOnTime);
             }
         }
 
@@ -458,6 +303,174 @@ public enum StudentPaceSummary {
         } catch (final SQLException ex) {
             Log.warning("Failed to count first-passing review exams for ", reg.stuId, " in ", reg.course, ex);
             result = ESuccessFailure.FAILURE;
+        }
+
+        return result;
+    }
+
+    /**
+     * Attempts to query for the number of points awarded for an on-time review exam.
+     *
+     * @param cache the data cache
+     * @param reg   the student registration
+     * @param exam  the student exam
+     * @return the number of points; null if the value could not be determined
+     */
+    private static Integer getReviewExamPointsOnTime(final Cache cache, final RawStcourse reg, final RawStexam exam,
+                                                     final TermKey term) {
+
+        Integer result = null;
+
+        try {
+            final List<RawCusection> cusections = RawCusectionLogic.queryByTerm(cache, term);
+
+            for (final RawCusection cusection : cusections) {
+                if (cusection.course.equals(reg.course) && cusection.sect.equals(reg.sect)
+                    && cusection.unit.equals(exam.unit)) {
+                    result = cusection.rePointsOntime;
+                    break;
+                }
+            }
+        } catch (final SQLException ex) {
+            Log.warning("Failed to determine points for on-time review exam for ", reg.stuId, " in ", reg.course, ex);
+        }
+
+        return result;
+    }
+
+    /**
+     * Builds and inserts the STPACE_SUMMARY record.  This computes the milestone number for the exam, then looks up the
+     * original due date and then checks for an override due date for the student.
+     *
+     * @param cache     the data cache
+     * @param debugMode the debug mode
+     * @param reg       the registration
+     * @param exam      the student exam
+     * @param pace      the total number of in-pace registrations
+     * @param paceTrack the student's pace track
+     * @return success of failure
+     */
+    private static ESuccessFailure buildAndInsertStPaceSummary(final Cache cache, final EDebugMode debugMode,
+                                                               final RawStcourse reg, final RawStexam exam,
+                                                               final int pace, final String paceTrack,
+                                                               final Integer rePointsOnTime) {
+
+        ESuccessFailure result = ESuccessFailure.SUCCESS;
+        int milestoneNumber = -1;
+
+        final int paceOrder = reg.paceOrder.intValue();
+        final int unit = exam.unit.intValue();
+        int effectivePace = pace;
+        String effectivePaceTrack = paceTrack;
+
+        if ("Y".equals(reg.iInProgress) && reg.iTermKey != null) {
+            if ("N".equals(reg.iCounted)) {
+                // Use the pace from the term when the student started the course
+                try {
+                    final RawStterm studentTerm = RawSttermLogic.query(cache, reg.iTermKey, reg.stuId);
+                    if (studentTerm == null || studentTerm.pace == null) {
+                        Log.warning("No student term record found for ", reg.stuId, " in ", reg.iTermKey);
+                        result = ESuccessFailure.FAILURE;
+                    } else {
+                        effectivePace = studentTerm.pace.intValue();
+                        effectivePaceTrack = studentTerm.paceTrack;
+                        milestoneNumber = (effectivePace * 100) + (paceOrder * 10) + unit;
+                    }
+                } catch (final SQLException ex) {
+                    Log.warning("Failed to query student term record for ", reg.stuId, " in ", reg.iTermKey, ex);
+                    result = ESuccessFailure.FAILURE;
+                }
+            } else {
+                // "Counted" incomplete, so use the pace from the current term
+                milestoneNumber = (effectivePace * 100) + (paceOrder * 10) + unit;
+            }
+        } else {
+            milestoneNumber = (effectivePace * 100) + (paceOrder * 10) + unit;
+        }
+
+        LocalDate dueDate = null;
+        String newDueDate = null;
+
+        if (milestoneNumber > 0) {
+
+            final TermKey effectiveTerm;
+            if ("Y".equals(reg.iInProgress) && reg.iTermKey != null) {
+                if ("N".equals(reg.iCounted)) {
+                    effectiveTerm = reg.iTermKey;
+                } else {
+                    effectiveTerm = reg.termKey;
+                }
+            } else {
+                effectiveTerm = reg.termKey;
+            }
+
+            try {
+                final List<RawMilestone> allMilestones = RawMilestoneLogic.getAllMilestones(cache, effectiveTerm,
+                        effectivePace, effectivePaceTrack);
+
+                for (final RawMilestone ms : allMilestones) {
+                    if (ms.msNbr.intValue() == milestoneNumber && "RE".equals(ms.msType)) {
+                        dueDate = ms.msDate;
+                        break;
+                    }
+                }
+            } catch (final SQLException ex) {
+                Log.warning("Failed to query original milestones for pace ", effectivePace, "track ",
+                        effectivePaceTrack, " in ", effectiveTerm, ex);
+                result = ESuccessFailure.FAILURE;
+            }
+
+            if (dueDate != null) {
+                // Check for a due date override
+                try {
+                    final List<RawStmilestone> allStMilestones = RawStmilestoneLogic.getStudentMilestones(cache,
+                            effectiveTerm, effectivePaceTrack, reg.stuId);
+
+                    for (final RawStmilestone stms : allStMilestones) {
+                        if (stms.msNbr.intValue() == milestoneNumber && "RE".equals(stms.msType)) {
+                            if (stms.msDate.isAfter(dueDate)) {
+                                dueDate = stms.msDate;
+                                newDueDate = "Y";
+                                // Don't break - take the greatest override date in case there are multiple
+                            }
+                        }
+                    }
+                } catch (final SQLException ex) {
+                    Log.warning("Failed to query student milestones for student ", reg.stuId, " in pace ",
+                            effectivePace, "track ", effectivePaceTrack, " in ", effectiveTerm, ex);
+                    result = ESuccessFailure.FAILURE;
+                }
+            }
+
+            if (dueDate == null) {
+                Log.warning("Unable to determine due date for student ", reg.stuId, " in pace ", effectivePace,
+                        "track ", effectivePaceTrack, " in ", effectiveTerm);
+                result = ESuccessFailure.FAILURE;
+            } else {
+                final Integer rePoints;
+                if (exam.examDt.isAfter(dueDate)) {
+                    rePoints = Integer.valueOf(0);
+                } else {
+                    rePoints = rePointsOnTime;
+                }
+
+                final RawStpaceSummary newRec = new RawStpaceSummary(reg.termKey, reg.stuId, reg.course, reg.sect,
+                        reg.iInProgress, effectivePace, effectivePaceTrack, paceOrder, milestoneNumber, exam.unit,
+                        dueDate, newDueDate, exam.examDt, rePoints);
+
+                if (debugMode == EDebugMode.DEBUG) {
+                    Log.info("Inserting: ", newRec);
+                } else {
+                    try {
+                        RawStpaceSummaryLogic.delete(cache, newRec);
+                        RawStpaceSummaryLogic.insert(cache, newRec);
+                    } catch (final SQLException ex) {
+                        Log.warning("Failed to insert STPACE_SUMMARY for student ", reg.stuId, " in pace ",
+                                effectivePace, "track ", effectivePaceTrack, " in ", effectiveTerm, ex);
+                        result = ESuccessFailure.FAILURE;
+                    }
+                }
+            }
         }
 
         return result;

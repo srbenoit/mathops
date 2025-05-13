@@ -3,6 +3,7 @@ package dev.mathops.db.old.rawlogic;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
 import dev.mathops.db.ESchema;
+import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.text.builder.SimpleBuilder;
@@ -213,5 +214,27 @@ public enum RawCsectionLogic {
         }
 
         return result;
+    }
+
+    /**
+     * Retrieves a single course section record.
+     *
+     * @param cache   the data cache
+     * @param termKey the term key
+     * @param course  the course ID
+     * @param sect    the section
+     * @return the matching sections; {@code null} if not found
+     * @throws SQLException if there is an error accessing the database
+     */
+    public static RawCsection query(final Cache cache, final TermKey termKey, final String course, final String sect)
+            throws SQLException {
+
+        final String sql = SimpleBuilder.concat(
+                "SELECT * FROM csection WHERE term=", LogicUtils.sqlStringValue(termKey.termCode),
+                " AND term_yr=", LogicUtils.sqlIntegerValue(termKey.shortYear),
+                " AND course=", LogicUtils.sqlStringValue(course),
+                " AND sect=", LogicUtils.sqlStringValue(sect));
+
+        return executeSingleQuery(cache, sql);
     }
 }
