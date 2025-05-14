@@ -459,7 +459,7 @@ public enum StudentPaceSummary {
                         dueDate, newDueDate, exam.examDt, rePoints);
 
                 if (debugMode == EDebugMode.DEBUG) {
-                    Log.info("Inserting: ", newRec);
+                    Log.fine("Inserting: ", newRec);
                 } else {
                     try {
                         RawStpaceSummaryLogic.delete(cache, newRec);

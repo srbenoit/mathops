@@ -62,7 +62,7 @@ public enum SetRegFlags {
         ESuccessFailure result = ESuccessFailure.SUCCESS;
 
         if (debugMode == EDebugMode.DEBUG) {
-            Log.info("Updating STCOURSE to set open_status=", newOpenStatus, ", completed=", newCompleted,
+            Log.fine("Updating student course row to set open_status=", newOpenStatus, ", completed=", newCompleted,
                     ", course_grade=", newGrade, ", score=", newScore);
         } else {
             try {
@@ -71,7 +71,7 @@ public enum SetRegFlags {
                 RawStcourseLogic.updateOpenStatusAndFinalClassRoll(cache, reg.stuId, reg.course, reg.sect, reg.termKey,
                         newOpenStatus, reg.finalClassRoll, reg.lastClassRollDt);
             } catch (final SQLException ex) {
-                Log.warning("Failed to update STCOURSE to set open_status=", newOpenStatus, ", completed=",
+                Log.warning("Failed to update student course row to set open_status=", newOpenStatus, ", completed=",
                         newCompleted, ", course_grade=", newGrade, ", score=", newScore, ex);
                 result = ESuccessFailure.FAILURE;
             }
@@ -97,7 +97,7 @@ public enum SetRegFlags {
         ESuccessFailure result = ESuccessFailure.SUCCESS;
 
         if (debugMode == EDebugMode.DEBUG) {
-            Log.info("Deleting STPACE_SUMMARY for ", reg.stuId, " for ", reg.course, " section ", reg.sect, " in ",
+            Log.fine("Deleting STPACE_SUMMARY for ", reg.stuId, " for ", reg.course, " section ", reg.sect, " in ",
                     reg.termKey);
         } else {
             try {

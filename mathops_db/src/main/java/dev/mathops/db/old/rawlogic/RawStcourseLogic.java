@@ -636,6 +636,7 @@ public enum RawStcourseLogic {
                     "   AND sect=", LogicUtils.sqlStringValue(sect),
                     "   AND term=", LogicUtils.sqlStringValue(termKey.termCode),
                     "   AND term_yr=", LogicUtils.sqlIntegerValue(termKey.shortYear),
+                    "   AND final_class_roll='Y'",
                     AND_NOT_DROPPED);
 
             final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
@@ -796,6 +797,58 @@ public enum RawStcourseLogic {
                     "   AND sect=", LogicUtils.sqlStringValue(sect),
                     "   AND term=", LogicUtils.sqlStringValue(termKey.termCode),
                     "   AND term_yr=", LogicUtils.sqlIntegerValue(termKey.shortYear),
+                    "   AND final_class_roll='Y'",
+                    AND_NOT_DROPPED);
+
+            final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+
+            try (final Statement stmt = conn.createStatement()) {
+                result = stmt.executeUpdate(sql) == 1;
+
+                if (result) {
+                    conn.commit();
+                } else {
+                    conn.rollback();
+                }
+            } finally {
+                Cache.checkInConnection(conn);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Updates the completed and score fields in a student course.
+     *
+     * @param cache         the data cache
+     * @param stuId         the student ID of the record to be updated
+     * @param course        the course of the record to be updated
+     * @param sect          the section number of the record to be updated
+     * @param termKey       the term key of the record to be updated
+     * @param newExamPlaced the new "exam placed" flag
+     * @return true if successful; false if not
+     * @throws SQLException if there is an error performing the update
+     */
+    public static boolean updateExamPlaced(final Cache cache, final String stuId, final String course,
+                                           final String sect, final TermKey termKey,
+                                           final String newExamPlaced) throws SQLException {
+
+        final boolean result;
+
+        if (stuId.startsWith("99")) {
+            Log.info("Skipping update of completed score of RawStcourse for test student:");
+            Log.info("stuId: ", stuId);
+            result = true;
+        } else {
+            final String sql = SimpleBuilder.concat("UPDATE stcourse",
+                    " SET exam_placed=", LogicUtils.sqlStringValue(newExamPlaced),
+                    " WHERE stu_id=", LogicUtils.sqlStringValue(stuId),
+                    "   AND course=", LogicUtils.sqlStringValue(course),
+                    "   AND sect=", LogicUtils.sqlStringValue(sect),
+                    "   AND term=", LogicUtils.sqlStringValue(termKey.termCode),
+                    "   AND term_yr=", LogicUtils.sqlIntegerValue(termKey.shortYear),
+                    "   AND final_class_roll='Y'",
                     AND_NOT_DROPPED);
 
             final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
@@ -849,6 +902,7 @@ public enum RawStcourseLogic {
                     "   AND term=", LogicUtils.sqlStringValue(termKey.termCode),
                     "   AND term_yr=", LogicUtils.sqlIntegerValue(termKey.shortYear),
                     "   AND last_class_roll_dt=", LogicUtils.sqlDateValue(lastRollDt),
+                    "   AND final_class_roll='Y'",
                     "   AND open_status='D'");
 
             final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
@@ -899,6 +953,7 @@ public enum RawStcourseLogic {
                     "   AND sect=", LogicUtils.sqlStringValue(sect),
                     "   AND term=", LogicUtils.sqlStringValue(termKey.termCode),
                     "   AND term_yr=", LogicUtils.sqlIntegerValue(termKey.shortYear),
+                    "   AND final_class_roll='Y'",
                     AND_NOT_DROPPED);
 
             final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
@@ -949,6 +1004,7 @@ public enum RawStcourseLogic {
                     "   AND sect=", LogicUtils.sqlStringValue(sect),
                     "   AND term=", LogicUtils.sqlStringValue(termKey.termCode),
                     "   AND term_yr=", LogicUtils.sqlIntegerValue(termKey.shortYear),
+                    "   AND final_class_roll='Y'",
                     AND_NOT_DROPPED);
 
             final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
@@ -1000,6 +1056,7 @@ public enum RawStcourseLogic {
                     "   AND sect=", LogicUtils.sqlStringValue(sect),
                     "   AND term=", LogicUtils.sqlStringValue(termKey.termCode),
                     "   AND term_yr=", LogicUtils.sqlIntegerValue(termKey.shortYear),
+                    "   AND final_class_roll='Y'",
                     AND_NOT_DROPPED);
 
             final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);

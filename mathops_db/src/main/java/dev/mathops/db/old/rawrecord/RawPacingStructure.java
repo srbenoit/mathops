@@ -289,7 +289,8 @@ public final class RawPacingStructure extends RawTermRecordBase implements Compa
         result.firstObjAvail = getStringField(rs, FLD_FIRST_OBJ_AVAIL);
 
         // FIXME: Convert hardcode into database field
-        result.freeExtensionDays = Integer.valueOf(2);
+        // NOTE: We use 2 for Fall/Spring, 1 for Summer
+        result.freeExtensionDays = Integer.valueOf(1);
 
         return result;
     }

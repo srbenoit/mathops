@@ -33,9 +33,9 @@ public enum ResetCoursework {
         ESuccessFailure result = ESuccessFailure.SUCCESS;
 
         if (debugMode == EDebugMode.DEBUG) {
-            Log.info("Updating STEXAM to changed passed from 'Y' to 'P' and from 'N' to 'n' for ", reg.stuId, " in ",
+            Log.fine("Updating STEXAM to changed passed from 'Y' to 'P' and from 'N' to 'n' for ", reg.stuId, " in ",
                     reg.course);
-            Log.info("Updating STHOMEWORK to changed passed from 'Y' to 'P', 'G' to 'N', others to 'V' for ", reg.stuId,
+            Log.fine("Updating STHOMEWORK to changed passed from 'Y' to 'P', 'G' to 'N', others to 'V' for ", reg.stuId,
                     " in ", reg.course);
         } else {
             try {

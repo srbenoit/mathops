@@ -176,7 +176,7 @@ public enum FinalStats {
         try {
             for (final RawStcourse reg : gRegs) {
                 if (debugMode == EDebugMode.DEBUG) {
-                    Log.info("Updating registration for ", reg.stuId, " in ", reg.course, ", section ", reg.sect,
+                    Log.fine("Updating registration for ", reg.stuId, " in ", reg.course, ", section ", reg.sect,
                             " from open_status='G' to open_status='N', completed='N', course_grade='U', score=NULL");
                 } else {
                     RawStcourseLogic.updateOpenStatusAndFinalClassRoll(cache, reg.stuId, reg.course,

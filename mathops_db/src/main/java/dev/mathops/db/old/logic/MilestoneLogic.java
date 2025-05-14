@@ -497,8 +497,7 @@ public enum MilestoneLogic {
      */
     public static int daysAvailableLegacyFreeExtension(final Cache cache, final String stuId, final String paceTrack,
                                                        final int pace, final int index, final int unit,
-                                                       final String msType)
-            throws IllegalArgumentException, SQLException {
+                                                       final String msType) throws SQLException {
 
         if (cache == null) {
             throw new IllegalArgumentException("Cache may not be null");
