@@ -13,10 +13,14 @@ import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawlogic.RawDontSubmitLogic;
 import dev.mathops.db.old.rawlogic.RawParametersLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
+import dev.mathops.db.old.rawlogic.RawStexamLogic;
+import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawDontSubmit;
 import dev.mathops.db.old.rawrecord.RawParameters;
 import dev.mathops.db.old.rawrecord.RawStcourse;
+import dev.mathops.db.old.rawrecord.RawStexam;
+import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.rec.TermRec;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.text.builder.HtmlBuilder;
@@ -25,6 +29,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -152,7 +157,6 @@ public class CreateAPIFile implements Runnable {
 
             try {
                 final List<RawStcourse> regs = RawStcourseLogic.queryByTerm(this.cache, activeTermKey, true, false);
-                final int size = regs.size();
                 result = filterRegs(regs, dontSubmit);
             } catch (final SQLException ex) {
                 Log.warning("Failed to query STUDENT_COURSE records for the active term.");
@@ -205,6 +209,16 @@ public class CreateAPIFile implements Runnable {
         // Sort the list by student then course (the built-in ordering for RawStcourse)
         result.sort(null);
 
+        final String numConsideredStr = Integer.toString(numConsidered);
+        Log.info("Considered ", numConsideredStr, " registrations");
+
+        final String numExcludedStr = Integer.toString(numExcluded);
+        Log.info("Excluded ", numExcludedStr, " registrations based on DONT_SUBMIT records");
+
+        final int numIncluded = result.size();
+        final String numIncludedStr = Integer.toString(numIncluded);
+        Log.info("Result: ", numIncludedStr, " registrations included in the API file.");
+
         return result;
     }
 
@@ -215,8 +229,8 @@ public class CreateAPIFile implements Runnable {
      * @param gradesToSubmit the list of registrations with grades to submit
      * @param sections       the list of course section records
      */
-    private void generateFile(final RawParameters parameters,
-                              final List<RawStcourse> gradesToSubmit, final List<RawCsection> sections) {
+    private void generateFile(final RawParameters parameters, final List<RawStcourse> gradesToSubmit,
+                              final List<RawCsection> sections) {
 
         final String instr = parameters.parm1.trim();
         final String instrId = parameters.parm2.trim();
