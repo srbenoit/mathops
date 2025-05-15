@@ -3,6 +3,7 @@ package dev.mathops.db.old.rawlogic;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
 import dev.mathops.db.ESchema;
+import dev.mathops.db.old.rawrecord.RawCuobjective;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rawrecord.RawCusection;
 import dev.mathops.text.builder.SimpleBuilder;
@@ -148,21 +149,7 @@ public enum RawCusectionLogic {
      */
     public static List<RawCusection> queryAll(final Cache cache) throws SQLException {
 
-        final List<RawCusection> result = new ArrayList<>(100);
-
-        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
-
-        try (final Statement stmt = conn.createStatement();
-             final ResultSet rs = stmt.executeQuery("SELECT * FROM cusection")) {
-
-            while (rs.next()) {
-                result.add(RawCusection.fromResultSet(rs));
-            }
-        } finally {
-            Cache.checkInConnection(conn);
-        }
-
-        return result;
+        return executeListQuery(cache, "SELECT * FROM cusection");
     }
 
     /**
@@ -179,7 +166,20 @@ public enum RawCusectionLogic {
                 " WHERE term=", LogicUtils.sqlStringValue(termKey.termCode),
                 "   AND term_yr=", LogicUtils.sqlIntegerValue(termKey.shortYear));
 
-        final List<RawCusection> result = new ArrayList<>(10);
+        return executeListQuery(cache, sql);
+    }
+
+    /**
+     * Executes a query that returns a list of records.
+     *
+     * @param cache the data cache
+     * @param sql   the query
+     * @return the list of records
+     * @throws SQLException if there is an error accessing the database
+     */
+    private static List<RawCusection> executeListQuery(final Cache cache, final String sql) throws SQLException {
+
+        final List<RawCusection> result = new ArrayList<>(50);
 
         final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
 
