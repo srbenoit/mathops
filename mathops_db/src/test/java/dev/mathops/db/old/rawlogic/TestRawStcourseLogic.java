@@ -144,9 +144,9 @@ final class TestRawStcourseLogic {
             // Want registrations that span multiple terms, multiple courses and sections within a single term,
             // OT and dropped records, a counted Incomplete, and a non-counted Incomplete
 
-            final TermRec term1 = new TermRec(fa21, date1, date2, "2122", Integer.valueOf(0), date3, date4);
+            final TermRec term1 = new TermRec(fa21, date1, date2, "2122", Integer.valueOf(0), date3, date4, date22);
 
-            final TermRec term2 = new TermRec(sm21, date5, date6, "2122", Integer.valueOf(-1), date7, date8);
+            final TermRec term2 = new TermRec(sm21, date5, date6, "2122", Integer.valueOf(-1), date7, date8, date23);
 
             // Student 111111111 has a SM21 registration in MATH 117/001 (finished) and FA21 registrations in
             // MATH 118/001 (open), 124/001 (not yet open), 125/001 (dropped),and 126/001 (Ignored)

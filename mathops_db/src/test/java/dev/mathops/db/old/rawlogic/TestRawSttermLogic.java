@@ -77,7 +77,8 @@ final class TestRawSttermLogic {
             final TermKey fa20 = new TermKey("FA20");
 
             final TermRec rawTerm = new TermRec(fa21, LocalDate.of(2021, 8, 11), LocalDate.of(2021, 12, 14), "2122",
-                    Integer.valueOf(0), LocalDate.of(2021, 11, 13), LocalDate.of(2021, 11, 14));
+                    Integer.valueOf(0), LocalDate.of(2021, 11, 13), LocalDate.of(2021, 11, 14),
+                    LocalDate.of(2022, 10, 12));
 
             assertTrue(cache.getSystemData().insertTerm(rawTerm), "Failed to insert active term");
 

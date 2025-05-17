@@ -84,7 +84,7 @@ public enum LogicUtils {
      * @param i the integer
      * @return the SQL string, in the form "null" or "123".
      */
-    static String sqlIntegerValue(final Integer i) {
+    public static String sqlIntegerValue(final Integer i) {
 
         final String result;
 
@@ -103,7 +103,7 @@ public enum LogicUtils {
      * @param l the long
      * @return the SQL string, in the form "null" or "123".
      */
-    static String sqlLongValue(final Long l) {
+    public static String sqlLongValue(final Long l) {
 
         final String result;
 
@@ -122,7 +122,7 @@ public enum LogicUtils {
      * @param f the float
      * @return the SQL string, in the form "null" or "123.456".
      */
-    static String sqlFloatValue(final Float f) {
+    public static String sqlFloatValue(final Float f) {
 
         final String result;
 
@@ -141,7 +141,7 @@ public enum LogicUtils {
      * @param str the string
      * @return the SQL string, in the form "null" or "'string'".
      */
-    static String sqlStringValue(final String str) {
+    public static String sqlStringValue(final String str) {
 
         final String result;
 
@@ -160,7 +160,7 @@ public enum LogicUtils {
      * @param dt the date
      * @return the SQL string, in the form "DATE('12/31/2021')".
      */
-    static String sqlDateValue(final LocalDate dt) {
+    public static String sqlDateValue(final LocalDate dt) {
 
         final String result;
 
@@ -183,7 +183,7 @@ public enum LogicUtils {
      * @param dt the date
      * @return the SQL string, in the form "DATE('12/31/2021')".
      */
-    static String sqlPgDateValue(final LocalDate dt) {
+    public static String sqlPgDateValue(final LocalDate dt) {
 
         final String result;
 
@@ -217,7 +217,7 @@ public enum LogicUtils {
      * @param dtm the date/time
      * @return the SQL string, in the form "TO_DATE('2021-12-31 12:34:56')".
      */
-    static String sqlDateTimeValue(final LocalDateTime dtm) {
+    public static String sqlDateTimeValue(final LocalDateTime dtm) {
 
         final String result;
 
@@ -248,7 +248,7 @@ public enum LogicUtils {
      * @param key the term key
      * @return the SQL string, in the form "null" or something of the form "'FA20'".
      */
-    static String sqlTermValue(final TermKey key) {
+    public static String sqlTermValue(final TermKey key) {
 
         final String result;
 

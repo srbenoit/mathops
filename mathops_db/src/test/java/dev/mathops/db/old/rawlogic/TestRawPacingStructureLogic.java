@@ -78,7 +78,8 @@ final class TestRawPacingStructureLogic {
             conn.commit();
 
             final TermRec term1 = new TermRec(fa21, LocalDate.of(2021, 8, 11), LocalDate.of(2021, 12, 14), "2122",
-                    Integer.valueOf(0), LocalDate.of(2021, 11, 13), LocalDate.of(2021, 11, 14));
+                    Integer.valueOf(0), LocalDate.of(2021, 11, 13), LocalDate.of(2021, 11, 14)
+                    , LocalDate.of(2022, 10, 12));
 
             final RawPacingStructure raw1 = new RawPacingStructure(fa21, "A", "B", "C", "D", Integer.valueOf(1),
                     "E", Integer.valueOf(2), Integer.valueOf(3), "F", "G", "H", "I", Integer.valueOf(4),

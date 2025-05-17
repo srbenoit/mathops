@@ -164,73 +164,78 @@ public enum PaceTrackLogic {
         // Default track is "A" (used for all 3-course, 4-course, and 5-course pace students)
         String track = "A";
 
-        if ("001".equals(sect) || "801".equals(sect) || "809".equals(sect)) {
-            // In Fall/Spring, 001 is the normal full-semester online section
-            if (pace == 1) {
-                // Students whose single course is MATH 117 or 124 are track A, the others are track B
-                for (final RawStcourse test : registrations) {
-                    if ((RawRecordConstants.M118.equals(test.course)
-                         || RawRecordConstants.M125.equals(test.course)
-                         || RawRecordConstants.M126.equals(test.course))
-                        && isCountedTowardPace(test)) {
-                        track = "B";
-                        break;
-                    }
-                }
-            } else if (pace == 2) {
-                // If a student in 2 courses has MATH 125, they are track A; otherwise track B
-                track = "B";
-                for (final RawStcourse test : registrations) {
-                    if (RawRecordConstants.M125.equals(test.course) && isCountedTowardPace(test)) {
-                        track = "A";
-                        break;
-                    }
-                }
-            }
-        } else if ("002".equals(sect)) {
-            // In Fall/Spring, 002 is a "late-start" section: track C (only 1 or 2 course pace)
-            track = "C";
-        } else if ("003".equals(sect)) {
-            // An in-person section, one of the following:
-            //   116 + 117 or 116 + 117 + 118 (Track D)
-            //   125 or 125 + 126 (track F)
-            //   126 (track H)
-            boolean has125 = false;
-            boolean has126 = false;
-            for (final RawStcourse test : registrations) {
-                if (isCountedTowardPace(test)) {
-                    if (RawRecordConstants.M125.equals(test.course)) {
-                        has125 = true;
-                    } else if (RawRecordConstants.M126.equals(test.course)) {
-                        has126 = true;
-                    }
-                }
-            }
-            if (has126) {
-                track = has125 ? "F" : "H";
-            } else if (has125) {
-                track = "F";
-            } else {
-                track = "D";
-            }
-        } else if ("004".equals(sect)) {
-            // An in-person MATH 125 section (track F)
-            track = "F";
-        } else if ("005".equals(sect)) {
-            // An in-person section, one of the following:
-            //   116 + 117 or 116 + 117 + 118 (Track E)
-            //   125 or 125 + 126 (track F)
-            track = "E";
-            for (final RawStcourse test : registrations) {
-                if ((RawRecordConstants.M125.equals(test.course) || RawRecordConstants.M126.equals(test.course))
-                    && isCountedTowardPace(test)) {
-                    track = "F";
-                }
-            }
-        } else if ("006".equals(sect)) {
-            // An in-person MATH 117 / 118 section (track E)
-            track = "E";
+        // SUMMER: Everyone is in track A except section 002 of MATH 117, which is track B (face-to-face)
+        if ("002".equals(sect)) {
+            track = "B";
         }
+//
+//        if ("001".equals(sect) || "801".equals(sect) || "809".equals(sect)) {
+//            // In Fall/Spring, 001 is the normal full-semester online section
+//            if (pace == 1) {
+//                // Students whose single course is MATH 117 or 124 are track A, the others are track B
+//                for (final RawStcourse test : registrations) {
+//                    if ((RawRecordConstants.M118.equals(test.course)
+//                         || RawRecordConstants.M125.equals(test.course)
+//                         || RawRecordConstants.M126.equals(test.course))
+//                        && isCountedTowardPace(test)) {
+//                        track = "B";
+//                        break;
+//                    }
+//                }
+//            } else if (pace == 2) {
+//                // If a student in 2 courses has MATH 125, they are track A; otherwise track B
+//                track = "B";
+//                for (final RawStcourse test : registrations) {
+//                    if (RawRecordConstants.M125.equals(test.course) && isCountedTowardPace(test)) {
+//                        track = "A";
+//                        break;
+//                    }
+//                }
+//            }
+//        } else if ("002".equals(sect)) {
+//            // In Fall/Spring, 002 is a "late-start" section: track C (only 1 or 2 course pace)
+//            track = "C";
+//        } else if ("003".equals(sect)) {
+//            // An in-person section, one of the following:
+//            //   116 + 117 or 116 + 117 + 118 (Track D)
+//            //   125 or 125 + 126 (track F)
+//            //   126 (track H)
+//            boolean has125 = false;
+//            boolean has126 = false;
+//            for (final RawStcourse test : registrations) {
+//                if (isCountedTowardPace(test)) {
+//                    if (RawRecordConstants.M125.equals(test.course)) {
+//                        has125 = true;
+//                    } else if (RawRecordConstants.M126.equals(test.course)) {
+//                        has126 = true;
+//                    }
+//                }
+//            }
+//            if (has126) {
+//                track = has125 ? "F" : "H";
+//            } else if (has125) {
+//                track = "F";
+//            } else {
+//                track = "D";
+//            }
+//        } else if ("004".equals(sect)) {
+//            // An in-person MATH 125 section (track F)
+//            track = "F";
+//        } else if ("005".equals(sect)) {
+//            // An in-person section, one of the following:
+//            //   116 + 117 or 116 + 117 + 118 (Track E)
+//            //   125 or 125 + 126 (track F)
+//            track = "E";
+//            for (final RawStcourse test : registrations) {
+//                if ((RawRecordConstants.M125.equals(test.course) || RawRecordConstants.M126.equals(test.course))
+//                    && isCountedTowardPace(test)) {
+//                    track = "F";
+//                }
+//            }
+//        } else if ("006".equals(sect)) {
+//            // An in-person MATH 117 / 118 section (track E)
+//            track = "E";
+//        }
 
         return track;
     }

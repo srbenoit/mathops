@@ -36,6 +36,9 @@ final class TestTermRec {
     /** A field name. */
     private static final LocalDate TEST_WITHDRAW_DEADLINE = LocalDate.of(2022, 9, 10);
 
+    /** A field name. */
+    private static final LocalDate TEST_INC_DEADLINE = LocalDate.of(2023, 11, 12);
+
     /** The expected String serialization of a test record. */
     private static final String EXPECT_SER99 = String.join(RecBase.DIVIDER,
             "term=202390",
@@ -44,7 +47,8 @@ final class TestTermRec {
             "academic_year=2324",
             "active_index=3",
             "drop_deadline=2022-09-09",
-            "withdraw_deadline=2022-09-10");
+            "withdraw_deadline=2022-09-10",
+            "inc_deadline=2023-10-11");
 
     /**
      * Constructs a new {@code IvtTermRec}.
@@ -60,7 +64,7 @@ final class TestTermRec {
     void test0001() {
 
         final TermRec obj = new TermRec(TEST_TERM, TEST_START_DATE, TEST_END_DATE, TEST_ACADEMIC_YEAR,
-                TEST_ACTIVE_INDEX, TEST_DROP_DEADLINE, TEST_WITHDRAW_DEADLINE);
+                TEST_ACTIVE_INDEX, TEST_DROP_DEADLINE, TEST_WITHDRAW_DEADLINE, TEST_INC_DEADLINE);
 
         assertEquals(TEST_TERM, obj.term, "Invalid term_key value after constructor");
         assertEquals(TEST_START_DATE, obj.startDate, "Invalid start_date value after constructor");
@@ -69,6 +73,7 @@ final class TestTermRec {
         assertEquals(TEST_ACTIVE_INDEX, obj.activeIndex, "Invalid active_index value after constructor");
         assertEquals(TEST_DROP_DEADLINE, obj.dropDeadline, "Invalid drop_deadline value after constructor");
         assertEquals(TEST_WITHDRAW_DEADLINE, obj.withdrawDeadline, "Invalid withdraw_deadline value after constructor");
+        assertEquals(TEST_INC_DEADLINE, obj.incDeadline, "Invalid inc_deadline value after constructor");
     }
 
     /** Test case. */
@@ -77,7 +82,7 @@ final class TestTermRec {
     void test0098() {
 
         final TermRec obj = new TermRec(TEST_TERM, TEST_START_DATE, TEST_END_DATE, TEST_ACADEMIC_YEAR,
-                TEST_ACTIVE_INDEX, TEST_DROP_DEADLINE, TEST_WITHDRAW_DEADLINE);
+                TEST_ACTIVE_INDEX, TEST_DROP_DEADLINE, TEST_WITHDRAW_DEADLINE, TEST_INC_DEADLINE);
 
         final String ser = obj.toString();
 

@@ -131,10 +131,13 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
         private static final String FLD_ACTIVE_INDEX = "active_index";
 
         /** A field name. */
-        private static final String FLD_DROP_DT = "i_deadline_dt";
+        private static final String FLD_I_DEADLINE_DT = "i_deadline_dt";
 
         /** A field name. */
         private static final String FLD_W_DROP_DT = "w_drop_dt";
+
+        /** A field name. */
+        private static final String FLD_DROP_DT = "drop_dt";
 
         /**
          * Constructs a new {@code Informix}.
@@ -177,7 +180,7 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
             }
 
             final String sql = SimpleBuilder.concat("INSERT INTO term (term,term_yr,start_dt,end_dt,academic_yr,",
-                    "ctrl_enforce,active,active_index,last_rec_dt,w_drop_dt,i_deadline_dt) VALUES (",
+                    "ctrl_enforce,active,active_index,drop_dt,w_drop_dt,i_deadline_dt) VALUES (",
                     sqlStringValue(record.term.termCode), ",",
                     sqlIntegerValue(record.term.shortYear), ",",
                     sqlDateValue(record.startDate), ",",
@@ -187,7 +190,7 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
                     sqlIntegerValue(record.activeIndex), ",",
                     sqlDateValue(record.dropDeadline), ",",
                     sqlDateValue(record.withdrawDeadline), ",",
-                    sqlDateValue(record.dropDeadline), ")");
+                    sqlDateValue(record.incDeadline), ")");
 
             return doUpdateOneRow(cache, sql);
         }
@@ -347,9 +350,10 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
             final Integer theActiveIndex = getIntegerField(rs, FLD_ACTIVE_INDEX);
             final LocalDate theDropDeadline = getDateField(rs, FLD_DROP_DT);
             final LocalDate theWithdrawDeadline = getDateField(rs, FLD_W_DROP_DT);
+            final LocalDate theIncDeadline = getDateField(rs, FLD_I_DEADLINE_DT);
 
             return new TermRec(theTermKey, theStartDate, theEndDate, theAcademicYear, theActiveIndex, theDropDeadline,
-                    theWithdrawDeadline);
+                    theWithdrawDeadline, theIncDeadline);
         }
     }
 
@@ -382,6 +386,9 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
         /** A field name. */
         private static final String FLD_WITHDRAW_DEADLINE = "withdraw_deadline";
 
+        /** A field name. */
+        private static final String FLD_INC_DEADLINE = "inc_deadline";
+
         /**
          * Constructs a new {@code Postgres}.
          */
@@ -410,14 +417,15 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
 
             final String sql = SimpleBuilder.concat("INSERT INTO ", schemaPrefix, ".term ",
                     "(term,start_date,end_date,academic_year,active_index,",
-                    "drop_deadline,withdraw_deadline) VALUES (",
+                    "drop_deadline,withdraw_deadline,inc_deadline) VALUES (",
                     sqlIntegerValue(record.term.toNumeric()), ",",
                     sqlDateValue(record.startDate), ",",
                     sqlDateValue(record.endDate), ",",
                     sqlStringValue(record.academicYear), ",",
                     sqlIntegerValue(record.activeIndex), ",",
                     sqlDateValue(record.dropDeadline), ",",
-                    sqlDateValue(record.withdrawDeadline), ")");
+                    sqlDateValue(record.withdrawDeadline), ",",
+                    sqlDateValue(record.incDeadline), ")");
 
             return doUpdateOneRow(cache, sql);
         }
@@ -586,9 +594,10 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
             final Integer theActiveIndex = getIntegerField(rs, FLD_ACTIVE_INDEX);
             final LocalDate theDropDeadline = getDateField(rs, FLD_DROP_DEADLINE);
             final LocalDate theWithdrawDeadline = getDateField(rs, FLD_WITHDRAW_DEADLINE);
+            final LocalDate theIcnDeadline = getDateField(rs, FLD_INC_DEADLINE);
 
             return new TermRec(theTermKey, theStartDate, theEndDate, theAcademicYear, theActiveIndex, theDropDeadline,
-                    theWithdrawDeadline);
+                    theWithdrawDeadline, theIcnDeadline);
         }
     }
 }

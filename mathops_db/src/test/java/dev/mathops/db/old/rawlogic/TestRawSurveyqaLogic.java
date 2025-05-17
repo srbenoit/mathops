@@ -74,7 +74,8 @@ final class TestRawSurveyqaLogic {
             final TermKey termKey = new TermKey(ETermName.SPRING, 2022);
 
             final TermRec rawTerm = new TermRec(termKey, LocalDate.of(2022, 1, 1), LocalDate.of(2022, 5, 6), "2122",
-                    Integer.valueOf(0), LocalDate.of(2021, 11, 13), LocalDate.of(2021, 11, 14));
+                    Integer.valueOf(0), LocalDate.of(2021, 11, 13), LocalDate.of(2021, 11, 14),
+                    LocalDate.of(2022, 10, 12));
 
             assertTrue(cache.getSystemData().insertTerm(rawTerm), "Failed to insert active term");
 

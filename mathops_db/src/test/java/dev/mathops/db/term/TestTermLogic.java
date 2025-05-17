@@ -37,27 +37,32 @@ final class TestTermLogic {
     /** A raw test record. */
     private static final TermRec RAW1 = new TermRec(new TermKey(202190),
             LocalDate.of(2021, 9, 1), LocalDate.of(2021, 10, 1), "2122",
-            Integer.valueOf(-2), LocalDate.of(2021, 9, 11), LocalDate.of(2021, 9, 21));
+            Integer.valueOf(-2), LocalDate.of(2021, 9, 11), LocalDate.of(2021, 9, 21),
+            LocalDate.of(2022, 10, 12));
 
     /** A raw test record. */
     private static final TermRec RAW2 = new TermRec(new TermKey(202210),
             LocalDate.of(2022, 1, 1), LocalDate.of(2022, 2, 1), "2122",
-            Integer.valueOf(-1), LocalDate.of(2022, 1, 11), LocalDate.of(2022, 1, 21));
+            Integer.valueOf(-1), LocalDate.of(2022, 1, 11), LocalDate.of(2022, 1, 21),
+            LocalDate.of(2022, 10, 13));
 
     /** A raw test record. */
     private static final TermRec RAW3 = new TermRec(new TermKey(202260),
             LocalDate.of(2022, 6, 1), LocalDate.of(2022, 7, 1), "2223",
-            Integer.valueOf(0), LocalDate.of(2022, 6, 11), LocalDate.of(2022, 6, 21));
+            Integer.valueOf(0), LocalDate.of(2022, 6, 11), LocalDate.of(2022, 6, 21),
+            LocalDate.of(2022, 10, 14));
 
     /** A raw test record. */
     private static final TermRec RAW4 = new TermRec(new TermKey(202290),
             LocalDate.of(2022, 9, 2), LocalDate.of(2022, 10, 2), "2223",
-            Integer.valueOf(1), LocalDate.of(2022, 9, 12), LocalDate.of(2022, 9, 22));
+            Integer.valueOf(1), LocalDate.of(2022, 9, 12), LocalDate.of(2022, 9, 22),
+            LocalDate.of(2022, 10, 15));
 
     /** A raw test record. */
     private static final TermRec RAW5 = new TermRec(new TermKey(202310),
             LocalDate.of(2023, 1, 2), LocalDate.of(2023, 2, 2), "2223",
-            Integer.valueOf(2), LocalDate.of(2023, 1, 12), LocalDate.of(2023, 1, 22));
+            Integer.valueOf(2), LocalDate.of(2023, 1, 12), LocalDate.of(2023, 1, 22),
+            LocalDate.of(2022, 10, 16));
 
     /**
      * Prints an indication of an unexpected record.
@@ -73,6 +78,7 @@ final class TestTermLogic {
         Log.warning("Unexpected activeIndex ", r.activeIndex);
         Log.warning("Unexpected dropDeadline ", r.dropDeadline);
         Log.warning("Unexpected withdrawDeadline ", r.withdrawDeadline);
+        Log.warning("Unexpected incDeadline ", r.incDeadline);
     }
 
     /**

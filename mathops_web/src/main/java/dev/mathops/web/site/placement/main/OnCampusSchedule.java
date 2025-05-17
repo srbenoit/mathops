@@ -134,22 +134,22 @@ enum OnCampusSchedule {
 //                .add("Precalculus Tutorial Exams").br()
 //                .add("Course challenge exams").eTd().eTr();
 
-        htm.sTr().sTd("c1")
-                .add("Tuesday,&nbsp;January&nbsp;21&nbsp;- Friday,&nbsp;May&nbsp;9").br()
-                .add("(<b>Closed</b> March 15 through 23)").eTd()
-                .sTd("c2").add("10:00 am - 4:00 pm Monday<br>",
-                        "10:00 am - 8:00 pm Tuesday-Thursday<br>",
-                        "10:00 am - 4:00 pm Friday<br>",
-                        "Noon - 4:00 pm Sunday").eTd()
-                .sTd("c3")
-                .add("Math Placement Tool").br()
-                .add("ELM Exam").br()
-                .add("Precalculus Tutorial Exams").br()
-                .add("Course challenge exams").eTd().eTr();
-
-        htm.eTable();
-
-        htm.sTable("sched");
+//        htm.sTr().sTd("c1")
+//                .add("Tuesday,&nbsp;January&nbsp;21&nbsp;- Friday,&nbsp;May&nbsp;9").br()
+//                .add("(<b>Closed</b> March 15 through 23)").eTd()
+//                .sTd("c2").add("10:00 am - 4:00 pm Monday<br>",
+//                        "10:00 am - 8:00 pm Tuesday-Thursday<br>",
+//                        "10:00 am - 4:00 pm Friday<br>",
+//                        "Noon - 4:00 pm Sunday").eTd()
+//                .sTd("c3")
+//                .add("Math Placement Tool").br()
+//                .add("ELM Exam").br()
+//                .add("Precalculus Tutorial Exams").br()
+//                .add("Course challenge exams").eTd().eTr();
+//
+//        htm.eTable();
+//
+//        htm.sTable("sched");
         htm.sTr().add("<th colspan='3'>Summer, 2025 - Precalculus Center, Weber 138").eTh().eTr();
 
         htm.sTr().sTd("c1")
@@ -164,23 +164,23 @@ enum OnCampusSchedule {
 
         htm.eTable();
 
-//        htm.sTable("sched");
-//        htm.sTr().add("<th colspan='3'>Fall, 2025 - Precalculus Center, Weber 138").eTh().eTr();
-//
-//        htm.sTr().sTd("c1")
-//                .add("Tuesday,&nbsp;August&nbsp;25&nbsp;- Friday,&nbsp;December&nbsp;12").br()
-//                .add("(<b>Closed</b> September 1, November 22 through 30)").eTd()
-//                .sTd("c2").add("10:00 am - 4:00 pm Monday<br>",
-//                        "10:00 am - 8:00 pm Tuesday-Thursday<br>",
-//                        "10:00 am - 4:00 pm Friday<br>",
-//                        "Noon - 4:00 pm Sunday").eTd()
-//                .sTd("c3")
-//                .add("Math Placement Tool").br()
-//                .add("ELM Exam").br()
-//                .add("Precalculus Tutorial Exams").br()
-//                .add("Course challenge exams").eTd().eTr();
-//
-//        htm.eTable();
+        htm.sTable("sched");
+        htm.sTr().add("<th colspan='3'>Fall, 2025 - Precalculus Center, Weber 138").eTh().eTr();
+
+        htm.sTr().sTd("c1")
+                .add("Tuesday,&nbsp;August&nbsp;25&nbsp;- Friday,&nbsp;December&nbsp;12").br()
+                .add("(<b>Closed</b> September 1, November 22 through 30)").eTd()
+                .sTd("c2").add("10:00 am - 4:00 pm Monday<br>",
+                        "10:00 am - 8:00 pm Tuesday-Thursday<br>",
+                        "10:00 am - 4:00 pm Friday<br>",
+                        "Noon - 4:00 pm Sunday").eTd()
+                .sTd("c3")
+                .add("Math Placement Tool").br()
+                .add("ELM Exam").br()
+                .add("Precalculus Tutorial Exams").br()
+                .add("Course challenge exams").eTd().eTr();
+
+        htm.eTable();
 
         htm.eDiv(); // center
 

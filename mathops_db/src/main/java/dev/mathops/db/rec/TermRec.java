@@ -35,6 +35,9 @@ public final class TermRec extends RecBase implements Comparable<TermRec> {
     /** A field name. */
     private static final String FLD_WITHDRAW_DEADLINE = "withdraw_deadline";
 
+    /** A field name. */
+    private static final String FLD_INC_DEADLINE = "inc_deadline";
+
     /** The term key. */
     public final TermKey term;
 
@@ -56,6 +59,9 @@ public final class TermRec extends RecBase implements Comparable<TermRec> {
     /** The 'withdraw_deadline' field value. */
     public final LocalDate withdrawDeadline;
 
+    /** The 'inc_deadline' field value. */
+    public final LocalDate incDeadline;
+
     /**
      * Constructs a new {@code TermRec}.
      *
@@ -66,10 +72,12 @@ public final class TermRec extends RecBase implements Comparable<TermRec> {
      * @param theActiveIndex      0 for the active term, +1 for the next, -1 for the prior, etc.
      * @param theDropDeadline     the drop deadline date
      * @param theWithdrawDeadline the withdrawal deadline date
+     * @param theIncDeadline the deadline to set for automatic Incompletes earned during this term (this is a
+     *         date in the subsequent term)
      */
     public TermRec(final TermKey theTermKey, final LocalDate theStartDate, final LocalDate theEndDate,
                    final String theAcademicYear, final Integer theActiveIndex, final LocalDate theDropDeadline,
-                   final LocalDate theWithdrawDeadline) {
+                   final LocalDate theWithdrawDeadline, final LocalDate theIncDeadline) {
 
         super();
 
@@ -80,6 +88,7 @@ public final class TermRec extends RecBase implements Comparable<TermRec> {
         this.activeIndex = theActiveIndex;
         this.dropDeadline = theDropDeadline;
         this.withdrawDeadline = theWithdrawDeadline;
+        this.incDeadline = theIncDeadline;
     }
 
     /**
@@ -119,6 +128,8 @@ public final class TermRec extends RecBase implements Comparable<TermRec> {
         appendField(htm, FLD_DROP_DEADLINE, this.dropDeadline);
         htm.add(DIVIDER);
         appendField(htm, FLD_WITHDRAW_DEADLINE, this.withdrawDeadline);
+        htm.add(DIVIDER);
+        appendField(htm, FLD_INC_DEADLINE, this.incDeadline);
 
         return htm.toString();
     }
@@ -132,12 +143,13 @@ public final class TermRec extends RecBase implements Comparable<TermRec> {
     public int hashCode() {
 
         return Objects.hashCode(this.term)
-                + Objects.hashCode(this.startDate)
-                + Objects.hashCode(this.endDate)
-                + Objects.hashCode(this.academicYear)
-                + Objects.hashCode(this.activeIndex)
-                + Objects.hashCode(this.dropDeadline)
-                + Objects.hashCode(this.withdrawDeadline);
+               + Objects.hashCode(this.startDate)
+               + Objects.hashCode(this.endDate)
+               + Objects.hashCode(this.academicYear)
+               + Objects.hashCode(this.activeIndex)
+               + Objects.hashCode(this.dropDeadline)
+               + Objects.hashCode(this.withdrawDeadline)
+               + Objects.hashCode(this.incDeadline);
     }
 
     /**
@@ -160,7 +172,8 @@ public final class TermRec extends RecBase implements Comparable<TermRec> {
                     && Objects.equals(this.academicYear, rec.academicYear)
                     && Objects.equals(this.activeIndex, rec.activeIndex)
                     && Objects.equals(this.dropDeadline, rec.dropDeadline)
-                    && Objects.equals(this.withdrawDeadline, rec.withdrawDeadline);
+                    && Objects.equals(this.withdrawDeadline, rec.withdrawDeadline)
+                    && Objects.equals(this.incDeadline, rec.incDeadline);
         } else {
             equal = false;
         }

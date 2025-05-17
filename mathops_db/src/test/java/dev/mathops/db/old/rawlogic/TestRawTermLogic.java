@@ -77,6 +77,9 @@ final class TestRawTermLogic {
     /** A date used in test records. */
     private static final LocalDate date12 = LocalDate.of(2022, 4, 17);
 
+    /** A date used in test records. */
+    private static final LocalDate date13 = LocalDate.of(2023, 5, 18);
+
     /** The database profile. */
     private static Profile profile = null;
 
@@ -115,9 +118,10 @@ final class TestRawTermLogic {
             }
             conn.commit();
 
-            final TermRec raw1 = new TermRec(termFA21, date1, date2, "2122", Integer.valueOf(0), date3, date4);
-            final TermRec raw2 = new TermRec(termSM21, date5, date6, "2122", Integer.valueOf(-1), date7, date8);
-            final TermRec raw3 = new TermRec(termSP22, date9, date10, "2122", Integer.valueOf(1), date11, date12);
+            final TermRec raw1 = new TermRec(termFA21, date1, date2, "2122", Integer.valueOf(0), date3, date4, date13);
+            final TermRec raw2 = new TermRec(termSM21, date5, date6, "2122", Integer.valueOf(-1), date7, date8, date13);
+            final TermRec raw3 = new TermRec(termSP22, date9, date10, "2122", Integer.valueOf(1), date11, date12,
+                    date13);
 
             assertTrue(TermLogic.get(cache).insert(cache, raw1), "Failed to insert term");
             assertTrue(TermLogic.get(cache).insert(cache, raw2), "Failed to insert term");
@@ -154,7 +158,8 @@ final class TestRawTermLogic {
                     && "2122".equals(test.academicYear)
                     && Integer.valueOf(0).equals(test.activeIndex)
                     && date3.equals(test.dropDeadline)
-                    && date4.equals(test.withdrawDeadline)) {
+                    && date4.equals(test.withdrawDeadline)
+                    && date13.equals(test.incDeadline)) {
 
                     found1 = true;
 
@@ -164,7 +169,8 @@ final class TestRawTermLogic {
                            && "2122".equals(test.academicYear)
                            && Integer.valueOf(-1).equals(test.activeIndex)
                            && date7.equals(test.dropDeadline)
-                           && date8.equals(test.withdrawDeadline)) {
+                           && date8.equals(test.withdrawDeadline)
+                           && date13.equals(test.incDeadline)) {
 
                     found2 = true;
 
@@ -174,7 +180,8 @@ final class TestRawTermLogic {
                            && "2122".equals(test.academicYear)
                            && Integer.valueOf(1).equals(test.activeIndex)
                            && date11.equals(test.dropDeadline)
-                           && date12.equals(test.withdrawDeadline)) {
+                           && date12.equals(test.withdrawDeadline)
+                           && date13.equals(test.incDeadline)) {
 
                     found3 = true;
 
@@ -216,7 +223,8 @@ final class TestRawTermLogic {
                                   && "2122".equals(test.academicYear)
                                   && Integer.valueOf(0).equals(test.activeIndex)
                                   && date3.equals(test.dropDeadline)
-                                  && date4.equals(test.withdrawDeadline);
+                                  && date4.equals(test.withdrawDeadline)
+                                  && date13.equals(test.incDeadline);
 
             assertTrue(found, "Active term not found");
         } catch (final SQLException ex) {
@@ -243,7 +251,8 @@ final class TestRawTermLogic {
                                   && "2122".equals(test.academicYear)
                                   && Integer.valueOf(-1).equals(test.activeIndex)
                                   && date7.equals(test.dropDeadline)
-                                  && date8.equals(test.withdrawDeadline);
+                                  && date8.equals(test.withdrawDeadline)
+                                  && date13.equals(test.incDeadline);
 
             assertTrue(found, "Prior term not found");
         } catch (final SQLException ex) {
@@ -270,7 +279,8 @@ final class TestRawTermLogic {
                                   && "2122".equals(test.academicYear)
                                   && Integer.valueOf(1).equals(test.activeIndex)
                                   && date11.equals(test.dropDeadline)
-                                  && date12.equals(test.withdrawDeadline);
+                                  && date12.equals(test.withdrawDeadline)
+                                  && date13.equals(test.incDeadline);
 
             assertTrue(found, "Next term not found");
         } catch (final SQLException ex) {
@@ -297,7 +307,8 @@ final class TestRawTermLogic {
                                   && "2122".equals(test.academicYear)
                                   && Integer.valueOf(-1).equals(test.activeIndex)
                                   && date7.equals(test.dropDeadline)
-                                  && date8.equals(test.withdrawDeadline);
+                                  && date8.equals(test.withdrawDeadline)
+                                  && date13.equals(test.incDeadline);
 
             assertTrue(found, "Queried term not found");
         } catch (final SQLException ex) {
@@ -324,7 +335,8 @@ final class TestRawTermLogic {
                                   && "2122".equals(test.academicYear)
                                   && Integer.valueOf(-1).equals(test.activeIndex)
                                   && date7.equals(test.dropDeadline)
-                                  && date8.equals(test.withdrawDeadline);
+                                  && date8.equals(test.withdrawDeadline)
+                                  && date13.equals(test.incDeadline);
 
             assertTrue(found, "Queried index term not found");
         } catch (final SQLException ex) {
@@ -355,7 +367,8 @@ final class TestRawTermLogic {
                     && "2122".equals(test.academicYear)
                     && Integer.valueOf(1).equals(test.activeIndex)
                     && date11.equals(test.dropDeadline)
-                    && date12.equals(test.withdrawDeadline)) {
+                    && date12.equals(test.withdrawDeadline)
+                    && date13.equals(test.incDeadline)) {
 
                     found3 = true;
                     break;
@@ -377,7 +390,7 @@ final class TestRawTermLogic {
         final Cache cache = new Cache(profile);
 
         try {
-            final TermRec raw2 = new TermRec(termSM21, date5, date6, "2122", Integer.valueOf(-1), date7, date8);
+            final TermRec raw2 = new TermRec(termSM21, date5, date6, "2122", Integer.valueOf(-1), date7, date8, date13);
 
             final boolean result = TermLogic.get(cache).delete(cache, raw2);
             assertTrue(result, "delete returned false");
@@ -397,7 +410,8 @@ final class TestRawTermLogic {
                     && "2122".equals(test.academicYear)
                     && Integer.valueOf(0).equals(test.activeIndex)
                     && date3.equals(test.dropDeadline)
-                    && date4.equals(test.withdrawDeadline)) {
+                    && date4.equals(test.withdrawDeadline)
+                    && date13.equals(test.incDeadline)) {
 
                     found1 = true;
 
@@ -407,7 +421,8 @@ final class TestRawTermLogic {
                            && "2122".equals(test.academicYear)
                            && Integer.valueOf(1).equals(test.activeIndex)
                            && date11.equals(test.dropDeadline)
-                           && date12.equals(test.withdrawDeadline)) {
+                           && date12.equals(test.withdrawDeadline)
+                           && date13.equals(test.incDeadline)) {
 
                     found3 = true;
 
