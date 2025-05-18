@@ -112,8 +112,8 @@ public final class CronJobs implements ICronJob {
             // *** This report runs during the semester - athletics sends an email near the start of the term to
             // request it, along with the list of people that the numan cron job should email it to.
 
-//            new PrecalcProgressReport("athletes_summary", "ATHLETE",
-//                    "PRECALCULUS PROGRESS REPORT FOR REGISTERED STUDENT ATHLETES").execute();
+            new PrecalcProgressReport("athletes_summary", "ATHLETE",
+                    "PRECALCULUS PROGRESS REPORT FOR REGISTERED STUDENT ATHLETES").execute();
 
             // *** This report runs during the semester - engineering sends an email near the start of the term to
             // request it, along with the list of people that the numan cron job should email it to.
