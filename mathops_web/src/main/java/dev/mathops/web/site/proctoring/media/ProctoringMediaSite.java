@@ -179,7 +179,6 @@ public final class ProctoringMediaSite extends AbstractSite {
                 }
             }
         }
-
     }
 
     /**
@@ -222,8 +221,6 @@ public final class ProctoringMediaSite extends AbstractSite {
         // TODO: Honor maintenance mode.
 
         final ImmutableSessionInfo session = validateSession(req, resp, null);
-
-        // Log.info("POST ", subpath, " session is ", session);
 
         if (session == null) {
             if ("upload.html".equals(subpath)) {

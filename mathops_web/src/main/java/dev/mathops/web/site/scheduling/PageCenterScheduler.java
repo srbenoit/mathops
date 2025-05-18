@@ -9,13 +9,12 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 /**
- * Generates a landing page that provides a link to login and some basic instructions.
+ * Generates a page with a button to log into the scheduling system.
  */
-enum PageScheduling {
+enum PageCenterScheduler {
     ;
 
     /**
@@ -33,14 +32,17 @@ enum PageScheduling {
                          final HttpServletResponse resp) throws IOException, SQLException {
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
-        Page.startEmptyPage(htm, "Scheduling", true);
+        Page.startOrdinaryPage(htm, "Center Scheduling System", null, false, Page.ADMIN_BAR, null, false, true);
 
-        htm.sH(1).add("Scheduling Resources").eH(1);
+        htm.sDiv(null, "style='padding-left:16px; padding-right:16px;'");
 
-        htm.sP().add("<a href='spursim.html'>Spur Campus  Academic Program Schedule Simulation</a>").eP();
-        htm.sP().add("<a href='center_scheduler.html'>Math Department Center Scheduler</a>").eP();
+        htm.sH(1).add("Center Scheduling System").eH(1);
 
-        Page.endEmptyPage(htm, true);
+        htm.sP().add("<a class='btn' href='secure/shibboleth.html'>Login with my eID</a>").eP();
+
+        htm.eDiv();
+
+        Page.endOrdinaryPage(cache, site, htm, true);
         AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
     }
 }

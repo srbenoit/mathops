@@ -2,14 +2,19 @@ package dev.mathops.web.site.scheduling;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.file.FileLoader;
+import dev.mathops.commons.log.Log;
+import dev.mathops.commons.log.LogBase;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.cfg.Site;
 import dev.mathops.db.logic.ELiveRefreshes;
 import dev.mathops.session.ISessionManager;
+import dev.mathops.session.ImmutableSessionInfo;
+import dev.mathops.session.SessionManager;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -82,11 +87,36 @@ public final class SchedulingSite extends AbstractSite {
             case "favicon.ico" -> serveImage(subpath, req, resp);
             case CoreConstants.EMPTY, "index.html" -> PageScheduling.showPage(cache, this, type, req, resp);
             case "spursim.html" -> PageSpurSim.showPage(cache, this, type, req, resp);
+            case "center_scheduler.html" -> PageCenterScheduler.showPage(cache, this, type, req, resp);
             case null, default -> {
-                resp.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-                final String path = this.site.path;
-                resp.setHeader("Location", path + (path.endsWith(Contexts.ROOT_PATH) ? "index.html" : "/index.html"));
-                sendReply(req, resp, Page.MIME_TEXT_HTML, ZERO_LEN_BYTE_ARR);
+                final ImmutableSessionInfo session = validateSession(req, resp, null);
+
+                if (session == null) {
+                    if ("secure/shibboleth.html".equals(subpath)) {
+                        doShibbolethLogin(cache, req, resp, null);
+                    } else {
+                        resp.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+                        final String path = this.site.path;
+                        resp.setHeader("Location",
+                                path + (path.endsWith(Contexts.ROOT_PATH) ? "index.html" : "/index.html"));
+                        sendReply(req, resp, Page.MIME_TEXT_HTML, ZERO_LEN_BYTE_ARR);
+                    }
+                } else {
+                    final String effectiveId = session.getEffectiveUserId();
+                    LogBase.setSessionInfo(session.loginSessionId, effectiveId);
+
+                    if ("home.html".equals(subpath)) {
+                        PageHome.showPage(cache, this, req, resp, session);
+                    } else if ("secure/shibboleth.html".equals(subpath)) {
+                        doShibbolethLogin(cache, req, resp, session);
+                    } else {
+                        Log.warning("Unrecognized path", subpath);
+                        resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                    }
+
+                    LogBase.setSessionInfo(null, null);
+                }
+
             }
         }
     }
@@ -108,5 +138,44 @@ public final class SchedulingSite extends AbstractSite {
             throws IOException, SQLException {
 
         doGet(cache, subpath, type, req, resp);
+    }
+
+    /**
+     * Scans the request for Shibboleth attributes and uses them (if found) to establish a session, and then redirects
+     * to either the secure page (if valid) or the login page (if not valid).
+     *
+     * @param cache   the data cache
+     * @param req     the request
+     * @param resp    the response
+     * @param session the user's login session information
+     * @throws SQLException if there was an error accessing the database
+     */
+    private void doShibbolethLogin(final Cache cache, final HttpServletRequest req, final HttpServletResponse resp,
+                                   final ImmutableSessionInfo session) throws SQLException {
+
+        ImmutableSessionInfo effectiveSession = session;
+
+        if (effectiveSession == null) {
+            effectiveSession = processShibbolethLogin(cache, req);
+        }
+
+        final String path = this.site.path;
+        final String redirect;
+        if (effectiveSession == null) {
+            redirect = path + (path.endsWith(CoreConstants.SLASH) ? "index.html" : "/index.html");
+        } else {
+            redirect = path + (path.endsWith(CoreConstants.SLASH) ? "home.html" : CoreConstants.SLASH + "home.html");
+
+            // Install the session ID cookie in the response
+            final Cookie cook = new Cookie(SessionManager.SESSION_ID_COOKIE, effectiveSession.loginSessionId);
+            cook.setDomain(req.getServerName());
+            cook.setPath(CoreConstants.SLASH);
+            cook.setMaxAge(-1);
+            cook.setSecure(true);
+            resp.addCookie(cook);
+        }
+
+        resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
+        resp.setHeader("Location", redirect);
     }
 }
