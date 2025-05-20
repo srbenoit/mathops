@@ -1,24 +1,32 @@
 package dev.mathops.web.site.admin.genadmin.dbadmin;
 
-import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.DbConnection;
+import dev.mathops.db.EDbProduct;
+import dev.mathops.db.EDbUse;
+import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.Data;
+import dev.mathops.db.cfg.Database;
 import dev.mathops.db.cfg.DatabaseConfig;
 import dev.mathops.db.cfg.Login;
+import dev.mathops.db.cfg.Server;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.admin.AdminSite;
+import dev.mathops.web.site.admin.genadmin.EAdmSubtopic;
+import dev.mathops.web.site.admin.genadmin.EAdminTopic;
 import dev.mathops.web.site.admin.genadmin.GenAdminPage;
-import dev.mathops.web.site.admin.genadmin.GenAdminSubsite;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Map;
+import java.util.List;
 
 /**
  * A page that displays information on a database server and its tables.
@@ -48,56 +56,29 @@ public enum PageDbAdminContextsServer {
                              final ServletRequest req, final HttpServletResponse resp,
                              final ImmutableSessionInfo session, final String error) throws IOException, SQLException {
 
-        final String driver = req.getParameter("driver");
+        final String loginId = req.getParameter("login");
+        final String dataId = req.getParameter("data");
 
-        if (AbstractSite.isParamInvalid(driver)) {
+        if (AbstractSite.isParamInvalid(loginId) || AbstractSite.isParamInvalid(dataId)) {
             Log.warning("Invalid request parameters - possible attack:");
-            Log.warning("  driver='", driver, "'");
+            Log.warning("  login='", loginId, "'");
+            Log.warning("  data='", dataId, "'");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
-            final DatabaseConfig map = DatabaseConfig.getDefault();
-            final Login login = map.getLogin(driver);
+            final DatabaseConfig dbConfig = DatabaseConfig.getDefault();
+            final Login loginObj = dbConfig.getLogin(loginId);
+            final Data dataObj = dbConfig.getData(dataId);
 
-            if (login == null) {
-                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            if (loginObj == null || dataObj == null) {
+                PageDbAdminContexts.doGet(cache, site, req, resp, session);
             } else {
                 final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
-                htm.sH(2, "gray").add("Database Administration").eH(2);
-                htm.hr("orange");
 
-                Connection jdbc = GenAdminSubsite.getConnection(session.loginSessionId, driver);
+                GenAdminPage.emitNavBlock(EAdminTopic.DB_ADMIN, htm);
+                htm.sH(1).add("Database Administration").eH(1);
 
-                if (jdbc == null) {
-                    final String username = login.user;
-                    final String password = login.password;
-
-                    if (username != null && password != null) {
-                        final Login newLogin = login.newLogin(username, password);
-                        try {
-                            jdbc = newLogin.openConnection();
-                            GenAdminSubsite.addConnection(session.loginSessionId, driver, jdbc);
-                        } catch (final SQLException ex) {
-                            Log.warning(ex);
-                        }
-                    }
-                }
-
-                if (jdbc == null) {
-                    emitLoginForm(htm, login, error);
-                } else {
-                    try {
-                        if (jdbc.isClosed()) {
-                            GenAdminSubsite.removeConnection(session.loginSessionId, driver);
-                            emitLoginForm(htm, login, error);
-                        } else {
-                            emitServerAdminPage(htm, login);
-                        }
-                    } catch (final SQLException ex) {
-                        Log.warning(ex);
-                        GenAdminSubsite.removeConnection(session.loginSessionId, driver);
-                        emitLoginForm(htm, login, error);
-                    }
-                }
+                PageDbAdmin.emitNavMenu(htm, EAdmSubtopic.DB_CONTEXTS);
+                doPageContent(htm, loginObj, dataObj);
 
                 Page.endOrdinaryPage(cache, site, htm, true);
                 AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
@@ -106,162 +87,54 @@ public enum PageDbAdminContextsServer {
     }
 
     /**
-     * Emits the login form to create a new connection to the database.
+     * Appends page content to an {@code HtmlBuilder}.
      *
-     * @param htm   the {@code HtmlBuilder} to which to append
-     * @param cfg   the driver configuration
-     * @param error an optional error message
+     * @param htm      the {@code HtmlBuilder} to which to write
+     * @param loginObj the login object
+     * @param dataObj  the data object
      */
-    private static void emitLoginForm(final HtmlBuilder htm, final Login cfg,
-                                      final String error) {
+    private static void doPageContent(final HtmlBuilder htm, final Login loginObj, final Data dataObj) {
 
-        final String uid = CoreConstants.newId(10) + USERNAME_SUFFIX;
-        final String pid = CoreConstants.newId(10) + PASSWORD_SUFFIX;
+        final Database database = loginObj.database;
+        final Server server = database.server;
 
-        htm.div("vgap2");
-        htm.sDiv("dbloginpane");
+        htm.div("vgap0").hr();
 
-        htm.sP("dbloginprompt").add("Connect to Database").eP();
+        htm.sP().add("Server and Database Configuration").eP();
+        htm.sTable("report");
+        htm.sTr().sTh().add("Product Type").eTh().sTh().add("Host").eTh().sTh().add("Port").eTh()
+                .sTh().add("Database ID").eTh().sTh().add("Instance").eTh().sTh().add("DBA").eTh().eTr();
+        htm.sTr().sTd().add(server.type.name).eTd().sTd().add(server.host).eTd().sTd().add(server.port).eTd()
+                .sTd().add(database.id).eTd().sTd().add(database.instance).eTd().sTd().add(database.dba).eTd().eTr();
+        htm.eTable();
 
-        final String usr = cfg.user == null ? CoreConstants.EMPTY : cfg.user;
+        htm.sP().add("Login and Data Facet Configuration").eP();
+        htm.sTable("report");
+        htm.sTr().sTh().add("Login ID").eTh().sTh().add("Username").eTh().sTh().add("Data ID").eTh()
+                .sTh().add("Schema").eTh().sTh().add("Use").eTh().sTh().add("Prefix").eTh().eTr();
+        htm.sTr().sTd().add(loginObj.id).eTd().sTd().add(loginObj.user).eTd().sTd().add(dataObj.id).eTd()
+                .sTd().add(dataObj.schema).eTd().sTd().add(dataObj.use).eTd().sTd().add(dataObj.prefix).eTd().eTr();
+        htm.eTable();
 
-        htm.sDiv("center");
-        htm.addln("<form action='db_admin_server_login.html' method='post'>");
-        htm.addln("  <input type='hidden' name='driver', value='", cfg.id,
-                "'/>");
-        htm.sDiv("loginfield")
-                .add("<label for='", uid, "'>Username:</label> ",
-                        "<input data-lpignore='true' autocomplete='new-password' type='text' size='16' id='",
-                        uid, "' name='", uid, "' value='", usr,
-                        "'/>")
-                .eDiv();
-        htm.sDiv("loginfield")
-                .add("<label for='", pid, "'>Password:</label> ",
-                        "<input data-lpignore='true' autocomplete='new-password' type='text' size='16' id='",
-                        pid, "' name='", pid, "'/>")
-                .eDiv();
-        htm.add("<button class='btn' type='submit'>", "Submit",
-                "</button>");
-        htm.addln("</form>");
-        htm.eDiv();
-
-        if (error != null) {
-            htm.sP("dbloginerror").add(error).eP();
-        }
-
-        htm.eDiv();
-    }
-
-    /**
-     * Emits the administration page when connected to a database.
-     *
-     * @param htm the {@code HtmlBuilder} to which to append
-     * @param cfg the driver configuration
-     */
-    private static void emitServerAdminPage(final HtmlBuilder htm, final Login cfg) {
-
-        final String query = "driver=" + cfg.id;
-
-        PageDbAdmin.emitDisconnectLink(htm, query);
-        PageDbAdmin.emitCfgInfoTable(htm, cfg);
-
-//        switch (cfg.db.use) {
-//            case LIVE:
-//                PageDbAdmin.emitLiveNavMenu(htm, null, query);
-//                break;
-//
-//            case PROD:
-//            case DEV:
-//            case TEST:
-//            case ODS:
-//            default:
-//                PageDbAdmin.emitProdNavMenu(htm, null, query);
-//                break;
-//        }
-
-        htm.div("vgap");
-    }
-
-    /**
-     * Processes a POST request. Before this method is called, the request will have been verified to be secure and have
-     * a session ID.
-     *
-     * @param cache   the data cache
-     * @param site    the owning site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the user login session
-     * @throws IOException  if there is an error writing the response
-     * @throws SQLException if there is an error accessing the database
-     */
-    public static void doPost(final Cache cache, final AdminSite site, final ServletRequest req,
-                              final HttpServletResponse resp, final ImmutableSessionInfo session)
-            throws IOException, SQLException {
-
-        String username = null;
-        String password = null;
-
-        for (final Map.Entry<String, String[]> entry : req.getParameterMap().entrySet()) {
-            if (entry.getKey().endsWith(USERNAME_SUFFIX)) {
-                username = entry.getValue()[0];
-            } else if (entry.getKey().endsWith(PASSWORD_SUFFIX)) {
-                password = entry.getValue()[0];
-            }
-        }
-
-        final String driver = req.getParameter("driver");
-
-        if (AbstractSite.isParamInvalid(driver)) {
-            Log.warning("Invalid request parameters - possible attack:");
-            Log.warning("  driver='", driver, "'");
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
-        } else if (driver == null || username == null || password == null) {
-            doGet(cache, site, req, resp, session, "Invalid login");
-        } else {
-            final DatabaseConfig map = DatabaseConfig.getDefault();
-            final Login login = map.getLogin(driver);
-
-            if (login == null) {
-                doGet(cache, site, req, resp, session, "Invalid login");
-            } else {
-                final Login newLogin = login.newLogin(username, password);
-                try {
-                    final Connection jdbc = newLogin.openConnection();
-
-                    GenAdminSubsite.addConnection(session.loginSessionId, driver, jdbc);
-                    doGet(cache, site, req, resp, session, null);
-                } catch (final SQLException ex) {
-                    Log.warning(ex);
-                    doGet(cache, site, req, resp, session, "Invalid login");
+        htm.sP().add("Available Tables:").eP();
+        htm.sTable("report");
+        htm.sTr().sTh().add("Schema Name").eTh().sTh().add("Table Name").eTh().eTr();
+        final DbConnection conn = loginObj.checkOutConnection();
+        try {
+            final DatabaseMetaData meta = conn.getConnection().getMetaData();
+            final ResultSet rs = meta.getTables(null, null, null, null);
+            while (rs.next()) {
+                final String schema = rs.getString("TABLE_SCHEM");
+                final String name = rs.getString("TABLE_NAME");
+                if (dataObj.prefix == null || dataObj.prefix.equals(schema)) {
+                    htm.sTr().sTd().add(schema).eTd().sTd().add(name).eTd().eTr();
                 }
             }
+        } catch (final SQLException ex) {
+            htm.sP().add("ERROR accessing tables: ", ex.getMessage()).eP();
+        } finally {
+            loginObj.checkInConnection(conn);
         }
-    }
-
-    /**
-     * Processes a logout request.
-     *
-     * @param cache   the data cache
-     * @param site    the owning site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the user login session
-     * @throws IOException  if there is an error writing the response
-     * @throws SQLException if there is an error accessing the database
-     */
-    public static void doGet(final Cache cache, final AdminSite site, final ServletRequest req,
-                             final HttpServletResponse resp, final ImmutableSessionInfo session)
-            throws IOException, SQLException {
-
-        final String driver = req.getParameter("driver");
-
-        if (AbstractSite.isParamInvalid(driver)) {
-            Log.warning("Invalid request parameters - possible attack:");
-            Log.warning("  driver='", driver, "'");
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
-        } else {
-            GenAdminSubsite.removeConnection(session.loginSessionId, driver);
-            doGet(cache, site, req, resp, session, null);
-        }
+        htm.eTable();
     }
 }

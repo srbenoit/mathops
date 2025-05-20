@@ -2,6 +2,7 @@ package dev.mathops.web.site.scheduling;
 
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
+import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
@@ -50,10 +51,10 @@ enum PageHome {
 
         htm.sDiv().add("Logged in as ", effectiveName).eDiv().hr();
 
-        final boolean isAdmin = RawSpecialStusLogic.isSpecialType(cache, effectiveId, today, "STEVE");
-        final boolean isMgr = RawSpecialStusLogic.isSpecialType(cache, effectiveId, today, "MANAGER");
-        final boolean isStaff = RawSpecialStusLogic.isSpecialType(cache, effectiveId, today, "STAFF");
-        final boolean isEmployee = RawSpecialStusLogic.isSpecialType(cache, effectiveId, today, "EMPLOY");
+        final boolean isAdmin = RawSpecialStusLogic.isSpecialType(cache, effectiveId, today, RawSpecialStus.STEVE);
+        final boolean isMgr = RawSpecialStusLogic.isSpecialType(cache, effectiveId, today, RawSpecialStus.MANAGER);
+        final boolean isStaff = RawSpecialStusLogic.isSpecialType(cache, effectiveId, today, RawSpecialStus.STAFF);
+        final boolean isEmployee = RawSpecialStusLogic.isSpecialType(cache, effectiveId, today, RawSpecialStus.EMPLOY);
 
         // Present an interface with all features for which the user is authorized.
 

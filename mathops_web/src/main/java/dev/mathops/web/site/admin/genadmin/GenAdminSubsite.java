@@ -118,7 +118,7 @@ public final class GenAdminSubsite extends AbstractSubsite {
                 case "db_admin_server.html" ->
                         PageDbAdminContextsServer.doGet(cache, this.site, req, resp, session, null);
                 case "db_admin_server_logout.html" ->
-                        PageDbAdminContextsServer.doGet(cache, this.site, req, resp, session);
+                        PageDbAdminContextsServer.doGet(cache, this.site, req, resp, session, null);
                 case "dbadm_metadata.html" -> PageDbAdminContextsMetadata.doGet(cache, this.site, req, resp, session);
                 case "dbadm_cache_metadata.html" ->
                         PageDbAdminContextsTableMetadata.doGet(cache, this.site, req, resp, session);
@@ -213,8 +213,6 @@ public final class GenAdminSubsite extends AbstractSubsite {
                 case "teststu_update_etext.html" -> PageTestStudent.updateETexts(cache, req, resp);
                 case "teststu_update_reg.html" -> PageTestStudent.updateRegistrations(cache, req, resp);
 
-                case "db_admin_server_login.html" ->
-                        PageDbAdminContextsServer.doPost(cache, this.site, req, resp, session);
                 case "dbadm_update_banner.html" -> PageDbAdminContexts.doPost(cache, this.site, req, resp, session);
                 case "dbadm_batch_run.html" -> PageDbAdminBatchRun.doPost(cache, this.site, req, resp, session);
 

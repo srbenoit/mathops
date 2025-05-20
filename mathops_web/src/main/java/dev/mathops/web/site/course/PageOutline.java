@@ -22,6 +22,7 @@ import dev.mathops.db.old.rawrecord.RawLesson;
 import dev.mathops.db.old.rawrecord.RawLessonComponent;
 import dev.mathops.db.old.rawrecord.RawMilestone;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmilestone;
@@ -2748,7 +2749,7 @@ enum PageOutline {
 
             final LocalDate today = session.getNow().toLocalDate();
             final boolean isRamwork = RawSpecialStusLogic.isSpecialType(cache, session.getEffectiveUserId(), today,
-                    "RAMWORK");
+                    RawSpecialStus.RAMWORK);
 
             final boolean isCE = "CE".equals(courseStatus.getCourseSection().instrnType);
 
@@ -2842,7 +2843,7 @@ enum PageOutline {
 
             final LocalDate today = session.getNow().toLocalDate();
             final boolean isRamwork = RawSpecialStusLogic.isSpecialType(cache, session.getEffectiveUserId(), today,
-                    "RAMWORK");
+                    RawSpecialStus.RAMWORK);
 
             htm.div("vgap");
             htm.addln("<div style='max-width:380pt;margin:0 30pt;padding:4pt 8pt 0 8pt;border:3px double #004f39;",

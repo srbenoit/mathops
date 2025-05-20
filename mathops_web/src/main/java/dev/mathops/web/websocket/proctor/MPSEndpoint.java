@@ -21,6 +21,7 @@ import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rawrecord.RawExam;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.rec.TermRec;
@@ -498,7 +499,8 @@ public final class MPSEndpoint {
 
         final List<RawStcourse> regs = RawStcourseLogic.getActiveForStudent(cache, studentId, active.term);
 
-        final boolean notRamwork = !RawSpecialStusLogic.isSpecialType(cache, studentId, LocalDate.now(), "RAMWORK");
+        final boolean notRamwork = !RawSpecialStusLogic.isSpecialType(cache, studentId, LocalDate.now(),
+                RawSpecialStus.RAMWORK);
 
         // Eliminate placement credit registrations, and (if not RAMWORK), RI courses
         final Iterator<RawStcourse> regIter = regs.iterator();

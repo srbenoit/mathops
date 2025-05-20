@@ -5,6 +5,7 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
+import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawrecord.RawCourse;
@@ -980,7 +981,7 @@ enum PageSchedule {
                 final boolean earnedBonus =
                         paceOrder == 1 && RawSpecialStusLogic.isSpecialType(cache,
                                 logic.sessionInfo.getEffectiveUserId(),
-                                logic.sessionInfo.getNow().toLocalDate(), "UBONUS");
+                                logic.sessionInfo.getNow().toLocalDate(), RawSpecialStus.UBONUS);
 
                 final String count1 =
                         earnedBonus ? "<b>TWO</b> more opportunities" : "<b>ONE</b> more opportunity";

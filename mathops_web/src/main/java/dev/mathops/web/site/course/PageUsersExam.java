@@ -8,6 +8,7 @@ import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawUsersLogic;
 import dev.mathops.db.old.rawrecord.RawCusection;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.db.old.rawrecord.RawUsers;
 import dev.mathops.db.rec.TermRec;
 import dev.mathops.session.ExamWriter;
@@ -115,11 +116,11 @@ enum PageUsersExam {
                     htm.sP().add("Information on User's Exam not found.");
                     avail = false;
                 } else if ((cusection.firstTestDt == null)
-                        || !cusection.firstTestDt.isAfter(session.getNow().toLocalDate())) {
+                           || !cusection.firstTestDt.isAfter(session.getNow().toLocalDate())) {
                     avail = true;
                 } else {
-                    if (RawSpecialStusLogic.isSpecialType(cache, stuId,
-                            session.getNow().toLocalDate(), "STEVE", "ADMIN", "TUTOR")) {
+                    if (RawSpecialStusLogic.isSpecialType(cache, stuId, session.getNow().toLocalDate(),
+                            RawSpecialStus.STEVE, RawSpecialStus.ADMIN, RawSpecialStus.TUTOR)) {
                         avail = true;
                     } else {
                         htm.eP();

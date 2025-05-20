@@ -19,6 +19,15 @@ import java.io.IOException;
  */
 public final class EmptyRootSite extends AbstractSite {
 
+    /** The name of a style sheet. */
+    private static final String ADMIN_CSS = "admin.css";
+
+    /** The name of a style sheet. */
+    private static final String STYLE_CSS = "style.css";
+
+    /** A path. */
+    private static final String IMAGES_PATH = "images/";
+
     /**
      * Constructs a new {@code EmptyRootSite}.
      *
@@ -67,11 +76,11 @@ public final class EmptyRootSite extends AbstractSite {
     public void doGet(final Cache cache, final String subpath, final ESiteType type,
                       final HttpServletRequest req, final HttpServletResponse resp) throws IOException {
 
-        if ("style.css".equals(subpath)) {
-            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(getClass(), "style.css", true));
-        } else if ("admin.css".equals(subpath)) {
+        if (STYLE_CSS.equals(subpath)) {
+            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(getClass(), STYLE_CSS, true));
+        } else if (ADMIN_CSS.equals(subpath)) {
             BasicCss.getInstance().serveCss(req, resp);
-        } else if (subpath.startsWith("images/")) {
+        } else if (subpath.startsWith(IMAGES_PATH)) {
             serveImage(subpath.substring(7), req, resp);
         } else if ("favicon.ico".equals(subpath)) {
             serveImage(subpath, req, resp);

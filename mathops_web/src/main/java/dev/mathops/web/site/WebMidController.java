@@ -14,7 +14,6 @@ import dev.mathops.session.ISessionManager;
 import dev.mathops.session.SessionManager;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.front.IMidController;
-import dev.mathops.web.site.admin.AdminRootSite;
 import dev.mathops.web.site.admin.AdminSite;
 import dev.mathops.web.site.canvas.CanvasSite;
 import dev.mathops.web.site.cfm.CfmSite;
@@ -158,14 +157,13 @@ public final class WebMidController implements IMidController {
             add(dbConfig, Contexts.COURSE_HOST, Contexts.ROOT_PATH, EmptyRootSite.class);
             add(dbConfig, Contexts.COURSE_HOST, Contexts.HELP_PATH, HelpSite.class);
             add(dbConfig, Contexts.COURSE_HOST, Contexts.LTI_PATH, LtiSite.class);
-//            add(dbConfig, Contexts.COURSE_HOST, Contexts.CSU_MATH_COURSE_MGR_PATH, CanvasCourseSite.class);
             add(dbConfig, Contexts.COURSE_HOST, Contexts.MPS_PATH, ProctoringSite.class);
             add(dbConfig, Contexts.COURSE_HOST, Contexts.VIDEO_PATH, VideoSite.class);
             add(dbConfig, Contexts.COURSE_HOST, Contexts.CFM_PATH, CfmSite.class);
         }
 
         if (webHosts.contains(Contexts.TESTING_HOST)) {
-            add(dbConfig, Contexts.TESTING_HOST, Contexts.ROOT_PATH, AdminRootSite.class);
+            add(dbConfig, Contexts.TESTING_HOST, Contexts.ROOT_PATH, EmptyRootSite.class);
             add(dbConfig, Contexts.TESTING_HOST, Contexts.ADMINSYS_PATH, AdminSite.class);
             add(dbConfig, Contexts.TESTING_HOST, Contexts.TESTING_CENTER_PATH, TestingCenterSite.class);
             add(dbConfig, Contexts.TESTING_HOST, Contexts.WEBSVC_PATH, WebServiceSite.class);
@@ -239,8 +237,6 @@ public final class WebMidController implements IMidController {
         final String host = site.site.getHost();
         final SortedMap<String, AbstractSite> map = this.sites.computeIfAbsent(host, s -> new TreeMap<>());
         final String path = site.site.path;
-
-//        Log.info("Registering site for host '", host, "' path '", path, "'");
 
         map.put(path, site);
     }
@@ -447,8 +443,6 @@ public final class WebMidController implements IMidController {
 
         AbstractSite site = null;
         int len = 0;
-
-//        Log.info("Finding site for host '", host, "' path '", path, "'");
 
         final SortedMap<String, AbstractSite> siteList = this.sites.get(host);
 

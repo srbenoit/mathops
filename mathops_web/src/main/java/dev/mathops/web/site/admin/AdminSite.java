@@ -64,8 +64,8 @@ public final class AdminSite extends AbstractPageSite {
 
         this.general = new GenAdminSubsite(this);
         this.office = new OfficeSubsite(this);
-        this.proctor = new ProctorSubsite(this);
         this.testing = new TestingSubsite(this);
+        this.proctor = new ProctorSubsite(this);
     }
 
     /**

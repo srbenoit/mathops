@@ -266,7 +266,7 @@ final class TestRawSpecialStusLogic {
         final Cache cache = new Cache(profile);
 
         try {
-            final List<RawSpecialStus> all = RawSpecialStusLogic.queryActiveByType(cache, "DCE", date3);
+            final List<RawSpecialStus> all = RawSpecialStusLogic.queryActiveByType(cache, RawSpecialStus.DCE, date3);
 
             assertEquals(1, all.size(), "Incorrect record count from queryActiveByType");
 
@@ -299,22 +299,22 @@ final class TestRawSpecialStusLogic {
 
         try {
             final boolean is1 = RawSpecialStusLogic.isSpecialType(cache, "111111111", date4,
-                    "DCE");
+                    RawSpecialStus.DCE);
 
             assertTrue(is1, "isSpecialType 1 returned invalid result");
 
             final boolean is2 = RawSpecialStusLogic.isSpecialType(cache, "111111111", date1,
-                    "FOO", "DCE", "BAR");
+                    "FOO", RawSpecialStus.DCE, "BAR");
 
             assertTrue(is2, "isSpecialType 2 returned invalid result");
 
             final boolean is3 = RawSpecialStusLogic.isSpecialType(cache, "111111111", LocalDate.of(2020, 12, 31),
-                    "DCE");
+                    RawSpecialStus.DCE);
 
             assertFalse(is3, "isSpecialType 3 returned invalid result");
 
             final boolean is4 = RawSpecialStusLogic.isSpecialType(cache, "111111111", LocalDate.of(2021, 1, 3),
-                    "DCE");
+                    RawSpecialStus.DCE);
 
             assertFalse(is4, "isSpecialType 4 returned invalid result");
         } catch (final SQLException ex) {

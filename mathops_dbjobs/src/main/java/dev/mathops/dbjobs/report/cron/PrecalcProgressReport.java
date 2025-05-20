@@ -387,14 +387,14 @@ public final class PrecalcProgressReport {
     public static void main(final String... args) {
 
         final PrecalcProgressReport job = new PrecalcProgressReport("athletes_summary",
-                "ATHLETE", "PRECALCULUS PROGRESS REPORT FOR REGISTERED STUDENT ATHLETES");
+                RawSpecialStus.ATHLETE, "PRECALCULUS PROGRESS REPORT FOR REGISTERED STUDENT ATHLETES");
 
 //        final PrecalcProgressReport job =
-//                new PrecalcProgressReport("engineering_summary", "ENGRSTU",
+//                new PrecalcProgressReport("engineering_summary", RawSpecialStus.ENGRSTU,
 //                        "PRECALCULUS PROGRESS REPORT FOR REGISTERED ENGINEERING STUDENTS");
 
 //        final PrecalcProgressReport job =
-//                new PrecalcProgressReport("m116_summary", "M116",
+//                new PrecalcProgressReport("m116_summary", RawSpecialStus.M116,
 //                        "PRECALCULUS PROGRESS REPORT FOR STUDENTS IN MATH 116");
 
         job.execute();

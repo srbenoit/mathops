@@ -7,6 +7,7 @@ import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.session.txn.messages.AvailableExam;
 import dev.mathops.text.builder.HtmlBuilder;
@@ -124,7 +125,7 @@ public final class ExamEligibilityTester extends EligibilityTesterBase {
             final boolean isELM = RawRecordConstants.M100T.equals(course);
             final boolean isDistance = section != null && (section.charAt(0) == '8' || section.charAt(0) == '4');
             final boolean isPuAllowed = RawSpecialStusLogic.isSpecialType(cache, this.studentId, now.toLocalDate(),
-                    "RIUSEPU");
+                    RawSpecialStus.RIUSEPU);
             final boolean isIncomplete = "Y".equals(this.studentCourse.iInProgress);
 
             if (isELM || isDistance || isPuAllowed || isIncomplete) {

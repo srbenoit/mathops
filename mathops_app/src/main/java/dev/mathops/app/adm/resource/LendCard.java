@@ -14,6 +14,7 @@ import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStresourceLogic;
 import dev.mathops.db.old.rawrecord.RawResource;
+import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStresource;
 import dev.mathops.db.rec.TermRec;
@@ -709,8 +710,8 @@ final class LendCard extends AdmPanelBase implements ActionListener, FocusListen
 
             if (RawResource.TYPE_TUTOR_TABLET.equals(resource.resourceType)) {
                 // Tutor tablets are available only to people in SpecialStus as "TUTOR" or "ADMIN"
-                final boolean ok = RawSpecialStusLogic.isSpecialType(this.cache, stuId, LocalDate.now(), "TUTOR",
-                        "ADMIN");
+                final boolean ok = RawSpecialStusLogic.isSpecialType(this.cache, stuId, LocalDate.now(),
+                        RawSpecialStus.TUTOR, RawSpecialStus.ADMIN);
 
                 if (!ok) {
                     whyNotEligible = "Available only to Precalculus Center Learning Assistants.";

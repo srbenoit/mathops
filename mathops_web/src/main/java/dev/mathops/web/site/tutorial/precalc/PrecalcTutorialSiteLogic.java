@@ -83,7 +83,8 @@ final class PrecalcTutorialSiteLogic {
         final LocalDate today = session.getNow().toLocalDate();
         try {
             this.tutorAccess = "AACTUTOR".equals(this.studentId)
-                    || RawSpecialStusLogic.isSpecialType(theCache, this.studentId, today, "TUTOR", "ADMIN", "M384");
+                    || RawSpecialStusLogic.isSpecialType(theCache, this.studentId, today,
+                    RawSpecialStus.TUTOR, RawSpecialStus.ADMIN, RawSpecialStus.M384);
         } catch (final SQLException ex) {
             Log.warning("Failed to test for tutor access", ex);
         }

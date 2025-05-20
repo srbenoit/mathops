@@ -6,3 +6,5 @@ include("mathops_assessment")
 include("mathops_session")
 include("mathops_app")
 include("mathops_web")
+
+include("mathops_logic")

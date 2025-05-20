@@ -30,6 +30,7 @@ import dev.mathops.db.old.rawrecord.RawMilestone;
 import dev.mathops.db.old.rawrecord.RawPacingRules;
 import dev.mathops.db.old.rawrecord.RawPacingStructure;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawSthomework;
@@ -1243,7 +1244,8 @@ public final class StudentCourseStatus extends LogicBase {
         } else if ("Y".equals(this.course.isTutorial)) {
             this.studentCourse = makeStudentCourse(theStudentId, theCourseId, defaultSect);
 
-            if (RawSpecialStusLogic.isSpecialType(cache, theStudentId, now.toLocalDate(), "ADMIN", "M384", "TUTOR")) {
+            if (RawSpecialStusLogic.isSpecialType(cache, theStudentId, now.toLocalDate(),
+                    RawSpecialStus.ADMIN, RawSpecialStus.M384, RawSpecialStus.TUTOR)) {
                 this.openAccess = true;
             }
 
@@ -1274,7 +1276,7 @@ public final class StudentCourseStatus extends LogicBase {
 
                 if (("AACTUTOR".equals(theStudentId)
                      || RawSpecialStusLogic.isSpecialType(cache, theStudentId, now.toLocalDate(),
-                        "ADMIN", "M384", "TUTOR"))
+                        RawSpecialStus.ADMIN, RawSpecialStus.M384, RawSpecialStus.TUTOR))
                     || role.canActAs(ERole.ADMINISTRATOR)) {
 
                     // FIXME: Why is this not using SiteDataRegistration?
@@ -1668,7 +1670,7 @@ public final class StudentCourseStatus extends LogicBase {
                     for (final RawStmilestone stms : stMilestones) {
                         if (reIndex.equals(stms.msNbr) && reviewImp.equals(stms.msType)) {
                             this.unitReviewDeadlines[unit] = stms.msDate;
-//                            Log.info("Found stmilestone ", stms.msDate, " for Unit ", unit, " ", stms.msType);
+                            // Log.info("Found stmilestone ", stms.msDate, " for Unit ", unit, " ", stms.msType);
                             // Don't break - student milestones are sorted by due date, and if there are multiple
                             // matching rows, we want the latest date
                         }
@@ -2073,7 +2075,7 @@ public final class StudentCourseStatus extends LogicBase {
             }
 
             final boolean skipUnitExams =
-                    RawSpecialStusLogic.isSpecialType(cache, studentId, now.toLocalDate(), "SKIP-UE")
+                    RawSpecialStusLogic.isSpecialType(cache, studentId, now.toLocalDate(), RawSpecialStus.SKIP_UE)
                     || !"Y".equals(this.pacingStructure.requireUnitExams);
 
             // If homework is only available if the prior unit exam has been done, test for the required unit exam, and

@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * A utility that connects to Canvas and loads all data into a model data structure in the owning {@code CanvasFull}
  * object, which can trigger updates to its display, and enabling of controls to add or alter Canvas configuration.
  */
-final class ModelReader extends SwingWorker<String, ModelReaderStatus> {
+final class ModelReader extends SwingWorker<CanvasModel, ModelReaderStatus> {
 
     /** The total number of steps in the loading process. */
     private static final int TOTAL_STEPS = 100;
@@ -94,18 +94,7 @@ final class ModelReader extends SwingWorker<String, ModelReaderStatus> {
      * Execute the task in a background thread.
      */
     @Override
-    public String doInBackground() {
-
-        final CanvasModel model = loadModel();
-
-        return CoreConstants.EMPTY;
-    }
-
-    /**
-     * Scans and prints the list of all Canvas courses, so canvas course IDs can be installed in the database for use
-     * when sending messages.
-     */
-    private CanvasModel loadModel() {
+    public CanvasModel doInBackground() {
 
         final CanvasModel model = new CanvasModel();
 
@@ -153,8 +142,8 @@ final class ModelReader extends SwingWorker<String, ModelReaderStatus> {
                         final Object end = obj.getProperty("end_at");
 
                         if (id instanceof final Double idDouble
-                                && name instanceof final String nameString
-                                && state instanceof final String stateString) {
+                            && name instanceof final String nameString
+                            && state instanceof final String stateString) {
 
                             final double idDbl = idDouble.doubleValue();
                             final long idLong = Math.round(idDbl);
@@ -305,8 +294,8 @@ final class ModelReader extends SwingWorker<String, ModelReaderStatus> {
                 final Object allowed_attempts = obj.getProperty("allowed_attempts");
 
                 if (id instanceof final Double idDouble
-                        && name instanceof final String nameString
-                        && groupId instanceof final Double groupIdDouble) {
+                    && name instanceof final String nameString
+                    && groupId instanceof final Double groupIdDouble) {
 
                     final double idDbl = idDouble.doubleValue();
                     final long idLong = Math.round(idDbl);

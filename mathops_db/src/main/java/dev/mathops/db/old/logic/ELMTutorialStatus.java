@@ -1,11 +1,13 @@
 package dev.mathops.db.old.logic;
 
 import dev.mathops.db.Cache;
+import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawStmpeLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStmpe;
 import dev.mathops.db.old.rawrecord.RawStudent;
@@ -115,7 +117,14 @@ public final class ELMTutorialStatus {
             final List<RawStexam> allElmExams = RawStexamLogic.getExams(cache, studentId, RawRecordConstants.M100T,
                     false, "U");
 
-            status.eligibleForElmTutorial = !allPlacementAttempts.isEmpty();
+            if (allPlacementAttempts.isEmpty()) {
+                // Check for "special_stus" record with
+                if (RawSpecialStusLogic.isSpecialType(cache, studentId, now.toLocalDate(), RawSpecialStus.ELM)) {
+                    status.eligibleForElmTutorial = true;
+                }
+            } else {
+                status.eligibleForElmTutorial = true;
+            }
 
             // Find the most recent passing unit 4 review
             LocalDateTime mostRecent = null;
@@ -134,7 +143,7 @@ public final class ELMTutorialStatus {
                     if ("Y".equals(test.passed)) {
                         status.elmExamPassed = true;
                     } else if (mostRecent != null && "N".equals(test.passed)
-                            && test.getFinishDateTime() != null && test.getFinishDateTime().isAfter(mostRecent)) {
+                               && test.getFinishDateTime() != null && test.getFinishDateTime().isAfter(mostRecent)) {
                         ++failedSinceLastRE;
                     }
                 }

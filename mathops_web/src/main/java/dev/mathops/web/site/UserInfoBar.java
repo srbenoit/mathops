@@ -6,6 +6,7 @@ import dev.mathops.db.Cache;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
+import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.CsuLiveRegChecker;
 import dev.mathops.session.ISessionManager;
@@ -14,6 +15,7 @@ import dev.mathops.session.SessionManager;
 import dev.mathops.session.SessionResult;
 
 import jakarta.servlet.ServletRequest;
+
 import java.sql.SQLException;
 
 /**
@@ -45,7 +47,7 @@ public enum UserInfoBar {
         final String dateAdjust = req.getParameter("date-adjust");
 
         if (AbstractSite.isParamInvalid(actAsStu) || AbstractSite.isParamInvalid(becomeStu)
-                || AbstractSite.isParamInvalid(dateAdjust)) {
+            || AbstractSite.isParamInvalid(dateAdjust)) {
             Log.warning("Invalid request parameters - possible attack:");
             Log.warning("  act-as-stu-id='", actAsStu, "'");
             Log.warning("  become-stu-id='", becomeStu, "'");
@@ -154,7 +156,8 @@ public enum UserInfoBar {
 
         if (session.role.canActAs(ERole.STUDENT)) {
             ERole newRole = ERole.STUDENT;
-            if (RawSpecialStusLogic.isSpecialType(cache, newStu, session.getNow().toLocalDate(), "ADVISER")) {
+            if (RawSpecialStusLogic.isSpecialType(cache, newStu, session.getNow().toLocalDate(),
+                    RawSpecialStus.ADVISER)) {
                 newRole = ERole.ADVISER;
             }
 

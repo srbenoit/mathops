@@ -4,6 +4,7 @@ import dev.mathops.db.Cache;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.logic.ELMTutorialStatus;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
+import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 
@@ -54,7 +55,7 @@ enum TutorialMenu {
 
         if (!isTutor) {
             isTutor = RawSpecialStusLogic.isSpecialType(cache, session.getEffectiveUserId(),
-                    session.getNow().toLocalDate(), "TUTOR");
+                    session.getNow().toLocalDate(), RawSpecialStus.TUTOR);
         }
 
         htm.sDiv().add("<a class='ulink' href='home.html'>Home</a>").eDiv();

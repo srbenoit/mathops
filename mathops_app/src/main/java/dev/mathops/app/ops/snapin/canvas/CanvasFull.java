@@ -1,6 +1,8 @@
 package dev.mathops.app.ops.snapin.canvas;
 
+import dev.mathops.app.ops.snapin.canvas.model.CanvasModel;
 import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.app.ops.snapin.AbstractFullPanel;
 
@@ -10,11 +12,13 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serial;
+import java.util.concurrent.ExecutionException;
 
 /**
  * A full-screen panel for this snap-in.
@@ -47,14 +51,29 @@ public final class CanvasFull extends AbstractFullPanel implements ActionListene
     /** The label on the status bar. */
     private final JLabel statusBarLabel;
 
+    /** The Canvas model reader. */
+    private final ModelReader reader;
+
     /**
      * Constructs a new {@code CanvasFull}.
      *
-     * @param theFrame  the owning frame
+     * @param theFrame the owning frame
      */
     CanvasFull(final JFrame theFrame) {
 
         super();
+
+        // TODO: Get these from settings
+
+        final String canvasHost = "https://colostate.instructure.com";
+
+        // Steve Benoit:
+        final String accessToken = "3716~6HH7du2ATvBTrFrekY4Ha5CpYdd4ICzANKBRcTsAKSdR9N7gVcJ2wG7H6Us0ysGW";
+
+        // Anita Pattison:
+//        final String accessToken = "3716~gJUDduijP2xqicfn1oKYZom5s5Tji1P4G4pxLy8xmLuRGh5R4tHw645GFcCNHgmB";
+
+        final String[] codesOfInterest = {"MATH-117", "MATH-118", "MATH-124", "MATH-125", "MATH-126"};
 
         final Border padding = BorderFactory.createEmptyBorder(10, 10, 10, 10);
         setBorder(padding);
@@ -82,6 +101,9 @@ public final class CanvasFull extends AbstractFullPanel implements ActionListene
         final Border statusPad = BorderFactory.createEmptyBorder(0, 0, 4, 0);
         this.statusBarLabel.setBorder(statusPad);
         southCenter.add(this.statusBarLabel, StackedBorderLayout.SOUTH);
+
+        this.reader = new ModelReader(canvasHost, accessToken, codesOfInterest, this.progress,
+                this.synchronize, this.statusBarLabel);
 
         add(south, StackedBorderLayout.SOUTH);
     }
@@ -118,21 +140,19 @@ public final class CanvasFull extends AbstractFullPanel implements ActionListene
         this.statusBarLabel.setText("Synchronizing with Canvas");
         this.synchronize.setEnabled(false);
 
-        // TODO: Get these from settings
+        this.reader.execute();
+    }
 
-        final String canvasHost = "https://colostate.instructure.com";
+    /**
+     * Updates the UI to reflect a newly loaded Canvas data model.
+     *
+     * @param model the data model
+     */
+    private void updateUI(final CanvasModel model) {
 
-        // Steve Benoit:
-         final String accessToken = "3716~6HH7du2ATvBTrFrekY4Ha5CpYdd4ICzANKBRcTsAKSdR9N7gVcJ2wG7H6Us0ysGW";
+        final boolean dispatchThread = SwingUtilities.isEventDispatchThread();
 
-        // Anita Pattison:
-//        final String accessToken = "3716~gJUDduijP2xqicfn1oKYZom5s5Tji1P4G4pxLy8xmLuRGh5R4tHw645GFcCNHgmB";
-
-        final String[] codesOfInterest = {"MATH-117", "MATH-118", "MATH-124", "MATH-125", "MATH-126"};
-
-        final ModelReader reader = new ModelReader(canvasHost, accessToken,codesOfInterest, this.progress,
-                this.synchronize, this.statusBarLabel);
-        reader.execute();
+        Log.info("Updating UI: DispatchThread = ", dispatchThread ? "True" : "False");
     }
 
     /**

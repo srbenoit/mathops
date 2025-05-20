@@ -24,6 +24,7 @@ import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
 import dev.mathops.db.old.rawlogic.RawSthwqaLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
+import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawSthomework;
 import dev.mathops.db.old.rawrecord.RawSthwqa;
@@ -1181,7 +1182,8 @@ public final class LtaSession extends HtmlSessionBase {
 
         final RawStcourse stcourse = RawStcourseLogic.getRegistration(cache, this.studentId, exam.course);
         if (stcourse == null) {
-            if (RawSpecialStusLogic.isSpecialType(cache, this.studentId, now.toLocalDate(), "TUTOR", "M384", "ADMIN")) {
+            if (RawSpecialStusLogic.isSpecialType(cache, this.studentId, now.toLocalDate(),
+                    RawSpecialStus.TUTOR, RawSpecialStus.M384, RawSpecialStus.ADMIN)) {
                 sthw.sect = "001";
             } else {
                 return SimpleBuilder.concat("Unable to look up course registration for ", this.studentId, " in ",

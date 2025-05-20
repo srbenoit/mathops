@@ -15,6 +15,7 @@ import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.admin.AdminSite;
 import dev.mathops.web.site.admin.genadmin.EAdmSubtopic;
+import dev.mathops.web.site.admin.genadmin.EAdminTopic;
 import dev.mathops.web.site.admin.genadmin.GenAdminPage;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -45,8 +46,9 @@ public enum PageDbAdminContexts {
             throws IOException, SQLException {
 
         final HtmlBuilder htm = GenAdminPage.startGenAdminPage(cache, site, session, true);
-        htm.sH(2, "gray").add("Database Administration").eH(2);
-        htm.hr("orange");
+
+        GenAdminPage.emitNavBlock(EAdminTopic.DB_ADMIN, htm);
+        htm.sH(1).add("Database Administration").eH(1);
 
         PageDbAdmin.emitNavMenu(htm, EAdmSubtopic.DB_CONTEXTS);
         doPageContent(htm);
@@ -88,6 +90,8 @@ public enum PageDbAdminContexts {
      */
     private static void doPageContent(final HtmlBuilder htm) {
 
+        final DatabaseConfig dbConfig = DatabaseConfig.getDefault();
+
         htm.div("vgap0").hr().div("vgap0");
 
         htm.sH(2).add("BANNER Access").eH(2);
@@ -109,9 +113,7 @@ public enum PageDbAdminContexts {
 
         htm.div("vgap0").hr().div("vgap0");
 
-        htm.sH(2).add("Contexts and Servers").eH(2);
-
-        final DatabaseConfig dbConfig = DatabaseConfig.getDefault();
+        htm.sH(2).add("Web Contexts").eH(2);
 
         // List contexts by host and path
         final List<String> hosts = dbConfig.getWebHosts();
@@ -127,6 +129,7 @@ public enum PageDbAdminContexts {
             htm.sTh().add("Legacy<br/>Facet").eTh();
             htm.sTh().add("System<br/>Facet").eTh();
             htm.sTh().add("Main<br/>Facet").eTh();
+            htm.sTh().add("Term<br/>Facet").eTh();
             htm.sTh().add("Extern<br/>Facet").eTh();
             htm.sTh().add("Analytics<br/>Facet").eTh();
             htm.sTh().add("ODS<br/>Facet").eTh();
@@ -152,6 +155,8 @@ public enum PageDbAdminContexts {
                         emitFacetCell(system, htm);
                         final Facet main = profile.getFacet(ESchema.MAIN);
                         emitFacetCell(main, htm);
+                        final Facet term = profile.getFacet(ESchema.TERM);
+                        emitFacetCell(term, htm);
                         final Facet extern = profile.getFacet(ESchema.EXTERN);
                         emitFacetCell(extern, htm);
                         final Facet analytics = profile.getFacet(ESchema.ANALYTICS);
@@ -166,6 +171,52 @@ public enum PageDbAdminContexts {
             }
             htm.eTable();
         }
+
+        htm.sH(2).add("Code Contexts").eH(2);
+
+        // List contexts by host and path
+        final List<String> codes = dbConfig.getCodeContextIds();
+        hosts.sort(null);
+
+        htm.sTable("report");
+        htm.sTr();
+        htm.sTh().add("ID").eTh();
+        htm.sTh().add("Profile").eTh();
+        htm.sTh().add("Legacy<br/>Facet").eTh();
+        htm.sTh().add("System<br/>Facet").eTh();
+        htm.sTh().add("Main<br/>Facet").eTh();
+        htm.sTh().add("Term<br/>Facet").eTh();
+        htm.sTh().add("Extern<br/>Facet").eTh();
+        htm.sTh().add("Analytics<br/>Facet").eTh();
+        htm.sTh().add("ODS<br/>Facet").eTh();
+        htm.sTh().add("Live<br/>Facet").eTh();
+        htm.eTr();
+
+        for (final String code : codes) {
+            final Profile profile = dbConfig.getCodeProfile(code);
+
+            htm.sTr();
+            htm.sTd().add(code).eTd();
+            htm.sTd().add(profile.id).eTd();
+            final Facet legacy = profile.getFacet(ESchema.LEGACY);
+            emitFacetCell(legacy, htm);
+            final Facet system = profile.getFacet(ESchema.SYSTEM);
+            emitFacetCell(system, htm);
+            final Facet main = profile.getFacet(ESchema.MAIN);
+            emitFacetCell(main, htm);
+            final Facet term = profile.getFacet(ESchema.TERM);
+            emitFacetCell(term, htm);
+            final Facet extern = profile.getFacet(ESchema.EXTERN);
+            emitFacetCell(extern, htm);
+            final Facet analytics = profile.getFacet(ESchema.ANALYTICS);
+            emitFacetCell(analytics, htm);
+            final Facet ods = profile.getFacet(ESchema.ODS);
+            emitFacetCell(ods, htm);
+            final Facet live = profile.getFacet(ESchema.LIVE);
+            emitFacetCell(live, htm);
+            htm.eTr();
+        }
+        htm.eTable();
 
         htm.sH(2).add("Available Databases").eH(2);
 

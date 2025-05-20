@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A "database config" container to store all information read from the database configuration file.
@@ -162,7 +163,7 @@ public class DatabaseConfig {
      * @param dataId the data ID
      * @return the {@code Data} object; null if none found
      */
-    Data getData(final String dataId) {
+    public Data getData(final String dataId) {
 
         return this.datas.get(dataId);
     }
@@ -269,6 +270,17 @@ public class DatabaseConfig {
     void addCodeContext(final CodeContext codeContext) {
 
         this.codeContexts.put(codeContext.id, codeContext);
+    }
+
+    /**
+     * Gets a list of all code context IDs.
+     *
+     * @return the list of code context IDs
+     */
+    public List<String> getCodeContextIds() {
+
+        final Set<String> keys = this.codeContexts.keySet();
+        return new ArrayList<>(keys);
     }
 
     /**

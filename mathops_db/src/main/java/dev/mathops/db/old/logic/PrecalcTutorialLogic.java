@@ -122,11 +122,11 @@ public class PrecalcTutorialLogic {
     private void computeStatus(final Cache cache, final PrerequisiteLogic prereqLogic,
                                final LocalDate today) throws SQLException {
 
-        final boolean pct117 = RawSpecialStusLogic.isSpecialType(cache, this.studentId, today, "PCT117");
-        final boolean pct118 = RawSpecialStusLogic.isSpecialType(cache, this.studentId, today, "PCT118");
-        final boolean pct124 = RawSpecialStusLogic.isSpecialType(cache, this.studentId, today, "PCT124");
-        final boolean pct125 = RawSpecialStusLogic.isSpecialType(cache, this.studentId, today, "PCT125");
-        final boolean pct126 = RawSpecialStusLogic.isSpecialType(cache, this.studentId, today, "PCT126");
+        final boolean pct117 = RawSpecialStusLogic.isSpecialType(cache, this.studentId, today, RawSpecialStus.PCT117);
+        final boolean pct118 = RawSpecialStusLogic.isSpecialType(cache, this.studentId, today, RawSpecialStus.PCT118);
+        final boolean pct124 = RawSpecialStusLogic.isSpecialType(cache, this.studentId, today, RawSpecialStus.PCT124);
+        final boolean pct125 = RawSpecialStusLogic.isSpecialType(cache, this.studentId, today, RawSpecialStus.PCT125);
+        final boolean pct126 = RawSpecialStusLogic.isSpecialType(cache, this.studentId, today, RawSpecialStus.PCT126);
 
         this.status.holds.addAll(RawAdminHoldLogic.queryByStudent(cache, this.studentId));
 
