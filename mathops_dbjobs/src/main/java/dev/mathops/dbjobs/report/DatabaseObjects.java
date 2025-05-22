@@ -124,18 +124,18 @@ final class DatabaseObjects implements Runnable {
                     hasErrors = true;
                 }
 
-                report.add("     ");
+                report.add(databaseIndex > 9 ? "      " : "       ");
                 report.add(databaseIndex);
                 report.add(". ID: ", database.id);
                 if (database.instance != null) {
-                    report.add(",  Instance: ", database.instance);
+                    report.add("  Instance: ", database.instance);
                 }
                 if (database.dba != null) {
-                    report.add(",  DBA: ", database.dba);
+                    report.add("  DBA: ", database.dba);
                 }
                 report.addln();
 
-                report.addln("          Logins:");
+                report.addln("            Logins:");
                 int loginIndex = 1;
                 for (final Login login : database.getLogins()) {
                     final int len = login.id.length();
@@ -152,7 +152,7 @@ final class DatabaseObjects implements Runnable {
                         hasErrors = true;
                     }
 
-                    report.add(loginIndex > 9 ? "           " : "            ");
+                    report.add(loginIndex > 9 ? "              " : "              ");
                     report.add(loginIndex);
                     final String padded = ReportUtils.padOrTrimString(login.id, longestLoginId);
                     report.add(". ID: ", padded);
@@ -160,7 +160,7 @@ final class DatabaseObjects implements Runnable {
                     ++loginIndex;
                 }
 
-                report.addln("          Data:");
+                report.addln("            Data:");
                 int dataIndex = 1;
                 for (final Data data : database.getData()) {
                     final int len = data.id.length();
@@ -176,7 +176,7 @@ final class DatabaseObjects implements Runnable {
                         hasErrors = true;
                     }
 
-                    report.add(dataIndex > 9 ? "           " : "            ");
+                    report.add(dataIndex > 9 ? "             " : "              ");
                     report.add(dataIndex);
                     final String padded = ReportUtils.padOrTrimString(data.id, longestLoginId);
                     report.add(". ID: ", padded);
@@ -199,6 +199,7 @@ final class DatabaseObjects implements Runnable {
         }
 
         report.addln();
+        report.addln();
         report.addln("Login Map:");
         report.addln("----------");
         for (final String loginId : config.getLoginIds()) {
@@ -208,6 +209,7 @@ final class DatabaseObjects implements Runnable {
         }
 
         report.addln();
+        report.addln();
         report.addln("Data Map:");
         report.addln("---------");
         for (final String dataId : config.getDataIds()) {
@@ -216,6 +218,7 @@ final class DatabaseObjects implements Runnable {
             report.addln("    ", padded, " --> [Data object with ID ", data.id, "]");
         }
 
+        report.addln();
         report.addln();
         report.addln("Profiles:");
         report.addln("---------");
@@ -227,16 +230,16 @@ final class DatabaseObjects implements Runnable {
                         " returned a different profile");
                 hasErrors = true;
             }
-            report.add("    ");
+            report.add(profileIndex > 9 ? "" : " ");
             report.add(profileIndex);
-            report.addln(".  ID: ", profile.id);
+            report.addln(". ID: ", profile.id);
 
-            report.addln("    Facets:");
+            report.addln("      Facets:");
             int facetIndex = 1;
             for (final Facet facet : profile.getFacets()) {
                 final Login login = facet.login;
                 final Data data = facet.data;
-                report.add("        ");
+                report.add(facetIndex > 9 ? "       " : "        ");
                 report.add(facetIndex);
                 final String padLoginId = ReportUtils.padOrTrimString(login.id, longestLoginId);
                 final String padDataId = ReportUtils.padOrTrimString(data.id, longestDataId);
@@ -250,24 +253,43 @@ final class DatabaseObjects implements Runnable {
             ++profileIndex;
         }
 
+        int longestSite = 0;
+        for (final String host : config.getWebHosts()) {
+            for (final String site : config.getWebSites(host)) {
+                final int len = site.length();
+                longestSite = Math.max(longestSite, len);
+            }
+        }
+
+        report.addln();
         report.addln();
         report.addln("Web Contexts:");
         report.addln("-------------");
         for (final String host : config.getWebHosts()) {
+            report.addln();
             report.addln("Host: ", host);
 
             for (final String site : config.getWebSites(host)) {
                 final Profile profile = config.getWebProfile(host, site);
-                report.addln("    Site: '", site, "' using profile ", profile.id);
+                final String padded = ReportUtils.padOrTrimString(site, longestSite);
+                report.addln("  Site: ", padded, "  using profile ", profile.id);
             }
         }
 
+        int longestCode = 0;
+        for (final String id : config.getCodeContextIds()) {
+            final int len = id.length();
+            longestCode = Math.max(longestCode, len);
+        }
+
+        report.addln();
         report.addln();
         report.addln("Code Contexts:");
         report.addln("--------------");
         for (final String id : config.getCodeContextIds()) {
             final Profile profile = config.getCodeProfile(id);
-            report.addln("Context: '", id, "' using profile ", profile.id);
+            final String padded = ReportUtils.padOrTrimString(id, longestCode);
+            report.addln("Context: ", padded, "  using profile ", profile.id);
         }
 
         return hasErrors;
