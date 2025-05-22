@@ -90,8 +90,12 @@ enum PageTestStudent {
     private static final String[] PT_OUTCOME_KEYS = {"C", "7", "8", "4", "5", "6"};
 
     /** The special student types. */
-    private static final String[] SPECIAL = {"TUTOR", "M384", "DCE", "DCEN", "ORIENTN", "RIUSEPU", "PCT117", "PCT118",
-            "PCT124", "PCT125", "PCT126", "MPT3", "RAMWORK", "LOCKDWN"};
+    private static final String[] SPECIAL = {RawSpecialStus.ATHLETE, RawSpecialStus.DCE, RawSpecialStus.DCEN,
+            RawSpecialStus.ELM, RawSpecialStus.EMPLOY, RawSpecialStus.ENGRPLC, RawSpecialStus.ENGRSTU,
+            RawSpecialStus.MANAGER, RawSpecialStus.MPT3, RawSpecialStus.M116, RawSpecialStus.M384,
+            RawSpecialStus.ORIENTN, RawSpecialStus.PCT117, RawSpecialStus.PCT118, RawSpecialStus.PCT124,
+            RawSpecialStus.PCT125, RawSpecialStus.PCT126, RawSpecialStus.PROCTOR, RawSpecialStus.RAMWORK,
+            RawSpecialStus.RIUSEPU, RawSpecialStus.SKIP_UE, RawSpecialStus.STAFF, RawSpecialStus.TUTOR};
 
     /** The tutorial course IDs. */
     private static final String[] TUTORIALS = {RawRecordConstants.M100T, RawRecordConstants.M1170,
@@ -1089,7 +1093,7 @@ enum PageTestStudent {
             }
         }
 
-        // Determine whether the exams has been attempted/mastered
+        // Determine whether the exams have been attempted/mastered
 
         boolean triedU1 = false;
         boolean passedU1 = false;
@@ -2587,7 +2591,8 @@ enum PageTestStudent {
                 if ("Y".equals(a1) || "N".equals(a1)) {
                     String assignId = null;
                     for (final AssignmentRec rec : assignments) {
-                        if (rec.unit.intValue() == u && rec.objective.intValue() == 1 && "ST".equals(rec.assignmentType)) {
+                        if (rec.unit.intValue() == u && rec.objective.intValue() == 1 && "ST".equals(
+                                rec.assignmentType)) {
                             assignId = rec.assignmentId;
                         }
                     }
@@ -2602,7 +2607,8 @@ enum PageTestStudent {
                 if ("Y".equals(a2) || "N".equals(a2)) {
                     String assignId = null;
                     for (final AssignmentRec rec : assignments) {
-                        if (rec.unit.intValue() == u && rec.objective.intValue() == 2 && "ST".equals(rec.assignmentType)) {
+                        if (rec.unit.intValue() == u && rec.objective.intValue() == 2 && "ST".equals(
+                                rec.assignmentType)) {
                             assignId = rec.assignmentId;
                         }
                     }
@@ -2617,7 +2623,8 @@ enum PageTestStudent {
                 if ("Y".equals(a3) || "N".equals(a3)) {
                     String assignId = null;
                     for (final AssignmentRec rec : assignments) {
-                        if (rec.unit.intValue() == u && rec.objective.intValue() == 3 && "ST".equals(rec.assignmentType)) {
+                        if (rec.unit.intValue() == u && rec.objective.intValue() == 3 && "ST".equals(
+                                rec.assignmentType)) {
                             assignId = rec.assignmentId;
                         }
                     }

@@ -18,7 +18,6 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serial;
-import java.util.concurrent.ExecutionException;
 
 /**
  * A full-screen panel for this snap-in.

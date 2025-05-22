@@ -99,8 +99,7 @@ public final class CanvasApi {
      * @param parameters parameters to add to the request; null if none
      * @return the result
      */
-    public ApiResult apiCall(final String path, final String method,
-                             final Map<String, List<String>> parameters) {
+    public ApiResult apiCall(final String path, final String method, final Map<String, List<String>> parameters) {
 
         final String targetUri = this.canvasHost + "/api/v1/" + path;
 

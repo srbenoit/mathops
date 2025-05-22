@@ -3,7 +3,10 @@ package dev.mathops.db.cfg;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.ESchema;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -44,6 +47,17 @@ public final class Profile implements Comparable<Profile> {
     }
 
     /**
+     * Gets the list of all facets in the profile.
+     *
+     * @return the list of facets (a copy - altering this list does not affect the profile)
+     */
+    public List<Facet> getFacets() {
+
+        final Collection<Facet> values = this.facets.values();
+        return new ArrayList<>(values);
+    }
+
+    /**
      * Gets the facet to use for a specified {@code ESchema}.
      *
      * @param which the {@code ESchema}
@@ -79,10 +93,7 @@ public final class Profile implements Comparable<Profile> {
         int extern = 0;
         int analytics = 0;
         int term = 0;
-
-        int allowedMain = 1;
-        int allowedSystem = 1;
-        int allowedTerm = 1;
+        int legacy = 0;
 
         for (final ESchema type : this.facets.keySet()) {
             switch (type) {
@@ -91,18 +102,11 @@ public final class Profile implements Comparable<Profile> {
                 case EXTERN -> ++extern;
                 case ANALYTICS -> ++analytics;
                 case TERM -> ++term;
-                case LEGACY -> {
-                    ++system;
-                    ++main;
-                    ++term;
-                    allowedMain = 2;
-                    allowedSystem = 2;
-                    allowedTerm = 2;
-                }
+                case LEGACY -> ++legacy;
             }
         }
 
-        if (system == 0 || main == 0 || extern == 0 || analytics == 0 || term == 0) {
+        if (system == 0 || main == 0 || extern == 0 || analytics == 0 || term == 0 || legacy == 0) {
             final StringBuilder builder = new StringBuilder(50);
             final String start = Res.get(Res.PROFILE_MISSING_START);
             builder.append(start);
@@ -121,10 +125,13 @@ public final class Profile implements Comparable<Profile> {
             if (term == 0) {
                 builder.append(CoreConstants.SPC).append(ESchema.TERM);
             }
+            if (legacy == 0) {
+                builder.append(CoreConstants.SPC).append(ESchema.LEGACY);
+            }
             final String end = Res.get(Res.PROFILE_MSG_END);
             builder.append(end);
             error = builder.toString();
-        } else if (system > allowedSystem || main > allowedMain || extern > 1 || analytics > 1 || term > allowedTerm) {
+        } else if (system > 1 || main > 1 || extern > 1 || analytics > 1 || term > 1 || legacy > 1) {
             final StringBuilder builder = new StringBuilder(50);
             final String start = Res.get(Res.PROFILE_DUP_START);
             builder.append(start);
@@ -142,6 +149,9 @@ public final class Profile implements Comparable<Profile> {
             }
             if (term > 1) {
                 builder.append(CoreConstants.SPC).append(ESchema.TERM);
+            }
+            if (legacy > 1) {
+                builder.append(CoreConstants.SPC).append(ESchema.LEGACY);
             }
             final String end = Res.get(Res.PROFILE_MSG_END);
             builder.append(end);

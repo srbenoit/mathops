@@ -44,19 +44,30 @@ enum PageHome {
 
         htm.sH(1).add("Center Scheduling System").eH(1);
 
-        final String effectiveId = session.getEffectiveUserId();
         final String effectiveName = session.getEffectiveScreenName();
-        final ZonedDateTime sessionNow = session.getNow();
-        final LocalDate today = sessionNow.toLocalDate();
-
         htm.sDiv().add("Logged in as ", effectiveName).eDiv().hr();
 
+        final String effectiveId = session.getEffectiveUserId();
+        final ZonedDateTime sessionNow = session.getNow();
+        final LocalDate today = sessionNow.toLocalDate();
         final boolean isAdmin = RawSpecialStusLogic.isSpecialType(cache, effectiveId, today, RawSpecialStus.STEVE);
         final boolean isMgr = RawSpecialStusLogic.isSpecialType(cache, effectiveId, today, RawSpecialStus.MANAGER);
         final boolean isStaff = RawSpecialStusLogic.isSpecialType(cache, effectiveId, today, RawSpecialStus.STAFF);
         final boolean isEmployee = RawSpecialStusLogic.isSpecialType(cache, effectiveId, today, RawSpecialStus.EMPLOY);
 
         // Present an interface with all features for which the user is authorized.
+        if (isAdmin) {
+            htm.sP().add("Administrative Functions:").eP();
+        }
+        if (isMgr) {
+            htm.sP().add("Supervisor Functions:").eP();
+        }
+        if (isStaff) {
+            htm.sP().add("Staff Functions:").eP();
+        }
+        if (isEmployee) {
+            htm.sP().add("Employee Functions:").eP();
+        }
 
         htm.eDiv();
 

@@ -65,14 +65,14 @@ class SpecialStudentsPanel extends AdmPanelBase implements ActionListener, ListS
     private static final String CHANGE_SORT = "CHANGE_SORT";
 
     /** All known special categories. */
-    private static final String[] CATEGORIES = {
-            "--- choose ---", "ADMIN", "ATHLETE",
-            "BOOKSTO", "DCE", "DCEN",
-            "ENGRPLC", "ENGRSTU", "LOCKDWN", "MPT3",
-            "M384", "ORIENTN", "PCT117",
-            "PCT118", "PCT124", "PCT125",
-            "PCT126", "PROCTOR", "RAMWORK",
-            "RIUSEPU", "STEVE", "TUTOR"};
+    private static final String[] CATEGORIES = {"--- choose ---",
+            RawSpecialStus.ADMIN, RawSpecialStus.ADVISER, RawSpecialStus.ATHLETE, RawSpecialStus.BOOKSTO,
+            RawSpecialStus.DCE, RawSpecialStus.DCEN, RawSpecialStus.ELM, RawSpecialStus.EMPLOY, RawSpecialStus.ENGRPLC,
+            RawSpecialStus.ENGRSTU, RawSpecialStus.MANAGER, RawSpecialStus.MPT3, RawSpecialStus.M116,
+            RawSpecialStus.M384, RawSpecialStus.ORIENTN, RawSpecialStus.PCT117, RawSpecialStus.PCT118,
+            RawSpecialStus.PCT124, RawSpecialStus.PCT125, RawSpecialStus.PCT126, RawSpecialStus.PROCTOR,
+            RawSpecialStus.RAMWORK, RawSpecialStus.RIUSEPU, RawSpecialStus.SKIP_UE, RawSpecialStus.STEVE,
+            RawSpecialStus.STAFF, RawSpecialStus.TUTOR};
 
     /** The ways rows can be sorted. */
     private static final String[] SORTS = {//
@@ -258,7 +258,7 @@ class SpecialStudentsPanel extends AdmPanelBase implements ActionListener, ListS
             this.typesModel.clear();
             for (final Map.Entry<String, Integer> type : types.entrySet()) {
                 final String txt = type.getKey() + " (" + type.getValue()
-                        + ")";
+                                   + ")";
                 this.typesModel.addElement(txt);
             }
         } catch (final SQLException ex) {
@@ -431,7 +431,7 @@ class SpecialStudentsPanel extends AdmPanelBase implements ActionListener, ListS
                             stuIds.add(validated);
                         } else {
                             throw new IllegalArgumentException("Invalid student ID: "
-                                    + line);
+                                                               + line);
                         }
                     }
 
@@ -445,8 +445,8 @@ class SpecialStudentsPanel extends AdmPanelBase implements ActionListener, ListS
                                     RawSpecialStusLogic.queryByStudent(this.cache, stuId);
                             for (final RawSpecialStus test : existing) {
                                 if (test.stuType.equals(catStr)
-                                        && Objects.equals(test.startDt, startDt)
-                                        && Objects.equals(test.endDt, endDt)) {
+                                    && Objects.equals(test.startDt, startDt)
+                                    && Objects.equals(test.endDt, endDt)) {
                                     exists = true;
                                     break;
                                 }

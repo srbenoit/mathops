@@ -37,7 +37,6 @@ enum PageCenterScheduler {
         htm.sDiv(null, "style='padding-left:16px; padding-right:16px;'");
 
         htm.sH(1).add("Center Scheduling System").eH(1);
-
         htm.sP().add("<a class='btn' href='secure/shibboleth.html'>Login with my eID</a>").eP();
 
         htm.eDiv();

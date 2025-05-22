@@ -104,6 +104,11 @@ final class Res extends ResBundle {
     /** A resource key. */
     static final String CODE_CONTEXT_NULL_ID_PROFILE = key(90);
 
+    // Used by DatabaseConfig
+
+    /** A resource key. */
+    static final String DATABASE_CFG_LOADED_FROM = key(100);
+
     //
 
     /** The resources - an array of key-values pairs. */
@@ -143,6 +148,8 @@ final class Res extends ResBundle {
             {SITE_NULL_OWNER_PATH_PROFILE, "Site owner, path, and profile may not be null"},
 
             {CODE_CONTEXT_NULL_ID_PROFILE, "Code context ID and profile may not be null"},
+
+            {DATABASE_CFG_LOADED_FROM, "Database configuration loaded from {0}"},
 
     };
 

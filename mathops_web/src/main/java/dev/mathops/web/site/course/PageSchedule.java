@@ -978,20 +978,11 @@ enum PageSchedule {
 
         if (passedFinal == null) {
             if (lastTry == null) {
-                final boolean earnedBonus =
-                        paceOrder == 1 && RawSpecialStusLogic.isSpecialType(cache,
-                                logic.sessionInfo.getEffectiveUserId(),
-                                logic.sessionInfo.getNow().toLocalDate(), RawSpecialStus.UBONUS);
-
-                final String count1 =
-                        earnedBonus ? "<b>TWO</b> more opportunities" : "<b>ONE</b> more opportunity";
-                final String count2 = earnedBonus ? "those attempts" : "that one attempt";
-
                 htm.addln("<li class='boxlist'>");
                 htm.addln(" If you become eligible for, but do not pass the <b>Final Exam</b> by ",
-                        "its deadline date, you will be given ", count1, " to take the <b>Final ",
+                        "its deadline date, you will be given <b>ONE</b> more opportunity to take the <b>Final ",
                         "Exam</b> on <b>THE VERY NEXT DAY THE PRECALCULUS CENTER IS OPEN</b>. If you ",
-                        "do not pass on ", count2, ", you cannot complete the course.");
+                        "do not pass on that one attempt, you cannot complete the course.");
                 htm.addln("</li>");
             } else if (!today.isAfter(lastTry)) {
 

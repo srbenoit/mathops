@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A "web-context" object from the database configuration file.
@@ -39,7 +40,8 @@ public final class WebContext {
      */
     public List<String> getSites() {
 
-        return new ArrayList<>(this.sites.keySet());
+        final Set<String> keys = this.sites.keySet();
+        return new ArrayList<>(keys);
     }
 
     /**

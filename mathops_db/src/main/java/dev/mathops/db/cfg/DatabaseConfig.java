@@ -68,7 +68,9 @@ public class DatabaseConfig {
             final File cfgFile = new File(dir, DatabaseConfigXml.FILENAME);
             try {
                 config = DatabaseConfigXml.load(cfgFile);
-                Log.info("Database configuration loaded from ", cfgFile.getAbsolutePath());
+                final String filePath = cfgFile.getAbsolutePath();
+                final String msg = Res.fmt(Res.DATABASE_CFG_LOADED_FROM, filePath);
+                Log.info(msg);
             } catch (final IOException | ParsingException ex) {
                 Log.warning(ex);
                 config = new DatabaseConfig();
@@ -76,7 +78,9 @@ public class DatabaseConfig {
         } else {
             try {
                 config = DatabaseConfigXml.load(source);
-                Log.info("Database configuration loaded from ", source.getAbsolutePath());
+                final String filePath = source.getAbsolutePath();
+                final String msg = Res.fmt(Res.DATABASE_CFG_LOADED_FROM, filePath);
+                Log.info(msg);
             } catch (final IOException | ParsingException ex) {
                 Log.warning(ex);
                 config = new DatabaseConfig();
@@ -143,7 +147,8 @@ public class DatabaseConfig {
      */
     public List<String> getLoginIds() {
 
-        return new ArrayList<>(this.logins.keySet());
+        final Set<String> keys = this.logins.keySet();
+        return new ArrayList<>(keys);
     }
 
     /**
@@ -155,6 +160,17 @@ public class DatabaseConfig {
     public Login getLogin(final String loginId) {
 
         return this.logins.get(loginId);
+    }
+
+    /**
+     * Gets the list of all data IDs.
+     *
+     * @return the list of data IDs
+     */
+    public List<String> getDataIds() {
+
+        final Set<String> keys = this.datas.keySet();
+        return new ArrayList<>(keys);
     }
 
     /**
@@ -196,7 +212,7 @@ public class DatabaseConfig {
      * @param profileId the profile ID
      * @return the {@code Profile} object; null if none found
      */
-    Profile getProfile(final String profileId) {
+    public Profile getProfile(final String profileId) {
 
         return this.profiles.get(profileId);
     }
@@ -210,6 +226,7 @@ public class DatabaseConfig {
 
         this.webContexts.put(webContext.host, webContext);
     }
+
 
     /**
      * Gets the {@code Profile} for the site with a specified path within the web context with a specified host.
@@ -247,12 +264,14 @@ public class DatabaseConfig {
      */
     public List<String> getWebHosts() {
 
-        return new ArrayList<>(this.webContexts.keySet());
+        final Set<String> keys = this.webContexts.keySet();
+        return new ArrayList<>(keys);
     }
 
     /**
      * Gets the list of sites within a host.
      *
+     * @param host the host
      * @return the list of sites
      */
     public List<String> getWebSites(final String host) {

@@ -16,8 +16,50 @@ import java.util.Objects;
  */
 public final class RawSpecialStus extends RecBase implements Comparable<RawSpecialStus> {
 
+    /** A student type that grants administrative access to a user. */
+    public static final String ADMIN = "ADMIN";
+
+    /** A student type that indicates a user can act as an adviser. */
+    public static final String ADVISER = "ADVISER";
+
+    /** A student type that indicates a user is an athlete. */
+    public static final String ATHLETE = "ATHLETE";
+
+    /** A student type that indicates a user is a Bookstore manager. */
+    public static final String BOOKSTO = "BOOKSTO";
+
+    /** A student type that indicates a user is a "Continuing Ed" student. */
+    public static final String DCE = "DCE";
+
+    /** A student type that indicates a user is a "Continuing Ed" student and not enrolled in a degree program. */
+    public static final String DCEN = "DCEN";
+
     /** A student type that grants access to the ELM Tutorial without having to do Math Placement. */
     public static final String ELM = "ELM";
+
+    /** A student type that indicates a user an employee who can be scheduled. */
+    public static final String EMPLOY = "EMPLOY";
+
+    /** A student type that indicates a user is an incoming Engineering student for a Placement report. */
+    public static final String ENGRPLC = "ENGRPLC";
+
+    /** A student type that indicates a user is an Engineering student. */
+    public static final String ENGRSTU = "ENGRSTU";
+
+    /** A student type that indicates a user a manager of employees. */
+    public static final String MANAGER = "MANAGER";
+
+    /** A student type that indicates a student can take the Placement Tool a third time. */
+    public static final String MPT3 = "MPT3";
+
+    /** A student type that indicates a user is a student in MATH 116. */
+    public static final String M116 = "M116";
+
+    /** A student type that indicates a student is enrolled in MATH 384 and should have access to course materials. */
+    public static final String M384 = "M384";
+
+    /** A student type that indicates a student is part of an orientation session for placement reporting. */
+    public static final String ORIENTN = "ORIENTN";
 
     /** A student type that grants access to the MATH 117 Precalculus Tutorial if not normally eligible. */
     public static final String PCT117 = "PCT117";
@@ -34,67 +76,26 @@ public final class RawSpecialStus extends RecBase implements Comparable<RawSpeci
     /** A student type that grants access to the MATH 126 Precalculus Tutorial if not normally eligible. */
     public static final String PCT126 = "PCT126";
 
-    /** A student type that grants administrative access to a user. */
-    public static final String ADMIN = "ADMIN";
-
-    /** A student type that indicates a student is enrolled in MATH 384 and should have access to course materials. */
-    public static final String M384 = "M384";
-
-    /** A student type that indicates a student is a tutor and should have access to course materials. */
-    public static final String TUTOR = "TUTOR";
-
     /** A student type that indicates a user can act as a proctor. */
     public static final String PROCTOR = "PROCTOR";
-
-    /** A student type that indicates a user can skip the user's exam. */
-    public static final String SKIP_UE = "SKIP-UE";
-
-    /** A student type that indicates a user can act as an adviser. */
-    public static final String ADVISER = "ADVISER";
-
-    /** A student type that indicates a user is a superuser. */
-    public static final String STEVE = "STEVE";
-
-    /** A student type that indicates a user a manager of employees. */
-    public static final String MANAGER = "MANAGER";
-
-    /** A student type that indicates a user a staff member who can log employee activity. */
-    public static final String STAFF = "STAFF";
-
-    /** A student type that indicates a user an employee who can be scheduled. */
-    public static final String EMPLOY = "EMPLOY";
 
     /** A student type that indicates a user who is in a resident course can take exams as if a distance student. */
     public static final String RAMWORK = "RAMWORK";
 
-    /** A student type that indicates a user has earned a bonus extra attempt on the "+1" day. */
-    public static final String UBONUS = "UBONUS";
-
-    /** A student type that indicates a user is a "Continuing Ed" student. */
-    public static final String DCE = "DCE";
-
-    /** A student type that indicates a user is a "Continuing Ed" student and not enrolled in a degree program. */
-    public static final String DCEN = "DCEN";
-
     /** A student type that indicates a user is a resident student but can use ProctorU to take exams. */
     public static final String RIUSEPU = "RIUSEPU";
 
-    /** A student type that indicates a user is an athlete. */
-    public static final String ATHLETE = "ATHLETE";
+    /** A student type that indicates a user can skip the user's exam. */
+    public static final String SKIP_UE = "SKIP-UE";
 
-    /** A student type that indicates a user is an Engineering student. */
-    public static final String ENGRSTU = "ENGRSTU";
+    /** A student type that indicates a user is a superuser. */
+    public static final String STEVE = "STEVE";
 
-    /** A student type that indicates a user is a student in MATH 116. */
-    public static final String M116 = "M116";
+    /** A student type that indicates a user a staff member who can log employee activity. */
+    public static final String STAFF = "STAFF";
 
-
-
-
-
-    //
-    //
-    //
+    /** A student type that indicates a student is a tutor and should have access to course materials. */
+    public static final String TUTOR = "TUTOR";
 
     /** The table name. */
     public static final String TABLE_NAME = "special_stus";
