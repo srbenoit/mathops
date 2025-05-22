@@ -27,8 +27,8 @@ public final class LandingSite extends AbstractSite {
     /**
      * Constructs a new {@code LandingSite}.
      *
-     * @param theSite the site profile under which this site is accessed
-     * @param theSessions    the singleton user session repository
+     * @param theSite     the site profile under which this site is accessed
+     * @param theSessions the singleton user session repository
      */
     public LandingSite(final Site theSite, final ISessionManager theSessions) {
 
@@ -83,6 +83,7 @@ public final class LandingSite extends AbstractSite {
             case "style.css" ->
                     sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(getClass(), "style.css", true));
             case "favicon.ico" -> serveImage(subpath, req, resp);
+            case "roadmap.html" -> PageRoadmap.doGet(cache, this, req, resp);
             case CoreConstants.EMPTY, "index.html" -> PageLanding.showPage(cache, this, type, req, resp);
             case null, default -> {
                 resp.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);

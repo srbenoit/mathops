@@ -26,7 +26,7 @@ import java.util.List;
 public class ProcessFinalGrades implements Runnable {
 
     /** Flag to run in "debug" mode which prints changes that would be performed rather than performing any changes. */
-    private static final EDebugMode DEBUG_MODE = EDebugMode.NORMAL;
+    private static final EDebugMode DEBUG_MODE = EDebugMode.DEBUG;
 
     /** The data cache. */
     private final Cache cache;
