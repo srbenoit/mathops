@@ -143,21 +143,9 @@ public final class RamWorkSite extends AbstractSite {
 
                     } else if ("itembank.html".equals(subpath)) {
                         PageItemBank.showPage(cache, this, req, resp, session);
-                    } else if ("qtiitembank.html".equals(subpath)) {
-                        PageQTIItemBank.showPage(cache, this, req, resp, session, null);
                     } else if ("authoring.html".equals(subpath)) {
                         PageAuthoring.showPage(cache, this, req, resp);
 
-                    } else if ("item.html".equals(subpath)) {
-                        PageItem.showPage(cache, this, req, resp, session);
-                    } else if ("item-edit.html".equals(subpath)) {
-                        PageItemEdit.showPage(req, resp, session);
-                    } else if ("mathrefresherlibrary.html".equals(subpath)) {
-                        PageMathRefresherLibrary.showPage(req, resp, session);
-                    } else if ("mathrefresherstudent.html".equals(subpath)) {
-                        PageMathRefresherStudent.showPage(cache, req, resp, session);
-                    } else if ("assessmentdev.html".equals(subpath)) {
-                        PageAssessmentDev.showPage(req, resp);
                     } else if ("graphedit.html".equals(subpath)) {
                         PageGraphEditor.showPage(cache, this, req, resp);
 
@@ -315,9 +303,7 @@ public final class RamWorkSite extends AbstractSite {
             LogBase.setSessionInfo(session.loginSessionId, session.getEffectiveUserId());
 
             switch (subpath) {
-                case "item-edit.html" -> PageItemEdit.processPost(req, resp, session);
                 case "rolecontrol.html" -> processRoleControls(cache, req, resp, session);
-                case "qtiitembank.html" -> PageQTIItemBank.processPost(cache, this, req, resp, session);
                 case "graphedit.html" -> PageGraphEditor.processPost(cache, this, req, resp);
                 case null, default -> {
                     Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));

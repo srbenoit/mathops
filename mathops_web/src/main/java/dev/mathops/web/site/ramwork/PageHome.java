@@ -43,12 +43,6 @@ enum PageHome {
             htm.hr();
 
             htm.sP().add("<a href='itembank.html'>Item Bank</a>").eP();
-            htm.sP().add("<a href='qtiitembank.html'>QTI Item Bank</a>").eP();
-            htm.sP().add("<a href='mathrefresherlibrary.html'>CSU Math Refresher Library</a>",
-                    " (used by course owners)").eP();
-            htm.sP().add("<a href='mathrefresherstudent.html'>CSU Math Refresher Student View</a>",
-                    " (used by students)").eP();
-            htm.sP().add("<a href='assessmentdev.html'>Assessment System Development</a>").eP();
             htm.sP().add("<a href='authoring.html'>Item Authoring Resources</a>").eP();
 
             Page.endOrdinaryPage(cache, site, htm, true);
