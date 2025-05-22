@@ -32,7 +32,7 @@ public abstract class ReportPermsLogic implements IRecLogic<ReportPermsRec> {
      */
     public static ReportPermsLogic get(final Cache cache) {
 
-        final EDbProduct type = IRecLogic.getDbType(cache);
+        final EDbProduct type = IRecLogic.getDbType(cache, ESchema.LEGACY);
 
         ReportPermsLogic result = null;
         if (type == EDbProduct.INFORMIX) {
@@ -122,7 +122,7 @@ public abstract class ReportPermsLogic implements IRecLogic<ReportPermsRec> {
                     sqlStringValue(record.rptId), ",",
                     sqlIntegerValue(record.permLevel), ")");
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -144,7 +144,7 @@ public abstract class ReportPermsLogic implements IRecLogic<ReportPermsRec> {
                     " WHERE stu_id=", sqlStringValue(record.stuId),
                     " AND rpt_id=", sqlStringValue(record.rptId));
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -162,7 +162,7 @@ public abstract class ReportPermsLogic implements IRecLogic<ReportPermsRec> {
                     sqlStringValue(record.stuId), " AND rpt_id=",
                     sqlStringValue(record.rptId));
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -175,7 +175,7 @@ public abstract class ReportPermsLogic implements IRecLogic<ReportPermsRec> {
         @Override
         public List<ReportPermsRec> queryAll(final Cache cache) throws SQLException {
 
-            return doListQuery(cache, "SELECT * FROM report_perms");
+            return doListQuery(cache, ESchema.LEGACY, "SELECT * FROM report_perms");
         }
 
         /**
@@ -191,7 +191,7 @@ public abstract class ReportPermsLogic implements IRecLogic<ReportPermsRec> {
             final String sql = SimpleBuilder.concat("SELECT * FROM report_perms ",
                     "WHERE stu_id=", sqlStringValue(stuId));
 
-            return doListQuery(cache, sql);
+            return doListQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -207,7 +207,7 @@ public abstract class ReportPermsLogic implements IRecLogic<ReportPermsRec> {
             final String sql = SimpleBuilder.concat("SELECT * FROM report_perms ",
                     "WHERE rpt_id=", sqlStringValue(rptId));
 
-            return doListQuery(cache, sql);
+            return doListQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -225,7 +225,7 @@ public abstract class ReportPermsLogic implements IRecLogic<ReportPermsRec> {
                     "WHERE stu_id=", sqlStringValue(stuId),
                     " AND rpt_id=", sqlStringValue(rptId));
 
-            return doSingleQuery(cache, sql);
+            return doSingleQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -288,7 +288,7 @@ public abstract class ReportPermsLogic implements IRecLogic<ReportPermsRec> {
                     sqlStringValue(record.rptId), ",",
                     sqlIntegerValue(record.permLevel), ")");
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -312,7 +312,7 @@ public abstract class ReportPermsLogic implements IRecLogic<ReportPermsRec> {
                     " WHERE stu_id=", sqlStringValue(record.stuId),
                     " AND rpt_id=", sqlStringValue(record.rptId));
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -332,7 +332,7 @@ public abstract class ReportPermsLogic implements IRecLogic<ReportPermsRec> {
                     sqlStringValue(record.stuId), " AND rpt_id=",
                     sqlStringValue(record.rptId));
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -350,7 +350,7 @@ public abstract class ReportPermsLogic implements IRecLogic<ReportPermsRec> {
             final String sql = SimpleBuilder.concat("SELECT * FROM ",
                     schemaPrefix, ".report_perms");
 
-            return doListQuery(cache, sql);
+            return doListQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -368,7 +368,7 @@ public abstract class ReportPermsLogic implements IRecLogic<ReportPermsRec> {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".report_perms WHERE stu_id=", sqlStringValue(stuId));
 
-            return doListQuery(cache, sql);
+            return doListQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -386,7 +386,7 @@ public abstract class ReportPermsLogic implements IRecLogic<ReportPermsRec> {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".report_perms WHERE rpt_id=", sqlStringValue(rptId));
 
-            return doListQuery(cache, sql);
+            return doListQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -406,7 +406,7 @@ public abstract class ReportPermsLogic implements IRecLogic<ReportPermsRec> {
                     ".report_perms WHERE stu_id=", sqlStringValue(stuId),
                     " AND rpt_id=", sqlStringValue(rptId));
 
-            return doSingleQuery(cache, sql);
+            return doSingleQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**

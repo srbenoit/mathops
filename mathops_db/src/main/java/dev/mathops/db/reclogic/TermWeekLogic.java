@@ -2,6 +2,7 @@ package dev.mathops.db.reclogic;
 
 import dev.mathops.db.Cache;
 import dev.mathops.db.EDbProduct;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.rec.TermRec;
 import dev.mathops.db.rec.TermWeekRec;
@@ -34,7 +35,7 @@ public abstract class TermWeekLogic implements IRecLogic<TermWeekRec> {
      */
     public static TermWeekLogic get(final Cache cache) {
 
-        final EDbProduct type = IRecLogic.getDbType(cache);
+        final EDbProduct type = IRecLogic.getDbType(cache, ESchema.LEGACY);
 
         TermWeekLogic result = null;
         if (type == EDbProduct.INFORMIX) {
@@ -103,7 +104,7 @@ public abstract class TermWeekLogic implements IRecLogic<TermWeekRec> {
                     sqlDateValue(record.startDate), ",",
                     sqlDateValue(record.endDate), ")");
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -120,7 +121,7 @@ public abstract class TermWeekLogic implements IRecLogic<TermWeekRec> {
             final String sql = SimpleBuilder.concat("DELETE FROM semester_calendar WHERE week_nbr=",
                     sqlIntegerValue(record.weekNbr));
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -133,7 +134,7 @@ public abstract class TermWeekLogic implements IRecLogic<TermWeekRec> {
         @Override
         public List<TermWeekRec> queryAll(final Cache cache) throws SQLException {
 
-            return doListQuery(cache, "SELECT * FROM semester_calendar");
+            return doListQuery(cache, ESchema.LEGACY, "SELECT * FROM semester_calendar");
         }
 
         /**
@@ -207,7 +208,7 @@ public abstract class TermWeekLogic implements IRecLogic<TermWeekRec> {
                     sqlDateValue(record.startDate), ",",
                     sqlDateValue(record.endDate), ")");
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -224,7 +225,7 @@ public abstract class TermWeekLogic implements IRecLogic<TermWeekRec> {
             final String sql = SimpleBuilder.concat("DELETE FROM term_week WHERE week_nbr=",
                     sqlIntegerValue(record.weekNbr));
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -237,7 +238,7 @@ public abstract class TermWeekLogic implements IRecLogic<TermWeekRec> {
         @Override
         public List<TermWeekRec> queryAll(final Cache cache) throws SQLException {
 
-            return doListQuery(cache, "SELECT * FROM term_week");
+            return doListQuery(cache, ESchema.LEGACY, "SELECT * FROM term_week");
         }
 
         /**

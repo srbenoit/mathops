@@ -73,7 +73,7 @@ public final class StandardAssignmentLogic implements IRecLogic<StandardAssignme
                     sqlIntegerValue(record.minPassingScore), ",",
                     sqlStringValue(record.treeRef), ")");
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -101,7 +101,7 @@ public final class StandardAssignmentLogic implements IRecLogic<StandardAssignme
                     ".standard_assignment WHERE assignment_id=",
                     sqlStringValue(record.assignmentId));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -126,7 +126,7 @@ public final class StandardAssignmentLogic implements IRecLogic<StandardAssignme
         } else {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".standard_assignment");
 
-            result = doListQuery(cache, sql);
+            result = doListQuery(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -152,7 +152,7 @@ public final class StandardAssignmentLogic implements IRecLogic<StandardAssignme
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".standard_assignment WHERE course_id=", sqlStringValue(courseId));
 
-            result = doListQuery(cache, sql);
+            result = doListQuery(cache, ESchema.MAIN, sql);
             result.sort(null);
         }
 
@@ -179,7 +179,7 @@ public final class StandardAssignmentLogic implements IRecLogic<StandardAssignme
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".standard_assignment WHERE assignment_id=", sqlStringValue(assignmentId));
 
-            result = doSingleQuery(cache, sql);
+            result = doSingleQuery(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -212,7 +212,7 @@ public final class StandardAssignmentLogic implements IRecLogic<StandardAssignme
                     ",tree_ref=", sqlStringValue(record.treeRef),
                     " WHERE assignment_id=", sqlStringValue(record.assignmentId));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.MAIN, sql);
         }
 
         return result;

@@ -64,7 +64,7 @@ public final class CourseSurveyItemLogic implements IRecLogic<CourseSurveyItemRe
                     sqlIntegerValue(record.itemType), ",",
                     sqlStringValue(record.promptHtml), ")");
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -92,7 +92,7 @@ public final class CourseSurveyItemLogic implements IRecLogic<CourseSurveyItemRe
                     ".course_survey_item WHERE survey_id=", sqlStringValue(record.surveyId),
                     " AND item_nbr=", sqlIntegerValue(record.itemNbr));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -117,7 +117,7 @@ public final class CourseSurveyItemLogic implements IRecLogic<CourseSurveyItemRe
         } else {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".course_survey_item");
 
-            result = doListQuery(cache, sql);
+            result = doListQuery(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -146,7 +146,7 @@ public final class CourseSurveyItemLogic implements IRecLogic<CourseSurveyItemRe
                     ".course_survey_item  WHERE survey_id=", sqlStringValue(surveyId),
                     " AND item_nbr=", sqlIntegerValue(itemNbr));
 
-            result = doSingleQuery(cache, sql);
+            result = doSingleQuery(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -172,7 +172,7 @@ public final class CourseSurveyItemLogic implements IRecLogic<CourseSurveyItemRe
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".course_survey_item WHERE survey_id=", sqlStringValue(surveyId));
 
-            result = doListQuery(cache, sql);
+            result = doListQuery(cache, ESchema.MAIN, sql);
             result.sort(null);
         }
 
@@ -202,7 +202,7 @@ public final class CourseSurveyItemLogic implements IRecLogic<CourseSurveyItemRe
                     " WHERE survey_id=", sqlStringValue(record.surveyId),
                     " AND item_nbr=", sqlIntegerValue(record.itemNbr));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.MAIN, sql);
         }
 
         return result;

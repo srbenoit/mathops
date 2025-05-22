@@ -70,7 +70,7 @@ public final class StandardsCourseLogic implements IRecLogic<StandardsCourseRec>
                     sqlIntegerValue(record.allowLend), ",",
                     sqlStringValue(record.metadataPath), ")");
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -97,7 +97,7 @@ public final class StandardsCourseLogic implements IRecLogic<StandardsCourseRec>
             final String sql = SimpleBuilder.concat("DELETE FROM ", schemaPrefix, ".standards_course WHERE course_id=",
                     sqlStringValue(record.courseId));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -122,7 +122,7 @@ public final class StandardsCourseLogic implements IRecLogic<StandardsCourseRec>
         } else {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".standards_course");
 
-            result = doListQuery(cache, sql);
+            result = doListQuery(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -148,7 +148,7 @@ public final class StandardsCourseLogic implements IRecLogic<StandardsCourseRec>
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".standards_course WHERE course_id=", sqlStringValue(courseId));
 
-            result = doSingleQuery(cache, sql);
+            result = doSingleQuery(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -179,7 +179,7 @@ public final class StandardsCourseLogic implements IRecLogic<StandardsCourseRec>
                     ",metadata_path=", sqlStringValue(record.metadataPath),
                     " WHERE course_id=", sqlStringValue(record.courseId));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.MAIN, sql);
         }
 
         return result;

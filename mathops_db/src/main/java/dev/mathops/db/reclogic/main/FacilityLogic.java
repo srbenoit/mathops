@@ -64,7 +64,7 @@ public final class FacilityLogic implements IRecLogic<FacilityRec> {
                     sqlStringValue(record.buildingName), ",",
                     sqlStringValue(record.roomNbr), ")");
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.MAIN, sql);
 
         }
 
@@ -92,7 +92,7 @@ public final class FacilityLogic implements IRecLogic<FacilityRec> {
             final String sql = SimpleBuilder.concat("DELETE FROM ", schemaPrefix, ".facility WHERE facility_id=",
                     sqlStringValue(record.facilityId));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -117,7 +117,7 @@ public final class FacilityLogic implements IRecLogic<FacilityRec> {
         } else {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".facility");
 
-            result = doListQuery(cache, sql);
+            result = doListQuery(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -143,7 +143,7 @@ public final class FacilityLogic implements IRecLogic<FacilityRec> {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".facility WHERE facility_id=",
                     sqlStringValue(facility));
 
-            result = doSingleQuery(cache, sql);
+            result = doSingleQuery(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -171,7 +171,7 @@ public final class FacilityLogic implements IRecLogic<FacilityRec> {
                     ",room_nbr=", sqlStringValue(record.roomNbr), " WHERE facility_id=",
                     sqlStringValue(record.facilityId));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.MAIN, sql);
         }
 
         return result;

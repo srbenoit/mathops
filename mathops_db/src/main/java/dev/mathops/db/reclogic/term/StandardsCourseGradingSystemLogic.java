@@ -93,7 +93,7 @@ public final class StandardsCourseGradingSystemLogic implements IRecLogic<Standa
                     sqlIntegerValue(record.uMinScore), ",",
                     sqlIntegerValue(record.minStandardsForInc), ")");
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -121,7 +121,7 @@ public final class StandardsCourseGradingSystemLogic implements IRecLogic<Standa
                     ".standards_course_grading_system WHERE grading_system_id=",
                     sqlStringValue(record.gradingSystemId));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -146,7 +146,7 @@ public final class StandardsCourseGradingSystemLogic implements IRecLogic<Standa
         } else {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".standards_course_grading_system");
 
-            result = doListQuery(cache, sql);
+            result = doListQuery(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -172,7 +172,7 @@ public final class StandardsCourseGradingSystemLogic implements IRecLogic<Standa
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".standards_course_grading_system WHERE grading_system_id=", sqlStringValue(gradingSystemId));
 
-            result = doSingleQuery(cache, sql);
+            result = doSingleQuery(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -210,7 +210,7 @@ public final class StandardsCourseGradingSystemLogic implements IRecLogic<Standa
                     ",min_standards_for_inc=", sqlIntegerValue(record.minStandardsForInc),
                     " WHERE grading_system_id=", sqlStringValue(record.gradingSystemId));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.TERM, sql);
         }
 
         return result;

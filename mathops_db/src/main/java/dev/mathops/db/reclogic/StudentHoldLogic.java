@@ -217,7 +217,7 @@ public abstract class StudentHoldLogic implements IRecLogic<StudentHoldRec> {
      */
     public static StudentHoldLogic get(final Cache cache) {
 
-        final EDbProduct type = IRecLogic.getDbType(cache);
+        final EDbProduct type = IRecLogic.getDbType(cache, ESchema.LEGACY);
 
         StudentHoldLogic result = null;
         if (type == EDbProduct.INFORMIX) {
@@ -483,7 +483,7 @@ public abstract class StudentHoldLogic implements IRecLogic<StudentHoldRec> {
                         sqlIntegerValue(record.timesDisplay), ",",
                         sqlDateValue(record.createDt), ")");
 
-                result = doUpdateOneRow(cache, sql);
+                result = doUpdateOneRow(cache, ESchema.LEGACY, sql);
             }
 
             return result;
@@ -503,7 +503,7 @@ public abstract class StudentHoldLogic implements IRecLogic<StudentHoldRec> {
             final String sql = SimpleBuilder.concat("DELETE FROM admin_hold WHERE stu_id=",
                     sqlStringValue(record.stuId), " AND hold_id=", sqlStringValue(record.holdId));
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -516,7 +516,7 @@ public abstract class StudentHoldLogic implements IRecLogic<StudentHoldRec> {
         @Override
         public List<StudentHoldRec> queryAll(final Cache cache) throws SQLException {
 
-            return doListQuery(cache, "SELECT * FROM admin_hold");
+            return doListQuery(cache, ESchema.LEGACY, "SELECT * FROM admin_hold");
         }
 
         /**
@@ -671,7 +671,7 @@ public abstract class StudentHoldLogic implements IRecLogic<StudentHoldRec> {
                         " WHERE stu_id=", sqlStringValue(record.stuId),
                         "   AND hold_id=", sqlStringValue(record.holdId));
 
-                result = doUpdateOneRow(cache, sql);
+                result = doUpdateOneRow(cache, ESchema.LEGACY, sql);
             }
 
             return result;
@@ -746,7 +746,7 @@ public abstract class StudentHoldLogic implements IRecLogic<StudentHoldRec> {
                         sqlIntegerValue(record.timesDisplay), ",",
                         sqlPgDateValue(record.createDt), ")");
 
-                result = doUpdateOneRow(cache, sql);
+                result = doUpdateOneRow(cache, ESchema.LEGACY, sql);
             }
 
             return result;
@@ -766,7 +766,7 @@ public abstract class StudentHoldLogic implements IRecLogic<StudentHoldRec> {
             final String sql = SimpleBuilder.concat("DELETE FROM admin_hold WHERE stu_id=",
                     sqlStringValue(record.stuId), " AND hold_id=", sqlStringValue(record.holdId));
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -783,7 +783,7 @@ public abstract class StudentHoldLogic implements IRecLogic<StudentHoldRec> {
 
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".admin_hold");
 
-            return doListQuery(cache, sql);
+            return doListQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -938,7 +938,7 @@ public abstract class StudentHoldLogic implements IRecLogic<StudentHoldRec> {
                         " WHERE stu_id=", sqlStringValue(record.stuId),
                         "   AND hold_id=", sqlStringValue(record.holdId));
 
-                result = doUpdateOneRow(cache, sql);
+                result = doUpdateOneRow(cache, ESchema.LEGACY, sql);
             }
 
             return result;

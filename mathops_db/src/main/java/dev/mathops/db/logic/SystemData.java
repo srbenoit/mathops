@@ -1,6 +1,7 @@
 package dev.mathops.db.logic;
 
 import dev.mathops.db.Cache;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawlogic.RawCampusCalendarLogic;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
 import dev.mathops.db.old.rawlogic.RawCourseLogic;

@@ -32,7 +32,7 @@ public abstract class StuCourseMasteryLogic implements IRecLogic<StuCourseMaster
      */
     public static StuCourseMasteryLogic get(final Cache cache) {
 
-        final EDbProduct type = IRecLogic.getDbType(cache);
+        final EDbProduct type = IRecLogic.getDbType(cache, ESchema.LEGACY);
 
         StuCourseMasteryLogic result = null;
         if (type == EDbProduct.INFORMIX) {
@@ -145,7 +145,7 @@ public abstract class StuCourseMasteryLogic implements IRecLogic<StuCourseMaster
                     sqlIntegerValue(record.nbrMasteredH2), ",",
                     sqlIntegerValue(record.nbrEligible), ")");
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -164,7 +164,7 @@ public abstract class StuCourseMasteryLogic implements IRecLogic<StuCourseMaster
                     "WHERE stu_id=", sqlStringValue(record.stuId),
                     " AND course_id=", sqlStringValue(record.courseId));
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -177,7 +177,7 @@ public abstract class StuCourseMasteryLogic implements IRecLogic<StuCourseMaster
         @Override
         public List<StuCourseMasteryRec> queryAll(final Cache cache) throws SQLException {
 
-            return doListQuery(cache, "SELECT * FROM stu_course_mastery");
+            return doListQuery(cache, ESchema.LEGACY, "SELECT * FROM stu_course_mastery");
         }
 
         /**
@@ -204,7 +204,7 @@ public abstract class StuCourseMasteryLogic implements IRecLogic<StuCourseMaster
                     " WHERE stu_id=", sqlStringValue(record.stuId),
                     " AND course_id=", sqlStringValue(record.courseId));
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -225,7 +225,7 @@ public abstract class StuCourseMasteryLogic implements IRecLogic<StuCourseMaster
                     " WHERE stu_id=", sqlStringValue(record.stuId),
                     " AND course_id=", sqlStringValue(record.courseId));
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -243,7 +243,7 @@ public abstract class StuCourseMasteryLogic implements IRecLogic<StuCourseMaster
             final String sql = SimpleBuilder.concat("SELECT * FROM stu_course_mastery ",
                     "WHERE stu_id=", sqlStringValue(stuId));
 
-            return doListQuery(cache, sql);
+            return doListQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -263,7 +263,7 @@ public abstract class StuCourseMasteryLogic implements IRecLogic<StuCourseMaster
                     "WHERE stu_id=", sqlStringValue(stuId),
                     " AND course_id=", sqlStringValue(courseId));
 
-            return doSingleQuery(cache, sql);
+            return doSingleQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -345,7 +345,7 @@ public abstract class StuCourseMasteryLogic implements IRecLogic<StuCourseMaster
                     sqlIntegerValue(record.nbrMasteredH2), ",",
                     sqlIntegerValue(record.nbrEligible), ",");
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -365,7 +365,7 @@ public abstract class StuCourseMasteryLogic implements IRecLogic<StuCourseMaster
                     "WHERE stu_id=", sqlStringValue(record.stuId),
                     " AND course_id=", sqlStringValue(record.courseId));
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -382,7 +382,7 @@ public abstract class StuCourseMasteryLogic implements IRecLogic<StuCourseMaster
 
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".stu_course_mastery");
 
-            return doListQuery(cache, sql);
+            return doListQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -411,7 +411,7 @@ public abstract class StuCourseMasteryLogic implements IRecLogic<StuCourseMaster
                     " WHERE stu_id=", sqlStringValue(record.stuId),
                     " AND course_id=", sqlStringValue(record.courseId));
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -434,7 +434,7 @@ public abstract class StuCourseMasteryLogic implements IRecLogic<StuCourseMaster
                     " WHERE stu_id=", sqlStringValue(record.stuId),
                     " AND course_id=", sqlStringValue(record.courseId));
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -453,7 +453,7 @@ public abstract class StuCourseMasteryLogic implements IRecLogic<StuCourseMaster
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".stu_course_mastery ",
                     "WHERE stu_id=", sqlStringValue(stuId));
 
-            return doListQuery(cache, sql);
+            return doListQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -475,7 +475,7 @@ public abstract class StuCourseMasteryLogic implements IRecLogic<StuCourseMaster
                     "WHERE stu_id=", sqlStringValue(stuId),
                     " AND course_id=", sqlStringValue(courseId));
 
-            return doSingleQuery(cache, sql);
+            return doSingleQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**

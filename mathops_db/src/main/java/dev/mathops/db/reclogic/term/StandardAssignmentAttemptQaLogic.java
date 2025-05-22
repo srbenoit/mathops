@@ -64,7 +64,7 @@ public final class StandardAssignmentAttemptQaLogic implements IRecLogic<Standar
                     sqlIntegerValue(record.points), ",",
                     sqlStringValue(record.itemId), ")");
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -92,7 +92,7 @@ public final class StandardAssignmentAttemptQaLogic implements IRecLogic<Standar
                     ".standard_assignment_attempt_qa WHERE serial_nbr=", sqlIntegerValue(record.serialNbr),
                     " AND question_nbr=", sqlIntegerValue(record.questionNbr));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -117,7 +117,7 @@ public final class StandardAssignmentAttemptQaLogic implements IRecLogic<Standar
         } else {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".standard_assignment_attempt_qa");
 
-            result = doListQuery(cache, sql);
+            result = doListQuery(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -146,7 +146,7 @@ public final class StandardAssignmentAttemptQaLogic implements IRecLogic<Standar
                     ".standard_assignment_attempt_qa WHERE serial_nbr=", sqlIntegerValue(serialNbr),
                     " AND question_nbr=", sqlIntegerValue(questionNbr));
 
-            result = doSingleQuery(cache, sql);
+            result = doSingleQuery(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -175,7 +175,7 @@ public final class StandardAssignmentAttemptQaLogic implements IRecLogic<Standar
                     " WHERE serial_nbr=", sqlIntegerValue(record.serialNbr),
                     " AND question_nbr=", sqlIntegerValue(record.questionNbr));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.TERM, sql);
         }
 
         return result;

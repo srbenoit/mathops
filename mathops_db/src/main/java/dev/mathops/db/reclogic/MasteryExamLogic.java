@@ -35,7 +35,7 @@ public abstract class MasteryExamLogic implements IRecLogic<MasteryExamRec> {
      */
     public static MasteryExamLogic get(final Cache cache) {
 
-        final EDbProduct type = IRecLogic.getDbType(cache);
+        final EDbProduct type = IRecLogic.getDbType(cache, ESchema.LEGACY);
 
         MasteryExamLogic result = null;
         if (type == EDbProduct.INFORMIX) {
@@ -175,7 +175,7 @@ public abstract class MasteryExamLogic implements IRecLogic<MasteryExamRec> {
                     sqlDateValue(record.whenActive == null ? null : record.whenActive.toLocalDate()), ",",
                     sqlDateValue(record.whenPulled == null ? null : record.whenPulled.toLocalDate()), ")");
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -192,7 +192,7 @@ public abstract class MasteryExamLogic implements IRecLogic<MasteryExamRec> {
             final String sql = SimpleBuilder.concat("DELETE FROM mastery_exam WHERE exam_id=",
                     sqlStringValue(record.examId));
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -205,7 +205,7 @@ public abstract class MasteryExamLogic implements IRecLogic<MasteryExamRec> {
         @Override
         public List<MasteryExamRec> queryAll(final Cache cache) throws SQLException {
 
-            return doListQuery(cache, "SELECT * FROM mastery_exam");
+            return doListQuery(cache, ESchema.LEGACY, "SELECT * FROM mastery_exam");
         }
 
         /**
@@ -224,7 +224,7 @@ public abstract class MasteryExamLogic implements IRecLogic<MasteryExamRec> {
             final String sql = SimpleBuilder.concat("SELECT * FROM mastery_exam WHERE course_id=",
                     sqlStringValue(courseId), " AND when_pulled IS NULL ORDER BY unit,objective");
 
-            return doListQuery(cache, sql);
+            return doListQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -245,7 +245,7 @@ public abstract class MasteryExamLogic implements IRecLogic<MasteryExamRec> {
                     sqlStringValue(courseId), " AND unit=", sqlIntegerValue(unit),
                     " AND when_pulled IS NULL ORDER BY objective");
 
-            return doListQuery(cache, sql);
+            return doListQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -267,7 +267,7 @@ public abstract class MasteryExamLogic implements IRecLogic<MasteryExamRec> {
                     sqlStringValue(courseId), " AND unit=", sqlIntegerValue(unit),
                     " AND objective=", sqlIntegerValue(objective), " AND when_pulled IS NULL");
 
-            return doListQuery(cache, sql);
+            return doListQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -291,7 +291,7 @@ public abstract class MasteryExamLogic implements IRecLogic<MasteryExamRec> {
                     " AND objective=", sqlIntegerValue(objective),
                     " AND exam_type=", sqlStringValue(examType), " AND when_pulled IS NULL");
 
-            return doSingleQuery(cache, sql);
+            return doSingleQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -308,7 +308,7 @@ public abstract class MasteryExamLogic implements IRecLogic<MasteryExamRec> {
             final String sql = SimpleBuilder.concat("SELECT * FROM mastery_exam WHERE exam_id=",
                     sqlStringValue(examId));
 
-            return doSingleQuery(cache, sql);
+            return doSingleQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -412,7 +412,7 @@ public abstract class MasteryExamLogic implements IRecLogic<MasteryExamRec> {
                     sqlDateTimeValue(record.whenActive), ",",
                     sqlDateTimeValue(record.whenPulled), ")");
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -431,7 +431,7 @@ public abstract class MasteryExamLogic implements IRecLogic<MasteryExamRec> {
             final String sql = SimpleBuilder.concat("DELETE FROM ", schemaPrefix,
                     ".mastery_exam WHERE exam_id=", sqlStringValue(record.examId));
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -448,7 +448,7 @@ public abstract class MasteryExamLogic implements IRecLogic<MasteryExamRec> {
 
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".mastery_exam");
 
-            return doListQuery(cache, sql);
+            return doListQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -469,7 +469,7 @@ public abstract class MasteryExamLogic implements IRecLogic<MasteryExamRec> {
                     ".mastery_exam WHERE course_id=", sqlStringValue(courseId),
                     " AND when_pulled IS NULL ORDER BY unit,objective");
 
-            return doListQuery(cache, sql);
+            return doListQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -492,7 +492,7 @@ public abstract class MasteryExamLogic implements IRecLogic<MasteryExamRec> {
                     ".mastery_exam WHERE course_id=", sqlStringValue(courseId),
                     " AND unit=", sqlIntegerValue(unit), " AND when_pulled IS NULL ORDER BY objective");
 
-            return doListQuery(cache, sql);
+            return doListQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -517,7 +517,7 @@ public abstract class MasteryExamLogic implements IRecLogic<MasteryExamRec> {
                     " AND unit=", sqlIntegerValue(unit),
                     " AND objective=", sqlIntegerValue(objective), " AND when_pulled IS NULL");
 
-            return doListQuery(cache, sql);
+            return doListQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -544,7 +544,7 @@ public abstract class MasteryExamLogic implements IRecLogic<MasteryExamRec> {
                     " AND objective=", sqlIntegerValue(objective),
                     " AND exam_type=", sqlStringValue(examType), " AND when_pulled IS NULL");
 
-            return doSingleQuery(cache, sql);
+            return doSingleQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -563,7 +563,7 @@ public abstract class MasteryExamLogic implements IRecLogic<MasteryExamRec> {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".mastery_exam WHERE exam_id=", sqlStringValue(examId));
 
-            return doSingleQuery(cache, sql);
+            return doSingleQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**

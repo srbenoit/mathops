@@ -66,7 +66,7 @@ public final class StandardsCourseModuleLogic implements IRecLogic<StandardsCour
                     sqlIntegerValue(record.nbrEssential), ",",
                     sqlStringValue(record.modulePath), ")");
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -94,7 +94,7 @@ public final class StandardsCourseModuleLogic implements IRecLogic<StandardsCour
                     ".standards_course_module WHERE course_id=", sqlStringValue(record.courseId),
                     " AND module_nbr=", sqlIntegerValue(record.moduleNbr));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -119,7 +119,7 @@ public final class StandardsCourseModuleLogic implements IRecLogic<StandardsCour
         } else {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".standards_course_module");
 
-            result = doListQuery(cache, sql);
+            result = doListQuery(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -145,7 +145,7 @@ public final class StandardsCourseModuleLogic implements IRecLogic<StandardsCour
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".standards_course_module WHERE course_id=", sqlStringValue(courseId));
 
-            result = doListQuery(cache, sql);
+            result = doListQuery(cache, ESchema.MAIN, sql);
             result.sort(null);
         }
 
@@ -175,7 +175,7 @@ public final class StandardsCourseModuleLogic implements IRecLogic<StandardsCour
                     ".standards_course_module WHERE course_id=", sqlStringValue(courseId), " AND module_nbr=",
                     sqlIntegerValue(moduleNbr));
 
-            result = doSingleQuery(cache, sql);
+            result = doSingleQuery(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -205,7 +205,7 @@ public final class StandardsCourseModuleLogic implements IRecLogic<StandardsCour
                     " WHERE course_id=", sqlStringValue(record.courseId),
                     " AND module_nbr=", sqlIntegerValue(record.moduleNbr));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.MAIN, sql);
         }
 
         return result;

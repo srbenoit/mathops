@@ -71,7 +71,7 @@ public final class StudentStandardsMilestoneLogic implements IRecLogic<StudentSt
                     sqlStringValue(record.msType), ",",
                     sqlDateValue(record.msDate), ")");
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -103,7 +103,7 @@ public final class StudentStandardsMilestoneLogic implements IRecLogic<StudentSt
                     " AND module_nbr=", sqlIntegerValue(record.moduleNbr),
                     " AND ms_type=", sqlStringValue(record.msType));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -128,7 +128,7 @@ public final class StudentStandardsMilestoneLogic implements IRecLogic<StudentSt
         } else {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".student_standards_milestone");
 
-            result = doListQuery(cache, sql);
+            result = doListQuery(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -167,7 +167,7 @@ public final class StudentStandardsMilestoneLogic implements IRecLogic<StudentSt
                     " AND module_nbr=", sqlIntegerValue(moduleNbr),
                     " AND ms_type=", sqlStringValue(msType));
 
-            result = doSingleQuery(cache, sql);
+            result = doSingleQuery(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -194,7 +194,7 @@ public final class StudentStandardsMilestoneLogic implements IRecLogic<StudentSt
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".student_standards_milestone WHERE student_id=", sqlStringValue(studentId));
 
-            result = doListQuery(cache, sql);
+            result = doListQuery(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -226,7 +226,7 @@ public final class StudentStandardsMilestoneLogic implements IRecLogic<StudentSt
                     " AND module_nbr=", sqlIntegerValue(record.moduleNbr),
                     " AND ms_type=", sqlStringValue(record.msType));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.TERM, sql);
         }
 
         return result;

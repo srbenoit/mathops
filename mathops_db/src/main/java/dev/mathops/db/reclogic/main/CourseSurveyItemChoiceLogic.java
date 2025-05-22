@@ -64,7 +64,7 @@ public final class CourseSurveyItemChoiceLogic implements IRecLogic<CourseSurvey
                     sqlIntegerValue(record.choiceNbr), ",",
                     sqlStringValue(record.choiceHtml), ")");
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -93,7 +93,7 @@ public final class CourseSurveyItemChoiceLogic implements IRecLogic<CourseSurvey
                     " AND item_nbr=", sqlIntegerValue(record.itemNbr),
                     " AND choice_nbr=", sqlIntegerValue(record.choiceNbr));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -118,7 +118,7 @@ public final class CourseSurveyItemChoiceLogic implements IRecLogic<CourseSurvey
         } else {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".course_survey_item_choice");
 
-            result = doListQuery(cache, sql);
+            result = doListQuery(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -150,7 +150,7 @@ public final class CourseSurveyItemChoiceLogic implements IRecLogic<CourseSurvey
                     " AND item_nbr=", sqlIntegerValue(itemNbr),
                     " AND choice_nbr=", sqlIntegerValue(choiceNbr));
 
-            result = doSingleQuery(cache, sql);
+            result = doSingleQuery(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -180,7 +180,7 @@ public final class CourseSurveyItemChoiceLogic implements IRecLogic<CourseSurvey
                     ".course_survey_item_choice WHERE survey_id=", sqlStringValue(surveyId),
                     " AND item_nbr=", sqlIntegerValue(itemNbr));
 
-            result = doListQuery(cache, sql);
+            result = doListQuery(cache, ESchema.MAIN, sql);
             result.sort(null);
         }
 
@@ -210,7 +210,7 @@ public final class CourseSurveyItemChoiceLogic implements IRecLogic<CourseSurvey
                     " AND item_nbr=", sqlIntegerValue(record.itemNbr),
                     " AND choice_nbr=", sqlIntegerValue(record.choiceNbr));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.MAIN, sql);
         }
 
         return result;

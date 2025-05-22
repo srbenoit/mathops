@@ -96,7 +96,7 @@ public final class StandardsCourseSectionLogic implements IRecLogic<StandardsCou
                     sqlStringValue(record.roomNbr), ",",
                     sqlIntegerValue(record.weekdays), ")");
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -124,7 +124,7 @@ public final class StandardsCourseSectionLogic implements IRecLogic<StandardsCou
                     ".standards_course_section WHERE course_id=", sqlStringValue(record.courseId),
                     " AND section_nbr=", sqlStringValue(record.sectionNbr));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -149,7 +149,7 @@ public final class StandardsCourseSectionLogic implements IRecLogic<StandardsCou
         } else {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".standards_course_section");
 
-            result = doListQuery(cache, sql);
+            result = doListQuery(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -178,7 +178,7 @@ public final class StandardsCourseSectionLogic implements IRecLogic<StandardsCou
                     ".standards_course_section WHERE course_id=", sqlStringValue(courseId),
                     " AND section_nbr=", sqlStringValue(sectionNbr));
 
-            result = doSingleQuery(cache, sql);
+            result = doSingleQuery(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -219,7 +219,7 @@ public final class StandardsCourseSectionLogic implements IRecLogic<StandardsCou
                     " WHERE course_id=", sqlStringValue(record.courseId),
                     " AND section_nbr=", sqlStringValue(record.sectionNbr));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.TERM, sql);
         }
 
         return result;

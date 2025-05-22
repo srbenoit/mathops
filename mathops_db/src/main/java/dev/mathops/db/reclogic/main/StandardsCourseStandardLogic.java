@@ -66,7 +66,7 @@ public final class StandardsCourseStandardLogic implements IRecLogic<StandardsCo
                     sqlStringValue(record.learningObjective), ",",
                     sqlStringValue(record.isEssential), ")");
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -95,7 +95,7 @@ public final class StandardsCourseStandardLogic implements IRecLogic<StandardsCo
                     " AND module_nbr=", sqlIntegerValue(record.moduleNbr),
                     " AND standard_nbr=", sqlIntegerValue(record.standardNbr));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -120,7 +120,7 @@ public final class StandardsCourseStandardLogic implements IRecLogic<StandardsCo
         } else {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".standards_course_standard");
 
-            result = doListQuery(cache, sql);
+            result = doListQuery(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -146,7 +146,7 @@ public final class StandardsCourseStandardLogic implements IRecLogic<StandardsCo
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".standards_course_standard WHERE course_id=", sqlStringValue(courseId));
 
-            result = doListQuery(cache, sql);
+            result = doListQuery(cache, ESchema.MAIN, sql);
             result.sort(null);
         }
 
@@ -178,7 +178,7 @@ public final class StandardsCourseStandardLogic implements IRecLogic<StandardsCo
                     " AND module_nbr=", sqlIntegerValue(moduleNbr),
                     " AND standard_nbr=", sqlIntegerValue(standardNbr));
 
-            result = doSingleQuery(cache, sql);
+            result = doSingleQuery(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -208,7 +208,7 @@ public final class StandardsCourseStandardLogic implements IRecLogic<StandardsCo
                     " AND module_nbr=", sqlIntegerValue(record.moduleNbr),
                     " AND standard_nbr=", sqlIntegerValue(record.standardNbr));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.MAIN, sql);
         }
 
         return result;

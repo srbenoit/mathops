@@ -63,7 +63,7 @@ public final class CourseSurveyResponseItemChoiceLogic implements IRecLogic<Cour
                     sqlIntegerValue(record.itemNbr), ",",
                     sqlIntegerValue(record.responseChoice), ")");
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -91,7 +91,7 @@ public final class CourseSurveyResponseItemChoiceLogic implements IRecLogic<Cour
                     ".course_survey_response_item_choice WHERE serial_nbr=", sqlIntegerValue(record.serialNbr),
                     " AND item_nbr=", sqlIntegerValue(record.itemNbr));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -117,7 +117,7 @@ public final class CourseSurveyResponseItemChoiceLogic implements IRecLogic<Cour
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".course_survey_response_item_choice");
 
-            result = doListQuery(cache, sql);
+            result = doListQuery(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -146,7 +146,7 @@ public final class CourseSurveyResponseItemChoiceLogic implements IRecLogic<Cour
                     ".course_survey_response_item_choice WHERE serial_nbr=", sqlIntegerValue(serialNbr),
                     " AND item_nbr=", sqlIntegerValue(itemNbr));
 
-            result = doSingleQuery(cache, sql);
+            result = doSingleQuery(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -173,7 +173,7 @@ public final class CourseSurveyResponseItemChoiceLogic implements IRecLogic<Cour
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".course_survey_response_item_choice WHERE serial_nbr=", sqlIntegerValue(serialNbr));
 
-            result = doListQuery(cache, sql);
+            result = doListQuery(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -201,7 +201,7 @@ public final class CourseSurveyResponseItemChoiceLogic implements IRecLogic<Cour
                     " WHERE serial_nbr=", sqlIntegerValue(record.serialNbr),
                     " AND item_nbr=", sqlIntegerValue(record.itemNbr));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.TERM, sql);
         }
 
         return result;

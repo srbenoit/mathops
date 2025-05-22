@@ -70,7 +70,7 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
                     sqlTimeValue(record.startTime), ",",
                     sqlTimeValue(record.endTime), ")");
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -98,7 +98,7 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
                     ".facility_closure WHERE facility_id=", sqlStringValue(record.facilityId), " AND start_date=",
                     sqlDateValue(record.startDate));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -123,7 +123,7 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
         } else {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".facility_closure");
 
-            result = doListQuery(cache, sql);
+            result = doListQuery(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -152,7 +152,7 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
                     ".facility_closure WHERE facility_id=", sqlStringValue(facilityId), " AND start_date=",
                     sqlDateValue(startDate));
 
-            result = doSingleQuery(cache, sql);
+            result = doSingleQuery(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -178,7 +178,7 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".facility_closure WHERE facility_id=", sqlStringValue(facilityId));
 
-            result = doListQuery(cache, sql);
+            result = doListQuery(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -209,7 +209,7 @@ public final class FacilityClosureLogic implements IRecLogic<FacilityClosureRec>
                     " WHERE facility_id=", sqlStringValue(record.facilityId),
                     " AND start_date=", sqlDateValue(record.startDate));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.MAIN, sql);
         }
 
         return result;

@@ -62,7 +62,7 @@ public final class CourseSurveyLogic implements IRecLogic<CourseSurveyRec> {
                     sqlStringValue(record.surveyTitle), ",",
                     sqlStringValue(record.promptHtml), ")");
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -89,7 +89,7 @@ public final class CourseSurveyLogic implements IRecLogic<CourseSurveyRec> {
             final String sql = SimpleBuilder.concat("DELETE FROM ", schemaPrefix, ".course_survey WHERE survey_id=",
                     sqlStringValue(record.surveyId));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -114,7 +114,7 @@ public final class CourseSurveyLogic implements IRecLogic<CourseSurveyRec> {
         } else {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".course_survey");
 
-            result = doListQuery(cache, sql);
+            result = doListQuery(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -140,7 +140,7 @@ public final class CourseSurveyLogic implements IRecLogic<CourseSurveyRec> {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".course_survey WHERE survey_id=", sqlStringValue(surveyId));
 
-            result = doSingleQuery(cache, sql);
+            result = doSingleQuery(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -168,7 +168,7 @@ public final class CourseSurveyLogic implements IRecLogic<CourseSurveyRec> {
                     ",prompt_html=", sqlStringValue(record.promptHtml),
                     " WHERE survey_id=", sqlStringValue(record.surveyId));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.MAIN, sql);
         }
 
         return result;

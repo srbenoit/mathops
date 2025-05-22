@@ -78,7 +78,7 @@ public final class FacilityHoursLogic implements IRecLogic<FacilityHoursRec> {
                     sqlTimeValue(record.openTime2), ",",
                     sqlTimeValue(record.closeTime2), ")");
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -106,7 +106,7 @@ public final class FacilityHoursLogic implements IRecLogic<FacilityHoursRec> {
                     sqlStringValue(record.facilityId), " AND display_index=",
                     sqlIntegerValue(record.displayIndex));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -131,7 +131,7 @@ public final class FacilityHoursLogic implements IRecLogic<FacilityHoursRec> {
         } else {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".facility_hours");
 
-            result = doListQuery(cache, sql);
+            result = doListQuery(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -160,7 +160,7 @@ public final class FacilityHoursLogic implements IRecLogic<FacilityHoursRec> {
                     ".facility_hours WHERE facility_id=", sqlStringValue(facilityId), " AND display_index=",
                     sqlIntegerValue(displayIndex));
 
-            result = doSingleQuery(cache, sql);
+            result = doSingleQuery(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -186,7 +186,7 @@ public final class FacilityHoursLogic implements IRecLogic<FacilityHoursRec> {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".facility_hours WHERE facility_id=", sqlStringValue(facilityId));
 
-            result = doListQuery(cache, sql);
+            result = doListQuery(cache, ESchema.MAIN, sql);
         }
 
         return result;
@@ -220,7 +220,7 @@ public final class FacilityHoursLogic implements IRecLogic<FacilityHoursRec> {
                     sqlStringValue(record.facilityId), " AND display_index=",
                     sqlIntegerValue(record.displayIndex));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.MAIN, sql);
         }
 
         return result;

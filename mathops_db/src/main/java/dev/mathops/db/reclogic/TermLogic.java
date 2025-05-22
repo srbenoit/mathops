@@ -35,7 +35,7 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
      */
     public static TermLogic get(final Cache cache) {
 
-        final EDbProduct type = IRecLogic.getDbType(cache);
+        final EDbProduct type = IRecLogic.getDbType(cache, ESchema.LEGACY);
 
         TermLogic result = null;
         if (type == EDbProduct.INFORMIX) {
@@ -192,7 +192,7 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
                     sqlDateValue(record.withdrawDeadline), ",",
                     sqlDateValue(record.incDeadline), ")");
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -210,7 +210,7 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
                     sqlStringValue(record.term.termCode), " AND term_yr=",
                     sqlIntegerValue(record.term.shortYear));
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -223,7 +223,7 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
         @Override
         public List<TermRec> queryAll(final Cache cache) throws SQLException {
 
-            return doListQuery(cache, "SELECT * FROM term");
+            return doListQuery(cache, ESchema.LEGACY, "SELECT * FROM term");
         }
 
         /**
@@ -241,7 +241,7 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
             final String sql = SimpleBuilder.concat("SELECT * FROM term WHERE active_index=",
                     sqlIntegerValue(termIndex));
 
-            return doSingleQuery(cache, sql);
+            return doSingleQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -256,7 +256,7 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
 
             final String sql = SimpleBuilder.concat("SELECT * FROM term WHERE active_index>0");
 
-            return doListQuery(cache, sql);
+            return doListQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -271,7 +271,7 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
 
             final String sql = SimpleBuilder.concat("SELECT * FROM term WHERE active_index=0");
 
-            return doSingleQuery(cache, sql);
+            return doSingleQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -286,7 +286,7 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
 
             final String sql = SimpleBuilder.concat("SELECT * FROM term WHERE active_index=1");
 
-            return doSingleQuery(cache, sql);
+            return doSingleQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -301,7 +301,7 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
 
             final String sql = SimpleBuilder.concat("SELECT * FROM term WHERE active_index=-1");
 
-            return doSingleQuery(cache, sql);
+            return doSingleQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -318,7 +318,7 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
             final String sql = SimpleBuilder.concat("SELECT * FROM term WHERE term=", sqlStringValue(termKey.termCode),
                     " AND term_yr=", sqlIntegerValue(termKey.shortYear));
 
-            return doSingleQuery(cache, sql);
+            return doSingleQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -427,7 +427,7 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
                     sqlDateValue(record.withdrawDeadline), ",",
                     sqlDateValue(record.incDeadline), ")");
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -446,7 +446,7 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
             final String sql = SimpleBuilder.concat("DELETE FROM ", schemaPrefix, ".term WHERE term=",
                     sqlIntegerValue(record.term.toNumeric()));
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -463,7 +463,7 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
 
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".term");
 
-            return doListQuery(cache, sql);
+            return doListQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -483,7 +483,7 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".term WHERE active_index=", sqlIntegerValue(termIndex));
 
-            return doSingleQuery(cache, sql);
+            return doSingleQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -501,7 +501,7 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".term WHERE active_index>0");
 
-            return doListQuery(cache, sql);
+            return doListQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -519,7 +519,7 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".term WHERE active_index=0");
 
-            return doSingleQuery(cache, sql);
+            return doSingleQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -537,7 +537,7 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".term WHERE active_index=1");
 
-            return doSingleQuery(cache, sql);
+            return doSingleQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -555,7 +555,7 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".term WHERE active_index=-1");
 
-            return doSingleQuery(cache, sql);
+            return doSingleQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -574,7 +574,7 @@ public abstract class TermLogic implements IRecLogic<TermRec> {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".term WHERE term=",
                     sqlIntegerValue(termKey.toNumeric()));
 
-            return doSingleQuery(cache, sql);
+            return doSingleQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**

@@ -88,7 +88,7 @@ public final class StandardAssignmentAttemptLogic implements IRecLogic<StandardA
                     sqlIntegerValue(record.score), ",",
                     sqlStringValue(record.passed), ")");
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -115,7 +115,7 @@ public final class StandardAssignmentAttemptLogic implements IRecLogic<StandardA
             final String sql = SimpleBuilder.concat("DELETE FROM ", schemaPrefix,
                     ".standard_assignment_attempt WHERE serial_nbr=", sqlIntegerValue(record.serialNbr));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -140,7 +140,7 @@ public final class StandardAssignmentAttemptLogic implements IRecLogic<StandardA
         } else {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".standard_assignment_attempt");
 
-            result = doListQuery(cache, sql);
+            result = doListQuery(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -167,7 +167,7 @@ public final class StandardAssignmentAttemptLogic implements IRecLogic<StandardA
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".standard_assignment_attempt WHERE serial_nbr=", sqlIntegerValue(serialNbr));
 
-            result = doSingleQuery(cache, sql);
+            result = doSingleQuery(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -194,7 +194,7 @@ public final class StandardAssignmentAttemptLogic implements IRecLogic<StandardA
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".standard_assignment_attempt WHERE student_id=", sqlStringValue(studentId));
 
-            result = doListQuery(cache, sql);
+            result = doListQuery(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -224,7 +224,7 @@ public final class StandardAssignmentAttemptLogic implements IRecLogic<StandardA
                     ".standard_assignment_attempt WHERE student_id=", sqlStringValue(studentId),
                     " AND course_id=", sqlStringValue(courseId));
 
-            result = doListQuery(cache, sql);
+            result = doListQuery(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -261,7 +261,7 @@ public final class StandardAssignmentAttemptLogic implements IRecLogic<StandardA
                     ",passed=", sqlStringValue(record.passed),
                     " WHERE serial_nbr=", sqlIntegerValue(record.serialNbr));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.TERM, sql);
         }
 
         return result;

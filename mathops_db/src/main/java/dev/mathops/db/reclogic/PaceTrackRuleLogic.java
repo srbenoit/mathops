@@ -2,6 +2,7 @@ package dev.mathops.db.reclogic;
 
 import dev.mathops.db.Cache;
 import dev.mathops.db.EDbProduct;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.rec.PaceTrackRuleRec;
 import dev.mathops.db.rec.TermRec;
@@ -33,7 +34,7 @@ public abstract class PaceTrackRuleLogic implements IRecLogic<PaceTrackRuleRec> 
      */
     public static PaceTrackRuleLogic get(final Cache cache) {
 
-        final EDbProduct type = IRecLogic.getDbType(cache);
+        final EDbProduct type = IRecLogic.getDbType(cache, ESchema.LEGACY);
 
         PaceTrackRuleLogic result = null;
         if (type == EDbProduct.INFORMIX) {
@@ -106,7 +107,7 @@ public abstract class PaceTrackRuleLogic implements IRecLogic<PaceTrackRuleRec> 
                     sqlStringValue(record.paceTrack), ",",
                     sqlStringValue(record.criteria), ")");
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -125,7 +126,7 @@ public abstract class PaceTrackRuleLogic implements IRecLogic<PaceTrackRuleRec> 
                     "  AND pace=", sqlIntegerValue(record.pace),
                     "  AND pace_track=", sqlStringValue(record.paceTrack));
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -138,7 +139,7 @@ public abstract class PaceTrackRuleLogic implements IRecLogic<PaceTrackRuleRec> 
         @Override
         public List<PaceTrackRuleRec> queryAll(final Cache cache) throws SQLException {
 
-            return doListQuery(cache, "SELECT * FROM pace_track_rule");
+            return doListQuery(cache, ESchema.LEGACY, "SELECT * FROM pace_track_rule");
         }
 
         /**
@@ -217,7 +218,7 @@ public abstract class PaceTrackRuleLogic implements IRecLogic<PaceTrackRuleRec> 
                     sqlStringValue(record.paceTrack), ",",
                     sqlStringValue(record.criteria), ")");
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -236,7 +237,7 @@ public abstract class PaceTrackRuleLogic implements IRecLogic<PaceTrackRuleRec> 
                     "  AND pace=", sqlIntegerValue(record.pace),
                     "  AND pace_track=", sqlStringValue(record.paceTrack));
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -249,7 +250,7 @@ public abstract class PaceTrackRuleLogic implements IRecLogic<PaceTrackRuleRec> 
         @Override
         public List<PaceTrackRuleRec> queryAll(final Cache cache) throws SQLException {
 
-            return doListQuery(cache, "SELECT * FROM pace_track_rule");
+            return doListQuery(cache, ESchema.LEGACY, "SELECT * FROM pace_track_rule");
         }
 
         /**

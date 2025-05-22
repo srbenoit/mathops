@@ -69,7 +69,7 @@ public final class StandardsMilestoneLogic implements IRecLogic<StandardsMilesto
                     sqlStringValue(record.msType), ",",
                     sqlDateValue(record.msDate), ")");
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -100,7 +100,7 @@ public final class StandardsMilestoneLogic implements IRecLogic<StandardsMilesto
                     " AND module_nbr=", sqlIntegerValue(record.moduleNbr),
                     " AND ms_type=", sqlStringValue(record.msType));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -125,7 +125,7 @@ public final class StandardsMilestoneLogic implements IRecLogic<StandardsMilesto
         } else {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".standards_milestone");
 
-            result = doListQuery(cache, sql);
+            result = doListQuery(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -160,7 +160,7 @@ public final class StandardsMilestoneLogic implements IRecLogic<StandardsMilesto
                     " AND pace_index=", sqlIntegerValue(paceIndex),
                     " AND module_nbr=", sqlIntegerValue(moduleNbr),
                     " AND ms_type=", sqlStringValue(msType));
-            result = doSingleQuery(cache, sql);
+            result = doSingleQuery(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -191,7 +191,7 @@ public final class StandardsMilestoneLogic implements IRecLogic<StandardsMilesto
                     " AND module_nbr=", sqlIntegerValue(record.moduleNbr),
                     " AND ms_type=", sqlStringValue(record.msType));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.TERM, sql);
         }
 
         return result;

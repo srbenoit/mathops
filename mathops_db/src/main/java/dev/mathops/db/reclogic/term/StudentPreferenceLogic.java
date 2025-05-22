@@ -62,7 +62,7 @@ public final class StudentPreferenceLogic implements IRecLogic<StudentPreference
                     sqlStringValue(record.prefKey), ",",
                     sqlIntegerValue(record.prefValue), ")");
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -90,7 +90,7 @@ public final class StudentPreferenceLogic implements IRecLogic<StudentPreference
                     ".student_preference WHERE student_id=", sqlStringValue(record.studentId),
                     " AND pref_key=", sqlStringValue(record.prefKey));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -115,7 +115,7 @@ public final class StudentPreferenceLogic implements IRecLogic<StudentPreference
         } else {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".student_preference");
 
-            result = doListQuery(cache, sql);
+            result = doListQuery(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -143,7 +143,7 @@ public final class StudentPreferenceLogic implements IRecLogic<StudentPreference
                     ".student_preference WHERE student_id=", sqlStringValue(studentId),
                     " AND pref_key=", sqlStringValue(prefKey));
 
-            result = doSingleQuery(cache, sql);
+            result = doSingleQuery(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -169,7 +169,7 @@ public final class StudentPreferenceLogic implements IRecLogic<StudentPreference
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".student_preference WHERE student_id=", sqlStringValue(studentId));
 
-            result = doListQuery(cache, sql);
+            result = doListQuery(cache, ESchema.TERM, sql);
         }
 
         return result;
@@ -197,7 +197,7 @@ public final class StudentPreferenceLogic implements IRecLogic<StudentPreference
                     " WHERE student_id=", sqlStringValue(record.studentId),
                     " AND pref_key=", sqlStringValue(record.prefKey));
 
-            result = doUpdateOneRow(cache, sql);
+            result = doUpdateOneRow(cache, ESchema.TERM, sql);
         }
 
         return result;

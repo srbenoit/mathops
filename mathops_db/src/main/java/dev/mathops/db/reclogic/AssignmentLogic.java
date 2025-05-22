@@ -36,7 +36,7 @@ public abstract class AssignmentLogic implements IRecLogic<AssignmentRec> {
      */
     public static AssignmentLogic get(final Cache cache) {
 
-        final EDbProduct type = IRecLogic.getDbType(cache);
+        final EDbProduct type = IRecLogic.getDbType(cache, ESchema.LEGACY);
 
         AssignmentLogic result = null;
         if (type == EDbProduct.INFORMIX) {
@@ -135,7 +135,7 @@ public abstract class AssignmentLogic implements IRecLogic<AssignmentRec> {
                     sqlDateValue(record.whenActive == null ? null : record.whenActive.toLocalDate()), ",",
                     sqlDateValue(record.whenPulled == null ? null : record.whenPulled.toLocalDate()), ")");
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -153,7 +153,7 @@ public abstract class AssignmentLogic implements IRecLogic<AssignmentRec> {
                     "DELETE FROM homework WHERE version=",
                     sqlStringValue(record.assignmentId));
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -166,7 +166,7 @@ public abstract class AssignmentLogic implements IRecLogic<AssignmentRec> {
         @Override
         public List<AssignmentRec> queryAll(final Cache cache) throws SQLException {
 
-            return doListQuery(cache, "SELECT * FROM homework");
+            return doListQuery(cache, ESchema.LEGACY, "SELECT * FROM homework");
         }
 
         /**
@@ -193,7 +193,7 @@ public abstract class AssignmentLogic implements IRecLogic<AssignmentRec> {
 
             sql.add(" ORDER BY unit,objective");
 
-            return doListQuery(cache, sql.toString());
+            return doListQuery(cache, ESchema.LEGACY, sql.toString());
         }
 
         /**
@@ -210,7 +210,7 @@ public abstract class AssignmentLogic implements IRecLogic<AssignmentRec> {
             final String sql = SimpleBuilder.concat("SELECT * FROM homework WHERE version=",
                     sqlStringValue(assignmentId));
 
-            return doSingleQuery(cache, sql);
+            return doSingleQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -308,7 +308,7 @@ public abstract class AssignmentLogic implements IRecLogic<AssignmentRec> {
                     sqlDateTimeValue(record.whenActive), ",",
                     sqlDateTimeValue(record.whenPulled), ")");
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -327,7 +327,7 @@ public abstract class AssignmentLogic implements IRecLogic<AssignmentRec> {
             final String sql = SimpleBuilder.concat("DELETE FROM ", schemaPrefix,
                     ".assignment WHERE assignment_id=", sqlStringValue(record.assignmentId));
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -344,7 +344,7 @@ public abstract class AssignmentLogic implements IRecLogic<AssignmentRec> {
 
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".assignment");
 
-            return doListQuery(cache, sql);
+            return doListQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -374,7 +374,7 @@ public abstract class AssignmentLogic implements IRecLogic<AssignmentRec> {
 
             sql.add(" ORDER BY unit,objective");
 
-            return doListQuery(cache, sql.toString());
+            return doListQuery(cache, ESchema.LEGACY, sql.toString());
         }
 
         /**
@@ -393,7 +393,7 @@ public abstract class AssignmentLogic implements IRecLogic<AssignmentRec> {
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".assignment WHERE assignment_id=", sqlStringValue(assignmentId));
 
-            return doSingleQuery(cache, sql);
+            return doSingleQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**

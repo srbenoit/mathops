@@ -3,6 +3,7 @@ package dev.mathops.db.old.logic;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.ESchema;
 import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawMilestoneAppealLogic;
@@ -764,7 +765,7 @@ public enum MilestoneLogic {
      * @param unit      the unit (1 - 5)
      * @param msType    the milestone type (RE or FE; F1 milestones are not appealed separately)
      * @return the number of days of extension added; 0 if the extension has already been used, -1 if this student does
-     *         not exist or does not have accommodation extensions available (if this number is greater than 100, then
+     *         not exist or does not have accommodation extensions available. If this number is greater than 100, then
      *         the value mod 100 is the number of extension days granted, and the value divided by 100 is the number of
      *         extension days they had available, but which would have gone past the end of the term.  In this
      *         situation, the student should get a message that we were not able to add the full accommodation, and that
@@ -922,7 +923,7 @@ public enum MilestoneLogic {
      * @param current the current deadline date
      * @param days    the number of days of extension to give
      * @return the number of days of extension added; 0 if the extension has already been used, -1 if this student does
-     *         not exist or does not have accommodation extensions available (if this number is greater than 100, then
+     *         not exist or does not have accommodation extensions available.  If this number is greater than 100, then
      *         the value mod 100 is the number of extension days granted, and the value divided by 100 is the number of
      *         extension days they had available, but which would have gone past the end of the term.  In this
      *         situation, the student should get a message that we were not able to add the full accommodation, and that
@@ -1064,7 +1065,7 @@ public enum MilestoneLogic {
      * @param objective the objective (1 - 3)
      * @param msType    the milestone type (currently only MA are supported)
      * @return the number of days of extension added; 0 if the extension has already been used, -1 if this student does
-     *         not exist or does not have accommodation extensions available (if this number is greater than 100, then
+     *         not exist or does not have accommodation extensions available.  If this number is greater than 100, then
      *         the value mod 100 is the number of extension days granted, and the value divided by 100 is the number of
      *         extension days they had available, but which would have gone past the end of the term.  In this
      *         situation, the student should get a message that we were not able to add the full accommodation, and that
@@ -1182,7 +1183,7 @@ public enum MilestoneLogic {
      * @param current   the current deadline date
      * @param days      the number of days of extension to give
      * @return the number of days of extension added; 0 if the extension has already been used, -1 if this student does
-     *         not exist or does not have accommodation extensions available (if this number is greater than 100, then
+     *         not exist or does not have accommodation extensions available.  If this number is greater than 100, then
      *         the value mod 100 is the number of extension days granted, and the value divided by 100 is the number of
      *         extension days they had available, but which would have gone past the end of the term.  In this
      *         situation, the student should get a message that we were not able to add the full accommodation, and that

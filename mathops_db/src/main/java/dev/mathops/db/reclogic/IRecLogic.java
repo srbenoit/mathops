@@ -37,13 +37,14 @@ public interface IRecLogic<T extends RecBase> {
     /**
      * Gets the database installation type for a cache.
      *
-     * @param cache the cache
+     * @param cache  the cache
+     * @param schema the schema
      * @return the database installation type
      */
-    static EDbProduct getDbType(final Cache cache) {
+    static EDbProduct getDbType(final Cache cache, final ESchema schema) {
 
         final Profile profile = cache.getProfile();
-        final Facet facet = profile.getFacet(ESchema.LEGACY);
+        final Facet facet = profile.getFacet(schema);
 
         return facet.login.database.server.type;
     }
@@ -162,7 +163,7 @@ public interface IRecLogic<T extends RecBase> {
      * Returns the string needed to include a date in an SQL statement for PostgreSQL.
      *
      * @param dt the date
-     * @return the SQL string, in the form "DATE('12/31/2021')".
+     * @return the SQL string, in the form "'2021-12-31')".
      */
     default String sqlPgDateValue(final LocalDate dt) {
 
@@ -245,25 +246,6 @@ public interface IRecLogic<T extends RecBase> {
 
         return result;
     }
-
-//    /**
-//     * Returns the string needed to include a TermKey in an SQL statement.
-//     *
-//     * @param key the term key
-//     * @return the SQL string, in the form "null" or something of the form "'FA20'".
-//     */
-//    default String sqlTermValue(final TermKey key) {
-//
-//        final String result;
-//
-//        if (key == null) {
-//            result = "null";
-//        } else {
-//            result = "'" + key.shortString + "'";
-//        }
-//
-//        return result;
-//    }
 
     /**
      * Retrieves a String field value from a result set, returning null if the result set indicates a null value was
@@ -382,45 +364,18 @@ public interface IRecLogic<T extends RecBase> {
         return tmp == null ? null : tmp.toLocalDateTime();
     }
 
-//    /**
-//     * Retrieves a TermKey field value from a result set, returning null if the result set indicates a null value was
-//     * present, or the value found could not be parsed.
-//     *
-//     * @param rs   the result set
-//     * @param name the field name
-//     * @return the value
-//     * @throws SQLException if there is an error retrieving the value
-//     */
-//    default TermKey getTermField(final ResultSet rs, final String name) throws SQLException {
-//
-//        TermKey result = null;
-//
-//        try {
-//            final String str = rs.getString(name);
-//            if (str != null) {
-//                final String trim = str.trim();
-//                if (!trim.isEmpty()) {
-//                    result = new TermKey(trim);
-//                }
-//            }
-//        } catch (final IllegalArgumentException ex) {
-//            Log.warning(ex);
-//        }
-//
-//        return result;
-//    }
-
     /**
      * Executes an update SQL statement that SHOULD alter one row.
      *
-     * @param cache the data cache
-     * @param sql   the query SQL
+     * @param cache  the data cache
+     * @param schema the schema
+     * @param sql    the query SQL
      * @return true of the statement succeeded and indicated one row was changed; false otherwise
      * @throws SQLException if there is an error performing the update
      */
-    default boolean doUpdateOneRow(final Cache cache, final String sql) throws SQLException {
+    default boolean doUpdateOneRow(final Cache cache, final ESchema schema, final String sql) throws SQLException {
 
-        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+        final DbConnection conn = cache.checkOutConnection(schema);
 
         try (final Statement stmt = conn.createStatement()) {
             final boolean result = stmt.executeUpdate(sql) == 1;
@@ -440,16 +395,17 @@ public interface IRecLogic<T extends RecBase> {
     /**
      * Performs a query that returns single record.
      *
-     * @param cache the data cache
-     * @param sql   the query SQL
+     * @param cache  the data cache
+     * @param schema the schema
+     * @param sql    the query SQL
      * @return the record; null if none returned
      * @throws SQLException if there is an error performing the query
      */
-    default T doSingleQuery(final Cache cache, final String sql) throws SQLException {
+    default T doSingleQuery(final Cache cache, final ESchema schema, final String sql) throws SQLException {
 
         T result = null;
 
-        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+        final DbConnection conn = cache.checkOutConnection(schema);
 
         try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
@@ -467,22 +423,24 @@ public interface IRecLogic<T extends RecBase> {
     /**
      * Performs a query that returns list of records.
      *
-     * @param cache the data cache
-     * @param sql   the query SQL
+     * @param cache  the data cache
+     * @param schema the schema
+     * @param sql    the query SQL
      * @return the list of records returned
      * @throws SQLException if there is an error performing the query
      */
-    default List<T> doListQuery(final Cache cache, final String sql) throws SQLException {
+    default List<T> doListQuery(final Cache cache, final ESchema schema, final String sql) throws SQLException {
 
         final List<T> result = new ArrayList<>(10);
 
-        final DbConnection conn = cache.checkOutConnection(ESchema.LEGACY);
+        final DbConnection conn = cache.checkOutConnection(schema);
 
         try (final Statement stmt = conn.createStatement();
              final ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
-                result.add(fromResultSet(rs));
+                final T rec = fromResultSet(rs);
+                result.add(rec);
             }
         } finally {
             Cache.checkInConnection(conn);
@@ -523,7 +481,7 @@ public interface IRecLogic<T extends RecBase> {
     /**
      * Gets all records.
      *
-     * @param cache the data cache
+     * @param cache  the data cache
      * @return the list of records
      * @throws SQLException if there is an error accessing the database
      */

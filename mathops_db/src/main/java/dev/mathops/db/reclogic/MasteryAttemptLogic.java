@@ -32,7 +32,7 @@ public abstract class MasteryAttemptLogic implements IRecLogic<MasteryAttemptRec
      */
     public static MasteryAttemptLogic get(final Cache cache) {
 
-        final EDbProduct type = IRecLogic.getDbType(cache);
+        final EDbProduct type = IRecLogic.getDbType(cache, ESchema.LEGACY);
 
         MasteryAttemptLogic result = null;
         if (type == EDbProduct.INFORMIX) {
@@ -157,7 +157,7 @@ public abstract class MasteryAttemptLogic implements IRecLogic<MasteryAttemptRec
                     sqlStringValue(record.isFirstPassed), ",",
                     sqlStringValue(record.examSource), ")");
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -174,7 +174,7 @@ public abstract class MasteryAttemptLogic implements IRecLogic<MasteryAttemptRec
             final String sql = SimpleBuilder.concat("DELETE FROM mastery_attempt WHERE serial_nbr=",
                     sqlIntegerValue(record.serialNbr), " AND exam_id=", sqlStringValue(record.examId));
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -187,7 +187,7 @@ public abstract class MasteryAttemptLogic implements IRecLogic<MasteryAttemptRec
         @Override
         public List<MasteryAttemptRec> queryAll(final Cache cache) throws SQLException {
 
-            return doListQuery(cache, "SELECT * FROM mastery_attempt");
+            return doListQuery(cache, ESchema.LEGACY, "SELECT * FROM mastery_attempt");
         }
 
         /**
@@ -204,7 +204,7 @@ public abstract class MasteryAttemptLogic implements IRecLogic<MasteryAttemptRec
             final String sql = SimpleBuilder.concat("SELECT * FROM mastery_attempt WHERE stu_id=",
                     sqlStringValue(stuId));
 
-            return doListQuery(cache, sql);
+            return doListQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -221,7 +221,7 @@ public abstract class MasteryAttemptLogic implements IRecLogic<MasteryAttemptRec
             final String sql = SimpleBuilder.concat("SELECT * FROM mastery_attempt WHERE exam_id=",
                     sqlStringValue(examId));
 
-            return doListQuery(cache, sql);
+            return doListQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -248,7 +248,7 @@ public abstract class MasteryAttemptLogic implements IRecLogic<MasteryAttemptRec
                         " AND exam_id=", sqlStringValue(examId));
             }
 
-            return doListQuery(cache, sql);
+            return doListQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -267,7 +267,7 @@ public abstract class MasteryAttemptLogic implements IRecLogic<MasteryAttemptRec
             final String sql = SimpleBuilder.concat("SELECT * FROM mastery_attempt WHERE serial_nbr=",
                     sqlIntegerValue(serialNbr), " AND exam_id=", sqlStringValue(examId));
 
-            return doSingleQuery(cache, sql);
+            return doSingleQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -368,7 +368,7 @@ public abstract class MasteryAttemptLogic implements IRecLogic<MasteryAttemptRec
                     sqlStringValue(record.isFirstPassed), ",",
                     sqlStringValue(record.examSource), ")");
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -388,7 +388,7 @@ public abstract class MasteryAttemptLogic implements IRecLogic<MasteryAttemptRec
                     ".mastery_attempt WHERE serial_nbr=", sqlIntegerValue(record.serialNbr),
                     " AND exam_id=", sqlStringValue(record.examId));
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -405,7 +405,7 @@ public abstract class MasteryAttemptLogic implements IRecLogic<MasteryAttemptRec
 
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix, ".mastery_attempt");
 
-            return doListQuery(cache, sql);
+            return doListQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -424,7 +424,7 @@ public abstract class MasteryAttemptLogic implements IRecLogic<MasteryAttemptRec
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".mastery_attempt WHERE stu_id=", sqlStringValue(stuId));
 
-            return doListQuery(cache, sql);
+            return doListQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -443,7 +443,7 @@ public abstract class MasteryAttemptLogic implements IRecLogic<MasteryAttemptRec
             final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
                     ".mastery_attempt WHERE exam_id=", sqlStringValue(examId));
 
-            return doListQuery(cache, sql);
+            return doListQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -472,7 +472,7 @@ public abstract class MasteryAttemptLogic implements IRecLogic<MasteryAttemptRec
                         sqlStringValue(stuId), " AND exam_id=", sqlStringValue(examId));
             }
 
-            return doListQuery(cache, sql);
+            return doListQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -494,7 +494,7 @@ public abstract class MasteryAttemptLogic implements IRecLogic<MasteryAttemptRec
                     ".mastery_attempt WHERE serial_nbr=", sqlIntegerValue(serialNbr),
                     " AND exam_id=", sqlStringValue(examId));
 
-            return doSingleQuery(cache, sql);
+            return doSingleQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**

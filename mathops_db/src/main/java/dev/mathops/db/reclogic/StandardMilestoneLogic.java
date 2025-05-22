@@ -33,7 +33,7 @@ public abstract class StandardMilestoneLogic implements IRecLogic<StandardMilest
      */
     public static StandardMilestoneLogic get(final Cache cache) {
 
-        final EDbProduct type = IRecLogic.getDbType(cache);
+        final EDbProduct type = IRecLogic.getDbType(cache, ESchema.LEGACY);
 
         StandardMilestoneLogic result = null;
         if (type == EDbProduct.INFORMIX) {
@@ -156,7 +156,7 @@ public abstract class StandardMilestoneLogic implements IRecLogic<StandardMilest
                     sqlStringValue(record.msType), ",",
                     sqlDateValue(record.msDate), ")");
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -180,7 +180,7 @@ public abstract class StandardMilestoneLogic implements IRecLogic<StandardMilest
                     " AND objective=", sqlIntegerValue(record.objective),
                     " AND ms_type=", sqlStringValue(record.msType));
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -193,7 +193,7 @@ public abstract class StandardMilestoneLogic implements IRecLogic<StandardMilest
         @Override
         public List<StandardMilestoneRec> queryAll(final Cache cache) throws SQLException {
 
-            return doListQuery(cache, "SELECT * FROM std_milestone");
+            return doListQuery(cache, ESchema.LEGACY, "SELECT * FROM std_milestone");
         }
 
         /**
@@ -219,7 +219,7 @@ public abstract class StandardMilestoneLogic implements IRecLogic<StandardMilest
                     " AND objective=", sqlIntegerValue(record.objective),
                     " AND ms_type=", sqlStringValue(record.msType));
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -241,7 +241,7 @@ public abstract class StandardMilestoneLogic implements IRecLogic<StandardMilest
                     "WHERE pace_track=", sqlStringValue(track),
                     " AND pace=", sqlIntegerValue(pace));
 
-            return doListQuery(cache, sql);
+            return doListQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -265,7 +265,7 @@ public abstract class StandardMilestoneLogic implements IRecLogic<StandardMilest
                     " AND pace=", sqlIntegerValue(pace),
                     " AND pace_index=", sqlIntegerValue(paceIndex));
 
-            return doListQuery(cache, sql);
+            return doListQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -295,7 +295,7 @@ public abstract class StandardMilestoneLogic implements IRecLogic<StandardMilest
                     " AND objective=", sqlIntegerValue(objective),
                     " AND ms_type=", sqlStringValue(msType));
 
-            return doSingleQuery(cache, sql);
+            return doSingleQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -381,7 +381,7 @@ public abstract class StandardMilestoneLogic implements IRecLogic<StandardMilest
                     sqlStringValue(record.msType), ",",
                     sqlDateValue(record.msDate), ")");
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -407,7 +407,7 @@ public abstract class StandardMilestoneLogic implements IRecLogic<StandardMilest
                     " AND objective=", sqlIntegerValue(record.objective),
                     " AND ms_type=", sqlStringValue(record.msType));
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -425,7 +425,7 @@ public abstract class StandardMilestoneLogic implements IRecLogic<StandardMilest
             final String sql = SimpleBuilder.concat("SELECT * FROM ",
                     schemaPrefix, ".std_milestone");
 
-            return doListQuery(cache, sql);
+            return doListQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -453,7 +453,7 @@ public abstract class StandardMilestoneLogic implements IRecLogic<StandardMilest
                     " AND objective=", sqlIntegerValue(record.objective),
                     " AND ms_type=", sqlStringValue(record.msType));
 
-            return doUpdateOneRow(cache, sql);
+            return doUpdateOneRow(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -477,7 +477,7 @@ public abstract class StandardMilestoneLogic implements IRecLogic<StandardMilest
                     "WHERE pace_track=", sqlStringValue(track),
                     " AND pace=", sqlIntegerValue(pace));
 
-            return doListQuery(cache, sql);
+            return doListQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -503,7 +503,7 @@ public abstract class StandardMilestoneLogic implements IRecLogic<StandardMilest
                     " AND pace=", sqlIntegerValue(pace),
                     " AND pace_index=", sqlIntegerValue(paceIndex));
 
-            return doListQuery(cache, sql);
+            return doListQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
@@ -535,7 +535,7 @@ public abstract class StandardMilestoneLogic implements IRecLogic<StandardMilest
                     " AND objective=", sqlIntegerValue(objective),
                     " AND ms_type=", sqlStringValue(msType));
 
-            return doSingleQuery(cache, sql);
+            return doSingleQuery(cache, ESchema.LEGACY, sql);
         }
 
         /**
