@@ -35,6 +35,9 @@ final class Res extends ResBundle {
     static final String LOGIN_CANCEL_BTN = key(index++);
 
     /** A resource key. */
+    static final String LOGIN_ACCESS_TOKEN_BTN = key(index++);
+
+    /** A resource key. */
     static final String LOGIN_NO_PWD_ERR = key(index++);
 
     /** A resource key. */
@@ -64,6 +67,7 @@ final class Res extends ResBundle {
             {LOGIN_PWD_FIELD_LBL, "Password:"},
             {LOGIN_LOGIN_BTN, "Login"},
             {LOGIN_CANCEL_BTN, "Cancel"},
+            {LOGIN_ACCESS_TOKEN_BTN, "Change Canvas Access Token..."},
             {LOGIN_NO_PWD_ERR, "No password entered."},
             {LOGIN_NO_USER_ERR, "No username entered."},
             {LOGIN_NO_DB_ERR, "No database selected."},

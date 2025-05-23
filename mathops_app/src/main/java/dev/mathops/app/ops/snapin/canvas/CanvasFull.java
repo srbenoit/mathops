@@ -57,20 +57,15 @@ public final class CanvasFull extends AbstractFullPanel implements ActionListene
      * Constructs a new {@code CanvasFull}.
      *
      * @param theFrame the owning frame
+     * @param accessToken the Canvas access token
      */
-    CanvasFull(final JFrame theFrame) {
+    CanvasFull(final JFrame theFrame, final String accessToken) {
 
         super();
 
         // TODO: Get these from settings
 
         final String canvasHost = "https://colostate.instructure.com";
-
-        // Steve Benoit:
-        final String accessToken = "3716~6HH7du2ATvBTrFrekY4Ha5CpYdd4ICzANKBRcTsAKSdR9N7gVcJ2wG7H6Us0ysGW";
-
-        // Anita Pattison:
-//        final String accessToken = "3716~gJUDduijP2xqicfn1oKYZom5s5Tji1P4G4pxLy8xmLuRGh5R4tHw645GFcCNHgmB";
 
         final String[] codesOfInterest = {"MATH-117", "MATH-118", "MATH-124", "MATH-125", "MATH-126"};
 

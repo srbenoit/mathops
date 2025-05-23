@@ -49,6 +49,9 @@ final class MainWindow implements Runnable {
     /** The live database schema. */
     private final Facet liveSchema;
 
+    /** The Canvas access token. */
+    private final String accessToken;
+
     /** The data cache. */
     private final Cache cache;
 
@@ -70,12 +73,14 @@ final class MainWindow implements Runnable {
     /**
      * Constructs a new {@code MainWindow}
      *
-     * @param theUsername   the username
-     * @param theSchema     the database schema
-     * @param theCache      the data cache
-     * @param theLiveSchema the live data database schema
+     * @param theUsername    the username
+     * @param theSchema      the database schema
+     * @param theCache       the data cache
+     * @param theLiveSchema  the live data database schema
+     * @param theAccessToken the Canvas access token
      */
-    MainWindow(final String theUsername, final Facet theSchema, final Cache theCache, final Facet theLiveSchema) {
+    MainWindow(final String theUsername, final Facet theSchema, final Cache theCache, final Facet theLiveSchema,
+               final String theAccessToken) {
 
         this.synch = new Object();
         this.username = theUsername;
@@ -83,6 +88,7 @@ final class MainWindow implements Runnable {
         this.cache = theCache;
 
         this.liveSchema = theLiveSchema;
+        this.accessToken = theAccessToken;
     }
 
     /**
@@ -113,8 +119,8 @@ final class MainWindow implements Runnable {
 
         final List<AbstractSnapIn> snapIns = new ArrayList<>(10);
         snapIns.add(new SystemActivitySnapIn(this.schema, this.liveSchema, this.cache));
-        snapIns.add(new MessagingSnapIn(this.schema, this.liveSchema, this.cache, frame));
-        snapIns.add(new CanvasSnapIn(this.schema, this.liveSchema, this.cache, frame));
+        snapIns.add(new MessagingSnapIn(this.schema, this.liveSchema, this.cache, frame, this.accessToken));
+        snapIns.add(new CanvasSnapIn(this.schema, this.liveSchema, this.cache, frame, this.accessToken));
 
         this.dashCard = new DashboardCard(snapIns, this);
         this.content.add(this.dashCard, DASHBOARD);

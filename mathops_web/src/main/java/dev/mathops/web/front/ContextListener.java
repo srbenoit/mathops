@@ -49,6 +49,7 @@ public final class ContextListener implements ServletContextListener { // Public
         final String baseDir = ctx.getInitParameter("zircon-base-dir");
         final String cfgFile = ctx.getInitParameter("zircon-cfg-file");
         final String reports = ctx.getInitParameter("zircon-run-reports");
+        final String canvasToken = ctx.getInitParameter("zircon-canvas-token");
 
         final File baseFile = baseDir == null ? null : new File(baseDir);
         this.installation = Installations.get().getInstallation(baseFile, cfgFile);
@@ -65,6 +66,9 @@ public final class ContextListener implements ServletContextListener { // Public
         Log.config(configFileMsg, cfgFile);
 
         ctx.setAttribute("Installation", this.installation);
+        if (canvasToken != null) {
+            ctx.setAttribute("CanvasToken", canvasToken);
+        }
 
         this.scheduler = Executors.newSingleThreadScheduledExecutor();
         final Cron cron = Cron.getInstance();

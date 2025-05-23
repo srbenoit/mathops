@@ -25,6 +25,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
@@ -47,6 +48,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.prefs.Preferences;
 
 /**
  * A window where the user can choose a server host, and a database cluster (selections are persisted via the
@@ -61,17 +63,23 @@ final class LoginWindow implements Runnable, ActionListener {
     /** An action command. */
     private static final String CANCEL_CMD = "CANCEL";
 
+    /** An action command. */
+    private static final String ACCESS_TOKEN_CMD = "ACCESS_TOKEN";
+
     /** An empty array used to create other arrays. */
     private static final Database[] EMPTY_DB_CONFIG_ARR = new Database[0];
 
     /** The database configuration. */
     private final DatabaseConfig dbConfig;
 
+    /** The initial password. */
+    private final String initialPassword;
+
     /** The initial username. */
     private final String initialUsername;
 
-    /** The initial password. */
-    private final String initialPassword;
+    /** The Canvas access token. */
+    private String accessToken;
 
     /** The frame. */
     private JFrame frame;
@@ -93,11 +101,13 @@ final class LoginWindow implements Runnable, ActionListener {
      *
      * @param theInitialUsername the username to pre-populate (from command-line)
      * @param theInitialPassword the password to pre-populate (from command-line)
+     * @param theAccessToken     the Canvas access token
      */
-    LoginWindow(final String theInitialUsername, final String theInitialPassword) {
+    LoginWindow(final String theInitialUsername, final String theInitialPassword, final String theAccessToken) {
 
         this.initialUsername = theInitialUsername;
         this.initialPassword = theInitialPassword;
+        this.accessToken = theAccessToken;
 
         final String path = System.getProperty("user.dir");
         final File dir = new File(path);
@@ -262,8 +272,15 @@ final class LoginWindow implements Runnable, ActionListener {
         cancelBtn.setActionCommand(CANCEL_CMD);
         cancelBtn.addActionListener(this);
 
+        final JButton accessTokenBtn = new JButton(Res.get(Res.LOGIN_ACCESS_TOKEN_BTN));
+        accessTokenBtn.setFont(buttonFont);
+        accessTokenBtn.setActionCommand(ACCESS_TOKEN_CMD);
+        accessTokenBtn.addActionListener(this);
+
         buttons.add(loginBtn);
         buttons.add(cancelBtn);
+        buttons.add(accessTokenBtn);
+
         content.add(buttons, BorderLayout.PAGE_END);
 
         this.frame.getRootPane().setDefaultButton(loginBtn);
@@ -272,16 +289,6 @@ final class LoginWindow implements Runnable, ActionListener {
 
         final GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
         final GraphicsDevice selected = env.getDefaultScreenDevice();
-
-        // final GraphicsDevice[] devs = env.getScreenDevices();
-        // if (devs.length > 1) {
-        // for (GraphicsDevice test : devs) {
-        // if (test != selected) {
-        // selected = test;
-        // break;
-        // }
-        // }
-        // }
 
         final Rectangle bounds = selected.getDefaultConfiguration().getBounds();
 
@@ -311,88 +318,124 @@ final class LoginWindow implements Runnable, ActionListener {
     public void actionPerformed(final ActionEvent e) {
 
         final String cmd = e.getActionCommand();
-        String err = null;
 
         if (LOGIN_CMD.equals(cmd)) {
-            this.error.setText(CoreConstants.SPC);
-
-            int good = 0;
-
-            final char[] p = this.password.getPassword();
-            if (p == null || p.length == 0) {
-                err = Res.get(Res.LOGIN_NO_PWD_ERR);
-            } else {
-                ++good;
-            }
-
-            final String u = this.username.getText();
-
-            if (u == null || u.isEmpty()) {
-                err = Res.get(Res.LOGIN_NO_USER_ERR);
-            } else {
-                ++good;
-            }
-
-            Data selectedData = null;
-
-            final Database db = (Database) this.dbCombo.getSelectedItem();
-            if (db == null) {
-                err = Res.get(Res.LOGIN_NO_DB_ERR);
-            } else {
-                for (final Data dat : db.getData()) {
-                    if (dat.schema == ESchema.LEGACY) {
-                        selectedData = dat;
-                        ++good;
-                        break;
-                    }
-                }
-
-                if (selectedData == null) {
-                    err = Res.get(Res.LOGIN_NO_SCHEMA_ERR);
-                }
-            }
-
-            if (good == 3 && p != null) {
-                final Profile batchProfile = this.dbConfig.getCodeProfile(Contexts.BATCH_PATH);
-
-                final Facet odsFacet = batchProfile.getFacet(ESchema.ODS);
-                final Facet liveFacet = batchProfile.getFacet(ESchema.LIVE);
-                final Facet extrenFacet = batchProfile.getFacet(ESchema.EXTERN);
-                final Facet analyticsFacet = batchProfile.getFacet(ESchema.ANALYTICS);
-                final Facet legacyFacet = batchProfile.getFacet(ESchema.LEGACY);
-
-                final Profile profile = new Profile("Operations");
-                profile.addFacet(odsFacet);
-                profile.addFacet(liveFacet);
-                profile.addFacet(extrenFacet);
-                profile.addFacet(analyticsFacet);
-
-                final Login login = new Login(db, "ADMIN_LOGIN", u, new String(p));
-                final Facet newFacet = new Facet(legacyFacet.data, login);
-                profile.addFacet(newFacet);
-
-                final Cache cache = new Cache(profile);
-                final DbConnection conn = login.checkOutConnection();
-
-                try {
-                    // The following throws exception if login credentials are invalid
-                    conn.getConnection();
-
-                    new MainWindow(u, newFacet, cache, liveFacet).run();
-                    this.frame.setVisible(false);
-                    this.frame.dispose();
-                } catch (final SQLException ex2) {
-                    Log.warning(ex2.getMessage());
-                    this.error.setText(Res.get(Res.LOGIN_BAD_LOGIN_ERR));
-                } finally {
-                    login.checkInConnection(conn);
-                }
-            } else if (err != null) {
-                this.error.setText(err);
-            }
+            handleLogin();
         } else if (CANCEL_CMD.equals(cmd)) {
             this.frame.setVisible(false);
             this.frame.dispose();
+        } else if (ACCESS_TOKEN_CMD.equals(cmd)) {
+            handleAccessToken();
+        }
+    }
+
+    /**
+     * Handles the "Login" action.
+     */
+    private void handleLogin() {
+
+        String err = null;
+        this.error.setText(CoreConstants.SPC);
+
+        int good = 0;
+
+        final char[] p = this.password.getPassword();
+        if (p == null || p.length == 0) {
+            err = Res.get(Res.LOGIN_NO_PWD_ERR);
+        } else {
+            ++good;
+        }
+
+        final String u = this.username.getText();
+
+        if (u == null || u.isEmpty()) {
+            err = Res.get(Res.LOGIN_NO_USER_ERR);
+        } else {
+            ++good;
+        }
+
+        Data selectedData = null;
+
+        final Database db = (Database) this.dbCombo.getSelectedItem();
+        if (db == null) {
+            err = Res.get(Res.LOGIN_NO_DB_ERR);
+        } else {
+            for (final Data dat : db.getData()) {
+                if (dat.schema == ESchema.LEGACY) {
+                    selectedData = dat;
+                    ++good;
+                    break;
+                }
+            }
+
+            if (selectedData == null) {
+                err = Res.get(Res.LOGIN_NO_SCHEMA_ERR);
+            }
+        }
+
+        if (good == 3 && p != null) {
+            final Profile batchProfile = this.dbConfig.getCodeProfile(Contexts.BATCH_PATH);
+
+            final Facet odsFacet = batchProfile.getFacet(ESchema.ODS);
+            final Facet liveFacet = batchProfile.getFacet(ESchema.LIVE);
+            final Facet extrenFacet = batchProfile.getFacet(ESchema.EXTERN);
+            final Facet analyticsFacet = batchProfile.getFacet(ESchema.ANALYTICS);
+            final Facet legacyFacet = batchProfile.getFacet(ESchema.LEGACY);
+
+            final Profile profile = new Profile("Operations");
+            profile.addFacet(odsFacet);
+            profile.addFacet(liveFacet);
+            profile.addFacet(extrenFacet);
+            profile.addFacet(analyticsFacet);
+
+            final Login login = new Login(db, "ADMIN_LOGIN", u, new String(p));
+            final Facet newFacet = new Facet(legacyFacet.data, login);
+            profile.addFacet(newFacet);
+
+            final Cache cache = new Cache(profile);
+            final DbConnection conn = login.checkOutConnection();
+
+            try {
+                // The following throws exception if login credentials are invalid
+                conn.getConnection();
+
+                new MainWindow(u, newFacet, cache, liveFacet, accessToken).run();
+                this.frame.setVisible(false);
+                this.frame.dispose();
+            } catch (final SQLException ex2) {
+                Log.warning(ex2.getMessage());
+                this.error.setText(Res.get(Res.LOGIN_BAD_LOGIN_ERR));
+            } finally {
+                login.checkInConnection(conn);
+            }
+        } else if (err != null) {
+            this.error.setText(err);
+        }
+    }
+
+    /**
+     * Handles the "Access Token" action.
+     */
+    private void handleAccessToken() {
+
+        final String[] message = {"This program integrates with the Canvas LMS.",
+                "To do this, it requires an 'access token'.",
+                " ",
+                "Log in to your Canvas LMS, and click the [Account] icon on the left side.",
+                "Under 'Approved Integrations' you will need a 'User-Generated' access token.",
+                " ",
+                "If such a token already exists, open it and [Regenerate Token].",
+                "If not, create a new User-Defined token.",
+                " ",
+                "Paste the generated token below."};
+        final String enteredToken = JOptionPane.showInputDialog(null, message, "Canvas LMS Integration",
+                javax.swing.JOptionPane.QUESTION_MESSAGE);
+
+        boolean badToken = enteredToken == null || enteredToken.isBlank();
+        if (!badToken) {
+            final Preferences prefs = Preferences.userNodeForPackage(Operations.class);
+            prefs.put(Operations.ACCESS_TOKEN_KEY, enteredToken);
+            this.accessToken = enteredToken;
         }
     }
 }

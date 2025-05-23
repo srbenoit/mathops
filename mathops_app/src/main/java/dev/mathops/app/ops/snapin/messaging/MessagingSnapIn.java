@@ -28,15 +28,16 @@ public final class MessagingSnapIn extends AbstractSnapIn {
      * @param theLiveSchema the live database schema
      * @param theCache      the data cache
      * @param theFrame      the owning frame
+     * @param accessToken   the Canvas access token
      */
     public MessagingSnapIn(final Facet theSchema, final Facet theLiveSchema, final Cache theCache,
-                           final JFrame theFrame) {
+                           final JFrame theFrame, final String accessToken) {
 
         super(theSchema, theLiveSchema, theCache);
 
         this.thumbnail = new MessagingThumbnail();
         this.dashboardTile = new MessagingDashboard();
-        this.full = new MessagingFull(theCache, this, theFrame);
+        this.full = new MessagingFull(theCache, this, theFrame, accessToken);
     }
 
     /**

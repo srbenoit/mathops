@@ -27,15 +27,16 @@ public final class CanvasSnapIn extends AbstractSnapIn {
      * @param theLiveSchema the live database schema
      * @param theCache      the data cache
      * @param theFrame      the owning frame
+     * @param accessToken   the Canvas access token
      */
     public CanvasSnapIn(final Facet theSchema, final Facet theLiveSchema, final Cache theCache,
-                        final JFrame theFrame) {
+                        final JFrame theFrame, final String accessToken) {
 
         super(theSchema, theLiveSchema, theCache);
 
         this.thumbnail = new CanvasThumbnail();
         this.dashboardTile = new CanvasDashboard();
-        this.full = new CanvasFull(theFrame);
+        this.full = new CanvasFull(theFrame, accessToken);
     }
 
     /**

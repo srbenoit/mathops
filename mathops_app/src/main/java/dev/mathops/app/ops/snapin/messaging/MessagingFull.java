@@ -103,6 +103,9 @@ public final class MessagingFull extends AbstractFullPanel implements ActionList
     /** The owning frame. */
     private final JFrame frame;
 
+    /** The Canvas access token. */
+    private final String accessToken;
+
     /** The message senders. */
     private final CanvasMessageSenders senders;
 
@@ -163,19 +166,22 @@ public final class MessagingFull extends AbstractFullPanel implements ActionList
     /**
      * Constructs a new {@code MessagingFull}.
      *
-     * @param theCache  the data cache
-     * @param theSnapIn the snap-in
-     * @param theFrame  the owning frame
+     * @param theCache       the data cache
+     * @param theSnapIn      the snap-in
+     * @param theFrame       the owning frame
+     * @param theAccessToken the Canvas access token
      */
-    MessagingFull(final Cache theCache, final MessagingSnapIn theSnapIn, final JFrame theFrame) {
+    MessagingFull(final Cache theCache, final MessagingSnapIn theSnapIn, final JFrame theFrame,
+                  final String theAccessToken) {
 
         super();
 
         this.cache = theCache;
         this.snapIn = theSnapIn;
         this.frame = theFrame;
+        this.accessToken = theAccessToken;
 
-        this.senders = new CanvasMessageSenders(theCache);
+        this.senders = new CanvasMessageSenders(theCache, theAccessToken);
 
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -424,14 +430,8 @@ public final class MessagingFull extends AbstractFullPanel implements ActionList
 
         final String canvasHost = "https://colostate.instructure.com";
 
-        // Steve Benoit:
-        // final String accessToken = "3716~6HH7du2ATvBTrFrekY4Ha5CpYdd4ICzANKBRcTsAKSdR9N7gVcJ2wG7H6Us0ysGW";
-
-        // Anita Pattison:
-        final String accessToken = "3716~gJUDduijP2xqicfn1oKYZom5s5Tji1P4G4pxLy8xmLuRGh5R4tHw645GFcCNHgmB";
-
-        final CanvasUserIDScanner scanner = new CanvasUserIDScanner(this.snapIn.getCache(), canvasHost, accessToken,
-                this.progress, this.scanCanvasIds, this.statusBarLabel);
+        final CanvasUserIDScanner scanner = new CanvasUserIDScanner(this.snapIn.getCache(), canvasHost,
+                this.accessToken, this.progress, this.scanCanvasIds, this.statusBarLabel);
         scanner.execute();
     }
 
@@ -447,14 +447,8 @@ public final class MessagingFull extends AbstractFullPanel implements ActionList
 
         final String canvasHost = "https://colostate.instructure.com";
 
-        // Steve Benoit:
-        // final String accessToken = "3716~6HH7du2ATvBTrFrekY4Ha5CpYdd4ICzANKBRcTsAKSdR9N7gVcJ2wG7H6Us0ysGW";
-
-        // Anita Pattison:
-        final String accessToken = "3716~gJUDduijP2xqicfn1oKYZom5s5Tji1P4G4pxLy8xmLuRGh5R4tHw645GFcCNHgmB";
-
         final CanvasConversationImporter importer =
-                new CanvasConversationImporter(this.snapIn.getCache(), canvasHost, accessToken, this.progress,
+                new CanvasConversationImporter(this.snapIn.getCache(), canvasHost, this.accessToken, this.progress,
                         this.importCanvasConversations, this.statusBarLabel);
         importer.execute();
     }
@@ -860,7 +854,7 @@ public final class MessagingFull extends AbstractFullPanel implements ActionList
                         final int openParen = oldTitle.indexOf('(');
                         if (openParen != -1) {
                             final String newTitle = oldTitle.substring(0, openParen + 1) + numStus + " stus, "
-                                    + numMsgs + " msgs)";
+                                                    + numMsgs + " msgs)";
                             child.setUserObject(newTitle);
                             this.treeModel.nodeChanged(child);
                         }
