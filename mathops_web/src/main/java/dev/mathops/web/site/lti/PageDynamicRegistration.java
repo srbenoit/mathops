@@ -1,6 +1,8 @@
 package dev.mathops.web.site.lti;
 
+import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
+import dev.mathops.db.cfg.Site;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.parser.ParsingException;
 import dev.mathops.text.parser.json.JSONObject;
@@ -12,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -20,9 +23,17 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Enumeration;
+
+import static javax.swing.text.html.FormSubmitEvent.MethodType.POST;
 
 /**
  * The page that manages the CSU Precalculus Program as an LTI 1.3 tool.
+ *
+ * <p>
+ * The process followed here is documented at <a
+ * href='https://www.imsglobal.org/spec/lti-dr/v1p0#overview'>https://www.imsglobal.org/spec/lti-dr/v1p0#overview</a>.
  */
 enum PageDynamicRegistration {
     ;
@@ -30,100 +41,259 @@ enum PageDynamicRegistration {
     /**
      * Responds to a GET of "lti13_dynamic_registration.html".
      *
+     * @param site the owning site
      * @param req  the request
      * @param resp the response
      * @throws IOException if there is an error writing the response
      */
-    static void doDynamicRegistration(final HttpServletRequest req, final HttpServletResponse resp) throws IOException {
+    static void doDynamicRegistration(final LtiSite site, final HttpServletRequest req,
+                                      final HttpServletResponse resp) throws IOException {
 
         Log.info("GET request to LTI 1.3 Dynamic Registration");
+
+        String registrationToken = null;
+
+        final Enumeration<String> paramNames = req.getParameterNames();
+        while (paramNames.hasMoreElements()) {
+            final String name = paramNames.nextElement();
+            final String[] values = req.getParameterValues(name);
+            Log.info("  Parameter {", name, "} = ", Arrays.toString(values));
+            if ("registration_token".equals(name)) {
+                registrationToken = values[0];
+            }
+        }
+        final Enumeration<String> headerNames = req.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            final String name = headerNames.nextElement();
+            final String value = req.getHeader(name);
+            Log.info("  Header {", name, "} = ", value);
+        }
 
         final String openIdUrlFromServer = req.getParameter("openid_configuration");
 
         if (openIdUrlFromServer == null) {
-            showErrorPage(req, resp, "Request did not include required 'openid_configuration' parameter.");
+            final String msg = "Request did not include required 'openid_configuration' parameter.";
+            Log.warning(msg);
+            showErrorPage(req, resp, msg);
         } else {
-            String openIdUrl = openIdUrlFromServer;
-
-            // If we have a non-standard port, we need to add that to the URL.  We find the nonstandard port in the
-            // "referer" header in the request
-            final String referer = req.getHeader("referer");
-            if (referer != null) {
-                // Referer with a nonstandard port should be of the form "https://host.domain:####/"
-                final int firstColon = referer.indexOf(":");
-                final int lastColon = referer.lastIndexOf(":");
-                if (lastColon > firstColon) {
-                    final String port = referer.substring(lastColon);
-                    final int hostEnd = openIdUrlFromServer.indexOf("/api");
-                    if (hostEnd > 0) {
-                        openIdUrl = openIdUrlFromServer.substring(0, hostEnd) + port
-                                    + openIdUrlFromServer.substring(hostEnd + 1);
-                    }
+            if (registrationToken == null) {
+                final int pos = openIdUrlFromServer.indexOf("registration_token=");
+                if (pos > 0) {
+                    registrationToken = openIdUrlFromServer.substring(pos + 19);
                 }
             }
 
-            // Fetch the OpenID configuration from Canvas
-            final String openIdConfigContent = fetchContent(openIdUrl);
-            if (openIdConfigContent == null) {
-                showErrorPage(req, resp, "Unable to retrieve OpenID configuration from LTI platform.");
+            if (registrationToken == null) {
+                final String msg = "No registration token in registration initiating request.";
+                Log.warning(msg);
+                showErrorPage(req, resp, msg);
             } else {
-                Log.fine(openIdConfigContent);
-                try {
-                    final Object parsed = JSONParser.parseJSON(openIdConfigContent);
-                    if (parsed instanceof final JSONObject json) {
-                        final String issuer = json.getStringProperty("issuer");
+                String openIdUrl = openIdUrlFromServer;
 
-                        if (issuer == null) {
-                            showErrorPage(req, resp, "OpenID configuration from LTI platform does not specify issuer.");
-                        } else if (referer.startsWith(issuer)) {
-                            generateDynamicRegistrationPage(req, resp, json);
-                        } else {
-                            showErrorPage(req, resp, "OpenID configuration from LTI platform has invalid issuer.");
+                // openIdUrl format: "https://domino.math.colostate.edu/api/lt...
+
+                // If we have a non-standard port, we need to add that to the URL.  We find the nonstandard port in the
+                // "referer" header in the request, such as "Referer: https://domino.math.colostate.edu:20443/"
+                final String referer = req.getHeader("referer");
+                if (referer != null) {
+                    // Referer with a nonstandard port should be of the form "https://host.domain:####/"
+                    final int firstColon = referer.indexOf("://");
+                    final int lastColon = referer.lastIndexOf(":");
+                    if (lastColon > firstColon) {
+                        String portStr = referer.substring(lastColon);
+                        if (portStr.endsWith("/")) {
+                            final int portLen = portStr.length();
+                            portStr = portStr.substring(0, portLen - 1);
                         }
-                    } else {
-                        showErrorPage(req, resp, "Unable to interpret OpenID configuration from LTI platform.");
+                        Log.info("Detected non-standard server port number: ", portStr);
+
+                        final int hostStart = openIdUrlFromServer.indexOf("://");
+                        final int hostEnd = openIdUrlFromServer.indexOf("/", hostStart + 4);
+                        if (hostEnd > 0) {
+                            openIdUrl = openIdUrlFromServer.substring(0, hostEnd) + portStr
+                                        + openIdUrlFromServer.substring(hostEnd);
+                        }
                     }
-                } catch (final ParsingException ex) {
-                    Log.warning(ex);
-                    showErrorPage(req, resp, "Unable to parse OpenID configuration from LTI platform.");
+                }
+
+                // Fetch the OpenID configuration from Canvas
+                Log.info("Fetching OpenID configuration from ", openIdUrl);
+                final String openIdConfigContent = fetchContent(openIdUrl);
+
+                if (openIdConfigContent == null) {
+                    final String msg = "Unable to retrieve OpenID configuration from LTI platform.";
+                    Log.warning(msg);
+                    showErrorPage(req, resp, msg);
+                } else {
+                    Log.fine(openIdConfigContent);
+
+                    try {
+                        final Object parsed = JSONParser.parseJSON(openIdConfigContent);
+                        if (parsed instanceof final JSONObject json) {
+                            final String issuer = json.getStringProperty("issuer");
+
+                            if (issuer == null) {
+                                final String msg = "OpenID configuration from LTI platform does not specify issuer.";
+                                Log.warning(msg);
+                                showErrorPage(req, resp, msg);
+                            } else if (openIdUrl.startsWith(issuer)) {
+                                performClientRegistration(site, req, resp, issuer, registrationToken, json);
+                            } else {
+                                final String msg = "OpenID configuration from LTI platform has invalid issuer.";
+                                Log.warning(msg);
+                                showErrorPage(req, resp, msg);
+                            }
+                        } else {
+                            final String msg = "Unable to interpret OpenID configuration from LTI platform.";
+                            Log.warning(msg);
+                            showErrorPage(req, resp, msg);
+                        }
+                    } catch (final ParsingException ex) {
+                        final String msg = "Unable to parse OpenID configuration from LTI platform.";
+                        Log.warning(msg, ex);
+                        showErrorPage(req, resp, msg);
+                    }
                 }
             }
         }
     }
 
     /**
-     * Generates the content of the dynamic registration page.
+     * Performs the client registration.
      *
-     * @param req  the request
-     * @param resp the response
-     * @param json the parsed JSON OpenID configuration response
+     * <p>
+     * This portion of the process is documented in
+     * <a href='https://openid.net/specs/openid-connect-registration-1_0.html#ClientRegistration'>
+     * https://openid.net/specs/openid-connect-registration-1_0.html#ClientRegistration</a>.
+     *
+     * <p>
+     * The OAuth2 portion of the process is defined in <a
+     * href='https://datatracker.ietf.org/doc/html/rfc6749#section-1.2'>
+     * https://datatracker.ietf.org/doc/html/rfc6749#section-1.2</a>
+     * </p>
+     *
+     * @param req               the request
+     * @param resp              the response
+     * @param issuer            the issuer
+     * @param registrationToken the registration token from the registration initiation request
+     * @param json              the parsed JSON OpenID configuration response
      * @throws IOException if there is an error writing the response
      */
-    private static void generateDynamicRegistrationPage(final HttpServletRequest req, final HttpServletResponse resp,
-                                                        final JSONObject json) throws IOException {
+    private static void performClientRegistration(final LtiSite site, final HttpServletRequest req,
+                                                  final HttpServletResponse resp,
+                                                  final String issuer, final String registrationToken,
+                                                  final JSONObject json) throws IOException {
 
-        final Object platformConfigObj = json.getProperty("https://purl.imsglobal.org/spec/lti-platform-configuration");
-        if (platformConfigObj instanceof final JSONObject platformConfig) {
-            final String productFamilyCode = platformConfig.getStringProperty("product_family_code");
-            final String version = platformConfig.getStringProperty("version");
+        Log.info("Performing client registration.");
 
-            final HtmlBuilder htm = new HtmlBuilder(2000);
-
-            Page.startNofooterPage(htm, "CSU Precalculus Program - Dynamic Registration", null, false, 0, null, false,
-                    true);
-
-            htm.sH(1).add("Precalculus Program").eH(1);
-            htm.sH(2).add("LTI 1.3 Developer Key - Dynamic Registration").eH(2);
-
-            htm.sP().add("Detected LTI platform: ", productFamilyCode, " (", version, ")").eP();
-
-            Page.endNoFooterPage(htm, true);
-
-            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
+        // Send a "Client Registration Request" to the authorization endpoint in the JSON object
+        final String authEndpoint = json.getStringProperty("authorization_endpoint");
+        if (authEndpoint == null) {
+            final String msg = "OpenID configuration did not include authorization_endpoint.";
+            Log.warning(msg);
+            showErrorPage(req, resp, msg);
         } else {
-            showErrorPage(req, resp, "OpenID configuration from LTI platform did not contain platform configuration.");
+            final Object scopes = json.getProperty("scopes_supported");
+            if (scopes instanceof Object[] scopesArray) {
 
+                // Create the Client Registration Request:
+            } else {
+                final String msg = "OpenID configuration did not include scopes_supported array.";
+                Log.warning(msg);
+                showErrorPage(req, resp, msg);
+            }
         }
+    }
+
+    private void foo(final LtiSite site, final String issuer, final String registrationToken,
+                     final String authEndpoint, final Object[] scopesSupported) throws IOException {
+
+        final Site siteObj = site.getSite();
+        final String host = siteObj.getHost();
+        final String path = siteObj.path;
+        final String redirect = "https://" + host + path + "/lti13_registration_callback.json";
+        final String initiate = "https://" + host + path + "/lti13_launch.json";
+        final String jwks = "https://" + host + path + "/lti13_jwks.json";
+
+        final HtmlBuilder contentJson = new HtmlBuilder(500);
+        contentJson.addln("{");
+        contentJson.addln("  \"application_type\":\"web\",");
+        contentJson.addln("  \"response_types\":\"id_token\",");
+        contentJson.addln("  \"grant_types\":[\"implict\", \"client_credentials\"],");
+        contentJson.addln("  \"redirect_uris\":[\"" + redirect + "\"],");
+        contentJson.addln("  \"initiate_login_uri\":\"" + initiate + "\",");
+        contentJson.addln("  \"jwks_uri\":\"" + jwks + "\",");
+        contentJson.addln("  \"client_name\":\"CSU Mathematics Program\",");
+        contentJson.addln("  \"token_endpoint_auth_method\":\"private_key_jwt\",");
+
+        // Generate  list of requested scopes as a subset of the list provided by Canvas
+        // This tool can use these scopes:
+        // 1. Create and view assignment data in the gradebook associated with the tool
+        //    "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem"
+        // 2. View submission data for assignments associated with the tool.
+        //    "https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly"
+        // 3. Create and update submission results for assignments associated with the tool
+        //    "https://purl.imsglobal.org/spec/lti-ags/scope/score"
+        // 4. Retrieve user data associated with the context the tool is installed in
+        //    "https://purl.imsglobal.org/spec/lti-nrps/scope/contextmembership.readonly",
+        // 5. Lookup Account information
+        //    "https://canvas.instructure.com/lti/account_lookup/scope/show"
+
+        contentJson.add("  \"scope\":\"");
+        boolean space = false;
+        for (final Object scope : scopesSupported) {
+            if ("https://purl.imsglobal.org/spec/lti-ags/scope/lineitem".equals(scope)
+                || "https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly".equals(scope)
+                || "https://purl.imsglobal.org/spec/lti-ags/scope/score".equals(scope)
+                || "https://purl.imsglobal.org/spec/lti-nrps/scope/contextmembership.readonly".equals(scope)
+                || "https://canvas.instructure.com/lti/account_lookup/scope/show".equals(scope)) {
+                if (space) {
+                    contentJson.add(CoreConstants.SPC);
+                }
+                contentJson.add(scope);
+                space = true;
+            }
+        }
+        contentJson.addln("\",");
+
+        contentJson.addln("  \"https://purl.imsglobal.org/spec/lti-tool-configuration\":{");
+        contentJson.addln("    \"domain\":\"math.colostate.edu\",");
+        contentJson.addln("    \"description\":\"Integration of Mathematics courses and assessments into Canvas.\",");
+        contentJson.addln("    \"claims\": [\"iss\", \"sub\", \"name\", \"given_name\", \"family_name\"],");
+
+        contentJson.addln("  }");
+        contentJson.addln("}");
+
+        final int slash = issuer.indexOf("://");
+        final String issuerHost = slash == -1 ? issuer : issuer.substring(slash + 3);
+
+        final URL url = new URL(authEndpoint);
+        final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Content-Type", "application/json");
+        connection.setRequestProperty("Accept", "application/json");
+        connection.setRequestProperty("Host", issuerHost);
+        connection.setRequestProperty("Authorization", "Bearer " + registrationToken);
+
+        connection.setUseCaches(false);
+        connection.setDoOutput(true);
+
+        //Send request
+        DataOutputStream wr = new DataOutputStream(
+                connection.getOutputStream());
+        wr.writeBytes(urlParameters);
+        wr.close();
+
+        //Get Response
+        InputStream is = connection.getInputStream();
+        BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+        StringBuilder response = new StringBuilder(); // or StringBuffer if Java version 5+
+        String line;
+        while ((line = rd.readLine()) != null) {
+            response.append(line);
+            response.append('\r');
+        }
+        rd.close();
     }
 
     /**

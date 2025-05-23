@@ -1,8 +1,7 @@
-package dev.mathops.web.site.lti.canvascourse;
+package dev.mathops.web.site.lti;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.text.builder.HtmlBuilder;
-import dev.mathops.web.site.lti.LtiPage;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
@@ -15,7 +14,7 @@ import java.util.Map;
 /**
  * A handler for redirects from the OAuth2 process to authenticate through Canvas and obtain an access token.
  */
-enum OAuth2Response {
+public enum OAuth2Response {
     ;
 
     /** LMS host running Canvas. */
@@ -28,7 +27,7 @@ enum OAuth2Response {
     // static final String CONSUMER_KEY = "c4w0958w30jraodsf";
 
     /** Shared secret. */
-    static final String SHARED_SECRET = "sDar_otmGeolh~SADSge";
+    public static final String SHARED_SECRET = "sDar_otmGeolh~SADSge";
 
     /** Developer Key. */
     static final String DEV_KEY = "c2bNHX2Lh33RVp4ADfvTjJllpwghuLVV9kQb0YfeRV2WHUITj7h8Bcnc7sOgC7I2";

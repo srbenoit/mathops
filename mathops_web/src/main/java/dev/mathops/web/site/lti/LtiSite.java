@@ -75,9 +75,20 @@ public final class LtiSite extends CourseSite {
         Log.info("GET ", subpath);
 
         if ("lti13_dynamic_registration.html".equals(subpath)) {
-            PageDynamicRegistration.doDynamicRegistration(req, resp);
+            PageDynamicRegistration.doDynamicRegistration(this, req, resp);
+
         } else if ("lti13_dev_key_configuration.json".equals(subpath)) {
             PageLTI13.doGetDevKeyConfigurationJson(req, resp);
+        } else if ("lti13_registration_callback.json".equals(subpath)) {
+            // TODO:
+        } else if ("lti13_launch.json".equals(subpath)) {
+            // TODO:
+        } else if ("lti13_jwks.json".equals(subpath)) {
+            // TODO:
+
+            //
+            //
+            //
 
         } else if ("basestyle.css".equals(subpath) || "secure/basestyle.css".equals(subpath)) {
             sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));

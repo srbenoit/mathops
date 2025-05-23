@@ -7,6 +7,7 @@ import dev.mathops.text.parser.Base64;
 import dev.mathops.web.site.lti.EOAuthRequestVerifyResult;
 import dev.mathops.web.site.lti.HmacSha1;
 
+import dev.mathops.web.site.lti.OAuth2Response;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;

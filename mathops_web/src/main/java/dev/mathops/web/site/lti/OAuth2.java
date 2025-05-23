@@ -1,11 +1,9 @@
-package dev.mathops.web.site.lti.canvascourse;
+package dev.mathops.web.site.lti;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.parser.Base64;
-import dev.mathops.web.site.lti.EOAuthRequestVerifyResult;
-import dev.mathops.web.site.lti.HmacSha1;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
