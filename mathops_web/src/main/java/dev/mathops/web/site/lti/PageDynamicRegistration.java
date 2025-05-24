@@ -14,10 +14,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -25,8 +25,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Enumeration;
-
-import static javax.swing.text.html.FormSubmitEvent.MethodType.POST;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The page that manages the CSU Precalculus Program as an LTI 1.3 tool.
@@ -52,6 +52,8 @@ enum PageDynamicRegistration {
         Log.info("GET request to LTI 1.3 Dynamic Registration");
 
         String registrationToken = null;
+        String host = null;
+        final String path = site.getSite().path;
 
         final Enumeration<String> paramNames = req.getParameterNames();
         while (paramNames.hasMoreElements()) {
@@ -67,6 +69,9 @@ enum PageDynamicRegistration {
             final String name = headerNames.nextElement();
             final String value = req.getHeader(name);
             Log.info("  Header {", name, "} = ", value);
+            if ("host".equals(name)) {
+                host = value;
+            }
         }
 
         final String openIdUrlFromServer = req.getParameter("openid_configuration");
@@ -137,7 +142,7 @@ enum PageDynamicRegistration {
                                 Log.warning(msg);
                                 showErrorPage(req, resp, msg);
                             } else if (openIdUrl.startsWith(issuer)) {
-                                performClientRegistration(site, req, resp, issuer, registrationToken, json);
+                                performClientRegistration(host, path, req, resp, issuer, registrationToken, json);
                             } else {
                                 final String msg = "OpenID configuration from LTI platform has invalid issuer.";
                                 Log.warning(msg);
@@ -172,6 +177,8 @@ enum PageDynamicRegistration {
      * https://datatracker.ietf.org/doc/html/rfc6749#section-1.2</a>
      * </p>
      *
+     * @param host              the host name
+     * @param path              the site path
      * @param req               the request
      * @param resp              the response
      * @param issuer            the issuer
@@ -179,7 +186,7 @@ enum PageDynamicRegistration {
      * @param json              the parsed JSON OpenID configuration response
      * @throws IOException if there is an error writing the response
      */
-    private static void performClientRegistration(final LtiSite site, final HttpServletRequest req,
+    private static void performClientRegistration(final String host, final String path, final HttpServletRequest req,
                                                   final HttpServletResponse resp,
                                                   final String issuer, final String registrationToken,
                                                   final JSONObject json) throws IOException {
@@ -187,16 +194,23 @@ enum PageDynamicRegistration {
         Log.info("Performing client registration.");
 
         // Send a "Client Registration Request" to the authorization endpoint in the JSON object
-        final String authEndpoint = json.getStringProperty("authorization_endpoint");
-        if (authEndpoint == null) {
-            final String msg = "OpenID configuration did not include authorization_endpoint.";
+        final String regEndpoint = json.getStringProperty("registration_endpoint");
+        if (regEndpoint == null) {
+            final String msg = "OpenID configuration did not include registration_endpoint.";
             Log.warning(msg);
             showErrorPage(req, resp, msg);
         } else {
             final Object scopes = json.getProperty("scopes_supported");
             if (scopes instanceof Object[] scopesArray) {
-
-                // Create the Client Registration Request:
+                final Object claims = json.getProperty("claims_supported");
+                if (claims instanceof Object[] claimsArray) {
+                    // Create the Client Registration Request:
+                    foo(host, path, issuer, registrationToken, regEndpoint, scopesArray, claimsArray);
+                } else {
+                    final String msg = "OpenID configuration did not include claims_supported array.";
+                    Log.warning(msg);
+                    showErrorPage(req, resp, msg);
+                }
             } else {
                 final String msg = "OpenID configuration did not include scopes_supported array.";
                 Log.warning(msg);
@@ -205,24 +219,24 @@ enum PageDynamicRegistration {
         }
     }
 
-    private void foo(final LtiSite site, final String issuer, final String registrationToken,
-                     final String authEndpoint, final Object[] scopesSupported) throws IOException {
+    private static void foo(final String host, final String path, final String issuer, final String registrationToken,
+                            final String regEndpoint, final Object[] scopesSupported,
+                            final Object[] claimsSupported) throws IOException {
 
-        final Site siteObj = site.getSite();
-        final String host = siteObj.getHost();
-        final String path = siteObj.path;
-        final String redirect = "https://" + host + path + "/lti13_registration_callback.json";
+        final String redirect1 = "https://" + host + path + "/lti13_registration_callback1.json";
+        final String redirect2 = "https://" + host + path + "/lti13_registration_callback2.json";
         final String initiate = "https://" + host + path + "/lti13_launch.json";
         final String jwks = "https://" + host + path + "/lti13_jwks.json";
+        final String target = "https://" + host + path + "/lti13_target.json";
 
         final HtmlBuilder contentJson = new HtmlBuilder(500);
         contentJson.addln("{");
         contentJson.addln("  \"application_type\":\"web\",");
-        contentJson.addln("  \"response_types\":\"id_token\",");
+        contentJson.addln("  \"response_types\":[\"id_token\"],");
         contentJson.addln("  \"grant_types\":[\"implict\", \"client_credentials\"],");
-        contentJson.addln("  \"redirect_uris\":[\"" + redirect + "\"],");
-        contentJson.addln("  \"initiate_login_uri\":\"" + initiate + "\",");
-        contentJson.addln("  \"jwks_uri\":\"" + jwks + "\",");
+        contentJson.addln("  \"redirect_uris\":[\"", redirect1, "\",\"", redirect2, "\"],");
+        contentJson.addln("  \"initiate_login_uri\":\"", initiate, "\",");
+        contentJson.addln("  \"jwks_uri\":\"", jwks, "\",");
         contentJson.addln("  \"client_name\":\"CSU Mathematics Program\",");
         contentJson.addln("  \"token_endpoint_auth_method\":\"private_key_jwt\",");
 
@@ -259,41 +273,78 @@ enum PageDynamicRegistration {
         contentJson.addln("  \"https://purl.imsglobal.org/spec/lti-tool-configuration\":{");
         contentJson.addln("    \"domain\":\"math.colostate.edu\",");
         contentJson.addln("    \"description\":\"Integration of Mathematics courses and assessments into Canvas.\",");
-        contentJson.addln("    \"claims\": [\"iss\", \"sub\", \"name\", \"given_name\", \"family_name\"],");
-
+        contentJson.addln("    \"target_link_uri\":\"", target, "\",");
+        contentJson.add("    \"claims\":[");
+        boolean comma = false;
+        for (final Object claim : claimsSupported) {
+            if ("sub".equals(claim) || "name".equals(claim) || "locale".equals(claim)) {
+                if (comma) {
+                    contentJson.add(CoreConstants.COMMA);
+                }
+                contentJson.add("\"", claim, "\"");
+                comma = true;
+            }
+        }
+        contentJson.addln("],");
+        contentJson.addln("    \"messages\":[");
+        contentJson.addln("      {");
+        contentJson.addln("        \"type\":\"LtiDeepLinkingRequest\",");
+        contentJson.addln("        \"label\":\"Just Stand There.\",");
+        contentJson.addln("        \"placements\":[\"ContentArea\"],");
+        contentJson.addln("        \"supported_types\":[\"ltiResourceLink\"]");
+        contentJson.addln("      },");
+        contentJson.addln("      {");
+        contentJson.addln("        \"type\":\"LtiDeepLinkingRequest\",");
+        contentJson.addln("        \"label\":\"Do Something!\",");
+        contentJson.addln("        \"placements\":[\"RichTextEditor\"],");
+        contentJson.addln("        \"roles\":[\"http://purl.imsglobal.org/vocab/lis/v2/membership#ContentDeveloper\", ",
+                "\"http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor\"],");
+        contentJson.addln("        \"supported_types\":[\"file\"],");
+        contentJson.addln("        \"supported_media_types\":[\"image/*\"]");
+        contentJson.addln("      }");
+        contentJson.addln("    ]");
         contentJson.addln("  }");
         contentJson.addln("}");
+
+        final String contentStr = contentJson.toString();
+        Log.fine(contentStr);
+        final byte[] contentBytes = contentStr.getBytes(StandardCharsets.UTF_8);
+        final int contentLen = contentBytes.length;
+        final String contentLenStr = Integer.toString(contentLen);
 
         final int slash = issuer.indexOf("://");
         final String issuerHost = slash == -1 ? issuer : issuer.substring(slash + 3);
 
-        final URL url = new URL(authEndpoint);
+        final URL url = new URL(regEndpoint);
         final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "application/json");
         connection.setRequestProperty("Accept", "application/json");
         connection.setRequestProperty("Host", issuerHost);
         connection.setRequestProperty("Authorization", "Bearer " + registrationToken);
+        connection.setRequestProperty("Content-Length", contentLenStr);
 
         connection.setUseCaches(false);
         connection.setDoOutput(true);
 
-        //Send request
-        DataOutputStream wr = new DataOutputStream(
-                connection.getOutputStream());
-        wr.writeBytes(urlParameters);
-        wr.close();
-
-        //Get Response
-        InputStream is = connection.getInputStream();
-        BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-        StringBuilder response = new StringBuilder(); // or StringBuffer if Java version 5+
-        String line;
-        while ((line = rd.readLine()) != null) {
-            response.append(line);
-            response.append('\r');
+        try (final OutputStream out = connection.getOutputStream()) {
+            out.write(contentBytes);
         }
-        rd.close();
+
+        final int status = connection.getResponseCode();
+        final String msg = connection.getResponseMessage();
+        Log.info("Response Status is " + status + ": " + msg);
+
+        final Map<String, List<String>> map = connection.getHeaderFields();
+        for (final Map.Entry<String, List<String>> entry : map.entrySet()) {
+            Log.warning("    ", entry.getKey(), ": ", entry.getValue());
+        }
+
+//        // Get Response
+        final Object content = connection.getContent();
+
+        Log.info("Response to Client Registration request:");
+        Log.fine(content.toString());
     }
 
     /**
