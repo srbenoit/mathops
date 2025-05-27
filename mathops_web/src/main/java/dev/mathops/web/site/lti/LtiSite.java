@@ -17,6 +17,8 @@ import dev.mathops.web.site.BasicCss;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.course.CourseSite;
+import dev.mathops.web.site.lti.canvascourse.PageDynamicRegistration;
+import dev.mathops.web.site.lti.canvascourse.PageLaunch;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -75,15 +77,20 @@ public final class LtiSite extends CourseSite {
         Log.info("GET ", subpath);
 
         if ("lti13_dynamic_registration.html".equals(subpath)) {
-            PageDynamicRegistration.doDynamicRegistration(this, req, resp);
+            // This page is called when the Canvas administrator creates a new Developer Key using "LTI Registration"
+            // It presents a form that POSTS to the same URL if the user accepts the registration.
+            PageDynamicRegistration.doGet(this, req, resp);
 
+            //
+            //
+            //
         } else if ("lti13_dev_key_configuration.json".equals(subpath)) {
             PageLTI13.doGetDevKeyConfigurationJson(req, resp);
-        } else if ("lti13_registration_callback.json".equals(subpath)) {
+        } else if ("lti13_registration_callback1".equals(subpath)) {
             // TODO:
-        } else if ("lti13_launch.json".equals(subpath)) {
+        } else if ("lti13_registration_callback2".equals(subpath)) {
             // TODO:
-        } else if ("lti13_jwks.json".equals(subpath)) {
+        } else if ("lti13_jwks".equals(subpath)) {
             // TODO:
 
             //
@@ -96,7 +103,8 @@ public final class LtiSite extends CourseSite {
             sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(getClass(), "style.css", true));
         } else if ("course.css".equals(subpath)) {
             BasicCss.getInstance().serveCss(req, resp);
-        } else if ("favicon.ico".equals(subpath) || "secure/favicon.ico".equals(subpath)) {
+        } else if ("favicon.ico".equals(subpath) || "secure/favicon.ico".equals(subpath)
+                   || "lti_logo.png".equals(subpath)) {
             serveImage(subpath, req, resp);
         } else if (subpath.startsWith("images/")) {
             serveImage(subpath.substring(7), req, resp);
@@ -155,6 +163,10 @@ public final class LtiSite extends CourseSite {
         // TODO: Honor maintenance mode.
 
         switch (subpath) {
+            // This is called by the form shown when doing an "LTI Registration" to accept the registration of the tool
+            case "lti13_dynamic_registration.html" -> PageDynamicRegistration.doPost(cache, this, req, resp);
+            // This is called by Canvas to embed content in the LMS.
+            case "lti13_launch" -> PageLaunch.doPost(cache, this, req, resp);
 
             // THe next three are used by the online Teams proctoring process
             case "gainaccess.html" -> PageIndex.processAccessCode(cache, this, req, resp);
