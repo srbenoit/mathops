@@ -449,12 +449,12 @@ public enum VariableFactory {
 
             if (valueStr == null) {
                 if (variable instanceof VariableInteger || variable instanceof VariableReal
-                        || variable instanceof VariableBoolean) {
+                    || variable instanceof VariableBoolean) {
                     elem.logError("Constant parameter with no value.");
                     valid = false;
                 }
             } else if (variable instanceof VariableInteger || variable instanceof VariableReal
-                    || variable instanceof VariableBoolean) {
+                       || variable instanceof VariableBoolean) {
 
                 final Formula formula = FormulaFactory.parseFormulaString(evalContext, valueStr, mode);
 
@@ -504,7 +504,7 @@ public enum VariableFactory {
 
             if (generatedIntegerStr != null) {
                 if (variable instanceof VariableRandomInteger || variable instanceof VariableRandomReal
-                        || variable instanceof VariableRandomChoice || variable instanceof VariableDerived) {
+                    || variable instanceof VariableRandomChoice || variable instanceof VariableDerived) {
 
                     try {
                         final Long parsedLong = Long.valueOf(generatedIntegerStr);
@@ -515,7 +515,7 @@ public enum VariableFactory {
                     }
                 } else {
                     elem.logError("Only random integer, random real, choice or derived parameter can have generated " +
-                            "integer value.");
+                                  "integer value.");
                     valid = false;
                 }
             }
@@ -524,7 +524,7 @@ public enum VariableFactory {
 
             if (generatedRealStr != null) {
                 if (variable instanceof VariableRandomReal || variable instanceof VariableRandomChoice
-                        || variable instanceof VariableDerived) {
+                    || variable instanceof VariableDerived) {
 
                     try {
                         final Double parsedDbl = Double.valueOf(generatedRealStr);
@@ -543,7 +543,7 @@ public enum VariableFactory {
 
             if (generatedBooleanStr != null) {
                 if (variable instanceof VariableRandomBoolean || variable instanceof VariableRandomChoice
-                        || variable instanceof VariableDerived) {
+                    || variable instanceof VariableDerived) {
 
                     try {
                         final Boolean parsedBoolean = parseBooleanValue(generatedBooleanStr);
@@ -880,13 +880,13 @@ public enum VariableFactory {
 
             if (valueStr == null) {
                 if (variable instanceof VariableInteger || variable instanceof VariableReal
-                        || variable instanceof VariableBoolean) {
+                    || variable instanceof VariableBoolean) {
                     elem.logError("Constant parameter with no value.");
                     valid = false;
                 }
             } else if (variable instanceof VariableInteger || variable instanceof VariableReal
-                    || variable instanceof VariableBoolean || variable instanceof VariableInputInteger
-                    || variable instanceof VariableInputReal) {
+                       || variable instanceof VariableBoolean || variable instanceof VariableInputInteger
+                       || variable instanceof VariableInputReal) {
 
                 final Formula formula =
                         FormulaFactory.parseFormulaString(evalContext, valueStr, mode);
@@ -937,7 +937,7 @@ public enum VariableFactory {
 
             if (generatedIntegerStr != null) {
                 if (variable instanceof VariableRandomInteger || variable instanceof VariableRandomReal
-                        || variable instanceof VariableRandomChoice || variable instanceof VariableDerived) {
+                    || variable instanceof VariableRandomChoice || variable instanceof VariableDerived) {
 
                     try {
                         final Long parsedLong = Long.valueOf(generatedIntegerStr);
@@ -948,7 +948,7 @@ public enum VariableFactory {
                     }
                 } else {
                     elem.logError("Only random integer, random real, choice or derived parameter can have generated " +
-                            "integer value.");
+                                  "integer value.");
                     valid = false;
                 }
             }
@@ -957,7 +957,7 @@ public enum VariableFactory {
 
             if (generatedRealStr != null) {
                 if (variable instanceof VariableRandomReal || variable instanceof VariableRandomChoice
-                        || variable instanceof VariableDerived) {
+                    || variable instanceof VariableDerived) {
 
                     try {
                         final Double parsedDbl = Double.valueOf(generatedRealStr);
@@ -976,7 +976,7 @@ public enum VariableFactory {
 
             if (generatedBooleanStr != null) {
                 if (variable instanceof VariableRandomBoolean || variable instanceof VariableRandomChoice
-                        || variable instanceof VariableDerived) {
+                    || variable instanceof VariableDerived) {
 
                     try {
                         final Boolean parsedBoolean = parseBooleanValue(generatedBooleanStr);
@@ -1743,7 +1743,7 @@ public enum VariableFactory {
                                 } else {
                                     if (minFormula.isConstant()) {
                                         elem.logError("Constant 'min' in {" + varName
-                                                + "} could be specified in attribute?");
+                                                      + "} could be specified in attribute?");
                                     }
                                     min = new NumberOrFormula(minFormula);
                                 }
@@ -1762,7 +1762,7 @@ public enum VariableFactory {
                                 } else {
                                     if (maxFormula.isConstant()) {
                                         elem.logError("Constant 'max' in {" + varName
-                                                + "} could be specified in attribute?");
+                                                      + "} could be specified in attribute?");
                                     }
                                     max = new NumberOrFormula(maxFormula);
                                 }
@@ -1969,7 +1969,7 @@ public enum VariableFactory {
                             } else {
                                 if (minFormula.isConstant()) {
                                     elem.logError("Constant 'min' in {" + varName
-                                            + "} could be specified in attribute?");
+                                                  + "} could be specified in attribute?");
                                 }
                                 min = new NumberOrFormula(minFormula);
                             }
@@ -1986,7 +1986,7 @@ public enum VariableFactory {
                             } else {
                                 if (maxFormula.isConstant()) {
                                     elem.logError("Constant 'max' in {" + varName
-                                            + "} could be specified in attribute?");
+                                                  + "} could be specified in attribute?");
                                 }
                                 max = new NumberOrFormula(maxFormula);
                             }
@@ -2165,7 +2165,7 @@ public enum VariableFactory {
                             } else {
                                 if (minFormula.isConstant()) {
                                     elem.logError("Constant 'min' in {" + varName
-                                            + "} could be specified in attribute?");
+                                                  + "} could be specified in attribute?");
                                 }
                                 min = new NumberOrFormula(minFormula);
                             }
@@ -2182,7 +2182,7 @@ public enum VariableFactory {
                             } else {
                                 if (maxFormula.isConstant()) {
                                     elem.logError("Constant 'max' in {" + varName
-                                            + "} could be specified in attribute?");
+                                                  + "} could be specified in attribute?");
                                 }
                                 max = new NumberOrFormula(maxFormula);
                             }
@@ -2264,7 +2264,7 @@ public enum VariableFactory {
                                     value = IntegerVectorValue.parse(intVectorStr);
                                 } catch (final NumberFormatException ex) {
                                     elem.logError("Invalid integer vector value: '" + intVectorStr + "' in {"
-                                            + varName + "}");
+                                                  + varName + "}");
                                     valid = false;
                                 }
                             }
@@ -2347,7 +2347,8 @@ public enum VariableFactory {
                         case CHOOSE_FROM -> {
                             final Formula choice = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (choice == null) {
-                                elem.logError("Invalid 'choose-from' formula in {" + varName + "}: " + nonempty.print(0));
+                                elem.logError(
+                                        "Invalid 'choose-from' formula in {" + varName + "}: " + nonempty.print(0));
                                 valid = false;
                             } else {
                                 choices.add(choice);
@@ -2356,10 +2357,11 @@ public enum VariableFactory {
                                     type = choiceType;
                                 } else if (choiceType != type) {
                                     if ((type == EType.INTEGER && choiceType == EType.REAL)
-                                            || (type == EType.REAL && choiceType == EType.INTEGER)) {
+                                        || (type == EType.REAL && choiceType == EType.INTEGER)) {
                                         type = EType.REAL;
                                     } else {
-                                        elem.logError("Inconsistent types in 'choose-from' formulas in {" + varName + "}");
+                                        elem.logError(
+                                                "Inconsistent types in 'choose-from' formulas in {" + varName + "}");
                                         valid = false;
                                     }
                                 }
@@ -2626,12 +2628,12 @@ public enum VariableFactory {
                                         mode);
                                 if (maxDenomFormula == null) {
                                     elem.logError("Invalid 'max-denom' formula in {" + varName + "}: "
-                                            + nonempty.print(0));
+                                                  + nonempty.print(0));
                                     valid = false;
                                 } else {
                                     if (maxDenomFormula.isConstant()) {
                                         elem.logError("Constant 'max-denom' in {" + varName
-                                                + "} could be specified in attribute?");
+                                                      + "} could be specified in attribute?");
                                     }
                                     maxDenom = new NumberOrFormula(maxDenomFormula);
                                 }
@@ -2730,7 +2732,7 @@ public enum VariableFactory {
                                     value = IntegerVectorValue.parse(intVectorStr);
                                 } catch (final NumberFormatException ex) {
                                     elem.logError("Invalid integer vector value: '" + intVectorStr + "' in {"
-                                            + varName + "}");
+                                                  + varName + "}");
                                     valid = false;
                                 }
                             }
@@ -2795,32 +2797,22 @@ public enum VariableFactory {
         final String minStr = elem.getStringAttr(MIN);
         if (minStr != null) {
             try {
-                final Long parsedMin = Long.valueOf(minStr);
+                final Number parsedMin = NumberParser.parse(minStr);
                 min = new NumberOrFormula(parsedMin);
             } catch (final NumberFormatException ex) {
-                try {
-                    final Double parsedMin = Double.valueOf(minStr);
-                    min = new NumberOrFormula(parsedMin);
-                } catch (final NumberFormatException ex2) {
-                    elem.logError("Invalid min value: '" + minStr + "' in {" + varName + "}");
-                    valid = false;
-                }
+                elem.logError("Invalid min value: '" + minStr + "' in {" + varName + "}");
+                valid = false;
             }
         }
 
         final String maxStr = elem.getStringAttr(MAX);
         if (maxStr != null) {
             try {
-                final Long parsedMax = Long.valueOf(maxStr);
+                final Number parsedMax = NumberParser.parse(maxStr);
                 max = new NumberOrFormula(parsedMax);
             } catch (final NumberFormatException ex) {
-                try {
-                    final Double parsedMax = Double.valueOf(maxStr);
-                    max = new NumberOrFormula(parsedMax);
-                } catch (final NumberFormatException ex2) {
-                    elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "}");
-                    valid = false;
-                }
+                elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "}");
+                valid = false;
             }
         }
 
@@ -2917,7 +2909,8 @@ public enum VariableFactory {
                             if (formula == null) {
                                 formula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                                 if (formula == null) {
-                                    elem.logError("Invalid 'formula' formula in {" + varName + "}: " + nonempty.print(0));
+                                    elem.logError(
+                                            "Invalid 'formula' formula in {" + varName + "}: " + nonempty.print(0));
                                     valid = false;
                                 }
                             } else {
