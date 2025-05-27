@@ -40,10 +40,10 @@ final class ServletWarBuilder {
     private final File projectDir;
 
     /** Directory where commons project is stored. */
-    private final File commonsDir;
+//    private final File commonsDir;
 
     /** Directory where text project is stored. */
-    private final File textDir;
+//    private final File textDir;
 
     /** Directory where persistence project is stored. */
     private final File persistenceDir;
@@ -57,8 +57,8 @@ final class ServletWarBuilder {
         final File dev = new File(userDir, "dev");
         final File idea = new File(dev, "IDEA");
         this.projectDir = new File(idea, "mathops");
-        this.commonsDir = new File(idea, "mathops_commons");
-        this.textDir = new File(idea, "mathops_text");
+//        this.commonsDir = new File(idea, "mathops_commons");
+//        this.textDir = new File(idea, "mathops_text");
         this.persistenceDir = new File(idea, "mathops_persistence");
     }
 
@@ -175,21 +175,21 @@ final class ServletWarBuilder {
             war.write(FileLoader.loadFileAsBytes(jarFile, true));
             war.closeEntry();
 
-            final File commonsOut = new File(this.commonsDir, "out");
-            final File commonsOutLibs = new File(commonsOut, "libs");
+//            final File commonsOut = new File(this.commonsDir, "out");
+//            final File commonsOutLibs = new File(commonsOut, "libs");
+//
+//            final File commonsFile = new File(commonsOutLibs, "mathops_commons.jar");
+//            war.putNextEntry(new ZipEntry("WEB-INF/lib/mathops_commons.jar"));
+//            war.write(FileLoader.loadFileAsBytes(commonsFile, true));
+//            war.closeEntry();
 
-            final File commonsFile = new File(commonsOutLibs, "mathops_commons.jar");
-            war.putNextEntry(new ZipEntry("WEB-INF/lib/mathops_commons.jar"));
-            war.write(FileLoader.loadFileAsBytes(commonsFile, true));
-            war.closeEntry();
-
-            final File textOut = new File(this.textDir, "out");
-            final File textOutLibs = new File(textOut, "libs");
-
-            final File textFile = new File(textOutLibs, "mathops_text.jar");
-            war.putNextEntry(new ZipEntry("WEB-INF/lib/mathops_text.jar"));
-            war.write(FileLoader.loadFileAsBytes(textFile, true));
-            war.closeEntry();
+//            final File textOut = new File(this.textDir, "out");
+//            final File textOutLibs = new File(textOut, "libs");
+//
+//            final File textFile = new File(textOutLibs, "mathops_text.jar");
+//            war.putNextEntry(new ZipEntry("WEB-INF/lib/mathops_text.jar"));
+//            war.write(FileLoader.loadFileAsBytes(textFile, true));
+//            war.closeEntry();
 
             final File persistenceOut = new File(this.persistenceDir, "out");
             final File persistenceOutLibs = new File(persistenceOut, "libs");
