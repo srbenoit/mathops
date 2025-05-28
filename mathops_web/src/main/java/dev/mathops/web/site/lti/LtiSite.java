@@ -17,6 +17,7 @@ import dev.mathops.web.site.BasicCss;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.course.CourseSite;
+import dev.mathops.web.site.lti.canvascourse.PageCallback;
 import dev.mathops.web.site.lti.canvascourse.PageDynamicRegistration;
 import dev.mathops.web.site.lti.canvascourse.PageLaunch;
 import jakarta.servlet.ServletRequest;
@@ -76,69 +77,66 @@ public final class LtiSite extends CourseSite {
 
         Log.info("GET ", subpath);
 
-        if ("lti13_dynamic_registration.html".equals(subpath)) {
-            // This page is called when the Canvas administrator creates a new Developer Key using "LTI Registration"
-            // It presents a form that POSTS to the same URL if the user accepts the registration.
-            PageDynamicRegistration.doGet(this, req, resp);
-
-            //
-            //
-            //
-        } else if ("lti13_dev_key_configuration.json".equals(subpath)) {
-            PageLTI13.doGetDevKeyConfigurationJson(req, resp);
-        } else if ("lti13_registration_callback1".equals(subpath)) {
-            // TODO:
-        } else if ("lti13_registration_callback2".equals(subpath)) {
-            // TODO:
-        } else if ("lti13_jwks".equals(subpath)) {
-            // TODO:
-
-            //
-            //
-            //
-
-        } else if ("basestyle.css".equals(subpath) || "secure/basestyle.css".equals(subpath)) {
-            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
-        } else if ("style.css".equals(subpath) || "secure/style.css".equals(subpath)) {
-            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(getClass(), "style.css", true));
-        } else if ("course.css".equals(subpath)) {
-            BasicCss.getInstance().serveCss(req, resp);
-        } else if ("favicon.ico".equals(subpath) || "secure/favicon.ico".equals(subpath)
-                   || "lti_logo.png".equals(subpath)) {
-            serveImage(subpath, req, resp);
-        } else if (subpath.startsWith("images/")) {
+        if (subpath.startsWith("images/")) {
             serveImage(subpath.substring(7), req, resp);
-        } else if (CoreConstants.EMPTY.equals(subpath) || "index.html".equals(subpath)) {
-            PageIndex.showPage(req, resp);
-        } else if ("onlineproctor.html".equals(subpath)) {
-            // This is linked from the admin website
-            PageOnlineProctor.showPage(req, resp, null, null);
-        } else if ("onlineproctorchallenge.html".equals(subpath)) {
-            // This is linked from the admin website
-            PageOnlineProctorChallenge.showPage(req, resp, null, null);
-        } else if ("home.html".equals(subpath)) {
-            PageHome.showPage(cache, this, req, resp);
-        } else if ("challenge.html".equals(subpath)) {
-            PageChallenge.showPage(cache, this, req, resp);
-        } else if ("course.html".equals(subpath)) {
-            PageFinished.showPage(req, resp);
-        } else if ("cartridge_basiclti_link.xml".equals(subpath)) {
-            PageLTI.doGetCartridgeBasicLTILink(req, resp);
-        } else if ("launch.html".equals(subpath)) {
-            PageLTI.doGetLaunch(req, resp);
-        } else if ("endp.html".equals(subpath)) {
-            PageLTI.doGetEndpoint(req, resp);
         } else {
-            Log.info("GET request to unrecognized URL: ", subpath);
+            switch (subpath) {
+                // This page is called when the Canvas administrator creates a new Developer Key using "LTI
+                // Registration". It presents a form that POSTS to the same URL if the user accepts the registration.
+                case "lti13_dynamic_registration.html" -> PageDynamicRegistration.doGet(this, req, resp);
+                // This is called by Canvas to initiate an LTI Launch - it responds with a redirect to the
+                // authorization endpoint for the LTI registration
+                case "lti13_launch" -> PageLaunch.doLaunch(cache, this, req, resp);
+                // A callback from the LMS after an LTI launch redirect.
+                case "lti13_callback" -> PageCallback.doCallback(cache, this, req, resp);
 
-            final Enumeration<String> e1 = req.getParameterNames();
-            while (e1.hasMoreElements()) {
-                final String name = e1.nextElement();
-                Log.fine("Parameter '", name, "' = '", req.getParameter(name), "'");
+                // OBSOLETE:
+                case "lti13_dev_key_configuration.json" -> PageLTI13.doGetDevKeyConfigurationJson(req, resp);
+
+                case "basestyle.css" ->
+                        sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
+                case "secure/basestyle.css" ->
+                        sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
+
+                case "style.css" ->
+                        sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(getClass(), "style.css", true));
+                case "secure/style.css" ->
+                        sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(getClass(), "style.css", true));
+
+                case "course.css" -> BasicCss.getInstance().serveCss(req, resp);
+                case "favicon.ico" -> serveImage(subpath, req, resp);
+                case "secure/favicon.ico" -> serveImage(subpath, req, resp);
+                case "lti_logo.png" -> serveImage(subpath, req, resp);
+
+                case CoreConstants.EMPTY -> PageIndex.showPage(req, resp);
+                case "index.html" -> PageIndex.showPage(req, resp);
+
+                // This is linked from the admin website
+                case "onlineproctor.htm" -> PageOnlineProctor.showPage(req, resp, null, null);
+                // This is linked from the admin website
+                case "onlineproctorchallenge.htm" -> PageOnlineProctorChallenge.showPage(req, resp, null, null);
+
+                case "home.html" -> PageHome.showPage(cache, this, req, resp);
+                case "challenge.html" -> PageChallenge.showPage(cache, this, req, resp);
+                case "course.html" -> PageFinished.showPage(req, resp);
+
+                case "cartridge_basiclti_link.xml" -> PageLTI.doGetCartridgeBasicLTILink(req, resp);
+                case "launch.html" -> PageLTI.doGetLaunch(req, resp);
+                case "endp.html" -> PageLTI.doGetEndpoint(req, resp);
+
+                case null, default -> {
+                    Log.info("GET request to unrecognized URL: ", subpath);
+
+                    final Enumeration<String> e1 = req.getParameterNames();
+                    while (e1.hasMoreElements()) {
+                        final String name = e1.nextElement();
+                        Log.fine("Parameter '", name, "' = '", req.getParameter(name), "'");
+                    }
+
+                    Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
+                    resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                }
             }
-
-            Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
     }
 
@@ -163,10 +161,14 @@ public final class LtiSite extends CourseSite {
         // TODO: Honor maintenance mode.
 
         switch (subpath) {
-            // This is called by the form shown when doing an "LTI Registration" to accept the registration of the tool
+            // This is called by the form shown when doing an "LTI Registration" to accept the registration of
+            // the tool
             case "lti13_dynamic_registration.html" -> PageDynamicRegistration.doPost(cache, this, req, resp);
-            // This is called by Canvas to embed content in the LMS.
-            case "lti13_launch" -> PageLaunch.doPost(cache, this, req, resp);
+            // This is called by Canvas to initiate an LTI Launch - it responds with a redirect to the
+            // authorization endpoint for the LTI registration
+            case "lti13_launch" -> PageLaunch.doLaunch(cache, this, req, resp);
+            // A callback from the LMS after an LTI launch redirect.
+            case "lti13_callback" -> PageCallback.doCallback(cache, this, req, resp);
 
             // THe next three are used by the online Teams proctoring process
             case "gainaccess.html" -> PageIndex.processAccessCode(cache, this, req, resp);
@@ -177,7 +179,6 @@ public final class LtiSite extends CourseSite {
             case "update_unit_exam.html" -> PageHome.updateUnitExam(cache, req, resp);
             case "update_challenge_exam.html" -> PageChallenge.updateChallengeExam(cache, req, resp);
             case null, default -> {
-
                 Log.info("POST request to unrecognized URL: ", subpath);
 
                 final Enumeration<String> e1 = req.getParameterNames();

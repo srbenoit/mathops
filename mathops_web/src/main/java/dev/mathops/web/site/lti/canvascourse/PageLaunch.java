@@ -1,22 +1,25 @@
 package dev.mathops.web.site.lti.canvascourse;
 
+import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.rec.main.LtiRegistrationRec;
+import dev.mathops.db.reclogic.main.LtiRegistrationLogic;
 import dev.mathops.text.builder.HtmlBuilder;
-import dev.mathops.web.site.AbstractSite;
-import dev.mathops.web.site.Page;
 import dev.mathops.web.site.lti.LtiSite;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 import java.util.Enumeration;
 
 /**
- * The page that manages the CSU Precalculus Program as an LTI 1.3 tool.
+ * The page that handles an "LTI Launch", as defined in
+ * <a href='https://www.imsglobal.org/spec/security/v1p0/'>https://www.imsglobal.org/spec/security/v1p0/</a>,
+ * <a href='https://www.imsglobal.org/spec/security/v1p0/'>https://www.imsglobal.org/spec/security/v1p0/</a>, and
+ * <a href='https://openid.net/specs/openid-connect-core-1_0.html'>
+ * https://openid.net/specs/openid-connect-core-1_0.html</a>.
  *
  * <p>
  * The process followed here is documented at <a
@@ -26,7 +29,8 @@ public enum PageLaunch {
     ;
 
     /**
-     * Responds to a POST of "lti13_launch".  This generates content that will be embedded in Canvas.
+     * Responds to a GET or POST to "lti13_launch".  This redirects the client browser (which is embedded in the LMS) to
+     * the authorization server for that LMS (as defined during LTI tool registration).
      *
      * @param cache the data cache
      * @param site  the owning site
@@ -34,47 +38,58 @@ public enum PageLaunch {
      * @param resp  the response
      * @throws IOException if there is an error writing the response
      */
-    public static void doPost(final Cache cache, final LtiSite site, final HttpServletRequest req,
-                              final HttpServletResponse resp) throws IOException {
+    public static void doLaunch(final Cache cache, final LtiSite site, final HttpServletRequest req,
+                                final HttpServletResponse resp) throws IOException {
 
-        final HtmlBuilder htm = new HtmlBuilder(2000);
-        htm.addln("<!DOCTYPE html>").addln("<html>").addln("<head></head><body>");
-
-        htm.sP().addln("Call to LTI Launch:").eP();
-
-        htm.sDiv("indent");
-
-        final Enumeration<String> headerNames = req.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            final String name = headerNames.nextElement();
-            final String value = req.getHeader(name);
-            htm.sP().addln("Header '", name, "': ", value).eP();
-        }
-
-        final Enumeration<String> parameterNames = req.getParameterNames();
-        while (parameterNames.hasMoreElements()) {
-            final String name = parameterNames.nextElement();
+        final Enumeration<String> paramNames = req.getParameterNames();
+        while (paramNames.hasMoreElements()) {
+            final String name = paramNames.nextElement();
             final String value = req.getParameter(name);
-            htm.sP().addln("Parameter '", name, "': ", value).eP();
+            Log.info("Launch param '", name, "' = ", value);
         }
 
-        final InputStream input = req.getInputStream();
-        final BufferedReader buf = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8));
-        String inputLine;
-        final StringBuilder buffer = new StringBuilder(1000);
-        while ((inputLine = buf.readLine()) != null) {
-            buffer.append(inputLine);
+        final String clientId = req.getParameter("client_id");
+        final String issuer = req.getParameter("iss");
+        final String loginHint = req.getParameter("login_hint");
+        final String ltiMessageHint = req.getParameter("lti_message_hint");
+        final String targetLinkUri = req.getParameter("target_link_uri");
+
+        // 'iss' = ...
+        // 'login_hint' = ...
+        // 'client_id' = ...
+        // 'lti_deployment_id' = ...
+        // 'target_link_uri' = ...
+        // 'lti_message_hint' = ...
+        // 'canvas_environment' = ...
+        // 'canvas_region' = ...
+        // 'deployment_id' = ...
+        // 'lti_storage_target' = ...
+
+        LtiRegistrationRec registration = null;
+
+        try {
+            registration = LtiRegistrationLogic.INSTANCE.query(cache, clientId, issuer);
+        } catch (final SQLException ex) {
+            Log.warning("Failed to query for LTI registration.", ex);
         }
-        buf.close();
-        final String requestContent = buffer.toString();
 
-        htm.sP().addln("Request content:").eP();
-        htm.sP().addln(requestContent).eP();
-        htm.eDiv();
+        if (registration == null) {
+            PageError.showErrorPage(req, resp, "LTI Launch",
+                    "Unable to look up LTI tool registration.  LTI tool may need to be re-installed.");
+        } else {
+            // We need to do a redirect within the browser to the authorization endpoint with
+            final String state = CoreConstants.newId(20);
+            final String nonce = CoreConstants.newId(20);
 
-        htm.addln("</body></html>");
+            final HtmlBuilder htm = new HtmlBuilder(1000);
 
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
+            htm.add(registration.authEndpoint, "?scope=openid&response_type=id_token&client_id=", clientId,
+                    "&redirect_uri=", registration.redirectUri, "&login_hint=", loginHint, "&lti_message_hint=",
+                    ltiMessageHint, "&state=", state, "&response_mode=form_post&nonce=", nonce, "&prompt=none");
 
+            final String location = htm.toString();
+
+            resp.sendRedirect(location, 302);
+        }
     }
 }

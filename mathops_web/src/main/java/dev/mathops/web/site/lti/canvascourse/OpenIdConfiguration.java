@@ -271,6 +271,9 @@ final class OpenIdConfiguration {
     /** The issuer. */
     private final String issuer;
 
+    /** The authorization endpoint. */
+    private final String authorizationEndpoint;
+
     /** The registration endpoint. */
     private final String registrationEndpoint;
 
@@ -294,6 +297,7 @@ final class OpenIdConfiguration {
     OpenIdConfiguration(final JSONObject json) {
 
         this.issuer = json.getStringProperty("issuer");
+        this.authorizationEndpoint = json.getStringProperty("authorization_endpoint");
         this.registrationEndpoint = json.getStringProperty("registration_endpoint");
 
         this.scopesSupported = new ArrayList<>(15);
@@ -374,6 +378,16 @@ final class OpenIdConfiguration {
     String getIssuer() {
 
         return this.issuer;
+    }
+
+    /**
+     * Gets the authorization endpoint.
+     *
+     * @return the authorization endpoint (null if none found)
+     */
+    String getAuthorizationEndpoint() {
+
+        return this.authorizationEndpoint;
     }
 
     /**

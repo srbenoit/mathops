@@ -547,3 +547,53 @@ CREATE TABLE IF NOT EXISTS main_test.course_survey_item_choice (
 ALTER TABLE IF EXISTS main_test.course_survey_item_choice OWNER to math;
 
 
+
+-- ------------------------------------------------------------------------------------------------
+-- TABLE: lti_registration
+--
+-- A registration of an LTI tool with an LMS.
+--
+--   USAGE: Created once, static..
+--   EST. RECORDS: 1
+--   RETENTION: Retained indefinitely
+--   EST. RECORD SIZE: 120 bytes
+--   EST. TOTAL SPACE: 120 bytes
+-- ------------------------------------------------------------------------------------------------
+
+-- DROP TABLE IF EXISTS main.lti_registration;
+CREATE TABLE IF NOT EXISTS main.lti_registration (
+    client_id                varchar(40)    NOT NULL,  -- The client ID provided by the LMS
+    issuer                   varchar(250)   NOT NULL,  -- The issuer host name
+    issuer_port              char(6)        NOT NULL,  -- The issuer port string, like ":20443" or ""
+    redirect_uri             varchar(250)   NOT NULL,  -- The redirect URI
+    auth_endpoint            varchar(250)   NOT NULL,  -- The authorization endpoint
+    reg_endpoint             varchar(250)   NOT NULL,  -- The registration endpoint
+    PRIMARY KEY (client_id, issuer)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main.lti_registration OWNER to math;
+
+-- DROP TABLE IF EXISTS main_dev.lti_registration;
+CREATE TABLE IF NOT EXISTS main_dev.lti_registration (
+    client_id                varchar(40)    NOT NULL,
+    issuer                   varchar(250)   NOT NULL,
+    issuer_port              char(6)        NOT NULL,
+    redirect_uri             varchar(250)   NOT NULL,
+    auth_endpoint            varchar(250)   NOT NULL,
+    reg_endpoint             varchar(250)   NOT NULL,
+    PRIMARY KEY (client_id, issuer)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main_dev.lti_registration OWNER to math;
+
+-- DROP TABLE IF EXISTS main_test.lti_registration;
+CREATE TABLE IF NOT EXISTS main_test.lti_registration (
+    client_id                varchar(40)    NOT NULL,
+    issuer                   varchar(250)   NOT NULL,
+    issuer_port              char(6)        NOT NULL,
+    redirect_uri             varchar(250)   NOT NULL,
+    auth_endpoint            varchar(250)   NOT NULL,
+    reg_endpoint             varchar(250)   NOT NULL,
+    PRIMARY KEY (client_id, issuer)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS main_test.lti_registration OWNER to math;
+
+

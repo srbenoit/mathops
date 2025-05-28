@@ -3,6 +3,8 @@ package dev.mathops.web.site.lti.canvascourse;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.rec.main.LtiRegistrationRec;
+import dev.mathops.db.reclogic.main.LtiRegistrationLogic;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.parser.ParsingException;
 import dev.mathops.text.parser.json.JSONObject;
@@ -11,7 +13,6 @@ import dev.mathops.text.parser.xml.XmlEscaper;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.lti.LtiSite;
-import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -26,6 +27,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -38,6 +40,9 @@ import java.util.List;
  */
 public enum PageDynamicRegistration {
     ;
+
+    /** The subtitle for error displays. */
+    private static final String SUBTITLE = "LTI Dynamic Registration";
 
     /**
      * Responds to a GET of "lti13_dynamic_registration.html".  This generates a registration page that will be shown in
@@ -58,12 +63,10 @@ public enum PageDynamicRegistration {
 
         if (openIdUrlFromServer == null) {
             final String msg = "Request did not include required 'openid_configuration' parameter.";
-            Log.warning(msg);
-            showErrorPage(req, resp, msg);
+            PageError.showErrorPage(req, resp, SUBTITLE, msg);
         } else if (registrationToken == null) {
             final String msg = "Request did not include required 'registration_token' parameter.";
-            Log.warning(msg);
-            showErrorPage(req, resp, msg);
+            PageError.showErrorPage(req, resp, SUBTITLE, msg);
         } else {
             final String openIdValue = XmlEscaper.escape(openIdUrlFromServer);
             final String tokenValue = XmlEscaper.escape(registrationToken);
@@ -140,12 +143,10 @@ public enum PageDynamicRegistration {
 
         if (openIdUrlFromServer == null) {
             final String msg = "Form submission did not include required 'openid_configuration' parameter.";
-            Log.warning(msg);
-            showErrorPage(req, resp, msg);
+            PageError.showErrorPage(req, resp, SUBTITLE, msg);
         } else if (registrationToken == null) {
             final String msg = "Form submission did not include required 'registration_token' parameter.";
-            Log.warning(msg);
-            showErrorPage(req, resp, msg);
+            PageError.showErrorPage(req, resp, SUBTITLE, msg);
         } else {
             String host = null;
             final Enumeration<String> headerNames = req.getHeaderNames();
@@ -173,8 +174,7 @@ public enum PageDynamicRegistration {
 
             if (openIdConfigContent == null) {
                 final String msg = "Unable to retrieve OpenID configuration from LTI platform.";
-                Log.warning(msg);
-                showErrorPage(req, resp, msg);
+                PageError.showErrorPage(req, resp, SUBTITLE, msg);
             } else {
                 // Log.fine(openIdConfigContent);
                 try {
@@ -186,24 +186,21 @@ public enum PageDynamicRegistration {
 
                         if (issuer == null) {
                             final String msg = "OpenID configuration from LTI platform does not specify issuer.";
-                            Log.warning(msg);
-                            showErrorPage(req, resp, msg);
+                            PageError.showErrorPage(req, resp, SUBTITLE, msg);
                         } else if (openIdUrl.startsWith(issuer)) {
-                            performClientRegistration(host, path, req, resp, openIdConfig, portStr, registrationToken);
+                            performClientRegistration(cache, host, path, req, resp, openIdConfig, portStr,
+                                    registrationToken);
                         } else {
                             final String msg = "OpenID configuration from LTI platform has invalid issuer.";
-                            Log.warning(msg);
-                            showErrorPage(req, resp, msg);
+                            PageError.showErrorPage(req, resp, SUBTITLE, msg);
                         }
                     } else {
                         final String msg = "Unable to interpret OpenID configuration from LTI platform.";
-                        Log.warning(msg);
-                        showErrorPage(req, resp, msg);
+                        PageError.showErrorPage(req, resp, SUBTITLE, msg);
                     }
                 } catch (final ParsingException ex) {
                     final String msg = "Unable to parse OpenID configuration from LTI platform.";
-                    Log.warning(msg, ex);
-                    showErrorPage(req, resp, msg);
+                    PageError.showErrorPage(req, resp, SUBTITLE, msg);
                 }
             }
         }
@@ -223,6 +220,7 @@ public enum PageDynamicRegistration {
      * https://datatracker.ietf.org/doc/html/rfc6749#section-1.2</a>
      * </p>
      *
+     * @param cache             the data cache
      * @param host              the host name
      * @param path              the site path
      * @param req               the request
@@ -232,8 +230,8 @@ public enum PageDynamicRegistration {
      * @param registrationToken the registration token from the registration initiation request
      * @throws IOException if there is an error writing the response
      */
-    private static void performClientRegistration(final String host, final String path, final HttpServletRequest req,
-                                                  final HttpServletResponse resp,
+    private static void performClientRegistration(final Cache cache, final String host, final String path,
+                                                  final HttpServletRequest req, final HttpServletResponse resp,
                                                   final OpenIdConfiguration openIdConfig, final String portStr,
                                                   final String registrationToken) throws IOException {
 
@@ -243,26 +241,50 @@ public enum PageDynamicRegistration {
         final String regEndpoint = openIdConfig.getRegistrationEndpoint();
         if (regEndpoint == null) {
             final String msg = "OpenID configuration did not include registration_endpoint.";
-            Log.warning(msg);
-            showErrorPage(req, resp, msg);
+            PageError.showErrorPage(req, resp, SUBTITLE, msg);
         } else {
             final JSONObject response = doClientRegistrationExchange(host, path, openIdConfig, portStr,
                     registrationToken);
 
             if (response == null) {
                 final String msg = "OpenID Client Registration exchange was unsuccessful.";
-                Log.warning(msg);
-                showErrorPage(req, resp, msg);
+                PageError.showErrorPage(req, resp, SUBTITLE, msg);
             } else {
-                final HtmlBuilder htm = new HtmlBuilder(2000);
-                htm.addln("<!DOCTYPE html>").addln("<html>").addln("<head></head><body>");
-                htm.addln("<script>")
-                        .addln("(window.opener || window.parent).postMessage(",
-                                "{subject:'org.imsglobal.lti.close'}, '*');")
-                        .addln("</script>");
-                htm.addln("</body></html>");
+                // Client registration succeeded!  Store information about the registration in a database table.
+                final String clientId = response.getStringProperty("client_id");
+                final String issuer = openIdConfig.getIssuer();
+                final String authEndpoint = openIdConfig.getAuthorizationEndpoint();
+                String redirectUri = null;
+                final Object o = response.getProperty("redirect_uris");
+                if (o instanceof Object[] arr && arr.length > 0) {
+                    if (arr[0] instanceof String s) {
+                        redirectUri = s;
+                    }
+                }
 
-                AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
+                if (clientId == null || issuer == null || authEndpoint == null || redirectUri == null) {
+                    final String msg = "LTI Tool registration failed - incomplete registration response.";
+                    PageError.showErrorPage(req, resp, SUBTITLE, msg);
+                } else {
+                    try {
+                        final LtiRegistrationRec rec = new LtiRegistrationRec(clientId, issuer, portStr, redirectUri,
+                                authEndpoint, regEndpoint);
+                        LtiRegistrationLogic.INSTANCE.insert(cache, rec);
+
+                        final HtmlBuilder htm = new HtmlBuilder(2000);
+                        htm.addln("<!DOCTYPE html>").addln("<html>").addln("<head></head><body>");
+                        htm.addln("<script>")
+                                .addln("(window.opener || window.parent).postMessage(",
+                                        "{subject:'org.imsglobal.lti.close'}, '*');")
+                                .addln("</script>");
+                        htm.addln("</body></html>");
+
+                        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
+                    } catch (final SQLException ex) {
+                        final String msg = "LTI Tool registration failed - database error.";
+                        PageError.showErrorPage(req, resp, SUBTITLE, msg);
+                    }
+                }
             }
         }
     }
@@ -287,8 +309,7 @@ public enum PageDynamicRegistration {
                                                            final String portStr, final String registrationToken)
             throws IOException {
 
-        final String redirect1 = "https://" + host + path + "/lti13_registration_callback1";
-        final String redirect2 = "https://" + host + path + "/lti13_registration_callback2";
+        final String redirect = "https://" + host + path + "/lti13_callback";
         final String initiate = "https://" + host + path + "/lti13_launch";
         final String jwks = "https://" + host + path + "/lti13_jwks";
         final String logo = "https://" + host + path + "/lti_logo.png";
@@ -303,7 +324,7 @@ public enum PageDynamicRegistration {
         requestJson.addln("  \"response_types\": [\"id_token\"],");
         requestJson.addln("  \"grant_types\": [\"implicit\", \"client_credentials\"],");
         requestJson.addln("  \"initiate_login_uri\": \"", initiate, "\",");
-        requestJson.addln("  \"redirect_uris\": [\"", redirect1, "\",\"", redirect2, "\"],");
+        requestJson.addln("  \"redirect_uris\": [\"", redirect, "\"],");
         requestJson.addln("  \"jwks_uri\": \"", jwks, "\",");
         requestJson.addln("  \"logo_uri\": \"", logo, "\",");
         requestJson.addln("  \"client_name\":\"CSU Mathematics Program\",");
@@ -363,82 +384,75 @@ public enum PageDynamicRegistration {
         comma = false;
         final List<String> resourceLinkPlacements = openIdConfig.getResourceLinkPlacements();
         for (final String res : resourceLinkPlacements) {
-            if ("https://canvas.instructure.com/lti/account_navigation".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Account Navigation.", res);
-            } else if ("https://canvas.instructure.com/lti/assignment_edit".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Assignment Edit.", res);
+            if ("https://canvas.instructure.com/lti/assignment_edit".equals(res)) {
+                comma = addLinkResource(requestJson, comma, "CSU Assignment Edit.", res, null);
             } else if ("https://canvas.instructure.com/lti/assignment_group_menu".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Assignment Group Menu.", res);
+                comma = addLinkResource(requestJson, comma, "CSU Assignment Group Menu.", res, null);
             } else if ("https://canvas.instructure.com/lti/assignment_index_menu".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Assignment Index Menu.", res);
+                comma = addLinkResource(requestJson, comma, "CSU Assignment Index Menu.", res, null);
             } else if ("https://canvas.instructure.com/lti/assignment_menu".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Assignment Menu.", res);
+                comma = addLinkResource(requestJson, comma, "CSU Assignment Menu.", res, null);
             } else if ("https://canvas.instructure.com/lti/assignment_selection".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Assignment Selection.", res);
+                comma = addLinkResource(requestJson, comma, "CSU Assignment Selection.", res, null);
             } else if ("https://canvas.instructure.com/lti/assignment_view".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Assignment View.", res);
+                comma = addLinkResource(requestJson, comma, "CSU Assignment View.", res, null);
             } else if ("https://canvas.instructure.com/lti/collaboration".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Collaboration.", res);
+                comma = addLinkResource(requestJson, comma, "CSU Collaboration.", res, null);
             } else if ("https://canvas.instructure.com/lti/conference_selection".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Conference Selection.", res);
+                comma = addLinkResource(requestJson, comma, "CSU Conference Selection.", res, null);
             } else if ("https://canvas.instructure.com/lti/course_assignments_menu".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Course Assignments Menu.", res);
+                comma = addLinkResource(requestJson, comma, "CSU Course Assignments Menu.", res, null);
             } else if ("https://canvas.instructure.com/lti/course_home_sub_navigation".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Course Home Sub Navigation.", res);
+                final String iconUri = "https://" + host + "/www/images/plus.svg";
+                comma = addLinkResource(requestJson, comma, "Generate Course Content", res, iconUri);
             } else if ("https://canvas.instructure.com/lti/course_navigation".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Course Navigation.", res);
+                comma = addLinkResource(requestJson, comma, "CSU Course Navigation.", res, null);
             } else if ("https://canvas.instructure.com/lti/course_settings_sub_navigation".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Settings Sub Navigation.", res);
+                comma = addLinkResource(requestJson, comma, "CSU Settings Sub Navigation.", res, null);
             } else if ("https://canvas.instructure.com/lti/discussion_topic_index_menu".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Discussion Topic Index Menu.", res);
+                comma = addLinkResource(requestJson, comma, "CSU Discussion Topic Index Menu.", res, null);
             } else if ("https://canvas.instructure.com/lti/discussion_topic_menu".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Discussion Topic Menu.", res);
-            } else if ("https://canvas.instructure.com/lti/file_index_menu".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU File Index Menu.", res);
+                comma = addLinkResource(requestJson, comma, "CSU Discussion Topic Menu.", res, null);
             } else if ("https://canvas.instructure.com/lti/file_menu".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU File Menu.", res);
-            } else if ("https://canvas.instructure.com/lti/global_navigation".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Global Navigation.", res);
+                comma = addLinkResource(requestJson, comma, "CSU File Menu.", res, null);
             } else if ("https://canvas.instructure.com/lti/homework_submission".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Homework Submission.", res);
+                comma = addLinkResource(requestJson, comma, "CSU Homework Submission.", res, null);
             } else if ("https://canvas.instructure.com/lti/link_selection".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Link Selection.", res);
+                comma = addLinkResource(requestJson, comma, "CSU Link Selection.", res, null);
             } else if ("https://canvas.instructure.com/lti/migration_selection".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Migration Selection.", res);
+                comma = addLinkResource(requestJson, comma, "CSU Migration Selection.", res, null);
             } else if ("https://canvas.instructure.com/lti/module_group_menu".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Module Group Menu.", res);
+                comma = addLinkResource(requestJson, comma, "CSU Module Group Menu.", res, null);
             } else if ("https://canvas.instructure.com/lti/module_index_menu".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Module Index Menu.", res);
+                comma = addLinkResource(requestJson, comma, "CSU Module Index Menu.", res, null);
             } else if ("https://canvas.instructure.com/lti/module_index_menu_modal".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Module Index Menu Modal.", res);
+                comma = addLinkResource(requestJson, comma, "CSU Module Index Menu Modal.", res, null);
             } else if ("https://canvas.instructure.com/lti/module_menu_modal".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Module Menu Modal.", res);
+                comma = addLinkResource(requestJson, comma, "CSU Module Menu Modal.", res, null);
             } else if ("https://canvas.instructure.com/lti/module_menu".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Module Menu.", res);
+                comma = addLinkResource(requestJson, comma, "CSU Module Menu.", res, null);
             } else if ("https://canvas.instructure.com/lti/post_grades".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Post Grades.", res);
+                comma = addLinkResource(requestJson, comma, "CSU Post Grades.", res, null);
             } else if ("https://canvas.instructure.com/lti/quiz_index_menu".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Quiz Index Menu.", res);
+                comma = addLinkResource(requestJson, comma, "CSU Quiz Index Menu.", res, null);
             } else if ("https://canvas.instructure.com/lti/quiz_menu".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Quiz Menu.", res);
+                comma = addLinkResource(requestJson, comma, "CSU Quiz Menu.", res, null);
             } else if ("https://canvas.instructure.com/lti/similarity_detection".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Similarity Detection Menu.", res);
+                comma = addLinkResource(requestJson, comma, "CSU Similarity Detection Menu.", res, null);
             } else if ("https://canvas.instructure.com/lti/student_context_card".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Student Context Card.", res);
+                comma = addLinkResource(requestJson, comma, "CSU Student Context Card.", res, null);
             } else if ("https://canvas.instructure.com/lti/submission_type_selection".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Submission Type Selection.", res);
+                comma = addLinkResource(requestJson, comma, "CSU Submission Type Selection.", res, null);
             } else if ("https://canvas.instructure.com/lti/tool_configuration".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Tool Configuration.", res);
+                comma = addLinkResource(requestJson, comma, "CSU Tool Configuration.", res, null);
             } else if ("https://canvas.instructure.com/lti/top_navigation".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Top Navigation.", res);
-            } else if ("https://canvas.instructure.com/lti/user_navigation".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU User Navigation.", res);
+                comma = addLinkResource(requestJson, comma, "CSU Top Navigation.", res, null);
             } else if ("https://canvas.instructure.com/lti/wiki_index_menu".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Wiki Index Menu.", res);
+                comma = addLinkResource(requestJson, comma, "CSU Wiki Index Menu.", res, null);
             } else if ("https://canvas.instructure.com/lti/wiki_page_menu".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Wiki Page Menu.", res);
+                comma = addLinkResource(requestJson, comma, "CSU Wiki Page Menu.", res, null);
             } else if ("ContentArea".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Content Area.", res);
+                comma = addLinkResource(requestJson, comma, "CSU Content Area.", res, null);
             }
         }
         final List<String> deepLinkingPlacements = openIdConfig.getDeepLinkingPlacements();
@@ -555,10 +569,11 @@ public enum PageDynamicRegistration {
      * @param comma       true to begin with a comma and linefeed
      * @param label       the label
      * @param placement   the placement
+     * @param iconUri     if not null, the URI of an icon for the placement
      * @return true (the new "comma" setting)
      */
     private static boolean addLinkResource(final HtmlBuilder requestJson, final boolean comma, final String label,
-                                           final String placement) {
+                                           final String placement, final String iconUri) {
 
         if (comma) {
             requestJson.addln(",");
@@ -566,6 +581,9 @@ public enum PageDynamicRegistration {
         requestJson.addln("      {");
         requestJson.addln("        \"type\": \"LtiResourceLinkRequest\",");
         requestJson.addln("        \"label\": \"", label, "\",");
+        if (iconUri != null) {
+            requestJson.addln("        \"icon_uri\": \"", iconUri, "\",");
+        }
         requestJson.addln("        \"placements\": [\"", placement, "\"]");
         requestJson.add("      }");
 
@@ -594,41 +612,6 @@ public enum PageDynamicRegistration {
         requestJson.add("      }");
 
         return true;
-    }
-
-    /**
-     * Shows a page that displays an error message.
-     *
-     * @param req  the request
-     * @param resp the response
-     * @param msg  the error message
-     */
-    private static void showErrorPage(final ServletRequest req, final HttpServletResponse resp,
-                                      final String msg) throws IOException {
-
-        final HtmlBuilder htm = new HtmlBuilder(1000);
-
-        htm.addln("<!DOCTYPE html>").addln("<html>").addln("<head>");
-        htm.addln(" <meta name=\"robots\" content=\"noindex\">");
-        htm.addln(" <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'/>")
-                .addln(" <meta http-equiv='Content-Type' content='text/html;charset=utf-8'/>")
-                .addln(" <link rel='stylesheet' href='basestyle.css' type='text/css'>")
-                .addln(" <link rel='stylesheet' href='style.css' type='text/css'>")
-                .addln(" <link rel='icon' type='image/x-icon' href='/www/images/favicon.ico'>")
-                .addln(" <title>CSU Mathematics Program</title>");
-        htm.addln("</head>");
-        htm.addln("<body style='background:white; padding:20px;'>");
-
-        htm.sH(1).add("CSU Mathematics Program").eH(1);
-        htm.sH(2).add("LTI Dynamic Registration").eH(2);
-
-        htm.sP("indent", "style='color:firebrick;'").add("An error has occurred:").eP();
-        htm.sP("indent", "style='color:steelblue;'").add(msg).eP();
-        htm.eDiv();
-
-        htm.addln("</body></html>");
-
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
     }
 
     /**

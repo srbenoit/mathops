@@ -32,6 +32,9 @@ public enum DataDict {
     /** A field name for serialization of records. */
     public static final String FLD_ATTEMPT_TIME_SEC = "attempt_time_sec";
 
+    /** A field name for serialization of records. */
+    public static final String FLD_AUTH_ENDPOINT = "auth_endpoint";
+
     //
 
     /** A field name for serialization of records. */
@@ -77,6 +80,9 @@ public enum DataDict {
 
     /** A field name for serialization of records. */
     public static final String FLD_COURSE_TITLE = "course_title";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_CLIENT_ID = "client_id";
 
     /** A field name for serialization of records. */
     public static final String FLD_CRN = "crn";
@@ -131,6 +137,12 @@ public enum DataDict {
 
     /** A field name for serialization of records. */
     public static final String FLD_IS_ESSENTIAL = "is_essential";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_ISSUER = "issuer";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_ISSUER_PORT = "issuer_port";
 
     /** A field name for serialization of records. */
     public static final String FLD_ITEM_ID = "item_id";
@@ -247,6 +259,12 @@ public enum DataDict {
     public static final String FLD_QUESTION_NBR = "question_nbr";
 
     //
+
+    /** A field name for serialization of records. */
+    public static final String FLD_REDIRECT_URI = "redirect_uri";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_REG_ENDPOINT = "reg_endpoint";
 
     /** A field name for serialization of records. */
     public static final String FLD_RESPONSE_CHOICE = "response_choice";
