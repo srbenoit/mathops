@@ -139,8 +139,7 @@ public final class Irrational extends Number {
      * @return the parsed {@code Irrational}.
      * @throws NumberFormatException if the string is not in a valid format
      */
-    private static Irrational valueOfPi(final String str, final int piPos)
-            throws NumberFormatException {
+    private static Irrational valueOfPi(final String str, final int piPos) {
 
         final Irrational result;
 
@@ -156,7 +155,7 @@ public final class Irrational extends Number {
                 final long numer = "-".equals(numStr) ? -1L : Long.parseLong(numStr);
                 result = new Irrational(EIrrationalFactor.PI, numer, 1L);
             }
-        } else if (str.charAt(piPos + 2) == '/') {
+        } else if ((int) str.charAt(piPos + 2) == (int) '/') {
             final long denom = Long.parseLong(str.substring(piPos + 3));
             if (piPos == 0) {
                 // Format: "PI/4"
