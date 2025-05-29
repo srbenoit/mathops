@@ -277,6 +277,9 @@ final class OpenIdConfiguration {
     /** The registration endpoint. */
     private final String registrationEndpoint;
 
+    /** The JWKS URI. */
+    private final String jwksUri;
+
     /** The list of supported scopes. */
     private final List<String> scopesSupported;
 
@@ -299,6 +302,7 @@ final class OpenIdConfiguration {
         this.issuer = json.getStringProperty("issuer");
         this.authorizationEndpoint = json.getStringProperty("authorization_endpoint");
         this.registrationEndpoint = json.getStringProperty("registration_endpoint");
+        this.jwksUri = json.getStringProperty("jwks_uri");
 
         this.scopesSupported = new ArrayList<>(15);
         this.claimsSupported = new ArrayList<>(10);
@@ -398,6 +402,16 @@ final class OpenIdConfiguration {
     String getRegistrationEndpoint() {
 
         return this.registrationEndpoint;
+    }
+
+    /**
+     * Gets the JWKS URI.
+     *
+     * @return the JWKS URI (null if none found)
+     */
+    String getJWKSUri() {
+
+        return this.jwksUri;
     }
 
     /** The list of supported scopes. */

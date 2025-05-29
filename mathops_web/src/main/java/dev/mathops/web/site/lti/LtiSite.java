@@ -8,11 +8,15 @@ import dev.mathops.db.Contexts;
 import dev.mathops.db.cfg.Site;
 import dev.mathops.db.logic.ELiveRefreshes;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.rec.main.LtiRegistrationRec;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
 import dev.mathops.session.SessionResult;
 import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.parser.ParsingException;
+import dev.mathops.text.parser.json.JSONObject;
+import dev.mathops.text.parser.json.JSONParser;
 import dev.mathops.web.site.BasicCss;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
@@ -25,9 +29,22 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A site to deliver Precalculus exams through a Canvas LTI quiz.
@@ -36,6 +53,12 @@ public final class LtiSite extends CourseSite {
 
     /** Streaming server. */
     private static final String STREAM = "https://nibbler.math.colostate.edu/media/";
+
+    /** The expiration date/time for LTI key sets. */
+    private static final int LTI_KEY_EXPIRY_MINUTES = 180;
+
+    /** A map from LTI registration to its JSON Web Key Set. */
+    private final Map<LtiRegistrationRec, JWKS> ltiKeys;
 
     /**
      * Constructs a new {@code LtiSite}.
@@ -46,6 +69,8 @@ public final class LtiSite extends CourseSite {
     public LtiSite(final Site theSite, final ISessionManager theSessions) {
 
         super(theSite, theSessions);
+
+        this.ltiKeys = new HashMap<>(10);
     }
 
     /**
@@ -395,5 +420,67 @@ public final class LtiSite extends CourseSite {
 
             sendReply(req, resp, MIME_TEXT_HTML, htm);
         }
+    }
+
+    /**
+     * Retrieves the JSON Web Key Set for an LTI registration.
+     *
+     * @param registration the LTI registration
+     * @return the key set
+     */
+    public JWKS getJWKS(final LtiRegistrationRec registration) {
+
+        JWKS result;
+
+        synchronized (this.ltiKeys) {
+            result = this.ltiKeys.get(registration);
+        }
+
+        final LocalDateTime now = LocalDateTime.now();
+        if (result != null && result.expiration.isBefore(now)) {
+            result = null;
+        }
+
+        if (result == null) {
+            if (registration.jwksEndpoint != null) {
+                try {
+                    final URI uri = new URI(registration.jwksEndpoint);
+                    final URL url = uri.toURL();
+                    final URLConnection conn = url.openConnection();
+                    final InputStream input = conn.getInputStream();
+                    final BufferedReader buf = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8));
+                    String inputLine;
+                    final StringBuilder buffer = new StringBuilder(1000);
+                    while ((inputLine = buf.readLine()) != null) {
+                        buffer.append(inputLine);
+                    }
+                    buf.close();
+                    final String responseStr = buffer.toString();
+
+                    try {
+                        final Object parsed = JSONParser.parseJSON(responseStr);
+                        if (parsed instanceof final JSONObject json) {
+                            final LocalDateTime expiry = now.plusMinutes(LTI_KEY_EXPIRY_MINUTES);
+                            result = new JWKS(json, expiry);
+                            synchronized (this.ltiKeys) {
+                                this.ltiKeys.put(registration, result);
+                            }
+                        } else {
+                            Log.warning("Unable to parse data from JWKS endpoint");
+                        }
+                    } catch (final ParsingException ex) {
+                        Log.warning("Unable to parse data from JWKS endpoint", ex);
+                    }
+                } catch (final URISyntaxException | MalformedURLException ex) {
+                    Log.warning("Invalid JWKS endpoint: ", registration.jwksEndpoint, ex);
+                } catch (final IOException ex) {
+                    Log.warning("Unable to connect to JWKS endpoint: ", registration.jwksEndpoint, ex);
+                }
+            } else {
+                Log.warning("LTI registration did not include JWKS endpoint.");
+            }
+        }
+
+        return result;
     }
 }

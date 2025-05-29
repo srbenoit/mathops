@@ -24,6 +24,7 @@ import java.util.List;
  *     redirect_uri             varchar(250)   NOT NULL,  -- The redirect URI
  *     auth_endpoint            varchar(250)   NOT NULL,  -- The authorization endpoint
  *     reg_endpoint             varchar(250)   NOT NULL,  -- The registration endpoint
+ *     jwks_endpoint            varchar(250)   NOT NULL,  -- The JWKS endpoint
  *     PRIMARY KEY (client_id, issuer, issuer_port)
  * ) TABLESPACE primary_ts;
  * </pre>
@@ -59,14 +60,15 @@ public final class LtiRegistrationLogic implements IRecLogic<LtiRegistrationRec>
             Log.warning("Cache profile '", cache.getProfile().id, "' does not support the MAIN schema");
             result = false;
         } else {
-            final String sql = SimpleBuilder.concat("INSERT INTO ", schemaPrefix,
-                    ".lti_registration (client_id,issuer,issuer_port,redirect_uri,auth_endpoint,reg_endpoint) VALUES (",
+            final String sql = SimpleBuilder.concat("INSERT INTO ", schemaPrefix, ".lti_registration ",
+                    "(client_id,issuer,issuer_port,redirect_uri,auth_endpoint,reg_endpoint,jwks_endpoint) VALUES (",
                     sqlStringValue(record.clientId), ",",
                     sqlStringValue(record.issuer), ",",
                     sqlStringValue(record.issuerPort), ",",
                     sqlStringValue(record.redirectUri), ",",
                     sqlStringValue(record.authEndpoint), ",",
-                    sqlStringValue(record.regEndpoint), ")");
+                    sqlStringValue(record.regEndpoint), ",",
+                    sqlStringValue(record.jwksEndpoint), ")");
 
             result = doUpdateOneRow(cache, ESchema.MAIN, sql);
         }
@@ -177,6 +179,7 @@ public final class LtiRegistrationLogic implements IRecLogic<LtiRegistrationRec>
                     ", redirect_uri=", sqlStringValue(record.redirectUri),
                     ", auth_endpoint=", sqlStringValue(record.authEndpoint),
                     ", reg_endpoint=", sqlStringValue(record.regEndpoint),
+                    ", jwks_endpoint=", sqlStringValue(record.jwksEndpoint),
                     " WHERE client_id=", sqlStringValue(record.clientId),
                     " AND issuer=", sqlStringValue(record.issuer));
 
@@ -202,8 +205,9 @@ public final class LtiRegistrationLogic implements IRecLogic<LtiRegistrationRec>
         final String theRedirectUri = getStringField(rs, DataDict.FLD_REDIRECT_URI);
         final String theAuthEndpoint = getStringField(rs, DataDict.FLD_AUTH_ENDPOINT);
         final String theRegEndpoint = getStringField(rs, DataDict.FLD_REG_ENDPOINT);
+        final String theJwksEndpoint = getStringField(rs, DataDict.FLD_JWKS_ENDPOINT);
 
         return new LtiRegistrationRec(theClientId, theIssuer, theIssuerPort, theRedirectUri, theAuthEndpoint,
-                theRegEndpoint);
+                theRegEndpoint, theJwksEndpoint);
     }
 }

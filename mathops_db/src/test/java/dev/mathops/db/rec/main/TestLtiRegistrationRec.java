@@ -30,6 +30,9 @@ final class TestLtiRegistrationRec {
     /** A field name. */
     private static final String TEST_REG_ENDPOINT = "https://domino.math.colostate.edu:20443/api/lti/registrations";
 
+    /** A field name. */
+    private static final String TEST_JWKS_ENDPOINT = "https://domino.math.colostate.edu:20443/api/lti/security/jwks";
+
     /** The expected String serialization of a test record. */
     private static final String EXPECT_SER99 = String.join(RecBase.DIVIDER,
             "client_id=1234CLIENT1234",
@@ -37,7 +40,8 @@ final class TestLtiRegistrationRec {
             "issuer_port=:12345",
             "redirect_uri=https://coursedev.math.colostate.edu/lti/lti13_callback",
             "auth_endpoint=https://domino.math.colostate.edu:20443/api/lti/authorize_redirect",
-            "reg_endpoint=https://domino.math.colostate.edu:20443/api/lti/registrations");
+            "reg_endpoint=https://domino.math.colostate.edu:20443/api/lti/registrations",
+            "jwks_endpoint=https://domino.math.colostate.edu:20443/api/lti/security/jwks");
 
     /**
      * Constructs a new {@code TestLtiRegistrationRec}.
@@ -53,7 +57,7 @@ final class TestLtiRegistrationRec {
     void test0001() {
 
         final LtiRegistrationRec obj = new LtiRegistrationRec(TEST_CLIENT_ID, TEST_ISSUER, TEST_ISSUER_PORT,
-                TEST_REDIRECT_URI, TEST_AUTH_ENDPOINT, TEST_REG_ENDPOINT);
+                TEST_REDIRECT_URI, TEST_AUTH_ENDPOINT, TEST_REG_ENDPOINT, TEST_JWKS_ENDPOINT);
 
         assertEquals(TEST_CLIENT_ID, obj.clientId, "Invalid client ID value after constructor");
         assertEquals(TEST_ISSUER, obj.issuer, "Invalid issuer value after constructor");
@@ -61,6 +65,7 @@ final class TestLtiRegistrationRec {
         assertEquals(TEST_REDIRECT_URI, obj.redirectUri, "Invalid redirect URI value after constructor");
         assertEquals(TEST_AUTH_ENDPOINT, obj.authEndpoint, "Invalid auth endpoint value after constructor");
         assertEquals(TEST_REG_ENDPOINT, obj.regEndpoint, "Invalid reg endpoint value after constructor");
+        assertEquals(TEST_JWKS_ENDPOINT, obj.jwksEndpoint, "Invalid JWKS endpoint value after constructor");
     }
 
     /** Test case. */
@@ -69,7 +74,7 @@ final class TestLtiRegistrationRec {
     void test0098() {
 
         final LtiRegistrationRec obj = new LtiRegistrationRec(TEST_CLIENT_ID, TEST_ISSUER, TEST_ISSUER_PORT,
-                TEST_REDIRECT_URI, TEST_AUTH_ENDPOINT, TEST_REG_ENDPOINT);
+                TEST_REDIRECT_URI, TEST_AUTH_ENDPOINT, TEST_REG_ENDPOINT, TEST_JWKS_ENDPOINT);
 
         final String ser = obj.toString();
 

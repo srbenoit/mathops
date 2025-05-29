@@ -156,6 +156,11 @@ public enum DataDict {
     //
 
     /** A field name for serialization of records. */
+    public static final String FLD_JWKS_ENDPOINT = "jwks_endpoint";
+
+    //
+
+    /** A field name for serialization of records. */
     public static final String FLD_LAST_CLASS_DATE = "last_class_date";
 
     /** A field name for serialization of records. */

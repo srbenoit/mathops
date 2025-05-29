@@ -12,7 +12,12 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * The page that handles an "LTI Launch", as defined in
@@ -27,6 +32,37 @@ import java.util.Enumeration;
  */
 public enum PageLaunch {
     ;
+
+    /** The number of minutes a launch can wait before occurring. */
+    private static final int LAUNCH_EXPIRY_MINUTES = 10;
+
+    /** A map from "state" string to the pending launch. */
+    private static Map<String, PendingLaunch> LAUNCHES = new HashMap<>(20);
+
+    /**
+     * Searches for a pending launch with a particular state.
+     *
+     * @param state the state string
+     * @return the pending launch data, if found; null if not
+     */
+    public static PendingLaunch getPendingLaunch(final String state) {
+
+        synchronized (LAUNCHES) {
+            final LocalDateTime now = LocalDateTime.now();
+            final Set<Map.Entry<String, PendingLaunch>> entrySet = LAUNCHES.entrySet();
+            final Iterator<Map.Entry<String, PendingLaunch>> iter = entrySet.iterator();
+            while (iter.hasNext()) {
+                final Map.Entry<String, PendingLaunch> entry = iter.next();
+                final PendingLaunch pending = entry.getValue();
+                final LocalDateTime expiry = pending.expiry();
+                if (expiry.isBefore(now)) {
+                    iter.remove();
+                }
+            }
+
+            return LAUNCHES.remove(state);
+        }
+    }
 
     /**
      * Responds to a GET or POST to "lti13_launch".  This redirects the client browser (which is embedded in the LMS) to
@@ -81,6 +117,12 @@ public enum PageLaunch {
             final String state = CoreConstants.newId(20);
             final String nonce = CoreConstants.newId(20);
 
+            final LocalDateTime now = LocalDateTime.now();
+            final LocalDateTime expires = now.plusMinutes(LAUNCH_EXPIRY_MINUTES);
+            synchronized (LAUNCHES) {
+                LAUNCHES.put(state, new PendingLaunch(nonce, registration, expires));
+            }
+
             final HtmlBuilder htm = new HtmlBuilder(1000);
 
             htm.add(registration.authEndpoint, "?scope=openid&response_type=id_token&client_id=", clientId,
@@ -91,5 +133,16 @@ public enum PageLaunch {
 
             resp.sendRedirect(location, 302);
         }
+    }
+
+    /**
+     * Data for a pending launch.  When the "callback" URI is accessed with a Token ID and a state, the state used to
+     * look up the pending launch and that is used to validate the issuer and "nonce", and to obtain the client ID.
+     *
+     * @param nonce        the nonce
+     * @param registration the LTI registration
+     * @param expiry       the date/time the login will expire
+     */
+    public record PendingLaunch(String nonce, LtiRegistrationRec registration, LocalDateTime expiry) {
     }
 }

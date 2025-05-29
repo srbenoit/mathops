@@ -266,9 +266,10 @@ public enum PageDynamicRegistration {
                     final String msg = "LTI Tool registration failed - incomplete registration response.";
                     PageError.showErrorPage(req, resp, SUBTITLE, msg);
                 } else {
+                    final String jwksUri = openIdConfig.getJWKSUri();
                     try {
                         final LtiRegistrationRec rec = new LtiRegistrationRec(clientId, issuer, portStr, redirectUri,
-                                authEndpoint, regEndpoint);
+                                authEndpoint, regEndpoint, jwksUri);
                         LtiRegistrationLogic.INSTANCE.insert(cache, rec);
 
                         final HtmlBuilder htm = new HtmlBuilder(2000);

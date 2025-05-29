@@ -4,6 +4,8 @@ import dev.mathops.db.DataDict;
 import dev.mathops.db.rec.RecBase;
 import dev.mathops.text.builder.HtmlBuilder;
 
+import java.util.Objects;
+
 /**
  * An immutable raw "LTI registration" record.
  *
@@ -36,18 +38,23 @@ public final class LtiRegistrationRec extends RecBase implements Comparable<LtiR
     /** The 'reg_endpoint' field value (a URI). */
     public final String regEndpoint;
 
+    /** The 'jwks_endpoint' field value (a URI). */
+    public final String jwksEndpoint;
+
     /**
      * Constructs a new {@code LtiRegistrationRec}.
      *
      * @param theClientId     the client ID
      * @param theIssuer       the issuer host name
      * @param theIssuerPort   the issuer port number
-     * @param theRedirectUri the redirect URI
+     * @param theRedirectUri  the redirect URI
      * @param theAuthEndpoint the authorization endpoint
      * @param theRegEndpoint  the registration endpoint
+     * @param theJwksEndpoint the JWKS endpoint (null if the LMS did not provide one)
      */
     public LtiRegistrationRec(final String theClientId, final String theIssuer, final String theIssuerPort,
-                            final String theRedirectUri,  final String theAuthEndpoint, final String theRegEndpoint) {
+                              final String theRedirectUri, final String theAuthEndpoint, final String theRegEndpoint,
+                              final String theJwksEndpoint) {
 
         super();
 
@@ -76,6 +83,7 @@ public final class LtiRegistrationRec extends RecBase implements Comparable<LtiR
         this.redirectUri = theRedirectUri;
         this.authEndpoint = theAuthEndpoint;
         this.regEndpoint = theRegEndpoint;
+        this.jwksEndpoint = theJwksEndpoint;
     }
 
     /**
@@ -123,6 +131,8 @@ public final class LtiRegistrationRec extends RecBase implements Comparable<LtiR
         appendField(htm, DataDict.FLD_AUTH_ENDPOINT, this.authEndpoint);
         htm.add(DIVIDER);
         appendField(htm, DataDict.FLD_REG_ENDPOINT, this.regEndpoint);
+        htm.add(DIVIDER);
+        appendField(htm, DataDict.FLD_JWKS_ENDPOINT, this.jwksEndpoint);
 
         return htm.toString();
     }
@@ -140,7 +150,8 @@ public final class LtiRegistrationRec extends RecBase implements Comparable<LtiR
                + this.issuerPort.hashCode()
                + this.redirectUri.hashCode()
                + this.authEndpoint.hashCode()
-               + this.regEndpoint.hashCode();
+               + this.regEndpoint.hashCode()
+               + Objects.hashCode(this.jwksEndpoint);
     }
 
     /**
@@ -162,7 +173,8 @@ public final class LtiRegistrationRec extends RecBase implements Comparable<LtiR
                     && this.issuerPort.equals(rec.issuerPort)
                     && this.redirectUri.equals(rec.redirectUri)
                     && this.authEndpoint.equals(rec.authEndpoint)
-                    && this.regEndpoint.equals(rec.regEndpoint);
+                    && this.regEndpoint.equals(rec.regEndpoint)
+                    && Objects.equals(this.jwksEndpoint, rec.jwksEndpoint);
         } else {
             equal = false;
         }
