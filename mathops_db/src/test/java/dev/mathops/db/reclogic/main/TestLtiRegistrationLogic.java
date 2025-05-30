@@ -33,27 +33,33 @@ final class TestLtiRegistrationLogic {
 
     /** A raw test record. */
     private static final LtiRegistrationRec RAW1 =
-            new LtiRegistrationRec("CLIENT_111", "issuer.1", "port1", "redirect.1", "auth.1", "reg.1", "jwks.1");
+            new LtiRegistrationRec("CLIENT_111", "issuer.1", "port1", "redirect.1", "auth.1", "token.1", "reg.1",
+                    "jwks.1");
 
     /** A raw test record. */
     private static final LtiRegistrationRec RAW2 =
-            new LtiRegistrationRec("CLIENT_222", "issuer.2", "port2", "redirect.2", "auth.2", "reg.2", "jwks.2");
+            new LtiRegistrationRec("CLIENT_222", "issuer.2", "port2", "redirect.2", "auth.2", "token.2", "reg.2",
+                    "jwks.2");
 
     /** A raw test record. */
     private static final LtiRegistrationRec RAW3 =
-            new LtiRegistrationRec("CLIENT_333", "issuer.3", "port3", "redirect.3", "auth.3", "reg.3", "jwks.3");
+            new LtiRegistrationRec("CLIENT_333", "issuer.3", "port3", "redirect.3", "auth.3", "token.3", "reg.3",
+                    "jwks.3");
 
     /** A raw test record. */
     private static final LtiRegistrationRec RAW4 =
-            new LtiRegistrationRec("CLIENT_444", "issuer.4", "port4", "redirect.4", "auth.4", "reg.4", "jwks.4");
+            new LtiRegistrationRec("CLIENT_444", "issuer.4", "port4", "redirect.4", "auth.4", "token.4", "reg.4",
+                    "jwks.4");
 
     /** A raw test record. */
     private static final LtiRegistrationRec RAW5 =
-            new LtiRegistrationRec("CLIENT_555", "issuer.5", "port5", "redirect.5", "auth.5", "reg.5", "jwks.5");
+            new LtiRegistrationRec("CLIENT_555", "issuer.5", "port5", "redirect.5", "auth.5", "token.5", "reg.5",
+                    "jwks.5");
 
     /** A raw test record. */
     private static final LtiRegistrationRec UPD5 =
-            new LtiRegistrationRec("CLIENT_555", "issuer.5", "port5a", "redirect.5a", "auth.5a", "reg.5a", "jwks.5a");
+            new LtiRegistrationRec("CLIENT_555", "issuer.5", "port5a", "redirect.5a", "auth.5a", "token.5a", "reg.5a",
+                    "jwks.5a");
 
     /** The database profile. */
     static Profile profile;
@@ -73,8 +79,9 @@ final class TestLtiRegistrationLogic {
         Log.warning("Unexpected issuer port ", r.issuerPort);
         Log.warning("Unexpected redirect uri ", r.redirectUri);
         Log.warning("Unexpected auth endpoint ", r.authEndpoint);
+        Log.warning("Unexpected token endpoint ", r.tokenEndpoint);
         Log.warning("Unexpected reg endpoint ", r.regEndpoint);
-        Log.warning("Unexpected JWKS endpoint ", r.jwksEndpoint);
+        Log.warning("Unexpected JWKS URI ", r.jwksUri);
     }
 
     /** Initialize the test class. */

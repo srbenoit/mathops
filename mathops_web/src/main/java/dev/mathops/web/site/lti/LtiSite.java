@@ -2,18 +2,20 @@ package dev.mathops.web.site.lti;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.file.FileLoader;
+import dev.mathops.commons.installation.EPath;
+import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.cfg.Site;
 import dev.mathops.db.logic.ELiveRefreshes;
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.rec.main.LtiRegistrationRec;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
 import dev.mathops.session.SessionResult;
-import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.text.internet.RFC7517;
+import dev.mathops.text.internet.RFC8017KeyPairGenerator;
 import dev.mathops.text.parser.ParsingException;
 import dev.mathops.text.parser.json.JSONObject;
 import dev.mathops.text.parser.json.JSONParser;
@@ -21,15 +23,18 @@ import dev.mathops.web.site.BasicCss;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.course.CourseSite;
-import dev.mathops.web.site.lti.canvascourse.PageCallback;
-import dev.mathops.web.site.lti.canvascourse.PageDynamicRegistration;
-import dev.mathops.web.site.lti.canvascourse.PageLaunch;
-import jakarta.servlet.ServletRequest;
+import dev.mathops.web.site.lti.canvascourse.LTICallback;
+import dev.mathops.web.site.lti.canvascourse.LTIJWKS;
+import dev.mathops.web.site.lti.canvascourse.LTITarget;
+import dev.mathops.web.site.lti.canvascourse.LTIDynamicRegistration;
+import dev.mathops.web.site.lti.canvascourse.LTILaunch;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -43,8 +48,9 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A site to deliver Precalculus exams through a Canvas LTI quiz.
@@ -57,8 +63,14 @@ public final class LtiSite extends CourseSite {
     /** The expiration date/time for LTI key sets. */
     private static final int LTI_KEY_EXPIRY_MINUTES = 180;
 
+    /** The number of minutes a redirect can wait before expiring. */
+    private static final long REDIRECT_EXPIRY_MINUTES = 5L;
+
     /** A map from LTI registration to its JSON Web Key Set. */
     private final Map<LtiRegistrationRec, JWKS> ltiKeys;
+
+    /** A map from "nonce" string to the pending redirect. */
+    private final Map<String, PendingTargetRedirect> redirects;
 
     /**
      * Constructs a new {@code LtiSite}.
@@ -71,6 +83,7 @@ public final class LtiSite extends CourseSite {
         super(theSite, theSessions);
 
         this.ltiKeys = new HashMap<>(10);
+        this.redirects = new HashMap<>(20);
     }
 
     /**
@@ -108,15 +121,16 @@ public final class LtiSite extends CourseSite {
             switch (subpath) {
                 // This page is called when the Canvas administrator creates a new Developer Key using "LTI
                 // Registration". It presents a form that POSTS to the same URL if the user accepts the registration.
-                case "lti13_dynamic_registration.html" -> PageDynamicRegistration.doGet(this, req, resp);
+                case "lti13_dynamic_registration.html" -> LTIDynamicRegistration.doGet(this, req, resp);
                 // This is called by Canvas to initiate an LTI Launch - it responds with a redirect to the
                 // authorization endpoint for the LTI registration
-                case "lti13_launch" -> PageLaunch.doLaunch(cache, this, req, resp);
+                case "lti13_launch" -> LTILaunch.doLaunch(cache, this, req, resp);
                 // A callback from the LMS after an LTI launch redirect.
-                case "lti13_callback" -> PageCallback.doCallback(cache, this, req, resp);
-
-                // OBSOLETE:
-                case "lti13_dev_key_configuration.json" -> PageLTI13.doGetDevKeyConfigurationJson(req, resp);
+                case "lti13_callback" -> LTICallback.doCallback(cache, this, req, resp);
+                // The target URI for requests for LTI content.
+                case "lti13_target" -> LTITarget.doTarget(cache, this, req, resp);
+                // The target URI for requests for LTI content.
+                case "lti13_jwks" -> LTIJWKS.doGet(cache, this, req, resp);
 
                 case "basestyle.css" ->
                         sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
@@ -144,10 +158,6 @@ public final class LtiSite extends CourseSite {
                 case "home.html" -> PageHome.showPage(cache, this, req, resp);
                 case "challenge.html" -> PageChallenge.showPage(cache, this, req, resp);
                 case "course.html" -> PageFinished.showPage(req, resp);
-
-                case "cartridge_basiclti_link.xml" -> PageLTI.doGetCartridgeBasicLTILink(req, resp);
-                case "launch.html" -> PageLTI.doGetLaunch(req, resp);
-                case "endp.html" -> PageLTI.doGetEndpoint(req, resp);
 
                 case null, default -> {
                     Log.info("GET request to unrecognized URL: ", subpath);
@@ -188,12 +198,14 @@ public final class LtiSite extends CourseSite {
         switch (subpath) {
             // This is called by the form shown when doing an "LTI Registration" to accept the registration of
             // the tool
-            case "lti13_dynamic_registration.html" -> PageDynamicRegistration.doPost(cache, this, req, resp);
+            case "lti13_dynamic_registration.html" -> LTIDynamicRegistration.doPost(cache, this, req, resp);
             // This is called by Canvas to initiate an LTI Launch - it responds with a redirect to the
             // authorization endpoint for the LTI registration
-            case "lti13_launch" -> PageLaunch.doLaunch(cache, this, req, resp);
+            case "lti13_launch" -> LTILaunch.doLaunch(cache, this, req, resp);
             // A callback from the LMS after an LTI launch redirect.
-            case "lti13_callback" -> PageCallback.doCallback(cache, this, req, resp);
+            case "lti13_callback" -> LTICallback.doCallback(cache, this, req, resp);
+            // The target URI for requests for LTI content.
+            case "lti13_target" -> LTITarget.doTarget(cache, this, req, resp);
 
             // THe next three are used by the online Teams proctoring process
             case "gainaccess.html" -> PageIndex.processAccessCode(cache, this, req, resp);
@@ -271,154 +283,52 @@ public final class LtiSite extends CourseSite {
     }
 
     /**
-     * Displays the page that shows an embedded video for a course based on a media-id, course, unit, and lesson.
+     * Creates the key store for the client.
      *
-     * <p>
-     * The request should have the following parameters:
-     * <ul>
-     * <li><b>dir</b>: the directory on the streaming server (below the 'media' directory, such as
-     * "M261") from which to serve content. This directory should contain 'poster', 'mp4', 'webm',
-     * 'ogv', and 'vtt' subdirectories.
-     * <li><b>id</b>: the video ID, such as "MC.13-Vectors.01-3DCoordinates.01.LE.01". The
-     * appropriate suffix will be added to this value to obtain the filename to serve from each
-     * subdirectory of <b>dir</b>
-     * <li><b>width</b> (optional): a CSS width, specified in pixels, such as "640px". If present
-     * (and if the value appears to be a valid CSS measurement), video width will be set as
-     * indicated; if omitted, width and height will be set to 100%.
-     * </ul>
-     *
-     * @param req  the request
-     * @param resp the response
-     * @throws IOException if there is an error writing the response
+     * @param clientId the client IDs
      */
-    private static void doVideo(final ServletRequest req, final HttpServletResponse resp)
-            throws IOException {
+    public static void createKeyStore(final String clientId) {
 
-        final String mediaId = req.getParameter("media-id");
-        final String course = req.getParameter("course");
-        final String dir = req.getParameter("dir");
-        final String id = req.getParameter("id");
-        final String width = req.getParameter("width");
+        // Create encryption and signing key pairs and store
+        final File baseDir = PathList.getInstance().get(EPath.BASE_DIR);
+        final File keysDir = new File(baseDir, "keys");
+        if (keysDir.exists() && keysDir.isDirectory()) {
+            final File clientKeyDir = new File(keysDir, clientId);
+            if (clientKeyDir.exists() || clientKeyDir.mkdirs()) {
+                final long timestamp = System.currentTimeMillis();
+                final String kid1 = Long.toString(timestamp);
+                final String kid2 = Long.toString(timestamp + 1);
+                final RFC8017KeyPairGenerator.KeyPair1 sigKeys = RFC8017KeyPairGenerator.generateKeyPair();
+                final RFC8017KeyPairGenerator.KeyPair1 encKeys = RFC8017KeyPairGenerator.generateKeyPair();
 
-        if (isParamInvalid(dir) || isParamInvalid(id) || isParamInvalid(width) || isParamInvalid(course)
-            || isParamInvalid(mediaId)) {
-            Log.warning("Bad parametrs - possible attack");
-            Log.warning("  dir='", dir, "'");
-            Log.warning("  id='", id, "'");
-            Log.warning("  width='", width, "'");
-            Log.warning("  course='", course, "'");
-            Log.warning("  mediaId='", mediaId, "'");
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
-        } else if ((course == null || course.isEmpty()) && (mediaId == null || mediaId.isEmpty())) {
-            final HtmlBuilder htm = new HtmlBuilder(1000);
+                final JSONObject publicSig = RFC7517.generateSigningJWK(sigKeys.pub(), kid1);
+                final JSONObject publicEnc = RFC7517.generateEncryptingJWK(encKeys.pub(), kid2);
+                final JSONObject publicKeySet = RFC7517.generateKeySet(publicSig, publicEnc);
 
-            final String style;
-            if ((width == null || width.isEmpty()) || !width.endsWith("px")) {
-                style = "width:100vw;height:100vh;object-fit:contain;";
+                final File publicSetFile = new File(clientKeyDir, "public.json");
+                final String publicSetJson = publicKeySet.toJSONCompact();
+                try (final FileWriter w = new FileWriter(publicSetFile)) {
+                    w.write(publicSetJson);
+                } catch (final IOException ex) {
+                    Log.warning("Failed to write public key store.");
+                }
+
+                final JSONObject privateSig = RFC7517.generatePrivate(sigKeys.priv(), kid1);
+                final JSONObject privateEnc = RFC7517.generatePrivate(encKeys.priv(), kid2);
+                final JSONObject privateKeySet = RFC7517.generateKeySet(privateSig, privateEnc);
+
+                final File privateSetFile = new File(clientKeyDir, "private.json");
+                final String privateSetJson = privateKeySet.toJSONCompact();
+                try (final FileWriter w = new FileWriter(privateSetFile)) {
+                    w.write(privateSetJson);
+                } catch (final IOException ex) {
+                    Log.warning("Failed to write private key store.");
+                }
             } else {
-                style = "width:" + width;
+                Log.warning("Unable to create client directory in which to store key pairs.");
             }
-
-            htm.addln("<!DOCTYPE html>")
-                    .addln("<html>")
-                    .addln("<head>")
-                    .addln(" <meta charset='utf-8'>")
-                    .addln(" <meta http-equiv='X-UA-Compatible' content='IE=edge'/>")
-                    .addln(" <meta http-equiv='Content-Type' ",
-                            "content='text/html;charset=utf-8'/>")
-                    .addln(" <title>Department of Mathematics - Colorado State University</title>")
-                    .addln("</head>")
-                    .addln("<body style='padding:0;margin:0;'>")
-                    .addln("<div style='width:100vw;height:100vh;'>")
-                    .addln("<video style='", style,
-                            "' controls='controls' poster='", STREAM, dir,
-                            "/poster/", id, ".png'>")
-                    .addln(" <source src='", STREAM, dir, "/mp4/", id,
-                            ".mp4' type='video/mp4'/>")
-                    .addln(" <source src='", STREAM, dir, "/webm/", id,
-                            ".webm' type='video/webm'/>")
-                    .addln(" <source src='", STREAM, dir, "/ogv/", id,
-                            ".ogv' type='video/ogg'/>")
-                    .addln(" <track  src='", STREAM, dir, "/vtt/", id,
-                            ".vtt' kind='subtitles' srclang='en' label='English' default/>")
-                    .addln("Video format not supported.") //
-                    .addln("</video>")
-                    .addln("</div>")
-                    .addln("</body>")
-                    .addln("</html>");
-
-            sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
         } else {
-            // For the tutorial courses, we don't want to force duplication of the video files in a
-            // new directory, so map those course numbers to the corresponding non-tutorial courses
-            final String actualCourse = switch (course) {
-                case RawRecordConstants.M1170 -> RawRecordConstants.M117;
-                case RawRecordConstants.M1180 -> RawRecordConstants.M118;
-                case RawRecordConstants.M1240 -> RawRecordConstants.M124;
-                case RawRecordConstants.M1250 -> RawRecordConstants.M125;
-                case RawRecordConstants.M1260 -> RawRecordConstants.M126;
-                case null, default -> course;
-            };
-
-            final String direct = actualCourse == null ? null
-                    : actualCourse.replace(CoreConstants.SPC, CoreConstants.EMPTY);
-
-            final HtmlBuilder htm = new HtmlBuilder(2000);
-
-            htm.addln("<!DOCTYPE html>")
-                    .addln("<html>")
-                    .addln("<head>")
-                    .addln(" <meta charset='utf-8'>")
-                    .addln(" <meta http-equiv='X-UA-Compatible' content='IE=edge'/>")
-                    .addln(" <meta http-equiv='Content-Type' ",
-                            "content='text/html;charset=utf-8'/>")
-                    .addln(" <title>Department of Mathematics - Colorado State University</title>")
-                    .addln("</head>")
-                    .addln("<body style='padding:0;margin:0;'>");
-
-            if (mediaId == null || actualCourse == null) {
-                htm.sDiv("indent11");
-                htm.addln("Invalid video request.");
-                htm.eDiv();
-            } else {
-                htm.addln("<script>");
-                htm.addln(" function showReportError() {");
-                htm.addln("  document.getElementById('error_rpt_link')",
-                        ".className='hidden';");
-                htm.addln("  document.getElementById('error_rpt')",
-                        ".className='visible';");
-                htm.addln(" }");
-                htm.addln("</script>");
-
-                htm.sDiv("indent11");
-
-                htm.addln("<video ", "M160".equals(actualCourse)
-                                ? "width='1024' height='768'"
-                                : "width='640' height='480'",
-                        " controls='controls' autoplay='autoplay'>");
-                htm.addln(" <source src='", STREAM, direct, "/mp4/",
-                        mediaId, ".mp4' type='video/mp4'/>");
-                htm.addln(" <source src='", STREAM, direct, "/ogv/",
-                        mediaId, ".ogv' type='video/ogg'/>");
-                htm.addln(" <track src='/www/math/", direct, "/vtt/",
-                        mediaId, ".vtt' kind='subtitles' srclang='en' ",
-                        "label='English' default='default'/>");
-                htm.addln(" Your browser does not support inline video.");
-                htm.addln("</video>");
-
-                htm.addln("<div><a href='/math/", direct,
-                        "/transcripts/", mediaId, ".pdf'>",
-                        "Access a plain-text transcript for screen-readers (Adobe PDF).", //
-                        "</a></div>");
-
-                htm.sDiv().add("<a href='", STREAM, direct, "/pdf/",
-                        mediaId, ".pdf'>Access a static (Adobe PDF) version.</a>").eDiv();
-            }
-
-            htm.addln("</body>")
-                    .addln("</html>");
-
-            sendReply(req, resp, MIME_TEXT_HTML, htm);
+            Log.warning("Unable to find secure 'keys' directory in which to store key pairs.");
         }
     }
 
@@ -442,9 +352,9 @@ public final class LtiSite extends CourseSite {
         }
 
         if (result == null) {
-            if (registration.jwksEndpoint != null) {
+            if (registration.jwksUri != null) {
                 try {
-                    final URI uri = new URI(registration.jwksEndpoint);
+                    final URI uri = new URI(registration.jwksUri);
                     final URL url = uri.toURL();
                     final URLConnection conn = url.openConnection();
                     final InputStream input = conn.getInputStream();
@@ -472,9 +382,9 @@ public final class LtiSite extends CourseSite {
                         Log.warning("Unable to parse data from JWKS endpoint", ex);
                     }
                 } catch (final URISyntaxException | MalformedURLException ex) {
-                    Log.warning("Invalid JWKS endpoint: ", registration.jwksEndpoint, ex);
+                    Log.warning("Invalid JWKS endpoint: ", registration.jwksUri, ex);
                 } catch (final IOException ex) {
-                    Log.warning("Unable to connect to JWKS endpoint: ", registration.jwksEndpoint, ex);
+                    Log.warning("Unable to connect to JWKS endpoint: ", registration.jwksUri, ex);
                 }
             } else {
                 Log.warning("LTI registration did not include JWKS endpoint.");
@@ -482,5 +392,75 @@ public final class LtiSite extends CourseSite {
         }
 
         return result;
+    }
+
+    /**
+     * Creates a redirect.
+     *
+     * @param registration   the LTI registration
+     * @param idTokenPayload the ID token payload (verified)
+     * @return the Nonce to use for the redirect
+     */
+    public String createRedirect(final LtiRegistrationRec registration,
+                                 JSONObject idTokenPayload) {
+
+        synchronized (this.redirects) {
+            String nonce = CoreConstants.newId(24);
+            while (this.redirects.containsKey(nonce)) {
+                nonce = CoreConstants.newId(24);
+            }
+            final LocalDateTime now = LocalDateTime.now();
+            final LocalDateTime expiry = now.plusMinutes(REDIRECT_EXPIRY_MINUTES);
+
+            final PendingTargetRedirect redirect = new PendingTargetRedirect(nonce, registration, idTokenPayload,
+                    expiry);
+            this.redirects.put(nonce, redirect);
+
+            return nonce;
+        }
+    }
+
+    /**
+     * Retrieves (and deletes) the redirect associated with a "nonce".
+     *
+     * @param nonce the nonce value
+     * @return the associated redirect, null if none found
+     */
+    public PendingTargetRedirect getRedirect(final String nonce) {
+
+        synchronized (this.redirects) {
+            final PendingTargetRedirect result = this.redirects.remove(nonce);
+
+            if (!this.redirects.isEmpty()) {
+                // Check for expired and remove them
+                final LocalDateTime now = LocalDateTime.now();
+
+                final Set<Map.Entry<String, PendingTargetRedirect>> entrySet = this.redirects.entrySet();
+                final Iterator<Map.Entry<String, PendingTargetRedirect>> iter = entrySet.iterator();
+                while (iter.hasNext()) {
+                    final Map.Entry<String, PendingTargetRedirect> entry = iter.next();
+                    final PendingTargetRedirect value = entry.getValue();
+                    final LocalDateTime expiry = value.expiry();
+                    if (expiry.isBefore(now)) {
+                        iter.remove();
+                    }
+                }
+            }
+
+            return result;
+        }
+    }
+
+    /**
+     * Data for a pending launch.  When the "callback" URI is accessed with a Token ID and a state, the state used to
+     * look up the pending launch and that is used to validate the issuer and "nonce", and to obtain the client ID.
+     *
+     * @param nonce          the nonce
+     * @param registration   the LTI registration
+     * @param idTokenPayload the target link URI
+     * @param expiry         the date/time the redirect will expire
+     */
+    public record PendingTargetRedirect(String nonce, LtiRegistrationRec registration, JSONObject idTokenPayload,
+                                        LocalDateTime expiry) {
     }
 }

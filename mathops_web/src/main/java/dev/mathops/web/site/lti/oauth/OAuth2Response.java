@@ -1,4 +1,4 @@
-package dev.mathops.web.site.lti;
+package dev.mathops.web.site.lti.oauth;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.text.builder.HtmlBuilder;

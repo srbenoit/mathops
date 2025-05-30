@@ -35,26 +35,30 @@ public final class LtiRegistrationRec extends RecBase implements Comparable<LtiR
     /** The 'auth_endpoint' field value (a URI). */
     public final String authEndpoint;
 
+    /** The 'token_endpoint' field value (a URI). */
+    public final String tokenEndpoint;
+
     /** The 'reg_endpoint' field value (a URI). */
     public final String regEndpoint;
 
-    /** The 'jwks_endpoint' field value (a URI). */
-    public final String jwksEndpoint;
+    /** The 'jwks_uri' field value (a URI). */
+    public final String jwksUri;
 
     /**
      * Constructs a new {@code LtiRegistrationRec}.
      *
-     * @param theClientId     the client ID
-     * @param theIssuer       the issuer host name
-     * @param theIssuerPort   the issuer port number
-     * @param theRedirectUri  the redirect URI
-     * @param theAuthEndpoint the authorization endpoint
-     * @param theRegEndpoint  the registration endpoint
-     * @param theJwksEndpoint the JWKS endpoint (null if the LMS did not provide one)
+     * @param theClientId      the client ID
+     * @param theIssuer        the issuer host name
+     * @param theIssuerPort    the issuer port number
+     * @param theRedirectUri   the redirect URI
+     * @param theAuthEndpoint  the authorization endpoint
+     * @param theTokenEndpoint the token endpoint
+     * @param theRegEndpoint   the registration endpoint
+     * @param theJwksUri       the JWKS URI (null if the LMS did not provide one)
      */
     public LtiRegistrationRec(final String theClientId, final String theIssuer, final String theIssuerPort,
-                              final String theRedirectUri, final String theAuthEndpoint, final String theRegEndpoint,
-                              final String theJwksEndpoint) {
+                              final String theRedirectUri, final String theAuthEndpoint,
+                              final String theTokenEndpoint, final String theRegEndpoint, final String theJwksUri) {
 
         super();
 
@@ -73,6 +77,9 @@ public final class LtiRegistrationRec extends RecBase implements Comparable<LtiR
         if (theAuthEndpoint == null) {
             throw new IllegalArgumentException("Authentication endpoint may not be null");
         }
+        if (theTokenEndpoint == null) {
+            throw new IllegalArgumentException("Token endpoint may not be null");
+        }
         if (theRegEndpoint == null) {
             throw new IllegalArgumentException("Registration endpoint may not be null");
         }
@@ -82,8 +89,9 @@ public final class LtiRegistrationRec extends RecBase implements Comparable<LtiR
         this.issuerPort = theIssuerPort;
         this.redirectUri = theRedirectUri;
         this.authEndpoint = theAuthEndpoint;
+        this.tokenEndpoint = theTokenEndpoint;
         this.regEndpoint = theRegEndpoint;
-        this.jwksEndpoint = theJwksEndpoint;
+        this.jwksUri = theJwksUri;
     }
 
     /**
@@ -130,9 +138,11 @@ public final class LtiRegistrationRec extends RecBase implements Comparable<LtiR
         htm.add(DIVIDER);
         appendField(htm, DataDict.FLD_AUTH_ENDPOINT, this.authEndpoint);
         htm.add(DIVIDER);
+        appendField(htm, DataDict.FLD_TOKEN_ENDPOINT, this.tokenEndpoint);
+        htm.add(DIVIDER);
         appendField(htm, DataDict.FLD_REG_ENDPOINT, this.regEndpoint);
         htm.add(DIVIDER);
-        appendField(htm, DataDict.FLD_JWKS_ENDPOINT, this.jwksEndpoint);
+        appendField(htm, DataDict.FLD_JWKS_URI, this.jwksUri);
 
         return htm.toString();
     }
@@ -150,8 +160,9 @@ public final class LtiRegistrationRec extends RecBase implements Comparable<LtiR
                + this.issuerPort.hashCode()
                + this.redirectUri.hashCode()
                + this.authEndpoint.hashCode()
+               + this.tokenEndpoint.hashCode()
                + this.regEndpoint.hashCode()
-               + Objects.hashCode(this.jwksEndpoint);
+               + Objects.hashCode(this.jwksUri);
     }
 
     /**
@@ -173,8 +184,9 @@ public final class LtiRegistrationRec extends RecBase implements Comparable<LtiR
                     && this.issuerPort.equals(rec.issuerPort)
                     && this.redirectUri.equals(rec.redirectUri)
                     && this.authEndpoint.equals(rec.authEndpoint)
+                    && this.tokenEndpoint.equals(rec.tokenEndpoint)
                     && this.regEndpoint.equals(rec.regEndpoint)
-                    && Objects.equals(this.jwksEndpoint, rec.jwksEndpoint);
+                    && Objects.equals(this.jwksUri, rec.jwksUri);
         } else {
             equal = false;
         }

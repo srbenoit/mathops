@@ -9,13 +9,10 @@ import java.util.Locale;
  */
 final class Res extends ResBundle {
 
-    /** An incrementing index for resource keys. */
-    private static int index = 1;
-
     // Used by LtiSite
 
     /** A resource key. */
-    static final String UNRECOGNIZED_PATH = key(index++);
+    static final String UNRECOGNIZED_PATH = key(1);
 
     //
 

@@ -13,6 +13,7 @@ import dev.mathops.text.parser.xml.XmlEscaper;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.site.lti.LtiSite;
+import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -32,13 +33,13 @@ import java.util.Enumeration;
 import java.util.List;
 
 /**
- * The page that manages the CSU Precalculus Program as an LTI 1.3 tool.
+ * This class manages dynamic LTI 1.3 registration of the application with the LMS.
  *
  * <p>
  * The process followed here is documented at <a
  * href='https://www.imsglobal.org/spec/lti-dr/v1p0#overview'>https://www.imsglobal.org/spec/lti-dr/v1p0#overview</a>.
  */
-public enum PageDynamicRegistration {
+public enum LTIDynamicRegistration {
     ;
 
     /** The subtitle for error displays. */
@@ -129,6 +130,7 @@ public enum PageDynamicRegistration {
      * URL provided in a parameter, then performs the OpenID Client Registration process.  Finally, it returns a web
      * page that closes its containing window, as requested by Canvas.
      *
+     * @param cache the data cache
      * @param site the owning site
      * @param req  the request
      * @param resp the response
@@ -231,7 +233,7 @@ public enum PageDynamicRegistration {
      * @throws IOException if there is an error writing the response
      */
     private static void performClientRegistration(final Cache cache, final String host, final String path,
-                                                  final HttpServletRequest req, final HttpServletResponse resp,
+                                                  final ServletRequest req, final HttpServletResponse resp,
                                                   final OpenIdConfiguration openIdConfig, final String portStr,
                                                   final String registrationToken) throws IOException {
 
@@ -254,6 +256,7 @@ public enum PageDynamicRegistration {
                 final String clientId = response.getStringProperty("client_id");
                 final String issuer = openIdConfig.getIssuer();
                 final String authEndpoint = openIdConfig.getAuthorizationEndpoint();
+                final String tokenEndpoint = openIdConfig.getTokenEndpoint();
                 String redirectUri = null;
                 final Object o = response.getProperty("redirect_uris");
                 if (o instanceof Object[] arr && arr.length > 0) {
@@ -266,10 +269,12 @@ public enum PageDynamicRegistration {
                     final String msg = "LTI Tool registration failed - incomplete registration response.";
                     PageError.showErrorPage(req, resp, SUBTITLE, msg);
                 } else {
+                    LtiSite.createKeyStore(clientId);
+
                     final String jwksUri = openIdConfig.getJWKSUri();
                     try {
                         final LtiRegistrationRec rec = new LtiRegistrationRec(clientId, issuer, portStr, redirectUri,
-                                authEndpoint, regEndpoint, jwksUri);
+                                authEndpoint, tokenEndpoint, regEndpoint, jwksUri);
                         LtiRegistrationLogic.INSTANCE.insert(cache, rec);
 
                         final HtmlBuilder htm = new HtmlBuilder(2000);
@@ -289,6 +294,7 @@ public enum PageDynamicRegistration {
             }
         }
     }
+
 
     /**
      * Assembles and sends the Client Registration request as documented in
@@ -409,7 +415,10 @@ public enum PageDynamicRegistration {
             } else if ("https://canvas.instructure.com/lti/course_navigation".equals(res)) {
                 comma = addLinkResource(requestJson, comma, "CSU Course Navigation.", res, null);
             } else if ("https://canvas.instructure.com/lti/course_settings_sub_navigation".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Settings Sub Navigation.", res, null);
+
+                final String iconUri = "https://" + host + "/www/images/tool.png";
+                comma = addLinkResource(requestJson, comma, "Configure CSU Mathematics Tool", res, iconUri);
+
             } else if ("https://canvas.instructure.com/lti/discussion_topic_index_menu".equals(res)) {
                 comma = addLinkResource(requestJson, comma, "CSU Discussion Topic Index Menu.", res, null);
             } else if ("https://canvas.instructure.com/lti/discussion_topic_menu".equals(res)) {

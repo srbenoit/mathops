@@ -1,10 +1,11 @@
-package dev.mathops.web.site.lti;
+package dev.mathops.web.site.lti.oauth;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.parser.Base64;
+import dev.mathops.web.site.lti.EOAuthRequestVerifyResult;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;

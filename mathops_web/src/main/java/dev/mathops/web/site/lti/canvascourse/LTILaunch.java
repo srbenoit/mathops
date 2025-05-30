@@ -30,14 +30,14 @@ import java.util.Set;
  * The process followed here is documented at <a
  * href='https://www.imsglobal.org/spec/lti-dr/v1p0#overview'>https://www.imsglobal.org/spec/lti-dr/v1p0#overview</a>.
  */
-public enum PageLaunch {
+public enum LTILaunch {
     ;
 
     /** The number of minutes a launch can wait before occurring. */
-    private static final int LAUNCH_EXPIRY_MINUTES = 10;
+    private static final long LAUNCH_EXPIRY_MINUTES = 10L;
 
     /** A map from "state" string to the pending launch. */
-    private static Map<String, PendingLaunch> LAUNCHES = new HashMap<>(20);
+    private static final Map<String, PendingLaunch> LAUNCHES = new HashMap<>(20);
 
     /**
      * Searches for a pending launch with a particular state.
@@ -45,7 +45,7 @@ public enum PageLaunch {
      * @param state the state string
      * @return the pending launch data, if found; null if not
      */
-    public static PendingLaunch getPendingLaunch(final String state) {
+    static PendingLaunch getPendingLaunch(final String state) {
 
         synchronized (LAUNCHES) {
             final LocalDateTime now = LocalDateTime.now();
@@ -77,19 +77,12 @@ public enum PageLaunch {
     public static void doLaunch(final Cache cache, final LtiSite site, final HttpServletRequest req,
                                 final HttpServletResponse resp) throws IOException {
 
-        final Enumeration<String> paramNames = req.getParameterNames();
-        while (paramNames.hasMoreElements()) {
-            final String name = paramNames.nextElement();
-            final String value = req.getParameter(name);
-            Log.info("Launch param '", name, "' = ", value);
-        }
-
-        final String clientId = req.getParameter("client_id");
-        final String issuer = req.getParameter("iss");
-        final String loginHint = req.getParameter("login_hint");
-        final String ltiMessageHint = req.getParameter("lti_message_hint");
-        final String targetLinkUri = req.getParameter("target_link_uri");
-
+        // final Enumeration<String> paramNames = req.getParameterNames();
+        // while (paramNames.hasMoreElements()) {
+        //     final String name = paramNames.nextElement();
+        //     final String value = req.getParameter(name);
+        //     Log.info("Launch param '", name, "' = ", value);
+        // }
         // 'iss' = ...
         // 'login_hint' = ...
         // 'client_id' = ...
@@ -100,6 +93,12 @@ public enum PageLaunch {
         // 'canvas_region' = ...
         // 'deployment_id' = ...
         // 'lti_storage_target' = ...
+
+        final String clientId = req.getParameter("client_id");
+        final String issuer = req.getParameter("iss");
+        final String loginHint = req.getParameter("login_hint");
+        final String ltiMessageHint = req.getParameter("lti_message_hint");
+        final String targetLinkUri = req.getParameter("target_link_uri");
 
         LtiRegistrationRec registration = null;
 
@@ -120,7 +119,7 @@ public enum PageLaunch {
             final LocalDateTime now = LocalDateTime.now();
             final LocalDateTime expires = now.plusMinutes(LAUNCH_EXPIRY_MINUTES);
             synchronized (LAUNCHES) {
-                LAUNCHES.put(state, new PendingLaunch(nonce, registration, expires));
+                LAUNCHES.put(state, new PendingLaunch(nonce, registration, targetLinkUri, expires));
             }
 
             final HtmlBuilder htm = new HtmlBuilder(1000);
@@ -139,10 +138,12 @@ public enum PageLaunch {
      * Data for a pending launch.  When the "callback" URI is accessed with a Token ID and a state, the state used to
      * look up the pending launch and that is used to validate the issuer and "nonce", and to obtain the client ID.
      *
-     * @param nonce        the nonce
-     * @param registration the LTI registration
-     * @param expiry       the date/time the login will expire
+     * @param nonce         the nonce
+     * @param registration  the LTI registration
+     * @param targetLinkUri the target link URI
+     * @param expiry        the date/time the login will expire
      */
-    public record PendingLaunch(String nonce, LtiRegistrationRec registration, LocalDateTime expiry) {
+    public record PendingLaunch(String nonce, LtiRegistrationRec registration, String targetLinkUri,
+                                LocalDateTime expiry) {
     }
 }

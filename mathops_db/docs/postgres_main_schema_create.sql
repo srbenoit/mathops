@@ -567,8 +567,9 @@ CREATE TABLE IF NOT EXISTS main.lti_registration (
     issuer_port              char(6)        NOT NULL,  -- The issuer port string, like ":20443" or ""
     redirect_uri             varchar(250)   NOT NULL,  -- The redirect URI
     auth_endpoint            varchar(250)   NOT NULL,  -- The authorization endpoint
+    token_endpoint           varchar(250)   NOT NULL,  -- The token endpoint
     reg_endpoint             varchar(250)   NOT NULL,  -- The registration endpoint
-    jwks_endpoint            varchar(250)   NOT NULL,  -- The JWKS endpoint from which to get JWT public keys
+    jwks_uri                 varchar(250)   NOT NULL,  -- The JWKS URI from which to get JWT public keys
     PRIMARY KEY (client_id, issuer)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main.lti_registration OWNER to math;
@@ -580,8 +581,9 @@ CREATE TABLE IF NOT EXISTS main_dev.lti_registration (
     issuer_port              char(6)        NOT NULL,
     redirect_uri             varchar(250)   NOT NULL,
     auth_endpoint            varchar(250)   NOT NULL,
+    token_endpoint           varchar(250)   NOT NULL,
     reg_endpoint             varchar(250)   NOT NULL,
-    jwks_endpoint            varchar(250)   NOT NULL,
+    jwks_uri                 varchar(250)   NOT NULL,
     PRIMARY KEY (client_id, issuer)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main_dev.lti_registration OWNER to math;
@@ -593,8 +595,9 @@ CREATE TABLE IF NOT EXISTS main_test.lti_registration (
     issuer_port              char(6)        NOT NULL,
     redirect_uri             varchar(250)   NOT NULL,
     auth_endpoint            varchar(250)   NOT NULL,
+    token_endpoint           varchar(250)   NOT NULL,
     reg_endpoint             varchar(250)   NOT NULL,
-    jwks_endpoint            varchar(250)   NOT NULL,
+    jwks_uri                 varchar(250)   NOT NULL,
     PRIMARY KEY (client_id, issuer)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main_test.lti_registration OWNER to math;

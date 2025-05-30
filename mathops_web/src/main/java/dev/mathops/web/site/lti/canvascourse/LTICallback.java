@@ -9,8 +9,6 @@ import dev.mathops.text.internet.RFC8017PublicKey;
 import dev.mathops.text.parser.ParsingException;
 import dev.mathops.text.parser.json.JSONObject;
 import dev.mathops.text.parser.json.JSONParser;
-import dev.mathops.web.site.AbstractSite;
-import dev.mathops.web.site.Page;
 import dev.mathops.web.site.lti.JWKS;
 import dev.mathops.web.site.lti.LtiSite;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,7 +17,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.Enumeration;
 
 /**
  * The page that manages the CSU Precalculus Program as an LTI 1.3 tool.
@@ -28,11 +25,11 @@ import java.util.Enumeration;
  * The process followed here is documented at <a
  * href='https://www.imsglobal.org/spec/lti-dr/v1p0'>https://www.imsglobal.org/spec/lti-dr/v1p0#overview</a>.
  */
-public enum PageCallback {
+public enum LTICallback {
     ;
 
     /**
-     * Responds to a GET or POST to "lti13_callback" with an Authentication Response as described in
+     * Responds to a GET or POST to "lti13_launch_callback" with an Authentication Response as described in
      * <a href='https://www.imsglobal.org/spec/security/v1p0/'>https://www.imsglobal.org/spec/security/v1p0/</a>.
      *
      * @param cache the data cache
@@ -44,8 +41,15 @@ public enum PageCallback {
     public static void doCallback(final Cache cache, final LtiSite site, final HttpServletRequest req,
                                   final HttpServletResponse resp) throws IOException {
 
+//        final Enumeration<String> paramNames = req.getParameterNames();
+//        while (paramNames.hasMoreElements()) {
+//            final String name = paramNames.nextElement();
+//            final String value = req.getParameter(name);
+//            Log.info("Callback param '", name, "' = ", value);
+//        }
+
         final String state = req.getParameter("state");
-        final PageLaunch.PendingLaunch pending = PageLaunch.getPendingLaunch(state);
+        final LTILaunch.PendingLaunch pending = LTILaunch.getPendingLaunch(state);
         if (pending == null) {
             PageError.showErrorPage(req, resp, "LTI Launch Process",
                     "No active invocation of the tool was found - possible timeout?");
@@ -57,10 +61,6 @@ public enum PageCallback {
                         "Unable to retrieve public key from LMS to validate LTI request.");
             } else {
                 final String idToken = req.getParameter("id_token");
-
-//                final String authenticityToken = req.getParameter("authenticity_token");
-//                final String ltiStorageTarget = req.getParameter("lti_storage_target");
-
                 validateIdToken(cache, site, req, resp, idToken, jwks, pending);
             }
         }
@@ -79,8 +79,8 @@ public enum PageCallback {
      * @throws IOException if there is an error writing the response
      */
     static void validateIdToken(final Cache cache, final LtiSite site, final HttpServletRequest req,
-                                final HttpServletResponse resp, final String idToken, final JWKS jwks,
-                                final PageLaunch.PendingLaunch pending) throws IOException {
+                                final HttpServletResponse resp, final String idToken,
+                                final JWKS jwks, final LTILaunch.PendingLaunch pending) throws IOException {
 
         final int dot1 = idToken.indexOf('.');
         final int dot2 = idToken.lastIndexOf('.');
@@ -99,7 +99,7 @@ public enum PageCallback {
         if (validatedPayload == null) {
             PageError.showErrorPage(req, resp, "LTI Launch Process", "Unable to validate LTI request.");
         } else {
-            generatePageContent(cache, site, req, resp, pending.registration(), validatedPayload);
+            redirectToTarget(site, resp, pending, validatedPayload);
         }
     }
 
@@ -113,7 +113,7 @@ public enum PageCallback {
      * @param part3   the part of the JWS compact form after the last period
      * @return the validate payload if it was valid; null if not
      */
-    private static JSONObject validateCompactForm(final JWKS jwks, final PageLaunch.PendingLaunch pending,
+    private static JSONObject validateCompactForm(final JWKS jwks, final LTILaunch.PendingLaunch pending,
                                                   final String part1, final String part2, final String part3) {
 
         JSONObject result = null;
@@ -122,7 +122,7 @@ public enum PageCallback {
         try {
             final byte[] bytes1 = dec.decode(part1);
             final String str1 = new String(bytes1, StandardCharsets.UTF_8);
-            Log.fine(str1);
+
             try {
                 if (JSONParser.parseJSON(str1) instanceof final JSONObject joseHeader) {
                     final JSONObject validHeader = validateProtectedHeader(joseHeader);
@@ -151,7 +151,6 @@ public enum PageCallback {
 
                             final byte[] bytes2 = dec.decode(part2);
                             final String str2 = new String(bytes2, StandardCharsets.UTF_8);
-                            Log.fine(str2);
 
                             try {
                                 if (JSONParser.parseJSON(str2) instanceof final JSONObject payload) {
@@ -193,7 +192,7 @@ public enum PageCallback {
      * @param pending the pending launch object (used to validate the "nonce")
      * @return the validate payload if it was valid; null if not
      */
-    private static JSONObject validatePayload(final JSONObject payload, final PageLaunch.PendingLaunch pending) {
+    private static JSONObject validatePayload(final JSONObject payload, final LTILaunch.PendingLaunch pending) {
 
         JSONObject result = null;
 
@@ -210,7 +209,7 @@ public enum PageCallback {
 
                     final String payloadAzp = payload.getStringProperty("azp");
                     if (payloadAzp == null || payloadAzp.equals(registration.clientId)) {
-                        final long timestamp = System.currentTimeMillis();
+                        final long timestamp = System.currentTimeMillis() / 1000L;
                         final Double payloadExp = payload.getNumberProperty("exp");
                         if (payloadExp == null || payloadExp.longValue() > timestamp) {
                             result = payload;
@@ -241,8 +240,6 @@ public enum PageCallback {
      */
     private static JSONObject validateProtectedHeader(final JSONObject joseHeader) {
 
-        // {"typ":"JWT","alg":"RS256","kid":"2018-07-18T22:33:20Z"}
-
         final JSONObject result;
 
         final String alg = joseHeader.getStringProperty("alg");
@@ -265,41 +262,26 @@ public enum PageCallback {
     }
 
     /**
-     * Generates page content once the id_token has been verified.
+     * Dispatches a request.
      *
-     * @param cache            the data cache
      * @param site             the owning site
-     * @param req              the request
      * @param resp             the response
-     * @param registration     the LTI registration
+     * @param pending          the pending launch information
      * @param validatedPayload the validated payload
      * @throws IOException if there is an error writing the response
      */
-    private static void generatePageContent(final Cache cache, final LtiSite site, final HttpServletRequest req,
-                                            final HttpServletResponse resp, final LtiRegistrationRec registration,
-                                            final JSONObject validatedPayload) throws IOException {
+    static void redirectToTarget(final LtiSite site, final HttpServletResponse resp,
+                                 final LTILaunch.PendingLaunch pending, final JSONObject validatedPayload)
+            throws IOException {
+
+        final LtiRegistrationRec registration = pending.registration();
+        final String nonce = site.createRedirect(registration, validatedPayload);
+        final String target = pending.targetLinkUri();
 
         final HtmlBuilder htm = new HtmlBuilder(1000);
+        htm.add(target, "?nonce=", nonce);
+        final String location = htm.toString();
 
-        htm.addln("<!DOCTYPE html>").addln("<html>").addln("<head>");
-        htm.addln(" <meta name=\"robots\" content=\"noindex\">");
-        htm.addln(" <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'/>")
-                .addln(" <meta http-equiv='Content-Type' content='text/html;charset=utf-8'/>")
-                .addln(" <link rel='stylesheet' href='basestyle.css' type='text/css'>")
-                .addln(" <link rel='stylesheet' href='style.css' type='text/css'>")
-                .addln(" <link rel='icon' type='image/x-icon' href='/www/images/favicon.ico'>")
-                .addln(" <title>CSU Mathematics Program</title>");
-        htm.addln("</head>");
-        htm.addln("<body style='background:white; padding:20px;'>");
-
-        htm.sH(1).add("CSU Mathematics Program").eH(1);
-
-        htm.sH(2).add("Callback").eH(2);
-
-        htm.sP().addln("<pre>").addln(validatedPayload.toJSONFriendly(0)).addln("</pre>").eP();
-
-        htm.addln("</body></html>");
-
-        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
+        resp.sendRedirect(location, 302);
     }
 }

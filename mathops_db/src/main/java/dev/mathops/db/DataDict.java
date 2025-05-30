@@ -156,7 +156,7 @@ public enum DataDict {
     //
 
     /** A field name for serialization of records. */
-    public static final String FLD_JWKS_ENDPOINT = "jwks_endpoint";
+    public static final String FLD_JWKS_URI = "jwks_uri";
 
     //
 
@@ -319,6 +319,9 @@ public enum DataDict {
     public static final String FLD_SURVEY_TITLE = "survey_title";
 
     //
+
+    /** A field name for serialization of records. */
+    public static final String FLD_TOKEN_ENDPOINT = "token_endpoint";
 
     /** A field name for serialization of records. */
     public static final String FLD_TREE_REF = "tree_ref";

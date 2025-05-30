@@ -274,6 +274,9 @@ final class OpenIdConfiguration {
     /** The authorization endpoint. */
     private final String authorizationEndpoint;
 
+    /** The token endpoint. */
+    private final String tokenEndpoint;
+
     /** The registration endpoint. */
     private final String registrationEndpoint;
 
@@ -301,6 +304,7 @@ final class OpenIdConfiguration {
 
         this.issuer = json.getStringProperty("issuer");
         this.authorizationEndpoint = json.getStringProperty("authorization_endpoint");
+        this.tokenEndpoint = json.getStringProperty("token_endpoint");
         this.registrationEndpoint = json.getStringProperty("registration_endpoint");
         this.jwksUri = json.getStringProperty("jwks_uri");
 
@@ -392,6 +396,16 @@ final class OpenIdConfiguration {
     String getAuthorizationEndpoint() {
 
         return this.authorizationEndpoint;
+    }
+
+    /**
+     * Gets the token endpoint.
+     *
+     * @return the token endpoint (null if none found)
+     */
+    String getTokenEndpoint() {
+
+        return this.tokenEndpoint;
     }
 
     /**
