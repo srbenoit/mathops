@@ -79,8 +79,8 @@ import dev.mathops.session.txn.messages.GetExamReply;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.parser.xml.XmlEscaper;
 import dev.mathops.web.site.html.HtmlSessionBase;
-import dev.mathops.web.site.tutorial.precalc.EEligibility;
-import dev.mathops.web.site.tutorial.precalc.PrecalcExamEligibility;
+import dev.mathops.web.host.placement.tutorial.precalc.EEligibility;
+import dev.mathops.web.host.placement.tutorial.precalc.PrecalcExamEligibility;
 import jakarta.servlet.ServletRequest;
 
 import java.awt.Font;

@@ -2,7 +2,7 @@ package dev.mathops.web.site;
 
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
-import dev.mathops.web.site.help.HelpSite;
+import dev.mathops.web.host.course.help.HelpSite;
 
 /**
  * A class that emits an administrative bar at the top of a page.

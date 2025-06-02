@@ -11,7 +11,6 @@ import dev.mathops.db.Contexts;
 import dev.mathops.db.cfg.DatabaseConfig;
 import dev.mathops.db.cfg.Profile;
 import dev.mathops.session.SessionManager;
-import dev.mathops.web.ServletUtils;
 import dev.mathops.web.site.WebMidController;
 import dev.mathops.web.site.html.challengeexam.ChallengeExamSessionStore;
 import dev.mathops.web.site.html.hw.HomeworkSessionStore;

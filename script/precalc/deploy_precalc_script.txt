@@ -1,0 +1,5 @@
+option confirm off
+lcd C:\Users\benoit\dev\IDEA\mathops\out\wars
+cd /opt/tomcat/stage/precalc
+put -nopreservetime -nopermissions PRECALC_ROOT.war
+exit

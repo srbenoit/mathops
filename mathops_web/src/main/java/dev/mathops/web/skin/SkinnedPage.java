@@ -3,7 +3,7 @@ package dev.mathops.web.skin;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.ISkinnedAdminBar;
-import dev.mathops.web.site.help.HelpSite;
+import dev.mathops.web.host.course.help.HelpSite;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;

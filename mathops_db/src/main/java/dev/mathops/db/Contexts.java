@@ -11,9 +11,6 @@ public enum Contexts {
     /** The default domain. */
     public static final String DOMAIN = "math.colostate.edu";
 
-    /** A server host - obsolete, redirects to "precalc.". */
-    public static final String PACE_HOST = "pace." + DOMAIN;
-
     /** A server host. */
     public static final String PRECALC_HOST = "precalc." + DOMAIN;
 

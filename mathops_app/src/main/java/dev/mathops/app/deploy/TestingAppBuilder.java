@@ -156,7 +156,6 @@ final class TestingAppBuilder {
                 Log.warning(ex);
             }
         }
-
     }
 
     /**
