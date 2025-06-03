@@ -14,6 +14,30 @@ import dev.mathops.session.ISessionManager;
 import dev.mathops.session.SessionManager;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.front.IMidController;
+import dev.mathops.web.host.course.help.HelpSite;
+import dev.mathops.web.host.course.lti.LtiSite;
+import dev.mathops.web.host.course.mps.ProctoringSite;
+import dev.mathops.web.host.course.ramwork.RamWorkSite;
+import dev.mathops.web.host.course.root.CourseRootSite;
+import dev.mathops.web.host.course.video.VideoSite;
+import dev.mathops.web.host.nibbler.cfm.CfmSite;
+import dev.mathops.web.host.nibbler.mpsmedia.ProctoringMediaSite;
+import dev.mathops.web.host.nibbler.reporting.ReportingSite;
+import dev.mathops.web.host.nibbler.root.NibblerRootSite;
+import dev.mathops.web.host.nibbler.scheduling.SchedulingSite;
+import dev.mathops.web.host.placement.placement.MathPlacementSite;
+import dev.mathops.web.host.placement.root.PlacementRedirector;
+import dev.mathops.web.host.placement.tutorial.elm.ElmTutorialSite;
+import dev.mathops.web.host.placement.tutorial.precalc.PrecalcTutorialSite;
+import dev.mathops.web.host.precalc.canvas.CanvasSite;
+import dev.mathops.web.host.precalc.course.CourseSite;
+import dev.mathops.web.host.precalc.landing.LandingSite;
+import dev.mathops.web.host.precalc.root.PrecalcRootSite;
+import dev.mathops.web.host.testing.adminsys.AdminSite;
+import dev.mathops.web.host.testing.root.TestingRootSite;
+import dev.mathops.web.host.testing.testing.TestingCenterSite;
+import dev.mathops.web.host.testing.txn.TxnSite;
+import dev.mathops.web.host.testing.webservice.WebServiceSite;
 import dev.mathops.web.site.html.challengeexam.ChallengeExamSessionStore;
 import dev.mathops.web.site.html.hw.HomeworkSessionStore;
 import dev.mathops.web.site.html.lta.LtaSessionStore;
@@ -112,44 +136,44 @@ public final class WebMidController implements IMidController {
 
         // Create and register the sites
 
-//        if (webHosts.contains(Contexts.PRECALC_HOST)) {
-//            add(dbConfig, Contexts.PRECALC_HOST, Contexts.ROOT_PATH, PrecalcRootSite.class);
-//            add(dbConfig, Contexts.PRECALC_HOST, Contexts.INSTRUCTION_PATH, CourseSite.class);
-//            add(dbConfig, Contexts.PRECALC_HOST, Contexts.WELCOME_PATH, LandingSite.class);
-//            add(dbConfig, Contexts.PRECALC_HOST, Contexts.CANVAS_PATH, CanvasSite.class);
-//        }
+        if (webHosts.contains(Contexts.PRECALC_HOST)) {
+            add(dbConfig, Contexts.PRECALC_HOST, Contexts.ROOT_PATH, PrecalcRootSite.class);
+            add(dbConfig, Contexts.PRECALC_HOST, Contexts.INSTRUCTION_PATH, CourseSite.class);
+            add(dbConfig, Contexts.PRECALC_HOST, Contexts.WELCOME_PATH, LandingSite.class);
+            add(dbConfig, Contexts.PRECALC_HOST, Contexts.CANVAS_PATH, CanvasSite.class);
+        }
 
-//        if (webHosts.contains(Contexts.PLACEMENT_HOST)) {
-//            add(dbConfig, Contexts.PLACEMENT_HOST, Contexts.ROOT_PATH, PlacementRedirector.class);
-//            add(dbConfig, Contexts.PLACEMENT_HOST, Contexts.ELM_TUTORIAL_PATH, ElmTutorialSite.class);
-//            add(dbConfig, Contexts.PLACEMENT_HOST, Contexts.PRECALC_TUTORIAL_PATH, PrecalcTutorialSite.class);
-//            add(dbConfig, Contexts.PLACEMENT_HOST, Contexts.WELCOME_PATH, MathPlacementSite.class);
-//        }
+        if (webHosts.contains(Contexts.PLACEMENT_HOST)) {
+            add(dbConfig, Contexts.PLACEMENT_HOST, Contexts.ROOT_PATH, PlacementRedirector.class);
+            add(dbConfig, Contexts.PLACEMENT_HOST, Contexts.ELM_TUTORIAL_PATH, ElmTutorialSite.class);
+            add(dbConfig, Contexts.PLACEMENT_HOST, Contexts.PRECALC_TUTORIAL_PATH, PrecalcTutorialSite.class);
+            add(dbConfig, Contexts.PLACEMENT_HOST, Contexts.WELCOME_PATH, MathPlacementSite.class);
+        }
 
-//        if (webHosts.contains(Contexts.COURSE_HOST)) {
-//            add(dbConfig, Contexts.COURSE_HOST, Contexts.ROOT_PATH, EmptyRootSite.class);
-//            add(dbConfig, Contexts.COURSE_HOST, Contexts.HELP_PATH, HelpSite.class);
-//            add(dbConfig, Contexts.COURSE_HOST, Contexts.LTI_PATH, LtiSite.class);
-//            add(dbConfig, Contexts.COURSE_HOST, Contexts.MPS_PATH, ProctoringSite.class);
-//            add(dbConfig, Contexts.COURSE_HOST, Contexts.VIDEO_PATH, VideoSite.class);
-//            add(dbConfig, Contexts.COURSE_HOST, Contexts.RAMWORK_PATH, RamWorkSite.class);
-//        }
+        if (webHosts.contains(Contexts.COURSE_HOST)) {
+            add(dbConfig, Contexts.COURSE_HOST, Contexts.ROOT_PATH, CourseRootSite.class);
+            add(dbConfig, Contexts.COURSE_HOST, Contexts.HELP_PATH, HelpSite.class);
+            add(dbConfig, Contexts.COURSE_HOST, Contexts.LTI_PATH, LtiSite.class);
+            add(dbConfig, Contexts.COURSE_HOST, Contexts.MPS_PATH, ProctoringSite.class);
+            add(dbConfig, Contexts.COURSE_HOST, Contexts.VIDEO_PATH, VideoSite.class);
+            add(dbConfig, Contexts.COURSE_HOST, Contexts.RAMWORK_PATH, RamWorkSite.class);
+        }
 
-//        if (webHosts.contains(Contexts.TESTING_HOST)) {
-//            add(dbConfig, Contexts.TESTING_HOST, Contexts.ROOT_PATH, EmptyRootSite.class);
-//            add(dbConfig, Contexts.TESTING_HOST, Contexts.ADMINSYS_PATH, AdminSite.class);
-//            add(dbConfig, Contexts.TESTING_HOST, Contexts.TESTING_CENTER_PATH, TestingCenterSite.class);
-//            add(dbConfig, Contexts.TESTING_HOST, Contexts.WEBSVC_PATH, WebServiceSite.class);
-//            add(dbConfig, Contexts.TESTING_HOST, Contexts.TXN_PATH, TxnSite.class);
-//        }
+        if (webHosts.contains(Contexts.TESTING_HOST)) {
+            add(dbConfig, Contexts.TESTING_HOST, Contexts.ROOT_PATH, TestingRootSite.class);
+            add(dbConfig, Contexts.TESTING_HOST, Contexts.ADMINSYS_PATH, AdminSite.class);
+            add(dbConfig, Contexts.TESTING_HOST, Contexts.TESTING_CENTER_PATH, TestingCenterSite.class);
+            add(dbConfig, Contexts.TESTING_HOST, Contexts.WEBSVC_PATH, WebServiceSite.class);
+            add(dbConfig, Contexts.TESTING_HOST, Contexts.TXN_PATH, TxnSite.class);
+        }
 
-//        if (webHosts.contains(Contexts.NIBBLER_HOST)) {
-//            add(dbConfig, Contexts.NIBBLER_HOST, Contexts.ROOT_PATH, EmptyRootSite.class);
-//            add(dbConfig, Contexts.NIBBLER_HOST, Contexts.MPSMEDIA_PATH, ProctoringMediaSite.class);
-//            add(dbConfig, Contexts.NIBBLER_HOST, Contexts.CFM_PATH, CfmSite.class);
-//            add(dbConfig, Contexts.NIBBLER_HOST, Contexts.SCHEDULING_PATH, SchedulingSite.class);
-//            add(dbConfig, Contexts.NIBBLER_HOST, Contexts.REPORTING_PATH, ReportingSite.class);
-//        }
+        if (webHosts.contains(Contexts.NIBBLER_HOST)) {
+            add(dbConfig, Contexts.NIBBLER_HOST, Contexts.ROOT_PATH, NibblerRootSite.class);
+            add(dbConfig, Contexts.NIBBLER_HOST, Contexts.MPSMEDIA_PATH, ProctoringMediaSite.class);
+            add(dbConfig, Contexts.NIBBLER_HOST, Contexts.CFM_PATH, CfmSite.class);
+            add(dbConfig, Contexts.NIBBLER_HOST, Contexts.SCHEDULING_PATH, SchedulingSite.class);
+            add(dbConfig, Contexts.NIBBLER_HOST, Contexts.REPORTING_PATH, ReportingSite.class);
+        }
 
         // Load any sessions persisted from a prior shutdown
         final File session = new File(baseDir, "sessions");

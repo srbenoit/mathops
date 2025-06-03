@@ -14,7 +14,7 @@ import dev.mathops.session.ISessionManager;
 import dev.mathops.session.SessionManager;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.front.IMidController;
-import dev.mathops.web.host.course.root.EmptyRootSite;
+import dev.mathops.web.host.nibbler.root.NibblerRootSite;
 import dev.mathops.web.host.nibbler.cfm.CfmSite;
 import dev.mathops.web.host.nibbler.mpsmedia.ProctoringMediaSite;
 import dev.mathops.web.host.nibbler.reporting.ReportingSite;
@@ -113,7 +113,7 @@ public final class NibblerMidController implements IMidController {
         // Create and register the sites
 
         if (webHosts.contains(Contexts.NIBBLER_HOST)) {
-            add(dbConfig, Contexts.NIBBLER_HOST, Contexts.ROOT_PATH, EmptyRootSite.class);
+            add(dbConfig, Contexts.NIBBLER_HOST, Contexts.ROOT_PATH, NibblerRootSite.class);
             add(dbConfig, Contexts.NIBBLER_HOST, Contexts.MPSMEDIA_PATH, ProctoringMediaSite.class);
             add(dbConfig, Contexts.NIBBLER_HOST, Contexts.CFM_PATH, CfmSite.class);
             add(dbConfig, Contexts.NIBBLER_HOST, Contexts.SCHEDULING_PATH, SchedulingSite.class);

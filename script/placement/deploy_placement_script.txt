@@ -1,5 +1,0 @@
-option confirm off
-lcd C:\Users\benoit\dev\IDEA\mathops\out\wars
-cd /opt/tomcat/stage/placement
-put -nopreservetime -nopermissions PLACEMENT_ROOT.war
-exit

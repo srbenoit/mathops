@@ -14,7 +14,7 @@ import dev.mathops.session.ISessionManager;
 import dev.mathops.session.SessionManager;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.front.IMidController;
-import dev.mathops.web.host.course.root.EmptyRootSite;
+import dev.mathops.web.host.course.root.CourseRootSite;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
@@ -113,7 +113,7 @@ public final class TestingMidController implements IMidController {
         // Create and register the sites
 
         if (webHosts.contains(Contexts.TESTING_HOST)) {
-            add(dbConfig, Contexts.TESTING_HOST, Contexts.ROOT_PATH, EmptyRootSite.class);
+            add(dbConfig, Contexts.TESTING_HOST, Contexts.ROOT_PATH, CourseRootSite.class);
             add(dbConfig, Contexts.TESTING_HOST, Contexts.ADMINSYS_PATH, AdminSite.class);
             // Following site is obsolete!
             add(dbConfig, Contexts.TESTING_HOST, Contexts.TESTING_CENTER_PATH, TestingCenterSite.class);

@@ -92,11 +92,6 @@ final class ServletWarBuilder {
         final File web = new File(this.projectDir, "mathops_web");
         final File webRoot = new File(web, "build/classes/java/main");
         final File webClasses = new File(webRoot, "dev/mathops/web");
-        final File webCronClasses = new File(webClasses, "cron");
-        final File webFrontClasses = new File(webClasses, "front");
-        final File webSiteClasses = new File(webClasses, "site");
-        final File webSkinClasses = new File(webClasses, "skin");
-        final File webWebsocketClasses = new File(webClasses, "websocket");
 
         final File jars = new File(this.projectDir, "jars");
 
@@ -126,11 +121,7 @@ final class ServletWarBuilder {
                 addFiles(sessionRoot, sessionClasses, jar);
 
                 Log.finest(Res.fmt(Res.ADDING_FILES, web), CoreConstants.CRLF);
-                addFiles(webRoot, webCronClasses, jar);
-                addFiles(webRoot, webFrontClasses, jar);
-                addFiles(webRoot, webSiteClasses, jar);
-                addFiles(webRoot, webSkinClasses, jar);
-                addFiles(webRoot, webWebsocketClasses, jar);
+                addFiles(webRoot, webClasses, jar);
 
                 jar.finish();
                 Log.finest(Res.fmt(Res.JAR_DONE, "ROOT"), CoreConstants.CRLF);

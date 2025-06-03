@@ -18,12 +18,8 @@ import dev.mathops.web.host.course.help.HelpSite;
 import dev.mathops.web.host.course.lti.LtiSite;
 import dev.mathops.web.host.course.mps.ProctoringSite;
 import dev.mathops.web.host.course.ramwork.RamWorkSite;
-import dev.mathops.web.host.course.root.EmptyRootSite;
+import dev.mathops.web.host.course.root.CourseRootSite;
 import dev.mathops.web.host.course.video.VideoSite;
-import dev.mathops.web.host.placement.placement.MathPlacementSite;
-import dev.mathops.web.host.placement.root.PlacementRedirector;
-import dev.mathops.web.host.placement.tutorial.elm.ElmTutorialSite;
-import dev.mathops.web.host.placement.tutorial.precalc.PrecalcTutorialSite;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.ESiteType;
 import dev.mathops.web.site.Page;
@@ -118,7 +114,7 @@ public final class CourseMidController implements IMidController {
         // Create and register the sites
 
         if (webHosts.contains(Contexts.COURSE_HOST)) {
-            add(dbConfig, Contexts.COURSE_HOST, Contexts.ROOT_PATH, EmptyRootSite.class);
+            add(dbConfig, Contexts.COURSE_HOST, Contexts.ROOT_PATH, CourseRootSite.class);
             add(dbConfig, Contexts.COURSE_HOST, Contexts.HELP_PATH, HelpSite.class);
             add(dbConfig, Contexts.COURSE_HOST, Contexts.LTI_PATH, LtiSite.class);
             add(dbConfig, Contexts.COURSE_HOST, Contexts.MPS_PATH, ProctoringSite.class);

@@ -216,8 +216,6 @@ public final class GenAdminSubsite extends AbstractSubsite {
                 case "dbadm_update_banner.html" -> PageDbAdminContexts.doPost(cache, this.site, req, resp, session);
                 case "dbadm_batch_run.html" -> PageDbAdminBatchRun.doPost(cache, this.site, req, resp, session);
 
-                case "site_admin.html" -> PageSiteAdmin.doPost(cache, this.site, req, resp, session);
-
                 case "srvadm_sessions.html" -> PageServerAdminSessions.doPost(cache, this.site, req, resp, session);
                 case "srvadm_control.html" -> PageServerAdminControl.doPost(cache, this.site, req, resp, session);
                 case "srvadm_diagnostics.html" ->

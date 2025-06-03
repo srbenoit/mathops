@@ -1,4 +1,4 @@
-package dev.mathops.web.host.course.root;
+package dev.mathops.web.host.nibbler.root;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.file.FileLoader;
@@ -17,7 +17,7 @@ import java.io.IOException;
 /**
  * A root site that does nothing but serve the basic image/icon files.
  */
-public final class EmptyRootSite extends AbstractSite {
+public final class NibblerRootSite extends AbstractSite {
 
     /** The name of a style sheet. */
     private static final String ADMIN_CSS = "admin.css";
@@ -29,12 +29,12 @@ public final class EmptyRootSite extends AbstractSite {
     private static final String IMAGES_PATH = "images/";
 
     /**
-     * Constructs a new {@code EmptyRootSite}.
+     * Constructs a new {@code NibblerRootSite}.
      *
      * @param theSite     the context under which this site is accessed
      * @param theSessions the singleton user session repository
      */
-    public EmptyRootSite(final Site theSite, final ISessionManager theSessions) {
+    public NibblerRootSite(final Site theSite, final ISessionManager theSessions) {
 
         super(theSite, theSessions);
     }

@@ -8,7 +8,7 @@
     <servlet>
         <display-name>Nibbler Front Controller</display-name>
         <servlet-name>NibblerFrontController</servlet-name>
-        <servlet-class>dev.mathops.web.host.placement.NibblerFrontController</servlet-class>
+        <servlet-class>dev.mathops.web.host.nibbler.NibblerFrontController</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
 
