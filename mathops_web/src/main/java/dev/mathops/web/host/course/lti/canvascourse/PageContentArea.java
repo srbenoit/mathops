@@ -8,9 +8,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * A page with the "migration_selection" placement.
+ * A page with the "content_area" placement.
  */
-enum PageMigrationSelection {
+enum PageContentArea {
     ;
 
     /**
@@ -24,6 +24,6 @@ enum PageMigrationSelection {
                          final LtiSite.PendingTargetRedirect redirect) throws IOException {
 
         final JSONObject payload = redirect.idTokenPayload();
-        LTITarget. showDefault(payload, req, resp, "CSU LTI Tool Migration Selection");
+        LTITarget.showDefault(payload, req, resp, "CSU LTI Tool Content Area");
     }
 }

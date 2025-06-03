@@ -415,14 +415,14 @@ public enum LTIDynamicRegistration {
             } else if ("https://canvas.instructure.com/lti/course_navigation".equals(res)) {
                 comma = addLinkResource(requestJson, comma, "CSU Course Navigation.", res, null);
             } else if ("https://canvas.instructure.com/lti/course_settings_sub_navigation".equals(res)) {
-
                 final String iconUri = "https://" + host + "/www/images/tool.png";
                 comma = addLinkResource(requestJson, comma, "Configure CSU Mathematics Tool", res, iconUri);
-
             } else if ("https://canvas.instructure.com/lti/discussion_topic_index_menu".equals(res)) {
                 comma = addLinkResource(requestJson, comma, "CSU Discussion Topic Index Menu.", res, null);
             } else if ("https://canvas.instructure.com/lti/discussion_topic_menu".equals(res)) {
                 comma = addLinkResource(requestJson, comma, "CSU Discussion Topic Menu.", res, null);
+            } else if ("https://canvas.instructure.com/lti/file_index_menu".equals(res)) {
+                comma = addLinkResource(requestJson, comma, "CSU File Index Menu.", res, null);
             } else if ("https://canvas.instructure.com/lti/file_menu".equals(res)) {
                 comma = addLinkResource(requestJson, comma, "CSU File Menu.", res, null);
             } else if ("https://canvas.instructure.com/lti/homework_submission".equals(res)) {
@@ -447,16 +447,12 @@ public enum LTIDynamicRegistration {
                 comma = addLinkResource(requestJson, comma, "CSU Quiz Index Menu.", res, null);
             } else if ("https://canvas.instructure.com/lti/quiz_menu".equals(res)) {
                 comma = addLinkResource(requestJson, comma, "CSU Quiz Menu.", res, null);
-            } else if ("https://canvas.instructure.com/lti/similarity_detection".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Similarity Detection Menu.", res, null);
             } else if ("https://canvas.instructure.com/lti/student_context_card".equals(res)) {
                 comma = addLinkResource(requestJson, comma, "CSU Student Context Card.", res, null);
-            } else if ("https://canvas.instructure.com/lti/submission_type_selection".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Submission Type Selection.", res, null);
             } else if ("https://canvas.instructure.com/lti/tool_configuration".equals(res)) {
                 comma = addLinkResource(requestJson, comma, "CSU Tool Configuration.", res, null);
-            } else if ("https://canvas.instructure.com/lti/top_navigation".equals(res)) {
-                comma = addLinkResource(requestJson, comma, "CSU Top Navigation.", res, null);
+            } else if ("https://canvas.instructure.com/lti/user_navigation".equals(res)) {
+                comma = addLinkResource(requestJson, comma, "CSU User Navigation.", res, null);
             } else if ("https://canvas.instructure.com/lti/wiki_index_menu".equals(res)) {
                 comma = addLinkResource(requestJson, comma, "CSU Wiki Index Menu.", res, null);
             } else if ("https://canvas.instructure.com/lti/wiki_page_menu".equals(res)) {

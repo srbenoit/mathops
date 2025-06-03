@@ -110,11 +110,18 @@ public final class LtiSite extends AbstractSite {
                       final HttpServletRequest req, final HttpServletResponse resp)
             throws IOException, SQLException {
 
-        Log.info("GET ", subpath);
-
         if (subpath.startsWith("images/")) {
             serveImage(subpath.substring(7), req, resp);
+        } else if ("favicon.ico".equals(subpath) || "secure/favicon.ico".equals(subpath)
+                   || "lti_logo.png".equals(subpath)) {
+            serveImage(subpath, req, resp);
+        } else if ("basestyle.css".equals(subpath) || "secure/basestyle.css".equals(subpath)) {
+            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
+        } else if ("style.css".equals(subpath) || "secure/tyle.css".equals(subpath)) {
+            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(getClass(), "style.css", true));
         } else {
+            Log.info("GET ", subpath);
+
             switch (subpath) {
                 // This page is called when the Canvas administrator creates a new Developer Key using "LTI
                 // Registration". It presents a form that POSTS to the same URL if the user accepts the registration.
@@ -129,20 +136,7 @@ public final class LtiSite extends AbstractSite {
                 // The target URI for requests for LTI content.
                 case "lti13_jwks" -> LTIJWKS.doGet(cache, this, req, resp);
 
-                case "basestyle.css" ->
-                        sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
-                case "secure/basestyle.css" ->
-                        sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
-
-                case "style.css" ->
-                        sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(getClass(), "style.css", true));
-                case "secure/style.css" ->
-                        sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(getClass(), "style.css", true));
-
                 case "course.css" -> BasicCss.getInstance().serveCss(req, resp);
-                case "favicon.ico" -> serveImage(subpath, req, resp);
-                case "secure/favicon.ico" -> serveImage(subpath, req, resp);
-                case "lti_logo.png" -> serveImage(subpath, req, resp);
 
                 case CoreConstants.EMPTY -> PageIndex.showPage(req, resp);
                 case "index.html" -> PageIndex.showPage(req, resp);

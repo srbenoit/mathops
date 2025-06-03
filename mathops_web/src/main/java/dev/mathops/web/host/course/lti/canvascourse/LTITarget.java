@@ -8,18 +8,11 @@ import dev.mathops.text.parser.xml.XmlEscaper;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 import dev.mathops.web.host.course.lti.LtiSite;
+import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 
 /**
  * A dispatcher class that examines the payload of a validate launch callback to determine the page to generate, then
@@ -50,7 +43,12 @@ public enum LTITarget {
             final JSONObject payload = redirect.idTokenPayload();
 
             final String placement = payload.getStringProperty("https://www.instructure.com/placement");
-            if ("assignment_edit".equals(placement)) {
+            Log.info("LTI Target placement is ", placement);
+
+            if (placement == null || "link_selection".equals(placement)) {
+                // The "Link Selection" placement sends a null placement value.
+                PageLinkSelection.showPage(req, resp, redirect);
+            } else if ("assignment_edit".equals(placement)) {
                 PageAssignmentEdit.showPage(req, resp, redirect);
             } else if ("assignment_group_menu".equals(placement)) {
                 PageAssignmentGroupMenu.showPage(req, resp, redirect);
@@ -64,6 +62,8 @@ public enum LTITarget {
                 PageAssignmentView.showPage(req, resp, redirect);
             } else if ("collaboration".equals(placement)) {
                 PageCollaboration.showPage(req, resp, redirect);
+            } else if ("conference_selection.".equals(placement)) {
+                PageConferenceSelection.showPage(req, resp, redirect);
             } else if ("course_assignments_menu".equals(placement)) {
                 PageCourseAssignmentsMenu.showPage(req, resp, redirect);
             } else if ("course_home_sub_navigation".equals(placement)) {
@@ -82,113 +82,99 @@ public enum LTITarget {
                 PageFileIndexMenu.showPage(req, resp, redirect);
             } else if ("file_menu".equals(placement)) {
                 PageFileMenu.showPage(req, resp, redirect);
-            } else if ("homework_submission".equals(placement)) {
+            } else if ("CSU Homework Submission.".equals(placement)) {
                 PageHomeworkSubmission.showPage(req, resp, redirect);
-            } else if ("link_selection".equals(placement)) {
-                PageLinkSelection.showPage(req, resp, redirect);
             } else if ("migration_selection".equals(placement)) {
                 PageMigrationSelection.showPage(req, resp, redirect);
             } else if ("module_group_menu".equals(placement)) {
                 PageModuleGroupMenu.showPage(req, resp, redirect);
-            } else if ("module_index_menu_modal".equals(placement)) {
-                PageModuleIndexMenuModal.showPage(req, resp, redirect);
             } else if ("module_index_menu".equals(placement)) {
                 PageModuleIndexMenu.showPage(req, resp, redirect);
+            } else if ("module_index_menu_modal".equals(placement)) {
+                PageModuleIndexMenuModal.showPage(req, resp, redirect);
             } else if ("module_menu_modal".equals(placement)) {
                 PageModuleMenuModal.showPage(req, resp, redirect);
             } else if ("module_menu".equals(placement)) {
                 PageModuleMenu.showPage(req, resp, redirect);
-            } else if ("wiki_index_menu".equals(placement)) {
-                PageWikiIndexMenu.showPage(req, resp, redirect);
-            } else if ("wiki_page_menu".equals(placement)) {
-                PageWikiPageMenu.showPage(req, resp, redirect);
+            } else if ("post_grades".equals(placement)) {
+                PagePostGrades.showPage(req, resp, redirect);
             } else if ("quiz_index_menu".equals(placement)) {
                 PageQuizIndexMenu.showPage(req, resp, redirect);
             } else if ("quiz_menu".equals(placement)) {
                 PageQuizMenu.showPage(req, resp, redirect);
             } else if ("student_context_card".equals(placement)) {
                 PageStudentContextCard.showPage(req, resp, redirect);
-            } else if ("submission_type_selection".equals(placement)) {
-                PageSubmissionTypeSelection.showPage(req, resp, redirect);
-            } else if ("post_grades".equals(placement)) {
-                PagePostGrades.showPage(req, resp, redirect);
             } else if ("tool_configuration".equals(placement)) {
                 PageToolConfiguration.showPage(req, resp, redirect);
-            } else if ("top_navigation".equals(placement)) {
-                PageTopNavigation.showPage(req, resp, redirect);
             } else if ("user_navigation".equals(placement)) {
                 PageUserNavigation.showPage(req, resp, redirect);
+            } else if ("wiki_index_menu".equals(placement)) {
+                PageWikiIndexMenu.showPage(req, resp, redirect);
+            } else if ("wiki_page_menu".equals(placement)) {
+                PageWikiPageMenu.showPage(req, resp, redirect);
+            } else if ("ContentArea".equals(placement)) {
+                PageContentArea.showPage(req, resp, redirect);
             } else {
-                final HtmlBuilder htm = new HtmlBuilder(1000);
-
-                htm.addln("<!DOCTYPE html>").addln("<html>").addln("<head>");
-                htm.addln(" <meta name=\"robots\" content=\"noindex\">");
-                htm.addln(" <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'/>")
-                        .addln(" <meta http-equiv='Content-Type' content='text/html;charset=utf-8'/>")
-                        .addln(" <link rel='stylesheet' href='basestyle.css' type='text/css'>")
-                        .addln(" <link rel='stylesheet' href='style.css' type='text/css'>")
-                        .addln(" <title>CSU Mathematics Program</title>");
-                htm.addln("</head>");
-                htm.addln("<body style='background:white; padding:20px;'>");
-
-                htm.sH(1).add("CSU Mathematics Program").eH(1);
-                htm.sH(2).add("LTI Target").eH(2);
-
-                htm.sDiv("indent");
-                htm.sP().addln("<pre>");
-                htm.add(payload.toJSONFriendly(0));
-                htm.addln("</pre>").eP();
-                htm.eDiv();
-
-                final Object pres = payload.getProperty("https://purl.imsglobal.org/spec/lti/claim/launch_presentation");
-                if (pres instanceof JSONObject presObject) {
-                    final String returnUrl = presObject.getStringProperty("return_url");
-                    htm.addln("<form action='", XmlEscaper.escape(returnUrl), "' method='GET'>");
-                    htm.addln("  <input type='submit' value='Ok.'/>");
-                    htm.addln("</form>");
-                }
-
-                htm.addln("</body></html>");
-
-                AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
+                Log.warning("Unrecognized placement: '", placement, "'");
+                showDefault(payload, req, resp, null);
             }
         }
     }
 
     /**
-     * Fetches content from a URL.
+     * A handler for GET requests through LTI to a particular target.
      *
-     * @param urlStr the URL whose content to fetch
-     * @param accept the format to accept
-     * @return the content; null if fetch failed
+     * @param payload the verified payload
+     * @param req     the request
+     * @param resp    the response
+     * @param title   The title for the page; null if none
+     * @throws IOException if there is an error writing the response
      */
-    private static String fetchFromUrl(final String urlStr, final String accept) {
+    public static void showDefault(final JSONObject payload, final ServletRequest req,
+                                   final HttpServletResponse resp, final String title) throws IOException {
 
-        String result = null;
+        final HtmlBuilder htm = new HtmlBuilder(1000);
 
-        try {
-            final URI uri = new URI(urlStr);
-            final URL url = uri.toURL();
+        htm.addln("<!DOCTYPE html>").addln("<html>").addln("<head>");
+        htm.addln(" <meta name=\"robots\" content=\"noindex\">");
+        htm.addln(" <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'/>")
+                .addln(" <meta http-equiv='Content-Type' content='text/html;charset=utf-8'/>")
+                .addln(" <link rel='stylesheet' href='basestyle.css' type='text/css'>")
+                .addln(" <link rel='stylesheet' href='style.css' type='text/css'>")
+                .addln(" <title>CSU Mathematics Program</title>");
+        htm.addln("</head>");
+        htm.addln("<body style='background:white; padding:20px;'>");
 
-            final HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            con.setRequestMethod("GET");
-            con.setRequestProperty("Accept", accept);
-
-            final InputStream inputStream = con.getInputStream();
-            final BufferedReader in = new BufferedReader(
-                    new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-            String inputLine;
-            final StringBuilder buffer = new StringBuilder(1000);
-            while ((inputLine = in.readLine()) != null) {
-                buffer.append(inputLine);
-            }
-            in.close();
-            con.disconnect();
-            result = buffer.toString();
-        } catch (final IOException | URISyntaxException ex) {
-            Log.warning(ex);
+        if (title == null) {
+            htm.sH(1).add("CSU Mathematics Program").eH(1);
+            htm.sH(2).add("LTI Target").eH(2);
+        } else {
+            htm.sH(1).add(title).eH(1);
         }
 
-        return result;
+        htm.sDiv("indent");
+
+        htm.sP().addln("<pre>");
+        htm.add(payload.toJSONFriendly(0));
+        htm.addln("</pre>").eP();
+
+        final Object pres = payload.getProperty("https://purl.imsglobal.org/spec/lti/claim/launch_presentation");
+        if (pres instanceof final JSONObject presObject) {
+            final String returnUrl = presObject.getStringProperty("return_url");
+            if (returnUrl == null) {
+                Log.warning("Unable to find 'return_url' in 'launch_presentation' of ID target payload.");
+            } else {
+                htm.div("vgap");
+                htm.addln("<a href='", XmlEscaper.escape(returnUrl), "'>Finished</a>");
+            }
+        } else {
+            Log.warning("Unable to find 'launch_presentation' in ID target payload.");
+        }
+
+        htm.eDiv(); // indent
+
+        htm.addln("</body></html>");
+
+        AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
     }
 }
