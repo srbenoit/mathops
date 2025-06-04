@@ -5,7 +5,6 @@ import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.rec.TermRec;
-import dev.mathops.db.type.TermKey;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.parser.json.JSONObject;
 import dev.mathops.text.parser.xml.XmlEscaper;
