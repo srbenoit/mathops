@@ -1,7 +1,7 @@
 package dev.mathops.web.host.course.lti.canvascourse;
 
 import dev.mathops.db.Cache;
-import dev.mathops.db.rec.term.LtiCourseRec;
+import dev.mathops.db.rec.term.LtiContextRec;
 import dev.mathops.text.parser.json.JSONObject;
 import dev.mathops.web.host.course.lti.LtiSite;
 import jakarta.servlet.ServletRequest;
@@ -28,7 +28,7 @@ enum PageDiscussionTopicIndexMenu {
     static void showPage(final Cache cache, final ServletRequest req, final HttpServletResponse resp,
                          final LtiSite.PendingTargetRedirect redirect) throws IOException, SQLException {
 
-        final LtiCourseRec ltiCourse = PageUtils.lookupLtiCourse(cache, redirect);
+        final LtiContextRec ltiCourse = PageUtils.lookupLtiCourse(cache, redirect);
 
         if (ltiCourse == null) {
             PageUtils.showCourseNotConfigured(req, resp);

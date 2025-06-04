@@ -29,7 +29,7 @@ public enum PageManageLti {
             throws IOException, SQLException {
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
-        Page.startOrdinaryPage(htm, Res.get(Res.SITE_TITLE), null, false, Page.ADMIN_BAR, null, false, true);
+        Page.startOrdinaryPage(htm, LtiSite.TOOL_NAME, null, false, Page.ADMIN_BAR, null, false, true);
 
         htm.sDiv(null, "style='padding-left:16px; padding-right:16px;'");
         htm.sH(1).add(LtiSite.TOOL_NAME).eH(1);
@@ -37,11 +37,6 @@ public enum PageManageLti {
         htm.hr().div("vgap");
 
         htm.sP().addln("<a href='manage_lti_regs.html'>Manage LTI Tool Registrations</a>");
-
-
-
-
-
 
         htm.eDiv();
 

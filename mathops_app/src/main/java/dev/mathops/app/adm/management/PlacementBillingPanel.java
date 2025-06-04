@@ -50,8 +50,14 @@ class PlacementBillingPanel extends AdmPanelBase implements ActionListener {
     /** A text field to display the number of outstanding placement activities. */
     private final JTextField outstandingPlc;
 
+    /** A label to show the dollar amount of unbilled placement. */
+    private final JLabel outstandingPlcAmt;
+
     /** A text field to display the number of outstanding challenge exams. */
     private final JTextField outstandingChal;
+
+    /** A label to show the dollar amount of unbilled challenge exams. */
+    private final JLabel outstandingChalAmt;
 
     /**
      * Constructs a new {@code PlacementBillingPanel}.
@@ -99,6 +105,9 @@ class PlacementBillingPanel extends AdmPanelBase implements ActionListener {
         this.outstandingChal = new JTextField(5);
         this.outstandingChal.setEditable(false);
 
+        this.outstandingPlcAmt = new JLabel(" ");
+        this.outstandingChalAmt = new JLabel(" ");
+
         final JPanel center = new JPanel(new BorderLayout());
         center.setBackground(Skin.LIGHTEST);
         col1.add(center, BorderLayout.CENTER);
@@ -117,12 +126,14 @@ class PlacementBillingPanel extends AdmPanelBase implements ActionListener {
         flow2.setBackground(Skin.LIGHTEST);
         flow2.add(labels[1]);
         flow2.add(this.outstandingPlc);
+        flow2.add(this.outstandingPlcAmt);
         top3.add(flow2, BorderLayout.CENTER);
 
         final JPanel flow3 = new JPanel(new FlowLayout(FlowLayout.LEADING, 4, 0));
         flow3.setBackground(Skin.LIGHTEST);
         flow3.add(labels[2]);
         flow3.add(this.outstandingChal);
+        flow3.add(this.outstandingChalAmt);
         top3.add(flow3, BorderLayout.PAGE_END);
 
         final JPanel center2 = new JPanel(new BorderLayout());
@@ -178,9 +189,13 @@ class PlacementBillingPanel extends AdmPanelBase implements ActionListener {
 
             final int unbilledPlacement = PlacementBilling.countUnbilled(this.cache);
             this.outstandingPlc.setText(Integer.toString(unbilledPlacement));
+            final int placementFees = unbilledPlacement * 15;
+            this.outstandingPlcAmt.setText("$" + placementFees + ".00");
 
             final int unbilledChallenge = ChallengeBilling.countUnbilled(this.cache);
             this.outstandingChal.setText(Integer.toString(unbilledChallenge));
+            final int clallengeFees = unbilledChallenge * 20;
+            this.outstandingChalAmt.setText("$" + clallengeFees + ".00");
         } catch (final SQLException ex) {
             Log.warning(ex);
         }

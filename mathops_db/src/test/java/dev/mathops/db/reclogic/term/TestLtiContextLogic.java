@@ -10,7 +10,7 @@ import dev.mathops.db.cfg.DatabaseConfig;
 import dev.mathops.db.cfg.Facet;
 import dev.mathops.db.cfg.Login;
 import dev.mathops.db.cfg.Profile;
-import dev.mathops.db.rec.term.LtiCourseRec;
+import dev.mathops.db.rec.term.LtiContextRec;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -29,37 +29,31 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * Tests for the {@code LtiCourseLogic} class.
  */
-final class TestLtiCourseLogic {
+final class TestLtiContextLogic {
 
     /** A raw test record. */
-    private static final LtiCourseRec RAW1 =
-            new LtiCourseRec("CLIENT_111", "issuer.1", "deploy.1", "context.1", "lms_course.1", "lms_title.1",
-                    "course.1", "s.1");
+    private static final LtiContextRec RAW1 =
+            new LtiContextRec("CLIENT_111", "issuer.1", "deploy.1", "context.1", "lms_course.1", "lms_title.1");
 
     /** A raw test record. */
-    private static final LtiCourseRec RAW2 =
-            new LtiCourseRec("CLIENT_222", "issuer.2", "deploy.2", "context.2", "lms_course.2", "lms_title.2",
-                    "course.2", "s.2");
+    private static final LtiContextRec RAW2 =
+            new LtiContextRec("CLIENT_222", "issuer.2", "deploy.2", "context.2", "lms_course.2", "lms_title.2");
 
     /** A raw test record. */
-    private static final LtiCourseRec RAW3 =
-            new LtiCourseRec("CLIENT_333", "issuer.3", "deploy.3", "context.3", "lms_course.3", "lms_title.3",
-                    "course.3", "s.3");
+    private static final LtiContextRec RAW3 =
+            new LtiContextRec("CLIENT_333", "issuer.3", "deploy.3", "context.3", "lms_course.3", "lms_title.3");
 
     /** A raw test record. */
-    private static final LtiCourseRec RAW4 =
-            new LtiCourseRec("CLIENT_444", "issuer.4", "deploy.4", "context.4", "lms_course.4", "lms_title.4",
-                    "course.4", "s.4");
+    private static final LtiContextRec RAW4 =
+            new LtiContextRec("CLIENT_444", "issuer.4", "deploy.4", "context.4", "lms_course.4", "lms_title.4");
 
     /** A raw test record. */
-    private static final LtiCourseRec RAW5 =
-            new LtiCourseRec("CLIENT_555", "issuer.5", "deploy.5", "context.5", "lms_course.5", "lms_title.5",
-                    "course.5", "s.5");
+    private static final LtiContextRec RAW5 =
+            new LtiContextRec("CLIENT_555", "issuer.5", "deploy.5", "context.5", "lms_course.5", "lms_title.5");
 
     /** A raw test record. */
-    private static final LtiCourseRec UPD5 =
-            new LtiCourseRec("CLIENT_555", "issuer.5", "deploy.5", "context.5", "lms_course.5a", "lms_title.5a",
-                    "course.5a", "s.5a");
+    private static final LtiContextRec UPD5 =
+            new LtiContextRec("CLIENT_555", "issuer.5", "deploy.5", "context.5", "lms_course.5a", "lms_title.5a");
 
     /** The database profile. */
     static Profile profile;
@@ -72,7 +66,7 @@ final class TestLtiCourseLogic {
      *
      * @param r the unexpected record
      */
-    private static void printUnexpected(final LtiCourseRec r) {
+    private static void printUnexpected(final LtiContextRec r) {
 
         Log.warning("Unexpected clientId ", r.clientId);
         Log.warning("Unexpected issuer ", r.issuer);
@@ -80,8 +74,6 @@ final class TestLtiCourseLogic {
         Log.warning("Unexpected context ID ", r.contextId);
         Log.warning("Unexpected LMS course ID ", r.lmsCourseId);
         Log.warning("Unexpected LMS course title ", r.lmsCourseTitle);
-        Log.warning("Unexpected course ID ", r.courseId);
-        Log.warning("Unexpected section number ", r.sectionNbr);
     }
 
     /** Initialize the test class. */
@@ -129,18 +121,18 @@ final class TestLtiCourseLogic {
             }
 
             try (final Statement stmt = conn.createStatement()) {
-                stmt.executeUpdate("DELETE FROM " + prefix + ".lti_course");
+                stmt.executeUpdate("DELETE FROM " + prefix + ".lti_context");
             }
             conn.commit();
 
-            assertTrue(LtiCourseLogic.INSTANCE.insert(cache, RAW1), "Failed to insert lti_course");
-            assertTrue(LtiCourseLogic.INSTANCE.insert(cache, RAW2), "Failed to insert lti_course");
-            assertTrue(LtiCourseLogic.INSTANCE.insert(cache, RAW3), "Failed to insert lti_course");
-            assertTrue(LtiCourseLogic.INSTANCE.insert(cache, RAW4), "Failed to insert lti_course");
-            assertTrue(LtiCourseLogic.INSTANCE.insert(cache, RAW5), "Failed to insert lti_course");
+            assertTrue(LtiContextLogic.INSTANCE.insert(cache, RAW1), "Failed to insert lti_context");
+            assertTrue(LtiContextLogic.INSTANCE.insert(cache, RAW2), "Failed to insert lti_context");
+            assertTrue(LtiContextLogic.INSTANCE.insert(cache, RAW3), "Failed to insert lti_context");
+            assertTrue(LtiContextLogic.INSTANCE.insert(cache, RAW4), "Failed to insert lti_context");
+            assertTrue(LtiContextLogic.INSTANCE.insert(cache, RAW5), "Failed to insert lti_context");
         } catch (final SQLException ex) {
             Log.warning(ex);
-            fail("Exception while initializing 'lti_course' table: " + ex.getMessage());
+            fail("Exception while initializing 'lti_context' table: " + ex.getMessage());
             throw new IllegalArgumentException(ex);
         } finally {
             login.checkInConnection(conn);
@@ -154,7 +146,7 @@ final class TestLtiCourseLogic {
         final Cache cache = new Cache(profile);
 
         try {
-            final List<LtiCourseRec> all = LtiCourseLogic.INSTANCE.queryAll(cache);
+            final List<LtiContextRec> all = LtiContextLogic.INSTANCE.queryAll(cache);
 
             assertEquals(5, all.size(), "Incorrect record count from queryAll");
 
@@ -164,7 +156,7 @@ final class TestLtiCourseLogic {
             boolean found4 = false;
             boolean found5 = false;
 
-            for (final LtiCourseRec r : all) {
+            for (final LtiContextRec r : all) {
                 if (RAW1.equals(r)) {
                     found1 = true;
                 } else if (RAW2.equals(r)) {
@@ -181,14 +173,14 @@ final class TestLtiCourseLogic {
                 }
             }
 
-            assertTrue(found1, "lti_course 1 not found");
-            assertTrue(found2, "lti_course 2 not found");
-            assertTrue(found3, "lti_course 3 not found");
-            assertTrue(found4, "lti_course 4 not found");
-            assertTrue(found5, "lti_course 5 not found");
+            assertTrue(found1, "lti_context 1 not found");
+            assertTrue(found2, "lti_context 2 not found");
+            assertTrue(found3, "lti_context 3 not found");
+            assertTrue(found4, "lti_context 4 not found");
+            assertTrue(found5, "lti_context 5 not found");
         } catch (final SQLException ex) {
             Log.warning(ex);
-            fail("Exception while querying all 'lti_course' rows: " + ex.getMessage());
+            fail("Exception while querying all 'lti_context' rows: " + ex.getMessage());
         }
     }
 
@@ -199,7 +191,7 @@ final class TestLtiCourseLogic {
         final Cache cache = new Cache(profile);
 
         try {
-            final LtiCourseRec r = LtiCourseLogic.INSTANCE.query(cache, RAW1.clientId, RAW1.issuer, RAW1.deploymentId,
+            final LtiContextRec r = LtiContextLogic.INSTANCE.query(cache, RAW1.clientId, RAW1.issuer, RAW1.deploymentId,
                     RAW1.contextId);
 
             assertNotNull(r, "No record returned by query");
@@ -210,7 +202,7 @@ final class TestLtiCourseLogic {
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
-            fail("Exception while querying lti_course: " + ex.getMessage());
+            fail("Exception while querying lti_context: " + ex.getMessage());
         }
     }
 
@@ -221,22 +213,22 @@ final class TestLtiCourseLogic {
         final Cache cache = new Cache(profile);
 
         try {
-            if (LtiCourseLogic.INSTANCE.update(cache, UPD5)) {
-                final LtiCourseRec r = LtiCourseLogic.INSTANCE.query(cache, UPD5.clientId, UPD5.issuer,
+            if (LtiContextLogic.INSTANCE.update(cache, UPD5)) {
+                final LtiContextRec r = LtiContextLogic.INSTANCE.query(cache, UPD5.clientId, UPD5.issuer,
                         UPD5.deploymentId, UPD5.contextId);
 
                 assertNotNull(r, "No record returned by query after update");
 
                 if (!UPD5.equals(r)) {
                     printUnexpected(r);
-                    fail("Incorrect results after update of lti_course");
+                    fail("Incorrect results after update of lti_context");
                 }
             } else {
-                fail("Failed to update lti_course row");
+                fail("Failed to update lti_context row");
             }
         } catch (final SQLException ex) {
             Log.warning(ex);
-            fail("Exception while updating lti_course: " + ex.getMessage());
+            fail("Exception while updating lti_context: " + ex.getMessage());
         }
     }
 
@@ -247,10 +239,10 @@ final class TestLtiCourseLogic {
         final Cache cache = new Cache(profile);
 
         try {
-            final boolean result = LtiCourseLogic.INSTANCE.delete(cache, RAW2);
+            final boolean result = LtiContextLogic.INSTANCE.delete(cache, RAW2);
             assertTrue(result, "delete returned false");
 
-            final List<LtiCourseRec> all = LtiCourseLogic.INSTANCE.queryAll(cache);
+            final List<LtiContextRec> all = LtiContextLogic.INSTANCE.queryAll(cache);
 
             assertEquals(4, all.size(), "Incorrect record count from queryAll after delete");
 
@@ -259,7 +251,7 @@ final class TestLtiCourseLogic {
             boolean found4 = false;
             boolean found5 = false;
 
-            for (final LtiCourseRec r : all) {
+            for (final LtiContextRec r : all) {
                 if (RAW1.equals(r)) {
                     found1 = true;
                 } else if (RAW3.equals(r)) {
@@ -274,13 +266,13 @@ final class TestLtiCourseLogic {
                 }
             }
 
-            assertTrue(found1, "lti_course 1 not found");
-            assertTrue(found3, "lti_course 3 not found");
-            assertTrue(found4, "lti_course 4 not found");
-            assertTrue(found5, "lti_course 5 not found");
+            assertTrue(found1, "lti_context 1 not found");
+            assertTrue(found3, "lti_context 3 not found");
+            assertTrue(found4, "lti_context 4 not found");
+            assertTrue(found5, "lti_context 5 not found");
         } catch (final SQLException ex) {
             Log.warning(ex);
-            fail("Exception while deleting lti_courses: " + ex.getMessage());
+            fail("Exception while deleting lti_contexts: " + ex.getMessage());
         }
     }
 
@@ -314,7 +306,7 @@ final class TestLtiCourseLogic {
                 }
 
                 try (final Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("DELETE FROM " + prefix + ".lti_course");
+                    stmt.executeUpdate("DELETE FROM " + prefix + ".lti_context");
                 }
 
                 conn.commit();

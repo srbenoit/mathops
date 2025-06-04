@@ -2,6 +2,7 @@ package dev.mathops.web.host.course.lti.canvascourse;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.web.host.course.lti.LtiSite;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 import jakarta.servlet.ServletRequest;
@@ -34,11 +35,11 @@ public enum PageError {
                 .addln(" <link rel='stylesheet' href='basestyle.css' type='text/css'>")
                 .addln(" <link rel='stylesheet' href='style.css' type='text/css'>")
                 .addln(" <link rel='icon' type='image/x-icon' href='/www/images/favicon.ico'>")
-                .addln(" <title>CSU Mathematics Program</title>");
+                .addln(" <title>", LtiSite.TOOL_NAME, "</title>");
         htm.addln("</head>");
         htm.addln("<body style='background:white; padding:20px;'>");
 
-        htm.sH(1).add("CSU Math Tool").eH(1);
+        htm.sH(1).add(LtiSite.TOOL_NAME).eH(1);
         htm.sH(2).add(subtitle).eH(2);
 
         htm.sDiv("indent");

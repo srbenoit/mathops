@@ -101,10 +101,10 @@ public enum LTIDynamicRegistration {
 
             htm.sP("center").add("<img src='/images/lti_logo.png' alt='CSU Ram logo'/>").eP();
 
-            htm.sH(1, "center").add("CSU Mathematics Program").eH(1);
+            htm.sH(1, "center").add(LtiSite.TOOL_NAME).eH(1);
 
             htm.sP().add("This is an LTI integration of the course delivery and assessment platform used for ",
-                    "Mathematics courses at Colorado State University.").eP();
+                    "Foundational Mathematics courses.").eP();
 
             htm.sP().add("Please confirm that you wish to register this LTI tool with your LMS.").eP();
 
@@ -336,7 +336,7 @@ public enum LTIDynamicRegistration {
         requestJson.addln("  \"redirect_uris\": [\"", redirect1, "\", \"", redirect2, "\"],");
         requestJson.addln("  \"jwks_uri\": \"", jwks, "\",");
         requestJson.addln("  \"logo_uri\": \"", logo, "\",");
-        requestJson.addln("  \"client_name\":\"CSU Mathematics Program\",");
+        requestJson.addln("  \"client_name\":\"" + LtiSite.TOOL_NAME + "\",");
         requestJson.addln("  \"client_uri\": \"", client, "\",");
         requestJson.addln("  \"policy_uri\": \"", policy, "\",");
         requestJson.addln("  \"tos_uri\": \"", tos, "\",");

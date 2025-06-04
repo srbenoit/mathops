@@ -147,7 +147,7 @@ public final class LtiSite extends AbstractSite {
                 // The target URI for requests for LTI content.
                 case "lti13_api_callback" -> LTIApiCallback.doCallback(cache, this, req, resp);
                 // The target URI for requests for LTI content.
-                case "lti13_target" -> LTITarget.doTarget(cache, this, req, resp);
+                case "lti13_target" -> LTITarget.doGet(cache, this, req, resp);
                 // The target URI for requests for LTI content.
                 case "lti13_jwks" -> LTIJWKS.doGet(cache, this, req, resp);
 
@@ -224,7 +224,7 @@ public final class LtiSite extends AbstractSite {
             // A callback from the LMS after an LTI launch redirect.
             case "lti13_callback" -> LTICallback.doCallback(cache, this, req, resp);
             // The target URI for requests for LTI content.
-            case "lti13_target" -> LTITarget.doTarget(cache, this, req, resp);
+            case "lti13_target" -> LTITarget.doPost(cache, this, req, resp);
 
             // The next three are used by the online Teams proctoring process
             case "gainaccess.html" -> PageIndex.processAccessCode(cache, this, req, resp);

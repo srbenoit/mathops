@@ -33,8 +33,8 @@ public enum LTITarget {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    public static void doTarget(final Cache cache, final LtiSite site, final HttpServletRequest req,
-                                final HttpServletResponse resp) throws IOException, SQLException {
+    public static void doGet(final Cache cache, final LtiSite site, final HttpServletRequest req,
+                             final HttpServletResponse resp) throws IOException, SQLException {
 
         final String nonce = req.getParameter("nonce");
 
@@ -43,14 +43,6 @@ public enum LTITarget {
             PageError.showErrorPage(req, resp, "LTI Resource Launch",
                     "The launch is invalid or has timed out.  Please try again.");
         } else {
-
-            final Enumeration<String> paramNames = req.getParameterNames();
-            while (paramNames.hasMoreElements()) {
-                final String name = paramNames.nextElement();
-                final String value = req.getParameter(name);
-                Log.info("Target param '", name, "' = ", value);
-            }
-
             final JSONObject payload = redirect.idTokenPayload();
 
             final String placement = payload.getStringProperty("https://www.instructure.com/placement");
@@ -82,7 +74,7 @@ public enum LTITarget {
             } else if ("course_navigation".equals(placement)) {
                 PageCourseNavigation.showPage(cache, req, resp, redirect);
             } else if ("course_settings_sub_navigation".equals(placement)) {
-                PageCourseSettingsSubNavigation.showPage(cache, req, resp, redirect);
+                PageCourseSettingsSubNavigation.doGet(cache, req, resp, redirect);
             } else if ("discussion_topic_index_menu".equals(placement)) {
                 PageDiscussionTopicIndexMenu.showPage(cache, req, resp, redirect);
             } else if ("discussion_topic_menu".equals(placement)) {
@@ -129,6 +121,38 @@ public enum LTITarget {
                 Log.warning("Unrecognized placement: '", placement, "'");
                 showDefault(payload, req, resp, null);
             }
+        }
+    }
+
+    /**
+     * A handler for POST requests through LTI to a particular target.
+     *
+     * @param cache the data cache
+     * @param site  the owning site
+     * @param req   the request
+     * @param resp  the response
+     * @throws IOException  if there is an error writing the response
+     * @throws SQLException if there is an error accessing the database
+     */
+    public static void doPost(final Cache cache, final LtiSite site, final HttpServletRequest req,
+                              final HttpServletResponse resp) throws IOException, SQLException {
+
+        final Enumeration<String> paramNames = req.getParameterNames();
+        while (paramNames.hasMoreElements()) {
+            final String name = paramNames.nextElement();
+            final String value = req.getParameter(name);
+            Log.info("Target param '", name, "' = ", value);
+        }
+
+        final String placement = req.getParameter("plc");
+
+        Log.info("LTI Target POST placement is ", placement);
+
+        if ("course_settings_sub_navigation".equals(placement)) {
+            PageCourseSettingsSubNavigation.doPost(cache, req, resp);
+        } else {
+            Log.warning("Unrecognized placement for POST: '", placement, "'");
+            PageError.showErrorPage(req, resp, "Invalid POST access to ", LtiSite.TOOL_NAME);
         }
     }
 

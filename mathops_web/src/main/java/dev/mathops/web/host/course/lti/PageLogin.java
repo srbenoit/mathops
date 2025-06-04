@@ -31,11 +31,10 @@ enum PageLogin {
                          final HttpServletResponse resp) throws IOException, SQLException {
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
-        Page.startOrdinaryPage(htm, Res.get(Res.SITE_TITLE), null,
-                false, Page.ADMIN_BAR, null, false, true);
+        Page.startOrdinaryPage(htm, LtiSite.TOOL_NAME, null, false, Page.ADMIN_BAR, null, false, true);
 
         htm.sDiv(null, "style='padding-left:16px; padding-right:16px;'");
-        htm.sH(1).add("CSU Mathematics Program LTI").eH(1);
+        htm.sH(1).add(LtiSite.TOOL_NAME).eH(1);
 
         htm.sP().add("<a class='btn' href='secure/shibboleth.html'>Login with my eID</a>").eP();
 

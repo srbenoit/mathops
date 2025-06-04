@@ -2,8 +2,8 @@ package dev.mathops.web.host.course.lti.canvascourse;
 
 import dev.mathops.db.Cache;
 import dev.mathops.db.rec.main.LtiRegistrationRec;
-import dev.mathops.db.rec.term.LtiCourseRec;
-import dev.mathops.db.reclogic.term.LtiCourseLogic;
+import dev.mathops.db.rec.term.LtiContextRec;
+import dev.mathops.db.reclogic.term.LtiContextLogic;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.parser.json.JSONObject;
 import dev.mathops.web.host.course.lti.LtiSite;
@@ -30,7 +30,7 @@ enum PageUtils {
      *         section
      * @throws SQLException if there is an error accessing the database
      */
-    static LtiCourseRec lookupLtiCourse(final Cache cache, final LtiSite.PendingTargetRedirect redirect)
+    static LtiContextRec lookupLtiCourse(final Cache cache, final LtiSite.PendingTargetRedirect redirect)
             throws SQLException {
 
         final JSONObject payload = redirect.idTokenPayload();
@@ -43,12 +43,12 @@ enum PageUtils {
             contextId = contextObj.getStringProperty("id");
         }
 
-        LtiCourseRec result;
+        LtiContextRec result;
 
         if (deployment == null || contextId == null) {
             result = null;
         } else {
-            result = LtiCourseLogic.INSTANCE.query(cache, registration.clientId, registration.issuer,
+            result = LtiContextLogic.INSTANCE.query(cache, registration.clientId, registration.issuer,
                     deployment, contextId);
         }
 
@@ -56,7 +56,7 @@ enum PageUtils {
     }
 
     /**
-     * Shows the page that indicates this course has not yet been configured with the CSU Mathematics LTI tool.
+     * Shows the page that indicates this course has not yet been configured with the LTI tool.
      *
      * @param req  the request
      * @param resp the response
@@ -72,17 +72,17 @@ enum PageUtils {
                 .addln(" <meta http-equiv='Content-Type' content='text/html;charset=utf-8'/>")
                 .addln(" <link rel='stylesheet' href='basestyle.css' type='text/css'>")
                 .addln(" <link rel='stylesheet' href='style.css' type='text/css'>")
-                .addln(" <title>CSU Mathematics Program</title>");
+                .addln(" <title>", LtiSite.TOOL_NAME, "</title>");
         htm.addln("</head>");
         htm.addln("<body style='background:white; padding:20px;'>");
 
         htm.sH(1).add(LtiSite.TOOL_NAME).eH(1);
 
         htm.sDiv("indent");
-        htm.sP().addln("This course has not yet been configured in the CSU Math Tool.").eP();
+        htm.sP().addln("This course has not yet been linked to the ", LtiSite.TOOL_NAME, " tool.").eP();
         htm.sP().addln("Please to into the <strong>[Settings]</strong> menu for the course, and select ",
-                "<strong>[Configure CSU Math Tool]</strong> from the menu on the right-hand side to ",
-                "configure this course.").eP();
+                "<strong>[", LtiSite.TOOL_NAME, "]</strong> from the menu on the right-hand side to ",
+                "link this course.").eP();
         htm.eDiv();
 
         htm.addln("</body></html>");

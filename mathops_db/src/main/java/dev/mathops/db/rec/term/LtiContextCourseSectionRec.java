@@ -4,21 +4,20 @@ import dev.mathops.db.DataDict;
 import dev.mathops.db.rec.RecBase;
 import dev.mathops.text.builder.HtmlBuilder;
 
-import java.util.Objects;
-
 /**
- * An immutable raw "LTI course" record.
+ * An immutable raw "LTI context course section" record.
  *
  * <p>
  * Each record represents a connection between an LMS context (course) and a CSU course section.
  *
  * <p>
- * The primary key on the underlying table is combination of client ID, issuer, deployment ID, and context ID.
+ * The primary key on the underlying table is combination of client ID, issuer, deployment ID, context ID, course ID,
+ * and section number.
  */
-public final class LtiCourseRec extends RecBase implements Comparable<LtiCourseRec> {
+public final class LtiContextCourseSectionRec extends RecBase implements Comparable<LtiContextCourseSectionRec> {
 
     /** The table name for serialization of records. */
-    public static final String TABLE_NAME = "lti_course";
+    public static final String TABLE_NAME = "lti_context_course_section";
 
     /** The 'client_id' field value. */
     public final String clientId;
@@ -32,12 +31,6 @@ public final class LtiCourseRec extends RecBase implements Comparable<LtiCourseR
     /** The 'context_id' field value. */
     public final String contextId;
 
-    /** The 'lms_course_id' field value. */
-    public final String lmsCourseId;
-
-    /** The 'lms_course_title' field value. */
-    public final String lmsCourseTitle;
-
     /** The 'course_id' field value. */
     public final String courseId;
 
@@ -45,20 +38,17 @@ public final class LtiCourseRec extends RecBase implements Comparable<LtiCourseR
     public final String sectionNbr;
 
     /**
-     * Constructs a new {@code LtiCourseRec}.
+     * Constructs a new {@code LtiContextCourseSectionRec}.
      *
-     * @param theClientId       the client ID
-     * @param theIssuer         the issuer host name
-     * @param theDeploymentId   the LMS deployment ID
-     * @param theContextId      the LMS context (course) ID
-     * @param theLmsCourseId    the LMS course ID (for API access)
-     * @param theLmsCourseTitle the LMS course title
-     * @param theCourseId       the institution course ID
-     * @param theSectionNbr     the institution section number
+     * @param theClientId     the client ID
+     * @param theIssuer       the issuer host name
+     * @param theDeploymentId the LMS deployment ID
+     * @param theContextId    the LMS context (course) ID
+     * @param theCourseId     the institution course ID
+     * @param theSectionNbr   the institution section number
      */
-    public LtiCourseRec(final String theClientId, final String theIssuer, final String theDeploymentId,
-                        final String theContextId, final String theLmsCourseId, final String theLmsCourseTitle,
-                        final String theCourseId, final String theSectionNbr) {
+    public LtiContextCourseSectionRec(final String theClientId, final String theIssuer, final String theDeploymentId,
+                                      final String theContextId, final String theCourseId, final String theSectionNbr) {
 
         super();
 
@@ -85,8 +75,6 @@ public final class LtiCourseRec extends RecBase implements Comparable<LtiCourseR
         this.issuer = theIssuer;
         this.deploymentId = theDeploymentId;
         this.contextId = theContextId;
-        this.lmsCourseId = theLmsCourseId;
-        this.lmsCourseTitle = theLmsCourseTitle;
         this.courseId = theCourseId;
         this.sectionNbr = theSectionNbr;
     }
@@ -99,7 +87,7 @@ public final class LtiCourseRec extends RecBase implements Comparable<LtiCourseR
      *         the specified object
      */
     @Override
-    public int compareTo(final LtiCourseRec o) {
+    public int compareTo(final LtiContextCourseSectionRec o) {
 
         int result = this.issuer.compareTo(o.issuer);
 
@@ -137,10 +125,6 @@ public final class LtiCourseRec extends RecBase implements Comparable<LtiCourseR
         htm.add(DIVIDER);
         appendField(htm, DataDict.FLD_CONTEXT_ID, this.contextId);
         htm.add(DIVIDER);
-        appendField(htm, DataDict.FLD_LMS_COURSE_ID, this.lmsCourseId);
-        htm.add(DIVIDER);
-        appendField(htm, DataDict.FLD_LMS_COURSE_TITLE, this.lmsCourseTitle);
-        htm.add(DIVIDER);
         appendField(htm, DataDict.FLD_COURSE_ID, this.courseId);
         htm.add(DIVIDER);
         appendField(htm, DataDict.FLD_SECTION_NBR, this.sectionNbr);
@@ -160,8 +144,6 @@ public final class LtiCourseRec extends RecBase implements Comparable<LtiCourseR
                + this.issuer.hashCode()
                + this.deploymentId.hashCode()
                + this.contextId.hashCode()
-               + Objects.hashCode(this.lmsCourseId)
-               + Objects.hashCode(this.lmsCourseTitle)
                + this.courseId.hashCode()
                + this.sectionNbr.hashCode();
     }
@@ -179,13 +161,11 @@ public final class LtiCourseRec extends RecBase implements Comparable<LtiCourseR
 
         if (obj == this) {
             equal = true;
-        } else if (obj instanceof final LtiCourseRec rec) {
+        } else if (obj instanceof final LtiContextCourseSectionRec rec) {
             equal = this.clientId.equals(rec.clientId)
                     && this.issuer.equals(rec.issuer)
                     && this.deploymentId.equals(rec.deploymentId)
                     && this.contextId.equals(rec.contextId)
-                    && Objects.equals(this.lmsCourseId, rec.lmsCourseId)
-                    && Objects.equals(this.lmsCourseTitle, rec.lmsCourseTitle)
                     && this.courseId.equals(rec.courseId)
                     && this.sectionNbr.equals(rec.sectionNbr);
         } else {
