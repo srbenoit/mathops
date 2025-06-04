@@ -289,6 +289,9 @@ final class OpenIdConfiguration {
     /** The list of supported claims. */
     private final List<String> claimsSupported;
 
+    /** The list of supported variables. */
+    private final List<String> variablesSupported;
+
     /** The list of resource link placements. */
     private final List<String> resourceLinkPlacements;
 
@@ -310,6 +313,7 @@ final class OpenIdConfiguration {
 
         this.scopesSupported = new ArrayList<>(15);
         this.claimsSupported = new ArrayList<>(10);
+        this.variablesSupported = new ArrayList<>(100);
         this.resourceLinkPlacements = new ArrayList<>(50);
         this.deepLinkingPlacements = new ArrayList<>(30);
 
@@ -331,6 +335,7 @@ final class OpenIdConfiguration {
 
         if (json.getProperty("https://purl.imsglobal.org/spec/lti-platform-configuration")
                 instanceof final JSONObject ims) {
+
             if (ims.getProperty("messages_supported") instanceof Object[] messagesArray) {
                 for (final Object obj : messagesArray) {
                     if (obj instanceof JSONObject jsonEntry) {
@@ -340,6 +345,14 @@ final class OpenIdConfiguration {
                         } else if ("LtiDeepLinkingRequest".equals(type)) {
                             extractLtiDeepLinkingRequest(jsonEntry);
                         }
+                    }
+                }
+            }
+
+            if (ims.getProperty("variables") instanceof final Object[] variablesArray) {
+                for (final Object o : variablesArray) {
+                    if (o instanceof final String s) {
+                        this.variablesSupported.add(s);
                     }
                 }
             }
@@ -438,6 +451,12 @@ final class OpenIdConfiguration {
     List<String> getClaimsSupported() {
 
         return this.claimsSupported;
+    }
+
+    /** The list of supported variables. */
+    List<String> getVariablesSupported() {
+
+        return this.variablesSupported;
     }
 
     /** The list of resource link placements. */

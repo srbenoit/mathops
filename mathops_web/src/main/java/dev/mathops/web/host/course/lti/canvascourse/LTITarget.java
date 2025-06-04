@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.util.Enumeration;
 
 /**
  * A dispatcher class that examines the payload of a validate launch callback to determine the page to generate, then
@@ -40,6 +41,14 @@ public enum LTITarget {
             PageError.showErrorPage(req, resp, "LTI Resource Launch",
                     "The launch is invalid or has timed out.  Please try again.");
         } else {
+
+            final Enumeration<String> paramNames = req.getParameterNames();
+            while (paramNames.hasMoreElements()) {
+                final String name = paramNames.nextElement();
+                final String value = req.getParameter(name);
+                Log.info("Target param '", name, "' = ", value);
+            }
+
             final JSONObject payload = redirect.idTokenPayload();
 
             final String placement = payload.getStringProperty("https://www.instructure.com/placement");
@@ -82,7 +91,7 @@ public enum LTITarget {
                 PageFileIndexMenu.showPage(req, resp, redirect);
             } else if ("file_menu".equals(placement)) {
                 PageFileMenu.showPage(req, resp, redirect);
-            } else if ("CSU Homework Submission.".equals(placement)) {
+            } else if ("homework_submission".equals(placement)) {
                 PageHomeworkSubmission.showPage(req, resp, redirect);
             } else if ("migration_selection".equals(placement)) {
                 PageMigrationSelection.showPage(req, resp, redirect);

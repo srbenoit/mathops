@@ -19,6 +19,7 @@ import dev.mathops.text.internet.RFC8017KeyPairGenerator;
 import dev.mathops.text.parser.ParsingException;
 import dev.mathops.text.parser.json.JSONObject;
 import dev.mathops.text.parser.json.JSONParser;
+import dev.mathops.web.host.course.lti.canvascourse.LTIApiCallback;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.BasicCss;
 import dev.mathops.web.site.ESiteType;
@@ -131,6 +132,8 @@ public final class LtiSite extends AbstractSite {
                 case "lti13_launch" -> LTILaunch.doLaunch(cache, this, req, resp);
                 // A callback from the LMS after an LTI launch redirect.
                 case "lti13_callback" -> LTICallback.doCallback(cache, this, req, resp);
+                // The target URI for requests for LTI content.
+                case "lti13_api_callback" -> LTIApiCallback.doCallback(cache, this, req, resp);
                 // The target URI for requests for LTI content.
                 case "lti13_target" -> LTITarget.doTarget(cache, this, req, resp);
                 // The target URI for requests for LTI content.

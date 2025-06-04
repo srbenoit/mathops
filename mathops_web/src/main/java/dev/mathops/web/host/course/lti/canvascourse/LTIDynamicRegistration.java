@@ -110,6 +110,7 @@ public enum LTIDynamicRegistration {
 
             htm.div("vgap");
             htm.sDiv("center");
+
             htm.addln("<form action='lti13_dynamic_registration.html' method='POST'>");
             htm.addln("  <input type='hidden' name='openid_configuration' value='", openIdValue, "'/>");
             htm.addln("  <input type='hidden' name='registration_token' value='", tokenValue, "'/>");
@@ -131,9 +132,9 @@ public enum LTIDynamicRegistration {
      * page that closes its containing window, as requested by Canvas.
      *
      * @param cache the data cache
-     * @param site the owning site
-     * @param req  the request
-     * @param resp the response
+     * @param site  the owning site
+     * @param req   the request
+     * @param resp  the response
      * @throws IOException if there is an error writing the response
      */
     public static void doPost(final Cache cache, final LtiSite site, final HttpServletRequest req,
@@ -178,10 +179,11 @@ public enum LTIDynamicRegistration {
                 final String msg = "Unable to retrieve OpenID configuration from LTI platform.";
                 PageError.showErrorPage(req, resp, SUBTITLE, msg);
             } else {
-                // Log.fine(openIdConfigContent);
                 try {
                     final Object parsed = JSONParser.parseJSON(openIdConfigContent);
                     if (parsed instanceof final JSONObject json) {
+                        Log.fine(json.toJSONFriendly(0));
+
                         final OpenIdConfiguration openIdConfig = new OpenIdConfiguration(json);
 
                         final String issuer = openIdConfig.getIssuer();
@@ -259,7 +261,7 @@ public enum LTIDynamicRegistration {
                 final String tokenEndpoint = openIdConfig.getTokenEndpoint();
                 String redirectUri = null;
                 final Object o = response.getProperty("redirect_uris");
-                if (o instanceof Object[] arr && arr.length > 0) {
+                if (o instanceof final Object[] arr && arr.length > 0) {
                     if (arr[0] instanceof String s) {
                         redirectUri = s;
                     }
@@ -295,7 +297,6 @@ public enum LTIDynamicRegistration {
         }
     }
 
-
     /**
      * Assembles and sends the Client Registration request as documented in
      * <a href='https://www.imsglobal.org/spec/lti-dr/v1p0#client-registration-request'>
@@ -316,7 +317,8 @@ public enum LTIDynamicRegistration {
                                                            final String portStr, final String registrationToken)
             throws IOException {
 
-        final String redirect = "https://" + host + path + "/lti13_callback";
+        final String redirect1 = "https://" + host + path + "/lti13_callback";
+        final String redirect2 = "https://" + host + path + "/lti13_api_callback";
         final String initiate = "https://" + host + path + "/lti13_launch";
         final String jwks = "https://" + host + path + "/lti13_jwks";
         final String logo = "https://" + host + path + "/lti_logo.png";
@@ -331,7 +333,7 @@ public enum LTIDynamicRegistration {
         requestJson.addln("  \"response_types\": [\"id_token\"],");
         requestJson.addln("  \"grant_types\": [\"implicit\", \"client_credentials\"],");
         requestJson.addln("  \"initiate_login_uri\": \"", initiate, "\",");
-        requestJson.addln("  \"redirect_uris\": [\"", redirect, "\"],");
+        requestJson.addln("  \"redirect_uris\": [\"", redirect1, "\", \"", redirect2, "\"],");
         requestJson.addln("  \"jwks_uri\": \"", jwks, "\",");
         requestJson.addln("  \"logo_uri\": \"", logo, "\",");
         requestJson.addln("  \"client_name\":\"CSU Mathematics Program\",");
@@ -361,7 +363,8 @@ public enum LTIDynamicRegistration {
                 || "https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly".equals(scope)
                 || "https://purl.imsglobal.org/spec/lti-ags/scope/score".equals(scope)
                 || "https://purl.imsglobal.org/spec/lti-nrps/scope/contextmembership.readonly".equals(scope)
-                || "https://canvas.instructure.com/lti/account_lookup/scope/show".equals(scope)) {
+                || "https://canvas.instructure.com/lti/account_lookup/scope/show".equals(scope)
+                || "https://canvas.instructure.com/lti/page_content/show".equals(scope)) {
                 if (space) {
                     requestJson.add(CoreConstants.SPC);
                 }
@@ -377,8 +380,9 @@ public enum LTIDynamicRegistration {
         requestJson.addln("    \"target_link_uri\": \"", target, "\",");
         requestJson.add("    \"claims\": [");
         boolean comma = false;
-        for (final Object claim : openIdConfig.getClaimsSupported()) {
-            if ("sub".equals(claim) || "name".equals(claim) || "locale".equals(claim)) {
+        for (final String claim : openIdConfig.getClaimsSupported()) {
+            if ("sub".equals(claim) || "name".equals(claim) || "given_name".equals(claim) || "family_name".equals(
+                    claim) || "picture".equals(claim) || "locale".equals(claim)) {
                 if (comma) {
                     requestJson.add(CoreConstants.COMMA);
                 }
@@ -387,6 +391,152 @@ public enum LTIDynamicRegistration {
             }
         }
         requestJson.addln("],");
+
+        requestJson.add("    \"custom_parameters\": {");
+        comma = false;
+        for (final String variable : openIdConfig.getVariablesSupported()) {
+            if ("User.id".equals(variable)) {
+                if (comma) {
+                    requestJson.add(CoreConstants.COMMA);
+                }
+                requestJson.add("\"effective_user_id\": \"$User.id\"");
+                comma = true;
+            } else if ("User.username".equals(variable)) {
+                if (comma) {
+                    requestJson.add(CoreConstants.COMMA);
+                }
+                requestJson.add("\"effective_username\": \"$User.username\"");
+                comma = true;
+            } else if ("Canvas.account.id".equals(variable)) {
+                if (comma) {
+                    requestJson.add(CoreConstants.COMMA);
+                }
+                requestJson.add("\"canvas_account_id\": \"$Canvas.account.id\"");
+                comma = true;
+            } else if ("Canvas.account.name".equals(variable)) {
+                if (comma) {
+                    requestJson.add(CoreConstants.COMMA);
+                }
+                requestJson.add("\"canvas_account_name\": \"$Canvas.account.name\"");
+                comma = true;
+            } else if ("Canvas.account.sisSourceId".equals(variable)) {
+                if (comma) {
+                    requestJson.add(CoreConstants.COMMA);
+                }
+                requestJson.add("\"canvas_account_sis_id\": \"$Canvas.account.sisSourceId\"");
+                comma = true;
+            } else if ("Canvas.api.domain".equals(variable)) {
+                if (comma) {
+                    requestJson.add(CoreConstants.COMMA);
+                }
+                requestJson.add("\"canvas_api_domain\": \"$Canvas.api.domain\"");
+                comma = true;
+            } else if ("Canvas.api.baseUrl".equals(variable)) {
+                if (comma) {
+                    requestJson.add(CoreConstants.COMMA);
+                }
+                requestJson.add("\"canvas_api_url\": \"$Canvas.api.baseUrl\"");
+                comma = true;
+            } else if ("Canvas.assignment.id".equals(variable)) {
+                if (comma) {
+                    requestJson.add(CoreConstants.COMMA);
+                }
+                requestJson.add("\"canvas_assignment_id\": \"$Canvas.assignment.id\"");
+                comma = true;
+            } else if ("Canvas.assignment.description".equals(variable)) {
+                if (comma) {
+                    requestJson.add(CoreConstants.COMMA);
+                }
+                requestJson.add("\"canvas_assignment_description\": \"$Canvas.assignment.description\"");
+                comma = true;
+            } else if ("Canvas.assignment.title".equals(variable)) {
+                if (comma) {
+                    requestJson.add(CoreConstants.COMMA);
+                }
+                requestJson.add("\"canvas_assignment_title\": \"$Canvas.assignment.title\"");
+                comma = true;
+            } else if ("Canvas.course.id".equals(variable)) {
+                if (comma) {
+                    requestJson.add(CoreConstants.COMMA);
+                }
+                requestJson.add("\"canvas_course_id\": \"$Canvas.course.id\"");
+                comma = true;
+            } else if ("Canvas.course.name".equals(variable)) {
+                if (comma) {
+                    requestJson.add(CoreConstants.COMMA);
+                }
+                requestJson.add("\"canvas_course_name\": \"$Canvas.course.name\"");
+                comma = true;
+            } else if ("Canvas.course.sisSourceId".equals(variable)) {
+                if (comma) {
+                    requestJson.add(CoreConstants.COMMA);
+                }
+                requestJson.add("\"canvas_course_sis_id\": \"$Canvas.course.sisSourceId\"");
+                comma = true;
+            } else if ("Canvas.enrollment.enrollmentState".equals(variable)) {
+                if (comma) {
+                    requestJson.add(CoreConstants.COMMA);
+                }
+                requestJson.add("\"canvas_enrollment_state\": \"$Canvas.enrollment.enrollmentState\"");
+                comma = true;
+            } else if ("Canvas.file.media.id".equals(variable)) {
+                if (comma) {
+                    requestJson.add(CoreConstants.COMMA);
+                }
+                requestJson.add("\"canvas_file_id\": \"$Canvas.file.media.id\"");
+                comma = true;
+            } else if ("Canvas.membership.roles".equals(variable)) {
+                if (comma) {
+                    requestJson.add(CoreConstants.COMMA);
+                }
+                requestJson.add("\"canvas_membership_roles\": \"$Canvas.membership.roles\"");
+                comma = true;
+            } else if ("Canvas.module.id".equals(variable)) {
+                if (comma) {
+                    requestJson.add(CoreConstants.COMMA);
+                }
+                requestJson.add("\"canvas_module_id\": \"$Canvas.module.id\"");
+                comma = true;
+            } else if ("Canvas.moduleItem.id".equals(variable)) {
+                if (comma) {
+                    requestJson.add(CoreConstants.COMMA);
+                }
+                requestJson.add("\"canvas_module_item_id\": \"$Canvas.moduleItem.id\"");
+                comma = true;
+            } else if ("Canvas.term.id".equals(variable)) {
+                if (comma) {
+                    requestJson.add(CoreConstants.COMMA);
+                }
+                requestJson.add("\"canvas_term_id\": \"$Canvas.term.id\"");
+                comma = true;
+            } else if ("Canvas.user.id".equals(variable)) {
+                if (comma) {
+                    requestJson.add(CoreConstants.COMMA);
+                }
+                requestJson.add("\"canvas_user_id\": \"$Canvas.user.id\"");
+                comma = true;
+            } else if ("Canvas.user.prefersHighContrast".equals(variable)) {
+                if (comma) {
+                    requestJson.add(CoreConstants.COMMA);
+                }
+                requestJson.add("\"canvas_user_high_contrast\": \"$Canvas.user.prefersHighContrast\"");
+                comma = true;
+            } else if ("Canvas.user.loginId".equals(variable)) {
+                if (comma) {
+                    requestJson.add(CoreConstants.COMMA);
+                }
+                requestJson.add("\"canvas_user_login_id\": \"$Canvas.user.loginId\"");
+                comma = true;
+            } else if ("Canvas.user.sisSourceId".equals(variable)) {
+                if (comma) {
+                    requestJson.add(CoreConstants.COMMA);
+                }
+                requestJson.add("\"canvas_user_sis_id\": \"$Canvas.user.sisSourceId\"");
+                comma = true;
+            }
+        }
+        requestJson.addln("},");
+
         requestJson.addln("    \"messages\": [");
         comma = false;
         final List<String> resourceLinkPlacements = openIdConfig.getResourceLinkPlacements();
