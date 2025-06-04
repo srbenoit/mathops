@@ -94,8 +94,7 @@ public enum LTIDynamicRegistration {
 
             htm.addln("<!DOCTYPE html>").addln("<html>").addln("<head>");
             htm.addln(" <meta http-equiv='Content-Type' content='text/html;charset=utf-8'/>")
-                    .addln(" <link rel='stylesheet' href='basestyle.css' type='text/css'/>")
-                    .addln(" <link rel='stylesheet' href='style.css' type='text/css'/>");
+                    .addln(" <link rel='stylesheet' href='ltistyle.css' type='text/css'/>");
             htm.addln("</head>");
             htm.addln("<body style='background:white; padding:20px;'>");
 

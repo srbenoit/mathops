@@ -169,7 +169,7 @@ public enum PageManageLtiRegs {
                     htm.add("<input type='hidden' name='iss' value='", reg.issuer, "'/>");
                     htm.add("<input type='hidden' name='cid' value='", reg.clientId, "'/>");
                     htm.add("<input type='hidden' name='confirm' value='yes'/>");
-                    htm.add("<input type='submit' value='Yes, delete this record'/>");
+                    htm.add("<input type='submit' value='Yes, delete this registration'/>");
                     htm.add("</form> &nbsp;");
                     htm.add("<form style='display:inline-block' action='manage_lti_regs.html' method='GET'>");
                     htm.add("<input type='submit' value='Cancel'/>");

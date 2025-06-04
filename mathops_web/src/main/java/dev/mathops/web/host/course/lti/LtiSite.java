@@ -22,6 +22,7 @@ import dev.mathops.text.parser.json.JSONObject;
 import dev.mathops.text.parser.json.JSONParser;
 import dev.mathops.web.host.course.lti.canvascourse.LTIApiCallback;
 import dev.mathops.web.host.course.lti.manage.PageManageLti;
+import dev.mathops.web.host.course.lti.manage.PageManageLtiContexts;
 import dev.mathops.web.host.course.lti.manage.PageManageLtiRegs;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.BasicCss;
@@ -126,8 +127,10 @@ public final class LtiSite extends AbstractSite {
             serveImage(subpath, req, resp);
         } else if ("basestyle.css".equals(subpath) || "secure/basestyle.css".equals(subpath)) {
             sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
-        } else if ("style.css".equals(subpath) || "secure/tyle.css".equals(subpath)) {
+        } else if ("style.css".equals(subpath) || "secure/style.css".equals(subpath)) {
             sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(getClass(), "style.css", true));
+        } else if ("ltistyle.css".equals(subpath)) {
+            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(getClass(), "ltistyle.css", true));
         } else {
             Log.info("GET ", subpath);
 
@@ -182,6 +185,8 @@ public final class LtiSite extends AbstractSite {
                             PageManageLti.doGet(cache, this, req, resp, session);
                         } else if ("manage_lti_regs.html".equals(subpath)) {
                             PageManageLtiRegs.doGet(cache, this, req, resp, session, null);
+                        } else if ("manage_lti_contexts.html".equals(subpath)) {
+                            PageManageLtiContexts.doGet(cache, this, req, resp, session, null);
                         } else {
                             Log.info("GET request to unrecognized URL: ", subpath);
                             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -239,13 +244,18 @@ public final class LtiSite extends AbstractSite {
                 final ImmutableSessionInfo session = validateSession(req, resp, null);
 
                 if (session == null) {
-                    Log.info("POST request to unrecognized URL: ", subpath);
-                    resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                    resp.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+                    final String path = this.site.path;
+                    resp.setHeader("Location",
+                            path + (path.endsWith(Contexts.ROOT_PATH) ? "login.html" : "/login.html"));
+                    sendReply(req, resp, Page.MIME_TEXT_HTML, ZERO_LEN_BYTE_ARR);
                 } else {
                     LogBase.setSessionInfo(session.loginSessionId, session.getEffectiveUserId());
 
                     if ("manage_lti_regs.html".equals(subpath)) {
                         PageManageLtiRegs.doPost(cache, this, req, resp, session);
+                    } else if ("manage_lti_contexts.html".equals(subpath)) {
+                        PageManageLtiContexts.doPost(cache, this, req, resp, session);
                     } else {
                         Log.info("POST request to unrecognized URL: ", subpath);
                         resp.sendError(HttpServletResponse.SC_NOT_FOUND);

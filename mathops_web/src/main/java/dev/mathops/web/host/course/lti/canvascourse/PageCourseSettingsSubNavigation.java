@@ -94,8 +94,7 @@ enum PageCourseSettingsSubNavigation {
         htm.addln(" <meta name=\"robots\" content=\"noindex\">");
         htm.addln(" <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'/>")
                 .addln(" <meta http-equiv='Content-Type' content='text/html;charset=utf-8'/>")
-                .addln(" <link rel='stylesheet' href='basestyle.css' type='text/css'>")
-                .addln(" <link rel='stylesheet' href='style.css' type='text/css'>")
+                .addln(" <link rel='stylesheet' href='ltistyle.css' type='text/css'>")
                 .addln(" <title>", LtiSite.TOOL_NAME, "</title>");
         htm.addln("</head>");
         htm.addln("<body style='background:white; padding:20px;'>");
@@ -171,15 +170,15 @@ enum PageCourseSettingsSubNavigation {
                 final String dispCourse = sect.course.replace("M ", "MATH ");
                 if (i == size - 1) {
                     if (priorCourse.equals(sect.course)) {
-                        htm.sP(null, "style='border-bottom: solid 1px gray;'");
+                        htm.sP("tight", "style='border-bottom: solid 1px gray;'");
                     } else {
-                        htm.sP(null, "style='border-top: solid 1px gray; border-bottom: solid 1px gray;'");
+                        htm.sP("tight", "style='border-top: solid 1px gray; border-bottom: solid 1px gray;'");
                     }
                 } else {
                     if (priorCourse.equals(sect.course)) {
-                        htm.sP();
+                        htm.sP("tight");
                     } else {
-                        htm.sP(null, "style='border-top: solid 1px gray;'");
+                        htm.sP("tight", "style='border-top: solid 1px gray;'");
                     }
                 }
                 priorCourse = sect.course;

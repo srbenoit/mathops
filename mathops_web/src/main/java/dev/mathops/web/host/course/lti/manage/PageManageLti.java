@@ -36,7 +36,8 @@ public enum PageManageLti {
         htm.sH(2).add("LTI Tool Management").eH(2);
         htm.hr().div("vgap");
 
-        htm.sP().addln("<a href='manage_lti_regs.html'>Manage LTI Tool Registrations</a>");
+        htm.sP().addln("<a href='manage_lti_regs.html'>Manage LTI Tool Registrations</a>").eP();
+        htm.sP().addln("<a href='manage_lti_contexts.html'>Manage LTI Tool Contexts</a>").eP();
 
         htm.eDiv();
 

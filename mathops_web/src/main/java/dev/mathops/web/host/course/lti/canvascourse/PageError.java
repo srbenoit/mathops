@@ -32,8 +32,7 @@ public enum PageError {
         htm.addln(" <meta name=\"robots\" content=\"noindex\">");
         htm.addln(" <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'/>")
                 .addln(" <meta http-equiv='Content-Type' content='text/html;charset=utf-8'/>")
-                .addln(" <link rel='stylesheet' href='basestyle.css' type='text/css'>")
-                .addln(" <link rel='stylesheet' href='style.css' type='text/css'>")
+                .addln(" <link rel='stylesheet' href='ltistyle.css' type='text/css'>")
                 .addln(" <link rel='icon' type='image/x-icon' href='/www/images/favicon.ico'>")
                 .addln(" <title>", LtiSite.TOOL_NAME, "</title>");
         htm.addln("</head>");

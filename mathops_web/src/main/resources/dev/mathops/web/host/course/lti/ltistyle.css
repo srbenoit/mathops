@@ -1,0 +1,205 @@
+@font-face {
+    font-family:'open-sans-regular';
+    font-display:auto;
+    src: url('/www/fonts/OpenSans-Regular-webfont.eot');
+    src: url('/www/fonts/OpenSans-Regular-webfont.eot?#iefix') format('embedded-opentype'),
+         url('/www/fonts/OpenSans-Regular-webfont.woff') format('woff');
+    font-weight:normal;
+    font-style:normal;
+}
+@font-face {
+    font-family:'open-sans-bold';
+    font-display:auto;
+    src: url('/www/fonts/OpenSans-Bold-webfont.eot');
+    src: url('/www/fonts/OpenSans-Bold-webfont.eot?#iefix') format('embedded-opentype'),
+         url('/www/fonts/OpenSans-Bold-webfont.woff') format('woff');
+    font-weight:normal;
+    font-style:normal;
+}
+
+*, *:before, *:after {
+  box-sizing: border-box;
+}
+
+body {
+  font-family:open-sans-regular,sans-serif;
+  font-size:16px;
+  margin:10px;
+  color: #333;
+  background: white;
+  line-height: 1.25;
+}
+
+p {
+  margin-top: 0.6rem;
+  margin-bottom: 0.4rem;
+  font-family:open-sans-regular,sans-serif;
+  line-height:1.4em;
+}
+
+p.tight {
+  margin-top: 0.4rem;
+  margin-bottom: 0.2rem;
+  line-height:1.1em;
+}
+
+a {
+  color: #2c723f;
+  text-decoration: none;
+}
+
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+  font-family:open-sans-regular,sans-serif;
+  font-weight:300;
+  line-height:1.1;
+  color:#194125;
+  margin-top:0;
+  margin-bottom:0.4em;
+}
+h1 {
+  font-size:1.8rem;
+}
+h2 {
+  font-size:1.5rem;
+}
+h2 a {
+  color: inherit;
+}
+h3 {
+  font-size:1.17rem;
+}
+h4 {
+  font-size:1.05rem;
+}
+h5 {
+  font-size:1rem;
+}
+.smaller {
+   font-size:0.9em;
+}
+.smallish {
+   font-size:13px;
+}
+.small {
+   font-size:12px;
+}
+.largeish {
+   font-size:18px;
+}
+.large {
+   font-size:22px;
+}
+
+.hidden {
+  display:none;
+}
+.visible {
+  display:inline;
+}
+
+div.vgap0 {
+  clear:both;
+  height:6px;
+}
+div.vgap {
+  clear:both;
+  height:12px;
+}
+div.vgap2 {
+  clear:both;
+  height:24px;
+}
+div.vgap3 {
+  clear:both;
+  height:36px;
+}
+span.nowrap {
+  white-space:nowrap;
+}
+
+.headercolor { color: #194125; }
+
+.left  { float:left;  }
+.right { float:right; }
+.clear { clear:both;  }
+
+.center {
+  clear:both;
+  text-align:center;
+}
+
+.indent0 { margin-left:5px; }
+.indent  { margin-left:15px; }
+.indent2 { margin-left:30px; }
+.indent3 { margin-left:45px; }
+
+.inset  { margin-left:20px; margin-right:20px;}
+.inset2 { margin-left:30px; margin-right:30px;}
+.inset3 { margin-left:45px; margin-right:45px;}
+
+.underline {
+  text-decoration:underline;
+}
+.ulink {
+  text-decoration:underline;
+  cursor:pointer;
+}
+
+.box, .infobox {
+  margin:0 2px;
+  padding:4px 8px;
+  background-color:#fefdf6;
+  border:solid rgba(0,0,0,0.2);
+  border-width:1px;
+  overflow: hidden;
+  font-size:0.95rem;
+  width:calc(100% - 4px);
+}
+.infobox {
+  line-height:1.2em;
+}
+.box {
+  line-height:1.3em;
+}
+.infobox p {
+  padding:0;
+  margin:6px 0;
+  line-height:1.2em;
+}
+.infobox ul {
+  margin:0;
+  padding:0 0 6px 11px;
+}
+.infobox ul li {
+  margin:0 0 0 23px;
+  padding:0;
+}
+
+.btn {
+  display:inline-block;
+  font-family: open-sans-regular,sans-serif;
+  color: #fff;
+  font-size: 14px;
+  background: #1e4d2b;
+  padding: 10px;
+  margin: 0;
+  line-height:1.2em;
+  border-radius: 10px;
+  text-decoration: none;
+  white-space:nowrap;
+  cursor:pointer;
+}
+.btndim {
+  display:inline-block;
+  font-family: open-sans-regular,sans-serif;
+  color:#aaa;
+  font-size: 14px;
+  background: #888;
+  padding: 10px;
+  margin: 0;
+  line-height:1.2em;
+  border-radius: 10px;
+  text-decoration: none;
+  white-space:nowrap;
+  cursor:pointer;
+}
