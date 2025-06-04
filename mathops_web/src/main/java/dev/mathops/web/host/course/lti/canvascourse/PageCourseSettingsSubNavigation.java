@@ -1,6 +1,7 @@
 package dev.mathops.web.host.course.lti.canvascourse;
 
-import dev.mathops.commons.log.Log;
+import dev.mathops.db.Cache;
+import dev.mathops.db.rec.main.LtiRegistrationRec;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.parser.json.JSONObject;
 import dev.mathops.text.parser.xml.XmlEscaper;
@@ -11,6 +12,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 /**
  * A page with the "course_settings_sub_navigation" placement.
@@ -26,12 +28,14 @@ enum PageCourseSettingsSubNavigation {
     /**
      * Shows the page.
      *
+     * @param cache    the data cache
      * @param req      the request
      * @param resp     the response
      * @param redirect the redirect
+     * @throws SQLException if there is an error accessing the database
      */
-    static void showPage(final ServletRequest req, final HttpServletResponse resp,
-                         final LtiSite.PendingTargetRedirect redirect) throws IOException {
+    static void showPage(final Cache cache, final ServletRequest req, final HttpServletResponse resp,
+                         final LtiSite.PendingTargetRedirect redirect) throws IOException, SQLException {
 
         final JSONObject payload = redirect.idTokenPayload();
 
@@ -91,21 +95,23 @@ enum PageCourseSettingsSubNavigation {
         htm.addln("</head>");
         htm.addln("<body style='background:white; padding:20px;'>");
 
-        htm.sH(1).add("CSU Mathematics Program").eH(1);
-        htm.sH(2).add("Connect Canvas Course to CSU Course").eH(2);
+        htm.sH(1).add(LtiSite.TOOL_NAME).eH(1);
+        htm.sH(2).add("Connect to Course").eH(2);
 
         htm.hr().sDiv("indent");
 
         // TODO: See if the course is already configured.
 
         htm.sP().add("Before this LTI tool can provide course content and assignments within Canvas, it must be ",
-                "linked to a course definition in the CSU system (Banner).").eP();
+                "linked to an institutional course definition.").eP();
 
         htm.sP().add("Information found:").eP();
 
+        final LtiRegistrationRec registration = redirect.registration();
+
         htm.addln("<ul>");
-        htm.addln("  <li>issuer = ", redirect.registration().issuer, "</li>");
-        htm.addln("  <li>client_id = ", redirect.registration().clientId, "</li>");
+        htm.addln("  <li>issuer = ", registration.issuer, "</li>");
+        htm.addln("  <li>client_id = ", registration.clientId, "</li>");
         htm.addln("  <li>locale = ", locale, "</li>");
         htm.addln("  <li>deployment = ", deployment, "</li>");
         htm.addln("  <li>returnUrl = ", returnUrl, "</li>");

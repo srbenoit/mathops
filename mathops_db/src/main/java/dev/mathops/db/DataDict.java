@@ -61,6 +61,9 @@ public enum DataDict {
     public static final String FLD_CHOICE_NBR = "choice_nbr";
 
     /** A field name for serialization of records. */
+    public static final String FLD_CLIENT_ID = "client_id";
+
+    /** A field name for serialization of records. */
     public static final String FLD_CLOSE_TIME_1 = "close_time_1";
 
     /** A field name for serialization of records. */
@@ -73,6 +76,9 @@ public enum DataDict {
     public static final String FLD_COMPLETED = "completed";
 
     /** A field name for serialization of records. */
+    public static final String FLD_CONTEXT_ID = "context_id";
+
+    /** A field name for serialization of records. */
     public static final String FLD_COURSE_ID = "course_id";
 
     /** A field name for serialization of records. */
@@ -80,9 +86,6 @@ public enum DataDict {
 
     /** A field name for serialization of records. */
     public static final String FLD_COURSE_TITLE = "course_title";
-
-    /** A field name for serialization of records. */
-    public static final String FLD_CLIENT_ID = "client_id";
 
     /** A field name for serialization of records. */
     public static final String FLD_CRN = "crn";
@@ -94,6 +97,9 @@ public enum DataDict {
 
     /** A field name for serialization of records. */
     public static final String FLD_DELIVERY_MODE = "delivery_mode";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_DEPLOYMENT_ID = "deployment_id";
 
     /** A field name for serialization of records. */
     public static final String FLD_DISPLAY_INDEX = "display_index";
@@ -169,7 +175,11 @@ public enum DataDict {
     /** A field name for serialization of records. */
     public static final String FLD_LEARNING_OBJECTIVE = "learning_objective";
 
-    //
+    /** A field name for serialization of records. */
+    public static final String FLD_LMS_COURSE_ID = "lms_course_id";
+
+    /** A field name for serialization of records. */
+    public static final String FLD_LMS_COURSE_TITLE = "lms_course_title";
 
     /** A field name for serialization of records. */
     public static final String FLD_MASTERED = "mastered";

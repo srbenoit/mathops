@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Enumeration;
 
 /**
@@ -29,10 +30,11 @@ public enum LTITarget {
      * @param site  the owning site
      * @param req   the request
      * @param resp  the response
-     * @throws IOException if there is an error writing the response
+     * @throws IOException  if there is an error writing the response
+     * @throws SQLException if there is an error accessing the database
      */
     public static void doTarget(final Cache cache, final LtiSite site, final HttpServletRequest req,
-                                final HttpServletResponse resp) throws IOException {
+                                final HttpServletResponse resp) throws IOException, SQLException {
 
         final String nonce = req.getParameter("nonce");
 
@@ -56,73 +58,73 @@ public enum LTITarget {
 
             if (placement == null || "link_selection".equals(placement)) {
                 // The "Link Selection" placement sends a null placement value.
-                PageLinkSelection.showPage(req, resp, redirect);
+                PageLinkSelection.showPage(cache, req, resp, redirect);
             } else if ("assignment_edit".equals(placement)) {
-                PageAssignmentEdit.showPage(req, resp, redirect);
+                PageAssignmentEdit.showPage(cache, req, resp, redirect);
             } else if ("assignment_group_menu".equals(placement)) {
-                PageAssignmentGroupMenu.showPage(req, resp, redirect);
+                PageAssignmentGroupMenu.showPage(cache, req, resp, redirect);
             } else if ("assignment_index_menu".equals(placement)) {
-                PageAssignmentIndexMenu.showPage(req, resp, redirect);
+                PageAssignmentIndexMenu.showPage(cache, req, resp, redirect);
             } else if ("assignment_menu".equals(placement)) {
-                PageAssignmentMenu.showPage(req, resp, redirect);
+                PageAssignmentMenu.showPage(cache, req, resp, redirect);
             } else if ("assignment_selection".equals(placement)) {
-                PageAssignmentSelection.showPage(req, resp, redirect);
+                PageAssignmentSelection.showPage(cache, req, resp, redirect);
             } else if ("assignment_view".equals(placement)) {
-                PageAssignmentView.showPage(req, resp, redirect);
+                PageAssignmentView.showPage(cache, req, resp, redirect);
             } else if ("collaboration".equals(placement)) {
-                PageCollaboration.showPage(req, resp, redirect);
+                PageCollaboration.showPage(cache, req, resp, redirect);
             } else if ("conference_selection.".equals(placement)) {
-                PageConferenceSelection.showPage(req, resp, redirect);
+                PageConferenceSelection.showPage(cache, req, resp, redirect);
             } else if ("course_assignments_menu".equals(placement)) {
-                PageCourseAssignmentsMenu.showPage(req, resp, redirect);
+                PageCourseAssignmentsMenu.showPage(cache, req, resp, redirect);
             } else if ("course_home_sub_navigation".equals(placement)) {
-                PageCourseHomeSubNavigation.showPage(req, resp, redirect);
+                PageCourseHomeSubNavigation.showPage(cache, req, resp, redirect);
             } else if ("course_navigation".equals(placement)) {
-                PageCourseNavigation.showPage(req, resp, redirect);
+                PageCourseNavigation.showPage(cache, req, resp, redirect);
             } else if ("course_settings_sub_navigation".equals(placement)) {
-                PageCourseSettingsSubNavigation.showPage(req, resp, redirect);
+                PageCourseSettingsSubNavigation.showPage(cache, req, resp, redirect);
             } else if ("discussion_topic_index_menu".equals(placement)) {
-                PageDiscussionTopicIndexMenu.showPage(req, resp, redirect);
+                PageDiscussionTopicIndexMenu.showPage(cache, req, resp, redirect);
             } else if ("discussion_topic_menu".equals(placement)) {
-                PageDiscussionTopicMenu.showPage(req, resp, redirect);
+                PageDiscussionTopicMenu.showPage(cache, req, resp, redirect);
             } else if ("editor_button".equals(placement)) {
-                PageEditorButton.showPage(req, resp, redirect);
+                PageEditorButton.showPage(cache, req, resp, redirect);
             } else if ("file_index_menu".equals(placement)) {
-                PageFileIndexMenu.showPage(req, resp, redirect);
+                PageFileIndexMenu.showPage(cache, req, resp, redirect);
             } else if ("file_menu".equals(placement)) {
-                PageFileMenu.showPage(req, resp, redirect);
+                PageFileMenu.showPage(cache, req, resp, redirect);
             } else if ("homework_submission".equals(placement)) {
-                PageHomeworkSubmission.showPage(req, resp, redirect);
+                PageHomeworkSubmission.showPage(cache, req, resp, redirect);
             } else if ("migration_selection".equals(placement)) {
-                PageMigrationSelection.showPage(req, resp, redirect);
+                PageMigrationSelection.showPage(cache, req, resp, redirect);
             } else if ("module_group_menu".equals(placement)) {
-                PageModuleGroupMenu.showPage(req, resp, redirect);
+                PageModuleGroupMenu.showPage(cache, req, resp, redirect);
             } else if ("module_index_menu".equals(placement)) {
-                PageModuleIndexMenu.showPage(req, resp, redirect);
+                PageModuleIndexMenu.showPage(cache, req, resp, redirect);
             } else if ("module_index_menu_modal".equals(placement)) {
-                PageModuleIndexMenuModal.showPage(req, resp, redirect);
+                PageModuleIndexMenuModal.showPage(cache, req, resp, redirect);
             } else if ("module_menu_modal".equals(placement)) {
-                PageModuleMenuModal.showPage(req, resp, redirect);
+                PageModuleMenuModal.showPage(cache, req, resp, redirect);
             } else if ("module_menu".equals(placement)) {
-                PageModuleMenu.showPage(req, resp, redirect);
+                PageModuleMenu.showPage(cache, req, resp, redirect);
             } else if ("post_grades".equals(placement)) {
-                PagePostGrades.showPage(req, resp, redirect);
+                PagePostGrades.showPage(cache, req, resp, redirect);
             } else if ("quiz_index_menu".equals(placement)) {
-                PageQuizIndexMenu.showPage(req, resp, redirect);
+                PageQuizIndexMenu.showPage(cache, req, resp, redirect);
             } else if ("quiz_menu".equals(placement)) {
-                PageQuizMenu.showPage(req, resp, redirect);
+                PageQuizMenu.showPage(cache, req, resp, redirect);
             } else if ("student_context_card".equals(placement)) {
-                PageStudentContextCard.showPage(req, resp, redirect);
+                PageStudentContextCard.showPage(cache, req, resp, redirect);
             } else if ("tool_configuration".equals(placement)) {
-                PageToolConfiguration.showPage(req, resp, redirect);
+                PageToolConfiguration.showPage(cache, req, resp, redirect);
             } else if ("user_navigation".equals(placement)) {
-                PageUserNavigation.showPage(req, resp, redirect);
+                PageUserNavigation.showPage(cache, req, resp, redirect);
             } else if ("wiki_index_menu".equals(placement)) {
-                PageWikiIndexMenu.showPage(req, resp, redirect);
+                PageWikiIndexMenu.showPage(cache, req, resp, redirect);
             } else if ("wiki_page_menu".equals(placement)) {
-                PageWikiPageMenu.showPage(req, resp, redirect);
+                PageWikiPageMenu.showPage(cache, req, resp, redirect);
             } else if ("ContentArea".equals(placement)) {
-                PageContentArea.showPage(req, resp, redirect);
+                PageContentArea.showPage(cache, req, resp, redirect);
             } else {
                 Log.warning("Unrecognized placement: '", placement, "'");
                 showDefault(payload, req, resp, null);
@@ -150,12 +152,12 @@ public enum LTITarget {
                 .addln(" <meta http-equiv='Content-Type' content='text/html;charset=utf-8'/>")
                 .addln(" <link rel='stylesheet' href='basestyle.css' type='text/css'>")
                 .addln(" <link rel='stylesheet' href='style.css' type='text/css'>")
-                .addln(" <title>CSU Mathematics Program</title>");
+                .addln(" <title>", LtiSite.TOOL_NAME, "</title>");
         htm.addln("</head>");
         htm.addln("<body style='background:white; padding:20px;'>");
 
         if (title == null) {
-            htm.sH(1).add("CSU Mathematics Program").eH(1);
+            htm.sH(1).add(LtiSite.TOOL_NAME).eH(1);
             htm.sH(2).add("LTI Target").eH(2);
         } else {
             htm.sH(1).add(title).eH(1);

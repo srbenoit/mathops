@@ -5,6 +5,7 @@ import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.installation.EPath;
 import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.log.Log;
+import dev.mathops.commons.log.LogBase;
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.cfg.Site;
@@ -20,6 +21,8 @@ import dev.mathops.text.parser.ParsingException;
 import dev.mathops.text.parser.json.JSONObject;
 import dev.mathops.text.parser.json.JSONParser;
 import dev.mathops.web.host.course.lti.canvascourse.LTIApiCallback;
+import dev.mathops.web.host.course.lti.manage.PageManageLti;
+import dev.mathops.web.host.course.lti.manage.PageManageLtiRegs;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.BasicCss;
 import dev.mathops.web.site.ESiteType;
@@ -47,7 +50,6 @@ import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -58,11 +60,17 @@ import java.util.Set;
  */
 public final class LtiSite extends AbstractSite {
 
+    /** The name of the LTI tool. */
+    public static final String TOOL_NAME = "Foundational Math";
+
     /** The expiration date/time for LTI key sets. */
     private static final int LTI_KEY_EXPIRY_MINUTES = 180;
 
     /** The number of minutes a redirect can wait before expiring. */
     private static final long REDIRECT_EXPIRY_MINUTES = 5L;
+
+    /** Zero-length array used in construction of other arrays. */
+    private static final byte[] ZERO_LEN_BYTE_ARR = new byte[0];
 
     /** A map from LTI registration to its JSON Web Key Set. */
     private final Map<LtiRegistrationRec, JWKS> ltiKeys;
@@ -124,6 +132,10 @@ public final class LtiSite extends AbstractSite {
             Log.info("GET ", subpath);
 
             switch (subpath) {
+
+                case "login.html" -> PageLogin.showPage(cache, this, req, resp);
+                case "secure/shibboleth.html" -> doShibbolethLogin(cache, req, resp, null);
+
                 // This page is called when the Canvas administrator creates a new Developer Key using "LTI
                 // Registration". It presents a form that POSTS to the same URL if the user accepts the registration.
                 case "lti13_dynamic_registration.html" -> LTIDynamicRegistration.doGet(this, req, resp);
@@ -139,6 +151,10 @@ public final class LtiSite extends AbstractSite {
                 // The target URI for requests for LTI content.
                 case "lti13_jwks" -> LTIJWKS.doGet(cache, this, req, resp);
 
+                //
+                //
+                //
+
                 case "course.css" -> BasicCss.getInstance().serveCss(req, resp);
 
                 case CoreConstants.EMPTY -> PageIndex.showPage(req, resp);
@@ -153,17 +169,26 @@ public final class LtiSite extends AbstractSite {
                 case "challenge.html" -> PageChallenge.showPage(cache, this, req, resp);
                 case "course.html" -> PageFinished.showPage(req, resp);
 
-                case null, default -> {
-                    Log.info("GET request to unrecognized URL: ", subpath);
+                default -> {
+                    final ImmutableSessionInfo session = validateSession(req, resp, null);
 
-                    final Enumeration<String> e1 = req.getParameterNames();
-                    while (e1.hasMoreElements()) {
-                        final String name = e1.nextElement();
-                        Log.fine("Parameter '", name, "' = '", req.getParameter(name), "'");
+                    if (session == null) {
+                        Log.info("GET request to unrecognized URL: ", subpath);
+                        resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                    } else {
+                        LogBase.setSessionInfo(session.loginSessionId, session.getEffectiveUserId());
+
+                        if ("manage_lti.html".equals(subpath)) {
+                            PageManageLti.doGet(cache, this, req, resp, session);
+                        } else if ("manage_lti_regs.html".equals(subpath)) {
+                            PageManageLtiRegs.doGet(cache, this, req, resp, session, null);
+                        } else {
+                            Log.info("GET request to unrecognized URL: ", subpath);
+                            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                        }
+
+                        LogBase.setSessionInfo(null, null);
                     }
-
-                    Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
-                    resp.sendError(HttpServletResponse.SC_NOT_FOUND);
                 }
             }
         }
@@ -201,7 +226,7 @@ public final class LtiSite extends AbstractSite {
             // The target URI for requests for LTI content.
             case "lti13_target" -> LTITarget.doTarget(cache, this, req, resp);
 
-            // THe next three are used by the online Teams proctoring process
+            // The next three are used by the online Teams proctoring process
             case "gainaccess.html" -> PageIndex.processAccessCode(cache, this, req, resp);
             case "beginproctor.html" -> PageOnlineProctor.processBeginProctor(req, resp);
             case "beginproctorchallenge.html" -> PageOnlineProctorChallenge.processBeginProctor(cache, req, resp);
@@ -209,19 +234,71 @@ public final class LtiSite extends AbstractSite {
             case "challenge.html" -> PageChallenge.showPage(cache, this, req, resp);
             case "update_unit_exam.html" -> PageHome.updateUnitExam(cache, req, resp);
             case "update_challenge_exam.html" -> PageChallenge.updateChallengeExam(cache, req, resp);
+
             case null, default -> {
-                Log.info("POST request to unrecognized URL: ", subpath);
+                final ImmutableSessionInfo session = validateSession(req, resp, null);
 
-                final Enumeration<String> e1 = req.getParameterNames();
-                while (e1.hasMoreElements()) {
-                    final String name = e1.nextElement();
-                    Log.fine("Parameter '", name, "' = '", req.getParameter(name), "'");
+                if (session == null) {
+                    Log.info("POST request to unrecognized URL: ", subpath);
+                    resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                } else {
+                    LogBase.setSessionInfo(session.loginSessionId, session.getEffectiveUserId());
+
+                    if ("manage_lti_regs.html".equals(subpath)) {
+                        PageManageLtiRegs.doPost(cache, this, req, resp, session);
+                    } else {
+                        Log.info("POST request to unrecognized URL: ", subpath);
+                        resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                    }
+
+                    LogBase.setSessionInfo(null, null);
                 }
-
-                Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
-                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             }
         }
+    }
+
+    /**
+     * Scans the request for Shibboleth attributes and uses them (if found) to establish a session, and then redirects
+     * to either the secure page (if valid) or the login page (if not valid).
+     *
+     * @param cache   the data cache
+     * @param req     the request
+     * @param resp    the response
+     * @param session the user's login session information
+     * @throws SQLException if there was an error accessing the database
+     */
+    private void doShibbolethLogin(final Cache cache, final HttpServletRequest req, final HttpServletResponse resp,
+                                   final ImmutableSessionInfo session) throws SQLException {
+
+        Log.info("Shibboleth login attempt");
+
+        ImmutableSessionInfo sess = session;
+
+        if (sess == null) {
+            sess = processShibbolethLogin(cache, req);
+        }
+
+        final String path = this.site.path;
+        final String redirect;
+        if (sess == null) {
+            redirect = path + (path.endsWith(CoreConstants.SLASH) ? "login.html" : "/login.html");
+        } else {
+            redirect = path + (path.endsWith(CoreConstants.SLASH) ? "manage_lti.html" : "/manage_lti.html");
+
+            // Install the session ID cookie in the response
+            Log.info("Adding session ID cookie ", req.getServerName());
+            final Cookie cook = new Cookie(SessionManager.SESSION_ID_COOKIE, sess.loginSessionId);
+            cook.setDomain(req.getServerName());
+            cook.setPath(CoreConstants.SLASH);
+            cook.setMaxAge(-1);
+            cook.setSecure(true);
+            resp.addCookie(cook);
+        }
+
+        Log.info("Redirecting to ", redirect);
+
+        resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
+        resp.setHeader("Location", redirect);
     }
 
     /**

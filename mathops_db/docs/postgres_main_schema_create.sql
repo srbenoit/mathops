@@ -553,7 +553,7 @@ ALTER TABLE IF EXISTS main_test.course_survey_item_choice OWNER to math;
 --
 -- A registration of an LTI tool with an LMS.
 --
---   USAGE: Created once, static..
+--   USAGE: Created once, static.
 --   EST. RECORDS: 1
 --   RETENTION: Retained indefinitely
 --   EST. RECORD SIZE: 120 bytes
@@ -601,5 +601,3 @@ CREATE TABLE IF NOT EXISTS main_test.lti_registration (
     PRIMARY KEY (client_id, issuer)
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS main_test.lti_registration OWNER to math;
-
-

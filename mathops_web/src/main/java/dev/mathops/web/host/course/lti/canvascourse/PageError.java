@@ -38,7 +38,7 @@ public enum PageError {
         htm.addln("</head>");
         htm.addln("<body style='background:white; padding:20px;'>");
 
-        htm.sH(1).add("CSU Mathematics Program").eH(1);
+        htm.sH(1).add("CSU Math Tool").eH(1);
         htm.sH(2).add(subtitle).eH(2);
 
         htm.sDiv("indent");

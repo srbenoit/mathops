@@ -1,4 +1,4 @@
-package dev.mathops.web.host.course.lti;
+package dev.mathops.web.host.course.lti.manage;
 
 import dev.mathops.commons.res.ResBundle;
 
@@ -9,23 +9,15 @@ import java.util.Locale;
  */
 final class Res extends ResBundle {
 
-    // Used by LtiSite
-
     /** A resource key. */
-    static final String UNRECOGNIZED_PATH = key(1);
-
-    /** A resource key. */
-    static final String SITE_TITLE = key(2);
+    static final String SITE_TITLE = key(1);
 
     //
 
     /** The resources - an array of key-values pairs. */
-    private static final String[][] EN_US = { //
+    private static final String[][] EN_US = {
 
-            {UNRECOGNIZED_PATH, "Unrecognized path: {0}"},
             {SITE_TITLE, "CSU Mathematics Program LTI"},
-
-            //
     };
 
     /** The singleton instance. */

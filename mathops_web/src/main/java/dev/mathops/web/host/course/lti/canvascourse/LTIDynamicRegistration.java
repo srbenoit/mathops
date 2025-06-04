@@ -566,7 +566,7 @@ public enum LTIDynamicRegistration {
                 comma = addLinkResource(requestJson, comma, "CSU Course Navigation.", res, null);
             } else if ("https://canvas.instructure.com/lti/course_settings_sub_navigation".equals(res)) {
                 final String iconUri = "https://" + host + "/www/images/tool.png";
-                comma = addLinkResource(requestJson, comma, "Configure CSU Mathematics Tool", res, iconUri);
+                comma = addLinkResource(requestJson, comma, LtiSite.TOOL_NAME, res, iconUri);
             } else if ("https://canvas.instructure.com/lti/discussion_topic_index_menu".equals(res)) {
                 comma = addLinkResource(requestJson, comma, "CSU Discussion Topic Index Menu.", res, null);
             } else if ("https://canvas.instructure.com/lti/discussion_topic_menu".equals(res)) {

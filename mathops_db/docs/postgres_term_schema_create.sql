@@ -1020,3 +1020,88 @@ CREATE TABLE IF NOT EXISTS term_test.course_survey_response_item_text (
 ) TABLESPACE primary_ts;
 ALTER TABLE IF EXISTS term_test.course_survey_response_item_text OWNER to math;
 
+
+-- ------------------------------------------------------------------------------------------------
+-- TABLE: lti_course
+--
+-- A connection between a deployment of a registered LTI tool within a context (LMS course) and a
+-- CSU course section.
+--
+--   USAGE: Created once, static.
+--   EST. RECORDS: 20
+--   RETENTION: Stored in TERM schema, retained for 15 years
+--   EST. RECORD SIZE: 120 bytes
+--   EST. TOTAL SPACE: 120 bytes
+-- ------------------------------------------------------------------------------------------------
+
+-- DROP TABLE IF EXISTS term_202510.lti_course;
+CREATE TABLE IF NOT EXISTS term_202510.lti_course (
+    client_id                varchar(40)    NOT NULL,  -- The client ID provided by the LMS
+    issuer                   varchar(250)   NOT NULL,  -- The issuer host name
+    deployment_id            varchar(250)   NOT NULL,  -- The deployment ID
+    context_id               varchar(250)   NOT NULL,  -- The LMS course context ID
+    lms_course_id            varchar(40),              -- The LMS course ID (typically a small integer)
+    lms_course_title         varchar(250),             -- The LMS course title
+    course_id                char(10)       NOT NULL,  -- The institution course ID
+    section_nbr              char(4)        NOT NULL,  -- The institution section number
+    PRIMARY KEY (client_id, issuer, deployment_id, context_id)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS term_202510.lti_course OWNER to math;
+
+-- DROP TABLE IF EXISTS term_202560.lti_course;
+CREATE TABLE IF NOT EXISTS term_202560.lti_course (
+    client_id                varchar(40)    NOT NULL,
+    issuer                   varchar(250)   NOT NULL,
+    deployment_id            varchar(250)   NOT NULL,
+    context_id               varchar(250)   NOT NULL,
+    lms_course_id            varchar(40),
+    lms_course_title         varchar(250),
+    course_id                char(10)       NOT NULL,
+    section_nbr              char(4)        NOT NULL,
+    PRIMARY KEY (client_id, issuer, deployment_id, context_id)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS term_202560.lti_course OWNER to math;
+
+-- DROP TABLE IF EXISTS term_202590.lti_course;
+CREATE TABLE IF NOT EXISTS term_202590.lti_course (
+    client_id                varchar(40)    NOT NULL,
+    issuer                   varchar(250)   NOT NULL,
+    deployment_id            varchar(250)   NOT NULL,
+    context_id               varchar(250)   NOT NULL,
+    lms_course_id            varchar(40),
+    lms_course_title         varchar(250),
+    course_id                char(10)       NOT NULL,
+    section_nbr              char(4)        NOT NULL,
+    PRIMARY KEY (client_id, issuer, deployment_id, context_id)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS term_202590.lti_course OWNER to math;
+
+-- DROP TABLE IF EXISTS term_dev.lti_course;
+CREATE TABLE IF NOT EXISTS term_dev.lti_course (
+    client_id                varchar(40)    NOT NULL,
+    issuer                   varchar(250)   NOT NULL,
+    deployment_id            varchar(250)   NOT NULL,
+    context_id               varchar(250)   NOT NULL,
+    lms_course_id            varchar(40),
+    lms_course_title         varchar(250),
+    course_id                char(10)       NOT NULL,
+    section_nbr              char(4)        NOT NULL,
+    PRIMARY KEY (client_id, issuer, deployment_id, context_id)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS term_dev.lti_course OWNER to math;
+
+-- DROP TABLE IF EXISTS term_test.lti_course;
+CREATE TABLE IF NOT EXISTS term_test.lti_course (
+    client_id                varchar(40)    NOT NULL,
+    issuer                   varchar(250)   NOT NULL,
+    deployment_id            varchar(250)   NOT NULL,
+    context_id               varchar(250)   NOT NULL,
+    lms_course_id            varchar(40),
+    lms_course_title         varchar(250),
+    course_id                char(10)       NOT NULL,
+    section_nbr              char(4)        NOT NULL,
+    PRIMARY KEY (client_id, issuer, deployment_id, context_id)
+) TABLESPACE primary_ts;
+ALTER TABLE IF EXISTS term_test.lti_course OWNER to math;
+
+

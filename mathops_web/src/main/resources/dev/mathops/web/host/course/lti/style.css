@@ -17,3 +17,30 @@
   background: #257742;
   text-decoration: none;
 }
+.error {
+  color: #A00000;
+}
+
+
+table.data {
+  border:1px solid black;
+  background:#888;
+  border-spacing:1px;
+}
+table.data th {
+  font-size:12px;
+  padding: 2px 4px;
+  background-color: #f0f0ff;
+  text-align:center;
+}
+table.data th.row {
+  font-size:12px;
+  padding: 2px 4px;
+  background-color: #f0fff3;
+  text-align:left;
+}
+table.data td {
+  font-size:12px;
+  padding: 2px 4px;
+  background-color: white;
+}
