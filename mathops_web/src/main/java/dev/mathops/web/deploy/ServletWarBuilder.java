@@ -29,14 +29,8 @@ final class ServletWarBuilder {
     /** Directory where project is stored. */
     private final File projectDir;
 
-    /** Directory where commons project is stored. */
-//    private final File commonsDir;
-
-    /** Directory where text project is stored. */
-//    private final File textDir;
-
-    /** Directory where persistence project is stored. */
-    private final File persistenceDir;
+//    /** Directory where persistence project is stored. */
+//    private final File persistenceDir;
 
     /**
      * Constructs a new {@code ServletWarBuilder}.
@@ -47,9 +41,7 @@ final class ServletWarBuilder {
         final File dev = new File(userDir, "dev");
         final File idea = new File(dev, "IDEA");
         this.projectDir = new File(idea, "mathops");
-//        this.commonsDir = new File(idea, "mathops_commons");
-//        this.textDir = new File(idea, "mathops_text");
-        this.persistenceDir = new File(idea, "mathops_persistence");
+//        this.persistenceDir = new File(idea, "mathops_persistence");
     }
 
     /**
@@ -69,14 +61,6 @@ final class ServletWarBuilder {
      */
     private boolean buildRootJar() {
 
-        final File db = new File(this.projectDir, "mathops_db");
-        final File dbRoot = new File(db, "build/classes/java/main");
-        final File dbClasses = new File(dbRoot, "dev/mathops/db");
-
-        final File dbapp = new File(this.projectDir, "mathops_dbjobs");
-        final File dbappRoot = new File(dbapp, "build/classes/java/main");
-        final File dbappClasses1 = new File(dbappRoot, "dev/mathops/dbjobs");
-
         final File font = new File(this.projectDir, "mathops_font");
         final File fontRoot = new File(font, "build/classes/java/main");
         final File fontClasses = new File(fontRoot, "dev/mathops/font");
@@ -95,8 +79,7 @@ final class ServletWarBuilder {
 
         final File jars = new File(this.projectDir, "jars");
 
-        boolean success = checkDirectoriesExist(dbClasses, dbappClasses1, fontClasses, assessmentClasses,
-                sessionClasses, webClasses, jars);
+        boolean success = checkDirectoriesExist(fontClasses, assessmentClasses, sessionClasses, webClasses, jars);
 
         if (success) {
             try (final FileOutputStream out = new FileOutputStream(new File(jars, "ROOT.jar"));
@@ -104,12 +87,6 @@ final class ServletWarBuilder {
                  final JarOutputStream jar = new JarOutputStream(bos)) {
 
                 addManifest(jar);
-
-                Log.finest(Res.fmt(Res.ADDING_FILES, db), CoreConstants.CRLF);
-                addFiles(dbRoot, dbClasses, jar);
-
-                Log.finest(Res.fmt(Res.ADDING_FILES, dbapp), CoreConstants.CRLF);
-                addFiles(dbappRoot, dbappClasses1, jar);
 
                 Log.finest(Res.fmt(Res.ADDING_FILES, font), CoreConstants.CRLF);
                 addFiles(fontRoot, fontClasses, jar);
@@ -165,34 +142,18 @@ final class ServletWarBuilder {
             war.write(FileLoader.loadFileAsBytes(jarFile, true));
             war.closeEntry();
 
-//            final File commonsOut = new File(this.commonsDir, "out");
-//            final File commonsOutLibs = new File(commonsOut, "libs");
-//
-//            final File commonsFile = new File(commonsOutLibs, "mathops_commons.jar");
-//            war.putNextEntry(new ZipEntry("WEB-INF/lib/mathops_commons.jar"));
-//            war.write(FileLoader.loadFileAsBytes(commonsFile, true));
+//            final File persistenceOut = new File(this.persistenceDir, "out");
+//            final File persistenceOutLibs = new File(persistenceOut, "libs");
+
+//            final File persistenceFile = new File(persistenceOutLibs, "mathops_persistence.jar");
+//            war.putNextEntry(new ZipEntry("WEB-INF/lib/mathops_persistence.jar"));
+//            war.write(FileLoader.loadFileAsBytes(persistenceFile, true));
 //            war.closeEntry();
-
-//            final File textOut = new File(this.textDir, "out");
-//            final File textOutLibs = new File(textOut, "libs");
 //
-//            final File textFile = new File(textOutLibs, "mathops_text.jar");
-//            war.putNextEntry(new ZipEntry("WEB-INF/lib/mathops_text.jar"));
-//            war.write(FileLoader.loadFileAsBytes(textFile, true));
+//            final File fonts3File = new File(deployDir, "minfonts3.jar");
+//            war.putNextEntry(new ZipEntry("WEB-INF/lib/minfonts3.jar"));
+//            war.write(FileLoader.loadFileAsBytes(fonts3File, true));
 //            war.closeEntry();
-
-            final File persistenceOut = new File(this.persistenceDir, "out");
-            final File persistenceOutLibs = new File(persistenceOut, "libs");
-
-            final File persistenceFile = new File(persistenceOutLibs, "mathops_persistence.jar");
-            war.putNextEntry(new ZipEntry("WEB-INF/lib/mathops_persistence.jar"));
-            war.write(FileLoader.loadFileAsBytes(persistenceFile, true));
-            war.closeEntry();
-
-            final File fonts3File = new File(deployDir, "minfonts3.jar");
-            war.putNextEntry(new ZipEntry("WEB-INF/lib/minfonts3.jar"));
-            war.write(FileLoader.loadFileAsBytes(fonts3File, true));
-            war.closeEntry();
 
             final File webFile = new File(webRoot, "dev/mathops/web/deploy/web.xml");
             war.putNextEntry(new ZipEntry("WEB-INF/web.xml"));

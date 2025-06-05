@@ -26,6 +26,9 @@ final class AdminJarBuilder {
     /** Directory where the "text" project is stored. */
     private final File textDir;
 
+    /** Directory where the "db" project is stored. */
+    private final File dbDir;
+
     /** Directory where the "persistence" project is stored. */
     private final File persistenceDir;
 
@@ -43,6 +46,7 @@ final class AdminJarBuilder {
         final File idea = new File(dev, "IDEA");
         this.commonsDir = new File(idea, "mathops_commons");
         this.textDir = new File(idea, "mathops_text");
+        this.dbDir = new File(idea, "mathops_db");
         this.persistenceDir = new File(idea, "mathops_persistence");
         this.projectDir = new File(idea, "mathops");
     }
@@ -56,24 +60,19 @@ final class AdminJarBuilder {
     private void build(final String mainClassName, final String targetFilename) {
 
         final File commonsRoot = new File(this.commonsDir, "build/classes/java/main");
-        final File commonsClasses = new File(commonsRoot, "dev/mathops/commons");
+        final File commonsClasses = new File(commonsRoot, "dev/mathops");
 
         final File textRoot = new File(this.textDir, "build/classes/java/main");
-        final File textClasses = new File(textRoot, "dev/mathops/text");
+        final File textClasses = new File(textRoot, "dev/mathops");
 
         final File textResRoot = new File(this.textDir, "build/resources/main");
-        final File textResClasses = new File(textResRoot, "dev/mathops/text");
+        final File textResClasses = new File(textResRoot, "dev/mathops");
+
+        final File dbRoot = new File(this.dbDir, "build/classes/java/main");
+        final File dbClasses = new File(dbRoot, "dev/mathops");
 
         final File persistenceRoot = new File(this.persistenceDir, "build/classes/java/main");
         final File persistenceClasses = new File(persistenceRoot, "dev/mathops");
-
-        final File db = new File(this.projectDir, "mathops_db");
-        final File dbRoot = new File(db, "build/classes/java/main");
-        final File dbClasses = new File(dbRoot, "dev/mathops/db");
-
-        final File dbjobs = new File(this.projectDir, "mathops_dbjobs");
-        final File dbjobsRoot = new File(dbjobs, "build/classes/java/main");
-        final File dbjobsClasses1 = new File(dbjobsRoot, "dev/mathops/dbjobs");
 
         final File font = new File(this.projectDir, "mathops_font");
         final File fontRoot = new File(font, "build/classes/java/main");
@@ -93,8 +92,7 @@ final class AdminJarBuilder {
 
         final File jars = new File(this.projectDir, "jars");
 
-        final boolean success = checkDirectoriesExist(dbClasses, dbjobsClasses1, fontClasses, assessmentClasses,
-                sessionClasses, appClasses, jars);
+        final boolean success = checkDirectoriesExist(fontClasses, assessmentClasses, sessionClasses, appClasses, jars);
 
         if (success) {
             try (final FileOutputStream out = new FileOutputStream(new File(jars, targetFilename));
@@ -115,17 +113,13 @@ final class AdminJarBuilder {
                 Log.finest(msgTextRes, CoreConstants.CRLF);
                 addFiles(textResRoot, textResClasses, jar);
 
-                final String msgPersistence = Res.fmt(Res.ADDING_FILES, this.persistenceDir);
-                Log.finest(msgPersistence, CoreConstants.CRLF);
-                addFiles(persistenceRoot, persistenceClasses, jar);
-
-                final String msgDb = Res.fmt(Res.ADDING_FILES, db);
+                final String msgDb = Res.fmt(Res.ADDING_FILES, this.dbDir);
                 Log.finest(msgDb, CoreConstants.CRLF);
                 addFiles(dbRoot, dbClasses, jar);
 
-                final String msgDbJobs = Res.fmt(Res.ADDING_FILES, dbjobs);
-                Log.finest(msgDbJobs, CoreConstants.CRLF);
-                addFiles(dbjobsRoot, dbjobsClasses1, jar);
+                final String msgPersistence = Res.fmt(Res.ADDING_FILES, this.persistenceDir);
+                Log.finest(msgPersistence, CoreConstants.CRLF);
+                addFiles(persistenceRoot, persistenceClasses, jar);
 
                 final String msgFont = Res.fmt(Res.ADDING_FILES, font);
                 Log.finest(msgFont, CoreConstants.CRLF);

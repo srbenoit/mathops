@@ -21,10 +21,10 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":mathops_db"))
     implementation(project(":mathops_assessment"))
     implementation(files("../../mathops_commons/out/libs/mathops_commons.jar"))
     implementation(files("../../mathops_text/out/libs/mathops_text.jar"))
+    implementation(files("../../mathops_db/out/libs/mathops_db.jar"))
 
     compileOnly("jakarta.servlet:jakarta.servlet-api:6.1.0-M2")
     compileOnly("jakarta.websocket:jakarta.websocket-api:2.2.0")
