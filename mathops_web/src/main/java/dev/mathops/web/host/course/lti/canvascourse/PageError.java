@@ -10,6 +10,9 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+/**
+ * An error page that can be used for any LTI target.
+ */
 public enum PageError {
     ;
 
@@ -29,11 +32,8 @@ public enum PageError {
         final HtmlBuilder htm = new HtmlBuilder(1000);
 
         htm.addln("<!DOCTYPE html>").addln("<html>").addln("<head>");
-        htm.addln(" <meta name=\"robots\" content=\"noindex\">");
-        htm.addln(" <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'/>")
-                .addln(" <meta http-equiv='Content-Type' content='text/html;charset=utf-8'/>")
+        htm.addln(" <meta http-equiv='Content-Type' content='text/html;charset=utf-8'/>")
                 .addln(" <link rel='stylesheet' href='ltistyle.css' type='text/css'>")
-                .addln(" <link rel='icon' type='image/x-icon' href='/www/images/favicon.ico'>")
                 .addln(" <title>", LtiSite.TOOL_NAME, "</title>");
         htm.addln("</head>");
         htm.addln("<body style='background:white; padding:20px;'>");
@@ -42,7 +42,7 @@ public enum PageError {
         htm.sH(2).add(subtitle).eH(2);
 
         htm.sDiv("indent");
-        htm.sP(null, "style='color:firebrick;'").add("An error has occurred:").eP();
+        htm.sP("error").add("An error has occurred:").eP();
         htm.sP(null, "style='color:steelblue;'").add(msg).eP();
         htm.eDiv();
 

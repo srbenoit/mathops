@@ -36,6 +36,9 @@ p {
   font-family:open-sans-regular,sans-serif;
   line-height:1.4em;
 }
+.error {
+  color: firebrick;
+}
 
 p.tight {
   margin-top: 0.4rem;
@@ -178,28 +181,20 @@ span.nowrap {
 .btn {
   display:inline-block;
   font-family: open-sans-regular,sans-serif;
-  color: #fff;
-  font-size: 14px;
-  background: #1e4d2b;
-  padding: 10px;
+  font-size: 16px;
+  color: #2D3B45;
+  background: #F5F5F5;
+  padding: 8px 14px;
   margin: 0;
-  line-height:1.2em;
-  border-radius: 10px;
+  border: 1px solid #C7CDD1;
+  border-radius: 3px;
+  line-height:22px;
   text-decoration: none;
   white-space:nowrap;
   cursor:pointer;
+  box-shadow:none;
+  text-shadow:none;
 }
-.btndim {
-  display:inline-block;
-  font-family: open-sans-regular,sans-serif;
-  color:#aaa;
-  font-size: 14px;
-  background: #888;
-  padding: 10px;
-  margin: 0;
-  line-height:1.2em;
-  border-radius: 10px;
-  text-decoration: none;
-  white-space:nowrap;
-  cursor:pointer;
+.btn:hover {
+  background: #e8e8e8;
 }

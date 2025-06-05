@@ -28,9 +28,9 @@ enum PageLinkSelection {
     static void showPage(final Cache cache, final ServletRequest req, final HttpServletResponse resp,
                          final LtiSite.PendingTargetRedirect redirect) throws IOException, SQLException {
 
-        final LtiContextRec ltiCourse = PageUtils.lookupLtiCourse(cache, redirect);
+        final PageUtils.LtiContextData ltiData = PageUtils.lookupLtiContext(cache, redirect);
 
-        if (ltiCourse == null) {
+        if (ltiData == null) {
             PageUtils.showCourseNotConfigured(req, resp);
         } else {
             // TODO: Show real content here
@@ -49,7 +49,7 @@ enum PageLinkSelection {
                 //       Otherwise, show a message indicating the assignment is not configured
             }
 
-            LTITarget.showDefault(payload, req, resp, "CSU LTI Tool Link Selection");
+            LTITarget.showDefault(ltiData, payload, req, resp, "CSU LTI Tool Link Selection");
         }
     }
 }

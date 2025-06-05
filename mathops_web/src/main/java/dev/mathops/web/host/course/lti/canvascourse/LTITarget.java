@@ -2,6 +2,10 @@ package dev.mathops.web.host.course.lti.canvascourse;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.rec.term.LtiContextCourseSectionRec;
+import dev.mathops.db.rec.term.LtiContextRec;
+import dev.mathops.db.reclogic.term.LtiContextCourseSectionLogic;
+import dev.mathops.db.reclogic.term.LtiContextLogic;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.parser.json.JSONObject;
 import dev.mathops.text.parser.xml.XmlEscaper;
@@ -15,6 +19,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Enumeration;
+import java.util.List;
 
 /**
  * A dispatcher class that examines the payload of a validate launch callback to determine the page to generate, then
@@ -118,8 +123,14 @@ public enum LTITarget {
             } else if ("ContentArea".equals(placement)) {
                 PageContentArea.showPage(cache, req, resp, redirect);
             } else {
-                Log.warning("Unrecognized placement: '", placement, "'");
-                showDefault(payload, req, resp, null);
+                final PageUtils.LtiContextData ltiData = PageUtils.lookupLtiContext(cache, redirect);
+
+                if (ltiData == null) {
+                    PageUtils.showCourseNotConfigured(req, resp);
+                } else {
+                    Log.warning("Unrecognized placement: '", placement, "'");
+                    showDefault(ltiData, payload, req, resp, null);
+                }
             }
         }
     }
@@ -159,14 +170,17 @@ public enum LTITarget {
     /**
      * A handler for GET requests through LTI to a particular target.
      *
+     * @param ltiData the LTI data
      * @param payload the verified payload
      * @param req     the request
      * @param resp    the response
      * @param title   The title for the page; null if none
-     * @throws IOException if there is an error writing the response
+     * @throws IOException  if there is an error writing the response
+     * @throws SQLException if there is an error accessing the database
      */
-    public static void showDefault(final JSONObject payload, final ServletRequest req,
-                                   final HttpServletResponse resp, final String title) throws IOException {
+    public static void showDefault(final PageUtils.LtiContextData ltiData, final JSONObject payload,
+                                   final ServletRequest req, final HttpServletResponse resp, final String title)
+            throws IOException, SQLException {
 
         final HtmlBuilder htm = new HtmlBuilder(1000);
 
@@ -187,6 +201,16 @@ public enum LTITarget {
         }
 
         htm.sDiv("indent");
+
+        if (ltiData != null) {
+            htm.sP().add("This course is linked to the following institutional course sections:").eP();
+            htm.sP("indent");
+            for (final LtiContextCourseSectionRec rec : ltiData.courseSections()) {
+                htm.addln(rec.courseId, " section ", rec.sectionNbr).br();
+            }
+            htm.eP();
+            htm.hr();
+        }
 
         htm.sP().addln("<pre>");
         htm.add(payload.toJSONFriendly(0));

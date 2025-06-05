@@ -28,15 +28,15 @@ enum PageWikiIndexMenu {
     static void showPage(final Cache cache, final ServletRequest req, final HttpServletResponse resp,
                          final LtiSite.PendingTargetRedirect redirect) throws IOException, SQLException {
 
-        final LtiContextRec ltiCourse = PageUtils.lookupLtiCourse(cache, redirect);
+        final PageUtils.LtiContextData ltiData = PageUtils.lookupLtiContext(cache, redirect);
 
-        if (ltiCourse == null) {
+        if (ltiData == null) {
             PageUtils.showCourseNotConfigured(req, resp);
         } else {
             // TODO: Show real content here
 
             final JSONObject payload = redirect.idTokenPayload();
-            LTITarget.showDefault(payload, req, resp, "CSU LTI Tool Wiki Index Menu");
+            LTITarget.showDefault(ltiData, payload, req, resp, "CSU LTI Tool Wiki Index Menu");
         }
     }
 }

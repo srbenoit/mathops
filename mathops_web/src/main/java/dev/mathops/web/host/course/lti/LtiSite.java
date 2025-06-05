@@ -176,8 +176,11 @@ public final class LtiSite extends AbstractSite {
                     final ImmutableSessionInfo session = validateSession(req, resp, null);
 
                     if (session == null) {
-                        Log.info("GET request to unrecognized URL: ", subpath);
-                        resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                        resp.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+                        final String path = this.site.path;
+                        resp.setHeader("Location",
+                                path + (path.endsWith(Contexts.ROOT_PATH) ? "login.html" : "/login.html"));
+                        sendReply(req, resp, Page.MIME_TEXT_HTML, ZERO_LEN_BYTE_ARR);
                     } else {
                         LogBase.setSessionInfo(session.loginSessionId, session.getEffectiveUserId());
 

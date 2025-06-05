@@ -1,10 +1,16 @@
 package dev.mathops.web.host.course.lti.canvascourse;
 
+import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawCsectionLogic;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.rec.TermRec;
+import dev.mathops.db.rec.main.LtiRegistrationRec;
+import dev.mathops.db.rec.term.LtiContextCourseSectionRec;
+import dev.mathops.db.rec.term.LtiContextRec;
+import dev.mathops.db.reclogic.term.LtiContextCourseSectionLogic;
+import dev.mathops.db.reclogic.term.LtiContextLogic;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.parser.json.JSONObject;
 import dev.mathops.text.parser.xml.XmlEscaper;
@@ -16,8 +22,14 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * A page with the "course_settings_sub_navigation" placement.
@@ -29,6 +41,14 @@ import java.util.List;
  */
 enum PageCourseSettingsSubNavigation {
     ;
+    /** The number of minutes a post permission can wait before expiring. */
+    private static final long PERMISSION_EXPIRY_MINUTES = 5L;
+
+    /** A map from token string to the post permission object. */
+    private static final Map<String, PostPermission> PERMISSIONS = new HashMap<>(10);
+
+    /** An empty list of context course sections. */
+    private static final List<LtiContextCourseSectionRec> EMPTY_LIST = new ArrayList<>(0);
 
     /**
      * Shows the page.
@@ -44,8 +64,8 @@ enum PageCourseSettingsSubNavigation {
 
         final JSONObject payload = redirect.idTokenPayload();
 
-        final String locale = payload.getStringProperty("locale");
-        final String deployment = payload.getStringProperty("https://purl.imsglobal.org/spec/lti/claim/deployment_id");
+        final String deploymentId = payload.getStringProperty(
+                "https://purl.imsglobal.org/spec/lti/claim/deployment_id");
         String returnUrl = null;
         String contextId = null;
         String contextTitle = null;
@@ -91,31 +111,71 @@ enum PageCourseSettingsSubNavigation {
         final HtmlBuilder htm = new HtmlBuilder(1000);
 
         htm.addln("<!DOCTYPE html>").addln("<html>").addln("<head>");
-        htm.addln(" <meta name=\"robots\" content=\"noindex\">");
-        htm.addln(" <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'/>")
-                .addln(" <meta http-equiv='Content-Type' content='text/html;charset=utf-8'/>")
+        htm.addln(" <meta http-equiv='Content-Type' content='text/html;charset=utf-8'/>")
                 .addln(" <link rel='stylesheet' href='ltistyle.css' type='text/css'>")
                 .addln(" <title>", LtiSite.TOOL_NAME, "</title>");
         htm.addln("</head>");
         htm.addln("<body style='background:white; padding:20px;'>");
 
         htm.sH(1).add(LtiSite.TOOL_NAME).eH(1);
+        htm.sH(2).add("Link Course").eH(2);
+        htm.hr().sDiv("indent");
 
         if (isInstructor || isAdmin) {
+            final LtiRegistrationRec registration = redirect.registration();
 
-            // TODO: See if the course is already configured.  If so, this page should present settings rather than
-            //  the option to link the course
+            final PostData data = new PostData(registration, deploymentId, contextId, canvasCourseId, contextTitle,
+                    returnUrl);
+            final String token = createPostPermission(data);
 
-            emitLinkCourseForm(cache, htm, returnUrl);
+            final LtiContextRec existingContext = LtiContextLogic.INSTANCE.query(cache, registration.clientId,
+                    registration.issuer, deploymentId, contextId);
+
+            if (existingContext != null) {
+                // Show the existing configuration, with the option to update
+                final List<LtiContextCourseSectionRec> existingSections =
+                        LtiContextCourseSectionLogic.INSTANCE.queryForContext(cache, existingContext.clientId,
+                                existingContext.issuer, existingContext.deploymentId, existingContext.contextId);
+                htm.sP().addln("This course is currently linked to the following institutional course sections:")
+                        .eP();
+
+                htm.sP("indent");
+                for (final LtiContextCourseSectionRec rec : existingSections) {
+                    htm.addln(rec.courseId, " section ", rec.sectionNbr).br();
+                }
+                htm.eP();
+
+                htm.hr();
+                htm.sP().add("You can change the set of linked course sections with the following form.").eP();
+                htm.sP().add("If this LMS course includes multiple cross-listed sections, select all of the ",
+                        "corresponding institutional sections.").eP();
+                htm.div("vgap");
+
+                emitLinkCourseForm(cache, htm, token, returnUrl, existingSections);
+            } else {
+                htm.sP().add("Before this LTI tool can provide course content and assignments within the LMS, it ",
+                        "must be linked to one or more institutional course sections.").eP();
+
+                htm.sP().add("Please select the institutional course section(s) to link to this LMS course.").eP();
+                htm.sP().add("If this LMS course includes multiple cross-listed sections, select all of the ",
+                        "corresponding institutional sections.").eP();
+                htm.div("vgap");
+
+                emitLinkCourseForm(cache, htm, token, returnUrl, EMPTY_LIST);
+            }
         } else {
             // A user with only student permission accessed this page.  This should not be possible, but...
             htm.sP().add("Configuration settings for ", LtiSite.TOOL_NAME,
                     " are available only to instructors and administrators.").eP();
-
             htm.div("vgap");
-            htm.addln("<a class='btn' href='", XmlEscaper.escape(returnUrl), "'>Close</a>");
+
+            if (returnUrl != null) {
+                final String escapedReturn = XmlEscaper.escape(returnUrl);
+                htm.addln("<a class='btn' href='", escapedReturn, "'>Close</a>");
+            }
         }
 
+        htm.eDiv(); // indent
         htm.addln("</body></html>");
 
         AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
@@ -132,7 +192,151 @@ enum PageCourseSettingsSubNavigation {
     static void doPost(final Cache cache, final ServletRequest req, final HttpServletResponse resp)
             throws IOException, SQLException {
 
-        PageError.showErrorPage(req, resp, "Link Course", "POST not yet implemented...");
+        final String token = req.getParameter("token");
+        final PostPermission permission = getPermission(token);
+
+        if (permission == null) {
+            PageError.showErrorPage(req, resp, "Link Course", "Permission to perform this update was not found.");
+        } else {
+            final HtmlBuilder htm = new HtmlBuilder(1000);
+
+            htm.addln("<!DOCTYPE html>").addln("<html>").addln("<head>");
+            htm.addln(" <meta http-equiv='Content-Type' content='text/html;charset=utf-8'/>")
+                    .addln(" <link rel='stylesheet' href='ltistyle.css' type='text/css'>")
+                    .addln(" <title>", LtiSite.TOOL_NAME, "</title>");
+            htm.addln("</head>");
+            htm.addln("<body style='background:white; padding:20px;'>");
+
+            htm.sH(1).add(LtiSite.TOOL_NAME).eH(1);
+            htm.sH(2).add("Link Course").eH(2);
+            htm.hr().sDiv("indent");
+
+            final List<RawCsection> sections = getCourseSections(cache, htm);
+            final List<RawCsection> checkedSections = new ArrayList<>(10);
+            for (final RawCsection test : sections) {
+                final String key = test.course + "_" + test.sect;
+                if (req.getParameter(key) instanceof String) {
+                    checkedSections.add(test);
+                }
+            }
+
+            final PostData data = permission.data();
+            final LtiRegistrationRec registration = data.registration();
+            final String deploymentId = data.deploymentId();
+            final String contextId = data.contextId();
+
+            // See if there is already a Context record for this context
+            final LtiContextRec existingContext = LtiContextLogic.INSTANCE.query(cache, registration.clientId,
+                    registration.issuer, deploymentId, contextId);
+
+            if (existingContext == null) {
+                if (checkedSections.isEmpty()) {
+                    htm.sP().addln("No course sections were selected; no action was taken.").eP();
+                } else {
+                    // Create the new context record and associated context course section records
+                    final LtiContextRec newContext = new LtiContextRec(registration.clientId, registration.issuer,
+                            deploymentId, contextId, data.lmsCourseId(), data.lmsCourseTitle());
+
+                    if (LtiContextLogic.INSTANCE.insert(cache, newContext)) {
+                        boolean ok = true;
+                        for (final RawCsection sect : checkedSections) {
+                            final LtiContextCourseSectionRec ccs = new LtiContextCourseSectionRec(registration.clientId,
+                                    registration.issuer, deploymentId, contextId, sect.course, sect.sect);
+                            if (!LtiContextCourseSectionLogic.INSTANCE.insert(cache, ccs)) {
+                                htm.sP("error").addln("An error occurred storing context course/section data.").eP();
+                                ok = false;
+                            }
+                        }
+
+                        if (ok) {
+                            htm.sP().addln("This course is now linked to the following institutional course sections:")
+                                    .eP();
+                            htm.sP("indent");
+                            for (final RawCsection test : checkedSections) {
+                                htm.addln(test.course, " section ", test.sect).br();
+                            }
+                            htm.eP();
+                        }
+
+                        htm.div("vgap");
+                        htm.addln("<a class='btn' href='", XmlEscaper.escape(data.returnUrl()), "'>Close</a>");
+                    } else {
+                        htm.sP("error").addln("An error occurred storing LTI context data.").eP();
+                    }
+                }
+            } else {
+                // There is an existing context record - we are editing that configuration...
+
+                // Update the context record if the non-key data has changed.
+                if (!(Objects.equals(existingContext.lmsCourseId, data.lmsCourseId())
+                      && Objects.equals(existingContext.lmsCourseTitle, data.lmsCourseTitle()))) {
+
+                    final LtiContextRec newContext = new LtiContextRec(existingContext.clientId, existingContext.issuer,
+                            existingContext.deploymentId, existingContext.contextId, data.lmsCourseId(),
+                            data.lmsCourseTitle());
+                    LtiContextLogic.INSTANCE.update(cache, newContext);
+                }
+
+                // Check for updates needed to the course/section registrations
+                final List<LtiContextCourseSectionRec> existingSections =
+                        LtiContextCourseSectionLogic.INSTANCE.queryForContext(cache, existingContext.clientId,
+                                existingContext.issuer, existingContext.deploymentId, existingContext.contextId);
+
+                // Scan for new context course/section records that need to be inserted
+                for (final RawCsection checked : checkedSections) {
+                    boolean found = false;
+                    for (final LtiContextCourseSectionRec test : existingSections) {
+                        if (test.courseId.equals(checked.course) && test.sectionNbr.equals(checked.sect)) {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (!found) {
+                        // Need to insert a new record
+                        final LtiContextCourseSectionRec newSect = new LtiContextCourseSectionRec(registration.clientId,
+                                registration.issuer, deploymentId, contextId, checked.course, checked.sect);
+                        LtiContextCourseSectionLogic.INSTANCE.insert(cache, newSect);
+                    }
+                }
+
+                // Scan for existing context course/section records that need to be deleted
+                for (final LtiContextCourseSectionRec test : existingSections) {
+                    boolean shouldDelete = true;
+                    for (final RawCsection checked : checkedSections) {
+                        if (test.courseId.equals(checked.course) && test.sectionNbr.equals(checked.sect)) {
+                            shouldDelete = false;
+                            break;
+                        }
+                    }
+
+                    if (shouldDelete) {
+                        LtiContextCourseSectionLogic.INSTANCE.delete(cache, test);
+                    }
+                }
+
+                // Re-query and present an updated list:
+                final List<LtiContextCourseSectionRec> finalSections =
+                        LtiContextCourseSectionLogic.INSTANCE.queryForContext(cache, existingContext.clientId,
+                                existingContext.issuer, existingContext.deploymentId, existingContext.contextId);
+                htm.sP().addln("This course is now linked to the following institutional course sections:")
+                        .eP();
+                htm.sP("indent");
+                for (final LtiContextCourseSectionRec rec : finalSections) {
+                    htm.addln(rec.courseId, " section ", rec.sectionNbr).br();
+                }
+                htm.eP();
+
+                htm.div("vgap");
+                htm.addln("<a class='btn' href='", XmlEscaper.escape(data.returnUrl()), "'>Close</a>");
+            }
+
+            htm.eDiv(); // indent
+
+            htm.addln("</body></html>");
+
+            AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
+        }
     }
 
     /**
@@ -140,28 +344,21 @@ enum PageCourseSettingsSubNavigation {
      *
      * @param cache     the data cache
      * @param htm       the {@code HtmlBuilder} to which to append
+     * @param token     the token that grants permission to execute a POST
      * @param returnUrl the return URL
+     * @param existing  the list of existing sections to pre-check
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitLinkCourseForm(final Cache cache, final HtmlBuilder htm, final String returnUrl)
+    private static void emitLinkCourseForm(final Cache cache, final HtmlBuilder htm, final String token,
+                                           final String returnUrl, final List<LtiContextCourseSectionRec> existing)
             throws SQLException {
-
-        htm.sH(2).add("Link Course").eH(2);
-        htm.hr().sDiv("indent");
-
-        htm.sP().add("Before this LTI tool can provide course content and assignments within Canvas, it must be ",
-                "linked to one or more institutional course sections.").eP();
-
-        htm.sP().add("Please select the institutional course section(s) to link to this Canvas course.").eP();
-        htm.sP().add("If this Canvas course includes multiple cross-listed section, select all of the ",
-                "corresponding institutional sections.").eP();
-        htm.div("vgap");
 
         final List<RawCsection> sections = getCourseSections(cache, htm);
 
         if (!sections.isEmpty()) {
             htm.addln("<form class='indent' method='POST'>");
             htm.add("<input type='hidden' id='plc' name='plc' value='course_settings_sub_navigation'/>");
+            htm.add("<input type='hidden' id='token' name='token' value='", token, "'/>");
             String priorCourse = "foo";
             final int size = sections.size();
             for (int i = 0; i < size; ++i) {
@@ -182,7 +379,20 @@ enum PageCourseSettingsSubNavigation {
                     }
                 }
                 priorCourse = sect.course;
-                htm.add("<input type='checkbox' id='", key, "' name='", key, "'/>");
+
+                boolean found = false;
+                for (final LtiContextCourseSectionRec test : existing) {
+                    if (test.courseId.equals(sect.course) && test.sectionNbr.equals(sect.sect)) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (found) {
+                    htm.add("<input type='checkbox' id='", key, "' name='", key, "' checked='checked'/>");
+                } else {
+                    htm.add("<input type='checkbox' id='", key, "' name='", key, "'/>");
+                }
                 htm.addln(" <label for='", key, "'>", dispCourse, " section ", sect.sect, "</label>");
                 htm.eP();
             }
@@ -191,8 +401,6 @@ enum PageCourseSettingsSubNavigation {
             htm.addln("<input class='btn' type='submit' value='Submit'/> &nbsp; ");
             htm.addln("<a class='btn' href='", XmlEscaper.escape(returnUrl), "'>Cancel</a>");
             htm.addln("</form>");
-
-            htm.eDiv(); // indent
         }
     }
 
@@ -241,5 +449,83 @@ enum PageCourseSettingsSubNavigation {
         }
 
         return result;
+    }
+
+    /**
+     * Creates a one-time, short-term permission to execute a POST.
+     *
+     * @param data the data needed to process the POST
+     * @return the token to use for the redirect
+     */
+    private static String createPostPermission(final PostData data) {
+
+        synchronized (PERMISSIONS) {
+            String token = CoreConstants.newId(24);
+            while (PERMISSIONS.containsKey(token)) {
+                token = CoreConstants.newId(24);
+            }
+            final LocalDateTime now = LocalDateTime.now();
+            final LocalDateTime expiry = now.plusMinutes(PERMISSION_EXPIRY_MINUTES);
+
+            final PostPermission permission = new PostPermission(token, data, expiry);
+            PERMISSIONS.put(token, permission);
+
+            return token;
+        }
+    }
+
+    /**
+     * Retrieves (and deletes) the one-time post permission.
+     *
+     * @param token the token value
+     * @return the associated redirect, null if none found
+     */
+    private static PostPermission getPermission(final String token) {
+
+        synchronized (PERMISSIONS) {
+            final PostPermission result = PERMISSIONS.remove(token);
+
+            if (!PERMISSIONS.isEmpty()) {
+                // Check for expired and remove them
+                final LocalDateTime now = LocalDateTime.now();
+
+                final Set<Map.Entry<String, PostPermission>> entrySet = PERMISSIONS.entrySet();
+                final Iterator<Map.Entry<String, PostPermission>> iter = entrySet.iterator();
+                while (iter.hasNext()) {
+                    final Map.Entry<String, PostPermission> entry = iter.next();
+                    final PostPermission value = entry.getValue();
+                    final LocalDateTime expiry = value.expiry();
+                    if (expiry.isBefore(now)) {
+                        iter.remove();
+                    }
+                }
+            }
+
+            return result;
+        }
+    }
+
+    /**
+     * Data needed to process a POST request.
+     *
+     * @param registration   the LTI registration
+     * @param deploymentId   the deployment ID
+     * @param contextId      the context ID
+     * @param lmsCourseId    the LMS course ID
+     * @param lmsCourseTitle the LMS course title
+     * @param returnUrl      the return URL
+     */
+    record PostData(LtiRegistrationRec registration, String deploymentId, String contextId, String lmsCourseId,
+                    String lmsCourseTitle, String returnUrl) {
+    }
+
+    /**
+     * A one-time, short-lived permission to execute a POST to this page.
+     *
+     * @param nonce  the nonce
+     * @param data   the data needed to process the POST request
+     * @param expiry the date/time the redirect will expire
+     */
+    record PostPermission(String nonce, PostData data, LocalDateTime expiry) {
     }
 }

@@ -1114,3 +1114,28 @@ p {
   font-family: open-sans-regular,sans-serif;
   line-height: 1.4em;
 }
+
+table.data  {
+  font-size:0.85rem;
+  background-color:#fCfCfC;
+  border-width:0 0 1px 1px;
+  border-style:solid;
+  border-color:#777;
+  border-spacing: 0;
+}
+table.data td,th {
+  padding:3px 6px;
+  border-top: solid #777 1px;
+  border-right: solid #777 1px;
+}
+table.data th {
+  background-color:#f0fff2;
+  text-align:center;
+}
+table.data th.row {
+  background-color:#f0f2ff;
+  text-align:left;
+}
+table.data td {
+  text-align:left;
+}

@@ -132,6 +132,40 @@ public final class LtiContextCourseSectionLogic implements IRecLogic<LtiContextC
     }
 
     /**
+     * Queries all context course section records for a particular context.
+     *
+     * @param cache        the data cache
+     * @param clientId     the client ID for which to query
+     * @param issuer       the issuer for which to query
+     * @param deploymentId the deployment ID for which to query
+     * @param contextId    the context ID for which to query
+     * @return the list of all matching records
+     * @throws SQLException if there is an error performing the query
+     */
+    public List<LtiContextCourseSectionRec> queryForContext(final Cache cache, final String clientId,
+                                                            final String issuer, final String deploymentId,
+                                                            final String contextId) throws SQLException {
+
+        final String schemaPrefix = cache.getSchemaPrefix(ESchema.TERM);
+
+        final List<LtiContextCourseSectionRec> result;
+        if (schemaPrefix == null) {
+            Log.warning("Cache profile '", cache.getProfile().id, "' does not support the TERM schema");
+            result = new ArrayList<>(0);
+        } else {
+            final String sql = SimpleBuilder.concat("SELECT * FROM ", schemaPrefix,
+                    ".lti_context_course_section WHERE client_id=", sqlStringValue(clientId),
+                    " AND issuer=", sqlStringValue(issuer),
+                    " AND deployment_id=", sqlStringValue(deploymentId),
+                    " AND context_id=", sqlStringValue(contextId));
+
+            result = doListQuery(cache, ESchema.TERM, sql);
+        }
+
+        return result;
+    }
+
+    /**
      * Queries all preference records for a single student.
      *
      * @param cache        the data cache

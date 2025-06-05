@@ -2,7 +2,9 @@ package dev.mathops.web.host.course.lti.canvascourse;
 
 import dev.mathops.db.Cache;
 import dev.mathops.db.rec.main.LtiRegistrationRec;
+import dev.mathops.db.rec.term.LtiContextCourseSectionRec;
 import dev.mathops.db.rec.term.LtiContextRec;
+import dev.mathops.db.reclogic.term.LtiContextCourseSectionLogic;
 import dev.mathops.db.reclogic.term.LtiContextLogic;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.parser.json.JSONObject;
@@ -14,6 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * Utilities used by LTI tool pages.
@@ -26,11 +29,11 @@ enum PageUtils {
      *
      * @param cache    the data cache
      * @param redirect the redirect information
-     * @return the {@code LtiCourseRec}; null if the LMS course has not yet been connected to an institution course
+     * @return the {@code LtiContextData}; null if the LMS course has not yet been connected to an institution course
      *         section
      * @throws SQLException if there is an error accessing the database
      */
-    static LtiContextRec lookupLtiCourse(final Cache cache, final LtiSite.PendingTargetRedirect redirect)
+    static LtiContextData lookupLtiContext(final Cache cache, final LtiSite.PendingTargetRedirect redirect)
             throws SQLException {
 
         final JSONObject payload = redirect.idTokenPayload();
@@ -43,16 +46,29 @@ enum PageUtils {
             contextId = contextObj.getStringProperty("id");
         }
 
-        LtiContextRec result;
+        LtiContextData result = null;
 
-        if (deployment == null || contextId == null) {
-            result = null;
-        } else {
-            result = LtiContextLogic.INSTANCE.query(cache, registration.clientId, registration.issuer,
+        if (deployment != null && contextId != null) {
+            final LtiContextRec ctx = LtiContextLogic.INSTANCE.query(cache, registration.clientId, registration.issuer,
                     deployment, contextId);
+            if (ctx != null) {
+                final List<LtiContextCourseSectionRec> sects = LtiContextCourseSectionLogic.INSTANCE.queryForContext(
+                        cache, registration.clientId, registration.issuer, deployment, contextId);
+                result = new LtiContextData(ctx, sects);
+            }
         }
 
         return result;
+    }
+
+    /**
+     * A container for data associated with an LTI context.
+     *
+     * @param context        the context
+     * @param courseSections the set of course/sections associated with the context
+     * @return
+     */
+    public record LtiContextData(LtiContextRec context, List<LtiContextCourseSectionRec> courseSections) {
     }
 
     /**
