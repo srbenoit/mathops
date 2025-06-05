@@ -56,11 +56,12 @@ public enum PageManageLtiContexts {
             contexts.sort(null);
 
             htm.sP().addln("<table class='data'>");
-            htm.addln("<tr><th>Issuer</th><th>Client ID</th><th>Deployment ID</th><th>Context ID</th>",
-                    "<th>Course Sections</th><th>Actions</th></tr>");
+            htm.addln("<tr><th>Issuer</th><th>Client ID</th><th>Context ID</th><th>Course Sections</th>",
+                    "<th>Actions</th></tr>");
             for (final LtiContextRec ctx : contexts) {
-                htm.add("<tr><td>", ctx.issuer, "</td><td>", ctx.clientId, "</td><td>", ctx.deploymentId, "</td><td>",
-                        ctx.contextId, "</td><td>");
+                htm.add("<tr><td style='vertical-align:top'>", ctx.issuer,
+                        "</td><td style='vertical-align:top'>", ctx.clientId,
+                        "</td><td style='vertical-align:top'>", ctx.contextId, "</td><td>");
                 boolean brk = false;
                 for (final LtiContextCourseSectionRec sect : sections) {
                     if (sect.issuer.equals(ctx.issuer)
@@ -74,9 +75,9 @@ public enum PageManageLtiContexts {
                         brk = true;
                     }
                 }
-                htm.add("</td><td>");
+                htm.add("</td><td style='vertical-align:top'>");
 
-                htm.add("<form style='display:inline-block' action='manage_lti_regs.html' method='GET'>");
+                htm.add("<form style='display:inline-block' method='GET'>");
                 htm.add("<input type='hidden' name='act' value='view'/>");
                 htm.add("<input type='hidden' name='iss' value='", ctx.issuer, "'/>");
                 htm.add("<input type='hidden' name='cid' value='", ctx.clientId, "'/>");
@@ -84,7 +85,7 @@ public enum PageManageLtiContexts {
                 htm.add("<input type='hidden' name='ctx' value='", ctx.contextId, "'/>");
                 htm.add("<input type='submit' value='View'/>");
                 htm.add("</form> &nbsp;");
-                htm.add("<form style='display:inline-block' action='manage_lti_regs.html' method='POST'>");
+                htm.add("<form style='display:inline-block' action='manage_lti_contexts.html' method='POST'>");
                 htm.add("<input type='hidden' name='act' value='del'/>");
                 htm.add("<input type='hidden' name='iss' value='", ctx.issuer, "'/>");
                 htm.add("<input type='hidden' name='cid' value='", ctx.clientId, "'/>");
@@ -221,7 +222,7 @@ public enum PageManageLtiContexts {
                         htm.div("vgap");
 
                         htm.sDiv("indent");
-                        htm.add("<form style='display:inline-block' action='manage_lti_regs.html' method='POST'>");
+                        htm.add("<form style='display:inline-block' action='manage_lti_contexts.html' method='POST'>");
                         htm.add("<input type='hidden' name='act' value='del'/>");
                         htm.add("<input type='hidden' name='iss' value='", context.issuer, "'/>");
                         htm.add("<input type='hidden' name='cid' value='", context.clientId, "'/>");
@@ -230,7 +231,7 @@ public enum PageManageLtiContexts {
                         htm.add("<input type='hidden' name='confirm' value='yes'/>");
                         htm.add("<input type='submit' value='Yes, delete this context'/>");
                         htm.add("</form> &nbsp;");
-                        htm.add("<form style='display:inline-block' action='manage_lti_regs.html' method='GET'>");
+                        htm.add("<form style='display:inline-block' method='GET'>");
                         htm.add("<input type='submit' value='Cancel'/>");
                         htm.add("</form>");
                         htm.eDiv();

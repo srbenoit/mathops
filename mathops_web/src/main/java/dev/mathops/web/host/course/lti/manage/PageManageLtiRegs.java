@@ -54,7 +54,7 @@ public enum PageManageLtiRegs {
             htm.addln("<tr><th>Issuer</th><th>Client ID</th><th>Actions</th></tr>");
             for (final LtiRegistrationRec reg : regs) {
                 htm.add("<tr><td>", reg.issuer, "</td><td>", reg.clientId, "</td><td>");
-                htm.add("<form style='display:inline-block' action='manage_lti_regs.html' method='GET'>");
+                htm.add("<form style='display:inline-block' method='GET'>");
                 htm.add("<input type='hidden' name='act' value='view'/>");
                 htm.add("<input type='hidden' name='iss' value='", reg.issuer, "'/>");
                 htm.add("<input type='hidden' name='cid' value='", reg.clientId, "'/>");
@@ -171,7 +171,7 @@ public enum PageManageLtiRegs {
                     htm.add("<input type='hidden' name='confirm' value='yes'/>");
                     htm.add("<input type='submit' value='Yes, delete this registration'/>");
                     htm.add("</form> &nbsp;");
-                    htm.add("<form style='display:inline-block' action='manage_lti_regs.html' method='GET'>");
+                    htm.add("<form style='display:inline-block' method='GET'>");
                     htm.add("<input type='submit' value='Cancel'/>");
                     htm.add("</form>");
                     htm.eDiv();
