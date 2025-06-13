@@ -25,6 +25,7 @@ dependencies {
     implementation(files("../../mathops_persistence/out/libs/mathops_persistence.jar"))
     implementation(files("../../JWabbit/out/libs/jwabbit.jar"))
 
+    implementation("com.ibm.informix:jdbc:4.50.10")
     implementation("com.oracle.database.jdbc:ojdbc11:23.4.0.24.05")
     implementation("org.postgresql:postgresql:42.7.5")
     implementation("com.formdev:flatlaf:3.4")

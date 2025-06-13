@@ -76,6 +76,8 @@ enum QualityControlChecks {
         // TODO: all branches in "test" or "switch" formulas result in compatible value types.
         //  In particular, if any return SPAN values, all should.
 
+        // TODO: Check for "test" where THEN and ELSE are "TRUE" and "FALSE"
+
         // TODO: SPAN variables that do not depend on any parameters; candidates for direct substitution in source file
 
         // TODO: Graph formula whose domain is graph's window (unneeded minx/maxx)
@@ -111,14 +113,20 @@ enum QualityControlChecks {
 
         // TODO: constructions like "integer 1 divided by function sine of x" - suggest csc(x)
 
-        // TODO: nested sums within sums (or any other N-ary operator) that can be simplified as N-ary
-
-        // TODO: constructions like unary minus of a positive constant - use negative constant
+        // TODO: Look for expressions like "180 * x / PI" or "PI * x / 180" for which there are functions
 
         // TODO: constructions like adding or subtracting zero, multiplying or dividing by 1
 
+        // TODO: Arithmetic expressions like "1 + 1" that could be replaced by a constant, or like "1 + x + 2" that
+        //  could be simplified.
+
         // TODO: constraints on multiple choice/selection on number of choices shown or min/max correct that are
         //  unnecessary based on the number of choices defined
+
+        // TODO: Look for expressions like "4 * PI / 3"  or "2 SQRT(3) / 5" that could be expressed directly
+
+        // TODO: If the pixel location of an object in the graph is calculated by multiplying some quantity by the
+        //  pixel width of the graph divided by its extent, we could probably use graph coordinates.  how to test?
     }
 
     /**
