@@ -141,6 +141,9 @@ final class Res extends ResBundle {
     /** A resource key. */
     static final String BAD_CASE_VALUE = key(index++);
 
+    /** A resource key. */
+    static final String UNEXPECTED_ATTR = key(index++);
+
     //
 
     /** The resources - an array of key-values pairs. */
@@ -189,6 +192,7 @@ final class Res extends ResBundle {
             {MISSING_CASE_VALUE, "'case' element is missing 'value' attribute."},
             {MISSING_CASE_FORMULA, "Missing formula in 'case' element."},
             {BAD_CASE_VALUE, "'case' element has invalid 'value' attribute."},
+            {UNEXPECTED_ATTR, "Unexpected attribute found: {0}."},
 
 
     };

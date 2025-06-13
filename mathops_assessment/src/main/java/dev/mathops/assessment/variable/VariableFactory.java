@@ -1224,6 +1224,14 @@ public enum VariableFactory {
 
         VariableBoolean result = null;
 
+        for (final String attrName : elem.attributeNames()) {
+            if (NAME.equals(attrName) || TYPE.equals(attrName) || VALUE.equals(attrName)) {
+                continue;
+            }
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            elem.logError(msg);
+        }
+
         final String valueStr = elem.getStringAttr(VALUE);
 
         if (valueStr == null) {
@@ -1255,6 +1263,14 @@ public enum VariableFactory {
     private static VariableBoolean extractVariableBoolean(final NonemptyElement elem, final String varName) {
 
         VariableBoolean result = null;
+
+        for (final String attrName : elem.attributeNames()) {
+            if (NAME.equals(attrName) || TYPE.equals(attrName) || VALUE.equals(attrName)) {
+                continue;
+            }
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            elem.logError(msg);
+        }
 
         final List<IElement> children = elem.getElementChildrenAsList();
         if (children.isEmpty()) {
@@ -1294,6 +1310,14 @@ public enum VariableFactory {
                                                           final EParserMode mode) {
 
         VariableInteger result = null;
+
+        for (final String attrName : elem.attributeNames()) {
+            if (NAME.equals(attrName) || TYPE.equals(attrName) || VALUE.equals(attrName) || FORMAT.equals(attrName)) {
+                continue;
+            }
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            elem.logError(msg);
+        }
 
         final String valueStr = elem.getStringAttr(VALUE);
 
@@ -1343,6 +1367,14 @@ public enum VariableFactory {
                                                           final EParserMode mode) {
 
         VariableInteger result = null;
+
+        for (final String attrName : elem.attributeNames()) {
+            if (NAME.equals(attrName) || TYPE.equals(attrName) || VALUE.equals(attrName) || FORMAT.equals(attrName)) {
+                continue;
+            }
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            elem.logError(msg);
+        }
 
         String formatStr = elem.getStringAttr(FORMAT);
         if (formatStr == null) {
@@ -1395,6 +1427,14 @@ public enum VariableFactory {
 
         VariableReal result = null;
 
+        for (final String attrName : elem.attributeNames()) {
+            if (NAME.equals(attrName) || TYPE.equals(attrName) || VALUE.equals(attrName) || FORMAT.equals(attrName)) {
+                continue;
+            }
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            elem.logError(msg);
+        }
+
         String formatStr = elem.getStringAttr(FORMAT);
         if (formatStr == null) {
             formatStr = elem.getStringAttr(DECIMAL_FORMAT);
@@ -1442,6 +1482,14 @@ public enum VariableFactory {
                                                     final EParserMode mode) {
 
         VariableReal result = null;
+
+        for (final String attrName : elem.attributeNames()) {
+            if (NAME.equals(attrName) || TYPE.equals(attrName) || VALUE.equals(attrName) || FORMAT.equals(attrName)) {
+                continue;
+            }
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            elem.logError(msg);
+        }
 
         String formatStr = elem.getStringAttr(FORMAT);
         if (formatStr == null) {
@@ -1498,6 +1546,14 @@ public enum VariableFactory {
 
         final VariableSpan result;
 
+        for (final String attrName : elem.attributeNames()) {
+            if (NAME.equals(attrName) || TYPE.equals(attrName)) {
+                continue;
+            }
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            elem.logError(msg);
+        }
+
         final DocSimpleSpan span = DocFactory.parseSpan(evalContext, elem, mode);
 
         if (span == null) {
@@ -1524,6 +1580,14 @@ public enum VariableFactory {
     private static VariableRandomBoolean extractVariableRandomBoolean(final EmptyElement elem, final String varName) {
 
         VariableRandomBoolean result = null;
+
+        for (final String attrName : elem.attributeNames()) {
+            if (NAME.equals(attrName) || TYPE.equals(attrName)) {
+                continue;
+            }
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            elem.logError(msg);
+        }
 
         final String valueStr = elem.getStringAttr(VALUE);
 
@@ -1557,6 +1621,14 @@ public enum VariableFactory {
                                                                       final String varName) {
 
         VariableRandomBoolean result = null;
+
+        for (final String attrName : elem.attributeNames()) {
+            if (NAME.equals(attrName) || TYPE.equals(attrName)) {
+                continue;
+            }
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            elem.logError(msg);
+        }
 
         final List<IElement> children = elem.getElementChildrenAsList();
         if (children.isEmpty()) {
@@ -1596,6 +1668,15 @@ public enum VariableFactory {
                                                                       final EParserMode mode) {
 
         boolean valid = true;
+
+        for (final String attrName : elem.attributeNames()) {
+            if (NAME.equals(attrName) || TYPE.equals(attrName) || MIN.equals(attrName) || MAX.equals(attrName)
+                || EXCLUDE.equals(attrName) || FORMAT.equals(attrName)) {
+                continue;
+            }
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            elem.logError(msg);
+        }
 
         final String valueStr = elem.getStringAttr(VALUE);
         Long value = null;
@@ -1683,6 +1764,15 @@ public enum VariableFactory {
                                                                       final String varName, final EParserMode mode) {
 
         boolean valid = true;
+
+        for (final String attrName : elem.attributeNames()) {
+            if (NAME.equals(attrName) || TYPE.equals(attrName) || MIN.equals(attrName) || MAX.equals(attrName)
+                || EXCLUDE.equals(attrName) || FORMAT.equals(attrName)) {
+                continue;
+            }
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            elem.logError(msg);
+        }
 
         final String valueStr = elem.getStringAttr(VALUE);
         Long value = null;
@@ -1830,6 +1920,15 @@ public enum VariableFactory {
 
         boolean valid = true;
 
+        for (final String attrName : elem.attributeNames()) {
+            if (NAME.equals(attrName) || TYPE.equals(attrName) || MIN.equals(attrName) || MAX.equals(attrName)
+                || EXCLUDE.equals(attrName) || FORMAT.equals(attrName)) {
+                continue;
+            }
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            elem.logError(msg);
+        }
+
         final String valueStr = elem.getStringAttr(VALUE);
         Number value = null;
 
@@ -1914,6 +2013,15 @@ public enum VariableFactory {
                                                                 final EParserMode mode) {
 
         boolean valid = true;
+
+        for (final String attrName : elem.attributeNames()) {
+            if (NAME.equals(attrName) || TYPE.equals(attrName) || MIN.equals(attrName) || MAX.equals(attrName)
+                || EXCLUDE.equals(attrName) || FORMAT.equals(attrName)) {
+                continue;
+            }
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            elem.logError(msg);
+        }
 
         final String valueStr = elem.getStringAttr(VALUE);
         Double value = null;
@@ -2042,6 +2150,14 @@ public enum VariableFactory {
 
         boolean valid = true;
 
+        for (final String attrName : elem.attributeNames()) {
+            if (NAME.equals(attrName) || TYPE.equals(attrName) || MIN.equals(attrName) || MAX.equals(attrName)) {
+                continue;
+            }
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            elem.logError(msg);
+        }
+
         final String valueStr = elem.getStringAttr(VALUE);
         IntegerVectorValue value = null;
 
@@ -2110,6 +2226,14 @@ public enum VariableFactory {
                                                                               final EParserMode mode) {
 
         boolean valid = true;
+
+        for (final String attrName : elem.attributeNames()) {
+            if (NAME.equals(attrName) || TYPE.equals(attrName) || MIN.equals(attrName) || MAX.equals(attrName)) {
+                continue;
+            }
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            elem.logError(msg);
+        }
 
         final String valueStr = elem.getStringAttr(VALUE);
         IntegerVectorValue value = null;
@@ -2235,6 +2359,14 @@ public enum VariableFactory {
                                                                     final EParserMode mode) {
 
         boolean valid = true;
+
+        for (final String attrName : elem.attributeNames()) {
+            if (NAME.equals(attrName) || TYPE.equals(attrName) || FORMAT.equals(attrName)) {
+                continue;
+            }
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            elem.logError(msg);
+        }
 
         Object value = null;
 
@@ -2436,6 +2568,15 @@ public enum VariableFactory {
 
         boolean valid = true;
 
+        for (final String attrName : elem.attributeNames()) {
+            if (NAME.equals(attrName) || TYPE.equals(attrName) || MIN.equals(attrName) || MAX.equals(attrName)
+                || MAX_DENOM.equals(attrName) || EXCLUDE.equals(attrName)) {
+                continue;
+            }
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            elem.logError(msg);
+        }
+
         final String valueStr = elem.getStringAttr(VALUE);
         Long value = null;
 
@@ -2522,6 +2663,15 @@ public enum VariableFactory {
                                                                               final EParserMode mode) {
 
         boolean valid = true;
+
+        for (final String attrName : elem.attributeNames()) {
+            if (NAME.equals(attrName) || TYPE.equals(attrName) || MIN.equals(attrName) || MAX.equals(attrName)
+                || MAX_DENOM.equals(attrName) || EXCLUDE.equals(attrName)) {
+                continue;
+            }
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            elem.logError(msg);
+        }
 
         final String valueStr = elem.getStringAttr(VALUE);
         Long value = null;
@@ -2698,6 +2848,15 @@ public enum VariableFactory {
                                                           final String varName, final EParserMode mode) {
 
         boolean valid = true;
+
+        for (final String attrName : elem.attributeNames()) {
+            if (NAME.equals(attrName) || TYPE.equals(attrName) || VALUE_TYPE.equals(attrName) || MIN.equals(attrName)
+                || MAX.equals(attrName) || EXCLUDE.equals(attrName) || FORMAT.equals(attrName)) {
+                continue;
+            }
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            elem.logError(msg);
+        }
 
         Object value = null;
 

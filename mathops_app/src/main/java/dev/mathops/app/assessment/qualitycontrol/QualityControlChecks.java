@@ -73,6 +73,8 @@ enum QualityControlChecks {
                + problemTest9(report, problem)
                + problemTest10(report, problem);
 
+        // TODO: use of unrecognized attributes or child elements or unrecognized attributes
+
         // TODO: all branches in "test" or "switch" formulas result in compatible value types.
         //  In particular, if any return SPAN values, all should.
 
@@ -81,8 +83,6 @@ enum QualityControlChecks {
         // TODO: SPAN variables that do not depend on any parameters; candidates for direct substitution in source file
 
         // TODO: Graph formula whose domain is graph's window (unneeded minx/maxx)
-
-        // TODO: Check for "grouping" usage in formulas
 
         // TODO: missing specification of domain variable in graph formula
 
@@ -108,8 +108,6 @@ enum QualityControlChecks {
         // TODO: embedded input problem without answer
 
         // TODO: any problem without solution
-
-        // TODO: use of unrecognized attributes or child elements or unrecognized attributes
 
         // TODO: constructions like "integer 1 divided by function sine of x" - suggest csc(x)
 

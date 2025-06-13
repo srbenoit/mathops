@@ -119,6 +119,11 @@ public enum XmlFormulaFactory {
 
         Formula result = null;
 
+        for (final String attrName : element.attributeNames()) {
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            element.logError(msg);
+        }
+
         final List<IElement> children = element.getElementChildrenAsList();
 
         if (children.size() == 1) {
@@ -157,7 +162,7 @@ public enum XmlFormulaFactory {
                     case ERROR -> root = extractError(nonempty);
                     case BINARY -> root = extractBinaryOp(evalContext, nonempty, mode);
                     case UNARY -> root = extractUnaryOp(evalContext, nonempty, mode);
-                    case FORMULA,EXPR -> root = extractFormula(evalContext, nonempty, mode);
+                    case FORMULA, EXPR -> root = extractFormula(evalContext, nonempty, mode);
                     case FUNCTION -> root = extractFunction(evalContext, nonempty, mode);
                     case GROUPING -> {
                         if (mode == EParserMode.NORMAL) {
@@ -200,6 +205,14 @@ public enum XmlFormulaFactory {
 
         ConstBooleanValue result = null;
 
+        for (final String attrName : element.attributeNames()) {
+            if (VALUE.equals(attrName)) {
+                continue;
+            }
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            element.logError(msg);
+        }
+
         final String str = element.getStringAttr(VALUE).toUpperCase(Locale.ROOT);
 
         if (TRUE.equals(str)) {
@@ -228,6 +241,14 @@ public enum XmlFormulaFactory {
 
         ConstIntegerValue result = null;
 
+        for (final String attrName : element.attributeNames()) {
+            if (VALUE.equals(attrName)) {
+                continue;
+            }
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            element.logError(msg);
+        }
+
         final String str = element.getStringAttr(VALUE);
 
         try {
@@ -255,6 +276,14 @@ public enum XmlFormulaFactory {
 
         ConstRealValue result = null;
 
+        for (final String attrName : element.attributeNames()) {
+            if (VALUE.equals(attrName)) {
+                continue;
+            }
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            element.logError(msg);
+        }
+
         final String str = element.getStringAttr(VALUE);
 
         try {
@@ -280,6 +309,14 @@ public enum XmlFormulaFactory {
      */
     private static ConstStringValue extractString(final IElement element) {
 
+        for (final String attrName : element.attributeNames()) {
+            if (VALUE.equals(attrName)) {
+                continue;
+            }
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            element.logError(msg);
+        }
+
         final String str = element.getStringAttr(VALUE);
 
         return new ConstStringValue(str);
@@ -298,6 +335,14 @@ public enum XmlFormulaFactory {
     private static ConstIntegerVector extractConstIntegerVector(final EmptyElement element) {
 
         ConstIntegerVector result = null;
+
+        for (final String attrName : element.attributeNames()) {
+            if (VALUE.equals(attrName)) {
+                continue;
+            }
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            element.logError(msg);
+        }
 
         final String str = element.getStringAttr(VALUE);
         try {
@@ -324,6 +369,14 @@ public enum XmlFormulaFactory {
     private static ConstRealVector extractConstRealVector(final EmptyElement element) {
 
         ConstRealVector result = null;
+
+        for (final String attrName : element.attributeNames()) {
+            if (VALUE.equals(attrName)) {
+                continue;
+            }
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            element.logError(msg);
+        }
 
         final String str = element.getStringAttr(VALUE);
         try {
@@ -354,6 +407,11 @@ public enum XmlFormulaFactory {
 
         final IntegerFormulaVector result = new IntegerFormulaVector();
 
+        for (final String attrName : element.attributeNames()) {
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            element.logError(msg);
+        }
+
         extractChildren(evalContext, element, result, mode);
 
         return result;
@@ -375,6 +433,11 @@ public enum XmlFormulaFactory {
                                                        final EParserMode mode) {
 
         final RealFormulaVector result = new RealFormulaVector();
+
+        for (final String attrName : element.attributeNames()) {
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            element.logError(msg);
+        }
 
         extractChildren(evalContext, element, result, mode);
 
@@ -398,6 +461,11 @@ public enum XmlFormulaFactory {
 
         ConstSpanValue result = null;
 
+        for (final String attrName : element.attributeNames()) {
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            element.logError(msg);
+        }
+
         final DocSimpleSpan span = DocFactory.parseSpan(evalContext, element, mode);
 
         if (span != null) {
@@ -420,6 +488,11 @@ public enum XmlFormulaFactory {
     private static ErrorValue extractError(final NonemptyElement element) {
 
         ErrorValue result = null;
+
+        for (final String attrName : element.attributeNames()) {
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            element.logError(msg);
+        }
 
         if (element.getNumChildren() == 1) {
             final INode child = element.getChild(0);
@@ -450,6 +523,14 @@ public enum XmlFormulaFactory {
     private static VariableRef extractVarRef(final EmptyElement element) {
 
         VariableRef result = null;
+
+        for (final String attrName : element.attributeNames()) {
+            if (NAME.equals(attrName) || INDEX.equals(attrName)) {
+                continue;
+            }
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            element.logError(msg);
+        }
 
         final String name = element.getStringAttr(NAME);
         if (name == null || name.isEmpty()) {
@@ -487,6 +568,14 @@ public enum XmlFormulaFactory {
                                               final EParserMode mode) {
 
         BinaryOper result = null;
+
+        for (final String attrName : element.attributeNames()) {
+            if (OP.equals(attrName)) {
+                continue;
+            }
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            element.logError(msg);
+        }
 
         final String oper = element.getStringAttr(OP);
 
@@ -567,6 +656,14 @@ public enum XmlFormulaFactory {
 
         UnaryOper result = null;
 
+        for (final String attrName : element.attributeNames()) {
+            if (OP.equals(attrName)) {
+                continue;
+            }
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            element.logError(msg);
+        }
+
         final String oper = element.getStringAttr(OP);
 
         if ("+".equals(oper)) {
@@ -609,6 +706,14 @@ public enum XmlFormulaFactory {
                                             final EParserMode mode) {
 
         Function result = null;
+
+        for (final String attrName : element.attributeNames()) {
+            if (NAME.equals(attrName)) {
+                continue;
+            }
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            element.logError(msg);
+        }
 
         final String name = element.getStringAttr(NAME);
         if (name == null || name.isEmpty()) {
@@ -666,6 +771,11 @@ public enum XmlFormulaFactory {
                                         final EParserMode mode) {
 
         final TestOper result = new TestOper();
+
+        for (final String attrName : element.attributeNames()) {
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            element.logError(msg);
+        }
         extractChildren(evalContext, element, result, mode);
 
         if (result.numChildren() != 3) {
@@ -695,6 +805,11 @@ public enum XmlFormulaFactory {
                                             final EParserMode mode) {
 
         final SwitchOper result = new SwitchOper();
+
+        for (final String attrName : element.attributeNames()) {
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            element.logError(msg);
+        }
 
         final List<IElement> children = element.getElementChildrenAsList();
         for (final IElement child : children) {
@@ -768,6 +883,12 @@ public enum XmlFormulaFactory {
                                               final EParserMode mode) {
 
         final IsExactOper result = new IsExactOper();
+
+        for (final String attrName : element.attributeNames()) {
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
+            element.logError(msg);
+        }
+
         extractChildren(evalContext, element, result, mode);
 
         return result;
@@ -823,7 +944,7 @@ public enum XmlFormulaFactory {
                     case ERROR -> extracted = extractError(nonempty);
                     case BINARY -> extracted = extractBinaryOp(evalContext, nonempty, mode);
                     case UNARY -> extracted = extractUnaryOp(evalContext, nonempty, mode);
-                    case FORMULA,EXPR -> extracted = extractFormula(evalContext, nonempty, mode);
+                    case FORMULA, EXPR -> extracted = extractFormula(evalContext, nonempty, mode);
                     case FUNCTION -> extracted = extractFunction(evalContext, nonempty, mode);
                     case GROUPING -> {
                         if (mode == EParserMode.NORMAL) {
@@ -848,40 +969,40 @@ public enum XmlFormulaFactory {
         }
     }
 
-    ///**
-    // * Main method for testing.
-    // *
-    // * @param args command-line arguments
-    // */
-    // public static void main(final String... args) {
-    //
-    // final String xml = SimpleBuilder.concat(//
-    // "<formula>",
-    // " <binary op='='>",
-    // " <string value='x'/>",
-    // " <function name='lcase'><varref name='c'/></function>",
-    // " </binary>",
-    // "</formula>");
-    //
-    // try {
-    // final XmlContent content = new XmlContent(xml, true, false);
-    // final IElement top = content.getToplevel();
-    //
-    // final List<XmlContentError> errors = content.getAllErrors();
-    // for (final XmlContentError error : errors) {
-    // Log.warning(error);
-    // }
-    //
-    // if (top instanceof NonemptyElement nonempt) {
-    // final Formula formula = extractFormula(nonempt, EParserMode.NORMAL);
-    //
-    // final HtmlBuilder builder = new HtmlBuilder(100);
-    // formula.appendXml(builder);
-    // Log.fine(builder.toString());
-    // }
-    //
-    // } catch (final ParsingException ex) {
-    // Log.warning(ex);
-    // }
-    // }
+///**
+// * Main method for testing.
+// *
+// * @param args command-line arguments
+// */
+// public static void main(final String... args) {
+//
+// final String xml = SimpleBuilder.concat(//
+// "<formula>",
+// " <binary op='='>",
+// " <string value='x'/>",
+// " <function name='lcase'><varref name='c'/></function>",
+// " </binary>",
+// "</formula>");
+//
+// try {
+// final XmlContent content = new XmlContent(xml, true, false);
+// final IElement top = content.getToplevel();
+//
+// final List<XmlContentError> errors = content.getAllErrors();
+// for (final XmlContentError error : errors) {
+// Log.warning(error);
+// }
+//
+// if (top instanceof NonemptyElement nonempt) {
+// final Formula formula = extractFormula(nonempt, EParserMode.NORMAL);
+//
+// final HtmlBuilder builder = new HtmlBuilder(100);
+// formula.appendXml(builder);
+// Log.fine(builder.toString());
+// }
+//
+// } catch (final ParsingException ex) {
+// Log.warning(ex);
+// }
+// }
 }
