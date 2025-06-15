@@ -40,23 +40,21 @@ final class Res extends ResBundle {
     /** A resource key. */
     static final String UNABLE_TO_PARSE = key(index++);
 
+    /** A resource key. */
+    static final String UNEXPECTED_ATTR = key(index++);
+
     //
 
     /** The resources - an array of key-values pairs. */
     private static final String[][] EN_US = {
 
             {NOT_AWT_THREAD, "NOT THE AWT EVENT THREAD!",},
-
-            {INCONSISTENT_TYPE, //
-                    "Variable {0} has inconsistent type (has {1}, expected {2})",},
+            {INCONSISTENT_TYPE, "Variable {0} has inconsistent type (has {1}, expected {2})",},
             {BAD_DATA_TYPE, "Invalid data type",},
-
             {BAD_ATTEMPT_TO_SET, "Attempt to set {0} from {1}",},
-
             {INVALID_NUMBER, "Invalid number",},
-
             {UNABLE_TO_PARSE, "Unable to parse: {0}",},
-
+            {UNEXPECTED_ATTR, "Unexpected attribute found in document element: {0}."},
     };
 
     /** The singleton instance. */

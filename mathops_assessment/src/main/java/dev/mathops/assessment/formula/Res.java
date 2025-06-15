@@ -192,7 +192,7 @@ final class Res extends ResBundle {
             {MISSING_CASE_VALUE, "'case' element is missing 'value' attribute."},
             {MISSING_CASE_FORMULA, "Missing formula in 'case' element."},
             {BAD_CASE_VALUE, "'case' element has invalid 'value' attribute."},
-            {UNEXPECTED_ATTR, "Unexpected attribute found: {0}."},
+            {UNEXPECTED_ATTR, "Unexpected attribute found in expression: {0}."},
 
 
     };

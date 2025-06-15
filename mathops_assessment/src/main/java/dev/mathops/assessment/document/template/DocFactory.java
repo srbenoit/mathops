@@ -430,6 +430,9 @@ public enum DocFactory {
     private static final String FONT_STYLE = "fontstyle";
 
     /** A commonly-used string. */
+    private static final String FORMAT = "format";
+
+    /** A commonly-used string. */
     private static final String EXPR = "expr";
 
     /** A commonly-used string. */
@@ -562,6 +565,17 @@ public enum DocFactory {
     public static DocColumn parseDocColumn(final EvalContext evalContext, final NonemptyElement elem,
                                            final EParserMode mode) {
 
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (COLOR.equals(attrName) || BGCOLOR.equals(attrName) || FONT_NAME.equals(attrName)
+                    || FONT_SIZE.equals(attrName) || FONT_STYLE.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40000)";
+                elem.logError(msg);
+            }
+        }
+
         final String tagName = elem.getTagName();
 
         DocColumn result = null;
@@ -569,7 +583,7 @@ public enum DocFactory {
         final DocColumn doc = new DocColumn();
         doc.tag = tagName;
 
-        final boolean valid = extractFormattable(elem, doc);
+        final boolean valid = extractFormattable(elem, doc, mode);
 
         if (valid && extractParagraphs(evalContext, elem, doc, mode)) {
             doc.refreshInputs(evalContext, true);
@@ -631,24 +645,28 @@ public enum DocFactory {
                     } else if (IMAGE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractImage(evalContext, nonempty, span, mode);
                     } else {
-                        elem.logError("The " + childTag + " tag is not valid within a span.");
+                        if (mode.reportAny) {
+                            elem.logError("The " + childTag + " tag is not valid within a span. (40010)");
+                        }
                         valid = false;
                     }
                 } else if (child instanceof final EmptyElement empty) {
                     if (IMAGE.equalsIgnoreCase(childTag)) {
-                        valid = valid && extractImage(empty, span);
+                        valid = valid && extractImage(empty, span, mode);
                     } else if (INPUT.equalsIgnoreCase(childTag)) {
                         valid = valid && extractInput(evalContext, empty, span, mode);
                     } else if (ALIGN_MARK.equalsIgnoreCase(childTag)) {
                         valid = valid && extractAlignMark(span);
                     } else if (H_SPACE.equalsIgnoreCase(childTag)) {
-                        valid = valid && extractHSpace(empty, span);
+                        valid = valid && extractHSpace(empty, span, mode);
                     } else if (H_ALIGN.equalsIgnoreCase(childTag)) {
-                        valid = valid && extractHAlign(empty, span);
+                        valid = valid && extractHAlign(empty, span, mode);
                     } else if (SYMBOL_PALETTE.equalsIgnoreCase(childTag)) {
-                        valid = valid && extractSymbolPalette(empty, span);
+                        valid = valid && extractSymbolPalette(empty, span, mode);
                     } else {
-                        elem.logError("An empty " + childTag + " element is not valid within a span.");
+                        if (mode.reportAny) {
+                            elem.logError("An empty " + childTag + " element is not valid within a span. (40011)");
+                        }
                         valid = false;
                     }
                 }
@@ -683,20 +701,27 @@ public enum DocFactory {
                 } else if (P.equalsIgnoreCase(tagName)) {
                     valid = valid && extractParagraph(evalContext, nonempty, doc, mode);
                 } else {
-                    elem.logError("All items in this context must be within &lt;p&gt; tags - found &lt;" + tagName
-                                  + "&gt;.");
+                    if (mode.reportAny) {
+                        elem.logError("All items in this context must be within &lt;p&gt; tags - found &lt;" + tagName
+                                      + "&gt;. (40020)");
+                    }
                     valid = false;
                 }
             } else if (child instanceof final EmptyElement empty) {
                 if (V_SPACE.equalsIgnoreCase(tagName)) {
-                    valid = valid && extractVSpace(empty, doc);
+                    valid = valid && extractVSpace(empty, doc, mode);
                 } else {
-                    elem.logError("All items in this context must be within &lt;p&gt; tags - found &lt;" + tagName
-                                  + "&gt;.");
+                    if (mode.reportAny) {
+                        elem.logError("All items in this context must be within &lt;p&gt; tags - found &lt;" + tagName
+                                      + "&gt;. (40021)");
+                    }
                     valid = false;
                 }
             } else {
-                elem.logError("Unexpected empty &lt;" + tagName + "&gt; element when expecting non-empty &lt;p&gt;.");
+                if (mode.reportAny) {
+                    elem.logError("Unexpected empty &lt;" + tagName
+                                  + "&gt; element when expecting non-empty &lt;p&gt;. (40022)");
+                }
                 valid = false;
             }
         }
@@ -710,9 +735,20 @@ public enum DocFactory {
      *
      * @param elem      the element
      * @param container the span to which to add this input
+     * @param mode      the parser mode
      * @return true if loading successful; false otherwise
      */
-    private static boolean extractVSpace(final EmptyElement elem, final DocColumn container) {
+    private static boolean extractVSpace(final EmptyElement elem, final DocColumn container, final EParserMode mode) {
+
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (HEIGHT.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40030)";
+                elem.logError(msg);
+            }
+        }
 
         boolean valid = true;
 
@@ -723,7 +759,9 @@ public enum DocFactory {
             try {
                 heightC = NumberParser.parse(heightStr);
             } catch (final NumberFormatException e) {
-                elem.logError("Invalid 'height' attribute value (must be a valid number).");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'height' attribute value (must be a valid number). (40031)");
+                }
                 valid = false;
             }
         }
@@ -756,6 +794,16 @@ public enum DocFactory {
     private static boolean extractVSpace(final EvalContext evalContext, final NonemptyElement elem,
                                          final DocColumn container, final EParserMode mode) {
 
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (HEIGHT.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40040)";
+                elem.logError(msg);
+            }
+        }
+
         boolean valid = true;
 
         final String heightStr = elem.getStringAttr(HEIGHT);
@@ -766,7 +814,9 @@ public enum DocFactory {
             try {
                 heightC = NumberParser.parse(heightStr);
             } catch (final NumberFormatException e) {
-                elem.logError("Invalid 'height' attribute value (must be a valid number).");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'height' attribute value (must be a valid number). (40041)");
+                }
                 valid = false;
             }
         }
@@ -780,25 +830,36 @@ public enum DocFactory {
                         if (heightF == null) {
                             heightF = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (heightF == null) {
-                                elem.logError("Invalid 'height' formula.");
+                                if (mode.reportAny) {
+                                    elem.logError("Invalid 'height' formula. (40042)");
+                                }
                                 valid = false;
-                            } else if (heightF.isConstant()) {
-                                elem.logError("Constant 'height' in {v-space} could be specified in attribute?");
+                            } else if (mode.reportAny && heightF.isConstant()) {
+                                elem.logError(
+                                        "Constant 'height' in {v-space} could be specified in attribute? (40043)");
                             }
                         } else {
-                            elem.logError("Cannot have multiple height formulas.");
+                            if (mode.reportAny) {
+                                elem.logError("Cannot have multiple height formulas. (40044)");
+                            }
                             valid = false;
                         }
                     } else {
-                        elem.logError("Cannot have both height attribute and height formula.");
+                        if (mode.reportAny) {
+                            elem.logError("Cannot have both height attribute and height formula. (40045)");
+                        }
                         valid = false;
                     }
                 } else {
-                    elem.logError("The " + childTag + " tag is not valid within v-space.");
+                    if (mode.reportAny) {
+                        elem.logError("The " + childTag + " tag is not valid within v-space. (40046)");
+                    }
                     valid = false;
                 }
             } else if ((!(child instanceof CData) && !(child instanceof Comment))) {
-                elem.logError("Found " + child.getClass().getSimpleName() + " in v-space.");
+                if (mode.reportAny) {
+                    elem.logError("Found " + child.getClass().getSimpleName() + " in v-space. (40047)");
+                }
                 valid = false;
             }
         }
@@ -834,9 +895,21 @@ public enum DocFactory {
     private static boolean extractParagraph(final EvalContext evalContext, final NonemptyElement elem,
                                             final DocColumn doc, final EParserMode mode) {
 
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (COLOR.equals(attrName) || BGCOLOR.equals(attrName) || FONT_NAME.equals(attrName)
+                    || FONT_SIZE.equals(attrName) || FONT_STYLE.equals(attrName)
+                    || JUSTIFICATION.equals(attrName) || SPACING.equals(attrName) || INDENT.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40050)";
+                elem.logError(msg);
+            }
+        }
+
         final DocParagraph par = new DocParagraph();
 
-        boolean valid = extractFormattable(elem, par);
+        boolean valid = extractFormattable(elem, par, mode);
 
         final String justificationStr = elem.getStringAttr(JUSTIFICATION);
         if (justificationStr != null) {
@@ -848,8 +921,10 @@ public enum DocFactory {
                 case FULL -> par.setJustification(DocParagraph.FULL);
                 case LEFT_HANG -> par.setJustification(DocParagraph.LEFT_HANG);
                 default -> {
-                    elem.logError(
-                            "Invalid justification (should be 'left', 'right', 'center', 'full', or 'left-hang').");
+                    if (mode.reportAny) {
+                        elem.logError("Invalid justification (should be 'left', 'right', 'center', 'full', or "
+                                      + "'left-hang'). (40051)");
+                    }
                     valid = false;
                 }
             }
@@ -863,7 +938,10 @@ public enum DocFactory {
                 case NORMAL -> par.setSpacing(DocParagraph.NORMAL);
                 case LARGE -> par.setSpacing(DocParagraph.LARGE);
                 default -> {
-                    elem.logError("Invalid paragraph spacing (should be 'none', 'small', 'normal' or 'large').");
+                    if (mode.reportAny) {
+                        elem.logError(
+                                "Invalid paragraph spacing (should be 'none', 'small', 'normal' or 'large'). (40052)");
+                    }
                     valid = false;
                 }
             }
@@ -875,7 +953,9 @@ public enum DocFactory {
                 final int parsed = Integer.parseInt(indentStr);
                 par.setIndent(parsed);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid paragraph indent.");
+                if (mode.reportAny) {
+                    elem.logError("Invalid paragraph indent. (40053)");
+                }
                 valid = false;
             }
         }
@@ -916,28 +996,34 @@ public enum DocFactory {
                     } else if (IMAGE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractImage(evalContext, nonempty, par, mode);
                     } else {
-                        elem.logError("The " + childTag + " element is not valid within a paragraph.");
+                        if (mode.reportAny) {
+                            elem.logError("The " + childTag + " element is not valid within a paragraph. (40054)");
+                        }
                         valid = false;
                     }
                 } else if (child instanceof final EmptyElement empty) {
                     if (IMAGE.equalsIgnoreCase(childTag)) {
-                        valid = valid && extractImage(empty, par);
+                        valid = valid && extractImage(empty, par, mode);
                     } else if (INPUT.equalsIgnoreCase(childTag)) {
                         valid = valid && extractInput(evalContext, empty, par, mode);
                     } else if (SYMBOL_PALETTE.equalsIgnoreCase(childTag)) {
-                        valid = valid && extractSymbolPalette(empty, par);
+                        valid = valid && extractSymbolPalette(empty, par, mode);
                     } else if (ALIGN_MARK.equalsIgnoreCase(childTag)) {
                         valid = valid && extractAlignMark(par);
                     } else if (H_SPACE.equalsIgnoreCase(childTag)) {
-                        valid = valid && extractHSpace(empty, par);
+                        valid = valid && extractHSpace(empty, par, mode);
                     } else if (H_ALIGN.equalsIgnoreCase(childTag)) {
-                        valid = valid && extractHAlign(empty, par);
+                        valid = valid && extractHAlign(empty, par, mode);
                     } else {
-                        elem.logError("An empty " + childTag + " element is not valid within a paragraph.");
+                        if (mode.reportAny) {
+                            elem.logError("An empty " + childTag + " element is not valid within a paragraph. (40055)");
+                        }
                         valid = false;
                     }
                 } else {
-                    elem.logError("Found " + child.getClass().getSimpleName() + " in paragraph.");
+                    if (mode.reportAny) {
+                        elem.logError("Found " + child.getClass().getSimpleName() + " in paragraph. (40056)");
+                    }
                     valid = false;
                 }
             }
@@ -965,10 +1051,21 @@ public enum DocFactory {
                                                final NonemptyElement elem, final AbstractDocSpanBase container,
                                                final EParserMode mode) {
 
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (COLOR.equals(attrName) || BGCOLOR.equals(attrName) || FONT_NAME.equals(attrName)
+                    || FONT_SIZE.equals(attrName) || FONT_STYLE.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40060)";
+                elem.logError(msg);
+            }
+        }
+
         final DocWrappingSpan span = new DocWrappingSpan();
         span.tag = name;
 
-        boolean valid = extractFormattable(elem, span);
+        boolean valid = extractFormattable(elem, span, mode);
 
         for (final INode child : elem.getChildrenAsList()) {
             if (child instanceof final CData cdata) {
@@ -1006,28 +1103,35 @@ public enum DocFactory {
                     } else if (IMAGE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractImage(evalContext, nonempty, span, mode);
                     } else {
-                        elem.logError("The " + childTag + " element is not valid within nonwrap span.");
+                        if (mode.reportAny) {
+                            elem.logError("The " + childTag + " element is not valid within nonwrap span. (40061)");
+                        }
                         valid = false;
                     }
                 } else if (childElem instanceof final EmptyElement empty) {
                     if (IMAGE.equalsIgnoreCase(childTag)) {
-                        valid = valid && extractImage(empty, span);
+                        valid = valid && extractImage(empty, span, mode);
                     } else if (INPUT.equalsIgnoreCase(childTag)) {
                         valid = valid && extractInput(evalContext, empty, span, mode);
                     } else if (SYMBOL_PALETTE.equalsIgnoreCase(childTag)) {
-                        valid = valid && extractSymbolPalette(empty, span);
+                        valid = valid && extractSymbolPalette(empty, span, mode);
                     } else if (ALIGN_MARK.equalsIgnoreCase(childTag)) {
                         valid = valid && extractAlignMark(span);
                     } else if (H_SPACE.equalsIgnoreCase(childTag)) {
-                        valid = valid && extractHSpace(empty, span);
+                        valid = valid && extractHSpace(empty, span, mode);
                     } else if (H_ALIGN.equalsIgnoreCase(childTag)) {
-                        valid = valid && extractHAlign(empty, span);
+                        valid = valid && extractHAlign(empty, span, mode);
                     } else {
-                        elem.logError("An empty " + childTag + " element is not valid within nonwrap span.");
+                        if (mode.reportAny) {
+                            elem.logError("An empty " + childTag
+                                          + " element is not valid within nonwrap span. (40062)");
+                        }
                         valid = false;
                     }
                 } else {
-                    elem.logError("Found " + child.getClass().getSimpleName() + " in nonwrap span.");
+                    if (mode.reportAny) {
+                        elem.logError("Found " + child.getClass().getSimpleName() + " in nonwrap span. (40063)");
+                    }
                     valid = false;
                 }
             }
@@ -1057,12 +1161,23 @@ public enum DocFactory {
                                           final NonemptyElement elem, final AbstractDocSpanBase container,
                                           final boolean containerIsNonwrap, final EParserMode mode) {
 
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (COLOR.equals(attrName) || BGCOLOR.equals(attrName) || FONT_NAME.equals(attrName)
+                    || FONT_SIZE.equals(attrName) || FONT_STYLE.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40070)";
+                elem.logError(msg);
+            }
+        }
+
         final DocNonwrappingSpan span = containerIsNonwrap ? (DocNonwrappingSpan) container : new DocNonwrappingSpan();
         if (!containerIsNonwrap) {
             span.tag = name;
         }
 
-        boolean valid = extractFormattable(elem, span);
+        boolean valid = extractFormattable(elem, span, mode);
 
         final Color bg;
         final String bgColorStr = elem.getStringAttr(BGCOLOR);
@@ -1073,7 +1188,9 @@ public enum DocFactory {
                 bg = ColorNames.getColor(bgColorStr);
                 span.backgroundColor = bg;
             } else {
-                elem.logError("Invalid color specified for bgcolor.");
+                if (mode.reportAny) {
+                    elem.logError("Invalid color specified for bgcolor. (40071)");
+                }
                 valid = false;
             }
         }
@@ -1112,28 +1229,35 @@ public enum DocFactory {
                     } else if (IMAGE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractImage(evalContext, nonempty, span, mode);
                     } else {
-                        elem.logError("The " + childTag + " element is not valid within nonwrap span.");
+                        if (mode.reportAny) {
+                            elem.logError("The " + childTag + " element is not valid within nonwrap span. (40072)");
+                        }
                         valid = false;
                     }
                 } else if (child instanceof final EmptyElement empty) {
                     if (IMAGE.equalsIgnoreCase(childTag)) {
-                        valid = valid && extractImage(empty, span);
+                        valid = valid && extractImage(empty, span, mode);
                     } else if (INPUT.equalsIgnoreCase(childTag)) {
                         valid = valid && extractInput(evalContext, empty, span, mode);
                     } else if (SYMBOL_PALETTE.equalsIgnoreCase(childTag)) {
-                        valid = valid && extractSymbolPalette(empty, span);
+                        valid = valid && extractSymbolPalette(empty, span, mode);
                     } else if (ALIGN_MARK.equalsIgnoreCase(childTag)) {
                         valid = valid && extractAlignMark(span);
                     } else if (H_SPACE.equalsIgnoreCase(childTag)) {
-                        valid = valid && extractHSpace(empty, span);
+                        valid = valid && extractHSpace(empty, span, mode);
                     } else if (H_ALIGN.equalsIgnoreCase(childTag)) {
-                        valid = valid && extractHAlign(empty, span);
+                        valid = valid && extractHAlign(empty, span, mode);
                     } else {
-                        elem.logError("An empty " + childTag + " element is not valid within nonwrap span.");
+                        if (mode.reportAny) {
+                            elem.logError("An empty " + childTag
+                                          + " element is not valid within nonwrap span. (40073)");
+                        }
                         valid = false;
                     }
                 } else {
-                    elem.logError("Found " + child.getClass().getSimpleName() + " in nonwrap span.");
+                    if (mode.reportAny) {
+                        elem.logError("Found " + child.getClass().getSimpleName() + " in nonwrap span. (40074)");
+                    }
                     valid = false;
                 }
             }
@@ -1163,12 +1287,23 @@ public enum DocFactory {
                                        final NonemptyElement elem, final AbstractDocSpanBase container,
                                        final boolean containerIsNonwrap, final EParserMode mode) {
 
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (COLOR.equals(attrName) || BGCOLOR.equals(attrName) || FONT_NAME.equals(attrName)
+                    || FONT_SIZE.equals(attrName) || FONT_STYLE.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40080)";
+                elem.logError(msg);
+            }
+        }
+
         final DocMathSpan span = containerIsNonwrap ? (DocMathSpan) container : new DocMathSpan();
         span.setColorName(DocMathSpan.MATH_COLOR_NAME);
 
         span.tag = name;
 
-        boolean valid = extractFormattable(elem, span);
+        boolean valid = extractFormattable(elem, span, mode);
 
         for (final INode child : elem.getChildrenAsList()) {
             if (child instanceof final CData cdata) {
@@ -1204,26 +1339,32 @@ public enum DocFactory {
                     } else if (IMAGE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractImage(evalContext, nonempty, span, mode);
                     } else {
-                        elem.logError("The " + childTag + " element is not valid within math.");
+                        if (mode.reportAny) {
+                            elem.logError("The " + childTag + " element is not valid within math. (40081)");
+                        }
                         valid = false;
                     }
                 } else if (child instanceof final EmptyElement empty) {
                     if (IMAGE.equalsIgnoreCase(childTag)) {
-                        valid = valid && extractImage(empty, span);
+                        valid = valid && extractImage(empty, span, mode);
                     } else if (INPUT.equalsIgnoreCase(childTag)) {
                         valid = valid && extractInput(evalContext, empty, span, mode);
                     } else if (ALIGN_MARK.equalsIgnoreCase(childTag)) {
                         valid = valid && extractAlignMark(span);
                     } else if (H_SPACE.equalsIgnoreCase(childTag)) {
-                        valid = valid && extractHSpace(empty, span);
+                        valid = valid && extractHSpace(empty, span, mode);
                     } else if (H_ALIGN.equalsIgnoreCase(childTag)) {
-                        valid = valid && extractHAlign(empty, span);
+                        valid = valid && extractHAlign(empty, span, mode);
                     } else {
-                        elem.logError("An empty " + childTag + " element is not valid within math.");
+                        if (mode.reportAny) {
+                            elem.logError("An empty " + childTag + " element is not valid within math. (40082)");
+                        }
                         valid = false;
                     }
                 } else {
-                    elem.logError("Found " + child.getClass().getSimpleName() + " in math.");
+                    if (mode.reportAny) {
+                        elem.logError("Found " + child.getClass().getSimpleName() + " in math. (40083)");
+                    }
                     valid = false;
                 }
             }
@@ -1249,6 +1390,17 @@ public enum DocFactory {
     private static boolean extractFraction(final EvalContext evalContext, final NonemptyElement elem,
                                            final AbstractDocSpanBase container, final EParserMode mode) {
 
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (COLOR.equals(attrName) || BGCOLOR.equals(attrName) || FONT_NAME.equals(attrName)
+                    || FONT_SIZE.equals(attrName) || FONT_STYLE.equals(attrName) || FORMAT.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40090)";
+                elem.logError(msg);
+            }
+        }
+
         boolean valid = true;
 
         DocNonwrappingSpan num = null;
@@ -1264,7 +1416,9 @@ public enum DocFactory {
                             num = new DocNonwrappingSpan();
                             valid = valid && extractNonwrap(evalContext, childTag, nonempty, num, true, mode);
                         } else {
-                            elem.logError("Multiple <numerator> tags in fraction.");
+                            if (mode.reportAny) {
+                                elem.logError("Multiple <numerator> tags in fraction. (40091)");
+                            }
                             valid = false;
                         }
                     } else if (DENOMINATOR.equalsIgnoreCase(childTag)) {
@@ -1272,27 +1426,36 @@ public enum DocFactory {
                             den = new DocNonwrappingSpan();
                             valid = valid && extractNonwrap(evalContext, childTag, nonempty, den, true, mode);
                         } else {
-                            elem.logError("Multiple <denominator> tags in fraction.");
+                            if (mode.reportAny) {
+                                elem.logError("Multiple <denominator> tags in fraction. (40092)");
+                            }
                             valid = false;
                         }
                     } else {
-                        elem.logError("The " + childTag + " tag is not valid within fraction.");
+                        if (mode.reportAny) {
+                            elem.logError("The " + childTag + " tag is not valid within fraction. (40093)");
+                        }
                         valid = false;
                     }
                 } else {
-                    elem.logError("Found " + child.getClass().getSimpleName() + " in fraction.");
+                    if (mode.reportAny) {
+                        elem.logError("Found " + child.getClass().getSimpleName() + " in fraction. (40094)");
+                    }
                     valid = false;
                 }
             }
         }
 
         if (num == null || den == null) {
-            elem.logError("&lt;fraction&gt; must have both &lt;numerator&gt; and &lt;denominator&gt; child.");
+            if (mode.reportAny) {
+                elem.logError(
+                        "&lt;fraction&gt; must have both &lt;numerator&gt; and &lt;denominator&gt; child. (40095)");
+            }
             valid = false;
         } else if (valid) {
             final DocFraction fraction = new DocFraction(num, den);
 
-            valid = extractFormattable(elem, fraction);
+            valid = extractFormattable(elem, fraction, mode);
 
             if (valid) {
                 container.add(fraction);
@@ -1315,6 +1478,17 @@ public enum DocFactory {
     private static boolean extractRadical(final EvalContext evalContext, final NonemptyElement elem,
                                           final AbstractDocSpanBase container, final EParserMode mode) {
 
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (COLOR.equals(attrName) || BGCOLOR.equals(attrName) || FONT_NAME.equals(attrName)
+                    || FONT_SIZE.equals(attrName) || FONT_STYLE.equals(attrName) || ROOT.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40100)";
+                elem.logError(msg);
+            }
+        }
+
         boolean valid = true;
 
         DocNonwrappingSpan base = null;
@@ -1331,7 +1505,9 @@ public enum DocFactory {
                             base.tag = childTag;
                             valid = valid && extractNonwrap(evalContext, childTag, nonempty, base, true, mode);
                         } else {
-                            elem.logError("Multiple <base> tags in radical.");
+                            if (mode.reportAny) {
+                                elem.logError("Multiple <base> tags in radical. (40101)");
+                            }
                             valid = false;
                         }
                     } else if (ROOT.equalsIgnoreCase(childTag)) {
@@ -1345,29 +1521,37 @@ public enum DocFactory {
                                 root.setFontScale(0.75f);
                             }
                         } else {
-                            elem.logError("Multiple &lt;root&gt; tags in radical.");
+                            if (mode.reportAny) {
+                                elem.logError("Multiple &lt;root&gt; tags in radical. (40102)");
+                            }
                             valid = false;
                         }
                     } else {
-                        elem.logError("The " + childTag + " tag is not valid within radical.");
+                        if (mode.reportAny) {
+                            elem.logError("The " + childTag + " tag is not valid within radical. (40103)");
+                        }
                         valid = false;
                     }
                 } else {
-                    elem.logError("Found " + child.getClass().getSimpleName() + " in radical.");
+                    if (mode.reportAny) {
+                        elem.logError("Found " + child.getClass().getSimpleName() + " in radical. (40104)");
+                    }
                     valid = false;
                 }
             }
         }
 
         if (base == null) {
-            elem.logError("&lt;radical&gt; must have &lt;base&gt; child.");
+            if (mode.reportAny) {
+                elem.logError("&lt;radical&gt; must have &lt;base&gt; child. (40105)");
+            }
             valid = false;
         }
 
         if (valid) {
             final DocRadical rad = new DocRadical(base, root);
 
-            valid = extractFormattable(elem, rad);
+            valid = extractFormattable(elem, rad, mode);
 
             if (valid) {
                 container.add(rad);
@@ -1390,6 +1574,17 @@ public enum DocFactory {
     private static boolean extractRelOffset(final EvalContext evalContext, final NonemptyElement elem,
                                             final AbstractDocSpanBase container, final EParserMode mode) {
 
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (COLOR.equals(attrName) || BGCOLOR.equals(attrName) || FONT_NAME.equals(attrName)
+                    || FONT_SIZE.equals(attrName) || FONT_STYLE.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40110)";
+                elem.logError(msg);
+            }
+        }
+
         boolean valid = true;
 
         AbstractDocObjectTemplate base = null;
@@ -1410,11 +1605,15 @@ public enum DocFactory {
 
                             if (valid && span.getChildren() != null && !span.getChildren().isEmpty()) {
                                 base = span.getChildren().getFirst();
-                            } else {
-                                elem.logError("Failed to parse &lt;base&gt; content from '" + nonempty.print(0) + "'");
+                            } else if (mode.reportAny) {
+                                elem.logError(
+                                        "Failed to parse &lt;base&gt; content from '" + nonempty.print(0)
+                                        + "' (40111)");
                             }
                         } else {
-                            elem.logError("Multiple &lt;base&gt; tags in &lt;rel-offset&gt; element.");
+                            if (mode.reportAny) {
+                                elem.logError("Multiple &lt;base&gt; tags in &lt;rel-offset&gt; element. (40112)");
+                            }
                             valid = false;
                         }
                     } else if (SUPER.equalsIgnoreCase(childTag)) {
@@ -1434,7 +1633,9 @@ public enum DocFactory {
                                 }
                             }
                         } else {
-                            elem.logError("Multiple &lt;super&gt; tags in &lt;rel-offset&gt; element.");
+                            if (mode.reportAny) {
+                                elem.logError("Multiple &lt;super&gt; tags in &lt;rel-offset&gt; element. (40113)");
+                            }
                             valid = false;
                         }
                     } else if (SUB.equalsIgnoreCase(childTag)) {
@@ -1454,7 +1655,9 @@ public enum DocFactory {
                                 }
                             }
                         } else {
-                            elem.logError("Multiple &lt;sub&gt; tags in &lt;rel-offset&gt; element.");
+                            if (mode.reportAny) {
+                                elem.logError("Multiple &lt;sub&gt; tags in &lt;rel-offset&gt; element. (40114)");
+                            }
                             valid = false;
                         }
                     } else if (OVER.equalsIgnoreCase(childTag)) {
@@ -1475,7 +1678,9 @@ public enum DocFactory {
                                 }
                             }
                         } else {
-                            elem.logError("Multiple &lt;over&gt; tags in &lt;rel-offset&gt; element.");
+                            if (mode.reportAny) {
+                                elem.logError("Multiple &lt;over&gt; tags in &lt;rel-offset&gt; element. (40115)");
+                            }
                             valid = false;
                         }
                     } else if (UNDER.equalsIgnoreCase(childTag)) {
@@ -1496,11 +1701,15 @@ public enum DocFactory {
                                 }
                             }
                         } else {
-                            elem.logError("Multiple &lt;under&gt; tags in &lt;rel-offset&gt; element.");
+                            if (mode.reportAny) {
+                                elem.logError("Multiple &lt;under&gt; tags in &lt;rel-offset&gt; element. (40116)");
+                            }
                             valid = false;
                         }
                     } else {
-                        elem.logError("The " + childTag + " tag is not valid within rel-offset.");
+                        if (mode.reportAny) {
+                            elem.logError("The " + childTag + " tag is not valid within rel-offset. (40117)");
+                        }
                         valid = false;
                     }
                 }
@@ -1508,14 +1717,16 @@ public enum DocFactory {
         }
 
         if (base == null) {
-            elem.logError("&lt;rel-offset&gt; must have &lt;base&gt; child.");
+            if (mode.reportAny) {
+                elem.logError("&lt;rel-offset&gt; must have &lt;base&gt; child. (40118)");
+            }
             valid = false;
         }
 
         if (valid) {
             final DocRelativeOffset rel = new DocRelativeOffset(base, sup, sub, over, under);
 
-            valid = extractFormattable(elem, rel);
+            valid = extractFormattable(elem, rel, mode);
 
             if (valid) {
                 container.add(rel);
@@ -1538,9 +1749,20 @@ public enum DocFactory {
     private static boolean extractFence(final EvalContext evalContext, final NonemptyElement elem,
                                         final AbstractDocSpanBase container, final EParserMode mode) {
 
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (COLOR.equals(attrName) || BGCOLOR.equals(attrName) || FONT_NAME.equals(attrName)
+                    || FONT_SIZE.equals(attrName) || TYPE.equals(attrName) || VALIGN.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40120)";
+                elem.logError(msg);
+            }
+        }
+
         final DocFence fence = new DocFence();
 
-        boolean valid = extractFormattable(elem, fence);
+        boolean valid = extractFormattable(elem, fence, mode);
 
         final String typeStr = elem.getStringAttr(TYPE);
         if (typeStr != null) {
@@ -1555,8 +1777,10 @@ public enum DocFactory {
             } else if (LBRACE.equalsIgnoreCase(typeStr)) {
                 fence.type = DocFence.LBRACE;
             } else {
-                elem.logError(
-                        "Invalid fence type (should be 'parentheses', 'brackets', 'bars', 'braces', or 'lbrace').");
+                if (mode.reportAny) {
+                    elem.logError("Invalid fence type (should be 'parentheses', 'brackets', 'bars', 'braces', or "
+                                  + "'lbrace'). (40121)");
+                }
                 valid = false;
             }
         }
@@ -1567,8 +1791,13 @@ public enum DocFactory {
                 fence.setLeftAlign(EVAlign.CENTER);
             } else if (BASELINE.equals(valignStr)) {
                 fence.setLeftAlign(EVAlign.BASELINE);
+                if (mode.reportDeprecated) {
+                    elem.logError("Fence with valign='baseline'). (40122)");
+                }
             } else {
-                elem.logError("Invalid fence valign setting (should be 'center', 'baseline').");
+                if (mode.reportAny) {
+                    elem.logError("Invalid fence valign setting (should be 'center', 'baseline'). (40123)");
+                }
                 valid = false;
             }
         }
@@ -1609,22 +1838,26 @@ public enum DocFactory {
                     } else if (IMAGE.equalsIgnoreCase(childTag)) {
                         valid = valid && extractImage(evalContext, nonempty, fence, mode);
                     } else {
-                        elem.logError("The " + childTag + " element is not valid within fence.");
+                        if (mode.reportAny) {
+                            elem.logError("The " + childTag + " element is not valid within fence. (40124)");
+                        }
                         valid = false;
                     }
                 } else if (child instanceof final EmptyElement empty) {
                     if (IMAGE.equalsIgnoreCase(childTag)) {
-                        valid = valid && extractImage(empty, fence);
+                        valid = valid && extractImage(empty, fence, mode);
                     } else if (INPUT.equalsIgnoreCase(childTag)) {
                         valid = valid && extractInput(evalContext, empty, fence, mode);
                     } else if (ALIGN_MARK.equalsIgnoreCase(childTag)) {
                         valid = valid && extractAlignMark(fence);
                     } else if (H_SPACE.equalsIgnoreCase(childTag)) {
-                        valid = valid && extractHSpace(empty, fence);
+                        valid = valid && extractHSpace(empty, fence, mode);
                     } else if (H_ALIGN.equalsIgnoreCase(childTag)) {
-                        valid = valid && extractHAlign(empty, fence);
+                        valid = valid && extractHAlign(empty, fence, mode);
                     } else {
-                        elem.logError("An empty " + childTag + " element is not valid within fence.");
+                        if (mode.reportAny) {
+                            elem.logError("An empty " + childTag + " element is not valid within fence. (40125)");
+                        }
                         valid = false;
                     }
                 }
@@ -1644,9 +1877,21 @@ public enum DocFactory {
      *
      * @param elem      the element
      * @param container the span to which to add this input
+     * @param mode      the parser mode
      * @return true if loading successful; false otherwise
      */
-    private static boolean extractHSpace(final EmptyElement elem, final AbstractDocSpanBase container) {
+    private static boolean extractHSpace(final EmptyElement elem, final AbstractDocSpanBase container,
+                                         final EParserMode mode) {
+
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (WIDTH.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40130)";
+                elem.logError(msg);
+            }
+        }
 
         boolean valid = true;
 
@@ -1657,7 +1902,9 @@ public enum DocFactory {
             try {
                 widthC = NumberParser.parse(widthStr);
             } catch (final NumberFormatException e) {
-                elem.logError("Invalid 'width' attribute value (must be a valid number).");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'width' attribute value (must be a valid number). (40131)");
+                }
                 valid = false;
             }
         }
@@ -1690,6 +1937,16 @@ public enum DocFactory {
     private static boolean extractHSpace(final EvalContext evalContext, final NonemptyElement elem,
                                          final AbstractDocSpanBase container, final EParserMode mode) {
 
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (WIDTH.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40140)";
+                elem.logError(msg);
+            }
+        }
+
         boolean valid = true;
 
         final String widthStr = elem.getStringAttr(WIDTH);
@@ -1700,7 +1957,9 @@ public enum DocFactory {
             try {
                 widthC = NumberParser.parse(widthStr);
             } catch (final NumberFormatException e) {
-                elem.logError("Invalid 'width' attribute value (must be a valid number).");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'width' attribute value (must be a valid number). (40141)");
+                }
                 valid = false;
             }
         }
@@ -1714,25 +1973,35 @@ public enum DocFactory {
                         if (widthF == null) {
                             widthF = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (widthF == null) {
-                                elem.logError("Invalid 'width' formula.");
+                                if (mode.reportAny) {
+                                    elem.logError("Invalid 'width' formula. (40142)");
+                                }
                                 valid = false;
-                            } else if (widthF.isConstant()) {
-                                elem.logError("Constant 'width' in {h-space} could be specified in attribute?");
+                            } else if (mode.reportAny && widthF.isConstant()) {
+                                elem.logError("Constant 'width' in {h-space} could be specified in attribute? (40143)");
                             }
                         } else {
-                            elem.logError("Cannot have multiple width formulas.");
+                            if (mode.reportAny) {
+                                elem.logError("Cannot have multiple width formulas. (40144)");
+                            }
                             valid = false;
                         }
                     } else {
-                        elem.logError("Cannot have both width attribute and width formula.");
+                        if (mode.reportAny) {
+                            elem.logError("Cannot have both width attribute and width formula. (40145)");
+                        }
                         valid = false;
                     }
                 } else {
-                    elem.logError("The " + childTag + " tag is not valid within h-space.");
+                    if (mode.reportAny) {
+                        elem.logError("The " + childTag + " tag is not valid within h-space. (40146)");
+                    }
                     valid = false;
                 }
             } else if ((!(child instanceof CData) && !(child instanceof Comment))) {
-                elem.logError("Found " + child.getClass().getSimpleName() + " in h-space.");
+                if (mode.reportAny) {
+                    elem.logError("Found " + child.getClass().getSimpleName() + " in h-space. (40147)");
+                }
                 valid = false;
             }
         }
@@ -1759,10 +2028,22 @@ public enum DocFactory {
      * will be reflected in the source file's error context.
      *
      * @param elem      the element
-     * @param container the span to which to add this input
+     * @param container the span to which to add this
+     * @param mode      the parser mode
      * @return true if loading successful; false otherwise
      */
-    private static boolean extractHAlign(final EmptyElement elem, final AbstractDocSpanBase container) {
+    private static boolean extractHAlign(final EmptyElement elem, final AbstractDocSpanBase container,
+                                         final EParserMode mode) {
+
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (POSITION.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40150)";
+                elem.logError(msg);
+            }
+        }
 
         boolean valid = true;
 
@@ -1773,7 +2054,9 @@ public enum DocFactory {
             try {
                 positionC = NumberParser.parse(positionStr);
             } catch (final NumberFormatException e) {
-                elem.logError("Invalid 'position' attribute value (must be a valid number).");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'position' attribute value (must be a valid number). (40151)");
+                }
                 valid = false;
             }
         }
@@ -1806,6 +2089,16 @@ public enum DocFactory {
     private static boolean extractHAlign(final EvalContext evalContext, final NonemptyElement elem,
                                          final AbstractDocSpanBase container, final EParserMode mode) {
 
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (POSITION.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40160)";
+                elem.logError(msg);
+            }
+        }
+
         boolean valid = true;
 
         final String positionStr = elem.getStringAttr(POSITION);
@@ -1816,7 +2109,9 @@ public enum DocFactory {
             try {
                 positionC = NumberParser.parse(positionStr);
             } catch (final NumberFormatException e) {
-                elem.logError("Invalid 'position' attribute value (must be a valid number).");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'position' attribute value (must be a valid number). (40161)");
+                }
                 valid = false;
             }
         }
@@ -1830,23 +2125,33 @@ public enum DocFactory {
                         if (positionF == null) {
                             positionF = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (positionF == null) {
-                                elem.logError("Invalid 'position' formula.");
+                                if (mode.reportAny) {
+                                    elem.logError("Invalid 'position' formula. (40162)");
+                                }
                                 valid = false;
                             }
                         } else {
-                            elem.logError("Cannot have multiple position formulas.");
+                            if (mode.reportAny) {
+                                elem.logError("Cannot have multiple position formulas. (40163)");
+                            }
                             valid = false;
                         }
                     } else {
-                        elem.logError("Cannot have both position attribute and position formula.");
+                        if (mode.reportAny) {
+                            elem.logError("Cannot have both position attribute and position formula. (40164)");
+                        }
                         valid = false;
                     }
                 } else {
-                    elem.logError("The " + childTag + " tag is not valid within h-align.");
+                    if (mode.reportAny) {
+                        elem.logError("The " + childTag + " tag is not valid within h-align. (40165)");
+                    }
                     valid = false;
                 }
             } else if ((!(child instanceof CData) && !(child instanceof Comment))) {
-                elem.logError("Found " + child.getClass().getSimpleName() + " in h-align.");
+                if (mode.reportAny) {
+                    elem.logError("Found " + child.getClass().getSimpleName() + " in h-align. (40166)");
+                }
                 valid = false;
             }
         }
@@ -1895,6 +2200,20 @@ public enum DocFactory {
     private static boolean extractTable(final EvalContext evalContext, final NonemptyElement elem,
                                         final AbstractDocSpanBase container, final EParserMode mode) {
 
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (COLOR.equals(attrName) || BGCOLOR.equals(attrName) || FONT_NAME.equals(attrName)
+                    || FONT_SIZE.equals(attrName) || FONT_STYLE.equals(attrName)
+                    || BOX_WIDTH.equals(attrName) || V_LINE_WIDTH.equals(attrName) || H_LINE_WIDTH.equals(attrName)
+                    || COLUMN_WIDTH.equals(attrName) || JUSTIFICATION.equals(attrName) || CELL_MARGINS.equals(
+                        attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40170)";
+                elem.logError(msg);
+            }
+        }
+
         boolean valid = true;
 
         // First, we have to build the table data. This can be either a set of strings, or a set of
@@ -1911,7 +2230,9 @@ public enum DocFactory {
                     if (TR.equalsIgnoreCase(childTag)) {
                         valid = valid && extractTableRow(evalContext, nonempty, rows, mode);
                     } else {
-                        elem.logError("The " + childTag + " tag is not valid within table.");
+                        if (mode.reportAny) {
+                            elem.logError("The " + childTag + " tag is not valid within table. (40171)");
+                        }
                         valid = false;
                     }
                 }
@@ -1940,7 +2261,9 @@ public enum DocFactory {
                 try {
                     table.boxWidth = Integer.parseInt(boxWidthStr);
                 } catch (final NumberFormatException e) {
-                    elem.logError("Box width must be integer");
+                    if (mode.reportAny) {
+                        elem.logError("Box width must be integer (40172)");
+                    }
                     valid = false;
                 }
             }
@@ -1950,7 +2273,9 @@ public enum DocFactory {
                 try {
                     table.vLineWidth = Integer.parseInt(vLineWidthStr);
                 } catch (final NumberFormatException e) {
-                    elem.logError("Vertical Line width must be integer");
+                    if (mode.reportAny) {
+                        elem.logError("Vertical Line width must be integer (40173)");
+                    }
                     valid = false;
                 }
             }
@@ -1960,7 +2285,9 @@ public enum DocFactory {
                 try {
                     table.hLineWidth = Integer.parseInt(hLineWidthStr);
                 } catch (final NumberFormatException e) {
-                    elem.logError("Horizontal Line width must be integer");
+                    if (mode.reportAny) {
+                        elem.logError("Horizontal Line width must be integer (40174)");
+                    }
                     valid = false;
                 }
             }
@@ -1972,7 +2299,9 @@ public enum DocFactory {
                 } else if (NONUNIFORM.equalsIgnoreCase(columnWidthStr)) {
                     table.setSpacing(DocTable.NONUNIFORM);
                 } else {
-                    elem.logError("Invalid column width, use 'uniform' or 'nonuniform'");
+                    if (mode.reportAny) {
+                        elem.logError("Invalid column width, use 'uniform' or 'nonuniform' (40175)");
+                    }
                     valid = false;
                 }
             }
@@ -1986,7 +2315,9 @@ public enum DocFactory {
                 } else if (CENTER.equalsIgnoreCase(justificationStr)) {
                     table.setJustification(DocTable.CENTER);
                 } else {
-                    elem.logError("Invalid justification, use 'left', 'right', or 'center'");
+                    if (mode.reportAny) {
+                        elem.logError("Invalid justification, use 'left', 'right', or 'center' (40176)");
+                    }
                     valid = false;
                 }
             }
@@ -1996,7 +2327,9 @@ public enum DocFactory {
                 if (ColorNames.isColorNameValid(bgColorStr)) {
                     table.setBackgroundColor(bgColorStr, ColorNames.getColor(bgColorStr));
                 } else {
-                    elem.logError("Invalid color specified for bgcolor.");
+                    if (mode.reportAny) {
+                        elem.logError("Invalid color specified for bgcolor. (40177)");
+                    }
                     valid = false;
                 }
             }
@@ -2008,7 +2341,9 @@ public enum DocFactory {
                         final int size = Integer.parseInt(cellMarginsStr);
                         table.cellInsets = new Insets(size, size, size, size);
                     } catch (final NumberFormatException e) {
-                        elem.logError("Invalid cell margin specification.");
+                        if (mode.reportAny) {
+                            elem.logError("Invalid cell margin specification. (40178)");
+                        }
                         valid = false;
                     }
                 } else {
@@ -2021,7 +2356,9 @@ public enum DocFactory {
                             try {
                                 sizes[i] = Integer.parseInt(splits[i].trim());
                             } catch (final NumberFormatException e) {
-                                elem.logError("Invalid cell margin specification.");
+                                if (mode.reportAny) {
+                                    elem.logError("Invalid cell margin specification. (40179)");
+                                }
                                 valid = false;
                             }
                         }
@@ -2029,13 +2366,15 @@ public enum DocFactory {
                             table.cellInsets = new Insets(sizes[0], sizes[1], sizes[2], sizes[3]);
                         }
                     } else {
-                        elem.logError("Invalid cell margin specification.");
+                        if (mode.reportAny) {
+                            elem.logError("Invalid cell margin specification. (40180)");
+                        }
                         valid = false;
                     }
                 }
             }
 
-            valid = valid && extractFormattable(elem, table);
+            valid = valid && extractFormattable(elem, table, mode);
 
             if (valid) {
                 container.add(table);
@@ -2060,6 +2399,13 @@ public enum DocFactory {
                                            final Collection<? super List<DocNonwrappingSpan>> rows,
                                            final EParserMode mode) {
 
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40190)";
+                elem.logError(msg);
+            }
+        }
+
         boolean valid = true;
 
         // Extract all <td> tags in the table
@@ -2073,7 +2419,9 @@ public enum DocFactory {
                     if (TD.equalsIgnoreCase(childTag)) {
                         valid = valid && extractTableCell(evalContext, nonempty, cells, mode);
                     } else {
-                        elem.logError("The " + childTag + " tag is not valid within table row.");
+                        if (mode.reportAny) {
+                            elem.logError("The " + childTag + " tag is not valid within table row. (40191)");
+                        }
                         valid = false;
                     }
                 }
@@ -2101,6 +2449,16 @@ public enum DocFactory {
                                             final Collection<? super DocNonwrappingSpan> cells,
                                             final EParserMode mode) {
 
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (LINES.equals(attrName) || BGCOLOR.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40200)";
+                elem.logError(msg);
+            }
+        }
+
         boolean valid = true;
 
         int which = 0xFFFF;
@@ -2125,8 +2483,10 @@ public enum DocFactory {
                     } else if (BOTTOM.equalsIgnoreCase(value)) {
                         which |= DocTable.BOTTOMLINE;
                     } else {
-                        elem.logError("Invalid table cell line position, use a comma-separated list of 'left', " +
-                                      "'right', 'top' and 'bottom'");
+                        if (mode.reportAny) {
+                            elem.logError("Invalid table cell line position, use a comma-separated list of 'left', " +
+                                          "'right', 'top' and 'bottom' (40201)");
+                        }
                         valid = false;
                     }
                 }
@@ -2160,6 +2520,18 @@ public enum DocFactory {
     private static boolean extractDrawing(final EvalContext evalContext, final NonemptyElement elem,
                                           final AbstractDocSpanBase container, final EParserMode mode) {
 
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (COLOR.equals(attrName) || BGCOLOR.equals(attrName) || FONT_NAME.equals(attrName)
+                    || FONT_SIZE.equals(attrName) || FONT_STYLE.equals(attrName) || WIDTH.equals(attrName)
+                    || HEIGHT.equals(attrName) || VALIGN.equals(attrName) || ALT.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40210)";
+                elem.logError(msg);
+            }
+        }
+
         boolean valid = true;
 
         final String widthStr = elem.getStringAttr(WIDTH);
@@ -2168,7 +2540,9 @@ public enum DocFactory {
             try {
                 width = Integer.parseInt(widthStr);
             } catch (final NumberFormatException e) {
-                elem.logError("Invalid 'width' attribute value (must be an integer).");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'width' attribute value (must be an integer). (40211)");
+                }
                 valid = false;
             }
         }
@@ -2179,7 +2553,9 @@ public enum DocFactory {
             try {
                 height = Integer.parseInt(heightStr);
             } catch (final NumberFormatException e) {
-                elem.logError("Invalid 'height' attribute value (must be an integer).");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'height' attribute value (must be an integer). (40212)");
+                }
                 valid = false;
             }
         }
@@ -2193,8 +2569,8 @@ public enum DocFactory {
                 valign = EVAlign.CENTER;
             } else if (TOP.equalsIgnoreCase(valignStr)) {
                 valign = EVAlign.TOP;
-            } else {
-                elem.logError("<image> element has invalid value in '' attribute.");
+            } else if (mode.reportAny) {
+                elem.logError("<image> element has invalid value in '' attribute. (40213)");
             }
         }
 
@@ -2227,27 +2603,33 @@ public enum DocFactory {
                 } else if (WIDTH.equals(childTag)) {
                     final Formula theWidth = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                     if (theWidth == null) {
-                        elem.logError("Invalid 'width' formula.");
+                        if (mode.reportAny) {
+                            elem.logError("Invalid 'width' formula. (40214)");
+                        }
                         valid = false;
                     } else {
-                        if (theWidth.isConstant()) {
-                            elem.logError("Constant 'width' in {drawing} could be specified in attribute?");
+                        if (mode.reportAny && theWidth.isConstant()) {
+                            elem.logError("Constant 'width' in {drawing} could be specified in attribute? (40215)");
                         }
                         drawing.setWidthFormula(theWidth);
                     }
                 } else if (HEIGHT.equals(childTag)) {
                     final Formula theHeight = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                     if (theHeight == null) {
-                        elem.logError("Invalid 'height' formula.");
+                        if (mode.reportAny) {
+                            elem.logError("Invalid 'height' formula. (40216)");
+                        }
                         valid = false;
                     } else {
-                        if (theHeight.isConstant()) {
-                            elem.logError("Constant 'height' in {drawing} could be specified in attribute?");
+                        if (mode.reportAny && theHeight.isConstant()) {
+                            elem.logError("Constant 'height' in {drawing} could be specified in attribute? (40217)");
                         }
                         drawing.setHeightFormula(theHeight);
                     }
                 } else {
-                    elem.logError("The " + childTag + " tag is not valid within drawing.");
+                    if (mode.reportAny) {
+                        elem.logError("The " + childTag + " tag is not valid within drawing. (40218)");
+                    }
                     valid = false;
                 }
             } else if (child instanceof final EmptyElement empty) {
@@ -2272,16 +2654,20 @@ public enum DocFactory {
                 } else if (SPAN.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveSpan(evalContext, empty, drawing, mode);
                 } else {
-                    elem.logError("Empty " + childTag + " tag is not valid within drawing.");
+                    if (mode.reportAny) {
+                        elem.logError("Empty " + childTag + " tag is not valid within drawing. (40219)");
+                    }
                     valid = false;
                 }
             } else if ((!(child instanceof CData) && !(child instanceof Comment))) {
-                elem.logError("Found " + child.getClass().getSimpleName() + " in Drawing.");
+                if (mode.reportAny) {
+                    elem.logError("Found " + child.getClass().getSimpleName() + " in Drawing. (40220)");
+                }
                 valid = false;
             }
         }
 
-        valid = valid && extractFormattable(elem, drawing);
+        valid = valid && extractFormattable(elem, drawing, mode);
 
         if (valid) {
             drawing.setLeftAlign(valign);
@@ -2303,6 +2689,26 @@ public enum DocFactory {
      */
     private static boolean extractGraphxy(final EvalContext evalContext, final NonemptyElement elem,
                                           final AbstractDocSpanBase container, final EParserMode mode) {
+
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (COLOR.equals(attrName) || BGCOLOR.equals(attrName) || FONT_NAME.equals(attrName)
+                    || FONT_SIZE.equals(attrName) || FONT_STYLE.equals(attrName) || WIDTH.equals(attrName)
+                    || HEIGHT.equals(attrName) || VALIGN.equals(attrName) || MIN_X.equals(attrName)
+                    || MIN_Y.equals(attrName) || MAX_X.equals(attrName) || MAX_Y.equals(attrName)
+                    || X_TICK_INTERVAL.equals(attrName) || Y_TICK_INTERVAL.equals(attrName)
+                    || BORDER_COLOR.equals(attrName) || GRID_COLOR.equals(attrName) || TICK_COLOR.equals(attrName)
+                    || AXIS_COLOR.equals(attrName) || BORDER_WIDTH.equals(attrName) || GRID_WIDTH.equals(attrName)
+                    || TICK_WIDTH.equals(attrName) || TICK_SIZE.equals(attrName) || AXIS_WIDTH.equals(attrName)
+                    || AXIS_LABEL_FONT_SIZE.equals(attrName) || TICK_LABEL_FONT_SIZE.equals(attrName)
+                    || X_AXIS_LABEL.equals(attrName) || Y_AXIS_LABEL.equals(attrName) || X_AXIS_Y.equals(attrName)
+                    || Y_AXIS_X.equals(attrName) || ALT.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40230)";
+                elem.logError(msg);
+            }
+        }
 
         boolean valid = true;
 
@@ -2333,41 +2739,43 @@ public enum DocFactory {
         final String xAxisYStr = elem.getStringAttr(X_AXIS_Y);
         final String yAxisXStr = elem.getStringAttr(Y_AXIS_X);
 
-        /** The y coordinate at which to draw the x-axis (default is zero). */
-        Number xAxisY;
-
-        /** The x coordinate at which to draw the y-axis (default is zero). */
-        Number yAxisX;
-
         int width = 0;
         if (widthStr == null) {
-            elem.logError("&lt;graphxy&gt; element missing required 'width' attribute.");
+            if (mode.reportAny) {
+                elem.logError("&lt;graphxy&gt; element missing required 'width' attribute. (40231)");
+            }
             valid = false;
         } else {
             try {
                 width = Integer.parseInt(widthStr);
             } catch (final NumberFormatException e) {
-                elem.logError("Invalid 'width' attribute value (must be an integer).");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'width' attribute value (must be an integer). (40232)");
+                }
                 valid = false;
             }
         }
 
         int height = 0;
         if (heightStr == null) {
-            elem.logError("&lt;graphxy&gt; element missing required 'height' attribute.");
+            if (mode.reportAny) {
+                elem.logError("&lt;graphxy&gt; element missing required 'height' attribute. (40233)");
+            }
             valid = false;
         } else {
             try {
                 height = Integer.parseInt(heightStr);
             } catch (final NumberFormatException e) {
-                elem.logError("Invalid 'height' attribute value (must be an integer).");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'height' attribute value (must be an integer). (40234)");
+                }
                 valid = false;
             }
         }
 
         final DocGraphXY graph = new DocGraphXY(width, height, altStr);
 
-        valid = valid && extractFormattable(elem, graph);
+        valid = valid && extractFormattable(elem, graph, mode);
 
         if (minxStr != null && minyStr != null && maxxStr != null && maxyStr != null) {
             try {
@@ -2377,11 +2785,15 @@ public enum DocFactory {
                 final Number maxy = NumberParser.parse(maxyStr);
                 graph.setWindow(minx, maxx, miny, maxy);
             } catch (final NumberFormatException e) {
-                elem.logError("Invalid window min or max attribute value (must be an integer).");
+                if (mode.reportAny) {
+                    elem.logError("Invalid window min or max attribute value (must be an integer). (40235)");
+                }
                 valid = false;
             }
         } else if (minxStr != null || minyStr != null || maxxStr != null || maxyStr != null) {
-            elem.logError("Incomplete window specification.");
+            if (mode.reportAny) {
+                elem.logError("Incomplete window specification. (40236)");
+            }
             valid = false;
         }
 
@@ -2389,7 +2801,9 @@ public enum DocFactory {
             try {
                 graph.xTickInterval = NumberParser.parse(xtickintervalStr);
             } catch (final NumberFormatException e) {
-                elem.logError("Invalid 'xtickinterval' attribute value (must be a number).");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'xtickinterval' attribute value (must be a number). (40237)");
+                }
                 valid = false;
             }
         }
@@ -2398,7 +2812,9 @@ public enum DocFactory {
             try {
                 graph.yTickInterval = NumberParser.parse(ytickintervalStr);
             } catch (final NumberFormatException e) {
-                elem.logError("Invalid 'ytickinterval' attribute value (must be an integer).");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'ytickinterval' attribute value (must be an integer). (40238)");
+                }
                 valid = false;
             }
         }
@@ -2408,7 +2824,9 @@ public enum DocFactory {
                 final Color color = ColorNames.getColor(bgcolorStr);
                 graph.setBackgroundColor(bgcolorStr, color);
             } else {
-                elem.logError("Invalid 'bgcolor' color name.");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'bgcolor' color name (40239)");
+                }
                 valid = false;
             }
         }
@@ -2418,7 +2836,9 @@ public enum DocFactory {
                 final Color color = ColorNames.getColor(bordercolorStr);
                 graph.setBorderColor(bordercolorStr, color);
             } else {
-                elem.logError("Invalid 'bordercolor' color name.");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'bordercolor' color name. (40240)");
+                }
                 valid = false;
             }
         }
@@ -2428,7 +2848,9 @@ public enum DocFactory {
                 final Color color = ColorNames.getColor(gridcolorStr);
                 graph.setGridColor(gridcolorStr, color);
             } else {
-                elem.logError("Invalid 'gridcolor' color name.");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'gridcolor' color name. (40241)");
+                }
                 valid = false;
             }
         }
@@ -2438,7 +2860,9 @@ public enum DocFactory {
                 final Color color = ColorNames.getColor(tickcolorStr);
                 graph.setTickColor(tickcolorStr, color);
             } else {
-                elem.logError("Invalid 'tickcolor' color name.");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'tickcolor' color name. (40242)");
+                }
                 valid = false;
             }
         }
@@ -2448,7 +2872,9 @@ public enum DocFactory {
                 final Color color = ColorNames.getColor(axiscolorStr);
                 graph.setAxisColor(axiscolorStr, color);
             } else {
-                elem.logError("Invalid 'axiscolor' color name.");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'axiscolor' color name. (40243)");
+                }
                 valid = false;
             }
         }
@@ -2457,7 +2883,9 @@ public enum DocFactory {
             try {
                 graph.borderWidth = Integer.parseInt(borderwidthStr);
             } catch (final NumberFormatException e) {
-                elem.logError("Invalid 'borderwidth' attribute value (must be an integer).");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'borderwidth' attribute value (must be an integer). (40244)");
+                }
                 valid = false;
             }
         }
@@ -2466,7 +2894,9 @@ public enum DocFactory {
             try {
                 graph.gridWidth = Integer.parseInt(gridwidthStr);
             } catch (final NumberFormatException e) {
-                elem.logError("Invalid 'gridwidth' attribute value (must be an integer).");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'gridwidth' attribute value (must be an integer). (40245)");
+                }
                 valid = false;
             }
         }
@@ -2475,7 +2905,9 @@ public enum DocFactory {
             try {
                 graph.tickWidth = Integer.parseInt(tickwidthStr);
             } catch (final NumberFormatException e) {
-                elem.logError("Invalid 'tickwidth' attribute value (must be an integer).");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'tickwidth' attribute value (must be an integer). (40246)");
+                }
                 valid = false;
             }
         }
@@ -2484,7 +2916,9 @@ public enum DocFactory {
             try {
                 graph.tickSize = Integer.parseInt(ticksizeStr);
             } catch (final NumberFormatException e) {
-                elem.logError("Invalid 'ticksize' attribute value (must be an integer).");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'ticksize' attribute value (must be an integer). (40247)");
+                }
                 valid = false;
             }
         }
@@ -2493,7 +2927,9 @@ public enum DocFactory {
             try {
                 graph.axisWidth = Integer.parseInt(axiswidthStr);
             } catch (final NumberFormatException e) {
-                elem.logError("Invalid 'axiswidth' attribute value (must be an integer).");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'axiswidth' attribute value (must be an integer). (40248)");
+                }
                 valid = false;
             }
         }
@@ -2502,7 +2938,9 @@ public enum DocFactory {
             try {
                 graph.axisLabelSize = Integer.parseInt(axislabelfontsizeStr);
             } catch (final NumberFormatException e) {
-                elem.logError("Invalid 'axislabelfontsize' attribute value (must be an integer).");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'axislabelfontsize' attribute value (must be an integer). (40249)");
+                }
                 valid = false;
             }
         }
@@ -2511,7 +2949,9 @@ public enum DocFactory {
             try {
                 graph.tickLabelSize = Integer.parseInt(ticklabelfontsizeStr);
             } catch (final NumberFormatException e) {
-                elem.logError("Invalid 'ticklabelfontsize' attribute value (must be an integer).");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'ticklabelfontsize' attribute value (must be an integer). (40250)");
+                }
                 valid = false;
             }
         }
@@ -2532,8 +2972,8 @@ public enum DocFactory {
                 valign = EVAlign.CENTER;
             } else if (TOP.equalsIgnoreCase(valignStr)) {
                 valign = EVAlign.TOP;
-            } else {
-                elem.logError("<image> element has invalid value in '' attribute.");
+            } else if (mode.reportAny) {
+                elem.logError("<image> element has invalid value in '' attribute. (40251)");
             }
         }
 
@@ -2541,7 +2981,9 @@ public enum DocFactory {
             try {
                 graph.xAxisY = NumberParser.parse(xAxisYStr);
             } catch (final NumberFormatException e) {
-                elem.logError("Invalid 'xaxisy' attribute value (must be a number).");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'xaxisy' attribute value (must be a number). (40252)");
+                }
                 valid = false;
             }
         }
@@ -2550,7 +2992,9 @@ public enum DocFactory {
             try {
                 graph.yAxisX = NumberParser.parse(yAxisXStr);
             } catch (final NumberFormatException e) {
-                elem.logError("Invalid 'yaxisx' attribute value (must be a number).");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'yaxisx' attribute value (must be a number). (40253)");
+                }
                 valid = false;
             }
         }
@@ -2559,7 +3003,12 @@ public enum DocFactory {
             if (child instanceof final NonemptyElement nonempty) {
                 final String childTag = nonempty.getTagName();
 
-                if (FORMULA.equalsIgnoreCase(childTag) || FUNCTION_PLOT.equalsIgnoreCase(childTag)) {
+                if (FORMULA.equalsIgnoreCase(childTag)) {
+                    if (mode.reportDeprecated) {
+                        elem.logError("Deprecated 'formula' element - use 'function-plot' instead. (40254)");
+                    }
+                    valid = valid && extractGraphFunctionPlot(evalContext, nonempty, graph, mode);
+                } else if (FUNCTION_PLOT.equalsIgnoreCase(childTag)) {
                     valid = valid && extractGraphFunctionPlot(evalContext, nonempty, graph, mode);
                 } else if (LINE.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveLine(evalContext, nonempty, graph, mode);
@@ -2580,7 +3029,9 @@ public enum DocFactory {
                 } else if (SPAN.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveSpan(evalContext, nonempty, graph, mode);
                 } else {
-                    elem.logError("The " + childTag + " tag is not valid within GraphXY.");
+                    if (mode.reportAny) {
+                        elem.logError("The " + childTag + " tag is not valid within GraphXY. (40255)");
+                    }
                     valid = false;
                 }
             } else if (child instanceof final EmptyElement empty) {
@@ -2605,11 +3056,15 @@ public enum DocFactory {
                 } else if (SPAN.equalsIgnoreCase(childTag)) {
                     valid = valid && extractPrimitiveSpan(evalContext, empty, graph, mode);
                 } else {
-                    elem.logError("Empty " + childTag + " tag is not valid within graphxy.");
+                    if (mode.reportAny) {
+                        elem.logError("Empty " + childTag + " tag is not valid within graphxy. (40256)");
+                    }
                     valid = false;
                 }
             } else if ((!(child instanceof CData) && !(child instanceof Comment))) {
-                elem.logError("Found " + child.getClass().getSimpleName() + " in graphxy.");
+                if (mode.reportAny) {
+                    elem.logError("Found " + child.getClass().getSimpleName() + " in graphxy. (40257)");
+                }
                 valid = false;
             }
         }
@@ -2635,6 +3090,18 @@ public enum DocFactory {
     private static boolean extractGraphFunctionPlot(final EvalContext evalContext, final NonemptyElement elem,
                                                     final DocGraphXY graph, final EParserMode mode) {
 
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (COLOR.equals(attrName) || STROKE_WIDTH.equals(attrName) || STYLE.equals(attrName)
+                    || FILL_COLOR.equals(attrName) || MIN_X.equals(attrName) || MAX_X.equals(attrName)
+                    || DOMAIN_VAR.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40260)";
+                elem.logError(msg);
+            }
+        }
+
         boolean valid = true;
 
         final String strokeWidthStr = elem.getStringAttr(STROKE_WIDTH);
@@ -2648,7 +3115,9 @@ public enum DocFactory {
             if (ColorNames.isColorNameValid(colorStr)) {
                 color = ColorNames.getColor(colorStr);
             } else {
-                elem.logError("Unrecognized color value.");
+                if (mode.reportAny) {
+                    elem.logError("Unrecognized color value. (40261)");
+                }
                 valid = false;
             }
         }
@@ -2664,10 +3133,12 @@ public enum DocFactory {
                 minXF = FormulaFactory.parseFormulaString(evalContext, minxStr, mode);
 
                 if (minXF == null) {
-                    elem.logError("Failed to parse 'minx' attribute");
+                    if (mode.reportAny) {
+                        elem.logError("Failed to parse 'minx' attribute (40262)");
+                    }
                     valid = false;
                 } else if (mode.reportDeprecated) {
-                    elem.logError("Deprecated formula in 'minx' in graph formula");
+                    elem.logError("Deprecated formula in 'minx' in graph formula (40263)");
                 }
             }
         }
@@ -2681,10 +3152,12 @@ public enum DocFactory {
                 maxXF = FormulaFactory.parseFormulaString(evalContext, maxxStr, mode);
 
                 if (maxXF == null) {
-                    elem.logError("Failed to parse 'maxx' attribute");
+                    if (mode.reportAny) {
+                        elem.logError("Failed to parse 'maxx' attribute (40264)");
+                    }
                     valid = false;
                 } else if (mode.reportDeprecated) {
-                    elem.logError("Deprecated formula in 'maxx' in graph formula");
+                    elem.logError("Deprecated formula in 'maxx' in graph formula (40265)");
                 }
             }
         }
@@ -2698,10 +3171,12 @@ public enum DocFactory {
                 strokeWidthF = FormulaFactory.parseFormulaString(evalContext, strokeWidthStr, mode);
 
                 if (strokeWidthF == null) {
-                    elem.logError("Failed to parse 'stroke-width' attribute");
+                    if (mode.reportAny) {
+                        elem.logError("Failed to parse 'stroke-width' attribute (40266)");
+                    }
                     valid = false;
                 } else if (mode.reportDeprecated) {
-                    elem.logError("Deprecated formula in 'stroke-width' in graph formula");
+                    elem.logError("Deprecated formula in 'stroke-width' in graph formula (40267)");
                 }
             }
         }
@@ -2721,11 +3196,13 @@ public enum DocFactory {
         if (count == 1 && elem.getChild(0) instanceof final CData cdata) {
             // Deprecated format (1)
             if (mode.reportDeprecated) {
-                elem.logError("Deprecated text-format expression in graph formula");
+                elem.logError("Deprecated text-format expression in graph formula (40268)");
             }
             form = FormulaFactory.parseFormulaString(evalContext, cdata.content, mode);
             if (form == null) {
-                elem.logError("Failed to parse inline formula");
+                if (mode.reportAny) {
+                    elem.logError("Failed to parse inline formula (40269)");
+                }
                 valid = false;
             }
         } else {
@@ -2752,51 +3229,65 @@ public enum DocFactory {
                             case MIN_X -> {
                                 minXF = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                                 if (minXF == null) {
-                                    elem.logError("Invalid 'minx' formula");
+                                    if (mode.reportAny) {
+                                        elem.logError("Invalid 'minx' formula (40270)");
+                                    }
                                     valid = false;
                                 }
                             }
                             case MAX_X -> {
                                 maxXF = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                                 if (maxXF == null) {
-                                    elem.logError("Invalid 'maxx' formula");
+                                    if (mode.reportAny) {
+                                        elem.logError("Invalid 'maxx' formula (40271)");
+                                    }
                                     valid = false;
                                 }
                             }
                             case STROKE_WIDTH -> {
                                 strokeWidthF = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                                 if (maxXF == null) {
-                                    elem.logError("Invalid 'stroke-width' formula");
+                                    if (mode.reportAny) {
+                                        elem.logError("Invalid 'stroke-width' formula (40272)");
+                                    }
                                     valid = false;
                                 }
                             }
                             case EXPR -> {
                                 form = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                                 if (form == null) {
-                                    elem.logError("Invalid 'expr' formula");
+                                    if (mode.reportAny) {
+                                        elem.logError("Invalid 'expr' formula (40273)");
+                                    }
                                     valid = false;
                                 }
                             }
                             case null, default -> {
-                                elem.logError("Unsupported '" + tag + "' child of graph formula");
+                                if (mode.reportAny) {
+                                    elem.logError("Unsupported '" + tag + "' child of graph formula (40274)");
+                                }
                                 valid = false;
                             }
                         }
                     } else {
-                        elem.logError("Unsupported empty '" + tag + "' child of graph formula");
+                        if (mode.reportAny) {
+                            elem.logError("Unsupported empty '" + tag + "' child of graph formula (40275)");
+                        }
                         valid = false;
                     }
                 }
             } else {
                 if (mode.reportDeprecated) {
-                    elem.logError("Deprecated wrapperless XML expression in graph formula");
+                    elem.logError("Deprecated wrapperless XML expression in graph formula (40276)");
                 }
                 form = XmlFormulaFactory.extractFormula(evalContext, elem, mode);
             }
         }
 
         if (form == null) {
-            elem.logError("Unable to parse formula.");
+            if (mode.reportAny) {
+                elem.logError("Unable to parse formula. (40277)");
+            }
             valid = false;
         } else if (valid) {
             NumberOrFormula min = null;
@@ -2845,8 +3336,33 @@ public enum DocFactory {
      * @param mode        the parser mode
      * @return true if loading successful; false otherwise
      */
-    private static boolean extractPrimitiveLine(final EvalContext evalContext, final AbstractAttributedElementBase e,
+    private static boolean extractPrimitiveLine(final EvalContext evalContext,
+                                                final AbstractAttributedElementBase e,
                                                 final AbstractDocPrimitiveContainer container, final EParserMode mode) {
+
+        if (mode.reportAny) {
+            for (final String attrName : e.attributeNames()) {
+                if ("x".equals(attrName) || "gx".equals(attrName)
+                    || "y".equals(attrName) || "gy".equals(attrName)
+                    || "x1".equals(attrName) || "gx1".equals(attrName)
+                    || "y1".equals(attrName) || "gy1".equals(attrName)
+                    || "x2".equals(attrName) || "gx2".equals(attrName)
+                    || "y2".equals(attrName) || "gy2".equals(attrName)
+                    || "width".equals(attrName) || "gwidth".equals(attrName)
+                    || "height".equals(attrName) || "gheight".equals(attrName)
+                    || "cx".equals(attrName) || "gcx".equals(attrName)
+                    || "cy".equals(attrName) || "gcy".equals(attrName)
+                    || "r".equals(attrName) || "gr".equals(attrName)
+                    || "rx".equals(attrName) || "grx".equals(attrName)
+                    || "ry".equals(attrName) || "gry".equals(attrName)
+                    || COLOR.equals(attrName) || STROKE_WIDTH.equals(attrName)
+                    || DASH.equals(attrName) || ALPHA.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40280)";
+                e.logError(msg);
+            }
+        }
 
         final DocPrimitiveLine p = new DocPrimitiveLine(container);
 
@@ -2872,8 +3388,40 @@ public enum DocFactory {
      * @param mode        the parser mode
      * @return true if loading successful; false otherwise
      */
-    private static boolean extractPrimitiveArc(final EvalContext evalContext, final AbstractAttributedElementBase e,
+    private static boolean extractPrimitiveArc(final EvalContext evalContext,
+                                               final AbstractAttributedElementBase e,
                                                final AbstractDocPrimitiveContainer container, final EParserMode mode) {
+
+        if (mode.reportAny) {
+            for (final String attrName : e.attributeNames()) {
+                if ("x".equals(attrName) || "gx".equals(attrName)
+                    || "y".equals(attrName) || "gy".equals(attrName)
+                    || "x1".equals(attrName) || "gx1".equals(attrName)
+                    || "y1".equals(attrName) || "gy1".equals(attrName)
+                    || "x2".equals(attrName) || "gx2".equals(attrName)
+                    || "y2".equals(attrName) || "gy2".equals(attrName)
+                    || "width".equals(attrName) || "gwidth".equals(attrName)
+                    || "height".equals(attrName) || "gheight".equals(attrName)
+                    || "cx".equals(attrName) || "gcx".equals(attrName)
+                    || "cy".equals(attrName) || "gcy".equals(attrName)
+                    || "r".equals(attrName) || "gr".equals(attrName)
+                    || "rx".equals(attrName) || "grx".equals(attrName)
+                    || "ry".equals(attrName) || "gry".equals(attrName)
+                    || START_ANGLE.equals(attrName) || ARC_ANGLE.equals(attrName)
+                    || STROKE_WIDTH.equals(attrName) || STROKE_COLOR.equals(attrName) || STROKE_DASH.equals(attrName)
+                    || STROKE_ALPHA.equals(attrName) || COLOR.equals(attrName) || DASH.equals(attrName)
+                    || ALPHA.equals(attrName) || FILL_STYLE.equals(attrName) || FILL_COLOR.equals(attrName)
+                    || FILL_ALPHA.equals(attrName) || FILLED.equals(attrName) || RAYS_SHOWN.equals(attrName)
+                    || RAY_WIDTH.equals(attrName) || RAY_LENGTH.equals(attrName) || RAY_COLOR.equals(attrName)
+                    || RAY_DASH.equals(attrName) || RAY_ALPHA.equals(attrName) || LABEL.equals(attrName)
+                    || LABEL_COLOR.equals(attrName) || LABEL_ALPHA.equals(attrName) || LABEL_OFFSET.equals(attrName)
+                    || FONT_NAME.equals(attrName) || FONT_SIZE.equals(attrName) || FONT_STYLE.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40290)";
+                e.logError(msg);
+            }
+        }
 
         final DocPrimitiveArc p = new DocPrimitiveArc(container);
 
@@ -2913,7 +3461,9 @@ public enum DocFactory {
                     if (START_ANGLE.equals(tag)) {
                         final Formula theStartAngle = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
                         if (theStartAngle == null) {
-                            e.logError("Invalid 'start-angle' formula.");
+                            if (mode.reportAny) {
+                                e.logError("Invalid 'start-angle' formula. (40291)");
+                            }
                             valid = false;
                         } else {
                             p.setStartAngle(new NumberOrFormula(theStartAngle));
@@ -2921,7 +3471,9 @@ public enum DocFactory {
                     } else if (ARC_ANGLE.equals(tag)) {
                         final Formula theArcAngle = XmlFormulaFactory.extractFormula(evalContext, inner, mode);
                         if (theArcAngle == null) {
-                            e.logError("Invalid 'arc-angle' formula.");
+                            if (mode.reportAny) {
+                                e.logError("Invalid 'arc-angle' formula. (40292)");
+                            }
                             valid = false;
                         } else {
                             p.setArcAngle(new NumberOrFormula(theArcAngle));
@@ -2929,7 +3481,9 @@ public enum DocFactory {
                     } else if (LABEL.equals(tag)) {
                         final DocSimpleSpan innerSpan = parseSpan(evalContext, inner, mode);
                         if (innerSpan == null) {
-                            e.logError("Failed to parse <label> in span primitive.");
+                            if (mode.reportAny) {
+                                e.logError("Failed to parse <label> in span primitive. (40293)");
+                            }
                         } else {
                             final DocNonwrappingSpan nonwrap = new DocNonwrappingSpan();
                             for (final AbstractDocObjectTemplate obj : innerSpan.getChildren()) {
@@ -2958,8 +3512,33 @@ public enum DocFactory {
      * @param mode        the parser mode
      * @return true if loading successful; false otherwise
      */
-    private static boolean extractPrimitiveOval(final EvalContext evalContext, final AbstractAttributedElementBase e,
+    private static boolean extractPrimitiveOval(final EvalContext evalContext,
+                                                final AbstractAttributedElementBase e,
                                                 final AbstractDocPrimitiveContainer container, final EParserMode mode) {
+
+        if (mode.reportAny) {
+            for (final String attrName : e.attributeNames()) {
+                if ("x".equals(attrName) || "gx".equals(attrName)
+                    || "y".equals(attrName) || "gy".equals(attrName)
+                    || "x1".equals(attrName) || "gx1".equals(attrName)
+                    || "y1".equals(attrName) || "gy1".equals(attrName)
+                    || "x2".equals(attrName) || "gx2".equals(attrName)
+                    || "y2".equals(attrName) || "gy2".equals(attrName)
+                    || "width".equals(attrName) || "gwidth".equals(attrName)
+                    || "height".equals(attrName) || "gheight".equals(attrName)
+                    || "cx".equals(attrName) || "gcx".equals(attrName)
+                    || "cy".equals(attrName) || "gcy".equals(attrName)
+                    || "r".equals(attrName) || "gr".equals(attrName)
+                    || "rx".equals(attrName) || "grx".equals(attrName)
+                    || "ry".equals(attrName) || "gry".equals(attrName)
+                    || FILLED.equals(attrName) || COLOR.equals(attrName) || STROKE_WIDTH.equals(attrName)
+                    || DASH.equals(attrName) || ALPHA.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40300)";
+                e.logError(msg);
+            }
+        }
 
         final DocPrimitiveOval p = new DocPrimitiveOval(container);
 
@@ -2991,6 +3570,30 @@ public enum DocFactory {
                                                      final AbstractDocPrimitiveContainer container,
                                                      final EParserMode mode) {
 
+        if (mode.reportAny) {
+            for (final String attrName : e.attributeNames()) {
+                if ("x".equals(attrName) || "gx".equals(attrName)
+                    || "y".equals(attrName) || "gy".equals(attrName)
+                    || "x1".equals(attrName) || "gx1".equals(attrName)
+                    || "y1".equals(attrName) || "gy1".equals(attrName)
+                    || "x2".equals(attrName) || "gx2".equals(attrName)
+                    || "y2".equals(attrName) || "gy2".equals(attrName)
+                    || "width".equals(attrName) || "gwidth".equals(attrName)
+                    || "height".equals(attrName) || "gheight".equals(attrName)
+                    || "cx".equals(attrName) || "gcx".equals(attrName)
+                    || "cy".equals(attrName) || "gcy".equals(attrName)
+                    || "r".equals(attrName) || "gr".equals(attrName)
+                    || "rx".equals(attrName) || "grx".equals(attrName)
+                    || "ry".equals(attrName) || "gry".equals(attrName)
+                    || FILLED.equals(attrName) || COLOR.equals(attrName) || STROKE_WIDTH.equals(attrName)
+                    || DASH.equals(attrName) || ALPHA.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40310)";
+                e.logError(msg);
+            }
+        }
+
         final DocPrimitiveRectangle p = new DocPrimitiveRectangle(container);
 
         final boolean valid = RectangleShapeTemplate.canExtract(evalContext, e, p, mode)
@@ -3016,9 +3619,22 @@ public enum DocFactory {
      * @param mode        the parser mode
      * @return true if loading successful; false otherwise
      */
-    private static boolean extractPrimitivePolygon(final EvalContext evalContext, final AbstractAttributedElementBase e,
+    private static boolean extractPrimitivePolygon(final EvalContext evalContext,
+                                                   final AbstractAttributedElementBase e,
                                                    final AbstractDocPrimitiveContainer container,
                                                    final EParserMode mode) {
+
+        if (mode.reportAny) {
+            for (final String attrName : e.attributeNames()) {
+                if (X_LIST.equals(attrName) || Y_LIST.equals(attrName) || FILLED.equals(attrName)
+                    || COLOR.equals(attrName) || STROKE_WIDTH.equals(attrName) || DASH.equals(attrName)
+                    || ALPHA.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40320)";
+                e.logError(msg);
+            }
+        }
 
         final DocPrimitivePolygon p = new DocPrimitivePolygon(container);
 
@@ -3042,7 +3658,9 @@ public enum DocFactory {
                     if (X.equals(tag)) {
                         final Formula theXCoord = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theXCoord == null) {
-                            e.logError("Invalid 'x' formula in child element.");
+                            if (mode.reportAny) {
+                                e.logError("Invalid 'x' formula in child element. (40321)");
+                            }
                             valid = false;
                         } else {
                             xList.add(theXCoord);
@@ -3050,7 +3668,9 @@ public enum DocFactory {
                     } else if (Y.equals(tag)) {
                         final Formula theYCoord = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theYCoord == null) {
-                            e.logError("Invalid 'y' formula in child element.");
+                            if (mode.reportAny) {
+                                e.logError("Invalid 'y' formula in child element. (40322)");
+                            }
                             valid = false;
                         } else {
                             yList.add(theYCoord);
@@ -3089,6 +3709,30 @@ public enum DocFactory {
                                                       final AbstractDocPrimitiveContainer container,
                                                       final EParserMode mode) {
 
+        if (mode.reportAny) {
+            for (final String attrName : e.attributeNames()) {
+                if ("x".equals(attrName) || "gx".equals(attrName)
+                    || "y".equals(attrName) || "gy".equals(attrName)
+                    || "x1".equals(attrName) || "gx1".equals(attrName)
+                    || "y1".equals(attrName) || "gy1".equals(attrName)
+                    || "x2".equals(attrName) || "gx2".equals(attrName)
+                    || "y2".equals(attrName) || "gy2".equals(attrName)
+                    || "width".equals(attrName) || "gwidth".equals(attrName)
+                    || "height".equals(attrName) || "gheight".equals(attrName)
+                    || "cx".equals(attrName) || "gcx".equals(attrName)
+                    || "cy".equals(attrName) || "gcy".equals(attrName)
+                    || "r".equals(attrName) || "gr".equals(attrName)
+                    || "rx".equals(attrName) || "grx".equals(attrName)
+                    || "ry".equals(attrName) || "gry".equals(attrName)
+                    || ORIENTATION.equals(attrName) || UNITS.equals(attrName) || QUADRANTS.equals(attrName)
+                    || COLOR.equals(attrName) || TEXT_COLOR.equals(attrName) || ALPHA.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40330)";
+                e.logError(msg);
+            }
+        }
+
         final DocPrimitiveProtractor p = new DocPrimitiveProtractor(container);
 
         boolean valid = RectangleShapeTemplate.canExtract(evalContext, e, p, mode)
@@ -3108,7 +3752,9 @@ public enum DocFactory {
                     if (ORIENTATION.equals(tag)) {
                         final Formula theOrientation = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theOrientation == null) {
-                            e.logError("Invalid 'orientation' formula in child element.");
+                            if (mode.reportAny) {
+                                e.logError("Invalid 'orientation' formula in child element. (40331)");
+                            }
                             valid = false;
                         } else {
                             p.setOrientation(new NumberOrFormula(theOrientation));
@@ -3134,9 +3780,33 @@ public enum DocFactory {
      * @param mode        the parser mode
      * @return true if loading successful; false otherwise
      */
-    private static boolean extractPrimitiveRaster(final EvalContext evalContext, final AbstractAttributedElementBase e,
+    private static boolean extractPrimitiveRaster(final EvalContext evalContext,
+                                                  final AbstractAttributedElementBase e,
                                                   final AbstractDocPrimitiveContainer container,
                                                   final EParserMode mode) {
+
+        if (mode.reportAny) {
+            for (final String attrName : e.attributeNames()) {
+                if ("x".equals(attrName) || "gx".equals(attrName)
+                    || "y".equals(attrName) || "gy".equals(attrName)
+                    || "x1".equals(attrName) || "gx1".equals(attrName)
+                    || "y1".equals(attrName) || "gy1".equals(attrName)
+                    || "x2".equals(attrName) || "gx2".equals(attrName)
+                    || "y2".equals(attrName) || "gy2".equals(attrName)
+                    || "width".equals(attrName) || "gwidth".equals(attrName)
+                    || "height".equals(attrName) || "gheight".equals(attrName)
+                    || "cx".equals(attrName) || "gcx".equals(attrName)
+                    || "cy".equals(attrName) || "gcy".equals(attrName)
+                    || "r".equals(attrName) || "gr".equals(attrName)
+                    || "rx".equals(attrName) || "grx".equals(attrName)
+                    || "ry".equals(attrName) || "gry".equals(attrName)
+                    || SRC.equals(attrName) || ALPHA.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40340)";
+                e.logError(msg);
+            }
+        }
 
         final DocPrimitiveRaster p = new DocPrimitiveRaster(container);
 
@@ -3160,8 +3830,21 @@ public enum DocFactory {
      * @param mode        the parser mode
      * @return true if loading successful; false otherwise
      */
-    private static boolean extractPrimitiveText(final EvalContext evalContext, final AbstractAttributedElementBase e,
+    private static boolean extractPrimitiveText(final EvalContext evalContext,
+                                                final AbstractAttributedElementBase e,
                                                 final AbstractDocPrimitiveContainer container, final EParserMode mode) {
+
+        if (mode.reportAny) {
+            for (final String attrName : e.attributeNames()) {
+                if (X.equals(attrName) || Y.equals(attrName) || ANCHOR.equals(attrName) || COLOR.equals(attrName)
+                    || HIGHLIGHT.equals(attrName) || FONT_NAME.equals(attrName) || FONT_SIZE.equals(attrName)
+                    || FONT_STYLE.equals(attrName) || ALPHA.equals(attrName) || VALUE.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40350)";
+                e.logError(msg);
+            }
+        }
 
         final DocPrimitiveText p = new DocPrimitiveText(container);
 
@@ -3193,8 +3876,8 @@ public enum DocFactory {
             }
 
             valid = p.setAttr(VALUE, valueStr, e, mode);
-            if (!valid) {
-                e.logError("Invalid value for 'value' attribute for drawing primitive (" + valueStr + ").");
+            if (!valid && mode.reportAny) {
+                e.logError("Invalid value for 'value' attribute for drawing primitive (" + valueStr + "). (40351)");
             }
         }
 
@@ -3206,7 +3889,9 @@ public enum DocFactory {
                     if (X.equals(tag)) {
                         final Formula theXCoord = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theXCoord == null) {
-                            e.logError("Invalid 'x' formula.");
+                            if (mode.reportAny) {
+                                e.logError("Invalid 'x' formula. (40352)");
+                            }
                             valid = false;
                         } else {
                             p.setXCoord(new NumberOrFormula(theXCoord));
@@ -3214,7 +3899,9 @@ public enum DocFactory {
                     } else if (Y.equals(tag)) {
                         final Formula theYCoord = XmlFormulaFactory.extractFormula(evalContext, formula, mode);
                         if (theYCoord == null) {
-                            e.logError("Invalid 'y' formula.");
+                            if (mode.reportAny) {
+                                e.logError("Invalid 'y' formula. (40353)");
+                            }
                             valid = false;
                         } else {
                             p.setYCoord(new NumberOrFormula(theYCoord));
@@ -3243,6 +3930,18 @@ public enum DocFactory {
     private static boolean extractPrimitiveSpan(final EvalContext evalContext, final EmptyElement e,
                                                 final AbstractDocPrimitiveContainer container, final EParserMode mode) {
 
+        if (mode.reportAny) {
+            for (final String attrName : e.attributeNames()) {
+                if (X.equals(attrName) || Y.equals(attrName) || ANCHOR.equals(attrName) || FILLED.equals(attrName)
+                    || COLOR.equals(attrName) || FONT_NAME.equals(attrName) || FONT_SIZE.equals(attrName)
+                    || FONT_STYLE.equals(attrName) || ALPHA.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40360)";
+                e.logError(msg);
+            }
+        }
+
         final DocPrimitiveSpan p = new DocPrimitiveSpan(container);
 
         final boolean valid = p.setAttr(X, e.getStringAttr(X), e, mode)
@@ -3269,7 +3968,9 @@ public enum DocFactory {
                 if (top instanceof final NonemptyElement nonempty) {
                     final DocSimpleSpan innerSpan = parseSpan(evalContext, nonempty, mode);
                     if (innerSpan == null) {
-                        e.logError("Failed to parsed 'value' attribute in span primitive.");
+                        if (mode.reportAny) {
+                            e.logError("Failed to parsed 'value' attribute in span primitive. (40361)");
+                        }
                     } else {
                         final DocNonwrappingSpan nonwrap = new DocNonwrappingSpan();
                         nonwrap.tag = NONWRAP;
@@ -3278,7 +3979,9 @@ public enum DocFactory {
                     }
                 }
             } catch (final ParsingException ex) {
-                e.logError("Failed to parsed contents of 'value' attribute in span primitive.");
+                if (mode.reportAny) {
+                    e.logError("Failed to parsed contents of 'value' attribute in span primitive. (40362)");
+                }
             }
         }
 
@@ -3301,6 +4004,18 @@ public enum DocFactory {
     private static boolean extractPrimitiveSpan(final EvalContext evalContext, final NonemptyElement e,
                                                 final AbstractDocPrimitiveContainer container, final EParserMode mode) {
 
+        if (mode.reportAny) {
+            for (final String attrName : e.attributeNames()) {
+                if (X.equals(attrName) || Y.equals(attrName) || ANCHOR.equals(attrName) || FILLED.equals(attrName)
+                    || COLOR.equals(attrName) || FONT_NAME.equals(attrName) || FONT_SIZE.equals(attrName)
+                    || FONT_STYLE.equals(attrName) || ALPHA.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40370)";
+                e.logError(msg);
+            }
+        }
+
         final DocPrimitiveSpan p = new DocPrimitiveSpan(container);
 
         boolean valid = p.setAttr(X, e.getStringAttr(X), e, mode)
@@ -3322,7 +4037,7 @@ public enum DocFactory {
         }
 
         if (!newFormat && mode.reportDeprecated) {
-            e.logError("Deprecated format for &lt;span&gt; primitive");
+            e.logError("Deprecated format for &lt;span&gt; primitive (40371)");
         }
 
         if (valid) {
@@ -3335,7 +4050,9 @@ public enum DocFactory {
                             final Formula theXCoord = XmlFormulaFactory.extractFormula(evalContext, nonemptyChild,
                                     mode);
                             if (theXCoord == null) {
-                                e.logError("Invalid 'x' formula.");
+                                if (mode.reportAny) {
+                                    e.logError("Invalid 'x' formula. (40372)");
+                                }
                                 valid = false;
                             } else {
                                 p.setXCoord(new NumberOrFormula(theXCoord));
@@ -3344,7 +4061,9 @@ public enum DocFactory {
                             final Formula theYCoord = XmlFormulaFactory.extractFormula(evalContext, nonemptyChild,
                                     mode);
                             if (theYCoord == null) {
-                                e.logError("Invalid 'y' formula.");
+                                if (mode.reportAny) {
+                                    e.logError("Invalid 'y' formula. (40373)");
+                                }
                                 valid = false;
                             } else {
                                 p.setYCoord(new NumberOrFormula(theYCoord));
@@ -3352,7 +4071,9 @@ public enum DocFactory {
                         } else if (CONTENT.equals(tag)) {
                             final DocSimpleSpan innerSpan = parseSpan(evalContext, nonemptyChild, mode);
                             if (innerSpan == null) {
-                                e.logError("Failed to parse <content> in span primitive.");
+                                if (mode.reportAny) {
+                                    e.logError("Failed to parse <content> in span primitive. (40374)");
+                                }
                             } else {
                                 final DocNonwrappingSpan nonwrap = new DocNonwrappingSpan();
                                 for (final AbstractDocObjectTemplate obj : innerSpan.getChildren()) {
@@ -3366,7 +4087,9 @@ public enum DocFactory {
             } else {
                 final DocSimpleSpan innerSpan = parseSpan(evalContext, e, mode);
                 if (innerSpan == null) {
-                    e.logError("Failed to parse contents of span primitive.");
+                    if (mode.reportAny) {
+                        e.logError("Failed to parse contents of span primitive. (40375)");
+                    }
                 } else {
                     final DocNonwrappingSpan nonwrap = new DocNonwrappingSpan();
                     for (final AbstractDocObjectTemplate obj : innerSpan.getChildren()) {
@@ -3390,9 +4113,22 @@ public enum DocFactory {
      *
      * @param elem      the element
      * @param container the span to which to add this image
+     * @param mode      the parser mode
      * @return true if loading successful; false otherwise
      */
-    private static boolean extractImage(final EmptyElement elem, final AbstractDocSpanBase container) {
+    private static boolean extractImage(final EmptyElement elem, final AbstractDocSpanBase container,
+                                        final EParserMode mode) {
+
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (SRC.equals(attrName) || WIDTH.equals(attrName) || HEIGHT.equals(attrName) || VALIGN.equals(attrName)
+                    || ALT.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40380)";
+                elem.logError(msg);
+            }
+        }
 
         boolean valid = true;
 
@@ -3407,7 +4143,9 @@ public enum DocFactory {
                 final Number parsed = NumberParser.parse(widthStr);
                 width = new NumberOrFormula(parsed);
             } catch (final NumberFormatException e) {
-                elem.logError("Invalid 'width' attribute value (must be a number).");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'width' attribute value (must be a number). (40381)");
+                }
                 valid = false;
             }
         }
@@ -3418,21 +4156,27 @@ public enum DocFactory {
                 final Number parsed = NumberParser.parse(heightStr);
                 height = new NumberOrFormula(parsed);
             } catch (final NumberFormatException e) {
-                elem.logError("Invalid 'height' attribute value (must be a number).");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'height' attribute value (must be a number). (40382)");
+                }
                 valid = false;
             }
         }
 
         URL url = null;
         if (srcStr == null) {
-            elem.logError("<image> element missing required 'src' attribute.");
+            if (mode.reportAny) {
+                elem.logError("<image> element missing required 'src' attribute. (40383)");
+            }
             valid = false;
         } else {
             try {
                 final URI uri = new URI(srcStr);
                 url = uri.toURL();
             } catch (final MalformedURLException | URISyntaxException e) {
-                elem.logError("<image> element has invalid URL in 'src' attribute.");
+                if (mode.reportAny) {
+                    elem.logError("<image> element has invalid URL in 'src' attribute. (40384)");
+                }
                 valid = false;
             }
         }
@@ -3462,6 +4206,17 @@ public enum DocFactory {
     private static boolean extractImage(final EvalContext evalContext, final NonemptyElement elem,
                                         final AbstractDocSpanBase container, final EParserMode mode) {
 
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (SRC.equals(attrName) || WIDTH.equals(attrName) || HEIGHT.equals(attrName) || VALIGN.equals(attrName)
+                    || ALT.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40390)";
+                elem.logError(msg);
+            }
+        }
+
         boolean valid = true;
 
         final String widthStr = elem.getStringAttr(WIDTH);
@@ -3476,7 +4231,9 @@ public enum DocFactory {
                 final Number parsed = NumberParser.parse(widthStr);
                 width = new NumberOrFormula(parsed);
             } catch (final NumberFormatException e) {
-                elem.logError("Invalid 'width' attribute value (must be a number).");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'width' attribute value (must be a number). (40391)");
+                }
                 valid = false;
             }
         }
@@ -3487,14 +4244,18 @@ public enum DocFactory {
                 final Number parsed = NumberParser.parse(heightStr);
                 height = new NumberOrFormula(parsed);
             } catch (final NumberFormatException e) {
-                elem.logError("Invalid 'height' attribute value (must be a number).");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'height' attribute value (must be a number). (40392)");
+                }
                 valid = false;
             }
         }
 
         URL url = null;
         if (srcStr == null) {
-            elem.logError("<image> element missing required 'src' attribute.");
+            if (mode.reportAny) {
+                elem.logError("<image> element missing required 'src' attribute. (40393)");
+            }
             valid = false;
         } else {
             try {
@@ -3502,7 +4263,9 @@ public enum DocFactory {
                 url = uri.toURL();
 
             } catch (final MalformedURLException | URISyntaxException e) {
-                elem.logError("<image> element has invalid URL in 'src' attribute.");
+                if (mode.reportAny) {
+                    elem.logError("<image> element has invalid URL in 'src' attribute. (40394)");
+                }
                 valid = false;
             }
         }
@@ -3515,8 +4278,8 @@ public enum DocFactory {
                 valign = EVAlign.CENTER;
             } else if (TOP.equalsIgnoreCase(valignStr)) {
                 valign = EVAlign.TOP;
-            } else {
-                elem.logError("<image> element has invalid value in '' attribute.");
+            } else if (mode.reportAny) {
+                elem.logError("<image> element has invalid value in '' attribute. (40395)");
             }
         }
 
@@ -3528,35 +4291,45 @@ public enum DocFactory {
                 if (WIDTH.equals(childTag)) {
                     final Formula theWidth = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                     if (theWidth == null) {
-                        elem.logError("Invalid 'width' formula.");
+                        if (mode.reportAny) {
+                            elem.logError("Invalid 'width' formula. (40396)");
+                        }
                         valid = false;
                     } else {
-                        if (theWidth.isConstant()) {
-                            elem.logError("Constant 'width' in {image} could be specified in attribute?");
+                        if (mode.reportAny && theWidth.isConstant()) {
+                            elem.logError("Constant 'width' in {image} could be specified in attribute? (40397)");
                         }
                         width = new NumberOrFormula(theWidth);
                     }
                 } else if (HEIGHT.equals(childTag)) {
                     final Formula theHeight = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                     if (theHeight == null) {
-                        elem.logError("Invalid 'height' formula.");
+                        if (mode.reportAny) {
+                            elem.logError("Invalid 'height' formula. (40398)");
+                        }
                         valid = false;
                     } else {
-                        if (theHeight.isConstant()) {
-                            elem.logError("Constant 'height' in {image} could be specified in attribute?");
+                        if (mode.reportAny && theHeight.isConstant()) {
+                            elem.logError("Constant 'height' in {image} could be specified in attribute? (40399)");
                         }
                         height = new NumberOrFormula(theHeight);
                     }
                 } else {
-                    elem.logError("The " + childTag + " tag is not valid within image.");
+                    if (mode.reportAny) {
+                        elem.logError("The " + childTag + " tag is not valid within image. (40400)");
+                    }
                     valid = false;
                 }
             } else if (child instanceof final EmptyElement empty) {
-                final String childTag = empty.getTagName();
-                elem.logError("Empty " + childTag + " tag is not valid within image.");
+                if (mode.reportAny) {
+                    final String childTag = empty.getTagName();
+                    elem.logError("Empty " + childTag + " tag is not valid within image. (40401)");
+                }
                 valid = false;
             } else if ((!(child instanceof CData) && !(child instanceof Comment))) {
-                elem.logError("Found " + child.getClass().getSimpleName() + " in Image.");
+                if (mode.reportAny) {
+                    elem.logError("Found " + child.getClass().getSimpleName() + " in Image. (40402)");
+                }
                 valid = false;
             }
         }
@@ -3638,7 +4411,9 @@ public enum DocFactory {
                         container.add(obj);
                         inText = false;
                     } else if (inParameter) {
-                        cdata.logError("Unexpected '{' within parameter or entity name.");
+                        if (mode.reportAny) {
+                            cdata.logError("Unexpected '{' within parameter or entity name. (40410)");
+                        }
                         return false;
                     }
 
@@ -3649,7 +4424,9 @@ public enum DocFactory {
 
                     if (inText) {
                         // Misplaced '}' in text: error
-                        cdata.logError("Unexpected '}' found, no matching '{'.");
+                        if (mode.reportAny) {
+                            cdata.logError("Unexpected '}' found, no matching '{'. (40411)");
+                        }
                         return false;
                     }
 
@@ -3680,7 +4457,9 @@ public enum DocFactory {
         // end since closing '}' should be found)
 
         if (inParameter) {
-            cdata.logError("No matching '}' found.");
+            if (mode.reportAny) {
+                cdata.logError("No matching '}' found. (40412)");
+            }
             return false;
         }
 
@@ -3733,11 +4512,14 @@ public enum DocFactory {
                 if (inText) {
                     // End the text, start the parameter
                     final String str = content.substring(start, end);
-                    final AbstractDocObjectTemplate obj = new DocText(unescape(cdata, collapseWhitespace(str), mode));
+                    final AbstractDocObjectTemplate obj = new DocText(
+                            unescape(cdata, collapseWhitespace(str), mode));
                     container.add(obj);
                     inText = false;
                 } else if (inParameter) {
-                    cdata.logError("Unexpected '{' within parameter or entity name.");
+                    if (mode.reportAny) {
+                        cdata.logError("Unexpected '{' within parameter or entity name. (40420)");
+                    }
                     return false;
                 }
 
@@ -3748,7 +4530,9 @@ public enum DocFactory {
 
                 if (inText) {
                     // Misplaced '}' in text: error
-                    cdata.logError("Unexpected '}' found, no matching '{'");
+                    if (mode.reportAny) {
+                        cdata.logError("Unexpected '}' found, no matching '{' (40421)");
+                    }
                     return false;
                 } else if (inParameter) {
                     // End a parameter reference or entity
@@ -3782,7 +4566,9 @@ public enum DocFactory {
             final AbstractDocObjectTemplate obj = new DocText(unescaped);
             container.add(obj);
         } else if (inParameter) {
-            cdata.logError("No matching '}' found.");
+            if (mode.reportAny) {
+                cdata.logError("No matching '}' found. (40422)");
+            }
             return false;
         }
 
@@ -3794,9 +4580,21 @@ public enum DocFactory {
      *
      * @param elem      the element
      * @param container the span to which to add this fraction
+     * @param mode      the parser mode
      * @return true if loading successful; false otherwise
      */
-    private static boolean extractSymbolPalette(final IElement elem, final AbstractDocSpanBase container) {
+    private static boolean extractSymbolPalette(final IElement elem, final AbstractDocSpanBase container,
+                                                final EParserMode mode) {
+
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (SYMBOLS.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40430)";
+                elem.logError(msg);
+            }
+        }
 
         final DocSymbolPalette palette = new DocSymbolPalette();
 
@@ -4207,13 +5005,17 @@ public enum DocFactory {
 
         final String type = elem.getStringAttr(TYPE);
         if (type == null) {
-            elem.logError("<input> element missing required 'type' attribute");
+            if (mode.reportAny) {
+                elem.logError("<input> element missing required 'type' attribute (40450)");
+            }
             valid = false;
         }
 
         final String name = elem.getStringAttr("name");
         if (name == null) {
-            elem.logError("<input> element missing required 'name' attribute");
+            if (mode.reportAny) {
+                elem.logError("<input> element missing required 'name' attribute (40451)");
+            }
             valid = false;
         }
 
@@ -4226,7 +5028,9 @@ public enum DocFactory {
                 case CHECKBOX -> valid = extractInputCheckbox(evalContext, name, elem, container, mode);
                 case DROPDOWN -> valid = extractInputDropdown(evalContext, name, elem, container, mode);
                 default -> {
-                    elem.logError("Unrecognized type of input: " + type);
+                    if (mode.reportAny) {
+                        elem.logError("Unrecognized type of input: " + type + " (40452)");
+                    }
                     valid = false;
                 }
             }
@@ -4250,6 +5054,17 @@ public enum DocFactory {
                                                final NonemptyElement elem, final AbstractDocSpanBase container,
                                                final EParserMode mode) {
 
+        for (final String attrName : elem.attributeNames()) {
+            if (TYPE.equals(attrName) || "name".equals(attrName) || ENABLED_VAR_NAME.equals(attrName)
+                || ENABLED_VAR_VALUE.equals(attrName)
+                || TEXT_VALUE.equals(attrName) || VALUE.equals(attrName) || WIDTH.equals(attrName)
+                || DEFAULT.equals(attrName) || STYLE.equals(attrName) || TREAT_MINUS_AS.equals(attrName)) {
+                continue;
+            }
+            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40460)";
+            elem.logError(msg);
+        }
+
         boolean valid = true;
 
         final String textValue = elem.getStringAttr(TEXT_VALUE);
@@ -4268,20 +5083,26 @@ public enum DocFactory {
                 final String childTag = nonempty.getTagName();
 
                 if (ENABLED.equalsIgnoreCase(childTag)) {
-                    if (mode == EParserMode.NORMAL) {
-                        elem.logError("Deprecated 'enabled' formula on input");
+                    if (mode.reportDeprecated) {
+                        elem.logError("Deprecated 'enabled' formula on input (40461)");
                     }
                     enabledF = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                     if (enabledF == null) {
-                        elem.logError("Invalid 'enabled' formula.");
+                        if (mode.reportAny) {
+                            elem.logError("Invalid 'enabled' formula. (40462)");
+                        }
                         valid = false;
                     }
                 } else {
-                    elem.logError("The " + childTag + " tag is not valid within input.");
+                    if (mode.reportAny) {
+                        elem.logError("The " + childTag + " tag is not valid within input. (40463)");
+                    }
                     valid = false;
                 }
             } else if ((!(child instanceof CData) && !(child instanceof Comment))) {
-                elem.logError("Found " + child.getClass().getSimpleName() + " in Input.");
+                if (mode.reportAny) {
+                    elem.logError("Found " + child.getClass().getSimpleName() + " in Input. (40464)");
+                }
                 valid = false;
             }
         }
@@ -4293,7 +5114,9 @@ public enum DocFactory {
             try {
                 input.defaultValue = Long.valueOf(defaultStr);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid 'default' attribute value");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'default' attribute value (40465)");
+                }
                 valid = false;
             }
         }
@@ -4304,7 +5127,9 @@ public enum DocFactory {
             } else if (UNDERLINE.equalsIgnoreCase(styleStr)) {
                 input.style = EFieldStyle.UNDERLINE;
             } else {
-                elem.logError("Invalid 'style' attribute value");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'style' attribute value (40466)");
+                }
                 valid = false;
             }
         }
@@ -4313,7 +5138,9 @@ public enum DocFactory {
             try {
                 input.minusAs = Long.valueOf(treatMinusAsStr);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid 'treat-minus-as' attribute value");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'treat-minus-as' attribute value (40467)");
+                }
                 valid = false;
             }
         }
@@ -4322,7 +5149,9 @@ public enum DocFactory {
             try {
                 input.width = Integer.valueOf(widthStr);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid 'width' attribute value");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'width' attribute value (40468)");
+                }
                 valid = false;
             }
         }
@@ -4336,14 +5165,18 @@ public enum DocFactory {
                 final Long longValue = Long.valueOf(value);
                 input.setOnlyLongValue(longValue);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid 'value' attribute value");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'value' attribute value (40469)");
+                }
                 valid = false;
             }
         }
 
         if (enabledVarNameStr != null) {
             if (enabledVarValueStr == null) {
-                elem.logError("'enabled-var-name' present but 'enabled-var-value' absent");
+                if (mode.reportAny) {
+                    elem.logError("'enabled-var-name' present but 'enabled-var-value' absent (40470)");
+                }
                 valid = false;
             } else {
                 input.setEnabledVarName(enabledVarNameStr);
@@ -4357,17 +5190,21 @@ public enum DocFactory {
                         final Long varValue = Long.valueOf(enabledVarValueStr);
                         input.setEnabledVarValue(varValue);
                     } catch (final NumberFormatException ex) {
-                        elem.logError("Invalid 'enabled-var-value' attribute value");
+                        if (mode.reportAny) {
+                            elem.logError("Invalid 'enabled-var-value' attribute value (40471)");
+                        }
                         valid = false;
                     }
                 }
             }
         } else if (enabledVarValueStr != null) {
-            elem.logError("'enabled-var-value' present but 'enabled-var-name' absent");
+            if (mode.reportAny) {
+                elem.logError("'enabled-var-value' present but 'enabled-var-name' absent (40472)");
+            }
             valid = false;
         }
 
-        valid = valid && extractFormattable(elem, input);
+        valid = valid && extractFormattable(elem, input, mode);
 
         if (valid) {
             container.add(input);
@@ -4391,6 +5228,19 @@ public enum DocFactory {
                                             final NonemptyElement elem, final AbstractDocSpanBase container,
                                             final EParserMode mode) {
 
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (TYPE.equals(attrName) || "name".equals(attrName) || ENABLED_VAR_NAME.equals(attrName)
+                    || ENABLED_VAR_VALUE.equals(attrName)
+                    || TEXT_VALUE.equals(attrName) || VALUE.equals(attrName) || WIDTH.equals(attrName)
+                    || DEFAULT.equals(attrName) || STYLE.equals(attrName) || TREAT_MINUS_AS.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40480)";
+                elem.logError(msg);
+            }
+        }
+
         boolean valid = true;
 
         final String textValue = elem.getStringAttr(TEXT_VALUE);
@@ -4409,20 +5259,26 @@ public enum DocFactory {
                 final String childTag = nonempty.getTagName();
 
                 if (ENABLED.equalsIgnoreCase(childTag)) {
-                    if (mode == EParserMode.NORMAL) {
-                        elem.logError("Deprecated 'enabled' formula on input");
+                    if (mode.reportDeprecated) {
+                        elem.logError("Deprecated 'enabled' formula on input (40481)");
                     }
                     enabledF = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                     if (enabledF == null) {
-                        elem.logError("Invalid 'enabled' formula.");
+                        if (mode.reportAny) {
+                            elem.logError("Invalid 'enabled' formula. (40482)");
+                        }
                         valid = false;
                     }
                 } else {
-                    elem.logError("The " + childTag + " tag is not valid within input.");
+                    if (mode.reportAny) {
+                        elem.logError("The " + childTag + " tag is not valid within input. (40483)");
+                    }
                     valid = false;
                 }
             } else if ((!(child instanceof CData) && !(child instanceof Comment))) {
-                elem.logError("Found " + child.getClass().getSimpleName() + " in Input.");
+                if (mode.reportAny) {
+                    elem.logError("Found " + child.getClass().getSimpleName() + " in Input. (40484)");
+                }
                 valid = false;
             }
         }
@@ -4434,7 +5290,9 @@ public enum DocFactory {
             try {
                 input.defaultValue = Double.valueOf(defaultStr);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid 'default' attribute value");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'default' attribute value (40485)");
+                }
                 valid = false;
             }
         }
@@ -4445,7 +5303,9 @@ public enum DocFactory {
             } else if (UNDERLINE.equalsIgnoreCase(styleStr)) {
                 input.style = EFieldStyle.UNDERLINE;
             } else {
-                elem.logError("Invalid 'style' attribute value");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'style' attribute value (40486)");
+                }
                 valid = false;
             }
         }
@@ -4454,7 +5314,9 @@ public enum DocFactory {
             try {
                 input.minusAs = Double.valueOf(treatMinusAsStr);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid 'treat-minus-as' attribute value");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'treat-minus-as' attribute value (40487)");
+                }
                 valid = false;
             }
         }
@@ -4463,7 +5325,9 @@ public enum DocFactory {
             try {
                 input.width = Integer.valueOf(widthStr);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid 'width' attribute value");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'width' attribute value (40488)");
+                }
                 valid = false;
             }
         }
@@ -4477,14 +5341,18 @@ public enum DocFactory {
                 final Double dblValue = Double.valueOf(value);
                 input.setOnlyDoubleValue(dblValue);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid 'value' attribute value");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'value' attribute value (40489)");
+                }
                 valid = false;
             }
         }
 
         if (enabledVarNameStr != null) {
             if (enabledVarValueStr == null) {
-                elem.logError("'enabled-var-name' present but 'enabled-var-value' absent");
+                if (mode.reportAny) {
+                    elem.logError("'enabled-var-name' present but 'enabled-var-value' absent (40490)");
+                }
                 valid = false;
             } else {
                 input.setEnabledVarName(enabledVarNameStr);
@@ -4498,17 +5366,21 @@ public enum DocFactory {
                         final Long varValue = Long.valueOf(enabledVarValueStr);
                         input.setEnabledVarValue(varValue);
                     } catch (final NumberFormatException ex) {
-                        elem.logError("Invalid 'enabled-var-value' attribute value");
+                        if (mode.reportAny) {
+                            elem.logError("Invalid 'enabled-var-value' attribute value (40491)");
+                        }
                         valid = false;
                     }
                 }
             }
         } else if (enabledVarValueStr != null) {
-            elem.logError("'enabled-var-value' present but 'enabled-var-name' absent");
+            if (mode.reportAny) {
+                elem.logError("'enabled-var-value' present but 'enabled-var-name' absent (40492)");
+            }
             valid = false;
         }
 
-        valid = valid && extractFormattable(elem, input);
+        valid = valid && extractFormattable(elem, input, mode);
 
         if (valid) {
             container.add(input);
@@ -4532,6 +5404,18 @@ public enum DocFactory {
                                               final NonemptyElement elem, final AbstractDocSpanBase container,
                                               final EParserMode mode) {
 
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (TYPE.equals(attrName) || "name".equals(attrName) || ENABLED_VAR_NAME.equals(attrName)
+                    || ENABLED_VAR_VALUE.equals(attrName)
+                    || TEXT_VALUE.equals(attrName) || WIDTH.equals(attrName) || STYLE.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40500)";
+                elem.logError(msg);
+            }
+        }
+
         boolean valid = true;
 
         final String textValue = elem.getStringAttr(TEXT_VALUE);
@@ -4547,20 +5431,26 @@ public enum DocFactory {
                 final String childTag = nonempty.getTagName();
 
                 if (ENABLED.equalsIgnoreCase(childTag)) {
-                    if (mode == EParserMode.NORMAL) {
-                        elem.logError("Deprecated 'enabled' formula on input");
+                    if (mode.reportDeprecated) {
+                        elem.logError("Deprecated 'enabled' formula on input (40501)");
                     }
                     enabledF = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                     if (enabledF == null) {
-                        elem.logError("Invalid 'enabled' formula.");
+                        if (mode.reportAny) {
+                            elem.logError("Invalid 'enabled' formula. (40502)");
+                        }
                         valid = false;
                     }
                 } else {
-                    elem.logError("The " + childTag + " tag is not valid within input.");
+                    if (mode.reportAny) {
+                        elem.logError("The " + childTag + " tag is not valid within input. (40503)");
+                    }
                     valid = false;
                 }
             } else if ((!(child instanceof CData) && !(child instanceof Comment))) {
-                elem.logError("Found " + child.getClass().getSimpleName() + " in Input.");
+                if (mode.reportAny) {
+                    elem.logError("Found " + child.getClass().getSimpleName() + " in Input. (40504)");
+                }
                 valid = false;
             }
         }
@@ -4574,7 +5464,9 @@ public enum DocFactory {
             } else if (UNDERLINE.equalsIgnoreCase(styleStr)) {
                 input.style = EFieldStyle.UNDERLINE;
             } else {
-                elem.logError("Invalid 'style' attribute value");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'style' attribute value (40505)");
+                }
                 valid = false;
             }
         }
@@ -4583,7 +5475,9 @@ public enum DocFactory {
             try {
                 input.width = Integer.valueOf(widthStr);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid 'width' attribute value");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'width' attribute value (40506)");
+                }
                 valid = false;
             }
         }
@@ -4594,7 +5488,9 @@ public enum DocFactory {
 
         if (enabledVarNameStr != null) {
             if (enabledVarValueStr == null) {
-                elem.logError("'enabled-var-name' present but 'enabled-var-value' absent");
+                if (mode.reportAny) {
+                    elem.logError("'enabled-var-name' present but 'enabled-var-value' absent (40507)");
+                }
                 valid = false;
             } else {
                 input.setEnabledVarName(enabledVarNameStr);
@@ -4608,17 +5504,21 @@ public enum DocFactory {
                         final Long varValue = Long.valueOf(enabledVarValueStr);
                         input.setEnabledVarValue(varValue);
                     } catch (final NumberFormatException ex) {
-                        elem.logError("Invalid 'enabled-var-value' attribute value");
+                        if (mode.reportAny) {
+                            elem.logError("Invalid 'enabled-var-value' attribute value (40508)");
+                        }
                         valid = false;
                     }
                 }
             }
         } else if (enabledVarValueStr != null) {
-            elem.logError("'enabled-var-value' present but 'enabled-var-name' absent");
+            if (mode.reportAny) {
+                elem.logError("'enabled-var-value' present but 'enabled-var-name' absent (40509)");
+            }
             valid = false;
         }
 
-        valid = valid && extractFormattable(elem, input);
+        valid = valid && extractFormattable(elem, input, mode);
 
         if (valid) {
             container.add(input);
@@ -4642,6 +5542,17 @@ public enum DocFactory {
                                                    final NonemptyElement elem, final AbstractDocSpanBase container,
                                                    final EParserMode mode) {
 
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (TYPE.equals(attrName) || "name".equals(attrName) || ENABLED_VAR_NAME.equals(attrName)
+                    || ENABLED_VAR_VALUE.equals(attrName) || VALUE.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40510)";
+                elem.logError(msg);
+            }
+        }
+
         boolean valid = true;
 
         final String valueStr = elem.getStringAttr(VALUE);
@@ -4655,20 +5566,26 @@ public enum DocFactory {
                 final String childTag = nonempty.getTagName();
 
                 if (ENABLED.equalsIgnoreCase(childTag)) {
-                    if (mode == EParserMode.NORMAL) {
-                        elem.logError("Deprecated 'enabled' formula on input");
+                    if (mode.reportDeprecated) {
+                        elem.logError("Deprecated 'enabled' formula on input (40511)");
                     }
                     enabledF = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                     if (enabledF == null) {
-                        elem.logError("Invalid 'enabled' formula.");
+                        if (mode.reportAny) {
+                            elem.logError("Invalid 'enabled' formula. (40512)");
+                        }
                         valid = false;
                     }
                 } else {
-                    elem.logError("The " + childTag + " tag is not valid within input.");
+                    if (mode.reportAny) {
+                        elem.logError("The " + childTag + " tag is not valid within input. (40513)");
+                    }
                     valid = false;
                 }
             } else if ((!(child instanceof CData) && !(child instanceof Comment))) {
-                elem.logError("Found " + child.getClass().getSimpleName() + " in Input.");
+                if (mode.reportAny) {
+                    elem.logError("Found " + child.getClass().getSimpleName() + " in Input. (40514)");
+                }
                 valid = false;
             }
         }
@@ -4684,14 +5601,18 @@ public enum DocFactory {
                 if (TRUE.equalsIgnoreCase(selectedStr)) {
                     input.selectChoice();
                 } else if (!FALSE.equalsIgnoreCase(selectedStr)) {
-                    elem.logError("Invalid radio button selected value (must be TRUE or FALSE).");
+                    if (mode.reportAny) {
+                        elem.logError("Invalid radio button selected value (must be TRUE or FALSE). (40515)");
+                    }
                     valid = false;
                 }
             }
 
             if (enabledVarNameStr != null) {
                 if (enabledVarValueStr == null) {
-                    elem.logError("'enabled-var-name' present but 'enabled-var-value' absent");
+                    if (mode.reportAny) {
+                        elem.logError("'enabled-var-name' present but 'enabled-var-value' absent (40516)");
+                    }
                     valid = false;
                 } else {
                     input.setEnabledVarName(enabledVarNameStr);
@@ -4704,23 +5625,29 @@ public enum DocFactory {
                         try {
                             input.setEnabledVarValue(Long.valueOf(enabledVarValueStr));
                         } catch (final NumberFormatException ex) {
-                            elem.logError("Invalid 'enabled-var-value' attribute value");
+                            if (mode.reportAny) {
+                                elem.logError("Invalid 'enabled-var-value' attribute value (40517)");
+                            }
                             valid = false;
                         }
                     }
                 }
             } else if (enabledVarValueStr != null) {
-                elem.logError("'enabled-var-value' present but 'enabled-var-name' absent");
+                if (mode.reportAny) {
+                    elem.logError("'enabled-var-value' present but 'enabled-var-name' absent (40518)");
+                }
                 valid = false;
             }
 
-            valid = valid && extractFormattable(elem, input);
+            valid = valid && extractFormattable(elem, input, mode);
 
             if (valid) {
                 container.add(input);
             }
         } catch (final NumberFormatException e) {
-            elem.logError("Invalid radio button value.");
+            if (mode.reportAny) {
+                elem.logError("Invalid radio button value. (40519)");
+            }
             valid = false;
         }
 
@@ -4742,6 +5669,17 @@ public enum DocFactory {
                                                 final NonemptyElement elem, final AbstractDocSpanBase container,
                                                 final EParserMode mode) {
 
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (TYPE.equals(attrName) || "name".equals(attrName) || ENABLED_VAR_NAME.equals(attrName)
+                    || ENABLED_VAR_VALUE.equals(attrName) || VALUE.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40520)";
+                elem.logError(msg);
+            }
+        }
+
         boolean valid = true;
 
         final String valueStr = elem.getStringAttr(VALUE);
@@ -4755,20 +5693,26 @@ public enum DocFactory {
                 final String childTag = nonempty.getTagName();
 
                 if (ENABLED.equalsIgnoreCase(childTag)) {
-                    if (mode == EParserMode.NORMAL) {
-                        elem.logError("Deprecated 'enabled' formula on input");
+                    if (mode.reportDeprecated) {
+                        elem.logError("Deprecated 'enabled' formula on input (40521)");
                     }
                     enabledF = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                     if (enabledF == null) {
-                        elem.logError("Invalid 'enabled' formula.");
+                        if (mode.reportAny) {
+                            elem.logError("Invalid 'enabled' formula. (40522)");
+                        }
                         valid = false;
                     }
                 } else {
-                    elem.logError("The " + childTag + " tag is not valid within input.");
+                    if (mode.reportAny) {
+                        elem.logError("The " + childTag + " tag is not valid within input. (40523)");
+                    }
                     valid = false;
                 }
             } else if ((!(child instanceof CData) && !(child instanceof Comment))) {
-                elem.logError("Found " + child.getClass().getSimpleName() + " in Input.");
+                if (mode.reportAny) {
+                    elem.logError("Found " + child.getClass().getSimpleName() + " in Input. (40524)");
+                }
                 valid = false;
             }
         }
@@ -4784,14 +5728,18 @@ public enum DocFactory {
                 if (TRUE.equalsIgnoreCase(selectedStr)) {
                     input.selectChoice();
                 } else if (!FALSE.equalsIgnoreCase(selectedStr)) {
-                    elem.logError("Invalid checkbox selected value (must be TRUE or FALSE).");
+                    if (mode.reportAny) {
+                        elem.logError("Invalid checkbox selected value (must be TRUE or FALSE). (40525)");
+                    }
                     valid = false;
                 }
             }
 
             if (enabledVarNameStr != null) {
                 if (enabledVarValueStr == null) {
-                    elem.logError("'enabled-var-name' present but 'enabled-var-value' absent");
+                    if (mode.reportAny) {
+                        elem.logError("'enabled-var-name' present but 'enabled-var-value' absent (40526)");
+                    }
                     valid = false;
                 } else {
                     input.setEnabledVarName(enabledVarNameStr);
@@ -4804,23 +5752,29 @@ public enum DocFactory {
                         try {
                             input.setEnabledVarValue(Long.valueOf(enabledVarValueStr));
                         } catch (final NumberFormatException ex) {
-                            elem.logError("Invalid 'enabled-var-value' attribute value");
+                            if (mode.reportAny) {
+                                elem.logError("Invalid 'enabled-var-value' attribute value (40527)");
+                            }
                             valid = false;
                         }
                     }
                 }
             } else if (enabledVarValueStr != null) {
-                elem.logError("'enabled-var-value' present but 'enabled-var-name' absent");
+                if (mode.reportAny) {
+                    elem.logError("'enabled-var-value' present but 'enabled-var-name' absent (40528)");
+                }
                 valid = false;
             }
 
-            valid = valid && extractFormattable(elem, input);
+            valid = valid && extractFormattable(elem, input, mode);
 
             if (valid) {
                 container.add(input);
             }
         } catch (final NumberFormatException e) {
-            elem.logError("Invalid checkbox value.");
+            if (mode.reportAny) {
+                elem.logError("Invalid checkbox value. (40529)");
+            }
             valid = false;
         }
 
@@ -4842,6 +5796,17 @@ public enum DocFactory {
                                                 final NonemptyElement elem, final AbstractDocSpanBase container,
                                                 final EParserMode mode) {
 
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (TYPE.equals(attrName) || "name".equals(attrName) || ENABLED_VAR_NAME.equals(attrName)
+                    || ENABLED_VAR_VALUE.equals(attrName) || DEFAULT.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40530)";
+                elem.logError(msg);
+            }
+        }
+
         boolean valid = true;
 
         final String value = elem.getStringAttr(VALUE);
@@ -4858,16 +5823,20 @@ public enum DocFactory {
                 final String childTag = nonempty.getTagName();
 
                 if (ENABLED.equalsIgnoreCase(childTag)) {
-                    if (mode == EParserMode.NORMAL) {
-                        elem.logError("Deprecated 'enabled' formula on input");
+                    if (mode.reportDeprecated) {
+                        elem.logError("Deprecated 'enabled' formula on input (40531)");
                     }
                     enabledF = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                     if (enabledF == null) {
-                        elem.logError("Invalid 'enabled' formula.");
+                        if (mode.reportAny) {
+                            elem.logError("Invalid 'enabled' formula. (40532)");
+                        }
                         valid = false;
                     }
                 } else {
-                    elem.logError("The " + childTag + " tag is not valid within input.");
+                    if (mode.reportAny) {
+                        elem.logError("The " + childTag + " tag is not valid within input. (40533)");
+                    }
                     valid = false;
                 }
             } else if (child instanceof final EmptyElement empty) {
@@ -4876,12 +5845,16 @@ public enum DocFactory {
                     final String optionText = empty.getStringAttr("text");
 
                     if (optionText == null) {
-                        elem.logError("Option within dropdown input has no text");
+                        if (mode.reportAny) {
+                            elem.logError("Option within dropdown input has no text (40534)");
+                        }
                         valid = false;
                     } else {
                         final String optionValue = empty.getStringAttr("value");
                         if (optionValue == null) {
-                            elem.logError("Option within dropdown input has no value");
+                            if (mode.reportAny) {
+                                elem.logError("Option within dropdown input has no value (40535)");
+                            }
                             valid = false;
                         } else {
                             try {
@@ -4890,23 +5863,31 @@ public enum DocFactory {
                                         parsedValue);
                                 input.addOption(option);
                             } catch (final NumberFormatException e) {
-                                elem.logError("Unable to parse option value within dropdown input");
+                                if (mode.reportAny) {
+                                    elem.logError("Unable to parse option value within dropdown input (40536)");
+                                }
                                 valid = false;
                             }
                         }
                     }
                 } else {
-                    elem.logError("The " + childTag + " tag is not valid within input.");
+                    if (mode.reportAny) {
+                        elem.logError("The " + childTag + " tag is not valid within input. (40537)");
+                    }
                     valid = false;
                 }
             } else if ((!(child instanceof CData) && !(child instanceof Comment))) {
-                elem.logError("Found " + child.getClass().getSimpleName() + " in Input.");
+                if (mode.reportAny) {
+                    elem.logError("Found " + child.getClass().getSimpleName() + " in Input. (40538)");
+                }
                 valid = false;
             }
         }
 
         if (input.getNumOptions() == 0) {
-            elem.logError("Dropdown input has no options.");
+            if (mode.reportAny) {
+                elem.logError("Dropdown input has no options. (40539)");
+            }
             valid = false;
         } else {
             input.setEnabledFormula(enabledF);
@@ -4916,7 +5897,9 @@ public enum DocFactory {
             try {
                 input.defaultValue = Long.valueOf(defaultStr);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid 'default' attribute value");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'default' attribute value (40540)");
+                }
                 valid = false;
             }
         }
@@ -4926,14 +5909,18 @@ public enum DocFactory {
                 final Long longValue = Long.valueOf(value);
                 input.setValue(longValue);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid 'value' attribute value");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'value' attribute value (40541)");
+                }
                 valid = false;
             }
         }
 
         if (enabledVarNameStr != null) {
             if (enabledVarValueStr == null) {
-                elem.logError("'enabled-var-name' present but 'enabled-var-value' absent");
+                if (mode.reportAny) {
+                    elem.logError("'enabled-var-name' present but 'enabled-var-value' absent (40542)");
+                }
                 valid = false;
             } else {
                 input.setEnabledVarName(enabledVarNameStr);
@@ -4947,17 +5934,21 @@ public enum DocFactory {
                         final Long varValue = Long.valueOf(enabledVarValueStr);
                         input.setEnabledVarValue(varValue);
                     } catch (final NumberFormatException ex) {
-                        elem.logError("Invalid 'enabled-var-value' attribute value");
+                        if (mode.reportAny) {
+                            elem.logError("Invalid 'enabled-var-value' attribute value (40543)");
+                        }
                         valid = false;
                     }
                 }
             }
         } else if (enabledVarValueStr != null) {
-            elem.logError("'enabled-var-value' present but 'enabled-var-name' absent");
+            if (mode.reportAny) {
+                elem.logError("'enabled-var-value' present but 'enabled-var-name' absent (40544)");
+            }
             valid = false;
         }
 
-        valid = valid && extractFormattable(elem, input);
+        valid = valid && extractFormattable(elem, input, mode);
 
         if (valid) {
             container.add(input);
@@ -4983,13 +5974,17 @@ public enum DocFactory {
 
         final String type = elem.getStringAttr(TYPE);
         if (type == null) {
-            elem.logError("<input> element missing required 'type' attribute");
+            if (mode.reportAny) {
+                elem.logError("<input> element missing required 'type' attribute (40550)");
+            }
             valid = false;
         }
 
         final String name = elem.getStringAttr("name");
         if (name == null) {
-            elem.logError("<input> element missing required 'name' attribute");
+            if (mode.reportAny) {
+                elem.logError("<input> element missing required 'name' attribute (40551)");
+            }
             valid = false;
         }
 
@@ -4999,7 +5994,9 @@ public enum DocFactory {
             try {
                 width = Integer.valueOf(widthStr);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid 'width' value.");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'width' value. (40552)");
+                }
                 valid = false;
             }
         }
@@ -5009,7 +6006,9 @@ public enum DocFactory {
         if (enabledStr != null) {
             enabledF = FormulaFactory.parseFormulaString(evalContext, enabledStr, mode);
             if (enabledF == null) {
-                elem.logError("Invalid 'enabled' formula.");
+                if (mode.reportAny) {
+                    elem.logError("Invalid 'enabled' formula. (40553)");
+                }
                 valid = false;
             }
         }
@@ -5033,7 +6032,9 @@ public enum DocFactory {
                     try {
                         longInput.defaultValue = Long.valueOf(defaultStr);
                     } catch (final NumberFormatException ex) {
-                        elem.logError("Invalid 'default' attribute value");
+                        if (mode.reportAny) {
+                            elem.logError("Invalid 'default' attribute value (40554)");
+                        }
                         valid = false;
                     }
                 }
@@ -5042,7 +6043,9 @@ public enum DocFactory {
                     try {
                         longInput.minusAs = Long.valueOf(treatMinusAsStr);
                     } catch (final NumberFormatException ex) {
-                        elem.logError("Invalid 'treat-minus-as' attribute value");
+                        if (mode.reportAny) {
+                            elem.logError("Invalid 'treat-minus-as' attribute value (40555)");
+                        }
                         valid = false;
                     }
                 }
@@ -5057,7 +6060,9 @@ public enum DocFactory {
                     } else if (UNDERLINE.equalsIgnoreCase(styleStr)) {
                         longInput.style = EFieldStyle.UNDERLINE;
                     } else {
-                        elem.logError("Invalid 'style' attribute value");
+                        if (mode.reportAny) {
+                            elem.logError("Invalid 'style' attribute value (40556)");
+                        }
                         valid = false;
                     }
                 }
@@ -5069,7 +6074,9 @@ public enum DocFactory {
                         final Long longValue = Long.valueOf(value);
                         longInput.setOnlyLongValue(longValue);
                     } catch (final NumberFormatException ex) {
-                        elem.logError("Invalid 'value' attribute value");
+                        if (mode.reportAny) {
+                            elem.logError("Invalid 'value' attribute value (40557)");
+                        }
                         valid = false;
                     }
                 }
@@ -5083,7 +6090,9 @@ public enum DocFactory {
                     try {
                         doubleInput.defaultValue = Double.valueOf(defaultStr);
                     } catch (final NumberFormatException ex) {
-                        elem.logError("Invalid 'default' attribute value");
+                        if (mode.reportAny) {
+                            elem.logError("Invalid 'default' attribute value (40558)");
+                        }
                         valid = false;
                     }
                 }
@@ -5092,7 +6101,9 @@ public enum DocFactory {
                     try {
                         doubleInput.minusAs = Double.valueOf(treatMinusAsStr);
                     } catch (final NumberFormatException ex) {
-                        elem.logError("Invalid 'treat-minus-as' attribute value");
+                        if (mode.reportAny) {
+                            elem.logError("Invalid 'treat-minus-as' attribute value (40559)");
+                        }
                         valid = false;
                     }
                 }
@@ -5107,7 +6118,9 @@ public enum DocFactory {
                     } else if (UNDERLINE.equalsIgnoreCase(styleStr)) {
                         doubleInput.style = EFieldStyle.UNDERLINE;
                     } else {
-                        elem.logError("Invalid 'style' attribute value");
+                        if (mode.reportAny) {
+                            elem.logError("Invalid 'style' attribute value (40560)");
+                        }
                         valid = false;
                     }
                 }
@@ -5119,7 +6132,9 @@ public enum DocFactory {
                         final Double dblValue = Double.valueOf(value);
                         doubleInput.setOnlyDoubleValue(dblValue);
                     } catch (final NumberFormatException ex) {
-                        elem.logError("Invalid 'value' attribute value");
+                        if (mode.reportAny) {
+                            elem.logError("Invalid 'value' attribute value (40561)");
+                        }
                         valid = false;
                     }
                 }
@@ -5139,7 +6154,9 @@ public enum DocFactory {
                     } else if (UNDERLINE.equalsIgnoreCase(styleStr)) {
                         stringInput.style = EFieldStyle.UNDERLINE;
                     } else {
-                        elem.logError("Invalid 'style' attribute value");
+                        if (mode.reportAny) {
+                            elem.logError("Invalid 'style' attribute value (40562)");
+                        }
                         valid = false;
                     }
                 }
@@ -5163,12 +6180,16 @@ public enum DocFactory {
                         if (TRUE.equalsIgnoreCase(selectedStr)) {
                             radioInput.selectChoice();
                         } else if (!FALSE.equalsIgnoreCase(selectedStr)) {
-                            elem.logError("Invalid radio button selected value (must be TRUE or FALSE).");
+                            if (mode.reportAny) {
+                                elem.logError("Invalid radio button selected value (must be TRUE or FALSE). (40563)");
+                            }
                             valid = false;
                         }
                     }
                 } catch (final NumberFormatException e) {
-                    elem.logError("Invalid radio button value.");
+                    if (mode.reportAny) {
+                        elem.logError("Invalid radio button value. (40564)");
+                    }
                     valid = false;
                 }
             }
@@ -5185,24 +6206,32 @@ public enum DocFactory {
                         if (TRUE.equalsIgnoreCase(selectedStr)) {
                             checkboxInput.selectChoice();
                         } else if (!FALSE.equalsIgnoreCase(selectedStr)) {
-                            elem.logError("Invalid checkbox selected value (must be TRUE or FALSE).");
+                            if (mode.reportAny) {
+                                elem.logError("Invalid checkbox selected value (must be TRUE or FALSE). (40565)");
+                            }
                             valid = false;
                         }
                     }
                 } catch (final NumberFormatException e) {
-                    elem.logError("Invalid checkbox value.");
+                    if (mode.reportAny) {
+                        elem.logError("Invalid checkbox value. (40566)");
+                    }
                     valid = false;
                 }
             }
             case null, default -> {
-                elem.logError("Unrecognized type of input.");
+                if (mode.reportAny) {
+                    elem.logError("Unrecognized type of input. (40567)");
+                }
                 valid = false;
             }
         }
 
         if (enabledVarNameStr != null) {
             if (enabledVarValueStr == null) {
-                elem.logError("'enabled-var-name' present but 'enabled-var-value' absent");
+                if (mode.reportAny) {
+                    elem.logError("'enabled-var-name' present but 'enabled-var-value' absent (40568)");
+                }
                 valid = false;
             } else if (input != null) {
                 input.setEnabledVarName(enabledVarNameStr);
@@ -5216,19 +6245,23 @@ public enum DocFactory {
                         final Long varValue = Long.valueOf(enabledVarValueStr);
                         input.setEnabledVarValue(varValue);
                     } catch (final NumberFormatException ex) {
-                        elem.logError("Invalid 'enabled-var-value' attribute value");
+                        if (mode.reportAny) {
+                            elem.logError("Invalid 'enabled-var-value' attribute value (40569)");
+                        }
                         valid = false;
                     }
                 }
-            } else {
+            } else if (mode.reportAny) {
                 elem.logError("input was not found");
             }
         } else if (enabledVarValueStr != null) {
-            elem.logError("'enabled-var-value' present but 'enabled-var-name' absent");
+            if (mode.reportAny) {
+                elem.logError("'enabled-var-value' present but 'enabled-var-name' absent (40570)");
+            }
             valid = false;
         }
 
-        valid = valid && extractFormattable(elem, input);
+        valid = valid && extractFormattable(elem, input, mode);
 
         if (valid) {
             container.add(input);
@@ -5242,9 +6275,11 @@ public enum DocFactory {
      *
      * @param elem the element
      * @param obj  the object to apply formatting to
+     * @param mode the parser mode
      * @return true if successful; false if any error occurred
      */
-    private static boolean extractFormattable(final IElement elem, final AbstractDocObjectTemplate obj) {
+    private static boolean extractFormattable(final IElement elem, final AbstractDocObjectTemplate obj,
+                                              final EParserMode mode) {
 
         boolean valid = true;
 
@@ -5253,34 +6288,43 @@ public enum DocFactory {
             if (ColorNames.isColorNameValid(colorStr)) {
                 obj.setColorName(colorStr);
             } else {
-                elem.logError("Unrecognized color: " + colorStr);
+                if (mode.reportAny) {
+                    elem.logError("Unrecognized color: " + colorStr + " (40580)");
+                }
                 valid = false;
             }
         }
 
         final String fontnameStr = elem.getStringAttr(FONT_NAME);
         if (fontnameStr != null) {
-            elem.logError("Font name should not be needed");
+            if (mode.reportAny) {
+                elem.logError("Font name should not be needed (40581)");
+            }
             if (BundledFontManager.getInstance().isFontNameValid(fontnameStr)) {
                 obj.setFontName(fontnameStr);
             } else {
-                elem.logError("Unrecognized font name: " + fontnameStr);
+                if (mode.reportAny) {
+                    elem.logError("Unrecognized font name: " + fontnameStr + " (40582)");
+                }
                 valid = false;
             }
         }
 
         final String fontsizeStr = elem.getStringAttr(FONT_SIZE);
         if (fontsizeStr != null) {
-            final String tag = elem.getTagName();
-            if ("sub".equals(tag) || "super".equals(tag) || "root".equals(tag)) {
-                if ("75%".equals(fontsizeStr)) {
-                    // Warn of unnecessary specification of default font size
-                    elem.logError("Unnecessary specification of font size (default is '75%').");
-                }
-            } else if ("fraction".equals(tag)) {
-                if (!"85%".equals(fontsizeStr)) {
-                    // Warn of unusual size for a fraction
-                    elem.logError("Unusual font size for a fraction (we recommend no explicit size, or '85%')");
+            if (mode.reportAny) {
+                final String tag = elem.getTagName();
+                if ("sub".equals(tag) || "super".equals(tag) || "root".equals(tag)) {
+                    if ("75%".equals(fontsizeStr)) {
+                        // Warn of unnecessary specification of default font size
+                        elem.logError("Unnecessary specification of font size (default is '75%'). (40583)");
+                    }
+                } else if ("fraction".equals(tag)) {
+                    if (!"85%".equals(fontsizeStr)) {
+                        // Warn of unusual size for a fraction
+                        elem.logError(
+                                "Unusual font size for a fraction (we recommend no explicit size, or '85%') (40584)");
+                    }
                 }
             }
 
@@ -5291,13 +6335,17 @@ public enum DocFactory {
                     final int scale = Integer.parseInt(substring);
 
                     if (scale < 1) {
-                        elem.logError("Font scale factor must be greater than zero.");
+                        if (mode.reportAny) {
+                            elem.logError("Font scale factor must be greater than zero. (40585)");
+                        }
                         valid = false;
                     } else {
                         obj.setFontScale(((float) scale + 0.01f) / 100.0f);
                     }
                 } catch (final NumberFormatException e) {
-                    elem.logError("Unrecognized font scale factor: " + fontsizeStr);
+                    if (mode.reportAny) {
+                        elem.logError("Unrecognized font scale factor: " + fontsizeStr + " (40586)");
+                    }
                     valid = false;
                 }
             } else {
@@ -5305,13 +6353,17 @@ public enum DocFactory {
                     final float size = Float.parseFloat(fontsizeStr);
 
                     if (size <= 0.0f) {
-                        elem.logError("Font size must be greater than zero.");
+                        if (mode.reportAny) {
+                            elem.logError("Font size must be greater than zero. (40587)");
+                        }
                         valid = false;
                     } else {
                         obj.setFontSize(size);
                     }
                 } catch (final NumberFormatException e) {
-                    elem.logError("Unrecognized font size: " + fontsizeStr);
+                    if (mode.reportAny) {
+                        elem.logError("Unrecognized font size: " + fontsizeStr + " (40588)");
+                    }
                     valid = false;
                 }
             }
@@ -5336,7 +6388,9 @@ public enum DocFactory {
                         case STRIKETHROUGH -> style |= AbstractDocObjectTemplate.STRIKETHROUGH;
                         case BOXED -> style |= AbstractDocObjectTemplate.BOXED;
                         default -> {
-                            elem.logError("Invalid font style.");
+                            if (mode.reportAny) {
+                                elem.logError("Invalid font style. (40589)");
+                            }
                             valid = false;
                         }
                     }
@@ -5414,12 +6468,12 @@ public enum DocFactory {
                     final String valueStr = value.substring(i + 2, i + 6);
                     try {
                         if (mode.reportDeprecated) {
-                            node.logError("Deprecated escape: \\u" + valueStr);
+                            node.logError("Deprecated escape: \\u" + valueStr + " (40600)");
                         }
                         htm.add((char) Integer.parseInt(valueStr, 16));
                         i += 5;
                     } catch (final NumberFormatException e) {
-                        node.logError("Invalid escape: \\u" + valueStr);
+                        node.logError("Invalid escape: \\u" + valueStr + " (40601)");
                     }
                 }
             } else {

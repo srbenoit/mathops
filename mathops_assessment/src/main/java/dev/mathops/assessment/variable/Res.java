@@ -20,7 +20,7 @@ final class Res extends ResBundle {
     /** The resources - an array of key-values pairs. */
     private static final String[][] EN_US = {
 
-            {UNEXPECTED_ATTR, "Unexpected attribute found: {0}."},
+            {UNEXPECTED_ATTR, "Unexpected attribute found in variable: {0}."},
     };
 
     /** The singleton instance. */

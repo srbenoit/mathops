@@ -202,8 +202,8 @@ public enum VariableFactory {
 
         boolean valid = true;
 
-        if (mode == EParserMode.NORMAL) {
-            elem.logError("Deprecated &lt;param&gt; element");
+        if (mode.reportDeprecated) {
+            elem.logError("Deprecated &lt;param&gt; element (20010)");
         }
 
         final String parameterName = elem.getStringAttr(NAME);
@@ -211,15 +211,21 @@ public enum VariableFactory {
         final String valueTypeStr = elem.getStringAttr(VALUE_TYPE);
 
         if (parameterName == null) {
-            elem.logError("<param> element is missing 'name' attribute.");
+            if (mode.reportAny) {
+                elem.logError("<param> element is missing 'name' attribute. (20011)");
+            }
             valid = false;
         } else if (parameterName.indexOf(L_BRACE) != -1 || parameterName.indexOf(R_BRACE) != -1) {
-            elem.logError("Parameter names may not contain '{' or '}'");
+            if (mode.reportAny) {
+                elem.logError("Parameter names may not contain '{' or '}' (20012)");
+            }
             valid = false;
         }
 
         if (parameterType == null) {
-            elem.logError("&lt;param&gt; element is missing 'type' attribute.");
+            if (mode.reportAny) {
+                elem.logError("&lt;param&gt; element is missing 'type' attribute. (20013)");
+            }
             valid = false;
         }
 
@@ -250,7 +256,9 @@ public enum VariableFactory {
         } else if (VariableDerived.TYPE_TAG.equalsIgnoreCase(parameterType)) {
             variable = new VariableDerived(parameterName, type);
         } else {
-            elem.logError("Unrecognized parameter type: " + parameterType);
+            if (mode.reportAny) {
+                elem.logError("Unrecognized parameter type: " + parameterType + " (20014)");
+            }
             valid = false;
         }
 
@@ -269,7 +277,9 @@ public enum VariableFactory {
                     if (minStr != null) {
                         final Formula minFormula = FormulaFactory.parseFormulaString(evalContext, minStr, mode);
                         if (minFormula == null) {
-                            elem.logError("Unable to parse 'min' formula.");
+                            if (mode.reportAny) {
+                                elem.logError("Unable to parse 'min' formula. (20015)");
+                            }
                             valid = false;
                         } else {
                             vRInt.setMin(new NumberOrFormula(minFormula));
@@ -278,7 +288,9 @@ public enum VariableFactory {
                     if (maxStr != null) {
                         final Formula maxFormula = FormulaFactory.parseFormulaString(evalContext, maxStr, mode);
                         if (maxFormula == null) {
-                            elem.logError("Unable to parse 'max' formula.");
+                            if (mode.reportAny) {
+                                elem.logError("Unable to parse 'max' formula. (20016)");
+                            }
                             valid = false;
                         } else {
                             vRInt.setMax(new NumberOrFormula(maxFormula));
@@ -286,7 +298,9 @@ public enum VariableFactory {
                     }
 
                     if (vRInt.getMin() == null || vRInt.getMax() == null) {
-                        elem.logError("'random-int' parameters require 'min' and 'max' attributes.");
+                        if (mode.reportAny) {
+                            elem.logError("'random-int' parameters require 'min' and 'max' attributes. (20017)");
+                        }
                         valid = false;
                     }
                 }
@@ -294,7 +308,9 @@ public enum VariableFactory {
                     if (minStr != null) {
                         final Formula minFormula = FormulaFactory.parseFormulaString(evalContext, minStr, mode);
                         if (minFormula == null) {
-                            elem.logError("Unable to parse 'min' formula.");
+                            if (mode.reportAny) {
+                                elem.logError("Unable to parse 'min' formula. (20018)");
+                            }
                             valid = false;
                         } else {
                             vRReal.setMin(new NumberOrFormula(minFormula));
@@ -303,7 +319,9 @@ public enum VariableFactory {
                     if (maxStr != null) {
                         final Formula maxFormula = FormulaFactory.parseFormulaString(evalContext, maxStr, mode);
                         if (maxFormula == null) {
-                            elem.logError("Unable to parse 'max' formula.");
+                            if (mode.reportAny) {
+                                elem.logError("Unable to parse 'max' formula. (20019)");
+                            }
                             valid = false;
                         } else {
                             vRReal.setMax(new NumberOrFormula(maxFormula));
@@ -311,7 +329,9 @@ public enum VariableFactory {
                     }
 
                     if (vRReal.getMin() == null || vRReal.getMax() == null) {
-                        elem.logError("'random-real' parameters require 'min' and 'max' attributes.");
+                        if (mode.reportAny) {
+                            elem.logError("'random-real' parameters require 'min' and 'max' attributes. (20020)");
+                        }
                         valid = false;
                     }
                 }
@@ -319,7 +339,9 @@ public enum VariableFactory {
                     if (minStr != null) {
                         final Formula minFormula = FormulaFactory.parseFormulaString(evalContext, minStr, mode);
                         if (minFormula == null) {
-                            elem.logError("Unable to parse 'min' formula.");
+                            if (mode.reportAny) {
+                                elem.logError("Unable to parse 'min' formula. (20021)");
+                            }
                             valid = false;
                         } else {
                             vDer.setMin(new NumberOrFormula(minFormula));
@@ -328,7 +350,9 @@ public enum VariableFactory {
                     if (maxStr != null) {
                         final Formula maxFormula = FormulaFactory.parseFormulaString(evalContext, maxStr, mode);
                         if (maxFormula == null) {
-                            elem.logError("Unable to parse 'max' formula.");
+                            if (mode.reportAny) {
+                                elem.logError("Unable to parse 'max' formula. (20022)");
+                            }
                             valid = false;
                         } else {
                             vDer.setMax(new NumberOrFormula(maxFormula));
@@ -338,11 +362,15 @@ public enum VariableFactory {
                 default -> {
                     // All other types may not have min or max values
                     if (minStr != null) {
-                        elem.logError("Only random numeric or derived parameters can have minimum.");
+                        if (mode.reportAny) {
+                            elem.logError("Only random numeric or derived parameters can have minimum. (20023)");
+                        }
                         valid = false;
                     }
                     if (maxStr != null) {
-                        elem.logError("Only random numeric or derived parameters can have maximum.");
+                        if (mode.reportAny) {
+                            elem.logError("Only random numeric or derived parameters can have maximum. (20024)");
+                        }
                         valid = false;
                     }
                 }
@@ -359,7 +387,9 @@ public enum VariableFactory {
                         final Formula formula = FormulaFactory.parseFormulaString(evalContext, toParse, mode);
 
                         if (formula == null) {
-                            elem.logError("Unable to parse 'exclude' formula.");
+                            if (mode.reportAny) {
+                                elem.logError("Unable to parse 'exclude' formula. (20025)");
+                            }
                             valid = false;
                         } else {
                             formulas.add(formula);
@@ -367,14 +397,18 @@ public enum VariableFactory {
                     }
 
                     if (formulas.isEmpty()) {
-                        elem.logError("Empty exclude value in parameter.");
+                        if (mode.reportAny) {
+                            elem.logError("Empty exclude value in parameter. (20026)");
+                        }
                         valid = false;
                     } else {
                         final Formula[] excludeFormulae = formulas.toArray(ZERO_LEN_FORMULA_ARR);
                         excludeVar.setExcludes(excludeFormulae);
                     }
                 } else {
-                    elem.logError("Only random or derived integer or choice parameter can have excludes.");
+                    if (mode.reportAny) {
+                        elem.logError("Only random or derived integer or choice parameter can have excludes. (20027)");
+                    }
                     valid = false;
                 }
             }
@@ -391,7 +425,9 @@ public enum VariableFactory {
                         final Formula formula = FormulaFactory.parseFormulaString(evalContext, toParse, mode);
 
                         if (formula == null) {
-                            elem.logError("Unable to parse 'choose-from' formula.");
+                            if (mode.reportAny) {
+                                elem.logError("Unable to parse 'choose-from' formula. (20028)");
+                            }
                             valid = false;
                         } else {
                             if (type == null) {
@@ -407,14 +443,18 @@ public enum VariableFactory {
                     }
 
                     if (formulas.isEmpty()) {
-                        elem.logError("Empty choose-from value in parameter.");
+                        if (mode.reportAny) {
+                            elem.logError("Empty choose-from value in parameter. (20029)");
+                        }
                         valid = false;
                     } else {
                         final Formula[] chooseFormulae = formulas.toArray(ZERO_LEN_FORMULA_ARR);
                         rcvar.setChooseFromList(chooseFormulae);
                     }
                 } else {
-                    elem.logError("Only random-choice parameter can have choose-from list.");
+                    if (mode.reportAny) {
+                        elem.logError("Only random-choice parameter can have choose-from list. (20030)");
+                    }
                     valid = false;
                 }
             }
@@ -426,7 +466,9 @@ public enum VariableFactory {
 
                     final Formula formula = FormulaFactory.parseFormulaString(evalContext, formulaStr, mode);
                     if (formula == null) {
-                        elem.logError("Unable to parse 'formula' formula.");
+                        if (mode.reportAny) {
+                            elem.logError("Unable to parse 'formula' formula. (20031)");
+                        }
                         valid = false;
                     } else {
                         vDer.setFormula(formula);
@@ -440,7 +482,9 @@ public enum VariableFactory {
                         }
                     }
                 } else {
-                    elem.logError("Only derived parameter can have formula list.");
+                    if (mode.reportAny) {
+                        elem.logError("Only derived parameter can have formula list. (20032)");
+                    }
                     valid = false;
                 }
             }
@@ -450,7 +494,9 @@ public enum VariableFactory {
             if (valueStr == null) {
                 if (variable instanceof VariableInteger || variable instanceof VariableReal
                     || variable instanceof VariableBoolean) {
-                    elem.logError("Constant parameter with no value.");
+                    if (mode.reportAny) {
+                        elem.logError("Constant parameter with no value. (20033)");
+                    }
                     valid = false;
                 }
             } else if (variable instanceof VariableInteger || variable instanceof VariableReal
@@ -459,22 +505,30 @@ public enum VariableFactory {
                 final Formula formula = FormulaFactory.parseFormulaString(evalContext, valueStr, mode);
 
                 if (formula == null) {
-                    elem.logError("Constant parameter with invalid value.");
+                    if (mode.reportAny) {
+                        elem.logError("Constant parameter with invalid value. (20034)");
+                    }
                     valid = false;
                 } else if (formula.parameterNames().length > 0) {
-                    elem.logError("Constant value may not reference other parameters.");
+                    if (mode.reportAny) {
+                        elem.logError("Constant value may not reference other parameters. (20035)");
+                    }
                     valid = false;
                 } else {
                     final Object evaluationResult = formula.evaluate(evalContext);
 
                     if (evaluationResult instanceof ErrorValue) {
-                        elem.logError("Can't evaluate constant value:" + evaluationResult);
+                        if (mode.reportAny) {
+                            elem.logError("Can't evaluate constant value:" + evaluationResult + " (20036)");
+                        }
                         valid = false;
                     } else if (variable instanceof VariableInteger) {
                         if (evaluationResult instanceof Long) {
                             variable.setValue(evaluationResult);
                         } else {
-                            elem.logError("Integer parameter value is not integer.");
+                            if (mode.reportAny) {
+                                elem.logError("Integer parameter value is not integer. (20037)");
+                            }
                             valid = false;
                         }
                     } else if (variable instanceof VariableReal) {
@@ -485,18 +539,24 @@ public enum VariableFactory {
                         } else if (evaluationResult instanceof Double) {
                             variable.setValue(evaluationResult);
                         } else {
-                            elem.logError("Real parameter value is not real.");
+                            if (mode.reportAny) {
+                                elem.logError("Real parameter value is not real. (20038)");
+                            }
                             valid = false;
                         }
                     } else if (evaluationResult instanceof Boolean) {
                         variable.setValue(evaluationResult);
                     } else {
-                        elem.logError("Boolean parameter value is not boolean.");
+                        if (mode.reportAny) {
+                            elem.logError("Boolean parameter value is not boolean. (20039)");
+                        }
                         valid = false;
                     }
                 }
             } else {
-                elem.logError("Only constant types may have value specifications.");
+                if (mode.reportAny) {
+                    elem.logError("Only constant types may have value specifications. (20040)");
+                }
                 valid = false;
             }
 
@@ -510,12 +570,16 @@ public enum VariableFactory {
                         final Long parsedLong = Long.valueOf(generatedIntegerStr);
                         variable.setValue(parsedLong);
                     } catch (final NumberFormatException e) {
-                        elem.logError("Invalid 'generated-integer' value: " + generatedIntegerStr);
+                        if (mode.reportAny) {
+                            elem.logError("Invalid 'generated-integer' value: " + generatedIntegerStr + "  (20041)");
+                        }
                         valid = false;
                     }
                 } else {
-                    elem.logError("Only random integer, random real, choice or derived parameter can have generated " +
-                                  "integer value.");
+                    if (mode.reportAny) {
+                        elem.logError("Only random integer, random real, choice or derived parameter can have " +
+                                      "generated integer value. (20042)");
+                    }
                     valid = false;
                 }
             }
@@ -530,11 +594,16 @@ public enum VariableFactory {
                         final Double parsedDbl = Double.valueOf(generatedRealStr);
                         variable.setValue(parsedDbl);
                     } catch (final NumberFormatException e) {
-                        elem.logError("Invalid 'generated-real' value: " + generatedRealStr);
+                        if (mode.reportAny) {
+                            elem.logError("Invalid 'generated-real' value: " + generatedRealStr + " (20043)");
+                        }
                         valid = false;
                     }
                 } else {
-                    elem.logError("Only random real, choice or derived parameter can have generated real value.");
+                    if (mode.reportAny) {
+                        elem.logError(
+                                "Only random real, choice or derived parameter can have generated real value. (20044)");
+                    }
                     valid = false;
                 }
             }
@@ -549,11 +618,17 @@ public enum VariableFactory {
                         final Boolean parsedBoolean = parseBooleanValue(generatedBooleanStr);
                         variable.setValue(parsedBoolean);
                     } catch (final IllegalArgumentException ex) {
-                        elem.logError("Invalid 'generated-boolean' value: " + generatedBooleanStr);
+                        if (mode.reportAny) {
+                            elem.logError("Invalid 'generated-boolean' value: " + generatedBooleanStr + " (20045)");
+                        }
                         valid = false;
                     }
                 } else {
-                    elem.logError("Only random boolean, choice or derived parameter can have generated boolean value.");
+                    if (mode.reportAny) {
+                        elem.logError(
+                                "Only random boolean, choice or derived parameter can have generated boolean value. " +
+                                "(20046)");
+                    }
                     valid = false;
                 }
             }
@@ -565,11 +640,15 @@ public enum VariableFactory {
                     try {
                         variable.setValue(generatedString);
                     } catch (final NumberFormatException e) {
-                        elem.logError("Invalid 'generated-string' value: " + generatedString);
+                        if (mode.reportAny) {
+                            elem.logError("Invalid 'generated-string' value: " + generatedString + " (20047)");
+                        }
                         valid = false;
                     }
                 } else {
-                    elem.logError("Only derived parameter can have generated string value.");
+                    if (mode.reportAny) {
+                        elem.logError("Only derived parameter can have generated string value (20048)");
+                    }
                     valid = false;
                 }
             }
@@ -580,13 +659,17 @@ public enum VariableFactory {
                 if (variable instanceof final AbstractFormattableVariable fmt) {
                     fmt.setFormatPattern(decimalFormatStr);
                 } else {
-                    elem.logError("Only formattable variables may have decimal-format.");
+                    if (mode.reportAny) {
+                        elem.logError("Only formattable variables may have decimal-format. (20049)");
+                    }
                     valid = false;
                 }
             }
 
             if (variable instanceof VariableSpan) {
-                elem.logError("Span parameter must contain span elements.");
+                if (mode.reportAny) {
+                    elem.logError("Span parameter must contain span elements. (20050)");
+                }
                 valid = false;
             }
 
@@ -598,7 +681,9 @@ public enum VariableFactory {
                     }
                     evalContext.addVariable(variable);
                 } else {
-                    elem.logError("Parameter '" + variable.name + "' is duplicated.");
+                    if (mode.reportAny) {
+                        elem.logError("Parameter '" + variable.name + "' is duplicated. (20051)");
+                    }
                     valid = false;
                 }
             }
@@ -623,8 +708,8 @@ public enum VariableFactory {
 
         boolean valid = true;
 
-        if (mode == EParserMode.NORMAL) {
-            elem.logError("Deprecated &lt;param&gt; element");
+        if (mode.reportDeprecated) {
+            elem.logError("Deprecated &lt;param&gt; element (20060)");
         }
 
         final String parameterName = elem.getStringAttr(NAME);
@@ -632,15 +717,21 @@ public enum VariableFactory {
         final String valueTypeStr = elem.getStringAttr(VALUE_TYPE);
 
         if (parameterName == null) {
-            elem.logError("<param> element is missing 'name' attribute.");
+            if (mode.reportAny) {
+                elem.logError("<param> element is missing 'name' attribute. (20061)");
+            }
             valid = false;
         } else if (parameterName.indexOf(L_BRACE) != -1 || parameterName.indexOf(R_BRACE) != -1) {
-            elem.logError("Parameter names may not contain '{' or '}'");
+            if (mode.reportAny) {
+                elem.logError("Parameter names may not contain '{' or '}' (20062)");
+            }
             valid = false;
         }
 
         if (parameterType == null) {
-            elem.logError("<param> element is missing 'type' attribute.");
+            if (mode.reportAny) {
+                elem.logError("<param> element is missing 'type' attribute. (20063)");
+            }
             valid = false;
         }
 
@@ -677,7 +768,9 @@ public enum VariableFactory {
         } else if (VariableInputReal.TYPE_TAG.equalsIgnoreCase(parameterType)) {
             variable = new VariableInputReal(parameterName);
         } else {
-            elem.logError("Unrecognized parameter type: " + parameterType);
+            if (mode.reportAny) {
+                elem.logError("Unrecognized parameter type: " + parameterType + " (20064)");
+            }
             valid = false;
         }
 
@@ -696,7 +789,9 @@ public enum VariableFactory {
                     if (minStr != null) {
                         final Formula minFormula = FormulaFactory.parseFormulaString(evalContext, minStr, mode);
                         if (minFormula == null) {
-                            elem.logError("Unable to parse 'min' formula.");
+                            if (mode.reportAny) {
+                                elem.logError("Unable to parse 'min' formula. (20065)");
+                            }
                             valid = false;
                         } else {
                             vRInt.setMin(new NumberOrFormula(minFormula));
@@ -705,7 +800,9 @@ public enum VariableFactory {
                     if (maxStr != null) {
                         final Formula maxFormula = FormulaFactory.parseFormulaString(evalContext, maxStr, mode);
                         if (maxFormula == null) {
-                            elem.logError("Unable to parse 'max' formula.");
+                            if (mode.reportAny) {
+                                elem.logError("Unable to parse 'max' formula. (20066)");
+                            }
                             valid = false;
                         } else {
                             vRInt.setMax(new NumberOrFormula(maxFormula));
@@ -713,7 +810,9 @@ public enum VariableFactory {
                     }
 
                     if (vRInt.getMin() == null || vRInt.getMax() == null) {
-                        elem.logError("'random-int' parameters require 'min' and 'max' attributes.");
+                        if (mode.reportAny) {
+                            elem.logError("'random-int' parameters require 'min' and 'max' attributes. (20067)");
+                        }
                         valid = false;
                     }
                 }
@@ -721,7 +820,9 @@ public enum VariableFactory {
                     if (minStr != null) {
                         final Formula minFormula = FormulaFactory.parseFormulaString(evalContext, minStr, mode);
                         if (minFormula == null) {
-                            elem.logError("Unable to parse 'min' formula.");
+                            if (mode.reportAny) {
+                                elem.logError("Unable to parse 'min' formula. (20068)");
+                            }
                             valid = false;
                         } else {
                             vRReal.setMin(new NumberOrFormula(minFormula));
@@ -730,7 +831,9 @@ public enum VariableFactory {
                     if (maxStr != null) {
                         final Formula maxFormula = FormulaFactory.parseFormulaString(evalContext, maxStr, mode);
                         if (maxFormula == null) {
-                            elem.logError("Unable to parse 'max' formula.");
+                            if (mode.reportAny) {
+                                elem.logError("Unable to parse 'max' formula. (20069)");
+                            }
                             valid = false;
                         } else {
                             vRReal.setMax(new NumberOrFormula(maxFormula));
@@ -738,7 +841,9 @@ public enum VariableFactory {
                     }
 
                     if (vRReal.getMin() == null || vRReal.getMax() == null) {
-                        elem.logError("'random-real' parameters require 'min' and 'max' attributes.");
+                        if (mode.reportAny) {
+                            elem.logError("'random-real' parameters require 'min' and 'max' attributes. (20070)");
+                        }
                         valid = false;
                     }
                 }
@@ -746,7 +851,9 @@ public enum VariableFactory {
                     if (minStr != null) {
                         final Formula minFormula = FormulaFactory.parseFormulaString(evalContext, minStr, mode);
                         if (minFormula == null) {
-                            elem.logError("Unable to parse 'min' formula.");
+                            if (mode.reportAny) {
+                                elem.logError("Unable to parse 'min' formula. (20071)");
+                            }
                             valid = false;
                         } else {
                             vDer.setMin(new NumberOrFormula(minFormula));
@@ -755,7 +862,9 @@ public enum VariableFactory {
                     if (maxStr != null) {
                         final Formula maxFormula = FormulaFactory.parseFormulaString(evalContext, maxStr, mode);
                         if (maxFormula == null) {
-                            elem.logError("Unable to parse 'max' formula.");
+                            if (mode.reportAny) {
+                                elem.logError("Unable to parse 'max' formula. (20072)");
+                            }
                             valid = false;
                         } else {
                             vDer.setMax(new NumberOrFormula(maxFormula));
@@ -765,11 +874,15 @@ public enum VariableFactory {
                 default -> {
                     // All other types may not have min or max values
                     if (minStr != null) {
-                        elem.logError("Only random numeric or derived parameters can have minimum.");
+                        if (mode.reportAny) {
+                            elem.logError("Only random numeric or derived parameters can have minimum. (20073)");
+                        }
                         valid = false;
                     }
                     if (maxStr != null) {
-                        elem.logError("Only random numeric or derived parameters can have maximum.");
+                        if (mode.reportAny) {
+                            elem.logError("Only random numeric or derived parameters can have maximum. (20074)");
+                        }
                         valid = false;
                     }
                 }
@@ -786,7 +899,9 @@ public enum VariableFactory {
                         final Formula formula = FormulaFactory.parseFormulaString(evalContext, toParse, mode);
 
                         if (formula == null) {
-                            elem.logError("Unable to parse 'exclude' formula.");
+                            if (mode.reportAny) {
+                                elem.logError("Unable to parse 'exclude' formula. (20075)");
+                            }
                             valid = false;
                         } else {
                             formulas.add(formula);
@@ -794,14 +909,18 @@ public enum VariableFactory {
                     }
 
                     if (formulas.isEmpty()) {
-                        elem.logError("Empty exclude value in parameter.");
+                        if (mode.reportAny) {
+                            elem.logError("Empty exclude value in parameter. (20076)");
+                        }
                         valid = false;
                     } else {
                         final Formula[] excludeFormulae = formulas.toArray(ZERO_LEN_FORMULA_ARR);
                         excludeVar.setExcludes(excludeFormulae);
                     }
                 } else {
-                    elem.logError("Only random or derived integer or choice parameter can have excludes.");
+                    if (mode.reportAny) {
+                        elem.logError("Only random or derived integer or choice parameter can have excludes. (20077)");
+                    }
                     valid = false;
                 }
             }
@@ -818,7 +937,9 @@ public enum VariableFactory {
                         final Formula formula = FormulaFactory.parseFormulaString(evalContext, toParse, mode);
 
                         if (formula == null) {
-                            elem.logError("Unable to parse 'choose-from' formula.");
+                            if (mode.reportAny) {
+                                elem.logError("Unable to parse 'choose-from' formula. (20078)");
+                            }
                             valid = false;
                         } else {
                             if (type == null) {
@@ -834,7 +955,9 @@ public enum VariableFactory {
                     }
 
                     if (formulas.isEmpty()) {
-                        elem.logError("Empty choose-from value in parameter.");
+                        if (mode.reportAny) {
+                            elem.logError("Empty choose-from value in parameter. (20079)");
+                        }
                         valid = false;
                     } else {
                         final Formula[] chooseFormulae = formulas.toArray(ZERO_LEN_FORMULA_ARR);
@@ -845,7 +968,9 @@ public enum VariableFactory {
                         }
                     }
                 } else {
-                    elem.logError("Only random-choice parameter can have choose-from list.");
+                    if (mode.reportAny) {
+                        elem.logError("Only random-choice parameter can have choose-from list. (20080)");
+                    }
                     valid = false;
                 }
             }
@@ -857,7 +982,9 @@ public enum VariableFactory {
                     final Formula formula = FormulaFactory.parseFormulaString(evalContext, formulaStr, mode);
 
                     if (formula == null) {
-                        elem.logError("Unable to parse 'formula' formula.");
+                        if (mode.reportAny) {
+                            elem.logError("Unable to parse 'formula' formula. (20081)");
+                        }
                         valid = false;
                     } else {
                         vDer.setFormula(formula);
@@ -871,7 +998,9 @@ public enum VariableFactory {
                         }
                     }
                 } else {
-                    elem.logError("Only derived parameter can have formula list.");
+                    if (mode.reportAny) {
+                        elem.logError("Only derived parameter can have formula list. (20082)");
+                    }
                     valid = false;
                 }
             }
@@ -881,7 +1010,9 @@ public enum VariableFactory {
             if (valueStr == null) {
                 if (variable instanceof VariableInteger || variable instanceof VariableReal
                     || variable instanceof VariableBoolean) {
-                    elem.logError("Constant parameter with no value.");
+                    if (mode.reportAny) {
+                        elem.logError("Constant parameter with no value. (20083)");
+                    }
                     valid = false;
                 }
             } else if (variable instanceof VariableInteger || variable instanceof VariableReal
@@ -892,22 +1023,30 @@ public enum VariableFactory {
                         FormulaFactory.parseFormulaString(evalContext, valueStr, mode);
 
                 if (formula == null) {
-                    elem.logError("Constant parameter with invalid value.");
+                    if (mode.reportAny) {
+                        elem.logError("Constant parameter with invalid value. (20084)");
+                    }
                     valid = false;
                 } else if (formula.parameterNames().length > 0) {
-                    elem.logError("Constant value may not reference other parameters.");
+                    if (mode.reportAny) {
+                        elem.logError("Constant value may not reference other parameters. (20085)");
+                    }
                     valid = false;
                 } else {
                     final Object evaluationResult = formula.evaluate(evalContext);
 
                     if (evaluationResult instanceof ErrorValue) {
-                        elem.logError("Can't evaluate constant value: " + evaluationResult);
+                        if (mode.reportAny) {
+                            elem.logError("Can't evaluate constant value: " + evaluationResult + " (20086)");
+                        }
                         valid = false;
                     } else if (variable instanceof VariableInteger || variable instanceof VariableInputInteger) {
                         if (evaluationResult instanceof Long) {
                             variable.setValue(evaluationResult);
                         } else {
-                            elem.logError("Integer parameter value is not integer.");
+                            if (mode.reportAny) {
+                                elem.logError("Integer parameter value is not integer. (20087)");
+                            }
                             valid = false;
                         }
                     } else if (variable instanceof VariableReal || variable instanceof VariableInputReal) {
@@ -918,18 +1057,24 @@ public enum VariableFactory {
                         } else if (evaluationResult instanceof Double) {
                             variable.setValue(evaluationResult);
                         } else {
-                            elem.logError("Real parameter value is not real.");
+                            if (mode.reportAny) {
+                                elem.logError("Real parameter value is not real. (20088)");
+                            }
                             valid = false;
                         }
                     } else if (evaluationResult instanceof Boolean) {
                         variable.setValue(evaluationResult);
                     } else {
-                        elem.logError("Boolean parameter value is not boolean.");
+                        if (mode.reportAny) {
+                            elem.logError("Boolean parameter value is not boolean. (20089)");
+                        }
                         valid = false;
                     }
                 }
             } else {
-                elem.logError("Only constant types may have value specifications.");
+                if (mode.reportAny) {
+                    elem.logError("Only constant types may have value specifications. (20090)");
+                }
                 valid = false;
             }
 
@@ -943,12 +1088,16 @@ public enum VariableFactory {
                         final Long parsedLong = Long.valueOf(generatedIntegerStr);
                         variable.setValue(parsedLong);
                     } catch (final NumberFormatException e) {
-                        elem.logError("Invalid 'generated-integer' value: " + generatedIntegerStr);
+                        if (mode.reportAny) {
+                            elem.logError("Invalid 'generated-integer' value: " + generatedIntegerStr + " (20091)");
+                        }
                         valid = false;
                     }
                 } else {
-                    elem.logError("Only random integer, random real, choice or derived parameter can have generated " +
-                                  "integer value.");
+                    if (mode.reportAny) {
+                        elem.logError("Only random integer, random real, choice or derived parameter can have " +
+                                      "generated integer value. (20092)");
+                    }
                     valid = false;
                 }
             }
@@ -963,11 +1112,16 @@ public enum VariableFactory {
                         final Double parsedDbl = Double.valueOf(generatedRealStr);
                         variable.setValue(parsedDbl);
                     } catch (final NumberFormatException e) {
-                        elem.logError("Invalid 'generated-real' value: " + generatedRealStr);
+                        if (mode.reportAny) {
+                            elem.logError("Invalid 'generated-real' value: " + generatedRealStr + " (20093)");
+                        }
                         valid = false;
                     }
                 } else {
-                    elem.logError("Only random real, choice or derived parameter can have generated real value.");
+                    if (mode.reportAny) {
+                        elem.logError(
+                                "Only random real, choice or derived parameter can have generated real value. (20094)");
+                    }
                     valid = false;
                 }
             }
@@ -982,11 +1136,17 @@ public enum VariableFactory {
                         final Boolean parsedBoolean = parseBooleanValue(generatedBooleanStr);
                         variable.setValue(parsedBoolean);
                     } catch (final IllegalArgumentException ex) {
-                        elem.logError("Invalid 'generated-boolean' value: " + generatedBooleanStr);
+                        if (mode.reportAny) {
+                            elem.logError("Invalid 'generated-boolean' value: " + generatedBooleanStr + " (20095)");
+                        }
                         valid = false;
                     }
                 } else {
-                    elem.logError("Only random boolean, choice or derived parameter can have generated boolean value.");
+                    if (mode.reportAny) {
+                        elem.logError(
+                                "Only random boolean, choice or derived parameter can have generated boolean value. " +
+                                "(20096)");
+                    }
                     valid = false;
                 }
             }
@@ -998,11 +1158,15 @@ public enum VariableFactory {
                     try {
                         variable.setValue(generatedString);
                     } catch (final NumberFormatException e) {
-                        elem.logError("Invalid 'generated-string' value: " + generatedString);
+                        if (mode.reportAny) {
+                            elem.logError("Invalid 'generated-string' value: " + generatedString + " (20097)");
+                        }
                         valid = false;
                     }
                 } else {
-                    elem.logError("Only derived parameter can have generated string value.");
+                    if (mode.reportAny) {
+                        elem.logError("Only derived parameter can have generated string value. (20098)");
+                    }
                     valid = false;
                 }
             }
@@ -1013,7 +1177,9 @@ public enum VariableFactory {
                 if (variable instanceof final AbstractFormattableVariable fmt) {
                     fmt.setFormatPattern(decimalFormatStr);
                 } else {
-                    elem.logError("Only formattable variables may have decimal-format.");
+                    if (mode.reportAny) {
+                        elem.logError("Only formattable variables may have decimal-format. (20099)");
+                    }
                     valid = false;
                 }
             }
@@ -1039,7 +1205,9 @@ public enum VariableFactory {
                     }
                     evalContext.addVariable(variable);
                 } else {
-                    elem.logError("Parameter '" + variable.name + "' is duplicated.");
+                    if (mode.reportAny) {
+                        elem.logError("Parameter '" + variable.name + "' is duplicated. (20100)");
+                    }
                     valid = false;
                 }
             }
@@ -1071,30 +1239,36 @@ public enum VariableFactory {
         final String typeStr = elem.getStringAttr(TYPE);
 
         if (varName == null) {
-            elem.logError("Missing 'name' attribute on <var> element");
+            if (mode.reportAny) {
+                elem.logError("Missing 'name' attribute on <var> element (20200)");
+            }
         } else if (typeStr == null) {
-            elem.logError("Missing 'type' attribute on <var> element");
+            if (mode.reportAny) {
+                elem.logError("Missing 'type' attribute on <var> element (20201)");
+            }
         } else if (varName.indexOf(L_BRACE) != -1 || varName.indexOf(R_BRACE) != -1) {
-            elem.logError("Variable names may not contain '{' or '}'");
+            if (mode.reportAny) {
+                elem.logError("Variable names may not contain '{' or '}' (20202)");
+            }
         } else {
             AbstractVariable variable = null;
 
             if (VariableBoolean.TYPE_TAG.contentEquals(typeStr)) {
-                variable = extractVariableBoolean(elem, varName);
+                variable = extractVariableBoolean(elem, varName, mode);
             } else if (VariableInteger.TYPE_TAG.contentEquals(typeStr)) {
                 variable = extractVariableInteger(elem, varName, mode);
             } else if (VariableReal.TYPE_TAG.contentEquals(typeStr)) {
                 variable = extractVariableReal(elem, varName, mode);
             } else if (VariableRandomBoolean.TYPE_TAG.contentEquals(typeStr)) {
-                variable = extractVariableRandomBoolean(elem, varName);
+                variable = extractVariableRandomBoolean(elem, varName, mode);
             } else if (VariableRandomInteger.TYPE_TAG.contentEquals(typeStr)) {
                 variable = extractVariableRandomInteger(elem, varName, mode);
             } else if (VariableRandomReal.TYPE_TAG.contentEquals(typeStr)) {
                 variable = extractVariableRandomReal(elem, varName, mode);
             } else if (VariableRandomPermutation.TYPE_TAG.contentEquals(typeStr)) {
-                variable = extractVariableRandomPermutation(elem, varName);
+                variable = extractVariableRandomPermutation(elem, varName, mode);
             } else if (VariableRandomSimpleAngle.TYPE_TAG.contentEquals(typeStr)) {
-                variable = extractVariableRandomSimpleAngle(elem, varName);
+                variable = extractVariableRandomSimpleAngle(elem, varName, mode);
 
             } else if (VariableInputInteger.TYPE_TAG.contentEquals(typeStr)) {
                 variable = extractVariableInputInteger(varName);
@@ -1104,8 +1278,8 @@ public enum VariableFactory {
                 variable = extractVariableInputReal(varName);
             } else if (VariableInputString.TYPE_TAG.contentEquals(typeStr)) {
                 variable = extractVariableInputString(varName);
-            } else {
-                elem.logError("Unrecognized empty-element variable type.");
+            } else if (mode.reportAny) {
+                elem.logError("Unrecognized empty-element variable type. (20203)");
             }
 
             if (variable != null) {
@@ -1116,8 +1290,8 @@ public enum VariableFactory {
                     }
                     evalContext.addVariable(variable);
                     valid = true;
-                } else {
-                    elem.logError("Variable '" + variable.name + "' is duplicated.");
+                } else if (mode.reportAny) {
+                    elem.logError("Variable '" + variable.name + "' is duplicated. (20204)");
                 }
             }
         }
@@ -1154,20 +1328,27 @@ public enum VariableFactory {
         final String typeStr = elem.getStringAttr(TYPE);
 
         if (varName == null) {
-            elem.logError("Missing 'name' attribute on <var> element");
+            if (mode.reportAny) {
+                elem.logError("Missing 'name' attribute on <var> element (20210)");
+            }
         } else if (typeStr == null) {
-            elem.logError("Missing 'type' attribute on <var> element");
+            if (mode.reportAny) {
+                elem.logError("Missing 'type' attribute on <var> element (20211)");
+            }
         } else if (varName.indexOf(L_BRACE) != -1 || varName.indexOf(R_BRACE) != -1) {
-            elem.logError("Variable names may not contain '{' or '}'");
+            if (mode.reportAny) {
+                elem.logError("Variable names may not contain '{' or '}' (20212)");
+            }
         } else {
-            if (elem.getElementChildrenAsList().isEmpty() && !VariableSpan.TYPE_TAG.contentEquals(typeStr)) {
-                elem.logError("Variable could be in '&lt;var ... /&gt;' format.");
+            if (mode.reportAny && elem.getElementChildrenAsList().isEmpty() &&
+                !VariableSpan.TYPE_TAG.contentEquals(typeStr)) {
+                elem.logError("Variable could be in '&lt;var ... /&gt;' format. (20213)");
             }
 
             AbstractVariable variable = null;
 
             if (VariableBoolean.TYPE_TAG.contentEquals(typeStr)) {
-                variable = extractVariableBoolean(elem, varName);
+                variable = extractVariableBoolean(elem, varName, mode);
             } else if (VariableInteger.TYPE_TAG.contentEquals(typeStr)) {
                 variable = extractVariableInteger(elem, varName, mode);
             } else if (VariableReal.TYPE_TAG.contentEquals(typeStr)) {
@@ -1175,7 +1356,7 @@ public enum VariableFactory {
             } else if (VariableSpan.TYPE_TAG.contentEquals(typeStr)) {
                 variable = extractVariableSpan(evalContext, elem, varName, mode);
             } else if (VariableRandomBoolean.TYPE_TAG.contentEquals(typeStr)) {
-                variable = extractVariableRandomBoolean(elem, varName);
+                variable = extractVariableRandomBoolean(elem, varName, mode);
             } else if (VariableRandomInteger.TYPE_TAG.contentEquals(typeStr)) {
                 variable = extractVariableRandomInteger(evalContext, elem, varName, mode);
             } else if (VariableRandomReal.TYPE_TAG.contentEquals(typeStr)) {
@@ -1188,8 +1369,8 @@ public enum VariableFactory {
                 variable = extractVariableRandomSimpleAngle(evalContext, elem, varName, mode);
             } else if (VariableDerived.TYPE_TAG.contentEquals(typeStr)) {
                 variable = extractVariableDerived(evalContext, elem, varName, mode);
-            } else {
-                elem.logError("Unrecognized nonempty-element variable type.");
+            } else if (mode.reportAny) {
+                elem.logError("Unrecognized nonempty-element variable type. (20214)");
             }
 
             if (variable != null) {
@@ -1200,8 +1381,8 @@ public enum VariableFactory {
                     }
                     evalContext.addVariable(variable);
                     valid = true;
-                } else {
-                    elem.logError("Variable '" + variable.name + "' is duplicated.");
+                } else if (mode.reportAny) {
+                    elem.logError("Variable '" + variable.name + "' is duplicated. (20215)");
                 }
             }
         }
@@ -1218,32 +1399,38 @@ public enum VariableFactory {
      *
      * @param elem    the element
      * @param varName the variable name
+     * @param mode    the parser mode
      * @return the parsed variable on success; null on failure
      */
-    private static VariableBoolean extractVariableBoolean(final EmptyElement elem, final String varName) {
+    private static VariableBoolean extractVariableBoolean(final EmptyElement elem, final String varName,
+                                                          final EParserMode mode) {
 
         VariableBoolean result = null;
 
-        for (final String attrName : elem.attributeNames()) {
-            if (NAME.equals(attrName) || TYPE.equals(attrName) || VALUE.equals(attrName)) {
-                continue;
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (NAME.equals(attrName) || TYPE.equals(attrName) || VALUE.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (20220)";
+                elem.logError(msg);
             }
-            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
-            elem.logError(msg);
         }
 
         final String valueStr = elem.getStringAttr(VALUE);
 
         if (valueStr == null) {
-            elem.logError("Boolean <var> element missing required 'value' attribute in {" + varName + "}");
+            if (mode.reportAny) {
+                elem.logError("Boolean <var> element missing required 'value' attribute in {" + varName + "} (20221)");
+            }
         } else if (TRUE_STRING.equalsIgnoreCase(valueStr)) {
             result = new VariableBoolean(varName);
             result.setValue(Boolean.TRUE);
         } else if (FALSE_STRING.equalsIgnoreCase(valueStr)) {
             result = new VariableBoolean(varName);
             result.setValue(Boolean.FALSE);
-        } else {
-            elem.logError("Invalid boolean value: '" + valueStr + "' in {" + varName + "}");
+        } else if (mode.reportAny) {
+            elem.logError("Invalid boolean value: '" + valueStr + "' in {" + varName + "} (20222)");
         }
 
         return result;
@@ -1258,18 +1445,22 @@ public enum VariableFactory {
      *
      * @param elem    the element
      * @param varName the variable name
+     * @param mode    the parser mode
      * @return the parsed variable on success; null on failure
      */
-    private static VariableBoolean extractVariableBoolean(final NonemptyElement elem, final String varName) {
+    private static VariableBoolean extractVariableBoolean(final NonemptyElement elem, final String varName,
+                                                          final EParserMode mode) {
 
         VariableBoolean result = null;
 
-        for (final String attrName : elem.attributeNames()) {
-            if (NAME.equals(attrName) || TYPE.equals(attrName) || VALUE.equals(attrName)) {
-                continue;
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (NAME.equals(attrName) || TYPE.equals(attrName) || VALUE.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (20230)";
+                elem.logError(msg);
             }
-            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
-            elem.logError(msg);
         }
 
         final List<IElement> children = elem.getElementChildrenAsList();
@@ -1277,18 +1468,21 @@ public enum VariableFactory {
             final String valueStr = elem.getStringAttr(VALUE);
 
             if (valueStr == null) {
-                elem.logError("Boolean <var> element missing required 'value' attribute in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Boolean <var> element missing required 'value' attribute in {" + varName
+                                  + "} (20231)");
+                }
             } else if (TRUE_STRING.equalsIgnoreCase(valueStr)) {
                 result = new VariableBoolean(varName);
                 result.setValue(Boolean.TRUE);
             } else if (FALSE_STRING.equalsIgnoreCase(valueStr)) {
                 result = new VariableBoolean(varName);
                 result.setValue(Boolean.FALSE);
-            } else {
-                elem.logError("Invalid boolean value: '" + valueStr + "' in {" + varName + "}");
+            } else if (mode.reportAny) {
+                elem.logError("Invalid boolean value: '" + valueStr + "' in {" + varName + "} (20232)");
             }
-        } else {
-            elem.logError("Boolean variable may not contain child elements.");
+        } else if (mode.reportAny) {
+            elem.logError("Boolean variable may not contain child elements. (20233)");
         }
 
         return result;
@@ -1311,29 +1505,35 @@ public enum VariableFactory {
 
         VariableInteger result = null;
 
-        for (final String attrName : elem.attributeNames()) {
-            if (NAME.equals(attrName) || TYPE.equals(attrName) || VALUE.equals(attrName) || FORMAT.equals(attrName)) {
-                continue;
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (NAME.equals(attrName) || TYPE.equals(attrName) || VALUE.equals(attrName) || FORMAT.equals(
+                        attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (20240)";
+                elem.logError(msg);
             }
-            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
-            elem.logError(msg);
         }
 
         final String valueStr = elem.getStringAttr(VALUE);
 
         if (valueStr == null) {
-            elem.logError("Integer <var> element missing required 'value' attribute in {" + varName + "}");
+            if (mode.reportAny) {
+                elem.logError("Integer <var> element missing required 'value' attribute in {" + varName + "} (20241)");
+            }
         } else {
             String formatStr = elem.getStringAttr(FORMAT);
             if (formatStr == null) {
                 formatStr = elem.getStringAttr(DECIMAL_FORMAT);
                 if (mode.reportDeprecated && formatStr != null) {
-                    elem.logError("'decimal-format' is deprecated, use 'format' instead.");
+                    elem.logError("'decimal-format' is deprecated, use 'format' instead. (20242)");
                 }
             }
 
-            if (formatStr != null && formatStr.startsWith("##")) {
-                elem.logError("Perhaps format string in integer variable '" + varName + "' could be simplified?");
+            if (mode.reportAny && formatStr != null && formatStr.startsWith("##")) {
+                elem.logError("Perhaps format string in integer variable '" + varName
+                              + "' could be simplified? (20243)");
             }
 
             try {
@@ -1342,7 +1542,9 @@ public enum VariableFactory {
                 result.setValue(longVal);
                 result.setFormatPattern(formatStr);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid integer value: '" + valueStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Invalid integer value: '" + valueStr + "' in {" + varName + "} (20244)");
+                }
             }
         }
 
@@ -1368,31 +1570,37 @@ public enum VariableFactory {
 
         VariableInteger result = null;
 
-        for (final String attrName : elem.attributeNames()) {
-            if (NAME.equals(attrName) || TYPE.equals(attrName) || VALUE.equals(attrName) || FORMAT.equals(attrName)) {
-                continue;
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (NAME.equals(attrName) || TYPE.equals(attrName) || VALUE.equals(attrName) || FORMAT.equals(
+                        attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (20250)";
+                elem.logError(msg);
             }
-            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
-            elem.logError(msg);
         }
 
         String formatStr = elem.getStringAttr(FORMAT);
         if (formatStr == null) {
             formatStr = elem.getStringAttr(DECIMAL_FORMAT);
             if (mode.reportDeprecated && formatStr != null) {
-                elem.logError("'decimal-format' is deprecated, use 'format' instead.");
+                elem.logError("'decimal-format' is deprecated, use 'format' instead. (20251)");
             }
         }
 
-        if (formatStr != null && formatStr.startsWith("##")) {
-            elem.logError("Perhaps format string in integer variable '" + varName + "' could be simplified?");
+        if (mode.reportAny && formatStr != null && formatStr.startsWith("##")) {
+            elem.logError("Perhaps format string in integer variable '" + varName + "' could be simplified? (20252)");
         }
 
         final List<IElement> children = elem.getElementChildrenAsList();
         if (children.isEmpty()) {
             final String valueStr = elem.getStringAttr(VALUE);
             if (valueStr == null) {
-                elem.logError("Integer <var> element missing required 'value' attribute in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Integer <var> element missing required 'value' attribute in {" + varName
+                                  + "} (20253)");
+                }
             } else {
                 try {
                     final Long longVal = Long.valueOf(valueStr);
@@ -1400,11 +1608,13 @@ public enum VariableFactory {
                     result.setValue(longVal);
                     result.setFormatPattern(formatStr);
                 } catch (final NumberFormatException ex) {
-                    elem.logError("Invalid integer value: '" + valueStr + "' in {" + varName + "}");
+                    if (mode.reportAny) {
+                        elem.logError("Invalid integer value: '" + valueStr + "' in {" + varName + "} (20254)");
+                    }
                 }
             }
-        } else {
-            elem.logError("Integer variable may not contain child elements.");
+        } else if (mode.reportAny) {
+            elem.logError("Integer variable may not contain child elements. (20255)");
         }
 
         return result;
@@ -1427,29 +1637,34 @@ public enum VariableFactory {
 
         VariableReal result = null;
 
-        for (final String attrName : elem.attributeNames()) {
-            if (NAME.equals(attrName) || TYPE.equals(attrName) || VALUE.equals(attrName) || FORMAT.equals(attrName)) {
-                continue;
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (NAME.equals(attrName) || TYPE.equals(attrName) || VALUE.equals(attrName) || FORMAT.equals(
+                        attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (20260)";
+                elem.logError(msg);
             }
-            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
-            elem.logError(msg);
         }
 
         String formatStr = elem.getStringAttr(FORMAT);
         if (formatStr == null) {
             formatStr = elem.getStringAttr(DECIMAL_FORMAT);
             if (mode.reportDeprecated && formatStr != null) {
-                elem.logError("'decimal-format' is deprecated, use 'format' instead.");
+                elem.logError("'decimal-format' is deprecated, use 'format' instead. (20261)");
             }
         }
 
-        if (formatStr != null && formatStr.startsWith("##")) {
-            elem.logError("Perhaps format string in real variable '" + varName + "' could be simplified?");
+        if (mode.reportAny && formatStr != null && formatStr.startsWith("##")) {
+            elem.logError("Perhaps format string in real variable '" + varName + "' could be simplified? (20262)");
         }
 
         final String valueStr = elem.getStringAttr(VALUE);
         if (valueStr == null) {
-            elem.logError("Real <var> element missing required 'value' attribute in {" + varName + "}");
+            if (mode.reportAny) {
+                elem.logError("Real <var> element missing required 'value' attribute in {" + varName + "} (20263)");
+            }
         } else {
             try {
                 final Number numberVal = NumberParser.parse(valueStr);
@@ -1457,7 +1672,9 @@ public enum VariableFactory {
                 result.setValue(numberVal);
                 result.setFormatPattern(formatStr);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid real value: '" + valueStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Invalid real value: '" + valueStr + "' in {" + varName + "} (20264)");
+                }
             }
         }
 
@@ -1483,24 +1700,27 @@ public enum VariableFactory {
 
         VariableReal result = null;
 
-        for (final String attrName : elem.attributeNames()) {
-            if (NAME.equals(attrName) || TYPE.equals(attrName) || VALUE.equals(attrName) || FORMAT.equals(attrName)) {
-                continue;
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (NAME.equals(attrName) || TYPE.equals(attrName) || VALUE.equals(attrName) || FORMAT.equals(
+                        attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (20270)";
+                elem.logError(msg);
             }
-            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
-            elem.logError(msg);
         }
 
         String formatStr = elem.getStringAttr(FORMAT);
         if (formatStr == null) {
             formatStr = elem.getStringAttr(DECIMAL_FORMAT);
             if (mode.reportDeprecated && formatStr != null) {
-                elem.logError("'decimal-format' is deprecated, use 'format' instead.");
+                elem.logError("'decimal-format' is deprecated, use 'format' instead. (20271)");
             }
         }
 
-        if (formatStr != null && formatStr.startsWith("##")) {
-            elem.logError("Perhaps format string in real variable '" + varName + "' could be simplified?");
+        if (mode.reportAny && formatStr != null && formatStr.startsWith("##")) {
+            elem.logError("Perhaps format string in real variable '" + varName + "' could be simplified? (20272)");
         }
 
         final List<IElement> children = elem.getElementChildrenAsList();
@@ -1508,7 +1728,9 @@ public enum VariableFactory {
             final String valueStr = elem.getStringAttr(VALUE);
 
             if (valueStr == null) {
-                elem.logError("Real <var> element missing required 'value' attribute in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Real <var> element missing required 'value' attribute in {" + varName + "} (20273)");
+                }
             } else {
                 try {
                     final Number numberVal = NumberParser.parse(valueStr);
@@ -1516,11 +1738,13 @@ public enum VariableFactory {
                     result.setValue(numberVal);
                     result.setFormatPattern(formatStr);
                 } catch (final NumberFormatException ex) {
-                    elem.logError("Invalid real value: '" + valueStr + "' in {" + varName + "}");
+                    if (mode.reportAny) {
+                        elem.logError("Invalid real value: '" + valueStr + "' in {" + varName + "} (20274)");
+                    }
                 }
             }
-        } else {
-            elem.logError("Real variable may not contain child elements.");
+        } else if (mode.reportAny) {
+            elem.logError("Real variable may not contain child elements. (20275)");
         }
 
         return result;
@@ -1546,12 +1770,14 @@ public enum VariableFactory {
 
         final VariableSpan result;
 
-        for (final String attrName : elem.attributeNames()) {
-            if (NAME.equals(attrName) || TYPE.equals(attrName)) {
-                continue;
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (NAME.equals(attrName) || TYPE.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (20280)";
+                elem.logError(msg);
             }
-            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
-            elem.logError(msg);
         }
 
         final DocSimpleSpan span = DocFactory.parseSpan(evalContext, elem, mode);
@@ -1575,18 +1801,22 @@ public enum VariableFactory {
      *
      * @param elem    the element
      * @param varName the variable name
+     * @param mode    the parser mode
      * @return {@code true} if successful, {@code false} on any error
      */
-    private static VariableRandomBoolean extractVariableRandomBoolean(final EmptyElement elem, final String varName) {
+    private static VariableRandomBoolean extractVariableRandomBoolean(final EmptyElement elem, final String varName,
+                                                                      final EParserMode mode) {
 
         VariableRandomBoolean result = null;
 
-        for (final String attrName : elem.attributeNames()) {
-            if (NAME.equals(attrName) || TYPE.equals(attrName)) {
-                continue;
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (NAME.equals(attrName) || TYPE.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (20290)";
+                elem.logError(msg);
             }
-            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
-            elem.logError(msg);
         }
 
         final String valueStr = elem.getStringAttr(VALUE);
@@ -1599,8 +1829,8 @@ public enum VariableFactory {
         } else if (FALSE_STRING.equalsIgnoreCase(valueStr)) {
             result = new VariableRandomBoolean(varName);
             result.setValue(Boolean.FALSE);
-        } else {
-            elem.logError("Invalid boolean value: '" + valueStr + "' in {" + varName + "}");
+        } else if (mode.reportAny) {
+            elem.logError("Invalid boolean value: '" + valueStr + "' in {" + varName + "} (20291)");
         }
 
         return result;
@@ -1615,19 +1845,23 @@ public enum VariableFactory {
      *
      * @param elem    the element
      * @param varName the variable name
+     * @param mode    the parser mode
      * @return {@code true} if successful, {@code false} on any error
      */
     private static VariableRandomBoolean extractVariableRandomBoolean(final NonemptyElement elem,
-                                                                      final String varName) {
+                                                                      final String varName,
+                                                                      final EParserMode mode) {
 
         VariableRandomBoolean result = null;
 
-        for (final String attrName : elem.attributeNames()) {
-            if (NAME.equals(attrName) || TYPE.equals(attrName)) {
-                continue;
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (NAME.equals(attrName) || TYPE.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (20300)";
+                elem.logError(msg);
             }
-            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
-            elem.logError(msg);
         }
 
         final List<IElement> children = elem.getElementChildrenAsList();
@@ -1642,11 +1876,11 @@ public enum VariableFactory {
             } else if (FALSE_STRING.equalsIgnoreCase(valueStr)) {
                 result = new VariableRandomBoolean(varName);
                 result.setValue(Boolean.FALSE);
-            } else {
-                elem.logError("Invalid random boolean value: '" + valueStr + "' in {" + varName + "}");
+            } else if (mode.reportAny) {
+                elem.logError("Invalid random boolean value: '" + valueStr + "' in {" + varName + "} (20301)");
             }
-        } else {
-            elem.logError("Random boolean variable may not contain child elements.");
+        } else if (mode.reportAny) {
+            elem.logError("Random boolean variable may not contain child elements. (20302)");
         }
 
         return result;
@@ -1669,13 +1903,15 @@ public enum VariableFactory {
 
         boolean valid = true;
 
-        for (final String attrName : elem.attributeNames()) {
-            if (NAME.equals(attrName) || TYPE.equals(attrName) || MIN.equals(attrName) || MAX.equals(attrName)
-                || EXCLUDE.equals(attrName) || FORMAT.equals(attrName)) {
-                continue;
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (NAME.equals(attrName) || TYPE.equals(attrName) || MIN.equals(attrName) || MAX.equals(attrName)
+                    || EXCLUDE.equals(attrName) || FORMAT.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (20310)";
+                elem.logError(msg);
             }
-            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
-            elem.logError(msg);
         }
 
         final String valueStr = elem.getStringAttr(VALUE);
@@ -1685,7 +1921,9 @@ public enum VariableFactory {
             try {
                 value = Long.valueOf(valueStr);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid integer value: '" + valueStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Invalid integer value: '" + valueStr + "' in {" + varName + "} (20311)");
+                }
                 valid = false;
             }
         }
@@ -1696,14 +1934,18 @@ public enum VariableFactory {
         final String maxStr = elem.getStringAttr(MAX);
 
         if (minStr == null || maxStr == null) {
-            elem.logError("Missing required min/max value in random integer var {" + varName + "}");
+            if (mode.reportAny) {
+                elem.logError("Missing required min/max value in random integer var {" + varName + "} (20312)");
+            }
         } else {
             NumberOrFormula min = null;
             try {
                 final Long parsedMin = Long.valueOf(minStr);
                 min = new NumberOrFormula(parsedMin);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid min value: '" + minStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Invalid min value: '" + minStr + "' in {" + varName + "} (20313)");
+                }
                 valid = false;
             }
 
@@ -1712,7 +1954,9 @@ public enum VariableFactory {
                 final Long parsedMax = Long.valueOf(maxStr);
                 max = new NumberOrFormula(parsedMax);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "} (20314)");
+                }
                 valid = false;
             }
 
@@ -1720,12 +1964,13 @@ public enum VariableFactory {
             if (formatStr == null) {
                 formatStr = elem.getStringAttr(DECIMAL_FORMAT);
                 if (mode.reportDeprecated && formatStr != null) {
-                    elem.logError("'decimal-format' is deprecated, use 'format' instead.");
+                    elem.logError("'decimal-format' is deprecated, use 'format' instead. (20315)");
                 }
             }
 
-            if (formatStr != null && formatStr.startsWith("##")) {
-                elem.logError("Perhaps format string in integer variable '" + varName + "' could be simplified?");
+            if (mode.reportAny && formatStr != null && formatStr.startsWith("##")) {
+                elem.logError("Perhaps format string in integer variable '" + varName
+                              + "' could be simplified? (20316)");
             }
 
             if (valid) {
@@ -1765,13 +2010,15 @@ public enum VariableFactory {
 
         boolean valid = true;
 
-        for (final String attrName : elem.attributeNames()) {
-            if (NAME.equals(attrName) || TYPE.equals(attrName) || MIN.equals(attrName) || MAX.equals(attrName)
-                || EXCLUDE.equals(attrName) || FORMAT.equals(attrName)) {
-                continue;
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (NAME.equals(attrName) || TYPE.equals(attrName) || MIN.equals(attrName) || MAX.equals(attrName)
+                    || EXCLUDE.equals(attrName) || FORMAT.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName + " (20320)");
+                elem.logError(msg);
             }
-            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
-            elem.logError(msg);
         }
 
         final String valueStr = elem.getStringAttr(VALUE);
@@ -1781,7 +2028,9 @@ public enum VariableFactory {
             try {
                 value = Long.valueOf(valueStr);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid integer value: '" + valueStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Invalid integer value: '" + valueStr + "' in {" + varName + "} (20321)");
+                }
                 valid = false;
             }
         }
@@ -1797,7 +2046,9 @@ public enum VariableFactory {
                 final Long parsedMin = Long.valueOf(minStr);
                 min = new NumberOrFormula(parsedMin);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid min value: '" + minStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Invalid min value: '" + minStr + "' in {" + varName + "} (20322)");
+                }
                 valid = false;
             }
         }
@@ -1808,7 +2059,9 @@ public enum VariableFactory {
                 final Long parsedMax = Long.valueOf(maxStr);
                 max = new NumberOrFormula(parsedMax);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "} (20323)");
+                }
                 valid = false;
             }
         }
@@ -1828,17 +2081,22 @@ public enum VariableFactory {
                                 final Formula minFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty,
                                         mode);
                                 if (minFormula == null) {
-                                    elem.logError("Invalid 'min' formula in {" + varName + "}: " + nonempty.print(0));
+                                    if (mode.reportAny) {
+                                        elem.logError("Invalid 'min' formula in {" + varName + "}: "
+                                                      + nonempty.print(0) + " (20324)");
+                                    }
                                     valid = false;
                                 } else {
-                                    if (minFormula.isConstant()) {
+                                    if (mode.reportAny && minFormula.isConstant()) {
                                         elem.logError("Constant 'min' in {" + varName
-                                                      + "} could be specified in attribute?");
+                                                      + "} could be specified in attribute? (20325)");
                                     }
                                     min = new NumberOrFormula(minFormula);
                                 }
                             } else {
-                                elem.logError("Multiple 'min' values in {" + varName + "}");
+                                if (mode.reportAny) {
+                                    elem.logError("Multiple 'min' values in {" + varName + "} (20326)");
+                                }
                                 break label;
                             }
                         }
@@ -1847,31 +2105,41 @@ public enum VariableFactory {
                                 final Formula maxFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty,
                                         mode);
                                 if (maxFormula == null) {
-                                    elem.logError("Invalid 'max' formula in {" + varName + "}: " + nonempty.print(0));
+                                    if (mode.reportAny) {
+                                        elem.logError("Invalid 'max' formula in {" + varName + "}: "
+                                                      + nonempty.print(0) + " (20327)");
+                                    }
                                     valid = false;
                                 } else {
-                                    if (maxFormula.isConstant()) {
+                                    if (mode.reportAny && maxFormula.isConstant()) {
                                         elem.logError("Constant 'max' in {" + varName
-                                                      + "} could be specified in attribute?");
+                                                      + "} could be specified in attribute? (20328)");
                                     }
                                     max = new NumberOrFormula(maxFormula);
                                 }
                             } else {
-                                elem.logError("Multiple 'max' values in {" + varName + "}");
+                                if (mode.reportAny) {
+                                    elem.logError("Multiple 'max' values in {" + varName + "} (20329)");
+                                }
                                 break label;
                             }
                         }
                         case EXCLUDE -> {
                             final Formula exclude = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (exclude == null) {
-                                elem.logError("Invalid 'exclude' formula in {" + varName + "}: " + nonempty.print(0));
+                                if (mode.reportAny) {
+                                    elem.logError("Invalid 'exclude' formula in {" + varName + "}: "
+                                                  + nonempty.print(0) + " (20330)");
+                                }
                                 valid = false;
                             } else {
                                 excludes.add(exclude);
                             }
                         }
                         case null, default -> {
-                            elem.logError("Unsupported '" + tag + "' element in in {" + varName + "}");
+                            if (mode.reportAny) {
+                                elem.logError("Unsupported '" + tag + "' element in in {" + varName + "} (20331)");
+                            }
                             valid = false;
                         }
                     }
@@ -1882,12 +2150,13 @@ public enum VariableFactory {
             if (formatStr == null) {
                 formatStr = elem.getStringAttr(DECIMAL_FORMAT);
                 if (mode.reportDeprecated && formatStr != null) {
-                    elem.logError("'decimal-format' is deprecated, use 'format' instead.");
+                    elem.logError("'decimal-format' is deprecated, use 'format' instead. (20332)");
                 }
             }
 
-            if (formatStr != null && formatStr.startsWith("##")) {
-                elem.logError("Perhaps format string in integer variable '" + varName + "' could be simplified?");
+            if (mode.reportAny && formatStr != null && formatStr.startsWith("##")) {
+                elem.logError("Perhaps format string in integer variable '" + varName
+                              + "' could be simplified? (20333)");
             }
 
             if (valid) {
@@ -1920,13 +2189,15 @@ public enum VariableFactory {
 
         boolean valid = true;
 
-        for (final String attrName : elem.attributeNames()) {
-            if (NAME.equals(attrName) || TYPE.equals(attrName) || MIN.equals(attrName) || MAX.equals(attrName)
-                || EXCLUDE.equals(attrName) || FORMAT.equals(attrName)) {
-                continue;
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (NAME.equals(attrName) || TYPE.equals(attrName) || MIN.equals(attrName) || MAX.equals(attrName)
+                    || EXCLUDE.equals(attrName) || FORMAT.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (20340)";
+                elem.logError(msg);
             }
-            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
-            elem.logError(msg);
         }
 
         final String valueStr = elem.getStringAttr(VALUE);
@@ -1936,7 +2207,9 @@ public enum VariableFactory {
             try {
                 value = NumberParser.parse(valueStr);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid real value: '" + valueStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Invalid real value: '" + valueStr + "' in {" + varName + "} (20341)");
+                }
                 valid = false;
             }
         }
@@ -1947,14 +2220,18 @@ public enum VariableFactory {
         final String maxStr = elem.getStringAttr(MAX);
 
         if (minStr == null || maxStr == null) {
-            elem.logError("Missing required min/max value in random real var {" + varName + "}");
+            if (mode.reportAny) {
+                elem.logError("Missing required min/max value in random real var {" + varName + "} (20342)");
+            }
         } else {
             NumberOrFormula min = null;
             try {
                 final Number parsedMin = NumberParser.parse(minStr);
                 min = new NumberOrFormula(parsedMin);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid min value: '" + minStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Invalid min value: '" + minStr + "' in {" + varName + "} (20343)");
+                }
                 valid = false;
             }
 
@@ -1963,7 +2240,9 @@ public enum VariableFactory {
                 final Number parsedMax = NumberParser.parse(maxStr);
                 max = new NumberOrFormula(parsedMax);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "} (20344)");
+                }
                 valid = false;
             }
 
@@ -1971,12 +2250,12 @@ public enum VariableFactory {
             if (formatStr == null) {
                 formatStr = elem.getStringAttr(DECIMAL_FORMAT);
                 if (mode.reportDeprecated && formatStr != null) {
-                    elem.logError("'decimal-format' is deprecated, use 'format' instead.");
+                    elem.logError("'decimal-format' is deprecated, use 'format' instead. (20345)");
                 }
             }
 
-            if (formatStr != null && formatStr.startsWith("##")) {
-                elem.logError("Perhaps format string in real variable '" + varName + "' could be simplified?");
+            if (mode.reportAny && formatStr != null && formatStr.startsWith("##")) {
+                elem.logError("Perhaps format string in real variable '" + varName + "' could be simplified? (20346)");
             }
 
             if (valid) {
@@ -2014,13 +2293,15 @@ public enum VariableFactory {
 
         boolean valid = true;
 
-        for (final String attrName : elem.attributeNames()) {
-            if (NAME.equals(attrName) || TYPE.equals(attrName) || MIN.equals(attrName) || MAX.equals(attrName)
-                || EXCLUDE.equals(attrName) || FORMAT.equals(attrName)) {
-                continue;
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (NAME.equals(attrName) || TYPE.equals(attrName) || MIN.equals(attrName) || MAX.equals(attrName)
+                    || EXCLUDE.equals(attrName) || FORMAT.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (20350)";
+                elem.logError(msg);
             }
-            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
-            elem.logError(msg);
         }
 
         final String valueStr = elem.getStringAttr(VALUE);
@@ -2030,7 +2311,9 @@ public enum VariableFactory {
             try {
                 value = Double.valueOf(valueStr);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid real value: '" + valueStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Invalid real value: '" + valueStr + "' in {" + varName + "} (20351)");
+                }
                 valid = false;
             }
         }
@@ -2044,7 +2327,11 @@ public enum VariableFactory {
                 final Number parsedMin = NumberParser.parse(minStr);
                 min = new NumberOrFormula(parsedMin);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid min value: '" + minStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    if (mode.reportAny) {
+                        elem.logError("Invalid min value: '" + minStr + "' in {" + varName + "} (20352)");
+                    }
+                }
                 valid = false;
             }
         }
@@ -2055,7 +2342,9 @@ public enum VariableFactory {
                 final Number parsedMax = NumberParser.parse(maxStr);
                 max = new NumberOrFormula(parsedMax);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "} (20353)");
+                }
                 valid = false;
             }
         }
@@ -2072,38 +2361,50 @@ public enum VariableFactory {
                         if (min == null) {
                             final Formula minFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (minFormula == null) {
-                                elem.logError("Invalid 'min' formula in {" + varName + "}: " + nonempty.print(0));
+                                if (mode.reportAny) {
+                                    elem.logError("Invalid 'min' formula in {" + varName + "}: " + nonempty.print(0)
+                                                  + " (20354)");
+                                }
                                 valid = false;
                             } else {
-                                if (minFormula.isConstant()) {
+                                if (mode.reportAny && minFormula.isConstant()) {
                                     elem.logError("Constant 'min' in {" + varName
-                                                  + "} could be specified in attribute?");
+                                                  + "} could be specified in attribute? (20355)");
                                 }
                                 min = new NumberOrFormula(minFormula);
                             }
                         } else {
-                            elem.logError("Multiple 'min' values in {" + varName + "}");
+                            if (mode.reportAny) {
+                                elem.logError("Multiple 'min' values in {" + varName + "} (20356)");
+                            }
                             break;
                         }
                     } else if (MAX.equals(tag)) {
                         if (max == null) {
                             final Formula maxFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (maxFormula == null) {
-                                elem.logError("Invalid 'max' formula in {" + varName + "}: " + nonempty.print(0));
+                                if (mode.reportAny) {
+                                    elem.logError("Invalid 'max' formula in {" + varName + "}: " + nonempty.print(0)
+                                                  + " (20357)");
+                                }
                                 valid = false;
                             } else {
-                                if (maxFormula.isConstant()) {
+                                if (mode.reportAny && maxFormula.isConstant()) {
                                     elem.logError("Constant 'max' in {" + varName
-                                                  + "} could be specified in attribute?");
+                                                  + "} could be specified in attribute? (20358)");
                                 }
                                 max = new NumberOrFormula(maxFormula);
                             }
                         } else {
-                            elem.logError("Multiple 'max' values in {" + varName + "}");
+                            if (mode.reportAny) {
+                                elem.logError("Multiple 'max' values in {" + varName + "} (20359)");
+                            }
                             break;
                         }
                     } else {
-                        elem.logError("Unsupported '" + tag + "' element in {" + varName + "}");
+                        if (mode.reportAny) {
+                            elem.logError("Unsupported '" + tag + "' element in {" + varName + "} (20360)");
+                        }
                         valid = false;
                     }
                 }
@@ -2113,12 +2414,12 @@ public enum VariableFactory {
             if (formatStr == null) {
                 formatStr = elem.getStringAttr(DECIMAL_FORMAT);
                 if (mode.reportDeprecated && formatStr != null) {
-                    elem.logError("'decimal-format' is deprecated, use 'format' instead.");
+                    elem.logError("'decimal-format' is deprecated, use 'format' instead. (20361)");
                 }
             }
 
-            if (formatStr != null && formatStr.startsWith("##")) {
-                elem.logError("Perhaps format string in real variable '" + varName + "' could be simplified?");
+            if (mode.reportAny && formatStr != null && formatStr.startsWith("##")) {
+                elem.logError("Perhaps format string in real variable '" + varName + "' could be simplified? (20362)");
             }
 
             if (valid) {
@@ -2143,19 +2444,23 @@ public enum VariableFactory {
      *
      * @param elem    the element
      * @param varName the variable name
+     * @param mode    the parser mode
      * @return {@code true} if successful, {@code false} on any error
      */
     private static VariableRandomPermutation extractVariableRandomPermutation(final EmptyElement elem,
-                                                                              final String varName) {
+                                                                              final String varName,
+                                                                              final EParserMode mode) {
 
         boolean valid = true;
 
-        for (final String attrName : elem.attributeNames()) {
-            if (NAME.equals(attrName) || TYPE.equals(attrName) || MIN.equals(attrName) || MAX.equals(attrName)) {
-                continue;
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (NAME.equals(attrName) || TYPE.equals(attrName) || MIN.equals(attrName) || MAX.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (20370)";
+                elem.logError(msg);
             }
-            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
-            elem.logError(msg);
         }
 
         final String valueStr = elem.getStringAttr(VALUE);
@@ -2165,7 +2470,9 @@ public enum VariableFactory {
             try {
                 value = IntegerVectorValue.parse(valueStr);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid permutation value: '" + valueStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Invalid permutation value: '" + valueStr + "' in {" + varName + "} (20371)");
+                }
                 valid = false;
             }
         }
@@ -2176,14 +2483,18 @@ public enum VariableFactory {
         final String maxStr = elem.getStringAttr(MAX);
 
         if (minStr == null || maxStr == null) {
-            elem.logError("Missing required min/max value in random permutation var {" + varName + "}");
+            if (mode.reportAny) {
+                elem.logError("Missing required min/max value in random permutation var {" + varName + "} (20372)");
+            }
         } else {
             NumberOrFormula min = null;
             try {
                 final Long parsedMin = Long.valueOf(minStr);
                 min = new NumberOrFormula(parsedMin);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid min value: '" + minStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Invalid min value: '" + minStr + "' in {" + varName + "} (20373)");
+                }
                 valid = false;
             }
 
@@ -2192,7 +2503,9 @@ public enum VariableFactory {
                 final Long parsedMax = Long.valueOf(maxStr);
                 max = new NumberOrFormula(parsedMax);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "} (20374)");
+                }
                 valid = false;
             }
 
@@ -2227,12 +2540,14 @@ public enum VariableFactory {
 
         boolean valid = true;
 
-        for (final String attrName : elem.attributeNames()) {
-            if (NAME.equals(attrName) || TYPE.equals(attrName) || MIN.equals(attrName) || MAX.equals(attrName)) {
-                continue;
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (NAME.equals(attrName) || TYPE.equals(attrName) || MIN.equals(attrName) || MAX.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (20380)";
+                elem.logError(msg);
             }
-            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
-            elem.logError(msg);
         }
 
         final String valueStr = elem.getStringAttr(VALUE);
@@ -2242,7 +2557,9 @@ public enum VariableFactory {
             try {
                 value = IntegerVectorValue.parse(valueStr);
             } catch (final IllegalArgumentException ex) {
-                elem.logError("Invalid permutation value: '" + valueStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Invalid permutation value: '" + valueStr + "' in {" + varName + "} (20381)");
+                }
                 valid = false;
             }
         }
@@ -2256,7 +2573,9 @@ public enum VariableFactory {
                 final Long parsedMin = Long.valueOf(minStr);
                 min = new NumberOrFormula(parsedMin);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid min value: '" + minStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Invalid min value: '" + minStr + "' in {" + varName + "} (20382)");
+                }
                 valid = false;
             }
         }
@@ -2267,7 +2586,9 @@ public enum VariableFactory {
                 final Long parsedMax = Long.valueOf(maxStr);
                 max = new NumberOrFormula(parsedMax);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "} (20383)");
+                }
                 valid = false;
             }
         }
@@ -2284,38 +2605,50 @@ public enum VariableFactory {
                         if (min == null) {
                             final Formula minFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (minFormula == null) {
-                                elem.logError("Invalid 'min' formula in {" + varName + "}: " + nonempty.print(0));
+                                if (mode.reportAny) {
+                                    elem.logError("Invalid 'min' formula in {" + varName + "}: " + nonempty.print(0)
+                                                  + " (20384)");
+                                }
                                 valid = false;
                             } else {
-                                if (minFormula.isConstant()) {
+                                if (mode.reportAny && minFormula.isConstant()) {
                                     elem.logError("Constant 'min' in {" + varName
-                                                  + "} could be specified in attribute?");
+                                                  + "} could be specified in attribute? (20385)");
                                 }
                                 min = new NumberOrFormula(minFormula);
                             }
                         } else {
-                            elem.logError("Multiple 'min' values in {" + varName + "}");
+                            if (mode.reportAny) {
+                                elem.logError("Multiple 'min' values in {" + varName + "} (20386)");
+                            }
                             break;
                         }
                     } else if (MAX.equals(tag)) {
                         if (max == null) {
                             final Formula maxFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (maxFormula == null) {
-                                elem.logError("Invalid 'max' formula in {" + varName + "}: " + nonempty.print(0));
+                                if (mode.reportAny) {
+                                    elem.logError("Invalid 'max' formula in {" + varName + "}: " + nonempty.print(0)
+                                                  + " (20387)");
+                                }
                                 valid = false;
                             } else {
-                                if (maxFormula.isConstant()) {
+                                if (mode.reportAny && maxFormula.isConstant()) {
                                     elem.logError("Constant 'max' in {" + varName
-                                                  + "} could be specified in attribute?");
+                                                  + "} could be specified in attribute? (20388)");
                                 }
                                 max = new NumberOrFormula(maxFormula);
                             }
                         } else {
-                            elem.logError("Multiple 'max' values in {" + varName + "}");
+                            if (mode.reportAny) {
+                                elem.logError("Multiple 'max' values in {" + varName + "} (20389)");
+                            }
                             break;
                         }
                     } else {
-                        elem.logError("Unsupported '" + tag + "' element in in {" + varName + "}");
+                        if (mode.reportAny) {
+                            elem.logError("Unsupported '" + tag + "' element in in {" + varName + "} (20390)");
+                        }
                         valid = false;
                     }
                 }
@@ -2360,12 +2693,15 @@ public enum VariableFactory {
 
         boolean valid = true;
 
-        for (final String attrName : elem.attributeNames()) {
-            if (NAME.equals(attrName) || TYPE.equals(attrName) || FORMAT.equals(attrName)) {
-                continue;
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (NAME.equals(attrName) || TYPE.equals(attrName) || FORMAT.equals(attrName)
+                    || VALUE_TYPE.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (20400)";
+                elem.logError(msg);
             }
-            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
-            elem.logError(msg);
         }
 
         Object value = null;
@@ -2395,8 +2731,10 @@ public enum VariableFactory {
                                 try {
                                     value = IntegerVectorValue.parse(intVectorStr);
                                 } catch (final NumberFormatException ex) {
-                                    elem.logError("Invalid integer vector value: '" + intVectorStr + "' in {"
-                                                  + varName + "}");
+                                    if (mode.reportAny) {
+                                        elem.logError("Invalid integer vector value: '" + intVectorStr + "' in {"
+                                                      + varName + "} (20401)");
+                                    }
                                     valid = false;
                                 }
                             }
@@ -2413,7 +2751,10 @@ public enum VariableFactory {
                         try {
                             value = NumberParser.parse(irrationalStr);
                         } catch (final NumberFormatException ex) {
-                            elem.logError("Invalid irrational value: '" + irrationalStr + "' in {" + varName + "}");
+                            if (mode.reportAny) {
+                                elem.logError("Invalid irrational value: '" + irrationalStr + "' in {" + varName
+                                              + "} (20402)");
+                            }
                             valid = false;
                         }
                     }
@@ -2426,7 +2767,9 @@ public enum VariableFactory {
                     } else if (FALSE_STRING.equalsIgnoreCase(booleanStr)) {
                         value = Boolean.FALSE;
                     } else {
-                        elem.logError("Invalid boolean value: '" + booleanStr + "' in {" + varName + "}");
+                        if (mode.reportAny) {
+                            elem.logError("Invalid boolean value: '" + booleanStr + "' in {" + varName + "} (20403)");
+                        }
                         valid = false;
                     }
                 }
@@ -2437,7 +2780,9 @@ public enum VariableFactory {
                 try {
                     value = Double.valueOf(doubleStr);
                 } catch (final NumberFormatException ex) {
-                    elem.logError("Invalid real value: '" + doubleStr + "' in {" + varName + "}");
+                    if (mode.reportAny) {
+                        elem.logError("Invalid real value: '" + doubleStr + "' in {" + varName + "} (20404)");
+                    }
                     valid = false;
                 }
             }
@@ -2448,7 +2793,9 @@ public enum VariableFactory {
             try {
                 value = Long.valueOf(longStr);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid long value: '" + longStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Invalid long value: '" + longStr + "' in {" + varName + "} (20405)");
+                }
                 valid = false;
             }
         }
@@ -2470,7 +2817,10 @@ public enum VariableFactory {
                         case EXCLUDE -> {
                             final Formula exclude = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (exclude == null) {
-                                elem.logError("Invalid 'exclude' formula in {" + varName + "}: " + nonempty.print(0));
+                                if (mode.reportAny) {
+                                    elem.logError("Invalid 'exclude' formula in {" + varName + "}: "
+                                                  + nonempty.print(0) + " (20406)");
+                                }
                                 valid = false;
                             } else {
                                 excludes.add(exclude);
@@ -2479,8 +2829,10 @@ public enum VariableFactory {
                         case CHOOSE_FROM -> {
                             final Formula choice = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (choice == null) {
-                                elem.logError(
-                                        "Invalid 'choose-from' formula in {" + varName + "}: " + nonempty.print(0));
+                                if (mode.reportAny) {
+                                    elem.logError("Invalid 'choose-from' formula in {" + varName + "}: "
+                                                  + nonempty.print(0) + " (20407)");
+                                }
                                 valid = false;
                             } else {
                                 choices.add(choice);
@@ -2492,8 +2844,10 @@ public enum VariableFactory {
                                         || (type == EType.REAL && choiceType == EType.INTEGER)) {
                                         type = EType.REAL;
                                     } else {
-                                        elem.logError(
-                                                "Inconsistent types in 'choose-from' formulas in {" + varName + "}");
+                                        if (mode.reportAny) {
+                                            elem.logError("Inconsistent types in 'choose-from' formulas in {"
+                                                          + varName + "} (20408)");
+                                        }
                                         valid = false;
                                     }
                                 }
@@ -2506,16 +2860,23 @@ public enum VariableFactory {
                             if (span == null) {
                                 span = DocFactory.parseSpan(evalContext, nonempty, mode);
                                 if (span == null) {
-                                    elem.logError("Invalid <span> content in {" + varName + "}: " + nonempty.print(0));
+                                    if (mode.reportAny) {
+                                        elem.logError("Invalid <span> content in {" + varName + "}: "
+                                                      + nonempty.print(0) + " (20409)");
+                                    }
                                     valid = false;
                                 }
                             } else {
-                                elem.logError("Multiple 'span' values not allowed in {" + varName + "}");
+                                if (mode.reportAny) {
+                                    elem.logError("Multiple 'span' values not allowed in {" + varName + "} (20410)");
+                                }
                                 break label;
                             }
                         }
                         case null, default -> {
-                            elem.logError("Unsupported '" + tag + "' element in {" + varName + "}");
+                            if (mode.reportAny) {
+                                elem.logError("Unsupported '" + tag + "' element in {" + varName + "} (20411)");
+                            }
                             valid = false;
                         }
                     }
@@ -2523,7 +2884,10 @@ public enum VariableFactory {
             }
 
             if (value != null && span != null) {
-                elem.logError("Cannot have both attribute-specified value and span value in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Cannot have both attribute-specified value and span value in {" + varName
+                                  + "} (20412)");
+                }
                 valid = false;
             }
 
@@ -2531,12 +2895,13 @@ public enum VariableFactory {
             if (formatStr == null) {
                 formatStr = elem.getStringAttr(DECIMAL_FORMAT);
                 if (mode.reportDeprecated && formatStr != null) {
-                    elem.logError("'decimal-format' is deprecated, use 'format' instead.");
+                    elem.logError("'decimal-format' is deprecated, use 'format' instead. (20413)");
                 }
             }
 
-            if (formatStr != null && formatStr.startsWith("##")) {
-                elem.logError("Perhaps format string in choice variable '" + varName + "' could be simplified?");
+            if (mode.reportAny && formatStr != null && formatStr.startsWith("##")) {
+                elem.logError("Perhaps format string in choice variable '" + varName
+                              + "' could be simplified? (20414)");
             }
 
             if (valid) {
@@ -2561,20 +2926,24 @@ public enum VariableFactory {
      *
      * @param elem    the element
      * @param varName the variable name
+     * @param mode    the parser mode
      * @return {@code true} if successful, {@code false} on any error
      */
     private static VariableRandomSimpleAngle extractVariableRandomSimpleAngle(final EmptyElement elem,
-                                                                              final String varName) {
+                                                                              final String varName,
+                                                                              final EParserMode mode) {
 
         boolean valid = true;
 
-        for (final String attrName : elem.attributeNames()) {
-            if (NAME.equals(attrName) || TYPE.equals(attrName) || MIN.equals(attrName) || MAX.equals(attrName)
-                || MAX_DENOM.equals(attrName) || EXCLUDE.equals(attrName)) {
-                continue;
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (NAME.equals(attrName) || TYPE.equals(attrName) || MIN.equals(attrName) || MAX.equals(attrName)
+                    || MAX_DENOM.equals(attrName) || EXCLUDE.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (20420)";
+                elem.logError(msg);
             }
-            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
-            elem.logError(msg);
         }
 
         final String valueStr = elem.getStringAttr(VALUE);
@@ -2584,7 +2953,9 @@ public enum VariableFactory {
             try {
                 value = Long.valueOf(valueStr);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid integer value: '" + valueStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Invalid integer value: '" + valueStr + "' in {" + varName + "} (20421)");
+                }
                 valid = false;
             }
         }
@@ -2595,14 +2966,18 @@ public enum VariableFactory {
         final String maxStr = elem.getStringAttr(MAX);
 
         if (minStr == null || maxStr == null) {
-            elem.logError("Missing required min/max value in random integer var {" + varName + "}");
+            if (mode.reportAny) {
+                elem.logError("Missing required min/max value in random integer var {" + varName + "} (20422)");
+            }
         } else {
             NumberOrFormula min = null;
             try {
                 final Long parsedMin = Long.valueOf(minStr);
                 min = new NumberOrFormula(parsedMin);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid min value: '" + minStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Invalid min value: '" + minStr + "' in {" + varName + "} (20423)");
+                }
                 valid = false;
             }
 
@@ -2611,7 +2986,9 @@ public enum VariableFactory {
                 final Long parsedMax = Long.valueOf(maxStr);
                 max = new NumberOrFormula(parsedMax);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "} (20424)");
+                }
                 valid = false;
             }
 
@@ -2621,7 +2998,9 @@ public enum VariableFactory {
                 final Long parsedMaxDenom = Long.valueOf(maxDenomStr);
                 maxDenom = new NumberOrFormula(parsedMaxDenom);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "} (20425)");
+                }
                 valid = false;
             }
 
@@ -2664,13 +3043,15 @@ public enum VariableFactory {
 
         boolean valid = true;
 
-        for (final String attrName : elem.attributeNames()) {
-            if (NAME.equals(attrName) || TYPE.equals(attrName) || MIN.equals(attrName) || MAX.equals(attrName)
-                || MAX_DENOM.equals(attrName) || EXCLUDE.equals(attrName)) {
-                continue;
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (NAME.equals(attrName) || TYPE.equals(attrName) || MIN.equals(attrName) || MAX.equals(attrName)
+                    || MAX_DENOM.equals(attrName) || EXCLUDE.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (20430)";
+                elem.logError(msg);
             }
-            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
-            elem.logError(msg);
         }
 
         final String valueStr = elem.getStringAttr(VALUE);
@@ -2680,7 +3061,9 @@ public enum VariableFactory {
             try {
                 value = Long.valueOf(valueStr);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid integer value: '" + valueStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Invalid integer value: '" + valueStr + "' in {" + varName + "} (20431)");
+                }
                 valid = false;
             }
         }
@@ -2695,7 +3078,9 @@ public enum VariableFactory {
                 final Long parsedMin = Long.valueOf(minStr);
                 min = new NumberOrFormula(parsedMin);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid min value: '" + minStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Invalid min value: '" + minStr + "' in {" + varName + "} (20432)");
+                }
                 valid = false;
             }
         }
@@ -2706,7 +3091,9 @@ public enum VariableFactory {
                 final Long parsedMax = Long.valueOf(maxStr);
                 max = new NumberOrFormula(parsedMax);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "} (20433)");
+                }
                 valid = false;
             }
         }
@@ -2717,7 +3104,9 @@ public enum VariableFactory {
                 final Long parsedMaxDenom = Long.valueOf(maxDenomStr);
                 maxDenom = new NumberOrFormula(parsedMaxDenom);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid max-denom value: '" + maxDenomStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Invalid max-denom value: '" + maxDenomStr + "' in {" + varName + "} (20434)");
+                }
                 valid = false;
             }
         }
@@ -2739,17 +3128,22 @@ public enum VariableFactory {
                                 final Formula minFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty,
                                         mode);
                                 if (minFormula == null) {
-                                    elem.logError("Invalid 'min' formula in {" + varName + "}: " + nonempty.print(0));
+                                    if (mode.reportAny) {
+                                        elem.logError("Invalid 'min' formula in {" + varName + "}: "
+                                                      + nonempty.print(0) + " (20435)");
+                                    }
                                     valid = false;
                                 } else {
-                                    if (minFormula.isConstant()) {
+                                    if (mode.reportAny && minFormula.isConstant()) {
                                         elem.logError("Constant 'min' in {" + varName
-                                                      + "} could be specified in attribute?");
+                                                      + "} could be specified in attribute? (20436)");
                                     }
                                     min = new NumberOrFormula(minFormula);
                                 }
                             } else {
-                                elem.logError("Multiple 'min' values in {" + varName + "}");
+                                if (mode.reportAny) {
+                                    elem.logError("Multiple 'min' values in {" + varName + "} (20437)");
+                                }
                                 break label;
                             }
                         }
@@ -2758,17 +3152,20 @@ public enum VariableFactory {
                                 final Formula maxFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty,
                                         mode);
                                 if (maxFormula == null) {
-                                    elem.logError("Invalid 'max' formula in {" + varName + "}: " + nonempty.print(0));
+                                    if (mode.reportAny) {
+                                        elem.logError("Invalid 'max' formula in {" + varName + "}: "
+                                                      + nonempty.print(0) + " (20438)");
+                                    }
                                     valid = false;
                                 } else {
-                                    if (maxFormula.isConstant()) {
+                                    if (mode.reportAny && maxFormula.isConstant()) {
                                         elem.logError("Constant 'max' in {" + varName
-                                                      + "} could be specified in attribute?");
+                                                      + "} could be specified in attribute? (20439)");
                                     }
                                     max = new NumberOrFormula(maxFormula);
                                 }
                             } else {
-                                elem.logError("Multiple 'max' values in {" + varName + "}");
+                                elem.logError("Multiple 'max' values in {" + varName + "} (20440)");
                                 break label;
                             }
                         }
@@ -2777,32 +3174,41 @@ public enum VariableFactory {
                                 final Formula maxDenomFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty,
                                         mode);
                                 if (maxDenomFormula == null) {
-                                    elem.logError("Invalid 'max-denom' formula in {" + varName + "}: "
-                                                  + nonempty.print(0));
+                                    if (mode.reportAny) {
+                                        elem.logError("Invalid 'max-denom' formula in {" + varName + "}: "
+                                                      + nonempty.print(0) + " (20441)");
+                                    }
                                     valid = false;
                                 } else {
-                                    if (maxDenomFormula.isConstant()) {
+                                    if (mode.reportAny && maxDenomFormula.isConstant()) {
                                         elem.logError("Constant 'max-denom' in {" + varName
-                                                      + "} could be specified in attribute?");
+                                                      + "} could be specified in attribute? (20442)");
                                     }
                                     maxDenom = new NumberOrFormula(maxDenomFormula);
                                 }
                             } else {
-                                elem.logError("Multiple 'max-denom' values in {" + varName + "}");
+                                if (mode.reportAny) {
+                                    elem.logError("Multiple 'max-denom' values in {" + varName + "} (20443)");
+                                }
                                 break label;
                             }
                         }
                         case EXCLUDE -> {
                             final Formula exclude = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (exclude == null) {
-                                elem.logError("Invalid 'exclude' formula in {" + varName + "}: " + nonempty.print(0));
+                                if (mode.reportAny) {
+                                    elem.logError("Invalid 'exclude' formula in {" + varName + "}: "
+                                                  + nonempty.print(0) + " (20444)");
+                                }
                                 valid = false;
                             } else {
                                 excludes.add(exclude);
                             }
                         }
                         case null, default -> {
-                            elem.logError("Unsupported '" + tag + "' element in in {" + varName + "}");
+                            if (mode.reportAny) {
+                                elem.logError("Unsupported '" + tag + "' element in in {" + varName + "} (20445)");
+                            }
                             valid = false;
                         }
                     }
@@ -2849,13 +3255,16 @@ public enum VariableFactory {
 
         boolean valid = true;
 
-        for (final String attrName : elem.attributeNames()) {
-            if (NAME.equals(attrName) || TYPE.equals(attrName) || VALUE_TYPE.equals(attrName) || MIN.equals(attrName)
-                || MAX.equals(attrName) || EXCLUDE.equals(attrName) || FORMAT.equals(attrName)) {
-                continue;
+        if (mode.reportAny) {
+            for (final String attrName : elem.attributeNames()) {
+                if (NAME.equals(attrName) || TYPE.equals(attrName) || VALUE_TYPE.equals(attrName) || MIN.equals(
+                        attrName)
+                    || MAX.equals(attrName) || EXCLUDE.equals(attrName) || FORMAT.equals(attrName)) {
+                    continue;
+                }
+                final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (20450)";
+                elem.logError(msg);
             }
-            final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName);
-            elem.logError(msg);
         }
 
         Object value = null;
@@ -2863,11 +3272,15 @@ public enum VariableFactory {
         EType type = EType.ERROR;
         final String valueTypeStr = elem.getStringAttr(VALUE_TYPE);
         if (valueTypeStr == null) {
-            elem.logError("Derived variable {" + varName + "} does not specify value type");
+            if (mode.reportAny) {
+                elem.logError("Derived variable {" + varName + "} does not specify value type (20451)");
+            }
         } else {
             type = EType.forLabel(valueTypeStr);
             if (type == null) {
-                elem.logError("Invalid value-type: '" + valueTypeStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Invalid value-type: '" + valueTypeStr + "' in {" + varName + "} (20452)");
+                }
                 valid = false;
             }
         }
@@ -2890,8 +3303,10 @@ public enum VariableFactory {
                                 try {
                                     value = IntegerVectorValue.parse(intVectorStr);
                                 } catch (final NumberFormatException ex) {
-                                    elem.logError("Invalid integer vector value: '" + intVectorStr + "' in {"
-                                                  + varName + "}");
+                                    if (mode.reportAny) {
+                                        elem.logError("Invalid integer vector value: '" + intVectorStr + "' in {"
+                                                      + varName + "} (20453)");
+                                    }
                                     valid = false;
                                 }
                             }
@@ -2908,7 +3323,10 @@ public enum VariableFactory {
                         try {
                             value = NumberParser.parse(irrationalStr);
                         } catch (final NumberFormatException ex) {
-                            elem.logError("Invalid irrational value: '" + irrationalStr + "' in {" + varName + "}");
+                            if (mode.reportAny) {
+                                elem.logError("Invalid irrational value: '" + irrationalStr + "' in {" + varName
+                                              + "} (20455)");
+                            }
                             valid = false;
                         }
                     }
@@ -2921,7 +3339,9 @@ public enum VariableFactory {
                     } else if (FALSE_STRING.equalsIgnoreCase(booleanStr)) {
                         value = Boolean.FALSE;
                     } else {
-                        elem.logError("Invalid boolean value: '" + booleanStr + "' in {" + varName + "}");
+                        if (mode.reportAny) {
+                            elem.logError("Invalid boolean value: '" + booleanStr + "' in {" + varName + "} (20455)");
+                        }
                         valid = false;
                     }
                 }
@@ -2932,7 +3352,9 @@ public enum VariableFactory {
                 try {
                     value = Double.valueOf(doubleStr);
                 } catch (final NumberFormatException ex) {
-                    elem.logError("Invalid real value: '" + doubleStr + "' in {" + varName + "}");
+                    if (mode.reportAny) {
+                        elem.logError("Invalid real value: '" + doubleStr + "' in {" + varName + "} (20456)");
+                    }
                     valid = false;
                 }
             }
@@ -2943,7 +3365,9 @@ public enum VariableFactory {
             try {
                 value = Long.valueOf(longStr);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid long value: '" + longStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Invalid long value: '" + longStr + "' in {" + varName + "} (20457)");
+                }
                 valid = false;
             }
         }
@@ -2959,7 +3383,9 @@ public enum VariableFactory {
                 final Number parsedMin = NumberParser.parse(minStr);
                 min = new NumberOrFormula(parsedMin);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid min value: '" + minStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Invalid min value: '" + minStr + "' in {" + varName + "} (20458)");
+                }
                 valid = false;
             }
         }
@@ -2970,7 +3396,9 @@ public enum VariableFactory {
                 final Number parsedMax = NumberParser.parse(maxStr);
                 max = new NumberOrFormula(parsedMax);
             } catch (final NumberFormatException ex) {
-                elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "}");
+                if (mode.reportAny) {
+                    elem.logError("Invalid max value: '" + maxStr + "' in {" + varName + "} (20459)");
+                }
                 valid = false;
             }
         }
@@ -2992,17 +3420,22 @@ public enum VariableFactory {
                                 final Formula minFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty,
                                         mode);
                                 if (minFormula == null) {
-                                    elem.logError("Invalid 'min' formula in {" + varName + "}: " + nonempty.print(0));
+                                    if (mode.reportAny) {
+                                        elem.logError("Invalid 'min' formula in {" + varName + "}: "
+                                                      + nonempty.print(0) + " (20460)");
+                                    }
                                     valid = false;
                                 } else {
-                                    if (minFormula.isConstant()) {
+                                    if (mode.reportAny && minFormula.isConstant()) {
                                         elem.logError("Constant 'min' in {" + varName
-                                                      + "} could be specified in attribute?");
+                                                      + "} could be specified in attribute? (20461)");
                                     }
                                     min = new NumberOrFormula(minFormula);
                                 }
                             } else {
-                                elem.logError("Multiple 'min' values in {" + varName + "}");
+                                if (mode.reportAny) {
+                                    elem.logError("Multiple 'min' values in {" + varName + "} (20462)");
+                                }
                                 break label;
                             }
                         }
@@ -3011,24 +3444,32 @@ public enum VariableFactory {
                                 final Formula maxFormula = XmlFormulaFactory.extractFormula(evalContext, nonempty,
                                         mode);
                                 if (maxFormula == null) {
-                                    elem.logError("Invalid 'max' formula in {" + varName + "}: " + nonempty.print(0));
+                                    if (mode.reportAny) {
+                                        elem.logError("Invalid 'max' formula in {" + varName + "}: "
+                                                      + nonempty.print(0) + " (20463)");
+                                    }
                                     valid = false;
                                 } else {
-                                    if (maxFormula.isConstant()) {
+                                    if (mode.reportAny && maxFormula.isConstant()) {
                                         elem.logError("Constant 'max' in {" + varName
-                                                      + "} could be specified in attribute?");
+                                                      + "} could be specified in attribute? (20464)");
                                     }
                                     max = new NumberOrFormula(maxFormula);
                                 }
                             } else {
-                                elem.logError("Multiple 'max' values in {" + varName + "}");
+                                if (mode.reportAny) {
+                                    elem.logError("Multiple 'max' values in {" + varName + "} (20465)");
+                                }
                                 break label;
                             }
                         }
                         case EXCLUDE -> {
                             final Formula exclude = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                             if (exclude == null) {
-                                elem.logError("Invalid 'exclude' formula in {" + varName + "}: " + nonempty.print(0));
+                                if (mode.reportAny) {
+                                    elem.logError("Invalid 'exclude' formula in {" + varName + "}: "
+                                                  + nonempty.print(0) + " (20466)");
+                                }
                                 valid = false;
                             } else {
                                 excludes.add(exclude);
@@ -3041,11 +3482,16 @@ public enum VariableFactory {
                             if (span == null) {
                                 span = DocFactory.parseSpan(evalContext, nonempty, mode);
                                 if (span == null) {
-                                    elem.logError("Invalid <span> content in {" + varName + "}: " + nonempty.print(0));
+                                    if (mode.reportAny) {
+                                        elem.logError("Invalid <span> content in {" + varName + "}: "
+                                                      + nonempty.print(0) + " (20467)");
+                                    }
                                     valid = false;
                                 }
                             } else {
-                                elem.logError("Multiple 'span' values in {" + varName + "}");
+                                if (mode.reportAny) {
+                                    elem.logError("Multiple 'span' values in {" + varName + "} (20468)");
+                                }
                                 break label;
                             }
                         }
@@ -3053,32 +3499,43 @@ public enum VariableFactory {
                             if (formula == null) {
                                 formula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                                 if (formula == null) {
-                                    elem.logError("Invalid 'expr' formula in {" + varName + "}: " + nonempty.print(0));
+                                    if (mode.reportAny) {
+                                        elem.logError("Invalid 'expr' formula in {" + varName + "}: "
+                                                      + nonempty.print(0) + " (20469)");
+                                    }
                                     valid = false;
                                 }
                             } else {
-                                elem.logError("Multiple 'expr/formula' values in {" + varName + "}");
+                                if (mode.reportAny) {
+                                    elem.logError("Multiple 'expr/formula' values in {" + varName + "} (20470)");
+                                }
                                 break label;
                             }
                         }
                         case FORMULA -> {
                             if (mode.reportDeprecated) {
-                                elem.logError("&lt;formula&gt; is deprecated, use &lt;expr&gt; instead.");
+                                elem.logError("&lt;formula&gt; is deprecated, use &lt;expr&gt; instead. (20471)");
                             }
                             if (formula == null) {
                                 formula = XmlFormulaFactory.extractFormula(evalContext, nonempty, mode);
                                 if (formula == null) {
-                                    elem.logError(
-                                            "Invalid 'formula' formula in {" + varName + "}: " + nonempty.print(0));
+                                    if (mode.reportAny) {
+                                        elem.logError("Invalid 'formula' formula in {" + varName + "}: "
+                                                      + nonempty.print(0) + " (20472)");
+                                    }
                                     valid = false;
                                 }
                             } else {
-                                elem.logError("Multiple 'expr/formula' values in {" + varName + "}");
+                                if (mode.reportAny) {
+                                    elem.logError("Multiple 'expr/formula' values in {" + varName + "} (20473)");
+                                }
                                 break label;
                             }
                         }
                         case null, default -> {
-                            elem.logError("Unsupported '" + tag + "' element in {" + varName + "}");
+                            if (mode.reportAny) {
+                                elem.logError("Unsupported '" + tag + "' element in {" + varName + "} (20474)");
+                            }
                             valid = false;
                         }
                     }
@@ -3086,10 +3543,14 @@ public enum VariableFactory {
             }
 
             if (valid && formula == null) {
-                elem.logError("Derived value does not include formula.");
+                if (mode.reportAny) {
+                    elem.logError("Derived value does not include formula. (20475)");
+                }
                 valid = false;
             } else if (value != null && span != null) {
-                elem.logError("Cannot have both attribute-specified value and span value.");
+                if (mode.reportAny) {
+                    elem.logError("Cannot have both attribute-specified value and span value. (20476)");
+                }
                 valid = false;
             }
 
@@ -3097,12 +3558,13 @@ public enum VariableFactory {
             if (formatStr == null) {
                 formatStr = elem.getStringAttr(DECIMAL_FORMAT);
                 if (mode.reportDeprecated && formatStr != null) {
-                    elem.logError("'decimal-format' is deprecated, use 'format' instead.");
+                    elem.logError("'decimal-format' is deprecated, use 'format' instead. (20477)");
                 }
             }
 
-            if (formatStr != null && formatStr.startsWith("##")) {
-                elem.logError("Perhaps format string in derived variable '" + varName + "' could be simplified?");
+            if (mode.reportAny && formatStr != null && formatStr.startsWith("##")) {
+                elem.logError("Perhaps format string in derived variable '" + varName
+                              + "' could be simplified? (20478)");
             }
 
             if (valid) {
@@ -3135,7 +3597,7 @@ public enum VariableFactory {
             final char chr = str.charAt(0);
             if (TRUE_CHARS.indexOf(chr) == -1) {
                 if (FALSE_CHARS.indexOf(chr) == -1) {
-                    throw new IllegalArgumentException("Invalid boolean format '" + str + "'");
+                    throw new IllegalArgumentException("Invalid boolean format '" + str + "' (20480)");
                 }
                 result = Boolean.FALSE;
             } else {
@@ -3148,7 +3610,7 @@ public enum VariableFactory {
             } else if (FALSE_STRING.equals(lower)) {
                 result = Boolean.FALSE;
             } else {
-                throw new IllegalArgumentException("Invalid boolean format '" + str + "'");
+                throw new IllegalArgumentException("Invalid boolean format '" + str + "' (20481)");
             }
         }
 
