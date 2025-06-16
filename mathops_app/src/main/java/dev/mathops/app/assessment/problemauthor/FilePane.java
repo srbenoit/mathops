@@ -41,6 +41,13 @@ import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -81,6 +88,9 @@ final class FilePane extends JPanel implements ActionListener {
 
     /** An action command. */
     private static final String HTML_CMD = "HTML";
+
+    /** An action command. */
+    private static final String IMAGE_CMD = "IMAGE";
 
     /** An action command. */
     private static final String SAVE_IMG_CMD = "SAVE_IMG";
@@ -203,6 +213,11 @@ final class FilePane extends JPanel implements ActionListener {
         toHtml.addActionListener(this);
         buttons.add(toHtml);
 
+        final JButton toImg = new JButton("Snap Image");
+        toImg.setActionCommand(IMAGE_CMD);
+        toImg.addActionListener(this);
+        buttons.add(toImg);
+
         // FIXME: Want a "save images" feature but the problem data model sucks.
 
         // final JButton saveImages = new JButton("Save Images");
@@ -294,15 +309,15 @@ final class FilePane extends JPanel implements ActionListener {
                         }
                     } catch (final ParsingException ex) {
                         this.consoleLines.add("<div color='red'>ERROR: Unable to interpret Exam file XML: "
-                                + ex.getMessage() + "</div>");
+                                              + ex.getMessage() + "</div>");
                     }
                 } else if (fileContent.contains("</problem>")
-                        || fileContent.contains("</problem-multiple-choice>")
-                        || fileContent.contains("</problem-multiple-selection")
-                        || fileContent.contains("</problem-numeric>")
-                        || fileContent.contains("</problem-embedded-input>")
-                        || fileContent.contains("</problem-auto-correct>")
-                        || fileContent.contains("</problem-dummy>")) {
+                           || fileContent.contains("</problem-multiple-choice>")
+                           || fileContent.contains("</problem-multiple-selection")
+                           || fileContent.contains("</problem-numeric>")
+                           || fileContent.contains("</problem-embedded-input>")
+                           || fileContent.contains("</problem-auto-correct>")
+                           || fileContent.contains("</problem-dummy>")) {
                     try {
                         final XmlContent source = new XmlContent(fileContent, false, false);
                         final AbstractProblemTemplate problem =
@@ -331,7 +346,7 @@ final class FilePane extends JPanel implements ActionListener {
                         }
                     } catch (final ParsingException ex) {
                         this.consoleLines.add("<div color='red'>ERROR: Unable to interpret Problem file XML: "
-                                + ex.getMessage() + "</div>");
+                                              + ex.getMessage() + "</div>");
                     }
                 } else {
                     this.consoleLines.add(
@@ -783,6 +798,14 @@ final class FilePane extends JPanel implements ActionListener {
             } else if (this.examPane != null) {
                 // TODO:
             }
+        } else if (IMAGE_CMD.equals(cmd)) {
+            if (this.generated != null) {
+                final BufferedImage img = this.generated.snapImage();
+                final CopyImageToClipBoard ci = new CopyImageToClipBoard();
+                ci.copyImage(img);
+            } else if (this.examPane != null) {
+                // TODO:
+            }
         } else if (LARGER_CMD.equals(cmd)) {
             if (this.generated != null) {
                 this.generated.larger();
@@ -795,6 +818,95 @@ final class FilePane extends JPanel implements ActionListener {
             if (this.generated != null) {
                 saveImages();
             }
+        }
+    }
+
+    /**
+     * A transferable image.
+     */
+    private static final class TransferableImage implements Transferable {
+
+        /** The image. */
+        private final Image image;
+
+        /**
+         * Constructs a new {@code TransferableImage}.
+         */
+        private TransferableImage(final Image theImage) {
+
+            this.image = theImage;
+        }
+
+        /**
+         * Gets the transfer data.
+         *
+         * @param flavor the requested flavor for the data
+         * @return the data (the image)
+         * @throws UnsupportedFlavorException if an unsupported flavor is requested
+         */
+        public Object getTransferData(final DataFlavor flavor) throws UnsupportedFlavorException {
+
+            if (flavor.equals(DataFlavor.imageFlavor) && this.image != null) {
+                return this.image;
+            } else {
+                throw new UnsupportedFlavorException(flavor);
+            }
+        }
+
+        /**
+         * Gets the list of data flavors.
+         *
+         * @return the array of flavors
+         */
+        public DataFlavor[] getTransferDataFlavors() {
+
+            final DataFlavor[] flavors = new DataFlavor[1];
+            flavors[0] = DataFlavor.imageFlavor;
+            return flavors;
+        }
+
+        /**
+         * Tests whether a flavor is supported.
+         *
+         * @param flavor the requested flavor for the data
+         * @return true if supported
+         */
+        public boolean isDataFlavorSupported(final DataFlavor flavor) {
+
+            return flavor == DataFlavor.imageFlavor;
+        }
+    }
+
+    /**
+     * A handler to copy an image to the system clipboard.
+     */
+    private static final class CopyImageToClipBoard implements ClipboardOwner {
+
+        /**
+         * Constructs a new {@code CopyImageToClipBoard}.
+         */
+        private CopyImageToClipBoard() {
+
+            // No action
+        }
+
+        /**
+         * Stores an image to the clipboard.
+         *
+         * @param bi the image
+         */
+        void copyImage(final BufferedImage bi) {
+
+            final Transferable trans = new TransferableImage(bi);
+            final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            clipboard.setContents(trans, this);
+
+            Log.info("Stored image to clipboard");
+        }
+
+        public void lostOwnership(final Clipboard clip, final Transferable trans) {
+
+            Log.info("Lost clipboard ownership");
         }
     }
 }

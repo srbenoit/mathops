@@ -190,10 +190,17 @@ public enum XmlFormulaFactory {
                     }
                 }
             }
+
+            if (mode.reportAny && root instanceof Formula) {
+                final String msg = Res.get(Res.EXPR_WITH_EXPR_CHILD) + " (10005)";
+                element.logError(msg);
+            }
+
             result = root == null ? null : new Formula(root);
+
         } else if (mode.reportAny) {
             final String tagName = element.getTagName();
-            final String msg = Res.fmt(Res.ELEM_MUST_HAVE_ONE_CHILD, tagName) + " (10005)";
+            final String msg = Res.fmt(Res.ELEM_MUST_HAVE_ONE_CHILD, tagName) + " (10006)";
             element.logError(msg);
         }
 

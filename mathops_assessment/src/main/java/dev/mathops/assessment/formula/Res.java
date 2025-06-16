@@ -144,6 +144,9 @@ final class Res extends ResBundle {
     /** A resource key. */
     static final String UNEXPECTED_ATTR = key(index++);
 
+    /** A resource key. */
+    static final String EXPR_WITH_EXPR_CHILD = key(index++);
+
     //
 
     /** The resources - an array of key-values pairs. */
@@ -193,7 +196,7 @@ final class Res extends ResBundle {
             {MISSING_CASE_FORMULA, "Missing formula in 'case' element."},
             {BAD_CASE_VALUE, "'case' element has invalid 'value' attribute."},
             {UNEXPECTED_ATTR, "Unexpected attribute found in expression: {0}."},
-
+            {EXPR_WITH_EXPR_CHILD, "An expression is a direct child of an expression"},
 
     };
 

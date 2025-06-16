@@ -22,6 +22,8 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 import java.io.Serial;
 
 /**
@@ -219,5 +221,23 @@ public final class GeneratedPane extends JPanel implements AnswerListener, Input
     public void inputChanged(final AbstractDocInput source) {
 
         this.variables.updateVariableValues();
+    }
+
+    /**
+     * Snaps an image of the current problem panel.
+     *
+     * @return the image
+     */
+    public BufferedImage snapImage() {
+
+        final BufferedImage img;
+
+        if (this.currentProblemPane != null) {
+            img = this.currentProblemPane.snapImage();
+        } else {
+            img = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);
+        }
+
+        return img;
     }
 }

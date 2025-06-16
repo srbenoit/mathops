@@ -1164,7 +1164,7 @@ public enum DocFactory {
         if (mode.reportAny) {
             for (final String attrName : elem.attributeNames()) {
                 if (COLOR.equals(attrName) || BGCOLOR.equals(attrName) || FONT_NAME.equals(attrName)
-                    || FONT_SIZE.equals(attrName) || FONT_STYLE.equals(attrName)) {
+                    || FONT_SIZE.equals(attrName) || FONT_STYLE.equals(attrName) || LINES.equals(attrName)) {
                     continue;
                 }
                 final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40070)";
@@ -3934,7 +3934,7 @@ public enum DocFactory {
             for (final String attrName : e.attributeNames()) {
                 if (X.equals(attrName) || Y.equals(attrName) || ANCHOR.equals(attrName) || FILLED.equals(attrName)
                     || COLOR.equals(attrName) || FONT_NAME.equals(attrName) || FONT_SIZE.equals(attrName)
-                    || FONT_STYLE.equals(attrName) || ALPHA.equals(attrName)) {
+                    || FONT_STYLE.equals(attrName) || ALPHA.equals(attrName) || VALUE.equals(attrName)) {
                     continue;
                 }
                 final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40360)";
@@ -4008,7 +4008,7 @@ public enum DocFactory {
             for (final String attrName : e.attributeNames()) {
                 if (X.equals(attrName) || Y.equals(attrName) || ANCHOR.equals(attrName) || FILLED.equals(attrName)
                     || COLOR.equals(attrName) || FONT_NAME.equals(attrName) || FONT_SIZE.equals(attrName)
-                    || FONT_STYLE.equals(attrName) || ALPHA.equals(attrName)) {
+                    || FONT_STYLE.equals(attrName) || ALPHA.equals(attrName) || VALUE.equals(attrName)) {
                     continue;
                 }
                 final String msg = Res.fmt(Res.UNEXPECTED_ATTR, attrName) + " (40370)";

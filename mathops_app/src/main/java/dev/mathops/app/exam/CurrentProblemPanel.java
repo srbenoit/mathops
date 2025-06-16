@@ -30,9 +30,11 @@ import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.image.BufferedImage;
 import java.io.Serial;
 import java.util.Objects;
 
@@ -672,5 +674,30 @@ public final class CurrentProblemPanel extends JPanel implements ComponentListen
             revalidate();
             repaint();
         }
+    }
+
+    /**
+     * Snaps an image of the current problem panel.
+     *
+     * @return the image
+     */
+    public BufferedImage snapImage() {
+
+        final BufferedImage img;
+
+        if (this.visiblePanel instanceof AbstractProblemPanelBase problemPanel) {
+            img = problemPanel.getImage();
+
+            Log.info(this.visiblePanel.getClass().getName());
+//            final Dimension size = this.visiblePanel.getSize();
+//            img = new BufferedImage(size.width, size.height, BufferedImage.TYPE_4BYTE_ABGR);
+//            final Graphics2D g = img.createGraphics();
+//            this.visiblePanel.paintComponents(g);
+//            g.dispose();
+        } else {
+            img = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);
+        }
+
+        return img;
     }
 }

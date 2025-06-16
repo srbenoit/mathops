@@ -34,7 +34,7 @@ public final class ProblemNumericPanel extends AbstractProblemPanelBase
     @Serial
     private static final long serialVersionUID = 5183718366808725415L;
 
-    /** A compiled patern. */
+    /** A compiled pattern. */
     private static final Pattern COMPILED = Pattern.compile(CoreConstants.COMMA);
 
     /** The numeric answer problem being presented. */
@@ -381,11 +381,13 @@ public final class ProblemNumericPanel extends AbstractProblemPanelBase
     @Override
     public void paintComponent(final Graphics g) {
 
-        super.paintComponent(g);
-
         if (!SwingUtilities.isEventDispatchThread()) {
             Log.warning(Res.get(Res.NOT_AWT_THREAD));
         }
+
+        Log.info("Size is ", getSize());
+
+        super.paintComponent(g);
 
         this.problem.question.paintComponent(g, ELayoutMode.TEXT);
 
