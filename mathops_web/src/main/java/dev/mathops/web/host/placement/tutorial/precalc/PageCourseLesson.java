@@ -144,7 +144,7 @@ enum PageCourseLesson {
                 while (iter2.hasNext()) {
                     final RawLessonComponent comp = iter2.next();
                     if ("PREMED".equals(comp.type)) {
-                        htm.sDiv("premed").add(comp.xmlData).eDiv();
+                        htm.sDiv("premed").add(comp.xmlData.replace("%%MODE%%", mode)).eDiv();
                         iter2.remove();
                     }
                 }

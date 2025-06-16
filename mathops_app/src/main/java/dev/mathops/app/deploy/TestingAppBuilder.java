@@ -40,6 +40,9 @@ final class TestingAppBuilder {
     /** Directory where text project is stored. */
     private final File textDir;
 
+    /** Directory where DB project is stored. */
+    private final File dbDir;
+
     /** The target directory to which to copy generated files. */
     private final File targetDir;
 
@@ -57,6 +60,7 @@ final class TestingAppBuilder {
         this.projectDir = new File(idea, "mathops");
         this.commonsDir = new File(idea, "mathops_commons");
         this.textDir = new File(idea, "mathops_text");
+        this.dbDir = new File(idea, "mathops_db");
 
         this.targetDir = new File("/opt/public/www/apps/testing");
         if (!this.targetDir.exists()) {
@@ -91,6 +95,10 @@ final class TestingAppBuilder {
                 final File textOutLibs = new File(textOut, "libs");
                 final File textJar = new File(textOutLibs, "mathops_text.jar");
 
+                final File dbOut = new File(this.dbDir, "out");
+                final File dbOutLibs = new File(dbOut, "libs");
+                final File dbJar = new File(dbOutLibs, "mathops_db.jar");
+
                 final File jwabbitJar = new File(jars, "jwabbit.jar");
                 final File appXml = new File(jars, "app.xml");
 
@@ -101,17 +109,18 @@ final class TestingAppBuilder {
                 final File updaterXml = new File(jars, "updater.xml");
 
                 createXmlDescriptor(sha256, appXml, "testing", "dev.mathops.app.teststation.TestStationApp", bls8Jar,
-                        commonsJar, textJar, jwabbitJar);
+                        commonsJar, textJar, dbJar, jwabbitJar);
                 createXmlDescriptor(sha256, launchXml, "launch", "dev.mathops.app.webstart.Launch", commonsJar, textJar,
-                        launchJar);
+                        dbJar, launchJar);
                 createXmlDescriptor(sha256, updaterXml, "updater", "dev.mathops.app.webstart.Updater", commonsJar,
-                        textJar, updaterJar);
+                        dbJar, textJar, updaterJar);
 
                 // Copy all to /opt/public/app/testing
 
                 copyFile(bls8Jar, this.targetDir);
                 copyFile(commonsJar, this.targetDir);
                 copyFile(textJar, this.targetDir);
+                copyFile(dbJar, this.targetDir);
                 copyFile(jwabbitJar, this.targetDir);
                 copyFile(appXml, this.targetDir);
 
@@ -124,6 +133,7 @@ final class TestingAppBuilder {
 
                 copyFile(commonsJar, targetLaunch);
                 copyFile(textJar, targetLaunch);
+                copyFile(dbJar, targetLaunch);
                 copyFile(launchJar, targetLaunch);
                 copyFile(launchXml, targetLaunch);
                 copyFile(updaterJar, targetLaunch);
@@ -214,10 +224,6 @@ final class TestingAppBuilder {
      */
     private boolean checkBuildBls8Jar() {
 
-        final File db = new File(this.projectDir, "mathops_db");
-        final File dbRoot = new File(db, "build/classes/java/main");
-        final File dbClasses = new File(dbRoot, "dev/mathops/db");
-
         final File font = new File(this.projectDir, "mathops_font");
         final File fontRoot = new File(font, "build/classes/java/main");
         final File fontClasses = new File(fontRoot, "dev/mathops/font");
@@ -236,7 +242,7 @@ final class TestingAppBuilder {
 
         final File jars = new File(this.projectDir, "jars");
 
-        boolean success = checkDirectoriesExist(dbClasses, fontClasses, assessmentClasses, sessionClasses, appClasses,
+        boolean success = checkDirectoriesExist(fontClasses, assessmentClasses, sessionClasses, appClasses,
                 jars);
 
         if (success) {
@@ -246,9 +252,6 @@ final class TestingAppBuilder {
                  final JarOutputStream jar = new JarOutputStream(bos)) {
 
                 addManifest(jar);
-
-                Log.finest(Res.fmt(Res.ADDING_FILES, db), CoreConstants.CRLF);
-                addFiles(dbRoot, dbClasses, jar);
 
                 Log.finest(Res.fmt(Res.ADDING_FILES, font), CoreConstants.CRLF);
                 addFiles(fontRoot, fontClasses, jar);
