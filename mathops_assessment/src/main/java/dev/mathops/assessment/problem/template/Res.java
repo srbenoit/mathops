@@ -20,15 +20,17 @@ final class Res extends ResBundle {
     /** A resource key. */
     static final String CHOICES_ABOVE_COR = key(index++);
 
+    /** A resource key. */
+    static final String UNEXPECTED_ATTR = key(index++);
+
     //
 
     /** The resources - an array of key-values pairs. */
-    private static final String[][] EN_US = { //
+    private static final String[][] EN_US = {
 
             {CHOICES_LBL, "Choices"},
             {CHOICES_ABOVE_COR, "CHOICE ABOVE IS CORRECT"},
-
-            //
+            {UNEXPECTED_ATTR, "Unexpected attribute found: {0}."},
     };
 
     /** The singleton instance. */
@@ -51,5 +53,18 @@ final class Res extends ResBundle {
     static String get(final String key) {
 
         return instance.getMsg(key);
+    }
+
+    /**
+     * Retrieves the message with a specified key, then uses a {@code MessageFormat} to format that message pattern with
+     * a collection of arguments.
+     *
+     * @param key       the message key
+     * @param arguments the arguments, as for {@code MessageFormat}
+     * @return the formatted string (never {@code null})
+     */
+    static String fmt(final String key, final Object... arguments) {
+
+        return instance.formatMsg(key, arguments);
     }
 }

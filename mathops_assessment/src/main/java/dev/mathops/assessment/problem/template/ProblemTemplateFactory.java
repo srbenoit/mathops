@@ -240,7 +240,7 @@ public enum ProblemTemplateFactory {
                 ok = false;
             } else if (var.type == EType.ERROR) {
                 errors.add("Type of " + var.getClass().getSimpleName() + " {" + var.name
-                           + "} was ERROR with value " + var.getValue());
+                        + "} was ERROR with value " + var.getValue());
                 ok = false;
             }
             var.clearDerivedValues();
@@ -273,17 +273,11 @@ public enum ProblemTemplateFactory {
                 case "problem-numeric" -> problem = parseFromProblemNumericElement(nonempty, mode);
                 case "problem-embedded-input" -> problem = parseFromProblemEmbeddedInputElement(nonempty, mode);
                 case "problem-auto-correct" -> problem = parseAutocorrectProblem();
-                case null, default -> {
-                    if (mode.reportAny) {
-                        content.logError(top, "Unrecognized top-level element: " + tagName + " (30000)");
-                    }
-                }
+                case null, default -> content.logError(top, "Unrecognized top-level element: " + tagName);
             }
         } else {
             final ICharSpan source = Objects.requireNonNullElseGet(top, () -> new CharSpan(0, 0, 1, 1));
-            if (mode.reportAny) {
-                content.logError(source, "Problem must be defined in a nonempty top-level element. (30001)");
-            }
+            content.logError(source, "Problem must be defined in a nonempty top-level element.");
         }
 
         return problem;
@@ -309,48 +303,47 @@ public enum ProblemTemplateFactory {
             final String problemType = nonempty.getStringAttr("type");
 
             if (problemType == null) {
-                nonempty.logError("&lt;problem&gt; element missing required 'type' attribute. (30010)");
+                nonempty.logError("&lt;problem&gt; element missing required 'type' attribute..");
             } else if ("numeric".equalsIgnoreCase(problemType)) {
                 if (mode.reportDeprecated) {
-                    nonempty.logError(
-                            "Deprecated &lt;problem type='numeric'&gt; tag; use &lt;problem-numeric&gt; (30011)");
+                    nonempty.logError("Deprecated &lt;problem type='numeric'&gt; tag; use &lt;problem-numeric&gt;");
                 }
                 problem = parseNumericProblem(nonempty, mode);
             } else if ("multiplechoice".equalsIgnoreCase(problemType)) {
                 if (mode.reportDeprecated) {
-                    nonempty.logError("Deprecated &lt;problem type='multiplechoice'&gt; tag; use "
-                                      + "&lt;problem-multiple-choice&gt; (30012)");
+                    nonempty.logError("Deprecated &lt;problem type='multiplechoice'&gt; tag; "
+                            + "use &lt;problem-multiple-choice&gt;");
                 }
                 problem = parseMultipleChoiceProblem(nonempty, mode);
             } else if ("multipleselection".equalsIgnoreCase(problemType)) {
                 if (mode.reportDeprecated) {
-                    nonempty.logError("Deprecated &lt;problem type='multipleselection'&gt; tag; use "
-                                      + "&lt; problem-multiple-selection&gt; (30013)");
+                    nonempty.logError("Deprecated &lt;problem type='multipleselection'&gt; tag; "
+                            + "use &lt; problem-multiple-selection&gt;");
                 }
                 problem = parseMultipleSelectionProblem(nonempty, mode);
             } else if ("embeddedinput".equalsIgnoreCase(problemType)) {
                 if (mode.reportDeprecated) {
-                    nonempty.logError("Deprecated &lt;problem type='embeddedinput'&gt; tag; use "
-                                      + "&lt; problem-embedded-input&gt; (30014)");
+                    nonempty.logError(
+                            "Deprecated &lt;problem type='embeddedinput'&gt; tag; use &lt; problem-embedded-input&gt;");
                 }
                 problem = parseEmbeddedInputProblem(nonempty, mode);
             } else if ("autocorrect".equalsIgnoreCase(problemType)) {
                 if (mode.reportDeprecated) {
-                    nonempty.logError("Deprecated &lt;problem type='autocorrect'&gt; tag; use " +
-                                      "&lt;problem-auto-correct&gt; (30015)");
+                    nonempty.logError(
+                            "Deprecated &lt;problem type='autocorrect'&gt; tag; use &lt;problem-auto-correct&gt;");
                 }
                 problem = parseAutocorrectProblem();
-            } else if (mode.reportAny) {
-                nonempty.logError("Invalid 'type' attribute on &lt;problem&gt; element: " + problemType + " (30016)");
+            } else {
+                nonempty.logError("Invalid 'type' attribute on &lt;problem&gt; element: " + problemType);
             }
 
             if (problem != null &&
-                (!parseCalculatorAttr(problem, nonempty, mode) || !parseCompletedAttr(problem, nonempty))) {
+                    (!parseCalculatorAttr(problem, nonempty) || !parseCompletedAttr(problem, nonempty))) {
                 problem = null;
             }
-        } else if (mode.reportAny) {
+        } else {
             nonempty.logError("Attempt to extract problem from '" + tagName
-                              + "' element (expected &lt;problem&gt; element) (30017)");
+                    + "' element (expected &lt;problem&gt; element)");
         }
 
         return problem;
@@ -369,7 +362,7 @@ public enum ProblemTemplateFactory {
 
         final ProblemMultipleChoiceTemplate parsed = parseMultipleChoiceProblem(nonempty, mode);
 
-        return parsed == null || (parseCalculatorAttr(parsed, nonempty, mode) && parseCompletedAttr(parsed, nonempty))
+        return parsed == null || (parseCalculatorAttr(parsed, nonempty) && parseCompletedAttr(parsed, nonempty))
                 ? parsed : null;
     }
 
@@ -386,7 +379,7 @@ public enum ProblemTemplateFactory {
 
         final ProblemMultipleSelectionTemplate parsed = parseMultipleSelectionProblem(nonempty, mode);
 
-        return parsed == null || (parseCalculatorAttr(parsed, nonempty, mode) && parseCompletedAttr(parsed, nonempty))
+        return parsed == null || (parseCalculatorAttr(parsed, nonempty) && parseCompletedAttr(parsed, nonempty))
                 ? parsed : null;
     }
 
@@ -403,7 +396,7 @@ public enum ProblemTemplateFactory {
 
         final ProblemNumericTemplate parsed = parseNumericProblem(nonempty, mode);
 
-        return parsed == null || (parseCalculatorAttr(parsed, nonempty, mode) && parseCompletedAttr(parsed, nonempty))
+        return parsed == null || (parseCalculatorAttr(parsed, nonempty) && parseCompletedAttr(parsed, nonempty))
                 ? parsed : null;
     }
 
@@ -420,7 +413,7 @@ public enum ProblemTemplateFactory {
 
         final ProblemEmbeddedInputTemplate parsed = parseEmbeddedInputProblem(nonempty, mode);
 
-        return parsed == null || (parseCalculatorAttr(parsed, nonempty, mode) && parseCompletedAttr(parsed, nonempty))
+        return parsed == null || (parseCalculatorAttr(parsed, nonempty) && parseCompletedAttr(parsed, nonempty))
                 ? parsed : null;
     }
 
@@ -429,11 +422,10 @@ public enum ProblemTemplateFactory {
      *
      * @param problem  the loaded problem
      * @param nonempty the {@code NonemptyElement} from which to parse
-     * @param mode     the parser mode
      * @return true if successful; false if an error occurred
      */
     private static boolean parseCalculatorAttr(final AbstractProblemTemplate problem,
-                                               final NonemptyElement nonempty, final EParserMode mode) {
+                                               final NonemptyElement nonempty) {
 
         boolean ok = true;
 
@@ -444,10 +436,8 @@ public enum ProblemTemplateFactory {
         } else {
             problem.calculator = ECalculatorType.forLabel(calculatorStr);
             if (problem.calculator == null) {
-                if (mode.reportAny) {
-                    nonempty.logError("Calculator attribute on problem tag must be one of 'none', "
-                                      + "'basic', 'scientific', 'graphing', or 'full'. (30020)");
-                }
+                nonempty.logError("Calculator attribute on problem tag must be one of 'none', "
+                        + "'basic', 'scientific', 'graphing', or 'full'.");
                 ok = false;
             }
         }
@@ -494,7 +484,7 @@ public enum ProblemTemplateFactory {
         final ProblemNumericTemplate problem = new ProblemNumericTemplate();
 
         return parseCommonElements(elem, problem, mode) && parseStudentStringAnswer(elem, problem)
-               && parseAcceptNumber(elem, problem, mode) ? problem : null;
+                && parseAcceptNumber(elem, problem, mode) ? problem : null;
     }
 
     /**
@@ -511,11 +501,11 @@ public enum ProblemTemplateFactory {
         final ProblemMultipleChoiceTemplate problem = new ProblemMultipleChoiceTemplate();
 
         return parseCommonElements(elem, problem, mode)
-               && parseNumChoices(elem, problem, mode)
-               && parseRandomOrder(elem, problem, mode)
-               && parseChoiceOrder(elem, problem, mode)
-               && parseStudentChoices(elem, problem, mode)
-               && parseChoices(elem, problem, mode) ? problem : null;
+                && parseNumChoices(elem, problem, mode)
+                && parseRandomOrder(elem, problem, mode)
+                && parseChoiceOrder(elem, problem)
+                && parseStudentChoices(elem, problem)
+                && parseChoices(elem, problem, mode) ? problem : null;
     }
 
     /**
@@ -532,13 +522,13 @@ public enum ProblemTemplateFactory {
         final ProblemMultipleSelectionTemplate problem = new ProblemMultipleSelectionTemplate();
 
         return parseCommonElements(elem, problem, mode)
-               && parseNumChoices(elem, problem, mode)
-               && parseRandomOrder(elem, problem, mode)
-               && parseMinCorrect(elem, problem, mode)
-               && parseMaxCorrect(elem, problem, mode)
-               && parseChoiceOrder(elem, problem, mode)
-               && parseStudentChoices(elem, problem, mode)
-               && parseChoices(elem, problem, mode) ? problem : null;
+                && parseNumChoices(elem, problem, mode)
+                && parseRandomOrder(elem, problem, mode)
+                && parseMinCorrect(elem, problem, mode)
+                && parseMaxCorrect(elem, problem, mode)
+                && parseChoiceOrder(elem, problem)
+                && parseStudentChoices(elem, problem)
+                && parseChoices(elem, problem, mode) ? problem : null;
     }
 
     /**
@@ -555,7 +545,7 @@ public enum ProblemTemplateFactory {
         ProblemEmbeddedInputTemplate problem = new ProblemEmbeddedInputTemplate();
 
         if (!parseCommonElements(elem, problem, mode) || !parseCorrect(elem, problem, mode)
-            || !parseAnswer(elem, problem, mode)) {
+                || !parseAnswer(elem, problem, mode)) {
             problem = null;
         } else if (problem.completionTime != 0L) {
             // Make sure any student answers that came along are posted.
@@ -592,11 +582,11 @@ public enum ProblemTemplateFactory {
                                                final EParserMode mode) {
 
         return parseProblemId(elem, problem, mode)
-               && VariableFactory.parseVars(problem.evalContext, elem, mode)
-               && parseQuestion(elem, problem, mode)
-               && parseSolution(elem, problem, mode)
-               && parseStudentResponse(elem, problem, mode)
-               && parseScore(elem, problem, mode);
+                && VariableFactory.parseVars(problem.evalContext, elem, mode)
+                && parseQuestion(elem, problem, mode)
+                && parseSolution(elem, problem, mode)
+                && parseStudentResponse(elem, problem)
+                && parseScore(elem, problem);
     }
 
     /**
@@ -613,9 +603,9 @@ public enum ProblemTemplateFactory {
         problem.id = elem.getStringAttr("id");
 
         if (problem.id == null) {
-            problem.id = getRefElement("ref-base", elem, true, mode);
+            problem.id = getRefElement("ref-base", elem, true);
             if (mode.reportDeprecated) {
-                elem.logError("Deprecated <ref-base> element; use id attribute on problem element>. (30030)");
+                elem.logError("Deprecated <ref-base> element; use id attribute on problem element>.");
             }
         }
 
@@ -643,9 +633,7 @@ public enum ProblemTemplateFactory {
                 if (question == null) {
                     valid = false;
                 } else if (problem.question != null) {
-                    if (mode.reportAny) {
-                        elem.logError("Multiple &lt;question&gt; elements found. (30031)");
-                    }
+                    elem.logError("Multiple &lt;question&gt; elements found.");
                     valid = false;
                 } else {
                     problem.question = question;
@@ -657,15 +645,11 @@ public enum ProblemTemplateFactory {
                         input.bind(ec);
                     }
 
-                    if (mode.reportAny) {
-                        final Set<String> varNames = new HashSet<>(20);
-                        question.accumulateParameterNames(varNames);
-
-                        for (final String varName : varNames) {
-                            if (ec.getVariable(varName) == null) {
-                                nonempty.logError("Document references nonexistent variable {" + varName
-                                                  + "}. (30032)");
-                            }
+                    final Set<String> varNames = new HashSet<>(20);
+                    question.accumulateParameterNames(varNames);
+                    for (final String varName : varNames) {
+                        if (ec.getVariable(varName) == null) {
+                            nonempty.logError("Document references nonexistent variable {" + varName + "}.");
                         }
                     }
                 }
@@ -697,20 +681,16 @@ public enum ProblemTemplateFactory {
                 if (solution == null) {
                     valid = false;
                 } else if (problem.solution != null) {
-                    if (mode.reportAny) {
-                        elem.logError("Multiple &lt;solution&gt; elements found. (30040)");
-                    }
+                    elem.logError("Multiple &lt;solution&gt; elements found.");
                     valid = false;
                 } else {
                     problem.solution = solution;
 
-                    if (mode.reportAny) {
-                        final Set<String> varNames = new HashSet<>(20);
-                        solution.accumulateParameterNames(varNames);
-                        for (final String varName : varNames) {
-                            if (problem.evalContext.getVariable(varName) == null) {
-                                elem.logError("Document references nonexistent variable {" + varName + "}. (30041)");
-                            }
+                    final Set<String> varNames = new HashSet<>(20);
+                    solution.accumulateParameterNames(varNames);
+                    for (final String varName : varNames) {
+                        if (problem.evalContext.getVariable(varName) == null) {
+                            elem.logError("Document references nonexistent variable {" + varName + "}.");
                         }
                     }
                 }
@@ -726,11 +706,9 @@ public enum ProblemTemplateFactory {
      *
      * @param elem    the element
      * @param problem the {@code Problem} to populate with the parsed data
-     * @param mode    the parser mode
      * @return {@code true} if successful, {@code false} on any error
      */
-    private static boolean parseStudentResponse(final NonemptyElement elem, final AbstractProblemTemplate problem,
-                                                final EParserMode mode) {
+    private static boolean parseStudentResponse(final NonemptyElement elem, final AbstractProblemTemplate problem) {
 
         for (final IElement child : elem.getElementChildrenAsList()) {
             final String tagName = child.getTagName();
@@ -741,7 +719,7 @@ public enum ProblemTemplateFactory {
                 for (final IElement grandchild : nonempty.getElementChildrenAsList()) {
 
                     if (grandchild instanceof final NonemptyElement value && value.getNumChildren() == 1
-                        && value.getChild(0) instanceof final CData cdata) {
+                            && value.getChild(0) instanceof final CData cdata) {
 
                         final String content = cdata.content;
                         final String valueTag = value.getTagName();
@@ -752,9 +730,7 @@ public enum ProblemTemplateFactory {
                                     values.add(Long.valueOf(content));
                                 } catch (final NumberFormatException ex) {
                                     Log.warning(ex);
-                                    if (mode.reportAny) {
-                                        elem.logError("Invalid content of &lt;long&gt; element (30050)");
-                                    }
+                                    elem.logError("Invalid content of &lt;long&gt; element");
                                 }
                             }
                             case "double" -> {
@@ -762,17 +738,11 @@ public enum ProblemTemplateFactory {
                                     values.add(Double.valueOf(content));
                                 } catch (final NumberFormatException ex) {
                                     Log.warning(ex);
-                                    if (mode.reportAny) {
-                                        elem.logError("Invalid content of &lt;double&gt; element (30051)");
-                                    }
+                                    elem.logError("Invalid content of &lt;double&gt; element");
                                 }
                             }
                             case "string" -> values.add(content);
-                            case null, default -> {
-                                if (mode.reportAny) {
-                                    elem.logError("Unrecognized response type: " + value.getTagName() + " (30052)");
-                                }
-                            }
+                            case null, default -> elem.logError("Unrecognized response type: " + value.getTagName());
                         }
                     }
                 }
@@ -789,25 +759,21 @@ public enum ProblemTemplateFactory {
      *
      * @param elem    the element
      * @param problem the {@code Problem} to populate with the parsed data
-     * @param mode    the parser mode
      * @return {@code true} if successful, {@code false} on any error
      */
-    private static boolean parseScore(final NonemptyElement elem, final AbstractProblemTemplate problem,
-                                      final EParserMode mode) {
+    private static boolean parseScore(final NonemptyElement elem, final AbstractProblemTemplate problem) {
 
         for (final IElement child : elem.getElementChildrenAsList()) {
             final String tagName = child.getTagName();
             if (child instanceof final NonemptyElement nonempty && "score".equals(tagName)
-                && nonempty.getNumChildren() == 1 && nonempty.getChild(0) instanceof final CData cdata) {
+                    && nonempty.getNumChildren() == 1 && nonempty.getChild(0) instanceof final CData cdata) {
 
                 final String content = cdata.content;
                 try {
                     problem.score = Double.parseDouble(content);
                 } catch (final NumberFormatException ex) {
                     Log.warning(ex);
-                    if (mode.reportAny) {
-                        elem.logError("Invalid content of <score> element (30060)");
-                    }
+                    elem.logError("Invalid content of <score> element");
                 }
             }
         }
@@ -853,25 +819,19 @@ public enum ProblemTemplateFactory {
             if ("accept-number".equals(tagName)) {
                 ++count;
                 if (count > 1) {
-                    if (mode.reportAny) {
-                        elem.logError("Multiple &lt;accept-number&gt; elements. (30070)");
-                    }
+                    elem.logError("Multiple &lt;accept-number&gt; elements.");
                     valid = false;
                 } else {
                     acceptNumber = new ProblemAcceptNumberTemplate();
 
                     final String typeStr = child.getStringAttr("type");
                     if (typeStr == null) {
-                        if (mode.reportAny) {
-                            elem.logError("Missing 'type' attribute on accept-number. (30071)");
-                        }
+                        elem.logError("Missing 'type' attribute on accept-number.");
                         valid = false;
                     } else if ("integer".equalsIgnoreCase(typeStr)) {
                         acceptNumber.forceInteger = true;
                     } else if (!"real".equalsIgnoreCase(typeStr)) {
-                        if (mode.reportAny) {
-                            elem.logError("Invalid 'type' attribute on accept-number. (30072)");
-                        }
+                        elem.logError("Invalid 'type' attribute on accept-number.");
                         valid = false;
                     }
 
@@ -888,30 +848,27 @@ public enum ProblemTemplateFactory {
 
                                     if (innerChild instanceof final CData cdata) {
                                         if (mode.reportDeprecated) {
-                                            elem.logError(
-                                                    "Deprecated 'variance' text formula on accept-number (30073)");
+                                            elem.logError("Deprecated 'variance' text formula on accept-number");
                                         }
 
                                         varianceFormula = FormulaFactory.parseFormulaString(problem.evalContext,
-                                                cdata.content, mode);
+                                                cdata.content,
+                                                mode);
                                     } else if (innerChild instanceof final NonemptyElement varInner) {
                                         final String innerTag = varInner.getTagName();
                                         if ("variance".equals(innerTag)) {
                                             varianceFormula = XmlFormulaFactory.extractFormula(problem.evalContext,
                                                     varInner, mode);
-                                        } else if (mode.reportAny) {
-                                            elem.logError("Unsupported '" + innerTag
-                                                          + "' tag in accept-number. (30074)");
+                                        } else {
+                                            elem.logError("Unsupported '" + innerTag + "' tag in accept-number.");
                                         }
                                     } else {
-                                        elem.logError("Unsupported child in accept-number. (30075)");
+                                        elem.logError("Unsupported child in accept-number.");
                                     }
                                 }
 
                                 if (varianceFormula == null) {
-                                    if (mode.reportAny) {
-                                        elem.logError("Invalid &lt;variance&gt; child element on problem. (30076)");
-                                    }
+                                    elem.logError("Invalid &lt;variance&gt; child element on problem.");
                                     valid = false;
                                 }
                             }
@@ -919,9 +876,7 @@ public enum ProblemTemplateFactory {
                             try {
                                 varianceConstant = NumberParser.parse(varianceStr);
                             } catch (final NumberFormatException ex) {
-                                if (mode.reportAny) {
-                                    elem.logError("Invalid 'variance' attribute on accept-number. (30077)");
-                                }
+                                elem.logError("Invalid 'variance' attribute on accept-number.");
                                 valid = false;
                             }
                         }
@@ -934,29 +889,23 @@ public enum ProblemTemplateFactory {
                         for (final IElement grandchild : nonemptychild.getElementChildrenAsList()) {
                             final String tagName1 = grandchild.getTagName();
                             if (grandchild instanceof final NonemptyElement inner
-                                && "correct-answer".equals(tagName1)) {
+                                    && "correct-answer".equals(tagName1)) {
 
                                 if (inner.getNumChildren() == 1 && inner.getChild(0) instanceof final CData cdata) {
                                     if (mode.reportDeprecated) {
-                                        elem.logError(
-                                                "Deprecated 'correct-answer' text formula on accept-number (30078)");
+                                        elem.logError("Deprecated 'correct-answer' text formula on accept-number");
                                     }
 
                                     correct = FormulaFactory.parseFormulaString(problem.evalContext, cdata.content,
                                             mode);
                                     if (correct == null) {
-                                        if (mode.reportAny) {
-                                            elem.logError("Invalid <correct-answer> child element on problem. (30079)");
-                                        }
+                                        elem.logError("Invalid <correct-answer> child element on problem.");
                                         valid = false;
                                     }
                                 } else {
                                     correct = XmlFormulaFactory.extractFormula(problem.evalContext, inner, mode);
                                     if (correct == null) {
-                                        if (mode.reportAny) {
-                                            elem.logError(
-                                                    "Invalid &lt;correct-answer&gt; child element on problem. (30080)");
-                                        }
+                                        elem.logError("Invalid &lt;correct-answer&gt; child element on problem.");
                                         valid = false;
                                     }
                                 }
@@ -965,9 +914,7 @@ public enum ProblemTemplateFactory {
                     } else {
                         correct = FormulaFactory.parseFormulaString(problem.evalContext, correctStr, mode);
                         if (correct == null) {
-                            if (mode.reportAny) {
-                                elem.logError("Invalid 'correct-answer' attribute on accept-number. (30081)");
-                            }
+                            elem.logError("Invalid 'correct-answer' attribute on accept-number.");
                             valid = false;
                         }
                     }
@@ -1020,19 +967,16 @@ public enum ProblemTemplateFactory {
                         problem.numChoices = XmlFormulaFactory.extractFormula(problem.evalContext, nonempty, mode);
                     }
                     if (problem.numChoices == null) {
-                        if (mode.reportAny) {
-                            elem.logError("Invalid &lt;num-choices&gt; child element on problem. (30090)");
-                        }
+                        elem.logError("Invalid &lt;num-choices&gt; child element on problem.");
                         valid = false;
                     }
                 }
             }
+
         } else {
             problem.numChoices = FormulaFactory.parseFormulaString(problem.evalContext, numChoicesStr, mode);
             if (problem.numChoices == null) {
-                if (mode.reportAny) {
-                    elem.logError("Invalid 'num-choices' attribute on accept-number. (30091)");
-                }
+                elem.logError("Invalid 'num-choices' attribute on accept-number.");
                 valid = false;
             }
         }
@@ -1072,19 +1016,16 @@ public enum ProblemTemplateFactory {
                                 mode);
                     }
                     if (problem.randomOrderChoices == null) {
-                        if (mode.reportAny) {
-                            elem.logError("Invalid &lt;random-order&gt; child element on problem. (30100)");
-                        }
+                        elem.logError("Invalid &lt;random-order&gt; child element on problem.");
                         valid = false;
                     }
                 }
             }
+
         } else {
             problem.randomOrderChoices = FormulaFactory.parseFormulaString(problem.evalContext, numChoicesStr, mode);
             if (problem.randomOrderChoices == null) {
-                if (mode.reportAny) {
-                    elem.logError("Invalid 'random-order' attribute on accept-number. (30101)");
-                }
+                elem.logError("Invalid 'random-order' attribute on accept-number.");
                 valid = false;
             }
         }
@@ -1098,12 +1039,10 @@ public enum ProblemTemplateFactory {
      *
      * @param elem    the element
      * @param problem the {@code ProblemMultipleSelection} to populate with the result
-     * @param mode    the parser mode
      * @return {@code true} if successful; {@code false} on any error
      */
     private static boolean parseChoiceOrder(final NonemptyElement elem,
-                                            final AbstractProblemMultipleChoiceTemplate problem,
-                                            final EParserMode mode) {
+                                            final AbstractProblemMultipleChoiceTemplate problem) {
 
         boolean valid = true;
 
@@ -1118,9 +1057,7 @@ public enum ProblemTemplateFactory {
                 try {
                     order[i] = Long.valueOf(list[i]).intValue();
                 } catch (final NumberFormatException ex) {
-                    if (mode.reportAny) {
-                        elem.logError("Choice order must be a list of integers. (30110)");
-                    }
+                    elem.logError("Choice order must be a list of integers.");
                     valid = false;
                 }
             }
@@ -1139,11 +1076,9 @@ public enum ProblemTemplateFactory {
      *
      * @param elem    the element
      * @param problem the {@code ProblemNumeric} to populate with the result
-     * @param mode    the parser mode
      * @return {@code true} if successful, {@code false} on any error
      */
-    private static boolean parseStudentChoices(final NonemptyElement elem, final ProblemTemplateInt problem,
-                                               final EParserMode mode) {
+    private static boolean parseStudentChoices(final NonemptyElement elem, final ProblemTemplateInt problem) {
 
         boolean valid = true;
 
@@ -1159,9 +1094,7 @@ public enum ProblemTemplateFactory {
                 }
                 problem.recordAnswer(answer);
             } catch (final NumberFormatException ex) {
-                if (mode.reportAny) {
-                    elem.logError("Invalid 'student-choices' attribute on problem.");
-                }
+                elem.logError("Invalid 'student-choices' attribute on problem.");
                 valid = false;
             }
         }
@@ -1224,7 +1157,7 @@ public enum ProblemTemplateFactory {
 
                 if (!newFormat) {
                     if (mode.reportDeprecated) {
-                        nonempty.logError("Deprecated format for &lt;choice&gt; (30120)");
+                        nonempty.logError("Deprecated format for &lt;choice&gt;");
                     }
                 }
 
@@ -1238,17 +1171,13 @@ public enum ProblemTemplateFactory {
                 int pos = 0;
 
                 if (idStr == null) {
-                    if (mode.reportAny) {
-                        nonempty.logError("Missing 'id' attribute. (30121)");
-                    }
+                    nonempty.logError("Missing 'id' attribute.");
                     valid = false;
                 } else {
                     try {
                         choiceId = Integer.parseInt(idStr);
                     } catch (final NumberFormatException ex) {
-                        if (mode.reportAny) {
-                            nonempty.logError("'id' attribute on choice tag is not an integer. (30122)");
-                        }
+                        nonempty.logError("'id' attribute on choice tag is not an integer.");
                         valid = false;
                     }
                 }
@@ -1257,9 +1186,7 @@ public enum ProblemTemplateFactory {
                     try {
                         pos = Integer.parseInt(positionStr);
                     } catch (final NumberFormatException ex) {
-                        if (mode.reportAny) {
-                            nonempty.logError("'position' attribute on choice tag is not an integer. (30123)");
-                        }
+                        nonempty.logError("'position' attribute on choice tag is not an integer.");
                         valid = false;
                     }
                 }
@@ -1275,13 +1202,11 @@ public enum ProblemTemplateFactory {
                         } else if (correctStr != null) {
                             correct = FormulaFactory.parseFormulaString(problem.evalContext, correctStr, mode);
                             if (correct == null) {
-                                if (mode.reportAny) {
-                                    elem.logError("Invalid &lt;correct&gt; attribute value in &lt;choice&gt;. (30124)");
-                                }
+                                elem.logError("Invalid &lt;correct&gt; attribute value in &lt;choice&gt;.");
                                 valid = false;
                             } else if (mode.reportDeprecated) {
                                 nonempty.logError("Non-constant correctness formula defined as attribute on choice; "
-                                                  + "should be in <correct> child element (30125)");
+                                        + "should be in <correct> child element");
                             }
                         }
 
@@ -1293,15 +1218,12 @@ public enum ProblemTemplateFactory {
 
                                     if (mode.reportDeprecated && correct != null) {
                                         nonempty.logError("Correctness defined both as attribute and child element in" +
-                                                          " &lt;choice&gt; (30126)");
+                                                " &lt;choice&gt;");
                                     }
                                     correct = XmlFormulaFactory.extractFormula(problem.evalContext, nonempty2, mode);
 
                                     if (correct == null) {
-                                        if (mode.reportAny) {
-                                            elem.logError(
-                                                    "Invalid &lt;correct&gt; child element in &lt;choice&gt;. (30127)");
-                                        }
+                                        elem.logError("Invalid &lt;correct&gt; child element in &lt;choice&gt;.");
                                         valid = false;
                                     }
                                 } else if ("content".equals(tag)) {
@@ -1309,28 +1231,22 @@ public enum ProblemTemplateFactory {
 
                                     if (doc == null) {
                                         valid = false;
-                                    } else if (mode.reportAny) {
+                                    } else {
                                         final Set<String> varNames = new HashSet<>(20);
                                         doc.accumulateParameterNames(varNames);
                                         for (final String varName : varNames) {
                                             if (problem.evalContext.getVariable(varName) == null) {
                                                 elem.logError("Document references nonexistent variable {" + varName
-                                                              + "}. (30128)");
+                                                        + "}.");
                                             }
                                         }
                                     }
                                 } else {
-                                    if (mode.reportAny) {
-                                        nonempty.logError("Unexpected &lt;" + tag
-                                                          + "&gt; element in &lt;choice&gt; (30129)");
-                                    }
+                                    nonempty.logError("Unexpected &lt;" + tag + "&gt; element in &lt;choice&gt;");
                                     valid = false;
                                 }
                             } else {
-                                if (mode.reportAny) {
-                                    nonempty.logError("Unexpected empty &lt;" + tag
-                                                      + "&gt; element in &lt;choice&gt; (30130)");
-                                }
+                                nonempty.logError("Unexpected empty &lt;" + tag + "&gt; element in &lt;choice&gt;");
                                 valid = false;
                             }
                         }
@@ -1341,9 +1257,7 @@ public enum ProblemTemplateFactory {
                         if (correctStr != null) {
                             correct = FormulaFactory.parseFormulaString(problem.evalContext, correctStr, mode);
                             if (correct == null) {
-                                if (mode.reportAny) {
-                                    nonempty.logError("Unable to parse 'correct' formula. (30131)");
-                                }
+                                nonempty.logError("Unable to parse 'correct' formula.");
                                 valid = false;
                             }
                         }
@@ -1351,13 +1265,12 @@ public enum ProblemTemplateFactory {
                         doc = DocFactory.parseDocColumn(problem.evalContext, nonempty, mode);
                         if (doc == null) {
                             valid = false;
-                        } else if (mode.reportAny) {
+                        } else {
                             final Set<String> varNames = new HashSet<>(20);
                             doc.accumulateParameterNames(varNames);
                             for (final String varName : varNames) {
                                 if (problem.evalContext.getVariable(varName) == null) {
-                                    elem.logError("Document references nonexistent variable {" + varName
-                                                  + "}. (30132)");
+                                    elem.logError("Document references nonexistent variable {" + varName + "}.");
                                 }
                             }
                         }
@@ -1377,9 +1290,7 @@ public enum ProblemTemplateFactory {
         }
 
         if (choices.isEmpty()) {
-            if (mode.reportAny) {
-                elem.logError("No choices defined in the problem. (30133)");
-            }
+            elem.logError("No choices defined in the problem.");
             choices = null;
         }
 
@@ -1415,9 +1326,7 @@ public enum ProblemTemplateFactory {
                         problem.minCorrect = XmlFormulaFactory.extractFormula(problem.evalContext, nonempty, mode);
                     }
                     if (problem.minCorrect == null) {
-                        if (mode.reportAny) {
-                            elem.logError("Invalid &lt;min-correct&gt; child element on problem. (30140)");
-                        }
+                        elem.logError("Invalid &lt;min-correct&gt; child element on problem.");
                         valid = false;
                     }
                 }
@@ -1425,9 +1334,7 @@ public enum ProblemTemplateFactory {
         } else {
             problem.minCorrect = FormulaFactory.parseFormulaString(problem.evalContext, minCorrectStr, mode);
             if (problem.minCorrect == null) {
-                if (mode.reportAny) {
-                    elem.logError("Invalid 'min-correct' attribute on problem. (30141)");
-                }
+                elem.logError("Invalid 'min-correct' attribute on problem.");
                 valid = false;
             }
         }
@@ -1464,9 +1371,7 @@ public enum ProblemTemplateFactory {
                         problem.maxCorrect = XmlFormulaFactory.extractFormula(problem.evalContext, nonempty, mode);
                     }
                     if (problem.maxCorrect == null) {
-                        if (mode.reportAny) {
-                            elem.logError("Invalid &lt;max-correct&gt; child element on problem. (30150)");
-                        }
+                        elem.logError("Invalid &lt;max-correct&gt; child element on problem.");
                         valid = false;
                     }
                 }
@@ -1474,9 +1379,7 @@ public enum ProblemTemplateFactory {
         } else {
             problem.maxCorrect = FormulaFactory.parseFormulaString(problem.evalContext, maxCorrectStr, mode);
             if (problem.maxCorrect == null) {
-                if (mode.reportAny) {
-                    elem.logError("Invalid 'max-correct' attribute on problem. (30151)");
-                }
+                elem.logError("Invalid 'max-correct' attribute on problem.");
                 valid = false;
             }
         }
@@ -1512,22 +1415,18 @@ public enum ProblemTemplateFactory {
                         problem.correctness = XmlFormulaFactory.extractFormula(problem.evalContext, nonempty, mode);
                     }
                     if (problem.correctness == null) {
-                        if (mode.reportAny) {
-                            elem.logError("Invalid &lt;correct&gt; child element on problem. (30160)");
-                        }
+                        elem.logError("Invalid &lt;correct&gt; child element on problem.");
                         valid = false;
                     }
                 }
             }
         } else {
-            if (mode.reportDeprecated) {
-                elem.logError("Deprecated 'correct' attribute on embedded input problem (30161)");
+            if (mode == EParserMode.NORMAL) {
+                elem.logError("Deprecated 'correct' attribute on embedded input problem");
             }
             problem.correctness = FormulaFactory.parseFormulaString(problem.evalContext, correctStr, mode);
             if (problem.correctness == null) {
-                if (mode.reportAny) {
-                    elem.logError("Invalid 'correct' attribute on problem. (30162)");
-                }
+                elem.logError("Invalid 'correct' attribute on problem.");
                 valid = false;
             }
         }
@@ -1556,20 +1455,16 @@ public enum ProblemTemplateFactory {
                 if (answer == null) {
                     valid = false;
                 } else if (problem.correctAnswer != null) {
-                    if (mode.reportAny) {
-                        elem.logError("Multiple &lt;answer&gt; elements found. (30170)");
-                    }
+                    elem.logError("Multiple &lt;answer&gt; elements found.");
                     valid = false;
                 } else {
                     problem.correctAnswer = answer;
 
-                    if (mode.reportAny) {
-                        final Set<String> varNames = new HashSet<>(20);
-                        answer.accumulateParameterNames(varNames);
-                        for (final String varName : varNames) {
-                            if (problem.evalContext.getVariable(varName) == null) {
-                                elem.logError("Document references nonexistent variable {" + varName + "}. (30171)");
-                            }
+                    final Set<String> varNames = new HashSet<>(20);
+                    answer.accumulateParameterNames(varNames);
+                    for (final String varName : varNames) {
+                        if (problem.evalContext.getVariable(varName) == null) {
+                            elem.logError("Document references nonexistent variable {" + varName + "}.");
                         }
                     }
                 }
@@ -1585,12 +1480,10 @@ public enum ProblemTemplateFactory {
      *
      * @param name        The name of the tag to locate and extract
      * @param elem        the element
-     * @param isMandatory true if it is an error not to find the tag
-     * @param mode        the parser mode
-     * @return the parsed reference if successful; null on any error
+     * @param isMandatory True if it is an error not to find the tag.
+     * @return the parsed reference if successful; null on any error.
      */
-    private static String getRefElement(final String name, final NonemptyElement elem, final boolean isMandatory,
-                                        final EParserMode mode) {
+    private static String getRefElement(final String name, final NonemptyElement elem, final boolean isMandatory) {
 
         NonemptyElement found = null;
         int count = 0;
@@ -1605,22 +1498,18 @@ public enum ProblemTemplateFactory {
         String tagValue = null;
 
         if (found == null) {
-            if (isMandatory && mode.reportAny) {
-                elem.logError("'" + name + "' reference is missing (30180)");
+            if (isMandatory) {
+                elem.logError("'" + name + "' reference is missing");
             }
         } else if (count > 1) {
-            if (mode.reportAny) {
-                elem.logError("element contains multiple '" + name + "' child elements. (30181)");
-            }
+            elem.logError("element contains multiple '" + name + "' child elements.");
         } else {
             final List<INode> children = found.getChildrenAsList();
             if (children.size() == 1 && children.getFirst() instanceof final CData cdata) {
                 tagValue = cdata.content;
 
                 if (tagValue.isBlank()) {
-                    if (mode.reportAny) {
-                        elem.logError("Reference is empty. (30182)");
-                    }
+                    elem.logError("Reference is empty.");
                     tagValue = null;
                 } else {
                     // See that it contains valid characters for references
@@ -1632,17 +1521,15 @@ public enum ProblemTemplateFactory {
                     for (int i = 0; i < tagValueLen; ++i) {
                         final char ch = tagValue.charAt(i);
                         if (validCharacters.indexOf(ch) == -1) {
-                            if (mode.reportAny) {
-                                elem.logError("Invalid character in reference: " + tagValue
-                                              + "\n(valid are [a-z] [A-Z] [0-9] [spc] . _ - + = : ~) (30183)");
-                            }
+                            elem.logError("Invalid character in reference: " + tagValue
+                                    + "\n(valid are [a-z] [A-Z] [0-9] [spc] . _ - + = : ~)");
                             tagValue = null;
                             break;
                         }
                     }
                 }
-            } else if (mode.reportAny) {
-                elem.logError("'" + name + "' child must contain only text data (30184)");
+            } else {
+                elem.logError("'" + name + "' child must contain only text data");
             }
         }
 
