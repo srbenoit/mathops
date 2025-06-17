@@ -1,7 +1,7 @@
 option confirm off
 lcd C:\Users\benoit\dev\IDEA\mathops\jars
-cd /opt/tomcat/temp
+cd /opt/tomcat
 put -nopreservetime -nopermissions ROOT.war
 rm /opt/tomcat/webapps/ROOT.war
-mv /opt/tomcat/temp/ROOT.war /opt/tomcat/webapps/ROOT.war
+mv /opt/tomcat/ROOT.war /opt/tomcat/webapps/ROOT.war
 exit
