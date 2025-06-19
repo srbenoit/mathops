@@ -52,24 +52,29 @@ enum FileUpdater {
 
                 FileUtils.log(logFile, "  Verifying ", file.name);
 
-                if (src.length() == file.size) {
-                    final byte[] hash = computeSHA256(src, sha256, logFile);
+                if (src.exists()) {
+                    if (src.length() == file.size) {
+                        final byte[] hash = computeSHA256(src, sha256, logFile);
 
-                    if (hash == null) {
-                        success = false;
-                    } else {
-                        final byte[] expected = file.getSHA256();
-
-                        if (!Arrays.equals(hash, expected)) {
-                            FileUtils.log(logFile, "  File '", src.getAbsolutePath(), "' has hash ",
-                                    HexEncoder.encodeUppercase(hash), " but descriptor in XML shows ",
-                                    HexEncoder.encodeUppercase(expected));
+                        if (hash == null) {
                             success = false;
+                        } else {
+                            final byte[] expected = file.getSHA256();
+
+                            if (!Arrays.equals(hash, expected)) {
+                                FileUtils.log(logFile, "  File '", src.getAbsolutePath(), "' has hash ",
+                                        HexEncoder.encodeUppercase(hash), " but descriptor in XML shows ",
+                                        HexEncoder.encodeUppercase(expected));
+                                success = false;
+                            }
                         }
+                    } else {
+                        FileUtils.log(logFile, "  File '", src.getAbsolutePath(), "' has size ",
+                                Long.toString(src.length()), " but descriptor in XML shows ", Long.toString(file.size));
+                        success = false;
                     }
                 } else {
-                    FileUtils.log(logFile, "  File '", src.getAbsolutePath(), "' has size ",
-                            Long.toString(src.length()), " but descriptor in XML shows ", Long.toString(file.size));
+                    FileUtils.log(logFile, "  File '", src.getAbsolutePath(), "' was not downloaded");
                     success = false;
                 }
             }

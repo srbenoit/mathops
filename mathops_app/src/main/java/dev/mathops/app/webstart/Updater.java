@@ -291,7 +291,7 @@ final class Updater implements Runnable {
 
         boolean valid = false;
 
-        // Load the old an new app XML files and check that the release date is more recent in the update directory
+        // Load the old and new app XML files and check that the release date is more recent in the update directory
 
         if (this.launchDir.exists() && this.launchDir.isDirectory()) {
 
@@ -328,6 +328,8 @@ final class Updater implements Runnable {
 
                             if (updateLaunchApp.releaseDate.isAfter(launchApp.releaseDate)) {
                                 FileUtils.log(this.logFile, "A more recent launch.xml was found...");
+                                FileUtils.log(this.logFile, "  Current release date: ", launchApp.releaseDate);
+                                FileUtils.log(this.logFile, "  Update release date: ", updateLaunchApp.releaseDate);
 
                                 // Update is more recent - copy into place
                                 valid = FileUpdater.updateApp(updateLaunchApp, this.updateLaunchDir, this.launchDir,

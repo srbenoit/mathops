@@ -110,10 +110,8 @@ final class TestingAppBuilder {
 
                 createXmlDescriptor(sha256, appXml, "testing", "dev.mathops.app.teststation.TestStationApp", bls8Jar,
                         commonsJar, textJar, dbJar, jwabbitJar);
-                createXmlDescriptor(sha256, launchXml, "launch", "dev.mathops.app.webstart.Launch", commonsJar, textJar,
-                        dbJar, launchJar);
-                createXmlDescriptor(sha256, updaterXml, "updater", "dev.mathops.app.webstart.Updater", commonsJar,
-                        dbJar, textJar, updaterJar);
+                createXmlDescriptor(sha256, launchXml, "launch", "dev.mathops.app.webstart.Launch", launchJar);
+                createXmlDescriptor(sha256, updaterXml, "updater", "dev.mathops.app.webstart.Updater", updaterJar);
 
                 // Copy all to /opt/public/app/testing
 
@@ -131,9 +129,9 @@ final class TestingAppBuilder {
                     }
                 }
 
-                copyFile(commonsJar, targetLaunch);
-                copyFile(textJar, targetLaunch);
-                copyFile(dbJar, targetLaunch);
+//                copyFile(commonsJar, targetLaunch);
+//                copyFile(textJar, targetLaunch);
+//                copyFile(dbJar, targetLaunch);
                 copyFile(launchJar, targetLaunch);
                 copyFile(launchXml, targetLaunch);
                 copyFile(updaterJar, targetLaunch);
@@ -286,6 +284,14 @@ final class TestingAppBuilder {
      */
     private boolean checkBuildLaunchJar() {
 
+        final File commonsRoot = new File(this.commonsDir, "build/classes/java/main");
+        final File commonsClasses = new File(commonsRoot, "dev/mathops/commons");
+
+        final File textRoot = new File(this.textDir, "build/classes/java/main");
+        final File textClasses = new File(textRoot, "dev/mathops/text");
+        final File textResRoot = new File(this.textDir, "build/resources/main");
+        final File textRes = new File(textResRoot, "dev/mathops/text");
+
         final File app = new File(this.projectDir, "mathops_app");
         final File appRoot = new File(app, "build/classes/java/main");
         final File appClasses = new File(appRoot, "dev/mathops/app");
@@ -303,6 +309,11 @@ final class TestingAppBuilder {
 
                 addManifest(jar);
 
+                Log.finest(Res.fmt(Res.ADDING_FILES, this.commonsDir), CoreConstants.CRLF);
+                addFiles(commonsRoot, commonsClasses, jar);
+                Log.finest(Res.fmt(Res.ADDING_FILES, this.textDir), CoreConstants.CRLF);
+                addFiles(textRoot, textClasses, jar);
+                addFiles(textResRoot, textRes, jar);
                 Log.finest(Res.fmt(Res.ADDING_FILES, app), CoreConstants.CRLF);
                 addFiles(appRoot, wsClasses, jar);
 
@@ -326,6 +337,14 @@ final class TestingAppBuilder {
      */
     private boolean checkBuildUpdaterJar() {
 
+        final File commonsRoot = new File(this.commonsDir, "build/classes/java/main");
+        final File commonsClasses = new File(commonsRoot, "dev/mathops/commons");
+
+        final File textRoot = new File(this.textDir, "build/classes/java/main");
+        final File textClasses = new File(textRoot, "dev/mathops/text");
+        final File textResRoot = new File(this.textDir, "build/resources/main");
+        final File textRes = new File(textResRoot, "dev/mathops/text");
+
         final File app = new File(this.projectDir, "mathops_app");
         final File appRoot = new File(app, "build/classes/java/main");
         final File appClasses = new File(appRoot, "dev/mathops/app");
@@ -342,6 +361,11 @@ final class TestingAppBuilder {
 
                 addManifest(jar);
 
+                Log.finest(Res.fmt(Res.ADDING_FILES, this.commonsDir), CoreConstants.CRLF);
+                addFiles(commonsRoot, commonsClasses, jar);
+                Log.finest(Res.fmt(Res.ADDING_FILES, this.textDir), CoreConstants.CRLF);
+                addFiles(textRoot, textClasses, jar);
+                addFiles(textResRoot, textRes, jar);
                 Log.finest(Res.fmt(Res.ADDING_FILES, app), CoreConstants.CRLF);
                 addFiles(appRoot, wsClasses, jar);
 

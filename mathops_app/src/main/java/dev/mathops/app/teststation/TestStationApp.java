@@ -1,6 +1,5 @@
 package dev.mathops.app.teststation;
 
-import com.formdev.flatlaf.FlatLightLaf;
 import dev.mathops.app.ClientBase;
 import dev.mathops.app.ui.FrameToFront;
 import dev.mathops.app.TempFileCleaner;
@@ -1957,8 +1956,6 @@ public final class TestStationApp extends ClientBase implements Runnable, ExamCo
      *             if "dev" appears, the development host is used
      */
     public static void main(final String... args) {
-
-        FlatLightLaf.setup();
 
         boolean fullScreen = true;
         boolean useDev = false;
