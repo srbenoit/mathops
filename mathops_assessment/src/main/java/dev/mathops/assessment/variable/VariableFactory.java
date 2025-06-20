@@ -1960,17 +1960,26 @@ public enum VariableFactory {
                 valid = false;
             }
 
+            if (valid && mode.reportAny) {
+                final Number minNumber = min.getNumber();
+                final Number maxNumber = max.getNumber();
+
+                if (minNumber.longValue() == maxNumber.longValue()) {
+                    elem.logError("Random integer with min and max the same (20315)");
+                }
+            }
+
             String formatStr = elem.getStringAttr(FORMAT);
             if (formatStr == null) {
                 formatStr = elem.getStringAttr(DECIMAL_FORMAT);
                 if (mode.reportDeprecated && formatStr != null) {
-                    elem.logError("'decimal-format' is deprecated, use 'format' instead. (20315)");
+                    elem.logError("'decimal-format' is deprecated, use 'format' instead. (20316)");
                 }
             }
 
             if (mode.reportAny && formatStr != null && formatStr.startsWith("##")) {
                 elem.logError("Perhaps format string in integer variable '" + varName
-                              + "' could be simplified? (20316)");
+                              + "' could be simplified? (20317)");
             }
 
             if (valid) {
@@ -2066,6 +2075,15 @@ public enum VariableFactory {
             }
         }
 
+        if (valid && min != null && max != null && mode.reportAny) {
+            final Number minNumber = min.getNumber();
+            final Number maxNumber = max.getNumber();
+
+            if (minNumber != null && maxNumber != null && minNumber.longValue() == maxNumber.longValue()) {
+                elem.logError("Random integer with min and max the same (20324)");
+            }
+        }
+
         if (valid) {
             final Collection<Formula> excludes = new ArrayList<>(5);
 
@@ -2083,19 +2101,19 @@ public enum VariableFactory {
                                 if (minFormula == null) {
                                     if (mode.reportAny) {
                                         elem.logError("Invalid 'min' formula in {" + varName + "}: "
-                                                      + nonempty.print(0) + " (20324)");
+                                                      + nonempty.print(0) + " (20325)");
                                     }
                                     valid = false;
                                 } else {
                                     if (mode.reportAny && minFormula.isConstant()) {
                                         elem.logError("Constant 'min' in {" + varName
-                                                      + "} could be specified in attribute? (20325)");
+                                                      + "} could be specified in attribute? (20326)");
                                     }
                                     min = new NumberOrFormula(minFormula);
                                 }
                             } else {
                                 if (mode.reportAny) {
-                                    elem.logError("Multiple 'min' values in {" + varName + "} (20326)");
+                                    elem.logError("Multiple 'min' values in {" + varName + "} (20327)");
                                 }
                                 break label;
                             }
@@ -2107,7 +2125,7 @@ public enum VariableFactory {
                                 if (maxFormula == null) {
                                     if (mode.reportAny) {
                                         elem.logError("Invalid 'max' formula in {" + varName + "}: "
-                                                      + nonempty.print(0) + " (20327)");
+                                                      + nonempty.print(0) + " (20328)");
                                     }
                                     valid = false;
                                 } else {
@@ -2119,7 +2137,7 @@ public enum VariableFactory {
                                 }
                             } else {
                                 if (mode.reportAny) {
-                                    elem.logError("Multiple 'max' values in {" + varName + "} (20329)");
+                                    elem.logError("Multiple 'max' values in {" + varName + "} (20330)");
                                 }
                                 break label;
                             }
@@ -2129,7 +2147,7 @@ public enum VariableFactory {
                             if (exclude == null) {
                                 if (mode.reportAny) {
                                     elem.logError("Invalid 'exclude' formula in {" + varName + "}: "
-                                                  + nonempty.print(0) + " (20330)");
+                                                  + nonempty.print(0) + " (20331)");
                                 }
                                 valid = false;
                             } else {
@@ -2138,7 +2156,7 @@ public enum VariableFactory {
                         }
                         case null, default -> {
                             if (mode.reportAny) {
-                                elem.logError("Unsupported '" + tag + "' element in in {" + varName + "} (20331)");
+                                elem.logError("Unsupported '" + tag + "' element in in {" + varName + "} (20332)");
                             }
                             valid = false;
                         }
@@ -2150,13 +2168,13 @@ public enum VariableFactory {
             if (formatStr == null) {
                 formatStr = elem.getStringAttr(DECIMAL_FORMAT);
                 if (mode.reportDeprecated && formatStr != null) {
-                    elem.logError("'decimal-format' is deprecated, use 'format' instead. (20332)");
+                    elem.logError("'decimal-format' is deprecated, use 'format' instead. (20333)");
                 }
             }
 
             if (mode.reportAny && formatStr != null && formatStr.startsWith("##")) {
                 elem.logError("Perhaps format string in integer variable '" + varName
-                              + "' could be simplified? (20333)");
+                              + "' could be simplified? (20334)");
             }
 
             if (valid) {
