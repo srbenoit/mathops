@@ -2,7 +2,6 @@ package dev.mathops.assessment.problem.template;
 
 import dev.mathops.assessment.EParserMode;
 import dev.mathops.assessment.EType;
-import dev.mathops.assessment.NumberParser;
 import dev.mathops.assessment.document.template.AbstractDocInput;
 import dev.mathops.assessment.document.template.DocColumn;
 import dev.mathops.assessment.document.template.DocFactory;
@@ -22,6 +21,7 @@ import dev.mathops.assessment.variable.VariableInputReal;
 import dev.mathops.assessment.variable.VariableRandomChoice;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
+import dev.mathops.commons.number.NumberParser;
 import dev.mathops.text.parser.CharSpan;
 import dev.mathops.text.parser.ICharSpan;
 import dev.mathops.text.parser.ParsingException;

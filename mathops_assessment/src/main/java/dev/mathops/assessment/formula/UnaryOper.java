@@ -1,12 +1,12 @@
 package dev.mathops.assessment.formula;
 
-import dev.mathops.assessment.EIrrationalFactor;
 import dev.mathops.assessment.EType;
-import dev.mathops.assessment.Irrational;
 import dev.mathops.assessment.formula.edit.AbstractFEObject;
 import dev.mathops.assessment.formula.edit.FEUnaryOper;
 import dev.mathops.assessment.formula.edit.IEditableFormulaObject;
 import dev.mathops.assessment.variable.EvalContext;
+import dev.mathops.commons.number.EIrrationalFactor;
+import dev.mathops.commons.number.Irrational;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.parser.xml.XmlEscaper;
 
@@ -76,7 +76,7 @@ public class UnaryOper extends AbstractFormulaContainer implements IEditableForm
      * Gets the type this formula generates.
      *
      * @param context the context under which to evaluate the formula
-     * @return the type; EType.ERROR if no type can be determined
+     * @return the type; ERROR if no type can be determined
      */
     @Override
     public EType getType(final EvalContext context) {
@@ -108,7 +108,7 @@ public class UnaryOper extends AbstractFormulaContainer implements IEditableForm
      * Evaluates the object within the tree. Subclasses should override this to produce the correct value.
      *
      * @param context the context under which to evaluate the formula
-     * @return an Long, Double, Boolean, or DocSimpleSpan value of the object, or a String with an error message if
+     * @return a Long, Double, Boolean, or DocSimpleSpan value of the object, or a String with an error message if
      *         unable to compute
      */
     @Override

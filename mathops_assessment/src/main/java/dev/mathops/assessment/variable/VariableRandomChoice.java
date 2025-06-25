@@ -1,11 +1,11 @@
 package dev.mathops.assessment.variable;
 
 import dev.mathops.assessment.EType;
-import dev.mathops.assessment.Irrational;
 import dev.mathops.assessment.document.template.DocSimpleSpan;
 import dev.mathops.assessment.formula.Formula;
 import dev.mathops.assessment.formula.IntegerVectorValue;
 import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.number.Irrational;
 import dev.mathops.text.builder.HtmlBuilder;
 
 import java.io.PrintStream;

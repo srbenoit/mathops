@@ -91,7 +91,7 @@ public final class MainWindow extends JFrame implements WindowListener, ChangeLi
         if ("math".equals(theUsername)
             || "pattison".equals(theUsername)
             || "bromley".equals(theUsername)
-            || "orchard".equals(theUsername)
+            || "demoulpi".equals(theUsername)
             || "fadir".equals(theUsername)
             || "spdir".equals(theUsername)
             || "smdir".equals(theUsername)) {

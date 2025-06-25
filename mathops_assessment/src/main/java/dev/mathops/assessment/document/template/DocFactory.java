@@ -2,7 +2,6 @@ package dev.mathops.assessment.document.template;
 
 import dev.mathops.assessment.EParserMode;
 import dev.mathops.assessment.NumberOrFormula;
-import dev.mathops.assessment.NumberParser;
 import dev.mathops.assessment.document.EFieldStyle;
 import dev.mathops.assessment.document.EVAlign;
 import dev.mathops.assessment.formula.Formula;
@@ -12,6 +11,7 @@ import dev.mathops.assessment.variable.AbstractVariable;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.assessment.variable.VariableInputReal;
 import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.number.NumberParser;
 import dev.mathops.commons.ui.ColorNames;
 import dev.mathops.font.BundledFontManager;
 import dev.mathops.text.builder.HtmlBuilder;

@@ -1,6 +1,5 @@
 package dev.mathops.assessment.document.template;
 
-import dev.mathops.assessment.NumberParser;
 import dev.mathops.assessment.document.EFieldStyle;
 import dev.mathops.assessment.document.ELayoutMode;
 import dev.mathops.assessment.document.inst.DocInputDoubleFieldInst;
@@ -11,6 +10,7 @@ import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.assessment.variable.VariableInputReal;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
+import dev.mathops.commons.number.NumberParser;
 import dev.mathops.text.builder.HtmlBuilder;
 
 import java.awt.Color;

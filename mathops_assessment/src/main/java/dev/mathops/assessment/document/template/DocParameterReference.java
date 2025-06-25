@@ -125,8 +125,7 @@ public final class DocParameterReference extends AbstractDocObjectTemplate {
             final Object value = var.getValue();
 
             if (value == null) {
-                // Log.warning("Variable {", this.parameterName,
-                // "} has no value - emitting empty string");
+                // Log.warning("Variable {", this.parameterName, "} has no value - emitting empty string");
                 this.laidOutContents.add(new DocText(CoreConstants.EMPTY));
             } else if (value instanceof Boolean) {
                 this.laidOutContents.add(new DocText(value.toString()));

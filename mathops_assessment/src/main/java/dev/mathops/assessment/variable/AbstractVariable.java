@@ -2,10 +2,10 @@ package dev.mathops.assessment.variable;
 
 import dev.mathops.assessment.AbstractXmlObject;
 import dev.mathops.assessment.EType;
-import dev.mathops.assessment.Irrational;
 import dev.mathops.assessment.document.template.AbstractDocObjectTemplate;
 import dev.mathops.assessment.document.template.DocSimpleSpan;
 import dev.mathops.assessment.formula.IntegerVectorValue;
+import dev.mathops.commons.number.Irrational;
 import dev.mathops.text.builder.HtmlBuilder;
 
 import java.io.PrintStream;
@@ -128,9 +128,9 @@ public abstract class AbstractVariable extends AbstractXmlObject {
     public final void setValue(final Object theValue) {
 
         if (theValue instanceof Double || theValue instanceof Irrational || theValue instanceof Long
-                || theValue instanceof Boolean || theValue instanceof String
-                || theValue instanceof DocSimpleSpan || theValue instanceof IntegerVectorValue
-                || theValue == null) {
+            || theValue instanceof Boolean || theValue instanceof String
+            || theValue instanceof DocSimpleSpan || theValue instanceof IntegerVectorValue
+            || theValue == null) {
 
             this.value = theValue;
         } else {

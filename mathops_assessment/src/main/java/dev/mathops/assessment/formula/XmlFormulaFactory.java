@@ -1,10 +1,10 @@
 package dev.mathops.assessment.formula;
 
 import dev.mathops.assessment.EParserMode;
-import dev.mathops.assessment.NumberParser;
 import dev.mathops.assessment.document.template.DocFactory;
 import dev.mathops.assessment.document.template.DocSimpleSpan;
 import dev.mathops.assessment.variable.EvalContext;
+import dev.mathops.commons.number.NumberParser;
 import dev.mathops.text.parser.ParsingException;
 import dev.mathops.text.parser.xml.CData;
 import dev.mathops.text.parser.xml.EmptyElement;

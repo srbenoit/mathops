@@ -1,12 +1,12 @@
 package dev.mathops.assessment.formula;
 
-import dev.mathops.assessment.EIrrationalFactor;
 import dev.mathops.assessment.EType;
-import dev.mathops.assessment.Irrational;
 import dev.mathops.assessment.formula.edit.AbstractFEObject;
 import dev.mathops.assessment.formula.edit.FEFunction;
 import dev.mathops.assessment.formula.edit.IEditableFormulaObject;
 import dev.mathops.assessment.variable.EvalContext;
+import dev.mathops.commons.number.EIrrationalFactor;
+import dev.mathops.commons.number.Irrational;
 import dev.mathops.text.builder.HtmlBuilder;
 
 import java.math.BigInteger;

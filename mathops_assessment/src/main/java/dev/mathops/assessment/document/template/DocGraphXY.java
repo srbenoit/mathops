@@ -1,6 +1,5 @@
 package dev.mathops.assessment.document.template;
 
-import dev.mathops.assessment.Irrational;
 import dev.mathops.assessment.document.AxisSpec;
 import dev.mathops.assessment.document.AxisTicksSpec;
 import dev.mathops.assessment.document.BoundingRect;
@@ -15,6 +14,7 @@ import dev.mathops.assessment.document.inst.DocObjectInstStyle;
 import dev.mathops.assessment.document.inst.StrokeStyleInst;
 import dev.mathops.assessment.variable.EvalContext;
 import dev.mathops.commons.log.Log;
+import dev.mathops.commons.number.Irrational;
 import dev.mathops.commons.ui.ColorNames;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.parser.xml.XmlEscaper;

@@ -1,7 +1,7 @@
 package dev.mathops.assessment.formula;
 
-import dev.mathops.assessment.NumberParser;
 import dev.mathops.commons.CoreConstants;
+import dev.mathops.commons.number.NumberParser;
 import dev.mathops.text.builder.HtmlBuilder;
 
 /**

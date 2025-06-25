@@ -1,11 +1,11 @@
 package dev.mathops.assessment.formula;
 
 import dev.mathops.assessment.EType;
-import dev.mathops.assessment.Irrational;
 import dev.mathops.assessment.formula.edit.AbstractFEObject;
 import dev.mathops.assessment.formula.edit.FEConstantReal;
 import dev.mathops.assessment.formula.edit.IEditableFormulaObject;
 import dev.mathops.assessment.variable.EvalContext;
+import dev.mathops.commons.number.Irrational;
 import dev.mathops.text.builder.HtmlBuilder;
 
 /**

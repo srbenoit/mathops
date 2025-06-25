@@ -2,11 +2,11 @@ package dev.mathops.assessment.document.template;
 
 import dev.mathops.assessment.EParserMode;
 import dev.mathops.assessment.NumberOrFormula;
-import dev.mathops.assessment.NumberParser;
 import dev.mathops.assessment.document.inst.AbstractPrimitiveInst;
 import dev.mathops.assessment.formula.Formula;
 import dev.mathops.assessment.formula.FormulaFactory;
 import dev.mathops.assessment.variable.EvalContext;
+import dev.mathops.commons.number.NumberParser;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.parser.xml.INode;
 

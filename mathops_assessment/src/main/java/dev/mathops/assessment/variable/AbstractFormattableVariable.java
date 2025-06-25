@@ -1,6 +1,8 @@
 package dev.mathops.assessment.variable;
 
 import dev.mathops.assessment.EType;
+import dev.mathops.commons.log.Log;
+import dev.mathops.commons.number.Irrational;
 import dev.mathops.text.builder.HtmlBuilder;
 
 import java.text.DecimalFormat;
@@ -136,6 +138,15 @@ public abstract class AbstractFormattableVariable extends AbstractVariable {
                 str = fmt.format(doubleValue);
             }
             str = str.replace('-', '\u2212');
+        } else if (value instanceof final Irrational irrationalObj) {
+            if (this.decimalFormat != null) {
+                final double doubleValue = irrationalObj.doubleValue();
+                str = this.decimalFormat.format(doubleValue);
+            } else {
+                str = irrationalObj.toString();
+                str = str.replace("PI", "{\\pi}");
+                str = str.replace('-', '\u2212');
+            }
         } else if (value instanceof final Boolean booleanObj) {
             str = booleanObj.toString().toUpperCase(Locale.ROOT);
         } else if (value instanceof final String stringObj) {
