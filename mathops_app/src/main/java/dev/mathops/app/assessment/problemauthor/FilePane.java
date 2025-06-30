@@ -346,7 +346,7 @@ final class FilePane extends JPanel implements ActionListener {
                         }
                     } catch (final ParsingException ex) {
                         this.consoleLines.add("<div color='red'>ERROR: Unable to interpret Problem file XML: "
-                                              + ex.getMessage() + "</div>");
+                                              + ex.getMessage().replace("<", "&lt;") + "</div>");
                     }
                 } else {
                     this.consoleLines.add(

@@ -125,6 +125,9 @@ enum QualityControlChecks {
 
         // TODO: If the pixel location of an object in the graph is calculated by multiplying some quantity by the
         //  pixel width of the graph divided by its extent, we could probably use graph coordinates.  how to test?
+
+        // TODO: Check for equality tests or case statements comparing to a "random int" variable for a value outside
+        //  its possible range or for an excluded value.
     }
 
     /**

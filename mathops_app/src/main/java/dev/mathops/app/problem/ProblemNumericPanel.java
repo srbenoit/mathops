@@ -385,8 +385,6 @@ public final class ProblemNumericPanel extends AbstractProblemPanelBase
             Log.warning(Res.get(Res.NOT_AWT_THREAD));
         }
 
-        Log.info("Size is ", getSize());
-
         super.paintComponent(g);
 
         this.problem.question.paintComponent(g, ELayoutMode.TEXT);
