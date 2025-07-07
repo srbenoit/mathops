@@ -45,20 +45,24 @@ enum InterfaceUtils {
      */
     static Color createAccentColor(final Color bg, final boolean isLight) {
 
+        final int bgR = bg.getRed();
+        final int bgG = bg.getGreen();
+        final int bgB = bg.getBlue();
+
         final int r;
         final int g;
         final int b;
 
         if (isLight) {
             final Color darker = bg.darker();
-            r = (darker.getRed() + bg.getRed() * 2) / 3;
-            g = (darker.getGreen() + bg.getGreen() * 2) / 3;
-            b = (darker.getBlue() + bg.getBlue() * 2) / 3;
+            r = (darker.getRed() + bgR * 2) / 3;
+            g = (darker.getGreen() + bgG * 2) / 3;
+            b = (darker.getBlue() + bgB * 2) / 3;
         } else {
             final Color brighter = bg.brighter();
-            r = (brighter.getRed() + bg.getRed()) / 2;
-            g = (brighter.getGreen() + bg.getGreen()) / 2;
-            b = (brighter.getBlue() + bg.getBlue()) / 2;
+            r = (brighter.getRed() + bgR) / 2;
+            g = (brighter.getGreen() + bgG) / 2;
+            b = (brighter.getBlue() + bgB) / 2;
         }
 
         return new Color(r, g, b);

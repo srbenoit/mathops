@@ -1,5 +1,6 @@
 package dev.mathops.app.database.dba;
 
+import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.db.DbConnection;
@@ -8,12 +9,12 @@ import dev.mathops.db.cfg.DatabaseConfig;
 import javax.swing.SwingUtilities;
 
 /**
- * The main database administration program.
+ * The main DBA program.
  */
-public final class DatabaseAdmin implements Runnable {
+public final class DBA implements Runnable {
 
-    /** Constructs a new {@code DatabaseAdmin}. */
-    private DatabaseAdmin() {
+    /** Constructs a new {@code DBA}. */
+    private DBA() {
 
         // No action
     }
@@ -27,11 +28,10 @@ public final class DatabaseAdmin implements Runnable {
         DbConnection.registerDrivers();
 
         final DatabaseConfig databaseConfig = DatabaseConfig.getDefault();
+        final DBAWindow window = new DBAWindow(databaseConfig);
 
-        final DatabasePicker picker = new DatabasePicker(databaseConfig);
-        picker.init();
-        UIUtilities.packAndCenter(picker);
-        picker.setVisible(true);
+        UIUtilities.packAndCenter(window);
+        window.setVisible(true);
     }
 
     /**
@@ -41,10 +41,10 @@ public final class DatabaseAdmin implements Runnable {
      */
     public static void main(final String... args) {
 
-        FlatLightLaf.setup();
-//        FlatDarkLaf.setup();
+//        FlatLightLaf.setup();
+        FlatDarkLaf.setup();
 
-        SwingUtilities.invokeLater(new DatabaseAdmin());
+        SwingUtilities.invokeLater(new DBA());
     }
 }
 
