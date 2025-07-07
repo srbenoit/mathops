@@ -15,6 +15,7 @@ import dev.mathops.db.old.logic.mathplan.MathPlanPlacementStatus;
 import dev.mathops.text.builder.HtmlBuilder;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
@@ -109,8 +110,8 @@ enum PageSecureLanding {
 
         htm.sDiv("left", "style='position:relative;top:8px;margin-bottom:8px;'").sH(2);
         if (planCompleted) {
-            htm.add("<img src='/www/images/square-check-regular.svg' style='height:24px;position:relative;top:-2px;" +
-                    "'/>");
+            htm.add("<img src='/www/images/square-check-regular.svg' "
+                    + "style='height:24px;position:relative;top:-2px;'/>");
         } else {
             htm.add("<img src='/www/images/square-regular.svg' style='height:24px;position:relative;top:-2px;'/>");
         }
