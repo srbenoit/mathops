@@ -16,6 +16,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
@@ -25,6 +26,8 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -47,6 +50,12 @@ final class DatabaseRibbonTile extends JPanel implements ActionListener {
 
     /** A map from database to its connection. */
     private final Map<Database, DbConnection> connections;
+
+    /** Layout managers to toggle each database between connected and not connected states. */
+    private final Map<Database, CardLayout> cardLayouts;
+
+    /** The card panels used to toggle database state. */
+    private final Map<Database, JPanel> cardPanels;
 
     /** A map from database to a label showing the connected user. */
     private final Map<Database, JLabel> usernames;
@@ -77,6 +86,7 @@ final class DatabaseRibbonTile extends JPanel implements ActionListener {
         final BufferedImage oracleIcon = FileLoader.loadFileAsImage(cls, "oracle.png", true);
         final BufferedImage postgresqlIcon = FileLoader.loadFileAsImage(cls, "postgresql.png", true);
 
+        final Border leftRightPad = BorderFactory.createEmptyBorder(0, 5, 0, 5);
         final Border leftLine = BorderFactory.createMatteBorder(0, 1, 0, 0, accent);
         final Border rightLine = BorderFactory.createMatteBorder(0, 0, 0, 1, accent);
         final Border topLine = BorderFactory.createMatteBorder(1, 0, 0, 0, accent);
@@ -113,6 +123,8 @@ final class DatabaseRibbonTile extends JPanel implements ActionListener {
 
         final List<Database> databases = server.getDatabases();
         final int numDatabases = databases.size();
+        this.cardLayouts = new HashMap<>(numDatabases);
+        this.cardPanels = new HashMap<>(numDatabases);
         this.usernames = new HashMap<>(numDatabases);
         this.checkboxes = new HashMap<>(numDatabases);
 
@@ -139,7 +151,9 @@ final class DatabaseRibbonTile extends JPanel implements ActionListener {
             dbPane.add(idLabel, StackedBorderLayout.NORTH);
 
             final CardLayout cardLayout = new CardLayout();
+            this.cardLayouts.put(database, cardLayout);
             final JPanel dbCards = new JPanel(cardLayout);
+            this.cardPanels.put(database, dbCards);
             dbPane.add(dbCards, StackedBorderLayout.SOUTH);
 
             // Card when database is "not yet connected"
@@ -158,7 +172,7 @@ final class DatabaseRibbonTile extends JPanel implements ActionListener {
             final JPanel connectedAsFlow = new JPanel(new FlowLayout(FlowLayout.LEADING, 3, 0));
             final JLabel connectedAs = new JLabel("Connected as:");
             connectedAsFlow.add(connectedAs);
-            final JLabel userLbl = new JLabel(CoreConstants.SPC);
+            final JLabel userLbl = new JLabel("               ");
             connectedAsFlow.add(userLbl);
             this.usernames.put(database, userLbl);
             connectedCard.add(connectedAsFlow, StackedBorderLayout.NORTH);
@@ -181,6 +195,7 @@ final class DatabaseRibbonTile extends JPanel implements ActionListener {
 
                 if (hasUse) {
                     final JPanel usePane = new JPanel(new StackedBorderLayout());
+                    usePane.setBorder(leftRightPad);
                     final String useName = use.name();
                     final JLabel useLbl = new JLabel(useName);
                     usePane.add(useLbl, StackedBorderLayout.NORTH);
@@ -188,7 +203,11 @@ final class DatabaseRibbonTile extends JPanel implements ActionListener {
                     final JCheckBox check = new JCheckBox();
                     check.addActionListener(listener);
                     useCheckboxes.put(use, check);
-                    usePane.add(check, StackedBorderLayout.SOUTH);
+                    final JPanel checkFlow = new JPanel(new FlowLayout(FlowLayout.CENTER, 3, 1));
+                    checkFlow.add(check);
+                    usePane.add(checkFlow, StackedBorderLayout.NORTH);
+
+                    uses.add(usePane, StackedBorderLayout.WEST);
                 }
             }
         }
@@ -201,7 +220,7 @@ final class DatabaseRibbonTile extends JPanel implements ActionListener {
      */
     void getSelectedDatabaseUses(final Collection<? super DatabaseUse> databaseUses) {
 
-        for (final Map.Entry<Database, Map<EDbUse, JCheckBox>>  databaseEntry : this.checkboxes.entrySet()) {
+        for (final Map.Entry<Database, Map<EDbUse, JCheckBox>> databaseEntry : this.checkboxes.entrySet()) {
             final Database database = databaseEntry.getKey();
             final Map<EDbUse, JCheckBox> useMap = databaseEntry.getValue();
 
@@ -235,9 +254,95 @@ final class DatabaseRibbonTile extends JPanel implements ActionListener {
         }
 
         if (toConnect != null) {
-            Log.info("Connecting to ", dbId);
-            for (final Login login : toConnect.getLogins()) {
+            // If there are multiple logins, pick one
+            final List<Login> logins = toConnect.getLogins();
+            final int numLogins = logins.size();
 
+            if (numLogins == 0) {
+                JOptionPane.showMessageDialog(this, "Database configuration has no login information",
+                        "Connect to Database", JOptionPane.ERROR_MESSAGE);
+            } else {
+                Login chosen = null;
+                if (numLogins == 1) {
+                    chosen = logins.getFirst();
+                } else {
+                    final String[] usernames = new String[numLogins];
+                    for (int i = 0; i < numLogins; ++i) {
+                        usernames[i] = logins.get(i).user;
+                    }
+                    final Object selected = JOptionPane.showInputDialog(this,
+                            "Please select a username under which to connect:", "Connect to Database",
+                            JOptionPane.PLAIN_MESSAGE, null, usernames, usernames[0]);
+
+                    if (selected != null) {
+                        for (final Login test : logins) {
+                            if (test.user.equals(selected)) {
+                                chosen = test;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (chosen != null) {
+                    // Get the first try password from the file
+                    boolean connected = false;
+                    if (chosen.password != null && chosen.password.length() > 5) {
+                        // It seems like a password is present - try it!
+                        final DbConnection conn = chosen.checkOutConnection();
+                        try {
+                            conn.getConnection();
+                            connected = true;
+
+                        } catch (final SQLException ex) {
+                            // Connection failed - password probably wrong
+                        } finally {
+                            chosen.checkInConnection(conn);
+                        }
+                    }
+
+                    // Gather password and re-try until success or the user cancels
+                    while (!connected) {
+                        final Object pwdObj = JOptionPane.showInputDialog(this,
+                                "Password to connect as '" + chosen.user + "':", "Connect to Database",
+                                JOptionPane.QUESTION_MESSAGE);
+
+                        if (pwdObj instanceof final String pwdStr) {
+                            chosen.setPassword(pwdStr);
+
+                            // It seems like a password is present - try it!
+                            final DbConnection conn = chosen.checkOutConnection();
+                            try {
+                                final Connection jdbc = conn.getConnection();
+                                connected = true;
+                                this.connections.put(toConnect, conn);
+                            } catch (final SQLException ex) {
+                                chosen.checkInConnection(conn);
+                                final String msg[] = new String[2];
+                                msg[0] = "Failed to connect:";
+                                msg[1] = ex.getMessage();
+                                JOptionPane.showMessageDialog(this, msg, "Connect to Database",
+                                        JOptionPane.ERROR_MESSAGE);
+                            }
+                        } else {
+                            break;
+                        }
+                    }
+
+                    if (connected) {
+                        final JLabel lbl = this.usernames.get(toConnect);
+                        if (lbl != null) {
+                            lbl.setText(chosen.user);
+                        }
+                        final CardLayout cardLayout = this.cardLayouts.get(toConnect);
+                        final JPanel cardPanel = this.cardPanels.get(toConnect);
+                        if (cardLayout == null || cardPanel == null) {
+                            Log.info("Card layout or panel was not found");
+                        } else {
+                            cardLayout.show(cardPanel, SELECT_CARD);
+                        }
+                    }
+                }
             }
         }
     }
