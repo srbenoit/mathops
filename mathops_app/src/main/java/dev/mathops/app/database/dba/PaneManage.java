@@ -1,6 +1,8 @@
 package dev.mathops.app.database.dba;
 
+import dev.mathops.db.cfg.Data;
 import dev.mathops.db.cfg.Database;
+import dev.mathops.db.cfg.DatabaseConfig;
 
 import javax.swing.JPanel;
 
@@ -9,22 +11,30 @@ import javax.swing.JPanel;
  */
 final class PaneManage extends JPanel {
 
+    /** The database configuration. */
+    private final DatabaseConfig config;
+
     /**
      * Constructs a new {@code PaneManage}.
+     *
+     * @param theConfig the database configuration
      */
-    PaneManage() {
+    PaneManage(final DatabaseConfig theConfig) {
 
         super();
+
+        this.config = theConfig;
     }
 
     /**
      * Updates the schema and table this panel shows and the database holding the data.
      *
      * @param schemaTable the schema and table; null if none is selected
-     * @param database    the selected database
+     * @param databaseUse the selected database use
      */
-    void update(final SchemaTable schemaTable, final Database database) {
+    void update(final SchemaTable schemaTable, final DatabaseUse databaseUse) {
 
+        // TODO:
     }
 }
 

@@ -1,6 +1,7 @@
 package dev.mathops.app.database.dba;
 
 import dev.mathops.db.cfg.Database;
+import dev.mathops.db.cfg.DatabaseConfig;
 
 import javax.swing.JPanel;
 import java.awt.CardLayout;
@@ -31,8 +32,10 @@ final class TablePane extends JPanel {
 
     /**
      * Constructs a new {@code TableWindow}.
+     *
+     * @param config the database configuration
      */
-    TablePane() {
+    TablePane(final DatabaseConfig config) {
 
         super();
 
@@ -42,10 +45,10 @@ final class TablePane extends JPanel {
         final JPanel blank = new JPanel();
         add(blank, BLANK);
 
-        this.singleDatabaseTable = new TablePaneSingle();
+        this.singleDatabaseTable = new TablePaneSingle(config);
         add(this.singleDatabaseTable, SINGLE_DB);
 
-        this.multiDatabaseTable = new TablePaneMulti();
+        this.multiDatabaseTable = new TablePaneMulti(config);
         add(this.multiDatabaseTable, MULTI_DB);
     }
 
@@ -55,23 +58,23 @@ final class TablePane extends JPanel {
      * @param schemaTable the schema and table; null if none is selected
      * @param databases   the list of selected databases
      */
-    void select(final SchemaTable schemaTable, final List<Database> databases) {
+    void select(final SchemaTable schemaTable, final List<DatabaseUse> databaseUses) {
 
         this.singleDatabaseTable.update(null, null);
         this.multiDatabaseTable.update(null, null);
 
-        if (schemaTable == null || databases.isEmpty()) {
+        if (schemaTable == null || databaseUses.isEmpty()) {
             this.layout.show(this, BLANK);
         } else {
-            final int numDatabases = databases.size();
+            final int numDatabases = databaseUses.size();
 
             if (numDatabases == 1) {
                 this.layout.show(this, SINGLE_DB);
-                final Database database = databases.getFirst();
-                this.singleDatabaseTable.update(schemaTable, database);
+                final DatabaseUse databaseUse = databaseUses.getFirst();
+                this.singleDatabaseTable.update(schemaTable, databaseUse);
             } else {
                 this.layout.show(this, MULTI_DB);
-                this.multiDatabaseTable.update(schemaTable, databases);
+                this.multiDatabaseTable.update(schemaTable, databaseUses);
             }
         }
     }

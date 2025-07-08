@@ -4,6 +4,7 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.ESchema;
 import dev.mathops.db.cfg.Database;
+import dev.mathops.db.cfg.DatabaseConfig;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -25,8 +26,10 @@ final class TablePaneMulti extends JPanel {
 
     /**
      * Constructs a new {@code TablePaneMulti}.
+     *
+     * @param config the database configuration
      */
-    TablePaneMulti() {
+    TablePaneMulti(final DatabaseConfig config) {
 
         super(new StackedBorderLayout());
 
@@ -68,10 +71,10 @@ final class TablePaneMulti extends JPanel {
     /**
      * Updates the schema and table this panel shows and the databases holding the data.
      *
-     * @param schemaTable the schema and table; null if none is selected
-     * @param databases   the selected databases
+     * @param schemaTable  the schema and table; null if none is selected
+     * @param databaseUses the selected database uses
      */
-    void update(final SchemaTable schemaTable, final List<Database> databases) {
+    void update(final SchemaTable schemaTable, final List<DatabaseUse> databaseUses) {
 
         if (schemaTable == null) {
             this.schemaName.setText(CoreConstants.SPC);

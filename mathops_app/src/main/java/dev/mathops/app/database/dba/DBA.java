@@ -41,8 +41,8 @@ public final class DBA implements Runnable {
      */
     public static void main(final String... args) {
 
-//        FlatLightLaf.setup();
-        FlatDarkLaf.setup();
+        FlatLightLaf.setup();
+//        FlatDarkLaf.setup();
 
         SwingUtilities.invokeLater(new DBA());
     }

@@ -2,8 +2,10 @@ package dev.mathops.app.database.dba;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
+import dev.mathops.db.EDbUse;
 import dev.mathops.db.ESchema;
 import dev.mathops.db.cfg.Database;
+import dev.mathops.db.cfg.DatabaseConfig;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -19,11 +21,17 @@ import java.awt.Font;
  */
 final class TablePaneSingle extends JPanel {
 
+    /** A label that will receive the name of the selected schema. */
     private final JLabel schemaName;
 
+    /** A label that will receive the name of the selected table. */
     private final JLabel tableName;
 
+    /** A label that will receive the name of the selected database. */
     private final JLabel databaseId;
+
+    /** A label that will receive the name of the selected use. */
+    private final JLabel useName;
 
     private final PaneManage manage;
 
@@ -33,8 +41,10 @@ final class TablePaneSingle extends JPanel {
 
     /**
      * Constructs a new {@code TablePaneSingle}.
+     *
+     * @param config the database configuration
      */
-    TablePaneSingle() {
+    TablePaneSingle(final DatabaseConfig config) {
 
         super(new StackedBorderLayout());
 
@@ -76,9 +86,14 @@ final class TablePaneSingle extends JPanel {
         this.databaseId.setFont(larger);
         this.databaseId.setForeground(labelColor);
         topFlow.add(this.databaseId);
+        this.useName = new JLabel(CoreConstants.SPC);
+        this.useName.setFont(larger);
+        this.useName.setForeground(labelColor);
+        topFlow.add(this.useName);
+
         add(topFlow, StackedBorderLayout.NORTH);
 
-        this.manage = new PaneManage();
+        this.manage = new PaneManage(config);
         this.sql = new PaneSQL();
         this.info = new PaneInformation();
 
@@ -94,9 +109,9 @@ final class TablePaneSingle extends JPanel {
      * Updates the schema and table this panel shows and the database holding the data.
      *
      * @param schemaTable the schema and table; null if none is selected
-     * @param database    the selected database
+     * @param databaseUse the selected database use
      */
-    void update(final SchemaTable schemaTable, final Database database) {
+    void update(final SchemaTable schemaTable, final DatabaseUse databaseUse) {
 
         if (schemaTable == null) {
             this.schemaName.setText(CoreConstants.SPC);
@@ -109,14 +124,19 @@ final class TablePaneSingle extends JPanel {
             this.tableName.setText(tableStr);
         }
 
-        if (database == null) {
+        if (databaseUse == null) {
             this.databaseId.setText(CoreConstants.SPC);
+            this.useName.setText(CoreConstants.SPC);
         } else {
+            final Database database = databaseUse.database();
             this.databaseId.setText(database.id);
+            final EDbUse use = databaseUse.use();
+            final String useStr = use.name();
+            this.useName.setText(" (" + useStr + ")");
         }
 
-        this.manage.update(schemaTable, database);
-        this.sql.update(schemaTable, database);
-        this.info.update(schemaTable, database);
+        this.manage.update(schemaTable, databaseUse);
+        this.sql.update(schemaTable, databaseUse);
+        this.info.update(schemaTable, databaseUse);
     }
 }

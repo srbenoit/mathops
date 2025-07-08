@@ -1,7 +1,7 @@
 package dev.mathops.app.database.dba;
 
-import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
+import dev.mathops.db.DbConnection;
 import dev.mathops.db.cfg.Database;
 import dev.mathops.db.cfg.DatabaseConfig;
 
@@ -14,12 +14,17 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The main window.
  */
 final class DBAWindow extends JFrame implements ActionListener, TreeSelectionListener {
+
+    /** A map from database to its connection. */
+    private final Map<Database, DbConnection> connections;
 
     /** The database ribbon. */
     private final DatabaseRibbon ribbon;
@@ -30,8 +35,8 @@ final class DBAWindow extends JFrame implements ActionListener, TreeSelectionLis
     /** The panel that shows the currently-selected table. */
     private final TablePane tablePane;
 
-    /** The list of currently-selected databases. */
-    private final List<Database> selectedDatabases;
+    /** The list of currently-selected database uses. */
+    private final List<DatabaseUse> selectedDatabaseUses;
 
     /**
      * Constructs a new {@code DBAWindow}.
@@ -42,15 +47,16 @@ final class DBAWindow extends JFrame implements ActionListener, TreeSelectionLis
 
         super("Math Database Administrator");
 
-        this.selectedDatabases = new ArrayList<>(10);
+        this.connections = new HashMap<>(10);
+        this.selectedDatabaseUses = new ArrayList<>(10);
 
         final JPanel content = new JPanel(new StackedBorderLayout());
         setContentPane(content);
 
-        this.ribbon = new DatabaseRibbon(config, this);
+        this.ribbon = new DatabaseRibbon(config, this, this.connections);
         content.add(this.ribbon, StackedBorderLayout.NORTH);
 
-        this.tablePane = new TablePane();
+        this.tablePane = new TablePane(config);
         content.add(this.tablePane, StackedBorderLayout.CENTER);
 
         final Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
@@ -72,10 +78,10 @@ final class DBAWindow extends JFrame implements ActionListener, TreeSelectionLis
     @Override
     public void actionPerformed(final ActionEvent e) {
 
-        this.ribbon.getSelectedDatabases(this.selectedDatabases);
+        this.ribbon.getSelectedDatabaseUses(this.selectedDatabaseUses);
 
         final SchemaTable sel = this.schemaTableTree.getSelection();
-        this.tablePane.select(sel, this.selectedDatabases);
+        this.tablePane.select(sel, this.selectedDatabaseUses);
     }
 
     /**
@@ -87,6 +93,6 @@ final class DBAWindow extends JFrame implements ActionListener, TreeSelectionLis
     public void valueChanged(final TreeSelectionEvent e) {
 
         final SchemaTable sel = this.schemaTableTree.getSelection();
-        this.tablePane.select(sel, this.selectedDatabases);
+        this.tablePane.select(sel, this.selectedDatabaseUses);
     }
 }
