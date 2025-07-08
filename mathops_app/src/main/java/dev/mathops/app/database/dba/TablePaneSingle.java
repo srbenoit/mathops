@@ -6,6 +6,7 @@ import dev.mathops.db.EDbUse;
 import dev.mathops.db.ESchema;
 import dev.mathops.db.cfg.Database;
 import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Server;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -26,6 +27,9 @@ final class TablePaneSingle extends JPanel {
 
     /** A label that will receive the name of the selected table. */
     private final JLabel tableName;
+
+    /** A label that will receive the name of the selected server. */
+    private final JLabel serverId;
 
     /** A label that will receive the name of the selected database. */
     private final JLabel databaseId;
@@ -65,6 +69,7 @@ final class TablePaneSingle extends JPanel {
         final JPanel topFlow = new JPanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
         topFlow.setBackground(newBg);
         topFlow.setBorder(bottomLine);
+
         final JLabel lbl1 = new JLabel("Schema: ");
         lbl1.setFont(larger);
         topFlow.add(lbl1);
@@ -72,6 +77,7 @@ final class TablePaneSingle extends JPanel {
         this.schemaName.setFont(larger);
         this.schemaName.setForeground(labelColor);
         topFlow.add(this.schemaName);
+
         final JLabel lbl2 = new JLabel("   Table: ");
         lbl2.setFont(larger);
         topFlow.add(lbl2);
@@ -79,9 +85,18 @@ final class TablePaneSingle extends JPanel {
         this.tableName.setFont(larger);
         this.tableName.setForeground(labelColor);
         topFlow.add(this.tableName);
-        final JLabel lbl3 = new JLabel("   Database: ");
+
+        final JLabel lbl3 = new JLabel("   Server: ");
         lbl3.setFont(larger);
         topFlow.add(lbl3);
+        this.serverId = new JLabel(CoreConstants.SPC);
+        this.serverId.setFont(larger);
+        this.serverId.setForeground(labelColor);
+        topFlow.add(this.serverId);
+
+        final JLabel lbl4 = new JLabel("   Database: ");
+        lbl4.setFont(larger);
+        topFlow.add(lbl4);
         this.databaseId = new JLabel(CoreConstants.SPC);
         this.databaseId.setFont(larger);
         this.databaseId.setForeground(labelColor);
@@ -125,10 +140,15 @@ final class TablePaneSingle extends JPanel {
         }
 
         if (databaseUse == null) {
+            this.serverId.setText(CoreConstants.SPC);
             this.databaseId.setText(CoreConstants.SPC);
             this.useName.setText(CoreConstants.SPC);
         } else {
             final Database database = databaseUse.database();
+            final Server server = database.server;
+            final String txt = server.host.replace(".colostate.edu", "") + ":" + server.port;
+            this.serverId.setText(txt);
+
             this.databaseId.setText(database.id);
             final EDbUse use = databaseUse.use();
             final String useStr = use.name();
