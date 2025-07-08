@@ -6,6 +6,7 @@ import dev.mathops.db.EDbUse;
 import dev.mathops.db.ESchema;
 import dev.mathops.db.cfg.Database;
 import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
 import dev.mathops.db.cfg.Server;
 
 import javax.swing.BorderFactory;
@@ -108,7 +109,7 @@ final class TablePaneSingle extends JPanel {
 
         add(topFlow, StackedBorderLayout.NORTH);
 
-        this.manage = new PaneManage(config);
+        this.manage = new PaneManage(config, accent);
         this.sql = new PaneSQL();
         this.info = new PaneInformation();
 
@@ -125,8 +126,9 @@ final class TablePaneSingle extends JPanel {
      *
      * @param schemaTable the schema and table; null if none is selected
      * @param databaseUse the selected database use
+     * @param login       the database login from which to obtain connections
      */
-    void update(final SchemaTable schemaTable, final DatabaseUse databaseUse) {
+    void update(final SchemaTable schemaTable, final DatabaseUse databaseUse, final Login login) {
 
         if (schemaTable == null) {
             this.schemaName.setText(CoreConstants.SPC);
@@ -155,7 +157,7 @@ final class TablePaneSingle extends JPanel {
             this.useName.setText(" (" + useStr + ")");
         }
 
-        this.manage.update(schemaTable, databaseUse);
+        this.manage.update(schemaTable, databaseUse, login);
         this.sql.update(schemaTable, databaseUse);
         this.info.update(schemaTable, databaseUse);
     }

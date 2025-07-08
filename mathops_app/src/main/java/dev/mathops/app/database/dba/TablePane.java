@@ -2,10 +2,12 @@ package dev.mathops.app.database.dba;
 
 import dev.mathops.db.cfg.Database;
 import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
 
 import javax.swing.JPanel;
 import java.awt.CardLayout;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A window that displays the currently selected schema/table.
@@ -55,12 +57,14 @@ final class TablePane extends JPanel {
     /**
      * Selects a schema and table.
      *
-     * @param schemaTable the schema and table; null if none is selected
-     * @param databases   the list of selected databases
+     * @param schemaTable  the schema and table; null if none is selected
+     * @param databaseUses the list of selected database uses
+     * @param logins       a map from database to the login to use to obtain connections
      */
-    void select(final SchemaTable schemaTable, final List<DatabaseUse> databaseUses) {
+    void select(final SchemaTable schemaTable, final List<DatabaseUse> databaseUses,
+                final Map<Database, Login> logins) {
 
-        this.singleDatabaseTable.update(null, null);
+        this.singleDatabaseTable.update(null, null, null);
         this.multiDatabaseTable.update(null, null);
 
         if (schemaTable == null || databaseUses.isEmpty()) {
@@ -71,7 +75,9 @@ final class TablePane extends JPanel {
             if (numDatabases == 1) {
                 this.layout.show(this, SINGLE_DB);
                 final DatabaseUse databaseUse = databaseUses.getFirst();
-                this.singleDatabaseTable.update(schemaTable, databaseUse);
+                final Database database = databaseUse.database();
+                final Login login = logins.get(database);
+                this.singleDatabaseTable.update(schemaTable, databaseUse, login);
             } else {
                 this.layout.show(this, MULTI_DB);
                 this.multiDatabaseTable.update(schemaTable, databaseUses);

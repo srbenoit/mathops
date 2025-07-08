@@ -1,9 +1,9 @@
 package dev.mathops.app.database.dba;
 
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
-import dev.mathops.db.DbConnection;
 import dev.mathops.db.cfg.Database;
 import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -24,7 +24,7 @@ import java.util.Map;
 final class DBAWindow extends JFrame implements ActionListener, TreeSelectionListener {
 
     /** A map from database to its connection. */
-    private final Map<Database, DbConnection> connections;
+    private final Map<Database, Login> logins;
 
     /** The database ribbon. */
     private final DatabaseRibbon ribbon;
@@ -47,13 +47,13 @@ final class DBAWindow extends JFrame implements ActionListener, TreeSelectionLis
 
         super("Math Database Administrator");
 
-        this.connections = new HashMap<>(10);
+        this.logins = new HashMap<>(10);
         this.selectedDatabaseUses = new ArrayList<>(10);
 
         final JPanel content = new JPanel(new StackedBorderLayout());
         setContentPane(content);
 
-        this.ribbon = new DatabaseRibbon(config, this, this.connections);
+        this.ribbon = new DatabaseRibbon(config, this, this.logins);
         content.add(this.ribbon, StackedBorderLayout.NORTH);
 
         this.tablePane = new TablePane(config);
@@ -81,7 +81,7 @@ final class DBAWindow extends JFrame implements ActionListener, TreeSelectionLis
         this.ribbon.getSelectedDatabaseUses(this.selectedDatabaseUses);
 
         final SchemaTable sel = this.schemaTableTree.getSelection();
-        this.tablePane.select(sel, this.selectedDatabaseUses);
+        this.tablePane.select(sel, this.selectedDatabaseUses, this.logins);
     }
 
     /**
@@ -93,6 +93,6 @@ final class DBAWindow extends JFrame implements ActionListener, TreeSelectionLis
     public void valueChanged(final TreeSelectionEvent e) {
 
         final SchemaTable sel = this.schemaTableTree.getSelection();
-        this.tablePane.select(sel, this.selectedDatabaseUses);
+        this.tablePane.select(sel, this.selectedDatabaseUses, this.logins);
     }
 }

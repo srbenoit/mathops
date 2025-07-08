@@ -1,9 +1,9 @@
 package dev.mathops.app.database.dba;
 
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
-import dev.mathops.db.DbConnection;
 import dev.mathops.db.cfg.Database;
 import dev.mathops.db.cfg.DatabaseConfig;
+import dev.mathops.db.cfg.Login;
 import dev.mathops.db.cfg.Server;
 
 import javax.swing.BorderFactory;
@@ -28,12 +28,11 @@ final class DatabaseRibbon extends JPanel {
     /**
      * Constructs a new {@code DatabaseRibbon}.
      *
-     * @param config      the database configuration
-     * @param listener    the listener to notify when the set of selected databases changes
-     * @param connections a map from database to its connection
+     * @param config   the database configuration
+     * @param listener the listener to notify when the set of selected databases changes
+     * @param logins   a map from database to its login
      */
-    DatabaseRibbon(final DatabaseConfig config, final ActionListener listener,
-                   final Map<Database, DbConnection> connections) {
+    DatabaseRibbon(final DatabaseConfig config, final ActionListener listener, final Map<Database, Login> logins) {
 
         super(new StackedBorderLayout());
 
@@ -49,7 +48,7 @@ final class DatabaseRibbon extends JPanel {
         this.tiles = new ArrayList<>(numServers);
 
         for (final Server server : servers) {
-            final DatabaseRibbonTile tile = new DatabaseRibbonTile(server, listener, connections, accent);
+            final DatabaseRibbonTile tile = new DatabaseRibbonTile(server, listener, logins, accent);
             add(tile, StackedBorderLayout.WEST);
             this.tiles.add(tile);
         }

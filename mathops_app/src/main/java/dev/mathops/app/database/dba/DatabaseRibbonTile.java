@@ -1,6 +1,5 @@
 package dev.mathops.app.database.dba;
 
-import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.DbConnection;
@@ -48,8 +47,8 @@ final class DatabaseRibbonTile extends JPanel implements ActionListener {
     /** The server this tile represents. */
     private final Server server;
 
-    /** A map from database to its connection. */
-    private final Map<Database, DbConnection> connections;
+    /** A map from database to its login. */
+    private final Map<? super Database, ? super Login> logins;
 
     /** Layout managers to toggle each database between connected and not connected states. */
     private final Map<Database, CardLayout> cardLayouts;
@@ -66,18 +65,18 @@ final class DatabaseRibbonTile extends JPanel implements ActionListener {
     /**
      * Constructs a new {@code DatabaseRibbonTile}
      *
-     * @param theServer      the server this tile represents
-     * @param listener       the listener to notify when the set of selected databases changes
-     * @param theConnections a map from database to its connection
-     * @param accent         the accent color to use for dividers
+     * @param theServer the server this tile represents
+     * @param listener  the listener to notify when the set of selected databases changes
+     * @param theLogins a map from database to its login
+     * @param accent    the accent color to use for dividers
      */
     DatabaseRibbonTile(final Server theServer, final ActionListener listener,
-                       final Map<Database, DbConnection> theConnections, final Color accent) {
+                       final Map<? super Database, ? super Login> theLogins, final Color accent) {
 
         super(new StackedBorderLayout());
 
         this.server = theServer;
-        this.connections = theConnections;
+        this.logins = theLogins;
 
         final Class<? extends DatabaseRibbonTile> cls = getClass();
         final BufferedImage cassandraIcon = FileLoader.loadFileAsImage(cls, "cassandra.png", true);
@@ -293,6 +292,7 @@ final class DatabaseRibbonTile extends JPanel implements ActionListener {
                         try {
                             conn.getConnection();
                             connected = true;
+                            this.logins.put(toConnect, chosen);
 
                         } catch (final SQLException ex) {
                             // Connection failed - password probably wrong
@@ -315,7 +315,7 @@ final class DatabaseRibbonTile extends JPanel implements ActionListener {
                             try {
                                 final Connection jdbc = conn.getConnection();
                                 connected = true;
-                                this.connections.put(toConnect, conn);
+                                this.logins.put(toConnect, chosen);
                             } catch (final SQLException ex) {
                                 chosen.checkInConnection(conn);
                                 final String msg[] = new String[2];
