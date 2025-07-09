@@ -239,6 +239,17 @@ public final class ResultsTableModel implements TableModel {
     }
 
     /**
+     * Gets a copy of the table data for a single row.
+     *
+     * @param rowIndex the row index
+     * @return the table data
+     */
+    public Object[] getRow(final int rowIndex) {
+
+        return this.rows.get(rowIndex).clone();
+    }
+
+    /**
      * Notifies listeners that all rows currently in the table were just added.
      */
     public void notifyAllRowsAdded() {
