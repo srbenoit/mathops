@@ -8,6 +8,7 @@ import dev.mathops.db.cfg.Data;
 import dev.mathops.db.cfg.Database;
 import dev.mathops.db.cfg.DatabaseConfig;
 import dev.mathops.db.cfg.Login;
+import dev.mathops.text.builder.HtmlBuilder;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -39,6 +40,18 @@ final class PaneManage extends JPanel implements ActionListener {
 
     /** A panel to show query fields. */
     private final JPanel queryFields;
+
+    /** The active schema table. */
+    private SchemaTable activeSchemaTable;
+
+    /** The active database use. */
+    private DatabaseUse activeDatabaseUse;
+
+    /** The active login. */
+    private Login activeLogin;
+
+    /** The qualified table name of the active table. */
+    private String activeTableName;
 
     /** The columns found in the active table; empty if there is no active table. */
     private final List<Column> activeTableColumns;
@@ -115,8 +128,15 @@ final class PaneManage extends JPanel implements ActionListener {
         this.activeTableColumns.clear();
 
         if (schemaTable == null || databaseUse == null || login == null) {
-            // TODO: Clear the display
+            this.activeSchemaTable = null;
+            this.activeDatabaseUse = null;
+            this.activeLogin = null;
+            this.activeTableName = null;
         } else {
+            this.activeSchemaTable = schemaTable;
+            this.activeDatabaseUse = databaseUse;
+            this.activeLogin = login;
+
             final Database database = databaseUse.database();
 
             // Find the "Data" object that represents the selected schema and use
@@ -145,6 +165,7 @@ final class PaneManage extends JPanel implements ActionListener {
                     }
 
                     if (table != null) {
+                        this.activeTableName = schema == null || schema.isBlank() ? table : (schema + "." + table);
 
                         final ResultSet rs2 = meta.getColumns(cat, schema, table, null);
                         while (rs2.next()) {
@@ -168,14 +189,17 @@ final class PaneManage extends JPanel implements ActionListener {
                             UIUtilities.makeLabelsSameSizeRightAligned(fieldNames);
 
                             for (int i = 0; i < numColumns; ++i) {
-                                final Column col = this.activeTableColumns.get(i);
 
                                 final JPanel columnFlow = new JPanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
                                 columnFlow.add(fieldNames[i]);
 
-                                final JTextField field = new JTextField(15);
-                                this.activeTableQueryFields.add(field);
-                                columnFlow.add(field);
+                                final Column col = this.activeTableColumns.get(i);
+                                final int type = col.type();
+                                if (canBeQueryCriteria(type)) {
+                                    final JTextField field = new JTextField(15);
+                                    this.activeTableQueryFields.add(field);
+                                    columnFlow.add(field);
+                                }
 
                                 this.queryFields.add(columnFlow, StackedBorderLayout.NORTH);
                             }
@@ -193,6 +217,25 @@ final class PaneManage extends JPanel implements ActionListener {
                 }
             }
         }
+    }
+
+    /**
+     * Tests whether a column is of a type we can use as a query criteria.
+     *
+     * @param type the type (a value from {@code java.sql.Types)
+     * @return true if the type can be used as a query criteria
+     */
+    private static boolean canBeQueryCriteria(final int type) {
+
+        return type == Types.BIT || type == Types.TINYINT || type == Types.SMALLINT
+               || type == Types.INTEGER || type == Types.BIGINT || type == Types.ROWID
+               || type == Types.FLOAT || type == Types.REAL || type == Types.DOUBLE
+               || type == Types.NUMERIC || type == Types.DECIMAL || type == Types.CHAR
+               || type == Types.VARCHAR || type == Types.LONGVARCHAR || type == Types.CLOB
+               || type == Types.NCHAR || type == Types.NVARCHAR || type == Types.LONGNVARCHAR
+               || type == Types.NCLOB || type == Types.SQLXML || type == Types.DATE
+               || type == Types.TIME || type == Types.TIMESTAMP || type == Types.TIME_WITH_TIMEZONE
+               || type == Types.TIMESTAMP_WITH_TIMEZONE || type == Types.BOOLEAN;
     }
 
     /**
@@ -217,6 +260,51 @@ final class PaneManage extends JPanel implements ActionListener {
      */
     private void performQuery() {
 
+        if (!this.activeTableColumns.isEmpty()) {
+            final HtmlBuilder sql = new HtmlBuilder(200);
+            sql.add("SELECT * FROM ", this.activeTableName);
+
+            boolean first = true;
+            final int numColumns = this.activeTableColumns.size();
+            final int numFields = this.activeTableQueryFields.size();
+            final int count = Math.min(numColumns, numFields);
+
+            for (int i = 0; i < count; ++i) {
+                final JTextField field = this.activeTableQueryFields.get(i);
+                if (field == null) {
+                    continue;
+                }
+                final String fieldText = field.getText();
+                if (!fieldText.isEmpty()) {
+                    final Column column = this.activeTableColumns.get(i);
+                    final int type = column.type();
+
+                    if (type == Types.BIT || type == Types.TINYINT || type == Types.SMALLINT || type == Types.INTEGER
+                        || type == Types.BIGINT || type == Types.ROWID) {
+                        // TODO: An integer query criteria
+                    } else if (type == Types.FLOAT || type == Types.REAL || type == Types.DOUBLE
+                               || type == Types.NUMERIC || type == Types.DECIMAL) {
+                        // TODO: A real query criteria
+                    } else if (type == Types.CHAR || type == Types.VARCHAR || type == Types.LONGVARCHAR
+                               || type == Types.CLOB || type == Types.NCHAR || type == Types.NVARCHAR
+                               || type == Types.LONGNVARCHAR || type == Types.NCLOB || type == Types.SQLXML) {
+                        // TODO: A string query criteria
+                    } else if (type == Types.DATE) {
+                        // TODO: A date query criteria
+                    } else if (type == Types.TIME) {
+                        // TODO: A time query criteria
+                    } else if (type == Types.TIMESTAMP) {
+                        // TODO: A timestamp query criteria
+                    } else if (type == Types.TIME_WITH_TIMEZONE) {
+                        // TODO: A zoned time query criteria
+                    } else if (type == Types.TIMESTAMP_WITH_TIMEZONE) {
+                        // TODO: A zoned date/time query criteria
+                    } else if (type == Types.BOOLEAN) {
+                        // TODO: A boolean query criteria
+                    }
+                }
+            }
+        }
     }
 
     /**
