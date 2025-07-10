@@ -60,10 +60,9 @@ enum PageHome {
 
             htm.addln("<ul>");
             htm.addln("<li>Create a workplace</li>");
-            htm.addln("<li>Define job categories for which employees may or may not be trained</li>");
-            htm.addln(
-                    "<li>Create semesters, start and end dates, weekdays and hours of operation, holidays/breaks</li>");
-            htm.addln("<li>Define weekly time slots (hours)</li>");
+            htm.addln("<li>Define positions for which employees may or may not be trained</li>");
+            htm.addln("<li>Create calendar, start and end dates, weekdays and hours of operation, holidays</li>");
+            htm.addln("<li>Define weekly time slots (shifts)</li>");
             htm.addln("<li>Define the number of employees desired in each position during each hour</li>");
             htm.addln("<li>Define the pay rate for each position</li>");
             htm.addln("<li>Define the maximum number of consecutive hours a worker can be assigned to a job</li>");
@@ -76,7 +75,7 @@ enum PageHome {
             htm.sP().add("Supervisor Functions:").eP();
 
             htm.addln("<ul>");
-            htm.addln("<li>Construct or optimize schedule –suggest changes based on employee preferences</li>");
+            htm.addln("<li>Construct or optimize schedule – suggest changes based on employee preferences</li>");
             htm.addln("<li>Add new employees</li>");
             htm.addln("<li>Terminate employees, release shift assignments.</li>");
             htm.addln("<li>Manually change regular shift assignments.</li>");
@@ -88,7 +87,7 @@ enum PageHome {
             htm.addln("<li>Generate report of employee performance</li>");
             htm.addln("</ul>");
         }
-        if (isStaff) {
+        if (isStaff || isAdmin) {
             htm.sP().add("Staff Functions:").eP();
 
             htm.addln("<ul>");
@@ -97,7 +96,7 @@ enum PageHome {
             htm.addln("<li>Document reassignments in real time based on shortages</li>");
             htm.addln("</ul>");
         }
-        if (isEmployee) {
+        if (isEmployee || isAdmin) {
             htm.sP().add("Employee Functions:").eP();
 
             htm.addln("<ul>");
