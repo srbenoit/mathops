@@ -83,7 +83,7 @@ enum PagePlanStart {
             htm.eDiv(); // inset2
         }
 
-        MPPage.emitScripts(htm, //
+        MPPage.emitScripts(htm,
                 "function pick(target) {",
                 "  window.location.assign(target);",
                 "}");
@@ -210,7 +210,7 @@ enum PagePlanStart {
 
         htm.eDiv(); // center
 
-        htm.eDiv(); // shaded2left
+        htm.eDiv(); // shaded2 left
     }
 
     /**
