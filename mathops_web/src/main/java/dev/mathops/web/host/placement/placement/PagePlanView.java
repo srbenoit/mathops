@@ -3,7 +3,6 @@ package dev.mathops.web.host.placement.placement;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.db.Cache;
 import dev.mathops.db.cfg.Profile;
-import dev.mathops.db.logic.mathplan.ENextStep;
 import dev.mathops.db.logic.mathplan.Majors;
 import dev.mathops.db.logic.mathplan.Major;
 import dev.mathops.db.logic.mathplan.MathPlanLogic;
@@ -11,9 +10,6 @@ import dev.mathops.db.logic.mathplan.MathPlanConstants;
 import dev.mathops.db.logic.mathplan.MathPlanStudentData;
 import dev.mathops.db.old.logic.mathplan.data.CourseInfo;
 import dev.mathops.db.old.logic.mathplan.data.CourseInfoGroup;
-import dev.mathops.db.old.logic.mathplan.data.CourseRecommendations;
-import dev.mathops.db.old.logic.mathplan.data.CourseSequence;
-import dev.mathops.db.old.logic.mathplan.data.MajorMathRequirement;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
@@ -192,7 +188,7 @@ enum PagePlanView {
         htm.div("clear");
         htm.hr();
 
-        final int numSelected = emitMajors(htm, data, logic);
+        final int numSelected = emitMajors(htm, data);
 
         // Now display the computed mathematics recommendations
         if (data.recommendedEligibility != null) {
@@ -209,7 +205,7 @@ enum PagePlanView {
 
             htm.hr();
             if (data.checkedOnlyRecommendation) {
-                emitPlan(htm, data, logic, numSelected);
+                PagePlanNext.showNextSteps(htm, data);
 
                 htm.div("clear");
                 htm.div("vgap");
@@ -257,16 +253,14 @@ enum PagePlanView {
 
         htm.sDiv("indent");
 
-        final int numSelected = emitMajors(htm, data, logic);
+        emitMajors(htm, data);
 
         if (data.recommendedEligibility != null) {
-
             htm.div("vgap");
             htm.sDiv("planbox");
 
             if (data.checkedOnlyRecommendation) {
-                emitPlan(htm, data, logic, numSelected);
-                PagePlanNext.showNextStepsBrief(htm, data);
+                PagePlanNext.showNextSteps(htm, data);
             } else {
                 htm.sDiv("center");
                 htm.addln("<b>To see your next steps, read the statement above and check the box to agree.</b>");
@@ -284,12 +278,11 @@ enum PagePlanView {
     /**
      * Emits the student's majors of interest and declared major.
      *
-     * @param htm   the {@code HtmlBuilder} to which to append
-     * @param data  the student data
-     * @param logic the site logic
+     * @param htm  the {@code HtmlBuilder} to which to append
+     * @param data the student data
      * @return the number of selected majors of interest
      */
-    private static int emitMajors(final HtmlBuilder htm, final MathPlanStudentData data, final MathPlanLogic logic) {
+    private static int emitMajors(final HtmlBuilder htm, final MathPlanStudentData data) {
 
         // See if the student has already submitted a list of majors
         final Map<Integer, RawStmathplan> profileResponses = data.getMajorProfileResponses();
@@ -297,7 +290,7 @@ enum PagePlanView {
         htm.sP().add("<strong>I am interested in majoring in...</strong>").eP();
 
         htm.sDiv();
-        final int numSelected = emitCurrentMajorSelections(htm, profileResponses, data, logic);
+        final int numSelected = emitCurrentMajorSelections(htm, profileResponses, data);
         htm.eDiv();
 
         final String declaredProgram = data.student.programCode;
@@ -333,112 +326,26 @@ enum PagePlanView {
     }
 
     /**
-     * Emits the student's complete plan.
-     *
-     * @param htm         the {@code HtmlBuilder} to which to append
-     * @param data        the student data
-     * @param logic       the site logic
-     * @param numSelected the number of selected majors of interest
-     */
-    private static void emitPlan(final HtmlBuilder htm, final MathPlanStudentData data, final MathPlanLogic logic,
-                                 final int numSelected) {
-
-        final Map<String, RawCourse> courses = logic.getCourses();
-        final CourseRecommendations recommendations = data.recommendations;
-        final CourseSequence typical = recommendations.typicalSequence;
-
-        if (typical.hasPreArrivalData() > 0) {
-            htm.div("vgap0");
-
-            htm.sP().add("<strong>Prior to your first semester</strong>, your goal should be to ",
-                    "have these prerequisites satisfied by ");
-
-            if (data.getNextSteps().contains(ENextStep.ACT_PRECALCULUS_TUTORIAL)) {
-                if (data.getNextSteps().contains(ENextStep.ACT_MATH_PLACEMENT_EXAM)) {
-                    htm.add("Math Placement, the Precalculus Tutorial, or by transfer or exam credit:");
-                } else {
-                    htm.add("the Precalculus Tutorial or by transfer or exam credit:");
-                }
-            } else if (data.getNextSteps().contains(ENextStep.ACT_MATH_PLACEMENT_EXAM)) {
-                htm.add("Math Placement or by transfer or exam credit:");
-            } else {
-                htm.add("transfer or exam credit:");
-            }
-            htm.eP();
-
-            emitCourseList(htm, typical.hasMultipleCalc1(), typical.hasMultipleCalc2(), typical.getPreArrivalCourses(),
-                    null, courses);
-        }
-
-        if (typical.hasSemester1Data()) {
-            if (typical.hasPreArrivalData() > 0) {
-                htm.div("vgap0");
-            }
-
-            htm.sP();
-            if (typical.isPrecalcCourseInSemester1() && data.placementStatus.attemptsRemaining > 0) {
-                htm.add("<strong>During your first semester</strong>, your goal should be to take ",
-                        "these courses, or to place out of them through Math Placement:");
-            } else {
-                htm.add("<strong>During your first semester</strong>, your goal should be to take:");
-            }
-            htm.eP();
-
-            emitCourseList(htm, typical.hasMultipleCalc1(), typical.hasMultipleCalc2(),
-                    typical.getSemester1Courses(), typical.getSemester1CourseGroups(), courses);
-        }
-
-        if (typical.hasSemester2Data()) {
-            if (typical.hasPreArrivalData() > 0 || typical.hasSemester1Data()) {
-                htm.div("vgap0");
-            }
-            htm.sP().add("<strong>During your second semester</strong>, your goal should be to take:").eP();
-
-            emitCourseList(htm, typical.hasMultipleCalc1(), typical.hasMultipleCalc2(),
-                    typical.getSemester2Courses(), typical.getSemester2CourseGroups(), courses);
-        }
-
-        if (typical.hasAdditionalData()) {
-            if (typical.hasPreArrivalData() > 0 || typical.hasSemester1Data() || typical.hasSemester2Data()) {
-                htm.div("vgap0");
-            }
-            htm.sP();
-            if (numSelected == 1) {
-                htm.add("Other mathematics courses required by your selected major:");
-            } else {
-                htm.add("Other mathematics courses required by one or more of your selected majors:");
-            }
-            htm.eP();
-
-            emitCourseList(htm, typical.hasMultipleCalc1(), typical.hasMultipleCalc2(),
-                    typical.getAdditionalCourses(), typical.getAdditionalCourseGroups(), courses);
-        }
-    }
-
-    /**
      * Emits the user's current major selections.
      *
      * @param htm          the {@code HtmlBuilder} to which to append
      * @param curResponses the current student responses (empty if not yet responded)
      * @param data         the student data
-     * @param logic        the site logic
      * @return the number of majors selected
      */
     private static int emitCurrentMajorSelections(final HtmlBuilder htm, final Map<Integer, RawStmathplan> curResponses,
-                                                  final MathPlanStudentData data, final MathPlanLogic logic) {
+                                                  final MathPlanStudentData data) {
 
         int count = 0;
-        final List<Major> majors = Majors.INSTANCE.getMajors();
 
-        final Major declared = logic.getMajor(data.student.programCode);
+        final List<Major> majors = Majors.INSTANCE.getMajors();
+        final Major declared = Majors.INSTANCE.getMajor(data.student.programCode);
 
         final Collection<String> printedMajors = new ArrayList<>(10);
 
         htm.addln("<ul style='margin:0 0 10px 0;'>");
 
-        for (final Map.Entry<Major, MajorMathRequirement> entry : majors.entrySet()) {
-            final Major major = entry.getKey();
-
+        for (final Major major : majors) {
             boolean selected = major.equals(declared);
             if (!selected) {
                 for (final int q : major.questionNumbers) {
@@ -451,14 +358,14 @@ enum PagePlanView {
             }
 
             if (selected) {
-                printedMajors.add(major.majorName);
+                printedMajors.add(major.programName);
 
                 htm.add("<li style='margin-bottom:3px;'>");
-                if (major.catalogUrl == null) {
-                    htm.add(major.majorName);
+                if (major.catalogPageUrl == null) {
+                    htm.add(major.programName);
                 } else {
-                    htm.add("<a target='_blank' href='", major.catalogUrl, "'>");
-                    htm.add(major.majorName);
+                    htm.add("<a target='_blank' href='", major.catalogPageUrl, "'>");
+                    htm.add(major.programName);
                     htm.addln("</a>");
                 }
 

@@ -1,7 +1,10 @@
 package dev.mathops.web.host.placement.placement;
 
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
+import dev.mathops.db.logic.mathplan.MathPlanLogic;
+import dev.mathops.db.logic.mathplan.MathPlanConstants;
+import dev.mathops.db.logic.mathplan.MathPlanPlacementStatus;
+import dev.mathops.db.logic.mathplan.MathPlanStudentData;
 import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
 import dev.mathops.db.old.rawlogic.RawStmpeLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
@@ -9,9 +12,6 @@ import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.db.old.rawrecord.RawStmpe;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
-import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
-
-import dev.mathops.db.old.logic.mathplan.MathPlanPlacementStatus;
 import dev.mathops.text.builder.HtmlBuilder;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -45,7 +45,7 @@ enum PageSecureLanding {
 
         boolean planCompleted = false;
         if (stu != null && stu.pidm != null) {
-            planCompleted = MathPlanLogic.getMathPlanStatus(cache, stu.pidm.intValue()) != null;
+            planCompleted = MathPlanStudentData.hasCompletedMathPlan(cache, stu.pidm.intValue()) != null;
         }
 
         boolean hasReviewed = false;
@@ -59,7 +59,8 @@ enum PageSecureLanding {
         boolean placementCompleted = false;
         boolean attemptsRemain = true;
         if (stu != null && stu.pidm != null) {
-            final MathPlanPlacementStatus placementStatus = MathPlanLogic.getMathPlacementStatus(cache, stu.stuId);
+            final MathPlanPlacementStatus placementStatus = MathPlanPlacementStatus.getMathPlacementStatus(cache,
+                    stu.stuId);
 
             if (!placementStatus.isPlacementNeeded) {
                 placementRequired = false;
@@ -137,7 +138,7 @@ enum PageSecureLanding {
         }
         htm.eDiv(); // center
 
-        htm.eDiv(); // shaded2left
+        htm.eDiv();
         htm.div("vgap0");
     }
 
