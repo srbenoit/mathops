@@ -1060,9 +1060,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
                         stexam.missed.put(Integer.valueOf(id), stanswer.objective);
                     }
 
-                    final String key =
-                            subtest.subtestName + CoreConstants.DOT + id / 100
-                            + id / 10 % 10 + id % 10;
+                    final String key = subtest.subtestName + CoreConstants.DOT + id / 100 + id / 10 % 10 + id % 10;
                     stexam.answers.put(key, stanswer);
                 }
             }

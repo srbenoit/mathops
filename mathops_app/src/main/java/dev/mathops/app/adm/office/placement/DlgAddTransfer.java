@@ -74,6 +74,9 @@ final class DlgAddTransfer extends JFrame implements ActionListener, ItemListene
     /** The dropdown for the credit type (transfer or challenge) */
     private final JComboBox<String> typeDropdown;
 
+    /** The field for the grade. */
+    private final JTextField gradeField;
+
     /** The "Apply" button". */
     private final JButton applyButton;
 
@@ -96,13 +99,14 @@ final class DlgAddTransfer extends JFrame implements ActionListener, ItemListene
         content.setBorder(padding);
         setContentPane(content);
 
-        final JLabel[] labels = new JLabel[5];
+        final JLabel[] labels = new JLabel[6];
 
         labels[0] = new JLabel("Student ID: ");
         labels[1] = new JLabel("Student Name: ");
         labels[2] = new JLabel("Course ID: ");
         labels[3] = new JLabel("Date: ");
         labels[4] = new JLabel("Type: ");
+        labels[5] = new JLabel("Grade: ");
         for (final JLabel lbl : labels) {
             lbl.setFont(Skin.MEDIUM_13_FONT);
             lbl.setForeground(Skin.LABEL_COLOR);
@@ -144,6 +148,9 @@ final class DlgAddTransfer extends JFrame implements ActionListener, ItemListene
         this.typeDropdown.setEditable(true);
         this.typeDropdown.addItemListener(this);
 
+        this.gradeField = new JTextField(3);
+        this.gradeField.setFont(Skin.MEDIUM_13_FONT);
+
         final JPanel flow1 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
         flow1.add(labels[0]);
         flow1.add(this.studentIdField);
@@ -169,6 +176,11 @@ final class DlgAddTransfer extends JFrame implements ActionListener, ItemListene
         flow5.add(this.typeDropdown);
         content.add(flow5, StackedBorderLayout.NORTH);
 
+        final JPanel flow6 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
+        flow6.add(labels[5]);
+        flow6.add(this.gradeField);
+        content.add(flow6, StackedBorderLayout.NORTH);
+
         this.applyButton = new JButton("Apply");
         this.applyButton.setFont(Skin.BUTTON_13_FONT);
         this.applyButton.setActionCommand(APPLY_CMD);
@@ -179,11 +191,11 @@ final class DlgAddTransfer extends JFrame implements ActionListener, ItemListene
         cancelButton.setActionCommand(CANCEL_CMD);
         cancelButton.addActionListener(this);
 
-        final JPanel flow6 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
-        flow6.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
-        flow6.add(this.applyButton);
-        flow6.add(cancelButton);
-        content.add(flow6, StackedBorderLayout.NORTH);
+        final JPanel flow7 = AdmPanelBase.makeOffWhitePanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
+        flow7.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+        flow7.add(this.applyButton);
+        flow7.add(cancelButton);
+        content.add(flow7, StackedBorderLayout.NORTH);
 
         pack();
         final Dimension size = getSize();
@@ -217,6 +229,7 @@ final class DlgAddTransfer extends JFrame implements ActionListener, ItemListene
         this.courseIdDropdown.setSelectedIndex(-1);
         this.examDate.setCurrentDate(LocalDate.now());
         this.typeDropdown.setSelectedIndex(0);
+        this.gradeField.setText("");
 
         this.applyButton.setEnabled(false);
     }
@@ -237,6 +250,9 @@ final class DlgAddTransfer extends JFrame implements ActionListener, ItemListene
             final Object course = this.courseIdDropdown.getSelectedItem();
             final LocalDate date = this.examDate.getCurrentDate();
             final Object type = this.typeDropdown.getSelectedItem();
+            final String gradeStr = this.gradeField.getText();
+            final String grade = gradeStr == null || gradeStr.isBlank() ? null :
+                    (gradeStr.length() > 2 ? gradeStr.substring(0, 2) : gradeStr);
 
             if (stuId == null || course == null || date == null || type == null) {
                 Log.warning("Apply button was enabled when it should not have been");
@@ -244,7 +260,7 @@ final class DlgAddTransfer extends JFrame implements ActionListener, ItemListene
             } else if (course instanceof final String courseStr) {
                 if (type instanceof final String typeStr) {
                     final String examPlaced = typeStr.startsWith("Transfer") ? "T" : "C";
-                    final RawFfrTrns newRecord = new RawFfrTrns(stuId, courseStr, examPlaced, date, null);
+                    final RawFfrTrns newRecord = new RawFfrTrns(stuId, courseStr, examPlaced, date, null, grade);
 
                     try {
                         RawFfrTrnsLogic.insert(this.cache, newRecord);

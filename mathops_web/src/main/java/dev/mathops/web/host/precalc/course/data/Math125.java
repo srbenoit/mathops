@@ -163,7 +163,8 @@ public enum Math125 {
         m125m2t1.addExBlock("Use radius and arc length subtended by an angle to calculate the angle")
                 .addEx("TR02_ST1C_01", "Given a radius and arc length, calculate the angle subtended");
         m125m2t1.addExBlock("Applications of finding angle subtended by an arc length")
-                .addEx("TR02_ST1C_APP_01", "Find number of turns on a spool needed to wind a specified length of thread");
+                .addEx("TR02_ST1C_APP_01",
+                        "Find number of turns on a spool needed to wind a specified length of thread");
         m125m2t1.addExBlock("Use arc length and angle subtended to calculate the radius")
                 .addEx("TR02_ST1D_01", "Given arc length and angle subtended, calculate the radius");
         m125m2t1.addExBlock("Applications of finding radius given arc length and angle")
@@ -211,7 +212,8 @@ public enum Math125 {
         m125m2t3.addExBlock("Calculate angle subtended by sector with specified area")
                 .addEx("TR02_ST3C_01", "Find angle that generates a specified sector area with a given radius");
         m125m2t3.addExBlock("Applications of calculating angle from radius and area")
-                .addEx("TR02_ST3C_APP_01", "Determine angle to cut to make small pizza slices same area as larger ones");
+                .addEx("TR02_ST3C_APP_01",
+                        "Determine angle to cut to make small pizza slices same area as larger ones");
         m125m2t3.addExBlock("Calculate radius of sector with specified area subtended by specified angle")
                 .addEx("TR02_ST3D_01", "Given an angle and the sector area it contains, find the sector radius");
         m125m2t3.addExBlock("Applications of calculating radius from angle and area")
@@ -465,7 +467,7 @@ public enum Math125 {
         final LearningTargetData m125m4t2 = m125m4.addLearningTarget(4, 2, "4.2", "TR04_ST2_HW",
                 "I can find the algebraic form of a trigonometric function from its graph. Specifically, I can:",
                 "identify amplitude, period, and shifts from a graph of a scaled and shifted sine or cosine function,",
-                "find a scaled and shifted trigonometric function that matches a given graph, in the form"
+                "find a scaled and shifted trigonometric function that matches a given graph, in the form "
                         + "y=A \"fxn\"(B (x-h))+k, where fxn is any of the six trigonometric functions,",
                 "construct both a sine and cosine function that matches a given graph.");
         m125m4t2.addExBlock("Amplitude and period")
@@ -490,8 +492,8 @@ public enum Math125 {
 
         final LearningTargetData m125m4t3 = m125m4.addLearningTarget(4, 3, "4.3", "TR04_ST3_HW",
                 "I can model data or real-world phenomena using sine and cosine functions.",
-                "determine a model of tabular data in the form y = A sin(B(x-h)) + k or y = A cos(B(x-h)) + k,",
-                "determine a model from a verbal description in the form y = A sin(B(x-h)) + k or y = A cos(B(x-h)) + k,",
+                "find a model of tabular data in the form y = A sin(B(x-h)) + k or y = A cos(B(x-h)) + k,",
+                "find a model from a verbal description in the form y = A sin(B(x-h)) + k or y = A cos(B(x-h)) + k,",
                 "interpret models and make predictions of behavior.");
         m125m4t3.addExBlock("Find period and amplitude from tabular data")
                 .addEx("TR04_ST3A_01",
@@ -595,9 +597,11 @@ public enum Math125 {
                 .addEx("TR05_ST2D_APP_02b",
                         "Find anchor points and support wire angles for two sets of support wires on a radio tower");
         m125m5t2.addExBlock("Application: Supporting a radio tower")
-                .addEx("TR05_ST2D_APP_03a", "Given distance to tree and angle of elevation of its top, find its height");
+                .addEx("TR05_ST2D_APP_03a",
+                        "Given distance to tree and angle of elevation of its top, find its height");
         m125m5t2.addExBlock("Application: Supporting a cell tower")
-                .addEx("TR05_ST2D_APP_03b", "Given support wire anchor distance and angle, find height and wire length");
+                .addEx("TR05_ST2D_APP_03b",
+                        "Given support wire anchor distance and angle, find height and wire length");
         m125m5t2.addExBlock("Solving a general triangle in the 'angle-side-side' case without the Law of Sines")
                 .addEx("TR05_ST2D_APP_05a",
                         "Given a right triangle with one angle and two sides known, find unknown angle and lengths");

@@ -164,9 +164,9 @@ public final class TopPanelTesting extends JPanel implements ActionListener {
     /**
      * Creates a button for the top of the pane.
      *
-     * @param title            the button title
-     * @param command          the action command
-     * @param background       the background color
+     * @param title      the button title
+     * @param command    the action command
+     * @param background the background color
      * @return the button panel
      */
     private JPanel makeTopButton(final String title, final String command, final Color background) {
@@ -323,7 +323,7 @@ public final class TopPanelTesting extends JPanel implements ActionListener {
                 for (final RawClientPc station : toPowerOn) {
 
                     if (RawClientPc.POWER_REPORTING_ON.equals(station.powerStatus)
-                            && station.lastPing != null && station.lastPing.intValue() > recent) {
+                        && station.lastPing != null && station.lastPing.intValue() > recent) {
                         // Station is already on and reporting - skip
                         continue;
                     }
@@ -332,7 +332,7 @@ public final class TopPanelTesting extends JPanel implements ActionListener {
 
                     try {
                         final URI uri = new URI(this.serverSiteUrl + "testing-power-station-on.ws?token="
-                                + stub.getToken() + "&computer-id=" + station.computerId);
+                                                + stub.getToken() + "&computer-id=" + station.computerId);
                         final URL url = uri.toURL();
 
                         final URLConnection conn = url.openConnection();
@@ -404,7 +404,7 @@ public final class TopPanelTesting extends JPanel implements ActionListener {
 
                         try {
                             final URI uri = new URI(this.serverSiteUrl + "testing-power-station-off.ws?token="
-                                    + stub.getToken() + "&computer-id=" + station.computerId);
+                                                    + stub.getToken() + "&computer-id=" + station.computerId);
                             final URL url = uri.toURL();
 
                             final URLConnection conn = url.openConnection();
@@ -429,7 +429,8 @@ public final class TopPanelTesting extends JPanel implements ActionListener {
                             } else {
                                 final Class<?> contentClass = content.getClass();
                                 final String contentClassName = contentClass.getName();
-                                Log.warning("Server response from 'testing-power-station-off.ws' was ", contentClassName);
+                                Log.warning("Server response from 'testing-power-station-off.ws' was ",
+                                        contentClassName);
                             }
                         } catch (final URISyntaxException | IOException ex) {
                             Log.warning(ex);
@@ -450,8 +451,8 @@ public final class TopPanelTesting extends JPanel implements ActionListener {
     }
 
     /**
-     * Given a list of station IDs, assumed to be in testing centers 1 (main) or 4 (quiet testing), retrieves the {@code
-     * RawClientPc} records for each and returns that list.
+     * Given a list of station IDs, assumed to be in testing centers 1 (main) or 4 (quiet testing), retrieves the
+     * {@code RawClientPc} records for each and returns that list.
      *
      * @param stationIds the station numbers
      * @return the array of corresponding {@code RawClientPc} records (if a station number cannot be found, this array

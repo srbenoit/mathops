@@ -9,6 +9,7 @@ import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -173,7 +174,7 @@ enum PageMPS {
 
         htm.sP("indent2")
                 .add("<img style='width:48px;height:48px;margin-right:20px' src='/www/images/proctoring/camera-web" +
-                        ".png'/>")
+                     ".png'/>")
                 .add("<img style='width:48px;height:48px;' src='/www/images/proctoring/audio-input-microphone-2.png'/>")
                 .add("<img style='width:48px;height:48px;margin-left:30px;' ",
                         "src='/www/images/proctoring/network-router-wireless.png'/>")
@@ -183,8 +184,10 @@ enum PageMPS {
 
         htm.sP(null, "style='padding: 5px 20px'")
                 .add("<img src='/www/images/proctoring/important.png' style='margin-bottom:-7px;' alt=''/> ",
-                "NOTE: Firefox is known to have problems using the webcam.  If you use Firefox (or a derivative ",
-                "like Waterfox), and your 'Camera and Microphone Access' fails, please try a different browser.").eP();
+                        "NOTE: Firefox is known to have problems using the webcam.  If you use Firefox (or a " +
+                        "derivative ",
+                        "like Waterfox), and your 'Camera and Microphone Access' fails, please try a different " +
+                        "browser.").eP();
 
         htm.hr();
         htm.div("vgap");
@@ -203,17 +206,17 @@ enum PageMPS {
         htm.sTable("indent");
         htm.sTr().sTd().add("<img id='compatibilityBrowserResult' style='width:32px;height:32px;margin-right:10px;'",
                         "src='/www/images/proctoring/throbber.svg'/>")
-                .eTd().sTd().add("<strong id='compatibilityBrowserString'>Detecting Browser</strong>").eH(2).eTd().eTr();
+                .eTd().sTd().add("<strong id='compatibilityBrowserString'>Detecting Browser</strong>").eTd().eTr();
 
         htm.sTable("indent");
         htm.sTr().sTd().add("<img id='compatibilityWebSocketResult' style='width:32px;height:32px;margin-right:10px;'",
                         "src='/www/images/proctoring/throbber.svg'/>")
-                .eTd().sTd().add("<strong>Network Connection to Service</strong>").eH(2).eTd().eTr();
+                .eTd().sTd().add("<strong>Network Connection to Service</strong>").eTd().eTr();
 
         htm.sTable("indent");
         htm.sTr().sTd().add("<img id='compatibilityVideoCapResult' style='width:32px;height:32px;margin-right:10px;'",
                         "src='/www/images/proctoring/throbber.svg'/>")
-                .eTd().sTd().add("<strong>Webcam Capture Support</strong>").eH(2).eTd().eTr();
+                .eTd().sTd().add("<strong>Webcam Capture Support</strong>").eTd().eTr();
 
         htm.sTr().sTd().add("<img id='compatibilityScreenCapResult' style='width:32px;height:32px;margin-right:10px;'",
                         "src='/www/images/proctoring/throbber.svg'/>")
@@ -225,7 +228,7 @@ enum PageMPS {
 
         htm.sTr().sTd().add("<img id='compatibilityWebcamResult' style='width:32px;height:32px;margin-right:10px;'",
                         "src='/www/images/proctoring/throbber.svg'/>")
-                .eTd().sTd().add("<strong>Camera and Microphone Access</strong> &nbsp; ").eTd() //
+                .eTd().sTd().add("<strong>Camera and Microphone Access</strong> &nbsp; ").eTd()
                 .sTd().add("<span id='webcamVideoDataRate'></span>").eTd().eTr();
 
         htm.sTr().sTd().add("<img id='compatibilityScreenSharingResult' ",
@@ -244,8 +247,8 @@ enum PageMPS {
     }
 
     /**
-     * Emits content shown when the user has an existing session, giving them the opportunity to rejoin that session
-     * or abandon it and start a new session.
+     * Emits content shown when the user has an existing session, giving them the opportunity to rejoin that session or
+     * abandon it and start a new session.
      *
      * @param htm the {@code HtmlBuilder} to which to append
      */
@@ -504,7 +507,7 @@ enum PageMPS {
 
         htm.sP().addln("Please take your exam in a quiet location where you won't be interrupted or distracted, and ",
                         "where there are no sources of extra noise.  Please silence your phone during the exam, and " +
-                                "do not ",
+                        "do not ",
                         "use headphones.")
                 .eP();
         htm.div("clear");

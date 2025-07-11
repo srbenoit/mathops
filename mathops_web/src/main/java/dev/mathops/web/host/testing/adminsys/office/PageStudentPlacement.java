@@ -192,7 +192,8 @@ enum PageStudentPlacement {
                     final long min = duration / 60L;
                     final long sec = duration % 60L;
 
-                    htm.addln("<li>Precalc Tutorial (117) Exam submitted ", TemporalUtils.FMT_WMDY_AT_HM_A.format(fin)).br()
+                    htm.addln("<li>Precalc Tutorial (117) Exam submitted ",
+                                    TemporalUtils.FMT_WMDY_AT_HM_A.format(fin)).br()
                             .add(" &nbsp; &nbsp; Version = ", row.version, " (serial # = ", row.serialNbr, ")").br()
                             .add(" &nbsp; &nbsp; Time Spent = ", Long.toString(min), CoreConstants.COLON,
                                     sec < 10L ? "0" : CoreConstants.EMPTY, Long.toString(sec)).br()
@@ -209,7 +210,8 @@ enum PageStudentPlacement {
                     final long min = duration / 60L;
                     final long sec = duration % 60L;
 
-                    htm.addln("<li>Precalc Tutorial (118) Exam submitted ", TemporalUtils.FMT_WMDY_AT_HM_A.format(fin)).br()
+                    htm.addln("<li>Precalc Tutorial (118) Exam submitted ",
+                                    TemporalUtils.FMT_WMDY_AT_HM_A.format(fin)).br()
                             .add(" &nbsp; &nbsp; Version = ", row.version, " (serial # = ", row.serialNbr, ")").br()
                             .add(" &nbsp; &nbsp; Time Spent = ", Long.toString(min), CoreConstants.COLON,
                                     sec < 10L ? "0" : CoreConstants.EMPTY, Long.toString(sec)).br()
@@ -226,7 +228,8 @@ enum PageStudentPlacement {
                     final long min = duration / 60L;
                     final long sec = duration % 60L;
 
-                    htm.addln("<li>Precalc Tutorial (124) Exam submitted ", TemporalUtils.FMT_WMDY_AT_HM_A.format(fin)).br()
+                    htm.addln("<li>Precalc Tutorial (124) Exam submitted ",
+                                    TemporalUtils.FMT_WMDY_AT_HM_A.format(fin)).br()
                             .add(" &nbsp; &nbsp; Version = ", row.version, " (serial # = ", row.serialNbr, ")")
                             .br().add(" &nbsp; &nbsp; Time Spent = ", Long.toString(min), CoreConstants.COLON,
                                     sec < 10L ? "0" : CoreConstants.EMPTY, Long.toString(sec)).br()
@@ -243,7 +246,8 @@ enum PageStudentPlacement {
                     final long min = duration / 60L;
                     final long sec = duration % 60L;
 
-                    htm.addln("<li>Precalc Tutorial (125) Exam submitted ", TemporalUtils.FMT_WMDY_AT_HM_A.format(fin)).br()
+                    htm.addln("<li>Precalc Tutorial (125) Exam submitted ",
+                                    TemporalUtils.FMT_WMDY_AT_HM_A.format(fin)).br()
                             .add(" &nbsp; &nbsp; Version = ", row.version, " (serial # = ", row.serialNbr, ")")
                             .br().add(" &nbsp; &nbsp; Time Spent = ", Long.toString(min), CoreConstants.COLON,
                                     sec < 10L ? "0" : CoreConstants.EMPTY, Long.toString(sec)).br()
@@ -260,7 +264,8 @@ enum PageStudentPlacement {
                     final long min = duration / 60L;
                     final long sec = duration % 60L;
 
-                    htm.addln("<li>Precalc Tutorial (126) Exam submitted ", TemporalUtils.FMT_WMDY_AT_HM_A.format(fin)).br()
+                    htm.addln("<li>Precalc Tutorial (126) Exam submitted ",
+                                    TemporalUtils.FMT_WMDY_AT_HM_A.format(fin)).br()
                             .add(" &nbsp; &nbsp; Version = ", row.version, " (serial # = ", row.serialNbr, ")").br()
                             .add(" &nbsp; &nbsp; Time Spent = ", Long.toString(min), CoreConstants.COLON,
                                     sec < 10L ? "0" : CoreConstants.EMPTY, Long.toString(sec)).br()

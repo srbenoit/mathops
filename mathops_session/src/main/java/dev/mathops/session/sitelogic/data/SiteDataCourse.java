@@ -84,7 +84,8 @@ public final class SiteDataCourse {
             // final long t1 = System.currentTimeMillis();
 
             if (cfg.course == null) {
-                Log.warning("Unable to create information for ", courseId, ", sect ", sectionNum, " for term ", termKey);
+                Log.warning("Unable to create information for ", courseId, ", sect ", sectionNum, " for term ",
+                        termKey);
                 cfg = null;
             } else {
                 final RawPacingStructure pacingStructure = cfg.pacingStructure;

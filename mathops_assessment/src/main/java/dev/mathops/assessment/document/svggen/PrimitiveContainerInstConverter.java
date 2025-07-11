@@ -167,7 +167,8 @@ public enum PrimitiveContainerInstConverter {
      * @param height the drawing height, in pixels
      * @param border the border stroke style
      */
-    private static void drawBorder(final HtmlBuilder svg, final int width, final int height, final StrokeStyleInst border) {
+    private static void drawBorder(final HtmlBuilder svg, final int width, final int height,
+                                   final StrokeStyleInst border) {
 
         final double strokeWidth = border.getStrokeWidth();
         final double xy = strokeWidth * 0.5;

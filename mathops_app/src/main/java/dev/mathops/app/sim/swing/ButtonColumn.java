@@ -19,12 +19,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.Serial;
 
 /**
  * A cell editor that presents a String as a JButton.
  */
 public final class ButtonColumn extends AbstractCellEditor implements TableCellRenderer, TableCellEditor,
         ActionListener, MouseListener {
+
+    /** Version number for serialization. */
+    @Serial
+    private static final long serialVersionUID = -6129090436846896119L;
 
     private final JTable table;
     private final Action action;
@@ -40,14 +45,14 @@ public final class ButtonColumn extends AbstractCellEditor implements TableCellR
      * Create the ButtonColumn to be used as a renderer and editor. The renderer and editor will automatically be
      * installed on the TableColumn of the specified column.
      *
-     * @param table  the table containing the button renderer/editor
-     * @param action the Action to be invoked when the button is invoked
-     * @param column the column to which the button renderer/editor is added
+     * @param theTable  the table containing the button renderer/editor
+     * @param theAction the Action to be invoked when the button is invoked
+     * @param theColumn the column to which the button renderer/editor is added
      */
-    public ButtonColumn(final JTable table, final Action action, final int column) {
+    public ButtonColumn(final JTable theTable, final Action theAction, final int theColumn) {
 
-        this.table = table;
-        this.action = action;
+        this.table = theTable;
+        this.action = theAction;
 
         this.editButton = new JButton();
         this.editButton.setFocusPainted(false);
@@ -56,10 +61,10 @@ public final class ButtonColumn extends AbstractCellEditor implements TableCellR
 
         setFocusBorder(new LineBorder(Color.BLUE));
 
-        final TableColumnModel columnModel = table.getColumnModel();
-        columnModel.getColumn(column).setCellRenderer(this);
-        columnModel.getColumn(column).setCellEditor(this);
-        table.addMouseListener(this);
+        final TableColumnModel columnModel = theTable.getColumnModel();
+        columnModel.getColumn(theColumn).setCellRenderer(this);
+        columnModel.getColumn(theColumn).setCellEditor(this);
+        theTable.addMouseListener(this);
     }
 
     /**
@@ -75,12 +80,12 @@ public final class ButtonColumn extends AbstractCellEditor implements TableCellR
     /**
      * The foreground color of the button when the cell has focus
      *
-     * @param focusBorder the foreground color
+     * @param theFocusBorder the foreground color
      */
-    public void setFocusBorder(final Border focusBorder) {
+    public void setFocusBorder(final Border theFocusBorder) {
 
-        this.focusBorder = focusBorder;
-        this.editButton.setBorder(focusBorder);
+        this.focusBorder = theFocusBorder;
+        this.editButton.setBorder(theFocusBorder);
     }
 
 //    public int getMnemonic() {
@@ -100,7 +105,7 @@ public final class ButtonColumn extends AbstractCellEditor implements TableCellR
 //    }
 
     @Override
-    public Component getTableCellEditorComponent(final JTable table, final Object value, final boolean isSelected,
+    public Component getTableCellEditorComponent(final JTable theTable, final Object value, final boolean isSelected,
                                                  final int row, final int column) {
 
         if (value == null) {
@@ -125,15 +130,15 @@ public final class ButtonColumn extends AbstractCellEditor implements TableCellR
         return this.editorValue;
     }
 
-    public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected,
+    public Component getTableCellRendererComponent(final JTable theTable, final Object value, final boolean isSelected,
                                                    final boolean hasFocus, final int row, final int column) {
 
 //        if (isSelected) {
 //            this.editButton.setForeground(table.getSelectionForeground());
 //            this.editButton.setBackground(table.getSelectionBackground());
 //        } else {
-            this.editButton.setForeground(table.getForeground());
-            this.editButton.setBackground(UIManager.getColor("Button.background"));
+        this.editButton.setForeground(theTable.getForeground());
+        this.editButton.setBackground(UIManager.getColor("Button.background"));
 //        }
 
         if (hasFocus) {

@@ -4,12 +4,15 @@ import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.cfg.Site;
-import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
-import dev.mathops.db.old.logic.mathplan.data.Major;
-import dev.mathops.db.old.logic.mathplan.data.MajorMathRequirement;
-import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
-import dev.mathops.db.old.logic.mathplan.data.MathPlanStudentData;
+import dev.mathops.db.logic.mathplan.Major;
+import dev.mathops.db.logic.mathplan.Majors;
+import dev.mathops.db.logic.mathplan.MathPlanLogic;
+import dev.mathops.db.logic.mathplan.MathPlanConstants;
+import dev.mathops.db.logic.mathplan.MathPlanStudentData;
+import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
+import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
+import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.Page;
@@ -28,7 +31,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Generates the page that presents majors, organized by math requirement.
+ * Generates the page that presents majors, organized by area of study.
  */
 enum PagePlanMajors1 {
     ;
@@ -53,15 +56,17 @@ enum PagePlanMajors1 {
 
         final String stuId = session.getEffectiveUserId();
         final ZonedDateTime now = session.getNow();
-        final MathPlanStudentData data = logic.getStudentData(cache, stuId, now, session.loginSessionTag,
+
+        final RawStudent student = RawStudentLogic.query(cache, stuId, false);
+
+        final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, now,
                 session.actAsUserId == null);
 
         final Map<Integer, RawStmathplan> curResponses = data.getMajorProfileResponses();
 
-        final Major declaredMajor = logic.getMajor(data.student.programCode);
+        final Major declaredMajor = Majors.INSTANCE.getMajor(data.student.programCode);
+        final List<Major> majors = Majors.INSTANCE.getMajors();
 
-        final Map<Major, MajorMathRequirement> logicMajorsMap = logic.getMajors();
-        final Set<Major> majors = logicMajorsMap.keySet();
         final Map<Integer, Major> majorMap = new HashMap<>(300);
         for (final Major major : majors) {
             for (final int q : major.questionNumbers) {
@@ -91,80 +96,76 @@ enum PagePlanMajors1 {
 
         MPPage.emitMathPlanHeader(htm);
 
-        if (data == null) {
-            MPPage.emitNoStudentDataError(htm);
-        } else {
-            MathPlacementSite.emitLoggedInAs2(htm, session);
+        MathPlacementSite.emitLoggedInAs2(htm, session);
 
-            htm.addln("<script>");
-            htm.addln(" function toggleMajor(input,id) {");
-            htm.addln("  var checked = input.checked;");
-            htm.addln("  var elms = document.getElementsByName(id);");
-            htm.addln("  for (i=0;i<elms.length;i++) {");
-            htm.addln("   elms[i].checked = checked;");
-            htm.addln("  }");
-            htm.addln(" }");
-            htm.addln("</script>");
+        htm.addln("<script>");
+        htm.addln(" function toggleMajor(input,id) {");
+        htm.addln("  var checked = input.checked;");
+        htm.addln("  var elms = document.getElementsByName(id);");
+        htm.addln("  for (i=0;i<elms.length;i++) {");
+        htm.addln("   elms[i].checked = checked;");
+        htm.addln("  }");
+        htm.addln(" }");
+        htm.addln("</script>");
 
-            htm.add("<form id='moi-form' action='plan_majors1.html' method='post'>");
+        htm.add("<form id='moi-form' action='plan_majors1.html' method='post'>");
 
-            htm.sDiv("inset2");
+        htm.sDiv("inset2");
 
-            htm.sDiv("shaded2left");
+        htm.sDiv("shaded2left");
 
-            htm.sP().add("Let us know what majors you think you might choose.  You can change your selections later ",
-                    "if you change your mind.").eP();
+        htm.sP().add("Let us know what majors you think you might choose.  You can change your selections later ",
+                "if you change your mind.").eP();
 
-            htm.sP().add("Choosing a major here does not declare it as your actual major - you can try out different ",
-                    "majors here and see how they affect your Math Plan.").eP();
+        htm.sP().add("Choosing a major here does not declare it as your actual major - you can try out different ",
+                "majors here and see how they affect your Math Plan.").eP();
 
-            final Major exploratory = majorMap.get(Integer.valueOf(9000));
-            final String pcode = exploratory.programCodes.getFirst();
+        final Major exploratory = majorMap.get(Integer.valueOf(9000));
+        final String progCode = exploratory.programCodes.getFirst();
 
-            htm.sDiv("indent center");
+        htm.sDiv("indent center");
 
-            htm.add("<input type='checkbox'");
-            if (selectedMajors.contains(exploratory)) {
-                htm.add(" checked='checked'");
-            }
-            if (disable) {
-                htm.add(" disabled='disabled'");
-            }
-            htm.add("name='", pcode, "' id='", pcode, "' onchange=\"toggleMajor(this,'", pcode, "');\"/>");
-
-            htm.add("<label for='", pcode, "'>");
-            htm.add("I don't know yet what majors I'm interested in - assume <em>Exploratory Studies</em> ");
-            if (exploratory.catalogUrl != null) {
-                htm.add("<span style='white-space:nowrap;'>&nbsp;<a target='_blank' href='", exploratory.catalogUrl,
-                        "'><img style='position:relative;top:-1px' src='/images/welcome/catalog3.png'/></a></span>");
-            }
-            htm.addln("</label>");
-            htm.eDiv(); // center
-
-            htm.eDiv(); // shaded2left
-
-            htm.div("vgap");
-
-            htm.sDiv("folders");
-
-            htm.add("<nav class='folderstabs'>");
-            htm.sDiv("tab selected", "id='first'")
-                    .add("group by area of study")
-                    .eDiv();
-            htm.sDiv("tab unsel", "id='last'")
-                    .add("<a href='plan_majors2.html'>sort majors alphabetically</a>")
-                    .eDiv();
-            htm.add("</nav>");
-
-            htm.sDiv("folder-content");
-            emitMajorsSelectionForm(htm, curResponses, data, session, logic);
-            htm.eDiv();
-
-            htm.eDiv(); // folders
-
-            htm.eDiv(); // inset2
-            htm.addln("</form>");
+        htm.add("<input type='checkbox'");
+        if (selectedMajors.contains(exploratory)) {
+            htm.add(" checked='checked'");
         }
+        if (disable) {
+            htm.add(" disabled='disabled'");
+        }
+        htm.add("name='", progCode, "' id='", progCode, "' onchange=\"toggleMajor(this,'", progCode, "');\"/>");
+
+        htm.add("<label for='", progCode, "'>");
+        htm.add("I don't know yet what majors I'm interested in - assume <em>Exploratory Studies</em> ");
+        if (exploratory.catalogPageUrl != null) {
+            htm.add("<span style='white-space:nowrap;'>&nbsp;<a target='_blank' href='", exploratory.catalogPageUrl,
+                    "'><img style='position:relative;top:-1px' src='/images/welcome/catalog3.png'/></a></span>");
+        }
+        htm.addln("</label>");
+        htm.eDiv(); // center
+
+        htm.eDiv();
+
+        htm.div("vgap");
+
+        htm.sDiv("folders");
+
+        htm.add("<nav class='folderstabs'>");
+        htm.sDiv("tab selected", "id='first'")
+                .add("group by area of study")
+                .eDiv();
+        htm.sDiv("tab unsel", "id='last'")
+                .add("<a href='plan_majors2.html'>sort majors alphabetically</a>")
+                .eDiv();
+        htm.add("</nav>");
+
+        htm.sDiv("folder-content");
+        emitMajorsSelectionForm(htm, curResponses, data, session);
+        htm.eDiv();
+
+        htm.eDiv(); // folders
+
+        htm.eDiv(); // inset2
+        htm.addln("</form>");
 
         MPPage.emitScripts(htm);
         MPPage.endPage(htm, req, resp);
@@ -186,18 +187,15 @@ enum PagePlanMajors1 {
      * @param curResponses the current student responses (empty if not yet responded)
      * @param data         the student data
      * @param session      the session
-     * @param logic        the site logic
      */
     private static void emitMajorsSelectionForm(final HtmlBuilder htm, final Map<Integer, RawStmathplan> curResponses,
-                                                final MathPlanStudentData data, final ImmutableSessionInfo session,
-                                                final MathPlanLogic logic) {
+                                                final MathPlanStudentData data, final ImmutableSessionInfo session) {
 
         final boolean disable = session.actAsUserId != null;
 
-        final Major declaredMajor = logic.getMajor(data.student.programCode);
+        final Major declaredMajor = Majors.INSTANCE.getMajor(data.student.programCode);
 
-        final Map<Major, MajorMathRequirement> logicMajorsMap = logic.getMajors();
-        final Set<Major> majors = logicMajorsMap.keySet();
+        final List<Major> majors = Majors.INSTANCE.getMajors();
         final Map<Integer, Major> majorMap = new HashMap<>(300);
         for (final Major major : majors) {
             for (final int q : major.questionNumbers) {
@@ -635,14 +633,12 @@ enum PagePlanMajors1 {
      * @param declaredMajor  the student's declared major
      * @return 1 if the major is selected; 0 if not
      */
-    private static int emitMajor(final HtmlBuilder htm, final Map<Integer, Major> majorMap,
-                                 final String idSuffix, final int number,
-                                 final Collection<Major> selectedMajors, final boolean disable,
+    private static int emitMajor(final HtmlBuilder htm, final Map<Integer, Major> majorMap, final String idSuffix,
+                                 final int number, final Collection<Major> selectedMajors, final boolean disable,
                                  final Major declaredMajor) {
 
         final Major major = majorMap.get(Integer.valueOf(number));
-
-        final String pcode = major.programCodes.getFirst();
+        final String progCode = major.programCodes.getFirst();
 
         htm.add("<div class='major'>");
         htm.add("<input type='checkbox'");
@@ -656,10 +652,11 @@ enum PagePlanMajors1 {
             htm.add(" disabled='disabled'");
         }
 
-        htm.add("name='", pcode, "' id='", pcode, idSuffix, "' onchange=\"toggleMajor(this,'", pcode, "');\"/>");
-        htm.add("<label for='", pcode, "'>");
+        htm.add("name='", progCode, "' id='", progCode, idSuffix, "' onchange=\"toggleMajor(this,'", progCode,
+                "');\"/>");
+        htm.add("<label for='", progCode, "'>");
 
-        final String mname = major.majorName;
+        final String mname = major.programName;
 
         final int lastMSpace = mname.lastIndexOf(' ');
         if (lastMSpace == -1) {
@@ -671,8 +668,8 @@ enum PagePlanMajors1 {
             htm.add(mname.substring(lastMSpace + 1));
         }
 
-        if (major.catalogUrl != null) {
-            htm.add("<span style='white-space:nowrap;'>&nbsp;<a target='_blank' href='", major.catalogUrl,
+        if (major.catalogPageUrl != null) {
+            htm.add("<span style='white-space:nowrap;'>&nbsp;<a target='_blank' href='", major.catalogPageUrl,
                     "'><img style='position:relative;top:-1px' src='/images/welcome/catalog3.png'/></a></span>");
         }
 
@@ -706,8 +703,11 @@ enum PagePlanMajors1 {
         final MathPlanLogic logic = new MathPlanLogic(site.site.profile);
 
         final String stuId = session.getEffectiveUserId();
-        final MathPlanStudentData data = stuId == null ? null : logic.getStudentData(cache, stuId, session.getNow(),
-                session.loginSessionTag, session.actAsUserId == null);
+        final RawStudent student = RawStudentLogic.query(cache, stuId, false);
+
+        final ZonedDateTime now = session.getNow();
+        final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, now,
+                session.actAsUserId == null);
 
         // Only perform updates if data present AND this is not an adviser using "Act As"
         if (data != null && session.actAsUserId == null) {
@@ -718,8 +718,8 @@ enum PagePlanMajors1 {
             final List<Integer> questions = new ArrayList<>(params.size());
             final List<String> answers = new ArrayList<>(1);
 
-            final Map<Major, MajorMathRequirement> logicMajorsMap = logic.getMajors();
-            for (final Major major : logicMajorsMap.keySet()) {
+            final List<Major> allMajors = Majors.INSTANCE.getMajors();
+            for (final Major major : allMajors) {
                 final List<String> programCodes = major.programCodes;
 
                 for (final String key : params.keySet()) {
@@ -732,10 +732,9 @@ enum PagePlanMajors1 {
             }
 
             if (!questions.isEmpty()) {
-                logic.deleteMathPlanResponses(cache, data.student, MathPlanConstants.MAJORS_PROFILE, session.getNow(),
-                        session.loginSessionTag);
+                RawStmathplanLogic.deleteAllForPage(cache, student.stuId, MathPlanConstants.MAJORS_PROFILE);
                 logic.storeMathPlanResponses(cache, data.student, MathPlanConstants.MAJORS_PROFILE, questions, answers,
-                        session.getNow(), session.loginSessionTag);
+                        now, session.loginSessionTag);
             }
         }
 

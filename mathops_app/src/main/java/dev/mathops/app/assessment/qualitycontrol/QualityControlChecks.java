@@ -612,7 +612,8 @@ enum QualityControlChecks {
                     for (final ProblemChoiceTemplate choice : mc.getChoices()) {
                         count += scan9(report, choice.doc);
                     }
-                } else if (problem instanceof final ProblemEmbeddedInputTemplate embedded && embedded.correctAnswer != null) {
+                } else if (problem instanceof final ProblemEmbeddedInputTemplate embedded
+                           && embedded.correctAnswer != null) {
                     count += scan9(report, embedded.correctAnswer);
                 }
 

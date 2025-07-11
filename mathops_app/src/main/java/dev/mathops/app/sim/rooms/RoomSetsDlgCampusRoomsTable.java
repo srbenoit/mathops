@@ -23,6 +23,7 @@ import java.awt.Point;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.Serial;
 
 /**
  * A panel within the classroom dialog that displays the set of all rooms that exist on campus and that could be used
@@ -80,22 +81,25 @@ final class RoomSetsDlgCampusRoomsTable extends JPanel implements ActionListener
         table.setShowHorizontalLines(true);
 
         Action delete = new AbstractAction() {
+            /** Version number for serialization. */
+            @Serial
+            private static final long serialVersionUID = 7292694499123215306L;
+
             public void actionPerformed(ActionEvent e) {
 
-                JTable table = (JTable) e.getSource();
-                int modelRow = Integer.valueOf(e.getActionCommand());
-                Object delete = table.getModel().getValueAt(modelRow, 2);
-                Window window = SwingUtilities.windowForComponent(table);
+                final JTable tbl = (JTable) e.getSource();
+                final int modelRow = Integer.valueOf(e.getActionCommand());
+                final Object del = tbl.getModel().getValueAt(modelRow, 2);
+                final Window window = SwingUtilities.windowForComponent(tbl);
 
-                int result = JOptionPane.showConfirmDialog(
-                        window,
-                        "Are you sure you want to " + delete,
+                final int result = JOptionPane.showConfirmDialog(window,
+                        "Are you sure you want to " + del,
                         "Delete Row Confirmation",
                         JOptionPane.YES_NO_OPTION);
 
                 if (result == JOptionPane.YES_OPTION) {
 //					System.out.println( "Deleting row: " + modelRow);
-                    ((ButtonColumnTableModel) table.getModel()).removeRow(modelRow);
+                    ((ButtonColumnTableModel) tbl.getModel()).removeRow(modelRow);
                 }
             }
         };

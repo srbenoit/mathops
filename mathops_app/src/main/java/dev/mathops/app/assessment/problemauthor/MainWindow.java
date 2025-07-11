@@ -570,14 +570,14 @@ final class MainWindow extends JFrame implements MouseListener, ActionListener {
          * @param expanded true if expanded
          * @param leaf     true if a leaf node
          * @param row      the row number
-         * @param hasFocus true if this window has focus
+         * @param focused  true if this window has focus
          */
         @Override
         public Component getTreeCellRendererComponent(final JTree tree, final Object value, final boolean sel,
                                                       final boolean expanded, final boolean leaf, final int row,
-                                                      final boolean hasFocus) {
+                                                      final boolean focused) {
 
-            super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+            super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, focused);
 
             if (value instanceof final DefaultMutableTreeNode node && node.getUserObject() instanceof final File file) {
                 setText(file.getName());

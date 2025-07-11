@@ -128,7 +128,6 @@ final class TestingCenterMapPanel extends JPanel {
     @Override
     public void paintComponent(final Graphics g) {
 
-
         Log.info("paintComponent");
 
         super.paintComponent(g);
@@ -163,7 +162,7 @@ final class TestingCenterMapPanel extends JPanel {
         final double xScale = (double) w / 1040.0;
         final double yScale = (double) h / 670.0;
         final double scld = Math.min(xScale, yScale);
-        final float sclf = (float)scld;
+        final float sclf = (float) scld;
 
         final int cx = w / 2;
         final int cy = h / 2;
@@ -230,185 +229,219 @@ final class TestingCenterMapPanel extends JPanel {
 
         // Draw tables (first is in quiet testing)
 
-        rrect.setRoundRect((double) x - scld * 147.0, (double) y + scld * 3.0, scld * 28.0, scld * 94.0, scld * 4.0, scld * 4.0);
+        rrect.setRoundRect((double) x - scld * 147.0, (double) y + scld * 3.0, scld * 28.0, scld * 94.0, scld * 4.0,
+                scld * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
 
-        rrect.setRoundRect((double) x + scld * 24.0, (double) y + scld * 30.0, scld * 28.0, scld * 72.0, scld * 4.0, scld * 4.0);
+        rrect.setRoundRect((double) x + scld * 24.0, (double) y + scld * 30.0, scld * 28.0, scld * 72.0, scld * 4.0,
+                scld * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
 
-        rrect.setRoundRect((double) x + scld * 24.0, (double) y + scld * 104.0, scld * 28.0, scld * 72.0, scld * 4.0, scld * 4.0);
+        rrect.setRoundRect((double) x + scld * 24.0, (double) y + scld * 104.0, scld * 28.0, scld * 72.0, scld * 4.0,
+                scld * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
 
-        rrect.setRoundRect((double) x + scld * 24.0, (double) y + scld * 186.0, scld * 28.0, scld * 72.0, scld * 4.0, scld * 4.0);
+        rrect.setRoundRect((double) x + scld * 24.0, (double) y + scld * 186.0, scld * 28.0, scld * 72.0, scld * 4.0,
+                scld * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
 
-        rrect.setRoundRect((double) x + scld * 24.0, (double) y + scld * 272.0, scld * 28.0, scld * 72.0, scld * 4.0, scld * 4.0);
+        rrect.setRoundRect((double) x + scld * 24.0, (double) y + scld * 272.0, scld * 28.0, scld * 72.0, scld * 4.0,
+                scld * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
 
-        rrect.setRoundRect((double) x + scld * 24.0, (double) y + scld * 356.0, scld * 28.0, scld * 72.0, scld * 4.0, scld * 4.0);
+        rrect.setRoundRect((double) x + scld * 24.0, (double) y + scld * 356.0, scld * 28.0, scld * 72.0, scld * 4.0,
+                scld * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
 
-        rrect.setRoundRect((double) x + scld * 24.0, (double) y + scld * 447.0, scld * 28.0, scld * 72.0, scld * 4.0, scld * 4.0);
+        rrect.setRoundRect((double) x + scld * 24.0, (double) y + scld * 447.0, scld * 28.0, scld * 72.0, scld * 4.0,
+                scld * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
 
-        rrect.setRoundRect((double) x + scld * 24.0, (double) y + scld * 521.0, scld * 28.0, scld * 72.0, scld * 4.0, scld * 4.0);
+        rrect.setRoundRect((double) x + scld * 24.0, (double) y + scld * 521.0, scld * 28.0, scld * 72.0, scld * 4.0,
+                scld * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
 
-        rrect.setRoundRect((double) x + scld * 98.0, (double) y + scld * 48.0, scld * 72.0, scld * 56.0, scld * 4.0, scld * 4.0);
+        rrect.setRoundRect((double) x + scld * 98.0, (double) y + scld * 48.0, scld * 72.0, scld * 56.0, scld * 4.0,
+                scld * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
-        rrect.setRoundRect((double) x + scld * 98.0, (double) y + scld * 174.0, scld * 72.0, scld * 56.0, scld * 4.0, scld * 4.0);
+        rrect.setRoundRect((double) x + scld * 98.0, (double) y + scld * 174.0, scld * 72.0, scld * 56.0, scld * 4.0,
+                scld * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
-        rrect.setRoundRect((double) x + scld * 98.0, (double) y + scld * 300.0, scld * 72.0, scld * 56.0, scld * 4.0, scld * 4.0);
+        rrect.setRoundRect((double) x + scld * 98.0, (double) y + scld * 300.0, scld * 72.0, scld * 56.0, scld * 4.0,
+                scld * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
-        rrect.setRoundRect((double) x + scld * 98.0, (double) y + scld * 426.0, scld * 72.0, scld * 56.0, scld * 4.0, scld * 4.0);
+        rrect.setRoundRect((double) x + scld * 98.0, (double) y + scld * 426.0, scld * 72.0, scld * 56.0, scld * 4.0,
+                scld * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
-        rrect.setRoundRect((double) x + scld * 86.0, (double) y + scld * 580.0, scld * 72.0, scld * 28.0, scld * 4.0, scld * 4.0);
-        g2d.setColor(this.tableColor);
-        g2d.fill(rrect);
-        g2d.setColor(this.tableOutline);
-        g2d.draw(rrect);
-
-        rrect.setRoundRect((double) x + scld * 200.0, (double) y + scld * 48.0, scld * 72.0, scld * 56.0, scld * 4.0, scld * 4.0);
-        g2d.setColor(this.tableColor);
-        g2d.fill(rrect);
-        g2d.setColor(this.tableOutline);
-        g2d.draw(rrect);
-        rrect.setRoundRect((double) x + scld * 200.0, (double) y + scld * 174.0, scld * 72.0, scld * 56.0, scld * 4.0, scld * 4.0);
-        g2d.setColor(this.tableColor);
-        g2d.fill(rrect);
-        g2d.setColor(this.tableOutline);
-        g2d.draw(rrect);
-        rrect.setRoundRect((double) x + scld * 200.0, (double) y + scld * 300.0, scld * 72.0, scld * 56.0, scld * 4.0, scld * 4.0);
-        g2d.setColor(this.tableColor);
-        g2d.fill(rrect);
-        g2d.setColor(this.tableOutline);
-        g2d.draw(rrect);
-        rrect.setRoundRect((double) x + scld * 200.0, (double) y + scld * 426.0, scld * 72.0, scld * 56.0, scld * 4.0, scld * 4.0);
+        rrect.setRoundRect((double) x + scld * 86.0, (double) y + scld * 580.0, scld * 72.0, scld * 28.0, scld * 4.0,
+                scld * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
 
-        rrect.setRoundRect((double) x + scld * 312.0, (double) y + scld * 38.0, scld * 28.0, scld * 72.0, scld * 4.0, scld * 4.0);
+        rrect.setRoundRect((double) x + scld * 200.0, (double) y + scld * 48.0, scld * 72.0, scld * 56.0, scld * 4.0,
+                scld * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
-        rrect.setRoundRect((double) x + scld * 312.0, (double) y + scld * 112.0, scld * 28.0, scld * 72.0, scld * 4.0, scld * 4.0);
+        rrect.setRoundRect((double) x + scld * 200.0, (double) y + scld * 174.0, scld * 72.0, scld * 56.0, scld * 4.0,
+                scld * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
-        rrect.setRoundRect((double) x + scld * 312.0, (double) y + scld * 208.0, scld * 28.0, scld * 72.0, scld * 4.0, scld * 4.0);
+        rrect.setRoundRect((double) x + scld * 200.0, (double) y + scld * 300.0, scld * 72.0, scld * 56.0, scld * 4.0,
+                scld * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
-        rrect.setRoundRect((double) x + scld * 312.0, (double) y + scld * 318.0, scld * 28.0, scld * 72.0, scld * 4.0, scld * 4.0);
-        g2d.setColor(this.tableColor);
-        g2d.fill(rrect);
-        g2d.setColor(this.tableOutline);
-        g2d.draw(rrect);
-
-        rrect.setRoundRect((double) x + scld * 378.0, (double) y + scld * 52.0, scld * 28.0, scld * 72.0, scld * 4.0, scld * 4.0);
-        g2d.setColor(this.tableColor);
-        g2d.fill(rrect);
-        g2d.setColor(this.tableOutline);
-        g2d.draw(rrect);
-        rrect.setRoundRect((double) x + scld * 378.0, (double) y + scld * 133.0, scld * 28.0, scld * 72.0, scld * 4.0, scld * 4.0);
-        g2d.setColor(this.tableColor);
-        g2d.fill(rrect);
-        g2d.setColor(this.tableOutline);
-        g2d.draw(rrect);
-        rrect.setRoundRect((double) x + scld * 378.0, (double) y + scld * 219.0, scld * 28.0, scld * 72.0, scld * 4.0, scld * 4.0);
-        g2d.setColor(this.tableColor);
-        g2d.fill(rrect);
-        g2d.setColor(this.tableOutline);
-        g2d.draw(rrect);
-        rrect.setRoundRect((double) x + scld * 378.0, (double) y + scld * 302.0, scld * 28.0, scld * 72.0, scld * 4.0, scld * 4.0);
-        g2d.setColor(this.tableColor);
-        g2d.fill(rrect);
-        g2d.setColor(this.tableOutline);
-        g2d.draw(rrect);
-        rrect.setRoundRect((double) x + scld * 378.0, (double) y + scld * 384.0, scld * 28.0, scld * 72.0, scld * 4.0, scld * 4.0);
+        rrect.setRoundRect((double) x + scld * 200.0, (double) y + scld * 426.0, scld * 72.0, scld * 56.0, scld * 4.0,
+                scld * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
 
-        rrect.setRoundRect((double) x + scld * 452.0, (double) y + scld * 48.0, scld * 72.0, scld * 56.0, scld * 4.0, scld * 4.0);
+        rrect.setRoundRect((double) x + scld * 312.0, (double) y + scld * 38.0, scld * 28.0, scld * 72.0, scld * 4.0,
+                scld * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
-        rrect.setRoundRect((double) x + scld * 452.0, (double) y + scld * 174.0, scld * 72.0, scld * 56.0, scld * 4.0, scld * 4.0);
+        rrect.setRoundRect((double) x + scld * 312.0, (double) y + scld * 112.0, scld * 28.0, scld * 72.0, scld * 4.0,
+                scld * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
-        rrect.setRoundRect((double) x + scld * 452.0, (double) y + scld * 300.0, scld * 72.0, scld * 56.0, scld * 4.0, scld * 4.0);
+        rrect.setRoundRect((double) x + scld * 312.0, (double) y + scld * 208.0, scld * 28.0, scld * 72.0, scld * 4.0,
+                scld * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
-        rrect.setRoundRect((double) x + scld * 452.0, (double) y + scld * 426.0, scld * 72.0, scld * 56.0, scld * 4.0, scld * 4.0);
+        rrect.setRoundRect((double) x + scld * 312.0, (double) y + scld * 318.0, scld * 28.0, scld * 72.0, scld * 4.0,
+                scld * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
 
-        rrect.setRoundRect((double) x + scld * 550.0, (double) y + scld * 48.0, scld * 72.0, scld * 56.0, scld * 4.0, scld * 4.0);
+        rrect.setRoundRect((double) x + scld * 378.0, (double) y + scld * 52.0, scld * 28.0, scld * 72.0, scld * 4.0,
+                scld * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
-        rrect.setRoundRect((double) x + scld * 550.0, (double) y + scld * 174.0, scld * 72.0, scld * 56.0, scld * 4.0, scld * 4.0);
+        rrect.setRoundRect((double) x + scld * 378.0, (double) y + scld * 133.0, scld * 28.0, scld * 72.0, scld * 4.0,
+                scld * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
-        rrect.setRoundRect((double) x + scld * 550.0, (double) y + scld * 300.0, scld * 72.0, scld * 56.0, scld * 4.0, scld * 4.0);
+        rrect.setRoundRect((double) x + scld * 378.0, (double) y + scld * 219.0, scld * 28.0, scld * 72.0, scld * 4.0,
+                scld * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
-        rrect.setRoundRect((double) x + scld * 550.0, (double) y + scld * 426.0, scld * 72.0, scld * 56.0, scld * 4.0, scld * 4.0);
+        rrect.setRoundRect((double) x + scld * 378.0, (double) y + scld * 302.0, scld * 28.0, scld * 72.0, scld * 4.0,
+                scld * 4.0);
+        g2d.setColor(this.tableColor);
+        g2d.fill(rrect);
+        g2d.setColor(this.tableOutline);
+        g2d.draw(rrect);
+        rrect.setRoundRect((double) x + scld * 378.0, (double) y + scld * 384.0, scld * 28.0, scld * 72.0, scld * 4.0,
+                scld * 4.0);
+        g2d.setColor(this.tableColor);
+        g2d.fill(rrect);
+        g2d.setColor(this.tableOutline);
+        g2d.draw(rrect);
+
+        rrect.setRoundRect((double) x + scld * 452.0, (double) y + scld * 48.0, scld * 72.0, scld * 56.0, scld * 4.0,
+                scld * 4.0);
+        g2d.setColor(this.tableColor);
+        g2d.fill(rrect);
+        g2d.setColor(this.tableOutline);
+        g2d.draw(rrect);
+        rrect.setRoundRect((double) x + scld * 452.0, (double) y + scld * 174.0, scld * 72.0, scld * 56.0, scld * 4.0,
+                scld * 4.0);
+        g2d.setColor(this.tableColor);
+        g2d.fill(rrect);
+        g2d.setColor(this.tableOutline);
+        g2d.draw(rrect);
+        rrect.setRoundRect((double) x + scld * 452.0, (double) y + scld * 300.0, scld * 72.0, scld * 56.0, scld * 4.0,
+                scld * 4.0);
+        g2d.setColor(this.tableColor);
+        g2d.fill(rrect);
+        g2d.setColor(this.tableOutline);
+        g2d.draw(rrect);
+        rrect.setRoundRect((double) x + scld * 452.0, (double) y + scld * 426.0, scld * 72.0, scld * 56.0, scld * 4.0,
+                scld * 4.0);
+        g2d.setColor(this.tableColor);
+        g2d.fill(rrect);
+        g2d.setColor(this.tableOutline);
+        g2d.draw(rrect);
+
+        rrect.setRoundRect((double) x + scld * 550.0, (double) y + scld * 48.0, scld * 72.0, scld * 56.0, scld * 4.0,
+                scld * 4.0);
+        g2d.setColor(this.tableColor);
+        g2d.fill(rrect);
+        g2d.setColor(this.tableOutline);
+        g2d.draw(rrect);
+        rrect.setRoundRect((double) x + scld * 550.0, (double) y + scld * 174.0, scld * 72.0, scld * 56.0, scld * 4.0,
+                scld * 4.0);
+        g2d.setColor(this.tableColor);
+        g2d.fill(rrect);
+        g2d.setColor(this.tableOutline);
+        g2d.draw(rrect);
+        rrect.setRoundRect((double) x + scld * 550.0, (double) y + scld * 300.0, scld * 72.0, scld * 56.0, scld * 4.0,
+                scld * 4.0);
+        g2d.setColor(this.tableColor);
+        g2d.fill(rrect);
+        g2d.setColor(this.tableOutline);
+        g2d.draw(rrect);
+        rrect.setRoundRect((double) x + scld * 550.0, (double) y + scld * 426.0, scld * 72.0, scld * 56.0, scld * 4.0,
+                scld * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
@@ -442,7 +475,7 @@ final class TestingCenterMapPanel extends JPanel {
                         g2d.setColor(this.pcAwaitColor);
                         ++numInUse;
                     } else if (RawClientPc.STATUS_TAKING_EXAM.equals(status)
-                            || RawClientPc.STATUS_EXAM_RESULTS.equals(status)) {
+                               || RawClientPc.STATUS_EXAM_RESULTS.equals(status)) {
                         g2d.setColor(this.pcInExamColor);
                         ++numInUse;
                     } else {

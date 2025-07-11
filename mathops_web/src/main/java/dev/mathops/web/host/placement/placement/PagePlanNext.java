@@ -9,16 +9,19 @@ import dev.mathops.db.ESchema;
 import dev.mathops.db.cfg.Login;
 import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
+import dev.mathops.db.logic.mathplan.EEligibility;
+import dev.mathops.db.logic.mathplan.ENextStep;
+import dev.mathops.db.logic.mathplan.MathPlanLogic;
+import dev.mathops.db.logic.mathplan.MathPlanConstants;
+import dev.mathops.db.logic.mathplan.MathPlanStudentData;
 import dev.mathops.db.old.logic.mathplan.data.CourseInfo;
 import dev.mathops.db.old.logic.mathplan.data.CourseRecommendations;
 import dev.mathops.db.old.logic.mathplan.data.CourseSequence;
-import dev.mathops.db.old.logic.mathplan.data.ENextStep;
-import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
-import dev.mathops.db.old.logic.mathplan.data.MathPlanStudentData;
 import dev.mathops.db.old.rawlogic.RawMpscorequeueLogic;
+import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawMpscorequeue;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
+import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
@@ -26,6 +29,7 @@ import dev.mathops.web.site.Page;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import javax.tools.Tool;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -78,7 +82,9 @@ enum PagePlanNext {
         final MathPlanLogic logic = new MathPlanLogic(site.site.profile);
 
         final String stuId = session.getEffectiveUserId();
-        final MathPlanStudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
+        final RawStudent student = RawStudentLogic.query(cache, stuId, false);
+
+        final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, session.getNow(),
                 session.actAsUserId == null);
 
         final HtmlBuilder htm = new HtmlBuilder(8192);
@@ -91,13 +97,13 @@ enum PagePlanNext {
             MathPlacementSite.emitLoggedInAs2(htm, session);
             htm.sDiv("inset2");
 
-            final Map<Integer, RawStmathplan> existing = MathPlanLogic.getMathPlanResponses(cache,
+            final Map<Integer, RawStmathplan> existing = MathPlanStudentData.getMathPlanResponses(cache,
                     session.getEffectiveUserId(), MathPlanConstants.ONLY_RECOM_PROFILE);
 
             if (existing.containsKey(ONE)) {
                 showPlan(cache, session, htm, logic);
             } else {
-                PagePlanView.doGet(cache, site, req, resp, session, logic);
+                PagePlanView.doGet(cache, site, req, resp, session);
             }
 
             htm.eDiv(); // inset2
@@ -123,7 +129,9 @@ enum PagePlanNext {
 
         final String screenName = session.getEffectiveScreenName();
         final String stuId = session.getEffectiveUserId();
-        final MathPlanStudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
+        final RawStudent student = RawStudentLogic.query(cache, stuId, false);
+
+        final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, session.getNow(),
                 session.actAsUserId == null);
 
         final Map<Integer, RawStmathplan> intentions = data.getIntentions();
@@ -192,7 +200,7 @@ enum PagePlanNext {
         htm.eDiv();
         htm.div("vgap");
 
-        htm.eDiv(); // shaded2left
+        htm.eDiv();
     }
 
     /**
@@ -207,37 +215,81 @@ enum PagePlanNext {
 
         boolean needsPlacement = true;
 
-        final CourseRecommendations recommendations = data.recommendations;
-        final List<ENextStep> nextSteps = data.getNextSteps();
+        final EEligibility eligibility = data.recommendedEligibility;
+        final ENextStep nextStep = data.nextStep;
 
         htm.div("vgap");
 
         htm.sDiv("advice");
-        if (nextSteps.isEmpty()) {
-            htm.sP("center");
-            htm.addln("<img class='check' src='/images/welcome/check.png' alt=''/>");
+        final TermKey termKey = data.student.aplnTerm;
+        final ETermName applicationTerm = termKey == null ? null : termKey.name;
+        final String termName = applicationTerm.fullName;
 
-            if (recommendations.typicalSequence.hasSemester1Data()) {
-                htm.add("<strong>You are eligible to register for your first-semester Mathematics courses.</strong>");
-            } else {
-                htm.add("<strong>You are eligible to register for your first Mathematics course.</strong>");
-            }
-            htm.eP();
-            needsPlacement = false;
-        } else {
-            final TermKey termKey = data.student.aplnTerm;
-            final ETermName applicationTerm = termKey == null ? null : termKey.name;
+        switch (nextStep) {
+            case MSG_PLACEMENT_NOT_NEEDED, MSG_ALREADY_ELIGIBLE -> {
+                htm.sP("center");
+                htm.addln("<img class='check' src='/images/welcome/check.png' alt=''/>");
 
-            for (final ENextStep step : nextSteps) {
-                if (step == ENextStep.MSG_3A || step == ENextStep.MSG_3G || step == ENextStep.MSG_3H
-                    || step == ENextStep.MSG_4A || step == ENextStep.MSG_4B
-                    || step == ENextStep.MSG_4C) {
-                    needsPlacement = false;
+                if (eligibility == EEligibility.AUCC) {
+                    htm.add("<strong>You are eligible to register for a Mathematics course appropriate for your ",
+                            "program.</strong>");
+                } else {
+                    htm.add("<strong>You are eligible to register for your ", termName,
+                            " Mathematics course(s).</strong>");
                 }
-                emitStep(htm, step, applicationTerm, data, false);
+                htm.eP(); // center
+                needsPlacement = false;
+            }
+
+            case MSG_PLACE_INTO_117 -> {
+                htm.sP().add("<strong>You should complete the \"Algebra\" section of the Math Placement Tool to try ",
+                        "to become eligible for MATH 117 or MATH 120.</strong>").eP();
+                htm.sP().add("If you do not place into MATH 117/MATH 120 on the Math Placement Tool, you can become ",
+                        "eligible for those courses by completing the Entry Level Math Tutorial.</strong>").eP();
+            }
+            case MSG_PLACE_OUT_117 -> {
+            }
+            case MSG_PLACE_INTO_118 -> {
+            }
+            case MSG_PLACE_OUT_118 -> {
+            }
+            case MSG_PLACE_OUT_117_118 -> {
+            }
+            case MSG_PLACE_INTO_125 -> {
+            }
+            case MSG_PLACE_OUT_125 -> {
+            }
+            case MSG_PLACE_OUT_118_125 -> {
+            }
+            case MSG_PLACE_OUT_117_118_125 -> {
+            }
+            case MSG_PLACE_INTO_155 -> {
+            }
+            case MSG_PLACE_OUT_126 -> {
+            }
+            case MSG_PLACE_OUT_125_126 -> {
+            }
+            case MSG_PLACE_OUT_118_125_126 -> {
+            }
+            case MSG_PLACE_OUT_117_118_125_126 -> {
+            }
+            case MSG_PLACE_OUT_124 -> {
+            }
+            case MSG_PLACE_OUT_118_124 -> {
+            }
+            case MSG_PLACE_OUT_117_118_124 -> {
+            }
+            case MSG_PLACE_OUT_124_126 -> {
+            }
+            case MSG_PLACE_OUT_124_125_126 -> {
+            }
+            case MSG_PLACE_OUT_118_124_125_126 -> {
+            }
+            case MSG_PLACE_OUT_117_118_124_125_126 -> {
             }
         }
-        htm.eDiv();
+
+        htm.eDiv(); // advice
 
         return needsPlacement;
     }

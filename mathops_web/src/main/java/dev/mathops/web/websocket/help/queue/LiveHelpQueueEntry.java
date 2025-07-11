@@ -152,9 +152,9 @@ public final class LiveHelpQueueEntry {
      * @return the constructed {@code LiveHelpQueueEntryInfo}
      * @throws IllegalArgumentException if the student ID, screen name, queue date/time, or homework session ID is null
      */
-    static LiveHelpQueueEntry forHomework(final StudentKey theStudent,
-                                          final String theHomeworkSessionId, final long theWhenQueued,
-                                          final HelpQueueWebSocket theStudentWebSocket) throws IllegalArgumentException {
+    static LiveHelpQueueEntry forHomework(final StudentKey theStudent, final String theHomeworkSessionId,
+                                          final long theWhenQueued, final HelpQueueWebSocket theStudentWebSocket)
+            throws IllegalArgumentException {
 
         if (theHomeworkSessionId == null) {
             throw new IllegalArgumentException("Session ID may not be null");
@@ -174,9 +174,9 @@ public final class LiveHelpQueueEntry {
      * @return the constructed {@code LiveHelpQueueEntryInfo}
      * @throws IllegalArgumentException if the screen name, queue date/time, or past exam session ID is null
      */
-    static LiveHelpQueueEntry forPastExam(final StudentKey theStudent,
-                                          final String thePastExamSessionId, final long theWhenQueued,
-                                          final HelpQueueWebSocket theStudentWebSocket) throws IllegalArgumentException {
+    static LiveHelpQueueEntry forPastExam(final StudentKey theStudent, final String thePastExamSessionId,
+                                          final long theWhenQueued, final HelpQueueWebSocket theStudentWebSocket)
+            throws IllegalArgumentException {
 
         if (thePastExamSessionId == null) {
             throw new IllegalArgumentException("Session ID may not be null");

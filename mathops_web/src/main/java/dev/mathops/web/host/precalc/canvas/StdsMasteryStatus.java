@@ -93,8 +93,8 @@ public final class StdsMasteryStatus {
      * @param reg           the course registration for which to generate status
      * @param isTutor       true if the user should have TUTOR access to assignments
      */
-    public StdsMasteryStatus(final Cache cache, final SiteDataCfgCourse theCourseData, final int pace, final String paceTrack,
-                             final RawStcourse reg, final boolean isTutor) {
+    public StdsMasteryStatus(final Cache cache, final SiteDataCfgCourse theCourseData, final int pace,
+                             final String paceTrack, final RawStcourse reg, final boolean isTutor) {
 
         this.courseData = theCourseData;
         this.tutor = isTutor;
@@ -173,16 +173,16 @@ public final class StdsMasteryStatus {
                         LocalDate onTime = null;
                         for (final StandardMilestoneRec ms : standardMilestones) {
                             if (ms.paceIndex.intValue() == order && ms.unit.intValue() == unit
-                                    && ms.objective.intValue() == obj
-                                    && StandardMilestoneRec.MS_TYPE_STD_MASTERY.equals(ms.msType)) {
+                                && ms.objective.intValue() == obj
+                                && StandardMilestoneRec.MS_TYPE_STD_MASTERY.equals(ms.msType)) {
                                 onTime = ms.msDate;
                                 break;
                             }
                         }
                         for (final StuStandardMilestoneRec stms : studentMilestones) {
                             if (stms.paceIndex.intValue() == order && stms.unit.intValue() == unit
-                                    && stms.objective.intValue() == obj
-                                    && StandardMilestoneRec.MS_TYPE_STD_MASTERY.equals(stms.msType)) {
+                                && stms.objective.intValue() == obj
+                                && StandardMilestoneRec.MS_TYPE_STD_MASTERY.equals(stms.msType)) {
                                 onTime = stms.msDate;
                                 break;
                             }
@@ -230,7 +230,7 @@ public final class StdsMasteryStatus {
                                         } else {
                                             value = MASTERED_ON_TIME;
                                             if (this.standardFirstMastered[arrayIndex] == null ||
-                                                    this.standardFirstMastered[arrayIndex].isAfter(examDate)) {
+                                                this.standardFirstMastered[arrayIndex].isAfter(examDate)) {
                                                 this.standardFirstMastered[arrayIndex] = examDate;
                                             }
                                         }

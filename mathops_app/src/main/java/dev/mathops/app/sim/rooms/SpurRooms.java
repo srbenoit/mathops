@@ -22,10 +22,12 @@ public enum SpurRooms {
     private static final int BLOCKS_PER_DAY_TR = 6;
 
     /** Classroom 1. */
-    public static final RoomSchedule CLASSROOM_1 = new RoomSchedule(CAMPUS_ROOM_1, BLOCKS_PER_DAY_MWF, BLOCKS_PER_DAY_TR);
+    public static final RoomSchedule CLASSROOM_1 = new RoomSchedule(CAMPUS_ROOM_1, BLOCKS_PER_DAY_MWF,
+            BLOCKS_PER_DAY_TR);
 
     /** Classroom 2. */
-    public static final RoomSchedule CLASSROOM_2 = new RoomSchedule(CAMPUS_ROOM_2, BLOCKS_PER_DAY_MWF, BLOCKS_PER_DAY_TR);
+    public static final RoomSchedule CLASSROOM_2 = new RoomSchedule(CAMPUS_ROOM_2, BLOCKS_PER_DAY_MWF,
+            BLOCKS_PER_DAY_TR);
 
     /** Lab 1. */
     public static final RoomSchedule LAB_1 = new RoomSchedule(CAMPUS_LAB_1, BLOCKS_PER_DAY_MWF, BLOCKS_PER_DAY_TR);

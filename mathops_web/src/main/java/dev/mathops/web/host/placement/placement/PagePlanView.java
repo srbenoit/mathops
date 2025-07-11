@@ -3,18 +3,21 @@ package dev.mathops.web.host.placement.placement;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.db.Cache;
 import dev.mathops.db.cfg.Profile;
-import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
+import dev.mathops.db.logic.mathplan.ENextStep;
+import dev.mathops.db.logic.mathplan.Majors;
+import dev.mathops.db.logic.mathplan.Major;
+import dev.mathops.db.logic.mathplan.MathPlanLogic;
+import dev.mathops.db.logic.mathplan.MathPlanConstants;
+import dev.mathops.db.logic.mathplan.MathPlanStudentData;
 import dev.mathops.db.old.logic.mathplan.data.CourseInfo;
 import dev.mathops.db.old.logic.mathplan.data.CourseInfoGroup;
 import dev.mathops.db.old.logic.mathplan.data.CourseRecommendations;
 import dev.mathops.db.old.logic.mathplan.data.CourseSequence;
-import dev.mathops.db.old.logic.mathplan.data.ENextStep;
-import dev.mathops.db.old.logic.mathplan.data.Major;
 import dev.mathops.db.old.logic.mathplan.data.MajorMathRequirement;
-import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
-import dev.mathops.db.old.logic.mathplan.data.MathPlanStudentData;
+import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
+import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.Page;
@@ -73,7 +76,9 @@ enum PagePlanView {
                       final MathPlanLogic logic) throws IOException, SQLException {
 
         final String stuId = session.getEffectiveUserId();
-        final MathPlanStudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
+        final RawStudent student = RawStudentLogic.query(cache, stuId, false);
+
+        final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, session.getNow(),
                 session.actAsUserId == null);
 
         final HtmlBuilder htm = new HtmlBuilder(8192);
@@ -86,7 +91,7 @@ enum PagePlanView {
             MathPlacementSite.emitLoggedInAs2(htm, session);
             htm.sDiv("inset2");
 
-            final Map<Integer, RawStmathplan> existing = MathPlanLogic.getMathPlanResponses(cache,
+            final Map<Integer, RawStmathplan> existing = MathPlanStudentData.getMathPlanResponses(cache,
                     session.getEffectiveUserId(), MathPlanConstants.ONLY_RECOM_PROFILE);
 
             if (existing.containsKey(Integer.valueOf(1))) {
@@ -113,7 +118,7 @@ enum PagePlanView {
         htm.sP().add("We have created a personalized Mathematics Plan for you, based on the mathematics courses ",
                 "required for any of the majors you selected. Following this plan keeps your options open to choose ",
                 "any of these majors.").eP();
-        htm.eDiv(); // shaded2left
+        htm.eDiv();
 
         htm.div("vgap");
 
@@ -170,7 +175,9 @@ enum PagePlanView {
                                  final MathPlanLogic logic) throws SQLException {
 
         final String stuId = session.getEffectiveUserId();
-        final MathPlanStudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
+        final RawStudent student = RawStudentLogic.query(cache, stuId, false);
+
+        final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, session.getNow(),
                 session.actAsUserId == null);
 
         htm.sDiv("shaded2left");
@@ -187,10 +194,8 @@ enum PagePlanView {
 
         final int numSelected = emitMajors(htm, data, logic);
 
-        final List<MajorMathRequirement> requirements = data.getRequirements();
-
         // Now display the computed mathematics recommendations
-        if (!requirements.isEmpty()) {
+        if (data.recommendedEligibility != null) {
 
             htm.div("vgap");
             htm.hr();
@@ -229,7 +234,7 @@ enum PagePlanView {
             htm.div(null, "id='end'");
         }
 
-        htm.eDiv(); // shaded2left
+        htm.eDiv();
     }
 
     /**
@@ -245,15 +250,16 @@ enum PagePlanView {
                               final HtmlBuilder htm, final MathPlanLogic logic) throws SQLException {
 
         final String stuId = session.getEffectiveUserId();
-        final MathPlanStudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
+        final RawStudent student = RawStudentLogic.query(cache, stuId, false);
+
+        final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, session.getNow(),
                 session.actAsUserId == null);
 
         htm.sDiv("indent");
 
         final int numSelected = emitMajors(htm, data, logic);
 
-        final List<MajorMathRequirement> requirements = data.getRequirements();
-        if (!requirements.isEmpty()) {
+        if (data.recommendedEligibility != null) {
 
             htm.div("vgap");
             htm.sDiv("planbox");
@@ -295,13 +301,13 @@ enum PagePlanView {
         htm.eDiv();
 
         final String declaredProgram = data.student.programCode;
-        final Major declaredMajor = logic.getMajor(declaredProgram);
+        final Major declaredMajor = Majors.INSTANCE.getMajor(declaredProgram);
         htm.sP("advice");
         htm.add("Current declared major: <strong>");
         if (declaredMajor == null) {
             htm.add("none");
         } else {
-            htm.add(declaredMajor.majorName);
+            htm.add(declaredMajor.programName);
         }
         htm.addln("</strong>").eP();
 
@@ -422,7 +428,7 @@ enum PagePlanView {
                                                   final MathPlanStudentData data, final MathPlanLogic logic) {
 
         int count = 0;
-        final Map<Major, MajorMathRequirement> majors = logic.getMajors();
+        final List<Major> majors = Majors.INSTANCE.getMajors();
 
         final Major declared = logic.getMajor(data.student.programCode);
 
@@ -560,12 +566,14 @@ enum PagePlanView {
                                             || MathPlanConstants.ONLY_RECOM_PROFILE.equals(cmd))) {
 
             final String studentId = session.getEffectiveUserId();
-            final ZonedDateTime sessNow = session.getNow();
-            final MathPlanStudentData data = logic.getStudentData(cache, studentId, sessNow, session.loginSessionTag,
-                    true);
+            final RawStudent student = RawStudentLogic.query(cache, studentId, false);
+
+            final ZonedDateTime now = session.getNow();
+            final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, now, true);
             final Integer key = Integer.valueOf(1);
 
-            final Map<Integer, RawStmathplan> existing = MathPlanLogic.getMathPlanResponses(cache, studentId, cmd);
+            final Map<Integer, RawStmathplan> existing = MathPlanStudentData.getMathPlanResponses(cache, studentId,
+                    cmd);
 
             if (!existing.containsKey(key)) {
 
@@ -574,10 +582,10 @@ enum PagePlanView {
 
                 questions.add(key);
                 answers.add("Y");
-                logic.storeMathPlanResponses(cache, data.student, cmd, questions, answers, sessNow,
+                logic.storeMathPlanResponses(cache, data.student, cmd, questions, answers, now,
                         session.loginSessionTag);
 
-                data.recordPlan(cache, logic, sessNow, studentId, session.loginSessionTag);
+                data.recordPlan(cache, logic, now, studentId, session.loginSessionTag);
             }
         }
 

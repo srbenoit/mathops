@@ -1,16 +1,18 @@
 package dev.mathops.web.host.placement.placement;
 
 import dev.mathops.db.Cache;
+import dev.mathops.db.logic.mathplan.MathPlanLogic;
+import dev.mathops.db.logic.mathplan.MathPlanConstants;
+import dev.mathops.db.logic.mathplan.MathPlanStudentData;
 import dev.mathops.db.old.logic.PlacementStatus;
-import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
+import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawMpeCredit;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.rec.LiveCsuCredit;
 import dev.mathops.db.rec.LiveTransferCredit;
 import dev.mathops.session.ImmutableSessionInfo;
-import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
-import dev.mathops.db.old.logic.mathplan.data.MathPlanStudentData;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.builder.SimpleBuilder;
 import dev.mathops.web.site.Page;
@@ -52,7 +54,9 @@ enum PagePlanRecord {
         final MathPlanLogic logic = new MathPlanLogic(site.site.profile);
 
         final String stuId = session.getEffectiveUserId();
-        final MathPlanStudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
+        final RawStudent student = RawStudentLogic.query(cache, stuId, false);
+
+        final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, session.getNow(),
                 session.actAsUserId == null);
 
         final HtmlBuilder htm = new HtmlBuilder(8192);
@@ -68,7 +72,7 @@ enum PagePlanRecord {
 
             htm.sDiv("shaded2left");
             htm.sP().add("Let's review what you've already done, so we can design a plan that's right for you.").eP();
-            htm.eDiv(); // shaded2left
+            htm.eDiv();
 
             htm.div("vgap");
 

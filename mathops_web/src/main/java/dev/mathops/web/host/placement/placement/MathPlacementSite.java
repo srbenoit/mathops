@@ -335,8 +335,8 @@ public final class MathPlacementSite extends AbstractPageSite {
      * @param session the user's login session information
      * @throws SQLException if there was an error accessing the database
      */
-    private void doShibbolethLogin(final Cache cache, final HttpServletRequest req,
-                                   final HttpServletResponse resp, final ImmutableSessionInfo session) throws SQLException {
+    private void doShibbolethLogin(final Cache cache, final HttpServletRequest req, final HttpServletResponse resp,
+                                   final ImmutableSessionInfo session) throws SQLException {
 
         ImmutableSessionInfo sess = session;
 

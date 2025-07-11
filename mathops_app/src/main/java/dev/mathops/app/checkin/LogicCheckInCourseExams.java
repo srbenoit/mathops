@@ -286,8 +286,8 @@ final class LogicCheckInCourseExams {
 
                         boolean eligible = true;
                         if (enforceEligibility) {
-                            final LocalDate today = LocalDate.now();
-                            if (reg.iDeadlineDt != null && reg.iDeadlineDt.isBefore(today)) {
+                            final LocalDate now = LocalDate.now();
+                            if (reg.iDeadlineDt != null && reg.iDeadlineDt.isBefore(now)) {
                                 makeCourseUnavailable(data, numbers, PAST_DEADLINE);
                                 eligible = false;
                             }

@@ -202,7 +202,8 @@ public enum PageNavigating {
 
             htm.sP().add("You do not need to go to the Precalculus Center once for every learning target.  You can ",
                     "complete several homework assignments to unlock several questions, then go to the Precalculus ",
-                    "Center and your Learning Target Exam will include all learning targets you are eligible for.").eP();
+                    "Center and your Learning Target Exam will include all learning targets you are eligible for.")
+                    .eP();
 
             htm.sP().add("However,if you have six or more learning targets that are unlocked but have not yet been ",
                     "completed, you will not be able to move on to the next Module until you complete some learning ",

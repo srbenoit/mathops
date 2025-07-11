@@ -373,7 +373,7 @@ public enum PageTopicModule {
 
         // Emit objectives
         for (int i = 11; i < 30; ++i) {
-            final String objName = i + "_objective_" + MetadataSkillsReview.SUFFIXES.substring(i, i + 1);
+            final String objName = i + "_objective_" + MetadataSkillsReview.SUFFIXES.charAt(i);
             final File objectiveDir = new File(standardDir, objName);
             if (objectiveDir.exists() && objectiveDir.isDirectory()) {
 

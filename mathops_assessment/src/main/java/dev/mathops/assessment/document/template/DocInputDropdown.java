@@ -20,6 +20,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.io.File;
 import java.io.PrintStream;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -28,6 +29,7 @@ import java.util.Objects;
  * A document object that supports the entry of an integer value through the selection of an item from a dropdown box.
  */
 public final class DocInputDropdown extends AbstractDocInput {
+
     /** The top inset. */
     static final int INSET_TOP = 2;
 
@@ -45,6 +47,10 @@ public final class DocInputDropdown extends AbstractDocInput {
 
     /** The bottom margin. */
     static final int MARGIN_BOTTOM = 2;
+
+    /** Version number for serialization. */
+    @Serial
+    private static final long serialVersionUID = 8014953887713429659L;
 
     /** The value of the current selection (not its index in the list of selections). */
     private Long value;

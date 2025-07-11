@@ -409,7 +409,8 @@ public enum PageLogicPrerequisites {
      * @param stuId the student ID
      * @throws SQLException if there is an error accessing the database
      */
-    private static void scanOneStudent(final Cache cache, final HtmlBuilder htm, final String stuId) throws SQLException {
+    private static void scanOneStudent(final Cache cache, final HtmlBuilder htm, final String stuId)
+            throws SQLException {
 
         final RawStudent student = RawStudentLogic.query(cache, stuId, false);
         if (student == null) {

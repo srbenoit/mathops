@@ -285,8 +285,8 @@ public final class StudentConversationList {
     }
 
 //    /**
-//     * Called by a {@code Conversation} object when its subject has been successfully changed (and the change written to
-//     * the database).
+//     * Called by a {@code Conversation} object when its subject has been successfully changed (and the change written
+//     * to the database).
 //     *
 //     * @param conv the conversation whose subject has changed
 //     */

@@ -624,7 +624,8 @@ public final class ProctoringMediaSite extends AbstractSite {
                     final JSONObject[] newTags = tags.toArray(ZERO_LEN_JSON_ARR);
 
                     final int count = newTags.length;
-                    try (final FileWriter w = new FileWriter(new File(sessionDir, "tags.json"), StandardCharsets.UTF_8)) {
+                    try (final FileWriter w = new FileWriter(new File(sessionDir, "tags.json"),
+                            StandardCharsets.UTF_8)) {
                         w.write('[');
                         w.write(newTags[0].toJSONFriendly(0));
                         for (int i = 1; i < count; ++i) {

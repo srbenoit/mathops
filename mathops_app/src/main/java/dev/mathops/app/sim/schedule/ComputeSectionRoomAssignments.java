@@ -29,7 +29,8 @@ enum ComputeSectionRoomAssignments {
      * @return the sections for each course if a set of section assignments was found that provides room space for all
      *         courses; an empty map if not
      */
-    static Map<Course, List<AbstractSection>> compute(final Collection<Course> courses, final List<RoomSchedule> rooms) {
+    static Map<Course, List<AbstractSection>> compute(final Collection<Course> courses,
+                                                      final List<RoomSchedule> rooms) {
 
         for (final RoomSchedule room : rooms) {
             room.clearSections();
@@ -192,8 +193,8 @@ enum ComputeSectionRoomAssignments {
      * @param usage         the usage
      * @return the new number of seats needed
      */
-    private static AbstractSection addSectionToRoom(final EAssignmentType type, final RoomSchedule room, final int hoursNeeded,
-                                                    final Course course, final int seatsToAssign,
+    private static AbstractSection addSectionToRoom(final EAssignmentType type, final RoomSchedule room,
+                                                    final int hoursNeeded, final Course course, final int seatsToAssign,
                                                     final ERoomUsage usage) {
 
         AbstractSection result = null;

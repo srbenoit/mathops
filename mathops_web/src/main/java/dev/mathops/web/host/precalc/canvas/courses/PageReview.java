@@ -115,9 +115,7 @@ public enum PageReview {
 
             // TODO: Make skills reviews data-driven
 
-            if (RawRecordConstants.MATH122.equals(courseId)) {
-                presentMATH122Review(cache, site, req, resp, session, module, registration, htm);
-            } else if (RawRecordConstants.MATH125.equals(courseId)) {
+            if (RawRecordConstants.MATH125.equals(courseId)) {
                 presentMATH125Review(cache, site, req, resp, session, module, registration, htm);
             } else if (RawRecordConstants.MATH126.equals(courseId)) {
                 presentMATH126Review(cache, site, req, resp, session, module, registration, htm);

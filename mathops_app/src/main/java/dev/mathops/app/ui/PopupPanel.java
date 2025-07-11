@@ -51,7 +51,7 @@ public final class PopupPanel extends InternalPanelBase implements ActionListene
     /**
      * Constructs a new {@code PopupPanel}, creating the user interface from the skin settings.
      *
-     * @param theResOwner       the object that is creating the dialog. Skin resources are loaded from the PleaseWaitSkin path
+     * @param theResOwner the object that is creating the dialog. Skin resources are loaded from the PleaseWaitSkin path
      *                    relative to this object's position in the source tree
      * @param theMessage1 line 1 of the message to display in the panel
      * @param theWarn     the optional warning

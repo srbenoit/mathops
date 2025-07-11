@@ -1292,8 +1292,8 @@ enum PageSchedule {
      * @param paceRegs the list to update with the newly updated record
      * @throws SQLException if there is an error accessing the database
      */
-    private static void updatePaceOrder(final Cache cache, final RawStcourse reg,
-                                        final Integer newOrder, final List<? super RawStcourse> paceRegs) throws SQLException {
+    private static void updatePaceOrder(final Cache cache, final RawStcourse reg, final Integer newOrder,
+                                        final List<? super RawStcourse> paceRegs) throws SQLException {
 
         if (reg != null) {
             final int index = paceRegs.indexOf(reg);

@@ -291,8 +291,8 @@ final class DocPrimitiveLine extends AbstractDocRectangleShape {
             final double strokeW = this.strokeWidth == null ? 0.0 : this.strokeWidth.doubleValue();
             final double alphaValue = this.alpha == null ? 1.0 : this.alpha.doubleValue();
 
-            final StrokeStyleInst stroke = strokeW <= 0.0 ? null : new StrokeStyleInst(strokeW, this.colorName, this.dash,
-                    alphaValue, EStrokeCap.BUTT, EStrokeJoin.MITER, 10.0f);
+            final StrokeStyleInst stroke = strokeW <= 0.0 ? null : new StrokeStyleInst(strokeW, this.colorName,
+                    this.dash, alphaValue, EStrokeCap.BUTT, EStrokeJoin.MITER, 10.0f);
 
             final RectangleShapeInst shapeInst = getShape().createInstance(evalContext);
             result = new DocPrimitiveLineInst(shapeInst, stroke);

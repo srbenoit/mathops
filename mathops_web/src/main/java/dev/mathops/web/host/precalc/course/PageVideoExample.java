@@ -133,8 +133,8 @@ enum PageVideoExample {
      * @param session the user's login session information
      * @throws IOException if there is an error writing the response
      */
-    static void doExampleFeedback(final CourseSite site, final ServletRequest req,
-                                  final HttpServletResponse resp, final ImmutableSessionInfo session) throws IOException {
+    static void doExampleFeedback(final CourseSite site, final ServletRequest req, final HttpServletResponse resp,
+                                  final ImmutableSessionInfo session) throws IOException {
 
         final String courseId = req.getParameter("course");
         final String mediaId = req.getParameter("media");

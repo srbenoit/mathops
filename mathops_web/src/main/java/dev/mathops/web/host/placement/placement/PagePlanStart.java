@@ -2,10 +2,12 @@ package dev.mathops.web.host.placement.placement;
 
 import dev.mathops.db.Cache;
 import dev.mathops.db.cfg.Profile;
-import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
-import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
-import dev.mathops.db.old.logic.mathplan.data.MathPlanStudentData;
+import dev.mathops.db.logic.mathplan.MathPlanLogic;
+import dev.mathops.db.logic.mathplan.MathPlanConstants;
+import dev.mathops.db.logic.mathplan.MathPlanStudentData;
+import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
+import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.Page;
@@ -65,23 +67,22 @@ enum PagePlanStart {
                               final MathPlanLogic logic) throws IOException, SQLException {
 
         final String stuId = session.getEffectiveUserId();
-        final MathPlanStudentData data = logic.getStudentData(cache, stuId, session.getNow(), session.loginSessionTag,
+
+        final RawStudent student = RawStudentLogic.query(cache, stuId, false);
+
+        final ZonedDateTime now = session.getNow();
+        final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, now,
                 session.actAsUserId == null);
 
         final HtmlBuilder htm = new HtmlBuilder(8192);
         Page.startNofooterPage(htm, site.getTitle(), session, true, Page.NO_BARS, null, false, false);
 
         MPPage.emitMathPlanHeader(htm);
+        MathPlacementSite.emitLoggedInAs2(htm, session);
 
-        if (data == null) {
-            MPPage.emitNoStudentDataError(htm);
-        } else {
-            MathPlacementSite.emitLoggedInAs2(htm, session);
-
-            htm.sDiv("inset2");
-            emitPlanSteps(htm, data);
-            htm.eDiv(); // inset2
-        }
+        htm.sDiv("inset2");
+        emitPlanSteps(htm, data);
+        htm.eDiv();
 
         MPPage.emitScripts(htm,
                 "function pick(target) {",
@@ -111,57 +112,46 @@ enum PagePlanStart {
         htm.sDiv("shaded2left");
 
         htm.sP("grow")
-                .add("Creating your personalized math plan will help you identify the ",
-                        "mathematics course(s) that best match your mathematical preparation with ",
-                        "your academic goals, and will help determine if the Math Placement ",
-                        "process is right for you.")
-                .eP();
+                .add("Creating your personalized math plan will help you identify the mathematics course(s) that best ",
+                        "match your mathematical preparation with your academic goals, and will help determine if the ",
+                        "Math Placement process is right for you.").eP();
 
         htm.sP("grow")
-                .add("Creating your plan takes four simple steps.  You can come back ",
-                        "and change your selections at any time to update your plan.")
-                .eP();
+                .add("Creating your plan takes four simple steps.  You can come back and change your selections at ",
+                        "any time to update your plan.").eP();
 
         htm.sDiv("center", "style='min-width:256px;'");
 
         htm.add("<ul class='stepnum' id='bluesteps' aria-hidden='true'>");
-        htm.add(" <li class='", doneStep1 ? "lit" : "dim",
-                "' aria-hidden='true'>1</li>");
-        htm.add(" <li class='", doneStep2 ? "lit" : "dim",
-                "' aria-hidden='true'>2</li>");
-        htm.add(" <li class='", doneStep3 ? "lit" : "dim",
-                "' aria-hidden='true'>3</li>");
-        htm.add(" <li class='", doneStep4 ? "lit" : "dim",
-                "' aria-hidden='true'>4</li>");
+        htm.add(" <li class='", (doneStep1 ? "lit" : "dim"), "' aria-hidden='true'>1</li>");
+        htm.add(" <li class='", (doneStep2 ? "lit" : "dim"), "' aria-hidden='true'>2</li>");
+        htm.add(" <li class='", (doneStep3 ? "lit" : "dim"), "' aria-hidden='true'>3</li>");
+        htm.add(" <li class='", (doneStep4 ? "lit" : "dim"), "' aria-hidden='true'>4</li>");
         htm.add("</ul>");
 
         htm.add("<nav class='foursteps'>");
-        htm.add("<button class='foursteps' id='first' ",
-                "onclick='pick(\"plan_majors1.html\");'>",
-                "<span class='sr-only'>Step 1:</span>", //
+        htm.add("<button class='foursteps' id='first' onclick='pick(\"plan_majors1.html\");'>",
+                "<span class='sr-only'>Step 1:</span>",
                 "Tell us what majors<br/>you may be<br/>interested in.</button>");
         htm.add("<button class='foursteps' ");
         if (!doneStep1) {
             htm.add(" disabled");
         }
-        htm.add(" onclick='pick(\"plan_record.html\");'>",
-                "<span class='sr-only'>Step 2:</span>",
+        htm.add(" onclick='pick(\"plan_record.html\");'><span class='sr-only'>Step 2:</span>",
                 "Tell us about<br/>transfer credit,<br/>test scores.</button>");
 
         htm.add("<button class='foursteps' ");
         if (!doneStep2) {
             htm.add(" disabled");
         }
-        htm.add(" onclick='pick(\"plan_view.html\");'>",
-                "<span class='sr-only'>Step 3:</span>", //
+        htm.add(" onclick='pick(\"plan_view.html\");'><span class='sr-only'>Step 3:</span>",
                 "Generate your<br/>personalized<br/>math plan.</button>");
 
         htm.add("<button class='foursteps' id='last' ");
         if (!doneStep3) {
             htm.add(" disabled");
         }
-        htm.add(" onclick='pick(\"plan_next.html\");'>",
-                "<span class='sr-only'>Step 4:</span>", //
+        htm.add(" onclick='pick(\"plan_next.html\");'><span class='sr-only'>Step 4:</span>",
                 "Review your<br/>recommended<br/>next steps.</button>");
         htm.add("</nav>");
 
@@ -236,14 +226,14 @@ enum PagePlanStart {
         if (session.actAsUserId == null) {
             final String studentId = session.getEffectiveUserId();
 
-            final MathPlanStudentData data = logic.getStudentData(cache, studentId, now, session.loginSessionTag,
-                    true);
+            final RawStudent student = RawStudentLogic.query(cache, studentId, false);
+            final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, now, true);
 
             if (req.getParameter(INPUT_NAME) != null) {
 
                 final Integer key = Integer.valueOf(1);
 
-                final Map<Integer, RawStmathplan> existing = MathPlanLogic.getMathPlanResponses(cache, studentId,
+                final Map<Integer, RawStmathplan> existing = MathPlanStudentData.getMathPlanResponses(cache, studentId,
                         MathPlanConstants.ONLY_RECOM_PROFILE);
 
                 if (!existing.containsKey(key)) {

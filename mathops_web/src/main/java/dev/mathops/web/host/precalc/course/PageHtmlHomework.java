@@ -47,8 +47,8 @@ enum PageHtmlHomework {
         final String lesson = req.getParameter("lesson");
 
         if (AbstractSite.isParamInvalid(assignmentId) || AbstractSite.isParamInvalid(coursemode)
-                || AbstractSite.isParamInvalid(mode) || AbstractSite.isParamInvalid(course)
-                || AbstractSite.isParamInvalid(unit) || AbstractSite.isParamInvalid(lesson)) {
+            || AbstractSite.isParamInvalid(mode) || AbstractSite.isParamInvalid(course)
+            || AbstractSite.isParamInvalid(unit) || AbstractSite.isParamInvalid(lesson)) {
             Log.warning("Invalid request parameters - possible attack:");
             Log.warning("  assignmentId='", assignmentId, "'");
             Log.warning("  coursemode='", coursemode, "'");
@@ -59,10 +59,10 @@ enum PageHtmlHomework {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
             final boolean isNewCourse = RawRecordConstants.MATH117.equals(course)
-                    || RawRecordConstants.MATH118.equals(course)
-                    || RawRecordConstants.MATH124.equals(course)
-                    || RawRecordConstants.MATH125.equals(course)
-                    || RawRecordConstants.MATH126.equals(course);
+                                        || RawRecordConstants.MATH118.equals(course)
+                                        || RawRecordConstants.MATH124.equals(course)
+                                        || RawRecordConstants.MATH125.equals(course)
+                                        || RawRecordConstants.MATH126.equals(course);
 
             final HomeworkSessionStore store = HomeworkSessionStore.getInstance();
             HomeworkSession hs = store.getHomeworkSession(session.loginSessionId, assignmentId);
@@ -162,8 +162,8 @@ enum PageHtmlHomework {
         final String lesson = req.getParameter("lesson");
 
         if (AbstractSite.isParamInvalid(assignmentId) || AbstractSite.isParamInvalid(coursemode)
-                || AbstractSite.isParamInvalid(mode) || AbstractSite.isParamInvalid(course)
-                || AbstractSite.isParamInvalid(unit) || AbstractSite.isParamInvalid(lesson)) {
+            || AbstractSite.isParamInvalid(mode) || AbstractSite.isParamInvalid(course)
+            || AbstractSite.isParamInvalid(unit) || AbstractSite.isParamInvalid(lesson)) {
             Log.warning("Invalid request parameters - possible attack:");
             Log.warning("  assignmentId='", assignmentId, "'");
             Log.warning("  coursemode='", coursemode, "'");
@@ -186,12 +186,11 @@ enum PageHtmlHomework {
             htm.sDiv("nav");
             htm.sDiv("aslines");
             htm.add(" <a class='linkbtn' ");
-            if (RawRecordConstants.MATH116.equals(course)
-                    || RawRecordConstants.MATH117.equals(course)
-                    || RawRecordConstants.MATH118.equals(course)
-                    || RawRecordConstants.MATH124.equals(course)
-                    || RawRecordConstants.MATH125.equals(course)
-                    || RawRecordConstants.MATH126.equals(course)) {
+            if (RawRecordConstants.MATH117.equals(course)
+                || RawRecordConstants.MATH118.equals(course)
+                || RawRecordConstants.MATH124.equals(course)
+                || RawRecordConstants.MATH125.equals(course)
+                || RawRecordConstants.MATH126.equals(course)) {
 
                 htm.add("href='course_text_module.html?course=", course, "&module=", unit, "&mode=", coursemode,
                         "'><em>");

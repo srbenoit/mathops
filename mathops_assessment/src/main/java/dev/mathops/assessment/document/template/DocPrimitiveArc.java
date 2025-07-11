@@ -968,8 +968,8 @@ final class DocPrimitiveArc extends AbstractDocRectangleShape {
                 final double strokeW = this.strokeWidth == null ? 0.0 : this.strokeWidth.doubleValue();
                 final double alphaValue = this.strokeAlpha == null ? 1.0 : this.strokeAlpha.doubleValue();
 
-                final StrokeStyleInst stroke = strokeW <= 0.0 ? null : new StrokeStyleInst(strokeW, this.strokeColorName,
-                        this.strokeDash, alphaValue, EStrokeCap.BUTT, EStrokeJoin.MITER, 10.0f);
+                final StrokeStyleInst stroke = strokeW <= 0.0 ? null : new StrokeStyleInst(strokeW,
+                        this.strokeColorName, this.strokeDash, alphaValue, EStrokeCap.BUTT, EStrokeJoin.MITER, 10.0f);
 
                 final double fillAlphaValue = this.fillAlpha == null ? 1.0 : this.fillAlpha.doubleValue();
                 final FillStyle fill = new FillStyle(this.fillColorName, fillAlphaValue);

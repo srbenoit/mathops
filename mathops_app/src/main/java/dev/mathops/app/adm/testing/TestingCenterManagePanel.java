@@ -392,8 +392,8 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
     /**
      * Constructs a new {@code TestingCenterMapPanel}.
      *
-     * @param theOwner         the owning tab pane
-     * @param theClients       the list of clients (access to this list should be synchronized on the list)
+     * @param theOwner   the owning tab pane
+     * @param theClients the list of clients (access to this list should be synchronized on the list)
      */
     TestingCenterManagePanel(final TopPanelTesting theOwner,
                              final List<RawClientPc> theClients) {
@@ -625,8 +625,8 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
     /**
      * Constructs a context menu.
      *
-     * @param popup            the popup menu that will appear when the button is pressed
-     * @param icon             the button icon
+     * @param popup the popup menu that will appear when the button is pressed
+     * @param icon  the button icon
      * @return the context menu button
      */
     private static JButton makeContextMenu(final JPopupMenu popup, final ImageIcon icon) {
@@ -652,7 +652,6 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
     @Override
     public void paintComponent(final Graphics g) {
 
-
         synchronized (this.clients) {
             final int count = this.clients.size();
 
@@ -662,10 +661,10 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
             for (final RawClientPc pc : this.clients) {
                 final Integer status = pc.currentStatus;
                 final boolean on = RawClientPc.STATUS_FORCE_SUBMIT.equals(status)
-                        || RawClientPc.STATUS_AWAIT_STUDENT.equals(status)
-                        || RawClientPc.STATUS_TAKING_EXAM.equals(status)
-                        || RawClientPc.STATUS_EXAM_RESULTS.equals(status)
-                        || RawClientPc.STATUS_LOCKED.equals(status);
+                                   || RawClientPc.STATUS_AWAIT_STUDENT.equals(status)
+                                   || RawClientPc.STATUS_TAKING_EXAM.equals(status)
+                                   || RawClientPc.STATUS_EXAM_RESULTS.equals(status)
+                                   || RawClientPc.STATUS_LOCKED.equals(status);
                 clientStatus.put(pc.stationNbr, Boolean.valueOf(on));
             }
 
@@ -803,7 +802,7 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
         final double xScale = (double) w / 1040.0;
         final double yScale = (double) h / 670.0;
         final double dscl = Math.min(xScale, yScale);
-        final float fscl = (float)dscl;
+        final float fscl = (float) dscl;
 
         final int cx = w / 2;
         final int cy = h / 2;
@@ -878,42 +877,48 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
         g2d.setStroke(dashed);
 
         // East wall (7 - 18)
-        rrect.setRoundRect((double) x + dscl * 18.0, (double) y + dscl * 25.0, dscl * 40.0, dscl * 497.0, dscl * 10.0, dscl * 10.0);
+        rrect.setRoundRect((double) x + dscl * 18.0, (double) y + dscl * 25.0, dscl * 40.0, dscl * 497.0, dscl * 10.0,
+                dscl * 10.0);
         g2d.setColor(this.zoneFill);
         g2d.fill(rrect);
         g2d.setColor(this.zoneOutline);
         g2d.draw(rrect);
 
         // East main 2 (19 - 32)
-        rrect.setRoundRect((double) x + dscl * 92.0, (double) y + dscl * 42.0, dscl * 83.0, dscl * 412.0, dscl * 10.0, dscl * 10.0);
+        rrect.setRoundRect((double) x + dscl * 92.0, (double) y + dscl * 42.0, dscl * 83.0, dscl * 412.0, dscl * 10.0,
+                dscl * 10.0);
         g2d.setColor(this.zoneFill);
         g2d.fill(rrect);
         g2d.setColor(this.zoneOutline);
         g2d.draw(rrect);
 
         // East main 1 (37 - 50)
-        rrect.setRoundRect((double) x + dscl * 194.0, (double) y + dscl * 42.0, dscl * 83.0, dscl * 412.0, dscl * 10.0, dscl * 10.0);
+        rrect.setRoundRect((double) x + dscl * 194.0, (double) y + dscl * 42.0, dscl * 83.0, dscl * 412.0, dscl * 10.0,
+                dscl * 10.0);
         g2d.setColor(this.zoneFill);
         g2d.fill(rrect);
         g2d.setColor(this.zoneOutline);
         g2d.draw(rrect);
 
         // East aisle (51 - 58)
-        rrect.setRoundRect((double) x + dscl * 305.0, (double) y + dscl * 32.0, dscl * 40.0, dscl * 362.0, dscl * 10.0, dscl * 10.0);
+        rrect.setRoundRect((double) x + dscl * 305.0, (double) y + dscl * 32.0, dscl * 40.0, dscl * 362.0, dscl * 10.0,
+                dscl * 10.0);
         g2d.setColor(this.zoneFill);
         g2d.fill(rrect);
         g2d.setColor(this.zoneOutline);
         g2d.draw(rrect);
 
         // West aisle (59 - 68)
-        rrect.setRoundRect((double) x + dscl * 372.0, (double) y + dscl * 47.0, dscl * 40.0, dscl * 408.0, dscl * 10.0, dscl * 10.0);
+        rrect.setRoundRect((double) x + dscl * 372.0, (double) y + dscl * 47.0, dscl * 40.0, dscl * 408.0, dscl * 10.0,
+                dscl * 10.0);
         g2d.setColor(this.zoneFill);
         g2d.fill(rrect);
         g2d.setColor(this.zoneOutline);
         g2d.draw(rrect);
 
         // West main (69 - 82)
-        rrect.setRoundRect((double) x + dscl * 446.0, (double) y + dscl * 42.0, dscl * 83.0, dscl * 413.0, dscl * 10.0, dscl * 10.0);
+        rrect.setRoundRect((double) x + dscl * 446.0, (double) y + dscl * 42.0, dscl * 83.0, dscl * 413.0, dscl * 10.0,
+                dscl * 10.0);
         g2d.setColor(this.zoneFill);
         g2d.fill(rrect);
         g2d.setColor(this.zoneOutline);
@@ -922,21 +927,29 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
         // West wall (85 - 88, 90 - 91, 94 - 95, 97 - 100)
         path.moveTo((double) x + dscl * 549.0, (double) y + dscl * 42.0);
         path.lineTo((double) x + dscl * 624.0, (double) y + dscl * 42.0);
-        path.quadTo((double) x + dscl * 629.0, (double) y + dscl * 42.0, (double) x + dscl * 629.0, (double) y + dscl * 47.0); // NE
+        path.quadTo((double) x + dscl * 629.0, (double) y + dscl * 42.0, (double) x + dscl * 629.0,
+                (double) y + dscl * 47.0); // NE
         path.lineTo((double) x + dscl * 629.0, (double) y + dscl * 105.0);
-        path.quadTo((double) x + dscl * 629.0, (double) y + dscl * 110.0, (double) x + dscl * 624.0, (double) y + dscl * 110.0); // SE
+        path.quadTo((double) x + dscl * 629.0, (double) y + dscl * 110.0, (double) x + dscl * 624.0,
+                (double) y + dscl * 110.0); // SE
         path.lineTo((double) x + dscl * 589.0, (double) y + dscl * 110.0);
-        path.quadTo((double) x + dscl * 584.0, (double) y + dscl * 110.0, (double) x + dscl * 584.0, (double) y + dscl * 115.0); // NW
+        path.quadTo((double) x + dscl * 584.0, (double) y + dscl * 110.0, (double) x + dscl * 584.0,
+                (double) y + dscl * 115.0); // NW
         path.lineTo((double) x + dscl * 584.0, (double) y + dscl * 415.0);
-        path.quadTo((double) x + dscl * 584.0, (double) y + dscl * 420.0, (double) x + dscl * 589.0, (double) y + dscl * 420.0); // SW
+        path.quadTo((double) x + dscl * 584.0, (double) y + dscl * 420.0, (double) x + dscl * 589.0,
+                (double) y + dscl * 420.0); // SW
         path.lineTo((double) x + dscl * 624.0, (double) y + dscl * 420.0);
-        path.quadTo((double) x + dscl * 629.0, (double) y + dscl * 420.0, (double) x + dscl * 629.0, (double) y + dscl * 425.0); // NE
+        path.quadTo((double) x + dscl * 629.0, (double) y + dscl * 420.0, (double) x + dscl * 629.0,
+                (double) y + dscl * 425.0); // NE
         path.lineTo((double) x + dscl * 629.0, (double) y + dscl * 481.0);
-        path.quadTo((double) x + dscl * 629.0, (double) y + dscl * 486.0, (double) x + dscl * 624.0, (double) y + dscl * 486.0); // SE
+        path.quadTo((double) x + dscl * 629.0, (double) y + dscl * 486.0, (double) x + dscl * 624.0,
+                (double) y + dscl * 486.0); // SE
         path.lineTo((double) x + dscl * 549.0, (double) y + dscl * 486.0);
-        path.quadTo((double) x + dscl * 544.0, (double) y + dscl * 486.0, (double) x + dscl * 544.0, (double) y + dscl * 481.0); // SW
+        path.quadTo((double) x + dscl * 544.0, (double) y + dscl * 486.0, (double) x + dscl * 544.0,
+                (double) y + dscl * 481.0); // SW
         path.lineTo((double) x + dscl * 544.0, (double) y + dscl * 49.0);
-        path.quadTo((double) x + dscl * 544.0, (double) y + dscl * 42.0, (double) x + dscl * 549.0, (double) y + dscl * 42.0); // NW
+        path.quadTo((double) x + dscl * 544.0, (double) y + dscl * 42.0, (double) x + dscl * 549.0,
+                (double) y + dscl * 42.0); // NW
         path.closePath();
         g2d.setColor(this.zoneFill);
         g2d.fill(path);
@@ -945,21 +958,24 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
         path.reset();
 
         // West wall center (89, 92 - 93, 96)
-        rrect.setRoundRect((double) x + dscl * 588.0, (double) y + dscl * 168.0, dscl * 40.0, dscl * 194.0, dscl * 10.0, dscl * 10.0);
+        rrect.setRoundRect((double) x + dscl * 588.0, (double) y + dscl * 168.0, dscl * 40.0, dscl * 194.0, dscl * 10.0,
+                dscl * 10.0);
         g2d.setColor(this.zoneFill);
         g2d.fill(rrect);
         g2d.setColor(this.zoneOutline);
         g2d.draw(rrect);
 
         // Last 1 (33 - 36, 83 - 84)
-        rrect.setRoundRect((double) x + dscl * 92.0, (double) y + dscl * 454.0, dscl * 436.0, dscl * 32.0, dscl * 10.0, dscl * 10.0);
+        rrect.setRoundRect((double) x + dscl * 92.0, (double) y + dscl * 454.0, dscl * 436.0, dscl * 32.0, dscl * 10.0,
+                dscl * 10.0);
         g2d.setColor(this.zoneFill);
         g2d.fill(rrect);
         g2d.setColor(this.zoneOutline);
         g2d.draw(rrect);
 
         // Last 2 (3 - 4)
-        rrect.setRoundRect((double) x + dscl * 81.0, (double) y + dscl * 575.0, dscl * 83.0, dscl * 40.0, dscl * 10.0, dscl * 10.0);
+        rrect.setRoundRect((double) x + dscl * 81.0, (double) y + dscl * 575.0, dscl * 83.0, dscl * 40.0, dscl * 10.0,
+                dscl * 10.0);
         g2d.setColor(this.zoneFill);
         g2d.fill(rrect);
         g2d.setColor(this.zoneOutline);
@@ -969,185 +985,219 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
 
         g2d.setStroke(origStroke);
 
-        rrect.setRoundRect((double) x - dscl * 147.0, (double) y + dscl * 3.0, dscl * 28.0, dscl * 94.0, dscl * 4.0, dscl * 4.0);
+        rrect.setRoundRect((double) x - dscl * 147.0, (double) y + dscl * 3.0, dscl * 28.0, dscl * 94.0, dscl * 4.0,
+                dscl * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
 
-        rrect.setRoundRect((double) x + dscl * 24.0, (double) y + dscl * 30.0, dscl * 28.0, dscl * 72.0, dscl * 4.0, dscl * 4.0);
+        rrect.setRoundRect((double) x + dscl * 24.0, (double) y + dscl * 30.0, dscl * 28.0, dscl * 72.0, dscl * 4.0,
+                dscl * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
 
-        rrect.setRoundRect((double) x + dscl * 24.0, (double) y + dscl * 104.0, dscl * 28.0, dscl * 72.0, dscl * 4.0, dscl * 4.0);
+        rrect.setRoundRect((double) x + dscl * 24.0, (double) y + dscl * 104.0, dscl * 28.0, dscl * 72.0, dscl * 4.0,
+                dscl * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
 
-        rrect.setRoundRect((double) x + dscl * 24.0, (double) y + dscl * 186.0, dscl * 28.0, dscl * 72.0, dscl * 4.0, dscl * 4.0);
+        rrect.setRoundRect((double) x + dscl * 24.0, (double) y + dscl * 186.0, dscl * 28.0, dscl * 72.0, dscl * 4.0,
+                dscl * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
 
-        rrect.setRoundRect((double) x + dscl * 24.0, (double) y + dscl * 272.0, dscl * 28.0, dscl * 72.0, dscl * 4.0, dscl * 4.0);
+        rrect.setRoundRect((double) x + dscl * 24.0, (double) y + dscl * 272.0, dscl * 28.0, dscl * 72.0, dscl * 4.0,
+                dscl * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
 
-        rrect.setRoundRect((double) x + dscl * 24.0, (double) y + dscl * 356.0, dscl * 28.0, dscl * 72.0, dscl * 4.0, dscl * 4.0);
+        rrect.setRoundRect((double) x + dscl * 24.0, (double) y + dscl * 356.0, dscl * 28.0, dscl * 72.0, dscl * 4.0,
+                dscl * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
 
-        rrect.setRoundRect((double) x + dscl * 24.0, (double) y + dscl * 447.0, dscl * 28.0, dscl * 72.0, dscl * 4.0, dscl * 4.0);
+        rrect.setRoundRect((double) x + dscl * 24.0, (double) y + dscl * 447.0, dscl * 28.0, dscl * 72.0, dscl * 4.0,
+                dscl * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
 
-        rrect.setRoundRect((double) x + dscl * 24.0, (double) y + dscl * 521.0, dscl * 28.0, dscl * 72.0, dscl * 4.0, dscl * 4.0);
+        rrect.setRoundRect((double) x + dscl * 24.0, (double) y + dscl * 521.0, dscl * 28.0, dscl * 72.0, dscl * 4.0,
+                dscl * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
 
-        rrect.setRoundRect((double) x + dscl * 98.0, (double) y + dscl * 48.0, dscl * 72.0, dscl * 56.0, dscl * 4.0, dscl * 4.0);
+        rrect.setRoundRect((double) x + dscl * 98.0, (double) y + dscl * 48.0, dscl * 72.0, dscl * 56.0, dscl * 4.0,
+                dscl * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
-        rrect.setRoundRect((double) x + dscl * 98.0, (double) y + dscl * 174.0, dscl * 72.0, dscl * 56.0, dscl * 4.0, dscl * 4.0);
+        rrect.setRoundRect((double) x + dscl * 98.0, (double) y + dscl * 174.0, dscl * 72.0, dscl * 56.0, dscl * 4.0,
+                dscl * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
-        rrect.setRoundRect((double) x + dscl * 98.0, (double) y + dscl * 300.0, dscl * 72.0, dscl * 56.0, dscl * 4.0, dscl * 4.0);
+        rrect.setRoundRect((double) x + dscl * 98.0, (double) y + dscl * 300.0, dscl * 72.0, dscl * 56.0, dscl * 4.0,
+                dscl * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
-        rrect.setRoundRect((double) x + dscl * 98.0, (double) y + dscl * 426.0, dscl * 72.0, dscl * 56.0, dscl * 4.0, dscl * 4.0);
+        rrect.setRoundRect((double) x + dscl * 98.0, (double) y + dscl * 426.0, dscl * 72.0, dscl * 56.0, dscl * 4.0,
+                dscl * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
-        rrect.setRoundRect((double) x + dscl * 86.0, (double) y + dscl * 580.0, dscl * 72.0, dscl * 28.0, dscl * 4.0, dscl * 4.0);
-        g2d.setColor(this.tableColor);
-        g2d.fill(rrect);
-        g2d.setColor(this.tableOutline);
-        g2d.draw(rrect);
-
-        rrect.setRoundRect((double) x + dscl * 200.0, (double) y + dscl * 48.0, dscl * 72.0, dscl * 56.0, dscl * 4.0, dscl * 4.0);
-        g2d.setColor(this.tableColor);
-        g2d.fill(rrect);
-        g2d.setColor(this.tableOutline);
-        g2d.draw(rrect);
-        rrect.setRoundRect((double) x + dscl * 200.0, (double) y + dscl * 174.0, dscl * 72.0, dscl * 56.0, dscl * 4.0, dscl * 4.0);
-        g2d.setColor(this.tableColor);
-        g2d.fill(rrect);
-        g2d.setColor(this.tableOutline);
-        g2d.draw(rrect);
-        rrect.setRoundRect((double) x + dscl * 200.0, (double) y + dscl * 300.0, dscl * 72.0, dscl * 56.0, dscl * 4.0, dscl * 4.0);
-        g2d.setColor(this.tableColor);
-        g2d.fill(rrect);
-        g2d.setColor(this.tableOutline);
-        g2d.draw(rrect);
-        rrect.setRoundRect((double) x + dscl * 200.0, (double) y + dscl * 426.0, dscl * 72.0, dscl * 56.0, dscl * 4.0, dscl * 4.0);
+        rrect.setRoundRect((double) x + dscl * 86.0, (double) y + dscl * 580.0, dscl * 72.0, dscl * 28.0, dscl * 4.0,
+                dscl * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
 
-        rrect.setRoundRect((double) x + dscl * 312.0, (double) y + dscl * 38.0, dscl * 28.0, dscl * 72.0, dscl * 4.0, dscl * 4.0);
+        rrect.setRoundRect((double) x + dscl * 200.0, (double) y + dscl * 48.0, dscl * 72.0, dscl * 56.0, dscl * 4.0,
+                dscl * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
-        rrect.setRoundRect((double) x + dscl * 312.0, (double) y + dscl * 112.0, dscl * 28.0, dscl * 72.0, dscl * 4.0, dscl * 4.0);
+        rrect.setRoundRect((double) x + dscl * 200.0, (double) y + dscl * 174.0, dscl * 72.0, dscl * 56.0, dscl * 4.0,
+                dscl * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
-        rrect.setRoundRect((double) x + dscl * 312.0, (double) y + dscl * 208.0, dscl * 28.0, dscl * 72.0, dscl * 4.0, dscl * 4.0);
+        rrect.setRoundRect((double) x + dscl * 200.0, (double) y + dscl * 300.0, dscl * 72.0, dscl * 56.0, dscl * 4.0,
+                dscl * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
-        rrect.setRoundRect((double) x + dscl * 312.0, (double) y + dscl * 318.0, dscl * 28.0, dscl * 72.0, dscl * 4.0, dscl * 4.0);
-        g2d.setColor(this.tableColor);
-        g2d.fill(rrect);
-        g2d.setColor(this.tableOutline);
-        g2d.draw(rrect);
-
-        rrect.setRoundRect((double) x + dscl * 378.0, (double) y + dscl * 52.0, dscl * 28.0, dscl * 72.0, dscl * 4.0, dscl * 4.0);
-        g2d.setColor(this.tableColor);
-        g2d.fill(rrect);
-        g2d.setColor(this.tableOutline);
-        g2d.draw(rrect);
-        rrect.setRoundRect((double) x + dscl * 378.0, (double) y + dscl * 133.0, dscl * 28.0, dscl * 72.0, dscl * 4.0, dscl * 4.0);
-        g2d.setColor(this.tableColor);
-        g2d.fill(rrect);
-        g2d.setColor(this.tableOutline);
-        g2d.draw(rrect);
-        rrect.setRoundRect((double) x + dscl * 378.0, (double) y + dscl * 219.0, dscl * 28.0, dscl * 72.0, dscl * 4.0, dscl * 4.0);
-        g2d.setColor(this.tableColor);
-        g2d.fill(rrect);
-        g2d.setColor(this.tableOutline);
-        g2d.draw(rrect);
-        rrect.setRoundRect((double) x + dscl * 378.0, (double) y + dscl * 302.0, dscl * 28.0, dscl * 72.0, dscl * 4.0, dscl * 4.0);
-        g2d.setColor(this.tableColor);
-        g2d.fill(rrect);
-        g2d.setColor(this.tableOutline);
-        g2d.draw(rrect);
-        rrect.setRoundRect((double) x + dscl * 378.0, (double) y + dscl * 384.0, dscl * 28.0, dscl * 72.0, dscl * 4.0, dscl * 4.0);
+        rrect.setRoundRect((double) x + dscl * 200.0, (double) y + dscl * 426.0, dscl * 72.0, dscl * 56.0, dscl * 4.0,
+                dscl * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
 
-        rrect.setRoundRect((double) x + dscl * 452.0, (double) y + dscl * 48.0, dscl * 72.0, dscl * 56.0, dscl * 4.0, dscl * 4.0);
+        rrect.setRoundRect((double) x + dscl * 312.0, (double) y + dscl * 38.0, dscl * 28.0, dscl * 72.0, dscl * 4.0,
+                dscl * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
-        rrect.setRoundRect((double) x + dscl * 452.0, (double) y + dscl * 174.0, dscl * 72.0, dscl * 56.0, dscl * 4.0, dscl * 4.0);
+        rrect.setRoundRect((double) x + dscl * 312.0, (double) y + dscl * 112.0, dscl * 28.0, dscl * 72.0, dscl * 4.0,
+                dscl * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
-        rrect.setRoundRect((double) x + dscl * 452.0, (double) y + dscl * 300.0, dscl * 72.0, dscl * 56.0, dscl * 4.0, dscl * 4.0);
+        rrect.setRoundRect((double) x + dscl * 312.0, (double) y + dscl * 208.0, dscl * 28.0, dscl * 72.0, dscl * 4.0,
+                dscl * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
-        rrect.setRoundRect((double) x + dscl * 452.0, (double) y + dscl * 426.0, dscl * 72.0, dscl * 56.0, dscl * 4.0, dscl * 4.0);
+        rrect.setRoundRect((double) x + dscl * 312.0, (double) y + dscl * 318.0, dscl * 28.0, dscl * 72.0, dscl * 4.0,
+                dscl * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
 
-        rrect.setRoundRect((double) x + dscl * 550.0, (double) y + dscl * 48.0, dscl * 72.0, dscl * 56.0, dscl * 4.0, dscl * 4.0);
+        rrect.setRoundRect((double) x + dscl * 378.0, (double) y + dscl * 52.0, dscl * 28.0, dscl * 72.0, dscl * 4.0,
+                dscl * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
-        rrect.setRoundRect((double) x + dscl * 550.0, (double) y + dscl * 174.0, dscl * 72.0, dscl * 56.0, dscl * 4.0, dscl * 4.0);
+        rrect.setRoundRect((double) x + dscl * 378.0, (double) y + dscl * 133.0, dscl * 28.0, dscl * 72.0, dscl * 4.0,
+                dscl * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
-        rrect.setRoundRect((double) x + dscl * 550.0, (double) y + dscl * 300.0, dscl * 72.0, dscl * 56.0, dscl * 4.0, dscl * 4.0);
+        rrect.setRoundRect((double) x + dscl * 378.0, (double) y + dscl * 219.0, dscl * 28.0, dscl * 72.0, dscl * 4.0,
+                dscl * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
         g2d.draw(rrect);
-        rrect.setRoundRect((double) x + dscl * 550.0, (double) y + dscl * 426.0, dscl * 72.0, dscl * 56.0, dscl * 4.0, dscl * 4.0);
+        rrect.setRoundRect((double) x + dscl * 378.0, (double) y + dscl * 302.0, dscl * 28.0, dscl * 72.0, dscl * 4.0,
+                dscl * 4.0);
+        g2d.setColor(this.tableColor);
+        g2d.fill(rrect);
+        g2d.setColor(this.tableOutline);
+        g2d.draw(rrect);
+        rrect.setRoundRect((double) x + dscl * 378.0, (double) y + dscl * 384.0, dscl * 28.0, dscl * 72.0, dscl * 4.0,
+                dscl * 4.0);
+        g2d.setColor(this.tableColor);
+        g2d.fill(rrect);
+        g2d.setColor(this.tableOutline);
+        g2d.draw(rrect);
+
+        rrect.setRoundRect((double) x + dscl * 452.0, (double) y + dscl * 48.0, dscl * 72.0, dscl * 56.0, dscl * 4.0,
+                dscl * 4.0);
+        g2d.setColor(this.tableColor);
+        g2d.fill(rrect);
+        g2d.setColor(this.tableOutline);
+        g2d.draw(rrect);
+        rrect.setRoundRect((double) x + dscl * 452.0, (double) y + dscl * 174.0, dscl * 72.0, dscl * 56.0, dscl * 4.0,
+                dscl * 4.0);
+        g2d.setColor(this.tableColor);
+        g2d.fill(rrect);
+        g2d.setColor(this.tableOutline);
+        g2d.draw(rrect);
+        rrect.setRoundRect((double) x + dscl * 452.0, (double) y + dscl * 300.0, dscl * 72.0, dscl * 56.0, dscl * 4.0,
+                dscl * 4.0);
+        g2d.setColor(this.tableColor);
+        g2d.fill(rrect);
+        g2d.setColor(this.tableOutline);
+        g2d.draw(rrect);
+        rrect.setRoundRect((double) x + dscl * 452.0, (double) y + dscl * 426.0, dscl * 72.0, dscl * 56.0, dscl * 4.0,
+                dscl * 4.0);
+        g2d.setColor(this.tableColor);
+        g2d.fill(rrect);
+        g2d.setColor(this.tableOutline);
+        g2d.draw(rrect);
+
+        rrect.setRoundRect((double) x + dscl * 550.0, (double) y + dscl * 48.0, dscl * 72.0, dscl * 56.0, dscl * 4.0,
+                dscl * 4.0);
+        g2d.setColor(this.tableColor);
+        g2d.fill(rrect);
+        g2d.setColor(this.tableOutline);
+        g2d.draw(rrect);
+        rrect.setRoundRect((double) x + dscl * 550.0, (double) y + dscl * 174.0, dscl * 72.0, dscl * 56.0, dscl * 4.0,
+                dscl * 4.0);
+        g2d.setColor(this.tableColor);
+        g2d.fill(rrect);
+        g2d.setColor(this.tableOutline);
+        g2d.draw(rrect);
+        rrect.setRoundRect((double) x + dscl * 550.0, (double) y + dscl * 300.0, dscl * 72.0, dscl * 56.0, dscl * 4.0,
+                dscl * 4.0);
+        g2d.setColor(this.tableColor);
+        g2d.fill(rrect);
+        g2d.setColor(this.tableOutline);
+        g2d.draw(rrect);
+        rrect.setRoundRect((double) x + dscl * 550.0, (double) y + dscl * 426.0, dscl * 72.0, dscl * 56.0, dscl * 4.0,
+                dscl * 4.0);
         g2d.setColor(this.tableColor);
         g2d.fill(rrect);
         g2d.setColor(this.tableOutline);
@@ -1161,12 +1211,13 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
 
         // East wall
         int xx = x - btnSize.width + 6;
-        int yy = (int)Math.round((double) y + dscl * 225.0);
+        int yy = (int) Math.round((double) y + dscl * 225.0);
 
         g2d.setStroke(thick);
         path.moveTo((double) xx + (double) btnSize.width / 2.0, yy + btnSize.height);
         path.curveTo(xx + btnSize.width / 2, (double) yy + (double) btnSize.height + 10.0,
-                (double) xx + (double) btnSize.width / 2.0 + dscl * 16.0 - 10.0, (double) yy + (double) btnSize.height + 15.0,
+                (double) xx + (double) btnSize.width / 2.0 + dscl * 16.0 - 10.0,
+                (double) yy + (double) btnSize.height + 15.0,
                 (double) xx + (double) btnSize.width / 2.0 + dscl * 16.0, (double) yy + (double) btnSize.height + 15.0);
         path.lineTo((double) x + dscl * 17.0, (double) yy + (double) btnSize.height + 15.0);
         g2d.draw(path);
@@ -1174,7 +1225,7 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
 
         // East main 1
 
-        xx = (int)Math.round((double) x + dscl * 233.0 - (double) btnSize.width / 2.0);
+        xx = (int) Math.round((double) x + dscl * 233.0 - (double) btnSize.width / 2.0);
         yy = y - 6;
 
         g2d.setStroke(thick);
@@ -1185,7 +1236,7 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
 
         // East main 2
 
-        xx = (int)Math.round((double) x + dscl * 132.0 - (double) btnSize.width / 2.0);
+        xx = (int) Math.round((double) x + dscl * 132.0 - (double) btnSize.width / 2.0);
         yy = y - 6;
 
         g2d.setStroke(thick);
@@ -1196,7 +1247,7 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
 
         // East aisle
 
-        xx = (int)Math.round((double) x + dscl * 324.0 - (double) btnSize.width / 2.0);
+        xx = (int) Math.round((double) x + dscl * 324.0 - (double) btnSize.width / 2.0);
         yy = y - 6;
 
         g2d.setStroke(thick);
@@ -1207,7 +1258,7 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
 
         // West aisle
 
-        xx = (int)Math.round((double) x + dscl * 390.0 - (double) btnSize.width / 2.0);
+        xx = (int) Math.round((double) x + dscl * 390.0 - (double) btnSize.width / 2.0);
         yy = y - 6;
 
         g2d.setStroke(thick);
@@ -1218,7 +1269,7 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
 
         // West main
 
-        xx = (int)Math.round((double) x + dscl * 487.0 - (double) btnSize.width / 2.0);
+        xx = (int) Math.round((double) x + dscl * 487.0 - (double) btnSize.width / 2.0);
         yy = y - 6;
 
         g2d.setStroke(thick);
@@ -1229,7 +1280,7 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
 
         // West wall
 
-        xx = (int)Math.round((double) x + dscl * 582.0 - (double) btnSize.width / 2.0);
+        xx = (int) Math.round((double) x + dscl * 582.0 - (double) btnSize.width / 2.0);
         yy = y - 6;
 
         g2d.setStroke(thick);
@@ -1240,13 +1291,14 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
 
         // West wall center
 
-        xx = (int)Math.round((double) x + dscl * 644.0);
-        yy = (int)Math.round((double) y + dscl * 225.0);
+        xx = (int) Math.round((double) x + dscl * 644.0);
+        yy = (int) Math.round((double) y + dscl * 225.0);
 
         g2d.setStroke(thick);
         path.moveTo((double) xx + (double) btnSize.width / 2.0, yy + btnSize.height);
         path.curveTo((double) xx + (double) btnSize.width / 2.0, (double) yy + (double) btnSize.height + 10.0,
-                (double) xx + (double) btnSize.width / 2.0 - dscl * 16.0 + 10.0, (double) yy + (double) btnSize.height + 15.0,
+                (double) xx + (double) btnSize.width / 2.0 - dscl * 16.0 + 10.0,
+                (double) yy + (double) btnSize.height + 15.0,
                 (double) xx + (double) btnSize.width / 2.0 - dscl * 16.0, (double) yy + (double) btnSize.height + 15.0);
         path.lineTo((double) x + dscl * 628.0, (double) yy + (double) btnSize.height + 15.0);
         g2d.draw(path);
@@ -1254,8 +1306,8 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
 
         // Last1
 
-        xx = (int)Math.round((double) x + dscl * 340.0 - (double) btnSize.width / 2.0);
-        yy = (int)Math.round((double) y + dscl * 524.0);
+        xx = (int) Math.round((double) x + dscl * 340.0 - (double) btnSize.width / 2.0);
+        yy = (int) Math.round((double) y + dscl * 524.0);
 
         g2d.setStroke(thick);
         path.moveTo((double) xx + (double) btnSize.width / 2.0, (double) yy - 5.0);
@@ -1266,7 +1318,7 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
         // Last2
 
         xx = x - btnSize.width;
-        yy = (int)Math.round((double) y + dscl * 596.0);
+        yy = (int) Math.round((double) y + dscl * 596.0);
 
         g2d.setStroke(thick);
         path.moveTo((double) xx + (double) btnSize.width + 6.0, yy);
@@ -1302,7 +1354,7 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
                     g2d.setColor(this.pcAwaitColor);
                     ++numInUse;
                 } else if (RawClientPc.STATUS_TAKING_EXAM.equals(status)
-                        || RawClientPc.STATUS_EXAM_RESULTS.equals(status)) {
+                           || RawClientPc.STATUS_EXAM_RESULTS.equals(status)) {
                     g2d.setColor(this.pcInExamColor);
                     ++numInUse;
                 } else {
@@ -1318,8 +1370,8 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
                 g2d.setColor(this.pcNumber);
                 final int strw = fm.stringWidth(client.stationNbr);
 
-                final int midx = (int)Math.round((double) x + dscl * ((double) client.iconX.intValue() + 12.0));
-                final int midy = (int)Math.round((double) y + dscl * ((double) client.iconY.intValue() + 9.5));
+                final int midx = (int) Math.round((double) x + dscl * ((double) client.iconX.intValue() + 12.0));
+                final int midy = (int) Math.round((double) y + dscl * ((double) client.iconY.intValue() + 9.5));
 
                 g2d.drawString(client.stationNbr, midx - strw / 2, midy + fm.getAscent() / 2 - 1);
 
@@ -1388,9 +1440,12 @@ final class TestingCenterManagePanel extends JPanel implements ComponentListener
         g2d.drawString("Exam In Progress", (int) ((double) x + dscl * 706.0), (int) ((double) y + dscl * 200.0));
 
         g2d.setColor(this.pcOutline);
-        g2d.drawString("Stations in use: " + numInUse, (int) ((double) x + dscl * 660.0), (int) ((double) h - dscl * 90.0));
-        g2d.drawString("Stations available: " + numAvailable, (int) ((double) x + dscl * 660.0), (int) ((double) h - dscl * 60.0));
-        g2d.drawString("Stations not enabled: " + numOff, (int) ((double) x + dscl * 660.0), (int) ((double) h - dscl * 30.0));
+        g2d.drawString("Stations in use: " + numInUse, (int) ((double) x + dscl * 660.0),
+                (int) ((double) h - dscl * 90.0));
+        g2d.drawString("Stations available: " + numAvailable, (int) ((double) x + dscl * 660.0),
+                (int) ((double) h - dscl * 60.0));
+        g2d.drawString("Stations not enabled: " + numOff, (int) ((double) x + dscl * 660.0),
+                (int) ((double) h - dscl * 30.0));
     }
 
     /**

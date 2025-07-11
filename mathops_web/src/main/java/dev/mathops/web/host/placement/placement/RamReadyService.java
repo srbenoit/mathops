@@ -2,10 +2,10 @@ package dev.mathops.web.host.placement.placement;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.logic.mathplan.MathPlanPlacementStatus;
+import dev.mathops.db.logic.mathplan.MathPlanStudentData;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
-import dev.mathops.db.old.logic.mathplan.MathPlanPlacementStatus;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
@@ -13,6 +13,7 @@ import dev.mathops.web.site.Page;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -332,14 +333,13 @@ enum RamReadyService {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    private static void doCheckMathPlan(final Cache cache, final String subpath,
-                                        final ServletRequest req, final HttpServletResponse resp)
-            throws IOException, SQLException {
+    private static void doCheckMathPlan(final Cache cache, final String subpath, final ServletRequest req,
+                                        final HttpServletResponse resp) throws IOException, SQLException {
 
         final String pidmStr = subpath.substring(CHECK_MATH_PLAN.length());
 
         try {
-            final String studentId = MathPlanLogic.getMathPlanStatus(cache, Integer.parseInt(pidmStr));
+            final String studentId = MathPlanStudentData.hasCompletedMathPlan(cache, Integer.parseInt(pidmStr));
             if (studentId == null) {
                 // Student has not completed math plan
                 sendMathPlanNotCompletedMessage(req, resp);
@@ -377,14 +377,20 @@ enum RamReadyService {
                 Log.warning("Invalid PIDM string: ", pidmStr);
                 sendErrorMessage(req, resp, "Math Placement status not available.");
             } else {
-                final MathPlanPlacementStatus status = MathPlanLogic.getMathPlacementStatus(cache, student.stuId);
+                try {
+                    final MathPlanPlacementStatus status = MathPlanPlacementStatus.getMathPlacementStatus(cache,
+                            student.stuId);
 
-                if (status.isPlacementComplete) {
-                    sendCompletedPlacementMessage(req, resp);
-                } else if (status.isPlacementNeeded) {
-                    sendMathPlacementNotCompletedMessage(req, resp);
-                } else {
-                    sendEmptyMessage(req, resp);
+                    if (status.isPlacementComplete) {
+                        sendCompletedPlacementMessage(req, resp);
+                    } else if (status.isPlacementNeeded) {
+                        sendMathPlacementNotCompletedMessage(req, resp);
+                    } else {
+                        sendEmptyMessage(req, resp);
+                    }
+                } catch (final SQLException ex) {
+                    Log.warning("Unable to determine placement status for: ", student.stuId, ex);
+                    sendErrorMessage(req, resp, "Math Placement status not available.");
                 }
             }
         } catch (final NumberFormatException ex) {
@@ -401,8 +407,8 @@ enum RamReadyService {
      * @param msg  the message
      * @throws IOException if there is an error writing the response
      */
-    private static void sendErrorMessage(final ServletRequest req,
-                                         final HttpServletResponse resp, final String msg) throws IOException {
+    private static void sendErrorMessage(final ServletRequest req, final HttpServletResponse resp,
+                                         final String msg) throws IOException {
 
         final HtmlBuilder htm = new HtmlBuilder(100);
 

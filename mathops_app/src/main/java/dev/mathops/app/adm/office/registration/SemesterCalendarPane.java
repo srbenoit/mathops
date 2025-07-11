@@ -298,8 +298,8 @@ public final class SemesterCalendarPane extends JPanel implements MouseListener 
      * @param bgColor    the background color
      * @return the bounds to associate with the date for mouse click processing
      */
-    private Rectangle drawDay(final Graphics g, final DayOfWeek day, final int y, final int lineHeight, final int ascent,
-                              final String label, final Color labelColor, final Color bgColor) {
+    private Rectangle drawDay(final Graphics g, final DayOfWeek day, final int y, final int lineHeight,
+                              final int ascent, final String label, final Color labelColor, final Color bgColor) {
 
         final int x = getX(day);
 

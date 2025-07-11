@@ -708,7 +708,8 @@ public final class ChallengeExamSession extends HtmlSessionBase {
         htm.addln("<div style='text-align:center;margin-top:2px;'>");
 
         if (this.timeout > 0L && (this.state == EChallengeExamState.INSTRUCTIONS
-                                  || this.state == EChallengeExamState.SUBMIT_NN || this.state == EChallengeExamState.ITEM_NN)) {
+                                  || this.state == EChallengeExamState.SUBMIT_NN
+                                  || this.state == EChallengeExamState.ITEM_NN)) {
 
             final long now = System.currentTimeMillis();
 

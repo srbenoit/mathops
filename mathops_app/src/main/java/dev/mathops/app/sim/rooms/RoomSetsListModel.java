@@ -2,6 +2,7 @@ package dev.mathops.app.sim.rooms;
 
 import javax.swing.DefaultComboBoxModel;
 import java.io.File;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -13,6 +14,10 @@ import java.util.Set;
  */
 public final class RoomSetsListModel extends DefaultComboBoxModel<RoomSet> {
 
+    /** Version number for serialization. */
+    @Serial
+    private static final long serialVersionUID = 4615709987133825842L;
+    
     /** The data directory. */
     private final File dataDir;
 

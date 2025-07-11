@@ -72,9 +72,9 @@ public final class ProblemMultipleSelectionTemplate extends AbstractProblemMulti
     /**
      * Makes a clone of the problem. The clone is a deep copy such that any changes to the clone or its contained
      * objects will not change the original object (references are copied only when the underlying object is immutable,
-     * otherwise contained objects are cloned). The exceptions to this is that the creation timestamp on the new problem
-     * is set to the time when the clone is constructed, and the realization and completion timestamps of the clone are
-     * set to zero. The clone also does not carry over the entered student answers from the original.
+     * otherwise contained objects are cloned). The exceptions to this is that we set the creation timestamp on the new
+     * problem to the time when the clone is constructed, and set the realization and completion timestamps of the clone
+     * to zero. The clone also does not carry over the entered student answers from the original.
      *
      * @return a copy of the original object
      */
@@ -538,7 +538,7 @@ public final class ProblemMultipleSelectionTemplate extends AbstractProblemMulti
             boolean ok = true;
             final int orderLen = this.choiceOrder.length;
 
-            final List<ProblemChoiceInst> choiceIterations =new ArrayList<>(orderLen);
+            final List<ProblemChoiceInst> choiceIterations = new ArrayList<>(orderLen);
             for (int i = 0; i < orderLen; ++i) {
                 final ProblemChoiceTemplate choiceTemplate = getPresentedChoice(i);
                 final ProblemChoiceInst choiceIter = choiceTemplate.createIteration(this.evalContext);
@@ -623,8 +623,8 @@ public final class ProblemMultipleSelectionTemplate extends AbstractProblemMulti
     /**
      * Prints subclass-specific elements.
      *
-     * @param builder    the {@code HtmlBuilder} to which to write the XML
-     * @param indent the number of spaces to indent the printout
+     * @param builder the {@code HtmlBuilder} to which to write the XML
+     * @param indent  the number of spaces to indent the printout
      */
     @Override
     public void printSubclassXmlBegin(final HtmlBuilder builder, final int indent) {
@@ -775,7 +775,7 @@ public final class ProblemMultipleSelectionTemplate extends AbstractProblemMulti
      * @param overwriteAll a 1-boolean array whose only entry contains {@code true} if the user has selected "overwrite
      *                     all"; {@code false} to ask the user each time (this method can update this value to true if
      *                     it is false and the user is asked "Overwrite? [YES] [ALL] [NO]" and chooses [ALL])
-     * @param builder          the {@code HtmlBuilder} to which to write the LaTeX
+     * @param builder      the {@code HtmlBuilder} to which to write the LaTeX
      * @param showAnswers  true to show the correct answers; false to leave blank
      * @param mode         the current LaTeX mode (T=text, $=in-line math, M=math)
      */
@@ -811,7 +811,7 @@ public final class ProblemMultipleSelectionTemplate extends AbstractProblemMulti
                 builder.add(" \\xy @={(0,0),(0,4),(4,4),(4,0),(0,0),(4,4),(4,0),(0,4)}, ",
                         "s0=\"prev\" @@{;\"prev\";**@{-}=\"prev\"} \\endxy &");
             } else {
-                builder.add(" \\xy @={(0,0),(0,4),(4,4),(4,0)}, ", "s0=\"prev\" @@{;\"prev\";**@{-}=\"prev\"} \\endxy &");
+                builder.add(" \\xy @={(0,0),(0,4),(4,4),(4,0)}, s0=\"prev\" @@{;\"prev\";**@{-}=\"prev\"} \\endxy &");
             }
 
             choice.doc.toLaTeX(dir, fileIndex, overwriteAll, builder, showAnswers, mode, context);
@@ -894,8 +894,8 @@ public final class ProblemMultipleSelectionTemplate extends AbstractProblemMulti
     public int hashCode() {
 
         return mcInnerHashCode() + Objects.hashCode(this.selectedChoiceList)
-                + Objects.hashCode(this.minCorrect)
-                + Objects.hashCode(this.maxCorrect);
+               + Objects.hashCode(this.minCorrect)
+               + Objects.hashCode(this.maxCorrect);
     }
 
     /**

@@ -3,6 +3,7 @@ package dev.mathops.app.sim.semester;
 import dev.mathops.app.sim.swing.ButtonColumnTableModel;
 
 import java.io.File;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +11,10 @@ import java.util.List;
  * A table model for the table of all semester schedules defined on campus.
  */
 public final class SemesterSchedulesTableModel extends ButtonColumnTableModel {
+
+    /** Version number for serialization. */
+    @Serial
+    private static final long serialVersionUID = -2615143842971275525L;
 
     /** The column names. */
     private final String[] columnNames = {"Schedule Name", "Weeks of Class", " "};

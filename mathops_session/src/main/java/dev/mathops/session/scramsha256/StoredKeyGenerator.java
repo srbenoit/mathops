@@ -74,7 +74,8 @@ enum StoredKeyGenerator {
             final byte[] saltedPassword = computeSaltedPassword(salt, UserCredentialsManager.ITERATIONS, "thinflation");
 
             final byte[] storedKey = computeStoredKey(saltedPassword);
-            final byte[] serverKey = ScramUtils.hmac_sha_256(saltedPassword, "Server Key".getBytes(StandardCharsets.UTF_8));
+            final byte[] serverKey = ScramUtils.hmac_sha_256(saltedPassword,
+                    "Server Key".getBytes(StandardCharsets.UTF_8));
 
             final String saltBase64 = Base64.encode(salt);
             final String storedKeyHex = HexEncoder.encodeUppercase(storedKey);

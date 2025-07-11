@@ -38,6 +38,7 @@ import dev.mathops.web.site.html.unitexam.UnitExamSessionStore;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.Duration;
@@ -119,7 +120,7 @@ public final class PageServerAdminSessions {
         final Map<String, ImmutableSessionInfo> newmap = new TreeMap<>();
         for (final ImmutableSessionInfo sess : activeSessions) {
             final String name = sess.screenName + CoreConstants.SPC + sess.userId + CoreConstants.SPC
-                    + sess.loginSessionTag;
+                                + sess.loginSessionTag;
             newmap.put(name, sess);
         }
 
@@ -314,7 +315,7 @@ public final class PageServerAdminSessions {
                 } else {
                     // Sort by name, but add session and exam IDs to key in case of duplicate names
                     final String name = stu.lastName + CoreConstants.SPC + stu.firstName + CoreConstants.SPC
-                            + sess.sessionId + CoreConstants.SPC + sess.version;
+                                        + sess.sessionId + CoreConstants.SPC + sess.version;
                     newmap.put(name, sess);
                 }
             }
@@ -438,7 +439,7 @@ public final class PageServerAdminSessions {
             for (final Map<String, ReviewExamSession> inner : map.values()) {
                 for (final ReviewExamSession sess : inner.values()) {
                     final String name = sess.studentId + CoreConstants.SPC + sess.sessionId + CoreConstants.SPC
-                            + sess.version;
+                                        + sess.version;
                     newmap.put(name, sess);
                 }
             }
@@ -561,7 +562,7 @@ public final class PageServerAdminSessions {
             for (final Map<String, LtaSession> inner : map.values()) {
                 for (final LtaSession sess : inner.values()) {
                     final String name = sess.studentId + CoreConstants.SPC + sess.sessionId + CoreConstants.SPC
-                            + sess.version;
+                                        + sess.version;
                     newmap.put(name, sess);
                 }
             }
@@ -590,7 +591,7 @@ public final class PageServerAdminSessions {
             htm.sTd().add(sess.version).eTd();
             if ((sess.getState() == ELtaState.ITEM_NN) || (sess.getState() == ELtaState.SOLUTION_NN)) {
                 htm.sTd().add(sess.getState().name() + CoreConstants.DOT + sess.getCurrentSection()
-                        + CoreConstants.DOT + sess.getCurrentItem()).eTd();
+                              + CoreConstants.DOT + sess.getCurrentItem()).eTd();
             } else {
                 htm.sTd().add(sess.getState().name()).eTd();
             }
@@ -665,9 +666,6 @@ public final class PageServerAdminSessions {
         htm.eTable();
     }
 
-
-
-
     /**
      * Appends a table of active HTML homework sessions to an {@code HtmlBuilder}.
      *
@@ -685,7 +683,7 @@ public final class PageServerAdminSessions {
 
             for (final HomeworkSession sess : inner.values()) {
                 final String name = sess.studentId + CoreConstants.SPC + sess.sessionId
-                        + CoreConstants.SPC + sess.version;
+                                    + CoreConstants.SPC + sess.version;
                 newmap.put(name, sess);
             }
         }
@@ -775,7 +773,7 @@ public final class PageServerAdminSessions {
 
             for (final PastExamSession sess : inner.values()) {
                 final String name = sess.studentId + CoreConstants.SPC + sess.sessionId
-                        + CoreConstants.SPC + sess.xmlFilename;
+                                    + CoreConstants.SPC + sess.xmlFilename;
                 newmap.put(name, sess);
             }
         }
@@ -866,7 +864,7 @@ public final class PageServerAdminSessions {
 
             for (final PastLtaSession sess : inner.values()) {
                 final String name = sess.studentId + CoreConstants.SPC + sess.sessionId + CoreConstants.SPC
-                        + sess.xmlFilename;
+                                    + sess.xmlFilename;
                 newmap.put(name, sess);
             }
         }
@@ -982,7 +980,8 @@ public final class PageServerAdminSessions {
                     case "unit_exam" -> {
                         final String sessionId = req.getParameter("session_id");
                         final String examId = req.getParameter("exam_id");
-                        final UnitExamSession sess = UnitExamSessionStore.getInstance().getUnitExamSession(sessionId, examId);
+                        final UnitExamSession sess = UnitExamSessionStore.getInstance().getUnitExamSession(sessionId,
+                                examId);
                         if (sess == null) {
                             Log.warning("Unrecognized session ID/exam for unit session: ", sessionId, ", ", examId);
                         } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
@@ -996,8 +995,8 @@ public final class PageServerAdminSessions {
                     case "review_exam" -> {
                         final String sessionId = req.getParameter("session_id");
                         final String examId = req.getParameter("exam_id");
-                        final ReviewExamSession sess = ReviewExamSessionStore.getInstance().getReviewExamSession(sessionId,
-                                examId);
+                        final ReviewExamSession sess = ReviewExamSessionStore.getInstance().getReviewExamSession(
+                                sessionId, examId);
                         if (sess == null) {
                             Log.warning("Unrecognized session ID/exam for review session: ", sessionId, ", ", examId);
                         } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
@@ -1013,8 +1012,8 @@ public final class PageServerAdminSessions {
                         final String examId = req.getParameter("exam_id");
                         final LtaSession sess = LtaSessionStore.getInstance().getLtaSession(sessionId, examId);
                         if (sess == null) {
-                            Log.warning("Unrecognized session ID/exam for learning target assignment session: ", sessionId,
-                                    ", ", examId);
+                            Log.warning("Unrecognized session ID/exam for learning target assignment session: ",
+                                    sessionId, ", ", examId);
                         } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
                             sess.setForceTerminate(EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED);
                         } else {
@@ -1026,7 +1025,8 @@ public final class PageServerAdminSessions {
                     case "past_exam" -> {
                         final String sessionId = req.getParameter("session_id");
                         final String xml = req.getParameter("xml");
-                        final PastExamSession sess = PastExamSessionStore.getInstance().getPastExamSession(sessionId, xml);
+                        final PastExamSession sess =
+                                PastExamSessionStore.getInstance().getPastExamSession(sessionId, xml);
                         if (sess == null) {
                             Log.warning("Unrecognized session ID/XML for past exam session: ", sessionId, ", ", xml);
                         } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
@@ -1065,8 +1065,7 @@ public final class PageServerAdminSessions {
                                 .getPlacementExamSessionForStudent(studentId);
                         if (sess == null) {
                             Log.warning("Unrecognized student ID for placement session: ", studentId);
-                        } else if (sess
-                                .getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
+                        } else if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
                             Log.warning("Forced abort of placement exam for student ", studentId);
                             sess.forceAbort(cache, session);
                         } else {
@@ -1078,11 +1077,11 @@ public final class PageServerAdminSessions {
                     case "unit_exam" -> {
                         final String sessionId = req.getParameter("session_id");
                         final String examId = req.getParameter("exam_id");
-                        final UnitExamSession sess = UnitExamSessionStore.getInstance().getUnitExamSession(sessionId, examId);
+                        final UnitExamSession sess = UnitExamSessionStore.getInstance().getUnitExamSession(sessionId,
+                                examId);
                         if (sess == null) {
                             Log.warning("Unrecognized session ID/exam for unit session: ", sessionId, ", ", examId);
-                        } else if (sess
-                                .getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
+                        } else if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
                             Log.warning("Forced abort of unit exam for student ", sess.studentId);
                             sess.forceAbort(cache, session);
                         } else {
@@ -1098,8 +1097,7 @@ public final class PageServerAdminSessions {
                                 ReviewExamSessionStore.getInstance().getReviewExamSession(sessionId, examId);
                         if (sess == null) {
                             Log.warning("Unrecognized session ID/exam for review session: ", sessionId, ", ", examId);
-                        } else if (sess
-                                .getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
+                        } else if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
                             Log.warning("Forced abort of review exam for student ", sess.studentId);
                             sess.forceAbort(cache, session);
                         } else {
@@ -1113,22 +1111,22 @@ public final class PageServerAdminSessions {
                         final String examId = req.getParameter("exam_id");
                         final LtaSession sess = LtaSessionStore.getInstance().getLtaSession(sessionId, examId);
                         if (sess == null) {
-                            Log.warning("Unrecognized session ID/exam for learning target assignment session: ", sessionId,
-                                    ", ", examId);
-                        } else if (sess
-                                .getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
+                            Log.warning("Unrecognized session ID/exam for learning target assignment session: ",
+                                    sessionId, ", ", examId);
+                        } else if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
                             Log.warning("Forced abort of learning target assignment for student ", sess.studentId);
                             sess.forceAbort(cache, session);
                         } else {
-                            Log.warning("'abortconfirm' request for learning target assignment session in termination state: ",
-                                    sess.getForceTerminate().name());
+                            Log.warning("'abortconfirm' request for learning target assignment session in ",
+                                    "termination state: ", sess.getForceTerminate().name());
                             sess.setForceTerminate(EForceTerminateState.NONE);
                         }
                     }
                     case "past_exam" -> {
                         final String sessionId = req.getParameter("session_id");
                         final String xml = req.getParameter("xml");
-                        final PastExamSession sess = PastExamSessionStore.getInstance().getPastExamSession(sessionId, xml);
+                        final PastExamSession sess = PastExamSessionStore.getInstance().getPastExamSession(sessionId,
+                                xml);
                         if (sess == null) {
                             Log.warning("Unrecognized session ID/XML for past exam session: ", sessionId, ", ", xml);
                         } else if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
@@ -1183,7 +1181,8 @@ public final class PageServerAdminSessions {
                     case "unit_exam" -> {
                         final String sessionId = req.getParameter("session_id");
                         final String examId = req.getParameter("exam_id");
-                        final UnitExamSession sess = UnitExamSessionStore.getInstance().getUnitExamSession(sessionId, examId);
+                        final UnitExamSession sess = UnitExamSessionStore.getInstance().getUnitExamSession(sessionId,
+                                examId);
                         if (sess == null) {
                             Log.warning("Unrecognized session ID/exam for unit session: ", sessionId, ", ", examId);
                         } else {
@@ -1220,15 +1219,14 @@ public final class PageServerAdminSessions {
                         final String examId = req.getParameter("exam_id");
                         final LtaSession sess = LtaSessionStore.getInstance().getLtaSession(sessionId, examId);
                         if (sess == null) {
-                            Log.warning("Unrecognized session ID/exam for learning target assignment session: ", sessionId,
-                                    ", ", examId);
+                            Log.warning("Unrecognized session ID/exam for learning target assignment session: ",
+                                    sessionId, ", ", examId);
                         } else {
                             if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
                                 // TODO:
                             } else {
-                                Log.warning(
-                                        "'abortcancel' request for learning target assignment session in termination state: ",
-                                        sess.getForceTerminate().name());
+                                Log.warning("'abortcancel' request for learning target assignment session in ",
+                                        "termination state: ", sess.getForceTerminate().name());
                             }
                             sess.setForceTerminate(EForceTerminateState.NONE);
                         }
@@ -1236,9 +1234,11 @@ public final class PageServerAdminSessions {
                     case "past_exam" -> {
                         final String sessionId = req.getParameter("session_id");
                         final String examId = req.getParameter("exam_id");
-                        final PastExamSession sess = PastExamSessionStore.getInstance().getPastExamSession(sessionId, examId);
+                        final PastExamSession sess = PastExamSessionStore.getInstance().getPastExamSession(sessionId,
+                                examId);
                         if (sess == null) {
-                            Log.warning("Unrecognized session ID/exam for past exam session: ", sessionId, ", ", examId);
+                            Log.warning("Unrecognized session ID/exam for past exam session: ", sessionId, ", ",
+                                    examId);
                         } else {
                             if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
                                 // TODO:
@@ -1252,7 +1252,8 @@ public final class PageServerAdminSessions {
                     case "past_lta" -> {
                         final String sessionId = req.getParameter("session_id");
                         final String examId = req.getParameter("exam_id");
-                        final PastLtaSession sess = PastLtaSessionStore.getInstance().getPastLtaSession(sessionId, examId);
+                        final PastLtaSession sess = PastLtaSessionStore.getInstance().getPastLtaSession(sessionId,
+                                examId);
                         if (sess == null) {
                             Log.warning("Unrecognized session ID/exam for past LTA session: ", sessionId, ", ", examId);
                         } else {
@@ -1291,7 +1292,8 @@ public final class PageServerAdminSessions {
                     case "unit_exam" -> {
                         final String sessionId = req.getParameter("session_id");
                         final String examId = req.getParameter("exam_id");
-                        final UnitExamSession sess = UnitExamSessionStore.getInstance().getUnitExamSession(sessionId, examId);
+                        final UnitExamSession sess = UnitExamSessionStore.getInstance().getUnitExamSession(sessionId,
+                                examId);
                         if (sess == null) {
                             Log.warning("Unrecognized session ID/exam for unit session: ", sessionId, ", ", examId);
                         } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
@@ -1305,7 +1307,8 @@ public final class PageServerAdminSessions {
                     case "review_exam" -> {
                         final String sessionId = req.getParameter("session_id");
                         final String examId = req.getParameter("exam_id");
-                        final ReviewExamSession sess = ReviewExamSessionStore.getInstance().getReviewExamSession(sessionId,
+                        final ReviewExamSession sess = ReviewExamSessionStore.getInstance().getReviewExamSession(
+                                sessionId,
                                 examId);
                         if (sess == null) {
                             Log.warning("Unrecognized session ID/exam for review session: ", sessionId, ", ", examId);
@@ -1322,11 +1325,13 @@ public final class PageServerAdminSessions {
                         final String examId = req.getParameter("exam_id");
                         final LtaSession sess = LtaSessionStore.getInstance().getLtaSession(sessionId, examId);
                         if (sess == null) {
-                            Log.warning("Unrecognized session ID/exam for learning target assignment session: ", sessionId, ", ", examId);
+                            Log.warning("Unrecognized session ID/exam for learning target assignment session: ",
+                                    sessionId, ", ", examId);
                         } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
                             sess.setForceTerminate(EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED);
                         } else {
-                            Log.warning("'submit' request for learning target assignment session in termination state: ",
+                            Log.warning(
+                                    "'submit' request for learning target assignment session in termination state: ",
                                     sess.getForceTerminate().name());
                             sess.setForceTerminate(EForceTerminateState.NONE);
                         }
@@ -1357,7 +1362,8 @@ public final class PageServerAdminSessions {
                     case "unit_exam" -> {
                         final String sessionId = req.getParameter("session_id");
                         final String examId = req.getParameter("exam_id");
-                        final UnitExamSession sess = UnitExamSessionStore.getInstance().getUnitExamSession(sessionId, examId);
+                        final UnitExamSession sess = UnitExamSessionStore.getInstance().getUnitExamSession(sessionId,
+                                examId);
                         if (sess == null) {
                             Log.warning("Unrecognized session ID/exam for unit session: ", sessionId, ", ", examId);
                         } else if (sess.getForceTerminate() == EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED) {
@@ -1390,13 +1396,15 @@ public final class PageServerAdminSessions {
                         final String examId = req.getParameter("exam_id");
                         final LtaSession sess = LtaSessionStore.getInstance().getLtaSession(sessionId, examId);
                         if (sess == null) {
-                            Log.warning("Unrecognized session ID/exam for learning target assignment session: ", sessionId, ", ", examId);
+                            Log.warning("Unrecognized session ID/exam for learning target assignment session: ",
+                                    sessionId, ", ", examId);
                         } else if (sess.getForceTerminate() == EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED) {
-                            Log.warning("Forced submit of learning target assignment exam for student ", sess.studentId);
+                            Log.warning("Forced submit of learning target assignment exam for student ",
+                                    sess.studentId);
                             sess.forceSubmit(cache, session);
                         } else {
-                            Log.warning("'submitconfirm' request for learning target assignment session in termination state: ",
-                                    sess.getForceTerminate().name());
+                            Log.warning("'submitconfirm' request for learning target assignment session in ",
+                                    "termination state: ", sess.getForceTerminate().name());
                             sess.setForceTerminate(EForceTerminateState.NONE);
                         }
                     }
@@ -1428,7 +1436,8 @@ public final class PageServerAdminSessions {
                     case "unit_exam" -> {
                         final String sessionId = req.getParameter("session_id");
                         final String examId = req.getParameter("exam_id");
-                        final UnitExamSession sess = UnitExamSessionStore.getInstance().getUnitExamSession(sessionId, examId);
+                        final UnitExamSession sess = UnitExamSessionStore.getInstance().getUnitExamSession(sessionId,
+                                examId);
                         if (sess == null) {
                             Log.warning("Unrecognized session ID/exam for unit session: ", sessionId, ", ", examId);
                         } else {
@@ -1445,7 +1454,8 @@ public final class PageServerAdminSessions {
                     case "review_exam" -> {
                         final String sessionId = req.getParameter("session_id");
                         final String examId = req.getParameter("exam_id");
-                        final ReviewExamSession sess = ReviewExamSessionStore.getInstance().getReviewExamSession(sessionId,
+                        final ReviewExamSession sess = ReviewExamSessionStore.getInstance().getReviewExamSession(
+                                sessionId,
                                 examId);
                         if (sess == null) {
                             Log.warning("Unrecognized session ID/exam for review session: ", sessionId, ", ", examId);
@@ -1465,14 +1475,15 @@ public final class PageServerAdminSessions {
                         final String examId = req.getParameter("exam_id");
                         final LtaSession sess = LtaSessionStore.getInstance().getLtaSession(sessionId, examId);
                         if (sess == null) {
-                            Log.warning("Unrecognized session ID/exam for learning target assignment session: ", sessionId, ", ", examId);
+                            Log.warning("Unrecognized session ID/exam for learning target assignment session: ",
+                                    sessionId, ", ", examId);
                         } else {
                             if (sess.getForceTerminate() == EForceTerminateState.SUBMIT_AND_SCORE_REQUESTED) {
 
                                 // TODO:
                             } else {
-                                Log.warning("'submitcancel' request for review learning target assignment in termination state: ",
-                                        sess.getForceTerminate().name());
+                                Log.warning("'submitcancel' request for review learning target assignment in ",
+                                        "termination state: ", sess.getForceTerminate().name());
                             }
                             sess.setForceTerminate(EForceTerminateState.NONE);
                         }
@@ -1499,7 +1510,8 @@ public final class PageServerAdminSessions {
                     case "homework" -> {
                         final String sessionId = req.getParameter("session_id");
                         final String examId = req.getParameter("exam_id");
-                        final HomeworkSession sess = HomeworkSessionStore.getInstance().getHomeworkSession(sessionId, examId);
+                        final HomeworkSession sess = HomeworkSessionStore.getInstance().getHomeworkSession(sessionId,
+                                examId);
 
                         if (sess == null) {
                             Log.warning("Unrecognized homework session/exam ID: ", sessionId, ", ", examId);
@@ -1518,7 +1530,8 @@ public final class PageServerAdminSessions {
                     case "past_exam" -> {
                         final String sessionId = req.getParameter("session_id");
                         final String xml = req.getParameter("xml");
-                        final PastExamSession sess = PastExamSessionStore.getInstance().getPastExamSession(sessionId, xml);
+                        final PastExamSession sess = PastExamSessionStore.getInstance().getPastExamSession(sessionId,
+                                xml);
                         if (sess == null) {
                             Log.warning("Unrecognized past exam session/XML path: ", sessionId, ", ", xml);
                         } else if (sess.getForceTerminate() == EForceTerminateState.NONE) {
@@ -1555,7 +1568,8 @@ public final class PageServerAdminSessions {
                     case "homework" -> {
                         final String sessionId = req.getParameter("session_id");
                         final String examId = req.getParameter("exam_id");
-                        final HomeworkSession sess = HomeworkSessionStore.getInstance().getHomeworkSession(sessionId, examId);
+                        final HomeworkSession sess = HomeworkSessionStore.getInstance().getHomeworkSession(sessionId,
+                                examId);
                         if (sess == null) {
                             Log.warning("Unrecognized session ID/exam for homework session: ",
                                     sessionId, ", ", examId);
@@ -1565,8 +1579,8 @@ public final class PageServerAdminSessions {
                                     Log.warning("Forced abort of homework for student ", sess.studentId);
                                     sess.forceAbort(session);
                                 } else {
-                                    Log.warning("'terminateconfirm' request for homework session in termination state: ",
-                                            sess.getForceTerminate().name());
+                                    Log.warning("'terminateconfirm' request for homework session in ",
+                                            "termination state: ", sess.getForceTerminate().name());
                                     sess.setForceTerminate(EForceTerminateState.NONE);
                                 }
                             }
@@ -1575,7 +1589,8 @@ public final class PageServerAdminSessions {
                     case "past_exam" -> {
                         final String sessionId = req.getParameter("session_id");
                         final String xml = req.getParameter("xml");
-                        final PastExamSession sess = PastExamSessionStore.getInstance().getPastExamSession(sessionId, xml);
+                        final PastExamSession sess = PastExamSessionStore.getInstance().getPastExamSession(sessionId,
+                                xml);
                         if (sess == null) {
                             Log.warning("Unrecognized session ID/XML for past exam session: ", sessionId, ", ", xml);
                         } else if (sess.getForceTerminate() == EForceTerminateState.ABORT_WITHOUT_SCORING_REQUESTED) {
@@ -1613,7 +1628,8 @@ public final class PageServerAdminSessions {
                     case "homework" -> {
                         final String sessionId = req.getParameter("session_id");
                         final String examId = req.getParameter("exam_id");
-                        final HomeworkSession sess = HomeworkSessionStore.getInstance().getHomeworkSession(sessionId, examId);
+                        final HomeworkSession sess = HomeworkSessionStore.getInstance().getHomeworkSession(sessionId,
+                                examId);
                         if (sess == null) {
                             Log.warning("Unrecognized session ID/exam for homework session: ", sessionId, ", ", examId);
                         } else {
@@ -1632,7 +1648,8 @@ public final class PageServerAdminSessions {
                     case "past_exam" -> {
                         final String sessionId = req.getParameter("session_id");
                         final String xml = req.getParameter("xml");
-                        final PastExamSession sess = PastExamSessionStore.getInstance().getPastExamSession(sessionId, xml);
+                        final PastExamSession sess = PastExamSessionStore.getInstance().getPastExamSession(sessionId,
+                                xml);
                         if (sess == null) {
                             Log.warning("Unrecognized session ID/XML for past exam session: ", sessionId, ", ", xml);
                         } else {

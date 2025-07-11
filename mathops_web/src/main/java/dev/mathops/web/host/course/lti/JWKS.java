@@ -34,8 +34,8 @@ public final class JWKS {
 
         this.expiration = theExpiration;
 
-        final Object keys = json.getProperty("keys");
-        if (keys instanceof Object[] keysArray) {
+        final Object fileKeys = json.getProperty("keys");
+        if (fileKeys instanceof Object[] keysArray) {
             this.keys = new ArrayList<>(keysArray.length);
 
             for (final Object key : keysArray) {

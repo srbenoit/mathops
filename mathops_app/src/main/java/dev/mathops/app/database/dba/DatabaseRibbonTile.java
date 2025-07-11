@@ -254,8 +254,8 @@ final class DatabaseRibbonTile extends JPanel implements ActionListener {
 
         if (toConnect != null) {
             // If there are multiple logins, pick one
-            final List<Login> logins = toConnect.getLogins();
-            final int numLogins = logins.size();
+            final List<Login> theLogins = toConnect.getLogins();
+            final int numLogins = theLogins.size();
 
             if (numLogins == 0) {
                 JOptionPane.showMessageDialog(this, "Database configuration has no login information",
@@ -263,18 +263,18 @@ final class DatabaseRibbonTile extends JPanel implements ActionListener {
             } else {
                 Login chosen = null;
                 if (numLogins == 1) {
-                    chosen = logins.getFirst();
+                    chosen = theLogins.getFirst();
                 } else {
-                    final String[] usernames = new String[numLogins];
+                    final String[] theUsernames = new String[numLogins];
                     for (int i = 0; i < numLogins; ++i) {
-                        usernames[i] = logins.get(i).user;
+                        theUsernames[i] = theLogins.get(i).user;
                     }
                     final Object selected = JOptionPane.showInputDialog(this,
                             "Please select a username under which to connect:", "Connect to Database",
-                            JOptionPane.PLAIN_MESSAGE, null, usernames, usernames[0]);
+                            JOptionPane.PLAIN_MESSAGE, null, theUsernames, theUsernames[0]);
 
                     if (selected != null) {
-                        for (final Login test : logins) {
+                        for (final Login test : theLogins) {
                             if (test.user.equals(selected)) {
                                 chosen = test;
                                 break;

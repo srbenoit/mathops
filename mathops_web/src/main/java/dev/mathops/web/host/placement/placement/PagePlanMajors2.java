@@ -4,12 +4,16 @@ import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
 import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.cfg.Site;
-import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
-import dev.mathops.db.old.logic.mathplan.data.Major;
-import dev.mathops.db.old.logic.mathplan.data.MajorMathRequirement;
-import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
-import dev.mathops.db.old.logic.mathplan.data.MathPlanStudentData;
+import dev.mathops.db.logic.mathplan.EEligibility;
+import dev.mathops.db.logic.mathplan.Major;
+import dev.mathops.db.logic.mathplan.Majors;
+import dev.mathops.db.logic.mathplan.MathPlanLogic;
+import dev.mathops.db.logic.mathplan.MathPlanConstants;
+import dev.mathops.db.logic.mathplan.MathPlanStudentData;
+import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
+import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
+import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.Page;
@@ -51,7 +55,10 @@ enum PagePlanMajors2 {
 
         final String stuId = session.getEffectiveUserId();
         final ZonedDateTime now = session.getNow();
-        final MathPlanStudentData data = logic.getStudentData(cache, stuId, now, session.loginSessionTag,
+
+        final RawStudent student = RawStudentLogic.query(cache, stuId, false);
+
+        final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, now,
                 session.actAsUserId == null);
 
         final HtmlBuilder htm = new HtmlBuilder(8192);
@@ -60,41 +67,37 @@ enum PagePlanMajors2 {
 
         MPPage.emitMathPlanHeader(htm);
 
-        if (data == null) {
-            MPPage.emitNoStudentDataError(htm);
-        } else {
-            MathPlacementSite.emitLoggedInAs2(htm, session);
-            htm.sDiv("inset2");
+        MathPlacementSite.emitLoggedInAs2(htm, session);
+        htm.sDiv("inset2");
 
-            htm.sDiv("shaded2left");
-            htm.sP().add("Let us know what majors you think you might choose.  You can change ",
-                    "your selections later if you change your mind.").eP();
+        htm.sDiv("shaded2left");
+        htm.sP().add("Let us know what majors you think you might choose.  You can change ",
+                "your selections later if you change your mind.").eP();
 
-            htm.sP().add("Choosing a major here does not declare it as your actual major - you can ",
-                    "try out different majors here and see how they affect your Math Plan.").eP();
+        htm.sP().add("Choosing a major here does not declare it as your actual major - you can ",
+                "try out different majors here and see how they affect your Math Plan.").eP();
 
-            htm.sP().add("If you don't know what majors you might be interested in yet, you can choose ",
-                    "<em>Exploratory Studies</em> and move on.").eP();
-            htm.eDiv(); // shaded2left
+        htm.sP().add("If you don't know what majors you might be interested in yet, you can choose ",
+                "<em>Exploratory Studies</em> and move on.").eP();
+        htm.eDiv();
 
-            htm.div("vgap");
+        htm.div("vgap");
 
-            htm.sDiv("folders");
+        htm.sDiv("folders");
 
-            htm.add("<nav class='folderstabs'>");
-            htm.sDiv("tab unsel", "id='first'").add("<a href='plan_majors1.html'>group by area of study</a>").eDiv();
-            htm.sDiv("tab selected", "id='last'").add("sort majors alphabetically").eDiv();
-            htm.add("</nav>");
+        htm.add("<nav class='folderstabs'>");
+        htm.sDiv("tab unsel", "id='first'").add("<a href='plan_majors1.html'>group by area of study</a>").eDiv();
+        htm.sDiv("tab selected", "id='last'").add("sort majors alphabetically").eDiv();
+        htm.add("</nav>");
 
-            htm.sDiv("folder-content");
-            final Map<Integer, RawStmathplan> majorProfileResponses = data.getMajorProfileResponses();
-            emitMajorsSelectionForm(htm, majorProfileResponses, data, session, logic);
-            htm.eDiv();
+        htm.sDiv("folder-content");
+        final Map<Integer, RawStmathplan> majorProfileResponses = data.getMajorProfileResponses();
+        emitMajorsSelectionForm(htm, majorProfileResponses, data, session);
+        htm.eDiv();
 
-            htm.eDiv(); // folders
+        htm.eDiv(); // folders
 
-            htm.eDiv(); // inset2
-        }
+        htm.eDiv(); // inset2
 
         MPPage.emitScripts(htm);
         MPPage.endPage(htm, req, resp);
@@ -107,16 +110,13 @@ enum PagePlanMajors2 {
      * @param curResponses the current student responses (empty if not yet responded)
      * @param data         the student data
      * @param session      the session
-     * @param logic        the site logic
      */
-    private static void emitMajorsSelectionForm(final HtmlBuilder htm,
-                                                final Map<Integer, RawStmathplan> curResponses,
-                                                final MathPlanStudentData data, final ImmutableSessionInfo session,
-                                                final MathPlanLogic logic) {
+    private static void emitMajorsSelectionForm(final HtmlBuilder htm, final Map<Integer, RawStmathplan> curResponses,
+                                                final MathPlanStudentData data, final ImmutableSessionInfo session) {
 
         final boolean disable = session.actAsUserId != null;
 
-        final Major declaredMajor = logic.getMajor(data.student.programCode);
+        final Major declaredMajor = Majors.INSTANCE.getMajor(data.student.programCode);
 
         htm.addln("<script>");
         htm.addln(" function toggleCategory(input,id) {");
@@ -146,23 +146,23 @@ enum PagePlanMajors2 {
 
         htm.add("<form id='moi-form' action='plan_majors2.html' method='post'>");
 
-        final Map<Major, MajorMathRequirement> allMajors = logic.getMajors();
+        final List<Major> allMajors = Majors.INSTANCE.getMajors();
 
         // Gather the set of selected majors and concentrations
         final Collection<Major> selectedMajors = new HashSet<>(10);
         if (declaredMajor != null) {
             selectedMajors.add(declaredMajor);
         }
-        for (final Major major : allMajors.keySet()) {
+        for (final Major major : allMajors) {
             final RawStmathplan curResp = curResponses.get(Integer.valueOf(major.questionNumbers[0]));
             if (curResp != null && "Y".equals(curResp.stuAnswer)) {
                 selectedMajors.add(major);
             }
         }
 
-        final Collection<MajorMathRequirement> requirements = new ArrayList<>(10);
+        final EEligibility[] eligibility = {EEligibility.AUCC};
 
-        final int numSelected = emitMajors(htm, allMajors, declaredMajor, requirements, selectedMajors, disable);
+        final int numSelected = emitMajors(htm, allMajors, declaredMajor, selectedMajors, eligibility, disable);
 
         final boolean showUpdate = numSelected > 0 && !curResponses.isEmpty();
 
@@ -187,38 +187,42 @@ enum PagePlanMajors2 {
      * @param htm            the {@code HtmlBuilder} to which to append
      * @param allMajors      all majors and their math requirements
      * @param declaredMajor  the student's declared major, if any
-     * @param requirements   an accumulator for requirements of selected majors
      * @param selectedMajors the set of all selected majors
+     * @param eligibility    an array whose [0] element will be set to the highest eligibility needed by any selected
+     *                       major
      * @param disable        true to disable inputs
      * @return the number of items selected in the category
      */
-    private static int emitMajors(final HtmlBuilder htm, final Map<Major, MajorMathRequirement> allMajors,
-                                  final Major declaredMajor,
-                                  final Collection<? super MajorMathRequirement> requirements,
-                                  final Collection<Major> selectedMajors, final boolean disable) {
+    private static int emitMajors(final HtmlBuilder htm, final List<Major> allMajors, final Major declaredMajor,
+                                  final Collection<Major> selectedMajors, final EEligibility[] eligibility,
+                                  final boolean disable) {
 
         int numSelected = 0;
 
+        EEligibility highest = EEligibility.AUCC;
+
         // First, count the number of majors checked to see if we should check the top-level (and
         // accumulate math requirements at the same time)
-        for (final Map.Entry<Major, MajorMathRequirement> entry : allMajors.entrySet()) {
-            if (selectedMajors.contains(entry.getKey())) {
-                requirements.add(entry.getValue());
+        for (final Major entry : allMajors) {
+            if (selectedMajors.contains(entry)) {
+                if (entry.idealEligibility.level > highest.level) {
+                    highest = entry.idealEligibility;
+                }
                 ++numSelected;
             }
         }
+        eligibility[0] = highest;
 
         htm.sDiv("columns");
         boolean foundDeclared = false;
         char letter = 0;
-        for (final Major major : allMajors.keySet()) {
-
+        for (final Major major : allMajors) {
             if (major.questionNumbers[0] > 9000) {
                 // Don't emit all the specific Exploratory Studies tracks
                 continue;
             }
 
-            final String mname = major.majorName;
+            final String mname = major.programName;
 
             if (!mname.isEmpty() && mname.charAt(0) != letter) {
                 letter = mname.charAt(0);
@@ -243,8 +247,8 @@ enum PagePlanMajors2 {
             htm.add("name='", pcode, "' id='", pcode, "' onchange=\"toggleConc(this,'", classname, "');\"/>");
             htm.add("<label for='", pcode, "'>");
             htm.add(mname);
-            if (major.catalogUrl != null) {
-                htm.add("<span style='white-space:nowrap;'>&nbsp;<a target='_blank' href='", major.catalogUrl,
+            if (major.catalogPageUrl != null) {
+                htm.add("<span style='white-space:nowrap;'>&nbsp;<a target='_blank' href='", major.catalogPageUrl,
                         "'><img style='position:relative;top:-1px' src='/images/welcome/catalog3.png'/></a></span>");
             }
             if (major.equals(declaredMajor)) {
@@ -284,20 +288,21 @@ enum PagePlanMajors2 {
         final MathPlanLogic logic = new MathPlanLogic(site.site.profile);
 
         final String stuId = session.getEffectiveUserId();
-        final MathPlanStudentData data = stuId == null ? null : logic.getStudentData(cache, stuId, session.getNow(),
-                session.loginSessionTag, session.actAsUserId == null);
+        final RawStudent student = RawStudentLogic.query(cache, stuId, false);
+
+        final ZonedDateTime now = session.getNow();
+        final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, now,
+                session.actAsUserId == null);
 
         // Only perform updates if data present AND this is not an adviser using "Act As"
-        if (data != null && session.actAsUserId == null) {
-
+        if (session.actAsUserId == null) {
             final Map<String, String[]> params = req.getParameterMap();
 
             // Build the list of new responses
             final List<Integer> questions = new ArrayList<>(params.size());
             final List<String> answers = new ArrayList<>(1);
 
-            for (final Major major : logic.getMajors().keySet()) {
-
+            for (final Major major : Majors.INSTANCE.getMajors()) {
                 final List<String> programCodes = major.programCodes;
 
                 for (final String key : params.keySet()) {
@@ -310,10 +315,9 @@ enum PagePlanMajors2 {
             }
 
             if (!questions.isEmpty()) {
-                logic.deleteMathPlanResponses(cache, data.student, MathPlanConstants.MAJORS_PROFILE, session.getNow(),
-                        session.loginSessionTag);
+                RawStmathplanLogic.deleteAllForPage(cache, student.stuId, MathPlanConstants.MAJORS_PROFILE);
                 logic.storeMathPlanResponses(cache, data.student, MathPlanConstants.MAJORS_PROFILE, questions, answers,
-                        session.getNow(), session.loginSessionTag);
+                        now, session.loginSessionTag);
             }
         }
 

@@ -12,7 +12,7 @@ import java.util.Properties;
 /**
  * A simple dialog to tell the user that the operation in progress may take a while and to please be patient.
  */
-public final  class PleaseWait extends InternalPanelBase {
+public final class PleaseWait extends InternalPanelBase {
 
     /** Version number for serialization. */
     @Serial
@@ -21,7 +21,7 @@ public final  class PleaseWait extends InternalPanelBase {
     /**
      * Constructs a new {@code PleaseWait} panel.
      *
-     * @param theResOwner       the object that is creating the dialog. Skin resources are loaded from the PleaseWaitSkin path
+     * @param theResOwner the object that is creating the dialog. Skin resources are loaded from the PleaseWaitSkin path
      *                    relative to this object's position in the source tree
      * @param examVersion the exam version being requested
      */

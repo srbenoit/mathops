@@ -208,8 +208,8 @@ public final class StudentCourseScores {
     }
 
 //    /**
-//     * Sets the scale to be applied to the number of accumulated coupon points to generate a point contribution to total
-//     * course score, subject to a possible maximum number of coupon points.
+//     * Sets the scale to be applied to the number of accumulated coupon points to generate a point contribution to
+//     * total course score, subject to a possible maximum number of coupon points.
 //     *
 //     * @param scale the scale
 //     */
@@ -219,8 +219,8 @@ public final class StudentCourseScores {
 //    }
 
 //    /**
-//     * Gets the scale to be applied to the number of accumulated coupon points to generate a point contribution to total
-//     * course score, subject to a possible maximum number of coupon points.
+//     * Gets the scale to be applied to the number of accumulated coupon points to generate a point contribution to
+//     * total course score, subject to a possible maximum number of coupon points.
 //     *
 //     * @return the number of points
 //     */

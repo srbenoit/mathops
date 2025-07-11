@@ -1386,7 +1386,8 @@ public final class StudentCourseStatus extends LogicBase {
      * @return {@code true} if successful; {@code false} otherwise
      * @throws SQLException if there was an error accessing the database
      */
-    private boolean queryCourseSectionUnits(final Cache cache, final ChronoZonedDateTime<LocalDate> now) throws SQLException {
+    private boolean queryCourseSectionUnits(final Cache cache, final ChronoZonedDateTime<LocalDate> now)
+            throws SQLException {
 
         final String crs = this.studentCourse.course;
         final String sect = this.studentCourse.sect;

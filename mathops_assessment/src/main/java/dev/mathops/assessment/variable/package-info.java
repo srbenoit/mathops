@@ -8,7 +8,8 @@
  *     VariableRandomBoolean
  *     VariableSpan
  *     AbstractFormattableVariable {String formatPattern, DecimalFormat format]
- *       VariableDerived {IRangedVariable, IExcludableVariable} [Formula min, Formula max, Formula[] exclude, Formula formula]
+ *       VariableDerived {IRangedVariable, IExcludableVariable} [Formula min, Formula max, Formula[] exclude,
+ *           Formula formula]
  *       VariableInputInt
  *       VariableInputReal
  *       VariableInt

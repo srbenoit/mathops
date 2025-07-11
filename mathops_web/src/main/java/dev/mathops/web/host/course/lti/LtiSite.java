@@ -325,8 +325,8 @@ public final class LtiSite extends AbstractSite {
      * @throws IOException if there is an error writing the response
      */
     @Override
-    public ImmutableSessionInfo validateSession(final HttpServletRequest req,
-                                                final HttpServletResponse resp, final String failPage) throws IOException {
+    public ImmutableSessionInfo validateSession(final HttpServletRequest req, final HttpServletResponse resp,
+                                                final String failPage) throws IOException {
 
         final String sess = extractSessionId(req);
 

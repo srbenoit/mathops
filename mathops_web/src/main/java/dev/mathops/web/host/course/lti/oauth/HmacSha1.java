@@ -114,21 +114,18 @@ public enum HmacSha1 {
         if ("b617318655057264e28bc0b6fb378c8ef146be00".equals(hex1)) {
             Log.fine("TEST 1: PASSED");
         } else {
-            Log.fine("TEST 1: FAILED" + key1.length
-                    + CoreConstants.SLASH + text1.length);
+            Log.fine("TEST 1: FAILED" + key1.length + CoreConstants.SLASH + text1.length);
         }
 
         final byte[] key2 = {'J', 'e', 'f', 'e'};
-        final byte[] text2 = "what do ya want for nothing?"
-                .getBytes(StandardCharsets.UTF_8);
+        final byte[] text2 = "what do ya want for nothing?".getBytes(StandardCharsets.UTF_8);
         final byte[] digest2 = hmacSha1(key2, text2);
         final String hex2 = bytesToLCHex(digest2);
 
         if ("effcdf6ae5eb2fa2d27416d5f184df9c259a7c79".equals(hex2)) {
             Log.fine("TEST 2: PASSED");
         } else {
-            Log.fine("TEST 2: FAILED" + key2.length
-                    + CoreConstants.SLASH + text2.length);
+            Log.fine("TEST 2: FAILED" + key2.length + CoreConstants.SLASH + text2.length);
         }
 
         final byte[] key3 = new byte[20];
@@ -141,8 +138,7 @@ public enum HmacSha1 {
         if ("125d7342b9ac11cd91a39af48aa17b4f63f175d3".equals(hex3)) {
             Log.fine("TEST 3: PASSED");
         } else {
-            Log.fine("TEST 3: FAILED " + key3.length
-                    + CoreConstants.SLASH + text3.length);
+            Log.fine("TEST 3: FAILED " + key3.length + CoreConstants.SLASH + text3.length);
         }
 
         final byte[] key4 = {(byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, (byte) 0x05, (byte) 0x06, (byte) 0x07,

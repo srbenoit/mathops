@@ -243,7 +243,8 @@ public enum Math126 {
         m126m3.skillsReview.addExBlock("Pythagorean identity for sine and cosine")
                 .addEx("TR11_SR4_01", "Use the Pythagorean identity to simplify an expression");
         m126m3.skillsReview.addExBlock("Definitions of trigonometric functions")
-                .addEx("TR11_SR5_01", "Use definitions of trigonometric functions to expand and simplify an expression");
+                .addEx("TR11_SR5_01",
+                        "Use definitions of trigonometric functions to expand and simplify an expression");
 
         final LearningTargetData m126m3t1 = m126m3.addLearningTarget(3, 1, "3.1", "TR11_ST1_HW",
                 "I can interpret and apply double- and multiple-angle identities, including:",

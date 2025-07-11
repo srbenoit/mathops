@@ -187,16 +187,16 @@ final class ProblemPane extends JPanel implements ActionListener {
 
         final JPanel flow4 = makeFlow(bg);
         flow4.add(new JLabel("Min correct choices to display:"));
-        final FormulaEditorPanel minCorrect = new FormulaEditorPanel(FORMULA_FONT_SIZE, formulaInsets, minCorrectFormula,
-                EType.INTEGER);
+        final FormulaEditorPanel minCorrect = new FormulaEditorPanel(FORMULA_FONT_SIZE, formulaInsets,
+                minCorrectFormula, EType.INTEGER);
         minCorrect.setEnabled(this.workingProblem instanceof ProblemMultipleSelectionTemplate);
         flow4.add(minCorrect);
         minMaxCorrectInner.add(flow4, StackedBorderLayout.NORTH);
 
         final JPanel flow5 = makeFlow(bg);
         flow5.add(new JLabel("Max correct choices to display:"));
-        final FormulaEditorPanel maxCorrect = new FormulaEditorPanel(FORMULA_FONT_SIZE, formulaInsets, maxCorrectFormula,
-                EType.INTEGER);
+        final FormulaEditorPanel maxCorrect = new FormulaEditorPanel(FORMULA_FONT_SIZE, formulaInsets,
+                maxCorrectFormula, EType.INTEGER);
         maxCorrect.setEnabled(this.workingProblem instanceof ProblemMultipleSelectionTemplate);
         flow5.add(maxCorrect);
         minMaxCorrectInner.add(flow5, StackedBorderLayout.NORTH);
@@ -212,8 +212,8 @@ final class ProblemPane extends JPanel implements ActionListener {
 
         final JPanel flow6 = makeFlow(bg);
         flow6.add(new JLabel("Correctness formula:"));
-        final FormulaEditorPanel correctness = new FormulaEditorPanel(FORMULA_FONT_SIZE, formulaInsets, correctnessFormula,
-                EType.BOOLEAN);
+        final FormulaEditorPanel correctness = new FormulaEditorPanel(FORMULA_FONT_SIZE, formulaInsets,
+                correctnessFormula, EType.BOOLEAN);
         correctness.setEnabled(this.workingProblem instanceof ProblemEmbeddedInputTemplate);
         flow6.add(correctness);
         this.correctnessBox.add(flow6, StackedBorderLayout.NORTH);
@@ -338,7 +338,7 @@ final class ProblemPane extends JPanel implements ActionListener {
 
         final DocColumnPane answer = new DocColumnPane();
         if ((this.workingProblem instanceof final ProblemEmbeddedInputTemplate embedded)
-                && (embedded.correctAnswer != null)) {
+            && (embedded.correctAnswer != null)) {
 
             final HtmlBuilder xml = new HtmlBuilder(100);
             for (final AbstractDocObjectTemplate child : embedded.correctAnswer.getChildren()) {

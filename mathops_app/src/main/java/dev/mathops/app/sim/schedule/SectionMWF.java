@@ -26,8 +26,9 @@ public final class SectionMWF extends AbstractSection {
      * @param theUsage        the usage
      * @param theBlocksPerDay the number of 50-minute blocks the course will meet each day
      */
-    public SectionMWF(final int theId, final EMeetingDays theMeetingDays, final RoomSchedule theRoom, final Course theCourse,
-                      final int theNumSeats, final ERoomUsage theUsage, final int theBlocksPerDay) {
+    public SectionMWF(final int theId, final EMeetingDays theMeetingDays, final RoomSchedule theRoom,
+                      final Course theCourse, final int theNumSeats, final ERoomUsage theUsage,
+                      final int theBlocksPerDay) {
 
         super(theId, theRoom, theCourse, theNumSeats, theUsage, theBlocksPerDay);
 

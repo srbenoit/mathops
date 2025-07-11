@@ -271,7 +271,8 @@ public final class ItemSessionStore {
                     } else if ("problem-multiple-choice".equals(tag)) {
                         item = ProblemTemplateFactory.parseFromProblemMultipleChoiceElement(child, EParserMode.NORMAL);
                     } else if ("problem-multiple-selection".equals(tag)) {
-                        item = ProblemTemplateFactory.parseFromProblemMultipleSelectionElement(child, EParserMode.NORMAL);
+                        item = ProblemTemplateFactory.parseFromProblemMultipleSelectionElement(child,
+                                EParserMode.NORMAL);
                     } else if ("problem-numeric".equals(tag)) {
                         item = ProblemTemplateFactory.parseFromProblemNumericElement(child, EParserMode.NORMAL);
                     } else if ("problem-embedded-input".equals(tag)) {

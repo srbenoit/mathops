@@ -207,7 +207,6 @@ public final class Function extends AbstractFormulaContainer implements IEditabl
                 case UCASE -> ucase(arg);
                 case RAD_NUM -> radNum(arg);
                 case RAD_DEN -> radDen(arg);
-                default -> new ErrorValue("Unsupported function");
             };
         }
 
