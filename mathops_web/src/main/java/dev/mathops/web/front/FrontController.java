@@ -324,14 +324,15 @@ public final class FrontController extends HttpServlet {
     private void servicePublic(final ServletRequest req, final HttpServletResponse resp,
                                final String requestPath) throws IOException {
 
-        Log.warning("SERVICING PUBLIC - APACHE SHOULD HAVE GOTTEN THIS: ", requestPath);
+        if (!requestPath.startsWith("/www/errors/")) {
+            Log.warning("SERVICING PUBLIC - APACHE SHOULD HAVE GOTTEN THIS: ", requestPath);
+        }
 
         // final String subpath = requestPath.substring(PUBLIC_PATH_START.length());
 
         final File file = new File(this.publicDir, requestPath);
 
         final String absolutePath = file.getAbsolutePath();
-        Log.info("Checking for '", absolutePath, "'");
 
         if (file.exists()) {
             final byte[] data = FileLoader.loadFileAsBytes(file, true);
@@ -340,7 +341,7 @@ public final class FrontController extends HttpServlet {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             } else {
                 final String filename = file.getName().toLowerCase(Locale.ROOT);
-                final int lastDot = filename.lastIndexOf(DOT);
+                final int lastDot = filename.lastIndexOf((int) DOT);
                 EMimeType mime = EMimeType.TEXTPLAIN;
                 if (lastDot != -1) {
                     final String ext = filename.substring(lastDot + 1);

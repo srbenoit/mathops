@@ -8,6 +8,7 @@ import dev.mathops.db.ESchema;
 import dev.mathops.db.cfg.Login;
 import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.enums.ETermName;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.logic.mathplan.EEligibility;
 import dev.mathops.db.logic.mathplan.ENextStep;
 import dev.mathops.db.logic.mathplan.MathPlanLogic;
@@ -19,6 +20,7 @@ import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawMpscorequeue;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.rec.TermRec;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
@@ -147,7 +149,7 @@ enum PagePlanNext {
 
         htm.sP().add("Based on your math plan, these are your next steps:").eP();
 
-        final boolean needsPlacement = showNextSteps(htm, data);
+        final boolean needsPlacement = showNextSteps(cache, htm, data);
         htm.div("vgap2");
 
         htm.sDiv("advice");
@@ -202,26 +204,102 @@ enum PagePlanNext {
      * Shows the next steps for the student, or informs the student that they are eligible for the course(s) they
      * currently need.
      *
-     * @param htm  the {@code HtmlBuilder} to which to append
-     * @param data the student data
+     * @param cache the data cache
+     * @param htm   the {@code HtmlBuilder} to which to append
+     * @param data  the student data
      * @return true if the student needs to complete placement, false if not
      */
-    static boolean showNextSteps(final HtmlBuilder htm, final MathPlanStudentData data) {
+    static boolean showNextSteps(final Cache cache, final HtmlBuilder htm, final MathPlanStudentData data) {
 
         boolean needsPlacement = true;
+
+        TermKey active = null;
+        try {
+            final SystemData systemData = cache.getSystemData();
+            final TermRec activeTerm = systemData.getActiveTerm();
+            if (activeTerm != null) {
+                active = activeTerm.term;
+            }
+        } catch (final SQLException ex) {
+            Log.warning(ex);
+        }
 
         final EEligibility eligibility = data.recommendedEligibility;
         final ENextStep nextStep = data.nextStep;
 
-        htm.div("vgap");
-
-        htm.sDiv("advice");
         final TermKey termKey = data.student.aplnTerm;
         final ETermName applicationTerm = termKey == null ? null : termKey.name;
-        final String termName = applicationTerm.fullName;
+        final String termName = applicationTerm == null ? null : applicationTerm.fullName;
 
-        // TODO: Check eligibility for Precalculus tutorials based on application term - if they won't be eligible after
-        //  placement, change the messaging below.
+        boolean isIncoming = false;
+        if (active != null && termKey != null && termKey.name == ETermName.FALL
+            && (active.name == ETermName.SUMMER || active.name == ETermName.FALL)) {
+            isIncoming = active.year.equals(termKey.year);
+        }
+
+        final Map<Integer, RawStmathplan> profileResponses = data.getMajorProfileResponses();
+        final String basedOn = profileResponses.size() == 1 ? "Based on the major you selected, "
+                : "Based on the list of majors you selected, ";
+
+        htm.div("vgap");
+        htm.sDiv("indent");
+        // Show the student's "ideal placement" based on their selected major(s)
+        switch (eligibility) {
+            case AUCC:
+                htm.sP().add(basedOn, "you just need to complete the All-University ",
+                        "Core Curriculum requirement of 3 credits of Quantitative Reasoning.").eP();
+
+                final double completed = data.getCreditsOfCoreCompleted();
+
+                if (completed >= 3.0) {
+                    htm.sP().add("You have already satisfied this core requirement.").eP();
+                } else if (completed > 0.0) {
+                    final long floor = (long) Math.floor(completed);
+                    final String str = Long.toString(floor);
+                    htm.sP().add("You have already completed ", str, " of these credits.").eP();
+                }
+                break;
+
+            case M_117_120:
+                htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra in Context I) or ",
+                        "MATH 120 (College Algebra) in ", termName, ".").eP();
+                break;
+
+            case M_118:
+                htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 118 (College Algebra in Context II) ",
+                        "in ", termName, ".").eP();
+                break;
+
+            case M_125:
+                htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 125 (Numerical Trigonometry) in ",
+                        termName, ".").eP();
+                break;
+
+            case M_155:
+                htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 155 (Calculus for Biological ",
+                        "Scientists I) in ", termName, ".").eP();
+                break;
+
+            case M_155_160:
+                htm.sP().add(basedOn, "it is ideal if you are eligible for either MATH 155 (Calculus for Biological ",
+                        "Scientists I) or MATH 160 (Calculus for Physical Scientists I) in ", termName, ".").eP();
+                break;
+
+            case M_156_160:
+                htm.sP().add(basedOn, "it is ideal if you are eligible for either MATH 156 (Mathematics for ",
+                        "Computational Science I) or MATH 160 (Calculus for Physical Scientists I) in ", termName,
+                        ".").eP();
+                break;
+
+            case M_160:
+                htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 160 (Calculus for Physical ",
+                        "Scientists I) in ", termName, ".").eP();
+                break;
+        }
+        htm.eDiv();
+
+        htm.div("vgap");
+        htm.sDiv("advice");
 
         switch (nextStep) {
             case MSG_PLACEMENT_NOT_NEEDED, MSG_ALREADY_ELIGIBLE -> {
@@ -248,131 +326,171 @@ enum PagePlanNext {
             case MSG_PLACE_OUT_117 -> {
                 htm.sP().add("<strong>You should complete the \"Algebra\" section of the Math Placement Tool to try ",
                         "to place out of MATH 117.</strong>").eP();
-                htm.sP().add("If you do not place out of MATH 117 on the Math Placement Tool, you can do so by ",
-                        "completing one or more tutorials.").eP();
+                if (isIncoming) {
+                    htm.sP().add("If you do not place out of MATH 117 on the Math Placement Tool, you can do so by ",
+                            "completing one or more tutorials.").eP();
+                }
             }
             case MSG_PLACE_INTO_118 -> {
                 htm.sP().add("<strong>You should complete the \"Algebra\" section of the Math Placement Tool to try ",
                         "to place out of MATH 117 and become eligible for MATH 118.</strong>").eP();
-                htm.sP().add("If you do not place out of MATH 117 on the Math Placement Tool, you can do so by ",
-                        "completing one or more tutorials.").eP();
+                if (isIncoming) {
+                    htm.sP().add("If you do not place out of MATH 117 on the Math Placement Tool, you can do so by ",
+                            "completing one or more tutorials.").eP();
+                }
             }
             case MSG_PLACE_OUT_118 -> {
                 htm.sP().add("<strong>You should complete the \"Algebra\" section of the Math Placement Tool to try ",
                         "to place out of MATH 118.</strong>").eP();
-                htm.sP().add("If you do not place out of MATH 118 on the Math Placement Tool, you can do so by ",
-                        "completing one or more tutorials.").eP();
+                if (isIncoming) {
+                    htm.sP().add("If you do not place out of MATH 118 on the Math Placement Tool, you can do so by ",
+                            "completing one or more tutorials.").eP();
+                }
             }
             case MSG_PLACE_OUT_117_118 -> {
                 htm.sP().add("<strong>You should complete the \"Algebra\" section of the Math Placement Tool to try ",
                         "to place out of MATH 117 and MATH 118.</strong>").eP();
-                htm.sP().add("If you do not place out of MATH 117 and MATH 118 on the Math Placement Tool, you can do ",
-                        "so by completing one or more tutorials.").eP();
+                if (isIncoming) {
+                    htm.sP().add("If you do not place out of MATH 117 and MATH 118 on the Math Placement Tool, you ",
+                            "can do so by completing one or more tutorials.").eP();
+                }
             }
             case MSG_PLACE_INTO_125 -> {
                 htm.sP().add("<strong>You should complete the \"Algebra\" section of the Math Placement Tool to try ",
                         "to place out of MATH 117 and MATh 118 and become eligible for MATH 125.</strong>").eP();
-                htm.sP().add("If you do not place out of MATH 117 and MATh 118 on the Math Placement Tool, you can do ",
-                        "so by completing one or more tutorials.").eP();
+                if (isIncoming) {
+                    htm.sP().add("If you do not place out of MATH 117 and MATh 118 on the Math Placement Tool, you ",
+                            "can do so by completing one or more tutorials.").eP();
+                }
             }
             case MSG_PLACE_OUT_125 -> {
                 htm.sP().add("<strong>You should complete the \"Algebra\" and \"Trigonometry\" sections of the Math ",
                         "Placement Tool to try to place out of MATH 125.</strong>").eP();
-                htm.sP().add("If you do not place out of MATH 125 on the Math Placement Tool, you can do so by ",
-                        "completing one or more tutorials.").eP();
+                if (isIncoming) {
+                    htm.sP().add("If you do not place out of MATH 125 on the Math Placement Tool, you can do so by ",
+                            "completing one or more tutorials.").eP();
+                }
             }
             case MSG_PLACE_OUT_118_125 -> {
                 htm.sP().add("<strong>You should complete the \"Algebra\" and \"Trigonometry\" sections of the Math ",
                         "Placement Tool to try to place out of MATH 118 and MATH 125.</strong>").eP();
-                htm.sP().add("If you do not place out of MATH 118 and MATH 125 on the Math Placement Tool, you can do ",
-                        "so by completing one or more tutorials.").eP();
+                if (isIncoming) {
+                    htm.sP().add("If you do not place out of MATH 118 and MATH 125 on the Math Placement Tool, you ",
+                            "can do so by completing one or more tutorials.").eP();
+                }
             }
             case MSG_PLACE_OUT_117_118_125 -> {
                 htm.sP().add("<strong>You should complete the \"Algebra\" and \"Trigonometry\" sections of the Math ",
                         "Placement Tool to try to place out of MATH 117, MATH 118, and MATH 125.</strong>").eP();
-                htm.sP().add("If you do not place out of MATH 117, MATH 118, and MATH 125 on the Math Placement Tool, ",
-                        "you can do so by completing one or more tutorials.").eP();
+                if (isIncoming) {
+                    htm.sP().add("If you do not place out of MATH 117, MATH 118, and MATH 125 on the Math Placement ",
+                            "Tool, you can do so by completing one or more tutorials.").eP();
+                }
             }
             case MSG_PLACE_INTO_155 -> {
                 htm.sP().add("<strong>You should complete the \"Algebra\", \"Trigonometry\", and \"Logarithmic &amp; ",
                         "Exponential Functions\" sections of the Math Placement Tool to try to become eligible for ",
                         "MATH 155.</strong>").eP();
-                htm.sP().add("If you do not place out of MATH 117, MATH 118, MATH 124, and MATH 125 on the Math ",
-                        "Placement Tool, you can do so by completing one or more tutorials.").eP();
+                if (isIncoming) {
+                    htm.sP().add("If you do not place out of MATH 117, MATH 118, MATH 124, and MATH 125 on the Math ",
+                            "Placement Tool, you can do so by completing one or more tutorials.").eP();
+                }
             }
             case MSG_PLACE_OUT_126 -> {
                 htm.sP().add("<strong>You should complete the \"Algebra\" and \"Trigonometry\" sections of the Math ",
                         "Placement Tool to try to place out of MATH 126.</strong>").eP();
-                htm.sP().add("If you do not place out of MATH 126 on the Math Placement Tool, you can do so by ",
-                        "completing one or more tutorials.").eP();
+                if (isIncoming) {
+                    htm.sP().add("If you do not place out of MATH 126 on the Math Placement Tool, you can do so by ",
+                            "completing one or more tutorials.").eP();
+                }
             }
             case MSG_PLACE_OUT_125_126 -> {
                 htm.sP().add("<strong>You should complete the \"Algebra\" and \"Trigonometry\" sections of the Math ",
                         "Placement Tool to try to place out of MATH 125 and MATH 126.</strong>").eP();
-                htm.sP().add("If you do not place out of MATH 125 and MATH 126 on the Math Placement Tool, you can do ",
-                        "so by completing one or more tutorials.").eP();
+                if (isIncoming) {
+                    htm.sP().add("If you do not place out of MATH 125 and MATH 126 on the Math Placement Tool, you ",
+                            "can do so by completing one or more tutorials.").eP();
+                }
             }
             case MSG_PLACE_OUT_118_125_126 -> {
                 htm.sP().add("<strong>You should complete the \"Algebra\" and \"Trigonometry\" sections of the Math ",
                         "Placement Tool to try to place out of MATH 118, MATH 125, and MATH 126.</strong>").eP();
-                htm.sP().add("If you do not place out of MATH 118, MATH 125, and MATH 126 on the Math Placement Tool, ",
-                        "you can do so by completing one or more tutorials.").eP();
+                if (isIncoming) {
+                    htm.sP().add("If you do not place out of MATH 118, MATH 125, and MATH 126 on the Math Placement ",
+                            "Tool, you can do so by completing one or more tutorials.").eP();
+                }
             }
             case MSG_PLACE_OUT_117_118_125_126 -> {
                 htm.sP().add("<strong>You should complete the \"Algebra\" and \"Trigonometry\" sections of the Math ",
                         "Placement Tool to try to place out of MATH 117, MATH 118, MATH 125, and MATH ",
                         "126.</strong>").eP();
-                htm.sP().add("If you do not place out of MATH 117, MATH 118, MATH 125, and MATH 126 on the Math ",
-                        "Placement Tool, you can do so by completing one or more tutorials.").eP();
+                if (isIncoming) {
+                    htm.sP().add("If you do not place out of MATH 117, MATH 118, MATH 125, and MATH 126 on the Math ",
+                            "Placement Tool, you can do so by completing one or more tutorials.").eP();
+                }
             }
             case MSG_PLACE_OUT_124 -> {
                 htm.sP().add("<strong>You should complete the \"Algebra\" and \"Logarithmic &amp; Exponential ",
                         "Functions\" sections of the Math Placement Tool to try to place out of MATH ",
                         "124.</strong>").eP();
-                htm.sP().add("If you do not place out of MATH 124 on the Math Placement Tool, you can do so by ",
-                        "completing one or more tutorials.").eP();
+                if (isIncoming) {
+                    htm.sP().add("If you do not place out of MATH 124 on the Math Placement Tool, you can do so by ",
+                            "completing one or more tutorials.").eP();
+                }
             }
             case MSG_PLACE_OUT_118_124 -> {
                 htm.sP().add("<strong>You should complete the \"Algebra\" and \"Logarithmic &amp; Exponential ",
                         "Functions\" sections of the Math Placement Tool to try to place out of MATH 118 and MATH ",
                         "124.</strong>").eP();
-                htm.sP().add("If you do not place out of MATH 118 and MATH 124 on the Math Placement Tool, you can do ",
-                        "so by completing one or more tutorials.").eP();
+                if (isIncoming) {
+                    htm.sP().add("If you do not place out of MATH 118 and MATH 124 on the Math Placement Tool, you ",
+                            "can do so by completing one or more tutorials.").eP();
+                }
             }
             case MSG_PLACE_OUT_117_118_124 -> {
                 htm.sP().add("<strong>You should complete the \"Algebra\" and \"Logarithmic &amp; Exponential ",
                         "Functions\" sections of the Math Placement Tool to try to place out of MATh 117, MATH 118, ",
                         "and MATH 124.</strong>").eP();
-                htm.sP().add("If you do not place out of MATH 117, MATH 118, and MATH 124 on the Math Placement Tool, ",
-                        "you can do so by completing one or more tutorials.").eP();
+                if (isIncoming) {
+                    htm.sP().add("If you do not place out of MATH 117, MATH 118, and MATH 124 on the Math Placement ",
+                            "Tool, you can do so by completing one or more tutorials.").eP();
+                }
             }
             case MSG_PLACE_OUT_124_126 -> {
                 htm.sP().add("<strong>You should complete the \"Algebra\", \"Trigonometry\", and \"Logarithmic &amp; ",
                         "Exponential Functions\" sections of the Math Placement Tool to try to place out of MATH 124 ",
                         "and MATH 126.</strong>").eP();
-                htm.sP().add("If you do not place out of MATH 124 and MATH 126 on the Math Placement Tool, you can do ",
-                        "so by completing one or more tutorials.").eP();
+                if (isIncoming) {
+                    htm.sP().add("If you do not place out of MATH 124 and MATH 126 on the Math Placement Tool, you ",
+                            "can do so by completing one or more tutorials.").eP();
+                }
             }
             case MSG_PLACE_OUT_124_125_126 -> {
                 htm.sP().add("<strong>You should complete the \"Algebra\", \"Trigonometry\", and \"Logarithmic &amp; ",
                         "Exponential Functions\" sections of the Math Placement Tool to try to place out of MATH 124, ",
                         "MATH 125, and MATH 126.</strong>").eP();
-                htm.sP().add("If you do not place out of MATH 124, MATH 125, and MATH 126 on the Math Placement Tool, ",
-                        "you can do so by completing one or more tutorials.").eP();
+                if (isIncoming) {
+                    htm.sP().add("If you do not place out of MATH 124, MATH 125, and MATH 126 on the Math Placement ",
+                            "Tool, you can do so by completing one or more tutorials.").eP();
+                }
             }
             case MSG_PLACE_OUT_118_124_125_126 -> {
                 htm.sP().add("<strong>You should complete the \"Algebra\", \"Trigonometry\", and \"Logarithmic &amp; ",
                         "Exponential Functions\" sections of the Math Placement Tool to try to place out of MATH 118, ",
                         "MATH 124, MATH 125, and MATH 126.</strong>").eP();
-                htm.sP().add("If you do not place out of MATH 118, MATH 124, MATH 125, and MATH 126 on the Math ",
-                        "Placement Tool, you can do so by completing one or more tutorials.").eP();
+                if (isIncoming) {
+                    htm.sP().add("If you do not place out of MATH 118, MATH 124, MATH 125, and MATH 126 on the Math ",
+                            "Placement Tool, you can do so by completing one or more tutorials.").eP();
+                }
             }
             case MSG_PLACE_OUT_117_118_124_125_126 -> {
                 htm.sP().add("<strong>You should complete the \"Algebra\", \"Trigonometry\", and \"Logarithmic &amp; ",
                         "Exponential Functions\" sections of the Math Placement Tool to try to place out of MATH 117, ",
                         "MATH 118, MATH 124, MATH 125, and MATH 126.</strong>").eP();
-                htm.sP().add("If you do not place out of MATH 117, MATH 118, MATH 124, MATH 125, and MATH 126 on the ",
-                        "Math Placement Tool, you can do so by completing one or more tutorials.").eP();
+                if (isIncoming) {
+                    htm.sP().add("If you do not place out of MATH 117, MATH 118, MATH 124, MATH 125, and MATH 126 on ",
+                            "the Math Placement Tool, you can do so by completing one or more tutorials.").eP();
+                }
             }
         }
 

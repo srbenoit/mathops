@@ -205,7 +205,7 @@ enum PagePlanView {
 
             htm.hr();
             if (data.checkedOnlyRecommendation) {
-                PagePlanNext.showNextSteps(htm, data);
+                PagePlanNext.showNextSteps(cache, htm, data);
 
                 htm.div("clear");
                 htm.div("vgap");
@@ -260,7 +260,7 @@ enum PagePlanView {
             htm.sDiv("planbox");
 
             if (data.checkedOnlyRecommendation) {
-                PagePlanNext.showNextSteps(htm, data);
+                PagePlanNext.showNextSteps(cache, htm, data);
             } else {
                 htm.sDiv("center");
                 htm.addln("<b>To see your next steps, read the statement above and check the box to agree.</b>");
