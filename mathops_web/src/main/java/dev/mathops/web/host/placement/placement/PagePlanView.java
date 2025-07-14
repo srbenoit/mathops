@@ -75,29 +75,25 @@ enum PagePlanView {
         final RawStudent student = RawStudentLogic.query(cache, stuId, false);
 
         final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, session.getNow(),
-                session.actAsUserId == null);
+                session.loginSessionTag, session.actAsUserId == null);
 
         final HtmlBuilder htm = new HtmlBuilder(8192);
         Page.startNofooterPage(htm, site.getTitle(), session, true, Page.NO_BARS, null, false, false);
         MPPage.emitMathPlanHeader(htm);
 
-        if (data == null) {
-            MPPage.emitNoStudentDataError(htm);
+        MathPlacementSite.emitLoggedInAs2(htm, session);
+        htm.sDiv("inset2");
+
+        final Map<Integer, RawStmathplan> existing = MathPlanStudentData.getMathPlanResponses(cache,
+                session.getEffectiveUserId(), MathPlanConstants.ONLY_RECOM_PROFILE);
+
+        if (existing.containsKey(Integer.valueOf(1))) {
+            showPlan(cache, session, htm, logic);
         } else {
-            MathPlacementSite.emitLoggedInAs2(htm, session);
-            htm.sDiv("inset2");
-
-            final Map<Integer, RawStmathplan> existing = MathPlanStudentData.getMathPlanResponses(cache,
-                    session.getEffectiveUserId(), MathPlanConstants.ONLY_RECOM_PROFILE);
-
-            if (existing.containsKey(Integer.valueOf(1))) {
-                showPlan(cache, session, htm, logic);
-            } else {
-                showAffirmations(htm);
-            }
-
-            htm.eDiv(); // inset2
+            showAffirmations(htm);
         }
+
+        htm.eDiv(); // inset2
 
         MPPage.emitScripts(htm);
         MPPage.endPage(htm, req, resp);
@@ -174,7 +170,7 @@ enum PagePlanView {
         final RawStudent student = RawStudentLogic.query(cache, stuId, false);
 
         final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, session.getNow(),
-                session.actAsUserId == null);
+                session.loginSessionTag, session.actAsUserId == null);
 
         htm.sDiv("shaded2left");
 
@@ -196,8 +192,6 @@ enum PagePlanView {
             htm.div("vgap");
             htm.hr();
             htm.div("vgap");
-
-            htm.sDiv("planbox");
 
             emitResultsHeader(htm, numSelected);
 
@@ -225,8 +219,6 @@ enum PagePlanView {
                 htm.div("vgap");
             }
 
-            htm.eDiv();
-
             htm.div(null, "id='end'");
         }
 
@@ -249,25 +241,21 @@ enum PagePlanView {
         final RawStudent student = RawStudentLogic.query(cache, stuId, false);
 
         final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, session.getNow(),
-                session.actAsUserId == null);
+                session.loginSessionTag, session.actAsUserId == null);
 
         htm.sDiv("indent");
 
         emitMajors(htm, data);
 
         if (data.recommendedEligibility != null) {
-            htm.div("vgap");
-            htm.sDiv("planbox");
-
             if (data.checkedOnlyRecommendation) {
                 PagePlanNext.showNextSteps(cache, htm, data);
             } else {
+                htm.div("vgap");
                 htm.sDiv("center");
                 htm.addln("<b>To see your next steps, read the statement above and check the box to agree.</b>");
                 htm.eDiv();
             }
-
-            htm.eDiv(); // planbox
 
             htm.div(null, "id='end'");
         }
@@ -476,7 +464,8 @@ enum PagePlanView {
             final RawStudent student = RawStudentLogic.query(cache, studentId, false);
 
             final ZonedDateTime now = session.getNow();
-            final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, now, true);
+            final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, now,
+                    session.loginSessionTag, true);
             final Integer key = Integer.valueOf(1);
 
             final Map<Integer, RawStmathplan> existing = MathPlanStudentData.getMathPlanResponses(cache, studentId,

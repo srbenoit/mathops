@@ -18,6 +18,7 @@ import dev.mathops.db.old.rawlogic.RawMpscorequeueLogic;
 import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawMpscorequeue;
+import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.rec.TermRec;
@@ -36,6 +37,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Generates the page that shows next steps with affirmations and plans to take MPE.
@@ -81,30 +83,28 @@ enum PagePlanNext {
         final String stuId = session.getEffectiveUserId();
         final RawStudent student = RawStudentLogic.query(cache, stuId, false);
 
-        final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, session.getNow(),
-                session.actAsUserId == null);
+        final ZonedDateTime now = session.getNow();
+        final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, now,
+                session.loginSessionTag, session.actAsUserId == null);
 
         final HtmlBuilder htm = new HtmlBuilder(8192);
-        Page.startNofooterPage(htm, site.getTitle(), session, true, Page.NO_BARS, null, false, false);
+        final String title = site.getTitle();
+        Page.startNofooterPage(htm, title, session, true, Page.NO_BARS, null, false, false);
         MPPage.emitMathPlanHeader(htm);
 
-        if (data == null) {
-            MPPage.emitNoStudentDataError(htm);
+        MathPlacementSite.emitLoggedInAs2(htm, session);
+        htm.sDiv("inset2");
+
+        final Map<Integer, RawStmathplan> existing = MathPlanStudentData.getMathPlanResponses(cache, stuId,
+                MathPlanConstants.ONLY_RECOM_PROFILE);
+
+        if (existing.containsKey(ONE)) {
+            showPlan(cache, session, htm, logic);
         } else {
-            MathPlacementSite.emitLoggedInAs2(htm, session);
-            htm.sDiv("inset2");
-
-            final Map<Integer, RawStmathplan> existing = MathPlanStudentData.getMathPlanResponses(cache,
-                    session.getEffectiveUserId(), MathPlanConstants.ONLY_RECOM_PROFILE);
-
-            if (existing.containsKey(ONE)) {
-                showPlan(cache, session, htm, logic);
-            } else {
-                PagePlanView.doGet(cache, site, req, resp, session);
-            }
-
-            htm.eDiv(); // inset2
+            PagePlanView.doGet(cache, site, req, resp, session);
         }
+
+        htm.eDiv(); // inset2
 
         MPPage.emitScripts(htm);
         MPPage.endPage(htm, req, resp);
@@ -128,8 +128,9 @@ enum PagePlanNext {
         final String stuId = session.getEffectiveUserId();
         final RawStudent student = RawStudentLogic.query(cache, stuId, false);
 
-        final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, session.getNow(),
-                session.actAsUserId == null);
+        final ZonedDateTime now = session.getNow();
+        final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, now,
+                session.loginSessionTag, session.actAsUserId == null);
 
         final Map<Integer, RawStmathplan> intentions = data.getIntentions();
 
@@ -211,8 +212,6 @@ enum PagePlanNext {
      */
     static boolean showNextSteps(final Cache cache, final HtmlBuilder htm, final MathPlanStudentData data) {
 
-        boolean needsPlacement = true;
-
         TermKey active = null;
         try {
             final SystemData systemData = cache.getSystemData();
@@ -224,7 +223,7 @@ enum PagePlanNext {
             Log.warning(ex);
         }
 
-        final EEligibility eligibility = data.recommendedEligibility;
+        final Set<EEligibility> eligibility = data.recommendedEligibility;
         final ENextStep nextStep = data.nextStep;
 
         final TermKey termKey = data.student.aplnTerm;
@@ -243,9 +242,359 @@ enum PagePlanNext {
 
         htm.div("vgap");
         htm.sDiv("indent");
+
         // Show the student's "ideal placement" based on their selected major(s)
-        switch (eligibility) {
-            case AUCC:
+        if (eligibility.contains(EEligibility.M_160)) {
+            if (eligibility.contains(EEligibility.M_156)) {
+                htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 156 (Mathematics for Computational ",
+                        "Science I) or MATH 160 (Calculus for Physical Scientists I) in ", termName, ".").eP();
+            } else if (eligibility.contains(EEligibility.M_155)) {
+                htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 155 (Calculus for Biological ",
+                        "Scientists I) or MATH 160 (Calculus for Physical Scientists I) in ", termName, ".").eP();
+            } else {
+                htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 160 (Calculus for Physical ",
+                        "Scientists I) in ", termName, ".").eP();
+            }
+        } else if (eligibility.contains(EEligibility.M_156)) {
+            if (eligibility.contains(EEligibility.M_155)) {
+                htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 156 (Mathematics for Computational ",
+                        "Science I) or MATH 155 (Calculus for Biological Scientists I) in ", termName, ".").eP();
+            } else {
+                htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 156 (Mathematics for Computational ",
+                        "Science I) in ", termName, ".").eP();
+            }
+        } else if (eligibility.contains(EEligibility.M_155)) {
+            htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 155 (Calculus for Biological ",
+                    "Scientists I) in ", termName, ".").eP();
+        } else if (eligibility.contains(EEligibility.M_126)) {
+            if (eligibility.contains(EEligibility.M_125)) {
+                if (eligibility.contains(EEligibility.M_124)) {
+                    if (eligibility.contains(EEligibility.M_118)) {
+                        if (eligibility.contains(EEligibility.M_117)) {
+                            if (eligibility.contains(EEligibility.M_120)) {
+                                htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra ",
+                                        "in Context I), MATH 118 (College Algebra in Context II), MATH 124 ",
+                                        "(Logarithmic and Exponential Functions), or for MATH 120 (College Algebra), ",
+                                        "and also for MATH 125 (Numerical Trigonometry) and MATH 126 (Analytic ",
+                                        "Trigonometry) in ", termName, ".").eP();
+                            } else {
+                                htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra ",
+                                        "in Context I), MATH 118 (College Algebra in Context II), MATH 124 ",
+                                        "(Logarithmic and Exponential Functions), MATH 125 (Numerical Trigonometry), ",
+                                        "and MATH 126 (Analytic Trigonometry) in ", termName, ".").eP();
+                            }
+                        } else if (eligibility.contains(EEligibility.M_120)) {
+                            htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 118 (College Algebra in ",
+                                    "Context II), MATH 124 (Logarithmic and Exponential Functions), or for MATH 120 ",
+                                    "(College Algebra), and also for MATH 125 (Numerical Trigonometry) and MATH 126 ",
+                                    "(Analytic Trigonometry) in ", termName, ".").eP();
+                        } else {
+                            htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 118 (College Algebra in ",
+                                    "Context II), MATH 124 (Logarithmic and Exponential Functions), MATH 125 ",
+                                    "(Numerical Trigonometry), and MATH 126 (Analytic Trigonometry) in ", termName,
+                                    ".").eP();
+                        }
+                    } else if (eligibility.contains(EEligibility.M_117)) {
+                        if (eligibility.contains(EEligibility.M_120)) {
+                            htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra in ",
+                                    "Context I), MATH 124 (Logarithmic and Exponential Functions), or for MATH 120 ",
+                                    "(College Algebra), and also for MATH 125 (Numerical Trigonometry) and MATH 126 ",
+                                    "(Analytic Trigonometry) in ", termName, ".").eP();
+                        } else {
+                            htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra in ",
+                                    "Context I), MATH 124 (Logarithmic and Exponential Functions), MATH 125 ",
+                                    "(Numerical Trigonometry), and MATH 126 (Analytic Trigonometry) in ", termName,
+                                    ".").eP();
+                        }
+                    } else if (eligibility.contains(EEligibility.M_120)) {
+                        htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 124 (Logarithmic and ",
+                                "Exponential Functions), or for MATH 120 (College Algebra), and also for MATH 125 ",
+                                "(Numerical Trigonometry) and MATH 126 (Analytic Trigonometry) in ", termName,
+                                ".").eP();
+                    } else {
+                        htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 124 (Logarithmic and ",
+                                "Exponential Functions), MATH 125 (Numerical Trigonometry), and MATH 126 (Analytic ",
+                                "Trigonometry) in ", termName, ".").eP();
+                    }
+                } else {
+                    // 126 and 125 but not 124
+                    if (eligibility.contains(EEligibility.M_118)) {
+                        if (eligibility.contains(EEligibility.M_117)) {
+                            if (eligibility.contains(EEligibility.M_120)) {
+                                htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra ",
+                                        "in Context I), MATH 118 (College Algebra in Context II) or for MATH 120 ",
+                                        "(College Algebra), and also for MATH 125 (Numerical Trigonometry) and MATH ",
+                                        "126 (Analytic Trigonometry) in ", termName, ".").eP();
+                            } else {
+                                htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra ",
+                                        "in Context I), MATH 118 (College Algebra in Context II), MATH 125 (Numerical ",
+                                        "Trigonometry), and MATH 126 (Analytic Trigonometry) in ", termName, ".").eP();
+                            }
+                        } else if (eligibility.contains(EEligibility.M_120)) {
+                            htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 118 (College Algebra in ",
+                                    "Context II) or MATH 120 (College Algebra), and also for MATH 125 (Numerical ",
+                                    "Trigonometry) and MATH 126 (Analytic Trigonometry) in ", termName, ".").eP();
+                        } else {
+                            htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 118 (College Algebra in ",
+                                    "Context II), MATH 125 (Numerical Trigonometry), and MATH 126 (Analytic ",
+                                    "Trigonometry) in ", termName, ".").eP();
+                        }
+                    } else if (eligibility.contains(EEligibility.M_117)) {
+                        if (eligibility.contains(EEligibility.M_120)) {
+                            htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra in ",
+                                    "Context I) or MATH 120 (College Algebra) and also for MATH 125 (Numerical ",
+                                    "Trigonometry) and MATH 126 (Analytic Trigonometry) in ", termName, ".").eP();
+                        } else {
+                            htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra in ",
+                                    "Context I), MATH 125 (Numerical Trigonometry), and MATH 126 (Analytic ",
+                                    "Trigonometry) in ", termName, ".").eP();
+                        }
+                    } else if (eligibility.contains(EEligibility.M_120)) {
+                        htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 120 (College Algebra) and ",
+                                "also for MATH 125 (Numerical Trigonometry) and MATH 126 (Analytic Trigonometry) in ",
+                                termName, ".").eP();
+                    } else {
+                        htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 125 (Numerical Trigonometry) ",
+                                "and MATH 126 (Analytic Trigonometry) in ", termName, ".").eP();
+                    }
+                }
+                // BELOW HERE NEEDS 126 BUT DOES NOT NAME 125
+            } else if (eligibility.contains(EEligibility.M_124)) {
+                if (eligibility.contains(EEligibility.M_118)) {
+                    if (eligibility.contains(EEligibility.M_117)) {
+                        if (eligibility.contains(EEligibility.M_120)) {
+                            htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra ",
+                                    "in Context I), MATH 118 (College Algebra in Context II), MATH 124 ",
+                                    "(Logarithmic and Exponential Functions), or for MATH 120 (College Algebra), ",
+                                    "and also for MATH 126 (Analytic Trigonometry) in ", termName, ".").eP();
+                        } else {
+                            htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra ",
+                                    "in Context I), MATH 118 (College Algebra in Context II), MATH 124 ",
+                                    "(Logarithmic and Exponential Functions), and MATH 126 (Analytic Trigonometry) in ",
+                                    termName, ".").eP();
+                        }
+                    } else if (eligibility.contains(EEligibility.M_120)) {
+                        htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 118 (College Algebra in ",
+                                "Context II), MATH 124 (Logarithmic and Exponential Functions), or for MATH 120 ",
+                                "(College Algebra), and also for MATH 126 (Analytic Trigonometry) in ", termName,
+                                ".").eP();
+                    } else {
+                        htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 118 (College Algebra in ",
+                                "Context II), MATH 124 (Logarithmic and Exponential Functions), and MATH 126 ",
+                                "(Analytic Trigonometry) in ", termName, ".").eP();
+                    }
+                } else if (eligibility.contains(EEligibility.M_117)) {
+                    if (eligibility.contains(EEligibility.M_120)) {
+                        htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra in ",
+                                "Context I), MATH 124 (Logarithmic and Exponential Functions), or for MATH 120 ",
+                                "(College Algebra), and also for MATH 126 (Analytic Trigonometry) in ", termName,
+                                ".").eP();
+                    } else {
+                        htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra in ",
+                                "Context I), MATH 124 (Logarithmic and Exponential Functions), and MATH 126 (Analytic ",
+                                "Trigonometry) in ", termName, ".").eP();
+                    }
+                } else if (eligibility.contains(EEligibility.M_120)) {
+                    htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 124 (Logarithmic and ",
+                            "Exponential Functions), or for MATH 120 (College Algebra), and also for MATH 126 ",
+                            "(Analytic Trigonometry) in ", termName, ".").eP();
+                } else {
+                    htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 124 (Logarithmic and ",
+                            "Exponential Functions), and MATH 126 (Analytic Trigonometry) in ", termName, ".").eP();
+                }
+            } else {
+                // 126 but not 124
+                if (eligibility.contains(EEligibility.M_118)) {
+                    if (eligibility.contains(EEligibility.M_117)) {
+                        if (eligibility.contains(EEligibility.M_120)) {
+                            htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra ",
+                                    "in Context I), MATH 118 (College Algebra in Context II) or for MATH 120 ",
+                                    "(College Algebra), and also for MATH 126 (Analytic Trigonometry) in ", termName,
+                                    ".").eP();
+                        } else {
+                            htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra ",
+                                    "in Context I), MATH 118 (College Algebra in Context II), and MATH 126 (Analytic ",
+                                    "Trigonometry) in ", termName, ".").eP();
+                        }
+                    } else if (eligibility.contains(EEligibility.M_120)) {
+                        htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 118 (College Algebra in ",
+                                "Context II) or MATH 120 (College Algebra), and also MATH 126 (Analytic ",
+                                "Trigonometry) in ", termName, ".").eP();
+                    } else {
+                        htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 118 (College Algebra in ",
+                                "Context II) and MATH 126 (Analytic Trigonometry) in ", termName, ".").eP();
+                    }
+                } else if (eligibility.contains(EEligibility.M_117)) {
+                    if (eligibility.contains(EEligibility.M_120)) {
+                        htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra in ",
+                                "Context I) or MATH 120 (College Algebra) and also for MATH 126 (Analytic ",
+                                "Trigonometry) in ", termName, ".").eP();
+                    } else {
+                        htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra in ",
+                                "Context I) and MATH 126 (Analytic Trigonometry) in ", termName, ".").eP();
+                    }
+                } else if (eligibility.contains(EEligibility.M_120)) {
+                    htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 120 (College Algebra) and ",
+                            "MATH 126 (Analytic Trigonometry) in ", termName, ".").eP();
+                } else {
+                    htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 126 (Analytic Trigonometry) in ",
+                            termName, ".").eP();
+                }
+            }
+            // BELOW HERE DOES NOT NEED 126
+        } else if (eligibility.contains(EEligibility.M_125)) {
+            if (eligibility.contains(EEligibility.M_124)) {
+                if (eligibility.contains(EEligibility.M_118)) {
+                    if (eligibility.contains(EEligibility.M_117)) {
+                        if (eligibility.contains(EEligibility.M_120)) {
+                            htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra ",
+                                    "in Context I), MATH 118 (College Algebra in Context II), MATH 124 ",
+                                    "(Logarithmic and Exponential Functions), or for MATH 120 (College Algebra), ",
+                                    "and also for MATH 125 (Numerical Trigonometry) in ", termName, ".").eP();
+                        } else {
+                            htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra ",
+                                    "in Context I), MATH 118 (College Algebra in Context II), MATH 124 ",
+                                    "(Logarithmic and Exponential Functions), MATH 125 (Numerical Trigonometry) in ",
+                                    termName, ".").eP();
+                        }
+                    } else if (eligibility.contains(EEligibility.M_120)) {
+                        htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 118 (College Algebra in ",
+                                "Context II), MATH 124 (Logarithmic and Exponential Functions), or for MATH 120 ",
+                                "(College Algebra), and also for MATH 125 (Numerical Trigonometry) in ", termName,
+                                ".").eP();
+                    } else {
+                        htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 118 (College Algebra in ",
+                                "Context II), MATH 124 (Logarithmic and Exponential Functions), and MATH 125 ",
+                                "(Numerical Trigonometry) in ", termName, ".").eP();
+                    }
+                } else if (eligibility.contains(EEligibility.M_117)) {
+                    if (eligibility.contains(EEligibility.M_120)) {
+                        htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra in ",
+                                "Context I), MATH 124 (Logarithmic and Exponential Functions), or for MATH 120 ",
+                                "(College Algebra), and also for MATH 125 (Numerical Trigonometry) in ", termName,
+                                ".").eP();
+                    } else {
+                        htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra in ",
+                                "Context I), MATH 124 (Logarithmic and Exponential Functions), and MATH 125 ",
+                                "(Numerical Trigonometry) in ", termName, ".").eP();
+                    }
+                } else if (eligibility.contains(EEligibility.M_120)) {
+                    htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 124 (Logarithmic and ",
+                            "Exponential Functions), or for MATH 120 (College Algebra), and also for MATH 125 ",
+                            "(Numerical Trigonometry) in ", termName,
+                            ".").eP();
+                } else {
+                    htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 124 (Logarithmic and ",
+                            "Exponential Functions), and MATH 125 (Numerical Trigonometry) in ", termName, ".").eP();
+                }
+            } else {
+                // 125 but not 124
+                if (eligibility.contains(EEligibility.M_118)) {
+                    if (eligibility.contains(EEligibility.M_117)) {
+                        if (eligibility.contains(EEligibility.M_120)) {
+                            htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra ",
+                                    "in Context I), MATH 118 (College Algebra in Context II) or for MATH 120 ",
+                                    "(College Algebra), and also for MATH 125 (Numerical Trigonometry) in ", termName,
+                                    ".").eP();
+                        } else {
+                            htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra ",
+                                    "in Context I), MATH 118 (College Algebra in Context II), and MATH 125 (Numerical ",
+                                    "Trigonometry) in ", termName, ".").eP();
+                        }
+                    } else if (eligibility.contains(EEligibility.M_120)) {
+                        htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 118 (College Algebra in ",
+                                "Context II) or MATH 120 (College Algebra), and also for MATH 125 (Numerical ",
+                                "Trigonometry) in ", termName, ".").eP();
+                    } else {
+                        htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 118 (College Algebra in ",
+                                "Context II) and MATH 125 (Numerical Trigonometry) in ", termName, ".").eP();
+                    }
+                } else if (eligibility.contains(EEligibility.M_117)) {
+                    if (eligibility.contains(EEligibility.M_120)) {
+                        htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra in ",
+                                "Context I) or MATH 120 (College Algebra) and also for MATH 125 (Numerical ",
+                                "Trigonometry) in ", termName, ".").eP();
+                    } else {
+                        htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra in ",
+                                "Context I) and MATH 125 (Numerical Trigonometry) in ", termName, ".").eP();
+                    }
+                } else if (eligibility.contains(EEligibility.M_120)) {
+                    htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 120 (College Algebra) and ",
+                            "MATH 125 (Numerical Trigonometry) in ", termName, ".").eP();
+                } else {
+                    htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 125 (Numerical Trigonometry) in ",
+                            termName, ".").eP();
+                }
+            }
+            // BELOW HERE DOES NOT NEED 126 or 125
+        } else if (eligibility.contains(EEligibility.M_124)) {
+            if (eligibility.contains(EEligibility.M_118)) {
+                if (eligibility.contains(EEligibility.M_117)) {
+                    if (eligibility.contains(EEligibility.M_120)) {
+                        htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra ",
+                                "in Context I), MATH 118 (College Algebra in Context II), MATH 124 ",
+                                "(Logarithmic and Exponential Functions), or for MATH 120 (College Algebra) in ",
+                                termName, ".").eP();
+                    } else {
+                        htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra ",
+                                "in Context I), MATH 118 (College Algebra in Context II), and MATH 124 ",
+                                "(Logarithmic and Exponential Functions), in ", termName, ".").eP();
+                    }
+                } else if (eligibility.contains(EEligibility.M_120)) {
+                    htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 118 (College Algebra in ",
+                            "Context II), MATH 124 (Logarithmic and Exponential Functions), or for MATH 120 ",
+                            "(College Algebra), in ", termName, ".").eP();
+                } else {
+                    htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 118 (College Algebra in ",
+                            "Context II), MATH 124 (Logarithmic and Exponential Functions) in ", termName, ".").eP();
+                }
+            } else if (eligibility.contains(EEligibility.M_117)) {
+                if (eligibility.contains(EEligibility.M_120)) {
+                    htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra in ",
+                            "Context I), MATH 124 (Logarithmic and Exponential Functions), or for MATH 120 ",
+                            "(College Algebra) in ", termName, ".").eP();
+                } else {
+                    htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra in ",
+                            "Context I) and MATH 124 (Logarithmic and Exponential Functions) in ", termName, ".").eP();
+                }
+            } else if (eligibility.contains(EEligibility.M_120)) {
+                htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 124 (Logarithmic and ",
+                        "Exponential Functions) or MATH 120 (College Algebra) in ", termName, ".").eP();
+            } else {
+                htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 124 (Logarithmic and ",
+                        "Exponential Functions) in ", termName, ".").eP();
+            }
+            // BELOW HERE DOES NOT NEED 124, 125, or 126
+        } else {
+            if (eligibility.contains(EEligibility.M_118)) {
+                if (eligibility.contains(EEligibility.M_117)) {
+                    if (eligibility.contains(EEligibility.M_120)) {
+                        htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra ",
+                                "in Context I), MATH 118 (College Algebra in Context II) or for MATH 120 ",
+                                "(College Algebra) in ", termName, ".").eP();
+                    } else {
+                        htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra ",
+                                "in Context I) and MATH 118 (College Algebra in Context II) in ", termName, ".").eP();
+                    }
+                } else if (eligibility.contains(EEligibility.M_120)) {
+                    htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 118 (College Algebra in ",
+                            "Context II) or MATH 120 (College Algebra) in ", termName, ".").eP();
+                } else {
+                    htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 118 (College Algebra in ",
+                            "Context II) in ", termName, ".").eP();
+                }
+            } else if (eligibility.contains(EEligibility.M_117)) {
+                if (eligibility.contains(EEligibility.M_120)) {
+                    htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra in ",
+                            "Context I) or MATH 120 (College Algebra) in ", termName, ".").eP();
+                } else {
+                    htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra in ",
+                            "Context I) in ", termName, ".").eP();
+                }
+            } else if (eligibility.contains(EEligibility.M_120)) {
+                htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 120 (College Algebra) in ", termName,
+                        ".").eP();
+            } else {
                 htm.sP().add(basedOn, "you just need to complete the All-University ",
                         "Core Curriculum requirement of 3 credits of Quantitative Reasoning.").eP();
 
@@ -258,62 +607,170 @@ enum PagePlanNext {
                     final String str = Long.toString(floor);
                     htm.sP().add("You have already completed ", str, " of these credits.").eP();
                 }
-                break;
-
-            case M_117_120:
-                htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 117 (College Algebra in Context I) or ",
-                        "MATH 120 (College Algebra) in ", termName, ".").eP();
-                break;
-
-            case M_118:
-                htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 118 (College Algebra in Context II) ",
-                        "in ", termName, ".").eP();
-                break;
-
-            case M_125:
-                htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 125 (Numerical Trigonometry) in ",
-                        termName, ".").eP();
-                break;
-
-            case M_155:
-                htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 155 (Calculus for Biological ",
-                        "Scientists I) in ", termName, ".").eP();
-                break;
-
-            case M_155_160:
-                htm.sP().add(basedOn, "it is ideal if you are eligible for either MATH 155 (Calculus for Biological ",
-                        "Scientists I) or MATH 160 (Calculus for Physical Scientists I) in ", termName, ".").eP();
-                break;
-
-            case M_156_160:
-                htm.sP().add(basedOn, "it is ideal if you are eligible for either MATH 156 (Mathematics for ",
-                        "Computational Science I) or MATH 160 (Calculus for Physical Scientists I) in ", termName,
-                        ".").eP();
-                break;
-
-            case M_160:
-                htm.sP().add(basedOn, "it is ideal if you are eligible for MATH 160 (Calculus for Physical ",
-                        "Scientists I) in ", termName, ".").eP();
-                break;
+            }
         }
+
         htm.eDiv();
 
         htm.div("vgap");
         htm.sDiv("advice");
+        final boolean needsPlacement = showNextSteps(htm, data, nextStep, eligibility, termName, isIncoming);
+        htm.eDiv(); // advice
+
+        return needsPlacement;
+    }
+
+    /**
+     * Shows the student's next step(s), or a message telling them nothing more is needed.
+     *
+     * @param htm         the {@code HtmlBuilder} to which to append
+     * @param data        the Math Plan data for the student
+     * @param nextStep    the next step
+     * @param eligibility the set of courses for which the student is ideally eligible
+     * @param termName    the name of the student's first term
+     * @param isIncoming  true if the student is "incoming" and can use Precalculus Tutorials
+     */
+    private static boolean showNextSteps(final HtmlBuilder htm, final MathPlanStudentData data,
+                                         final ENextStep nextStep, final Set<EEligibility> eligibility,
+                                         final String termName, final boolean isIncoming) {
+
+        boolean needsPlacement = true;
 
         switch (nextStep) {
             case MSG_PLACEMENT_NOT_NEEDED, MSG_ALREADY_ELIGIBLE -> {
                 htm.sP("center");
                 htm.addln("<img class='check' src='/images/welcome/check.png' alt=''/>");
 
-                if (eligibility == EEligibility.AUCC) {
+                if (eligibility.contains(EEligibility.AUCC)) {
                     htm.add("<strong>You are eligible to register for a Mathematics course appropriate for your ",
                             "program.</strong>");
                 } else {
-                    htm.add("<strong>You are eligible to register for your ", termName,
-                            " Mathematics course(s).</strong>");
+                    // Display the relevant courses for which the student is eligible
+                    final Set<String> clearedFor = data.getCanRegisterFor();
+                    final Set<String> doesNotHave = data.getCanRegisterForAndDoesNotHave();
+
+                    final List<String> isEligibleFor = new ArrayList<>(10);
+                    final List<String> alreadyHas = new ArrayList<>(10);
+                    final boolean okFor120 = clearedFor.contains(RawRecordConstants.M117);
+
+                    for (final EEligibility e : eligibility) {
+                        if (e == EEligibility.M_117) {
+                            if (clearedFor.contains(RawRecordConstants.M117)) {
+                                if (doesNotHave.contains(RawRecordConstants.M117)) {
+                                    isEligibleFor.add("MATH 117");
+                                } else {
+                                    alreadyHas.add("MATH 117");
+                                }
+                            }
+                        } else if (e == EEligibility.M_118) {
+                            if (clearedFor.contains(RawRecordConstants.M118)) {
+                                if (doesNotHave.contains(RawRecordConstants.M118)) {
+                                    isEligibleFor.add("MATH 118");
+                                } else {
+                                    alreadyHas.add("MATH 118");
+                                }
+                            }
+                        } else if (e == EEligibility.M_124) {
+                            if (clearedFor.contains(RawRecordConstants.M124)) {
+                                if (doesNotHave.contains(RawRecordConstants.M124)) {
+                                    isEligibleFor.add("MATH 124");
+                                } else {
+                                    alreadyHas.add("MATH 124");
+                                }
+                            }
+                        } else if (e == EEligibility.M_125) {
+                            if (clearedFor.contains(RawRecordConstants.M125)) {
+                                if (doesNotHave.contains(RawRecordConstants.M125)) {
+                                    isEligibleFor.add("MATH 125");
+                                } else {
+                                    alreadyHas.add("MATH 125");
+                                }
+                            }
+                        } else if (e == EEligibility.M_126) {
+                            if (clearedFor.contains(RawRecordConstants.M126)) {
+                                if (doesNotHave.contains(RawRecordConstants.M126)) {
+                                    isEligibleFor.add("MATH 126");
+                                } else {
+                                    alreadyHas.add("MATH 126");
+                                }
+                            }
+                        } else if (e == EEligibility.M_141) {
+                            if (clearedFor.contains(RawRecordConstants.M141)) {
+                                if (doesNotHave.contains(RawRecordConstants.M141)) {
+                                    isEligibleFor.add("MATH 141");
+                                } else {
+                                    alreadyHas.add("MATH 141");
+                                }
+                            }
+                        } else if (e == EEligibility.M_155) {
+                            if (clearedFor.contains(RawRecordConstants.M155)) {
+                                if (doesNotHave.contains(RawRecordConstants.M155)) {
+                                    isEligibleFor.add("MATH 155");
+                                } else {
+                                    alreadyHas.add("MATH 155");
+                                }
+                            }
+                        } else if (e == EEligibility.M_156) {
+                            if (clearedFor.contains(RawRecordConstants.M156)) {
+                                if (doesNotHave.contains(RawRecordConstants.M156)) {
+                                    isEligibleFor.add("MATH 156");
+                                } else {
+                                    alreadyHas.add("MATH 156");
+                                }
+                            }
+                        } else if (e == EEligibility.M_160) {
+                            if (clearedFor.contains(RawRecordConstants.M160)) {
+                                if (doesNotHave.contains(RawRecordConstants.M160)) {
+                                    isEligibleFor.add("MATH 160");
+                                } else {
+                                    alreadyHas.add("MATH 160");
+                                }
+                            }
+                        }
+                    }
+
+                    final int numEligible = isEligibleFor.size();
+                    if (numEligible > 0) {
+                        htm.add("<strong>You are eligible to register for ");
+                        if (numEligible == 1) {
+                            htm.add(isEligibleFor.get(0));
+                        } else if (numEligible == 2) {
+                            htm.add(isEligibleFor.get(0), " and ", isEligibleFor.get(1));
+                        } else {
+                            htm.add(isEligibleFor.get(0));
+                            for (int i = 1; i < numEligible - 1; ++i) {
+                                htm.add(", ", isEligibleFor.get(i));
+                            }
+                            htm.add(", and ", isEligibleFor.get(numEligible - 1));
+                        }
+
+                        if (eligibility.contains(EEligibility.M_120) && okFor120 &&
+                            (isEligibleFor.contains("MATH 117") || isEligibleFor.contains("MATH 118")
+                             || isEligibleFor.contains("MATH 124"))) {
+                            htm.add(" (or MATH 120)");
+                        }
+                        htm.add(" in ", termName, ".</strong> ");
+                    }
+
+                    final int numAlready = alreadyHas.size();
+                    if (!alreadyHas.isEmpty()) {
+                        htm.add("You already have credit for ");
+                        if (numAlready == 1) {
+                            htm.add(alreadyHas.get(0));
+                        } else if (numAlready == 2) {
+                            htm.add(alreadyHas.get(0), " and ", alreadyHas.get(1));
+                        } else {
+                            htm.add(alreadyHas.get(0));
+                            for (int i = 1; i < numAlready - 1; ++i) {
+                                htm.add(", ", alreadyHas.get(i));
+                            }
+                            htm.add(", and ", alreadyHas.get(numAlready - 1));
+                        }
+                        htm.add(".");
+                    }
                 }
-                htm.eP(); // center
+
+                htm.sP(); // center
                 needsPlacement = false;
             }
 
@@ -492,9 +949,37 @@ enum PagePlanNext {
                             "the Math Placement Tool, you can do so by completing one or more tutorials.").eP();
                 }
             }
-        }
 
-        htm.eDiv(); // advice
+            case MSG_PLACE_OUT_118_124_125 -> {
+                htm.sP().add("<strong>You should complete the \"Algebra\", \"Trigonometry\", and \"Logarithmic &amp; ",
+                        "Exponential Functions\" sections of the Math Placement Tool to try to place out of MATH 118, ",
+                        "MATH 124, and MATH 125.</strong>").eP();
+                if (isIncoming) {
+                    htm.sP().add("If you do not place out of MATH 118, MATH 124, and MATH 125 on the Math Placement ",
+                            "Tool, you can do so by completing one or more tutorials.").eP();
+                }
+            }
+
+            case MSG_PLACE_OUT_117_118_124_125 -> {
+                htm.sP().add("<strong>You should complete the \"Algebra\", \"Trigonometry\", and \"Logarithmic &amp; ",
+                        "Exponential Functions\" sections of the Math Placement Tool to try to place out of MATH 117, ",
+                        "MATH 118, MATH 124, and MATH 125.</strong>").eP();
+                if (isIncoming) {
+                    htm.sP().add("If you do not place out of MATH 117, MATH 118, MATH 124, and MATH 125 on the Math ",
+                            "Placement Tool, you can do so by completing one or more tutorials.").eP();
+                }
+            }
+
+            case MSG_PLACE_OUT_124_125 -> {
+                htm.sP().add("<strong>You should complete the \"Algebra\", \"Trigonometry\", and \"Logarithmic &amp; ",
+                        "Exponential Functions\" sections of the Math Placement Tool to try to place out of MATH 124 ",
+                        "and MATH 125.</strong>").eP();
+                if (isIncoming) {
+                    htm.sP().add("If you do not place out of MATH 124 and MATH 125 on the Math Placement Tool, you ",
+                            "can do so by completing one or more tutorials.").eP();
+                }
+            }
+        }
 
         return needsPlacement;
     }
@@ -526,7 +1011,8 @@ enum PagePlanNext {
             final ZonedDateTime sessNow = session.getNow();
             final RawStudent student = RawStudentLogic.query(cache, stuId, false);
 
-            final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, sessNow, true);
+            final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, sessNow,
+                    session.loginSessionTag, true);
 
             RawStmathplanLogic.deleteAllForPage(cache, stuId, MathPlanConstants.INTENTIONS_PROFILE);
 
@@ -539,12 +1025,15 @@ enum PagePlanNext {
             questions.add(TWO);
             answers.add(aff2 ? "Y" : "N");
 
-            logic.storeMathPlanResponses(cache, data.student, MathPlanConstants.INTENTIONS_PROFILE, questions, answers,
+            logic.storeMathPlanResponses(cache, data.student, MathPlanConstants.INTENTIONS_PROFILE, questions,
+                    answers,
                     sessNow, session.loginSessionTag);
 
             // Store MPL test score in Banner SOATEST (1 if no placement needed, 2 if placement needed). This is
-            // based on a response with version='WLCM5'.  If there is a row with survey_nbr=2 and stu_answer='Y', that
-            // indicates placement is needed.  If there is a row with survey_nbr=1 and stu_answer='Y', that indicates
+            // based on a response with version='WLCM5'.  If there is a row with survey_nbr=2 and stu_answer='Y',
+            // that
+            // indicates placement is needed.  If there is a row with survey_nbr=1 and stu_answer='Y', that
+            // indicates
             // the math plan has been completed and placement is not needed. The MPL test score is '1' if placement
             // is not needed, and '2' if placement is needed.
 
@@ -554,7 +1043,8 @@ enum PagePlanNext {
                 final Login liveCtx = profile.getLogin(ESchema.LIVE);
                 final DbConnection liveConn = liveCtx.checkOutConnection();
                 try {
-                    // Query the test score, see if this update represents a change, and only insert a new test score
+                    // Query the test score, see if this update represents a change, and only insert a new test
+                    // score
                     // row if the result has changed...  People may do the math plan several times with the same
                     // outcome, and we don't need to insert the same result each time.
                     final List<RawMpscorequeue> existing = RawMpscorequeueLogic.querySORTESTByStudent(liveConn,

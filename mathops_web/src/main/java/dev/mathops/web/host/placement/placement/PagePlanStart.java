@@ -71,7 +71,7 @@ enum PagePlanStart {
         final RawStudent student = RawStudentLogic.query(cache, stuId, false);
 
         final ZonedDateTime now = session.getNow();
-        final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, now,
+        final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, now, session.loginSessionTag,
                 session.actAsUserId == null);
 
         final HtmlBuilder htm = new HtmlBuilder(8192);
@@ -227,7 +227,8 @@ enum PagePlanStart {
             final String studentId = session.getEffectiveUserId();
 
             final RawStudent student = RawStudentLogic.query(cache, studentId, false);
-            final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, now, true);
+            final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, now,
+                    session.loginSessionTag, true);
 
             if (req.getParameter(INPUT_NAME) != null) {
 

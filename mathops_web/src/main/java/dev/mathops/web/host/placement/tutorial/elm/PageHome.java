@@ -2,8 +2,8 @@ package dev.mathops.web.host.placement.tutorial.elm;
 
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.logic.DateRange;
-import dev.mathops.db.old.logic.DateRangeGroups;
+import dev.mathops.db.logic.DateRange;
+import dev.mathops.db.logic.DateRangeGroups;
 import dev.mathops.db.old.logic.ELMTutorialStatus;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;

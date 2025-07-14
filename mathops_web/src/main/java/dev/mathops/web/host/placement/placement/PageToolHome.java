@@ -3,8 +3,10 @@ package dev.mathops.web.host.placement.placement;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.logic.DateRange;
-import dev.mathops.db.old.logic.DateRangeGroups;
+import dev.mathops.db.logic.DateRange;
+import dev.mathops.db.logic.DateRangeGroups;
+import dev.mathops.db.logic.mathplan.MathPlanLogic;
+import dev.mathops.db.logic.mathplan.MathPlanStudentData;
 import dev.mathops.db.old.logic.PlacementLogic;
 import dev.mathops.db.old.logic.PlacementStatus;
 import dev.mathops.db.old.logic.PrecalcTutorialLogic;
@@ -12,16 +14,20 @@ import dev.mathops.db.old.logic.PrecalcTutorialStatus;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
+import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
 
 import dev.mathops.text.builder.HtmlBuilder;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Generates the content of the home page.
@@ -58,12 +64,11 @@ enum PageToolHome {
 
         final RawStudent stu = RawStudentLogic.query(cache, effId, false);
 
-        final PlacementLogic logic = new PlacementLogic(cache, effId, stu == null ? null : stu.aplnTerm,
-                session.getNow());
-        final PlacementStatus status = logic.status;
+        final ZonedDateTime now = session.getNow();
+        final PlacementLogic logic = new PlacementLogic(cache, effId, stu == null ? null : stu.aplnTerm, now);
 
-        if (status.attemptsUsed > 0) {
-            PlacementReport.doPlacementReport(cache, status, session, null, false, htm);
+        if (logic.status.attemptsUsed > 0) {
+            PlacementReport.doPlacementReport(cache, logic.status, session, null, false, htm);
         } else {
             htm.sP("indent11", "style='padding-left:32px;'");
             htm.add("<img src='/images/orange2.png' style='margin:-2px 0 0 -32px; padding-right:10px;'/>");
@@ -71,12 +76,19 @@ enum PageToolHome {
             htm.eP();
         }
 
+        if (stu != null) {
+            final MathPlanLogic planLogic = new MathPlanLogic(cache.profile);
+            final MathPlanStudentData data = new MathPlanStudentData(cache, stu, planLogic, now,
+                    session.loginSessionTag, session.actAsUserId == null);
+            PagePlanNext.showNextSteps(cache, htm, data);
+        }
+
         htm.div("vgap2");
 
         htm.sDiv("indent11");
         htm.addln("<fieldset>");
         htm.add("<legend>");
-        if (status.attemptsUsed > 0) {
+        if (logic.status.attemptsUsed > 0) {
             htm.add("Your remaining options:");
         } else {
             htm.add("Your options:");
@@ -84,14 +96,14 @@ enum PageToolHome {
         htm.addln("</legend>");
         boolean nothing = true;
 
-        final DateRangeGroups unproc = status.unproctoredDateRanges;
+        final DateRangeGroups unproc = logic.status.unproctoredDateRanges;
 
         String also = CoreConstants.EMPTY;
 
         // Print any options relating to the unproctored version
 
-        if (!status.unproctoredUsed) {
-            if (!status.availableUnproctoredIds.isEmpty()) {
+        if (!logic.status.unproctoredUsed) {
+            if (!logic.status.availableUnproctoredIds.isEmpty()) {
                 // Currently available
                 htm.sP("indent11", "style='padding-left:32px;'");
                 htm.add("<img src='/images/blue2.png' style='margin:-2px 0 0 -32px; padding-right:10px;'/>");
@@ -127,7 +139,7 @@ enum PageToolHome {
             }
         }
 
-        if (!status.availableLocalProctoredIds.isEmpty() || !status.availableOnlineProctoredIds.isEmpty()) {
+        if (!logic.status.availableLocalProctoredIds.isEmpty() || !logic.status.availableOnlineProctoredIds.isEmpty()) {
             htm.sP("indent11", "style='padding-left:32px;'");
 
             htm.add("<img src='/images/blue2.png' style='margin:-2px 0 0 -32px; padding-right:10px;'/>");
@@ -136,13 +148,13 @@ enum PageToolHome {
 
             htm.addln("<ul class='options'>");
 
-            if (status.availableLocalProctoredIds
+            if (logic.status.availableLocalProctoredIds
                     .contains(PlacementLogic.PROCTORED_MPT_DEPT_TC_ID)) {
                 htm.addln(" <li><a href='tool_instructions_tc.html'>",
                         "Tell me how to complete the Math Placement Tool in the Precalculus Center.</a></li>");
             }
 
-            if (status.availableOnlineProctoredIds
+            if (logic.status.availableOnlineProctoredIds
                     .contains(PlacementLogic.PROCTORED_MPT_PROCTORU_ID)) {
                 htm.addln(" <li><a href='tool_instructions_pu.html'>",
                         "Tell me how to complete the Math Placement Tool using ProctorU.</a></li>");
@@ -157,11 +169,11 @@ enum PageToolHome {
         // but if they already qualify for MATH 117, there is no point, so only show to the
         // population with a placement attempt but no M 100C result.
 
-        final boolean has117 = status.clearedFor.contains("MATH 117")
-                || status.placedOutOf.contains("MATH 117")
-                || status.earnedCreditFor.contains("MATH 117");
+        final boolean has117 = logic.status.clearedFor.contains("MATH 117")
+                               || logic.status.placedOutOf.contains("MATH 117")
+                               || logic.status.earnedCreditFor.contains("MATH 117");
 
-        if (!has117 && status.placementAttempted) {
+        if (!has117 && logic.status.placementAttempted) {
             htm.sP("indent11", "style='padding-left:32px;'");
             htm.add("<img src='/images/blue2.png' style='margin:-2px 0 0 -32px; padding-right:10px;'/>");
 

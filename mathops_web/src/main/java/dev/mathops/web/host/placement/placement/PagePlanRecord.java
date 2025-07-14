@@ -57,7 +57,7 @@ enum PagePlanRecord {
         final RawStudent student = RawStudentLogic.query(cache, stuId, false);
 
         final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, session.getNow(),
-                session.actAsUserId == null);
+                session.loginSessionTag, session.actAsUserId == null);
 
         final HtmlBuilder htm = new HtmlBuilder(8192);
         Page.startNofooterPage(htm, site.getTitle(), session, true, Page.NO_BARS, null, false, false);

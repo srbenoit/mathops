@@ -58,7 +58,7 @@ enum PagePlanMajors1 {
 
         final RawStudent student = RawStudentLogic.query(cache, stuId, false);
 
-        final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, now,
+        final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, now, session.loginSessionTag,
                 session.actAsUserId == null);
 
         final Map<Integer, RawStmathplan> curResponses = data.getMajorProfileResponses();
@@ -705,7 +705,7 @@ enum PagePlanMajors1 {
         final RawStudent student = RawStudentLogic.query(cache, stuId, false);
 
         final ZonedDateTime now = session.getNow();
-        final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, now,
+        final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, now, session.loginSessionTag,
                 session.actAsUserId == null);
 
         // Only perform updates if data present AND this is not an adviser using "Act As"

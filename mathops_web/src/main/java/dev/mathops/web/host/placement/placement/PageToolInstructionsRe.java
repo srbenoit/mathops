@@ -2,8 +2,8 @@ package dev.mathops.web.host.placement.placement;
 
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.logic.DateRange;
-import dev.mathops.db.old.logic.DateRangeGroups;
+import dev.mathops.db.logic.DateRange;
+import dev.mathops.db.logic.DateRangeGroups;
 import dev.mathops.db.old.logic.PlacementLogic;
 import dev.mathops.db.old.logic.PlacementStatus;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;

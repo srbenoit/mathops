@@ -257,8 +257,7 @@ public final class MathPlacementSite extends AbstractPageSite {
         htm.sDiv("inset");
         htm.sDiv("shaded", "style='padding-left:12px;'");
         htm.sDiv("right", "style='padding-left:10px;'")
-                .add("<a class='smallbtn' style='margin:0;' href='placement.html'>",
-                        Res.get(Res.BACK_TO_HOME), "</a>")
+                .add("<a class='smallbtn' style='margin:0;' href='placement.html'>", Res.get(Res.BACK_TO_HOME), "</a>")
                 .eDiv();
 
         htm.sDiv(null, "style='margin-top:5px;'")
@@ -344,8 +343,7 @@ public final class MathPlacementSite extends AbstractPageSite {
             sess = processShibbolethLogin(cache, req);
         }
 
-        final String target = sess == null ? "placement.html"
-                : "secure_landing.html";
+        final String target = sess == null ? "placement.html" : "secure_landing.html";
 
         if (sess != null) {
             // Install the session ID cookie in the response

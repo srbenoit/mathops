@@ -25,9 +25,11 @@ import java.sql.SQLException;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Generates the page that presents majors, organized alphabetically.
@@ -58,7 +60,7 @@ enum PagePlanMajors2 {
 
         final RawStudent student = RawStudentLogic.query(cache, stuId, false);
 
-        final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, now,
+        final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, now, session.loginSessionTag,
                 session.actAsUserId == null);
 
         final HtmlBuilder htm = new HtmlBuilder(8192);
@@ -160,8 +162,7 @@ enum PagePlanMajors2 {
             }
         }
 
-        final EEligibility[] eligibility = {EEligibility.AUCC};
-
+        final Set<EEligibility> eligibility = EnumSet.noneOf(EEligibility.class);
         final int numSelected = emitMajors(htm, allMajors, declaredMajor, selectedMajors, eligibility, disable);
 
         final boolean showUpdate = numSelected > 0 && !curResponses.isEmpty();
@@ -188,30 +189,30 @@ enum PagePlanMajors2 {
      * @param allMajors      all majors and their math requirements
      * @param declaredMajor  the student's declared major, if any
      * @param selectedMajors the set of all selected majors
-     * @param eligibility    an array whose [0] element will be set to the highest eligibility needed by any selected
-     *                       major
+     * @param eligibility    a set to which to add the cumulative eligibility recommendations of all selected majors
      * @param disable        true to disable inputs
      * @return the number of items selected in the category
      */
     private static int emitMajors(final HtmlBuilder htm, final List<Major> allMajors, final Major declaredMajor,
-                                  final Collection<Major> selectedMajors, final EEligibility[] eligibility,
+                                  final Collection<Major> selectedMajors, final Set<? super EEligibility> eligibility,
                                   final boolean disable) {
 
         int numSelected = 0;
 
-        EEligibility highest = EEligibility.AUCC;
+        eligibility.clear();
 
         // First, count the number of majors checked to see if we should check the top-level (and
         // accumulate math requirements at the same time)
         for (final Major entry : allMajors) {
             if (selectedMajors.contains(entry)) {
-                if (entry.idealEligibility.level > highest.level) {
-                    highest = entry.idealEligibility;
-                }
+                eligibility.addAll(entry.idealEligibility);
                 ++numSelected;
             }
         }
-        eligibility[0] = highest;
+        eligibility.remove(EEligibility.AUCC);
+        if (eligibility.isEmpty()) {
+            eligibility.add(EEligibility.AUCC);
+        }
 
         htm.sDiv("columns");
         boolean foundDeclared = false;
@@ -291,7 +292,7 @@ enum PagePlanMajors2 {
         final RawStudent student = RawStudentLogic.query(cache, stuId, false);
 
         final ZonedDateTime now = session.getNow();
-        final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, now,
+        final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, now, session.loginSessionTag,
                 session.actAsUserId == null);
 
         // Only perform updates if data present AND this is not an adviser using "Act As"
