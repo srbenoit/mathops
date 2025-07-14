@@ -7,12 +7,13 @@ import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.commons.ui.layout.AlignedFlowLayout;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
+import dev.mathops.db.logic.mathplan.MathPlanLogic;
+import dev.mathops.db.logic.mathplan.MathPlanPlacementStatus;
+import dev.mathops.db.logic.mathplan.MathPlanStudentData;
 import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.db.old.rawrecord.RawStudent;
-import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
-import dev.mathops.db.old.logic.mathplan.MathPlanPlacementStatus;
 import dev.mathops.text.builder.SimpleBuilder;
 
 import javax.swing.BorderFactory;
@@ -27,7 +28,9 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.io.Serial;
 import java.sql.SQLException;
+import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A panel that shows student Math Plan and RamReady status.
@@ -61,7 +64,6 @@ public class PlacementMathPlanPanel extends AdmPanelBase {
 
     /**
      * Constructs a new {@code StudentMathPlanPanel}.
-     *
      */
     public PlacementMathPlanPanel() {
 
@@ -236,9 +238,14 @@ public class PlacementMathPlanPanel extends AdmPanelBase {
 
                     this.error.setText("Student '" + studentId + "' has no PIDM");
                 } else {
-                    final String foundId = MathPlanLogic.getMathPlanStatus(cache, pidm.intValue());
+                    final MathPlanLogic planLogic = new MathPlanLogic(cache.profile);
+                    final ZonedDateTime now = ZonedDateTime.now();
+                    final MathPlanStudentData studentData = new MathPlanStudentData(cache, stu, planLogic,
+                            now, 0L, false);
 
-                    if (foundId == null) {
+                    final Map<Integer, RawStmathplan> map = studentData.getMajorProfileResponses();
+
+                    if (map.isEmpty()) {
                         this.checkMathPlanStatus.setText("NOT STARTED");
                         this.checkMathPlanMessage.setText(SimpleBuilder.concat(
                                 "Create my Personalized Mathematics Plan\r\n",
@@ -253,12 +260,13 @@ public class PlacementMathPlanPanel extends AdmPanelBase {
                         this.checkMathPlanMessage.setText(SimpleBuilder.concat("Review my Mathematics Plan."));
                     }
 
-                    final MathPlanPlacementStatus status = MathPlanLogic.getMathPlacementStatus(cache, studentId);
+                    final MathPlanPlacementStatus placementStatus = MathPlanPlacementStatus.getMathPlacementStatus(
+                            cache, stu.stuId);
 
-                    if (status.isPlacementComplete) {
+                    if (placementStatus.isPlacementComplete) {
                         this.checkMathPlacementStatus.setText("COMPLETED");
                         this.checkMathPlacementMessage.setText("Review my Math Placement results");
-                    } else if (status.isPlacementNeeded) {
+                    } else if (placementStatus.isPlacementNeeded) {
                         this.checkMathPlacementStatus.setText("NOT STARTED");
                         this.checkMathPlacementMessage.setText(SimpleBuilder.concat(
                                 "Complete the Math Placement Process\r\n",
@@ -275,7 +283,7 @@ public class PlacementMathPlanPanel extends AdmPanelBase {
         }
 
         final int prefWidth = this.mathPlanResponsesTable.getPreferredSize().width
-                + this.mathPlanScroll.getVerticalScrollBar().getPreferredSize().width + 10;
+                              + this.mathPlanScroll.getVerticalScrollBar().getPreferredSize().width + 10;
 
         this.mathPlanScroll.setPreferredSize(new Dimension(prefWidth, Integer.MAX_VALUE));
 

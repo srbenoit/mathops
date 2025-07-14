@@ -3,7 +3,7 @@ package dev.mathops.app.adm.office.placement;
 import dev.mathops.app.adm.AbstractAdmTable;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
-import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
+import dev.mathops.db.logic.mathplan.MathPlanConstants;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
 
 import java.io.Serial;
