@@ -2,7 +2,7 @@ package dev.mathops.web.host.testing.adminsys.office;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.logic.ChallengeExamLogic;
+import dev.mathops.db.logic.challenge.ChallengeExamLogic;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;

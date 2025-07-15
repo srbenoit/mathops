@@ -6,7 +6,7 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.SystemData;
-import dev.mathops.db.old.logic.ChallengeExamLogic;
+import dev.mathops.db.logic.challenge.ChallengeExamLogic;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
 import dev.mathops.db.old.rawlogic.RawPaceAppealsLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;

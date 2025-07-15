@@ -2,9 +2,9 @@ package dev.mathops.web.host.placement.tutorial.elm;
 
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.old.logic.ELMTutorialStatus;
-import dev.mathops.db.old.logic.PlacementLogic;
-import dev.mathops.db.old.logic.PlacementStatus;
+import dev.mathops.db.logic.placement.PlacementLogic;
+import dev.mathops.db.logic.placement.PlacementStatus;
+import dev.mathops.db.logic.tutorial.ELMTutorialStatus;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;

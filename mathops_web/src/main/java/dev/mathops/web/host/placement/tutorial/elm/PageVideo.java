@@ -4,7 +4,7 @@ import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.logic.ELMTutorialStatus;
+import dev.mathops.db.logic.tutorial.ELMTutorialStatus;
 import dev.mathops.db.old.rawlogic.RawStcuobjectiveLogic;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.session.ImmutableSessionInfo;

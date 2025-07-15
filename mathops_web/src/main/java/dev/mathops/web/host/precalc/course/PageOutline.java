@@ -8,7 +8,7 @@ import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.enums.EProctoringOption;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.logic.SystemData;
-import dev.mathops.db.old.logic.MilestoneLogic;
+import dev.mathops.db.logic.course.MilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;

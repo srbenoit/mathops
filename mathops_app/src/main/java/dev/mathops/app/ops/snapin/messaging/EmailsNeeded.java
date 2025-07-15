@@ -8,7 +8,7 @@ import dev.mathops.app.ops.snapin.messaging.factory1of1.Factory1of1;
 import dev.mathops.app.ops.snapin.messaging.tosend.MessageToSend;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.logic.PaceTrackLogic;
+import dev.mathops.db.logic.course.PaceTrackLogic;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;

@@ -8,7 +8,7 @@ import dev.mathops.db.ESchema;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.old.logic.CourseLogic;
+import dev.mathops.db.logic.course.CourseLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawMpscorequeueLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;

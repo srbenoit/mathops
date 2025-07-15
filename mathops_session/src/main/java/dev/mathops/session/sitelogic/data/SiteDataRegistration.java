@@ -4,7 +4,7 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.logic.PaceTrackLogic;
+import dev.mathops.db.logic.course.PaceTrackLogic;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
 import dev.mathops.db.old.rawlogic.RawFfrTrnsLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;

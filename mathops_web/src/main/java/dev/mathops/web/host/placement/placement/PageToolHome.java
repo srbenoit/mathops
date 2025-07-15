@@ -7,14 +7,12 @@ import dev.mathops.db.logic.DateRange;
 import dev.mathops.db.logic.DateRangeGroups;
 import dev.mathops.db.logic.mathplan.MathPlanLogic;
 import dev.mathops.db.logic.mathplan.MathPlanStudentData;
-import dev.mathops.db.old.logic.PlacementLogic;
-import dev.mathops.db.old.logic.PlacementStatus;
-import dev.mathops.db.old.logic.PrecalcTutorialLogic;
-import dev.mathops.db.old.logic.PrecalcTutorialStatus;
+import dev.mathops.db.logic.placement.PlacementLogic;
+import dev.mathops.db.logic.tutorial.PrecalcTutorialLogic;
+import dev.mathops.db.logic.tutorial.PrecalcTutorialStatus;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
 

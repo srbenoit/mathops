@@ -1,7 +1,7 @@
 package dev.mathops.session.sitelogic.servlet;
 
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.logic.ResolvedStandardMilestones;
+import dev.mathops.db.logic.course.ResolvedStandardMilestones;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;
 import dev.mathops.db.old.rawrecord.RawStcourse;

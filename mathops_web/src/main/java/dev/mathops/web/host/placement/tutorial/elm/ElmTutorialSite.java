@@ -8,7 +8,7 @@ import dev.mathops.commons.log.LogBase;
 import dev.mathops.db.Cache;
 import dev.mathops.db.cfg.Site;
 import dev.mathops.db.logic.ELiveRefreshes;
-import dev.mathops.db.old.logic.ELMTutorialStatus;
+import dev.mathops.db.logic.tutorial.ELMTutorialStatus;
 import dev.mathops.db.old.logic.HoldsStatus;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;

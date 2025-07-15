@@ -3,7 +3,7 @@ package dev.mathops.web.host.precalc.course;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.logic.PaceTrackLogic;
+import dev.mathops.db.logic.course.PaceTrackLogic;
 import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawStcourse;

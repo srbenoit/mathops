@@ -3,7 +3,7 @@ package dev.mathops.web.host.placement.tutorial.elm;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.logic.ELMTutorialStatus;
+import dev.mathops.db.logic.tutorial.ELMTutorialStatus;
 import dev.mathops.db.old.rawrecord.RawCsection;
 import dev.mathops.db.old.rawrecord.RawCunit;
 import dev.mathops.db.old.rawrecord.RawCuobjective;

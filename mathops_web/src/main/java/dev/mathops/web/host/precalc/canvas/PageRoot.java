@@ -3,7 +3,7 @@ package dev.mathops.web.host.precalc.canvas;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.MainData;
-import dev.mathops.db.old.logic.RegistrationsLogic;
+import dev.mathops.db.logic.course.RegistrationsLogic;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawAdminHold;

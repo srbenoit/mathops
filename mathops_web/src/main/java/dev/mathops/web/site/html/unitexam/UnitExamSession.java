@@ -39,7 +39,7 @@ import dev.mathops.db.cfg.Login;
 import dev.mathops.db.cfg.Site;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.logic.SystemData;
-import dev.mathops.db.old.logic.CourseLogic;
+import dev.mathops.db.logic.course.CourseLogic;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
 import dev.mathops.db.old.rawlogic.RawMpecrDeniedLogic;

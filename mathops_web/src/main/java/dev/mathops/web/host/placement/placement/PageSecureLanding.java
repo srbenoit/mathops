@@ -128,6 +128,7 @@ enum PageSecureLanding {
             PagePlanView.showBriefPlan(cache, session, htm, logic);
 
             // Show button to change plan
+            htm.div("vgap");
             htm.sDiv("center");
             htm.sDiv().add("<a class='btn' href='plan_start.html'>Make changes to my Math Plan</a>").eDiv();
         } else {

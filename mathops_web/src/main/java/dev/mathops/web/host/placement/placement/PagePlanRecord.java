@@ -4,7 +4,7 @@ import dev.mathops.db.Cache;
 import dev.mathops.db.logic.mathplan.MathPlanLogic;
 import dev.mathops.db.logic.mathplan.MathPlanConstants;
 import dev.mathops.db.logic.mathplan.MathPlanStudentData;
-import dev.mathops.db.old.logic.PlacementStatus;
+import dev.mathops.db.logic.placement.PlacementStatus;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawMpeCredit;

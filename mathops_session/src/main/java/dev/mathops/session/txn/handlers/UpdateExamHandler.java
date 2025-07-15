@@ -30,7 +30,7 @@ import dev.mathops.db.cfg.Login;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.logic.SystemData;
-import dev.mathops.db.old.logic.ChallengeExamLogic;
+import dev.mathops.db.logic.challenge.ChallengeExamLogic;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;

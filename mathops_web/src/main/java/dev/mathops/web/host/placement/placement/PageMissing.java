@@ -1,14 +1,17 @@
 package dev.mathops.web.host.placement.placement;
 
 import dev.mathops.db.Cache;
+import dev.mathops.db.old.rawlogic.RawStudentLogic;
+import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
-import dev.mathops.db.old.logic.mathplan.MathPlanLogic;
-import dev.mathops.db.old.logic.mathplan.data.MathPlanStudentData;
+import dev.mathops.db.logic.mathplan.MathPlanLogic;
+import dev.mathops.db.logic.mathplan.MathPlanStudentData;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.Page;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.ZonedDateTime;
@@ -38,7 +41,9 @@ enum PageMissing {
 
         final String stuId = session.getEffectiveUserId();
         final ZonedDateTime now = session.getNow();
-        final MathPlanStudentData data = logic.getStudentData(cache, stuId, now, session.loginSessionTag,
+        final RawStudent student = RawStudentLogic.query(cache, stuId, false);
+
+        final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, now, session.loginSessionTag,
                 session.actAsUserId == null);
 
         final HtmlBuilder htm = new HtmlBuilder(8192);

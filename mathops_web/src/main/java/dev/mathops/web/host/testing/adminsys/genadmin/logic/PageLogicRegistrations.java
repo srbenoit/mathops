@@ -2,8 +2,8 @@ package dev.mathops.web.host.testing.adminsys.genadmin.logic;
 
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.SystemData;
-import dev.mathops.db.old.logic.PaceTrackLogic;
-import dev.mathops.db.old.logic.RegistrationsLogic;
+import dev.mathops.db.logic.course.PaceTrackLogic;
+import dev.mathops.db.logic.course.RegistrationsLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawSttermLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;

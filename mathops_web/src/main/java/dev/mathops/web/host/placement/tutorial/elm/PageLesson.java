@@ -3,7 +3,7 @@ package dev.mathops.web.host.placement.tutorial.elm;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.logic.ELMTutorialStatus;
+import dev.mathops.db.logic.tutorial.ELMTutorialStatus;
 import dev.mathops.db.old.rawrecord.RawLessonComponent;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.rec.AssignmentRec;

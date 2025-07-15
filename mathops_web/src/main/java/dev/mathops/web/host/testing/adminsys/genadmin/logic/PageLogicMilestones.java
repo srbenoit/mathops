@@ -2,9 +2,9 @@ package dev.mathops.web.host.testing.adminsys.genadmin.logic;
 
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.logic.MilestoneLogic;
-import dev.mathops.db.old.logic.PaceTrackLogic;
-import dev.mathops.db.old.logic.RegistrationsLogic;
+import dev.mathops.db.logic.course.MilestoneLogic;
+import dev.mathops.db.logic.course.PaceTrackLogic;
+import dev.mathops.db.logic.course.RegistrationsLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawMilestoneAppeal;
 import dev.mathops.db.old.rawrecord.RawStcourse;

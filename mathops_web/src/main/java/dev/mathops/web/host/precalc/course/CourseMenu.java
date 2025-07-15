@@ -2,8 +2,8 @@ package dev.mathops.web.host.precalc.course;
 
 import dev.mathops.db.Cache;
 import dev.mathops.db.enums.ERole;
-import dev.mathops.db.old.logic.PrecalcTutorialLogic;
-import dev.mathops.db.old.logic.PrecalcTutorialStatus;
+import dev.mathops.db.logic.tutorial.PrecalcTutorialLogic;
+import dev.mathops.db.logic.tutorial.PrecalcTutorialStatus;
 import dev.mathops.db.old.logic.PrerequisiteLogic;
 import dev.mathops.db.rec.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;

@@ -2,8 +2,8 @@ package dev.mathops.web.host.placement.placement;
 
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.logic.PlacementStatus;
-import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
+import dev.mathops.db.logic.placement.PlacementStatus;
+import dev.mathops.db.logic.mathplan.MathPlanConstants;
 import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStmathplan;

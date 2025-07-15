@@ -3,7 +3,7 @@ package dev.mathops.web.host.placement.tutorial.elm;
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.DateRange;
 import dev.mathops.db.logic.DateRangeGroups;
-import dev.mathops.db.old.logic.ELMTutorialStatus;
+import dev.mathops.db.logic.tutorial.ELMTutorialStatus;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;

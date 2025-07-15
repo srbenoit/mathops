@@ -2,7 +2,7 @@ package dev.mathops.web.host.placement.tutorial.elm;
 
 import dev.mathops.db.Cache;
 import dev.mathops.db.enums.ERole;
-import dev.mathops.db.old.logic.ELMTutorialStatus;
+import dev.mathops.db.logic.tutorial.ELMTutorialStatus;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.session.ImmutableSessionInfo;

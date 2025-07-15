@@ -8,10 +8,7 @@ import dev.mathops.db.logic.mathplan.Major;
 import dev.mathops.db.logic.mathplan.MathPlanLogic;
 import dev.mathops.db.logic.mathplan.MathPlanConstants;
 import dev.mathops.db.logic.mathplan.MathPlanStudentData;
-import dev.mathops.db.old.logic.mathplan.data.CourseInfo;
-import dev.mathops.db.old.logic.mathplan.data.CourseInfoGroup;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
-import dev.mathops.db.old.rawrecord.RawCourse;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -365,75 +362,6 @@ enum PagePlanView {
         htm.addln("</ul>");
 
         return count;
-    }
-
-    /**
-     * Emits a list of course recommendations.
-     *
-     * @param htm              the {@code HtmlBuilder} to which to append
-     * @param hasMultipleCalc1 {@code true} if course sequence includes more than one calculus 1 course
-     * @param hasMultipleCalc2 {@code true} if course sequence includes more than one calculus 2 course
-     * @param typicalCourses   the set of courses for a typical student
-     * @param typicalGroups    the set of course groups for a typical student
-     * @param courseData       a map from course ID to course data
-     */
-    private static void emitCourseList(final HtmlBuilder htm, final boolean hasMultipleCalc1,
-                                       final boolean hasMultipleCalc2, final Map<String, CourseInfo> typicalCourses,
-                                       final Iterable<CourseInfoGroup> typicalGroups,
-                                       final Map<String, RawCourse> courseData) {
-
-        htm.addln("<ul>");
-        for (final Map.Entry<String, CourseInfo> entry : typicalCourses.entrySet()) {
-            final CourseInfo info = entry.getValue();
-            if (info.status.sufficient) {
-                continue;
-            }
-
-            final RawCourse crs = courseData.get(entry.getKey());
-
-            final String id = crs.course;
-            final boolean isCalc1 = "M 141".equals(id) || "M 155".equals(id) || "M 156".equals(id)
-                                    || "M 160".equals(id);
-            final boolean isCalc2 = "M 255".equals(id) || "M 256".equals(id) || "M 161".equals(id);
-
-            htm.add("<li>");
-            if (isCalc1 && hasMultipleCalc1) {
-                htm.add("The <strong>Calculus I</strong> course appropriate for your major");
-            } else if (isCalc2 && (hasMultipleCalc1 || hasMultipleCalc2)) {
-                htm.add("The <strong>Calculus II</strong> course appropriate for your major");
-            } else if (crs.getCatalogUrl() == null) {
-                htm.add(crs.courseLabel, "<span class='hidebelow500'>: ", crs.courseName, "</span>");
-            } else {
-                htm.add("<a target='_blank' href='", crs.getCatalogUrl(), "'>", crs.courseLabel,
-                        "</a><span class='hidebelow500'>: ", crs.courseName, "</span>");
-            }
-
-            htm.addln("</li>");
-        }
-
-        if (typicalGroups != null) {
-            for (final CourseInfoGroup g : typicalGroups) {
-                if (g.isSatisfied()) {
-                    continue;
-                }
-
-                final String code = g.getGroupCode();
-                final boolean isCalc1 = "CALC".equals(code) || "CALC1BIO".equals(code);
-                final boolean isCalc2 = "CALC2BIO".equals(code);
-
-                htm.add("<li>");
-                if (isCalc1 && hasMultipleCalc1) {
-                    htm.add("The <strong>Calculus I</strong> course appropriate for your major");
-                } else if (isCalc2 && (hasMultipleCalc1 || hasMultipleCalc2)) {
-                    htm.add("The <strong>Calculus II</strong> course appropriate for your major");
-                } else {
-                    htm.add(g.getCourseGroup().toString(courseData));
-                }
-
-                htm.addln("</li>");
-            }
-        }
-        htm.addln("</ul>");
     }
 
     /**
