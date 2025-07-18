@@ -224,9 +224,9 @@ public final class MathPlacementSite extends AbstractPageSite {
         } else if ("plan_start.html".equals(subpath)) {
             PagePlanStart.doPost(cache, this, req, resp, session);
         } else if ("plan_majors1.html".equals(subpath)) {
-            PagePlanMajors1.doPost(cache, this, this.site, req, resp, session);
+            PagePlanMajors1.doPost(cache, this.site, req, resp, session);
         } else if ("plan_majors2.html".equals(subpath)) {
-            PagePlanMajors2.doPost(cache, this, this.site, req, resp, session);
+            PagePlanMajors2.doPost(cache, this.site, req, resp, session);
         } else if ("plan_view.html".equals(subpath)) {
             PagePlanView.doPost(cache, this, req, resp, session);
         } else if ("plan_next.html".equals(subpath)) {

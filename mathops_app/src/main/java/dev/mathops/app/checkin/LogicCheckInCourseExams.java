@@ -2,10 +2,10 @@ package dev.mathops.app.checkin;
 
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
+import dev.mathops.db.logic.SystemData;
+import dev.mathops.db.logic.course.PrerequisiteLogic;
 import dev.mathops.db.logic.course.StandardsMasteryLogic;
-import dev.mathops.db.old.logic.PrerequisiteLogic;
 import dev.mathops.db.old.rawlogic.RawStchallengeLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
@@ -24,8 +24,8 @@ import dev.mathops.db.old.rawrecord.RawStmilestone;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.rec.StandardMilestoneRec;
 import dev.mathops.db.rec.StuStandardMilestoneRec;
-import dev.mathops.db.reclogic.StuStandardMilestoneLogic;
 import dev.mathops.db.rec.TermRec;
+import dev.mathops.db.reclogic.StuStandardMilestoneLogic;
 import dev.mathops.text.builder.SimpleBuilder;
 
 import java.sql.SQLException;

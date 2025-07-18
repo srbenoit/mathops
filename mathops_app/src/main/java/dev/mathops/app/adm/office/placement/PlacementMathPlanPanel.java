@@ -8,11 +8,11 @@ import dev.mathops.commons.ui.layout.AlignedFlowLayout;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.mathplan.MathPlanLogic;
-import dev.mathops.db.logic.mathplan.MathPlanPlacementStatus;
-import dev.mathops.db.logic.mathplan.MathPlanStudentData;
+import dev.mathops.db.logic.mathplan.types.EMathPlanStatus;
 import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
+import dev.mathops.db.old.rawrecord.RawStmpe;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.text.builder.SimpleBuilder;
 
@@ -28,9 +28,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.io.Serial;
 import java.sql.SQLException;
-import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A panel that shows student Math Plan and RamReady status.
@@ -238,14 +236,8 @@ public class PlacementMathPlanPanel extends AdmPanelBase {
 
                     this.error.setText("Student '" + studentId + "' has no PIDM");
                 } else {
-                    final MathPlanLogic planLogic = new MathPlanLogic(cache.profile);
-                    final ZonedDateTime now = ZonedDateTime.now();
-                    final MathPlanStudentData studentData = new MathPlanStudentData(cache, stu, planLogic,
-                            now, 0L, false);
-
-                    final Map<Integer, RawStmathplan> map = studentData.getMajorProfileResponses();
-
-                    if (map.isEmpty()) {
+                    final EMathPlanStatus status = MathPlanLogic.getStatus(cache, studentId);
+                    if (status == EMathPlanStatus.NOT_STARTED) {
                         this.checkMathPlanStatus.setText("NOT STARTED");
                         this.checkMathPlanMessage.setText(SimpleBuilder.concat(
                                 "Create my Personalized Mathematics Plan\r\n",
@@ -260,21 +252,16 @@ public class PlacementMathPlanPanel extends AdmPanelBase {
                         this.checkMathPlanMessage.setText(SimpleBuilder.concat("Review my Mathematics Plan."));
                     }
 
-                    final MathPlanPlacementStatus placementStatus = MathPlanPlacementStatus.getMathPlacementStatus(
-                            cache, stu.stuId);
-
-                    if (placementStatus.isPlacementComplete) {
-                        this.checkMathPlacementStatus.setText("COMPLETED");
-                        this.checkMathPlacementMessage.setText("Review my Math Placement results");
-                    } else if (placementStatus.isPlacementNeeded) {
+                    final List<RawStmpe> placement = cache.getStudent(studentId).getLegalPlacementAttempts();
+                    if (placement.isEmpty()) {
                         this.checkMathPlacementStatus.setText("NOT STARTED");
                         this.checkMathPlacementMessage.setText(SimpleBuilder.concat(
                                 "Complete the Math Placement Process\r\n",
                                 "Based on your personalized Mathematics Plan, you should complete ",
                                 "the Math Placement process before Ram Orientation."));
                     } else {
-                        this.checkMathPlacementStatus.setText("(empty)");
-                        this.checkMathPlacementMessage.setText("(empty)");
+                        this.checkMathPlacementStatus.setText("COMPLETED");
+                        this.checkMathPlacementMessage.setText("Review my Math Placement results");
                     }
                 }
             }

@@ -1,10 +1,16 @@
 package dev.mathops.app.ops.snapin.messaging.epf;
 
+import dev.mathops.app.ops.snapin.messaging.EMsg;
+import dev.mathops.app.ops.snapin.messaging.EPF;
+import dev.mathops.app.ops.snapin.messaging.EffectiveMilestones;
+import dev.mathops.app.ops.snapin.messaging.MessagingContext;
+import dev.mathops.app.ops.snapin.messaging.MessagingCourseStatus;
+import dev.mathops.app.ops.snapin.messaging.tosend.MessageToSend;
 import dev.mathops.commons.IProgressListener;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.course.PaceTrackLogic;
-import dev.mathops.db.old.logic.PrerequisiteLogic;
+import dev.mathops.db.logic.course.PrerequisiteLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
@@ -22,12 +28,6 @@ import dev.mathops.db.old.rawrecord.RawStmsg;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.rec.TermRec;
-import dev.mathops.app.ops.snapin.messaging.EMsg;
-import dev.mathops.app.ops.snapin.messaging.EPF;
-import dev.mathops.app.ops.snapin.messaging.EffectiveMilestones;
-import dev.mathops.app.ops.snapin.messaging.MessagingContext;
-import dev.mathops.app.ops.snapin.messaging.MessagingCourseStatus;
-import dev.mathops.app.ops.snapin.messaging.tosend.MessageToSend;
 
 import java.sql.SQLException;
 import java.time.LocalDate;

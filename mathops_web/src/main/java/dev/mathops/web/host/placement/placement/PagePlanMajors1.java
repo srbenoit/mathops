@@ -2,15 +2,15 @@ package dev.mathops.web.host.placement.placement;
 
 import dev.mathops.db.Cache;
 import dev.mathops.db.Contexts;
-import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.cfg.Site;
-import dev.mathops.db.logic.mathplan.Major;
-import dev.mathops.db.logic.mathplan.Majors;
-import dev.mathops.db.logic.mathplan.MathPlanLogic;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.logic.mathplan.MathPlanConstants;
-import dev.mathops.db.logic.mathplan.MathPlanStudentData;
+import dev.mathops.db.logic.mathplan.MathPlanLogic;
+import dev.mathops.db.logic.mathplan.StudentMathPlan;
+import dev.mathops.db.logic.mathplan.majors.Major;
+import dev.mathops.db.logic.mathplan.majors.Majors;
+import dev.mathops.db.logic.mathplan.majors.MajorsCurrent;
 import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -50,21 +50,15 @@ enum PagePlanMajors1 {
                       final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final Profile profile = site.site.profile;
-        final MathPlanLogic logic = new MathPlanLogic(profile);
-
         final String stuId = session.getEffectiveUserId();
-        final ZonedDateTime now = session.getNow();
+        final StudentData studentData = cache.getStudent(stuId);
+        final RawStudent student = studentData.getStudentRecord();
 
-        final RawStudent student = RawStudentLogic.query(cache, stuId, false);
+        final StudentMathPlan plan = MathPlanLogic.queryPlan(cache, stuId);
+        final Map<Integer, RawStmathplan> majorsResponses = plan.stuStatus.majorsResponses;
 
-        final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, now, session.loginSessionTag,
-                session.actAsUserId == null);
-
-        final Map<Integer, RawStmathplan> curResponses = data.getMajorProfileResponses();
-
-        final Major declaredMajor = Majors.INSTANCE.getMajor(data.student.programCode);
-        final List<Major> majors = Majors.INSTANCE.getMajors();
+        final Major declaredMajor = Majors.getMajorByProgramCode(student.programCode);
+        final List<Major> majors = MajorsCurrent.INSTANCE.getMajors();
 
         final Map<Integer, Major> majorMap = new HashMap<>(300);
         for (final Major major : majors) {
@@ -81,7 +75,7 @@ enum PagePlanMajors1 {
         }
         for (final Major major : majors) {
             final Integer key = Integer.valueOf(major.questionNumbers[0]);
-            final RawStmathplan curResp = curResponses.get(key);
+            final RawStmathplan curResp = majorsResponses.get(key);
             if (curResp != null && "Y".equals(curResp.stuAnswer)) {
                 selectedMajors.add(major);
             }
@@ -158,7 +152,7 @@ enum PagePlanMajors1 {
         htm.add("</nav>");
 
         htm.sDiv("folder-content");
-        emitMajorsSelectionForm(htm, curResponses, data, session);
+        emitMajorsSelectionForm(htm, majorsResponses, student, session);
         htm.eDiv();
 
         htm.eDiv(); // folders
@@ -184,17 +178,16 @@ enum PagePlanMajors1 {
      *
      * @param htm          the {@code HtmlBuilder} to which to append
      * @param curResponses the current student responses (empty if not yet responded)
-     * @param data         the student data
+     * @param student      the student record
      * @param session      the session
      */
     private static void emitMajorsSelectionForm(final HtmlBuilder htm, final Map<Integer, RawStmathplan> curResponses,
-                                                final MathPlanStudentData data, final ImmutableSessionInfo session) {
+                                                final RawStudent student, final ImmutableSessionInfo session) {
 
         final boolean disable = session.actAsUserId != null;
+        final Major declaredMajor = Majors.getMajorByProgramCode(student.programCode);
 
-        final Major declaredMajor = Majors.INSTANCE.getMajor(data.student.programCode);
-
-        final List<Major> majors = Majors.INSTANCE.getMajors();
+        final List<Major> majors = MajorsCurrent.INSTANCE.getMajors();
         final Map<Integer, Major> majorMap = new HashMap<>(300);
         for (final Major major : majors) {
             for (final int q : major.questionNumbers) {
@@ -233,28 +226,28 @@ enum PagePlanMajors1 {
         numSelected += emitMajor(htm, majorMap, AHD, 5070, selectedMajors, disable, declaredMajor);
         // Environmental Horticulture Major
         numSelected += emitMajor(htm, majorMap, AHD, 1040, selectedMajors, disable, declaredMajor);
+        // Ethnic Studies Major
+        numSelected += emitMajor(htm, majorMap, AHD, 5080, selectedMajors, disable, declaredMajor);
         // Exploratory Studies - Arts, Humanities, and Design
         numSelected += emitMajor(htm, majorMap, AHD, 9001, selectedMajors, disable, declaredMajor);
         // Interdisciplinary Liberal Arts Major
         numSelected += emitMajor(htm, majorMap, AHD, 5200, selectedMajors, disable, declaredMajor);
         // Interior Architecture and Design Major
         numSelected += emitMajor(htm, majorMap, AHD, 4081, selectedMajors, disable, declaredMajor);
-        // International Studies Major
-        numSelected += emitMajor(htm, majorMap, AHD, 5190, selectedMajors, disable, declaredMajor);
         // Journalism and Media Communication Major
         numSelected += emitMajor(htm, majorMap, AHD, 5100, selectedMajors, disable, declaredMajor);
         // Landscape Architecture Major
         numSelected += emitMajor(htm, majorMap, AHD, 1070, selectedMajors, disable, declaredMajor);
         // Languages, Literatures, and Cultures Major
         numSelected += emitMajor(htm, majorMap, AHD, 5110, selectedMajors, disable, declaredMajor);
+        // Mathematics Major
+        numSelected += emitMajor(htm, majorMap, AHD, 7060, selectedMajors, disable, declaredMajor);
         // Music (B.M.) Major
         numSelected += emitMajor(htm, majorMap, AHD, 5130, selectedMajors, disable, declaredMajor);
         // Philosophy Major
         numSelected += emitMajor(htm, majorMap, AHD, 5140, selectedMajors, disable, declaredMajor);
         // Theatre Major
         numSelected += emitMajor(htm, majorMap, AHD, 5170, selectedMajors, disable, declaredMajor);
-        // Women’s and Gender Studies Major
-        numSelected += emitMajor(htm, majorMap, AHD, 5180, selectedMajors, disable, declaredMajor);
 
         htm.eDiv(); // indent
         htm.addln("</details>");
@@ -263,22 +256,20 @@ enum PagePlanMajors1 {
         htm.addln("<summary class='study-area'>Education and Teaching</summary>");
         htm.sDiv("indent");
 
-        //Agricultural Education Major
+        // Agricultural Education Major
         numSelected += emitMajor(htm, majorMap, ET, 1010, selectedMajors, disable, declaredMajor);
         // Art Major (BFA)
         numSelected += emitMajor(htm, majorMap, ET, 5020, selectedMajors, disable, declaredMajor);
-        // Communication Studies Major
-        numSelected += emitMajor(htm, majorMap, ET, 5040, selectedMajors, disable, declaredMajor);
+        // Computer Science Major
+        numSelected += emitMajor(htm, majorMap, ET, 7040, selectedMajors, disable, declaredMajor);
         // Early Childhood Education Major
         numSelected += emitMajor(htm, majorMap, ET, 4020, selectedMajors, disable, declaredMajor);
         // English Major
         numSelected += emitMajor(htm, majorMap, ET, 5070, selectedMajors, disable, declaredMajor);
-        // Ethnic Studies Major
-        numSelected += emitMajor(htm, majorMap, ET, 5080, selectedMajors, disable, declaredMajor);
         // Exploratory Studies - Education and Teaching
         numSelected += emitMajor(htm, majorMap, ET, 9003, selectedMajors, disable, declaredMajor);
         // Family and Consumer Sciences Major
-        numSelected += emitMajor(htm, majorMap, ET, 4030, selectedMajors, disable, declaredMajor);
+        numSelected += emitMajor(htm, majorMap, ET, 4034, selectedMajors, disable, declaredMajor);
         // History Major
         numSelected += emitMajor(htm, majorMap, ET, 5090, selectedMajors, disable, declaredMajor);
         // Languages, Literatures, and Cultures Major
@@ -297,12 +288,10 @@ enum PagePlanMajors1 {
         htm.addln("<summary class='study-area'>Environmental and Natural Resources</summary>");
         htm.sDiv("indent");
 
-        // Agricultural Biology Major
-        numSelected += emitMajor(htm, majorMap, ENR, 1090, selectedMajors, disable, declaredMajor);
-        // Agricultural Education Major
-        numSelected += emitMajor(htm, majorMap, ENR, 1010, selectedMajors, disable, declaredMajor);
-        // Biology Major
+        // Biological Science Major
         numSelected += emitMajor(htm, majorMap, ENR, 7020, selectedMajors, disable, declaredMajor);
+        // Biomedical Sciences Major
+        numSelected += emitMajor(htm, majorMap, ENR, 8000, selectedMajors, disable, declaredMajor);
         // Chemistry Major
         numSelected += emitMajor(htm, majorMap, ENR, 7030, selectedMajors, disable, declaredMajor);
         // Civil Engineering Major
@@ -321,8 +310,6 @@ enum PagePlanMajors1 {
         numSelected += emitMajor(htm, majorMap, ENR, 6010, selectedMajors, disable, declaredMajor);
         // Forest and Rangeland Stewardship Major
         numSelected += emitMajor(htm, majorMap, ENR, 6080, selectedMajors, disable, declaredMajor);
-        // Geography Major
-        numSelected += emitMajor(htm, majorMap, ENR, 5085, selectedMajors, disable, declaredMajor);
         // Geology Major
         numSelected += emitMajor(htm, majorMap, ENR, 6020, selectedMajors, disable, declaredMajor);
         // Human Dimensions of Natural Resources Major
@@ -330,17 +317,23 @@ enum PagePlanMajors1 {
         // Interdisciplinary Liberal Arts Major
         numSelected += emitMajor(htm, majorMap, ENR, 5200, selectedMajors, disable, declaredMajor);
         // Natural Resource Tourism Major
-        numSelected += emitMajor(htm, majorMap, ENR, 6040, selectedMajors, disable, declaredMajor);
+        numSelected += emitMajor(htm, majorMap, ENR, 6043, selectedMajors, disable, declaredMajor);
         // Natural Resources Management Major
         numSelected += emitMajor(htm, majorMap, ENR, 6050, selectedMajors, disable, declaredMajor);
         // Political Science Major
         numSelected += emitMajor(htm, majorMap, ENR, 5150, selectedMajors, disable, declaredMajor);
         // Restoration Ecology Major
         numSelected += emitMajor(htm, majorMap, ENR, 6060, selectedMajors, disable, declaredMajor);
+        // Sociology Major
+        numSelected += emitMajor(htm, majorMap, ENR, 5160, selectedMajors, disable, declaredMajor);
         // Soil and Crop Sciences Major
         numSelected += emitMajor(htm, majorMap, ENR, 1080, selectedMajors, disable, declaredMajor);
+        // Statistics Major
+        numSelected += emitMajor(htm, majorMap, ENR, 7100, selectedMajors, disable, declaredMajor);
         // Watershed Science and Sustainability Major
-        numSelected += emitMajor(htm, majorMap, ENR, 6070, selectedMajors, disable, declaredMajor);
+        numSelected += emitMajor(htm, majorMap, ENR, 6074, selectedMajors, disable, declaredMajor);
+        // Zoology Major
+        numSelected += emitMajor(htm, majorMap, ENR, 7110, selectedMajors, disable, declaredMajor);
 
         htm.eDiv(); // indent
         htm.addln("</details>");
@@ -349,8 +342,6 @@ enum PagePlanMajors1 {
         htm.addln("<summary class='study-area'>Global and Social Sciences</summary>");
         htm.sDiv("indent");
 
-        // Agricultural Business Major
-        numSelected += emitMajor(htm, majorMap, GSS, 1000, selectedMajors, disable, declaredMajor);
         // Anthropology Major
         numSelected += emitMajor(htm, majorMap, GSS, 5000, selectedMajors, disable, declaredMajor);
         // Business Administration Major
@@ -365,14 +356,12 @@ enum PagePlanMajors1 {
         numSelected += emitMajor(htm, majorMap, GSS, 5060, selectedMajors, disable, declaredMajor);
         // English Major
         numSelected += emitMajor(htm, majorMap, GSS, 5070, selectedMajors, disable, declaredMajor);
-        // Environmental and Natural Resource Economics Major
-        numSelected += emitMajor(htm, majorMap, GSS, 1030, selectedMajors, disable, declaredMajor);
         // Ethnic Studies Major
         numSelected += emitMajor(htm, majorMap, GSS, 5080, selectedMajors, disable, declaredMajor);
         // Exploratory Studies - Global and Social Sciences
         numSelected += emitMajor(htm, majorMap, GSS, 9007, selectedMajors, disable, declaredMajor);
         // Family and Consumer Sciences Major
-        numSelected += emitMajor(htm, majorMap, GSS, 4030, selectedMajors, disable, declaredMajor);
+        numSelected += emitMajor(htm, majorMap, GSS, 4034, selectedMajors, disable, declaredMajor);
         // Geography Major
         numSelected += emitMajor(htm, majorMap, GSS, 5085, selectedMajors, disable, declaredMajor);
         // History Major
@@ -397,7 +386,7 @@ enum PagePlanMajors1 {
         numSelected += emitMajor(htm, majorMap, GSS, 4100, selectedMajors, disable, declaredMajor);
         // Sociology Major
         numSelected += emitMajor(htm, majorMap, GSS, 5160, selectedMajors, disable, declaredMajor);
-        // Women’s and Gender Studies Major
+        // Women's and Gender Studies Major
         numSelected += emitMajor(htm, majorMap, GSS, 5180, selectedMajors, disable, declaredMajor);
 
         htm.eDiv(); // indent
@@ -407,6 +396,10 @@ enum PagePlanMajors1 {
         htm.addln("<summary class='study-area'>Health, Life, and Food Sciences</summary>");
         htm.sDiv("indent");
 
+        // Agricultural Education Major
+        numSelected += emitMajor(htm, majorMap, HLF, 1010, selectedMajors, disable, declaredMajor);
+        // Animal Science Major
+        numSelected += emitMajor(htm, majorMap, HLF, 1020, selectedMajors, disable, declaredMajor);
         // Biochemistry Major
         numSelected += emitMajor(htm, majorMap, HLF, 7010, selectedMajors, disable, declaredMajor);
         // Biology Major
@@ -417,30 +410,32 @@ enum PagePlanMajors1 {
         numSelected += emitMajor(htm, majorMap, HLF, 8000, selectedMajors, disable, declaredMajor);
         // Chemistry Major
         numSelected += emitMajor(htm, majorMap, HLF, 7030, selectedMajors, disable, declaredMajor);
+        // Data Science Major
+        numSelected += emitMajor(htm, majorMap, GSS, 7050, selectedMajors, disable, declaredMajor);
         // Exploratory Studies - Health, Life, and Food Sciences
         numSelected += emitMajor(htm, majorMap, HLF, 9002, selectedMajors, disable, declaredMajor);
         // Fermentation and Food Science Major
-        numSelected += emitMajor(htm, majorMap, HLF, 4040, selectedMajors, disable, declaredMajor);
+        numSelected += emitMajor(htm, majorMap, HLF, 4041, selectedMajors, disable, declaredMajor);
         // Health and Exercise Science Major
         numSelected += emitMajor(htm, majorMap, HLF, 4050, selectedMajors, disable, declaredMajor);
         // Horticulture Major
         numSelected += emitMajor(htm, majorMap, HLF, 1060, selectedMajors, disable, declaredMajor);
         // Hospitality and Event Management Major
-        numSelected += emitMajor(htm, majorMap, HLF, 4060, selectedMajors, disable, declaredMajor);
+        numSelected += emitMajor(htm, majorMap, HLF, 4061, selectedMajors, disable, declaredMajor);
         // Human Development and Family Studies Major
         numSelected += emitMajor(htm, majorMap, HLF, 4070, selectedMajors, disable, declaredMajor);
         // Neuroscience Major
         numSelected += emitMajor(htm, majorMap, HLF, 8030, selectedMajors, disable, declaredMajor);
         // Nutrition Science Major
-        numSelected += emitMajor(htm, majorMap, HLF, 4090, selectedMajors, disable, declaredMajor);
+        numSelected += emitMajor(htm, majorMap, HLF, 4110, selectedMajors, disable, declaredMajor);
         // Psychology Major
         numSelected += emitMajor(htm, majorMap, HLF, 7090, selectedMajors, disable, declaredMajor);
-        // Social Work Major
-        numSelected += emitMajor(htm, majorMap, HLF, 4100, selectedMajors, disable, declaredMajor);
-        // Sociology Major
-        numSelected += emitMajor(htm, majorMap, HLF, 5160, selectedMajors, disable, declaredMajor);
         // Soil and Crop Sciences Major
         numSelected += emitMajor(htm, majorMap, HLF, 1080, selectedMajors, disable, declaredMajor);
+        // Statistics Major
+        numSelected += emitMajor(htm, majorMap, HLF, 7100, selectedMajors, disable, declaredMajor);
+        // Zoology Major
+        numSelected += emitMajor(htm, majorMap, HLF, 7110, selectedMajors, disable, declaredMajor);
 
         htm.eDiv(); // indent
         htm.addln("</details>");
@@ -450,19 +445,17 @@ enum PagePlanMajors1 {
         htm.sDiv("indent");
 
         // Agricultural Biology Major
-        numSelected += emitMajor(htm, majorMap, LPA, 1090, selectedMajors, disable, declaredMajor);
+        numSelected += emitMajor(htm, majorMap, LPA, 1000, selectedMajors, disable, declaredMajor);
         // Agricultural Business Major
         numSelected += emitMajor(htm, majorMap, LPA, 1000, selectedMajors, disable, declaredMajor);
+        // Agricultural Education Major
+        numSelected += emitMajor(htm, majorMap, LPA, 1010, selectedMajors, disable, declaredMajor);
         // Animal Science Major
         numSelected += emitMajor(htm, majorMap, LPA, 1020, selectedMajors, disable, declaredMajor);
-        // Anthropology Major
-        numSelected += emitMajor(htm, majorMap, LPA, 5000, selectedMajors, disable, declaredMajor);
         // Biochemistry Major
         numSelected += emitMajor(htm, majorMap, LPA, 7010, selectedMajors, disable, declaredMajor);
-        // Biology Major
+        // Biological Science Major
         numSelected += emitMajor(htm, majorMap, LPA, 7020, selectedMajors, disable, declaredMajor);
-        // Ecosystem Science and Sustainability Major
-        numSelected += emitMajor(htm, majorMap, LPA, 6000, selectedMajors, disable, declaredMajor);
         // Environmental and Natural Resource Economics Major
         numSelected += emitMajor(htm, majorMap, LPA, 1030, selectedMajors, disable, declaredMajor);
         // Environmental Horticulture Major
@@ -473,20 +466,10 @@ enum PagePlanMajors1 {
         numSelected += emitMajor(htm, majorMap, LPA, 9004, selectedMajors, disable, declaredMajor);
         // Fish, Wildlife, and Conservation Biology Major
         numSelected += emitMajor(htm, majorMap, LPA, 6010, selectedMajors, disable, declaredMajor);
-        // Forest and Rangeland Stewardship Major
-        numSelected += emitMajor(htm, majorMap, LPA, 6080, selectedMajors, disable, declaredMajor);
-        // Geography Major
-        numSelected += emitMajor(htm, majorMap, LPA, 5085, selectedMajors, disable, declaredMajor);
-        // Geology Major
-        numSelected += emitMajor(htm, majorMap, LPA, 6020, selectedMajors, disable, declaredMajor);
         // Horticulture Major
         numSelected += emitMajor(htm, majorMap, LPA, 1060, selectedMajors, disable, declaredMajor);
         // Landscape Architecture Major
         numSelected += emitMajor(htm, majorMap, LPA, 1070, selectedMajors, disable, declaredMajor);
-        // Livestock Business Management Major
-        numSelected += emitMajor(htm, majorMap, LPA, 1075, selectedMajors, disable, declaredMajor);
-        // estoration Ecology Major
-        numSelected += emitMajor(htm, majorMap, LPA, 6060, selectedMajors, disable, declaredMajor);
         // Soil and Crop Sciences Major
         numSelected += emitMajor(htm, majorMap, LPA, 1080, selectedMajors, disable, declaredMajor);
         // Zoology Major
@@ -501,10 +484,9 @@ enum PagePlanMajors1 {
 
         // Biochemistry Major
         numSelected += emitMajor(htm, majorMap, MSE, 7010, selectedMajors, disable, declaredMajor);
-        // Biomedical Engineering Major
-        numSelected += emitMajor(htm, majorMap, MSE, 3000, selectedMajors, disable, declaredMajor);
         // Biomedical Sciences Major
         numSelected += emitMajor(htm, majorMap, MSE, 8000, selectedMajors, disable, declaredMajor);
+
         // Chemical and Biological Engineering Major
         numSelected += emitMajor(htm, majorMap, MSE, 3010, selectedMajors, disable, declaredMajor);
         // Chemistry Major
@@ -533,14 +515,14 @@ enum PagePlanMajors1 {
         numSelected += emitMajor(htm, majorMap, MSE, 7060, selectedMajors, disable, declaredMajor);
         // Mechanical Engineering Major
         numSelected += emitMajor(htm, majorMap, MSE, 3080, selectedMajors, disable, declaredMajor);
+        // Natural Sciences Major
+        numSelected += emitMajor(htm, majorMap, MSE, 7070, selectedMajors, disable, declaredMajor);
         // Neuroscience Major
         numSelected += emitMajor(htm, majorMap, MSE, 8030, selectedMajors, disable, declaredMajor);
         // Physics Major
         numSelected += emitMajor(htm, majorMap, MSE, 7080, selectedMajors, disable, declaredMajor);
         // Statistics Major
         numSelected += emitMajor(htm, majorMap, MSE, 7100, selectedMajors, disable, declaredMajor);
-        // Watershed Science and Sustainability Major
-        numSelected += emitMajor(htm, majorMap, MSE, 6070, selectedMajors, disable, declaredMajor);
 
         htm.eDiv(); // indent
         htm.addln("</details>");
@@ -549,6 +531,8 @@ enum PagePlanMajors1 {
         htm.addln("<summary class='study-area'>Organization, Management, and Enterprise</summary>");
         htm.sDiv("indent");
 
+        // Agricultural Business Major
+        numSelected += emitMajor(htm, majorMap, OME, 1000, selectedMajors, disable, declaredMajor);
         // Apparel and Merchandising Major
         numSelected += emitMajor(htm, majorMap, OME, 4000, selectedMajors, disable, declaredMajor);
         // Business Administration Major
@@ -561,22 +545,22 @@ enum PagePlanMajors1 {
         numSelected += emitMajor(htm, majorMap, OME, 7050, selectedMajors, disable, declaredMajor);
         // Economics Major
         numSelected += emitMajor(htm, majorMap, OME, 5060, selectedMajors, disable, declaredMajor);
+        // Environmental and Natural Resource Economics Major
+        numSelected += emitMajor(htm, majorMap, OME, 1030, selectedMajors, disable, declaredMajor);
         // Equine Science Major
         numSelected += emitMajor(htm, majorMap, OME, 1050, selectedMajors, disable, declaredMajor);
         // Exploratory Studies – Organization, Management, and Enterprise
         numSelected += emitMajor(htm, majorMap, OME, 9008, selectedMajors, disable, declaredMajor);
+        // Family and Consumer Sciences Major
+        numSelected += emitMajor(htm, majorMap, OME, 4034, selectedMajors, disable, declaredMajor);
         // Forest and Rangeland Stewardship Major
         numSelected += emitMajor(htm, majorMap, OME, 6080, selectedMajors, disable, declaredMajor);
         // Horticulture Major
         numSelected += emitMajor(htm, majorMap, OME, 1060, selectedMajors, disable, declaredMajor);
-        // Hospitality and Event Management Major
-        numSelected += emitMajor(htm, majorMap, OME, 4060, selectedMajors, disable, declaredMajor);
-        // Human Dimensions of Natural Resources Major
-        numSelected += emitMajor(htm, majorMap, OME, 4070, selectedMajors, disable, declaredMajor);
+        // Hospitality and Event Management Major4061
+        numSelected += emitMajor(htm, majorMap, OME, 4061, selectedMajors, disable, declaredMajor);
         // Interdisciplinary Liberal Arts Major
         numSelected += emitMajor(htm, majorMap, OME, 5200, selectedMajors, disable, declaredMajor);
-        // International Studies Major
-        numSelected += emitMajor(htm, majorMap, OME, 5190, selectedMajors, disable, declaredMajor);
         // Journalism and Media Communication Major
         numSelected += emitMajor(htm, majorMap, OME, 5100, selectedMajors, disable, declaredMajor);
         // Livestock Business Management Major
@@ -584,15 +568,13 @@ enum PagePlanMajors1 {
         // Mathematics Major
         numSelected += emitMajor(htm, majorMap, OME, 7060, selectedMajors, disable, declaredMajor);
         // Natural Resource Tourism Major
-        numSelected += emitMajor(htm, majorMap, OME, 6040, selectedMajors, disable, declaredMajor);
+        numSelected += emitMajor(htm, majorMap, OME, 6043, selectedMajors, disable, declaredMajor);
         // Natural Resource Management Major
         numSelected += emitMajor(htm, majorMap, OME, 6050, selectedMajors, disable, declaredMajor);
         // Political Science Major
         numSelected += emitMajor(htm, majorMap, OME, 5150, selectedMajors, disable, declaredMajor);
         // Psychology Major
         numSelected += emitMajor(htm, majorMap, OME, 7090, selectedMajors, disable, declaredMajor);
-        // Women’s and Gender Studies Major
-        numSelected += emitMajor(htm, majorMap, OME, 5180, selectedMajors, disable, declaredMajor);
 
         htm.eDiv(); // indent
         htm.addln("</details>");
@@ -604,18 +586,18 @@ enum PagePlanMajors1 {
         htm.sDiv("center");
 
         if (disable) {
-            htm.add("<a class='btn' href='plan_record.html'>",
-                    Res.get(Res.SECURE_NEXT_STEP_BTN), "</a>");
+            final String label = Res.get(Res.SECURE_NEXT_STEP_BTN);
+            htm.add("<a class='btn' href='plan_record.html'>", label, "</a>");
         } else {
+            final String label = Res.get(showUpdate ? Res.SECURE_UPDATE_MAJORS_BTN : Res.SECURE_SUBMIT_MAJORS_BTN);
             htm.add("<a class='btn' href='javascript:;' ",
-                    "onclick='document.getElementById(\"moi-form\").submit();'>",
-                    Res.get(showUpdate ? Res.SECURE_UPDATE_MAJORS_BTN : Res.SECURE_SUBMIT_MAJORS_BTN),
-                    "</a>");
+                    "onclick='document.getElementById(\"moi-form\").submit();'>", label, "</a>");
         }
 
-        htm.addln("<a class='btn' href='https://www.math.colostate.edu/placement",
-                "/Math_Requirements.pdf' target='_blank'>",
-                Res.get(Res.EXPLORE_MAJORS_BTN), "</a>");
+        final String msg = Res.get(Res.EXPLORE_MAJORS_BTN);
+        htm.addln(
+                "<a class='btn' href='https://www.math.colostate.edu/placement/Math_Requirements.pdf' target='_blank'>",
+                msg, "</a>");
 
         htm.eDiv();
     }
@@ -643,7 +625,7 @@ enum PagePlanMajors1 {
         htm.add("<input type='checkbox'");
 
         // Now display any concentrations associated with the major in a DIV
-        boolean selected = selectedMajors.contains(major);
+        final boolean selected = selectedMajors.contains(major);
         if (selected) {
             htm.add(" checked='checked'");
         }
@@ -659,12 +641,11 @@ enum PagePlanMajors1 {
 
         final int lastMSpace = mname.lastIndexOf(' ');
         if (lastMSpace == -1) {
-            htm.add("<span style='white-space:nowrap;'>");
-            htm.add(mname);
+            htm.add("<span style='white-space:nowrap;'>", mname);
         } else {
-            htm.add(mname.substring(0, lastMSpace + 1));
-            htm.add("<span style='white-space:nowrap;'>");
-            htm.add(mname.substring(lastMSpace + 1));
+            final String firstPart = mname.substring(0, lastMSpace + 1);
+            final String lastPart = mname.substring(lastMSpace + 1);
+            htm.add(firstPart, "<span style='white-space:nowrap;'>", lastPart);
         }
 
         if (major.catalogPageUrl != null) {
@@ -688,43 +669,41 @@ enum PagePlanMajors1 {
      * Called when a POST is received to the page.
      *
      * @param cache       the data cache
-     * @param site        the owning site
      * @param siteProfile the site profile
      * @param req         the request
      * @param resp        the response
      * @param session     the session
      * @throws SQLException if there is an error accessing the database
      */
-    static void doPost(final Cache cache, final MathPlacementSite site,
-                       final Site siteProfile, final ServletRequest req,
+    static void doPost(final Cache cache, final Site siteProfile, final ServletRequest req,
                        final HttpServletResponse resp, final ImmutableSessionInfo session) throws SQLException {
 
-        final MathPlanLogic logic = new MathPlanLogic(site.site.profile);
-
         final String stuId = session.getEffectiveUserId();
-        final RawStudent student = RawStudentLogic.query(cache, stuId, false);
+        final StudentData studentData = cache.getStudent(stuId);
+        final RawStudent student = studentData.getStudentRecord();
 
         final ZonedDateTime now = session.getNow();
-        final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, now, session.loginSessionTag,
-                session.actAsUserId == null);
 
         // Only perform updates if data present AND this is not an adviser using "Act As"
-        if (data != null && session.actAsUserId == null) {
+        if (session.actAsUserId == null) {
 
             final Map<String, String[]> params = req.getParameterMap();
 
             // Build the list of new responses
-            final List<Integer> questions = new ArrayList<>(params.size());
+            final int numParams = params.size();
+            final List<Integer> questions = new ArrayList<>(numParams);
             final List<String> answers = new ArrayList<>(1);
 
-            final List<Major> allMajors = Majors.INSTANCE.getMajors();
+            final List<Major> allMajors = MajorsCurrent.INSTANCE.getMajors();
             for (final Major major : allMajors) {
                 final List<String> programCodes = major.programCodes;
 
                 for (final String key : params.keySet()) {
-                    final String test = key.substring(key.indexOf('.') + 1);
+                    final int dot = key.indexOf('.');
+                    final String test = key.substring(dot + 1);
                     if (programCodes.contains(test)) {
-                        questions.add(Integer.valueOf(major.questionNumbers[0]));
+                        final Integer firstNumber = Integer.valueOf(major.questionNumbers[0]);
+                        questions.add(firstNumber);
                         answers.add("Y");
                     }
                 }
@@ -732,15 +711,15 @@ enum PagePlanMajors1 {
 
             if (!questions.isEmpty()) {
                 RawStmathplanLogic.deleteAllForPage(cache, student.stuId, MathPlanConstants.MAJORS_PROFILE);
-                logic.storeMathPlanResponses(cache, data.student, MathPlanConstants.MAJORS_PROFILE, questions, answers,
-                        now, session.loginSessionTag);
+                MathPlanLogic.storeMathPlanResponses(cache, student, MathPlanConstants.MAJORS_PROFILE, questions,
+                        answers, now, session.loginSessionTag);
             }
         }
 
         // Redirect to this page, so we show it with a "GET" (and page reloads won't repost)
         resp.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
         final String path = siteProfile.path;
-        resp.setHeader("Location", path + (path.endsWith(Contexts.ROOT_PATH)
-                ? "plan_record.html" : "/plan_record.html"));
+        final boolean hasTrailingSlash = path.endsWith(Contexts.ROOT_PATH);
+        resp.setHeader("Location", path + (hasTrailingSlash ? "plan_record.html" : "/plan_record.html"));
     }
 }

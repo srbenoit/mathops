@@ -8,15 +8,15 @@ import dev.mathops.db.ESchema;
 import dev.mathops.db.cfg.Login;
 import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.enums.ETermName;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.logic.SystemData;
-import dev.mathops.db.logic.mathplan.EEligibility;
-import dev.mathops.db.logic.mathplan.ENextStep;
-import dev.mathops.db.logic.mathplan.MathPlanLogic;
 import dev.mathops.db.logic.mathplan.MathPlanConstants;
-import dev.mathops.db.logic.mathplan.MathPlanStudentData;
+import dev.mathops.db.logic.mathplan.MathPlanLogic;
+import dev.mathops.db.logic.mathplan.NextSteps;
+import dev.mathops.db.logic.mathplan.StudentMathPlan;
+import dev.mathops.db.logic.mathplan.types.ENextStep;
 import dev.mathops.db.old.rawlogic.RawMpscorequeueLogic;
 import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawMpscorequeue;
 import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
@@ -25,6 +25,7 @@ import dev.mathops.db.rec.TermRec;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.web.host.placement.tutorial.precalc.EEligibility;
 import dev.mathops.web.site.Page;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -158,12 +159,14 @@ enum PagePlanNext {
         htm.sDiv("inset2");
 
         final String stuId = session.getEffectiveUserId();
-        final Map<Integer, RawStmathplan> existing = MathPlanStudentData.getMathPlanResponses(cache, stuId,
-                MathPlanConstants.ONLY_RECOM_PROFILE);
+        final StudentData studentData = cache.getStudent(stuId);
+        final RawStudent student = studentData.getStudentRecord();
+
+        final Map<Integer, RawStmathplan> existing =
+                studentData.getLatestMathPlanResponsesByPage(MathPlanConstants.ONLY_RECOM_PROFILE);
 
         if (existing.containsKey(ONE)) {
-            final MathPlanLogic logic = new MathPlanLogic(site.site.profile);
-            showPlan(cache, session, htm, logic);
+            showPlan(cache, session, htm, studentData);
         } else {
             PagePlanView.doGet(cache, site, req, resp, session);
         }
@@ -177,26 +180,23 @@ enum PagePlanNext {
     /**
      * Displays the student's next steps.
      *
-     * @param cache   the data cache
-     * @param session the session
-     * @param htm     the {@code HtmlBuilder} to which to append
-     * @param logic   the site logic
+     * @param cache       the data cache
+     * @param session     the session
+     * @param htm         the {@code HtmlBuilder} to which to append
+     * @param studentData the student data object
      * @throws SQLException if there is an error accessing the database
      */
     private static void showPlan(final Cache cache, final ImmutableSessionInfo session,
-                                 final HtmlBuilder htm, final MathPlanLogic logic) throws SQLException {
+                                 final HtmlBuilder htm, final StudentData studentData) throws SQLException {
 
         htm.sDiv("shaded2left");
 
         final String screenName = session.getEffectiveScreenName();
         final String stuId = session.getEffectiveUserId();
-        final RawStudent student = RawStudentLogic.query(cache, stuId, false);
+        final StudentMathPlan plan = MathPlanLogic.queryPlan(cache, stuId);
 
-        final ZonedDateTime now = session.getNow();
-        final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, now,
-                session.loginSessionTag, session.actAsUserId == null);
-
-        final Map<Integer, RawStmathplan> intentions = data.getIntentions();
+        final Map<Integer, RawStmathplan> intentions =
+                studentData.getLatestMathPlanResponsesByPage(MathPlanConstants.INTENTIONS_PROFILE);
 
         htm.sDiv("left welcome", "style='margin-bottom:0;'");
         if (screenName == null) {
@@ -215,7 +215,7 @@ enum PagePlanNext {
 
         htm.sP().add("Based on your math plan, these are your next steps:").eP();
 
-        final boolean needsPlacement = showNextSteps(cache, htm, data);
+        final boolean needsPlacement = showNextSteps(cache, htm, plan);
         htm.div("vgap2");
 
         htm.sDiv("advice");
@@ -270,12 +270,15 @@ enum PagePlanNext {
      * Shows the next steps for the student, or informs the student that they are eligible for the course(s) they
      * currently need.
      *
-     * @param cache the data cache
-     * @param htm   the {@code HtmlBuilder} to which to append
-     * @param data  the student data
+     * @param cache       the data cache
+     * @param htm         the {@code HtmlBuilder} to which to append
+     * @param studentData the student data
+     * @param plan        the student math plan
      * @return true if the student needs to complete placement, false if not
+     * @throws SQLException if there is an error accessing the database
      */
-    static boolean showNextSteps(final Cache cache, final HtmlBuilder htm, final MathPlanStudentData data) {
+    static boolean showNextSteps(final Cache cache, final HtmlBuilder htm, final StudentData studentData,
+                                 final StudentMathPlan plan) throws SQLException {
 
         TermKey active = null;
         try {
@@ -288,15 +291,17 @@ enum PagePlanNext {
             Log.warning(ex);
         }
 
-        final Set<EEligibility> eligibility = data.recommendedEligibility;
-        final ENextStep nextStep = data.nextStep;
+        final Set<EEligibility> eligibility = plan.recommendedEligibility;
+        final NextSteps nextStep = plan.nextSteps;
 
-        final TermKey termKey = data.student.aplnTerm;
+        final RawStudent student = studentData.getStudentRecord();
+        final TermKey termKey = student.aplnTerm;
         final ETermName applicationTerm = termKey == null ? null : termKey.name;
         final String termName = applicationTerm == null ? null : applicationTerm.fullName;
         final boolean isIncoming = testForIncoming(active, termKey);
 
-        final Map<Integer, RawStmathplan> profileResponses = data.getMajorProfileResponses();
+        final Map<Integer, RawStmathplan> profileResponses =
+                studentData.getLatestMathPlanResponsesByPage(MathPlanConstants.MAJORS_PROFILE);
         final String basedOn = profileResponses.size() == 1 ? "Based on the major you selected, "
                 : "Based on the list of majors you selected, ";
         final String inTerm = " in " + termName + ".";
@@ -569,7 +574,7 @@ enum PagePlanNext {
 
         htm.div("vgap");
         htm.sDiv("advice");
-        final boolean needsPlacement = showNextSteps(htm, data, nextStep, eligibility, termName, isIncoming);
+        final boolean needsPlacement = showNextSteps(htm, plan, nextStep, eligibility, termName, isIncoming);
         htm.eDiv(); // advice
 
         return needsPlacement;
@@ -597,19 +602,19 @@ enum PagePlanNext {
      * Shows the student's next step(s), or a message telling them nothing more is needed.
      *
      * @param htm         the {@code HtmlBuilder} to which to append
-     * @param data        the Math Plan data for the student
+     * @param plan        the student math plan
      * @param nextStep    the next step
      * @param eligibility the set of courses for which the student is ideally eligible
      * @param termName    the name of the student's first term
      * @param isIncoming  true if the student is "incoming" and can use Precalculus Tutorials
      */
-    private static boolean showNextSteps(final HtmlBuilder htm, final MathPlanStudentData data,
+    private static boolean showNextSteps(final HtmlBuilder htm, final StudentMathPlan plan,
                                          final ENextStep nextStep, final Set<EEligibility> eligibility,
                                          final String termName, final boolean isIncoming) {
 
         boolean needsPlacement = true;
 
-        final String existing = buildExistingEligibility(data, eligibility, termName);
+        final String existing = buildExistingEligibility(plan, eligibility, termName);
 
         switch (nextStep) {
             case MSG_PLACEMENT_NOT_NEEDED, MSG_ALREADY_ELIGIBLE -> {
@@ -830,19 +835,19 @@ enum PagePlanNext {
     /**
      * Displays the set of courses for which the student is already eligible or already has credit.
      *
-     * @param data        the student's math plan data
+     * @param plan        the student math plan
      * @param eligibility the set of courses for which the student is ideally eligible
      * @param termName    the name of the student's first term
      * @return the eligibility string; an empty string if the student is not eligible for any courses and has no credit
      */
-    private static String buildExistingEligibility(final MathPlanStudentData data, final Set<EEligibility> eligibility,
+    private static String buildExistingEligibility(final StudentMathPlan plan, final Set<EEligibility> eligibility,
                                                    final String termName) {
 
         final HtmlBuilder htm = new HtmlBuilder(50);
 
         // Display the relevant courses for which the student is eligible
-        final Set<String> clearedFor = data.getCanRegisterFor();
-        final Set<String> doesNotHave = data.getCanRegisterForAndDoesNotHave();
+        final Set<String> clearedFor = plan.getCanRegisterFor();
+        final Set<String> doesNotHave = plan.getCanRegisterForAndDoesNotHave();
 
         final List<String> isEligibleFor = new ArrayList<>(10);
         final List<String> alreadyHas = new ArrayList<>(10);
@@ -1006,7 +1011,6 @@ enum PagePlanNext {
             throws IOException, SQLException {
 
         final Profile profile = site.site.profile;
-        final MathPlanLogic logic = new MathPlanLogic(profile);
 
         final boolean aff1 = req.getParameter("affirm1") != null;
         final boolean aff2 = req.getParameter("affirm2") != null;
@@ -1014,11 +1018,10 @@ enum PagePlanNext {
         // Only perform updates if this is not an adviser using "Act As"
         if (session.actAsUserId == null) {
             final String stuId = session.getEffectiveUserId();
-            final ZonedDateTime sessionNow = session.getNow();
-            final RawStudent student = RawStudentLogic.query(cache, stuId, false);
+            final StudentData studentData = cache.getStudent(stuId);
+            final RawStudent student = studentData.getStudentRecord();
 
-            final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, sessionNow,
-                    session.loginSessionTag, true);
+            final ZonedDateTime sessionNow = session.getNow();
 
             RawStmathplanLogic.deleteAllForPage(cache, stuId, MathPlanConstants.INTENTIONS_PROFILE);
 
@@ -1031,7 +1034,7 @@ enum PagePlanNext {
             questions.add(TWO);
             answers.add(aff2 ? "Y" : "N");
 
-            logic.storeMathPlanResponses(cache, data.student, MathPlanConstants.INTENTIONS_PROFILE, questions,
+            MathPlanLogic.storeMathPlanResponses(cache, student, MathPlanConstants.INTENTIONS_PROFILE, questions,
                     answers, sessionNow, session.loginSessionTag);
 
             // Store MPL test score in Banner SOATEST (1 if no placement needed, 2 if placement needed). This is
@@ -1050,7 +1053,7 @@ enum PagePlanNext {
                     // row if the result has changed...  People may do the math plan several times with the same
                     // outcome, and we don't need to insert the same result each time.
                     final List<RawMpscorequeue> existing = RawMpscorequeueLogic.querySORTESTByStudent(liveConn,
-                            data.student.pidm);
+                            student.pidm);
 
                     RawMpscorequeue mostRecent = null;
                     for (final RawMpscorequeue test : existing) {
@@ -1067,14 +1070,14 @@ enum PagePlanNext {
 
                     if (mostRecent == null || !desiredMPLTestScore.equals(mostRecent.testScore)) {
                         final LocalDateTime now = LocalDateTime.now();
-                        final RawMpscorequeue newRow = new RawMpscorequeue(data.student.pidm, "MPL", now,
+                        final RawMpscorequeue newRow = new RawMpscorequeue(student.pidm, "MPL", now,
                                 desiredMPLTestScore);
 
-                        Log.info("Inserting MPL test score of ", desiredMPLTestScore, " for student ",
-                                data.student.stuId, " with PIDM ", data.student.pidm);
+                        Log.info("Inserting MPL test score of ", desiredMPLTestScore, " for student ", stuId,
+                                " with PIDM ", student.pidm);
 
                         if (!RawMpscorequeueLogic.insertSORTEST(liveConn, newRow)) {
-                            Log.warning("Failed to insert 'MPL' test score for ", data.student.stuId);
+                            Log.warning("Failed to insert 'MPL' test score for ", student.stuId);
                         }
                     }
                 } finally {

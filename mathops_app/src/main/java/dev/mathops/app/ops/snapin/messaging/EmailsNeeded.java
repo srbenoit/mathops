@@ -9,7 +9,7 @@ import dev.mathops.app.ops.snapin.messaging.tosend.MessageToSend;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.course.PaceTrackLogic;
-import dev.mathops.db.old.logic.PrerequisiteLogic;
+import dev.mathops.db.logic.course.PrerequisiteLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;

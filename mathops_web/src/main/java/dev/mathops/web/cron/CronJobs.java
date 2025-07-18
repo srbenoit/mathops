@@ -1,5 +1,6 @@
 package dev.mathops.web.cron;
 
+import dev.mathops.db.logic.transfercredit.ImportOdsTransferCredit;
 import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.dbjobs.batch.BulkUpdateMPLTestScores;
 import dev.mathops.dbjobs.batch.daily.AuditBannerTestScores;
@@ -10,7 +11,6 @@ import dev.mathops.dbjobs.batch.daily.ImportBannerStudentRegistrations;
 import dev.mathops.dbjobs.batch.daily.ImportOdsApplicants;
 import dev.mathops.dbjobs.batch.daily.ImportOdsNewStus;
 import dev.mathops.dbjobs.batch.daily.ImportOdsPastCourses;
-import dev.mathops.dbjobs.batch.daily.ImportOdsTransferCredit;
 import dev.mathops.dbjobs.batch.daily.PcCleanup;
 import dev.mathops.dbjobs.batch.daily.SendQueuedBannerTestScores;
 import dev.mathops.dbjobs.batch.daily.SetHolds;

@@ -1,11 +1,10 @@
 package dev.mathops.web.host.placement.placement;
 
 import dev.mathops.db.Cache;
-import dev.mathops.db.cfg.Profile;
-import dev.mathops.db.logic.mathplan.MathPlanLogic;
+import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.logic.mathplan.MathPlanConstants;
-import dev.mathops.db.logic.mathplan.MathPlanStudentData;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
+import dev.mathops.db.logic.mathplan.MathPlanLogic;
+import dev.mathops.db.logic.mathplan.StudentMathPlan;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -45,43 +44,17 @@ enum PagePlanStart {
                       final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final MathPlanLogic logic = new MathPlanLogic(site.site.profile);
-
-        doGet(cache, site, req, resp, session, logic);
-    }
-
-    /**
-     * Generates the page.
-     *
-     * @param cache   the data cache
-     * @param site    the owning site
-     * @param req     the request
-     * @param resp    the response
-     * @param session the session
-     * @param logic   the site logic
-     * @throws IOException  if there is an error writing the response
-     * @throws SQLException if there is an error accessing the database
-     */
-    private static void doGet(final Cache cache, final MathPlacementSite site, final ServletRequest req,
-                              final HttpServletResponse resp, final ImmutableSessionInfo session,
-                              final MathPlanLogic logic) throws IOException, SQLException {
-
         final String stuId = session.getEffectiveUserId();
 
-        final RawStudent student = RawStudentLogic.query(cache, stuId, false);
-
-        final ZonedDateTime now = session.getNow();
-        final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, now, session.loginSessionTag,
-                session.actAsUserId == null);
-
         final HtmlBuilder htm = new HtmlBuilder(8192);
-        Page.startNofooterPage(htm, site.getTitle(), session, true, Page.NO_BARS, null, false, false);
+        final String title = site.getTitle();
+        Page.startNofooterPage(htm, title, session, true, Page.NO_BARS, null, false, false);
 
         MPPage.emitMathPlanHeader(htm);
         MathPlacementSite.emitLoggedInAs2(htm, session);
 
         htm.sDiv("inset2");
-        emitPlanSteps(htm, data);
+        emitPlanSteps(cache, htm, stuId);
         htm.eDiv();
 
         MPPage.emitScripts(htm,
@@ -94,19 +67,27 @@ enum PagePlanStart {
     /**
      * Emits content that describes the steps involved in making a math plan.
      *
-     * @param htm  the {@code HtmlBuilder} to which to append
-     * @param data student math plan data
+     * @param cache the data cache
+     * @param htm   the {@code HtmlBuilder} to which to append
+     * @param stuId the student ID
+     * @throws SQLException if there is an error accessing the database
      */
-    private static void emitPlanSteps(final HtmlBuilder htm, final MathPlanStudentData data) {
+    private static void emitPlanSteps(final Cache cache, final HtmlBuilder htm, final String stuId) throws SQLException {
 
-        final Map<Integer, RawStmathplan> majorResponses = data.getMajorProfileResponses();
-        final boolean viewedExisting = data.viewedExisting;
-        final boolean onlyRecommendation = data.checkedOnlyRecommendation;
-        final Map<Integer, RawStmathplan> intentionsResponses = data.getIntentions();
+        final StudentData studentData = cache.getStudent(stuId);
+
+        final Map<Integer, RawStmathplan> majorResponses =
+                studentData.getLatestMathPlanResponsesByPage(MathPlanConstants.MAJORS_PROFILE);
+        final Map<Integer, RawStmathplan> viewedExisting =
+                studentData.getLatestMathPlanResponsesByPage(MathPlanConstants.EXISTING_PROFILE);
+        final Map<Integer, RawStmathplan> onlyRecommendation =
+                studentData.getLatestMathPlanResponsesByPage(MathPlanConstants.ONLY_RECOM_PROFILE);
+        final Map<Integer, RawStmathplan> intentionsResponses =
+                studentData.getLatestMathPlanResponsesByPage(MathPlanConstants.INTENTIONS_PROFILE);
 
         final boolean doneStep1 = !majorResponses.isEmpty();
-        final boolean doneStep2 = doneStep1 && viewedExisting;
-        final boolean doneStep3 = doneStep2 && onlyRecommendation;
+        final boolean doneStep2 = doneStep1 && !viewedExisting.isEmpty();
+        final boolean doneStep3 = doneStep2 && !onlyRecommendation.isEmpty();
         final boolean doneStep4 = doneStep3 && !intentionsResponses.isEmpty();
 
         htm.sDiv("shaded2left");
@@ -218,40 +199,33 @@ enum PagePlanStart {
                        final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final Profile dbProfile = site.site.profile;
-        final MathPlanLogic logic = new MathPlanLogic(dbProfile);
         final ZonedDateTime now = session.getNow();
 
         // Only perform updates if this is not an adviser using "Act As"
         if (session.actAsUserId == null) {
-            final String studentId = session.getEffectiveUserId();
-
-            final RawStudent student = RawStudentLogic.query(cache, studentId, false);
-            final MathPlanStudentData data = new MathPlanStudentData(cache, student, logic, now,
-                    session.loginSessionTag, true);
+            final String stuId = session.getEffectiveUserId();
 
             if (req.getParameter(INPUT_NAME) != null) {
+                final StudentMathPlan plan = MathPlanLogic.queryPlan(cache, stuId);
 
+                final Map<Integer, RawStmathplan> existing = plan.stuStatus.onlyRecResponses;
                 final Integer key = Integer.valueOf(1);
 
-                final Map<Integer, RawStmathplan> existing = MathPlanStudentData.getMathPlanResponses(cache, studentId,
-                        MathPlanConstants.ONLY_RECOM_PROFILE);
-
                 if (!existing.containsKey(key)) {
-
                     final List<Integer> questions = new ArrayList<>(1);
                     final List<String> answers = new ArrayList<>(1);
 
                     questions.add(key);
                     answers.add("Y");
-                    logic.storeMathPlanResponses(cache, data.student,
-                            MathPlanConstants.ONLY_RECOM_PROFILE, questions, answers, now, session.loginSessionTag);
+                    final RawStudent student = plan.stuStatus.student;
+                    MathPlanLogic.storeMathPlanResponses(cache, student, MathPlanConstants.ONLY_RECOM_PROFILE,
+                            questions, answers, now, session.loginSessionTag);
 
-                    data.recordPlan(cache, logic, now, studentId, session.loginSessionTag);
+                    MathPlanLogic.recordPlan(cache, plan, now, session.loginSessionTag);
                 }
             }
         }
 
-        doGet(cache, site, req, resp, session, logic);
+        doGet(cache, site, req, resp, session);
     }
 }

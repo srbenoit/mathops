@@ -3,7 +3,7 @@ package dev.mathops.web.host.testing.adminsys.genadmin.student;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.logic.mathplan.data.MathPlanConstants;
+import dev.mathops.db.logic.mathplan.MathPlanConstants;
 import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
