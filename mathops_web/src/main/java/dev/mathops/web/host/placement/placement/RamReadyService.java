@@ -2,18 +2,22 @@ package dev.mathops.web.host.placement.placement;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
+import dev.mathops.db.logic.StudentData;
+import dev.mathops.db.logic.mathplan.MathPlanLogic;
+import dev.mathops.db.logic.mathplan.types.EMathPlanStatus;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
+import dev.mathops.db.old.rawrecord.RawStmpe;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
-
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * Supports integration with RamReady, which tests whether a user has created a Math plan, and presents a status for the
@@ -334,16 +338,26 @@ enum RamReadyService {
     private static void doCheckMathPlan(final Cache cache, final String subpath, final ServletRequest req,
                                         final HttpServletResponse resp) throws IOException, SQLException {
 
-        final String pidmStr = subpath.substring(CHECK_MATH_PLAN.length());
+        final int len = CHECK_MATH_PLAN.length();
+        final String pidmStr = subpath.substring(len);
 
         try {
-            final String studentId = MathPlanStudentData.hasCompletedMathPlan(cache, Integer.parseInt(pidmStr));
-            if (studentId == null) {
-                // Student has not completed math plan
-                sendMathPlanNotCompletedMessage(req, resp);
+            final Integer pidm = Integer.valueOf(pidmStr);
+            final RawStudent student = RawStudentLogic.queryByInternalId(cache, pidm);
+            if (student == null) {
+                Log.warning("No student found with PIDM: ", pidmStr);
+                sendErrorMessage(req, resp, "Mathematics Plan status not available.");
             } else {
-                // Student has completed math plan
-                sendCompletedPlanMessage(req, resp);
+                final EMathPlanStatus status = MathPlanLogic.getStatus(cache, student.stuId);
+
+                if (status == EMathPlanStatus.PLAN_COMPLETED_PLACEMENT_NEEDED
+                    || status == EMathPlanStatus.PLAN_COMPLETED_PLACEMENT_NOT_NEEDED) {
+                    // Student has completed math plan
+                    sendCompletedPlanMessage(req, resp);
+                } else {
+                    // Student has not completed math plan
+                    sendMathPlanNotCompletedMessage(req, resp);
+                }
             }
         } catch (final NumberFormatException ex) {
             Log.warning("Invalid PIDM string: ", pidmStr, ex);
@@ -365,26 +379,31 @@ enum RamReadyService {
     private static void doCheckMathPlacement(final Cache cache, final String subpath, final ServletRequest req,
                                              final HttpServletResponse resp) throws IOException, SQLException {
 
-        final String pidmStr = subpath.substring(CHECK_MATH_PLACEMENT.length());
+        final int len = CHECK_MATH_PLACEMENT.length();
+        final String pidmStr = subpath.substring(len);
 
         try {
-            final Integer pidmObj = Integer.valueOf(pidmStr);
-            final RawStudent student = RawStudentLogic.queryByInternalId(cache, pidmObj);
+            final Integer pidm = Integer.valueOf(pidmStr);
+            final RawStudent student = RawStudentLogic.queryByInternalId(cache, pidm);
 
             if (student == null) {
-                Log.warning("Invalid PIDM string: ", pidmStr);
+                Log.warning("No student found with PIDM ", pidmStr);
                 sendErrorMessage(req, resp, "Math Placement status not available.");
             } else {
                 try {
-                    final MathPlanPlacementStatus status = MathPlanPlacementStatus.getMathPlacementStatus(cache,
-                            student.stuId);
+                    final StudentData studentData = cache.getStudent(student.stuId);
+                    final List<RawStmpe> placementAttempts = studentData.getLegalPlacementAttempts();
 
-                    if (status.isPlacementComplete) {
-                        sendCompletedPlacementMessage(req, resp);
-                    } else if (status.isPlacementNeeded) {
-                        sendMathPlacementNotCompletedMessage(req, resp);
+                    if (placementAttempts.isEmpty()) {
+                        final EMathPlanStatus planStatus = MathPlanLogic.getStatus(cache, student.stuId);
+
+                        if (planStatus == EMathPlanStatus.PLAN_COMPLETED_PLACEMENT_NOT_NEEDED) {
+                            sendEmptyMessage(req, resp);
+                        } else {
+                            sendMathPlacementNotCompletedMessage(req, resp);
+                        }
                     } else {
-                        sendEmptyMessage(req, resp);
+                        sendCompletedPlacementMessage(req, resp);
                     }
                 } catch (final SQLException ex) {
                     Log.warning("Unable to determine placement status for: ", student.stuId, ex);
@@ -425,8 +444,7 @@ enum RamReadyService {
      * @param resp the response
      * @throws IOException if there is an error writing the response
      */
-    private static void sendCompletedPlanMessage(final ServletRequest req,
-                                                 final HttpServletResponse resp) throws IOException {
+    private static void sendCompletedPlanMessage(final ServletRequest req, final HttpServletResponse resp) throws IOException {
 
         final HtmlBuilder htm = new HtmlBuilder(100);
 
@@ -447,8 +465,8 @@ enum RamReadyService {
      * @param resp the response
      * @throws IOException if there is an error writing the response
      */
-    private static void sendCompletedPlacementMessage(final ServletRequest req,
-                                                      final HttpServletResponse resp) throws IOException {
+    private static void sendCompletedPlacementMessage(final ServletRequest req, final HttpServletResponse resp)
+            throws IOException {
 
         final HtmlBuilder htm = new HtmlBuilder(100);
 
@@ -470,8 +488,7 @@ enum RamReadyService {
      * @param resp the response
      * @throws IOException if there is an error writing the response
      */
-    private static void sendEmptyMessage(final ServletRequest req,
-                                         final HttpServletResponse resp) throws IOException {
+    private static void sendEmptyMessage(final ServletRequest req, final HttpServletResponse resp) throws IOException {
 
         final HtmlBuilder htm = new HtmlBuilder(100);
 
@@ -490,8 +507,8 @@ enum RamReadyService {
      * @param resp the response
      * @throws IOException if there is an error writing the response
      */
-    private static void sendMathPlanNotCompletedMessage(final ServletRequest req,
-                                                        final HttpServletResponse resp) throws IOException {
+    private static void sendMathPlanNotCompletedMessage(final ServletRequest req, final HttpServletResponse resp)
+            throws IOException {
 
         final HtmlBuilder htm = new HtmlBuilder(100);
 
@@ -516,8 +533,8 @@ enum RamReadyService {
      * @param resp the response
      * @throws IOException if there is an error writing the response
      */
-    private static void sendMathPlacementNotCompletedMessage(final ServletRequest req,
-                                                             final HttpServletResponse resp) throws IOException {
+    private static void sendMathPlacementNotCompletedMessage(final ServletRequest req, final HttpServletResponse resp)
+            throws IOException {
 
         final HtmlBuilder htm = new HtmlBuilder(100);
 

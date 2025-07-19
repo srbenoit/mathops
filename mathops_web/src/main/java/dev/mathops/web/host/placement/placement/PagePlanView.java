@@ -143,7 +143,6 @@ enum PagePlanView {
                                  final StudentMathPlan plan) throws SQLException {
 
         final String stuId = session.getEffectiveUserId();
-        final StudentData studentData = cache.getStudent(stuId);
 
         htm.sDiv("shaded2left");
 
@@ -159,41 +158,37 @@ enum PagePlanView {
 
         final int numSelected = emitMajors(htm, plan);
 
+        htm.div("vgap");
+        htm.hr();
+        htm.div("vgap");
+
+        emitResultsHeader(htm, numSelected);
+
         // Now display the computed mathematics recommendations
-        if (plan.recommendedEligibility != null) {
 
+        htm.hr();
+        if (plan.stuStatus.onlyRecResponses.isEmpty()) {
+            htm.sDiv("center");
+            htm.addln("<b>To see your next steps, read the statement above and check the box to agree.</b>");
+            htm.eDiv();
             htm.div("vgap");
-            htm.hr();
+        } else {
+            PagePlanNext.showNextSteps(cache, htm, plan);
+
+            htm.div("clear");
             htm.div("vgap");
 
-            emitResultsHeader(htm, numSelected);
+            htm.addln("<form action='plan_next.html' method='get'>");
+            htm.sDiv("center");
+            htm.addln("<input type='hidden' name='cmd' value='", MathPlanConstants.EXISTING_PROFILE, "'/>");
 
-            // Now display the computed mathematics recommendations
-
-            htm.hr();
-            if (plan.checkedOnlyRecommendation) {
-                PagePlanNext.showNextSteps(cache, htm, plan);
-
-                htm.div("clear");
-                htm.div("vgap");
-
-                htm.addln("<form action='plan_next.html' method='get'>");
-                htm.sDiv("center");
-                htm.addln("<input type='hidden' name='cmd' value='", MathPlanConstants.EXISTING_PROFILE, "'/>");
-
-                htm.addln("<button type='submit' class='btn'>Go to the next step...</button>");
-                htm.eDiv();
-                htm.addln("</form>");
-                htm.eDiv(); // shaded2
-            } else {
-                htm.sDiv("center");
-                htm.addln("<b>To see your next steps, read the statement above and check the box to agree.</b>");
-                htm.eDiv();
-                htm.div("vgap");
-            }
-
-            htm.div(null, "id='end'");
+            htm.addln("<button type='submit' class='btn'>Go to the next step...</button>");
+            htm.eDiv();
+            htm.addln("</form>");
+            htm.eDiv(); // shaded2
         }
+
+        htm.div(null, "id='end'");
 
         htm.eDiv();
     }
@@ -217,18 +212,16 @@ enum PagePlanView {
 
         emitMajors(htm, plan);
 
-        if (plan.recommendedEligibility != null) {
-            if (plan.checkedOnlyRecommendation) {
-                PagePlanNext.showNextSteps(cache, htm, plan);
-            } else {
-                htm.div("vgap");
-                htm.sDiv("center");
-                htm.addln("<b>To see your next steps, read the statement above and check the box to agree.</b>");
-                htm.eDiv();
-            }
-
-            htm.div(null, "id='end'");
+        if (plan.stuStatus.onlyRecResponses.isEmpty()) {
+            htm.div("vgap");
+            htm.sDiv("center");
+            htm.addln("<b>To see your next steps, read the statement above and check the box to agree.</b>");
+            htm.eDiv();
+        } else {
+            PagePlanNext.showNextSteps(cache, htm, plan);
         }
+
+        htm.div(null, "id='end'");
 
         htm.eDiv(); // indent
     }
