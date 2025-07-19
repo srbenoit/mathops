@@ -270,14 +270,13 @@ enum PagePlanNext {
      * Shows the next steps for the student, or informs the student that they are eligible for the course(s) they
      * currently need.
      *
-     * @param cache       the data cache
-     * @param htm         the {@code HtmlBuilder} to which to append
-     * @param studentData the student data
-     * @param plan        the student math plan
+     * @param cache the data cache
+     * @param htm   the {@code HtmlBuilder} to which to append
+     * @param plan  the student math plan
      * @return true if the student needs to complete placement, false if not
      * @throws SQLException if there is an error accessing the database
      */
-    static boolean showNextSteps(final Cache cache, final HtmlBuilder htm, final StudentData studentData,
+    static boolean showNextSteps(final Cache cache, final HtmlBuilder htm,
                                  final StudentMathPlan plan) throws SQLException {
 
         TermKey active = null;
@@ -294,14 +293,13 @@ enum PagePlanNext {
         final Set<EEligibility> eligibility = plan.recommendedEligibility;
         final NextSteps nextStep = plan.nextSteps;
 
-        final RawStudent student = studentData.getStudentRecord();
+        final RawStudent student = plan.stuStatus.student;
         final TermKey termKey = student.aplnTerm;
         final ETermName applicationTerm = termKey == null ? null : termKey.name;
         final String termName = applicationTerm == null ? null : applicationTerm.fullName;
         final boolean isIncoming = testForIncoming(active, termKey);
 
-        final Map<Integer, RawStmathplan> profileResponses =
-                studentData.getLatestMathPlanResponsesByPage(MathPlanConstants.MAJORS_PROFILE);
+        final Map<Integer, RawStmathplan> profileResponses = plan.stuStatus.majorsResponses;
         final String basedOn = profileResponses.size() == 1 ? "Based on the major you selected, "
                 : "Based on the list of majors you selected, ";
         final String inTerm = " in " + termName + ".";

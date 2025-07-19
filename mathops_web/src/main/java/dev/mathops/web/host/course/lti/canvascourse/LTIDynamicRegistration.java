@@ -10,9 +10,9 @@ import dev.mathops.text.parser.ParsingException;
 import dev.mathops.text.parser.json.JSONObject;
 import dev.mathops.text.parser.json.JSONParser;
 import dev.mathops.text.parser.xml.XmlEscaper;
+import dev.mathops.web.host.course.lti.LtiSite;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
-import dev.mathops.web.host.course.lti.LtiSite;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -659,7 +659,14 @@ public enum LTIDynamicRegistration {
         final String issuerHost = slash == -1 ? issuer : issuer.substring(slash + 3);
 
         final String regEndpoint = openIdConfig.getRegistrationEndpoint();
-        final URL url = new URL(regEndpoint);
+        final URL url;
+        try {
+            final URI uri = new URI(regEndpoint);
+            url = uri.toURL();
+        } catch (final URISyntaxException ex) {
+            throw new IOException("Invalid URL", ex);
+        }
+
         final HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "application/json");

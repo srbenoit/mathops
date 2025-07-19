@@ -3,12 +3,12 @@ package dev.mathops.web.host.placement.placement;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.StudentData;
-import dev.mathops.db.logic.mathplan.Major;
-import dev.mathops.db.logic.mathplan.Majors;
-import dev.mathops.db.logic.mathplan.MajorsCurrent;
 import dev.mathops.db.logic.mathplan.MathPlanConstants;
 import dev.mathops.db.logic.mathplan.MathPlanLogic;
 import dev.mathops.db.logic.mathplan.StudentMathPlan;
+import dev.mathops.db.logic.mathplan.majors.Major;
+import dev.mathops.db.logic.mathplan.majors.Majors;
+import dev.mathops.db.logic.mathplan.majors.MajorsCurrent;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.db.old.rawrecord.RawStudent;
@@ -157,7 +157,7 @@ enum PagePlanView {
         htm.div("clear");
         htm.hr();
 
-        final int numSelected = emitMajors(htm, studentData, plan);
+        final int numSelected = emitMajors(htm, plan);
 
         // Now display the computed mathematics recommendations
         if (plan.recommendedEligibility != null) {
@@ -236,25 +236,22 @@ enum PagePlanView {
     /**
      * Emits the student's majors of interest and declared major.
      *
-     * @param htm         the {@code HtmlBuilder} to which to append
-     * @param studentData the student data
-     * @param plan        the student math plan
+     * @param htm  the {@code HtmlBuilder} to which to append
+     * @param plan the student math plan
      * @return the number of selected majors of interest
-     * @throws SQLException if there is an error accessing the database
      */
-    private static int emitMajors(final HtmlBuilder htm, final StudentData studentData, final StudentMathPlan plan) throws SQLException {
+    private static int emitMajors(final HtmlBuilder htm, final StudentMathPlan plan) {
 
         // See if the student has already submitted a list of majors
-        final Map<Integer, RawStmathplan> profileResponses =
-                studentData.getLatestMathPlanResponsesByPage(MathPlanConstants.MAJORS_PROFILE);
+        final Map<Integer, RawStmathplan> profileResponses = plan.stuStatus.majorsResponses;
 
         htm.sP().add("<strong>I am interested in majoring in...</strong>").eP();
 
         htm.sDiv();
-        final int numSelected = emitCurrentMajorSelections(htm, profileResponses, studentData, plan);
+        final int numSelected = emitCurrentMajorSelections(htm, profileResponses, plan);
         htm.eDiv();
 
-        final RawStudent student = studentData.getStudentRecord();
+        final RawStudent student = plan.stuStatus.student;
         final Major declared = Majors.getMajorByProgramCode(student.programCode);
 
         htm.sP("advice");
@@ -292,18 +289,15 @@ enum PagePlanView {
      *
      * @param htm          the {@code HtmlBuilder} to which to append
      * @param curResponses the current student responses (empty if not yet responded)
-     * @param studentData  the student data
      * @param plan         the student math plan
      * @return the number of majors selected
-     * @throws SQLException if there is an error accessing the database
      */
     private static int emitCurrentMajorSelections(final HtmlBuilder htm, final Map<Integer, RawStmathplan> curResponses,
-                                                  final StudentData studentData, final StudentMathPlan plan)
-            throws SQLException {
+                                                  final StudentMathPlan plan) {
 
         int count = 0;
 
-        final RawStudent student = studentData.getStudentRecord();
+        final RawStudent student = plan.stuStatus.student;
         final Major declared = Majors.getMajorByProgramCode(student.programCode);
 
         final List<Major> majors = MajorsCurrent.INSTANCE.getMajors();
@@ -384,7 +378,10 @@ enum PagePlanView {
                 MathPlanLogic.storeMathPlanResponses(cache, student, cmd, questions, answers, now,
                         session.loginSessionTag);
 
-                data.recordPlan(cache, logic, now, stuId, session.loginSessionTag);
+                // FIXME: Is this correct?
+
+                final StudentMathPlan plan = MathPlanLogic.queryPlan(cache, stuId);
+                MathPlanLogic.recordPlan(cache, plan, now, session.loginSessionTag);
             }
         }
 

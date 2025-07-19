@@ -3,8 +3,6 @@ package dev.mathops.web.host.placement.placement;
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.mathplan.MathPlanLogic;
 import dev.mathops.db.logic.mathplan.MathPlanConstants;
-import dev.mathops.db.logic.mathplan.MathPlanPlacementStatus;
-import dev.mathops.db.logic.mathplan.MathPlanStudentData;
 import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
 import dev.mathops.db.old.rawlogic.RawStmpeLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
@@ -45,7 +43,7 @@ enum PageSecureLanding {
 
         boolean planCompleted = false;
         if (stu != null && stu.pidm != null) {
-            planCompleted = MathPlanStudentData.hasCompletedMathPlan(cache, stu.pidm.intValue()) != null;
+            planCompleted = MathPlanLogic.hasCompletedMathPlan(cache, stu.pidm.intValue()) != null;
         }
 
         boolean hasReviewed = false;
