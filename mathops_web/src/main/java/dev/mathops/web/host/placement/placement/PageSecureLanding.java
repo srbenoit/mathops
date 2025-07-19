@@ -2,13 +2,10 @@ package dev.mathops.web.host.placement.placement;
 
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.mathplan.MathPlanLogic;
-import dev.mathops.db.logic.mathplan.MathPlanConstants;
-import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
+import dev.mathops.db.logic.mathplan.StudentMathPlan;
+import dev.mathops.db.logic.mathplan.types.EMathPlanStatus;
 import dev.mathops.db.old.rawlogic.RawStmpeLogic;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
-import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.db.old.rawrecord.RawStmpe;
-import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import jakarta.servlet.ServletRequest;
@@ -39,49 +36,28 @@ enum PageSecureLanding {
                       final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final RawStudent stu = RawStudentLogic.query(cache, session.getEffectiveUserId(), false);
+        final String stuId = session.getEffectiveUserId();
+        final EMathPlanStatus planStatus = MathPlanLogic.getStatus(cache, stuId);
+        final List<RawStmpe> tries = RawStmpeLogic.queryLegalByStudent(cache, stuId);
 
-        boolean planCompleted = false;
-        if (stu != null && stu.pidm != null) {
-            planCompleted = MathPlanLogic.hasCompletedMathPlan(cache, stu.pidm.intValue()) != null;
-        }
+        final boolean planCompleted = planStatus == EMathPlanStatus.PLAN_COMPLETED_PLACEMENT_NEEDED
+                                      || planStatus == EMathPlanStatus.PLAN_COMPLETED_PLACEMENT_NOT_NEEDED;
 
-        boolean hasReviewed = false;
-        if (stu != null) {
-            final List<RawStmathplan> responses = RawStmathplanLogic.queryLatestByStudentPage(cache,
-                    stu.stuId, MathPlanConstants.REVIEWED_PROFILE);
-            hasReviewed = responses != null && !responses.isEmpty();
-        }
+        final boolean hasReviewed = planStatus == EMathPlanStatus.REVIEWED_EXISTING
+                                    || planStatus == EMathPlanStatus.PLAN_COMPLETED_PLACEMENT_NEEDED
+                                    || planStatus == EMathPlanStatus.PLAN_COMPLETED_PLACEMENT_NOT_NEEDED;
 
-        boolean placementRequired = true;
-        boolean placementCompleted = false;
-        boolean attemptsRemain = true;
-        if (stu != null && stu.pidm != null) {
-            final MathPlanPlacementStatus placementStatus = MathPlanPlacementStatus.getMathPlacementStatus(cache,
-                    stu.stuId);
+        final boolean placementRequired = planStatus != EMathPlanStatus.PLAN_COMPLETED_PLACEMENT_NOT_NEEDED;
 
-            if (!placementStatus.isPlacementNeeded) {
-                placementRequired = false;
-            }
-            if (placementStatus.isPlacementComplete) {
-                placementCompleted = true;
-            }
-
-            if (!planCompleted) {
-                // No plan completed yet, so assume Placement will be needed
-                final List<RawStmpe> tries = RawStmpeLogic.queryLegalByStudent(cache, stu.stuId);
-
-                // 1 if not completed, 2 if completed
-                placementCompleted = !tries.isEmpty();
-                attemptsRemain = tries.size() < 2;
-            }
-        }
+        // 1 if not completed, 2 if completed
+        final boolean placementCompleted = !tries.isEmpty();
+        final boolean attemptsRemain = tries.size() < 2;
 
         final HtmlBuilder htm = MPPage.startPage1(site, session);
 
         htm.sDiv("inset2");
 
-        emitStep1(cache, site, session, htm, planCompleted);
+        emitStep1(cache, session, htm, planCompleted);
         emitStep2(htm, planCompleted, hasReviewed, placementRequired);
         emitStep3(htm, planCompleted, hasReviewed, placementCompleted, placementRequired, attemptsRemain);
 
@@ -95,14 +71,12 @@ enum PageSecureLanding {
      * Emits the box for "Step 1" (Create a math plan), with current status and any actions needed.
      *
      * @param cache         the data cache
-     * @param site          the owning site
      * @param session       the user's session (guaranteed not to be null)
      * @param htm           the {@code HtmlBuilder} to which to append
      * @param planCompleted true if the student has completed the Math Plan
      * @throws SQLException if there is an error accessing the database
      */
-    private static void emitStep1(final Cache cache, final MathPlacementSite site,
-                                  final ImmutableSessionInfo session, final HtmlBuilder htm,
+    private static void emitStep1(final Cache cache, final ImmutableSessionInfo session, final HtmlBuilder htm,
                                   final boolean planCompleted) throws SQLException {
 
         htm.sDiv("shaded2left");
@@ -122,8 +96,9 @@ enum PageSecureLanding {
 
         if (planCompleted) {
             // Show brief summary of plan outcome
-            final MathPlanLogic logic = new MathPlanLogic(site.site.profile);
-            PagePlanView.showBriefPlan(cache, session, htm, logic);
+            final String stuId = session.getEffectiveUserId();
+            final StudentMathPlan plan = MathPlanLogic.queryPlan(cache, stuId);
+            PagePlanView.showBriefPlan(cache, session, htm, plan);
 
             // Show button to change plan
             htm.div("vgap");

@@ -7,6 +7,7 @@ import dev.mathops.db.logic.DateRange;
 import dev.mathops.db.logic.DateRangeGroups;
 import dev.mathops.db.logic.course.PrerequisiteLogic;
 import dev.mathops.db.logic.mathplan.MathPlanLogic;
+import dev.mathops.db.logic.mathplan.StudentMathPlan;
 import dev.mathops.db.logic.placement.PlacementLogic;
 import dev.mathops.db.logic.tutorial.PrecalcTutorialLogic;
 import dev.mathops.db.logic.tutorial.PrecalcTutorialStatus;
@@ -47,7 +48,7 @@ enum PageToolHome {
                       final HttpServletResponse resp, final ImmutableSessionInfo session)
             throws IOException, SQLException {
 
-        final String effId = session.getEffectiveUserId();
+        final String stuId = session.getEffectiveUserId();
 
         final HtmlBuilder htm = MPPage.startPage2(site, session);
 
@@ -59,10 +60,10 @@ enum PageToolHome {
                 "The Student Disability Center</a>.").eP();
         htm.div("vgap");
 
-        final RawStudent stu = RawStudentLogic.query(cache, effId, false);
+        final RawStudent student = RawStudentLogic.query(cache, stuId, false);
 
         final ZonedDateTime now = session.getNow();
-        final PlacementLogic logic = new PlacementLogic(cache, effId, stu == null ? null : stu.aplnTerm, now);
+        final PlacementLogic logic = new PlacementLogic(cache, stuId, student == null ? null : student.aplnTerm, now);
 
         if (logic.status.attemptsUsed > 0) {
             PlacementReport.doPlacementReport(cache, logic.status, session, null, false, htm);
@@ -73,11 +74,9 @@ enum PageToolHome {
             htm.eP();
         }
 
-        if (stu != null) {
-            final MathPlanLogic planLogic = new MathPlanLogic(cache.profile);
-            final MathPlanStudentData data = new MathPlanStudentData(cache, stu, planLogic, now,
-                    session.loginSessionTag, session.actAsUserId == null);
-            PagePlanNext.showNextSteps(cache, htm, data);
+        if (student != null) {
+            final StudentMathPlan plan = MathPlanLogic.queryPlan(cache, stuId);
+            PagePlanNext.showNextSteps(cache, htm, plan);
         }
 
         htm.div("vgap2");
@@ -189,8 +188,8 @@ enum PageToolHome {
         // special student records) is "FA" are eligible for at least one Precalculus Tutorial,
         // as long as it is open or will open in the future
 
-        final PrerequisiteLogic prereq = new PrerequisiteLogic(cache, effId);
-        final PrecalcTutorialLogic tutLogic = new PrecalcTutorialLogic(cache, effId, session.getNow().toLocalDate(),
+        final PrerequisiteLogic prereq = new PrerequisiteLogic(cache, stuId);
+        final PrecalcTutorialLogic tutLogic = new PrecalcTutorialLogic(cache, stuId, session.getNow().toLocalDate(),
                 prereq);
         final PrecalcTutorialStatus tutStatus = tutLogic.status;
 

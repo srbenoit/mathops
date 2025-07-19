@@ -13,19 +13,21 @@ import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.logic.mathplan.MathPlanConstants;
 import dev.mathops.db.logic.mathplan.MathPlanLogic;
 import dev.mathops.db.logic.mathplan.NextSteps;
+import dev.mathops.db.logic.mathplan.RecommendedFirstTerm;
 import dev.mathops.db.logic.mathplan.StudentMathPlan;
+import dev.mathops.db.logic.mathplan.StudentStatus;
+import dev.mathops.db.logic.mathplan.types.ECourse;
+import dev.mathops.db.logic.mathplan.types.EIdealFirstTermType;
 import dev.mathops.db.logic.mathplan.types.ENextStep;
 import dev.mathops.db.old.rawlogic.RawMpscorequeueLogic;
 import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
 import dev.mathops.db.old.rawrecord.RawMpscorequeue;
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStmathplan;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.rec.TermRec;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
-import dev.mathops.web.host.placement.tutorial.precalc.EEligibility;
 import dev.mathops.web.site.Page;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -36,10 +38,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Generates the page that shows next steps with affirmations and plans to take MPE.
@@ -290,7 +290,6 @@ enum PagePlanNext {
             Log.warning(ex);
         }
 
-        final Set<EEligibility> eligibility = plan.recommendedEligibility;
         final NextSteps nextStep = plan.nextSteps;
 
         final RawStudent student = plan.stuStatus.student;
@@ -307,272 +306,31 @@ enum PagePlanNext {
         htm.div("vgap");
         htm.sDiv("indent");
 
-        // Show the student's "ideal placement" based on their selected major(s)
-        if (eligibility.contains(EEligibility.M_160)) {
-            if (eligibility.contains(EEligibility.M_156)) {
-                htm.sP().add(basedOn, IT_IS_IDEAL, MATH_156, OR, MATH_160, inTerm).eP();
-            } else if (eligibility.contains(EEligibility.M_155)) {
-                htm.sP().add(basedOn, IT_IS_IDEAL, MATH_155, OR, MATH_160, inTerm).eP();
-            } else {
-                htm.sP().add(basedOn, IT_IS_IDEAL, MATH_160, inTerm).eP();
+        // Show the student's "ideal first term eligibility" based on their selected major(s)
+        final RecommendedFirstTerm firstTerm = plan.requirements.firstTerm;
+
+        if (firstTerm.firstTermNamed.type == EIdealFirstTermType.CORE_ONLY) {
+            htm.sP().add(basedOn, "you just need to complete the All-University Core Curriculum requirement of 3 ",
+                    "credits of Quantitative Reasoning.").eP();
+
+            final int completed = plan.stuStatus.getCreditsOfCoreCompleted();
+
+            if (completed >= 3) {
+                htm.sP().add("You have already satisfied this core requirement.").eP();
+            } else if (completed > 0) {
+                final String str = Integer.toString(completed);
+                htm.sP().add("You have already completed ", str, " of these credits.").eP();
             }
-        } else if (eligibility.contains(EEligibility.M_156)) {
-            if (eligibility.contains(EEligibility.M_155)) {
-                htm.sP().add(basedOn, IT_IS_IDEAL, MATH_156, OR, MATH_155, inTerm).eP();
-            } else {
-                htm.sP().add(basedOn, IT_IS_IDEAL, MATH_156, inTerm).eP();
-            }
-        } else if (eligibility.contains(EEligibility.M_155)) {
-            htm.sP().add(basedOn, IT_IS_IDEAL, MATH_155, inTerm).eP();
-        } else if (eligibility.contains(EEligibility.M_126)) {
-            if (eligibility.contains(EEligibility.M_125)) {
-                if (eligibility.contains(EEligibility.M_124)) {
-                    if (eligibility.contains(EEligibility.M_118)) {
-                        if (eligibility.contains(EEligibility.M_117)) {
-                            if (eligibility.contains(EEligibility.M_120)) {
-                                htm.sP().add(basedOn, IT_IS_IDEAL, MATH_117, C, MATH_118, C, MATH_124, C_OR_FOR,
-                                        MATH_120, C_AND_ALSO_FOR, MATH_125, AND, MATH_126, inTerm).eP();
-                            } else {
-                                htm.sP().add(basedOn, IT_IS_IDEAL, MATH_117, C, MATH_118, C, MATH_124, C, MATH_125,
-                                        C_AND, MATH_126, inTerm).eP();
-                            }
-                        } else if (eligibility.contains(EEligibility.M_120)) {
-                            htm.sP().add(basedOn, IT_IS_IDEAL, MATH_118, C, MATH_124, C_OR_FOR, MATH_120,
-                                    C_AND_ALSO_FOR, MATH_125, AND, MATH_126, inTerm).eP();
-                        } else {
-                            htm.sP().add(basedOn, IT_IS_IDEAL, MATH_118, C, MATH_124, C, MATH_125, C_AND, MATH_126,
-                                    inTerm).eP();
-                        }
-                    } else if (eligibility.contains(EEligibility.M_117)) {
-                        if (eligibility.contains(EEligibility.M_120)) {
-                            htm.sP().add(basedOn, IT_IS_IDEAL, MATH_117, C, MATH_124, C_OR_FOR, MATH_120,
-                                    C_AND_ALSO_FOR, MATH_125, AND, MATH_126, inTerm).eP();
-                        } else {
-                            htm.sP().add(basedOn, IT_IS_IDEAL, MATH_117, C, MATH_124, C, MATH_125, C_AND, MATH_126,
-                                    inTerm).eP();
-                        }
-                    } else if (eligibility.contains(EEligibility.M_120)) {
-                        htm.sP().add(basedOn, IT_IS_IDEAL, MATH_124, C_OR_FOR, MATH_120, C_AND_ALSO_FOR, MATH_125,
-                                AND, MATH_126, inTerm).eP();
-                    } else {
-                        htm.sP().add(basedOn, IT_IS_IDEAL, MATH_124, C, MATH_125, C_AND, MATH_126, inTerm).eP();
-                    }
-                } else {
-                    // 126 and 125 but not 124
-                    if (eligibility.contains(EEligibility.M_118)) {
-                        if (eligibility.contains(EEligibility.M_117)) {
-                            if (eligibility.contains(EEligibility.M_120)) {
-                                htm.sP().add(basedOn, IT_IS_IDEAL, MATH_117, C, MATH_118, C_OR_FOR, MATH_120,
-                                        C_AND_ALSO_FOR, MATH_125, AND, MATH_126, inTerm).eP();
-                            } else {
-                                htm.sP().add(basedOn, IT_IS_IDEAL, MATH_117, C, MATH_118, C, MATH_125, C_AND, MATH_126,
-                                        inTerm).eP();
-                            }
-                        } else if (eligibility.contains(EEligibility.M_120)) {
-                            htm.sP().add(basedOn, IT_IS_IDEAL, MATH_118, OR, MATH_120, C_AND_ALSO_FOR, MATH_125, AND,
-                                    MATH_126, inTerm).eP();
-                        } else {
-                            htm.sP().add(basedOn, IT_IS_IDEAL, MATH_118, C, MATH_125, C_AND, MATH_126, inTerm).eP();
-                        }
-                    } else if (eligibility.contains(EEligibility.M_117)) {
-                        if (eligibility.contains(EEligibility.M_120)) {
-                            htm.sP().add(basedOn, IT_IS_IDEAL, MATH_117, OR, MATH_120, C_AND_ALSO_FOR, MATH_125, AND,
-                                    MATH_126, inTerm).eP();
-                        } else {
-                            htm.sP().add(basedOn, IT_IS_IDEAL, MATH_117, C, MATH_125, C_AND, MATH_126, inTerm).eP();
-                        }
-                    } else if (eligibility.contains(EEligibility.M_120)) {
-                        htm.sP().add(basedOn, IT_IS_IDEAL, MATH_120, C, MATH_125, C_AND, MATH_126, inTerm).eP();
-                    } else {
-                        htm.sP().add(basedOn, IT_IS_IDEAL, MATH_125, AND, MATH_126, inTerm).eP();
-                    }
-                }
-                // BELOW HERE NEEDS 126 BUT DOES NOT NAME 125
-            } else if (eligibility.contains(EEligibility.M_124)) {
-                if (eligibility.contains(EEligibility.M_118)) {
-                    if (eligibility.contains(EEligibility.M_117)) {
-                        if (eligibility.contains(EEligibility.M_120)) {
-                            htm.sP().add(basedOn, IT_IS_IDEAL, MATH_117, C, MATH_118, C_AND, MATH_124, C_OR_FOR,
-                                    MATH_120, C_AND_ALSO_FOR, MATH_126, inTerm).eP();
-                        } else {
-                            htm.sP().add(basedOn, IT_IS_IDEAL, MATH_117, C, MATH_118, C, MATH_124, C_AND, MATH_126,
-                                    inTerm).eP();
-                        }
-                    } else if (eligibility.contains(EEligibility.M_120)) {
-                        htm.sP().add(basedOn, IT_IS_IDEAL, MATH_118, AND, MATH_124, C_OR_FOR, MATH_120, C_AND_ALSO_FOR,
-                                MATH_126, inTerm).eP();
-                    } else {
-                        htm.sP().add(basedOn, IT_IS_IDEAL, MATH_118, C, MATH_124, C_AND, MATH_126, inTerm).eP();
-                    }
-                } else if (eligibility.contains(EEligibility.M_117)) {
-                    if (eligibility.contains(EEligibility.M_120)) {
-                        htm.sP().add(basedOn, IT_IS_IDEAL, MATH_117, AND, MATH_124, C_OR_FOR, MATH_120, C_AND_ALSO_FOR,
-                                MATH_126, inTerm).eP();
-                    } else {
-                        htm.sP().add(basedOn, IT_IS_IDEAL, MATH_117, C, MATH_124, C_AND, MATH_126, inTerm).eP();
-                    }
-                } else if (eligibility.contains(EEligibility.M_120)) {
-                    htm.sP().add(basedOn, IT_IS_IDEAL, MATH_124, OR, MATH_120, C_AND_ALSO_FOR, MATH_126, inTerm).eP();
-                } else {
-                    htm.sP().add(basedOn, IT_IS_IDEAL, MATH_124, AND, MATH_126, inTerm).eP();
-                }
-            } else {
-                // 126 but not 124
-                if (eligibility.contains(EEligibility.M_118)) {
-                    if (eligibility.contains(EEligibility.M_117)) {
-                        if (eligibility.contains(EEligibility.M_120)) {
-                            htm.sP().add(basedOn, IT_IS_IDEAL, MATH_117, AND, MATH_118, C_OR_FOR, MATH_120,
-                                    C_AND_ALSO_FOR, MATH_126, inTerm).eP();
-                        } else {
-                            htm.sP().add(basedOn, IT_IS_IDEAL, MATH_117, C, MATH_118, C_AND, MATH_126, inTerm).eP();
-                        }
-                    } else if (eligibility.contains(EEligibility.M_120)) {
-                        htm.sP().add(basedOn, IT_IS_IDEAL, MATH_118, OR, MATH_120, ", and also ", MATH_126,
-                                inTerm).eP();
-                    } else {
-                        htm.sP().add(basedOn, IT_IS_IDEAL, MATH_118, AND, MATH_126, inTerm).eP();
-                    }
-                } else if (eligibility.contains(EEligibility.M_117)) {
-                    if (eligibility.contains(EEligibility.M_120)) {
-                        htm.sP().add(basedOn, IT_IS_IDEAL, MATH_117, OR, MATH_120, C_AND_ALSO_FOR, MATH_126,
-                                inTerm).eP();
-                    } else {
-                        htm.sP().add(basedOn, IT_IS_IDEAL, MATH_117, AND, MATH_126, inTerm).eP();
-                    }
-                } else if (eligibility.contains(EEligibility.M_120)) {
-                    htm.sP().add(basedOn, IT_IS_IDEAL, MATH_120, AND, MATH_126, inTerm).eP();
-                } else {
-                    htm.sP().add(basedOn, IT_IS_IDEAL, MATH_126, inTerm).eP();
-                }
-            }
-            // BELOW HERE DOES NOT NEED 126
-        } else if (eligibility.contains(EEligibility.M_125)) {
-            if (eligibility.contains(EEligibility.M_124)) {
-                if (eligibility.contains(EEligibility.M_118)) {
-                    if (eligibility.contains(EEligibility.M_117)) {
-                        if (eligibility.contains(EEligibility.M_120)) {
-                            htm.sP().add(basedOn, IT_IS_IDEAL, MATH_117, C, MATH_118, C_AND, MATH_124, C_OR_FOR,
-                                    MATH_120, C_AND_ALSO_FOR, MATH_125, inTerm).eP();
-                        } else {
-                            htm.sP().add(basedOn, IT_IS_IDEAL, MATH_117, C, MATH_118, C, MATH_124, C_AND, MATH_125,
-                                    inTerm).eP();
-                        }
-                    } else if (eligibility.contains(EEligibility.M_120)) {
-                        htm.sP().add(basedOn, IT_IS_IDEAL, MATH_118, AND, MATH_124, C_OR_FOR, MATH_120, C_AND_ALSO_FOR,
-                                MATH_125, inTerm).eP();
-                    } else {
-                        htm.sP().add(basedOn, IT_IS_IDEAL, MATH_118, C, MATH_124, C_AND, MATH_125, inTerm).eP();
-                    }
-                } else if (eligibility.contains(EEligibility.M_117)) {
-                    if (eligibility.contains(EEligibility.M_120)) {
-                        htm.sP().add(basedOn, IT_IS_IDEAL, MATH_117, AND, MATH_124, C_OR_FOR, MATH_120, C_AND_ALSO_FOR,
-                                MATH_125, inTerm).eP();
-                    } else {
-                        htm.sP().add(basedOn, IT_IS_IDEAL, MATH_117, C, MATH_124, C_AND, MATH_125, inTerm).eP();
-                    }
-                } else if (eligibility.contains(EEligibility.M_120)) {
-                    htm.sP().add(basedOn, IT_IS_IDEAL, MATH_124, OR, MATH_120, C_AND_ALSO_FOR, MATH_125, inTerm).eP();
-                } else {
-                    htm.sP().add(basedOn, IT_IS_IDEAL, MATH_124, AND, MATH_125, inTerm).eP();
-                }
-            } else {
-                // 125 but not 124
-                if (eligibility.contains(EEligibility.M_118)) {
-                    if (eligibility.contains(EEligibility.M_117)) {
-                        if (eligibility.contains(EEligibility.M_120)) {
-                            htm.sP().add(basedOn, IT_IS_IDEAL, MATH_117, AND, MATH_118, C_OR_FOR, MATH_120,
-                                    C_AND_ALSO_FOR, MATH_125, inTerm).eP();
-                        } else {
-                            htm.sP().add(basedOn, IT_IS_IDEAL, MATH_117, C, MATH_118, C_AND, MATH_125, inTerm).eP();
-                        }
-                    } else if (eligibility.contains(EEligibility.M_120)) {
-                        htm.sP().add(basedOn, IT_IS_IDEAL, MATH_118, OR, MATH_120, C_AND_ALSO_FOR, MATH_125,
-                                inTerm).eP();
-                    } else {
-                        htm.sP().add(basedOn, IT_IS_IDEAL, MATH_118, AND, MATH_125, inTerm).eP();
-                    }
-                } else if (eligibility.contains(EEligibility.M_117)) {
-                    if (eligibility.contains(EEligibility.M_120)) {
-                        htm.sP().add(basedOn, IT_IS_IDEAL, MATH_117, OR, MATH_120, C_AND_ALSO_FOR, MATH_125,
-                                inTerm).eP();
-                    } else {
-                        htm.sP().add(basedOn, IT_IS_IDEAL, MATH_117, AND, MATH_125, inTerm).eP();
-                    }
-                } else if (eligibility.contains(EEligibility.M_120)) {
-                    htm.sP().add(basedOn, IT_IS_IDEAL, MATH_120, AND, MATH_125, inTerm).eP();
-                } else {
-                    htm.sP().add(basedOn, IT_IS_IDEAL, MATH_125, inTerm).eP();
-                }
-            }
-            // BELOW HERE DOES NOT NEED 126 or 125
-        } else if (eligibility.contains(EEligibility.M_124)) {
-            if (eligibility.contains(EEligibility.M_118)) {
-                if (eligibility.contains(EEligibility.M_117)) {
-                    if (eligibility.contains(EEligibility.M_120)) {
-                        htm.sP().add(basedOn, IT_IS_IDEAL, MATH_117, C, MATH_118, C_AND, MATH_124, C_OR_FOR, MATH_120,
-                                inTerm).eP();
-                    } else {
-                        htm.sP().add(basedOn, IT_IS_IDEAL, MATH_117, C, MATH_118, C_AND, MATH_124, inTerm).eP();
-                    }
-                } else if (eligibility.contains(EEligibility.M_120)) {
-                    htm.sP().add(basedOn, IT_IS_IDEAL, MATH_118, AND, MATH_124, C_OR_FOR, MATH_120, inTerm).eP();
-                } else {
-                    htm.sP().add(basedOn, IT_IS_IDEAL, MATH_118, AND, MATH_124, inTerm).eP();
-                }
-            } else if (eligibility.contains(EEligibility.M_117)) {
-                if (eligibility.contains(EEligibility.M_120)) {
-                    htm.sP().add(basedOn, IT_IS_IDEAL, MATH_117, AND, MATH_124, C_OR_FOR, MATH_120, inTerm).eP();
-                } else {
-                    htm.sP().add(basedOn, IT_IS_IDEAL, MATH_117, AND, MATH_124, inTerm).eP();
-                }
-            } else if (eligibility.contains(EEligibility.M_120)) {
-                htm.sP().add(basedOn, IT_IS_IDEAL, MATH_124, OR, MATH_120, inTerm).eP();
-            } else {
-                htm.sP().add(basedOn, IT_IS_IDEAL, MATH_124, inTerm).eP();
-            }
-            // BELOW HERE DOES NOT NEED 124, 125, or 126
         } else {
-            if (eligibility.contains(EEligibility.M_118)) {
-                if (eligibility.contains(EEligibility.M_117)) {
-                    if (eligibility.contains(EEligibility.M_120)) {
-                        htm.sP().add(basedOn, IT_IS_IDEAL, MATH_117, AND, MATH_118, C_OR_FOR, MATH_120, inTerm).eP();
-                    } else {
-                        htm.sP().add(basedOn, IT_IS_IDEAL, MATH_117, AND, MATH_118, inTerm).eP();
-                    }
-                } else if (eligibility.contains(EEligibility.M_120)) {
-                    htm.sP().add(basedOn, IT_IS_IDEAL, MATH_118, OR, MATH_120, inTerm).eP();
-                } else {
-                    htm.sP().add(basedOn, IT_IS_IDEAL, MATH_118, inTerm).eP();
-                }
-            } else if (eligibility.contains(EEligibility.M_117)) {
-                if (eligibility.contains(EEligibility.M_120)) {
-                    htm.sP().add(basedOn, IT_IS_IDEAL, MATH_117, OR, MATH_120, inTerm).eP();
-                } else {
-                    htm.sP().add(basedOn, IT_IS_IDEAL, MATH_117, inTerm).eP();
-                }
-            } else if (eligibility.contains(EEligibility.M_120)) {
-                htm.sP().add(basedOn, IT_IS_IDEAL, MATH_120, inTerm).eP();
-            } else {
-                htm.sP().add(basedOn, "you just need to complete the All-University Core Curriculum requirement of 3 ",
-                        "credits of Quantitative Reasoning.").eP();
-
-                final double completed = data.getCreditsOfCoreCompleted();
-
-                if (completed >= 3.0) {
-                    htm.sP().add("You have already satisfied this core requirement.").eP();
-                } else if (completed > 0.0) {
-                    final long floor = (long) Math.floor(completed);
-                    final String str = Long.toString(floor);
-                    htm.sP().add("You have already completed ", str, " of these credits.").eP();
-                }
-            }
+            final String idealEligibilityText = firstTerm.getText();
+            htm.sP().add(basedOn, IT_IS_IDEAL, idealEligibilityText, inTerm).eP();
         }
 
         htm.eDiv();
 
         htm.div("vgap");
         htm.sDiv("advice");
-        final boolean needsPlacement = showNextSteps(htm, plan, nextStep, eligibility, termName, isIncoming);
+        final boolean needsPlacement = showNextSteps(htm, plan, termName, isIncoming);
         htm.eDiv(); // advice
 
         return needsPlacement;
@@ -599,26 +357,26 @@ enum PagePlanNext {
     /**
      * Shows the student's next step(s), or a message telling them nothing more is needed.
      *
-     * @param htm         the {@code HtmlBuilder} to which to append
-     * @param plan        the student math plan
-     * @param nextStep    the next step
-     * @param eligibility the set of courses for which the student is ideally eligible
-     * @param termName    the name of the student's first term
-     * @param isIncoming  true if the student is "incoming" and can use Precalculus Tutorials
+     * @param htm        the {@code HtmlBuilder} to which to append
+     * @param plan       the student math plan
+     * @param termName   the name of the student's first term
+     * @param isIncoming true if the student is "incoming" and can use Precalculus Tutorials
      */
     private static boolean showNextSteps(final HtmlBuilder htm, final StudentMathPlan plan,
-                                         final ENextStep nextStep, final Set<EEligibility> eligibility,
                                          final String termName, final boolean isIncoming) {
 
         boolean needsPlacement = true;
 
-        final String existing = buildExistingEligibility(plan, eligibility, termName);
+        final RecommendedFirstTerm firstTerm = plan.requirements.firstTerm;
+        final ENextStep nextStep = plan.nextSteps.nextStep;
+
+        final String existing = buildExistingEligibility(plan, termName);
 
         switch (nextStep) {
             case MSG_PLACEMENT_NOT_NEEDED, MSG_ALREADY_ELIGIBLE -> {
                 htm.sP(CENTER);
                 htm.addln("<img class='check' src='/images/welcome/check.png' alt=''/>");
-                if (eligibility.contains(EEligibility.AUCC)) {
+                if (firstTerm.firstTermNamed.type == EIdealFirstTermType.CORE_ONLY) {
                     htm.add(SSTRONG,
                             "You are eligible to register for a Mathematics course appropriate for your program.",
                             ESTRONG);
@@ -632,9 +390,8 @@ enum PagePlanNext {
             case MSG_PLACE_INTO_117 -> {
                 emitExistingIfNotBlank(htm, existing);
                 htm.sP().add(SSTRONG, YOU_SHOULD_COMPLETE_A, "become eligible for MATH 117 or MATH 120.", ESTRONG).eP();
-                htm.sP().add(
-                        "If you do not place into MATH 117 or MATH 120 on the Math Placement Tool, you can become ",
-                        "eligible for those courses by completing the Entry Level Math Tutorial.").eP();
+                htm.sP().add("If you do not place into MATH 117 or MATH 120 on the Math Placement Tool, you can ",
+                        "become eligible for those courses by completing the Entry Level Math Tutorial.").eP();
             }
             case MSG_PLACE_OUT_117 -> {
                 emitExistingIfNotBlank(htm, existing);
@@ -833,97 +590,91 @@ enum PagePlanNext {
     /**
      * Displays the set of courses for which the student is already eligible or already has credit.
      *
-     * @param plan        the student math plan
-     * @param eligibility the set of courses for which the student is ideally eligible
-     * @param termName    the name of the student's first term
+     * @param plan     the student math plan
+     * @param termName the name of the student's first term
      * @return the eligibility string; an empty string if the student is not eligible for any courses and has no credit
      */
-    private static String buildExistingEligibility(final StudentMathPlan plan, final Set<EEligibility> eligibility,
-                                                   final String termName) {
+    private static String buildExistingEligibility(final StudentMathPlan plan, final String termName) {
+
+        final StudentStatus stuStatus = plan.stuStatus;
 
         final HtmlBuilder htm = new HtmlBuilder(50);
 
         // Display the relevant courses for which the student is eligible
-        final Set<String> clearedFor = plan.getCanRegisterFor();
-        final Set<String> doesNotHave = plan.getCanRegisterForAndDoesNotHave();
 
         final List<String> isEligibleFor = new ArrayList<>(10);
         final List<String> alreadyHas = new ArrayList<>(10);
-        final boolean okFor120 = clearedFor.contains(RawRecordConstants.M117);
+        final boolean okFor120 = stuStatus.isEligible(ECourse.M_117);
 
-        for (final EEligibility e : eligibility) {
-            if (e == EEligibility.M_117) {
-                if (clearedFor.contains(RawRecordConstants.M117)) {
-                    if (doesNotHave.contains(RawRecordConstants.M117)) {
-                        isEligibleFor.add("MATH 117");
-                    } else {
-                        alreadyHas.add("MATH 117");
-                    }
-                }
-            } else if (e == EEligibility.M_118) {
-                if (clearedFor.contains(RawRecordConstants.M118)) {
-                    if (doesNotHave.contains(RawRecordConstants.M118)) {
-                        isEligibleFor.add("MATH 118");
-                    } else {
-                        alreadyHas.add("MATH 118");
-                    }
-                }
-            } else if (e == EEligibility.M_124) {
-                if (clearedFor.contains(RawRecordConstants.M124)) {
-                    if (doesNotHave.contains(RawRecordConstants.M124)) {
-                        isEligibleFor.add("MATH 124");
-                    } else {
-                        alreadyHas.add("MATH 124");
-                    }
-                }
-            } else if (e == EEligibility.M_125) {
-                if (clearedFor.contains(RawRecordConstants.M125)) {
-                    if (doesNotHave.contains(RawRecordConstants.M125)) {
-                        isEligibleFor.add("MATH 125");
-                    } else {
-                        alreadyHas.add("MATH 125");
-                    }
-                }
-            } else if (e == EEligibility.M_126) {
-                if (clearedFor.contains(RawRecordConstants.M126)) {
-                    if (doesNotHave.contains(RawRecordConstants.M126)) {
-                        isEligibleFor.add("MATH 126");
-                    } else {
-                        alreadyHas.add("MATH 126");
-                    }
-                }
-            } else if (e == EEligibility.M_141) {
-                if (clearedFor.contains(RawRecordConstants.M141)) {
-                    if (doesNotHave.contains(RawRecordConstants.M141)) {
-                        isEligibleFor.add("MATH 141");
-                    } else {
-                        alreadyHas.add("MATH 141");
-                    }
-                }
-            } else if (e == EEligibility.M_155) {
-                if (clearedFor.contains(RawRecordConstants.M155)) {
-                    if (doesNotHave.contains(RawRecordConstants.M155)) {
-                        isEligibleFor.add("MATH 155");
-                    } else {
-                        alreadyHas.add("MATH 155");
-                    }
-                }
-            } else if (e == EEligibility.M_156) {
-                if (clearedFor.contains(RawRecordConstants.M156)) {
-                    if (doesNotHave.contains(RawRecordConstants.M156)) {
-                        isEligibleFor.add("MATH 156");
-                    } else {
-                        alreadyHas.add("MATH 156");
-                    }
-                }
-            } else if (e == EEligibility.M_160) {
-                if (clearedFor.contains(RawRecordConstants.M160)) {
-                    if (doesNotHave.contains(RawRecordConstants.M160)) {
-                        isEligibleFor.add("MATH 160");
-                    } else {
-                        alreadyHas.add("MATH 160");
-                    }
-                }
+        if (stuStatus.isEligible(ECourse.M_117)) {
+            if (stuStatus.hasCompleted(ECourse.M_117)) {
+                alreadyHas.add("MATH 117");
+            } else {
+                isEligibleFor.add("MATH 117");
+            }
+        }
+
+        if (stuStatus.isEligible(ECourse.M_118)) {
+            if (stuStatus.hasCompleted(ECourse.M_118)) {
+                alreadyHas.add("MATH 118");
+            } else {
+                isEligibleFor.add("MATH 118");
+            }
+        }
+
+        if (stuStatus.isEligible(ECourse.M_124)) {
+            if (stuStatus.hasCompleted(ECourse.M_124)) {
+                alreadyHas.add("MATH 124");
+            } else {
+                isEligibleFor.add("MATH 124");
+            }
+        }
+
+        if (stuStatus.isEligible(ECourse.M_125)) {
+            if (stuStatus.hasCompleted(ECourse.M_125)) {
+                alreadyHas.add("MATH 125");
+            } else {
+                isEligibleFor.add("MATH 125");
+            }
+        }
+
+        if (stuStatus.isEligible(ECourse.M_126)) {
+            if (stuStatus.hasCompleted(ECourse.M_126)) {
+                alreadyHas.add("MATH 126");
+            } else {
+                isEligibleFor.add("MATH 126");
+            }
+        }
+
+        if (stuStatus.isEligible(ECourse.M_141)) {
+            if (stuStatus.hasCompleted(ECourse.M_141)) {
+                alreadyHas.add("MATH 141");
+            } else {
+                isEligibleFor.add("MATH 141");
+            }
+        }
+
+        if (stuStatus.isEligible(ECourse.M_155)) {
+            if (stuStatus.hasCompleted(ECourse.M_155)) {
+                alreadyHas.add("MATH 155");
+            } else {
+                isEligibleFor.add("MATH 155");
+            }
+        }
+
+        if (stuStatus.isEligible(ECourse.M_156)) {
+            if (stuStatus.hasCompleted(ECourse.M_156)) {
+                alreadyHas.add("MATH 156");
+            } else {
+                isEligibleFor.add("MATH 156");
+            }
+        }
+
+        if (stuStatus.isEligible(ECourse.M_160)) {
+            if (stuStatus.hasCompleted(ECourse.M_160)) {
+                alreadyHas.add("MATH 160");
+            } else {
+                isEligibleFor.add("MATH 160");
             }
         }
 
@@ -946,7 +697,7 @@ enum PagePlanNext {
                 htm.add(C_AND, last);
             }
 
-            if (isShowOr120(eligibility, okFor120, isEligibleFor)) {
+            if (okFor120) {
                 htm.add(" (or MATH 120)");
             }
             htm.add(" in ", termName, ". ", ESTRONG);
@@ -955,14 +706,14 @@ enum PagePlanNext {
         final int numAlready = alreadyHas.size();
         if (!alreadyHas.isEmpty()) {
             htm.add("You already have credit for ");
-            final String frist = alreadyHas.get(0);
+            final String first = alreadyHas.get(0);
             if (numAlready == 1) {
-                htm.add(frist);
+                htm.add(first);
             } else if (numAlready == 2) {
                 final String second = alreadyHas.get(1);
-                htm.add(frist, AND, second);
+                htm.add(first, AND, second);
             } else {
-                htm.add(frist);
+                htm.add(first);
                 for (int i = 1; i < numAlready - 1; ++i) {
                     final String item = alreadyHas.get(i);
                     htm.add(C, item);
@@ -974,23 +725,6 @@ enum PagePlanNext {
         }
 
         return htm.toString();
-    }
-
-    /**
-     * Tests whether to show " (or MATH 120)" after a list of courses.
-     *
-     * @param eligibility   the set of courses for which the student is ideally eligible
-     * @param okFor120      true if the student is OK for 120
-     * @param isEligibleFor the list of courses for which the student is already eligible
-     * @return true if " (or MATH 120)" should be shown
-     */
-    private static boolean isShowOr120(final Collection<EEligibility> eligibility, final boolean okFor120,
-                                       final Collection<String> isEligibleFor) {
-
-        return eligibility.contains(EEligibility.M_120) && okFor120 &&
-               (isEligibleFor.contains(RawRecordConstants.MATH117)
-                || isEligibleFor.contains(RawRecordConstants.MATH118)
-                || isEligibleFor.contains(RawRecordConstants.MATH124));
     }
 
     /**

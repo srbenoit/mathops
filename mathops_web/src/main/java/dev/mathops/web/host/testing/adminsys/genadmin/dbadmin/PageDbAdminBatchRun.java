@@ -129,7 +129,7 @@ public enum PageDbAdminBatchRun {
                 }
                 case "import_ods_transfer" -> {
                     htm.sH(2).add("Import ODS Transfer Credit").eH(2);
-                    htm.add(new ImportOdsTransferCredit().execute());
+                    new ImportOdsTransferCredit().execute();
                 }
                 case "import_ods_past" -> {
                     htm.sH(2).add("Import ODS past Courses").eH(2);
