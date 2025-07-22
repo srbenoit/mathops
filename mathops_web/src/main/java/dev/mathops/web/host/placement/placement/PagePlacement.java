@@ -48,14 +48,10 @@ enum PagePlacement {
         htm.sDiv("buttons", "id='buttons'");
 
         htm.addln("<nav class='buttons' id='nav'>");
-        htm.addln("<button id='btn1' class='btnlit' onClick='nav1()'>",
-                "Math Placement</button>");
-        htm.addln("<button id='btn4' class='btn' onClick='nav4()'>",
-                "More Information</button>");
-        htm.addln("<button id='btn2' class='fatbtn' onClick='nav2()'>",
-                "<b>Get Started</b></button>");
-        htm.addln("<button id='btn3' class='btn' onClick='nav3()'>",
-                "Explore Math Courses</button>");
+        htm.addln("<button id='btn1' class='btnlit' onClick='nav1()'>Math Placement</button>");
+        htm.addln("<button id='btn4' class='btn' onClick='nav4()'>More Information</button>");
+        htm.addln("<button id='btn2' class='fatbtn' onClick='nav2()'><b>Get Started</b></button>");
+        htm.addln("<button id='btn3' class='btn' onClick='nav3()'>Explore Math Courses</button>");
         htm.addln("</nav>");
 
         htm.sDiv("messages", "id='messages'");
@@ -198,10 +194,9 @@ enum PagePlacement {
 
         // Logged in
         htm.sDiv("shaded2left");
-        htm.sP()
-                .add("The Math Placement process identifies the mathematics course(s) ",
-                        "that best match your mathematical preparation with your academic goals. We want ",
-                        "to support you in being successful in this placement process.")
+        htm.sP().add("The Math Placement process identifies the mathematics course(s) that best match your ",
+                        "mathematical preparation with your academic goals. We want to support you in being ",
+                        "successful in this placement process.")
                 .eP()
                 .div("vgap0");
 
@@ -217,16 +212,13 @@ enum PagePlacement {
         htm.add("</ul>");
 
         htm.add("<nav class='plcsteps'>");
-        htm.add("<div class='plcsteps' id='first'>",
-                "<span class='sr-only'>Step 1:</span>", //
+        htm.add("<div class='plcsteps' id='first'><span class='sr-only'>Step 1:</span>",
                 "Make a Math Plan<br/>to see if you need<br/>Math Placement.</div>");
 
-        htm.add("<div class='plcsteps'>",
-                "<span class='sr-only'>Step 2:</span>Use our interactive<br/>", //
+        htm.add("<div class='plcsteps'><span class='sr-only'>Step 2:</span>Use our interactive<br/>",
                 "materials to review<br/>and practice.</div>");
 
-        htm.add("<div class='plcsteps' id='last'>",
-                "<span class='sr-only'>Step 3:</span>", //
+        htm.add("<div class='plcsteps' id='last'><span class='sr-only'>Step 3:</span>",
                 "Complete the<br/>Math Placement Tool,<br>determine next steps.</div>");
 
         htm.add("</nav>");
@@ -235,18 +227,15 @@ enum PagePlacement {
 
         htm.div("vgap");
         htm.sDiv("center");
-        htm.add("<iframe class='video' ",
-                "src='https://www.youtube.com/embed/wXugzCNuo3E' ",
-                "title='YouTube video player' frameborder='0' ",
-                "allow='accelerometer; autoplay; clipboard-write; encrypted-media; ",
-                "gyroscope; picture-in-picture' allowfullscreen></iframe>");
+        htm.add("<iframe class='video' src='https://www.youtube.com/embed/wXugzCNuo3E' ",
+                "title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; ",
+                "encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>");
         htm.eDiv();
 
         htm.div("vgap");
         htm.sDiv("shaded");
         htm.sDiv("center");
-        htm.add("<button class='btn' onClick='nav2()'>",
-                "<strong>Get Started</strong></button>");
+        htm.add("<button class='btn' onClick='nav2()'><strong>Get Started</strong></button>");
         htm.eDiv();
         htm.eDiv();
 
@@ -274,8 +263,7 @@ enum PagePlacement {
 
         htm.sDiv("center");
 
-        htm.sDiv("shaded2left",
-                "style='display:inline-block; max-width:800px;'");
+        htm.sDiv("shaded2left", "style='display:inline-block; max-width:800px;'");
         htm.sP().add("To begin, you will need a <strong>NetID</strong>.").eP();
 
         htm.sP().add("NetID is the official CSU login used for all University systems.").eP();
@@ -285,16 +273,13 @@ enum PagePlacement {
 
         htm.div("vgap2");
 
-        htm.addln("<a class='fatbtn' href='secure/shibboleth.html'>",
-                "Log in using your NetID</a><br>");
+        htm.addln("<a class='fatbtn' href='secure/shibboleth.html'>Log in using your NetID</a><br>");
 
         htm.div("vgap2");
 
-        htm.sDiv("center shaded2",
-                "style='display:inline-block; width:300px;'");
+        htm.sDiv("center shaded2", "style='display:inline-block; width:300px;'");
         htm.sP().add("Don't have your NetID yet?").eP();
-        htm.addln("<a class='smallbtn' href='https://eid.colostate.edu/' target='_blank'>",
-                "Create your NetID</a>");
+        htm.addln("<a class='smallbtn' href='https://eid.colostate.edu/' target='_blank'>Create your NetID</a>");
         htm.eDiv(); // center shaded2
 
         htm.eDiv(); // center
@@ -315,7 +300,7 @@ enum PagePlacement {
         htm.sDiv("shaded2");
         htm.sDiv("column1");
         htm.sH(2).add("What math is required for").eH(2);
-        htm.sP("indent").add("<ul class='loose'>") //
+        htm.sP("indent").add("<ul class='loose'>")
                 .add("<li><a class='question' target='_blank' ",
                         "href='https://www.math.colostate.edu/placement/Math_Requirements.pdf'>",
                         "specific majors? ", EXT_LINK, "</a></li>")
@@ -349,14 +334,12 @@ enum PagePlacement {
         htm.sH(2).add("Take me to").eH(2);
 
         htm.sP("indent").add("<ul class='loose'>")
-                .add("<li><a class='question' onclick='nav8()'>",
-                        "on-campus Math Placement schedules.</a></li>")
-                .add("<li><a class='question' onClick='nav2()'>",
-                        "the Math Placement Tool.</a></li>")
+                .add("<li><a class='question' onclick='nav8()'>on-campus Math Placement schedules.</a></li>")
+                .add("<li><a class='question' onClick='nav2()'>the Math Placement Tool.</a></li>")
                 .add("<li><a class='question' href='/elm-tutorial/' target='_blank'>",
                         "the Entry-Level Mathematics Tutorial.", EXT_LINK, "</a></li>")
-                .add("<li><a class='question' href='/precalc-tutorial/' target='_blank'>",
-                        "the Precalculus Tutorial.", EXT_LINK, "</a></li>")
+                .add("<li><a class='question' href='/precalc-tutorial/' target='_blank'>the Precalculus Tutorial.",
+                        EXT_LINK, "</a></li>")
                 .eP();
 
         htm.eDiv(); // column2
@@ -385,21 +368,19 @@ enum PagePlacement {
         htm.sH(3).add("Challenging Courses through the Precalculus Center").eH(3);
 
         htm.sP("indent");
-        htm.addln("The Precalculus Center offers challenge exams for MATH 117, MATH 118, ",
-                "MATH 124, MATH 125, and MATH 126.  These exams must be taken in the Precalculus ",
-                "Center's testing area (Weber 138).  Each exam can earn credit in the corresponding ",
-                "course.");
+        htm.addln("The Precalculus Center offers challenge exams for MATH 117, MATH 118, MATH 124, MATH 125, and ",
+                "MATH 126.  These exams must be taken in the Precalculus Center's testing area (Weber 138).  Each ",
+                "exam can earn credit in the corresponding course.");
         htm.eP();
 
         htm.sP("indent");
-        htm.addln("Each course challenge exam consists of 20 questions, and students are allowed ",
-                "75 minutes to complete the exam.  Scoring 16 or higher will earn credit in the ",
-                "challenged course.").eP();
+        htm.addln("Each course challenge exam consists of 20 questions, and students are allowed 75 minutes to ",
+                "complete the exam.  Scoring 16 or higher will earn credit in the challenged course.").eP();
 
         htm.sP("indent");
-        htm.addln("Scratch paper and an on-screen TI-84 calculator are provided. Reference ",
-                "materials or a personal calculator may not be used during a course challenge exam. ",
-                "You only need your CSU ID card and a pencil.");
+        htm.addln("Scratch paper and an on-screen TI-84 calculator are provided. Reference materials or a personal ",
+                "calculator may not be used during a course challenge exam. You only need your CSU ID card and a ",
+                "pencil.");
         htm.eP();
 
         htm.div("vgap");
@@ -407,10 +388,10 @@ enum PagePlacement {
 
         htm.sP("indent");
         htm.addln("There is a $20 fee for taking a course challenge exam, as described in the ",
-                "<a class='ulink' target='_blank' href='https://catalog.colostate.edu/",
-                "general-catalog/academic-standards/registration/'>University Catalog</a>. This fee ",
-                "will be billed to your student account at the time the exam is taken, regardless ",
-                "of whether you successfully earn course credit on the exam.");
+                "<a class='ulink' target='_blank' href='https://catalog.colostate.edu/general-catalog/",
+                "academic-standards/registration/'>University Catalog</a>. This fee will be billed to your student ",
+                "account at the time the exam is taken, regardless of whether you successfully earn course credit on ",
+                "the exam.");
         htm.eP();
 
         htm.div("vgap");
@@ -422,11 +403,11 @@ enum PagePlacement {
 
         htm.sDiv("indent");
         htm.addln("<ul>");
-        htm.addln("<li> must be eligible to take the course being challenged (meaning all course ",
-                "prerequisites must be satisfied);</li>");
+        htm.addln("<li> must be eligible to take the course being challenged (meaning all course prerequisites must ",
+                "be satisfied);</li>");
         htm.addln("<li> must not be currently enrolled in the course being challenged; and</li>");
-        htm.addln("<li> must not have already challenge the course (only one attempt ",
-                "per course challenge exam is allowed).</li>");
+        htm.addln("<li> must not have already challenge the course (only one attempt per course challenge exam is ",
+                "allowed).</li>");
         htm.addln("</ul>");
         htm.eDiv(); // indent
 
@@ -458,26 +439,24 @@ enum PagePlacement {
         htm.sH(3).add("Online Review Materials").eH(3);
 
         htm.sP("indent");
-        htm.addln("Our goal is to support you to be successful in the placement process. One ",
-                "way to be successful in this process is to study and review before completing the ",
-                "Math Placement Tool.");
+        htm.addln("Our goal is to support you to be successful in the placement process. One way to be successful in ",
+                "this process is to study and review before completing the Math Placement Tool.");
         htm.eP();
 
         htm.sP("indent");
-        htm.addln("There may be questions that you do not know that are outside of your current ",
-                "mathematical preparation - that is ok! Remember, the goal is to find the course(s) ",
-                "that best match your mathematical preparation and your academic goals.");
+        htm.addln("There may be questions that you do not know that are outside of your current mathematical ",
+                "preparation - that is ok! Remember, the goal is to find the course(s) that best match your ",
+                "mathematical preparation and your academic goals.");
         htm.eP();
 
         htm.sP("indent");
-        htm.addln("To access our online review materials, log in, and then click on the ",
-                "[ Review Materials ] button.").eP();
+        htm.addln("To access our online review materials, log in, and then click on the [ Review Materials ] button.")
+                .eP();
 
         htm.div("vgap");
 
         htm.sDiv("center");
-        htm.addln("<button class='btn' onClick='nav2()'>",
-                "<strong>Get Started</strong></button>");
+        htm.addln("<button class='btn' onClick='nav2()'><strong>Get Started</strong></button>");
         htm.eDiv(); // center
 
         htm.sDiv("center");
@@ -499,67 +478,51 @@ enum PagePlacement {
 
         htm.sDiv("indent0");
 
-        htm.addln("<button class='accordion'>",
-                "Do I have to go through the Math Placement Process?", //
-                "</button>");
+        htm.addln("<button class='accordion'>Do I have to go through the Math Placement Process?</button>");
         htm.sDiv("accordionpanel");
-        htm.sP().add("In general, most entering first-year students will need to complete the ",
-                "Math Placement Tool. Students whose degree program allows them to satisfy their ",
-                "mathematics requirement with <b>MATH 101, Math in the Social Sciences</b>, ",
-                "<b>MATH 105, Patterns of Phenomena</b>, <b>STAT 100: Statistical Literacy</b>, ",
-                "<b>STAT 201: General Statistics</b>, or <b>STAT 204: Statistics With Business Applications</b> ",
-                "can do so without completing the Math Placement Tool. Students wishing to take a ",
-                "math course other than one of these will need to complete the Math Placement Tool. This requirement ",
-                "is waived for students who either scored 3, 4 or 5 on an Advanced Placement Calculus Exam (either ",
-                "AB or BC) or have transfer credit in a math course at the level of College Algebra or above.").eP();
-        htm.sP("center").add("<button class='btn' onclick='nav5()'>",
-                "Do I need Math Placement?</button>").eP();
+        htm.sP().add("In general, most entering first-year students will need to complete the Math Placement Tool. ",
+                "Students whose degree program allows them to satisfy their mathematics requirement with ",
+                "<b>MATH 101, Math in the Social Sciences</b>, <b>MATH 105, Patterns of Phenomena</b>, ",
+                "<b>STAT 100: Statistical Literacy</b>, <b>STAT 201: General Statistics</b>, or ",
+                "<b>STAT 204: Statistics With Business Applications</b> can do so without completing the Math ",
+                "Placement Tool. Students wishing to take a math course other than one of these will need to ",
+                "complete the Math Placement Tool. This requirement is waived for students who either scored 3, 4 or ",
+                "5 on an Advanced Placement Calculus Exam (either AB or BC) or have transfer credit in a math course ",
+                "at the level of College Algebra or above.").eP();
+        htm.sP("center").add("<button class='btn' onclick='nav5()'>Do I need Math Placement?</button>").eP();
         htm.eDiv(); // accordionpanel
 
-        htm.addln("<button class='accordion'>",
-                "How should I prepare for the Math Placement Tool?", //
-                "</button>");
+        htm.addln("<button class='accordion'>How should I prepare for the Math Placement Tool?</button>");
         htm.sDiv("accordionpanel");
-        htm.sP()
-                .add("You should review and prepare before completing the Math Placement Tool, even ",
-                        "if you are currently taking a mathematics course.  The Mathematics Department ",
-                        "has prepared <a onclick='nav7()'>interactive review materials and practice ",
-                        "questions</a> for all sections of the tool.")
-                .eP();
+        htm.sP().add("You should review and prepare before completing the Math Placement Tool, even if you are ",
+                "currently taking a mathematics course.  The Mathematics Department has prepared ",
+                "<a onclick='nav7()'>interactive review materials and practice questions</a> for all sections of ",
+                "the tool.").eP();
         htm.eDiv(); // accordionpanel
 
-        htm.addln("<button class='accordion'>",
-                "How do I arrange for testing accommodations like extended time?", //
-                "</button>");
+        htm.addln("<button class='accordion'>How do I arrange for testing accommodations like extended time?</button>");
         htm.sDiv("accordionpanel");
-        htm.sP()
-                .add("The Math Placement Tool is a web-based tool with a timer.  If you have had ",
-                        "accommodations in the past, you will want to contact the ",
-                        "<a href='https://disabilitycenter.colostate.edu/' target='_blank'>",
-                        "Student Disability Center ", EXT_LINK,
-                        "</a> in the TILT Building and meet with an accommodations specialist. The ",
-                        "specialist will review your documentation and provide a memo that helps your ",
-                        "instructors know what accommodations are appropriate.")
-                .eP();
-        htm.sP()
-                .add("<b>If you are an incoming student</b>, you are welcome to contact the ",
-                        "Precalculus Office (Weber 137; (970) 491-5761) and ask to speak with a director. ",
-                        "The director will talk with you about the accommodations you have had in the ",
-                        "past, and if you are eligible, can get you set up with extended time for the ",
-                        "Math Placement Tool.")
-                .eP();
+        htm.sP().add("The Math Placement Tool is a web-based tool with a timer.  If you have had accommodations in ",
+                "the past, you will want to contact the ",
+                "<a href='https://disabilitycenter.colostate.edu/' target='_blank'>Student Disability Center ",
+                EXT_LINK, "</a> in the TILT Building and meet with an accommodations specialist. The specialist will ",
+                "review your documentation and provide a memo that helps your instructors know what accommodations ",
+                "are appropriate.").eP();
+        htm.sP().add("<b>If you are an incoming student</b>, you are welcome to contact the Precalculus Office ",
+                "(Weber 137; (970) 491-5761) and ask to speak with a director. The director will talk with you about ",
+                "the accommodations you have had in the past, and if you are eligible, can get you set up with ",
+                "extended time for the Math Placement Tool.").eP();
         htm.eDiv(); // accordionpanel
 
-        htm.addln("<button class='accordion'>",
-                "What if I don't place into any courses beyond MATH 101 / MATH 105 / STAT 100 / STAT 201 / STAT 204?",
-                "</button>");
+        htm.addln("<button class='accordion'>What if I don't place into any courses beyond MATH 101 / MATH 105 / ",
+                "STAT 100 / STAT 201 / STAT 204?</button>");
         htm.sDiv("accordionpanel");
         htm.sP().add("All students are eligible for <b>MATH 101, Math in the Social Sciences</b>, ",
                 "<b>MATH 105, Patterns of Phenomena</b>, <b>STAT 100: Statistical Literacy</b>, ",
                 "<b>STAT 201: General Statistics</b>, and <b>STAT 204: Statistics With Business Applications</b>.",
                 "The other entry-level math courses have enforced prerequisites that require you to ",
                 "demonstrate a greater level of preparation on the Math Placement Tool than is ",
-                "required for these three courses.");
+                "required for these three courses.").eP();
         htm.sP().add("<b>Be sure to check the requirements for your degree program in the University Catalog to ",
                 "verify that MATH 101, MATH 105, STAT 100, STAT 201, or STAT 204 is the right course for you.</b> ",
                 "Many academic programs do not accept these courses toward degree requirements. Also, they do NOT ",
@@ -570,90 +533,64 @@ enum PagePlacement {
                 EXT_LINK, "</a> to become eligible for MATH 117.").eP();
         htm.eDiv(); // accordionpanel
 
-        htm.addln("<button class='accordion'>",
-                "Can I complete the Math Placement Tool multiple times?", //
-                "</button>");
+        htm.addln("<button class='accordion'>Can I complete the Math Placement Tool multiple times?</button>");
         htm.sDiv("accordionpanel");
-        htm.sP()
-                .add("Yes. You are allowed to complete the Math Placement Tool twice. <b>Incoming ",
-                        "students</b> can complete one attempt remotely (without proctoring required) ",
-                        "prior to their term of admission.")
-                .eP();
+        htm.sP().add("Yes. You are allowed to complete the Math Placement Tool twice. <b>Incoming students</b> can ",
+                "complete one attempt remotely (without proctoring required) prior to their term of admission.").eP();
         htm.eDiv(); // accordionpanel
 
-        htm.addln("<button class='accordion'>",
-                "When can I complete the Math Placement Tool?", //
-                "</button>");
+        htm.addln("<button class='accordion'>When can I complete the Math Placement Tool?</button>");
         htm.sDiv("accordionpanel");
-        htm.sP().add("The Math Placement Tool can be completed on a <b>walk-in</b> basis in the ",
-                "Precalculus Center (Weber 138) <b>whenever classes are in session</b>.").eP();
-        htm.sP().add("<b>Incoming students</b> can complete the Math Placement Tool ",
-                "remotely (without proctoring required) prior to their term of admission.").eP();
+        htm.sP().add("The Math Placement Tool can be completed on a <b>walk-in</b> basis in the Precalculus Center ",
+                "(Weber 138) <b>whenever classes are in session</b>.").eP();
+        htm.sP().add("<b>Incoming students</b> can complete the Math Placement Tool remotely (without proctoring ",
+                "required) prior to their term of admission.").eP();
         htm.eDiv(); // accordionpanel
 
-        htm.addln("<button class='accordion'>",
-                "How do I get my Math Placement results?", //
-                "</button>");
+        htm.addln("<button class='accordion'>How do I get my Math Placement results?</button>");
         htm.sDiv("accordionpanel");
-        htm.sP().add("Placement results are available <b>immediately</b> after the Math Placement ",
-                "Tool is completed. You can re-check your placement results and see your available ",
-                "placement options at any time by logging ",
-                "in to the this web site with the [ Get Started ] button.").eP();
-        htm.sP().add("The Mathematics Department cannot give results over the telephone because ",
-                "of federal law regarding privacy of information. Questions concerning exam results ",
-                "should be directed to the Precalculus Center (Weber 137; (970) 491-5761).").eP();
+        htm.sP().add("Placement results are available <b>immediately</b> after the Math Placement Tool is completed. ",
+                "You can re-check your placement results and see your available placement options at any time by ",
+                "logging in to the this web site with the [ Get Started ] button.").eP();
+        htm.sP().add("The Mathematics Department cannot give results over the telephone because of federal law ",
+                "regarding privacy of information. Questions concerning exam results should be directed to the ",
+                "Precalculus Center (Weber 137; (970) 491-5761).").eP();
         htm.eDiv(); // accordionpanel
 
-        htm.addln("<button class='accordion'>",
-                "How long is the Math Placement Tool?", //
-                "</button>");
+        htm.addln("<button class='accordion'>How long is the Math Placement Tool?</button>");
         htm.sDiv("accordionpanel");
-        htm.sP()
-                .add("The Math Placement Tool consists of 50 multiple choice and multiple response ",
-                        "questions. The time limit is 2 hours and 20 minutes.")
-                .eP();
+        htm.sP().add("The Math Placement Tool consists of 50 multiple choice and multiple response questions. The ",
+                "time limit is 2 hours and 20 minutes.").eP();
         htm.eDiv(); // accordionpanel
 
-        htm.addln("<button class='accordion'>",
-                "What material does Math Placement cover?", //
-                "</button>");
+        htm.addln("<button class='accordion'>What material does Math Placement cover?</button>");
         htm.sDiv("accordionpanel");
-        htm.sP().add("Math Placement covers pre-algebra and algebra, trigonometry, and ",
-                "logarithmic and exponential functions.</p>");
-        htm.sP().add("The Mathematics Department has prepared <a onclick='nav7()'>interactive ",
-                        "review materials and practice questions</a> for all topics covered by Math Placement.")
-                .eP();
+        htm.sP().add("Math Placement covers pre-algebra and algebra, trigonometry, and logarithmic and exponential ",
+                "functions.</p>");
+        htm.sP().add("The Mathematics Department has prepared <a onclick='nav7()'>interactive review materials and ",
+                "practice questions</a> for all topics covered by Math Placement.").eP();
         htm.eDiv(); // accordionpanel
 
-        htm.addln("<button class='accordion'>",
-                "Can I use a calculator on the Math Placement Tool? What else will I need?", //
-                "</button>");
+        htm.addln("<button class='accordion'>Can I use a calculator on the Math Placement Tool? What else will I ",
+                "need?</button>");
         htm.sDiv("accordionpanel");
-        htm.sP()
-                .add("Yes, you are expected to use a calculator. If you complete the Math Placement ",
-                        "Tool in the Precalculus Center, you must use an on-screen TI-84 calculator ",
-                        "provided on the testing computers in the Precalculus Center.  You will also ",
-                        "need a pencil or pen, and your CSU RamCard (ID card). <b>Reference materials ",
-                        "are not permitted.</b>")
-                .eP();
+        htm.sP().add("Yes, you are expected to use a calculator. If you complete the Math Placement Tool in the ",
+                "Precalculus Center, you must use an on-screen TI-84 calculator provided on the testing computers in ",
+                "the Precalculus Center.  You will also need a pencil or pen, and your CSU RamCard (ID card). ",
+                "<b>Reference materials are not permitted.</b>").eP();
         htm.eDiv(); // accordionpanel
 
-        htm.addln("<button class='accordion'>",
-                "Is there a charge for completing the Math Placement Tool?", //
-                "</button>");
+        htm.addln("<button class='accordion'>Is there a charge for completing the Math Placement Tool?</button>");
         htm.sDiv("accordionpanel");
-        htm.sP().add("A one-time processing fee of $15 is charged to your student account the ",
-                "first time you complete the Math Placement Tool. There is no charge for your second ",
-                "attempt, or if you take advantage of other placement activities like the ELM ",
-                "Tutorial or Precalculus Tutorial.").eP();
+        htm.sP().add("A one-time processing fee of $15 is charged to your student account the first time you complete ",
+                "the Math Placement Tool. There is no charge for your second attempt, or if you take advantage of ",
+                "other placement activities like the ELM Tutorial or Precalculus Tutorial.").eP();
         htm.eDiv(); // accordionpanel
 
-        htm.addln("<button class='accordion'>",
-                "Can I earn challenge credit for Precalculus courses?", //
-                "</button>");
+        htm.addln("<button class='accordion'>Can I earn challenge credit for Precalculus courses?</button>");
         htm.sDiv("accordionpanel");
-        htm.sP().addln("Yes - the Department of Mathematics offers Challenge Exams for these ",
-                "Precalculus courses:").eP();
+        htm.sP().addln("Yes - the Department of Mathematics offers Challenge Exams for these Precalculus ",
+                "courses:").eP();
         htm.addln(" <ul style='margin-left:10pt'>");
         htm.addln(" <li>MATH 117 - College Algebra in Context I</li>");
         htm.addln(" <li>MATH 118 - College Algebra in Context II</li>");
@@ -661,25 +598,20 @@ enum PagePlacement {
         htm.addln(" <li>MATH 125 - Numerical Trigonometry</li>");
         htm.addln(" <li>MATH 126 - Analytic Trigonometry</li>");
         htm.addln(" </ul>");
-        htm.sP().addln(
-                        "These exams can be taken in the Precalculus center.  Students must have satisfied ",
-                        "the prerequisites for a course in order to challenge that course, and a course ",
-                        "may not be challenged while a student is enrolled in that course. Challenging a ",
-                        "course may be done one time, and there is a $20 processing fee charged for each ",
-                        "challenge exam.  If you have questions about challenging a Precalculus course, ",
-                        "please speak with the staff in the Precalculus Center (Weber 137; (970) 491-5761).")
-                .eP();
+        htm.sP().addln("These exams can be taken in the Precalculus center.  Students must have satisfied the ",
+                "prerequisites for a course in order to challenge that course, and a course may not be challenged ",
+                "while a student is enrolled in that course. Challenging a course may be done one time, and there is ",
+                "a $20 processing fee charged for each challenge exam.  If you have questions about challenging a ",
+                "Precalculus course, please speak with the staff in the Precalculus Center (Weber 137; ",
+                "(970) 491-5761).").eP();
         htm.eDiv(); // accordionpanel
 
         htm.eDiv(); // indent0
 
         htm.div("vgap");
 
-        htm.sP("shaded2")
-                .add("Didn't find your answer?  Send an email to ",
-                        "<a class='ulink2' href='mailto:precalc_math@colostate.edu'>",
-                        "precalc_math@colostate.edu</a>.")
-                .eP();
+        htm.sP("shaded2").add("Didn't find your answer?  Send an email to ",
+                "<a class='ulink2' href='mailto:precalc_math@colostate.edu'>precalc_math@colostate.edu</a>.").eP();
     }
 
     /**

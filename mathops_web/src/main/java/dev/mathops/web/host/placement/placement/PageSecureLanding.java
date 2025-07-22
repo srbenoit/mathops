@@ -37,6 +37,7 @@ enum PageSecureLanding {
             throws IOException, SQLException {
 
         final String stuId = session.getEffectiveUserId();
+
         final EMathPlanStatus planStatus = MathPlanLogic.getStatus(cache, stuId);
         final List<RawStmpe> tries = RawStmpeLogic.queryLegalByStudent(cache, stuId);
 
@@ -97,8 +98,11 @@ enum PageSecureLanding {
         if (planCompleted) {
             // Show brief summary of plan outcome
             final String stuId = session.getEffectiveUserId();
+
             final StudentMathPlan plan = MathPlanLogic.queryPlan(cache, stuId);
-            PagePlanView.showBriefPlan(cache, session, htm, plan);
+            if (plan != null) {
+                PagePlanView.showBriefPlan(cache, session, htm, plan);
+            }
 
             // Show button to change plan
             htm.div("vgap");

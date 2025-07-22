@@ -139,7 +139,7 @@ public final class MathPlacementSite extends AbstractPageSite {
             } else if ("plan_majors2.html".equals(subpath)) {
                 PagePlanMajors2.doGet(cache, this, req, resp, session);
             } else if ("plan_record.html".equals(subpath)) {
-                PagePlanRecord.doGet(cache, this, req, resp, session);
+                PagePlanHistory.doGet(cache, this, req, resp, session);
             } else if ("plan_view.html".equals(subpath)) {
                 PagePlanView.doGet(cache, this, req, resp, session);
             } else if ("plan_next.html".equals(subpath)) {
@@ -261,7 +261,7 @@ public final class MathPlacementSite extends AbstractPageSite {
                 .eDiv();
 
         htm.sDiv(null, "style='margin-top:5px;'")
-                .add(Res.fmt(Res.LOGGED_IN_AS, session.getEffectiveScreenName())) //
+                .add(Res.fmt(Res.LOGGED_IN_AS, session.getEffectiveScreenName()))
                 .eDiv();
         htm.div("clear");
 

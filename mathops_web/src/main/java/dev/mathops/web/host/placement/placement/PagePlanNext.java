@@ -12,7 +12,6 @@ import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.logic.mathplan.MathPlanConstants;
 import dev.mathops.db.logic.mathplan.MathPlanLogic;
-import dev.mathops.db.logic.mathplan.NextSteps;
 import dev.mathops.db.logic.mathplan.RecommendedFirstTerm;
 import dev.mathops.db.logic.mathplan.StudentMathPlan;
 import dev.mathops.db.logic.mathplan.StudentStatus;
@@ -70,39 +69,6 @@ enum PagePlanNext {
 
     /** A string used when describing "ideal" eligibility. */
     private static final String C_AND = ", and ";
-
-    /** A string used when describing "ideal" eligibility. */
-    private static final String C_OR_FOR = ", or for ";
-
-    /** A string used when describing "ideal" eligibility. */
-    private static final String C_AND_ALSO_FOR = ", and also for ";
-
-    /** A course name for describing "ideal" eligibility. */
-    private static final String MATH_117 = "<b>MATH 117</b> (College Algebra in Context I)";
-
-    /** A course name for describing "ideal" eligibility. */
-    private static final String MATH_118 = "<b>MATH 118</b> (College Algebra in Context II)";
-
-    /** A course name for describing "ideal" eligibility. */
-    private static final String MATH_124 = "<b>MATH 124</b> (Logarithmic and Exponential Functions)";
-
-    /** A course name for describing "ideal" eligibility. */
-    private static final String MATH_125 = "<b>MATH 125</b> (Numerical Trigonometry)";
-
-    /** A course name for describing "ideal" eligibility. */
-    private static final String MATH_126 = "<b>MATH 126</b> (Analytic Trigonometry)";
-
-    /** A course name for describing "ideal" eligibility. */
-    private static final String MATH_120 = "<b>MATH 120</b> (College Algebra)";
-
-    /** A course name for describing "ideal" eligibility. */
-    private static final String MATH_155 = "<b>MATH 155</b> (Calculus for Biological Scientists I)";
-
-    /** A course name for describing "ideal" eligibility. */
-    private static final String MATH_156 = "<b>MATH 156</b> (Mathematics for Computational Science I)";
-
-    /** A course name for describing "ideal" eligibility. */
-    private static final String MATH_160 = "<b>MATH 160</b> (Calculus for Physical Scientists I)";
 
     /** A course name for describing next steps. */
     private static final String YOU_SHOULD_COMPLETE_A =
@@ -162,8 +128,8 @@ enum PagePlanNext {
         final StudentData studentData = cache.getStudent(stuId);
         final RawStudent student = studentData.getStudentRecord();
 
-        final Map<Integer, RawStmathplan> existing =
-                studentData.getLatestMathPlanResponsesByPage(MathPlanConstants.ONLY_RECOM_PROFILE);
+        final Map<Integer, RawStmathplan> existing = studentData.getLatestMathPlanResponsesByPage(
+                MathPlanConstants.ONLY_RECOM_PROFILE);
 
         if (existing.containsKey(ONE)) {
             showPlan(cache, session, htm, studentData);
@@ -195,8 +161,8 @@ enum PagePlanNext {
         final String stuId = session.getEffectiveUserId();
         final StudentMathPlan plan = MathPlanLogic.queryPlan(cache, stuId);
 
-        final Map<Integer, RawStmathplan> intentions =
-                studentData.getLatestMathPlanResponsesByPage(MathPlanConstants.INTENTIONS_PROFILE);
+        final Map<Integer, RawStmathplan> intentions = studentData.getLatestMathPlanResponsesByPage(
+                MathPlanConstants.INTENTIONS_PROFILE);
 
         htm.sDiv("left welcome", "style='margin-bottom:0;'");
         if (screenName == null) {
@@ -212,8 +178,6 @@ enum PagePlanNext {
         htm.eDiv();
         htm.div("clear");
         htm.hr();
-
-        htm.sP().add("Based on your math plan, these are your next steps:").eP();
 
         final boolean needsPlacement = showNextSteps(cache, htm, plan);
         htm.div("vgap2");
@@ -274,10 +238,8 @@ enum PagePlanNext {
      * @param htm   the {@code HtmlBuilder} to which to append
      * @param plan  the student math plan
      * @return true if the student needs to complete placement, false if not
-     * @throws SQLException if there is an error accessing the database
      */
-    static boolean showNextSteps(final Cache cache, final HtmlBuilder htm,
-                                 final StudentMathPlan plan) throws SQLException {
+    static boolean showNextSteps(final Cache cache, final HtmlBuilder htm, final StudentMathPlan plan) {
 
         TermKey active = null;
         try {
@@ -290,20 +252,15 @@ enum PagePlanNext {
             Log.warning(ex);
         }
 
-        final NextSteps nextStep = plan.nextSteps;
-
         final RawStudent student = plan.stuStatus.student;
         final TermKey termKey = student.aplnTerm;
-        final ETermName applicationTerm = termKey == null ? null : termKey.name;
-        final String termName = applicationTerm == null ? null : applicationTerm.fullName;
         final boolean isIncoming = testForIncoming(active, termKey);
 
         final Map<Integer, RawStmathplan> profileResponses = plan.stuStatus.majorsResponses;
         final String basedOn = profileResponses.size() == 1 ? "Based on the major you selected, "
                 : "Based on the list of majors you selected, ";
-        final String inTerm = " in " + termName + ".";
+        final String inTerm = " in your first semester.";
 
-        htm.div("vgap");
         htm.sDiv("indent");
 
         // Show the student's "ideal first term eligibility" based on their selected major(s)
@@ -330,7 +287,7 @@ enum PagePlanNext {
 
         htm.div("vgap");
         htm.sDiv("advice");
-        final boolean needsPlacement = showNextSteps(htm, plan, termName, isIncoming);
+        final boolean needsPlacement = showNextSteps(htm, plan, isIncoming);
         htm.eDiv(); // advice
 
         return needsPlacement;
@@ -341,7 +298,7 @@ enum PagePlanNext {
      *
      * @param active  the active term
      * @param termKey the student's application term
-     * @return trye if the student is "incoming" and can access the Precalculus tutorials
+     * @return true if the student is "incoming" and can access the Precalculus tutorials
      */
     private static boolean testForIncoming(final TermKey active, final TermKey termKey) {
 
@@ -359,18 +316,16 @@ enum PagePlanNext {
      *
      * @param htm        the {@code HtmlBuilder} to which to append
      * @param plan       the student math plan
-     * @param termName   the name of the student's first term
      * @param isIncoming true if the student is "incoming" and can use Precalculus Tutorials
      */
-    private static boolean showNextSteps(final HtmlBuilder htm, final StudentMathPlan plan,
-                                         final String termName, final boolean isIncoming) {
+    private static boolean showNextSteps(final HtmlBuilder htm, final StudentMathPlan plan, final boolean isIncoming) {
 
         boolean needsPlacement = true;
 
         final RecommendedFirstTerm firstTerm = plan.requirements.firstTerm;
         final ENextStep nextStep = plan.nextSteps.nextStep;
 
-        final String existing = buildExistingEligibility(plan, termName);
+        final String existing = buildExistingEligibility(plan);
 
         switch (nextStep) {
             case MSG_PLACEMENT_NOT_NEEDED, MSG_ALREADY_ELIGIBLE -> {
@@ -590,11 +545,10 @@ enum PagePlanNext {
     /**
      * Displays the set of courses for which the student is already eligible or already has credit.
      *
-     * @param plan     the student math plan
-     * @param termName the name of the student's first term
+     * @param plan the student math plan
      * @return the eligibility string; an empty string if the student is not eligible for any courses and has no credit
      */
-    private static String buildExistingEligibility(final StudentMathPlan plan, final String termName) {
+    private static String buildExistingEligibility(final StudentMathPlan plan) {
 
         final StudentStatus stuStatus = plan.stuStatus;
 
@@ -700,7 +654,7 @@ enum PagePlanNext {
             if (okFor120) {
                 htm.add(" (or MATH 120)");
             }
-            htm.add(" in ", termName, ". ", ESTRONG);
+            htm.add(" in the upcoming semester. ", ESTRONG);
         }
 
         final int numAlready = alreadyHas.size();
@@ -787,18 +741,7 @@ enum PagePlanNext {
                     final List<RawMpscorequeue> existing = RawMpscorequeueLogic.querySORTESTByStudent(liveConn,
                             student.pidm);
 
-                    RawMpscorequeue mostRecent = null;
-                    for (final RawMpscorequeue test : existing) {
-
-                        // Log.info("Found '", test.testCode, "' test score of '", test.testScore, "' for student ",
-                        //         data.student.stuId, " with PIDM ", data.student.pidm);
-
-                        if ("MPL".equals(test.testCode)) {
-                            if (mostRecent == null || mostRecent.testDate.isBefore(test.testDate)) {
-                                mostRecent = test;
-                            }
-                        }
-                    }
+                    final RawMpscorequeue mostRecent = getMostRecentMPLScore(existing);
 
                     if (mostRecent == null || !desiredMPLTestScore.equals(mostRecent.testScore)) {
                         final LocalDateTime now = LocalDateTime.now();
@@ -819,5 +762,25 @@ enum PagePlanNext {
         }
 
         resp.sendRedirect("plan_start.html");
+    }
+
+    /**
+     * Scans for the most recent MPL test score for the student.
+     *
+     * @param existing the existing records to scan
+     * @return the most recent record
+     */
+    private static RawMpscorequeue getMostRecentMPLScore(final Iterable<RawMpscorequeue> existing) {
+
+        RawMpscorequeue mostRecent = null;
+
+        for (final RawMpscorequeue test : existing) {
+            if ("MPL".equals(test.testCode)) {
+                if (mostRecent == null || mostRecent.testDate.isBefore(test.testDate)) {
+                    mostRecent = test;
+                }
+            }
+        }
+        return mostRecent;
     }
 }

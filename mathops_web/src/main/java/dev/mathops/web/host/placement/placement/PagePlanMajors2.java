@@ -199,7 +199,7 @@ enum PagePlanMajors2 {
 
         htm.sDiv("columns");
         boolean foundDeclared = false;
-        int letter = 0;
+        char letter = (char) 0;
         for (final Major major : allMajors) {
             if (major.questionNumbers[0] > 9000) {
                 // Don't emit all the specific Exploratory Studies tracks
@@ -208,7 +208,7 @@ enum PagePlanMajors2 {
 
             final String mname = major.programName;
 
-            if (!mname.isEmpty() && (int) mname.charAt(0) != letter) {
+            if (!mname.isEmpty() && (int) mname.charAt(0) != (int) letter) {
                 letter = mname.charAt(0);
                 htm.sDiv("alph-letter").add(letter).eDiv();
             }

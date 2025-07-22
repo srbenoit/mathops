@@ -26,9 +26,9 @@ import java.util.List;
 import java.util.TreeSet;
 
 /**
- * Generates the page that presents the student's work record.
+ * Generates the page that presents the student's work history.
  */
-enum PagePlanRecord {
+enum PagePlanHistory {
     ;
 
     /**
@@ -111,7 +111,7 @@ enum PagePlanRecord {
         // Query student's transfer credit and print out
         final List<RawFfrTrns> xfer = mathPlan.stuStatus.transferCredit;
         final List<RawStcourse> courses = mathPlan.stuStatus.completedCourses;
-        final List<String> courseIds = new ArrayList<>(10);
+        final Collection<String> courseIds = new ArrayList<>(10);
         for (final RawFfrTrns row : xfer) {
             courseIds.add(row.course);
         }
@@ -348,7 +348,7 @@ enum PagePlanRecord {
                 // Must be cleared for something...
                 htm.addln("You are cleared to register for:");
                 htm.addln(" <ul style='list-style: none;'>");
-                htm.addln(" <li>MATH 101, MATH 105, STAT 100, STAT 201, and STAT 204</li>");
+                htm.addln(" <li>MATH&nbsp;101, MATH&nbsp;105, MATH&nbsp;112, STAT&nbsp;100, STAT&nbsp;201, STAT&nbsp;204, and FIN&nbsp;200</li>");
                 if (cleared117) {
                     htm.addln(" <li>MATH 117</li>");
                 }
@@ -435,8 +435,8 @@ enum PagePlanRecord {
                 catLink("STAT 204"), "</li>");
         htm.addln("</ul>");
 
-        htm.addln("<small>", "These courses each apply toward the All-University ",
-                "Core Curriculum 1B requirement in Quantitative Reasoning.", "</small>");
+        htm.addln("<small>These courses each apply toward the All-University Core Curriculum 1B requirement in ",
+                "Quantitative Reasoning.</small>");
 
         htm.eDiv();
     }

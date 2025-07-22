@@ -29,8 +29,8 @@ final class ServletWarBuilder {
     /** Directory where project is stored. */
     private final File projectDir;
 
-//    /** Directory where persistence project is stored. */
-//    private final File persistenceDir;
+    /** Directory where database project is stored. */
+    private final File dbDir;
 
     /**
      * Constructs a new {@code ServletWarBuilder}.
@@ -41,7 +41,7 @@ final class ServletWarBuilder {
         final File dev = new File(userDir, "dev");
         final File idea = new File(dev, "IDEA");
         this.projectDir = new File(idea, "mathops");
-//        this.persistenceDir = new File(idea, "mathops_persistence");
+        this.dbDir = new File(idea, "mathops_db");
     }
 
     /**
@@ -60,6 +60,9 @@ final class ServletWarBuilder {
      * @return {@code true} if successful
      */
     private boolean buildRootJar() {
+
+        final File dbRoot = new File(this.dbDir, "build/classes/java/main");
+        final File dbClasses = new File(dbRoot, "dev/mathops");
 
         final File font = new File(this.projectDir, "mathops_font");
         final File fontRoot = new File(font, "build/classes/java/main");
@@ -87,6 +90,9 @@ final class ServletWarBuilder {
                  final JarOutputStream jar = new JarOutputStream(bos)) {
 
                 addManifest(jar);
+
+                Log.finest(Res.fmt(Res.ADDING_FILES, this.dbDir), CoreConstants.CRLF);
+                addFiles(dbRoot, dbClasses, jar);
 
                 Log.finest(Res.fmt(Res.ADDING_FILES, font), CoreConstants.CRLF);
                 addFiles(fontRoot, fontClasses, jar);

@@ -160,8 +160,6 @@ enum PagePlanView {
 
         htm.div("vgap");
         htm.hr();
-        htm.div("vgap");
-
         emitResultsHeader(htm, numSelected);
 
         // Now display the computed mathematics recommendations
@@ -267,7 +265,7 @@ enum PagePlanView {
      */
     private static void emitResultsHeader(final HtmlBuilder htm, final int numSelected) {
 
-        htm.sP();
+        htm.sP("indent");
         if (numSelected == 1) {
             htm.add("This plan is based on the mathematics courses required by the major you selected.");
         } else {

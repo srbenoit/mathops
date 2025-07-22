@@ -117,14 +117,14 @@ enum ExploreCourses {
                 "A Texas Instruments TI-84 is recommended.").eP();
         htm.eDiv(); // accordionpanel
 
-        htm.addln("<button class='accordion'>MATH 127: Precalculus (4 credits)</button>");
-        htm.sDiv("accordionpanel");
-        htm.sP().add("MATH 127 is a face-to-face course in Precalculus that examines ideas of quantity, variable, ",
-                "rate of change, and formula that are necessary for succeeding in and learning precalculus and ",
-                "calculus.").eP();
-        htm.sP().add("This course satisfies the prerequisite for MATH 155, MATH 156, MATH 157, or MATH 160.").eP();
-        htm.eDiv(); // accordionpanel
-        htm.eDiv(); // indent
+//        htm.addln("<button class='accordion'>MATH 127: Precalculus (4 credits)</button>");
+//        htm.sDiv("accordionpanel");
+//        htm.sP().add("MATH 127 is a face-to-face course in Precalculus that examines ideas of quantity, variable, ",
+//                "rate of change, and formula that are necessary for succeeding in and learning precalculus and ",
+//                "calculus.").eP();
+//        htm.sP().add("This course satisfies the prerequisite for MATH 155, MATH 156, MATH 157, or MATH 160.").eP();
+//        htm.eDiv(); // accordionpanel
+//        htm.eDiv(); // indent
 
         htm.div("vgap2");
 
