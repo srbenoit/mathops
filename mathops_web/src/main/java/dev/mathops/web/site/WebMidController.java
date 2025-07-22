@@ -165,6 +165,12 @@ public final class WebMidController implements IMidController {
             add(dbConfig, Contexts.TESTING_HOST, Contexts.TESTING_CENTER_PATH, TestingCenterSite.class);
             add(dbConfig, Contexts.TESTING_HOST, Contexts.WEBSVC_PATH, WebServiceSite.class);
             add(dbConfig, Contexts.TESTING_HOST, Contexts.TXN_PATH, TxnSite.class);
+
+            // Havoc has nibbler's pages under "testing" for testing
+            add(dbConfig, Contexts.TESTING_HOST, Contexts.MPSMEDIA_PATH, ProctoringMediaSite.class);
+            add(dbConfig, Contexts.TESTING_HOST, Contexts.CFM_PATH, CfmSite.class);
+            add(dbConfig, Contexts.TESTING_HOST, Contexts.SCHEDULING_PATH, SchedulingSite.class);
+            add(dbConfig, Contexts.TESTING_HOST, Contexts.REPORTING_PATH, ReportingSite.class);
         }
 
         if (webHosts.contains(Contexts.NIBBLER_HOST)) {

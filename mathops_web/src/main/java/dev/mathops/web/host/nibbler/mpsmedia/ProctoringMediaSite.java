@@ -416,15 +416,15 @@ public final class ProctoringMediaSite extends AbstractSite {
                     sendReply(req, resp, MIME_TEXT_HTML, htm);
 
                 } catch (final IOException ex) {
-                    Log.warning("Unable to write file: ", sessPath.getAbsolutePath(), ex);
+                    Log.warning("Unable to write image file: ", sessPath.getAbsolutePath(), ex);
                     resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 }
             } else {
-                Log.warning("Unable to create directory: ", sessPath.getAbsolutePath());
+                Log.warning("Unable to create image directory: ", sessPath.getAbsolutePath());
                 resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
         } catch (final IOException ex) {
-            Log.warning("Failed to read upload file data", ex);
+            Log.warning("Failed to read upload image file data for student ", stuid, ex);
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
         }
     }
@@ -463,7 +463,8 @@ public final class ProctoringMediaSite extends AbstractSite {
             if (sessPath.exists() || sessPath.mkdirs()) {
                 final File file = new File(sessPath, fname);
                 try (final FileOutputStream fos = new FileOutputStream(file, true)) {
-                    fos.write(baos.toByteArray());
+                    final byte[] byteArray = baos.toByteArray();
+                    fos.write(byteArray);
 
                     final HtmlBuilder htm = new HtmlBuilder(200);
                     Page.startEmptyPage(htm, Res.get(Res.SITE_TITLE), false);
@@ -471,15 +472,17 @@ public final class ProctoringMediaSite extends AbstractSite {
                     sendReply(req, resp, MIME_TEXT_HTML, htm);
 
                 } catch (final IOException ex) {
-                    Log.warning("Unable to write file: ", sessPath.getAbsolutePath(), ex);
+                    final String absolutePath = sessPath.getAbsolutePath();
+                    Log.warning("Unable to write video file ", absolutePath, ex);
                     resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 }
             } else {
-                Log.warning("Unable to create directory: ", sessPath.getAbsolutePath());
+                final String absolutePath = sessPath.getAbsolutePath();
+                Log.warning("Unable to create video directory: ", absolutePath);
                 resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
-        } catch (final Exception ex) {
-            Log.warning("Failed to read upload file data", ex);
+        } catch (final IOException ex) {
+            Log.warning("Failed to read upload video data for student ", stuid, ex);
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
         }
     }
@@ -529,7 +532,7 @@ public final class ProctoringMediaSite extends AbstractSite {
             final File sessPath = new File(stuPath, psid);
             if (sessPath.exists() || sessPath.mkdirs()) {
                 final File file = new File(sessPath, "meta.json");
-                try (final FileOutputStream fos = new FileOutputStream(file, true)) {
+                try (final FileOutputStream fos = new FileOutputStream(file, false)) {
                     fos.write(baos.toByteArray());
 
                     final HtmlBuilder htm = new HtmlBuilder(200);
