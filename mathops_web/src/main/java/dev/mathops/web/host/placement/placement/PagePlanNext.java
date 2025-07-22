@@ -182,52 +182,65 @@ enum PagePlanNext {
         final boolean needsPlacement = showNextSteps(cache, htm, plan);
         htm.div("vgap2");
 
-        htm.sDiv("advice");
-        htm.addln("<form action='plan_next.html' method='post'>");
+        // If the user has already affirmed, don't make them do it again...
+        final RawStmathplan affirm1 = intentions.get(ONE);
+        final RawStmathplan affirm2 = intentions.get(TWO);
 
-        htm.add("Read and affirm each statement to complete your Math Plan...");
+        if (affirm1 == null || affirm2 == null) {
 
-        final boolean check1 = intentions.containsKey(ONE);
-        htm.sP().add("<input type='checkbox' name='affirm1' id='affirm1'");
-        if (check1) {
-            htm.add(" checked");
-        }
+            htm.sDiv("advice");
+            htm.addln("<form action='plan_next.html' method='post'>");
 
-        final boolean check2 = intentions.containsKey(TWO);
-        htm.add(" onclick='affirmed();'> &nbsp; <label for='affirm1'>",
-                "I understand that this plan is only a recommendation.  The math requirements for each degree ",
-                "program can change over time, and should be verified with the University Catalog.</label>").eP();
+            htm.add("Read and affirm each statement to complete your Math Plan...");
 
-        if (needsPlacement) {
-            htm.sP().add("<input type='checkbox' name='affirm2' id='affirm2'");
-            if (check2) {
+            final boolean check1 = affirm1 != null && "Y".equals(affirm1.stuAnswer);
+            htm.sP().add("<input type='checkbox' name='affirm1' id='affirm1'");
+            if (check1) {
                 htm.add(" checked");
             }
-            htm.add(" onclick='affirmed();'> &nbsp; <label for='affirm2'>",
-                    "I plan to complete the Math Placement Tool.</label>").eP();
+
+            final boolean check2 = affirm2 != null && "Y".equals(affirm2.stuAnswer);
+            htm.add(" onclick='affirmed();'> &nbsp; <label for='affirm1'>",
+                    "I understand that this plan is only a recommendation.  The math requirements for each degree ",
+                    "program can change over time, and should be verified with the University Catalog.</label>").eP();
+
+            if (needsPlacement) {
+                htm.sP().add("<input type='checkbox' name='affirm2' id='affirm2'");
+                if (check2) {
+                    htm.add(" checked");
+                }
+                htm.add(" onclick='affirmed();'> &nbsp; <label for='affirm2'>",
+                        "I plan to complete the Math Placement Tool.</label>").eP();
+            } else {
+                htm.sP().add("<input type='hidden' name='affirm2' id='affirm2' value='Y'/>");
+            }
+
+            htm.sDiv(CENTER);
+            htm.addln("<button type='submit' id='affirmsubmit' class='btn'");
+            if (!check1) {
+                htm.add(" disabled");
+            }
+            htm.add(">Affirm</button>");
+            htm.eDiv();
+
+            htm.addln("<script>");
+            htm.addln(" function affirmed() {");
+            htm.addln("  document.getElementById('affirmsubmit').disabled =");
+            htm.addln("  !document.getElementById('affirm1').checked;");
+            htm.addln(" }");
+            htm.addln("</script>");
+            htm.addln("</form>");
+            htm.eDiv();
+            htm.div("vgap");
+
+            htm.eDiv();
         } else {
-            htm.sP().add("<input type='hidden' name='affirm2' id='affirm2' value='Y'/>");
+            htm.addln("<form action='secure_landing.html' method='get'>");
+            htm.sDiv("center");
+            htm.addln("<button type='submit' class='btn'>Go to the next step...</button>");
+            htm.eDiv();
+            htm.addln("</form>");
         }
-
-        htm.sDiv(CENTER);
-        htm.addln("<button type='submit' id='affirmsubmit' class='btn'");
-        if (!check1) {
-            htm.add(" disabled");
-        }
-        htm.add(">Affirm</button>");
-        htm.eDiv();
-
-        htm.addln("<script>");
-        htm.addln(" function affirmed() {");
-        htm.addln("  document.getElementById('affirmsubmit').disabled =");
-        htm.addln("  !document.getElementById('affirm1').checked;");
-        htm.addln(" }");
-        htm.addln("</script>");
-        htm.addln("</form>");
-        htm.eDiv();
-        htm.div("vgap");
-
-        htm.eDiv();
     }
 
     /**

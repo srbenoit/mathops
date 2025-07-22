@@ -64,7 +64,7 @@ enum PageToolHome {
         final PlacementLogic logic = new PlacementLogic(cache, stuId, student == null ? null : student.aplnTerm, now);
 
         if (logic.status.attemptsUsed > 0) {
-            PlacementReport.doPlacementReport(cache, logic.status, session, null, true, htm);
+            PlacementReport.doPlacementReport(cache, logic.status, session, null, false, htm);
         } else {
             htm.sP("indent11", "style='padding-left:32px;'");
             htm.add("<img src='/images/orange2.png' style='margin:-2px 0 0 -32px; padding-right:10px;'/>");

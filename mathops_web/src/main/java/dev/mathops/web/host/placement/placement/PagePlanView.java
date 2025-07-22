@@ -369,8 +369,6 @@ enum PagePlanView {
                 MathPlanLogic.storeMathPlanResponses(cache, student, cmd, questions, answers, now,
                         session.loginSessionTag);
 
-                // FIXME: Is this correct?
-
                 final StudentMathPlan plan = MathPlanLogic.queryPlan(cache, stuId);
                 MathPlanLogic.recordPlan(cache, plan, now, session.loginSessionTag);
             }
