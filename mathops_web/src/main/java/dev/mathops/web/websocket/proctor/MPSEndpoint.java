@@ -47,6 +47,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -144,10 +145,10 @@ public final class MPSEndpoint {
     private static final String LOG_PREFIX = "MPS WebSocket endpoint: ";
 
     /** Timeout after no activity when session is terminated. */
-    public static final long SESSION_TIMEOUT_MS = 1000 * 60 * 180;
+    public static final long SESSION_TIMEOUT_MS = (long) (1000 * 60 * 180);
 
     /** WebSocket session associated with connection. */
-    private Session session;
+    private Session session = null;
 
     /** The site profile. */
     private final Profile siteProfile;
@@ -156,10 +157,10 @@ public final class MPSEndpoint {
     private final MPSSessionManager mgr;
 
     /** The student. */
-    private RawStudent student;
+    private RawStudent student = null;
 
     /** The proctoring session. */
-    private MPSSession ps;
+    private MPSSession ps = null;
 
     /**
      * Constructs a new {@code MPSEndpoint}.
@@ -206,8 +207,7 @@ public final class MPSEndpoint {
      * @throws IOException if there is an error writing the response
      */
     @OnMessage
-    public void incoming(final String message)
-            throws IOException {
+    public void incoming(final String message) throws IOException {
 
         Log.info(LOG_PREFIX, "websocket received message: ", message);
 
@@ -215,34 +215,37 @@ public final class MPSEndpoint {
 
         if (!message.isEmpty()) {
             try {
-                final char ch = message.charAt(0);
+                final int first = (int) message.charAt(0);
 
-                if (ch == '!') {
-                    processConnect(message.substring(1));
-                } else if (ch == '?') {
+                if (first == (int) '!') {
+                    final String remaining = message.substring(1);
+                    processConnect(remaining);
+                } else if (first == (int) '?') {
                     processQuery();
-                } else if (ch == 'S') {
-                    processStart(message.substring(1));
-                } else if (ch == 'P') {
+                } else if (first == (int) 'S') {
+                    final String remaining = message.substring(1);
+                    processStart(remaining);
+                } else if (first == (int) 'P') {
                     processPhoto();
-                } else if (ch == 'I') {
+                } else if (first == (int) 'I') {
                     processId();
-                } else if (ch == 'E') {
+                } else if (first == (int) 'E') {
                     processEnvironment();
-                } else if (ch == 'A') {
+                } else if (first == (int) 'A') {
                     processAssessment();
-                } else if (ch == 'F') {
+                } else if (first == (int) 'F') {
                     processFinished();
-                } else if (ch == 'X') {
-                    processStartOver(message.substring(1));
-                } else if (ch == 'R') {
+                } else if (first == (int) 'X') {
+                    final String remaining = message.substring(1);
+                    processStartOver(remaining);
+                } else if (first == (int) 'R') {
                     processRejoin();
-                } else if (ch == '~') {
+                } else if (first == (int) '~') {
                     processPing();
-                } else if (ch == '.') {
+                } else if (first == (int) '.') {
                     processKeepalive();
                 } else {
-                    Log.warning(LOG_PREFIX, "Unexpected message type :" + ch);
+                    Log.warning(LOG_PREFIX, "Unexpected message type :", message);
                 }
             } catch (final Exception ex) {
                 Log.warning(ex);
@@ -267,8 +270,7 @@ public final class MPSEndpoint {
         final SessionResult result = SessionManager.getInstance().validate(lsid);
 
         if (result.error != null) {
-            Log.warning(LOG_PREFIX, "Unable to validate login session:",
-                    result.error);
+            Log.warning(LOG_PREFIX, "Unable to validate login session:", result.error);
             this.session.getBasicRemote().sendText("ERROR");
         } else if (result.session == null) {
             Log.warning(LOG_PREFIX, "Unable to validate login session.");
@@ -335,8 +337,7 @@ public final class MPSEndpoint {
                         msg.addln(" ]");
                         msg.addln("}");
 
-                        Log.info(LOG_PREFIX, "sending '", msg.toString(),
-                                "'");
+                        Log.info(LOG_PREFIX, "sending '", msg.toString(), "'");
                         this.session.getBasicRemote().sendText(msg.toString());
 
                     } else {
@@ -350,8 +351,7 @@ public final class MPSEndpoint {
                                 .addln(" \"state\" : \"", this.ps.state.name(), CoreConstants.QUOTE)
                                 .addln("}");
 
-                        Log.info(LOG_PREFIX, "sending '", msg.toString(),
-                                "'");
+                        Log.info(LOG_PREFIX, "sending '", msg.toString(), "'");
 
                         this.session.getBasicRemote().sendText(msg.toString());
                     }
@@ -499,8 +499,8 @@ public final class MPSEndpoint {
 
         final List<RawStcourse> regs = RawStcourseLogic.getActiveForStudent(cache, studentId, active.term);
 
-        final boolean notRamwork = !RawSpecialStusLogic.isSpecialType(cache, studentId, LocalDate.now(),
-                RawSpecialStus.RAMWORK);
+        final LocalDate today = LocalDate.now();
+        final boolean ordinary = !RawSpecialStusLogic.isSpecialType(cache, studentId, today, RawSpecialStus.RAMWORK);
 
         // Eliminate placement credit registrations, and (if not RAMWORK), RI courses
         final Iterator<RawStcourse> regIter = regs.iterator();
@@ -514,7 +514,7 @@ public final class MPSEndpoint {
                         && !RawRecordConstants.M124.equals(course) && !RawRecordConstants.M125.equals(course)
                         && !RawRecordConstants.M126.equals(course))) {
                 regIter.remove();
-            } else if (notRamwork && "RI".equals(next.instrnType)) {
+            } else if (ordinary && "RI".equals(next.instrnType)) {
                 regIter.remove();
             }
         }
@@ -586,15 +586,15 @@ public final class MPSEndpoint {
         // Check for Tutorial exams
         final List<ExamEntry> tutorialExams = new ArrayList<>(10);
 
-        final ELMTutorialStatus elm = ELMTutorialStatus.of(cache, studentId, loginSession.getNow(),
-                HoldsStatus.of(cache, studentId));
+        final ZonedDateTime now = loginSession.getNow();
+        final ELMTutorialStatus elm = ELMTutorialStatus.of(cache, studentId, now, HoldsStatus.of(cache, studentId));
         if (elm.eligibleForElmExam) {
             tutorialExams.add(new ExamEntry("MT4UE", "ELM Exam", null));
         }
 
         final PrerequisiteLogic prereq = new PrerequisiteLogic(cache, studentId);
         final PrecalcTutorialLogic precalc =
-                new PrecalcTutorialLogic(cache, studentId, loginSession.getNow().toLocalDate(), prereq);
+                new PrecalcTutorialLogic(cache, studentId, now.toLocalDate(), prereq);
         final PrecalcTutorialStatus precalcStatus = precalc.status;
         if (precalcStatus.eligiblePrecalcExamCourses != null) {
             final Collection<RawExam> exams = new ArrayList<>(10);
@@ -612,21 +612,22 @@ public final class MPSEndpoint {
             result.add(new ExamCategory("Tutorial Exams", tutorialExams));
         }
 
-        // Check for Placement exams
-        final List<ExamEntry> placementExams = new ArrayList<>(10);
+        // Check for Placement exams (only for RAMWORK)
+        if (!ordinary) {
+            final List<ExamEntry> placementExams = new ArrayList<>(10);
 
-        final PlacementLogic placement = new PlacementLogic(cache, studentId, this.student.aplnTerm,
-                loginSession.getNow());
-        final PlacementStatus placementStatus = placement.status;
-        if (placementStatus.attemptsRemaining > 0) {
-            final RawExam ex = systemData.getActiveExam("MPTRW");
-            if (ex != null) {
-                placementExams.add(new ExamEntry(ex.version, ex.buttonLabel, "One-time $15 fee"));
+            final PlacementLogic placement = new PlacementLogic(cache, studentId, this.student.aplnTerm, now);
+            final PlacementStatus placementStatus = placement.status;
+            if (placementStatus.attemptsRemaining > 0) {
+                final RawExam ex = systemData.getActiveExam("MPTRW");
+                if (ex != null) {
+                    placementExams.add(new ExamEntry(ex.version, ex.buttonLabel, "One-time $15 fee"));
+                }
             }
-        }
 
-        if (!placementExams.isEmpty()) {
-            result.add(new ExamCategory("Math Placement Tool and Course Challenge Exams", placementExams));
+            if (!placementExams.isEmpty()) {
+                result.add(new ExamCategory("Math Placement Tool and Course Challenge Exams", placementExams));
+            }
         }
 
         return result;
