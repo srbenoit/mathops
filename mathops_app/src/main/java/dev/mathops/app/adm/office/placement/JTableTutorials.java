@@ -84,7 +84,7 @@ final class JTableTutorials extends AbstractAdmTable<RawStexam> {
                 row[0] = "ELM";
                 row[1] = "ELM Exam";
                 row[2] = FMT_MDY.format(record.examDt);
-                row[3] = valueToString("Placed into MATH 117, MATH 120, or MATH 127");
+                row[3] = valueToString("Placed into MATH 117 or MATH 120");
 
                 getModel().addRow(row);
             }

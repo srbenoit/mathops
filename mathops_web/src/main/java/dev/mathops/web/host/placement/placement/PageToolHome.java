@@ -15,7 +15,6 @@ import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCampusCalendar;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
-
 import dev.mathops.text.builder.HtmlBuilder;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,7 +24,6 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Generates the content of the home page.
@@ -66,7 +64,7 @@ enum PageToolHome {
         final PlacementLogic logic = new PlacementLogic(cache, stuId, student == null ? null : student.aplnTerm, now);
 
         if (logic.status.attemptsUsed > 0) {
-            PlacementReport.doPlacementReport(cache, logic.status, session, null, false, htm);
+            PlacementReport.doPlacementReport(cache, logic.status, session, null, true, htm);
         } else {
             htm.sP("indent11", "style='padding-left:32px;'");
             htm.add("<img src='/images/orange2.png' style='margin:-2px 0 0 -32px; padding-right:10px;'/>");
@@ -183,10 +181,9 @@ enum PageToolHome {
             nothing = false;
         }
 
-        // Users who have completed the placement tool but have not placed out of MATH
-        // 124 and 126 and whose effective application term name (after possible modification by
-        // special student records) is "FA" are eligible for at least one Precalculus Tutorial,
-        // as long as it is open or will open in the future
+        // Users who have completed the placement tool but have not placed out of MATH 124 and 126 and whose
+        // effective application term name (after possible modification by special student records) is "FA" are
+        // eligible for at least one Precalculus Tutorial, as long as it is open or will open in the future
 
         final PrerequisiteLogic prereq = new PrerequisiteLogic(cache, stuId);
         final PrecalcTutorialLogic tutLogic = new PrecalcTutorialLogic(cache, stuId, session.getNow().toLocalDate(),

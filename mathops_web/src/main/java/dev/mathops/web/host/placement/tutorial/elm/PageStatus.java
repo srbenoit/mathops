@@ -91,22 +91,20 @@ enum PageStatus {
         if (status.elmExamPassed) {
             htm.sDiv("indent22");
             htm.addln("Congratulations!  You have completed the ELM Tutorial and passed the <b>ELM Exam</b>.  This ",
-                    "makes you eligible to register for <strong>MATH 117</strong>, <strong>MATH 120</strong>, or ",
-                    "<strong>MATH 127</strong>.");
+                    "makes you eligible to register for <strong>MATH 117</strong> or <strong>MATH 120</strong>.");
         } else {
-            if (status.elm3Passed) {
-                htm.sDiv("indent22");
-                htm.addln("You have completed three units of the ELM Tutorial.  This makes you eligible to register ",
-                        "for the combination of <strong>MATH 116</strong> and <strong>MATH 117</strong>.");
-                htm.eDiv();
-
-                htm.eH(2).div("vgap2");
-            }
+//            if (status.elm3Passed) {
+//                htm.sDiv("indent22");
+//                htm.addln("You have completed three units of the ELM Tutorial.  This makes you eligible to register ",
+//                        "for the combination of <strong>MATH 116</strong> and <strong>MATH 117</strong>.");
+//                htm.eDiv();
+//
+//                htm.eH(2).div("vgap2");
+//            }
 
             htm.sDiv("indent22");
-            htm.addln("To qualify for <strong>MATH 117</strong>, <strong>MATH 120</strong>, or ",
-                    "<strong>MATH 127</strong>, you must complete all four units of the ELM Tutorial and pass the ",
-                    "ELM Exam.");
+            htm.addln("To qualify for <strong>MATH 117</strong> or <strong>MATH 120</strong>, you must complete all ",
+                    "four units of the ELM Tutorial and pass the ELM Exam.");
             htm.eDiv();
 
             htm.eH(2).div("vgap2");
@@ -302,8 +300,7 @@ enum PageStatus {
 
                 // Note: we know at this point the review was passed...
                 htm.addln(passedUnit ? "You have passed" : "You may take",
-                        " the ELM Exam to become eligible for <strong>MATH 117</strong>, ",
-                        "<strong>MATH 120</strong>, and <strong>MATH 127</strong>.");
+                        " the ELM Exam to become eligible for <strong>MATH 117</strong> or <strong>MATH 120</strong>.");
                 htm.eDiv();
             }
         }

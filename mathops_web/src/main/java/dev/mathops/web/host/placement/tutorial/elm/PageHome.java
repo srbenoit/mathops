@@ -97,7 +97,6 @@ final class PageHome {
         htm.addln("<ul style='margin:3px 0 0 0'>");
         htm.addln(" <li style='margin-top:3px;'>MATH 117, College Algebra in Context I</li>");
         htm.addln(" <li style='margin-top:3px;'>MATH 120, College Algebra</li>");
-        htm.addln(" <li style='margin-top:3px;'>MATH 127, Precalculus</li>");
         htm.addln("</ul>");
 
         htm.sP("indent11", "style='margin-top:0;'");

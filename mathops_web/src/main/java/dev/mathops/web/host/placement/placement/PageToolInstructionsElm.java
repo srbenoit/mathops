@@ -43,7 +43,6 @@ enum PageToolInstructionsElm {
         htm.addln(" <ul>");
         htm.addln("  <li>MATH 117, College Algebra in Context I</li>");
         htm.addln("  <li>MATH 120, College Algebra</li>");
-        htm.addln("  <li>MATH 127, Precalculus</li>");
         htm.addln(" </ul>");
 
         htm.sP();
@@ -61,7 +60,7 @@ enum PageToolInstructionsElm {
 
         htm.sP();
         htm.addln("After completing the four units of the ELM Tutorial, you may take the ELM Exam. ",
-                "Passing this exam satisfies the prerequisite for MATH 117, MATH 120, and MATH 127.");
+                "Passing this exam satisfies the prerequisite for MATH 117 and MATH 120.");
         htm.eP();
 
         htm.div("vgap");

@@ -1,13 +1,12 @@
 package dev.mathops.web.host.precalc.course;
 
 import dev.mathops.db.Cache;
-import dev.mathops.db.Contexts;
 import dev.mathops.db.logic.placement.PlacementLogic;
 import dev.mathops.db.logic.placement.PlacementStatus;
-import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
 import dev.mathops.text.builder.HtmlBuilder;
+import dev.mathops.web.host.placement.placement.PlacementReport;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;
 import jakarta.servlet.ServletRequest;
@@ -15,9 +14,6 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Generates the content of the home page.
@@ -52,7 +48,7 @@ enum PagePlacementReport {
         final PlacementStatus pstatus = new PlacementLogic(cache, session.getEffectiveUserId(),
                 logic.data.studentData.getStudent().aplnTerm, session.getNow()).status;
 
-        doPlacementReport(pstatus, logic.data.studentData.getStudent(), htm);
+        PlacementReport.doPlacementReport(cache, pstatus, session, null, false, htm);
 
         htm.eDiv(); // panelu
         htm.eDiv(); // menupanelu
@@ -60,169 +56,6 @@ enum PagePlacementReport {
         Page.endOrdinaryPage(cache, site, htm, true);
 
         AbstractSite.sendReply(req, resp, AbstractSite.MIME_TEXT_HTML, htm);
-    }
-
-    /**
-     * Creates the HTML of the placement report.
-     *
-     * @param status  the placement tool status for the student
-     * @param student the student record
-     * @param htm     the {@code HtmlBuilder} to which to append the HTML
-     */
-    private static void doPlacementReport(final PlacementStatus status, final RawStudent student,
-                                          final HtmlBuilder htm) {
-
-        htm.sDiv("indent11");
-
-        if (status.attemptsUsed == 0) {
-
-            htm.sP("indent11", "style='padding-left:32px;'");
-            htm.add("<img src='/images/orange2.png' style='margin:0 0 0 -32px; padding-right:10px;'/>");
-            htm.addln(" You have not yet completed the Math Placement Tool.");
-            htm.eP();
-
-            htm.sP("indent11");
-            htm.addln(" Visit our <a class='ulink' href='https://placement.", Contexts.DOMAIN,
-                    "/welcome/welcome.html'>Math Placement web site</a> for information on using the Math ",
-                    "Placement Tool.");
-            htm.eP();
-        } else {
-            appendYouHaveTaken(htm, status);
-
-            htm.div("vgap");
-
-            htm.addln("<fieldset>");
-            htm.addln("<legend>Your best results so far:</legend>");
-
-            // Display list of courses the student is qualified to register for
-            boolean heading = true;
-            boolean comma = false;
-            boolean noneButAucc = true;
-
-            final List<String> list = new ArrayList<>(status.clearedFor);
-            Collections.sort(list);
-            for (final String course : list) {
-
-                if (heading) {
-                    heading = false;
-                    htm.sP("indent11");
-                    htm.addln(" <img src='/images/check.png'/> &nbsp; You are cleared to register for:");
-                }
-
-                if (comma) {
-                    htm.add(", ");
-                }
-
-                comma = true;
-                htm.add("<strong>", course, "</strong>");
-
-                if (!("MATH 101".equals(course) || "MATH 105".equals(course) || "STAT 100".equals(course)
-                      || "STAT 201".equals(course) || "STAT 204".equals(course))) {
-                    noneButAucc = false;
-                }
-            }
-
-            if (!heading) {
-                htm.eP();
-            }
-
-            // Display list of courses the student has placed out of
-            heading = true;
-            comma = false;
-
-            for (final String course : status.placedOutOf) {
-
-                if (heading) {
-                    heading = false;
-                    htm.sP("indent11");
-                    htm.addln(" <img src='/images/check.png'/> &nbsp; You have placed out of:");
-                }
-
-                if (comma) {
-                    htm.add(", ");
-                }
-
-                comma = true;
-                htm.add("<strong>", course, "</strong>");
-                noneButAucc = false;
-            }
-
-            if (!heading) {
-                htm.eP();
-            }
-
-            // Display list of courses the student has earned credit for of
-            heading = true;
-            comma = false;
-
-            for (final String course : status.earnedCreditFor) {
-
-                if (heading) {
-                    heading = false;
-                    htm.sP("indent11");
-                    htm.addln(" <img src='/images/check.png'/> &nbsp; You have earned placement credit for:");
-                }
-
-                if (comma) {
-                    htm.add(", ");
-                }
-
-                comma = true;
-                htm.add("<strong>", course, "</strong>");
-                noneButAucc = false;
-            }
-
-            if (!heading) {
-                htm.eP();
-            }
-
-            if (noneButAucc) {
-                htm.addln("<p class='indent11' style='margin-bottom:0;margin-top:10pt;'>");
-                htm.addln("<img style='position:relative; top:-1px' src='/images/error.png'/> &nbsp; ");
-                htm.addln("MATH 101, MATH 105, STAT 100, STAT 201, and STAT 204 do not satisfy the degree ",
-                        "requirements for some majors.  Consult the <a class='ulink' ",
-                        "href='https://www.catalog.colostate.edu/'>University Catalog</a> to see if these courses ",
-                        "are appropriate for your desired major.");
-                htm.eP();
-
-                htm.addln("<p class='indent11' style='margin-top:10pt;'>");
-                htm.addln("<img style='position:relative; top:-1px' src='/images/info.png'/> &nbsp; ");
-                htm.addln("<span class='blue'>What should I do now?</span>");
-                htm.eP();
-
-                if (status.attemptsRemaining > 0) {
-                    htm.sP("indent33");
-                    htm.add("To become eligible to register for just MATH 117, MATH 120, or ",
-                            "MATH 127, you may complete the ELM Tutorial and take the ELM Exam.");
-                    htm.eP();
-
-                    htm.sP("indent33");
-                    htm.add("Alternatively, to become eligible to register for additional mathematics courses, ",
-                            "including MATH 117, MATH 120, or MATH 127, you could use the ",
-                            "<a class='ulink' href='https://placement.", Contexts.DOMAIN, "/welcome/placement.html' ",
-                            "class='ulink'>Math Placement Review materials</a> to study, and try the Math ",
-                            "Placement Tool again.");
-                } else {
-                    htm.sP("indent33");
-                    htm.addln(" To become eligible to register for MATH 117117, MATH 120, or MATH 127, complete the ",
-                            "ELM Tutorial and take the ELM Exam.");
-                }
-                htm.eP();
-            }
-
-            // Only show adviser comment if the student is known to have an adviser
-            if (student != null && student.adviserEmail != null) {
-                htm.div("vgap");
-                htm.sP("indent11");
-                htm.addln(" You should check with your adviser for complete information concerning your math "
-                          + "requirements.");
-                htm.eP();
-            }
-
-            htm.addln("</fieldset>");
-        }
-
-        htm.eDiv(); // indent11
     }
 
     /**

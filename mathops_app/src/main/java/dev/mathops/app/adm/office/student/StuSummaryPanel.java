@@ -1253,7 +1253,7 @@ public final class StuSummaryPanel extends AdmPanelBase {
      * Gets the name associated with a course.
      *
      * @param course the course ID
-     * @return the name; null if course ID is not that of a course
+     * @return the name; null if the course ID is not that of a course
      */
     private static String nameForCourse(final String course) {
 
