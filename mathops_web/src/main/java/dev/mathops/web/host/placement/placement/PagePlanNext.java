@@ -355,6 +355,16 @@ enum PagePlanNext {
                 needsPlacement = false;
             }
 
+            case MSG_ALREADY_COMPLETE -> {
+                htm.sP(CENTER);
+                htm.addln("<img class='check' src='/images/welcome/check.png' alt=''/>");
+                htm.add(SSTRONG,
+                        "You have already completed the recommended MATH courses for your first semester.",
+                        ESTRONG);
+                htm.eP(); // center
+                needsPlacement = false;
+            }
+
             case MSG_PLACE_INTO_117 -> {
                 emitExistingIfNotBlank(htm, existing);
                 htm.sP().add(SSTRONG, YOU_SHOULD_COMPLETE_A, "become eligible for MATH 117 or MATH 120.", ESTRONG).eP();
