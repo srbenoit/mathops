@@ -344,14 +344,31 @@ enum PagePlanNext {
             case MSG_PLACEMENT_NOT_NEEDED, MSG_ALREADY_ELIGIBLE -> {
                 htm.sP(CENTER);
                 htm.addln("<img class='check' src='/images/welcome/check.png' alt=''/>");
-                if (firstTerm.firstTermNamed.type == EIdealFirstTermType.CORE_ONLY) {
-                    htm.add(SSTRONG,
-                            "You are eligible to register for a Mathematics course appropriate for your program.",
-                            ESTRONG);
-                } else {
+                htm.add(SSTRONG,
+                        "You are eligible to register for a Mathematics course appropriate for your program.",
+                        ESTRONG);
+                if (firstTerm.firstTermNamed.type != EIdealFirstTermType.CORE_ONLY) {
                     emitExistingIfNotBlank(htm, existing);
                 }
                 htm.eP(); // center
+                needsPlacement = false;
+            }
+
+            case MSG_PLACEMENT_NOT_NEEDED_FOR_DECLARED -> {
+                htm.sP(CENTER);
+                htm.addln("<img class='check' src='/images/welcome/check.png' alt=''/>");
+                htm.add(SSTRONG,
+                        "You are eligible to register for a Mathematics course appropriate for your declared major.",
+                        ESTRONG);
+                if (firstTerm.firstTermNamed.type != EIdealFirstTermType.CORE_ONLY) {
+                    emitExistingIfNotBlank(htm, existing);
+                }
+                htm.eP(); // center
+
+                htm.sP();
+                htm.add("NOTE: You selected majors in the Math Plan that need additional MATH courses.  If you switch ",
+                        "to one of these majors, you would need to satisfy the MATH requirements for that major.");
+                htm.eP();
                 needsPlacement = false;
             }
 
