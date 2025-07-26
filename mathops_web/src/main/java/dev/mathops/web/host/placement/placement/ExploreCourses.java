@@ -27,28 +27,24 @@ enum ExploreCourses {
         htm.sDiv("indent");
         htm.addln("<button class='accordion'>MATH 101: Math in the Social Sciences (3 credits)</button>");
         htm.sDiv("accordionpanel");
-        htm.sP().add("MATH 101 is designed to increase students' understanding and ",
-                "appreciation of the importance and usefulness of mathematics by showing how discrete ",
-                "mathematics can be used in planning and decision making.  Topics include ",
-                "voting theory, fair division, optimization, and probability. MATH 101 ",
+        htm.sP().add("MATH 101 is designed to increase students' understanding and appreciation of the importance and ",
+                "usefulness of mathematics by showing how discrete mathematics can be used in planning and decision ",
+                "making.  Topics include voting theory, fair division, optimization, and probability. MATH 101 ",
                 "emphasizes cooperative group learning and active participation.").eP();
-        htm.sP().add("MATH 101 satisfies the mathematics requirement of the All-University Core ",
-                "Curriculum but does not satisfy the prerequisites for any courses that use ",
-                "mathematics (such as economics, physical sciences, and statistics). MATH 101 does ",
-                "not satisfy the prerequisite for MATH 117.").eP();
+        htm.sP().add("MATH 101 satisfies the mathematics requirement of the All-University Core Curriculum but does ",
+                "not satisfy the prerequisites for any courses that use mathematics (such as economics, physical ",
+                "sciences, and statistics). MATH 101 does not satisfy the prerequisite for MATH 117.").eP();
         htm.eDiv(); // accordionpanel
 
         htm.addln("<button class='accordion'>MATH 105: Patterns of Phenomena (3 credits)</button>");
         htm.sDiv("accordionpanel");
-        htm.sP().add("MATH 105 engages students in the exploration of mathematical ideas ",
-                "and modes of thought and their application in the arts and humanities. ",
-                "Representative topics include symmetry, levels of infinity, the fourth dimension, ",
-                "contortions of space, chaos and fractals.  (Prior knowledge of these topics is not ",
-                "assumed.)").sP();
-        htm.sP().add("MATH 105 satisfies the mathematics requirement of the All-University Core ",
-                "Curriculum but does not satisfy the prerequisites for any courses that use ",
-                "mathematics (such as economics, physical sciences, and statistics). MATH 105 does ",
-                "not satisfy the prerequisite for MATH 117.").eP();
+        htm.sP().add("MATH 105 engages students in the exploration of mathematical ideas and modes of thought and ",
+                "their application in the arts and humanities. Representative topics include symmetry, levels of ",
+                "infinity, the fourth dimension, contortions of space, chaos and fractals.  (Prior knowledge of ",
+                "these topics is not assumed.)").sP();
+        htm.sP().add("MATH 105 satisfies the mathematics requirement of the All-University Core Curriculum but does ",
+                "not satisfy the prerequisites for any courses that use mathematics (such as economics, physical ",
+                "sciences, and statistics). MATH 105 does not satisfy the prerequisite for MATH 117.").eP();
         htm.eDiv(); // accordionpanel
         htm.eDiv(); // indent
 
@@ -64,7 +60,7 @@ enum ExploreCourses {
                 "interpreting, applying, and communicating mathematical ideas.").eP();
         htm.sP().add("Topics include the idea of a mathematical model, linear functions, quadratic functions and ",
                         "equations, systems of equations and inequalities, piecewise-defined functions, and absolute " +
-                                "value.")
+                        "value.")
                 .eP();
         htm.sP().add("A Texas Instruments TI-84 graphing calculator is required.").eP();
         htm.eDiv(); // accordionpanel
@@ -124,7 +120,7 @@ enum ExploreCourses {
 //                "calculus.").eP();
 //        htm.sP().add("This course satisfies the prerequisite for MATH 155, MATH 156, MATH 157, or MATH 160.").eP();
 //        htm.eDiv(); // accordionpanel
-//        htm.eDiv(); // indent
+        htm.eDiv(); // indent
 
         htm.div("vgap2");
 
