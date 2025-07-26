@@ -20,7 +20,7 @@ enum PagePlacement {
     ;
 
     /** A commonly used string. */
-    private static final String EXT_LINK = "<span title='Links to an external site'>" //
+    private static final String EXT_LINK = "<span title='Links to an external site'>"
                                            + "<img style='width:12px;margin-left:3px;position:relative;top:-2px;' "
                                            + "src='/images/external-link-24.png'/></span>";
 
@@ -293,7 +293,7 @@ enum PagePlacement {
     private static void emitMoreInformation(final HtmlBuilder htm) {
 
         htm.sDiv("center");
-        htm.sH(1, "shaded").add("General Math Placement Infomation").eH(1);
+        htm.sH(1, "shaded").add("General Math Placement Information").eH(1);
         htm.eDiv();
         htm.div("vgap");
 
@@ -340,7 +340,7 @@ enum PagePlacement {
                         "the Entry-Level Mathematics Tutorial.", EXT_LINK, "</a></li>")
                 .add("<li><a class='question' href='/precalc-tutorial/' target='_blank'>the Precalculus Tutorial.",
                         EXT_LINK, "</a></li>")
-                .eP();
+                .add("</ul>").eP();
 
         htm.eDiv(); // column2
         htm.eDiv(); // shaded2
