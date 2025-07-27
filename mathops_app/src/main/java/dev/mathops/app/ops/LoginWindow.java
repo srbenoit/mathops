@@ -12,9 +12,9 @@ import dev.mathops.db.cfg.Data;
 import dev.mathops.db.cfg.Database;
 import dev.mathops.db.cfg.DatabaseConfig;
 import dev.mathops.db.cfg.DatabaseConfigXml;
+import dev.mathops.db.cfg.Facet;
 import dev.mathops.db.cfg.Login;
 import dev.mathops.db.cfg.Profile;
-import dev.mathops.db.cfg.Facet;
 import dev.mathops.db.cfg.Server;
 import dev.mathops.text.parser.ParsingException;
 
@@ -147,9 +147,9 @@ final class LoginWindow implements Runnable, ActionListener {
                     boolean hasDev = false;
                     for (final Data data : db.getData()) {
                         if (data.schema == ESchema.LEGACY) {
-                            if (data.use == EDbUse.PROD) {
+                            if (data.use == EDbUse.PRODUCTION) {
                                 hasProd = true;
-                            } else if (data.use == EDbUse.DEV) {
+                            } else if (data.use == EDbUse.DEVELOPMENT) {
                                 hasDev = true;
                             }
                         }
