@@ -30,7 +30,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * A pane th represent a selected database, login, and use in a multi-database window for a specific schema and table.
+ * A pane to represent a selected database, login, and use in a multi-database window for a specific schema and table.
  */
 final class SelectedDatabaseHeader extends JPanel implements ActionListener {
 

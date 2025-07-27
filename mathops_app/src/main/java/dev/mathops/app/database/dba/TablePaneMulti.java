@@ -27,6 +27,9 @@ final class TablePaneMulti extends JPanel {
     /** The pane that will show the selected databases. */
     private final JPanel selectedDatabasesRow;
 
+    /** The panel to perform comparisons between two databases. */
+    private final DatabaseCompare compare;
+
     /**
      * Constructs a new {@code TablePaneMulti}.
      *
@@ -73,6 +76,9 @@ final class TablePaneMulti extends JPanel {
 
         this.selectedDatabasesRow = new JPanel(new StackedBorderLayout());
         add(this.selectedDatabasesRow, StackedBorderLayout.NORTH);
+
+        this.compare = new DatabaseCompare();
+        add(this.compare, StackedBorderLayout.CENTER);
     }
 
     /**
@@ -100,6 +106,8 @@ final class TablePaneMulti extends JPanel {
                 this.selectedDatabasesRow.add(icon, StackedBorderLayout.WEST);
             }
         }
+
+        this.compare.update(schemaTable, databaseUses);
 
         invalidate();
         revalidate();
