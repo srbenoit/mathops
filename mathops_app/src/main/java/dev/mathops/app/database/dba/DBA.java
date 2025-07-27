@@ -1,6 +1,5 @@
 package dev.mathops.app.database.dba;
 
-import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.db.DbConnection;

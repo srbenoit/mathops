@@ -6,7 +6,6 @@ import dev.mathops.db.EDbUse;
 import dev.mathops.db.ESchema;
 import dev.mathops.db.cfg.Database;
 import dev.mathops.db.cfg.DatabaseConfig;
-import dev.mathops.db.cfg.Login;
 import dev.mathops.db.cfg.Server;
 
 import javax.swing.BorderFactory;
@@ -38,10 +37,13 @@ final class TablePaneSingle extends JPanel {
     /** A label that will receive the name of the selected use. */
     private final JLabel useName;
 
+    /** The "manage" pane. */
     private final PaneManage manage;
 
+    /** A pane to enter SQL. */
     private final PaneSQL sql;
 
+    /** A pane with information. */
     private final PaneInformation info;
 
     /**
@@ -126,9 +128,8 @@ final class TablePaneSingle extends JPanel {
      *
      * @param schemaTable the schema and table; null if none is selected
      * @param databaseUse the selected database use
-     * @param login       the database login from which to obtain connections
      */
-    void update(final SchemaTable schemaTable, final DatabaseUse databaseUse, final Login login) {
+    void update(final SchemaTable schemaTable, final DatabaseUse databaseUse) {
 
         if (schemaTable == null) {
             this.schemaName.setText(CoreConstants.SPC);
@@ -157,7 +158,7 @@ final class TablePaneSingle extends JPanel {
             this.useName.setText(" (" + useStr + ")");
         }
 
-        this.manage.update(schemaTable, databaseUse, login);
+        this.manage.update(schemaTable, databaseUse);
         this.sql.update(schemaTable, databaseUse);
         this.info.update(schemaTable, databaseUse);
     }

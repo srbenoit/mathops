@@ -64,7 +64,7 @@ final class TablePane extends JPanel {
     void select(final SchemaTable schemaTable, final List<DatabaseUse> databaseUses,
                 final Map<Database, Login> logins) {
 
-        this.singleDatabaseTable.update(null, null, null);
+        this.singleDatabaseTable.update(null, null);
         this.multiDatabaseTable.update(null, null);
 
         if (schemaTable == null || databaseUses.isEmpty()) {
@@ -75,9 +75,7 @@ final class TablePane extends JPanel {
             if (numDatabases == 1) {
                 this.layout.show(this, SINGLE_DB);
                 final DatabaseUse databaseUse = databaseUses.getFirst();
-                final Database database = databaseUse.database();
-                final Login login = logins.get(database);
-                this.singleDatabaseTable.update(schemaTable, databaseUse, login);
+                this.singleDatabaseTable.update(schemaTable, databaseUse);
             } else {
                 this.layout.show(this, MULTI_DB);
                 this.multiDatabaseTable.update(schemaTable, databaseUses);

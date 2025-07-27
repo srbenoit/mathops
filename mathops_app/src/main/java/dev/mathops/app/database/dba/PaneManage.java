@@ -45,19 +45,16 @@ final class PaneManage extends JPanel implements ActionListener, ListSelectionLi
     private final PaneQueryCriteria queryFields;
 
     /** The active login. */
-    private Login activeLogin;
+    private Login activeLogin = null;
 
     /** The qualified table name of the active table. */
-    private String activeTableName;
+    private String activeTableName = null;
 
     /** The columns found in the active table; empty if there is no active table. */
     private final List<Column> activeTableColumns;
 
     /** The table model for the results table. */
     private final ResultsTableModel resultsTableModel;
-
-    /** The table for results. */
-    private final JTable resultsTable;
 
     /** A panel to display the selected record. */
     private final PaneActiveRecord activeRecord;
@@ -95,13 +92,13 @@ final class PaneManage extends JPanel implements ActionListener, ListSelectionLi
         recordsGrid.add(resultsHeader, StackedBorderLayout.NORTH);
 
         this.resultsTableModel = new ResultsTableModel();
-        this.resultsTable = new JTable(this.resultsTableModel);
-        this.resultsTable.setShowGrid(true);
-        this.resultsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-        final ListSelectionModel selectionModel = this.resultsTable.getSelectionModel();
+        final JTable resultsTable = new JTable(this.resultsTableModel);
+        resultsTable.setShowGrid(true);
+        resultsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        final ListSelectionModel selectionModel = resultsTable.getSelectionModel();
         selectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         selectionModel.addListSelectionListener(this);
-        final JScrollPane resultsScroll = new JScrollPane(this.resultsTable);
+        final JScrollPane resultsScroll = new JScrollPane(resultsTable);
         recordsGrid.add(resultsScroll, StackedBorderLayout.CENTER);
 
         //
@@ -121,18 +118,17 @@ final class PaneManage extends JPanel implements ActionListener, ListSelectionLi
      *
      * @param schemaTable the schema and table; null if none is selected
      * @param databaseUse the selected database use
-     * @param login       the database login from which to obtain connections
      */
-    void update(final SchemaTable schemaTable, final DatabaseUse databaseUse, final Login login) {
+    void update(final SchemaTable schemaTable, final DatabaseUse databaseUse) {
 
         this.queryFields.clear();
         this.activeTableColumns.clear();
 
-        if (schemaTable == null || databaseUse == null || login == null) {
+        if (schemaTable == null || databaseUse == null) {
             this.activeLogin = null;
             this.activeTableName = null;
         } else {
-            this.activeLogin = login;
+            this.activeLogin = databaseUse.login();
 
             final Database database = databaseUse.database();
 
@@ -146,7 +142,7 @@ final class PaneManage extends JPanel implements ActionListener, ListSelectionLi
             }
 
             if (data != null) {
-                final DbConnection conn = login.checkOutConnection();
+                final DbConnection conn = this.activeLogin.checkOutConnection();
                 try {
                     final Connection jdbc = conn.getConnection();
                     final DatabaseMetaData meta = jdbc.getMetaData();
@@ -184,7 +180,7 @@ final class PaneManage extends JPanel implements ActionListener, ListSelectionLi
                     final String[] msg = {"Unable to access database table", ex.getLocalizedMessage()};
                     JOptionPane.showMessageDialog(this, msg, "Manage Table", JOptionPane.ERROR_MESSAGE);
                 } finally {
-                    login.checkInConnection(conn);
+                    this.activeLogin.checkInConnection(conn);
                 }
             }
         }

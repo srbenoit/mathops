@@ -190,10 +190,10 @@ final class LoginWindow extends JFrame implements ActionListener {
         schemaPick.setBackground(Skin.OFF_WHITE_GRAY);
         schemaPick.add(schemaPickLbl, BorderLayout.LINE_START);
 
-        final EDbUse[] useArray = {EDbUse.PRODUCTION, EDbUse.DEVELOPMENT};
+        final EDbUse[] useArray = {EDbUse.PROD, EDbUse.DEV};
         this.useCombo = new JComboBox<>(useArray);
         this.useCombo.setBackground(Color.WHITE);
-        this.useCombo.setSelectedItem(EDbUse.PRODUCTION);
+        this.useCombo.setSelectedItem(EDbUse.PROD);
         schemaPick.add(this.useCombo);
         center.add(schemaPick);
 
@@ -428,9 +428,9 @@ final class LoginWindow extends JFrame implements ActionListener {
             if (dbUse == null) {
                 this.useCombo.setBackground(ERROR_COLOR);
                 err = Res.get(Res.LOGIN_NO_DB_ERR);
-            } else if (dbUse == EDbUse.PRODUCTION) {
+            } else if (dbUse == EDbUse.PROD) {
                 ++good;
-            } else if (dbUse == EDbUse.DEVELOPMENT) {
+            } else if (dbUse == EDbUse.DEV) {
                 ++good;
             } else {
                 this.useCombo.setBackground(ERROR_COLOR);
@@ -459,13 +459,13 @@ final class LoginWindow extends JFrame implements ActionListener {
                 for (final Server server : this.dbConfig.getServers()) {
                     for (final Database database : server.getDatabases()) {
                         for (final Data data : database.getData()) {
-                            if (data.schema == ESchema.LIVE && data.use == EDbUse.LIVE_PRODUCTION) {
+                            if (data.schema == ESchema.LIVE && data.use == EDbUse.LIVE) {
                                 final List<Login> logins = database.getLogins();
                                 final Login login = logins.getFirst();
                                 final Facet facet = new Facet(data, login);
                                 profile.addFacet(facet);
                                 foundLive = true;
-                            } else if (data.schema == ESchema.ODS && data.use == EDbUse.ODS_PRODUCTION) {
+                            } else if (data.schema == ESchema.ODS && data.use == EDbUse.ODS) {
                                 final List<Login> logins = database.getLogins();
                                 final Login login = logins.getFirst();
                                 final Facet facet = new Facet(data, login);

@@ -3,7 +3,6 @@ package dev.mathops.app.database.dba;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.ESchema;
-import dev.mathops.db.cfg.Database;
 import dev.mathops.db.cfg.DatabaseConfig;
 
 import javax.swing.BorderFactory;
@@ -13,16 +12,20 @@ import javax.swing.border.Border;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.util.List;
 
 /**
  * A panel that displays a database table when multiple databases are selected.
  */
 final class TablePaneMulti extends JPanel {
 
+    /** A label to show the schema name. */
     private final JLabel schemaName;
 
+    /** A label to show the table name. */
     private final JLabel tableName;
+
+    /** The pane that will show the selected databases. */
+    private final JPanel selectedDatabasesRow;
 
     /**
      * Constructs a new {@code TablePaneMulti}.
@@ -33,19 +36,20 @@ final class TablePaneMulti extends JPanel {
 
         super(new StackedBorderLayout());
 
-        final Color bg = getBackground();
-        final boolean bgLight = InterfaceUtils.isLight(bg);
-        final Color accent = InterfaceUtils.createAccentColor(bg, bgLight);
-        final Color newBg = bgLight ? bg.brighter() : bg.darker();
+        final Color background = getBackground();
+        final boolean bgLight = InterfaceUtils.isLight(background);
+        final Color accent = InterfaceUtils.createAccentColor(background, bgLight);
+
+        final Color newBg = bgLight ? background.brighter() : background.darker();
         final Border bottomLine = BorderFactory.createMatteBorder(0, 0, 1, 0, accent);
 
         final Font font = getFont();
         final int fontSize = font.getSize();
         final Font larger = font.deriveFont((float) fontSize * 1.2f);
 
-        final Color color = getForeground();
-        final boolean isLight = InterfaceUtils.isLight(color);
-        final Color labelColor = isLight ? new Color(255, 255, 150) : new Color(160, 0, 0);
+        final Color foreground = getForeground();
+        final boolean lightForeground = InterfaceUtils.isLight(foreground);
+        final Color labelColor = lightForeground ? new Color(255, 255, 150) : new Color(160, 0, 0);
 
         final JPanel topFlow = new JPanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
         topFlow.setBackground(newBg);
@@ -66,6 +70,9 @@ final class TablePaneMulti extends JPanel {
         topFlow.add(this.tableName);
 
         add(topFlow, StackedBorderLayout.NORTH);
+
+        this.selectedDatabasesRow = new JPanel(new StackedBorderLayout());
+        add(this.selectedDatabasesRow, StackedBorderLayout.NORTH);
     }
 
     /**
@@ -74,7 +81,9 @@ final class TablePaneMulti extends JPanel {
      * @param schemaTable  the schema and table; null if none is selected
      * @param databaseUses the selected database uses
      */
-    void update(final SchemaTable schemaTable, final List<DatabaseUse> databaseUses) {
+    void update(final SchemaTable schemaTable, final Iterable<DatabaseUse> databaseUses) {
+
+        this.selectedDatabasesRow.removeAll();
 
         if (schemaTable == null) {
             this.schemaName.setText(CoreConstants.SPC);
@@ -85,6 +94,16 @@ final class TablePaneMulti extends JPanel {
             this.schemaName.setText(schemaStr);
             final String tableStr = schemaTable.table();
             this.tableName.setText(tableStr);
+
+            for (final DatabaseUse use : databaseUses) {
+                final SelectedDatabaseHeader icon = new SelectedDatabaseHeader(use, schemaTable);
+                this.selectedDatabasesRow.add(icon, StackedBorderLayout.WEST);
+            }
         }
+
+        invalidate();
+        revalidate();
+        repaint();
     }
 }
+

@@ -143,8 +143,8 @@ public final class DbImport implements Runnable {
 
             Log.info("Connected to PostgreSQL.");
 
-            final String schemaName = schema == EDbUse.PRODUCTION ? "legacy"
-                    : (schema == EDbUse.DEVELOPMENT ? "legacy_dev" : "legacy_test");
+            final String schemaName = schema == EDbUse.PROD ? "legacy"
+                    : (schema == EDbUse.DEV ? "legacy_dev" : "legacy_test");
 
             final boolean schemaEmpty;
             if (dropTables) {

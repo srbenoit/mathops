@@ -202,8 +202,7 @@ final class PgDatabasePicker extends JFrame implements ActionListener {
                 final Login login = db.getLogins().get(loginIndex);
 
                 final int whichSchema = this.schemaPicker.getSelectedIndex();
-                final EDbUse use = whichSchema == 0 ? EDbUse.PRODUCTION : (whichSchema == 1 ? EDbUse.DEVELOPMENT :
-                        EDbUse.TESTING);
+                final EDbUse use = whichSchema == 0 ? EDbUse.PROD : (whichSchema == 1 ? EDbUse.DEV : EDbUse.TEST);
 
                 if (dropTables) {
                     final String[] message = {"This will drop all existing tables in the database.",

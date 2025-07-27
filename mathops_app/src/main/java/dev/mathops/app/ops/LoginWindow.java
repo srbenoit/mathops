@@ -147,9 +147,9 @@ final class LoginWindow implements Runnable, ActionListener {
                     boolean hasDev = false;
                     for (final Data data : db.getData()) {
                         if (data.schema == ESchema.LEGACY) {
-                            if (data.use == EDbUse.PRODUCTION) {
+                            if (data.use == EDbUse.PROD) {
                                 hasProd = true;
-                            } else if (data.use == EDbUse.DEVELOPMENT) {
+                            } else if (data.use == EDbUse.DEV) {
                                 hasDev = true;
                             }
                         }

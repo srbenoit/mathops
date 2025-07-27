@@ -48,7 +48,7 @@ final class DatabaseRibbonTile extends JPanel implements ActionListener {
     private final Server server;
 
     /** A map from database to its login. */
-    private final Map<? super Database, ? super Login> logins;
+    private final Map<? super Database, Login> logins;
 
     /** Layout managers to toggle each database between connected and not connected states. */
     private final Map<Database, CardLayout> cardLayouts;
@@ -71,7 +71,7 @@ final class DatabaseRibbonTile extends JPanel implements ActionListener {
      * @param accent    the accent color to use for dividers
      */
     DatabaseRibbonTile(final Server theServer, final ActionListener listener,
-                       final Map<? super Database, ? super Login> theLogins, final Color accent) {
+                       final Map<? super Database, Login> theLogins, final Color accent) {
 
         super(new StackedBorderLayout());
 
@@ -222,12 +222,13 @@ final class DatabaseRibbonTile extends JPanel implements ActionListener {
         for (final Map.Entry<Database, Map<EDbUse, JCheckBox>> databaseEntry : this.checkboxes.entrySet()) {
             final Database database = databaseEntry.getKey();
             final Map<EDbUse, JCheckBox> useMap = databaseEntry.getValue();
+            final Login login = logins.get(database);
 
             for (final Map.Entry<EDbUse, JCheckBox> entry : useMap.entrySet()) {
                 final JCheckBox checkbox = entry.getValue();
                 if (checkbox.isSelected()) {
                     final EDbUse use = entry.getKey();
-                    final DatabaseUse rec = new DatabaseUse(database, use);
+                    final DatabaseUse rec = new DatabaseUse(database, login, use);
                     databaseUses.add(rec);
                 }
             }
