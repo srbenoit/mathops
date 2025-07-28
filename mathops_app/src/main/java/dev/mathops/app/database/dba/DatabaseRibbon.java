@@ -7,6 +7,7 @@ import dev.mathops.db.cfg.Login;
 import dev.mathops.db.cfg.Server;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 import java.awt.Color;
@@ -21,6 +22,9 @@ import java.util.Map;
  * which databases are "active" for administration.
  */
 final class DatabaseRibbon extends JPanel {
+
+    /** An action command. */
+    public static final String CMD_GEN_FIELDS = "GEN_FIELDS";
 
     /** The list of tiles in the ribbon. */
     private final List<DatabaseRibbonTile> tiles;
@@ -52,6 +56,13 @@ final class DatabaseRibbon extends JPanel {
             add(tile, StackedBorderLayout.WEST);
             this.tiles.add(tile);
         }
+
+        final JPanel buttons = new JPanel(new StackedBorderLayout());
+        final JButton genFields = new JButton("Generate FieldDefs");
+        genFields.setActionCommand(CMD_GEN_FIELDS);
+        genFields.addActionListener(listener);
+        buttons.add(genFields, StackedBorderLayout.NORTH);
+        add(buttons, StackedBorderLayout.WEST);
     }
 
     /**
