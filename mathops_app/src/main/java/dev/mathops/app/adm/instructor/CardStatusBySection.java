@@ -88,7 +88,7 @@ final class CardStatusBySection extends AdmPanelBase implements ActionListener {
         this.center.add(centerWestScroll, BorderLayout.LINE_START);
 
         try {
-            final TermRec active = TermLogic.get(this.cache).queryActive(this.cache);
+            final TermRec active = TermLogic.INSTANCE.queryActive(this.cache);
             final List<RawCsection> sections = RawCsectionLogic.queryByTerm(this.cache, active.term);
             sections.sort(null);
 

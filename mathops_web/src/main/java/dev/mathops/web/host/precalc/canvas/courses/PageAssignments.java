@@ -129,7 +129,7 @@ public enum PageAssignments {
         htm.hr();
 
         // Determine the student's pace and track
-        final TermRec active = TermLogic.get(cache).queryActive(cache);
+        final TermRec active = TermLogic.INSTANCE.queryActive(cache);
         final RawStterm stterm = RawSttermLogic.query(cache, active.term, registration.stuId);
         final Integer index = registration.paceOrder;
 

@@ -394,7 +394,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
             }
         } else if ("synthetic".equals(presented.ref)) {
 
-            final List<MasteryAttemptRec> existing = MasteryAttemptLogic.get(cache).queryByStudent(cache,
+            final List<MasteryAttemptRec> existing = MasteryAttemptLogic.INSTANCE.queryByStudent(cache,
                     student.stuId);
 
             for (final MasteryAttemptRec test : existing) {
@@ -542,7 +542,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
                                     ++score;
                                 }
 
-                                if (!MasteryAttemptQaLogic.get(cache).insert(cache, attemptQa)) {
+                                if (!MasteryAttemptQaLogic.INSTANCE.insert(cache, attemptQa)) {
                                     final String courseTargetStr = SimpleBuilder.concat(presented.course, " target ",
                                             unitInt, ".", objInt);
                                     Log.warning("Failed to insert mastery attempt QA for ", courseTargetStr, ": ",
@@ -559,7 +559,7 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
                     attempt.passed = score >= 2 ? "Y" : "N";
                     attempt.isFirstPassed = attempt.passed;
 
-                    if (!MasteryAttemptLogic.get(cache).insert(cache, attempt)) {
+                    if (!MasteryAttemptLogic.INSTANCE.insert(cache, attempt)) {
                         final String courseTargetStr = SimpleBuilder.concat(presented.course, " target ", unitInt, ".",
                                 objInt);
                         Log.warning("Failed to insert mastery attempt for ", courseTargetStr, ": ", attempt);

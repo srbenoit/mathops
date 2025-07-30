@@ -57,7 +57,7 @@ enum PageHome {
         htm.sP().add("Logged in as <strong>", screenName, "</strong>").eP();
         htm.div("vgap");
 
-        final List<ReportPermsRec> allPerms = ReportPermsLogic.get(cache).queryAll(cache);
+        final List<ReportPermsRec> allPerms = ReportPermsLogic.INSTANCE.queryAll(cache);
         final Set<EDefinedReport> reportIds = new HashSet<>(5);
         for (final ReportPermsRec rec : allPerms) {
             if (rec.stuId.equals(myStuId)) {

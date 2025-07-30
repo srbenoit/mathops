@@ -529,10 +529,10 @@ enum PageStudentSchedule {
             milestones.sort(null);
 
             final List<StuStandardMilestoneRec> overrides =
-                    StuStandardMilestoneLogic.get(cache).queryByStuPaceTrackPace(cache, studentId,
+                    StuStandardMilestoneLogic.INSTANCE.queryByStuPaceTrackPace(cache, studentId,
                             stterm.paceTrack, stterm.pace);
 
-            final List<MasteryAttemptRec> allAttempts = MasteryAttemptLogic.get(cache).queryByStudent(cache, studentId);
+            final List<MasteryAttemptRec> allAttempts = MasteryAttemptLogic.INSTANCE.queryByStudent(cache, studentId);
 
             htm.sTable("report");
             htm.sTr().sTh().add("Course").eTh()

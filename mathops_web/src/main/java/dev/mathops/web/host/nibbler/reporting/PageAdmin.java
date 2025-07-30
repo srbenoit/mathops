@@ -61,7 +61,7 @@ enum PageAdmin {
                 final String rptId = req.getParameter("rpt");
                 final EDefinedReport whichReport = EDefinedReport.forId(rptId);
 
-                final List<ReportPermsRec> allPerms = ReportPermsLogic.get(cache).queryAll(cache);
+                final List<ReportPermsRec> allPerms = ReportPermsLogic.INSTANCE.queryAll(cache);
                 allPerms.sort(null);
                 final Map<String, RawStudent> studentRecs = lookupStudents(cache, allPerms);
 
@@ -304,9 +304,9 @@ enum PageAdmin {
         if (whichReport == null) {
             resp.sendRedirect("reports_admin.html");
         } else {
-            final ReportPermsLogic logic = ReportPermsLogic.get(cache);
+            final ReportPermsLogic logic = ReportPermsLogic.INSTANCE;
 
-            final List<ReportPermsRec> allPerms = ReportPermsLogic.get(cache).queryAll(cache);
+            final List<ReportPermsRec> allPerms = logic.queryAll(cache);
 
             // Process permission updates on existing students
             for (final ReportPermsRec toCheck : allPerms) {

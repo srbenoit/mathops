@@ -58,7 +58,7 @@ public enum StandardMasteryEligibilityTester {
             } else if (unit >= 1 && unit <= 10) {
                 // TODO: The course deadline must not be in the past
 
-                final StuUnitMasteryLogic masteryLogic = StuUnitMasteryLogic.get(cache);
+                final StuUnitMasteryLogic masteryLogic = StuUnitMasteryLogic.INSTANCE;
 
                 // The student must be eligible to demonstrate mastery on the standard
                 StuUnitMasteryRec unitMastery =

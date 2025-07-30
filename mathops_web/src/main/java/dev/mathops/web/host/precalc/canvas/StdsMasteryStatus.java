@@ -122,9 +122,9 @@ public final class StdsMasteryStatus {
                 final List<StandardMilestoneRec> standardMilestones =
                         systemData.getStandardMilestonesForPaceTrack(paceTrack, paceObj);
                 final List<StuStandardMilestoneRec> studentMilestones = StuStandardMilestoneLogic
-                        .get(cache).queryByStuPaceTrackPace(cache, reg.stuId, paceTrack, paceObj);
+                        .INSTANCE.queryByStuPaceTrackPace(cache, reg.stuId, paceTrack, paceObj);
                 final List<MasteryExamRec> masteryExams = systemData.getActiveMasteryExamsByCourse(reg.course);
-                final List<MasteryAttemptRec> masteryAttempts = MasteryAttemptLogic.get(cache)
+                final List<MasteryAttemptRec> masteryAttempts = MasteryAttemptLogic.INSTANCE
                         .queryByStudent(cache, reg.stuId);
                 final List<RawSthomework> sthomeworks = RawSthomeworkLogic.queryByStudent(cache, reg.stuId, false);
 

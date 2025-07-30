@@ -100,7 +100,7 @@ final class CardDeadlinesBySection extends AdmPanelBase implements ActionListene
         this.center.add(centerWestScroll, BorderLayout.LINE_START);
 
         try {
-            final TermRec active = TermLogic.get(this.cache).queryActive(this.cache);
+            final TermRec active = TermLogic.INSTANCE.queryActive(this.cache);
             final List<RawMilestone> milestones = RawMilestoneLogic.getAllMilestones(this.cache, active.term);
             milestones.sort(null);
 

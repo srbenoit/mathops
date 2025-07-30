@@ -635,7 +635,7 @@ final class LogicCheckInCourseExams {
             final List<StandardMilestoneRec> allMilestones =
                     systemData.getStandardMilestonesForPaceTrackIndex(paceTrack, paceObj, reg.paceOrder);
             final List<StuStandardMilestoneRec> allStMilestones =
-                    StuStandardMilestoneLogic.get(cache).queryByStuPaceTrackPaceIndex(cache, reg.stuId,
+                    StuStandardMilestoneLogic.INSTANCE.queryByStuPaceTrackPaceIndex(cache, reg.stuId,
                             paceTrack, paceObj, reg.paceOrder);
 
             LocalDate deadline = null;

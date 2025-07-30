@@ -81,7 +81,7 @@ final class TrackDeadlinesPane extends JPanel implements ActionListener {
         setBorder(etched);
 
         try {
-            final TermRec active = TermLogic.get(theCache).queryActive(theCache);
+            final TermRec active = TermLogic.INSTANCE.queryActive(theCache);
             if (active == null) {
                 final JPanel errorFlow = new JPanel(new FlowLayout(FlowLayout.LEADING, 9, 6));
                 errorFlow.setBackground(Skin.WHITE);

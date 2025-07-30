@@ -122,9 +122,9 @@ final class StdsMasteryStatus {
                 final List<StandardMilestoneRec> standardMilestones =
                         systemData.getStandardMilestonesForPaceTrack(paceTrack, paceObj);
                 final List<StuStandardMilestoneRec> studentMilestones = StuStandardMilestoneLogic
-                        .get(cache).queryByStuPaceTrackPace(cache, reg.stuId, paceTrack, paceObj);
+                        .INSTANCE.queryByStuPaceTrackPace(cache, reg.stuId, paceTrack, paceObj);
                 final List<MasteryExamRec> masteryExams = systemData.getActiveMasteryExamsByCourse(reg.course);
-                final List<MasteryAttemptRec> masteryAttempts = MasteryAttemptLogic.get(cache)
+                final List<MasteryAttemptRec> masteryAttempts = MasteryAttemptLogic.INSTANCE
                         .queryByStudent(cache, reg.stuId);
                 final List<RawSthomework> sthomeworks = RawSthomeworkLogic.queryByStudent(cache, reg.stuId, false);
 
@@ -173,16 +173,16 @@ final class StdsMasteryStatus {
                         LocalDate onTime = null;
                         for (final StandardMilestoneRec ms : standardMilestones) {
                             if (ms.paceIndex.intValue() == order && ms.unit.intValue() == unit
-                                    && ms.objective.intValue() == obj
-                                    && StandardMilestoneRec.MS_TYPE_STD_MASTERY.equals(ms.msType)) {
+                                && ms.objective.intValue() == obj
+                                && StandardMilestoneRec.MS_TYPE_STD_MASTERY.equals(ms.msType)) {
                                 onTime = ms.msDate;
                                 break;
                             }
                         }
                         for (final StuStandardMilestoneRec stms : studentMilestones) {
                             if (stms.paceIndex.intValue() == order && stms.unit.intValue() == unit
-                                    && stms.objective.intValue() == obj
-                                    && StandardMilestoneRec.MS_TYPE_STD_MASTERY.equals(stms.msType)) {
+                                && stms.objective.intValue() == obj
+                                && StandardMilestoneRec.MS_TYPE_STD_MASTERY.equals(stms.msType)) {
                                 onTime = stms.msDate;
                                 break;
                             }
@@ -230,7 +230,7 @@ final class StdsMasteryStatus {
                                         } else {
                                             value = MASTERED_ON_TIME;
                                             if (this.standardFirstMastered[arrayIndex] == null ||
-                                                    this.standardFirstMastered[arrayIndex].isAfter(examDate)) {
+                                                this.standardFirstMastered[arrayIndex].isAfter(examDate)) {
                                                 this.standardFirstMastered[arrayIndex] = examDate;
                                             }
                                         }

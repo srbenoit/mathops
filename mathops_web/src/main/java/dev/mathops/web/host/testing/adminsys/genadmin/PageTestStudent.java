@@ -990,7 +990,7 @@ enum PageTestStudent {
         final List<RawSthomework> allHw = RawSthomeworkLogic.getHomeworks(cache, RawStudent.TEST_STUDENT_ID,
                 reg.course, false);
 
-        final List<MasteryAttemptRec> allAttempts = MasteryAttemptLogic.get(cache).queryByStudent(cache, reg.stuId);
+        final List<MasteryAttemptRec> allAttempts = MasteryAttemptLogic.INSTANCE.queryByStudent(cache, reg.stuId);
 
         htm.addln("  <tr><td></td>");
         htm.addln("    <td colspan='", Integer.valueOf(numColumns), "' style='background:#007400;height:1px;'></td>");
@@ -2510,8 +2510,8 @@ enum PageTestStudent {
         // Delete mastery attempts on record
         final List<MasteryExamRec> masteryExams = systemData.getActiveMasteryExamsByCourse(courseId);
 
-        final MasteryAttemptLogic attemptLogic = MasteryAttemptLogic.get(cache);
-        final MasteryAttemptQaLogic attemptQaLogic = MasteryAttemptQaLogic.get(cache);
+        final MasteryAttemptLogic attemptLogic = MasteryAttemptLogic.INSTANCE;
+        final MasteryAttemptQaLogic attemptQaLogic = MasteryAttemptQaLogic.INSTANCE;
         for (final MasteryExamRec exam : masteryExams) {
             final List<MasteryAttemptRec> attempts = attemptLogic.queryByStudentExam(cache, RawStudent.TEST_STUDENT_ID,
                     exam.examId, false);
@@ -2890,6 +2890,6 @@ enum PageTestStudent {
         final MasteryAttemptRec attempt = new MasteryAttemptRec(Integer.valueOf(sn), examId, RawStudent.TEST_STUDENT_ID,
                 start, end, Integer.valueOf(score), Integer.valueOf(2), passed, passed, "TC");
 
-        MasteryAttemptLogic.get(cache).insert(cache, attempt);
+        MasteryAttemptLogic.INSTANCE.insert(cache, attempt);
     }
 }

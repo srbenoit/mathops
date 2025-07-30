@@ -753,11 +753,11 @@ enum PageStudentInfo {
             milestones.sort(null);
 
             final List<StuStandardMilestoneRec> overrides =
-                    StuStandardMilestoneLogic.get(cache).queryByStuPaceTrackPace(cache, reg.stuId,
+                    StuStandardMilestoneLogic.INSTANCE.queryByStuPaceTrackPace(cache, reg.stuId,
                             stterm.paceTrack, stterm.pace);
 
             final List<MasteryExamRec> allMastery = systemData.getActiveMasteryExamsByCourse(reg.course);
-            final List<MasteryAttemptRec> allAttempts = MasteryAttemptLogic.get(cache).queryByStudent(cache, reg.stuId);
+            final List<MasteryAttemptRec> allAttempts = MasteryAttemptLogic.INSTANCE.queryByStudent(cache, reg.stuId);
 
             StuStandardMilestoneRec override;
             for (final StandardMilestoneRec ms : milestones) {
