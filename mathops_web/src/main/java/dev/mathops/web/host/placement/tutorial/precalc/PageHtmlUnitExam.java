@@ -64,7 +64,7 @@ enum PageHtmlUnitExam {
             Page.startOrdinaryPage(htm, site.getTitle(), session, false, "Precalculus Tutorial",
                     "/precalc-tutorial/home.html", Page.ADMIN_BAR | Page.USER_DATE_BAR, null, false, true);
 
-            htm.addln("<form id='unit_exam_form' action='update_unit_exam.html' method='POST'>");
+            htm.addln("<form id='unit_exam_form' action='update_unit_exam.html' method='POST' onkeydown='if(event.keyCode === 13) {return false;}'>");
             htm.addln(" <input type='hidden' name='exam' value='", examId, "'>");
             htm.addln(" <input type='hidden' name='course' value='", course, "'>");
             htm.addln(" <input type='hidden' id='unit_exam_act' name='action'>");
@@ -118,7 +118,7 @@ enum PageHtmlUnitExam {
                 htm.addln("</form>");
                 htm.eDiv();
             } else {
-                htm.addln("<form id='unit_exam_form' action='update_unit_exam.html' method='POST'>");
+                htm.addln("<form id='unit_exam_form' action='update_unit_exam.html' method='POST' onkeydown='if(event.keyCode === 13) {return false;}'>");
                 htm.addln(" <input type='hidden' name='exam' value='", examId, "'>");
                 htm.addln(" <input type='hidden' name='course' value='", course, "'>");
                 htm.addln(" <input type='hidden' id='unit_exam_act' name='action'>");

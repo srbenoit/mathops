@@ -1,16 +1,20 @@
 package dev.mathops.app.adm.office.registration;
 
 import dev.mathops.app.adm.AdmPanelBase;
-import dev.mathops.app.adm.UserData;
 import dev.mathops.app.adm.IZTableCommandListener;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
+import dev.mathops.app.adm.UserData;
+import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
+import dev.mathops.db.old.rawlogic.RawStexamLogic;
+import dev.mathops.db.old.rawrecord.RawStexam;
 
 import javax.swing.JPanel;
 import java.awt.CardLayout;
 import java.io.Serial;
+import java.sql.SQLException;
 
 /**
  * A panel that shows student exams.
@@ -21,11 +25,20 @@ public final class CourseExamsPanel extends AdmPanelBase implements IZTableComma
     private static final String LIST_CMD = "LIST";
 
     /** A button action command. */
-    private static final String DETAIL_CMD = "DETAIL";
+    public static final String DETAIL_CMD = "DETAIL";
+
+    /** A button action command. */
+    public static final String IGNORE_CMD = "IGNORE";
+
+    /** A button action command. */
+    public static final String UNIGNORE_CMD = "UNIGNORE";
 
     /** Version number for serialization. */
     @Serial
     private static final long serialVersionUID = 5026351810311131356L;
+
+    /** The data cache. */
+    private final Cache cache;
 
     /** The center panel. */
     private final JPanel cardPane;
@@ -39,6 +52,9 @@ public final class CourseExamsPanel extends AdmPanelBase implements IZTableComma
     /** A card to add a new hold. */
     private final ExamDetailsCard examDetailsCard;
 
+    /** The current student data. */
+    private StudentData currentStudentData;
+
     /**
      * Constructs a new {@code AdminExamsPanel}.
      *
@@ -49,6 +65,8 @@ public final class CourseExamsPanel extends AdmPanelBase implements IZTableComma
 
         super();
         setBackground(Skin.WHITE);
+
+        this.cache = theCache;
 
         add(makeHeader("Exams", false), StackedBorderLayout.NORTH);
 
@@ -81,6 +99,8 @@ public final class CourseExamsPanel extends AdmPanelBase implements IZTableComma
     public void setSelectedStudent(final StudentData data) {
 
         this.examDetailsCard.reset();
+
+        this.currentStudentData = data;
 
         if (data == null) {
             this.examsCard.clear();
@@ -138,8 +158,63 @@ public final class CourseExamsPanel extends AdmPanelBase implements IZTableComma
     @Override
     public void commandOnRow(final int rowIndex, final ExamListRow rowData, final String cmd) {
 
-        this.examDetailsCard.setCurrent(rowData);
-        this.cards.show(this.cardPane, DETAIL_CMD);
+        if (this.currentStudentData != null) {
+            if (DETAIL_CMD.equals(cmd)) {
+                this.examDetailsCard.setCurrent(rowData);
+                this.cards.show(this.cardPane, DETAIL_CMD);
+            } else if (IGNORE_CMD.equals(cmd)) {
+                final RawStexam stexam = rowData.examRecord;
+                try {
+                    RawStexamLogic.updatePassed(this.cache, stexam, "G");
+                    stexam.passed = "G";
+                    this.examDetailsCard.reset();
+                    this.examsCard.clear();
+                    this.examsCard.populateDisplay(this.currentStudentData);
+                } catch (SQLException e) {
+                    Log.warning("Failed to update 'passed' field.");
+                }
+            } else if (UNIGNORE_CMD.equals(cmd)) {
+                final RawStexam stexam = rowData.examRecord;
+                String newPassed;
+                if (stexam.examScore == null) {
+                    newPassed = "N";
+                } else {
+                    final int score = stexam.examScore.intValue();
+                    int mastery = Integer.MAX_VALUE;
+                    if (stexam.masteryScore == null) {
+                        // TODO: This can be queried from cusection?  Do we know the section?
+                        if ("M 100T".equals(stexam.course)) {
+                            if ("U".equals(stexam.examType) || "R".equals(stexam.examType)) {
+                                final int unit = stexam.unit.intValue();
+                                if (unit == 1) {
+                                    mastery = 7;
+                                } else if (unit == 2) {
+                                    mastery = 11;
+                                } else {
+                                    mastery = 14;
+                                }
+                            }
+                        } else if ("F".equals(stexam.examType)) {
+                            mastery = 16;
+                        } else if ("U".equals(stexam.examType) || "R".equals(stexam.examType)) {
+                            mastery = 8;
+                        }
+                    } else {
+                        mastery = stexam.masteryScore.intValue();
+                    }
+                    newPassed = score >= mastery ? "Y" : "N";
+                }
+                try {
+                    RawStexamLogic.updatePassed(this.cache, stexam, newPassed);
+                    stexam.passed = newPassed;
+                    this.examDetailsCard.reset();
+                    this.examsCard.clear();
+                    this.examsCard.populateDisplay(this.currentStudentData);
+                } catch (SQLException e) {
+                    Log.warning("Failed to update 'passed' field.");
+                }
+            }
+        }
     }
 
     /**

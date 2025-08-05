@@ -24,6 +24,7 @@ import dev.mathops.assessment.variable.VariableReal;
 import dev.mathops.assessment.variable.VariableSpan;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
+import dev.mathops.commons.number.NumberParser;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.parser.xml.XmlEscaper;
 
@@ -41,7 +42,7 @@ public final class ProblemNumericTemplate extends AbstractProblemTemplate {
     /** The specification of how the problem should accept a numeric answer. */
     public ProblemAcceptNumberTemplate acceptNumber;
 
-    /** The student's string answer, if an integer was submitted. */
+    /** The student's string answer, if a number was submitted. */
     String stringAnswer;
 
     /**
@@ -140,11 +141,13 @@ public final class ProblemNumericTemplate extends AbstractProblemTemplate {
      */
     private static String sanitize(final String raw) {
 
+        // Remove spaces and commas
         String sanitized = raw.replace(CoreConstants.SPC, CoreConstants.EMPTY)
                 .replace(CoreConstants.COMMA, CoreConstants.EMPTY);
 
         // Sometimes the student will enter "(-1)" rather than just "-1"...
-        if (!sanitized.isEmpty() && sanitized.charAt(0) == '(' && sanitized.charAt(sanitized.length() - 1) == ')') {
+        if (!sanitized.isEmpty() && (int) sanitized.charAt(0) == (int) '('
+            && (int) sanitized.charAt(sanitized.length() - 1) == (int) ')') {
             final int len = sanitized.length();
             sanitized = sanitized.substring(1, len - 1);
         }
@@ -189,13 +192,21 @@ public final class ProblemNumericTemplate extends AbstractProblemTemplate {
         // Get the numeric answer (integer or real)
         if (response == null || response.length != 1) {
             return false;
-        } else if (response[0] instanceof String) {
-            final String sanitized = sanitize((String) response[0]);
+        } else if (response[0] instanceof final String str) {
+            final String sanitized = sanitize(str);
 
             if (this.acceptNumber != null && this.acceptNumber.forceInteger) {
                 answer = parseLong(sanitized);
             } else {
-                answer = parseDouble(sanitized);
+//                answer = parseDouble(sanitized);
+                final Number parsed = NumberParser.parse(sanitized);
+                if (parsed instanceof final Integer i) {
+                    answer = Long.valueOf(i.longValue());
+                } else if (parsed == null) {
+                    answer = null;
+                } else {
+                    answer = Double.valueOf(parsed.doubleValue());
+                }
             }
             if (answer == null) {
                 return false;
@@ -320,7 +331,7 @@ public final class ProblemNumericTemplate extends AbstractProblemTemplate {
                 }
 
                 if (correctAnswerObj instanceof final Number correctAnswerNbr
-                        && varianceObj instanceof final Number varianceNbr) {
+                    && varianceObj instanceof final Number varianceNbr) {
 
                     // 9 characters ~ 15.9 bits of ID, 7.4E+15 possibilities
                     final String iterationId = CoreConstants.newId(9);
@@ -338,7 +349,7 @@ public final class ProblemNumericTemplate extends AbstractProblemTemplate {
                         final DocColumnInst solutionIteration = this.solution.createInstance(this.evalContext);
 
                         result = new ProblemNumericInst(this.id, iterationId, this.calculator,
-                                        questionIteration, solutionIteration, acceptNumberIter);
+                                questionIteration, solutionIteration, acceptNumberIter);
                     }
                 } else {
                     Log.warning("acceptNumber correct answer, variance did not generate numbers");
@@ -391,8 +402,8 @@ public final class ProblemNumericTemplate extends AbstractProblemTemplate {
     /**
      * A method that subclasses override to print their subclass-specific elements.
      *
-     * @param builder    The {@code HtmlBuilder} to which to write the XML.
-     * @param indent The number of spaces to indent the printout.
+     * @param builder The {@code HtmlBuilder} to which to write the XML.
+     * @param indent  The number of spaces to indent the printout.
      */
     @Override
     public void printSubclassXmlBegin(final HtmlBuilder builder, final int indent) {
@@ -418,8 +429,8 @@ public final class ProblemNumericTemplate extends AbstractProblemTemplate {
     /**
      * A method that subclasses override to print their subclass-specific elements.
      *
-     * @param builder    The {@code HtmlBuilder} to which to write the XML.
-     * @param indent The number of spaces to indent the printout.
+     * @param builder The {@code HtmlBuilder} to which to write the XML.
+     * @param indent  The number of spaces to indent the printout.
      */
     @Override
     public void printSubclassXmlEnd(final HtmlBuilder builder, final int indent) {
@@ -576,7 +587,7 @@ public final class ProblemNumericTemplate extends AbstractProblemTemplate {
      * @param overwriteAll A 1-boolean array whose only entry contains True if the user has selected "overwrite all";
      *                     false to ask the user each time. This method can update this value to true if it is false and
      *                     the user is asked "Overwrite? [YES] [ALL] [NO]" and chooses [ALL].
-     * @param builder          The {@code HtmlBuilder} to which to write the LaTeX.
+     * @param builder      The {@code HtmlBuilder} to which to write the LaTeX.
      * @param showAnswers  True to show the correct answers; false to leave blank
      * @param mode         The current LaTeX mode (T=text, $=in-line math, M=math).
      */
@@ -670,7 +681,7 @@ public final class ProblemNumericTemplate extends AbstractProblemTemplate {
     public int hashCode() {
 
         return innerHashCode() + Objects.hashCode(this.stringAnswer)
-                + Objects.hashCode(this.acceptNumber);
+               + Objects.hashCode(this.acceptNumber);
     }
 
     /**

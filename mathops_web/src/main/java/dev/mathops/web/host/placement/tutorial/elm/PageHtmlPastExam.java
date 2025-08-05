@@ -68,7 +68,7 @@ enum PageHtmlPastExam {
             TutorialMenu.buildMenu(cache, session, status, htm);
             htm.sDiv("panel");
 
-            htm.addln("<form id='past_exam_form' action='update_past_exam.html' method='POST'>");
+            htm.addln("<form id='past_exam_form' action='update_past_exam.html' method='POST' onkeydown='if(event.keyCode === 13) {return false;}'>");
             htm.addln(" <input type='hidden' name='xml' value='", xml, "'>");
             htm.addln(" <input type='hidden' name='upd' value='", upd, "'>");
             htm.addln(" <input type='hidden' name='course' value='", course, "'>");
@@ -130,7 +130,7 @@ enum PageHtmlPastExam {
             if (pes == null) {
                 htm.sP().add("Exam not found.").eP();
             } else {
-                htm.addln("<form id='past_exam_form' action='update_past_exam.html' method='POST'>");
+                htm.addln("<form id='past_exam_form' action='update_past_exam.html' method='POST' onkeydown='if(event.keyCode === 13) {return false;}'>");
                 htm.addln(" <input type='hidden' name='xml' value='", xml, "'>");
                 htm.addln(" <input type='hidden' name='upd' value='", upd, "'>");
                 htm.addln(" <input type='hidden' name='course' value='", course, "'>");

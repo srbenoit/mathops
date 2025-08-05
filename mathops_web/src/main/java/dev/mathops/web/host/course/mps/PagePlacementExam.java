@@ -73,7 +73,7 @@ enum PagePlacementExam {
                     store.setPlacementExamSession(pes);
                 }
 
-                htm.addln("<form id='placement_exam_form' action='placement.html' method='POST'>");
+                htm.addln("<form id='placement_exam_form' action='placement.html' method='POST' onkeydown='if(event.keyCode === 13) {return false;}'>");
                 htm.addln(" <input type='hidden' id='placement_exam_act' name='action'>");
                 pes.generateHtml(cache, session.getNow(), req, htm);
                 htm.addln("</form>");
@@ -131,8 +131,7 @@ enum PagePlacementExam {
 
                     htm.sDiv("inset");
 
-                    htm.addln("<form id='placement_exam_form' action='placement.html' ",
-                            "method='POST'>");
+                    htm.addln("<form id='placement_exam_form' action='placement.html' method='POST' onkeydown='if(event.keyCode === 13) {return false;}'>");
                     htm.addln(" <input type='hidden' id='placement_exam_act' name='action'>");
                     redirect = pes.processPost(cache, session, req, htm);
                     htm.addln("</form>");

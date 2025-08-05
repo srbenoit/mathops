@@ -22,7 +22,7 @@ class ZTableExamList extends AbstractZTable<ExamListRow> {
     /**
      * Constructs a new {@code ZTableExamRecord}.
      *
-     * @param theListener      the listener that will be notified when a button is pressed in a row
+     * @param theListener the listener that will be notified when a button is pressed in a row
      */
     ZTableExamList(final IZTableCommandListener<? super ExamListRow> theListener) {
 
@@ -120,17 +120,25 @@ class ZTableExamList extends AbstractZTable<ExamListRow> {
                 }
             } else if ("N".equals(stexam.passed)) {
                 passed = "No";
+            } else if ("G".equals(stexam.passed)) {
+                passed = "Ignored";
             } else {
                 passed = stexam.passed;
             }
 
             addCell(passed, 11, yy);
-            addButtonCell("Details", 12, yy, "DETAIL");
+            addButtonCell("Details", 12, yy, CourseExamsPanel.DETAIL_CMD);
+
+            if ("G".equals(stexam.passed)) {
+                addButtonCell("Unignore", 13, yy, CourseExamsPanel.UNIGNORE_CMD);
+            } else {
+                addButtonCell("Ignore", 13, yy, CourseExamsPanel.IGNORE_CMD);
+            }
 
             ++yy;
         }
 
-        addLastRow(yy, 13);
-        addLastCol(13, yy + 1);
+        addLastRow(yy, 14);
+        addLastCol(14, yy + 1);
     }
 }

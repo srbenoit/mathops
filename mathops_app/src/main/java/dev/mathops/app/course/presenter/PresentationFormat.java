@@ -4,11 +4,10 @@ import dev.mathops.commons.model.AttrKey;
 import dev.mathops.commons.model.ModelTreeNode;
 import dev.mathops.commons.model.codec.IntegerCodec;
 import dev.mathops.commons.model.codec.StringCodec;
+import dev.mathops.text.model.AllowedAttributes;
 import dev.mathops.text.model.IModelTreeNodeFactory;
 import dev.mathops.text.model.TagNotAllowedException;
 import dev.mathops.text.model.XmlTreeWriter;
-
-import java.util.Map;
 
 /**
  * A container for the structure of a Presentation model tree,  This class is also a node factory for nodes in the such
@@ -25,23 +24,14 @@ class PresentationFormat implements IModelTreeNodeFactory {
     /** An element tag name. */
     private static final String ANIMATION_TAG = "animation";
 
-    /** An attribute name. */
-    private static final String WIDTH_NAME = "width";
-
-    /** An attribute name. */
-    private static final String HEIGHT_NAME = "height";
-
-    /** An attribute name. */
-    private static final String ID_NAME = "height";
+    /** An attribute key. */
+    private static final AttrKey<Integer> WIDTH_ATTR = new AttrKey<>("width", IntegerCodec.INST);
 
     /** An attribute key. */
-    private static final AttrKey<Integer> WIDTH_ATTR = new AttrKey<>(WIDTH_NAME, IntegerCodec.INST);
+    private static final AttrKey<Integer> HEIGHT_ATTR = new AttrKey<>("height", IntegerCodec.INST);
 
     /** An attribute key. */
-    private static final AttrKey<Integer> HEIGHT_ATTR = new AttrKey<>(HEIGHT_NAME, IntegerCodec.INST);
-
-    /** An attribute key. */
-    private static final AttrKey<String> ID_ATTR = new AttrKey<>(ID_NAME, StringCodec.INST);
+    private static final AttrKey<String> ID_ATTR = new AttrKey<>("id", StringCodec.INST);
 
     /**
      * Constructs a new {@code PresentationFormat}.
@@ -56,30 +46,28 @@ class PresentationFormat implements IModelTreeNodeFactory {
      * the parent of the new node to {@code parent} or add the new node to the parent's list of child nodes, nor does it
      * need to store the XML tag as a DATA value.  It simply performs construction of the new tree node.
      *
-     * @param xmlTag        the XML tag (null to attempt to create a data node)
-     * @param parent        the parent node (which should have all attributes set); null to create the root node
-     * @param attributeKeys a map from key name to attribute key to which this method will add all supported attribute
-     *                      keys for the new node (if no keys are added to this map, all attributes will be allowed and
-     *                      will be stored as String type)
+     * @param xmlTag   the XML tag (null to attempt to create a data node)
+     * @param parent   the parent node (which should have all attributes set); null to create the root node
+     * @param attrKeys an object to which this method will add all supported attribute keys for the new node (if no keys
+     *                 are added to this map, all attributes will be allowed and will be stored as String type)
      * @return the newly constructed node (typically a subclass of {@code ModelTreeNode})
      * @throws TagNotAllowedException if the XML tag is not allowed within the provided parent
      */
     @Override
     public ModelTreeNode construct(final String xmlTag, final ModelTreeNode parent,
-                                   final Map<String, AttrKey<?>> attributeKeys)
-            throws TagNotAllowedException {
+                                   final AllowedAttributes attrKeys) throws TagNotAllowedException {
 
         ModelTreeNode node = null;
 
         if (parent == null) {
-            node = buildRootNode(xmlTag, attributeKeys);
+            node = buildRootNode(xmlTag, attrKeys);
         } else {
             final String parentTag = parent.map().getString(XmlTreeWriter.TAG);
 
             if (PRESENTATION_TAG.equals(parentTag)) {
-                node = buildPresentationChild(xmlTag, attributeKeys);
+                node = buildPresentationChild(xmlTag, attrKeys);
             } else if (SLIDE_TAG.equals(parentTag)) {
-                node = buildSlideChild(xmlTag, attributeKeys);
+                node = buildSlideChild(xmlTag, attrKeys);
             }
         }
 
@@ -89,18 +77,16 @@ class PresentationFormat implements IModelTreeNodeFactory {
     /**
      * Builds the root node of a presentation model tree.
      *
-     * @param xmlTag        the XML tag
-     * @param attributeKeys the set of attribute keys
+     * @param xmlTag   the XML tag
+     * @param attrKeys the set of attribute keys
      * @return the newly constructed node (typically a subclass of {@code ModelTreeNode})
      * @throws TagNotAllowedException if the XML tag is not allowed as the root node
      */
-    private static ModelTreeNode buildRootNode(final String xmlTag,
-                                               final Map<? super String, ? super AttrKey<?>> attributeKeys)
+    private static ModelTreeNode buildRootNode(final String xmlTag, final AllowedAttributes attrKeys)
             throws TagNotAllowedException {
 
         if (PRESENTATION_TAG.equals(xmlTag)) {
-            attributeKeys.put(WIDTH_NAME, WIDTH_ATTR);
-            attributeKeys.put(HEIGHT_NAME, HEIGHT_ATTR);
+            attrKeys.add(WIDTH_ATTR, HEIGHT_ATTR);
             return new ModelTreeNode();
         } else {
             throw new TagNotAllowedException("Top-level element must be 'presentation'.");
@@ -110,17 +96,16 @@ class PresentationFormat implements IModelTreeNodeFactory {
     /**
      * Builds a node that is a child of a 'presentation' node.
      *
-     * @param xmlTag        the XML tag
-     * @param attributeKeys the set of attribute keys
+     * @param xmlTag   the XML tag
+     * @param attrKeys the set of attribute keys
      * @return the newly constructed node (typically a subclass of {@code ModelTreeNode})
      * @throws TagNotAllowedException if the XML tag is not allowed as the root node
      */
-    private static ModelTreeNode buildPresentationChild(final String xmlTag,
-                                                        final Map<? super String, ? super AttrKey<?>> attributeKeys)
+    private static ModelTreeNode buildPresentationChild(final String xmlTag, final AllowedAttributes attrKeys)
             throws TagNotAllowedException {
 
         if (SLIDE_TAG.equals(xmlTag)) {
-            attributeKeys.put(ID_NAME, ID_ATTR);
+            attrKeys.add(ID_ATTR);
             return new ModelTreeNode();
         } else {
             throw new TagNotAllowedException("'" + xmlTag + "' not allowed in 'presentation' element.");
@@ -130,17 +115,16 @@ class PresentationFormat implements IModelTreeNodeFactory {
     /**
      * Builds a node that is a child of a 'slide' node.
      *
-     * @param xmlTag        the XML tag
-     * @param attributeKeys the set of attribute keys
+     * @param xmlTag   the XML tag
+     * @param attrKeys the set of attribute keys
      * @return the newly constructed node (typically a subclass of {@code ModelTreeNode})
      * @throws TagNotAllowedException if the XML tag is not allowed as the root node
      */
-    private static ModelTreeNode buildSlideChild(final String xmlTag,
-                                                 final Map<? super String, ? super AttrKey<?>> attributeKeys)
+    private static ModelTreeNode buildSlideChild(final String xmlTag, final AllowedAttributes attrKeys)
             throws TagNotAllowedException {
 
         if (ANIMATION_TAG.equals(xmlTag)) {
-            attributeKeys.put(ID_NAME, ID_ATTR);
+            attrKeys.add(ID_ATTR);
             return new ModelTreeNode();
         } else {
             throw new TagNotAllowedException("'" + xmlTag + "' not allowed in 'slide' element.");

@@ -69,7 +69,7 @@ enum PageChallenge {
                     Log.info("Found existing unit exam for student ", stu, " exam ", exam);
                 }
 
-                htm.addln("<form id='challenge_exam_form' action='update_challenge_exam.html' method='POST'>");
+                htm.addln("<form id='challenge_exam_form' action='update_challenge_exam.html' method='POST' onkeydown='if(event.keyCode === 13) {return false;}'>");
                 htm.addln(" <input type='hidden' name='stu' value='", stu, "'>");
                 htm.addln(" <input type='hidden' id='unit_exam_act' name='action'>");
 
@@ -125,7 +125,7 @@ enum PageChallenge {
             if (cs == null) {
                 htm.sP("red").add("There is no challenge exam in progress.").eP();
             } else {
-                htm.addln("<form id='challenge_exam_form' action='update_challenge_exam.html' method='POST'>");
+                htm.addln("<form id='challenge_exam_form' action='update_challenge_exam.html' method='POST' onkeydown='if(event.keyCode === 13) {return false;}'>");
                 htm.addln(" <input type='hidden' name='stu' value='", stu, "'>");
                 htm.addln(" <input type='hidden' id='unit_exam_act' name='action'>");
 

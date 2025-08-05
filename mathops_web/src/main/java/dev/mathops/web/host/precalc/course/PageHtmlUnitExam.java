@@ -70,7 +70,7 @@ enum PageHtmlUnitExam {
             CourseMenu.buildMenu(cache, site, session, logic, htm);
             htm.sDiv("panelu");
 
-            htm.addln("<form id='unit_exam_form' action='update_unit_exam.html'>");
+            htm.addln("<form id='unit_exam_form' action='update_unit_exam.html' onkeydown='if(event.keyCode === 13) {return false;}'>");
             htm.addln(" <input type='hidden' name='exam' value='", examId, "'>");
             htm.addln(" <input type='hidden' name='course' value='", course, "'>");
             htm.addln(" <input type='hidden' id='unit_exam_act' name='action'>");
@@ -130,7 +130,7 @@ enum PageHtmlUnitExam {
                 htm.addln("</form>");
                 htm.eDiv();
             } else {
-                htm.addln("<form id='unit_exam_form' action='update_unit_exam.html' method='POST'>");
+                htm.addln("<form id='unit_exam_form' action='update_unit_exam.html' method='POST' onkeydown='if(event.keyCode === 13) {return false;}'>");
                 htm.addln(" <input type='hidden' name='exam' value='", examId, "'>");
                 htm.addln(" <input type='hidden' name='course' value='", course, "'>");
                 htm.addln(" <input type='hidden' id='unit_exam_act' name='action'>");

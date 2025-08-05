@@ -58,7 +58,7 @@ class ExamListCard extends JPanel {
         add(this.examsScroll, BorderLayout.WEST);
 
         final int prefWidth = this.examsTable.getPreferredSize().width
-                + this.examsScroll.getVerticalScrollBar().getPreferredSize().width + 10;
+                              + this.examsScroll.getVerticalScrollBar().getPreferredSize().width + 10;
 
         this.examsScroll.setPreferredSize(new Dimension(prefWidth, Integer.MAX_VALUE));
 
@@ -120,7 +120,7 @@ class ExamListCard extends JPanel {
             this.examsTable.setData(rows);
 
             final int prefWidth = this.examsTable.getPreferredSize().width
-                    + this.examsScroll.getVerticalScrollBar().getPreferredSize().width + 10;
+                                  + this.examsScroll.getVerticalScrollBar().getPreferredSize().width + 10;
 
             this.examsScroll.setPreferredSize(new Dimension(prefWidth, Integer.MAX_VALUE));
         }

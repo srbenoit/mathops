@@ -825,18 +825,18 @@ public final class ReviewExamSession extends HtmlSessionBase {
         // Put this here so clicks can't call this until the page is loaded (and presumably item
         // answers have been installed in fields so this submit won't lose answers)
 
-        htm.addln("<script>");
-        htm.addln("function invokeAct(action) {");
-        htm.addln("  if (actionAllowed == \"fine\") {");
-        htm.addln("    document.getElementById(\"review_exam_act\").value = action;");
-        htm.addln("    document.getElementById(\"review_exam_form\").submit();");
-        htm.addln("  }");
-        htm.addln("}");
-        htm.addln("</script>");
-
-        htm.addln("<script defer='true' async='false'>");
-        htm.addln("  var actionAllowed = \"fine\";");
-        htm.addln("</script>");
+        htm.addln("""
+        <script>
+          function invokeAct(action) {
+            if (actionAllowed == "fine") {
+              document.getElementById("review_exam_act").value = action;
+              document.getElementById("review_exam_form").submit();
+            }
+          }
+        </script>
+        <script defer='true' async='false'>
+          var actionAllowed = "fine";
+        </script>""");
     }
 
     /**

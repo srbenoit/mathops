@@ -77,7 +77,7 @@ enum PageTakingExamElm {
             Log.info("Found existing unit exam for session ", session.loginSessionId, " exam MT4UE");
         }
 
-        htm.addln("<form id='unit_exam_form' action='update_unit_exam.html' method='POST'>");
+        htm.addln("<form id='unit_exam_form' action='update_unit_exam.html' method='POST' onkeydown='if(event.keyCode === 13) {return false;}'>");
         htm.addln(" <input type='hidden' name='exam' value='MT4UE'>");
         htm.addln(" <input type='hidden' name='course' value='M 100T'>");
         htm.addln(" <input type='hidden' id='unit_exam_act' name='action'>");

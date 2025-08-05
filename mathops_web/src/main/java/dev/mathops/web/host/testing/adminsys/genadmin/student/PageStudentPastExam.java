@@ -85,8 +85,7 @@ public enum PageStudentPastExam {
 
                 emitPastExamDisplay(cache, htm, student, course, ser);
 
-                htm.addln("<form id='past_exam_form' ",
-                        "action='student_update_past_exam.html' method='POST'>");
+                htm.addln("<form id='past_exam_form' action='student_update_past_exam.html' method='POST' onkeydown='if(event.keyCode === 13) {return false;}'>");
                 htm.addln(" <input type='hidden' name='stu' value='", student.stuId, "'>");
                 htm.addln(" <input type='hidden' name='ser' value='", ser, "'>");
                 htm.addln(" <input type='hidden' name='xml' value='", pes.xmlFilename, "'>");
@@ -159,7 +158,7 @@ public enum PageStudentPastExam {
 
                 emitPastExamDisplay(cache, htm, student, course, ser);
 
-                htm.addln("<form id='past_exam_form' action='student_update_past_exam.html' method='POST'>");
+                htm.addln("<form id='past_exam_form' action='student_update_past_exam.html' method='POST' onkeydown='if(event.keyCode === 13) {return false;}'>");
                 htm.addln(" <input type='hidden' name='stu' value='", student.stuId, "'>");
                 htm.addln(" <input type='hidden' name='ser' value='", ser, "'>");
                 htm.addln(" <input type='hidden' name='xml' value='", pes.xmlFilename, "'>");

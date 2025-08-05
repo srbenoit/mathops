@@ -66,7 +66,7 @@ enum PageHtmlReviewExam {
 
             htm.sDiv("panel");
 
-            htm.addln("<form id='review_exam_form' action='update_review_exam.html' method='POST'>");
+            htm.addln("<form id='review_exam_form' action='update_review_exam.html' method='POST' onkeydown='if(event.keyCode === 13) {return false;}'>");
             htm.addln(" <input type='hidden' name='exam' value='", examId, "'>");
             htm.addln(" <input type='hidden' name='mode' value='", mode, "'>");
             htm.addln(" <input type='hidden' name='course' value='", course, "'>");
@@ -126,7 +126,7 @@ enum PageHtmlReviewExam {
                 htm.addln("</form>");
                 htm.eDiv();
             } else {
-                htm.addln("<form id='review_exam_form' action='update_review_exam.html' method='POST'>");
+                htm.addln("<form id='review_exam_form' action='update_review_exam.html' method='POST' onkeydown='if(event.keyCode === 13) {return false;}'>");
                 htm.addln(" <input type='hidden' name='exam' value='", examId, "'>");
                 htm.addln(" <input type='hidden' name='mode' value='", mode, "'>");
                 htm.addln(" <input type='hidden' name='course' value='", course, "'>");

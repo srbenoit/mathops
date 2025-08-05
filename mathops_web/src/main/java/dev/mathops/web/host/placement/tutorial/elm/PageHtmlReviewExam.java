@@ -62,7 +62,7 @@ enum PageHtmlReviewExam {
             TutorialMenu.buildMenu(cache, session, status, htm);
             htm.sDiv("panel");
 
-            htm.addln("<form id='review_exam_form' action='update_review_exam.html' method='POST'>");
+            htm.addln("<form id='review_exam_form' action='update_review_exam.html' method='POST' onkeydown='if(event.keyCode === 13) {return false;}'>");
             htm.addln(" <input type='hidden' name='exam' value='", examId, "'>");
             htm.addln(" <input type='hidden' id='review_exam_act' name='action'>");
             hs.generateHtml(cache, session.getNow(), htm);
@@ -121,7 +121,7 @@ enum PageHtmlReviewExam {
                 htm.addln("</form>");
                 htm.eDiv();
             } else {
-                htm.addln("<form id='review_exam_form' action='update_review_exam.html' method='POST'>");
+                htm.addln("<form id='review_exam_form' action='update_review_exam.html' method='POST' onkeydown='if(event.keyCode === 13) {return false;}'>");
                 htm.addln(" <input type='hidden' name='exam' value='", examId, "'>");
                 htm.addln(" <input type='hidden' id='review_exam_act' name='action'>");
                 redirect = res.processPost(cache, session, req, htm);

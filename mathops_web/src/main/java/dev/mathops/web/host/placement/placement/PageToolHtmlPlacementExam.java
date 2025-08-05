@@ -66,7 +66,7 @@ enum PageToolHtmlPlacementExam {
         Page.startEmptyPage(htm, site.getTitle(), false);
         htm.sDiv("exam");
 
-        htm.addln("<form id='placement_exam_form' action='tool_update_placement_exam.html' method='POST'>");
+        htm.addln("<form id='placement_exam_form' action='tool_update_placement_exam.html' method='POST' onkeydown='if(event.keyCode === 13) {return false;}'>");
         htm.addln(" <input type='hidden' id='placement_exam_act' name='action'>");
         pes.generateHtml(cache, session.getNow(), req, htm);
         htm.addln("</form>");
@@ -109,7 +109,7 @@ enum PageToolHtmlPlacementExam {
             htm.addln("</form>");
             htm.eDiv();
         } else {
-            htm.addln("<form id='placement_exam_form' action='tool_update_placement_exam.html' method='POST'>");
+            htm.addln("<form id='placement_exam_form' action='tool_update_placement_exam.html' method='POST' onkeydown='if(event.keyCode === 13) {return false;}'>");
             htm.addln(" <input type='hidden' id='placement_exam_act' name='action'>");
             res.generateHtml(cache, session.getNow(), req, htm);
             htm.addln("</form>");
@@ -157,7 +157,7 @@ enum PageToolHtmlPlacementExam {
             htm.addln("</form>");
             htm.eDiv();
         } else {
-            htm.addln("<form id='placement_exam_form' action='tool_update_placement_exam.html' method='POST'>");
+            htm.addln("<form id='placement_exam_form' action='tool_update_placement_exam.html' method='POST' onkeydown='if(event.keyCode === 13) {return false;}'>");
             htm.addln(" <input type='hidden' id='placement_exam_act' name='action'>");
             redirect = pes.processPost(cache, session, req, htm);
             htm.addln("</form>");

@@ -256,7 +256,7 @@ enum PageExam {
             }
         }
 
-        htm.addln("<form id='unit_exam_form' action='update_unit_exam.html' method='POST'>");
+        htm.addln("<form id='unit_exam_form' action='update_unit_exam.html' method='POST' onkeydown='if(event.keyCode === 13) {return false;}'>");
         htm.addln(" <input type='hidden' name='exam' value='", examId, "'>");
         htm.addln(" <input type='hidden' name='sid' value='", session.loginSessionId, "'>");
         htm.addln(" <input type='hidden' id='unit_exam_act' name='action'>");
@@ -310,7 +310,7 @@ enum PageExam {
             }
         }
 
-        htm.addln("<form id='unit_exam_form' action='update_unit_exam.html' ", "method='POST'>");
+        htm.addln("<form id='unit_exam_form' action='update_unit_exam.html' ", "method='POST' onkeydown='if(event.keyCode === 13) {return false;}'>");
         htm.addln(" <input type='hidden' name='exam' value='", examId, "'>");
         htm.addln(" <input type='hidden' name='sid' value='", session.loginSessionId, "'>");
         htm.addln(" <input type='hidden' id='unit_exam_act' name='action'>");
@@ -364,7 +364,7 @@ enum PageExam {
             }
         }
 
-        htm.addln("<form id='unit_exam_form' action='update_unit_exam.html' ", "method='POST'>");
+        htm.addln("<form id='unit_exam_form' action='update_unit_exam.html' ", "method='POST' onkeydown='if(event.keyCode === 13) {return false;}'>");
         htm.addln(" <input type='hidden' name='exam' value='", examId, "'>");
         htm.addln(" <input type='hidden' name='sid' value='", session.loginSessionId, "'>");
         htm.addln(" <input type='hidden' id='unit_exam_act' name='action'>");
@@ -417,7 +417,7 @@ enum PageExam {
                 htm.addln("</form>");
                 htm.eDiv();
             } else {
-                htm.addln("<form id='unit_exam_form' action='update_unit_exam.html' method='POST'>");
+                htm.addln("<form id='unit_exam_form' action='update_unit_exam.html' method='POST' onkeydown='if(event.keyCode === 13) {return false;}'>");
                 htm.addln(" <input type='hidden' name='exam' value='", ps.examId, "'>");
                 htm.addln(" <input type='hidden' name='course' value='", ps.courseId, "'>");
                 htm.addln(" <input type='hidden' id='unit_exam_act' name='action'>");
