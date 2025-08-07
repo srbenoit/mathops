@@ -26,7 +26,6 @@ import java.time.chrono.ChronoLocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -137,23 +136,18 @@ public enum EPF {
         final List<RawStcourse> allRegs = RawStcourseLogic.queryActiveForActiveTerm(cache);
         final Map<String, List<RawStcourse>> stuRegs = new HashMap<>(3000);
 
-        final Iterator<RawStcourse> iter = allRegs.iterator();
-        while (iter.hasNext()) {
-            final RawStcourse reg = iter.next();
-
+        for (final RawStcourse reg : allRegs) {
             if ("Y".equals(reg.iInProgress)) {
-                iter.remove();
-            } else {
-                final List<String> includeSections = incCourseSections.get(reg.course);
-
-                if (includeSections == null || !includeSections.contains(reg.sect)) {
-                    iter.remove();
-                } else {
-                    final String stuId = reg.stuId;
-                    final List<RawStcourse> map = stuRegs.computeIfAbsent(stuId, s -> new ArrayList<>(5));
-                    map.add(reg);
-                }
+                continue;
             }
+
+            final List<String> includeSections = incCourseSections.get(reg.course);
+            if (includeSections == null || !includeSections.contains(reg.sect)) {
+                continue;
+            }
+
+            final List<RawStcourse> map = stuRegs.computeIfAbsent(reg.stuId, s -> new ArrayList<>(5));
+            map.add(reg);
         }
 
         return stuRegs;

@@ -32,8 +32,7 @@ import java.sql.SQLException;
 public final class ElmTutorialSite extends AbstractPageSite {
 
     /** Proctor passwords (one for ProctorU, one for UTC, one for Honorlock). */
-    private static final String[] CORRECT = {"AfumwaviLiz7", "UpqoujziAki6", "EvjiosgoAwoq",
-            "Racibetu", "Big7oge7", "Hetebife"};
+    private static final String[] CORRECT = {"AfumwaviLiz7", "UpqoujziAki6", "EvjiosgoAwoq"};
 
     /**
      * Constructs a new {@code ElmCourseSite}.

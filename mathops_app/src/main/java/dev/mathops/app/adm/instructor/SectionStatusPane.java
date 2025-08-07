@@ -9,6 +9,7 @@ import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
+import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStexam;
 import dev.mathops.db.old.rawrecord.RawStudent;
@@ -66,10 +67,12 @@ final class SectionStatusPane extends JPanel {
                         theCourse, theSect, false);
                 final Map<String, RawStudent> studentMap = new HashMap<>(regs.size());
                 for (final RawStcourse reg : regs) {
-                    if (!studentMap.containsKey(reg.stuId)) {
-                        final RawStudent stu = RawStudentLogic.query(theCache, reg.stuId, false);
-                        if (stu != null) {
-                            studentMap.put(reg.stuId, stu);
+                    if (RawRecordConstants.isOneCreditCourse(reg.course)) {
+                        if (!studentMap.containsKey(reg.stuId)) {
+                            final RawStudent stu = RawStudentLogic.query(theCache, reg.stuId, false);
+                            if (stu != null) {
+                                studentMap.put(reg.stuId, stu);
+                            }
                         }
                     }
                 }

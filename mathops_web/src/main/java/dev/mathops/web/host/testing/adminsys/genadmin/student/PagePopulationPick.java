@@ -5,6 +5,7 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
+import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.rec.TermRec;
@@ -67,6 +68,7 @@ public enum PagePopulationPick {
         }
 
         final List<RawStcourse> list = RawStcourseLogic.queryActiveForActiveTerm(cache);
+        list.removeIf(rec -> !RawRecordConstants.isOneCreditCourse(rec.course));
 
         // If pace is specified, count the pace for each student, then remove all with other pace
         // (we have to do this filter before removing based on course/section)
@@ -87,7 +89,6 @@ public enum PagePopulationPick {
             final Iterator<RawStcourse> iter1 = list.iterator();
             while (iter1.hasNext()) {
                 final RawStcourse rec = iter1.next();
-
                 final Integer actualPace = counts.get(rec.stuId);
                 if (!paceInt.equals(actualPace)) {
                     iter1.remove();
@@ -99,7 +100,6 @@ public enum PagePopulationPick {
         final Iterator<RawStcourse> iter2 = list.iterator();
         while (iter2.hasNext()) {
             final RawStcourse rec = iter2.next();
-
             if ((course != null && !course.equals(rec.course)) || (section != null && !section.equals(rec.sect))) {
                 iter2.remove();
             }

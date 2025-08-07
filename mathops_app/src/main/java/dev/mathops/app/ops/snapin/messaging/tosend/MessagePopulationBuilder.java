@@ -173,11 +173,10 @@ public final class MessagePopulationBuilder {
     /**
      * Constructs a new {@code MessagePopulationScanner}.
      *
-     * @param theCache                 the cache
+     * @param theCache             the cache
      * @param theIncCourseSections a map from course ID to a list of section IDs to include
      */
-    MessagePopulationBuilder(final Cache theCache,
-                             final Map<String, ? extends List<String>> theIncCourseSections) {
+    MessagePopulationBuilder(final Cache theCache, final Map<String, ? extends List<String>> theIncCourseSections) {
 
         this.cache = theCache;
         this.includeCourseSections = theIncCourseSections;
@@ -211,10 +210,8 @@ public final class MessagePopulationBuilder {
         final TermRec activeTerm = this.cache.getSystemData().getActiveTerm();
 
         if (activeTerm != null) {
-            // Get all non-dropped, non-challenge-credit registrations in the active term (this
-            // will include Incompletes)
-            final List<RawStcourse> allRegs =
-                    RawStcourseLogic.queryByTerm(this.cache, activeTerm.term, false, false);
+            // Get all non-dropped, non-challenge-credit registrations in the active term (will include Incompletes)
+            final List<RawStcourse> allRegs = RawStcourseLogic.queryByTerm(this.cache, activeTerm.term, false, false);
 
             final Iterator<RawStcourse> iter = allRegs.iterator();
             while (iter.hasNext()) {

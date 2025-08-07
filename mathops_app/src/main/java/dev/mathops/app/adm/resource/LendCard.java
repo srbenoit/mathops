@@ -9,6 +9,7 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
 import dev.mathops.db.ESchema;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawResourceLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
@@ -716,13 +717,18 @@ final class LendCard extends AdmPanelBase implements ActionListener, FocusListen
                 if (!ok) {
                     whyNotEligible = "Available only to Precalculus Center Learning Assistants.";
                 }
-            } else if (RawResource.TYPE_INHOUSE_CALC.equals(resource.resourceType)) {
-                // In-house calculators only issued to students with enrollment
+            } else if (RawResource.TYPE_INHOUSE_CALC.equals(resource.resourceType)
+                       || RawResource.TYPE_INHOUSE_NOTEBOOK.equals(resource.resourceType)
+                       || RawResource.TYPE_INHOUSE_IPAD.equals(resource.resourceType)) {
+
+                // In-house calculators, iPads, notebooks only issued to students with enrollment
 
                 if (!this.bypassRegRequirement.isSelected()) {
-                    final TermRec active = this.cache.getSystemData().getActiveTerm();
+                    final SystemData systemData = this.cache.getSystemData();
+                    final TermRec active = systemData.getActiveTerm();
                     final List<RawStcourse> regs = RawStcourseLogic.getActiveForStudent(this.cache, stuId, active.term);
 
+                    // NOTE: This should include up registrations in MATH 120 - they can check out resources
                     if (regs.isEmpty()) {
                         whyNotEligible = "Available only to students enrolled in Precalculus courses.";
                     }

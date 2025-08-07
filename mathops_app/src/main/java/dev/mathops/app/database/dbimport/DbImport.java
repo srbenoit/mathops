@@ -38,6 +38,9 @@ import java.util.Objects;
  */
 public final class DbImport implements Runnable {
 
+    /** The schema name. */
+    private static final String LEGACY = "legacy";
+
     /** The export directory from which to load data from Informix. */
     private File exportDir = null;
 
@@ -143,22 +146,19 @@ public final class DbImport implements Runnable {
 
             Log.info("Connected to PostgreSQL.");
 
-            final String schemaName = schema == EDbUse.PROD ? "legacy"
-                    : (schema == EDbUse.DEV ? "legacy_dev" : "legacy_test");
-
             final boolean schemaEmpty;
             if (dropTables) {
-                Log.info("Dropping all existing tables in '", schemaName, "' schema.");
-                dropExistingTables(jdbc, schemaName);
+                Log.info("Dropping all existing tables in 'legacy' schema.");
+                dropExistingTables(jdbc);
                 schemaEmpty = true;
             } else {
-                Log.info("Checking whether the '", schema, "' schema is empty...");
-                schemaEmpty = isSchemaEmpty(jdbc, schemaName);
+                Log.info("Checking whether the 'legacy' schema is empty...");
+                schemaEmpty = isSchemaEmpty(jdbc);
             }
 
             if (schemaEmpty) {
                 Log.info("Proceeding with import");
-                performImport(jdbc, schemaName);
+                performImport(jdbc);
             } else {
                 Log.info("Schema not empty - unable to import.");
             }
@@ -174,16 +174,15 @@ public final class DbImport implements Runnable {
     /**
      * Drops all existing tables in the selected schema.
      *
-     * @param conn       the database connection
-     * @param schemaName the schema name
+     * @param conn the database connection
      * @return SUCCESS if all tables were dropped
      */
-    private ESuccessFailure dropExistingTables(final Connection conn, final String schemaName) {
+    private ESuccessFailure dropExistingTables(final Connection conn) {
 
         ESuccessFailure result = ESuccessFailure.SUCCESS;
 
         for (final String view : this.data.synonyms.keySet()) {
-            final String dropSql = "DROP VIEW IF EXISTS " + schemaName + "." + view;
+            final String dropSql = "DROP VIEW IF EXISTS legacy." + view;
 
             try (final Statement statement = conn.createStatement()) {
                 statement.executeUpdate(dropSql);
@@ -199,7 +198,7 @@ public final class DbImport implements Runnable {
         if (result == ESuccessFailure.SUCCESS) {
 
             for (final TableDefinition table : this.data.tables) {
-                final String dropSql = "DROP TABLE IF EXISTS " + schemaName + "." + table.tableName;
+                final String dropSql = "DROP TABLE IF EXISTS legacy." + table.tableName;
 
                 try (final Statement statement = conn.createStatement()) {
                     statement.executeUpdate(dropSql);
@@ -219,15 +218,14 @@ public final class DbImport implements Runnable {
     /**
      * Performs the import.
      *
-     * @param conn       the database connection
-     * @param schemaName the schema name
+     * @param conn the database connection
      */
-    private void performImport(final Connection conn, final String schemaName) {
+    private void performImport(final Connection conn) {
 
         boolean ok = true;
 
         for (final TableDefinition table : this.data.tables) {
-            final String createSql = table.makeCreateSql(schemaName);
+            final String createSql = table.makeCreateSql(LEGACY);
 
             try (final Statement statement = conn.createStatement()) {
                 statement.executeUpdate(createSql);
@@ -245,8 +243,8 @@ public final class DbImport implements Runnable {
                 final String viewName = entry.getKey();
                 final String tableName = entry.getValue();
 
-                final String createSql = SimpleBuilder.concat("CREATE VIEW ", schemaName, ".", viewName,
-                        " AS SELECT * FROM ", schemaName, ".", tableName, ";");
+                final String createSql = SimpleBuilder.concat("CREATE VIEW legacy.", viewName,
+                        " AS SELECT * FROM legacy.", tableName, ";");
 
                 try (final Statement statement = conn.createStatement()) {
                     statement.executeUpdate(createSql);
@@ -272,7 +270,7 @@ public final class DbImport implements Runnable {
             for (final TableDefinition table : this.data.tables) {
 
                 try (final Statement statement = conn.createStatement()) {
-                    statement.executeUpdate("ALTER TABLE " + schemaName + "." + table.tableName + " SET UNLOGGED");
+                    statement.executeUpdate("ALTER TABLE legacy." + table.tableName + " SET UNLOGGED");
                     conn.setAutoCommit(false);
                 } catch (final SQLException ex) {
                     Log.warning(ex);
@@ -282,7 +280,7 @@ public final class DbImport implements Runnable {
                     break;
                 }
 
-                final String insertSql = table.makeInsertPreparedStatementSql(schemaName);
+                final String insertSql = table.makeInsertPreparedStatementSql(LEGACY);
 
                 try (final PreparedStatement statement = conn.prepareStatement(insertSql)) {
 
@@ -372,7 +370,7 @@ public final class DbImport implements Runnable {
                 }
 
                 try (final Statement statement = conn.createStatement()) {
-                    statement.executeUpdate("ALTER TABLE " + schemaName + "." + table.tableName + " SET LOGGED");
+                    statement.executeUpdate("ALTER TABLE legacy." + table.tableName + " SET LOGGED");
                     conn.setAutoCommit(true);
                 } catch (final SQLException ex) {
                     Log.warning(ex);
@@ -388,7 +386,7 @@ public final class DbImport implements Runnable {
 
         if (ok) {
             for (final IndexDefinition index : this.data.indexes) {
-                final String createSql = index.makeCreateSql(schemaName);
+                final String createSql = index.makeCreateSql(LEGACY);
 
                 try (final Statement statement = conn.createStatement()) {
                     statement.executeUpdate(createSql);
@@ -404,7 +402,7 @@ public final class DbImport implements Runnable {
 
         if (ok) {
             for (final UniqueIndexDefinition index : this.data.uniqueIndexes) {
-                final String createSql = index.makeCreateSql(schemaName);
+                final String createSql = index.makeCreateSql(LEGACY);
 
                 try (final Statement statement = conn.createStatement()) {
                     statement.executeUpdate(createSql);
@@ -422,30 +420,29 @@ public final class DbImport implements Runnable {
     /**
      * Tests whether the target schema is empty.
      *
-     * @param conn       the database connection
-     * @param schemaName the schema name
+     * @param conn the database connection
      * @return true if the schema is empty
      */
-    private boolean isSchemaEmpty(final Connection conn, final String schemaName) {
+    private boolean isSchemaEmpty(final Connection conn) {
 
         boolean isEmpty = false;
 
         final String sql = "SELECT table_name FROM information_schema.tables WHERE table_schema=?";
 
         try (final PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, schemaName);
+            ps.setString(1, LEGACY);
 
             try (final ResultSet rs = ps.executeQuery()) {
 
                 isEmpty = true;
                 while (rs.next()) {
                     final String tableName = rs.getString(1);
-                    Log.warning("Table '", tableName, "' was found in '", schemaName, "' schema.");
+                    Log.warning("Table '", tableName, "' was found in 'legacy' schema.");
                     isEmpty = false;
                 }
 
                 if (!isEmpty) {
-                    final String msg = "The '" + schemaName + "' schema is not empty - unable to import";
+                    final String msg = "The 'legacy' schema is not empty - unable to import";
                     JOptionPane.showMessageDialog(null, msg, "Import Database", JOptionPane.ERROR_MESSAGE);
                 }
             } catch (final SQLException ex) {

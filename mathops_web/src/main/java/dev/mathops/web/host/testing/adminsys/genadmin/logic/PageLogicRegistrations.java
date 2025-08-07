@@ -8,6 +8,7 @@ import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawSttermLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawCsection;
+import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStterm;
 import dev.mathops.db.old.rawrecord.RawStudent;
@@ -110,7 +111,9 @@ public enum PageLogicRegistrations {
             final int numTotalRegs = allRegs.size();
             final Set<String> studentIds = new HashSet<>(numTotalRegs * 2 / 3);
             for (final RawStcourse stc : allRegs) {
-                studentIds.add(stc.stuId);
+                if (RawRecordConstants.isOneCreditCourse(stc.course)) {
+                    studentIds.add(stc.stuId);
+                }
             }
 
             int numUncountedIncompletes = 0;

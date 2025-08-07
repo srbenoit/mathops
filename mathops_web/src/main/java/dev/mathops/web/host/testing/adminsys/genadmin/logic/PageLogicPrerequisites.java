@@ -105,7 +105,9 @@ public enum PageLogicPrerequisites {
             final int numTotalRegs = allRegs.size();
             final Set<String> studentIds = new HashSet<>(numTotalRegs * 2 / 3);
             for (final RawStcourse stc : allRegs) {
-                studentIds.add(stc.stuId);
+                if (RawRecordConstants.isOneCreditCourse(stc.course)) {
+                    studentIds.add(stc.stuId);
+                }
             }
 
             htm.addln("<ul>");
