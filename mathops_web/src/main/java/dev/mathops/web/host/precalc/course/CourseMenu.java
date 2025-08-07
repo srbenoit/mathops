@@ -62,7 +62,7 @@ enum CourseMenu {
                                          final CourseSiteLogic logic, final HtmlBuilder htm) throws SQLException {
 
         final boolean isTutor = "AACTUTOR".equals(session.getEffectiveUserId())
-                || logic.data.studentData.isSpecialType(session.getNow(), "TUTOR");
+                                || logic.data.studentData.isSpecialType(session.getNow(), "TUTOR");
         final boolean isAdmin = session.getEffectiveRole().canActAs(ERole.ADMINISTRATOR);
 
         final int numLockouts = logic.data.studentData.getNumLockouts();
@@ -84,10 +84,10 @@ enum CourseMenu {
         htm.div("vgap");
 
         final int numRegular = courses.tutorials.size() + courses.otCreditCourses.size()
-                + courses.completedCourses.size() + courses.pastDeadlineCourses.size()
-                + courses.inProgressCourses.size() + courses.availableCourses.size()
-                + courses.unavailableCourses.size() + courses.noPrereqCourses.size()
-                + courses.notAvailableCourses.size() + courses.forfeitCourses.size();
+                               + courses.completedCourses.size() + courses.pastDeadlineCourses.size()
+                               + courses.inProgressCourses.size() + courses.availableCourses.size()
+                               + courses.unavailableCourses.size() + courses.noPrereqCourses.size()
+                               + courses.notAvailableCourses.size() + courses.forfeitCourses.size();
 
         if (numRegular > 0) {
             htm.sDiv("courses");
@@ -324,9 +324,20 @@ enum CourseMenu {
      */
     private static void emitStartCourses(final Iterable<CourseInfo> list, final HtmlBuilder htm) {
 
+        // The "mark" variable is here so we only give the "Start" link on the first "available to start" course we
+        // find - this prevents students from opening the wrong course and having to ask us to fix it.  If a student
+        // really wants to take courses in non-numeric order, they can ask us (a much smaller set than the number of
+        // fixed we were doing)
+
+        boolean mark = true;
         for (final CourseInfo courseInfo : list) {
-            htm.add("<a class='smallbtn' style='margin:4px 0 4px 10px;' href='start_course.html?course=",
-                    courseInfo.course, "&mode=course'>Start ", courseInfo.label, "</a>");
+            if (mark) {
+                htm.add("<a class='smallbtn' style='margin:4px 0 4px 10px;' href='start_course.html?course=",
+                        courseInfo.course, "&mode=course'>Start ", courseInfo.label, "</a>").br();
+                mark = false;
+            } else {
+                htm.addln("&bull; <strong class='menu2 gray'>", courseInfo.label, "</strong>").br();
+            }
         }
     }
 
@@ -354,16 +365,16 @@ enum CourseMenu {
             }
 
             // FIXME: Courses that are "past deadline" but which have never been opened should
-            // NOT show the e-text and status buttons.
+            //  NOT show the e-text and status buttons.
 
             if (locked || !courseInfo.available) {
-                htm.addln("&bull; <strong class='menu2 gray'>", courseLbl, "</strong>");
+                htm.addln("&bull; <strong class='menu2 gray'>", courseLbl, "</strong>").br();
             } else if (courseInfo.course.startsWith("MATH")) {
                 htm.add("<a class='smallbtn' style='margin:4px 0 4px 10px;' href='course.html?course=",
-                        courseInfo.course, "&mode=", mode, "'>", courseLbl, " E-Text</a>");
+                        courseInfo.course, "&mode=", mode, "'>", courseLbl, " E-Text</a>").br();
             } else {
                 htm.add("<a class='smallbtn' style='margin:4px 0 4px 10px;' href='course.html?course=",
-                        courseInfo.course, "&mode=", mode, "'>", courseLbl, " E-text</a>");
+                        courseInfo.course, "&mode=", mode, "'>", courseLbl, " E-text</a>").br();
             }
         }
     }
