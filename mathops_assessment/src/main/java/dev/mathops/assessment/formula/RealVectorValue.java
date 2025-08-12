@@ -57,9 +57,9 @@ public final class RealVectorValue {
      *
      * @param toParse the string to parse
      * @return the parsed value
-     * @throws IllegalArgumentException if the string cannot be parsed
+     * @throws NumberFormatException if the string cannot be parsed
      */
-    public static RealVectorValue parse(final String toParse) throws IllegalArgumentException {
+    public static RealVectorValue parse(final String toParse) {
 
         if (toParse == null) {
             throw new NumberFormatException("Real vector value string may not be null");

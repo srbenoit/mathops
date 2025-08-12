@@ -50,22 +50,27 @@ public enum PageStudent {
 
         //
 
-        htm.addln("<form id='search' class='stuform' name='pick-student' method='post' action='student_pick.html'>");
-        htm.sP().add("Search by student information:").eP();
+        htm.addln("<form id='search' class='stuform' name='pick-student' method='post' ",
+                "action='../office/student_pick.html'>");
+        htm.sP().add("Student:").eP();
         htm.hr();
 
         htm.sP().add("Enter student ID or name:").eP();
         htm.sP().add("<input type='text' autocomplete='off' data-lpignore='true' ",
                 "name='pick_stu' size='24' autofocus/>").eP();
-        htm.hr();
+
+        if (error != null) {
+            htm.sP("center error").add(error).eP();
+        }
+
+        htm.eTable().hr();
 
         htm.sP("small", "style='text-align:left'")
                 .add("'<code>%</code>' can be used as a wildcard in names.  For example, 'A%' will ",
-                        "match all names beginning with the letter A.")
-                .eP();
+                        "match all names beginning with the letter A.").eP();
 
         htm.div("vgap");
-        htm.addln(" <input type='submit'/>");
+        htm.addln(" <button class='btn' type='submit'>Submit</button>");
         htm.addln("</form>");
 
         //

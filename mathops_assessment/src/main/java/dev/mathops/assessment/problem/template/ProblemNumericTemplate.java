@@ -199,13 +199,17 @@ public final class ProblemNumericTemplate extends AbstractProblemTemplate {
                 answer = parseLong(sanitized);
             } else {
 //                answer = parseDouble(sanitized);
-                final Number parsed = NumberParser.parse(sanitized);
-                if (parsed instanceof final Integer i) {
-                    answer = Long.valueOf(i.longValue());
-                } else if (parsed == null) {
-                    answer = null;
-                } else {
-                    answer = Double.valueOf(parsed.doubleValue());
+                try {
+                    final Number parsed = NumberParser.parse(sanitized);
+                    if (parsed instanceof final Integer i) {
+                        answer = Long.valueOf(i.longValue());
+                    } else if (parsed == null) {
+                        answer = null;
+                    } else {
+                        answer = Double.valueOf(parsed.doubleValue());
+                    }
+                } catch (final NumberFormatException ex) {
+                    return false;
                 }
             }
             if (answer == null) {

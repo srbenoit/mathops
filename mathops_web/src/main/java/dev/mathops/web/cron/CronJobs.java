@@ -1,7 +1,5 @@
 package dev.mathops.web.cron;
 
-import dev.mathops.db.logic.transfercredit.ImportOdsTransferCredit;
-import dev.mathops.db.old.rawrecord.RawSpecialStus;
 import dev.mathops.dbjobs.batch.BulkUpdateMPLTestScores;
 import dev.mathops.dbjobs.batch.daily.AuditBannerTestScores;
 import dev.mathops.dbjobs.batch.daily.CheckStudentTerm;
@@ -11,10 +9,10 @@ import dev.mathops.dbjobs.batch.daily.ImportBannerStudentRegistrations;
 import dev.mathops.dbjobs.batch.daily.ImportOdsApplicants;
 import dev.mathops.dbjobs.batch.daily.ImportOdsNewStus;
 import dev.mathops.dbjobs.batch.daily.ImportOdsPastCourses;
+import dev.mathops.dbjobs.batch.daily.ImportOdsTransferCredit;
 import dev.mathops.dbjobs.batch.daily.PcCleanup;
 import dev.mathops.dbjobs.batch.daily.SendQueuedBannerTestScores;
 import dev.mathops.dbjobs.batch.daily.SetHolds;
-import dev.mathops.dbjobs.report.cron.PrecalcProgressReport;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -113,14 +111,16 @@ public final class CronJobs implements ICronJob {
             // *** This report runs during the semester - athletics sends an email near the start of the term to
             // request it, along with the list of people that the numan cron job should email it to.
 
-            new PrecalcProgressReport("athletes_summary", RawSpecialStus.ATHLETE,
-                    "PRECALCULUS PROGRESS REPORT FOR REGISTERED STUDENT ATHLETES").execute();
+//            new PrecalcProgressReport("athletes_summary", RawSpecialStus.ATHLETE,
+//                    "PRECALCULUS PROGRESS REPORT FOR REGISTERED STUDENT ATHLETES").execute();
 
             // *** This report runs during the semester - engineering sends an email near the start of the term to
             // request it, along with the list of people that the numan cron job should email it to.
 
 //            new PrecalcProCULUS PROGRESS ProgressReport("engineering_summary", RawSpecialStus.ENGRSTU,
 //                    "PRECALCULUS PROGRESS REPORT FOR REGISTERED ENGINEERING STUDENTS").execute();
+
+            // TODO: Add one for CSU Online using "DCE" students.
 
             this.reportsNextRun = LocalDateTime.of(tomorrow, ONE_AM);
         }
