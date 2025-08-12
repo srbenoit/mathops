@@ -293,6 +293,7 @@ enum PageDetails {
         htm.add("<button class='btnsmall' onclick='playboth()'>Play</button> &nbsp; ",
                 "<button class='btnsmall' onclick='playboth2()'>Play x2</button> &nbsp; ",
                 "<button class='btnsmall' onclick='playboth4()'>Play x4</button> &nbsp; ",
+                "<button class='btnsmall' onclick='playslow()'>Slow</button> &nbsp; ",
                 "<button class='btnsmall' onclick='stopboth()'>Stop</button> &nbsp; ",
                 "<input type='range' min='1' max='1000' value='0' id='playback-slider' ",
                 "oninput='playbackSliderUpdate()'/>");
@@ -316,6 +317,12 @@ enum PageDetails {
         htm.addln("  document.getElementById('webcam-vid').playbackRate = 4.0;");
         htm.addln("  document.getElementById('screen-vid').play();");
         htm.addln("  document.getElementById('screen-vid').playbackRate = 4.0;");
+        htm.addln("}");
+        htm.addln("function playslow() {");
+        htm.addln("  document.getElementById('webcam-vid').play();");
+        htm.addln("  document.getElementById('webcam-vid').playbackRate = 0.25;");
+        htm.addln("  document.getElementById('screen-vid').play();");
+        htm.addln("  document.getElementById('screen-vid').playbackRate = 0.25;");
         htm.addln("}");
         htm.addln("function stopboth() {");
         htm.addln("  document.getElementById('webcam-vid').pause();");
