@@ -10,6 +10,7 @@ import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.model.ParsingLog;
 import dev.mathops.text.model.ParsingLogEntry;
+import dev.mathops.text.model.SimpleModelTreeNodeFactory;
 import dev.mathops.text.model.XmlTreeParser;
 import dev.mathops.text.model.XmlTreeWriter;
 import dev.mathops.text.parser.LineOrientedParserInput;
@@ -208,7 +209,7 @@ public final class XmlModelTreeEditor implements Runnable, ActionListener, Caret
             final LineOrientedParserInput input = new LineOrientedParserInput(sourceXml);
             final ParsingLog log = new ParsingLog(20);
 
-            final ModelTreeNode root = XmlTreeParser.parseXml(input, log);
+            final ModelTreeNode root = XmlTreeParser.parseXml(input, new SimpleModelTreeNodeFactory(), log);
 
             if (root == null) {
                 this.target.setText(CoreConstants.EMPTY);
