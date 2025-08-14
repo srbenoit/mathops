@@ -23,38 +23,33 @@ public final class CanvasCourseIdMap {
         this.mappings = new HashMap<>(5);
 
         final Map<String, Long> m117 = new HashMap<>(4);
-        m117.put("001", Long.valueOf(194652L));
-        m117.put("002", Long.valueOf(194652L));
-        m117.put("801", Long.valueOf(197674L));
-        m117.put("809", Long.valueOf(197674L));
+        m117.put("001", Long.valueOf(209813L));
+        m117.put("002", Long.valueOf(207198L));
+        m117.put("801", Long.valueOf(206462L));
         this.mappings.put(RawRecordConstants.M117, m117);
 
         final Map<String, Long> m118 = new HashMap<>(4);
-        m118.put("001", Long.valueOf(194656L));
-        m118.put("002", Long.valueOf(194656L));
-        m118.put("801", Long.valueOf(197675L));
-        m118.put("809", Long.valueOf(197675L));
+        m118.put("001", Long.valueOf(209817L));
+        m118.put("002", Long.valueOf(207202L));
+        m118.put("801", Long.valueOf(206457L));
         this.mappings.put(RawRecordConstants.M118, m118);
 
         final Map<String, Long> m124 = new HashMap<>(4);
-        m124.put("001", Long.valueOf(194663L));
-        m124.put("002", Long.valueOf(194663L));
-        m124.put("801", Long.valueOf(197676L));
-        m124.put("809", Long.valueOf(197676L));
+        m124.put("001", Long.valueOf(209821L));
+        m124.put("002", Long.valueOf(207203L));
+        m124.put("801", Long.valueOf(206452L));
         this.mappings.put(RawRecordConstants.M124, m124);
 
         final Map<String, Long> m125 = new HashMap<>(4);
-        m125.put("001", Long.valueOf(194667L));
-        m125.put("002", Long.valueOf(194667L));
-        m125.put("801", Long.valueOf(197677L));
-        m125.put("809", Long.valueOf(197677L));
+        m125.put("001", Long.valueOf(209826L));
+        m125.put("002", Long.valueOf(207205L));
+        m125.put("801", Long.valueOf(206447L));
         this.mappings.put(RawRecordConstants.M125, m125);
 
         final Map<String, Long> m126 = new HashMap<>(4);
-        m126.put("001", Long.valueOf(194671L));
-        m126.put("002", Long.valueOf(194671L));
-        m126.put("801", Long.valueOf(197678L));
-        m126.put("809", Long.valueOf(197678L));
+        m126.put("001", Long.valueOf(209831L));
+        m126.put("002", Long.valueOf(207207L));
+        m126.put("801", Long.valueOf(206443L));
         this.mappings.put(RawRecordConstants.M126, m126);
     }
 
