@@ -306,10 +306,10 @@ enum PagePlacement {
                         "specific majors? ", EXT_LINK, "</a></li>")
                 .add("<li><a class='question' target='_blank' ",
                         "href='https://catalog.colostate.edu/general-catalog/",
-                        "all-university-core-curriculum/mathematics-requirement/'>",
+                        "all-university-core-curriculum/1b-requirement/'>",
                         "all majors at CSU?", EXT_LINK, "</a></li>")
                 .add("<li><a class='question' target='_blank' ",
-                        "href=https://admissions.colostate.edu/requirementinmathematics/'>",
+                        "href=https://admissions.colostate.edu/apply/special-circumstances/transfer-credits/'>",
                         "admission as a transfer student?", EXT_LINK, "</a></li></ul>")
                 .eP();
 
@@ -317,8 +317,8 @@ enum PagePlacement {
         htm.sH(2).add("How do I").eH(2);
 
         htm.sP("indent").add("<ul class='loose'>")
-                .add("<li><a class='question' target='_blank' target='_blank' ",
-                        "href='https://registrar.colostate.edu/transferring-your-examination-test-credit/'>",
+                .add("<li><a class='question' target='_blank' target='_blank' href='https://thehub.colostate.edu",
+                        "/registration-records/transferring-your-examination-test-credit/'>",
                         "transfer my AP or IB test credit?", EXT_LINK, "</a></li>")
                 .add("<li><a class='question' onClick='nav5()'>",
                         "know if I need to complete Math Placement?</a></li>")

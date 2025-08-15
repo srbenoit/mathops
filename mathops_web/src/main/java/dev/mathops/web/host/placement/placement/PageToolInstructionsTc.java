@@ -76,10 +76,12 @@ enum PageToolInstructionsTc {
                 if (minutes <= 140) {
                     htm.sTd().add("2 hours, 20 minutes").eTd();
                 } else {
-                    htm.sTd().add("2 hours, 20 minutes<br/>", "(Adjusted to ", Integer.toString(minutes),
-                            " minutes by accommodation)").eTd();
+                    htm.sTd().add("2 hours, 20 minutes<br/>", "(Adjusted to ",
+                            Integer.toString(minutes), " minutes by accommodation)").eTd();
                 }
             }
+        } else {
+            htm.sTd().add("2 hours, 20 minutes").eTd();
         }
         htm.eTr();
         htm.sTr();

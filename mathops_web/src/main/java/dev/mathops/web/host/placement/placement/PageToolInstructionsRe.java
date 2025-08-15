@@ -100,17 +100,19 @@ enum PageToolInstructionsRe {
                         htm.sTd().add("2 hours, 20 minutes<br/>",
                                 "(Adjusted to 5 hours, 50 minutes by accommodation)").eTd();
                     } else if (factor > 2.99f && factor < 3.01f) {
-                        htm.sTd().add("2 hours, 20 minutes<br/>",
-                                "(Adjusted to 7 hours by accommodation)").eTd();
+                        htm.sTd().add("2 hours, 20 minutes<br/>", "(Adjusted to 7 hours by accommodation)")
+                                .eTd();
                     } else {
                         final int minutes = Math.round(140.0f * factor);
                         if (minutes <= 140) {
                             htm.sTd().add("2 hours, 20 minutes").eTd();
                         } else {
-                            htm.sTd().add("2 hours, 20 minutes<br/>", "(Adjusted to ", Integer.toString(minutes),
-                                    " minutes by accommodation)").eTd();
+                            htm.sTd().add("2 hours, 20 minutes<br/>", "(Adjusted to ",
+                                    Integer.toString(minutes), " minutes by accommodation)").eTd();
                         }
                     }
+                } else {
+                    htm.sTd().add("2 hours, 20 minutes").eTd();
                 }
                 htm.eTr();
                 htm.sTr();

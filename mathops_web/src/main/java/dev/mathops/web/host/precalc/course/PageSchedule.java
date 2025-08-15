@@ -933,7 +933,7 @@ enum PageSchedule {
 
             htm.addln("<li class='boxlist'>");
             htm.addln(" Each <b>Review Exam</b> earns ", penaltyStr,
-                    " if passed by 11:59 PM (<span class='red'>Mountain time zone</span>) on their ",
+                    " if passed by 11:59 PM (<span class='red'>Mountain time zone</span>) on its ",
                     "deadline date. If a <b>Review Exam</b> is not passed by this time, you receive ",
                     "no points for the <b>Review Exam</b>.");
 
@@ -967,8 +967,7 @@ enum PageSchedule {
 
         if (passedFinal != null) {
             htm.addln("<li class='boxlist'><span class='redred'>",
-                    "<span class='lightgold' ",
-                    "style='padding-top:2px;padding-bottom:2px;'>");
+                    "<span class='lightgold' style='padding-top:2px;padding-bottom:2px;'>");
             htm.addln(" You are now eligible to retest on any proctored exam through the last ",
                     "day of classes to improve your point total in this course.");
             htm.addln("</span></span></li>");

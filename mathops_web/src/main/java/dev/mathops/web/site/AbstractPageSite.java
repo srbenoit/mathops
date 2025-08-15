@@ -334,6 +334,10 @@ public abstract class AbstractPageSite extends AbstractSite {
                     htm.br().add(start1.openTime2, " - ", start1.closeTime2, ", ")
                             .sSpan("nowrap").add(start1.weekdays2).eSpan();
                 }
+                if (count > 2) {
+                    htm.br().add(start1.openTime3, " - ", start1.closeTime3, ", ")
+                            .sSpan("nowrap").add(start1.weekdays3).eSpan();
+                }
 
                 htm.addln("</li>");
             }
@@ -359,6 +363,10 @@ public abstract class AbstractPageSite extends AbstractSite {
                 if (count > 1) {
                     htm.br().add(start2.openTime2, " - ", start2.closeTime2, ", ")
                             .sSpan("nowrap").add(start2.weekdays2).eSpan();
+                }
+                if (count > 2) {
+                    htm.br().add(start2.openTime3, " - ", start2.closeTime3, ", ")
+                            .sSpan("nowrap").add(start2.weekdays3).eSpan();
                 }
 
                 htm.addln("</li>");
@@ -387,6 +395,10 @@ public abstract class AbstractPageSite extends AbstractSite {
                     if (count > 1) {
                         htm.br().add(walkin.openTime2, " - ", walkin.closeTime2, ", ")
                                 .sSpan("nowrap").add(walkin.weekdays2).eSpan();
+                    }
+                    if (count > 2) {
+                        htm.br().add(walkin.openTime3, " - ", walkin.closeTime3, ", ")
+                                .sSpan("nowrap").add(walkin.weekdays3).eSpan();
                     }
 
                     htm.addln("</li>");
@@ -421,6 +433,10 @@ public abstract class AbstractPageSite extends AbstractSite {
                     if (count > 1) {
                         htm.br().add(start1x.openTime2, " - ", start1x.closeTime2, ", ")
                                 .sSpan("nowrap").add(start1x.weekdays2).eSpan();
+                    }
+                    if (count > 2) {
+                        htm.br().add(start1x.openTime3, " - ", start1x.closeTime3, ", ")
+                                .sSpan("nowrap").add(start1x.weekdays3).eSpan();
                     }
 
                     htm.addln("</li>");
@@ -531,6 +547,10 @@ public abstract class AbstractPageSite extends AbstractSite {
                     htm.br().add(start1.openTime2, " - ", start1.closeTime2, ", ")
                             .sSpan("nowrap").add(start1.weekdays2).eSpan();
                 }
+                if (count > 2) {
+                    htm.br().add(start1.openTime3, " - ", start1.closeTime3, ", ")
+                            .sSpan("nowrap").add(start1.weekdays3).eSpan();
+                }
 
                 htm.addln("</li>");
             }
@@ -556,6 +576,10 @@ public abstract class AbstractPageSite extends AbstractSite {
                 if (count > 1) {
                     htm.br().add(start2.openTime2, " - ", start2.closeTime2, ", ")
                             .sSpan("nowrap").add(start2.weekdays2).eSpan();
+                }
+                if (count > 2) {
+                    htm.br().add(start2.openTime3, " - ", start2.closeTime3, ", ")
+                            .sSpan("nowrap").add(start2.weekdays3).eSpan();
                 }
 
                 htm.addln("</li>");

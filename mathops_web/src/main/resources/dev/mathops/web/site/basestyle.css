@@ -532,6 +532,7 @@ footer {
   color: white;
   position: static;
   overflow: hidden;
+  z-index: -1;
 }
 
 footer a {

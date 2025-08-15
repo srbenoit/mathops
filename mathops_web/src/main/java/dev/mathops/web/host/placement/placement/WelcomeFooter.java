@@ -146,6 +146,9 @@ public final class WelcomeFooter implements ISecondaryFooter {
                 if (count > 1) {
                     htm.br().add("&nbsp; ", start1.openTime2, " - ", start1.closeTime2, ", ", start1.weekdays2);
                 }
+                if (count > 2) {
+                    htm.br().add("&nbsp; ", start1.openTime3, " - ", start1.closeTime3, ", ", start1.weekdays3);
+                }
 
                 htm.eSpan();
 
@@ -174,6 +177,9 @@ public final class WelcomeFooter implements ISecondaryFooter {
                 if (count > 1) {
                     htm.br().add("&nbsp; ", start2.openTime2, " - ", start2.closeTime2, ", ", start2.weekdays2);
                 }
+                if (count > 2) {
+                    htm.br().add("&nbsp; ", start2.openTime3, " - ", start2.closeTime3, ", ", start2.weekdays3);
+                }
 
                 htm.eSpan();
                 htm.eP();
@@ -194,6 +200,9 @@ public final class WelcomeFooter implements ISecondaryFooter {
                 }
                 if (count > 1) {
                     htm.br().add("&nbsp; ", walkin.openTime2, " - ", walkin.closeTime2, ", ", walkin.weekdays2);
+                }
+                if (count > 2) {
+                    htm.br().add("&nbsp; ", walkin.openTime3, " - ", walkin.closeTime3, ", ", walkin.weekdays3);
                 }
 
                 htm.eSpan();
@@ -226,6 +235,9 @@ public final class WelcomeFooter implements ISecondaryFooter {
                 }
                 if (count > 1) {
                     htm.br().add("&nbsp; ", start1x.openTime2, " - ", start1x.closeTime2, ", ", start1x.weekdays2);
+                }
+                if (count > 2) {
+                    htm.br().add("&nbsp; ", start1x.openTime3, " - ", start1x.closeTime3, ", ", start1x.weekdays3);
                 }
 
                 htm.eSpan();

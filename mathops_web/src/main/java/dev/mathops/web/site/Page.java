@@ -593,7 +593,7 @@ public enum Page {
         htm.eDiv(); // two-thirds
 
         htm.sDiv("one-third", "id='footerLogo'");
-        htm.sDiv("bottomlogo"); //
+        htm.sDiv("bottomlogo");
         htm.addln("<a href='https://www.colostate.edu/'><img id='bottomlogo' ",
                 "src='/www/images/csu-logo-oneline.svg' alt=''></a>");
         htm.eDiv(); // bottomlogo

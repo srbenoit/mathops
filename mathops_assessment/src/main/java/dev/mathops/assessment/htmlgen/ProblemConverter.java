@@ -131,7 +131,8 @@ public enum ProblemConverter {
         content.addln("<table style='font-size:inherit;font-family:inherit;border-collapse: collapse;'>");
         for (int i = 0; i < len; ++i) {
             content.addln("<tr><td style='font-size:inherit;font-family:inherit;'>",
-                    "<input disabled type='radio' name='CHOICE' id='CHOICE_", choiceId[i], "' value='", choiceId[i],
+                    "<input disabled type='radio' name='CHOICE' id='CHOICE_", choiceId[i], "' style='width:",
+                    boxSizeStr, "px;height:", boxSizeStr, "px;' value='", choiceId[i],
                     "'></td><td style='font-size:inherit;font-family:inherit;padding-right:12px;'>",
                     choiceHtml[i]).eTd().eTr();
         }
@@ -149,8 +150,8 @@ public enum ProblemConverter {
                     : "<tr>");
 
             content.add("<td style='font-size:inherit;font-family:inherit;'>");
-            content.add("<input disabled type='radio' name='CHOICE' id='CHOICE_", choiceId[i], "' value='",
-                    choiceId[i], "'>").eTd();
+            content.add("<input disabled type='radio' name='CHOICE' id='CHOICE_", choiceId[i], "' style='width:",
+                    boxSizeStr, "px;height:", boxSizeStr, "px;' value='", choiceId[i], "'>").eTd();
 
             content.add("<td style='font-size:inherit;font-family:inherit;padding-right:12px;'>");
             content.addln(choiceHtml[i]).eTd().eTr();
@@ -166,8 +167,8 @@ public enum ProblemConverter {
         for (int i = 0; i < len; ++i) {
             content.add(correct[i] ? "<tr style='background:#AAE1AA; border:1px solid #649664;'>" : "<tr>");
             content.add("<td style='font-size:inherit;font-family:inherit;'>");
-            content.add("<input disabled type='radio' name='CHOICE' id='CHOICE_", choiceId[i], "' value='",
-                    choiceId[i], "'>").eTd();
+            content.add("<input disabled type='radio' name='CHOICE' id='CHOICE_", choiceId[i], "' style='width:",
+                    boxSizeStr, "px;height:", boxSizeStr, "px;' value='", choiceId[i], "'>").eTd();
 
             content.add("<td style='font-size:inherit;font-family:inherit;;padding-right:12px'>");
             content.addln(choiceHtml[i]).eTd().eTr();
@@ -198,8 +199,7 @@ public enum ProblemConverter {
      * @param id      a one-integer array that holds a value used to generate unique IDs for spans (element [0] is
      *                incremented each time a unique ID is called for)
      */
-    private static void populateMutipleSelection(final ProblemMultipleSelectionTemplate problem,
-                                                 final int[] id) {
+    private static void populateMutipleSelection(final ProblemMultipleSelectionTemplate problem, final int[] id) {
 
         final Deque<Style> styleStack = new LinkedList<>();
         styleStack.push(new Style(AbstractDocObjectTemplate.DEFAULT_BASE_FONT_SIZE, "black"));
@@ -239,7 +239,7 @@ public enum ProblemConverter {
         content.addln("<table style='font-size:inherit;font-family:inherit;border-collapse: collapse;'>");
         for (int i = 0; i < len; ++i) {
             final String idstr = "CHOICE_" + choiceId[i];
-            content.addln("<tr><td style='font-size:inherit;font-family:inherit;'>",
+            content.add("<tr><td style='font-size:inherit;font-family:inherit;'>",
                     "<input type='checkbox' name='", idstr, "' id='", idstr, "' style='width:", boxSizeStr,
                     "px;height:", boxSizeStr, "px;'></td>",
                     "<td style='font-size:inherit;font-family:inherit;padding-right:12px;'><label for='", idstr, "'>",
@@ -252,9 +252,10 @@ public enum ProblemConverter {
         content.addln(questionHtml);
         content.addln("<table style='font-size:inherit;font-family:inherit;border-collapse: collapse;'>");
         for (int i = 0; i < len; ++i) {
-            content.addln("<tr><td style='font-size:inherit;font-family:inherit;'>",
+            content.add("<tr><td style='font-size:inherit;font-family:inherit;'>",
                     "<input disabled type='checkbox' name='CHOICE_", choiceId[i], "' id='CHOICE_", choiceId[i],
-                    "'></td><td style='font-size:inherit;font-family:inherit;padding-right:12px;'>",
+                    "' style='width:", boxSizeStr, "px;height:", boxSizeStr,
+                    "px;'></td><td style='font-size:inherit;font-family:inherit;padding-right:12px;'>",
                     choiceHtml[i]).eTd().eTr();
         }
         content.eTable();
@@ -269,10 +270,9 @@ public enum ProblemConverter {
             content.add(correct[i] ? "<tr style='background:#AAE1AA; border:1px solid #649664;'>" : "<tr>");
             content.add("<td style='font-size:inherit;font-family:inherit;'>");
             content.add("<input disabled type='checkbox' name='CHOICE_", choiceId[i], "' id='CHOICE_", choiceId[i],
-                    "'>").eTd();
-
-            content.add("<td style='font-size:inherit;font-family:inherit;padding-right:12px;'>");
-            content.addln(choiceHtml[i]).eTd().eTr();
+                    "' style='width:", boxSizeStr, "px;height:", boxSizeStr,
+                    "px;'></td><td style='font-size:inherit;font-family:inherit;padding-right:12px;'>",
+                    choiceHtml[i]).eTd().eTr();
         }
         content.eTable();
         problem.answerHtml = content.toString();
@@ -285,11 +285,10 @@ public enum ProblemConverter {
         for (int i = 0; i < len; ++i) {
             content.add(correct[i] ? "<tr style='background:#AAE1AA; border:1px solid #649664;'>" : "<tr>");
             content.add("<td style='font-size:inherit;font-family:inherit;'>");
-            content.add("<input dislabled type='checkbox' name='CHOICE_", choiceId[i], "' id='CHOICE_", choiceId[i],
-                    "'>").eTd();
-
-            content.add("<td style='font-size:inherit;font-family:inherit;padding-right:12px;'>");
-            content.addln(choiceHtml[i]).eTd().eTr();
+            content.add("<input disabled type='checkbox' name='CHOICE_", choiceId[i], "' id='CHOICE_", choiceId[i],
+                    "' style='width:", boxSizeStr, "px;height:", boxSizeStr,
+                    "px;'></td><td style='font-size:inherit;font-family:inherit;padding-right:12px;'>",
+                    choiceHtml[i]).eTd().eTr();
         }
         content.eTable();
         if (solutionHtml != null) {
