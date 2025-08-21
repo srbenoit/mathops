@@ -371,7 +371,7 @@ public final class SiteDataRegistration {
                 this.nonPacedIncompletePending = true;
             }
 
-            if (cur.iTermKey == null) {
+            if (cur.iTermKey == null || "Y".equals(cur.iCounted)) {
                 this.registrationTerms.add(this.active);
             } else {
                 // Load the term in which the incomplete was earned

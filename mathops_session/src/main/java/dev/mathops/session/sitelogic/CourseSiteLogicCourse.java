@@ -654,6 +654,7 @@ public final class CourseSiteLogicCourse {
                 if ("Y".equals(studentCourse.completed)) {
                     this.completedIncCourses.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
                 } else if (dline.isBefore(today)) {
+                    Log.info(courseId, " deadline is ", dline, " today is ", today);
                     this.pastDeadlineIncCourses.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
                 } else if ("G".equals(studentCourse.openStatus)) {
                     this.forfeitInc.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
