@@ -44,23 +44,26 @@ enum PageDetails {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void showPage(final Cache cache, final ProctoringMediaSite site,
-                         final ServletRequest req, final HttpServletResponse resp,
-                         final ImmutableSessionInfo session) throws IOException, SQLException {
+    static void showPage(final Cache cache, final ProctoringMediaSite site, final ServletRequest req,
+                         final HttpServletResponse resp, final ImmutableSessionInfo session)
+            throws IOException, SQLException {
 
         final ERole role = session.getEffectiveRole();
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
-        Page.startOrdinaryPage(htm, Res.get(Res.SITE_TITLE), session, false, Page.ADMIN_BAR, null, false, true);
+        final String title = Res.get(Res.SITE_TITLE);
+        Page.startOrdinaryPage(htm, title, session, false, Page.ADMIN_BAR, null, false, true);
 
         htm.sDiv(null, "style='padding-left:16px; padding-right:16px;'");
 
         if (role.canActAs(ERole.ADMINISTRATOR) || role.canActAs(ERole.PROCTOR)
             || role.canActAs(ERole.OFFICE_STAFF) || role.canActAs(ERole.DIRECTOR)) {
 
-            htm.sH(2).add(Res.get(Res.HOME_HEADING)).eH(2);
+            final String heading = Res.get(Res.HOME_HEADING);
+            htm.sH(2).add(heading).eH(2);
 
-            emitDetails(site.dataDir, req, session, htm);
+            final File dataDir = site.getDataPath();
+            emitDetails(dataDir, req, session, htm);
         } else {
             htm.sP().addln("Not authorized to access proctoring media management").eP();
         }
@@ -79,8 +82,8 @@ enum PageDetails {
      * @param session the login session
      * @param htm     the {@code HtmlBuilder} to which to append
      */
-    private static void emitDetails(final File dataDir, final ServletRequest req,
-                                    final ImmutableSessionInfo session, final HtmlBuilder htm) {
+    private static void emitDetails(final File dataDir, final ServletRequest req, final ImmutableSessionInfo session,
+                                    final HtmlBuilder htm) {
 
         htm.hr();
 
@@ -89,22 +92,27 @@ enum PageDetails {
         htm.sH(3).add("Session Details &nbsp; <a class='btnsmall' href='home.html'>Home</a>").eH(3);
         htm.sDiv("indent");
 
+        final String term = req.getParameter("term");
         final String stuid = req.getParameter("stu");
         final String psid = req.getParameter("psid");
 
-        if (AbstractSite.isFileParamInvalid(stuid) || AbstractSite.isFileParamInvalid(psid)) {
+        if (AbstractSite.isFileParamInvalid(term) || AbstractSite.isFileParamInvalid(stuid)
+            || AbstractSite.isFileParamInvalid(psid)) {
             Log.warning("Invalid POST parameters - possible attack");
+            Log.warning("  term=", term);
             Log.warning("  stu=", stuid);
             Log.warning("  psid=", psid);
             htm.sP().add("Invalid request parameters").eP();
-        } else if (stuid == null || psid == null) {
+        } else if (term == null || stuid == null || psid == null) {
             htm.sP().add("Missing request parameters").eP();
         } else {
-            final File sessionDir = new File(new File(dataDir, stuid), psid);
+            final File termDir = new File(dataDir, term);
+            final File sessionDir = new File(new File(termDir, stuid), psid);
             if (sessionDir.exists()) {
-                emitDetails(sessionDir, stuid, psid, session, htm);
+                emitDetails(sessionDir, term, stuid, psid, session, htm);
             } else {
-                Log.warning(sessionDir.getAbsolutePath() + " not found");
+                final String absPath = sessionDir.getAbsolutePath();
+                Log.warning(absPath + " not found");
                 htm.sP().add("Unable to locate proctoring session files").eP();
             }
         }
@@ -116,26 +124,27 @@ enum PageDetails {
      * Emits the list of students, with all the sessions under each student.
      *
      * @param sessionDir the proctoring session directory
-     * @param stuid      the student ID
-     * @param psid       the proctoring session ID
+     * @param term       the term name
+     * @param stuId      the student ID
+     * @param psId       the proctoring session ID
      * @param session    the login session
      * @param htm        the {@code HtmlBuilder} to which to append
      */
-    private static void emitDetails(final File sessionDir, final String stuid, final String psid,
+    private static void emitDetails(final File sessionDir, final String term, final String stuId, final String psId,
                                     final ImmutableSessionInfo session, final HtmlBuilder htm) {
 
         htm.sP().add("<strong>");
-        emitStudentMeta(sessionDir, stuid, htm);
+        emitStudentMeta(sessionDir, stuId, htm);
         htm.add(" &nbsp; ");
         emitSessionMeta(sessionDir, htm);
         htm.add("</strong>").eP();
         htm.div("vgap0");
 
-        emitMedia(sessionDir, stuid, psid, htm);
+        emitMedia(sessionDir, term, stuId, psId, htm);
         emitTags(sessionDir, htm);
-        emitReviews(stuid, psid, session, sessionDir, htm);
-        emitReviewForm(stuid, psid, session, htm);
-        emitStudentNotes(stuid, psid, session, sessionDir, htm);
+        emitReviews(term, stuId, psId, session, sessionDir, htm);
+        emitReviewForm(term, stuId, psId, session, htm);
+        emitStudentNotes(term, stuId, psId, session, sessionDir, htm);
 
         htm.addln("<a name='bottom'/>");
     }
@@ -144,10 +153,10 @@ enum PageDetails {
      * Emits a line with student metadata.
      *
      * @param sessionDir the session directory (student metadata is in the parent directory)
-     * @param stuid      the student ID
+     * @param stuId      the student ID
      * @param htm        the {@code HtmlBuilder} to which to append
      */
-    private static void emitStudentMeta(final File sessionDir, final String stuid, final HtmlBuilder htm) {
+    private static void emitStudentMeta(final File sessionDir, final String stuId, final HtmlBuilder htm) {
 
         final Object stuMeta = loadJson(new File(sessionDir.getParentFile(), "meta.json"));
 
@@ -158,9 +167,9 @@ enum PageDetails {
             last = ((JSONObject) stuMeta).getStringProperty("last");
         }
         if (first == null || last == null) {
-            htm.add(stuid);
+            htm.add(stuId);
         } else {
-            htm.add(last, ", ", first, " (", stuid, ")");
+            htm.add(last, ", ", first, " (", stuId, ")");
         }
     }
 
@@ -197,13 +206,15 @@ enum PageDetails {
      * Emits media (photo and ID card image capture, webcam video, and screen video).
      *
      * @param dir   the session directory
+     * @param term  the term name
      * @param stuid the student ID
      * @param psid  the proctoring session ID
      * @param htm   the {@code HtmlBuilder} to which to append
      */
-    private static void emitMedia(final File dir, final String stuid, final String psid, final HtmlBuilder htm) {
+    private static void emitMedia(final File dir, final String term, final String stuid, final String psid,
+                                  final HtmlBuilder htm) {
 
-        final String subpath = stuid + "/" + psid + "/";
+        final String subpath = term + "/" + stuid + "/" + psid + "/";
 
         htm.sDiv();
         final File photo = new File(dir, "photo.jpg");
@@ -415,13 +426,15 @@ enum PageDetails {
     /**
      * Emits a list of identified tags in the media.
      *
+     * @param term       the term
      * @param stuid      the student ID
      * @param psid       the proctoring session ID
      * @param session    the login session
      * @param sessionDir the session directory
      * @param htm        the {@code HtmlBuilder} to which to append
      */
-    private static void emitReviews(final String stuid, final String psid, final ImmutableSessionInfo session,
+    private static void emitReviews(final String term, final String stuid, final String psid,
+                                    final ImmutableSessionInfo session,
                                     final File sessionDir, final HtmlBuilder htm) {
 
         htm.hr();
@@ -436,7 +449,7 @@ enum PageDetails {
 //                Log.info(elevated.getClass().getName());
                 if (elevated instanceof JSONObject) {
                     emitSingleReview(elevFile, (JSONObject) elevated, true, htm);
-                    emitProcessForm(i, stuid, psid, session, htm);
+                    emitProcessForm(i, term, stuid, psid, session, htm);
                 }
             } else if (reviewFile.exists()) {
                 final Object review = loadJson(reviewFile);
@@ -567,18 +580,20 @@ enum PageDetails {
      * Emits a form used to add a review to this session.
      *
      * @param i       the index (1-based) of the elevated review being processed
+     * @param term    the term
      * @param stuid   the student ID
      * @param psid    the proctoring session ID
      * @param session the login session
      * @param htm     the {@code HtmlBuilder} to which to append
      */
-    private static void emitProcessForm(final int i, final String stuid, final String psid,
+    private static void emitProcessForm(final int i, final String term, final String stuid, final String psid,
                                         final ImmutableSessionInfo session, final HtmlBuilder htm) {
 
         htm.sDiv("indent");
         htm.sH(4).add("Process").eH(4);
 
         htm.addln("<form method='POST' action='elevated.html'>");
+        htm.addln("  <input type='hidden' id='term' name='term' value='", term, "'/>");
         htm.addln("  <input type='hidden' id='stu' name='stu' value='", stuid, "'/>");
         htm.addln("  <input type='hidden' id='psid' name='psid' value='", psid, "'/>");
         htm.addln("  <input type='hidden' id='date' name='date' value='", LocalDateTime.now().toString(), "'/>");
@@ -596,12 +611,13 @@ enum PageDetails {
     /**
      * Emits a form used to add a review to this session.
      *
+     * @param term    the term
      * @param stuid   the student ID
      * @param psid    the proctoring session ID
      * @param session the login session
      * @param htm     the {@code HtmlBuilder} to which to append
      */
-    private static void emitReviewForm(final String stuid, final String psid,
+    private static void emitReviewForm(final String term, final String stuid, final String psid,
                                        final ImmutableSessionInfo session, final HtmlBuilder htm) {
 
         htm.hr();
@@ -610,6 +626,7 @@ enum PageDetails {
         htm.sH(4).add("Add New Review").eH(4);
 
         htm.addln("<form method='POST' action='details.html'>");
+        htm.addln("  <input type='hidden' id='term' name='term' value='", term, "'/>");
         htm.addln("  <input type='hidden' id='stu' name='stu' value='", stuid, "'/>");
         htm.addln("  <input type='hidden' id='psid' name='psid' value='", psid, "'/>");
         htm.addln("  <input type='hidden' id='date' name='date' value='", LocalDateTime.now().toString(), "'/>");
@@ -626,14 +643,16 @@ enum PageDetails {
     /**
      * Emits a block displaying all comments added by reviewers so far, with the option to add new comments.
      *
+     * @param term       the term
      * @param stuid      the student ID
      * @param psid       the proctoring session ID
      * @param session    the login session
      * @param sessionDir the session directory
      * @param htm        the {@code HtmlBuilder} to which to append
      */
-    private static void emitStudentNotes(final String stuid, final String psid, final ImmutableSessionInfo session,
-                                         final File sessionDir, final HtmlBuilder htm) {
+    private static void emitStudentNotes(final String term, final String stuid, final String psid,
+                                         final ImmutableSessionInfo session, final File sessionDir,
+                                         final HtmlBuilder htm) {
         htm.hr();
 
         htm.sH(4).add("Student Notes").eH(4);
@@ -671,6 +690,7 @@ enum PageDetails {
 
                             htm.addln("<form style='display:inline;font-size:smaller;' method='POST' ",
                                     "action='deletestudentnote.html'>");
+                            htm.addln("  <input type='hidden' id='term' name='term' value='", term, "'/>");
                             htm.addln("  <input type='hidden' id='stu' name='stu' value='", stuid, "'/>");
                             htm.addln("  <input type='hidden' id='date' name='date' value='", dateStr, "'/>");
                             htm.addln("  <input type='hidden' id='psid' name='psid' value='", psid, "'/>");
@@ -697,6 +717,7 @@ enum PageDetails {
         htm.sP().add("<strong>Add a Note:</strong>").eP();
 
         htm.addln("<form method='POST' action='studentnote.html'>");
+        htm.addln("  <input type='hidden' id='term' name='term' value='", term, "'/>");
         htm.addln("  <input type='hidden' id='stu' name='stu' value='", stuid, "'/>");
         htm.addln("  <input type='hidden' id='psid' name='psid' value='", psid, "'/>");
         htm.addln("  <input type='hidden' id='date' name='date' value='", LocalDateTime.now().toString(), "'/>");
@@ -737,14 +758,17 @@ enum PageDetails {
      * Processes a POST to 'details.html' from the review submission form, which adds a new review (which may or may not
      * be elevated).
      *
-     * @param site the owning site
-     * @param req  the request
-     * @param resp the response
-     * @throws IOException if there is an error writing the response
+     * @param cache the data cache
+     * @param site  the owning site
+     * @param req   the request
+     * @param resp  the response
+     * @throws IOException  if there is an error writing the response
+     * @throws SQLException if there is an error accessing the database
      */
-    static void processPost(final ProctoringMediaSite site, final ServletRequest req,
-                            final HttpServletResponse resp) throws IOException {
+    static void processPost(final Cache cache, final ProctoringMediaSite site, final ServletRequest req,
+                            final HttpServletResponse resp) throws IOException, SQLException {
 
+        final String term = req.getParameter("term");
         final String stu = req.getParameter("stu");
         final String psid = req.getParameter("psid");
         final String date = req.getParameter("date");
@@ -752,20 +776,23 @@ enum PageDetails {
         final String elevate = req.getParameter("elevate");
         final String notes = req.getParameter("notes");
 
-        if (AbstractSite.isFileParamInvalid(stu) || AbstractSite.isFileParamInvalid(psid)
-            || AbstractSite.isParamInvalid(date)) {
+        if (AbstractSite.isFileParamInvalid(term) || AbstractSite.isFileParamInvalid(stu)
+            || AbstractSite.isFileParamInvalid(psid) || AbstractSite.isParamInvalid(date)) {
             Log.warning("Invalid POST parameters - possible attack");
+            Log.warning("  term =", term);
             Log.warning("  stu=", stu);
             Log.warning("  psid=", psid);
             Log.warning("  date=", date);
 
             resp.sendRedirect("home.html");
-        } else if (stu == null || psid == null || date == null) {
+        } else if (term == null || stu == null || psid == null || date == null) {
             Log.warning("POST from review form with missing parameters");
 
             resp.sendRedirect("home.html");
         } else {
-            final File sessionDir = new File(new File(site.dataDir, stu), psid);
+            final File dataDir = site.getDataPath();
+            final File termDir = new File(dataDir, term);
+            final File sessionDir = new File(new File(termDir, stu), psid);
 
             if (sessionDir.exists()) {
                 if (elevate == null) {
@@ -777,7 +804,7 @@ enum PageDetails {
                 Log.warning("POST, but can't find session dir: ", sessionDir.getAbsolutePath());
             }
 
-            resp.sendRedirect("details.html?stu=" + stu + "&psid=" + psid);
+            resp.sendRedirect("details.html?term=" + term + "&stu=" + stu + "&psid=" + psid);
         }
     }
 
@@ -844,15 +871,18 @@ enum PageDetails {
     /**
      * Processes a POST to "elevated.html" from the review submission form.
      *
-     * @param site the owning site
-     * @param req  the request
-     * @param resp the response
-     * @throws IOException if there is an error writing the response
+     * @param cache the data cache
+     * @param site  the owning site
+     * @param req   the request
+     * @param resp  the response
+     * @throws IOException  if there is an error writing the response
+     * @throws SQLException if there is an error accessing the database
      */
-    static void processElevated(final ProctoringMediaSite site, final ServletRequest req,
-                                final HttpServletResponse resp) throws IOException {
+    static void processElevated(final Cache cache, final ProctoringMediaSite site, final ServletRequest req,
+                                final HttpServletResponse resp) throws IOException, SQLException {
 
         final String index = req.getParameter("index");
+        final String term = req.getParameter("term");
         final String stu = req.getParameter("stu");
         final String psid = req.getParameter("psid");
         final String date = req.getParameter("date");
@@ -860,21 +890,25 @@ enum PageDetails {
         final String resolve = req.getParameter("resolve");
         final String notes = req.getParameter("notes");
 
-        if (AbstractSite.isFileParamInvalid(index) || AbstractSite.isFileParamInvalid(stu)
-            || AbstractSite.isFileParamInvalid(psid) || AbstractSite.isParamInvalid(date)) {
+        if (AbstractSite.isFileParamInvalid(index) || AbstractSite.isFileParamInvalid(term)
+            || AbstractSite.isFileParamInvalid(stu) || AbstractSite.isFileParamInvalid(psid)
+            || AbstractSite.isParamInvalid(date)) {
             Log.warning("Invalid POST parameters - possible attack");
             Log.warning("  index=", index);
+            Log.warning("  term=", term);
             Log.warning("  stu=", stu);
             Log.warning("  psid=", psid);
             Log.warning("  date=", date);
 
             resp.sendRedirect("home.html");
-        } else if (stu == null || psid == null || date == null) {
+        } else if (term == null || stu == null || psid == null || date == null) {
             Log.warning("POST from elevate form with missing parameters");
 
             resp.sendRedirect("home.html");
         } else {
-            final File dir = new File(new File(site.dataDir, stu), psid);
+            final File dataDir = site.getDataPath();
+            final File termDir = new File(dataDir, term);
+            final File dir = new File(new File(termDir, stu), psid);
 
             if (dir.exists()) {
                 final File file = new File(dir, "elevated" + index + ".json");
@@ -919,21 +953,24 @@ enum PageDetails {
                 Log.warning("POST, but can't find session dir: ", dir.getAbsolutePath());
             }
 
-            resp.sendRedirect("details.html?stu=" + stu + "&psid=" + psid);
+            resp.sendRedirect("details.html?term=" + term + "&stu=" + stu + "&psid=" + psid);
         }
     }
 
     /**
      * Processes a POST to "studentnote.html" that adds a new student note.
      *
-     * @param site the owning site
-     * @param req  the request
-     * @param resp the response
-     * @throws IOException if there is an error writing the response
+     * @param cache the data cache
+     * @param site  the owning site
+     * @param req   the request
+     * @param resp  the response
+     * @throws IOException  if there is an error writing the response
+     * @throws SQLException if there is an error accessing the database
      */
-    static void processStudentNote(final ProctoringMediaSite site, final ServletRequest req,
-                                   final HttpServletResponse resp) throws IOException {
+    static void processStudentNote(final Cache cache, final ProctoringMediaSite site, final ServletRequest req,
+                                   final HttpServletResponse resp) throws IOException, SQLException {
 
+        final String term = req.getParameter("term");
         final String stu = req.getParameter("stu");
         final String psid = req.getParameter("psid");
         final String date = req.getParameter("date");
@@ -943,16 +980,19 @@ enum PageDetails {
         if (AbstractSite.isFileParamInvalid(stu) || AbstractSite.isParamInvalid(psid)
             || AbstractSite.isParamInvalid(date)) {
             Log.warning("Invalid POST parameters - possible attack");
+            Log.warning("  term=", term);
             Log.warning("  stu=", stu);
             Log.warning("  psid=", psid);
             Log.warning("  date=", date);
             Log.warning("  who=", who);
             resp.sendRedirect("home.html");
-        } else if (stu == null || psid == null || date == null || who == null || note == null) {
+        } else if (term == null || stu == null || psid == null || date == null || who == null || note == null) {
             Log.warning("POST from add form form with missing parameters");
             resp.sendRedirect("home.html");
         } else {
-            final File studentDir = new File(site.dataDir, stu);
+            final File dataDir = site.getDataPath();
+            final File termDir = new File(dataDir, term);
+            final File studentDir = new File(termDir, stu);
 
             if (studentDir.exists()) {
                 final JSONObject newNoteJson = new JSONObject();
@@ -997,44 +1037,49 @@ enum PageDetails {
                         Log.warning("Failed to create student notes file in ", studentDir.getAbsolutePath(), ex);
                     }
                 }
-
             } else {
                 Log.warning("POST, but can't find student dir: ", studentDir.getAbsolutePath());
             }
 
-            resp.sendRedirect("details.html?stu=" + stu + "&psid=" + psid + "#bottom");
+            resp.sendRedirect("details.html?term=" + term + "&stu=" + stu + "&psid=" + psid + "#bottom");
         }
     }
 
     /**
      * Processes a POST to "deletestudentnote.html" that deletes an existing student note.
      *
-     * @param site the owning site
-     * @param req  the request
-     * @param resp the response
-     * @throws IOException if there is an error writing the response
+     * @param cache the data cache
+     * @param site  the owning site
+     * @param req   the request
+     * @param resp  the response
+     * @throws IOException  if there is an error writing the response
+     * @throws SQLException if there is an error accessing the database
      */
-    static void processDeleteStudentNote(final ProctoringMediaSite site, final ServletRequest req,
-                                         final HttpServletResponse resp) throws IOException {
+    static void processDeleteStudentNote(final Cache cache, final ProctoringMediaSite site, final ServletRequest req,
+                                         final HttpServletResponse resp) throws IOException, SQLException {
 
+        final String term = req.getParameter("term");
         final String stu = req.getParameter("stu");
         final String psid = req.getParameter("psid");
         final String date = req.getParameter("date");
         final String who = req.getParameter("who");
 
-        if (AbstractSite.isFileParamInvalid(stu) || AbstractSite.isFileParamInvalid(psid)
-            || AbstractSite.isParamInvalid(date)) {
+        if (AbstractSite.isFileParamInvalid(term) || AbstractSite.isFileParamInvalid(stu)
+            || AbstractSite.isFileParamInvalid(psid) || AbstractSite.isParamInvalid(date)) {
             Log.warning("Invalid POST parameters - possible attack");
+            Log.warning("  term=", term);
             Log.warning("  stu=", stu);
             Log.warning("  psid=", psid);
             Log.warning("  date=", date);
             Log.warning("  who=", who);
             resp.sendRedirect("home.html");
-        } else if (stu == null || psid == null || date == null || who == null) {
+        } else if (term == null || stu == null || psid == null || date == null || who == null) {
             Log.warning("POST from delete note form with missing parameters");
             resp.sendRedirect("home.html");
         } else {
-            final File studentDir = new File(site.dataDir, stu);
+            final File dataDir = site.getDataPath();
+            final File termDir = new File(dataDir, term);
+            final File studentDir = new File(termDir, stu);
 
             if (studentDir.exists()) {
                 final File file = new File(studentDir, "notes.json");
@@ -1063,7 +1108,7 @@ enum PageDetails {
                             builder.addln("[");
                             for (int i = 0; i < count; ++i) {
                                 final JSONObject noteJson = retained.get(i);
-                                if ( i == count -1) {
+                                if (i == count - 1) {
                                     builder.addln(noteJson.toJSONCompact());
                                 } else {
                                     builder.addln(noteJson.toJSONCompact(), ",");
@@ -1091,8 +1136,7 @@ enum PageDetails {
                 Log.warning("POST, but can't find student dir: ", studentDir.getAbsolutePath());
             }
 
-            resp.sendRedirect("details.html?stu=" + stu + "&psid=" + psid + "#bottom");
+            resp.sendRedirect("details.html?term=" + term + "&stu=" + stu + "&psid=" + psid + "#bottom");
         }
     }
-
 }

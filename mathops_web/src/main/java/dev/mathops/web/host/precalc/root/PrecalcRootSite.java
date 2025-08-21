@@ -13,6 +13,7 @@ import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
 import dev.mathops.session.SessionResult;
+import dev.mathops.session.login.ILoginProcessor;
 import dev.mathops.session.login.TestStudentLoginProcessor;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractPageSite;
@@ -60,21 +61,22 @@ public final class PrecalcRootSite extends AbstractPageSite {
      * @throws SQLException if there is an error accessing the database
      */
     @Override
-    public void doGet(final Cache cache, final String subpath, final ESiteType type,
-                      final HttpServletRequest req, final HttpServletResponse resp)
-            throws IOException, SQLException {
+    public void doGet(final Cache cache, final String subpath, final ESiteType type, final HttpServletRequest req,
+                      final HttpServletResponse resp) throws IOException, SQLException {
 
         if (CoreConstants.EMPTY.equals(subpath)) {
             resp.sendRedirect("index.html");
         } else if ("basestyle.css".equals(subpath)) {
-            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true));
+            final byte[] baseStyleBytes = FileLoader.loadFileAsBytes(Page.class, "basestyle.css", true);
+            sendReply(req, resp, "text/css", baseStyleBytes);
         } else if ("style.css".equals(subpath)) {
-            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(PrecalcRootSite.class, "style.css", true));
+            final byte[] styleBytes = FileLoader.loadFileAsBytes(PrecalcRootSite.class, "style.css", true);
+            sendReply(req, resp, "text/css", styleBytes);
         } else if (subpath.startsWith("images/")) {
-            serveImage(subpath.substring(7), req, resp);
-        } else if (subpath.startsWith("media/")
-                   || subpath.startsWith("math/")) {
-            serveMedia(subpath, req, resp);
+            final String substring = subpath.substring(7);
+            serveImage(substring, req, resp);
+        } else if (subpath.startsWith("media/") || subpath.startsWith("math/")) {
+            serveMedia(cache, subpath, req, resp);
         } else if (subpath.endsWith(".vtt")) {
             serveVtt(subpath, req, resp);
         } else if ("favicon.ico".equals(subpath)) {
@@ -88,9 +90,9 @@ public final class PrecalcRootSite extends AbstractPageSite {
 //        } else if ("orientation.html".equals(subpath)) {
 //            PageOrientation.doGet(cache, this, type, req, resp);
         } else {
-            final String maintMsg = isMaintenance(this.site);
+            final String maintenanceMsg = isMaintenance(this.site);
 
-            if (maintMsg == null) {
+            if (maintenanceMsg == null) {
                 switch (subpath) {
                     case "index.html", "login.html" -> PageIndex.doGet(cache, this, type, req, resp);
                     case "login_test_user_999.html" -> doLoginTestUserPage(cache, type, req, resp);
@@ -105,11 +107,13 @@ public final class PrecalcRootSite extends AbstractPageSite {
                                 PageIndex.doGet(cache, this, type, req, resp);
                             }
                         } else {
-                            LogBase.setSessionInfo(session.loginSessionId, session.getEffectiveUserId());
+                            final String effectiveId = session.getEffectiveUserId();
+                            LogBase.setSessionInfo(session.loginSessionId, effectiveId);
 
                             if ("home.html".equals(subpath)) {
                                 final String path = this.site.path;
-                                resp.sendRedirect(path + (path.endsWith(Contexts.ROOT_PATH) ? "instruction/home.html"
+                                final boolean endsWithSlash = path.endsWith(Contexts.ROOT_PATH);
+                                resp.sendRedirect(path + (endsWithSlash ? "instruction/home.html"
                                         : "/instruction/home.html"));
                             } else {
                                 Log.warning("Unrecognized request path: ", subpath);
@@ -119,7 +123,7 @@ public final class PrecalcRootSite extends AbstractPageSite {
                     }
                 }
             } else {
-                PageMaintenance.doGet(cache, this, type, req, resp, maintMsg);
+                PageMaintenance.doGet(cache, this, type, req, resp, maintenanceMsg);
             }
         }
     }
@@ -140,14 +144,14 @@ public final class PrecalcRootSite extends AbstractPageSite {
                        final HttpServletRequest req, final HttpServletResponse resp)
             throws IOException, SQLException {
 
-        final String maintMsg = isMaintenance(this.site);
+        final String maintenanceMsg = isMaintenance(this.site);
 
-        if (maintMsg == null) {
+        if (maintenanceMsg == null) {
             Log.warning("Unrecognized request path: ", subpath);
-            PageError.doGet(cache, this, req, resp, null, "<p>POST "
-                                                          + req.getRequestURI() + " (" + subpath + ")</p>");
+            final String reqUri = req.getRequestURI();
+            PageError.doGet(cache, this, req, resp, null, "<p>POST " + reqUri + " (" + subpath + ")</p>");
         } else {
-            PageMaintenance.doGet(cache, this, type, req, resp, maintMsg);
+            PageMaintenance.doGet(cache, this, type, req, resp, maintenanceMsg);
         }
     }
 
@@ -169,8 +173,7 @@ public final class PrecalcRootSite extends AbstractPageSite {
      * @param resp the response
      * @throws IOException of there is an error writing the response
      */
-    private static void doRobotsTxt(final ServletRequest req, final HttpServletResponse resp)
-            throws IOException {
+    private static void doRobotsTxt(final ServletRequest req, final HttpServletResponse resp) throws IOException {
 
         final HtmlBuilder data = new HtmlBuilder(30);
         data.addln("User-agent: *");
@@ -194,7 +197,8 @@ public final class PrecalcRootSite extends AbstractPageSite {
             throws IOException, SQLException {
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
-        Page.startOrdinaryPage(htm, getTitle(), null, true, Page.NO_BARS, null, false, true);
+        final String title = getTitle();
+        Page.startOrdinaryPage(htm, title, null, true, Page.NO_BARS, null, false, true);
         htm.sDiv("menupanel");
         PrecalcRootMenu.buildMenu(this, siteType, htm);
         htm.sDiv("panel");
@@ -203,9 +207,7 @@ public final class PrecalcRootSite extends AbstractPageSite {
 
         htm.addln("<ul>");
         // TODO: Generate an appropriate list for students who can test aspects of the site
-        htm.addln(//
-                "<li><a href='login_test_user_by_id.html?tsid=999999999'>999999999</a> ",
-                "(John Doe)</li>");
+        htm.addln("<li><a href='login_test_user_by_id.html?tsid=999999999'>999999999</a> (John Doe)</li>");
         htm.addln("</ul>");
 
         htm.eDiv(); // panel
@@ -239,8 +241,9 @@ public final class PrecalcRootSite extends AbstractPageSite {
         fields.put(TestStudentLoginProcessor.STU_ID, studentId);
         final Profile dbProfile = getSite().profile;
 
-        final SessionResult result = mgr.login(new Cache(dbProfile),
-                mgr.identifyProcessor(TestStudentLoginProcessor.TYPE), fields, getLiveRefreshes());
+        final ELiveRefreshes liveRefreshes = getLiveRefreshes();
+        final ILoginProcessor authMethod = mgr.identifyProcessor(TestStudentLoginProcessor.TYPE);
+        final SessionResult result = mgr.login(new Cache(dbProfile), authMethod, fields, liveRefreshes);
 
         final ImmutableSessionInfo sess = result.session;
 
@@ -254,9 +257,10 @@ public final class PrecalcRootSite extends AbstractPageSite {
                     : CoreConstants.SLASH + successPath);
 
             // Install the session ID cookie in the response
-            Log.info("Adding session ID cookie ", req.getServerName());
+            final String serverName = req.getServerName();
+            Log.info("Adding session ID cookie ", serverName);
             final Cookie cook = new Cookie(SessionManager.SESSION_ID_COOKIE, sess.loginSessionId);
-            cook.setDomain(req.getServerName());
+            cook.setDomain(serverName);
             cook.setPath(CoreConstants.SLASH);
             cook.setMaxAge(-1);
             cook.setSecure(true);

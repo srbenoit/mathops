@@ -5,6 +5,7 @@ import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.enums.ERole;
+import dev.mathops.db.type.TermKey;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.parser.ParsingException;
@@ -25,6 +26,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -47,21 +49,28 @@ enum PageHome {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void showPage(final Cache cache, final ProctoringMediaSite site,
-                         final ServletRequest req, final HttpServletResponse resp,
-                         final ImmutableSessionInfo session) throws IOException, SQLException {
+    static void showPage(final Cache cache, final ProctoringMediaSite site, final ServletRequest req,
+                         final HttpServletResponse resp, final ImmutableSessionInfo session)
+            throws IOException, SQLException {
 
         final ERole role = session.getEffectiveRole();
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
-        Page.startOrdinaryPage(htm, Res.get(Res.SITE_TITLE), session, false, Page.ADMIN_BAR, null, false, true);
+        final String title = Res.get(Res.SITE_TITLE);
+        Page.startOrdinaryPage(htm, title, session, false, Page.ADMIN_BAR, null, false, true);
 
         htm.sDiv(null, "style='padding-left:16px; padding-right:16px;'");
 
         if (role.canActAs(ERole.ADMINISTRATOR) || role.canActAs(ERole.OFFICE_STAFF)
             || role.canActAs(ERole.DIRECTOR) || role.canActAs(ERole.PROCTOR)) {
-            htm.sH(2).add(Res.get(Res.HOME_HEADING)).eH(2);
-            emitFiles(gatherFiles(site.dataDir), htm);
+            final String heading = Res.get(Res.HOME_HEADING);
+            htm.sH(2).add(heading).eH(2);
+
+            final File dataDir = site.getDataPath();
+            if (dataDir != null) {
+                final Map<TermKey, Map<StudentRec, List<SessionRec>>> map = gatherFiles(dataDir);
+                emitFiles(map, htm);
+            }
         } else {
             htm.sP().addln("Not authorized to access proctoring media management").eP();
         }
@@ -76,86 +85,112 @@ enum PageHome {
      * Gathers a list of sessions, organized by student, by scanning the proctoring data directory.
      *
      * @param dataDir the proctoring data directory
-     * @return a list from student record to the list of proctoring session records
+     * @return a map from data directory to a map from student to their proctoring sessions
      */
-    private static Map<StudentRec, List<SessionRec>> gatherFiles(final File dataDir) {
+    private static Map<TermKey, Map<StudentRec, List<SessionRec>>> gatherFiles(final File dataDir) {
 
-        // Assemble a list of students and sessions and then sort by student name
-        final Map<StudentRec, List<SessionRec>> map = new TreeMap<>();
-
-        final HtmlBuilder notesBuilder = new HtmlBuilder(300);
-
-        final File[] stuDirs = dataDir.listFiles();
-        if (stuDirs != null) {
-            for (final File stuDir : stuDirs) {
-                if (stuDir.getName().endsWith(".png")) {
-                    // Stock images served from proctoring data directory so site can find them
-                    continue;
+        // Gather a list of proctoring data directories
+        final Collection<TermKey> keys = new ArrayList<>(3);
+        if (dataDir != null) {
+            final File[] dirs = dataDir.listFiles();
+            if (dirs != null) {
+                for (final File dir : dirs) {
+                    final String name = dir.getName();
+                    try {
+                        final TermKey key = new TermKey(name);
+                        keys.add(key);
+                    } catch (final IllegalArgumentException ex) {
+                        Log.warning("Unable to parse term name from ", name, ex);
+                    }
                 }
+            }
+        }
 
-                final File meta = new File(stuDir, "meta.json");
-                final String metaStr = FileLoader.loadFileAsString(meta, false);
+        final Map<TermKey, Map<StudentRec, List<SessionRec>>> map = new TreeMap<>();
 
-                StudentRec stuRec;
+        for (final TermKey key : keys) {
+            final String name = key.shortString;
+            final File termDir = new File(dataDir, name);
 
-                if (metaStr == null) {
-                    stuRec = new StudentRec(stuDir.getName(), "* ERROR", "No metadata", null);
-                } else {
-                    final File notes = new File(stuDir, "notes.json");
-                    final String notesStr = FileLoader.loadFileAsString(notes, false);
-                    String studentNotes = null;
+            // Assemble a list of students and sessions and then sort by student name
+            final Map<StudentRec, List<SessionRec>> innerMap = new TreeMap<>();
+            map.put(key, innerMap);
 
-                    if (notesStr != null) {
-                        try {
-                            final Object parsed = JSONParser.parseJSON(notesStr);
-                            if (parsed instanceof final Object[] notesArray) {
-                                notesBuilder.reset();
-                                for (final Object o : notesArray) {
-                                    if (o instanceof final JSONObject json) {
-                                        final String date = json.getStringProperty("date");
-                                        final String author = json.getStringProperty("author");
-                                        final String text = json.getStringProperty("notes");
+            final HtmlBuilder notesBuilder = new HtmlBuilder(300);
 
-                                        if (date != null && author != null && text != null) {
+            final File[] stuDirs = termDir.listFiles();
+            if (stuDirs != null) {
+                for (final File stuDir : stuDirs) {
+                    if (stuDir.getName().endsWith(".png")) {
+                        // Stock images served from proctoring data directory so site can find them
+                        continue;
+                    }
 
-                                            String formattedDate;
-                                            try {
-                                                final LocalDateTime parsedDate = LocalDateTime.parse(date);
-                                                formattedDate = TemporalUtils.FMT_MDY.format(parsedDate);
-                                            } catch (final DateTimeParseException ex) {
-                                                formattedDate = date;
+                    final File meta = new File(stuDir, "meta.json");
+                    final String metaStr = FileLoader.loadFileAsString(meta, false);
+
+                    StudentRec stuRec;
+
+                    if (metaStr == null) {
+                        stuRec = new StudentRec(stuDir.getName(), "* ERROR", "No metadata", null);
+                    } else {
+                        final File notes = new File(stuDir, "notes.json");
+                        final String notesStr = FileLoader.loadFileAsString(notes, false);
+                        String studentNotes = null;
+
+                        if (notesStr != null) {
+                            try {
+                                final Object parsed = JSONParser.parseJSON(notesStr);
+                                if (parsed instanceof final Object[] notesArray) {
+                                    notesBuilder.reset();
+                                    for (final Object o : notesArray) {
+                                        if (o instanceof final JSONObject json) {
+                                            final String date = json.getStringProperty("date");
+                                            final String author = json.getStringProperty("author");
+                                            final String text = json.getStringProperty("notes");
+
+                                            if (date != null && author != null && text != null) {
+
+                                                String formattedDate;
+                                                try {
+                                                    final LocalDateTime parsedDate = LocalDateTime.parse(date);
+                                                    formattedDate = TemporalUtils.FMT_MDY.format(parsedDate);
+                                                } catch (final DateTimeParseException ex) {
+                                                    formattedDate = date;
+                                                }
+
+                                                notesBuilder.addln(formattedDate, " (", author, "): ", text);
                                             }
-
-                                            notesBuilder.addln(formattedDate, " (", author, "): ", text);
                                         }
                                     }
-                                }
 
-                                studentNotes = notesBuilder.toString();
+                                    studentNotes = notesBuilder.toString();
+                                }
+                            } catch (final ParsingException ex) {
+                                Log.warning(ex);
                             }
+                        }
+
+                        try {
+                            final Object parsed = JSONParser.parseJSON(metaStr);
+                            if (parsed instanceof final JSONObject obj) {
+                                stuRec = new StudentRec(stuDir.getName(), obj.getStringProperty("last"),
+                                        obj.getStringProperty("first"), studentNotes);
+                            } else {
+                                stuRec = new StudentRec(stuDir.getName(), "* ERROR",
+                                        "Bad metadata - " + parsed.getClass().getName(), studentNotes);
+                            }
+
                         } catch (final ParsingException ex) {
                             Log.warning(ex);
+                            stuRec = new StudentRec(stuDir.getName(), "* ERROR", "Bad metadata - " + ex.getMessage(),
+                                    studentNotes);
                         }
                     }
 
-                    try {
-                        final Object parsed = JSONParser.parseJSON(metaStr);
-                        if (parsed instanceof final JSONObject obj) {
-                            stuRec = new StudentRec(stuDir.getName(), obj.getStringProperty("last"),
-                                    obj.getStringProperty("first"), studentNotes);
-                        } else {
-                            stuRec = new StudentRec(stuDir.getName(), "* ERROR",
-                                    "Bad metadata - " + parsed.getClass().getName(), studentNotes);
-                        }
-
-                    } catch (final ParsingException ex) {
-                        Log.warning(ex);
-                        stuRec = new StudentRec(stuDir.getName(), "* ERROR", "Bad metadata - " + ex.getMessage(),
-                                studentNotes);
-                    }
+                    final List<SessionRec> sessions = scanSessions(stuRec, stuDir);
+                    innerMap.put(stuRec, sessions);
                 }
-
-                map.put(stuRec, scanSessions(stuRec, stuDir));
             }
         }
 
@@ -221,195 +256,13 @@ enum PageHome {
      * @param map the map from student to the list of sessions for that student
      * @param htm the {@code HtmlBuilder} to which to append
      */
-    private static void emitFiles(final Map<StudentRec, List<SessionRec>> map, final HtmlBuilder htm) {
+    private static void emitFiles(final Map<TermKey, Map<StudentRec, List<SessionRec>>> map, final HtmlBuilder htm) {
 
         // First view is organized by date, to make it easier to manage reviews
-
         htm.hr();
 
-        htm.sDiv(null, "id='vw-by-date'");
-
-        htm.sH(3).add("Proctoring Sessions, by date &nbsp; ")
-                .add("<button class='btnsmall' onclick='show_by_student()'>Organize by student</button>").eH(3);
-
-        final Map<LocalDate, List<SessionRec>> byDate = new TreeMap<>();
-
-        for (final Map.Entry<StudentRec, List<SessionRec>> entry : map.entrySet()) {
-            for (final SessionRec rec : entry.getValue()) {
-                final LocalDate dt = rec.whenStarted.toLocalDate();
-                final List<SessionRec> list = byDate.computeIfAbsent(dt, ld -> new ArrayList<>(10));
-                list.add(rec);
-            }
-        }
-
-        if (byDate.isEmpty()) {
-            htm.sP().add("No proctoring sessions found").eP();
-        } else {
-            for (final Map.Entry<LocalDate, List<SessionRec>> entry : byDate.entrySet()) {
-                Collections.sort(entry.getValue());
-
-                // Count those in need of reviews
-                int numWithoutReviews = 0;
-                int numElevated = 0;
-                int numReviewed = 0;
-                for (final SessionRec rec : entry.getValue()) {
-                    if (rec.elevated) {
-                        ++numElevated;
-                    } else if (rec.reviewed) {
-                        ++numReviewed;
-                    } else {
-                        ++numWithoutReviews;
-                    }
-                }
-
-                htm.addln("<details>");
-                htm.add("<summary>", TemporalUtils.FMT_MDY.format(entry.getKey()));
-                if (numElevated + numWithoutReviews > 0) {
-                    htm.add(" (<span style='font-size:smaller;'>");
-                    if (numElevated > 0) {
-                        htm.add("<strong class='elevated'>").add(numElevated).add(" elevated</strong>");
-                        if (numWithoutReviews > 0 || numReviewed > 0) {
-                            htm.add(", &nbsp; ");
-                        }
-                    }
-                    if (numWithoutReviews > 0) {
-                        htm.add("<strong class='needsreview'>")
-                                .add(numWithoutReviews).add(numWithoutReviews == 1 ? " needs" : " need")
-                                .add(" review</strong>");
-                        if (numReviewed > 0) {
-                            htm.add(", &nbsp; ");
-                        }
-                    }
-                    if (numReviewed > 0) {
-                        htm.add("<strong class='reviewed'>").add(numReviewed).add(" reviewed</strong>");
-                    }
-
-                    htm.add("</span>)");
-                }
-                htm.addln("</summary>");
-                htm.sDiv("indent");
-
-                for (final SessionRec rec : entry.getValue()) {
-
-                    htm.addln("<details>");
-                    htm.add("<summary>");
-                    htm.add(TemporalUtils.FMT_HMS_A.format(rec.whenStarted.toLocalTime()));
-
-                    if (rec.elevated) {
-                        htm.add(" (<strong class='elevated' style='font-size:smaller;'>elevated</strong>)");
-                    } else if (rec.reviewed) {
-                        htm.add(" (<strong class='reviewed' style='font-size:smaller;'>reviewed</strong>)");
-                    } else {
-                        htm.add(" (<strong class='needsreview' style='font-size:smaller;'>needs review</strong>)");
-                    }
-
-                    htm.add("</summary>");
-                    htm.sDiv("indent");
-
-                    htm.addln("<a class='ulink' href='details.html?stu=" + rec.stuRec.studentId + "&psid="
-                              + rec.sessionId + "'>", rec.stuRec.toString(), "</a>").br();
-
-                    htm.eDiv(); // indent
-                    htm.addln("</details>");
-                }
-
-                htm.eDiv(); // indent
-                htm.addln("</details>");
-            }
-        }
-
-        htm.eDiv(); // view-by-date
-
-        // Second view is organized by student, to make it easier to search
-
-        htm.sDiv(null, "id='vw-by-stu'", "style='display:none;'");
-        htm.sH(3).add("Proctoring Sessions, by student &nbsp; ")
-                .add("<button class='btnsmall' onclick='show_by_date()'>Organize by date</button>").eH(3);
-
-        if (map.isEmpty()) {
-            htm.sP().add("No proctoring sessions found").eP();
-        } else {
-            for (final Map.Entry<StudentRec, List<SessionRec>> entry : map.entrySet()) {
-
-                // Count those in need of reviews
-                int numWithoutReviews = 0;
-                int numElevated = 0;
-                int numReviewed = 0;
-                for (final SessionRec rec : entry.getValue()) {
-                    if (rec.elevated) {
-                        ++numElevated;
-                    } else if (rec.reviewed) {
-                        ++numReviewed;
-                    } else {
-                        ++numWithoutReviews;
-                    }
-                }
-
-                final StudentRec studentRec = entry.getKey();
-
-                htm.addln("<details>");
-                htm.addln("<summary>", studentRec.toString(), " &nbsp;");
-                if (numElevated + numWithoutReviews > 0) {
-                    htm.add(" (<span style='font-size:smaller;'>");
-                    if (numElevated > 0) {
-                        htm.add("<strong class='elevated'>").add(numElevated).add(" elevated</strong>");
-                        if (numWithoutReviews > 0 || numReviewed > 0) {
-                            htm.add(", &nbsp; ");
-                        }
-                    }
-                    if (numWithoutReviews > 0) {
-                        htm.add("<strong class='needsreview'>")
-                                .add(numWithoutReviews).add(numWithoutReviews == 1 ? " needs" : " need")
-                                .add(" review</strong>");
-                        if (numReviewed > 0) {
-                            htm.add(", &nbsp; ");
-                        }
-                    }
-                    if (numReviewed > 0) {
-                        htm.add("<strong class='reviewed'>").add(numReviewed).add(" reviewed</strong>");
-                    }
-                    htm.add("</span>)");
-                }
-
-                if (studentRec.notes != null) {
-                    final String cleaned = XmlEscaper.escape(studentRec.notes);
-                    htm.add(" <a href='notes.html?stu=", studentRec.studentId, "'><button title='", cleaned,
-                            "'>Notes</button></a>");
-                }
-                htm.add("</summary>");
-
-                htm.sDiv("indent");
-
-                for (final SessionRec rec : entry.getValue()) {
-                    htm.addln("<details>");
-
-                    htm.add("<summary>");
-                    htm.add(TemporalUtils.FMT_MDY_AT_HMS_A.format(rec.whenStarted));
-
-                    if (rec.elevated) {
-                        htm.add(" (<strong class='elevated' style='font-size:smaller;'>elevated</strong>)");
-                    } else if (rec.reviewed) {
-                        htm.add(" (<strong class='reviewed' style='font-size:smaller;'>reviewed</strong>)");
-                    } else {
-                        htm.add(" (<strong class='needsreview' style='font-size:smaller;'>needs review</strong>)");
-                    }
-
-                    htm.add("</summary>");
-                    htm.sDiv("indent");
-
-                    htm.addln("<a class='ulink' href='details.html?stu=" + rec.stuRec.studentId + "&psid="
-                              + rec.sessionId + "'>", rec.stuRec.toString(), "</a>").br();
-
-                    htm.eDiv(); // indent
-                    htm.addln("</details>");
-                }
-
-                htm.eDiv(); // indent
-                htm.addln("</details>");
-            }
-        }
-
-        htm.eDiv(); // view-by-date
+        emitByDate(map, htm);
+        emitByStudent(map, htm);
 
         htm.addln("<script>");
         htm.addln("function show_by_date() {");
@@ -421,6 +274,230 @@ enum PageHome {
         htm.addln("  document.getElementById('vw-by-stu').style.display='block';");
         htm.addln("}");
         htm.addln("</script>");
+    }
+
+    /**
+     * Emits the list of students, with all the sessions under each student.
+     *
+     * @param map the map from student to the list of sessions for that student
+     * @param htm the {@code HtmlBuilder} to which to append
+     */
+    private static void emitByDate(final Map<TermKey, Map<StudentRec, List<SessionRec>>> map, final HtmlBuilder htm) {
+
+        htm.sDiv(null, "id='vw-by-date'");
+        htm.sP().add("<button class='btnsmall' onclick='show_by_student()'>Organize by student</button>").eP();
+
+        for (final Map.Entry<TermKey, Map<StudentRec, List<SessionRec>>> mainEntry : map.entrySet()) {
+
+            final TermKey key = mainEntry.getKey();
+            final String name = key.shortString;
+
+            htm.sH(3).add(key.longString, " proctoring Sessions, by date").eH(3);
+
+            final Map<LocalDate, List<SessionRec>> byDate = new TreeMap<>();
+
+            Map<StudentRec, List<SessionRec>> termMap = mainEntry.getValue();
+            for (final Map.Entry<StudentRec, List<SessionRec>> entry : termMap.entrySet()) {
+                for (final SessionRec rec : entry.getValue()) {
+                    final LocalDate dt = rec.whenStarted.toLocalDate();
+                    final List<SessionRec> list = byDate.computeIfAbsent(dt, ld -> new ArrayList<>(10));
+                    list.add(rec);
+                }
+            }
+
+            if (byDate.isEmpty()) {
+                htm.sP().add("No proctoring sessions found").eP();
+            } else {
+                for (final Map.Entry<LocalDate, List<SessionRec>> entry : byDate.entrySet()) {
+                    Collections.sort(entry.getValue());
+
+                    // Count those in need of reviews
+                    int numWithoutReviews = 0;
+                    int numElevated = 0;
+                    int numReviewed = 0;
+                    for (final SessionRec rec : entry.getValue()) {
+                        if (rec.elevated) {
+                            ++numElevated;
+                        } else if (rec.reviewed) {
+                            ++numReviewed;
+                        } else {
+                            ++numWithoutReviews;
+                        }
+                    }
+
+                    htm.addln("<details>");
+                    htm.add("<summary>", TemporalUtils.FMT_MDY.format(entry.getKey()));
+                    if (numElevated + numWithoutReviews > 0) {
+                        htm.add(" (<span style='font-size:smaller;'>");
+                        if (numElevated > 0) {
+                            htm.add("<strong class='elevated'>").add(numElevated).add(" elevated</strong>");
+                            if (numWithoutReviews > 0 || numReviewed > 0) {
+                                htm.add(", &nbsp; ");
+                            }
+                        }
+                        if (numWithoutReviews > 0) {
+                            htm.add("<strong class='needsreview'>")
+                                    .add(numWithoutReviews).add(numWithoutReviews == 1 ? " needs" : " need")
+                                    .add(" review</strong>");
+                            if (numReviewed > 0) {
+                                htm.add(", &nbsp; ");
+                            }
+                        }
+                        if (numReviewed > 0) {
+                            htm.add("<strong class='reviewed'>").add(numReviewed).add(" reviewed</strong>");
+                        }
+
+                        htm.add("</span>)");
+                    }
+                    htm.addln("</summary>");
+                    htm.sDiv("indent");
+
+                    for (final SessionRec rec : entry.getValue()) {
+
+                        htm.addln("<details>");
+                        htm.add("<summary>");
+                        htm.add(TemporalUtils.FMT_HMS_A.format(rec.whenStarted.toLocalTime()));
+
+                        if (rec.elevated) {
+                            htm.add(" (<strong class='elevated' style='font-size:smaller;'>elevated</strong>)");
+                        } else if (rec.reviewed) {
+                            htm.add(" (<strong class='reviewed' style='font-size:smaller;'>reviewed</strong>)");
+                        } else {
+                            htm.add(" (<strong class='needsreview' style='font-size:smaller;'>needs review</strong>)");
+                        }
+
+                        htm.add("</summary>");
+                        htm.sDiv("indent");
+
+                        htm.addln("<a class='ulink' href='details.html?term=" + name + "&stu=" + rec.stuRec.studentId
+                                  + "&psid=" + rec.sessionId + "'>", rec.stuRec.toString(), "</a>").br();
+
+                        htm.eDiv(); // indent
+                        htm.addln("</details>");
+                    }
+
+                    htm.eDiv(); // indent
+                    htm.addln("</details>");
+                }
+            }
+
+            htm.hr();
+            htm.div("vgap");
+        }
+
+        htm.eDiv(); // view-by-date
+    }
+
+    /**
+     * Emits the list of students, with all the sessions under each student.
+     *
+     * @param map the map from student to the list of sessions for that student
+     * @param htm the {@code HtmlBuilder} to which to append
+     */
+    private static void emitByStudent(final Map<TermKey, Map<StudentRec, List<SessionRec>>> map,
+                                      final HtmlBuilder htm) {
+
+        htm.sDiv(null, "id='vw-by-stu'", "style='display:none;'");
+        htm.sP().add("<button class='btnsmall' onclick='show_by_date()'>Organize by date</button>").eP();
+
+        // First view is organized by date, to make it easier to manage reviews
+
+        for (final Map.Entry<TermKey, Map<StudentRec, List<SessionRec>>> mainEntry : map.entrySet()) {
+
+            final TermKey key = mainEntry.getKey();
+            final String name = key.shortString;
+
+            htm.sH(3).add(key.longString, " proctoring Sessions, by student").eH(3);
+
+            if (map.isEmpty()) {
+                htm.sP().add("No proctoring sessions found").eP();
+            } else {
+                Map<StudentRec, List<SessionRec>> termMap = mainEntry.getValue();
+                for (final Map.Entry<StudentRec, List<SessionRec>> entry : termMap.entrySet()) {
+
+                    // Count those in need of reviews
+                    int numWithoutReviews = 0;
+                    int numElevated = 0;
+                    int numReviewed = 0;
+                    for (final SessionRec rec : entry.getValue()) {
+                        if (rec.elevated) {
+                            ++numElevated;
+                        } else if (rec.reviewed) {
+                            ++numReviewed;
+                        } else {
+                            ++numWithoutReviews;
+                        }
+                    }
+
+                    final StudentRec studentRec = entry.getKey();
+
+                    htm.addln("<details>");
+                    htm.addln("<summary>", studentRec.toString(), " &nbsp;");
+                    if (numElevated + numWithoutReviews > 0) {
+                        htm.add(" (<span style='font-size:smaller;'>");
+                        if (numElevated > 0) {
+                            htm.add("<strong class='elevated'>").add(numElevated).add(" elevated</strong>");
+                            if (numWithoutReviews > 0 || numReviewed > 0) {
+                                htm.add(", &nbsp; ");
+                            }
+                        }
+                        if (numWithoutReviews > 0) {
+                            htm.add("<strong class='needsreview'>")
+                                    .add(numWithoutReviews).add(numWithoutReviews == 1 ? " needs" : " need")
+                                    .add(" review</strong>");
+                            if (numReviewed > 0) {
+                                htm.add(", &nbsp; ");
+                            }
+                        }
+                        if (numReviewed > 0) {
+                            htm.add("<strong class='reviewed'>").add(numReviewed).add(" reviewed</strong>");
+                        }
+                        htm.add("</span>)");
+                    }
+
+                    if (studentRec.notes != null) {
+                        final String cleaned = XmlEscaper.escape(studentRec.notes);
+                        htm.add(" <a href='notes.html?term=" + name + "&stu=", studentRec.studentId,
+                                "'><button title='", cleaned, "'>Notes</button></a>");
+                    }
+                    htm.add("</summary>");
+
+                    htm.sDiv("indent");
+
+                    for (final SessionRec rec : entry.getValue()) {
+                        htm.addln("<details>");
+
+                        htm.add("<summary>");
+                        htm.add(TemporalUtils.FMT_MDY_AT_HMS_A.format(rec.whenStarted));
+
+                        if (rec.elevated) {
+                            htm.add(" (<strong class='elevated' style='font-size:smaller;'>elevated</strong>)");
+                        } else if (rec.reviewed) {
+                            htm.add(" (<strong class='reviewed' style='font-size:smaller;'>reviewed</strong>)");
+                        } else {
+                            htm.add(" (<strong class='needsreview' style='font-size:smaller;'>needs review</strong>)");
+                        }
+
+                        htm.add("</summary>");
+                        htm.sDiv("indent");
+
+                        htm.addln("<a class='ulink' href='details.html?term=" + name + "&stu=" + rec.stuRec.studentId
+                                  + "&psid=" + rec.sessionId + "'>", rec.stuRec.toString(), "</a>").br();
+
+                        htm.eDiv(); // indent
+                        htm.addln("</details>");
+                    }
+
+                    htm.eDiv(); // indent
+                    htm.addln("</details>");
+                }
+            }
+
+            htm.hr();
+            htm.div("vgap");
+        }
+
+        htm.eDiv(); // view-by-stu
     }
 
     /**

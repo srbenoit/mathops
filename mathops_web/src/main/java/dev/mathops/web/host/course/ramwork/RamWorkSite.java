@@ -60,7 +60,7 @@ public final class RamWorkSite extends AbstractSite {
         }
 
         final File dataPath = PathList.getInstance().get(EPath.CUR_DATA_PATH);
-        this.proctoringDataDir = active == null ? null : new File(dataPath, "proctoring" + active.term.shortString);
+        this.proctoringDataDir = active == null ? null : new File(dataPath, active.term.shortString);
     }
 
     /**

@@ -30,11 +30,13 @@ enum PageLanding {
                          final HttpServletResponse resp) throws IOException, SQLException {
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
-        Page.startOrdinaryPage(htm, Res.get(Res.SITE_TITLE), null, false, Page.ADMIN_BAR, null, false, true);
+        final String title = Res.get(Res.SITE_TITLE);
+        Page.startOrdinaryPage(htm, title, null, false, Page.ADMIN_BAR, null, false, true);
 
         htm.sDiv(null, "style='padding-left:16px; padding-right:16px;'");
 
-        htm.sH(1).add(Res.get(Res.LANDING_HEADING)).eH(1);
+        final String heading = Res.get(Res.LANDING_HEADING);
+        htm.sH(1).add(heading).eH(1);
 
         htm.sP().add("<a class='btn' href='secure/shibboleth.html'>Login with my eID</a>").eP();
 

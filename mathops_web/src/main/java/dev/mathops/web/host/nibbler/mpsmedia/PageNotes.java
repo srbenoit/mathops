@@ -43,32 +43,36 @@ enum PageNotes {
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
-    static void showPage(final Cache cache, final ProctoringMediaSite site,
-                         final ServletRequest req, final HttpServletResponse resp,
-                         final ImmutableSessionInfo session) throws IOException, SQLException {
+    static void showPage(final Cache cache, final ProctoringMediaSite site, final ServletRequest req,
+                         final HttpServletResponse resp, final ImmutableSessionInfo session)
+            throws IOException, SQLException {
 
         final ERole role = session.getEffectiveRole();
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
-        Page.startOrdinaryPage(htm, Res.get(Res.SITE_TITLE), session, false, Page.ADMIN_BAR, null, false, true);
+        final String title = Res.get(Res.SITE_TITLE);
+        Page.startOrdinaryPage(htm, title, session, false, Page.ADMIN_BAR, null, false, true);
 
         htm.sDiv(null, "style='padding-left:16px; padding-right:16px;'");
 
         if (role.canActAs(ERole.ADMINISTRATOR) || role.canActAs(ERole.PROCTOR)
             || role.canActAs(ERole.OFFICE_STAFF) || role.canActAs(ERole.DIRECTOR)) {
 
-            final String stuid = req.getParameter("stu");
+            final String term = req.getParameter("term");
+            final String stuId = req.getParameter("stu");
 
-            if (stuid == null || stuid.isBlank()) {
+            if (term == null || stuId == null || stuId.isBlank()) {
                 Log.warning("Notes page accessed with no student ID.");
                 resp.sendRedirect("home.html");
             } else {
-                final File studentDir = new File(site.dataDir, stuid);
+                final File dataDir = site.getDataPath();
+                final File termDir = new File(dataDir, term);
+                final File studentDir = new File(termDir, stuId);
                 if (studentDir.exists()) {
-                    emitNotes(studentDir, session, htm);
+                    emitNotes(term, studentDir, session, htm);
                 } else {
-                    Log.warning("Notes page accessed with nonexistent student directory: ",
-                            studentDir.getAbsolutePath());
+                    final String absPath = studentDir.getAbsolutePath();
+                    Log.warning("Notes page accessed with nonexistent student directory: ", absPath);
                     resp.sendRedirect("home.html");
                 }
             }
@@ -86,13 +90,16 @@ enum PageNotes {
     /**
      * Emits the list of students, with all the sessions under each student.
      *
+     * @param term       the term
      * @param studentDir the student data directory
      * @param session    the login session
      * @param htm        the {@code HtmlBuilder} to which to append
      */
-    private static void emitNotes(final File studentDir, final ImmutableSessionInfo session, final HtmlBuilder htm) {
+    private static void emitNotes(final String term, final File studentDir, final ImmutableSessionInfo session,
+                                  final HtmlBuilder htm) {
 
-        htm.sH(2).add(Res.get(Res.HOME_HEADING)).eH(2);
+        final String heading = Res.get(Res.HOME_HEADING);
+        htm.sH(2).add(heading).eH(2);
         htm.hr();
 
         htm.sH(3).add("Student Notes &nbsp; <a class='btnsmall' href='home.html'>Home</a>").eH(3);
@@ -102,7 +109,7 @@ enum PageNotes {
 
         final File notesFile = new File(studentDir, "notes.json");
         final String me = session.getEffectiveScreenName();
-        final String stuid = studentDir.getName();
+        final String stuId = studentDir.getName();
 
         if (notesFile.exists()) {
             final Object notesObject = loadJson(notesFile);
@@ -132,7 +139,8 @@ enum PageNotes {
 
                             htm.addln("<form style='display:inline;font-size:smaller;' method='POST' ",
                                     "action='notesdelete.html'>");
-                            htm.addln("  <input type='hidden' id='stu' name='stu' value='", stuid, "'/>");
+                            htm.addln("  <input type='hidden' id='term' name='term' value='", term, "'/>");
+                            htm.addln("  <input type='hidden' id='stu' name='stu' value='", stuId, "'/>");
                             htm.addln("  <input type='hidden' id='date' name='date' value='", dateStr, "'/>");
                             htm.addln("  <input type='hidden' 'id='who' name='who' value='", me, "'/>");
                             htm.addln("  <input type='submit' value='Delete'/>");
@@ -157,7 +165,8 @@ enum PageNotes {
         htm.sP().add("<strong>Add a Note:</strong>").eP();
 
         htm.addln("<form method='POST' action='notesadd.html'>");
-        htm.addln("  <input type='hidden' id='stu' name='stu' value='", stuid, "'/>");
+        htm.addln("  <input type='hidden' id='term' name='term' value='", term, "'/>");
+        htm.addln("  <input type='hidden' id='stu' name='stu' value='", stuId, "'/>");
         htm.addln("  <input type='hidden' id='date' name='date' value='", LocalDateTime.now().toString(), "'/>");
 
         htm.addln("  Author: <input type='text' 'id='who' name='who' value='", me, "'/>").br();
@@ -180,12 +189,14 @@ enum PageNotes {
         final String str = FileLoader.loadFileAsString(file, false);
 
         if (str == null) {
-            Log.warning("Unable to load ", file.getAbsolutePath());
+            final String absPath = file.getAbsolutePath();
+            Log.warning("Unable to load ", absPath);
         } else {
             try {
                 result = JSONParser.parseJSON(str);
             } catch (final ParsingException ex) {
-                Log.warning("Failed to parse ", file.getAbsolutePath(), ex);
+                final String absPath = file.getAbsolutePath();
+                Log.warning("Failed to parse ", absPath, ex);
             }
         }
 
@@ -195,30 +206,37 @@ enum PageNotes {
     /**
      * Processes a POST to "notesadd.html" that adds a new student note.
      *
-     * @param site the owning site
-     * @param req  the request
-     * @param resp the response
-     * @throws IOException if there is an error writing the response
+     * @param cache the data cache
+     * @param site  the owning site
+     * @param req   the request
+     * @param resp  the response
+     * @throws IOException  if there is an error writing the response
+     * @throws SQLException if there is an error accessing the database
      */
-    static void processAddNote(final ProctoringMediaSite site, final ServletRequest req,
-                               final HttpServletResponse resp) throws IOException {
+    static void processAddNote(final Cache cache, final ProctoringMediaSite site, final ServletRequest req,
+                               final HttpServletResponse resp) throws IOException, SQLException {
 
+        final String term = req.getParameter("term");
         final String stu = req.getParameter("stu");
         final String date = req.getParameter("date");
         final String who = req.getParameter("who");
         final String note = req.getParameter("note");
 
-        if (AbstractSite.isFileParamInvalid(stu) || AbstractSite.isParamInvalid(date)) {
+        if (AbstractSite.isFileParamInvalid(term) || AbstractSite.isFileParamInvalid(stu)
+            || AbstractSite.isParamInvalid(date)) {
             Log.warning("Invalid POST parameters - possible attack");
+            Log.warning("  term=", term);
             Log.warning("  stu=", stu);
             Log.warning("  date=", date);
             Log.warning("  who=", who);
             resp.sendRedirect("home.html");
-        } else if (stu == null || date == null || who == null || note == null) {
+        } else if (term == null || stu == null || date == null || who == null || note == null) {
             Log.warning("POST from add form form with missing parameters");
             resp.sendRedirect("home.html");
         } else {
-            final File studentDir = new File(site.dataDir, stu);
+            final File dataDir = site.getDataPath();
+            final File termDir = new File(dataDir, term);
+            final File studentDir = new File(termDir, stu);
 
             if (studentDir.exists()) {
                 final JSONObject newNoteJson = new JSONObject();
@@ -236,68 +254,85 @@ enum PageNotes {
                         builder.addln("[");
                         for (final Object o : existingNotes) {
                             if (o instanceof final JSONObject oldNoteJson) {
-                                builder.addln(oldNoteJson.toJSONCompact(), ",");
+                                final String oldJson = oldNoteJson.toJSONCompact();
+                                builder.addln(oldJson, ",");
                             }
                         }
-                        builder.addln(newNoteJson.toJSONCompact());
+                        final String newJson = newNoteJson.toJSONCompact();
+                        builder.addln(newJson);
                         builder.addln("]");
 
                         try (final Writer writer = new FileWriter(file, StandardCharsets.UTF_8)) {
-                            writer.write(builder.toString());
+                            final String jsonStr = builder.toString();
+                            writer.write(jsonStr);
                         } catch (final IOException ex) {
-                            Log.warning("Failed to create student notes file in ", studentDir.getAbsolutePath(), ex);
+                            final String absPath = studentDir.getAbsolutePath();
+                            Log.warning("Failed to create student notes file in ", absPath, ex);
                         }
                     } else {
-                        Log.warning("POST, but can't parse file: ", file.getAbsolutePath());
+                        final String absPath = file.getAbsolutePath();
+                        Log.warning("POST, but can't parse file: ", absPath);
                     }
                 } else {
                     // Create a new "notes.json" with a single note...
-                    final HtmlBuilder builder = new HtmlBuilder(100 + note.length());
+                    final int length = note.length();
+                    final HtmlBuilder builder = new HtmlBuilder(100 + length);
                     builder.addln("[");
-                    builder.addln(newNoteJson.toJSONCompact());
+                    final String json = newNoteJson.toJSONCompact();
+                    builder.addln(json);
                     builder.addln("]");
 
                     try (final Writer writer = new FileWriter(file, StandardCharsets.UTF_8)) {
-                        writer.write(builder.toString());
+                        final String jsonStr = builder.toString();
+                        writer.write(jsonStr);
                     } catch (final IOException ex) {
-                        Log.warning("Failed to create student notes file in ", studentDir.getAbsolutePath(), ex);
+                        final String absPath = studentDir.getAbsolutePath();
+                        Log.warning("Failed to create student notes file in ", absPath, ex);
                     }
                 }
 
             } else {
-                Log.warning("POST, but can't find student dir: ", studentDir.getAbsolutePath());
+                final String absPath = studentDir.getAbsolutePath();
+                Log.warning("POST, but can't find student dir: ", absPath);
             }
 
-            resp.sendRedirect("notes.html?stu=" + stu);
+            resp.sendRedirect("notes.html?term=" + term + "&stu=" + stu);
         }
     }
 
     /**
      * Processes a POST to "notesdelete.html" that deletes an existing student note.
      *
-     * @param site the owning site
-     * @param req  the request
-     * @param resp the response
-     * @throws IOException if there is an error writing the response
+     * @param cache the data cache
+     * @param site  the owning site
+     * @param req   the request
+     * @param resp  the response
+     * @throws IOException  if there is an error writing the response
+     * @throws SQLException if there is an error accessing the database
      */
-    static void processDeleteNote(final ProctoringMediaSite site, final ServletRequest req,
-                                  final HttpServletResponse resp) throws IOException {
+    static void processDeleteNote(final Cache cache, final ProctoringMediaSite site, final ServletRequest req,
+                                  final HttpServletResponse resp) throws IOException, SQLException {
 
+        final String term = req.getParameter("term");
         final String stu = req.getParameter("stu");
         final String date = req.getParameter("date");
         final String who = req.getParameter("who");
 
-        if (AbstractSite.isFileParamInvalid(stu) || AbstractSite.isParamInvalid(date)) {
+        if (AbstractSite.isFileParamInvalid(term) || AbstractSite.isFileParamInvalid(stu)
+            || AbstractSite.isParamInvalid(date)) {
             Log.warning("Invalid POST parameters - possible attack");
+            Log.warning("  term=", term);
             Log.warning("  stu=", stu);
             Log.warning("  date=", date);
             Log.warning("  who=", who);
             resp.sendRedirect("home.html");
-        } else if (stu == null || date == null || who == null) {
+        } else if (term == null || stu == null || date == null || who == null) {
             Log.warning("POST from delete note form with missing parameters");
             resp.sendRedirect("home.html");
         } else {
-            final File studentDir = new File(site.dataDir, stu);
+            final File dataDir = site.getDataPath();
+            final File termDir = new File(dataDir, term);
+            final File studentDir = new File(termDir, stu);
 
             if (studentDir.exists()) {
                 final File file = new File(studentDir, "notes.json");
@@ -310,8 +345,9 @@ enum PageNotes {
                         boolean found = false;
                         for (final Object o : existingNotes) {
                             if (o instanceof final JSONObject oldNoteJson) {
-                                if (oldNoteJson.getStringProperty("date").equals(date)
-                                    && oldNoteJson.getStringProperty("author").equals(who)) {
+                                final String sameDate = oldNoteJson.getStringProperty("date");
+                                final String samAuthor = oldNoteJson.getStringProperty("author");
+                                if (sameDate.equals(date) && samAuthor.equals(who)) {
                                     found = true;
                                     continue;
                                 }
@@ -326,36 +362,41 @@ enum PageNotes {
                             builder.addln("[");
                             for (int i = 0; i < count; ++i) {
                                 final JSONObject noteJson = retained.get(i);
+                                final String json = noteJson.toJSONCompact();
                                 if (i == count - 1) {
-                                    builder.addln(noteJson.toJSONCompact());
+                                    builder.addln(json);
                                 } else {
-                                    builder.addln(noteJson.toJSONCompact(), ",");
+                                    builder.addln(json, ",");
                                 }
                             }
                             builder.addln("]");
 
                             try (final Writer writer = new FileWriter(file, StandardCharsets.UTF_8)) {
-                                writer.write(builder.toString());
+                                final String jsonStr = builder.toString();
+                                writer.write(jsonStr);
                             } catch (final IOException ex) {
-                                Log.warning("Failed to create student notes file in ", studentDir.getAbsolutePath(),
-                                        ex);
+                                final String absPath = studentDir.getAbsolutePath();
+                                Log.warning("Failed to create student notes file in ", absPath, ex);
                             }
                         } else {
-                            Log.warning("POST, but could not find note to delete: ", file.getAbsolutePath());
+                            final String absPath = file.getAbsolutePath();
+                            Log.warning("POST, but could not find note to delete: ", absPath);
                         }
                     } else {
-                        Log.warning("POST, but can't parse file: ", file.getAbsolutePath());
+                        final String absPath = file.getAbsolutePath();
+                        Log.warning("POST, but can't parse file: ", absPath);
                     }
                 } else {
-                    Log.warning("POST, but can't find notes file: ", file.getAbsolutePath());
+                    final String absPath = file.getAbsolutePath();
+                    Log.warning("POST, but can't find notes file: ", absPath);
                 }
 
             } else {
-                Log.warning("POST, but can't find student dir: ", studentDir.getAbsolutePath());
+                final String absPath = studentDir.getAbsolutePath();
+                Log.warning("POST, but can't find student dir: ", absPath);
             }
 
-            resp.sendRedirect("notes.html?stu=" + stu);
+            resp.sendRedirect("notes.html?term=" + term + "&stu=" + stu);
         }
     }
-
 }

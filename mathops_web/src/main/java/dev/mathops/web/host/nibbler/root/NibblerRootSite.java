@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 /**
  * A root site that does nothing but serve the basic image/icon files.
@@ -70,22 +71,26 @@ public final class NibblerRootSite extends AbstractSite {
      * @param type    the site type
      * @param req     the request
      * @param resp    the response
-     * @throws IOException if there is an error writing the response
+     * @throws IOException  if there is an error writing the response
+     * @throws SQLException if there is an error accessing the database
      */
     @Override
     public void doGet(final Cache cache, final String subpath, final ESiteType type,
-                      final HttpServletRequest req, final HttpServletResponse resp) throws IOException {
+                      final HttpServletRequest req, final HttpServletResponse resp) throws IOException, SQLException {
 
         if (STYLE_CSS.equals(subpath)) {
-            sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(getClass(), STYLE_CSS, true));
+            final Class<? extends NibblerRootSite> myClass = getClass();
+            final byte[] fileBytes = FileLoader.loadFileAsBytes(myClass, STYLE_CSS, true);
+            sendReply(req, resp, "text/css", fileBytes);
         } else if (ADMIN_CSS.equals(subpath)) {
             BasicCss.getInstance().serveCss(req, resp);
         } else if (subpath.startsWith(IMAGES_PATH)) {
-            serveImage(subpath.substring(7), req, resp);
+            final String substring = subpath.substring(7);
+            serveImage(substring, req, resp);
         } else if ("favicon.ico".equals(subpath)) {
             serveImage(subpath, req, resp);
         } else if (subpath.startsWith("media/") || subpath.startsWith("math/")) {
-            serveMedia(subpath, req, resp);
+            serveMedia(cache, subpath, req, resp);
         } else {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         }

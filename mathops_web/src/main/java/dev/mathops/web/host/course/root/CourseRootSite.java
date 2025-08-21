@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 /**
  * A root site that does nothing but serve the basic image/icon files.
@@ -74,7 +75,7 @@ public final class CourseRootSite extends AbstractSite {
      */
     @Override
     public void doGet(final Cache cache, final String subpath, final ESiteType type,
-                      final HttpServletRequest req, final HttpServletResponse resp) throws IOException {
+                      final HttpServletRequest req, final HttpServletResponse resp) throws IOException, SQLException {
 
         if (STYLE_CSS.equals(subpath)) {
             sendReply(req, resp, "text/css", FileLoader.loadFileAsBytes(getClass(), STYLE_CSS, true));
@@ -85,7 +86,7 @@ public final class CourseRootSite extends AbstractSite {
         } else if ("favicon.ico".equals(subpath)) {
             serveImage(subpath, req, resp);
         } else if (subpath.startsWith("media/") || subpath.startsWith("math/")) {
-            serveMedia(subpath, req, resp);
+            serveMedia(cache, subpath, req, resp);
         } else {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         }

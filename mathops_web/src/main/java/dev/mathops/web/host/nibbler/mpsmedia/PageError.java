@@ -34,11 +34,13 @@ enum PageError {
                       final String message) throws IOException, SQLException {
 
         final HtmlBuilder htm = new HtmlBuilder(2000);
-        Page.startOrdinaryPage(htm, Res.get(Res.SITE_TITLE), session, false, Page.ADMIN_BAR, null, false, true);
+        final String title = Res.get(Res.SITE_TITLE);
+        Page.startOrdinaryPage(htm, title, session, false, Page.ADMIN_BAR, null, false, true);
 
         htm.sDiv(null, "style='padding-left:16px; padding-right:16px;'");
 
-        htm.sH(1).add(Res.get(Res.HOME_HEADING)).eH(1);
+        final String heading = Res.get(Res.HOME_HEADING);
+        htm.sH(1).add(heading).eH(1);
 
         htm.sP("error").add(message).eP();
 

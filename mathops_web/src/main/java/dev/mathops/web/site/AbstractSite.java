@@ -495,18 +495,21 @@ public abstract class AbstractSite {
     /**
      * Serves a media file from the /opt/public subdirectory of the base directory.
      *
+     * @param cache    the data cache
      * @param filename the filename
      * @param req      the request
      * @param resp     the response
-     * @throws IOException if there is an error writing the response
+     * @throws IOException  if there is an error writing the response
+     * @throws SQLException if there is an error accessing the database
      */
-    protected void serveMedia(final String filename, final HttpServletRequest req, final HttpServletResponse resp)
-            throws IOException {
+    protected void serveMedia(final Cache cache, final String filename, final HttpServletRequest req,
+                              final HttpServletResponse resp) throws IOException, SQLException {
 
         final byte[] data = FileLoader.loadFileAsBytes(new File(this.vttDir, filename), true);
 
         if (data == null) {
-            Log.warning(new File(this.imgDir, filename).getAbsolutePath(), " not found");
+            final String absPath = new File(this.imgDir, filename).getAbsolutePath();
+            Log.warning(absPath, " not found");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
             sendReply(req, resp, "application/pdf", data);

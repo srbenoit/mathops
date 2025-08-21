@@ -11,8 +11,10 @@ import dev.mathops.db.Contexts;
 import dev.mathops.db.cfg.Site;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.logic.ELiveRefreshes;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.rec.TermRec;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
@@ -37,6 +39,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -54,21 +57,20 @@ public final class ProctoringMediaSite extends AbstractSite {
     /** Zero-length array used in construction of other arrays. */
     private static final JSONObject[] ZERO_LEN_JSON_ARR = new JSONObject[0];
 
-    /** The data directory for proctoring files. */
-    final File dataDir;
+    /** The path under which to find proctoring data folders. */
+    private final File dataPath;
 
     /**
      * Constructs a new {@code ProctoringMediaSite}.
      *
-     * @param theSite the site profile under which this site is accessed
-     * @param theSessions    the singleton user session repository
+     * @param theSite     the site profile under which this site is accessed
+     * @param theSessions the singleton user session repository
      */
     public ProctoringMediaSite(final Site theSite, final ISessionManager theSessions) {
 
         super(theSite, theSessions);
 
-        final File curDataPath = PathList.getInstance().get(EPath.CUR_DATA_PATH);
-        this.dataDir = new File(curDataPath, "proctoring");
+        this.dataPath = PathList.getInstance().get(EPath.CUR_DATA_PATH);
     }
 
     /**
@@ -123,7 +125,7 @@ public final class ProctoringMediaSite extends AbstractSite {
                 final ImmutableSessionInfo session = validateSession(req, resp, null);
 
                 final boolean showLanding = CoreConstants.EMPTY.equals(subpath) || "index.html".equals(subpath)
-                        || "login.html".equals(subpath);
+                                            || "login.html".equals(subpath);
 
                 if (session == null) {
                     if (showLanding) {
@@ -141,23 +143,23 @@ public final class ProctoringMediaSite extends AbstractSite {
                     LogBase.setSessionInfo(session.loginSessionId, session.getEffectiveUserId());
 
                     if (session.getEffectiveRole().canActAs(ERole.PROCTOR)
-                            || session.getEffectiveRole().canActAs(ERole.OFFICE_STAFF)
-                            || session.getEffectiveRole().canActAs(ERole.DIRECTOR)) {
+                        || session.getEffectiveRole().canActAs(ERole.OFFICE_STAFF)
+                        || session.getEffectiveRole().canActAs(ERole.DIRECTOR)) {
                         if (showLanding) {
                             PageLanding.showPage(cache, this, req, resp);
                         } else if (subpath.endsWith(".js")) {
                             serveJs(subpath, req, resp);
                         } else if (subpath.endsWith("png")
-                                || subpath.endsWith(".jpg")
-                                || subpath.endsWith(".jpeg")
-                                || subpath.endsWith(".gif")
-                                || subpath.endsWith(".ico")
-                                || subpath.endsWith(".webm")
-                                || subpath.endsWith(".mp4")
-                                || subpath.endsWith(".ogv")
-                                || subpath.endsWith(".pdf")) {
+                                   || subpath.endsWith(".jpg")
+                                   || subpath.endsWith(".jpeg")
+                                   || subpath.endsWith(".gif")
+                                   || subpath.endsWith(".ico")
+                                   || subpath.endsWith(".webm")
+                                   || subpath.endsWith(".mp4")
+                                   || subpath.endsWith(".ogv")
+                                   || subpath.endsWith(".pdf")) {
 
-                            serveMedia(subpath, req, resp);
+                            serveMedia(cache, subpath, req, resp);
                         } else if ("home.html".equals(subpath)) {
                             PageHome.showPage(cache, this, req, resp, session);
                         } else if ("details.html".equals(subpath)) {
@@ -235,12 +237,12 @@ public final class ProctoringMediaSite extends AbstractSite {
             switch (subpath) {
                 case "rolecontrol.html" -> processRoleControls(cache, req, resp, session);
                 case "upload.html" -> processUpload(cache, req, resp);
-                case "details.html" -> PageDetails.processPost(this, req, resp);
-                case "elevated.html" -> PageDetails.processElevated(this, req, resp);
-                case "studentnote.html" -> PageDetails.processStudentNote(this, req, resp);
-                case "deletestudentnote.html" -> PageDetails.processDeleteStudentNote(this, req, resp);
-                case "notesadd.html" -> PageNotes.processAddNote(this, req, resp);
-                case "notesdelete.html" -> PageNotes.processDeleteNote(this, req, resp);
+                case "details.html" -> PageDetails.processPost(cache, this, req, resp);
+                case "elevated.html" -> PageDetails.processElevated(cache, this, req, resp);
+                case "studentnote.html" -> PageDetails.processStudentNote(cache, this, req, resp);
+                case "deletestudentnote.html" -> PageDetails.processDeleteStudentNote(cache, this, req, resp);
+                case "notesadd.html" -> PageNotes.processAddNote(cache, this, req, resp);
+                case "notesdelete.html" -> PageNotes.processDeleteNote(cache, this, req, resp);
                 case null, default -> {
                     Log.warning(Res.fmt(Res.UNRECOGNIZED_PATH, subpath));
                     resp.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -329,18 +331,18 @@ public final class ProctoringMediaSite extends AbstractSite {
      * @param cache the data cache
      * @param req   the HTTP request
      * @param resp  the HTTP response
-     * @throws IOException if there is an error writing the response
+     * @throws IOException  if there is an error writing the response
+     * @throws SQLException if there is an error accessing the database
      */
     private void processUpload(final Cache cache, final ServletRequest req, final HttpServletResponse resp)
-            throws IOException {
+            throws IOException, SQLException {
 
         final String psid = req.getParameter("psid");
         final String stuid = req.getParameter("stuid");
         final String type = req.getParameter("type");
         final String when = req.getParameter("when");
 
-        // Log.info(" PSID=", psid, " STUID=", stuid,
-        // " TYPE=", type, " WHEN=", when);
+        // Log.info(" PSID=", psid, " STUID=", stuid, " TYPE=", type, " WHEN=", when);
 
         if (psid == null || psid.isEmpty()) {
             Log.warning("Upload with no PSID field - ignorning");
@@ -359,20 +361,20 @@ public final class ProctoringMediaSite extends AbstractSite {
                 resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
             } else if ("P".equals(type)) {
                 final String fname = "photo.jpg";
-                storeImage(req, resp, psid, stuid, fname);
+                storeImage(cache, req, resp, psid, stuid, fname);
             } else if ("I".equals(type)) {
                 final String fname = "id.jpg";
-                storeImage(req, resp, psid, stuid, fname);
+                storeImage(cache, req, resp, psid, stuid, fname);
             } else if ("V".equals(type)) {
                 final String fname = "webcam.webm";
-                storeVideo(req, resp, psid, stuid, fname);
+                storeVideo(cache, req, resp, psid, stuid, fname);
             } else if ("S".equals(type)) {
                 final String fname = "screen.webm";
-                storeVideo(req, resp, psid, stuid, fname);
+                storeVideo(cache, req, resp, psid, stuid, fname);
             } else if ("M".equals(type)) {
                 storeMeta(cache, req, resp, psid, stuid);
             } else if ("E".equals(type)) {
-                storeEvent(req, resp, psid, stuid);
+                storeEvent(cache, req, resp, psid, stuid);
             } else {
                 Log.warning("Invalid file type: ", type);
                 resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
@@ -380,51 +382,84 @@ public final class ProctoringMediaSite extends AbstractSite {
     }
 
     /**
+     * Retrieves the data directory.
+     *
+     * @return the  data directory
+     */
+    File getDataPath() {
+
+        return this.dataPath;
+    }
+
+    /**
+     * Determines the directory name under which to store "active term" proctoring videos.
+     *
+     * @param cache the data cache
+     * @return the proctoring data directory
+     * @throws SQLException if there is an error accessing the database
+     */
+    private File getActiveTermDir(final Cache cache) throws SQLException {
+
+        final SystemData systemData = cache.getSystemData();
+        final TermRec term = systemData.getActiveTerm();
+        final String dirName = term.term.shortString;
+
+        return new File(this.dataPath, dirName);
+    }
+
+    /**
      * Stores an image and sends an appropriate response.
      *
-     * @param req   the HTTP request
-     * @param resp  the HTTP response
-     * @param psid  the proctoring session ID
-     * @param stuid the student ID
-     * @param fname the filename
-     * @throws IOException if there is an error writing the response
+     * @param cache    the data cache
+     * @param req      the HTTP request
+     * @param resp     the HTTP response
+     * @param psId     the proctoring session ID
+     * @param stuId    the student ID
+     * @param filename the filename
+     * @throws IOException  if there is an error writing the response
+     * @throws SQLException if there is an error accessing the database
      */
-    private void storeImage(final ServletRequest req, final HttpServletResponse resp,
-                            final String psid, final String stuid, final String fname) throws IOException {
+    private void storeImage(final Cache cache, final ServletRequest req, final HttpServletResponse resp,
+                            final String psId, final String stuId, final String filename)
+            throws IOException, SQLException {
 
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream(2 << 16);
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream(2 << 16);
         final byte[] buffer = new byte[65536];
 
         try (final ServletInputStream in = req.getInputStream()) {
             int numRead = in.read(buffer);
             while (numRead > 0) {
-                baos.write(buffer, 0, numRead);
+                outStream.write(buffer, 0, numRead);
                 numRead = in.read(buffer);
             }
 
-            final File stuPath = new File(this.dataDir, stuid);
-            final File sessPath = new File(stuPath, psid);
+            final File dataDir = getActiveTermDir(cache);
+            final File stuPath = new File(dataDir, stuId);
+            final File sessionPath = new File(stuPath, psId);
 
-            if (sessPath.exists() || sessPath.mkdirs()) {
-                final File file = new File(sessPath, fname);
+            if (sessionPath.exists() || sessionPath.mkdirs()) {
+                final File file = new File(sessionPath, filename);
                 try (final FileOutputStream fos = new FileOutputStream(file)) {
-                    fos.write(baos.toByteArray());
+                    final byte[] bytes = outStream.toByteArray();
+                    fos.write(bytes);
 
                     final HtmlBuilder htm = new HtmlBuilder(200);
-                    Page.startEmptyPage(htm, Res.get(Res.SITE_TITLE), false);
+                    final String title = Res.get(Res.SITE_TITLE);
+                    Page.startEmptyPage(htm, title, false);
                     Page.endEmptyPage(htm, false);
                     sendReply(req, resp, MIME_TEXT_HTML, htm);
-
                 } catch (final IOException ex) {
-                    Log.warning("Unable to write image file: ", sessPath.getAbsolutePath(), ex);
+                    final String absPath = sessionPath.getAbsolutePath();
+                    Log.warning("Unable to write image file: ", absPath, ex);
                     resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 }
             } else {
-                Log.warning("Unable to create image directory: ", sessPath.getAbsolutePath());
+                final String absPath = sessionPath.getAbsolutePath();
+                Log.warning("Unable to create image directory: ", absPath);
                 resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
         } catch (final IOException ex) {
-            Log.warning("Failed to read upload image file data for student ", stuid, ex);
+            Log.warning("Failed to read upload image file data for student ", stuId, ex);
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
         }
     }
@@ -432,23 +467,26 @@ public final class ProctoringMediaSite extends AbstractSite {
     /**
      * Stores a block of video and sends an appropriate response.
      *
-     * @param req   the HTTP request
-     * @param resp  the HTTP response
-     * @param psid  the proctoring session ID
-     * @param stuid the student ID
-     * @param fname the filename
-     * @throws IOException if there is an error writing the response
+     * @param cache    the data cache
+     * @param req      the HTTP request
+     * @param resp     the HTTP response
+     * @param psId     the proctoring session ID
+     * @param stuId    the student ID
+     * @param filename the filename
+     * @throws IOException  if there is an error writing the response
+     * @throws SQLException if there is an error accessing the database
      */
-    private void storeVideo(final ServletRequest req, final HttpServletResponse resp,
-                            final String psid, final String stuid, final String fname) throws IOException {
+    private void storeVideo(final Cache cache, final ServletRequest req, final HttpServletResponse resp,
+                            final String psId, final String stuId, final String filename)
+            throws IOException, SQLException {
 
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream(2 << 16);
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream(2 << 16);
         final byte[] buffer = new byte[65536];
 
         try (final ServletInputStream in = req.getInputStream()) {
             int numRead = in.read(buffer);
             while (numRead > 0) {
-                baos.write(buffer, 0, numRead);
+                outStream.write(buffer, 0, numRead);
                 try {
                     numRead = in.read(buffer);
                 } catch (final IOException ex) {
@@ -457,32 +495,34 @@ public final class ProctoringMediaSite extends AbstractSite {
                 }
             }
 
-            final File stuPath = new File(this.dataDir, stuid);
-            final File sessPath = new File(stuPath, psid);
+            final File dataDir = getActiveTermDir(cache);
+            final File stuPath = new File(dataDir, stuId);
+            final File sessionPath = new File(stuPath, psId);
 
-            if (sessPath.exists() || sessPath.mkdirs()) {
-                final File file = new File(sessPath, fname);
+            if (sessionPath.exists() || sessionPath.mkdirs()) {
+                final File file = new File(sessionPath, filename);
                 try (final FileOutputStream fos = new FileOutputStream(file, true)) {
-                    final byte[] byteArray = baos.toByteArray();
+                    final byte[] byteArray = outStream.toByteArray();
                     fos.write(byteArray);
 
                     final HtmlBuilder htm = new HtmlBuilder(200);
-                    Page.startEmptyPage(htm, Res.get(Res.SITE_TITLE), false);
+                    final String title = Res.get(Res.SITE_TITLE);
+                    Page.startEmptyPage(htm, title, false);
                     Page.endEmptyPage(htm, false);
                     sendReply(req, resp, MIME_TEXT_HTML, htm);
 
                 } catch (final IOException ex) {
-                    final String absolutePath = sessPath.getAbsolutePath();
+                    final String absolutePath = sessionPath.getAbsolutePath();
                     Log.warning("Unable to write video file ", absolutePath, ex);
                     resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 }
             } else {
-                final String absolutePath = sessPath.getAbsolutePath();
+                final String absolutePath = sessionPath.getAbsolutePath();
                 Log.warning("Unable to create video directory: ", absolutePath);
                 resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
         } catch (final IOException ex) {
-            Log.warning("Failed to read upload video data for student ", stuid, ex);
+            Log.warning("Failed to read upload video data for student ", stuId, ex);
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
         }
     }
@@ -493,24 +533,26 @@ public final class ProctoringMediaSite extends AbstractSite {
      * @param cache the data cache
      * @param req   the HTTP request
      * @param resp  the HTTP response
-     * @param psid  the proctoring session ID
+     * @param psId  the proctoring session ID
      * @param stuId the student ID
-     * @throws IOException if there is an error writing the response
+     * @throws IOException  if there is an error writing the response
+     * @throws SQLException if there is an error accessing the database
      */
     private void storeMeta(final Cache cache, final ServletRequest req, final HttpServletResponse resp,
-                           final String psid, final String stuId) throws IOException {
+                           final String psId, final String stuId) throws IOException, SQLException {
 
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream(1024);
         final byte[] buffer = new byte[1024];
 
         try (final ServletInputStream in = req.getInputStream()) {
             int numRead = in.read(buffer);
             while (numRead > 0) {
-                baos.write(buffer, 0, numRead);
+                outStream.write(buffer, 0, numRead);
                 numRead = in.read(buffer);
             }
 
-            final File stuPath = new File(this.dataDir, stuId);
+            final File dataDir = getActiveTermDir(cache);
+            final File stuPath = new File(dataDir, stuId);
 
             if (!stuPath.exists() && stuPath.mkdirs()) {
                 // Just created the student directory - populate metadata
@@ -523,32 +565,37 @@ public final class ProctoringMediaSite extends AbstractSite {
                     meta.add("{\"first\":\"", stuRec.firstName, "\",\"last\":\"", stuRec.lastName, "\"}");
                 }
                 try (final FileWriter w = new FileWriter(new File(stuPath, "meta.json"), StandardCharsets.UTF_8)) {
-                    w.write(meta.toString());
+                    final String metaStr = meta.toString();
+                    w.write(metaStr);
                 } catch (final IOException ex) {
                     Log.warning(ex);
                 }
             }
 
-            final File sessPath = new File(stuPath, psid);
-            if (sessPath.exists() || sessPath.mkdirs()) {
-                final File file = new File(sessPath, "meta.json");
+            final File sessionPath = new File(stuPath, psId);
+            if (sessionPath.exists() || sessionPath.mkdirs()) {
+                final File file = new File(sessionPath, "meta.json");
                 try (final FileOutputStream fos = new FileOutputStream(file, false)) {
-                    fos.write(baos.toByteArray());
+                    final byte[] bytes = outStream.toByteArray();
+                    fos.write(bytes);
 
                     final HtmlBuilder htm = new HtmlBuilder(200);
-                    Page.startEmptyPage(htm, Res.get(Res.SITE_TITLE), false);
+                    final String title = Res.get(Res.SITE_TITLE);
+                    Page.startEmptyPage(htm, title, false);
                     Page.endEmptyPage(htm, false);
                     sendReply(req, resp, MIME_TEXT_HTML, htm);
 
                 } catch (final IOException ex) {
-                    Log.warning("Unable to write file: ", sessPath.getAbsolutePath(), ex);
+                    final String absolutePath = sessionPath.getAbsolutePath();
+                    Log.warning("Unable to write file: ", absolutePath, ex);
                     resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 }
             } else {
-                Log.warning("Unable to create directory: ", sessPath.getAbsolutePath());
+                final String absolutePath = sessionPath.getAbsolutePath();
+                Log.warning("Unable to create directory: ", absolutePath);
                 resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
-        } catch (final Exception ex) {
+        } catch (final IOException ex) {
             Log.warning("Failed to read upload file data", ex);
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
         }
@@ -557,34 +604,38 @@ public final class ProctoringMediaSite extends AbstractSite {
     /**
      * Stores an event message by adding it to the "tags" file.
      *
+     * @param cache the data cache
      * @param req   the HTTP request
      * @param resp  the HTTP response
-     * @param psid  the proctoring session ID
-     * @param stuid the student ID
-     * @throws IOException if there is an error writing the response
+     * @param psId  the proctoring session ID
+     * @param stuId the student ID
+     * @throws IOException  if there is an error writing the
+     * @throws SQLException if there is an error accessing the database
      */
-    private void storeEvent(final ServletRequest req, final HttpServletResponse resp,
-                            final String psid, final String stuid) throws IOException {
+    private void storeEvent(final Cache cache, final ServletRequest req, final HttpServletResponse resp,
+                            final String psId, final String stuId) throws IOException, SQLException {
 
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream(1024);
         final byte[] buffer = new byte[128];
 
         try (final ServletInputStream in = req.getInputStream()) {
             int numRead = in.read(buffer);
             while (numRead > 0) {
-                baos.write(buffer, 0, numRead);
+                outStream.write(buffer, 0, numRead);
                 numRead = in.read(buffer);
             }
-            final String body = baos.toString();
+            final String body = outStream.toString();
 
-            final File stuPath = new File(this.dataDir, stuid);
+            final File dataDir = getActiveTermDir(cache);
+            final File stuPath = new File(dataDir, stuId);
             if (stuPath.exists()) {
 
-                final File sessionDir = new File(stuPath, psid);
+                final File sessionDir = new File(stuPath, psId);
                 if (sessionDir.exists()) {
 
                     final File meta = new File(sessionDir, "meta.json");
-                    final FileTime metaTime = (FileTime) Files.getAttribute(meta.toPath(), "creationTime");
+                    final Path metaPath = meta.toPath();
+                    final FileTime metaTime = (FileTime) Files.getAttribute(metaPath, "creationTime");
                     final long start = metaTime == null ? 0L : metaTime.toMillis();
 
                     final File tagsFile = new File(sessionDir, "tags.json");
@@ -617,10 +668,12 @@ public final class ProctoringMediaSite extends AbstractSite {
                     final long duration = start == 0L ? 0L : System.currentTimeMillis() - start;
 
                     final JSONObject newEvent = new JSONObject();
-                    newEvent.setProperty("sec", Double.valueOf((double) duration));
+                    final Double durationObj = Double.valueOf((double) duration);
+                    newEvent.setProperty("sec", durationObj);
                     newEvent.setProperty("note", body);
                     newEvent.setProperty("src", "system");
-                    newEvent.setProperty("severity", Double.valueOf(sev));
+                    final Double severityObj = Double.valueOf(sev);
+                    newEvent.setProperty("severity", severityObj);
 
                     tags.add(newEvent);
 
@@ -630,10 +683,12 @@ public final class ProctoringMediaSite extends AbstractSite {
                     try (final FileWriter w = new FileWriter(new File(sessionDir, "tags.json"),
                             StandardCharsets.UTF_8)) {
                         w.write('[');
-                        w.write(newTags[0].toJSONFriendly(0));
+                        final String json = newTags[0].toJSONFriendly(0);
+                        w.write(json);
                         for (int i = 1; i < count; ++i) {
-                            w.write(CoreConstants.COMMA_CHAR);
-                            w.write(newTags[i].toJSONFriendly(0));
+                            w.write(CoreConstants.COMMA);
+                            final String nextJson = newTags[i].toJSONFriendly(0);
+                            w.write(nextJson);
                         }
                         w.write(']');
                     } catch (final IOException ex) {
@@ -641,7 +696,7 @@ public final class ProctoringMediaSite extends AbstractSite {
                     }
                 }
             }
-        } catch (final Exception ex) {
+        } catch (final IOException ex) {
             Log.warning("Failed to read event upload file data", ex);
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
         }
@@ -658,7 +713,7 @@ public final class ProctoringMediaSite extends AbstractSite {
         int largest = 0;
         for (int i = 1; i < 100; ++i) {
             if (new File(dir, "webcam" + i + ".webm").exists()
-                    || new File(dir, "screen" + i + ".webm").exists()) {
+                || new File(dir, "screen" + i + ".webm").exists()) {
                 largest = i;
             } else {
                 break;
@@ -703,16 +758,19 @@ public final class ProctoringMediaSite extends AbstractSite {
     /**
      * Serves an image file from the proctoring media directory.
      *
+     * @param cache    the data cache
      * @param filename the image filename
-     * @param req     the request
-     * @param resp    the response
-     * @throws IOException if there is an error writing the response
+     * @param req      the request
+     * @param resp     the response
+     * @throws IOException  if there is an error writing the response
+     * @throws SQLException if there is an error accessing the database
      */
     @Override
-    protected void serveMedia(final String filename, final HttpServletRequest req,
-                              final HttpServletResponse resp) throws IOException {
+    protected void serveMedia(final Cache cache, final String filename, final HttpServletRequest req,
+                              final HttpServletResponse resp) throws IOException, SQLException {
 
-        final long total = new File(this.dataDir, filename).length();
+        final File file = new File(this.dataPath, filename);
+        final long total = file.length();
         long start = 0L;
         long end = total;
         boolean ranged = false;
@@ -747,13 +805,14 @@ public final class ProctoringMediaSite extends AbstractSite {
         final byte[] data;
 
         if (ranged) {
-            data = FileLoader.loadFileAsBytes(new File(this.dataDir, filename), start, end);
+            data = FileLoader.loadFileAsBytes(new File(this.dataPath, filename), start, end);
         } else {
-            data = FileLoader.loadFileAsBytes(new File(this.dataDir, filename), true);
+            data = FileLoader.loadFileAsBytes(new File(this.dataPath, filename), true);
         }
 
         if (data == null) {
-            Log.warning(new File(this.dataDir, filename).getAbsolutePath(), " not found");
+            final String absPath = file.getAbsolutePath();
+            Log.warning(absPath, " not found");
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
             final String lower = filename.toLowerCase(Locale.ROOT);
@@ -774,8 +833,7 @@ public final class ProctoringMediaSite extends AbstractSite {
 
                 if (lower.endsWith(".png")) {
                     sendRangedReply(req, resp, "image/png", data, start, total);
-                } else if (lower.endsWith(".jpg")
-                        || lower.endsWith(".jpeg")) {
+                } else if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) {
                     sendRangedReply(req, resp, "image/jpeg", data, start, total);
                 } else if (lower.endsWith(".gif")) {
                     sendRangedReply(req, resp, "image/gif", data, start, total);
@@ -794,8 +852,7 @@ public final class ProctoringMediaSite extends AbstractSite {
                 }
             } else if (lower.endsWith(".png")) {
                 sendReply(req, resp, "image/png", data);
-            } else if (lower.endsWith(".jpg")
-                    || lower.endsWith(".jpeg")) {
+            } else if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) {
                 sendReply(req, resp, "image/jpeg", data);
             } else if (lower.endsWith(".gif")) {
                 sendReply(req, resp, "image/gif", data);
