@@ -10,6 +10,7 @@ import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
 import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
+import dev.mathops.db.old.rawlogic.RawStudentLogic;
 import dev.mathops.db.old.rawrecord.RawStcourse;
 import dev.mathops.db.old.rawrecord.RawStudent;
 import dev.mathops.db.rec.TermRec;
@@ -58,53 +59,85 @@ import java.util.Locale;
  */
 final class CardPickStudent extends AdmPanelBase implements ActionListener, MouseListener {
 
-    /** An action command. */
+    /**
+     * An action command.
+     */
     private static final String QUERY_CMD = "QUERY";
 
-    /** Version number for serialization. */
+    /**
+     * Version number for serialization.
+     */
     @Serial
     private static final long serialVersionUID = -1672732730332605390L;
 
-    /** Maximum number of prior picked students to show. */
+    /**
+     * Maximum number of prior picked students to show.
+     */
     private static final int MAX_HISTORY = 20;
 
-    /** The owning admin pane. */
+    /**
+     * The owning admin pane.
+     */
     private final TopPanelOffice owner;
 
-    /** The data cache. */
+    /**
+     * The data cache.
+     */
     private final Cache cache;
 
-    /** The active term key. */
+    /**
+     * The active term key.
+     */
     private final TermKey activeTermKey;
 
-    /** The fixed data. */
+    /**
+     * The fixed data.
+     */
     private final UserData fixed;
 
-    /** The student ID. */
+    /**
+     * The student ID.
+     */
     private final JTextField stuIdField;
 
-    /** The error message. */
+    /**
+     * The error message.
+     */
     private final JLabel error;
 
-    /** The model for the history. */
+    /**
+     * The model for the history.
+     */
     private final DefaultListModel<String> historyModel;
 
-    /** The records associated to history entries. */
+    /**
+     * The records associated to history entries.
+     */
     private final List<RawStudent> historyRecords;
 
-    /** A list from which to pick recently selected students. */
+    /**
+     * A list from which to pick recently selected students.
+     */
     private final JList<String> history;
 
-    /** A scroll pane for the pick list when multiple students are found. */
+    /**
+     * A scroll pane for the pick list when multiple students are found.
+     */
     private final JScrollPane scroll;
 
-    /** The model for the pick list. */
+    /**
+     * The model for the pick list.
+     */
     private final DefaultListModel<String> pickListModel;
 
-    /** The records associated to pick list entries. */
+    /**
+     * The records associated to pick list entries.
+     */
     private final List<RawStudent> pickListRecords;
 
-    /** A list from which to pick when multiple students are found. */
+    /**
+     * A list from which to pick when multiple students are found.
+     */
     private final JList<String> pickList;
 
     /**
@@ -367,7 +400,7 @@ final class CardPickStudent extends AdmPanelBase implements ActionListener, Mous
 
                     // Try "Billy Bob Van Beethoven", then "John Q. Van Beethoven", then "Billy Bob Q Public"
                     if (!queryByLastAndFirstName(test23, test01) && !queryByLastAndFirstName(test23, parts[0])
-                        && !queryByLastAndFirstName(parts[3], test01)) {
+                            && !queryByLastAndFirstName(parts[3], test01)) {
                         // Try "John Q R Public"
                         queryByLastAndFirstName(parts[3], parts[0]);
                     }
@@ -378,8 +411,8 @@ final class CardPickStudent extends AdmPanelBase implements ActionListener, Mous
 
                     // Try "John Q R S T Public", then "Billy Bob Q R S T Public", then "John Q R S T Van Beethoven"
                     if (!queryByLastAndFirstName(parts[parts.length - 1], parts[0])
-                        && !queryByLastAndFirstName(parts[parts.length - 1], test01)
-                        && !queryByLastAndFirstName(testLast, parts[0])) {
+                            && !queryByLastAndFirstName(parts[parts.length - 1], test01)
+                            && !queryByLastAndFirstName(testLast, parts[0])) {
                         // Try "Billy Bob Q R S T U Van Beethoven"
                         queryByLastAndFirstName(testLast, test01);
                     }
@@ -466,7 +499,7 @@ final class CardPickStudent extends AdmPanelBase implements ActionListener, Mous
 
         try (final PreparedStatement ps = conn.prepareStatement(
                 "SELECT * FROM student WHERE lower(last_name) like ? "
-                + "AND (lower(first_name) like ? OR lower(pref_name) like ?)")) {
+                        + "AND (lower(first_name) like ? OR lower(pref_name) like ?)")) {
             final String lowerCase = last.trim().toLowerCase(Locale.US);
             ps.setString(1, lowerCase);
 
@@ -623,10 +656,11 @@ final class CardPickStudent extends AdmPanelBase implements ActionListener, Mous
 
             if (e.getSource() == this.pickList) {
                 final int index = this.pickList.locationToIndex(eventPoint);
-                final RawStudent stuRec = this.pickListRecords.get(index);
-                addToHistory(stuRec);
+                final RawStudent cachedStuRec = this.pickListRecords.get(index);
 
                 try {
+                    final RawStudent stuRec = RawStudentLogic.query(this.cache, cachedStuRec.stuId, true);
+                    addToHistory(stuRec);
                     this.owner.setStudent(this.cache, new StudentData(this.cache, this.fixed, stuRec));
                 } catch (final SQLException ex) {
                     Log.warning(ex);

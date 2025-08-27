@@ -47,55 +47,89 @@ import java.util.Objects;
  */
 final class LogicCheckInCourseExams {
 
-    /** A commonly used constant. */
+    /**
+     * A commonly used constant.
+     */
     private static final Integer ONE = Integer.valueOf(1);
 
-    /** A commonly used constant. */
+    /**
+     * A commonly used constant.
+     */
     private static final Integer TWO = Integer.valueOf(2);
 
-    /** A commonly used constant. */
+    /**
+     * A commonly used constant.
+     */
     private static final Integer THREE = Integer.valueOf(3);
 
-    /** A commonly used constant. */
+    /**
+     * A commonly used constant.
+     */
     private static final Integer FOUR = Integer.valueOf(4);
 
-    /** A commonly used constant. */
+    /**
+     * A commonly used constant.
+     */
     private static final Integer FIVE = Integer.valueOf(5);
 
-    /** Infinity, in the "1, 2, 3, many" counting system. */
+    /**
+     * Infinity, in the "1, 2, 3, many" counting system.
+     */
     private static final int INFINITY = 90;
 
-    /** A commonly used string. */
+    /**
+     * A commonly used string.
+     */
     private static final String UNAVAILABLE = "Unavailable";
 
-    /** A commonly used string. */
+    /**
+     * A commonly used string.
+     */
     private static final String NOT_REGISTERED = "Not Registered";
 
-    /** A commonly used string. */
+    /**
+     * A commonly used string.
+     */
     private static final String ALL_ATTEMPTS_USED = "All Attempts Used";
 
-    /** A commonly used string. */
+    /**
+     * A commonly used string.
+     */
     private static final String MUST_REPASS_REVIEW = "Must Repass Review";
 
-    /** A commonly used string. */
+    /**
+     * A commonly used string.
+     */
     private static final String MUST_PASS_REVIEW = "Must Pass Review";
 
-    /** A commonly used string. */
+    /**
+     * A commonly used string.
+     */
     private static final String PAST_UNIT_DEADLINE = "Past Unit Deadline";
 
-    /** A commonly used string. */
+    /**
+     * A commonly used string.
+     */
     private static final String PAST_DEADLINE = "Past Deadline";
 
-    /** A commonly used string. */
+    /**
+     * A commonly used string.
+     */
     private static final String OPENS = "Opens ";
 
-    /** The current day number. */
+    /**
+     * The current day number.
+     */
     private final LocalDate today;
 
-    /** The active term. */
+    /**
+     * The active term.
+     */
     private final TermRec activeTerm;
 
-    /** Data on the check-in attempt. */
+    /**
+     * Data on the check-in attempt.
+     */
     private final DataCheckInAttempt checkInData;
 
     /**
@@ -424,16 +458,25 @@ final class LogicCheckInCourseExams {
             }
 
             TermRec effTerm = this.activeTerm;
-            if (!effTerm.term.equals(reg.termKey)) {
-                final TermRec incTerm = systemData.getTerm(reg.termKey);
+            if ("Y".equals(reg.iInProgress) && !effTerm.term.equals(reg.iTermKey)) {
+                final TermRec incTerm = systemData.getTerm(reg.iTermKey);
                 if (incTerm != null) {
                     effTerm = incTerm;
                 }
             }
 
-            final RawCsection cSection = systemData.getCourseSection(reg.course, reg.sect, effTerm.term);
+            RawCsection cSection = systemData.getCourseSection(reg.course, reg.sect, effTerm.term);
             if (cSection == null) {
-                continue;
+                // Can't find the section in the original term - look for a section with the same number in the active
+                // term, assume that's good enough if found
+                cSection = systemData.getCourseSection(reg.course, reg.sect, this.activeTerm.term);
+                if (cSection == null) {
+                    Log.warning("Unable to find section data for ", reg.course, " section ", reg.sect, " for ",
+                            effTerm.term.longString);
+                    continue;
+                } else {
+                    effTerm = this.activeTerm;
+                }
             }
 
             RawPacingStructure pacing = null;
@@ -1256,7 +1299,9 @@ final class LogicCheckInCourseExams {
                 ", checkInData=", this.checkInData, "}");
     }
 
-    /** A record to store deadlines associated with a course. */
+    /**
+     * A record to store deadlines associated with a course.
+     */
     private record CourseDeadlines(LocalDate u1Deadline, LocalDate u2Deadline, LocalDate u3Deadline,
                                    LocalDate u4Deadline, LocalDate feDeadline, LocalDate f1Deadline,
                                    int f1AttemptsAllowed, LocalDate courseDeadline) {
@@ -1267,19 +1312,29 @@ final class LogicCheckInCourseExams {
      */
     private static final class SectionData {
 
-        /** The course numbers. */
+        /**
+         * The course numbers.
+         */
         final CourseNumbers numbers;
 
-        /** The course section. */
+        /**
+         * The course section.
+         */
         final RawCsection cSection;
 
-        /** The pacing structure. */
+        /**
+         * The pacing structure.
+         */
         final RawPacingStructure pacing;
 
-        /** The pacing rules. */
+        /**
+         * The pacing rules.
+         */
         final List<RawPacingRules> rules;
 
-        /** The course unit sections. */
+        /**
+         * The course unit sections.
+         */
         final Map<Integer, RawCusection> cuSections;
 
         /**
@@ -1342,10 +1397,14 @@ final class LogicCheckInCourseExams {
      */
     private static final class OldCourseWorkRecord {
 
-        /** Homeworks the student has taken. */
+        /**
+         * Homeworks the student has taken.
+         */
         final List<RawSthomework> stHomeworks;
 
-        /** Exams the student has taken. */
+        /**
+         * Exams the student has taken.
+         */
         final List<RawStexam> stExams;
 
         /**
