@@ -41,34 +41,54 @@ import java.util.List;
  */
 class EligibilityTesterBase {
 
-    /** The student ID for whom eligibility is being tested. */
+    /**
+     * The student ID for whom eligibility is being tested.
+     */
     final String studentId;
 
-    /** The currently active term. */
+    /**
+     * The currently active term.
+     */
     TermRec activeTerm;
 
-    /** The student record. */
+    /**
+     * The student record.
+     */
     RawStudent student;
 
-    /** The special student records. */
+    /**
+     * The special student records.
+     */
     private List<RawSpecialStus> specials;
 
-    /** Flag indicating this is a tutorial, not subject to lockout dates. */
+    /**
+     * Flag indicating this is a tutorial, not subject to lockout dates.
+     */
     Boolean isCourseTutorial;
 
-    /** The student registration record for the course. */
+    /**
+     * The student registration record for the course.
+     */
     RawStcourse studentCourse;
 
-    /** The course section configuration. */
+    /**
+     * The course section configuration.
+     */
     RawCsection courseSection;
 
-    /** The course unit section configuration. */
+    /**
+     * The course unit section configuration.
+     */
     RawCusection courseSectionUnit;
 
-    /** The student's pacing structure (only non-null for a real registration). */
+    /**
+     * The student's pacing structure (only non-null for a real registration).
+     */
     RawPacingStructure pacingStructure;
 
-    /** Flag indicating student may only test in incomplete courses. */
+    /**
+     * Flag indicating student may only test in incomplete courses.
+     */
     boolean incompleteOnly;
 
     /**
@@ -371,14 +391,26 @@ class EligibilityTesterBase {
             }
 
             if (ok) {
-                final TermKey term = "Y".equals(this.studentCourse.iInProgress) ? this.studentCourse.iTermKey
-                        : this.activeTerm.term;
+                final TermKey term =
+                        "Y".equals(this.studentCourse.iInProgress) && "N".equals(this.studentCourse.iCounted)
+                                ? this.studentCourse.iTermKey : this.activeTerm.term;
 
                 this.courseSection = systemData.getCourseSection(course, this.studentCourse.sect, term);
 
                 if (this.courseSection == null) {
-                    reasons.add("Unable to query course section information");
-                    ok = false;
+                    // Fallback - try the current term
+                    if (this.activeTerm.term.equals(term)) {
+                        this.courseSection = systemData.getCourseSection(course, this.studentCourse.sect,
+                                this.activeTerm.term);
+
+                        if (this.courseSection == null) {
+                            reasons.add("Unable to query course section information");
+                            ok = false;
+                        }
+                    } else {
+                        reasons.add("Unable to query course section information");
+                        ok = false;
+                    }
                 } else {
                     final List<RawCusection> cusections = systemData.getCourseUnitSections(course,
                             this.studentCourse.sect, term);

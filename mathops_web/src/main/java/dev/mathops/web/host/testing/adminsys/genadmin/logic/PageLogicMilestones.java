@@ -287,9 +287,9 @@ public enum PageLogicMilestones {
         boolean newline = false;
 
         try {
-            final int accommodationDays = MilestoneLogic.daysAvailableLegacyAccommodationExtension(cache, stuId,
-                    paceTrack,
-                    pace, index, unit, msType);
+            final int accommodationDays = pace < 1 ? 0 :
+                    MilestoneLogic.daysAvailableLegacyAccommodationExtension(cache, stuId, paceTrack, pace, index, unit,
+                            msType);
 
             if (accommodationDays == 0) {
                 work.add("Accommodation already used");

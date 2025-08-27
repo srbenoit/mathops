@@ -90,7 +90,7 @@ enum PageOutline {
         final String error = req.getParameter("error");
 
         if (AbstractSite.isParamInvalid(course) || AbstractSite.isParamInvalid(mode)
-            || AbstractSite.isParamInvalid(errorExam) || AbstractSite.isParamInvalid(error)) {
+                || AbstractSite.isParamInvalid(errorExam) || AbstractSite.isParamInvalid(error)) {
             Log.warning("Invalid request parameters - possible attack:");
             Log.warning("  course='", course, "'");
             Log.warning("  mode='", mode, "'");
@@ -179,8 +179,8 @@ enum PageOutline {
             Log.warning("  course='", course, "'");
             PageError.doGet(cache, site, req, resp, session, "No course and mode provided for course outline");
         } else if (AbstractSite.isParamInvalid(stu) || AbstractSite.isParamInvalid(track)
-                   || AbstractSite.isParamInvalid(pace) || AbstractSite.isParamInvalid(index)
-                   || AbstractSite.isParamInvalid(unit) || AbstractSite.isParamInvalid(type)) {
+                || AbstractSite.isParamInvalid(pace) || AbstractSite.isParamInvalid(index)
+                || AbstractSite.isParamInvalid(unit) || AbstractSite.isParamInvalid(type)) {
             Log.warning("Invalid request parameters - possible attack:");
             Log.warning("  stu='", stu, "'");
             Log.warning("  track='", track, "'");
@@ -225,9 +225,9 @@ enum PageOutline {
                                         " days available for the Unit ", unit, " ", typeStr,
                                         " based on your accommodation, but there were only ", grantedStr,
                                         " days before the end of the term, so we moved your deadline to the end of " +
-                                        "the ",
+                                                "the ",
                                         "term.  If you cannot finish the course by the end of the term, please stop " +
-                                        "in to ",
+                                                "in to ",
                                         "the Precalculus Center (Weber 137) or send an email to ",
                                         "precalc_math@colostate.edu to discuss your situation.");
                             } else if (days > 0 || days == -1) {
@@ -291,8 +291,8 @@ enum PageOutline {
             Log.warning("  course='", course, "'");
             PageError.doGet(cache, site, req, resp, session, "No course and mode provided for course outline");
         } else if (AbstractSite.isParamInvalid(stu) || AbstractSite.isParamInvalid(track)
-                   || AbstractSite.isParamInvalid(pace) || AbstractSite.isParamInvalid(index)
-                   || AbstractSite.isParamInvalid(unit) || AbstractSite.isParamInvalid(type)) {
+                || AbstractSite.isParamInvalid(pace) || AbstractSite.isParamInvalid(index)
+                || AbstractSite.isParamInvalid(unit) || AbstractSite.isParamInvalid(type)) {
             Log.warning("Invalid request parameters - possible attack:");
             Log.warning("  stu='", stu, "'");
             Log.warning("  track='", track, "'");
@@ -438,7 +438,7 @@ enum PageOutline {
             final StudentCourseStatus courseStatus = new StudentCourseStatus(site.site.profile);
 
             if (courseStatus.gatherData(cache, session, stuId, courseId, false, isPractice)
-                && courseStatus.getCourse().courseName != null) {
+                    && courseStatus.getCourse().courseName != null) {
 
                 csection = courseStatus.getCourseSection();
                 if ("course".equals(mode)) {
@@ -560,7 +560,7 @@ enum PageOutline {
                 htm.sP().add("Information on User's Exam not found.");
                 avail = false;
             } else if ((cusection.firstTestDt == null)
-                       || !cusection.firstTestDt.isAfter(now.toLocalDate())) {
+                    || !cusection.firstTestDt.isAfter(now.toLocalDate())) {
                 avail = true;
             } else {
                 htm.eP();
@@ -747,7 +747,7 @@ enum PageOutline {
                                 htm.add("Not&nbsp;yet&nbsp;passed - <strong>due&nbsp;", reDeadline, "</strong>");
                             }
                         } else if (cusect.rePointsOntime != null
-                                   && cusect.rePointsOntime.intValue() > 0) {
+                                && cusect.rePointsOntime.intValue() > 0) {
 
                             if (reStatus.passedOnTime) {
                                 rePoints = Integer.valueOf(reStatus.onTimePoints);
@@ -961,7 +961,7 @@ enum PageOutline {
             }
 
             if (RawRecordConstants.M124.equals(courseId)
-                || RawRecordConstants.M126.equals(courseId)) {
+                    || RawRecordConstants.M126.equals(courseId)) {
                 htm.div("vgap");
                 htm.sDiv("indent22");
                 htm.sDiv("blue");
@@ -975,8 +975,8 @@ enum PageOutline {
 
             // Show incomplete deadline date if applicable
             if (reg.iDeadlineDt != null //
-                && !"Y".equals(reg.iCounted)
-                && "Y".equals(reg.iInProgress)) {
+                    && !"Y".equals(reg.iCounted)
+                    && "Y".equals(reg.iInProgress)) {
 
                 htm.div("vgap");
                 htm.sDiv("indent11");
@@ -1229,7 +1229,7 @@ enum PageOutline {
         htm.div("clear");
 
         if ("course".equals(mode) && courseStatus.isCourseGatewayPassed()
-            && !courseStatus.isCourseGatewayAttempted() && unitExam != null) {
+                && !courseStatus.isCourseGatewayAttempted() && unitExam != null) {
             htm.sDiv(null, "style='padding-left:37px;'");
             htm.add("Based on your course status, you are not required to pass the ", examTitle,
                     ". However, you may practice the exam.");
@@ -1244,8 +1244,8 @@ enum PageOutline {
 
         String gwCourse = null;
         if (RawRecordConstants.M117.equals(stcourse.course)
-            && ("801".equals(stcourse.sect) || "809".equals(stcourse.sect) || "401".equals(stcourse.sect))
-            && "P".equals(stcourse.prereqSatis)) {
+                && ("801".equals(stcourse.sect) || "809".equals(stcourse.sect) || "401".equals(stcourse.sect))
+                && "P".equals(stcourse.prereqSatis)) {
 
             gwCourse = RawRecordConstants.M100T;
             examId = "17ELM";
@@ -1548,10 +1548,10 @@ enum PageOutline {
 
                 // Show a link to take the exam with proctoring service
                 if (RawRecordConstants.M117.equals(courseId)
-                    || RawRecordConstants.M118.equals(courseId)
-                    || RawRecordConstants.M124.equals(courseId)
-                    || RawRecordConstants.M125.equals(courseId)
-                    || RawRecordConstants.M126.equals(courseId)) {
+                        || RawRecordConstants.M118.equals(courseId)
+                        || RawRecordConstants.M124.equals(courseId)
+                        || RawRecordConstants.M125.equals(courseId)
+                        || RawRecordConstants.M126.equals(courseId)) {
                     doCanvasUnitExam(cache, siteType, session, courseStatus, unitNum, actualMode, htm);
                 }
             }
@@ -1858,9 +1858,9 @@ enum PageOutline {
 
             final boolean avail;
             avail = (!courseStatus.hasHomework(unit, seqNum.intValue())
-                     || courseStatus.isHomeworkAvailable(unit, seqNum.intValue()))
+                    || courseStatus.isHomeworkAvailable(unit, seqNum.intValue()))
                     || "Instructor Lecture not yet viewed."
-                            .equals(courseStatus.getHomeworkReason(unit, seqNum.intValue()));
+                    .equals(courseStatus.getHomeworkReason(unit, seqNum.intValue()));
             final String status = courseStatus.getHomeworkStatus(unit, seqNum.intValue());
 
             // Show any "PREMED" media components for the lesson in the outline page
@@ -2140,7 +2140,7 @@ enum PageOutline {
                     final int nextUnit = unitNum + 1;
 
                     if ("Y".equals(courseStatus.getPacingStructure().requireUnitExams)
-                        && nextUnit <= courseStatus.getMaxUnit()) {
+                            && nextUnit <= courseStatus.getMaxUnit()) {
                         final RawCusection nextSecUnit = courseStatus.getCourseSectionUnit(nextUnit);
 
                         if (nextSecUnit != null) {
@@ -2237,14 +2237,15 @@ enum PageOutline {
         final String course = courseStatus.getCourse().course;
 
         if (stcourse != null && stcourse.paceOrder != null && stterm != null && stterm.pace != null
-            && stterm.paceTrack != null) {
+                && stterm.paceTrack != null) {
 
             final int index = stcourse.paceOrder.intValue();
             final int paceInt = stterm.pace.intValue();
 
             try {
-                final int accommodationExtensionDays = MilestoneLogic.daysAvailableLegacyAccommodationExtension(
-                        cache, stu.stuId, stterm.paceTrack, paceInt, index, unitNum, "RE");
+                final int accommodationExtensionDays = paceInt < 1 ? 0 :
+                        MilestoneLogic.daysAvailableLegacyAccommodationExtension(
+                                cache, stu.stuId, stterm.paceTrack, paceInt, index, unitNum, "RE");
 
                 if (accommodationExtensionDays == 0) {
                     htm.sP("indent");
@@ -2502,7 +2503,7 @@ enum PageOutline {
                 htm.eP();
 
                 final boolean nonCountedIncomplete = courseStatus.isIncompleteInProgress()
-                                                     && "N".equals(courseStatus.getStudentCourse().iCounted);
+                        && "N".equals(courseStatus.getStudentCourse().iCounted);
 
                 if (!nonCountedIncomplete) {
                     // Don't show "Last try" prompt for a student with a non-counted incomplete who has a fixed I
@@ -2537,8 +2538,8 @@ enum PageOutline {
 
         // Show a link to take the exam with proctoring service
         if (RawRecordConstants.M117.equals(courseId) || RawRecordConstants.M118.equals(courseId)
-            || RawRecordConstants.M124.equals(courseId) || RawRecordConstants.M125.equals(courseId)
-            || RawRecordConstants.M126.equals(courseId)) {
+                || RawRecordConstants.M124.equals(courseId) || RawRecordConstants.M125.equals(courseId)
+                || RawRecordConstants.M126.equals(courseId)) {
             doCanvasFinalExam(cache, siteType, session, courseStatus, unitNum, mode, htm);
         }
 
@@ -2568,14 +2569,15 @@ enum PageOutline {
         final String course = courseStatus.getCourse().course;
 
         if (stcourse != null && stcourse.paceOrder != null && stterm != null && stterm.pace != null
-            && stterm.paceTrack != null) {
+                && stterm.paceTrack != null) {
 
             final int index = stcourse.paceOrder.intValue();
             final int paceInt = stterm.pace.intValue();
 
             try {
-                final int accommodationExtensionDays = MilestoneLogic.daysAvailableLegacyAccommodationExtension(
-                        cache, stu.stuId, stterm.paceTrack, paceInt, index, 5, "FE");
+                final int accommodationExtensionDays = paceInt < 1 ? 0 :
+                        MilestoneLogic.daysAvailableLegacyAccommodationExtension(
+                                cache, stu.stuId, stterm.paceTrack, paceInt, index, 5, "FE");
 
                 if (accommodationExtensionDays == 0) {
                     htm.sP("indent");
