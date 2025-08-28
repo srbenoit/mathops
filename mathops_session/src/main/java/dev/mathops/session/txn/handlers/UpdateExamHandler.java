@@ -781,10 +781,20 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
             }
 
             if (ok) {
-                final RawCusection cusect = systemData.getCourseUnitSection(stexam.course, stcourse.sect, stexam.unit,
-                        active.term);
+                RawCusection cusect;
+                if ("Y".equals(stcourse.iInProgress) && "N".equals(stcourse.iCounted)) {
+                    cusect = systemData.getCourseUnitSection(stexam.course, stcourse.sect, stexam.unit,
+                            stcourse.iTermKey);
+                    if (cusect == null) {
+                        cusect = systemData.getCourseUnitSection(stexam.course, stcourse.sect, stexam.unit, active.term);
+                    }
+                } else {
+                    cusect = systemData.getCourseUnitSection(stexam.course, stcourse.sect, stexam.unit, active.term);
+                }
 
                 if (cusect == null) {
+                    Log.warning("Unable to load CUSECTION row for ", stexam.course, " sect ", stcourse.sect, " unit ",
+                            stexam.unit, " in ", active.term.longString);
                     ok = false;
                 } else if ("R".equals(exType)) {
                     stexam.masteryScore = cusect.reMasteryScore;
@@ -798,7 +808,6 @@ public final class UpdateExamHandler extends AbstractHandlerBase {
                     // Double scores for the extended exams
                     stexam.masteryScore = Integer.valueOf(stexam.masteryScore.intValue() << 1);
                 }
-
             }
         } else if (RawRecordConstants.M100U.equals(stexam.course)) {
             // FIXME: Hardcode
