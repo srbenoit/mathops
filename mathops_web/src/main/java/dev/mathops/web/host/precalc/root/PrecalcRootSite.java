@@ -40,12 +40,12 @@ public final class PrecalcRootSite extends AbstractPageSite {
     /**
      * Constructs a new {@code PrecalcRootSite}.
      *
-     * @param theSiteProfile the website profile
-     * @param theSessions    the singleton user session repository
+     * @param theSite     the site
+     * @param theSessions the singleton user session repository
      */
-    public PrecalcRootSite(final Site theSiteProfile, final ISessionManager theSessions) {
+    public PrecalcRootSite(final Site theSite, final ISessionManager theSessions) {
 
-        super(theSiteProfile, theSessions);
+        super(theSite, theSessions);
     }
 
     /**

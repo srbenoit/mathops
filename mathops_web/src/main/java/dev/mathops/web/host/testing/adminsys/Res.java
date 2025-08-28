@@ -74,7 +74,7 @@ final class Res extends ResBundle {
             {LOGGED_IN_TO_AS, "Logged in to {0} as <strong>{1}</strong>"},
 
             {LOGIN_PROMPT, "Use your Colorado State University <strong>eID</strong> to log in."},
-            {LOGIN_BTN_LBL, "eID Login"},
+            {LOGIN_BTN_LBL, "NetID Login"},
 
             {GENADM_BTN_LBL, "General Administration"},
             {OFFICE_BTN_LBL, "Office Staff View"},
