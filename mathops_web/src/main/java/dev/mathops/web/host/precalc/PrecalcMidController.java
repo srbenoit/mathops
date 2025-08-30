@@ -116,6 +116,7 @@ public final class PrecalcMidController implements IMidController {
             add(dbConfig, Contexts.PRECALC_HOST, Contexts.INSTRUCTION_PATH, CourseSite.class);
             add(dbConfig, Contexts.PRECALC_HOST, Contexts.WELCOME_PATH, LandingSite.class);
             add(dbConfig, Contexts.PRECALC_HOST, Contexts.CANVAS_PATH, CanvasSite.class);
+            add(dbConfig, Contexts.PRECALC_HOST, Contexts.PROD_PATH, CourseSite.class);
         }
 
         // Load any sessions persisted from a prior shutdown
@@ -198,6 +199,8 @@ public final class PrecalcMidController implements IMidController {
         }
 
         final String reqPath = req.getServletPath();
+
+        Log.info("Precalc Mid Controller servicing a secure request for ", reqPath);
 
         final AbstractSite site = findSite(reqHost, reqPath);
 
@@ -386,6 +389,8 @@ public final class PrecalcMidController implements IMidController {
             }
 
             if (site == null) {
+                Log.info("No site found to serve ", path, ", falling back to root site.");
+
                 // Attempt to find a default root site to handle unknown paths
                 for (final AbstractSite test : siteList.values()) {
                     if (Contexts.ROOT_PATH.equals(test.site.path)) {

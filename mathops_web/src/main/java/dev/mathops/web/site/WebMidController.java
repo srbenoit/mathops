@@ -139,6 +139,7 @@ public final class WebMidController implements IMidController {
         if (webHosts.contains(Contexts.PRECALC_HOST)) {
             add(dbConfig, Contexts.PRECALC_HOST, Contexts.ROOT_PATH, PrecalcRootSite.class);
             add(dbConfig, Contexts.PRECALC_HOST, Contexts.INSTRUCTION_PATH, CourseSite.class);
+            add(dbConfig, Contexts.PRECALC_HOST, Contexts.PROD_PATH, CourseSite.class);
             add(dbConfig, Contexts.PRECALC_HOST, Contexts.WELCOME_PATH, LandingSite.class);
             add(dbConfig, Contexts.PRECALC_HOST, Contexts.CANVAS_PATH, CanvasSite.class);
         }
@@ -276,6 +277,8 @@ public final class WebMidController implements IMidController {
         final AbstractSite site = findSite(reqHost, reqPath);
 
         if (site == null) {
+            Log.info("Web mid Controller servicing a secure request for ", requestPath, ", no site found");
+
             if ("/ShibbolethError.html".equals(reqPath)) {
                 showShibbolethError(req, resp);
             } else {
@@ -283,7 +286,10 @@ public final class WebMidController implements IMidController {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             }
         } else {
-//            Log.info(site.getClass().getSimpleName() + " handling " + req.getMethod());
+
+            final Class<? extends AbstractSite> siteClass = site.getClass();
+            final String siteClassName = siteClass.getSimpleName();
+            Log.info("Web mid Controller servicing a secure request for ", requestPath, " using ", siteClassName);
 
             try {
                 final long timerStart = System.currentTimeMillis();

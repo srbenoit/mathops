@@ -65,6 +65,7 @@ enum PrecalcRootMenu {
         if (maintenanceMsg == null) {
             htm.addln("<a href='instruction/secure/shibboleth.html' class='menubtn'/>NetID Login</a>");
             htm.div("vgap0").hr().div("vgap0");
+            htm.addln("<a href='prod/secure/shibboleth.html' style='color:white;'/>.</a>");
         }
     }
 }

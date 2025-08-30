@@ -64,6 +64,8 @@ public final class PrecalcRootSite extends AbstractPageSite {
     public void doGet(final Cache cache, final String subpath, final ESiteType type, final HttpServletRequest req,
                       final HttpServletResponse resp) throws IOException, SQLException {
 
+        Log.info("GET ", subpath);
+
         if (CoreConstants.EMPTY.equals(subpath)) {
             resp.sendRedirect("index.html");
         } else if ("basestyle.css".equals(subpath)) {
