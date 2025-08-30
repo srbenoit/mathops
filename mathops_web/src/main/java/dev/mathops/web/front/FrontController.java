@@ -286,7 +286,6 @@ public final class FrontController extends HttpServlet {
         if (requestPath.startsWith(PUBLIC_PATH_START)) {
             servicePublic(req, resp, requestPath);
         } else {
-            Log.info("Front Controller servicing a secure request for ", requestPath);
             this.webMidController.serviceSecure(req, resp, requestPath);
         }
     }

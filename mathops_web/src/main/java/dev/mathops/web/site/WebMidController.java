@@ -277,8 +277,6 @@ public final class WebMidController implements IMidController {
         final AbstractSite site = findSite(reqHost, reqPath);
 
         if (site == null) {
-            Log.info("Web mid Controller servicing a secure request for ", requestPath, ", no site found");
-
             if ("/ShibbolethError.html".equals(reqPath)) {
                 showShibbolethError(req, resp);
             } else {
@@ -286,11 +284,6 @@ public final class WebMidController implements IMidController {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             }
         } else {
-
-            final Class<? extends AbstractSite> siteClass = site.getClass();
-            final String siteClassName = siteClass.getSimpleName();
-            Log.info("Web mid Controller servicing a secure request for ", requestPath, " using ", siteClassName);
-
             try {
                 final long timerStart = System.currentTimeMillis();
 
@@ -332,9 +325,9 @@ public final class WebMidController implements IMidController {
                     }
                     final long elapsed = System.currentTimeMillis() - start;
                     this.timer.recordAccess(siteProfile, subpath, elapsed);
-                } else if (Contexts.TESTING_HOST.equals(reqHost) || Contexts.ONLINE_HOST.equals(reqHost)
-                                                                    && reqPath.startsWith(
-                        Contexts.TESTING_CENTER_PATH)) {
+                } else if (Contexts.TESTING_HOST.equals(reqHost)
+                           || Contexts.ONLINE_HOST.equals(reqHost)
+                              && reqPath.startsWith(Contexts.TESTING_CENTER_PATH)) {
 
                     if (!subpath.isEmpty() && (int) subpath.charAt(0) == SLASH) {
                         subpath = subpath.substring(1);

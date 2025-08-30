@@ -1,6 +1,7 @@
 package dev.mathops.web.host.precalc.course;
 
 import dev.mathops.db.Cache;
+import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
@@ -67,7 +68,7 @@ enum PageHome {
      * Generates page content.
      *
      * @param cache   the data cache
-     * @param htm     the HMTL builder to which to append
+     * @param htm     the HTML builder to which to append
      * @param session the login session
      * @param logic   the course site logic
      * @throws SQLException if there is an error accessing the database
@@ -88,26 +89,26 @@ enum PageHome {
             // Filter courses to only those this website supports
             final List<RawStcourse> filtered;
             final List<RawStcourse> tempList = new ArrayList<>(10);
-
+            final SystemData systemData = cache.getSystemData();
 
             for (final RawStcourse reg : pacedReg) {
                 final String regCourseId = reg.course;
                 final String regSect = reg.sect;
                 final TermKey regTerm = "Y".equals(reg.iInProgress) ? reg.iTermKey : reg.termKey;
 
-                final RawCsection csect = cache.getSystemData().getCourseSection(regCourseId, regSect, regTerm);
-                if (csect != null) {
+                final RawCsection sect = systemData.getCourseSection(regCourseId, regSect, regTerm);
+                if (sect != null) {
                     tempList.add(reg);
                 }
             }
             filtered = new ArrayList<>(tempList);
             tempList.clear();
 
-            if (filtered.isEmpty() || PageSchedule.sortPaceOrder(filtered)) {
-                emitBodyText(cache, session, htm, logic);
-            } else {
-                PageSchedule.doScheduleContent(cache, logic, htm);
+            if (!(filtered.isEmpty() || PageSchedule.sortPaceOrder(filtered))) {
+                PageSchedule.computePaceOrder(cache, filtered);
             }
+
+            emitBodyText(cache, session, htm, logic);
         }
     }
 
